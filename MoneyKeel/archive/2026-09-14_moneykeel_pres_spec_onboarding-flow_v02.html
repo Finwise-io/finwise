@@ -1,0 +1,157 @@
+<title>Cash Flow Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#16202B;--ink2:#41505F;--ink3:#6E7F8E;--paper:#EFF2F5;--surf:#FFF;--surf2:#F7F9FB;
+ --rule:#CBD5DE;--soft:#E2E9EF;--ok:#1C6B58;--okbg:#1C6B5814;--warn:#9B7318;--warnbg:#9B731818;
+ --bad:#A0453A;--badbg:#A0453A14;--blue:#1F5C8B;--bluebg:#1F5C8B14;--grey:#6E7F8E;--greybg:#6E7F8E14;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;
+ --paper:#0E141A;--surf:#182129;--surf2:#1E2831;--rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;
+ --warn:#D3A644;--warnbg:#D3A64422;--bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;
+ --grey:#8B9AA8;--greybg:#8B9AA822;}}
+:root[data-theme="dark"]{--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;--paper:#0E141A;--surf:#182129;--surf2:#1E2831;
+ --rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;--warn:#D3A644;--warnbg:#D3A64422;
+ --bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;--grey:#8B9AA8;--greybg:#8B9AA822;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",-apple-system,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+header{border-bottom:2px solid var(--ink);padding:52px 0 20px;margin-bottom:26px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 14px}
+h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(36px,5.5vw,58px);line-height:1.04;margin:0 0 12px;letter-spacing:-.01em}
+.stand{font-size:17.5px;color:var(--ink2);max-width:66ch;margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin:26px 0 32px}
+.c{background:var(--surf);border:1px solid var(--rule);padding:14px 16px}
+.c.k-done{border-left:3px solid var(--ok)}.c.k-coded{border-left:3px solid var(--blue)}
+.c.k-approved{border-left:3px solid var(--warn)}.c.k-found{border-left:3px solid var(--bad)}
+.c.k-notworked{border-left:3px solid var(--grey)}
+.c .n{font-family:"IBM Plex Mono",monospace;font-size:29px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.c .l{font-size:12.5px;color:var(--ink2);margin-top:6px;font-weight:600}
+.c .s{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+.tw{overflow-x:auto;border:1px solid var(--rule);background:var(--surf)}
+table{border-collapse:collapse;width:100%;min-width:840px;font-size:13.5px}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);
+ text-align:left;padding:11px 14px;background:var(--surf2);border-bottom:1px solid var(--rule);font-weight:500;position:sticky;top:0}
+td{padding:11px 14px;border-bottom:1px solid var(--soft);vertical-align:top;color:var(--ink2)}
+tr.grp th{background:var(--ink);color:var(--paper);font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:700;
+ text-align:left;padding:9px 14px;letter-spacing:.02em}
+td.os{color:var(--ink);font-weight:600;min-width:190px}
+td.os .sub{display:block;font-weight:400;font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+td.fn{min-width:150px}
+td.ac{white-space:nowrap;width:1%}
+td.nt{max-width:330px;line-height:1.5}
+td.im{max-width:330px;line-height:1.5;color:var(--ink3)}
+.none{color:var(--ink3);font-style:italic;font-size:12.5px}
+tr.v-fix td.im{color:var(--warn)}
+tr.v-park td.os{color:var(--ink3)}
+td.nm{color:var(--ink);font-weight:600;min-width:210px}
+td.wy{max-width:520px;line-height:1.5}
+td.st{white-space:nowrap;width:1%}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;padding:2px 8px;white-space:nowrap}
+.t-amend{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-data{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-use{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-fix{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-new{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-park{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.t-done{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-coded{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-approved{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-found{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-notworked{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.ac .sub{display:block;font-size:10.5px;color:var(--ink3);margin-top:4px;font-family:"IBM Plex Sans",sans-serif}
+td.ac{white-space:nowrap;width:1%;min-width:120px}
+.st .sub{display:block;font-size:10.5px;color:var(--ink3);margin-top:3px}
+h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:29px;margin:40px 0 8px}
+h2+p{color:var(--ink2);margin:0 0 16px;max-width:74ch}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+ol{color:var(--ink2);max-width:74ch;padding-left:20px}ol li{margin-bottom:9px}ol li b{color:var(--ink)}
+@media(max-width:640px){.wrap{padding:0 14px 60px}}
+</style>
+<style>
+td.id{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink2);min-width:132px;white-space:nowrap}
+td.id b{color:var(--ink);font-weight:600}
+td.id .o{color:var(--blue);font-weight:600}
+td.id .sub{display:block;color:var(--ink3);font-size:10.5px;margin-top:3px;white-space:normal;line-height:1.4}
+.legend{font-size:12.5px;color:var(--ink3);margin:10px 0 0}
+.legend b{color:var(--ink2)}
+</style>
+<div class="wrap">
+<header>
+<p class="eyebrow">MoneyKeel &middot; setup, as the code runs it &middot; 28 August 2026 &middot; v2</p>
+<h1>There are two setups, and you have only ever seen the first</h1><p style="margin:8px 0;padding:8px 12px;border-left:3px solid #1F4E78;background:#EEF3F8;font-size:13px">v02, 2026-09-14 — the connect door reads “Connect your bank ›”, the founder’s ruling on his build-53 onboarding note, and the same words as every other screen that offers it. Nothing else changed. v01 is archived.</p>
+<p class="stand" style="border-left:3px solid var(--bad);padding-left:14px"><b>What went wrong with my first version of this page.</b>
+I listed part B below and called it &ldquo;the onboarding flow&rdquo;. It is real code, but it is not what you meet: the screens you
+photographed on build 53 are part A, a different screen I had not opened. And the one door from A into B was dead &mdash;
+the guard bounced it straight back, which is your circular loop. Fixed 28 August.</p>
+</header>
+
+<h2>A &middot; What you actually see</h2>
+<p>Three screens. Two of them ask nothing at all.</p>
+<div class="tw"><table>
+<thead><tr><th>Screen</th><th>What it asks</th><th></th><th>What happens</th></tr></thead>
+<tbody><tr><td class="os">1. Your finance command center.<span class="sub">/first-run · the intro</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li><b>Nothing is asked.</b> Four promises: all your assets and debts in one place · stay on top of your cash flow · see what needs attention · honest odds on the big question.</li><li>&ldquo;Read-only: we can look, never touch &mdash; we can never move your money.&rdquo;</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im">Buttons: <b>Continue</b> &middot; Skip &mdash; just explore.</td></tr>
+<tr><td class="os">2. Customize your command center<span class="sub">/first-run · the questions</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li><b>What are your primary goals?</b> (pick all that apply) &mdash; Know how your investments are doing vs the market &middot; Plan for a secure retirement &middot; Stay on top of income and spending &middot; See your full money picture</li><li><b>Where are you these days?</b> &mdash; Still working &middot; Retired, or nearly</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"><b>Continue here marks setup COMPLETE.</b> That one line is why the guided-setup door was dead. If you picked &ldquo;Plan for a secure retirement&rdquo; and said retired, it jumps you to Get your paycheck; otherwise Home.</td></tr>
+<tr><td class="os">3. Let&#x27;s get your real numbers in.<span class="sub">Home, while you have no money data yet</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li><b>Nothing is asked.</b> It is a set of doors:</li><li>Pick up where you left off &mdash; only if a part-finished questionnaire is saved</li><li>Get your paycheck &mdash; only if you said retired and picked the retirement goal</li><li>Connect your bank &middot; Import a file from your brokerage &middot; Add something by hand</li><li><b>Or answer guided setup questions</b> &mdash; the door into part B</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im">This screen stays until real money data exists from any source &mdash; an account, a debt, or an income. Not until the questions are answered: a profile is not data.</td></tr></tbody></table></div>
+
+<h2>B &middot; The guided questionnaire &mdash; 48 screens</h2>
+<p>Reached only from that one link on screen 3. Until 28 August it could not be reached at all. This is the worst case
+&mdash; every income source and every goal ticked. A job alone is 13 screens, 6 you must answer.</p>
+<div class="tw"><table>
+<thead><tr><th>Screen</th><th>What it asks</th><th></th><th></th></tr></thead>
+<tbody><tr><td class="os">1. What sounds like you?<span class="sub">status</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">2. What should this help with?<span class="sub">goals</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">3. Here’s what you’ll need<span class="sub">whatYouNeed</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">4. Do you manage money with a partner?<span class="sub">hasPartner</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Partner&#x27;s name (optional)</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">5. How many kids or dependents?<span class="sub">dependentsCount</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">6. Where does your money come from?<span class="sub">income_sources</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">7. When were you born?<span class="sub">birth</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Month</li><li>Year</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">8. Retirement income<span class="sub">retirementIncomeSources</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">9. Base salary<span class="sub">income_salary</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Who earns this income?</li><li>How are you paid?</li><li>Hours per week</li><li>Tips, on average (per month) — optional</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">10. 401(k) contributions<span class="sub">income_401k</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Your contribution (per month)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">11. Employer match<span class="sub">employerContribution</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Match (% of your contribution, or a flat amount per month)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">12. Bonuses<span class="sub">income_bonus</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Which month does it usually land?</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">13. Stock that vests<span class="sub">income_rsu</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">14. Self-employment income<span class="sub">income_self</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>How often?</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">15. Interest &amp; dividends<span class="sub">income_investment</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">16. Rent from a property<span class="sub">income_rental</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">17. Benefits<span class="sub">income_benefits</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Which ones? (optional)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">18. Child support or alimony<span class="sub">income_support</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">19. Student loans<span class="sub">income_loans</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Loan {i + 1}</li><li>Name (optional)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">20. Other income<span class="sub">income_other</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>What is it? (optional)</li><li>How often?</li><li>Which month does it land?</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">21. How do you file your taxes?<span class="sub">filing_status</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">22. Taxes<span class="sub">income_tax</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Effective tax rate % — from last year’s return</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">23. Your income so far<span class="sub">recap_income</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">24. What do you spend in a month?<span class="sub">monthlySpending</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Per month</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">25. Split your spending<span class="sub">flexBuckets</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">26. Your spending so far<span class="sub">recap_spend</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">27. Your 401(k) &amp; retirement savings<span class="sub">currentRetirementSavings</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">28. Where your saving goes<span class="sub">contributionsByType</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">29. When do you hope to retire?<span class="sub">targetRetirementAge</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Target age</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">30. Expected spending in retirement<span class="sub">expectedRetirementSpending</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Monthly (retirement)</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">31. retLocation<span class="sub">retLocation</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Country / region</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">32. Travel budget (optional)<span class="sub">travelBudget</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Per year</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">33. Medical / long-term care (optional)<span class="sub">medicalBudget</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Per year</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">34. Spending later in retirement (optional)<span class="sub">spendingChangeLater</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">35. Your savings and investments<span class="sub">currentSavingsPortfolio</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">36. How long should your money last?<span class="sub">horizonAge</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>To age</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">37. Will your money last?<span class="sub">recap_retire</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">38. What&#x27;s your investing goal?<span class="sub">investObjective</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">39. How detailed do you want to track?<span class="sub">trackingLevel</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">40. Your portfolio<span class="sub">recap_invest</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">41. Your net worth lives in the Net Worth tab<span class="sub">networthIntro</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">42. Your goals<span class="sub">goals_detail</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>(a dedicated editor &amp;mdash; see the screen)</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">43. Your goals<span class="sub">recap_goals</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>What kind of award is it?</li><li>Company stock symbol (optional)</li><li>Strike price</li><li>Market price</li><li>Property {i + 1}</li><li>{(r.type ?? &#x27;long&#x27;) === &#x27;short&#x27; ? &#x27;Avg rent / mo&#x27; : &#x27;Rent / mo&#x27;}</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">44. Your debt<span class="sub">debts</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>What is it?</li><li>Interest rate %</li></ul></td><td class="ac"><span class="tag t-use">Must answer</span></td><td class="im"></td></tr>
+<tr><td class="os">45. Your payoff plan<span class="sub">recap_debt</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr>
+<tr><td class="os">46. What would you like to leave?<span class="sub">legacyTarget</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Legacy target</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">47. Invite your partner<span class="sub">invitePartner</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-amend">Can skip</span></td><td class="im"></td></tr>
+<tr><td class="os">48. You’re set<span class="sub">summary</span></td><td class="nt"><ul style="margin:0;padding-left:16px"><li>Nothing &amp;mdash; it reads your answers back.</li></ul></td><td class="ac"><span class="tag t-park">Nothing to answer</span></td><td class="im"></td></tr></tbody></table></div>
+
+<h2>The thing fixing the loop has exposed</h2>
+<p><b>The same two questions are asked twice, in two different vocabularies.</b> Screen 2 asks your primary goals with
+<b>four</b> options and where you are with <b>two</b>. Part B opens by asking what this should help with using <b>eleven</b>
+options, and what sounds like you using <b>four</b>. Nobody noticed, because nobody could reach part B. Now that the door
+works, anyone who taps it is asked both again, differently &mdash; and the second answers overwrite the first.</p>
+<p>That needs deciding before the door is put in front of people: either part B drops its first two screens and inherits
+what part A already knows, or part A's two questions become the same question part B asks.</p>
+</div></body></html>

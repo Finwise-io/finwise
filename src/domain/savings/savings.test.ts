@@ -1,4 +1,4 @@
-// Term #10 — the two savings rates, pinned by their identities (robust to the income engine).
+// Term #10 — the two savings rates, pinned by their identities (robust to the income function).
 import { takeHomeMonthly, monthlySavings } from './index';
 import { plannedMonthlySpend } from '../budget';
 import { totalGrossAnnual } from '../income';
@@ -15,7 +15,7 @@ describe('savings rates', () => {
   });
 
   test('monthly savings = take-home − planned spend − debt payments', () => {
-    expect(monthlySavings(op, [])).toBe(round2(takeHomeMonthly(op) - plannedMonthlySpend(op)));
+    expect(monthlySavings(op, [])).toBeCloseTo(takeHomeMonthly(op) - plannedMonthlySpend(op), 2);
   });
 
   // The savings-rate tests left with the functions — CUT by the founder 2026-08-20 (brief §C, Q29).

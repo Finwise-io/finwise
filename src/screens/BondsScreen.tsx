@@ -7,10 +7,10 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { InfoDot } from '../components/UI';
+import { InfoDot, EmptyNote } from '../components/UI';
 import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
-import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary } from '../domain/bonds';
+import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary, accruedInterestCaveat } from '../domain/bonds';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
 import { isoLocalDate } from '../domain/_shared/dates';
@@ -48,6 +48,8 @@ export default function BondsScreen() {
 
       {bonds.length === 0 ? (
         <View style={styles.card}>
+          <Text style={styles.metric}>Total value {money(0)}</Text>
+          <EmptyNote door="bond" onPress={() => setAddOpen(true)} />   {/* Q48 (MK-NW-M-041/042/023) */}
           <Text style={styles.empty}>Track individual bonds — Treasuries, muni or corporate bonds, bond funds/ETFs — with their coupon income, maturity, and yield. They count toward your net worth and retirement nest egg.</Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a bond" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a bond</Text></TouchableOpacity>
         </View>
@@ -65,16 +67,17 @@ export default function BondsScreen() {
 
           {bonds.map((a) => {
             const bi = bondInfo(a);
-            const yrs = yearsToMaturity(bi.maturity);
+            const yrs = yearsToMaturity(bi.maturity) ?? 0;   // G11: no date → no years figure; the sub-line shows the date field instead
             return (
               <TouchableOpacity key={a.asset_id} accessibilityRole="button" accessibilityLabel={`${a.institution?.trim() || a.label}, ${money(a.balance || 0)}, matures ${humanDate(bi.maturity)}`} style={styles.card} onPress={() => setEdit(a)}>
                 <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text><Text style={styles.bondVal}>{money(a.balance || 0)}</Text></View>
                 <DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${money(bi.face)}`, `${(bi.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(bi.maturity)}${yrs > 0 ? ` (${yrs.toFixed(1)}y)` : ' (matured)'}`]} />
                 <View style={styles.bondMetrics}>
-                  <Text style={styles.metric}>{money(annualCoupon(bi))}/yr coupon</Text>
-                  <Text style={styles.metric}>yield {pct(currentYield(bi))}</Text>
+                  <Text style={styles.metric}>{money(annualCoupon(bi))}/year coupon</Text>
+                  <Text style={styles.metric}>yield {pct(currentYield(bi))}{accruedInterestCaveat(bi) ? ' *' : ''}</Text>
                   <Text style={styles.metric}>Yield to maturity: {pct(approxYTM(bi))}</Text>
                 </View>
+                {accruedInterestCaveat(bi) && <Text style={styles.bondSub}>* {accruedInterestCaveat(bi)}</Text>}
               </TouchableOpacity>
             );
           })}
@@ -117,6 +120,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   const [label, setLabel] = useState('');
   const [face, setFace] = useState('');
   const [coupon, setCoupon] = useState('');
+  const [accrued, setAccrued] = useState('');   // A47: interest earned since the last coupon, when known
   const [maturity, setMaturity] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [value, setValue] = useState('');
@@ -128,6 +132,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     if (!open) return;
     setLabel(bond?.label ?? ''); setFace(bond?.face_value ? String(bond.face_value) : '');
     setCoupon(bond?.coupon_rate ? String(bond.coupon_rate * 100) : ''); setMaturity(bond?.maturity_date ?? '');
+    setAccrued(bond?.accrued_interest != null ? String(bond.accrued_interest) : '');
     setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? ''); setSellAmt(''); setValueAsOf(bond?.value_as_of ?? '');
   }, [open]);
   // You can sell a bond on the secondary market before maturity. Record a full or partial sale: a full
@@ -142,19 +147,19 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     if (cur <= 0) return;
     const full = sold >= cur - 0.005;
     Alert.alert(
-      full ? 'Close this bond?' : 'Record a sale?',
+      full ? 'Sell all of this bond?' : 'Sell part of this bond?',
       full
         ? `Marks the whole position (${money(cur)}) as sold and removes it from your holdings.`
         : `Lowers ${label.trim() || 'this bond'} from ${money(cur)} to ${money(cur - sold)} (face value adjusts proportionally). Coupons are paid on the remaining face — and the sale shows in this account's activity.`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: full ? 'Close position' : 'Record sale', onPress: () => {
+        { text: full ? 'Sell all' : 'Sell', onPress: () => {
           if (full) { onDelete?.(); return; }
           const newVal = r2(cur - sold);
           // the ledger row lowers the value (the one writer); onSave carries only the non-balance fields
           if (bond) recordTransaction?.({ type: 'SELL', account_id: bond.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Bond sale' });
           onSave({ label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
-            coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(),
+            coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
             face_value: r2(num(face) * (newVal / cur)), ...(bond ? {} : { balance: newVal }) });
         } },
       ],
@@ -170,7 +175,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   };
   const save = () => onSave({
     label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
-    face_value: num(face), coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(),
+    face_value: num(face), coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
     balance: num(value) > 0 ? num(value) : num(face),   // default value to face if blank
     value_as_of: valueAsOf || fmtISO(new Date()),       // walk row 4: every manual value carries its date
   });
@@ -191,6 +196,9 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} keyboardType="decimal-pad" value={face} onChangeText={setFace} placeholder="10000" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.fieldL}>Accrued interest (optional)</Text>
+          <TextInput style={styles.input} keyboardType="decimal-pad" value={accrued} onChangeText={setAccrued} placeholder="interest earned since the last coupon, if you know it" placeholderTextColor={Colors.textTertiary} accessibilityLabel="Accrued interest, optional" />
+          <Text style={styles.fieldHint}>When you enter it, the yield is calculated on the price without it. Left blank, the yield uses the price as you entered it — and says so.</Text>
           <Text style={styles.fieldL}>Maturity date</Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel={maturity ? `Maturity date, ${humanDate(maturity)}. Tap to change.` : 'Pick a maturity date'} style={styles.input} activeOpacity={0.7} onPress={openPicker}>
             <Text style={{ fontSize: 17, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
@@ -217,19 +225,19 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="what it's worth now" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
-          {valid && num(face) > 0 && <Text style={styles.note}>~{money(num(face) * (num(coupon) / 100))}/yr in coupon income.</Text>}
+          {valid && num(face) > 0 && <Text style={styles.note}>~{money(num(face) * (num(coupon) / 100))}/year in coupon income.</Text>}
           <Text style={styles.fieldL}>Account</Text>
           <View style={styles.chips}>{ACCT_TYPES.map((t) => (
             <TouchableOpacity key={t.bucket} accessibilityRole="button" accessibilityLabel={`Account type ${t.label}`} accessibilityState={{ selected: bucket === t.bucket }} style={[styles.chip, bucket === t.bucket && styles.chipOn]} onPress={() => setBucket(t.bucket)}><Text style={[styles.chipT, bucket === t.bucket && styles.chipTOn]}>{t.label}</Text></TouchableOpacity>
           ))}</View>
           {bond && (
             <View style={styles.sellBox}>
-              <Text style={styles.sellTitle}>🔻 Record a sale</Text>
+              <Text style={styles.sellTitle}>🔻 Sell</Text>
               <Text style={styles.fieldHint}>Sold this bond (or part of it) on the secondary market before maturity? Enter the proceeds to lower or close the position. To just re-mark its price, edit “Current value” above.</Text>
               <View style={styles.sellRow}>
                 <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
                   placeholder={`amount sold (up to ${money(num(value) > 0 ? num(value) : num(face))})`} placeholderTextColor={Colors.textTertiary} />
-                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Record sale" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sell" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
                   <Text style={styles.sellBtnT}>Record</Text>
                 </TouchableOpacity>
               </View>
@@ -248,7 +256,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, marginBottom: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, marginBottom: 8 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10 },
   empty: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
   addBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: 14 },

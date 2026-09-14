@@ -36,7 +36,7 @@ beforeEach(() => {
   } as any);
 });
 
-describe('the engine (pure pins)', () => {
+describe('the function (pure pins)', () => {
   const base = { dials: [
     { id: 'g1', label: 'Help parents', on: true, monthlyAmount: 2000, target: 60000, saved: 0 },
     { id: 'g2', label: 'College fund', on: false, monthlyAmount: 800, target: 40000, saved: 10000 },
@@ -100,7 +100,7 @@ describe('the screen journey', () => {
     // Cash flow (working lens) now names the commitment and relabels the surplus
     render(<CashFlowScreen />);
     expect(screen.getByText(/Help parents · from your Plan/)).toBeOnTheScreen();
-    expect(screen.getAllByText('Free to spend after your plan').length).toBeGreaterThan(0);   // hero + row
+    expect(screen.getAllByText('Surplus after your budget').length).toBeGreaterThan(0);   // hero + row
   });
 
   test('PIN: the capacity figure equals the canonical after-debt surplus to the dollar', () => {

@@ -125,9 +125,6 @@ export interface LedgerRow {
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-010 transaction words (the institution's own wording)
  *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
- *
  * Formula also on the master file · functions_from_code · MK-ST-F-012
  * Changed ..... 2026-08-18 (d299744)
  */
@@ -259,7 +256,7 @@ export interface ImportIdentity {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = account | date | WORD | amount | units | security | ref | description, joined with '|' (missing parts empty)
  *
  * Called by ... MK-XS-F-108 activityKey
  *
@@ -300,9 +297,6 @@ export function importKey(id: ImportIdentity): string {
  *               MK-ST-F-016 totalOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-015
  * Changed ..... 2026-08-20 (ae39c4e)
@@ -347,9 +341,6 @@ export function totalOf(rows: LedgerRow[], total: 'contributions' | 'withdrawals
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-017
  * Changed ..... 2026-08-18 (d299744)
@@ -398,7 +389,7 @@ const numberOrUndefined = (v: unknown): number | undefined => {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
+ *     · Rounds the answer to 8 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-059
  * Changed ..... not in git yet (—)

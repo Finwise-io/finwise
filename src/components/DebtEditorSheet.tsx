@@ -103,7 +103,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     }
   }
 
-  // revolving: the approved mock's "✓ clear in 17 months at $400/mo" line (you-pay, else the minimum)
+  // revolving: the approved mock's "✓ clear in 17 months at $400/month" line (you-pay, else the minimum)
   const cardPay = num(monthly) || num(pay);
   const cardMonths = shape === 'revolving' && amt > 0 && cardPay > 0 ? monthsToClear(amt, aprDec, cardPay) : null;
 
@@ -190,11 +190,11 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /mo</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={pay} onChangeText={setPay} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /mo</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="≥ min" placeholderTextColor={Colors.textTertiary} value={monthly} onChangeText={setMonthly} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /month</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={pay} onChangeText={setPay} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /month</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="≥ min" placeholderTextColor={Colors.textTertiary} value={monthly} onChangeText={setMonthly} /></View>
         </View>
         {cardMonths != null
-          ? <Text style={sh.derived}>✓ clear in {cardMonths} month{cardMonths === 1 ? '' : 's'} at {money(cardPay)}/mo</Text>
+          ? <Text style={sh.derived}>✓ clear in {cardMonths} month{cardMonths === 1 ? '' : 's'} at {money(cardPay)}/month</Text>
           : cardPay > 0 && amt > 0
             ? <Text style={sh.derivedWarn}>⚠ {money(cardPay)}/month doesn't cover the interest — this never pays off</Text>
             : null}
@@ -228,3 +228,4 @@ const sh = StyleSheet.create({
   saveTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   remove: { color: Colors.red, fontWeight: '700', textAlign: 'center', paddingVertical: Spacing.md },
 });
+

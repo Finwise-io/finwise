@@ -104,3 +104,4 @@ const s = StyleSheet.create({
   fixTxt: { color: Colors.white, fontSize: 13, fontWeight: '800' },
   foot: { fontSize: 11, color: Colors.textTertiary, textAlign: 'center', marginTop: 4 },
 });
+

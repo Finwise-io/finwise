@@ -88,7 +88,11 @@ export default function TaxOrganizerScreen() {
             <Text style={styles.rowV}>{money(l.amount)}</Text>
           </View>
         ))}
-        <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Taxable income</Text><Text style={styles.totalV}>{money(org.taxableTotal)}</Text></View>
+        {/* Q46 (founder ruling 2026-09-08): the four lines a return shows, in order */}
+        <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Gross income</Text><Text style={styles.totalV}>{money(org.steps.grossIncome)}</Text></View>
+        <View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>− {money(org.steps.preTaxContributions)}</Text></View>
+        <View style={styles.row}><Text style={styles.rowL}>Standard deduction{org.steps.deductionIncludes.length ? <Text style={styles.tag}>  includes {org.steps.deductionIncludes.join(' and ')}</Text> : null}</Text><Text style={styles.rowV}>− {money(org.steps.standardDeduction)}</Text></View>
+        <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Taxable income</Text><Text style={styles.totalV}>{money(org.steps.taxableIncome)}</Text></View>
         {org.nonTaxableTotal > 0 && <View style={styles.row}><Text style={styles.rowL}>Non-taxable</Text><Text style={styles.rowV}>{money(org.nonTaxableTotal)}</Text></View>}
         <Text style={styles.note}>Est. effective federal rate ~{Math.round(org.estTaxRate * 100)}%. Figures are your entries/estimates — verify against your official forms.</Text>
       </View>
@@ -139,7 +143,10 @@ function orgToHtml(o: TaxOrganizer): string {
     <h1>Tax Organizer — ${o.year}</h1>
     <div class="sub">Prepared in MoneyKeel · a summary for your accountant, not a tax return</div>
     <h2>INCOME</h2><table>${rows(o.income)}
-      <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.taxableTotal).toLocaleString()}</td></tr></table><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr class="total"><td>Gross income</td><td style="text-align:right">$${Math.round(o.steps.grossIncome).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr><td>401(k) contribution</td><td style="text-align:right">− $${Math.round(o.steps.preTaxContributions).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr><td>Standard deduction${o.steps.deductionIncludes.length ? ` (includes ${o.steps.deductionIncludes.join(' and ')})` : ''}</td><td style="text-align:right">− $${Math.round(o.steps.standardDeduction).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.steps.taxableIncome).toLocaleString()}</td></tr></table><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
     ${o.contributions.length ? `<h2>RETIREMENT CONTRIBUTIONS</h2><table>${rows(o.contributions)}</table>` : ''}
     ${o.accounts.length ? `<h2>ACCOUNTS (YEAR-END)</h2><table>${rows(o.accounts.map((a) => ({ label: `${a.label} (${a.kind})`, amount: a.balance })))}</table>` : ''}
     <h2>DOCUMENTS TO GATHER</h2><ul>${o.documents.map((d) => `<li>${d}</li>`).join('')}</ul>
@@ -164,7 +171,7 @@ const styles = StyleSheet.create({
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 12, marginBottom: 5 },
   stateInput: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 10, fontSize: 17, color: Colors.textPrimary, width: 120 },
   tinyNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 8, lineHeight: 16 },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 10, lineHeight: 19 },
   share: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: 13, alignItems: 'center' },
   shareT: { color: Colors.white, fontSize: 15, fontWeight: '800' },

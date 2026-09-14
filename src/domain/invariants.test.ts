@@ -29,7 +29,7 @@ describe('ONE-POOL free-cash invariant', () => {
   test('investing plan absorbing ALL free cash leaves zero (not negative) goal capacity', () => {
     const s = snap({ ...employedPartner, c_invest: '99999' });
     expect(s.goals.monthly_capacity).toBe(0);
-    for (const g of s.goals.goals) expect(g.months_to_goal).toBeNull();   // no ETA promised on $0/mo
+    for (const g of s.goals.goals) expect(g.months_to_goal).toBeNull();   // no ETA promised on $0/month
   });
 
   // BUG-LEDGER: B-20 — direct callers can pass a negative capacity; document the behavior.
@@ -184,7 +184,7 @@ describe('effectiveAnnualContribution never exceeds the stated plan', () => {
 // return the unrounded monthly so monthly×12 reconciles to the annual figure to the cent.
 describe('DR-11 precision: round at the edge, not mid-pipeline', () => {
   test('retirementIncomeMonthly keeps full precision (×12 reconciles to annual, no drift)', () => {
-    // $1,000/yr Social Security → 1000/12 = 83.3333…/mo. A pre-rounded 83.33 would lose $0.04/yr.
+    // $1,000/year Social Security → 1000/12 = 83.3333…/month. A pre-rounded 83.33 would lose $0.04/year.
     const m = retirementIncomeMonthly({ ri_ss: '1000', ri_ss_freq: 'annual' } as any);
     expect(m).toBeCloseTo(83.3333, 4);          // NOT 83.33 — full precision retained
     expect(m * 12).toBeCloseTo(1000, 2);        // annual reconciles exactly
@@ -192,7 +192,7 @@ describe('DR-11 precision: round at the edge, not mid-pipeline', () => {
   });
 
   test('mixed cadences sum without intermediate rounding drift', () => {
-    // $700/mo SS + $2,000/qtr pension + $5,000/yr annuity = 700 + 666.6667 + 416.6667 = 1783.3333/mo
+    // $700/month SS + $2,000/qtr pension + $5,000/year annuity = 700 + 666.6667 + 416.6667 = 1783.3333/month
     const m = retirementIncomeMonthly({
       ri_ss: '700', ri_ss_freq: 'monthly',
       ri_pension: '2000', ri_pension_freq: 'quarterly',
@@ -231,7 +231,7 @@ describe('Budget integrity invariants', () => {
   // budget now counts the FULL stated total (itemized buckets + uncategorized remainder), matching
   // the month grid, so the two free-cash measures agree.
   test('stated-total vs itemized spending: budget matches the month grid (B-24 fixed)', () => {
-    // retiree75 states $3,800/mo but itemizes $3,200 → $600/mo uncategorized
+    // retiree75 states $3,800/month but itemizes $3,200 → $600/month uncategorized
     const s = snap(retiree75);
     expect(s.budget.monthly_spending).toBeCloseTo(3800, 2);             // full stated total, not just $3,200
     const juneSpend = spendByMonth(retiree75)[0];

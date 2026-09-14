@@ -38,7 +38,7 @@ describe('F2 dated grid — skeleton', () => {
   });
 });
 
-describe('F2 — agreement with the canonical engines (numbers cannot change when screens move over)', () => {
+describe('F2 — agreement with the canonical functions (numbers cannot change when screens move over)', () => {
   test('bill totals per cell equal spendByMonth for that calendar month, to the cent', () => {
     const g = buildDatedGrid(employed, { now: NOW });
     const cal = spendByMonth(employed);

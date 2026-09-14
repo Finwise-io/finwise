@@ -1,6 +1,6 @@
-import { buildSteps, goalOptionsFor, isOptional } from '../onboarding/engine';
+import { buildSteps, goalOptionsFor, isOptional } from '../onboarding/steps';
 
-describe('onboarding engine — data-driven flow (matrix v3)', () => {
+describe('onboarding function — data-driven flow (matrix v3)', () => {
   test('retired + invest only: no income / retirement / location', () => {
     const steps = buildSteps('retired', ['invest']);
     expect(steps).toEqual(

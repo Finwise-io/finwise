@@ -81,3 +81,5 @@ export async function getIncomeState(uid: UserId): Promise<IncomeState | null> {
   if (!d) return null;
   return buildIncomeState(uid, d.sources ?? [], d.tax ?? DEFAULT_TAX);
 }
+
+export { householdPreTaxContributionsAnnual } from './earners';

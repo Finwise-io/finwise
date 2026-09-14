@@ -10,7 +10,7 @@ import { totalGrossAnnual } from '../../domain/income';
 
 beforeEach(() => {
   useStore.getState().resetAll();
-  // a 6-on/6-off worker: $10k for 6 months → $60k/yr via the table
+  // a 6-on/6-off worker: $10k for 6 months → $60k/year via the table
   useStore.getState().setOnboardingProfile({
     taxMode: 'manual', manualTaxRate: '0', status: 'employed',
     salaryByMonth: ['10000', '10000', '10000', '10000', '10000', '10000', '0', '0', '0', '0', '0', '0'],
@@ -22,7 +22,7 @@ test('editing base pay to a flat amount clears the per-month table so it takes e
   render(<IncomeManagerScreen />);
   // open the base-pay editor from the Base salary row
   fireEvent.press(screen.getByText('Base salary'));
-  // enter a flat $8,000/mo and save (the editor defaults freq to the stored salaryFreq)
+  // enter a flat $8,000/month and save (the editor defaults freq to the stored salaryFreq)
   const input = screen.getByPlaceholderText('0');
   fireEvent.changeText(input, '8000');
   fireEvent.press(screen.getByText(/^Save ·/));
@@ -30,6 +30,6 @@ test('editing base pay to a flat amount clears the per-month table so it takes e
   const op = useStore.getState().onboardingProfile as any;
   expect(op.salaryByMonth).toBeUndefined();           // table cleared
   expect(op.baseSalary).toBe('8000');
-  // flat $8,000/mo now drives the annual (12 × 8,000), not the old gapped $60k
+  // flat $8,000/month now drives the annual (12 × 8,000), not the old gapped $60k
   expect(totalGrossAnnual(op)).toBe(96000);
 });

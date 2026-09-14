@@ -14,7 +14,7 @@ import { simulate, withSsStream } from '../domain/retirement';
 import { willItLastInputs } from '../domain/retirement/willItLast';
 import { ssBenefitAt, ssLifetimeTotal, claimWindow, fraLabel, fullRetirementAge, FULL_RETIREMENT_AGE } from '../domain/retirement/ssTiming';
 import { resolveNetWorthRows } from '../domain/snapshot';
-import { ageFromProfile } from '../utils/persona';
+import { ageFromProfile, ageTodayFromProfile } from '../utils/persona';
 import { UseThisPlanSheet, type PlanChange } from '../components/UseThisPlanSheet';
 import { maskedMoney } from '../components/useMoney';
 import { TRYING_IT_OUT } from '../components/UI';
@@ -28,7 +28,7 @@ export default function SsTimingScreen() {
   const op = store.onboardingProfile ?? {};
   const uid = store.user?.uid ?? 'local';
   const A = store.retirementAssumptions ?? {};
-  const age = ageFromProfile(op) ?? null;
+  const age = ageTodayFromProfile(op) ?? null;   // G9: Social Security counts months, so the birthday-aware age
   const receiving = num(op.ri_ss) > 0;
 
   // ── sandbox state: nothing here writes to the plan until adoption ──
@@ -58,7 +58,7 @@ export default function SsTimingScreen() {
     ? (age >= 70 ? [age] : [age, 70])
     : [...CLAIM_AGES];
 
-  // three seeded runs — the SAME engine and inputs the hub uses, patched per claim age
+  // three seeded runs — the SAME function and inputs the hub uses, patched per claim age
   const rows = useMemo(() => claimAges.map((claimAge) => {
     const birthYear = num(op.birthYear) || null;
     const monthly = ssBenefitAt(effStmt, claimAge, birthYear);   // B2: anchored at THEIR full retirement age
@@ -99,7 +99,7 @@ export default function SsTimingScreen() {
       <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content}>
         <Text style={styles.tagline}>We lay it out. You decide.</Text>
         <View style={styles.card}>
-          <Text style={styles.receiveHead}>You receive {maskedMoney(num(op.ri_ss))}/mo ✓</Text>
+          <Text style={styles.receiveHead}>You receive {maskedMoney(num(op.ri_ss))}/month ✓</Text>
           <Text style={styles.body}>You're already receiving Social Security, so claim timing is decided. Your check lives on the Monthly income screen — edit it there and every number follows.</Text>
           <TouchableOpacity accessibilityRole="button" style={styles.primaryBtn} onPress={() => router.push('/monthly-income')}
             accessibilityLabel="Edit what you receive on the Monthly income screen">
@@ -126,12 +126,12 @@ export default function SsTimingScreen() {
           <TextInput style={styles.input} keyboardType="number-pad" placeholder={String(exampleStmt)}
             placeholderTextColor={Colors.textTertiary} value={statement} onChangeText={setStatement}
             accessibilityLabel={`Monthly amount from your Social Security statement at your full retirement age, ${fraLabel(num(op.birthYear) || null)}`} />
-          <Text style={styles.perMo}>/mo</Text>
+          <Text style={styles.perMo}>/month</Text>
         </View>
         <Text style={styles.finder}>It's on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it.</Text>
       </View>
 
-      {usingExample && <Text style={styles.exampleBanner}>Showing example numbers (a {maskedMoney(exampleStmt)}/mo statement) — type yours above to see your own.</Text>}
+      {usingExample && <Text style={styles.exampleBanner}>Showing example numbers (a {maskedMoney(exampleStmt)}/month statement) — type yours above to see your own.</Text>}
       {!usingExample && <Text style={styles.sandboxBanner}>{TRYING_IT_OUT}</Text>}
 
       {/* three-way compare */}
@@ -145,7 +145,7 @@ export default function SsTimingScreen() {
           <View key={r.claimAge} style={styles.tr}
             accessible accessibilityLabel={r.passed
               ? `Claiming at ${r.claimAge} has passed — you can no longer claim at ${r.claimAge}`
-              : `Claiming at ${r.claimAge} pays ${maskedMoney(r.monthly)} a month, about ${maskedMoney(r.lifetime)} in total by age ${liveTo}${usingExample ? ', example numbers' : ''}`}>
+              : `Claiming at ${r.claimAge} pays ${maskedMoney(r.monthly)}/month, about ${maskedMoney(r.lifetime)} in total by age ${liveTo}${usingExample ? ', example numbers' : ''}`}>
             <Text style={[styles.td, { flex: 1 }, r.passed && styles.passed]}>at {r.claimAge}{age != null && age > FULL_RETIREMENT_AGE && r.claimAge === age ? ' (now)' : ''}{adopted === r.claimAge ? '  ✓ your plan' : ''}{r.passed ? '  (passed)' : ''}</Text>
             <Text style={[styles.td, styles.tdMonthly, styles.tRight, { width: 104 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.monthly)}</Text>
             <Text style={[styles.td, styles.tRight, { width: 110 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.lifetime)}</Text>
@@ -160,7 +160,7 @@ export default function SsTimingScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* effect on will-it-last: three labeled bars, same engine as the hub */}
+      {/* effect on will-it-last: three labeled bars, same function as the hub */}
       {!usingExample && baseInputs && (
         <View style={styles.card}>
           <Text style={styles.label}>Effect on will-my-money-last</Text>
@@ -306,3 +306,4 @@ const styles = StyleSheet.create({
   modalBtn: { alignSelf: 'flex-end', marginTop: Spacing.sm, padding: 12, minHeight: 44, justifyContent: 'center' },
   modalBtnT: { color: Colors.primary, fontWeight: '700', fontSize: 15 },
 });
+

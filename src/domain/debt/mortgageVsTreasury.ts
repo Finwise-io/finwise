@@ -99,9 +99,6 @@ function amortise(balance: number, annualRate: number, payment: number): { month
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Treats a year as twelve equal months.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-126
  * Changed ..... not in git yet (—)
  */
@@ -143,8 +140,6 @@ function futureValue(monthly: number, rate: number, months: number): number {
  *
  * Decides .....
  *     · Uses a built-in lifetime of 0.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
  *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-043
@@ -170,14 +165,14 @@ export function compareMortgageToTreasury(args: {
     const freedMonths = base.months - fast.months;
     const payingDown = futureValue(monthlyPayment + extraMonthly, treasuryYield, freedMonths);
     const treasuries = futureValue(extraMonthly, treasuryYield, base.months);
-    lifetime = Math.round(payingDown - treasuries);
+    lifetime = payingDown - treasuries;   // Q49
   }
 
   return {
     mortgagePct: +(annualRate * 100).toFixed(2),
     treasuryPct: +(treasuryYield * 100).toFixed(2),
     gapPoints,
-    annualDifference: Math.round((annualRate - treasuryYield) * balance),
+    annualDifference: (annualRate - treasuryYield) * balance,   // Q49
     lifetimeDifference: lifetime,
     tooCloseToCall: tooClose,
     direction: tooClose ? 'too-close' : gapPoints > 0 ? 'paying-down-wins' : 'treasuries-win',

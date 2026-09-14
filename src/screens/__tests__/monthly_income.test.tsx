@@ -1,6 +1,6 @@
 // Monthly income screen (FCC Phase 2) — the retiree's front door. Pins the contract with the F5
-// paycheck engine: saved fields land as ri_*, annual/quarterly rhythms carry their landing month,
-// and saving any amount OPENS the received-now gate (incomeSources) — without it the engine sees
+// paycheck function: saved fields land as ri_*, annual/quarterly rhythms carry their landing month,
+// and saving any amount OPENS the received-now gate (incomeSources) — without it the function sees
 // nothing (the B-31 lesson).
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -35,7 +35,7 @@ describe('MonthlyIncomeScreen', () => {
     expect(op.incomeSources).toContain('retirement_income');   // the gate is OPEN
     expect(mockBack).toHaveBeenCalled();
 
-    // end-to-end: the F5 engine actually sees what this screen saved
+    // end-to-end: the F5 function actually sees what this screen saved
     const rows = guaranteedRows(op, new Date('2026-07-15T12:00:00'));
     expect(rows.filter((r) => r.source === 'Social Security')).toHaveLength(12);
     expect(rows.find((r) => r.source === 'Pension')).toMatchObject({ amount: 19200, month: 12 });

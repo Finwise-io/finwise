@@ -2,7 +2,7 @@
 // Tracks savings goals + a simple priority waterfall for routing surplus cash.
 import type { UserId, EntityId } from '../_shared/ids';
 import { newEntityId } from '../_shared/ids';
-import { toNum, round2 } from '../_shared/num';
+import { toNum } from '../_shared/num';
 import { getUserDoc, setUserDoc } from '../_shared/firestore';
 
 export interface Goal {
@@ -29,7 +29,7 @@ export interface GoalsState {
  * Formula .....
  *     user id = uid
  *     goals = progress
- *     monthly capacity = round(monthly capacity, 2 dp)
+ *     monthly capacity = monthly capacity
  *
  * Called by ... MK-XS-F-031 buildSnapshot
  *
@@ -47,7 +47,7 @@ export function buildGoalsState(uid: UserId, goals: Goal[], monthlyCapacity: num
     ...g,
     months_to_goal: monthlyCapacity > 0 ? Math.ceil(g.target_amount / monthlyCapacity) : null,
   }));
-  return { user_id: uid, goals: progress, monthly_capacity: round2(monthlyCapacity) };
+  return { user_id: uid, goals: progress, monthly_capacity: (monthlyCapacity) };
 }
 
 /** Priority waterfall (spec): emergency fund → toxic debt (>7%) → 401k match → Roth → goals.
@@ -61,14 +61,22 @@ export interface WaterfallStep { name: string; allocated: number; }
  * Formula .....
  *     left = max(0, surplus)
  *     steps = []
- *     a = min(left, max(0, need)); left -= a; steps.push({ name, allocated: round2(a) })
+ *     a = min(left, max(0, need)); left -= a; steps.push({ name, allocated: (a) })
  *     the answer = steps
  *
- * Called by ... MK-PL-F-011 buildGoalsState
+ * Called by ... MK-CF-F-092 incomeMonthlyGrid · MK-PL-F-011 buildGoalsState
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-011 buildGoalsState · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-032 snapshotFromOnboarding
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-PL-F-011 buildGoalsState
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
+ *               MK-CF-F-120 pctBaseMonthly · MK-CF-F-156 plannedMonthFlow
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
@@ -77,6 +85,8 @@ export interface WaterfallStep { name: string; allocated: number; }
  *     · If emergency gap is missing it uses 0.
  *     · If toxic debt is missing it uses 0.
  *     · If employer match monthly is missing it uses 0.
+ *     · Never lets surplus fall below 0.
+ *     · Never lets need fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-012
  * Changed ..... 2026-06-05 (f742136)
@@ -87,13 +97,13 @@ export function waterfall(surplus: number, opts: {
   let left = Math.max(0, surplus);
   const steps: WaterfallStep[] = [];
   const take = (name: string, need: number) => {
-    const a = Math.min(left, Math.max(0, need)); left -= a; steps.push({ name, allocated: round2(a) });
+    const a = Math.min(left, Math.max(0, need)); left -= a; steps.push({ name, allocated: (a) });
   };
   take('Emergency fund', opts.emergencyGap ?? 0);
   take('Toxic debt (>7%)', opts.toxicDebt ?? 0);
   take('401(k) employer match', opts.employerMatchMonthly ?? 0);
   take('Roth IRA', opts.rothRoom ?? Infinity);
-  if (left > 0) steps.push({ name: 'Other goals', allocated: round2(left) });
+  if (left > 0) steps.push({ name: 'Other goals', allocated: (left) });
   return steps;
 }
 
@@ -110,16 +120,22 @@ export function waterfall(surplus: number, opts: {
  *     user id = uid
  *     goals = goals
  *
- * Called by ... MK-XS-F-031 buildSnapshot
+ * Called by ... MK-XS-F-031 buildSnapshot · MK-XS-F-175 uid
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-013
  * Changed ..... 2026-06-05 (f742136)
@@ -184,9 +200,9 @@ export interface SaveCapacity { avg: number; min: number; max: number; lumpy: bo
  *     min = 0
  *     max = 0
  *     lumpy = false   when count of amts is missing
- *     avg = round(Σ over amts of (each)count of ÷ amts)
- *     min = round(min(...amts))
- *     max = round(max(...amts))
+ *     avg = Σ over amts of (each)count of ÷ amts
+ *     min = min(...amts)
+ *     max = max(...amts)
  *     the answer:
  *     avg = avg
  *     min = min
@@ -199,7 +215,6 @@ export interface SaveCapacity { avg: number; min: number; max: number; lumpy: bo
  *
  * Decides .....
  *     · Applies a built-in rate of 25% to avg.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-016
  * Changed ..... 2026-06-06 (1a5b20b)
@@ -207,9 +222,9 @@ export interface SaveCapacity { avg: number; min: number; max: number; lumpy: bo
 export function availableToSaveSummary(grid: { label: string; amount: number }[]): SaveCapacity {
   const amts = (grid ?? []).map((g) => g.amount);
   if (!amts.length) return { avg: 0, min: 0, max: 0, lumpy: false };
-  const avg = Math.round(amts.reduce((t, a) => t + a, 0) / amts.length);
-  const min = Math.round(Math.min(...amts));
-  const max = Math.round(Math.max(...amts));
+  const avg = amts.reduce((t, a) => t + a, 0) / amts.length;   // Q49: full precision inside
+  const min = Math.min(...amts);
+  const max = Math.max(...amts);
   return { avg, min, max, lumpy: max - min > Math.max(50, avg * 0.25) };   // meaningfully uneven
 }
 
@@ -221,7 +236,7 @@ export interface SinkingFund { annual: number; monthly: number; }
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     monthly = max(0, round(monthly non monthly))
+ *     monthly = max(0, monthly non monthly)
  *     the answer:
  *     annual = monthly × 12
  *     monthly = monthly
@@ -233,13 +248,13 @@ export interface SinkingFund { annual: number; monthly: number; }
  *
  * Decides .....
  *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Rounds the answer to a whole number.
+ *     · Never lets monthly non monthly fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-017
  * Changed ..... 2026-06-26 (b27cd01)
  */
 export function sinkingFund(monthlyNonMonthly: number): SinkingFund {
-  const monthly = Math.max(0, Math.round(monthlyNonMonthly));
+  const monthly = Math.max(0, monthlyNonMonthly);   // Q49
   return { annual: monthly * 12, monthly };
 }
 
@@ -327,7 +342,7 @@ export function goalMonthsRemaining(g: GoalLike, now: Date = new Date()): number
  *     0   when remaining = 0
  *     months = goal months remaining(g, now)
  *     the answer:
- *     round(remaining ÷ months, 2 dp)   if months
+ *     remaining ÷ months   if months
  *     nothing   otherwise
  *
  * Called by ... MK-PL-F-023 goalStatus
@@ -350,7 +365,7 @@ export function requiredMonthly(g: GoalLike, now: Date = new Date()): number | n
   const remaining = Math.max(0, (g.target || 0) - (g.saved || 0));
   if (remaining === 0) return 0;
   const months = goalMonthsRemaining(g, now);
-  return months ? round2(remaining / months) : null;
+  return months ? (remaining / months) : null;
 }
 
 /** Months to reach the goal at a given monthly contribution (0 if funded; null if contribution <= 0). */
@@ -405,7 +420,6 @@ export function monthsToGoal(g: GoalLike, monthlyContribution: number): number |
  * Decides .....
  *     · If target is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If saved is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-022
@@ -440,7 +454,7 @@ export type GoalStatus = 'fully_funded' | 'on_track' | 'behind' | 'no_date';
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-MN-M-009
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
  *
  * Decides .....

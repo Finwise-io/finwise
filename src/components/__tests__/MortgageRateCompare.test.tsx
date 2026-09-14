@@ -13,7 +13,7 @@ test('above the yield: it says paying down saves MORE, with both figures', () =>
   render(<MortgageRateCompare {...ABOVE} />);
   expect(screen.getByText('Your mortgage costs 5.5%. A ten-year Treasury pays 4.63% today.')).toBeOnTheScreen();
   expect(screen.getByText(/saves you more/)).toBeOnTheScreen();
-  expect(screen.getByText(/\$3,584 a year/)).toBeOnTheScreen();
+  expect(screen.getByText(/\$3,584\/year/)).toBeOnTheScreen();
   expect(screen.getByText(/\$36,577 better off/)).toBeOnTheScreen();
 });
 
@@ -21,7 +21,7 @@ test('BELOW the yield: the same sentence shape says paying down costs — this i
   render(<MortgageRateCompare {...BELOW} />);
   expect(screen.getByText('Your mortgage costs 3.1%. A ten-year Treasury pays 4.63% today.')).toBeOnTheScreen();
   expect(screen.getByText(/saves you less/)).toBeOnTheScreen();
-  expect(screen.getByText(/\$6,304 a year/)).toBeOnTheScreen();
+  expect(screen.getByText(/\$6,304\/year/)).toBeOnTheScreen();
   expect(screen.getByText(/\$40,217 worse off/)).toBeOnTheScreen();
 });
 
@@ -71,7 +71,7 @@ const PLAN = {
 test('the retirement consequence TRAVELS with the control', () => {
   render(<MortgageRateCompare {...ABOVE} planInputs={PLAN} nowYear={2026} />);
   expect(screen.getByText(/not going into savings while the loan runs/)).toBeOnTheScreen();
-  expect(screen.getByText(/future simulations out of 100/)).toBeOnTheScreen();
+  expect(screen.getByText(/out of 100 simulated futures/)).toBeOnTheScreen();
 });
 
 test('it names BOTH halves of the trade — the squeeze and the payment freeing up', () => {

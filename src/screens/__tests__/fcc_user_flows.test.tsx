@@ -44,7 +44,7 @@ describe('1 · returning WORKING user upgrades from Build 40', () => {
     expect(screen.getByText('YOUR INVESTMENTS')).toBeOnTheScreen();
     expect(screen.getByText(/WHAT NEEDS YOU/)).toBeOnTheScreen();
     expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
-    expect(screen.queryByText(/LEFT TO SPEND/)).toBeNull();           // the stale flag flips nothing
+    expect(screen.queryByText(/SURPLUS/)).toBeNull();           // the stale flag flips nothing
   });
 
   test('their tab order is the working order; new store fields arrived as defaults', () => {
@@ -78,10 +78,10 @@ describe('2 · returning RETIRED user upgrades from Build 40', () => {
 
   test('the paycheck LEADS Home and Cash flow with no switch to flip (the Build-40 fix)', () => {
     const home = render(<HomeScreen />);
-    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
     home.unmount();
     render(<CashFlowScreen />);
-    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
     expect(screen.getByText(/DRAW COMES FROM/)).toBeOnTheScreen();
   });
 
@@ -116,7 +116,7 @@ describe('4 · brand-new user who skips everything (just explore)', () => {
     expect(screen.getByText(/Let's get your real numbers in/)).toBeOnTheScreen();
     expect(screen.getByLabelText('Import a file from your brokerage')).toBeOnTheScreen();
     expect(screen.getByLabelText(/Add something by hand/)).toBeOnTheScreen();
-    expect(screen.getByLabelText(/Connect your first account/)).toBeOnTheScreen();   // honest, not hidden
+    expect(screen.getByLabelText(/Connect your bank/)).toBeOnTheScreen();   // honest, not hidden (founder ruling 2026-09-14: "Connect your bank")
     expect(screen.getByText(/WHAT YOU'LL SEE HERE/)).toBeOnTheScreen();
     expect(screen.queryByText(/\$0/)).toBeNull();                      // never a fake zero
     home.unmount();
@@ -145,6 +145,6 @@ describe('5 · semi-retired: partially working AND drawing retirement income', (
       onboardingComplete: true,
     } as any);
     render(<HomeScreen />);
-    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
   });
 });

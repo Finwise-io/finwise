@@ -43,7 +43,7 @@ const PAT = {
 };
 
 // June: the mock's paycheck is SS $2,600 + pension $1,400 = $4,000 guaranteed, safe draw $4,155,
-// paycheck $8,155/mo against $5,600/mo spending, odds 100% to 94.
+// paycheck $8,155/month against $5,600/month spending, odds 100% to 94.
 const JUNE = {
   onboardingComplete: true, nwSeeded: true, nwSetupChoice: 'self',
   onboardingProfile: {

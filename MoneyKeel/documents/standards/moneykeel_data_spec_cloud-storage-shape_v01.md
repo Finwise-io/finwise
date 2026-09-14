@@ -53,7 +53,7 @@ years of days, month-ends kept beyond that.
 write touches only its own day. A desktop write can therefore never wipe a day the phone recorded.
 
 **The daily record supersedes by day.** A day already present is replaced by the later reading of
-that same day — the rule the record engine already applies.
+that same day — the rule the record functions already apply.
 
 **The ledger merges by identity, not by order.** Every imported line already carries the frozen
 import key built in Track 1: the same line imported on the phone and on the desktop is one line,

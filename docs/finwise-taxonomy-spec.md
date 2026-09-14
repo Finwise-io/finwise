@@ -38,6 +38,10 @@ Every concept has ONE canonical word in user-visible copy; its synonyms are RETI
 `src/__tests__/one_term_per_concept.test.ts` fails the build if a retired word appears anywhere in
 `src/` or `MoneyKeel/functions` (comments included — a comment is how a synonym creeps back).
 When a new concept gets its word, the synonyms go on the retired list in the SAME commit.
+Since 2026-09-11 the canon and its retired words live in ONE place — the table under "One term per
+concept — the canon" in `MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md`
+— and the guard reads that table; nothing is hard-coded in the test. A row graduates to VERIFIED only on
+the founder's mark in the synonym workbook.
 
 | concept | canonical word | retired |
 |---|---|---|

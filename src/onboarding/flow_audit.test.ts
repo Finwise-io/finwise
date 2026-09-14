@@ -13,7 +13,7 @@ import path from 'path';
 import {
   buildSteps, goalOptionsFor, incomeSourceOptionsFor, OPTIONAL_STEPS,
   type Status, type Track, type StepId, type IncomeSourceKey,
-} from './engine';
+} from './steps';
 
 const STATUSES: Status[] = ['employed', 'retired', 'partial', 'student'];
 const META: StepId[] = ['status', 'goals', 'whatYouNeed'];   // account + name moved to AuthScreen
@@ -398,3 +398,4 @@ describe('a 401(k) is asked only where one can legally exist', () => {
     expect(steps.filter((x) => x === 'income_salary')).toHaveLength(1);
   });
 });
+

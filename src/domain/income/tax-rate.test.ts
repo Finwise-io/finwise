@@ -5,9 +5,9 @@
  * told us what lands in the bank · our own ESTIMATE, federal income tax only.
  *
  * The second one is new. Until 2026-08-28 a person could tell the base-pay screen exactly what lands
- * in their bank and every other screen would still estimate it — $572 a month apart on the founder's
+ * in their bank and every other screen would still estimate it — $572/month apart on the founder's
  * own persona. Closing that exposed a second, quieter half: a payslip rate is a share of GROSS, and
- * the income grid applied it to gross-minus-the-401(k), which left $137 a month.
+ * the income grid applied it to gross-minus-the-401(k), which left $137/month.
  */
 import { rateInForce, enteredLandsAnnual } from './tax-rate';
 import { incomeMonthlyGrid, effectiveRate } from './onboarding';

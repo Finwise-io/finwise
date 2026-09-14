@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ways to Add an Account — mock v10</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; --panel:#ffffff; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14); --panel:#1f2320; } }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 80px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1240px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:28px; font-weight:800; margin:6px 0 10px;}
+  h2{font-size:20px; font-weight:800; margin:0 0 4px;}
+  .lede{font-size:15px; line-height:1.6; color:var(--ink2); max-width:860px;}
+  .lede b{color:var(--ink);}
+  .approve{margin-top:18px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 18px; max-width:860px; font-size:14.5px; line-height:1.6;}
+  .terms{display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 4px;}
+  .term{background:var(--panel); border:1.5px solid var(--accent); border-radius:12px; padding:8px 12px; font-size:14px; font-weight:700;}
+  .term small{display:block; font-weight:400; color:var(--ink2); font-size:12.5px; margin-top:2px;}
+  .section{margin-top:60px; padding-top:26px; border-top:1px solid var(--line);}
+  .section .why{font-size:14.5px; color:var(--ink2); max-width:860px; line-height:1.55; margin:0;}
+  .pair{display:flex; gap:26px; flex-wrap:wrap; margin-top:20px; align-items:flex-start;}
+  .col{display:flex; flex-direction:column;}
+  .label{font-size:12px; font-weight:800; letter-spacing:.08em; color:var(--ink2); margin:0 0 8px 6px; text-transform:uppercase;}
+  .label.after{color:var(--accent);}
+
+  /* phone — the app's real tokens (src/utils/theme.ts) */
+  .phone{width:393px; max-width:100%; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18; position:relative;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .content{padding:10px 20px 18px;}
+  .content.tight{padding:6px 16px 14px;}
+  .head{display:flex; justify-content:space-between; align-items:center; padding:4px 0 10px;}
+  .head .t{font-size:20px; font-weight:800;}
+  .head .icons{font-size:16px; color:#6B6B66;}
+  .back{font-size:15px; font-weight:700; color:#178F6B; padding:4px 0 8px;}
+  .h1{font-size:20px; font-weight:800; line-height:1.25;}   /* every screen title is 20 points (founder 2026-09-14) */
+  .sub{font-size:13px; color:#6B6B66; margin-top:4px; line-height:19px;}
+  .band{background:#085041; color:#fff; font-size:12px; font-weight:800; letter-spacing:.06em; padding:9px 16px; display:flex; justify-content:space-between; gap:8px; margin:12px -16px 0;}
+  .content .band{margin-left:-20px; margin-right:-20px;}
+  .content.tight .band{margin-left:-16px; margin-right:-16px;}
+  .lband{background:#DFF2E9; color:#085041; font-size:12px; font-weight:800; letter-spacing:.05em; padding:8px 16px; display:flex; justify-content:space-between; margin:0 -16px;}
+  .white{background:#fff; margin:0 -16px; padding:10px 16px;}
+  .hero{font-size:38px; font-weight:800; text-align:center; letter-spacing:-.5px; font-variant-numeric:tabular-nums;}
+  .ownowe{font-size:13px; color:#6B6B66; text-align:center;}
+  .emptynote{font-size:14px; color:#6B6B66; padding:6px 0;}
+  .white.emptynote{padding:8px 16px;}
+  .emptynote a, .greenlink{color:#178F6B; font-weight:700; text-decoration:none;}
+  .sample{font-size:15px; font-weight:800;}
+  .small{font-size:12.5px; color:#6B6B66; line-height:18px;}
+  .chips{display:flex; gap:8px; padding:10px 0;}
+  .chip{font-size:13px; font-weight:700; border:1.5px solid rgba(0,0,0,.10); border-radius:16px; padding:6px 12px; color:#6B6B66; background:#fff;}
+  .chip.on{border-color:#178F6B; background:#E1F5EE; color:#0F6E56;}
+  .row2{display:flex; justify-content:space-between; font-size:14px; padding:8px 0; border-top:1px solid rgba(0,0,0,.10); font-variant-numeric:tabular-nums;}
+  .row2:first-child{border-top:none;}
+  .row2 b{font-weight:700;}
+
+  /* Home first day */
+  .door{background:#fff; border-radius:16px; padding:12px; margin-top:8px; min-height:64px;}
+  .door .t{font-size:17px; font-weight:800;}
+  .door .s{font-size:13px; color:#6B6B66; margin-top:3px; line-height:18px;}
+  .quiet{font-size:15px; font-weight:700; color:#178F6B; padding:12px 0;}
+  .promise{font-size:15px; color:#6B6B66; line-height:24px;}
+
+  /* the one heading */
+  .ask{font-size:15px; font-weight:800; color:#1A1A18; margin:16px 0 0;}
+  .ask.inrow{margin:0; padding:12px 16px 4px; background:#fff;}
+  .ask.plan{font-size:13px; padding:10px 12px 2px; margin:0; background:#fff;}
+
+  /* THE APP'S STANDARD HEADINGS (UX design v1.2 + SectionBand, founder-approved 2026-08-13):
+     a full deep-green band names a group that carries its own total; a quiet caps label names a section
+     that has none; a sheet names itself with a 20pt title under the grip ("Add expense"). */
+  .qlabel{color:#085041; font-size:11px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; padding:14px 0 4px;}
+  .qlabel.inrow{background:#fff; margin:0 -16px; padding:14px 16px 4px;}
+  .qlabel.plan{padding:14px 16px 4px;}
+  .qlabel.sharpen{padding:20px 0 2px;}
+  .qlabel.sec{background:#fff; margin:12px -16px 0; padding:14px 16px 2px;}
+  .sheettitle{font-size:20px; font-weight:800; text-align:center; margin:0 0 14px;}
+  .nextcard{background:#FAEEDA; border:1.5px solid #FAC775; border-radius:16px; padding:12px; margin:12px 0 0; opacity:.5;}
+  .nextkicker{font-size:11px; font-weight:800; letter-spacing:.6px; color:#854F0B; margin-bottom:3px;}
+  .nexttitle{font-size:15px; font-weight:800; line-height:20px;}
+  .consentrow{display:flex; gap:8px; padding:4px 0;}
+  .consentrow .dot{color:#6B6B66; font-weight:800;}
+  .primarybtn{display:block; text-align:center; background:#178F6B; color:#fff; font-size:16px; font-weight:800; border-radius:14px; padding:14px; margin:14px 0 6px;}
+
+  /* the Add by hand form and the import screen */
+  .q{font-size:15px; font-weight:800; margin:12px 0 8px;}
+  .fchips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px;}
+  .fchip{border:1.5px solid rgba(0,0,0,.10); border-radius:12px; padding:9px 12px; min-height:42px; display:inline-flex; align-items:center; background:#fff; font-size:13px; font-weight:700; color:#6B6B66;}
+  .fchip.on{border-color:#178F6B; background:#E1F5EE; color:#0F6E56;}
+  .fl{font-size:13px; font-weight:700; color:#6B6B66; margin:12px 0 5px;}
+  .in{background:#fff; border:1.5px solid rgba(0,0,0,.10); border-radius:12px; padding:12px; font-size:17px; color:#76766F;}
+  .asof{font-size:13px; color:#76766F; margin-top:12px;}
+  .save{background:#178F6B; opacity:.4; color:#fff; border-radius:16px; min-height:50px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:800; margin-top:12px;}
+  .navbar{display:flex; align-items:center; justify-content:center; position:relative; padding:10px 16px 8px; font-size:17px; font-weight:600;}
+  .navbar .nb{position:absolute; left:16px; color:#178F6B; font-size:17px; font-weight:600;}
+  .emoji{font-size:38px; text-align:center; margin-top:8px;}
+  .ch1{font-size:20px; font-weight:800; text-align:center; margin-top:8px;}
+  .csub{font-size:15px; color:#6B6B66; line-height:20px; text-align:center; margin:6px 0 20px;}
+  .icard{background:#fff; border-radius:16px; padding:16px; margin-bottom:16px;}
+  .icard .ct{font-size:13px; font-weight:800; color:#76766F; letter-spacing:.4px; margin-bottom:8px;}
+  .icard .bl{font-size:15px; color:#6B6B66; line-height:22px;}
+  .icard .bl b{color:#1A1A18; font-weight:800;}
+  .pill{background:#178F6B; color:#fff; border-radius:100px; min-height:50px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:800; margin-top:6px;}
+  .inote{font-size:11px; color:#76766F; line-height:16px; text-align:center; margin-top:12px;}
+
+  /* THE APP'S TOP BAR on every tab screen (src/components/TopBar.tsx): Menu pill · MoneyKeel wordmark · eye and settings buttons */
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:6px 20px 10px; background:#F6F7F5;}
+  .menupill{display:flex; align-items:center; gap:6px; height:38px; padding:0 13px; border-radius:19px; background:#fff; border:1px solid rgba(0,0,0,.10); font-size:13px; font-weight:700; color:#6B6B66;}
+  .wordmark{width:84px; height:17px; background:url(data:image/png;base64,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) center/contain no-repeat;}
+  .roundbtns{display:flex; gap:8px;}
+  .roundbtn{width:38px; height:38px; border-radius:19px; background:#fff; border:1px solid rgba(0,0,0,.10); display:flex; align-items:center; justify-content:center; font-size:15px; color:#6B6B66;}
+  .tabtitle{font-size:20px; font-weight:800; color:#1A1A18; padding:4px 0 2px;}
+
+  /* Net worth ledger rows */
+  .lrow{display:flex; align-items:center; gap:8px; padding:10px 16px; min-height:44px; border-top:1px solid rgba(0,0,0,.10); font-size:15px; font-weight:800; color:#0F6E56; background:#fff; margin:0 -16px;}
+  .lrow.quiet{font-weight:400; color:#76766F;}
+  .lrow .ar{margin-left:auto; color:#76766F; font-weight:400;}
+
+  /* Sharpen door cards */
+  .sdoor{display:flex; gap:12px; align-items:center; background:#fff; border:1px solid rgba(0,0,0,.10); border-radius:16px; padding:12px; margin-top:8px;}
+  .sdoor .ic{font-size:24px;}
+  .sdoor .t{font-size:15px; font-weight:800;}
+  .sdoor .s{font-size:13px; color:#6B6B66; margin-top:2px; line-height:18px;}
+  .srow{display:flex; gap:12px; align-items:center; background:#fff; border-radius:16px; padding:12px; margin-top:8px;}
+  .srow .ck{color:#178F6B; font-weight:800; width:16px;}
+  .srow .t{font-size:15px; font-weight:700;}
+  .srow .add{margin-left:auto; color:#178F6B; font-weight:700; font-size:14px; white-space:nowrap;}
+  .progress{background:#fff; border-radius:16px; padding:14px; margin-top:12px; display:flex; align-items:baseline; gap:10px;}
+  .progress .big{font-size:30px; font-weight:800; color:#0F6E56;}
+
+  /* Plan rows */
+  .pcard{background:#fff; margin:0 -16px;}
+  .prow{display:flex; align-items:center; min-height:44px; padding:0 16px; border-top:1px solid rgba(0,0,0,.10); font-size:13px;}
+  .prow .v{margin-left:auto; font-weight:700; font-variant-numeric:tabular-nums;}
+  .prow .ck{color:#178F6B; font-weight:800; margin-right:8px;}
+  .hint{font-size:11px; color:#6B6B66; padding:8px 16px; line-height:17px;}
+  .seg{display:flex; background:#EEEEE9; border-radius:10px; padding:3px; margin:10px 0 2px;}
+  .seg span{flex:1; text-align:center; font-size:13px; font-weight:700; color:#6B6B66; padding:6px 0; border-radius:8px;}
+  .seg span.on{background:#fff; color:#0F6E56;}
+  .fact{display:flex; align-items:center; gap:8px; padding:9px 0; border-top:1px solid rgba(0,0,0,.10); font-size:14px;}
+  .tag{font-size:10px; font-weight:800; letter-spacing:.05em; border-radius:6px; padding:2px 6px; background:#E1F5EE; color:#0F6E56;}
+  .tag.miss{background:#FAEEDA; color:#854F0B;}
+  .tag.draft{background:#EEEEE9; color:#6B6B66;}
+  .stepper{margin-left:auto; display:flex; align-items:center; gap:10px; font-weight:800;}
+  .stepper i{font-style:normal; width:26px; height:26px; border-radius:13px; border:1.5px solid rgba(0,0,0,.2); display:inline-flex; align-items:center; justify-content:center; color:#6B6B66;}
+
+  /* the sheet */
+  .dimmed{filter:brightness(.6);}
+  .sheet{position:absolute; left:0; right:0; bottom:0; background:#F6F7F5; border-radius:24px 24px 0 0; padding:20px 20px 34px; box-shadow:0 -8px 24px rgba(0,0,0,.25);}
+  .grip{width:40px; height:4px; border-radius:2px; background:rgba(0,0,0,.14); margin:0 auto 12px;}
+  .crow{background:#fff; border-radius:16px; padding:12px; margin-bottom:8px; min-height:64px;}
+  .crow .t{font-size:15px; font-weight:800;}
+  .crow .s{font-size:13px; color:#6B6B66; margin-top:2px;}
+  .addbtn{display:block; text-align:center; background:#178F6B; color:#fff; font-size:16px; font-weight:800; border-radius:14px; padding:14px; margin:12px 0 10px;}
+
+  /* Connect an account */
+  .card{background:#fff; border-radius:16px; padding:12px; margin-top:10px;}
+  .line{font-size:15px; line-height:21px;}
+  .note{font-size:13px; color:#76766F; margin-top:4px; line-height:17px;}
+  .eqhdr{font-size:13px; font-weight:700; color:#6B6B66; margin:20px 0 8px;}
+  .doorrow{display:flex; gap:10px;}
+  .dbtn{flex:1; background:#fff; border-radius:12px; border:1.5px solid rgba(0,0,0,.10); min-height:48px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:#0F6E56;}
+
+  /* Performance */
+  .periods{display:flex; gap:6px; flex-wrap:wrap; padding:8px 0;}
+  .periods span{font-size:12px; font-weight:700; background:#fff; border-radius:10px; padding:5px 8px; color:#6B6B66;}
+  .periods span.on{background:#E1F5EE; color:#0F6E56;}
+  .perfadd{display:flex; align-items:center; justify-content:space-between; padding:12px 0 4px;}
+  .perfadd .b{background:#178F6B; color:#fff; font-weight:800; font-size:14px; border-radius:12px; padding:9px 12px;}
+  .perfadd .l{color:#178F6B; font-weight:700; font-size:14px;}
+
+  .tabbar{display:flex; justify-content:space-around; padding:12px 6px 26px; background:#FFFFFF; border-top:1px solid rgba(0,0,0,.10);}
+  .tab{font-size:10.5px; font-weight:700; color:#76766F; text-align:center;}
+  .tab::before{content:""; display:block; width:22px; height:3px; border-radius:2px; margin:0 auto 5px; background:transparent;}
+  .tab.on{color:#178F6B;}
+  .tab.on::before{background:#178F6B;}
+
+  /* change marks */
+  .pn{display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:50%; background:#D9480F; color:#fff;
+    font-size:11px; font-weight:800; margin-left:6px; vertical-align:middle; flex:none;}
+  .changed{outline:2px dashed #D9480F; outline-offset:2px; border-radius:10px;}
+  /* STANDARD (founder 2026-08-11, restated 2026-09-14): a dark-green bar always runs edge to edge with square corners — a change mark sits INSIDE it and never rounds it */
+  .band, .band.changed{border-radius:0; text-transform:uppercase;}   /* the app writes every dark-green bar in capitals (SectionBand) */
+  .band.changed{outline-offset:-5px;}
+  .topbar.changed{outline-offset:-3px; border-radius:0;}   /* the mark stays inside the top bar, off the status bar */
+  ol.legend{list-style:none; margin:0; padding:0; max-width:380px; counter-reset:none;}
+  ol.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:14px; line-height:1.5; color:var(--ink2);}
+  ol.legend li:first-child{border-top:none;}
+  ol.legend b{color:var(--ink);}
+  ol.legend .pn{margin:1px 0 0;}
+  table.words{border-collapse:collapse; margin-top:16px; font-size:14px; width:100%; max-width:1000px; background:var(--panel); border-radius:12px; overflow:hidden;}
+  table.words th, table.words td{text-align:left; padding:10px 12px; border-top:1px solid var(--line); vertical-align:top; line-height:1.45;}
+  table.words th:last-child{white-space:nowrap;}
+  table.words th{font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink2); border-top:none;}
+  .scroll{overflow-x:auto;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Mock · v10 · 2026-09-14 · for your approval</div>
+  <h1>The ways to add an account — one door, one term</h1>
+  <p class="lede">Your ruling: the three doors use the words you chose from the Net worth add sheet, on <b>every</b> screen that offers them, under one heading, because “Link it” on its own does not say what it links. Each section below shows a screen <b>today</b> and <b>as it will be built</b>. Orange numbered marks show every change, explained beside the screen. Nothing is built until you approve this page.</p>
+
+  <div class="terms">
+    <div class="term">How do you want to add an account?<small>the one heading, above the doors</small></div>
+    <div class="term">🔗 Link it (read-only)<small>We can look, never touch your money. · opens the Connect screen</small></div>
+    <div class="term">✍️ Add by hand<small>Your home, savings, or any account with no login. · opens the Add account form</small></div>
+    <div class="term">📄 Import from a file<small>The CSV export from your brokerage. · opens the import screen</small></div>
+  </div>
+
+  <div class="approve"><b>What to approve.</b> Say yes to build all of it, or name a screen and a mark number to change. Three choices on this page are mine, and each is marked where it appears. First, the doors take the sheet’s order everywhere: Link it, Add by hand, Import from a file. Second, each door keeps only its one line, so Home drops “Takes about 2 minutes.” Third, the Connect screen’s title becomes “Link an account”, so the door and the screen it opens share the term.</div>
+  <div class="approve"><b>What changed from v09.</b> Three rulings of yours. First, every screen title is 20 points. It was coded in the app today on every screen, so both the today and the as-built frames show 20. Second, MoneyKeel sits at the top of every screen that is opened from another one, as built, in sections 6, 7, 8 and 9, marked T. My choice there is “‹ Back” in place of “Menu”. Third, a screen no longer has to have a title, and nothing on this page depended on that rule.
+    <br><br><b>Checked before sending, against every standard:</b> every dark-green bar runs edge to edge with square corners; every screen title is 20 points; every tab screen shows the top bar and the tab bar; every pushed screen as built shows the MoneyKeel top bar and no tab bar; headings use the quiet section label on screens and the sheet title on the sheet; the three doors read the same words everywhere; every number on the page adds up; every today frame matches the code.</div>
+  <div class="approve"><b>What changed from v08.</b> You asked whether these screens follow the standard. They did not all follow the app. Versions 1 to 8 drew the tab screens’ titles from an older mock instead of the code. Version 9 corrects every tab-screen frame, including the Net worth screen behind the add sheet. Every tab screen (Home, Net worth, Plan, Performance) now shows the app’s top bar with Menu, the MoneyKeel wordmark, and the eye and settings buttons, which the earlier versions left out. Net worth no longer shows a “Net worth” title, because the app has none. Plan and Performance titles are drawn at the app’s 24 points instead of 20. Sections 6 to 9 were already drawn at the size the app uses. No design change is in this version.</div>
+  <div class="approve"><b>What changed from v07.</b> The import screen has one title, “Import from File”, on a dark-green bar at the top of the screen, and nothing repeats it. Every dark-green bar now keeps its square corners from edge to edge, change marks included; v07’s mark made that bar look rounded.</div>
+  <div class="approve"><b>What changed from v06.</b> Two comments of yours, both in section 9. First, the “Add by hand” screen is drawn in all six of its versions, one for each kind of account, with only the title changing. Second, the import screen’s title is a dark-green bar from edge to edge, reading “IMPORT FROM A FILE”.</div>
+  <div class="approve"><b>What changed from v05.</b> You pointed out that “Add by hand” would lead from “How do you want to add an account?” to a screen titled “Add an account”, the same words twice. Section 9 is new: each screen behind the doors is titled with its door’s words. The manual form becomes “Add by hand”, and the import screen becomes “Import from a file” in its bar and its heading. The link screen was already “Link an account” in section 7. Nothing else changed.</div>
+  <div class="approve"><b>Version 5 is my corrected recommendation.</b> You pointed out that version 4 removed the one-tap “Add by hand” from Net worth’s first day, so the manual form took two taps. Version 5 keeps the three doors from version 3 and takes the working “Add your accounts ›” lines from version 4: on Net worth’s first day every way in is one tap, and no line opens nothing. On Home, Performance, Roth conversion and Stress test, “Add your accounts ›” opens the same sheet, so linking and importing are offered there for the first time; the manual form is two taps from those four. The table at the end lists each one.
+    <table class="words" style="margin-top:12px">
+      <tr><th>Net worth, first day</th><th>Today</th><th>v3</th><th>v4</th><th>v5</th></tr>
+      <tr><td>Taps to the manual form</td><td>3</td><td>1</td><td>2</td><td>1</td></tr>
+      <tr><td>Taps to Link it (read-only)</td><td>1</td><td>1</td><td>2</td><td>1</td></tr>
+      <tr><td>Taps to Import from a file</td><td>1</td><td>1</td><td>2</td><td>1</td></tr>
+      <tr><td>What “Add your accounts ›” opens</td><td>Nothing</td><td>Nothing</td><td>The sheet</td><td>The sheet</td></tr>
+    </table>
+  </div>
+  <div class="approve"><b>What changed from v02.</b> On the Plan tab, the line “Missing something? Add it here:” stays, above the heading, the way “Nothing entered yet.” stays on Net worth (your comment). Nothing else changed.</div>
+  <div class="approve"><b>What changed from v01.</b> First, the heading now uses the app’s standard heading styles: the quiet section label on screens, and the sheet title on the sheet. v01 drew it as plain bold text, which is why it did not read as a heading. Second, the Plan tab is drawn as the app draws it. v01 showed four of its section labels as full bands, and the sample card as a band. Third, the step before signing in is now drawn, in section 8, so “Rather not link?” can be seen in place.</div>
+
+  <!-- ═══════════════════════════ 1 · HOME, FIRST DAY ═══════════════════════════ -->
+  <div class="section">
+    <h2>1 · Home — the first day, before anything is added</h2>
+    <p class="why">The doors only appear while nothing has been added, so this is the only state of Home that changes.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content">
+            <div class="sub">Welcome, Pat</div>
+            <div class="h1">Let's get your real numbers in.</div>
+            <div class="door"><div class="t">Connect your bank ›</div><div class="s">Takes about 2 minutes. Read-only: we can look, never touch your money.</div></div>
+            <div class="door"><div class="t">Import a file from your brokerage ›</div><div class="s">The CSV export — we read your holdings, nothing is uploaded.</div></div>
+            <div class="door"><div class="t">Add something by hand ›</div><div class="s">Your home, savings, or an account with no login.</div></div>
+            <div class="quiet">Or answer guided setup questions ›</div>
+            <div class="band">WHAT YOU'LL SEE HERE</div>
+            <div style="padding-top:10px">
+              <div class="promise">·  Your whole money picture in one place</div>
+              <div class="promise">·  What needs your attention — with dollar amounts</div>
+              <div class="promise">·  Whether your money will last — as honest odds</div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab on">Home</div><div class="tab">Net worth</div><div class="tab">Performance</div><div class="tab">Cash flow</div><div class="tab">Plan</div></div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content">
+            <div class="sub">Welcome, Pat</div>
+            <div class="h1">Let's get your real numbers in.</div>
+            <div class="qlabel changed">How do you want to add an account?<span class="pn">1</span></div>
+            <div class="door changed"><div class="t">Link it (read-only) ›<span class="pn">2</span></div><div class="s">We can look, never touch your money.</div></div>
+            <div class="door changed"><div class="t">Add by hand ›<span class="pn">3</span></div><div class="s">Your home, savings, or any account with no login.</div></div>
+            <div class="door changed"><div class="t">Import from a file ›<span class="pn">4</span></div><div class="s">The CSV export from your brokerage.</div></div>
+            <div class="quiet">Or answer guided setup questions ›</div>
+            <div class="band">WHAT YOU'LL SEE HERE</div>
+            <div style="padding-top:10px">
+              <div class="promise">·  Your whole money picture in one place</div>
+              <div class="promise">·  What needs your attention — with dollar amounts</div>
+              <div class="promise">·  Whether your money will last — as honest odds</div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab on">Home</div><div class="tab">Net worth</div><div class="tab">Performance</div><div class="tab">Cash flow</div><div class="tab">Plan</div></div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>The heading is new.</b> It says the doors below add an account, so “Link it” names what it links. It uses the app’s quiet section label, the small deep-green capitals the Plan tab uses to name its sections. A full green band is kept for a group that shows its own total, and these doors have none.</span></li>
+        <li><span class="pn">2</span><span><b>“Connect your bank” becomes “Link it (read-only)”.</b> Its line is “We can look, never touch your money.” The words “Takes about 2 minutes.” go, so this door has one line on every screen. It still opens the Connect screen.</span></li>
+        <li><span class="pn">3</span><span><b>“Add something by hand” becomes “Add by hand”.</b> It moves to second place and opens the Add account form, as you ruled this morning.</span></li>
+        <li><span class="pn">4</span><span><b>“Import a file from your brokerage” becomes “Import from a file”.</b> Its line is “The CSV export from your brokerage.” It still opens the import screen.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 2 · NET WORTH, FIRST DAY ═══════════════════════════ -->
+  <div class="section">
+    <h2>2 · Net worth — the first day, before anything is added</h2>
+    <p class="why">The numbers are all $0 because nothing has been added: own $0 − owe $0 = $0.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content tight">
+            
+            <div class="band" style="margin-top:0">YOUR NET WORTH  ⓘ</div>
+            <div class="white">
+              <div class="ownowe">Own $0 − Owe $0</div>
+              <div class="hero">$0</div>
+              <div class="emptynote" style="text-align:center">Nothing entered yet. <a>Add your accounts ›</a></div>
+            </div>
+            <div class="band">YOUR RETIREMENT PLAN</div>
+            <div class="white"><div class="sample">Sample: 84% odds of lasting to age 90</div><div class="small">a sample, not your number — 3 answers make it yours</div></div>
+            <div class="chips"><span class="chip on">By category</span><span class="chip">By institution</span></div>
+            <div class="band" style="margin-top:0">WHAT YOU OWN<span>$0</span></div>
+            <div class="lband">💵 CASH<span>$0</span></div>
+            <div class="white emptynote">Nothing entered yet. <a>Add your accounts ›</a></div>
+            <div class="lband">📈 INVESTMENTS<span>$0</span></div>
+            <div class="white emptynote">Nothing entered yet. <a>Add your accounts ›</a></div>
+            <div class="lband">🏠 PERSONAL PROPERTY<span>$0</span></div>
+            <div class="white emptynote">Nothing entered yet. <a>Add your accounts ›</a></div>
+            <div class="lrow">Connect a brokerage<span class="ar">›</span></div>
+            <div class="lrow">Add a file from your bank<span class="ar">›</span></div>
+            <div class="lrow">Type it yourself<span class="ar">›</span></div>
+            <div class="lrow quiet">or walk through it step by step<span class="ar">›</span></div>
+            <div class="band">DEBTS  ⓘ<span>$0</span></div>
+            <div class="white emptynote">Nothing entered yet. <a>Add your debts ›</a></div>
+            <div class="lrow">Add a mortgage, card, or loan<span class="ar">›</span></div>
+            <div class="band">EMERGENCY FUND</div>
+            <div class="white"><div class="sample">— months</div><div class="small">appears with your first cash account + monthly expenses</div></div>
+          </div>
+          <div class="tabbar"><div class="tab">Home</div><div class="tab on">Net worth</div><div class="tab">Performance</div><div class="tab">Cash flow</div><div class="tab">Plan</div></div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content tight">
+            
+            <div class="band" style="margin-top:0">YOUR NET WORTH  ⓘ</div>
+            <div class="white">
+              <div class="ownowe">Own $0 − Owe $0</div>
+              <div class="hero">$0</div>
+              <div class="emptynote" style="text-align:center">Nothing entered yet. <a class="changed">Add your accounts ›</a><span class="pn">1</span></div>
+            </div>
+            <div class="band">YOUR RETIREMENT PLAN</div>
+            <div class="white"><div class="sample">Sample: 84% odds of lasting to age 90</div><div class="small">a sample, not your number — 3 answers make it yours</div></div>
+            <div class="chips"><span class="chip on">By category</span><span class="chip">By institution</span></div>
+            <div class="band" style="margin-top:0">WHAT YOU OWN<span>$0</span></div>
+            <div class="lband">💵 CASH<span>$0</span></div>
+            <div class="white emptynote">Nothing entered yet. <a class="changed">Add your accounts ›</a><span class="pn">1</span></div>
+            <div class="lband">📈 INVESTMENTS<span>$0</span></div>
+            <div class="white emptynote">Nothing entered yet. <a class="changed">Add your accounts ›</a><span class="pn">1</span></div>
+            <div class="lband">🏠 PERSONAL PROPERTY<span>$0</span></div>
+            <div class="white emptynote">Nothing entered yet. <a class="changed">Add your accounts ›</a><span class="pn">1</span></div>
+            <div class="qlabel inrow changed">How do you want to add an account?<span class="pn">2</span></div>
+            <div class="lrow changed">Link it (read-only)<span class="pn">3</span><span class="ar">›</span></div>
+            <div class="lrow changed">Add by hand<span class="pn">4</span><span class="ar">›</span></div>
+            <div class="lrow changed">Import from a file<span class="pn">5</span><span class="ar">›</span></div>
+            <div class="lrow quiet">or walk through it step by step<span class="ar">›</span></div>
+            <div class="band">DEBTS  ⓘ<span>$0</span></div>
+            <div class="white emptynote">Nothing entered yet. <a>Add your debts ›</a></div>
+            <div class="lrow">Add a mortgage, card, or loan<span class="ar">›</span></div>
+            <div class="band">EMERGENCY FUND</div>
+            <div class="white"><div class="sample">— months</div><div class="small">appears with your first cash account + monthly expenses</div></div>
+          </div>
+          <div class="tabbar"><div class="tab">Home</div><div class="tab on">Net worth</div><div class="tab">Performance</div><div class="tab">Cash flow</div><div class="tab">Plan</div></div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>Every “Add your accounts ›” on this screen opens the “How do you want to add an account?” sheet</b>, the one drawn in section 3. Today, on the first day, it opens nothing: it switches the tab to its regular layout, which shows the same $0 and the same line.</span></li>
+        <li><span class="pn">2</span><span><b>The heading is new</b>, the same words and the same quiet section label as on every other screen.</span></li>
+        <li><span class="pn">3</span><span><b>“Connect a brokerage” becomes “Link it (read-only)”.</b> It still opens the Connect screen, in one tap.</span></li>
+        <li><span class="pn">4</span><span><b>“Type it yourself” becomes “Add by hand”, and it opens the Add account form in one tap.</b> Today this row only switches the tab into its regular layout, and the form is three taps away. Accounts named during setup still appear once the first account is saved.</span></li>
+        <li><span class="pn">5</span><span><b>“Add a file from your bank” becomes “Import from a file”.</b> It still opens the import screen, in one tap.</span></li>
+        <li><span class="pn" style="background:#6B6B66">·</span><span><b>“or walk through it step by step” stays as it is.</b> It is a different door, the guided setup, and it does not add an account directly.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 3 · NET WORTH, ADD SHEET ═══════════════════════════ -->
+  <div class="section">
+    <h2>3 · Net worth — with accounts added, after tapping “＋ Add or connect an account”</h2>
+    <p class="why">The person behind the sheet has a Vanguard brokerage of $300,000 and Ally savings of $20,000 and owes nothing: $300,000 + $20,000 = $320,000.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today</div>
+        <div class="phone"><div class="screen" style="min-height:760px">
+          <div class="dimmed">
+            <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+            <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+            <div class="content tight">
+              
+              <div class="band" style="margin-top:0">YOUR NET WORTH  ⓘ</div>
+              <div class="white"><div class="ownowe">Own $320,000 − Owe $0</div><div class="hero">$320,000</div></div>
+              <div class="band">WHAT YOU OWN<span>$320,000</span></div>
+              <div class="lband">💵 CASH<span>$20,000</span></div>
+              <div class="white"><div class="row2"><span>Ally Savings</span><b>$20,000</b></div></div>
+              <div class="lband">📈 INVESTMENTS<span>$300,000</span></div>
+              <div class="white"><div class="row2"><span>Brokerage · Vanguard</span><b>$300,000</b></div></div>
+              <div class="addbtn">＋ Add or connect an account</div>
+            </div>
+          </div>
+          <div class="sheet">
+            <div class="grip"></div>
+            <div class="crow"><div class="t">🔗  Link it (read-only)</div><div class="s">We can look, never touch your money.</div></div>
+            <div class="crow"><div class="t">✍️  Add by hand</div><div class="s">Your home, savings, or any account with no login.</div></div>
+            <div class="crow"><div class="t">📄  Import from a file</div><div class="s">The CSV export from your brokerage.</div></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen" style="min-height:760px">
+          <div class="dimmed">
+            <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+            <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+            <div class="content tight">
+              
+              <div class="band" style="margin-top:0">YOUR NET WORTH  ⓘ</div>
+              <div class="white"><div class="ownowe">Own $320,000 − Owe $0</div><div class="hero">$320,000</div></div>
+              <div class="band">WHAT YOU OWN<span>$320,000</span></div>
+              <div class="lband">💵 CASH<span>$20,000</span></div>
+              <div class="white"><div class="row2"><span>Ally Savings</span><b>$20,000</b></div></div>
+              <div class="lband">📈 INVESTMENTS<span>$300,000</span></div>
+              <div class="white"><div class="row2"><span>Brokerage · Vanguard</span><b>$300,000</b></div></div>
+              <div class="addbtn">＋ Add or connect an account</div>
+            </div>
+          </div>
+          <div class="sheet">
+            <div class="grip"></div>
+            <div class="sheettitle changed">How do you want to add an account?<span class="pn">1</span></div>
+            <div class="crow"><div class="t">🔗  Link it (read-only)</div><div class="s">We can look, never touch your money.</div></div>
+            <div class="crow"><div class="t">✍️  Add by hand</div><div class="s">Your home, savings, or any account with no login.</div></div>
+            <div class="crow"><div class="t">📄  Import from a file</div><div class="s">The CSV export from your brokerage.</div></div>
+          </div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>The only change on this sheet is the heading</b>, set as the sheet’s title in the size and weight of “Add expense” on the expense sheet. The three doors keep exactly the words you chose, and every other screen now copies them.</span></li>
+        <li><span class="pn" style="background:#6B6B66">·</span><span><b>In version 5 this sheet also opens from every “Add your accounts ›” line</b>, on Net worth, Home, Performance, Roth conversion and Stress test. The table at the end lists each one.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 4 · PLAN TAB, WITH ACCOUNTS ═══════════════════════════ -->
+  <div class="section">
+    <h2>4 · Plan tab — a person with two accounts added</h2>
+    <p class="why">What counts toward retirement: Traditional retirement $120,000 + investments $45,000 = $165,000.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content tight">
+            <div class="tabtitle">Plan</div>
+            <div class="sub" style="margin-top:-6px">We lay it out. You decide.</div>
+            <div class="seg"><span class="on">Retire</span><span>Goals</span><span>Prepare</span></div>
+            <div class="qlabel sec">WILL MY MONEY LAST?  🔒</div>
+            <div class="white"><div class="sample">Sample: 84% odds of lasting to age 90</div>
+              <div class="small">A sample, not your number — yours needs 1 more answer, below.</div>
+              <div class="small" style="margin-top:6px">Your odds — can't be calculated yet. Add <span class="greenlink">what you spend</span> below.</div>
+              <div class="small" style="margin-top:6px">✓ What you have — already in: 2 accounts, $165,000 counted</div></div>
+            <div class="qlabel sec">FACTS — SAVE AS YOU GO</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">Your age <span class="tag">FACT</span></div>
+              <div class="fact">Monthly expenses in retirement <span class="tag miss">MISSING</span><span class="stepper">$ ____</span></div>
+              <div class="small">Not counting loan or mortgage payments — we add those ourselves, from your loans, for as long as they run.</div>
+              <div class="fact">What's your target nest egg?<span class="stepper">$1,080,000</span></div>
+              <div class="small">— our starting figure, not yours. Change it to your own number.</div>
+            </div>
+            <div class="band">WHAT COUNTS TOWARD RETIREMENT<span>$165,000</span></div>
+            <div class="pcard">
+              <div class="hint">Everything you own counts, except the home you live in and the car you drive. Tap any row to change it.</div>
+              <div class="prow"><span class="ck">✓</span>Retirement (Traditional)<span class="v">$120,000</span></div>
+              <div class="prow"><span class="ck">✓</span>Investments<span class="v">$45,000</span></div>
+              <div class="hint">Missing something? Add it here:</div>
+              <div class="prow">🔗  Connect your bank ›</div>
+              <div class="prow">📄  Import a file from your brokerage ›</div>
+              <div class="prow">✍️  Add something by hand ›</div>
+            </div>
+            <div class="band">BIG ONE-TIME COSTS<span>None yet</span></div>
+            <div class="white"><div class="greenlink">＋ Add a big cost ›</div><div class="small">Nothing here yet — your odds currently assume no big one-time costs.</div></div>
+            <div class="qlabel sec">CHOICES — TRY THEM, NOTHING CHANGES YET</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">Retire at <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>65<i>+</i></span></div>
+              <div class="fact">Plan to age <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>90<i>+</i></span></div>
+              <div class="fact">Extra saving each month <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>+$0<i>+</i></span></div>
+            </div>
+            <div class="nextcard"><div class="nextkicker">SAMPLE — YOUR NEXT DECISION LANDS HERE</div><div class="nexttitle">Your Social Security claim window opens at 62</div><div class="small">Dated and in your dollars, once your numbers are in. Never invented before then.</div></div>
+            <div class="qlabel sec">DECISIONS YOU CAN MAKE TODAY</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">When can I retire? 🔒</div>
+              <div class="fact">Can I afford it?<span class="stepper" style="color:#76766F">›</span></div>
+              <div class="fact">Sharpen your plan<span class="stepper" style="color:#178F6B">4 of 6 answered ›</span></div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab">Home</div><div class="tab">Net worth</div><div class="tab">Performance</div><div class="tab">Cash flow</div><div class="tab on">Plan</div></div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content tight">
+            <div class="tabtitle">Plan</div>
+            <div class="sub" style="margin-top:-6px">We lay it out. You decide.</div>
+            <div class="seg"><span class="on">Retire</span><span>Goals</span><span>Prepare</span></div>
+            <div class="qlabel sec">WILL MY MONEY LAST?  🔒</div>
+            <div class="white"><div class="sample">Sample: 84% odds of lasting to age 90</div>
+              <div class="small">A sample, not your number — yours needs 1 more answer, below.</div>
+              <div class="small" style="margin-top:6px">Your odds — can't be calculated yet. Add <span class="greenlink">what you spend</span> below.</div>
+              <div class="small" style="margin-top:6px">✓ What you have — already in: 2 accounts, $165,000 counted</div></div>
+            <div class="qlabel sec">FACTS — SAVE AS YOU GO</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">Your age <span class="tag">FACT</span></div>
+              <div class="fact">Monthly expenses in retirement <span class="tag miss">MISSING</span><span class="stepper">$ ____</span></div>
+              <div class="small">Not counting loan or mortgage payments — we add those ourselves, from your loans, for as long as they run.</div>
+              <div class="fact">What's your target nest egg?<span class="stepper">$1,080,000</span></div>
+              <div class="small">— our starting figure, not yours. Change it to your own number.</div>
+            </div>
+            <div class="band">WHAT COUNTS TOWARD RETIREMENT<span>$165,000</span></div>
+            <div class="pcard">
+              <div class="hint">Everything you own counts, except the home you live in and the car you drive. Tap any row to change it.</div>
+              <div class="prow"><span class="ck">✓</span>Retirement (Traditional)<span class="v">$120,000</span></div>
+              <div class="prow"><span class="ck">✓</span>Investments<span class="v">$45,000</span></div>
+              <div class="hint">Missing something? Add it here:</div>
+              <div class="qlabel plan changed">How do you want to add an account?<span class="pn">1</span></div>
+              <div class="prow changed">🔗  Link it (read-only) ›<span class="pn">2</span></div>
+              <div class="prow changed">✍️  Add by hand ›<span class="pn">3</span></div>
+              <div class="prow changed">📄  Import from a file ›<span class="pn">4</span></div>
+            </div>
+            <div class="band">BIG ONE-TIME COSTS<span>None yet</span></div>
+            <div class="white"><div class="greenlink">＋ Add a big cost ›</div><div class="small">Nothing here yet — your odds currently assume no big one-time costs.</div></div>
+            <div class="qlabel sec">CHOICES — TRY THEM, NOTHING CHANGES YET</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">Retire at <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>65<i>+</i></span></div>
+              <div class="fact">Plan to age <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>90<i>+</i></span></div>
+              <div class="fact">Extra saving each month <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>+$0<i>+</i></span></div>
+            </div>
+            <div class="nextcard"><div class="nextkicker">SAMPLE — YOUR NEXT DECISION LANDS HERE</div><div class="nexttitle">Your Social Security claim window opens at 62</div><div class="small">Dated and in your dollars, once your numbers are in. Never invented before then.</div></div>
+            <div class="qlabel sec">DECISIONS YOU CAN MAKE TODAY</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">When can I retire? 🔒</div>
+              <div class="fact">Can I afford it?<span class="stepper" style="color:#76766F">›</span></div>
+              <div class="fact">Sharpen your plan<span class="stepper" style="color:#178F6B">4 of 6 answered ›</span></div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab">Home</div><div class="tab">Net worth</div><div class="tab">Performance</div><div class="tab">Cash flow</div><div class="tab on">Plan</div></div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>The heading is new</b>, as a quiet section label like “Facts — save as you go” higher up the tab. The line “Missing something? Add it here:” stays above it, the way “Nothing entered yet.” stays on Net worth.</span></li>
+        <li><span class="pn">2</span><span><b>“Connect your bank” becomes “Link it (read-only)”.</b> This list shows titles only, without the line under each door, as it does today.</span></li>
+        <li><span class="pn">3</span><span><b>“Add something by hand” becomes “Add by hand”</b>, second in the list.</span></li>
+        <li><span class="pn">4</span><span><b>“Import a file from your brokerage” becomes “Import from a file”</b>, third in the list.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 5 · PLAN TAB, NEW PERSON ═══════════════════════════ -->
+  <div class="section">
+    <h2>5 · Plan tab — a new person, nothing added</h2>
+    <p class="why">The same section when nothing is counted yet: the total reads “—”, and the line “Missing something? Add it here:” sits under the explanation. Shown as built only; the changes are the same four as section 4.</p>
+    <div class="pair">
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content tight">
+            <div class="tabtitle">Plan</div>
+            <div class="sub" style="margin-top:-6px">We lay it out. You decide.</div>
+            <div class="seg"><span class="on">Retire</span><span>Goals</span><span>Prepare</span></div>
+            <div class="qlabel sec">WILL MY MONEY LAST?  🔒</div>
+            <div class="white"><div class="sample">Sample: 84% odds of lasting to age 90</div>
+              <div class="small">A sample, not your number — answer the three below and it becomes yours.</div>
+              <div class="small" style="margin-top:6px">Your odds — can't be calculated yet. Add <span class="greenlink">your age and what you spend and what you have</span> below.</div></div>
+            <div class="qlabel sec">FACTS — SAVE AS YOU GO</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">Your age <span class="tag miss">MISSING</span></div>
+              <div class="fact">Monthly expenses in retirement <span class="tag miss">MISSING</span><span class="stepper">$ ____</span></div>
+              <div class="fact">What's your target nest egg?<span class="stepper">$ ____</span></div>
+            </div>
+            <div class="band">WHAT COUNTS TOWARD RETIREMENT<span>—</span></div>
+            <div class="pcard">
+              <div class="hint">Everything you own counts, except the home you live in and the car you drive. Tap any row to change it.</div>
+              <div class="hint">Missing something? Add it here:</div>
+              <div class="qlabel plan changed">How do you want to add an account?<span class="pn">1</span></div>
+              <div class="prow changed">🔗  Link it (read-only) ›<span class="pn">2</span></div>
+              <div class="prow changed">✍️  Add by hand ›<span class="pn">3</span></div>
+              <div class="prow changed">📄  Import from a file ›<span class="pn">4</span></div>
+            </div>
+            <div class="band">BIG ONE-TIME COSTS<span>None yet</span></div>
+            <div class="white"><div class="greenlink">＋ Add a big cost ›</div></div>
+            <div class="qlabel sec">CHOICES — TRY THEM, NOTHING CHANGES YET</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">Retire at <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>65<i>+</i></span></div>
+              <div class="fact">Plan to age <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>90<i>+</i></span></div>
+              <div class="fact">Extra saving each month <span class="tag draft">DRAFT</span><span class="stepper"><i>−</i>+$0<i>+</i></span></div>
+            </div>
+            <div class="qlabel sec">DECISIONS YOU CAN MAKE TODAY</div>
+            <div class="white">
+              <div class="fact" style="border-top:none">When can I retire? 🔒</div>
+              <div class="fact">Sharpen your plan<span class="stepper" style="color:#178F6B">1 of 6 answered ›</span></div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab">Home</div><div class="tab">Net worth</div><div class="tab">Performance</div><div class="tab">Cash flow</div><div class="tab on">Plan</div></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 6 · SHARPEN YOUR PLAN ═══════════════════════════ -->
+  <div class="section">
+    <h2>6 · Sharpen your plan</h2>
+    <p class="why">Four of six answered is 67%.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="content">
+            <div class="back">‹ Back</div>
+            <div class="h1">Sharpen your plan</div>
+            <div class="sub">The more we know, the sharper your numbers. Finish what you skipped.</div>
+            <div class="progress"><span class="big">67%</span><span class="small">4 of 6 complete</span></div>
+            <div class="band">THE FAST WAYS IN</div>
+            <div class="sdoor"><span class="ic">🔗</span><div><div class="t">Connect your bank ›</div><div class="s">Read-only: we can look, never touch your money.</div></div></div>
+            <div class="sdoor"><span class="ic">📄</span><div><div class="t">Import a file from your brokerage ›</div><div class="s">The CSV export — we read your holdings, nothing is uploaded.</div></div></div>
+            <div class="sdoor"><span class="ic">✍️</span><div><div class="t">Add something by hand ›</div><div class="s">Your home, savings, or an account with no login.</div></div></div>
+            <div class="band">FINISH WHAT YOU SKIPPED</div>
+            <div class="srow"><span class="ck">✓</span><div><div class="t">Add your income</div><div class="small">Salary, bonus, equity, rental — drives every projection.</div></div></div>
+            <div class="srow"><span class="ck">✓</span><div><div class="t">Add your accounts</div><div class="small">Cash, investments, property → your net worth.</div></div></div>
+            <div class="srow"><span class="ck">✓</span><div><div class="t">Set a budget</div><div class="small">So we can track budget vs actual and savings.</div></div></div>
+            <div class="srow"><span class="ck">✓</span><div><div class="t">Track investments</div><div class="small">Holdings, bonds, or alternatives vs benchmark.</div></div></div>
+            <div class="srow"><span class="ck"></span><div><div class="t">Set up retirement</div><div class="small">Social Security, target age, drawdown.</div></div><span class="add">Add ›</span></div>
+            <div class="srow"><span class="ck"></span><div><div class="t">Add a goal</div><div class="small">Emergency fund, home, a trip — and a debt-payoff plan.</div></div><span class="add">Add ›</span></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1">Sharpen your plan</div>
+            <div class="sub">The more we know, the sharper your numbers. Finish what you skipped.</div>
+            <div class="progress"><span class="big">67%</span><span class="small">4 of 6 complete</span></div>
+            <div class="qlabel sharpen changed">How do you want to add an account?<span class="pn">1</span></div>
+            <div class="sdoor changed"><span class="ic">🔗</span><div><div class="t">Link it (read-only) ›<span class="pn">2</span></div><div class="s">We can look, never touch your money.</div></div></div>
+            <div class="sdoor changed"><span class="ic">✍️</span><div><div class="t">Add by hand ›<span class="pn">3</span></div><div class="s">Your home, savings, or any account with no login.</div></div></div>
+            <div class="sdoor changed"><span class="ic">📄</span><div><div class="t">Import from a file ›<span class="pn">4</span></div><div class="s">The CSV export from your brokerage.</div></div></div>
+            <div class="band">FINISH WHAT YOU SKIPPED</div>
+            <div class="srow"><span class="ck">✓</span><div><div class="t">Add your income</div><div class="small">Salary, bonus, equity, rental — drives every projection.</div></div></div>
+            <div class="srow"><span class="ck">✓</span><div><div class="t">Add your accounts</div><div class="small">Cash, investments, property → your net worth.</div></div></div>
+            <div class="srow"><span class="ck">✓</span><div><div class="t">Set a budget</div><div class="small">So we can track budget vs actual and savings.</div></div></div>
+            <div class="srow"><span class="ck">✓</span><div><div class="t">Track investments</div><div class="small">Holdings, bonds, or alternatives vs benchmark.</div></div></div>
+            <div class="srow"><span class="ck"></span><div><div class="t">Set up retirement</div><div class="small">Social Security, target age, drawdown.</div></div><span class="add">Add ›</span></div>
+            <div class="srow"><span class="ck"></span><div><div class="t">Add a goal</div><div class="small">Emergency fund, home, a trip — and a debt-payoff plan.</div></div><span class="add">Add ›</span></div>
+          </div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>The full band “THE FAST WAYS IN” becomes the quiet section label “How do you want to add an account?”.</b> A full band is kept for a group with its own total, and these doors have none.</span></li>
+        <li><span class="pn">2</span><span><b>“Connect your bank” becomes “Link it (read-only)”</b>, with the same line as everywhere.</span></li>
+        <li><span class="pn">3</span><span><b>“Add something by hand” becomes “Add by hand”</b>, second, with the line “Your home, savings, or any account with no login.”</span></li>
+        <li><span class="pn">4</span><span><b>“Import a file from your brokerage” becomes “Import from a file”</b>, third, with the line “The CSV export from your brokerage.”</span></li>
+              <li><span class="pn">T</span><span><b>MoneyKeel at the top, as on every tab screen</b> (your direction). My choice: “‹ Back” takes the place of “Menu”, because this screen is opened from another one; the eye and settings buttons stay. Today this screen has no top bar.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 7 · CONNECT AN ACCOUNT ═══════════════════════════ -->
+  <div class="section">
+    <h2>7 · The screen “Link it (read-only)” opens</h2>
+    <p class="why">This is the screen today while bank linking is not yet switched on. Its two way-out doors are the other two ways to add an account.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today</div>
+        <div class="phone"><div class="screen" style="min-height:640px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="content">
+            <div class="back">‹ Back</div>
+            <div class="h1">Connect an account</div>
+            <div class="sub" style="font-size:15px">Read-only: we can look, never touch your money.</div>
+            <div class="card"><div class="line">Bank linking isn't switched on in this version yet — it arrives in an update, and we'd rather tell you that than show a button that doesn't work.</div>
+              <div class="note">The file import gets you the same result today in about two minutes.</div></div>
+            <div class="eqhdr">Just as good, no login:</div>
+            <div class="doorrow"><div class="dbtn">Import a file</div><div class="dbtn">Add by hand</div></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen" style="min-height:640px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1 changed">Link an account<span class="pn">1</span></div>
+            <div class="sub" style="font-size:15px">Read-only: we can look, never touch your money.</div>
+            <div class="card"><div class="line">Bank linking isn't switched on in this version yet — it arrives in an update, and we'd rather tell you that than show a button that doesn't work.</div>
+              <div class="note changed">Import from a file gets you the same result today in about two minutes.<span class="pn">2</span></div></div>
+            <div class="eqhdr">Just as good, no login:</div>
+            <div class="doorrow changed"><div class="dbtn">Add by hand</div><div class="dbtn">Import from a file</div><span class="pn" style="align-self:center">3</span></div>
+          </div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>My choice: the title “Connect an account” becomes “Link an account”</b>, so the door and the screen it opens use the same word. Strike this mark if you want the title kept.</span></li>
+        <li><span class="pn">2</span><span><b>The sentence names the import door by its one term</b>: “Import from a file gets you the same result today in about two minutes.”</span></li>
+        <li><span class="pn">3</span><span><b>The two doors read “Add by hand” and “Import from a file”</b>, in the same order as everywhere. Today the second reads “Import a file”, and a screen reader says “…instead” after both. It will say the same words that are shown.</span></li>
+              <li><span class="pn">T</span><span><b>MoneyKeel at the top, as on every tab screen</b> (your direction). My choice: “‹ Back” takes the place of “Menu”, because this screen is opened from another one; the eye and settings buttons stay. Today this screen has no top bar.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 8 · THE STEP BEFORE SIGNING IN ═══════════════════════════ -->
+  <div class="section">
+    <h2>8 · The step before signing in</h2>
+    <p class="why">After someone taps “Link it (read-only)” and picks their bank, here Chase, this step explains what linking does before it sends them to the bank’s own sign-in page. The small question above the last two doors is for someone who changes their mind at this point.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today</div>
+        <div class="phone"><div class="screen" style="min-height:700px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="content">
+            <div class="back">‹ Back</div>
+            <div class="h1">Before you connect Chase</div>
+            <div class="card"><div class="consentrow"><span class="dot">·</span><span class="line">You sign in on your bank’s own page — we never see or store your password.</span></div><div class="consentrow"><span class="dot">·</span><span class="line">Your balances and transactions flow through the connection service’s servers to this app.</span></div><div class="consentrow"><span class="dot">·</span><span class="line">The connection is read-only: nothing and no one can move your money through it.</span></div><div class="consentrow"><span class="dot">·</span><span class="line">Your brokerage’s page may mention trading access — MoneyKeel registers every connection read-only, and this app has no trading commands at all.</span></div><div class="consentrow"><span class="dot">·</span><span class="line">Disconnect any time in Settings — you choose: keep your numbers as a by-hand account, or delete the connection’s data.</span></div></div>
+            <div class="primarybtn">Continue to Chase's sign-in</div>
+            <div class="note">Sign-in happens on the connection service — never inside this app.</div>
+            <div class="eqhdr">Rather not connect?</div>
+            <div class="doorrow"><div class="dbtn">Import a file</div><div class="dbtn">Add by hand</div></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen" style="min-height:700px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1 changed">Before you link Chase<span class="pn">1</span></div>
+            <div class="card"><div class="consentrow"><span class="dot">·</span><span class="line">You sign in on your bank’s own page — we never see or store your password.</span></div><div class="consentrow"><span class="dot">·</span><span class="line">Your balances and transactions flow through the connection service’s servers to this app.</span></div><div class="consentrow"><span class="dot">·</span><span class="line">The connection is read-only: nothing and no one can move your money through it.</span></div><div class="consentrow"><span class="dot">·</span><span class="line">Your brokerage’s page may mention trading access — MoneyKeel registers every connection read-only, and this app has no trading commands at all.</span></div><div class="consentrow"><span class="dot">·</span><span class="line">Disconnect any time in Settings — you choose: keep your numbers as a by-hand account, or delete the connection’s data.</span></div></div>
+            <div class="primarybtn">Continue to Chase's sign-in</div>
+            <div class="note">Sign-in happens on the connection service — never inside this app.</div>
+            <div class="eqhdr changed">Rather not link?<span class="pn">2</span></div>
+            <div class="doorrow changed"><div class="dbtn">Add by hand</div><div class="dbtn">Import from a file</div><span class="pn" style="align-self:center">3</span></div>
+          </div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>“Before you connect Chase” becomes “Before you link Chase”</b>, so the step uses the verb of the door that led here.</span></li>
+        <li><span class="pn">2</span><span><b>“Rather not connect?” becomes “Rather not link?”</b> It asks whether the person would rather not link their bank after all, and the two doors under it are the other two ways to add the account.</span></li>
+        <li><span class="pn">3</span><span><b>The two doors read “Add by hand” and “Import from a file”</b>, in the same order as everywhere.</span></li>
+        <li><span class="pn" style="background:#6B6B66">·</span><span><b>The five sentences in the white card stay as they are.</b> “Connection” and “Disconnect” there name the link once it exists, and they match the disconnect choice in Settings, so they are not the door. Say if you want them changed too.</span></li>
+              <li><span class="pn">T</span><span><b>MoneyKeel at the top, as on every tab screen</b> (your direction). My choice: “‹ Back” takes the place of “Menu”, because this screen is opened from another one; the eye and settings buttons stay. Today this screen has no top bar.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 9 · THE SCREENS ADD BY HAND AND IMPORT FROM A FILE OPEN ═══════════════════════════ -->
+  <div class="section">
+    <h2>9 · The screens “Add by hand” and “Import from a file” open</h2>
+    <p class="why">After “How do you want to add an account?”, each screen is titled with the words of the door the person chose, so nobody is asked “add an account” twice. “Link it (read-only)” opens “Link an account” (section 7). “Add by hand” opens “Add by hand”, and that screen keeps its six versions, one for each kind of account. “Import from a file” opens a screen titled “Import from File”.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today — Cash, what opens first</div>
+        <div class="phone"><div class="screen" style="min-height:1040px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="content">
+            <div class="back">‹ Back</div>
+            <div class="h1">Add an account</div>
+            <div class="q">What is it? *</div>
+            <div class="fchips"><span class="fchip on">Cash</span><span class="fchip">Stocks / Funds</span><span class="fchip">Bonds</span><span class="fchip">Alternatives</span><span class="fchip">Real estate</span><span class="fchip">Debt</span></div>
+            <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">Interest rate % (optional)</div><div class="in">0.0</div>
+            <div class="asof">value as of Sep 14, 2026</div>
+            <div class="save">Save</div>
+          </div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built — Cash</div>
+        <div class="phone"><div class="screen" style="min-height:1040px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1 changed">Add by hand<span class="pn">1</span></div>
+            <div class="q">What is it? *</div>
+            <div class="fchips"><span class="fchip on">Cash</span><span class="fchip">Stocks / Funds</span><span class="fchip">Bonds</span><span class="fchip">Alternatives</span><span class="fchip">Real estate</span><span class="fchip">Debt</span></div>
+            <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">Interest rate % (optional)</div><div class="in">0.0</div>
+            <div class="asof">value as of Sep 14, 2026</div>
+            <div class="save">Save</div>
+          </div>
+        </div></div>
+      </div><div class="col"><div class="label after">As it will be built — Stocks / Funds</div>
+        <div class="phone"><div class="screen" style="min-height:1040px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1 changed">Add by hand<span class="pn">1</span></div>
+            <div class="q">What is it? *</div>
+            <div class="fchips"><span class="fchip">Cash</span><span class="fchip on">Stocks / Funds</span><span class="fchip">Bonds</span><span class="fchip">Alternatives</span><span class="fchip">Real estate</span><span class="fchip">Debt</span></div>
+            <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">Held in</div><div class="fchips"><span class="fchip on">Taxable</span><span class="fchip">401(k) / IRA</span><span class="fchip">Roth</span></div><div class="fl">Retirement earmark % (optional) ⓘ</div><div class="in">100</div>
+            <div class="asof">value as of Sep 14, 2026</div>
+            <div class="save">Save</div>
+          </div>
+        </div></div>
+      </div><div class="col"><div class="label after">As it will be built — Bonds</div>
+        <div class="phone"><div class="screen" style="min-height:1040px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1 changed">Add by hand<span class="pn">1</span></div>
+            <div class="q">What is it? *</div>
+            <div class="fchips"><span class="fchip">Cash</span><span class="fchip">Stocks / Funds</span><span class="fchip on">Bonds</span><span class="fchip">Alternatives</span><span class="fchip">Real estate</span><span class="fchip">Debt</span></div>
+            <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">Face value (optional)</div><div class="in">$10,000</div><div class="fl">Interest rate % (optional)</div><div class="in">4.5</div><div class="fl">Matures (optional)</div><div class="in">Tap to pick a date</div><div class="fl">Held in</div><div class="fchips"><span class="fchip on">Taxable</span><span class="fchip">401(k) / IRA</span><span class="fchip">Roth</span></div><div class="fl">Retirement earmark % (optional) ⓘ</div><div class="in">100</div>
+            <div class="asof">value as of Sep 14, 2026</div>
+            <div class="save">Save</div>
+          </div>
+        </div></div>
+      </div><div class="col"><div class="label after">As it will be built — Alternatives</div>
+        <div class="phone"><div class="screen" style="min-height:1040px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1 changed">Add by hand<span class="pn">1</span></div>
+            <div class="q">What is it? *</div>
+            <div class="fchips"><span class="fchip">Cash</span><span class="fchip">Stocks / Funds</span><span class="fchip">Bonds</span><span class="fchip on">Alternatives</span><span class="fchip">Real estate</span><span class="fchip">Debt</span></div>
+            <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">What kind?</div><div class="fchips"><span class="fchip on">Crypto</span><span class="fchip">Gold / commodities</span><span class="fchip">Private stake</span><span class="fchip">Annuity</span><span class="fchip">Other</span></div><div class="fl">Held in</div><div class="fchips"><span class="fchip on">Taxable</span><span class="fchip">401(k) / IRA</span><span class="fchip">Roth</span></div><div class="fl">Retirement earmark % (optional) ⓘ</div><div class="in">100</div>
+            <div class="asof">value as of Sep 14, 2026</div>
+            <div class="save">Save</div>
+          </div>
+        </div></div>
+      </div><div class="col"><div class="label after">As it will be built — Real estate</div>
+        <div class="phone"><div class="screen" style="min-height:1040px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1 changed">Add by hand<span class="pn">1</span></div>
+            <div class="q">What is it? *</div>
+            <div class="fchips"><span class="fchip">Cash</span><span class="fchip">Stocks / Funds</span><span class="fchip">Bonds</span><span class="fchip">Alternatives</span><span class="fchip on">Real estate</span><span class="fchip">Debt</span></div>
+            <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">What it’s worth *</div><div class="in">$0</div><div class="fl">Debt balance (optional)</div><div class="in">$0</div>
+            <div class="asof">value as of Sep 14, 2026</div>
+            <div class="save">Save</div>
+          </div>
+        </div></div>
+      </div><div class="col"><div class="label after">As it will be built — Debt</div>
+        <div class="phone"><div class="screen" style="min-height:1040px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="content">
+            <div class="h1 changed">Add by hand<span class="pn">1</span></div>
+            <div class="q">What is it? *</div>
+            <div class="fchips"><span class="fchip">Cash</span><span class="fchip">Stocks / Funds</span><span class="fchip">Bonds</span><span class="fchip">Alternatives</span><span class="fchip">Real estate</span><span class="fchip on">Debt</span></div>
+            <div class="fl">Name *</div><div class="in">Car loan</div><div class="fl">Debt balance *</div><div class="in">$0</div><div class="fl">Interest rate % *</div><div class="in">7.0</div><div class="fl">Minimum monthly payment *</div><div class="in">$150</div>
+            <div class="asof">value as of Sep 14, 2026</div>
+            <div class="save">Save</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <ol class="legend" style="max-width:860px; margin-top:18px">
+      <li><span class="pn">1</span><span><b>On all six versions, the title “Add an account” becomes “Add by hand”.</b> Today the person answers “How do you want to add an account?” and then lands on a screen that says “Add an account” again. The title now names the choice they made, and it also fits Debt, which is not an account. When editing an account, the title stays “Update” and the account’s name.</span></li>
+      <li><span class="pn" style="background:#6B6B66">·</span><span><b>The six versions stay exactly as they are.</b> Cash asks for an interest rate. Stocks / Funds asks where it is held and the retirement earmark. Bonds adds face value, interest rate and maturity. Alternatives adds what kind. Real estate asks what it is worth and any debt on it. Debt asks for the interest rate and the minimum monthly payment. Only the title changes.</span></li>
+            <li><span class="pn">T</span><span><b>MoneyKeel at the top, as on every tab screen</b> (your direction). My choice: “‹ Back” takes the place of “Menu”, because this screen is opened from another one; the eye and settings buttons stay. Today this screen has no top bar.</span></li>
+      </ol>
+    <div class="pair">
+      <div class="col"><div class="label">Today — Import from a file opens</div>
+        <div class="phone"><div class="screen" style="min-height:760px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="navbar"><span class="nb">‹</span>Import holdings 📄</div>
+          <div class="content">
+            <div class="emoji">📄</div>
+            <div class="ch1">Import your holdings</div>
+            <div class="band">IMPORT YOUR HOLDINGS</div>
+            <div class="csub">Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We'll read your tickers, shares, and cost — no logins or passwords.</div>
+            <div class="icard"><div class="ct">What we look for</div>
+              <div class="bl">• A <b>Symbol</b> / Ticker column</div>
+              <div class="bl">• A <b>Quantity</b> / Shares column</div>
+              <div class="bl">• A <b>Cost basis</b> column (optional — we'll still import without it)</div></div>
+            <div class="pill">Choose a file</div>
+            <div class="inote">🔒 Your file is read on your device. Nothing is uploaded except your own encrypted data.</div>
+          </div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen" style="min-height:760px">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar changed"><span class="menupill">‹ Back</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span><span class="pn" style="align-self:center">T</span></span></div>
+          <div class="band changed" style="margin:0">Import from File<span class="pn">1</span></div>
+          <div class="content">
+            <div class="emoji">📄</div>
+            <div class="csub">Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We'll read your tickers, shares, and cost — no logins or passwords.</div>
+            <div class="icard"><div class="ct">What we look for</div>
+              <div class="bl">• A <b>Symbol</b> / Ticker column</div>
+              <div class="bl">• A <b>Quantity</b> / Shares column</div>
+              <div class="bl">• A <b>Cost basis</b> column (optional — we'll still import without it)</div></div>
+            <div class="pill">Choose a file</div>
+            <div class="inote">🔒 Your file is read on your device. Nothing is uploaded except your own encrypted data.</div>
+          </div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>Your ruling: the screen’s one title is “Import from File”, on a dark-green bar at the top</b>, running edge to edge with square corners and written in the bar’s capitals, as every dark-green bar in the app is. Above it sits the MoneyKeel top bar (mark T), and nothing else on the screen repeats the title. Today the screen names itself three ways: “Import holdings” in the top bar, “Import your holdings” as a heading, and “IMPORT YOUR HOLDINGS” in a bar lower down. All three go.</span></li>
+        <li><span class="pn" style="background:#6B6B66">?</span><span><b>One wording check.</b> The door in the sheet reads “Import from a file”, and this title reads “Import from File”. Under one door, one term they should match. Say which words both should use.</span></li>
+        <li><span class="pn" style="background:#6B6B66">·</span><span><b>Nothing else on this screen changes</b>: the sentence, the list of columns, “Choose a file” and the privacy note.</span></li>
+              <li><span class="pn">T</span><span><b>MoneyKeel at the top, as on every tab screen</b> (your direction). My choice: “‹ Back” takes the place of “Menu”; the eye and settings buttons stay. Today this screen has a plain bar reading “Import holdings 📄”.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 10 · PERFORMANCE, NEW PERSON ═══════════════════════════ -->
+  <div class="section">
+    <h2>10 · Performance — a new person, nothing added</h2>
+    <p class="why">Every line is $0 because nothing is held yet, so every line adds up to $0.</p>
+    <div class="pair">
+      <div class="col"><div class="label">Today</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content tight">
+            <div class="head"><span class="t" style="font-size:20px">Performance</span><span class="icons" style="font-size:13px">Sep 14, 2026 · <span class="greenlink">↻ Refresh</span></span></div>
+            <div class="periods"><span class="on">1M —</span><span>3M —</span><span>6M —</span><span>YTD —</span><span>1Y —</span><span>2Y —</span></div>
+            <div class="band">SUMMARY · SINCE TODAY</div>
+            <div class="white">
+              <div class="row2"><span>Ending value</span><b>$0</b></div>
+              <div class="row2"><span>Wealth generated</span><b>$0</b></div>
+              <div class="row2"><span>Return</span><b>—</b></div>
+              <div class="emptynote">Nothing entered yet. <a>Add your accounts ›</a></div>
+              <div class="small">Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</div>
+            </div>
+            <div class="band">HOW TODAY'S VALUE STANDS</div>
+            <div class="white">
+              <div class="row2"><span>Beginning market value (today)</span><b>$0</b></div>
+              <div class="row2"><span>Contributions</span><b>$0</b></div>
+              <div class="row2"><span>Withdrawals</span><b>$0</b></div>
+              <div class="row2"><span>Wealth generated</span><b>$0</b></div>
+              <div class="row2"><span>Dividends</span><b>$0</b></div>
+              <div class="row2"><span>Interest</span><b>$0</b></div>
+              <div class="row2"><span>Change in investment value</span><b>$0</b></div>
+              <div class="row2"><span>Ending market value (today)</span><b>$0</b></div>
+              <div class="small">Every line fills in as days pass — the structure never changes.</div>
+            </div>
+            <div class="band">WHAT EACH CATEGORY EARNED</div>
+            <div class="white">
+              <div class="small">Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</div>
+              <div class="perfadd"><span class="b">＋ Add a holding</span><span class="l">📄 Import from a file instead</span></div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab">Home</div><div class="tab">Net worth</div><div class="tab on">Performance</div><div class="tab">Cash flow</div><div class="tab">Plan</div></div>
+        </div></div>
+      </div>
+      <div class="col"><div class="label after">As it will be built</div>
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+          <div class="topbar"><span class="menupill">▦ Menu</span><span class="wordmark" role="img" aria-label="MoneyKeel"></span><span class="roundbtns"><span class="roundbtn">👁</span><span class="roundbtn">⚙</span></span></div>
+          <div class="content tight">
+            <div class="head"><span class="t" style="font-size:20px">Performance</span><span class="icons" style="font-size:13px">Sep 14, 2026 · <span class="greenlink">↻ Refresh</span></span></div>
+            <div class="periods"><span class="on">1M —</span><span>3M —</span><span>6M —</span><span>YTD —</span><span>1Y —</span><span>2Y —</span></div>
+            <div class="band">SUMMARY · SINCE TODAY</div>
+            <div class="white">
+              <div class="row2"><span>Ending value</span><b>$0</b></div>
+              <div class="row2"><span>Wealth generated</span><b>$0</b></div>
+              <div class="row2"><span>Return</span><b>—</b></div>
+              <div class="emptynote">Nothing entered yet. <a class="changed">Add your accounts ›</a><span class="pn">2</span></div>
+              <div class="small">Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</div>
+            </div>
+            <div class="band">HOW TODAY'S VALUE STANDS</div>
+            <div class="white">
+              <div class="row2"><span>Beginning market value (today)</span><b>$0</b></div>
+              <div class="row2"><span>Contributions</span><b>$0</b></div>
+              <div class="row2"><span>Withdrawals</span><b>$0</b></div>
+              <div class="row2"><span>Wealth generated</span><b>$0</b></div>
+              <div class="row2"><span>Dividends</span><b>$0</b></div>
+              <div class="row2"><span>Interest</span><b>$0</b></div>
+              <div class="row2"><span>Change in investment value</span><b>$0</b></div>
+              <div class="row2"><span>Ending market value (today)</span><b>$0</b></div>
+              <div class="small">Every line fills in as days pass — the structure never changes.</div>
+            </div>
+            <div class="band">WHAT EACH CATEGORY EARNED</div>
+            <div class="white">
+              <div class="small">Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</div>
+              <div class="perfadd"><span class="b">＋ Add a holding</span><span class="l changed">📄 Import from a file<span class="pn">1</span></span></div>
+            </div>
+          </div>
+          <div class="tabbar"><div class="tab">Home</div><div class="tab">Net worth</div><div class="tab on">Performance</div><div class="tab">Cash flow</div><div class="tab">Plan</div></div>
+        </div></div>
+      </div>
+      <ol class="legend">
+        <li><span class="pn">1</span><span><b>“Import from a file instead” becomes “Import from a file”.</b> A screen reader says “Import from a file” too, not “Import holdings from a file”. It still opens the import screen.</span></li>
+        <li><span class="pn">2</span><span><b>“Add your accounts ›” opens the “How do you want to add an account?” sheet.</b> Today it opens the Add account form, so a person with a brokerage login is never offered linking or a file from here.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ 9 · WORDS ONLY ═══════════════════════════ -->
+  <div class="section">
+    <h2>11 · Words that change with no change to the layout</h2>
+    <p class="why">These places name the same doors inside a sentence or a spoken label. Nothing moves on screen.</p>
+    <div class="scroll">
+      <table class="words">
+        <tr><th>Where</th><th>Today</th><th>As it will be built</th></tr>
+        <tr><td>Brokerage connect screen, under a brokerage we cannot link</td><td>“Add it by hand or import a CSV — everything still counts toward your picture.”</td><td>“Add by hand or import from a file — everything still counts toward your picture.”</td></tr>
+        <tr><td>Net worth, first day, what a screen reader says for each door</td><td>“Connect a brokerage” · “Add a file from your bank” · “Type it yourself”</td><td>The words shown: “Link it (read-only)” · “Add by hand” · “Import from a file”</td></tr>
+      </table>
+    </div>
+    <p class="why" style="margin-top:26px"><b>Where “Add your accounts ›” opens.</b> Today the same words open three different places. In version 5 every one opens the “How do you want to add an account?” sheet.</p>
+    <div class="scroll">
+      <table class="words">
+        <tr><th>Where</th><th>Today</th><th>As it will be built</th></tr>
+        <tr><td>Net worth, first day, under the hero and under each empty band</td><td>Opens nothing. It switches the tab to its regular layout, which shows the same line again.</td><td>The sheet</td></tr>
+        <tr><td>Net worth, regular layout with nothing added</td><td>The sheet</td><td>The sheet</td></tr>
+        <tr><td>Home, the “Your investments” card when no investment is added (MK-XS-M-003)</td><td>The Add account form</td><td>The sheet</td></tr>
+        <tr><td>Performance, “Summary · since today” (MK-PF-M-005 to MK-PF-M-008)</td><td>The Add account form</td><td>The sheet</td></tr>
+        <tr><td>Roth conversion, “Convert this year” when no pre-tax account is added (MK-PL-M-024)</td><td>The Add account form</td><td>The sheet</td></tr>
+        <tr><td>Stress test, when no cash account is added (MK-MN-M-024, MK-MN-M-025)</td><td>The Add account form</td><td>The sheet</td></tr>
+      </table>
+    </div>
+    <p class="why" style="margin-top:16px"><b>Kept as they are, because they are different doors.</b> Cash flow’s “Connect your bank” and “Connect your bank or card” are marked coming soon and are about paychecks and transactions, not adding an account. Cash flow’s “Import a statement” and “Add by hand — the ＋ Expense button” add expenses, not accounts. Say if any of these should change too.</p>
+  </div>
+
+</div>
+</body>
+</html>

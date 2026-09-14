@@ -26,7 +26,7 @@ describe('cost-of-living factor (retirement location)', () => {
 
 describe('capitalNeeded — amortization-based (replaces 4%-rule ×25)', () => {
   const { capitalNeeded } = require('./index');
-  test('the live-test persona: 76→90, $15k/mo, 3% real, no bequest ≈ $2.03MM (not $4.5MM)', () => {
+  test('the live-test persona: 76→90, $15k/month, 3% real, no bequest ≈ $2.03MM (not $4.5MM)', () => {
     const n = capitalNeeded({ monthlySpend: 15000, guaranteedMonthly: 0, retireAge: 76, horizonAge: 90, realReturn: 0.03, bequest: 0 });
     expect(n.years).toBe(14);
     expect(n.netAnnual).toBe(180000);

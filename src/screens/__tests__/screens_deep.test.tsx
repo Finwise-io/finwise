@@ -40,7 +40,7 @@ describe('RetirementCockpit — where you stand', () => {
     complete(retiree75);   // ri_ss 2200 + ri_pension 1300, no on-screen ssEligible set
     render(<RetirementCockpit />);
     expect(screen.getByText('Social Security & pension')).toBeOnTheScreen();   // pension named
-    expect(screen.getByText(/\$3,500\/mo/)).toBeOnTheScreen();                 // 2200 + 1300
+    expect(screen.getByText(/\$3,500\/month/)).toBeOnTheScreen();                 // 2200 + 1300
     expect(screen.queryByText(/Are you eligible\? Tap to set up/)).toBeNull();
   });
 
@@ -112,15 +112,15 @@ describe('GoalsScreen — debt payoff plan', () => {
 
   // BUG-LEDGER: B-28 — "free cash to save" must be income AFTER spending, not gross income.
   test('free-cash figure reflects savings (income − spend), not raw income', () => {
-    // $5,000/mo income, $3,000/mo rent → $2,000/mo free cash (not $5,000)
+    // $5,000/month income, $3,000/month rent → $2,000/month free cash (not $5,000)
     complete({
       taxMode: 'manual', manualTaxRate: '0', status: 'employed',
       baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly',
       spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '3000', unit: 'dollar' }],
     });
     render(<GoalsScreen />);
-    expect(screen.getByText(/\$2,000\/mo/)).toBeOnTheScreen();
-    expect(screen.queryByText(/\$5,000\/mo/)).toBeNull();   // not the gross income
+    expect(screen.getByText(/\$2,000\/month/)).toBeOnTheScreen();
+    expect(screen.queryByText(/\$5,000\/month/)).toBeNull();   // not the gross income
   });
 
   test('a household running a deficit shows no "free cash to save" card', () => {

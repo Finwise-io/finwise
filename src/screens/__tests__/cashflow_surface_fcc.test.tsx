@@ -58,7 +58,7 @@ test('Spending tab (approved mock): month header, rows with source chips, catego
   useStore.setState({ onboardingProfile: { ...WORKER, b_fixed: '1800', b_flexible: '900' }, onboardingComplete: true } as any);
   (useStore.getState() as any).addExpense({ amount: 86, category: 'Food', store: 'Whole Foods', date: isoLocalDate(new Date()), notes: '' });
   render(<CashFlowScreen />);
-  fireEvent.press(screen.getByLabelText('Spending tab'));
+  fireEvent.press(screen.getByLabelText('Expenses tab'));
   expect(screen.getByText(/· \$86 SPENT/)).toBeOnTheScreen();                  // the month header with the sum
   expect(screen.getByText(/Whole Foods/)).toBeOnTheScreen();
   expect(screen.getByText('by hand')).toBeOnTheScreen();                       // the Teller-ready source chip
@@ -75,8 +75,8 @@ test('Spending tab (approved mock): month header, rows with source chips, catego
 test('Spending tab day one: the three doors (connect SOON · import · by hand), never an empty list', () => {
   useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
   render(<CashFlowScreen />);
-  fireEvent.press(screen.getByLabelText('Spending tab'));
-  expect(screen.getByText('GET YOUR SPENDING IN')).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText('Expenses tab'));
+  expect(screen.getByText('GET YOUR EXPENSES IN')).toBeOnTheScreen();
   expect(screen.getByText('Connect your bank or card')).toBeOnTheScreen();
   expect(screen.getByText('SOON')).toBeOnTheScreen();
   expect(screen.getByText('Import a statement')).toBeOnTheScreen();

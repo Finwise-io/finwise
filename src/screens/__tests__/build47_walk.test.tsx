@@ -81,7 +81,7 @@ test('rows 6-11: the consolidations hold at the source', () => {
   // row 6: Roth screen uses THE helper; the retired bracket-fill helper is gone
   expect(read('screens/RothScreen.tsx')).toMatch(/rothConversionCost\(/);
   expect(read('domain/planning/index.ts')).not.toMatch(/export function rothConversion\(/);
-  // row 7: the flat capacity figure DERIVES from the by-month engine
+  // row 7: the flat capacity figure DERIVES from the by-month function
   expect(read('domain/savings/index.ts')).toMatch(/const months = surplusByMonth\(op, debts\)/);
   // row 8: one source-wording helper; the inline variants are gone
   expect(read('domain/assets/index.ts')).toMatch(/export function sourceWording/);
@@ -113,7 +113,9 @@ test('rows 12-19: conformance pins', () => {
   }
   // row 14: the approved door lines, word for word
   expect(read('screens/HomeScreen.tsx')).toMatch(/Takes about 2 minutes\. Read-only/);
-  expect(read('screens/HomeScreen.tsx')).toMatch(/Add it by hand — your home, savings/);
+  // founder ruling 2026-09-14: Home takes the by-hand door from the one list, whose line still names savings
+  expect(read('screens/HomeScreen.tsx')).toMatch(/BY_HAND_DOOR/);
+  expect(read('constants/doors.ts')).toMatch(/Your home, savings, or an account with no login/);
   // row 15: Roth banner + save-scenario + the dated hub action item
   expect(read('screens/RothScreen.tsx')).toMatch(/\{TRYING_IT_OUT\}/);
   expect(read('screens/RothScreen.tsx')).toMatch(/saveRetirementScenario/);
@@ -274,8 +276,8 @@ test('source chips: connected/imported/by-hand pills on NW account rows; paused 
   expect(screen.getAllByText(/🔗 Connected · updated/).length).toBeGreaterThan(0);
 });
 
-// ── Mock approvals built 2026-07-31: cushion · matured banner · router · path-ahead "how" ──
-test('cushion card: months + word on the real engine numbers; the door when spending is unknown', () => {
+// ── Mock approvals built 2026-07-31: emergency fund · matured banner · router · path-ahead "how" ──
+test('emergency fund card: months + word on the real function numbers; the door when spending is unknown', () => {
   useStore.setState({
     onboardingProfile: { status: 'employed', incomeSources: ['employment'], monthlySpending: '4200' },
     assetAccounts: [{ asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 56130 }],
@@ -285,7 +287,7 @@ test('cushion card: months + word on the real engine numbers; the door when spen
   const r1 = render(<NetWorthScreen />);
   expect(screen.getByText('13.4 months')).toBeOnTheScreen();       // 56130 ÷ 4200 = 13.36 → 13.4
   expect(screen.getByText('Comfortable ✓')).toBeOnTheScreen();
-  expect(screen.getByText(/\$56,130 cash ÷ \$4,200\/mo essentials/)).toBeOnTheScreen();
+  expect(screen.getByText(/\$56,130 cash ÷ \$4,200\/month essentials/)).toBeOnTheScreen();
   r1.unmount();
   useStore.setState({ onboardingProfile: { status: 'employed', incomeSources: ['employment'] } } as any);
   render(<NetWorthScreen />);
@@ -350,7 +352,11 @@ test("couldn't-refresh: the banner shows the honest as-of time and clears on suc
   } as any);
   const HomeScreen = require('../HomeScreen').default;
   const r1 = render(<HomeScreen />);
-  expect(screen.getByText(/📡 Couldn't refresh — showing your numbers from Jul 28/)).toBeOnTheScreen();
+  // The banner prints the fetch time in the PERSON'S local calendar (the screen uses toLocaleDateString),
+  // so the expected label is derived from the same instant the same way — the test used to pin
+  // "Jul 28" and failed on any machine east of Greenwich (2026-09-08, run on India time).
+  const asOf = new Date('2026-07-28T21:14:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  expect(screen.getByText(new RegExp(`📡 Couldn't refresh — showing your numbers from ${asOf}`))).toBeOnTheScreen();
   r1.unmount();
   useStore.setState({ priceRefreshFailed: false } as any);
   render(<HomeScreen />);
@@ -475,7 +481,7 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
     fireEvent.press(screen.getByLabelText('Mortgage'));
     expect(screen.getByText('Monthly payment (what you pay)')).toBeOnTheScreen();
     expect(screen.getByText('Or: paid off by')).toBeOnTheScreen();
-    expect(screen.queryByText('Min payment /mo')).toBeNull();    // no fake "minimum" on a mortgage
+    expect(screen.queryByText('Min payment /month')).toBeNull();    // no fake "minimum" on a mortgage
   });
 
   test('installment: entering the payment computes the paid-off-by date (and saves BOTH)', () => {
@@ -527,13 +533,13 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
   test('cards keep the familiar fields — min payment AND you-pay', () => {
     const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
     render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);   // default kind = card
-    expect(screen.getByText('Min payment /mo')).toBeOnTheScreen();
-    expect(screen.getByText('You pay /mo')).toBeOnTheScreen();
+    expect(screen.getByText('Min payment /month')).toBeOnTheScreen();
+    expect(screen.getByText('You pay /month')).toBeOnTheScreen();
   });
 });
 
 // ── B47 findings 12+13 (founder device walk, 2026-07-31): scenario sliders + the coasting box ──
-describe('B47 finding 12 — scenario sliders ride the ONE drag engine', () => {
+describe('B47 finding 12 — scenario sliders ride the ONE drag function', () => {
   const fs = require('fs'); const path = require('path');
   const src = (f: string) => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
 
@@ -547,7 +553,7 @@ describe('B47 finding 12 — scenario sliders ride the ONE drag engine', () => {
     expect(offenders).toEqual([]);
   });
 
-  test('the engine carries every device lesson: capture claim, termination refusal, native block, pageX anchor', () => {
+  test('the function carries every device lesson: capture claim, termination refusal, native block, pageX anchor', () => {
     const eng = src('components/sliderGesture.ts');
     expect(eng).toMatch(/onStartShouldSetPanResponderCapture: \(\) => true/);
     expect(eng).toMatch(/onPanResponderTerminationRequest: \(\) => false/);
@@ -585,7 +591,9 @@ describe('B47 finding 13 — the coasting box reads as one honest sentence', () 
   } as any);
 
   test('small nest egg: "Keep saving" is explained — the money alone does not get there, even by 80', () => {
-    seedWorker(162000);
+    // 2026-09-08 (G30 / Q50): inflation now defaults to the dated 2.5% instead of the feed's 3.2%,
+    // and at 2.5% a $162,000 pot coasts there by 80 — so the "small" fixture is genuinely small.
+    seedWorker(40000);
     const RetirementCockpit = require('../RetirementCockpit').default;
     render(<RetirementCockpit />);
     expect(screen.getByText(/alone doesn't get there — even by 80/)).toBeOnTheScreen();

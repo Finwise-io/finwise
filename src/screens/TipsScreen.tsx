@@ -5,7 +5,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats, useCategorySpend } from '../store/useStore';
 // B-L1: tips are computed ON-DEVICE only. We deliberately do NOT call the cloud AI (analyzeExpenses)
-// here — no spending data is ever sent to an AI/LLM provider. Cloud AI can return post-launch as an
+// here — no expenses data is ever sent to an AI/LLM provider. Cloud AI can return post-launch as an
 // explicit, opt-in feature.
 import { Card, TipCard, Button, ProgressBar, Badge, AmountText } from '../components/UI';
 import { money } from '../domain/_shared/num';
@@ -21,20 +21,20 @@ function generateLocalTips(expenses: any[]): any[] {
   expenses.forEach(e => { byCategory[e.category] = (byCategory[e.category] || 0) + e.amount; });
 
   if ((byCategory['Dining'] || 0) > 200) {
-    tips.push({ title: 'Cook more at home', detail: 'Your dining spending is high. Cooking 3 more meals per week at home could save $80-120/month.', savingsMin: 80, savingsMax: 120 });
+    tips.push({ title: 'Cook more at home', detail: 'Your dining expenses are high. Cooking 3 more meals per week at home could save $80-120/month.', savingsMin: 80, savingsMax: 120 });
   }
   if ((byCategory['Subscriptions'] || 0) > 30) {
     tips.push({ title: 'Review subscriptions', detail: 'Check for streaming or app subscriptions you rarely use. Cancelling one could save $10-20/month.', savingsMin: 10, savingsMax: 20 });
   }
   if ((byCategory['Shopping'] || 0) > 150) {
-    tips.push({ title: 'Wait before buying', detail: 'Try a 24-hour rule before non-essential purchases. This alone can cut impulse spending by 20-30%.', savingsMin: 30, savingsMax: 80 });
+    tips.push({ title: 'Wait before buying', detail: 'Try a 24-hour rule before non-essential purchases. This alone can cut impulse purchases by 20-30%.', savingsMin: 30, savingsMax: 80 });
   }
   if ((byCategory['Gas'] || 0) > 100) {
     tips.push({ title: 'Combine errands', detail: 'Plan errands in one trip to save on gas. Could save $20-40/month.', savingsMin: 20, savingsMax: 40 });
   }
   if (tips.length === 0) {
-    tips.push({ title: 'Build your emergency fund', detail: 'A common cushion is 3-6 months of expenses. Even $50/month adds up.', savingsMin: 50, savingsMax: 100 });
-    tips.push({ title: 'Pay yourself first', detail: 'Set up an automatic transfer to savings on payday before spending anything.', savingsMin: 100, savingsMax: 200 });
+    tips.push({ title: 'Build your emergency fund', detail: 'A common emergency fund is 3-6 months of expenses. Even $50/month adds up.', savingsMin: 50, savingsMax: 100 });
+    tips.push({ title: 'Pay yourself first', detail: 'Set up an automatic transfer to savings on payday before you spend anything.', savingsMin: 100, savingsMax: 200 });
   }
   return tips;
 }
@@ -63,7 +63,7 @@ export default function TipsScreen() {
     setLoading(true);
     // B-L1: computed entirely on-device — nothing is sent to any AI/LLM provider.
     const local = generateLocalTips(expenses);
-    setSummary('Personalized tips based on your spending — computed privately on your device.');
+    setSummary('Personalized tips based on your expenses — computed privately on your device.');
     setTips(local);
     setTotalSavingsMin(local.reduce((t, x) => t + (x.savingsMin || 0), 0));
     setTotalSavingsMax(local.reduce((t, x) => t + (x.savingsMax || 0), 0));
@@ -91,12 +91,12 @@ export default function TipsScreen() {
             <AmountText amount={monthIncome} color={Colors.primary} size="lg" />
           </View>
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Actual spend</Text>
+            <Text style={styles.summaryLabel}>Actual expenses</Text>
             <AmountText amount={monthSpend} color={overBudget ? Colors.red : Colors.textPrimary} size="lg" />
           </View>
           <View style={styles.summaryItem}>
             <Text style={[styles.summaryLabel, { color: remaining >= 0 ? Colors.primary : Colors.red }]}>
-              {remaining >= 0 ? 'Available' : 'Overspent by'}
+              {remaining >= 0 ? 'Budget remaining' : 'Overspent by'}
             </Text>
             <AmountText amount={Math.abs(remaining)} color={remaining >= 0 ? Colors.primary : Colors.red} size="lg" />
           </View>
@@ -113,7 +113,7 @@ export default function TipsScreen() {
       {/* Category breakdown */}
       {categorySpend.length > 0 && (
         <Card>
-          <Text style={styles.sectionTitle}>Spending by category</Text>
+          <Text style={styles.sectionTitle}>Expenses by category</Text>
           {categorySpend.map(({ category, total }) => {
             const pct = monthIncome > 0 ? (total / monthIncome) * 100 : 0;
             return (
@@ -135,7 +135,7 @@ export default function TipsScreen() {
           <Text style={{ fontSize: 38, textAlign: 'center', marginBottom: Spacing.sm }}>💡</Text>
           <Text style={styles.aiTitle}>Get personalized tips</Text>
           <Text style={styles.aiSub}>
-            We analyze your spending and find ways to save.
+            We analyze your expenses and find ways to save.
           </Text>
           {/* B-L1: privacy claim emphasized (larger than the description) — it matters most here */}
           <Text style={styles.privacyClaim}>🔒 Computed on your device — never sent to an AI provider.</Text>
@@ -173,7 +173,7 @@ export default function TipsScreen() {
                 <View style={styles.tipHeader}>
                   <Text style={styles.tipTitle}>{tip.title}</Text>
                   <Badge
-                    label={`Save $${tip.savingsMin}–$${tip.savingsMax}/mo`}
+                    label={`Save $${tip.savingsMin}–$${tip.savingsMax}/month`}
                     color={state === 'accepted' ? 'green' : 'blue'}
                   />
                 </View>

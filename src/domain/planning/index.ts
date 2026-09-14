@@ -1,28 +1,81 @@
 // Life-stage planning calculators (529 education, life-insurance need, estate checklist, Roth conversion).
 import type { OnboardingProfile } from '../onboardingProfile';
 // Pure functions — no I/O — so they're easy to test and reuse across screens.
-import { round2, toNum } from '../_shared/num';
+import { toNum } from '../_shared/num';
 
-import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, currentRetirementIncomeMonthly, effectiveRate, benefitAnnual } from '../income';
+import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, currentRetirementIncomeMonthly, effectiveRate, benefitAnnual, filingStatusOf, over65CountOf, householdPreTaxContributionsAnnual } from '../income';
+import { deductionFor, seniorDeductionFor, TAX_TABLES } from '../income/tax';
 
 // ───────────────────────── Tax organizer (the "give this to your CPA" summary) ─────────────────────────
 // A year-end summary + a tailored document checklist. NOT a tax return — an organizer. Pure: the
 // screen passes live accounts/liabilities and actual passive income.
 export interface TaxLine { label: string; amount: number; taxable: boolean }
+/** The four lines a return shows, in order (founder ruling brief Q-46 (2026-08-20), 2026-09-08). */
+export interface TaxableIncomeSteps {
+  grossIncome: number;             // every income line of a taxable type, added up
+  preTaxContributions: number;     // the household's 401(k) contributions (MK-CF-F-188)
+  standardDeduction: number;       // for the filing status, age count and income (MK-CF-F-099)
+  deductionIncludes: string[];     // what sits inside that deduction beyond the base figure
+  taxableIncome: number;           // gross − contributions − deduction, never below zero
+}
 export interface TaxOrganizer {
   year: number;
   income: TaxLine[];
-  taxableTotal: number;
+  steps: TaxableIncomeSteps;
+  taxableTotal: number;            // = steps.taxableIncome (kept for callers that read the one figure)
   nonTaxableTotal: number;
   estTaxRate: number;
   contributions: TaxLine[];
   accounts: { label: string; kind: string; balance: number }[];
   documents: string[];
 }
+/** From everything earned to what is actually taxed — the four lines a return shows (founder ruling brief Q-46 (2026-08-20), 2026-09-08). */
+/* ─ MK-PL-F-082 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * taxableIncomeSteps
+ *
+ * Answers ..... From everything earned to what is actually taxed — the four lines a return shows (founder ruling brief Q-46 (2026-08-20), 2026-09-08).
+ *
+ * Formula .....
+ *     gross income = Σ of the organizer's income lines of a taxable type
+ *     401(k) contribution = household pre-tax contributions annual(op)
+ *     standard deduction = deduction for(filing status, people 65+, gross − 401(k))   — base figure + 65+ add-on + senior deduction
+ *     taxable income = max(0, gross income − 401(k) contribution − standard deduction)
+ *
+ * Called by ... MK-PL-F-031 taxOrganizer
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-031 taxOrganizer
+ *
+ * Serves ...... MK-MN-M-027 · MK-MN-M-028
+ * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Decides .....
+ *     · Never lets over65 fall below 0.
+ *     · Founder ruling brief Q-46 (2026-08-20) (2026-09-08): the organizer shows gross income, the 401(k) contribution, the standard deduction and taxable income — not one unexplained total.
+ *     · The senior deduction phases out on gross income less the 401(k) contribution (the nearest figure the app holds to modified adjusted gross income).
+ *     · Only pre-tax 401(k) contributions come off; a Roth contribution does not reduce taxable income.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-082
+ * Changed ..... not in git yet (—)
+ */
+export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: number): TaxableIncomeSteps {
+  const status = filingStatusOf(op), over65 = over65CountOf(op);
+  const preTaxContributions = (householdPreTaxContributionsAnnual(op));
+  const magi = Math.max(0, grossIncome - preTaxContributions);
+  const standardDeduction = (deductionFor(status, over65, magi));
+  const deductionIncludes: string[] = [];
+  const people = Math.min(2, Math.max(0, over65));
+  if (people > 0) deductionIncludes.push(`the 65+ add-on (${people === 2 ? 'both of you' : 'one person'})`);
+  if (seniorDeductionFor(status, over65, magi) > 0) deductionIncludes.push('the senior deduction (2025–2028)');
+  void TAX_TABLES;
+  return { grossIncome: (grossIncome), preTaxContributions, standardDeduction, deductionIncludes, taxableIncome: (Math.max(0, grossIncome - preTaxContributions - standardDeduction)) };
+}
+
+/** The year-end summary for the accountant: income lines, the four taxable-income steps, contributions, accounts, documents to gather. */
 /* ─ MK-PL-F-031 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * taxOrganizer
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The year-end summary for the accountant: income lines, the four taxable-income steps, contributions, accounts, documents to gather.
  *
  * Formula .....
  *     a = op (or none when missing)
@@ -35,32 +88,30 @@ export interface TaxOrganizer {
  *     inv div = opts.actual passive   if opts.actual passive and opts.actual passive > 0
  *     inv annual read as a number (0 when it is not one)   otherwise
  *     ret inc = current retirement income monthly(op) × 12
- *     taxable total = round(Σ over income where taxable of (amount), 2 dp)
- *     non taxable total = round(Σ over income where taxable is missing of (amount), 2 dp)
+ *     gross income = Σ over income where taxable of (amount)
+ *     steps = taxable income steps(op, gross income)
+ *     taxable total = steps.taxable income
+ *     non taxable total = Σ over income where taxable is missing of (amount)
  *     acct = for each of accounts: label = institution.trim() (or label (or kind (or 'Account' when missing or zero) when missing or zero) when missing or zero)
  *     kind = kind (or tax bucket (or 'account' when missing) when missing)
  *     balance = balance (or 0 when missing or zero)
- *     has = (k: string) => accounts.some((x: any) => (kind ?? '') = k)
- *     docs = ["last year's tax return", 'SSN ÷ ID for you and any dependents']
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-MN-M-027 · MK-MN-M-028
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-003 institution name
  *               MK-XS-I-022 pension monthly amount
  *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-043 their own retirement contribution
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-031
  * Changed ..... 2026-06-13 (41698dd)
@@ -76,25 +127,30 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
   const retInc = currentRetirementIncomeMonthly(op) * 12;
 
   const income: TaxLine[] = [
-    { label: 'Wages (W-2)', amount: round2(salaryAnnual(op)), taxable: true },
-    { label: 'Tips', amount: round2(tipsAnnual(op)), taxable: true },
+    { label: 'Wages (W-2)', amount: (salaryAnnual(op)), taxable: true },
+    { label: 'Tips', amount: (tipsAnnual(op)), taxable: true },
     { label: 'Bonus', amount: toNum(a.bonusAnnual), taxable: true },
     { label: 'Signing bonus', amount: toNum(a.signingOnetime), taxable: true },
-    { label: 'Equity / RSUs vested', amount: round2(rsuAnnual(op)), taxable: true },
-    { label: 'Self-employment', amount: round2(seAnnual), taxable: true },
-    { label: 'Interest & dividends', amount: round2(invDiv), taxable: true },
-    { label: 'Rental (net)', amount: round2(rentalNetAnnual(op)), taxable: true },
-    { label: 'Retirement income (SS / pension / withdrawals)', amount: round2(retInc), taxable: true },
-    { label: 'Other income', amount: round2(otherAnnual), taxable: (a.otherTaxable !== 'no') },
-    { label: 'Benefits (SNAP/TANF/disability/UI/housing)', amount: round2(benefitAnnual(op)), taxable: false },
+    { label: 'Equity / RSUs vested', amount: (rsuAnnual(op)), taxable: true },
+    { label: 'Self-employment', amount: (seAnnual), taxable: true },
+    { label: 'Interest & dividends', amount: (invDiv), taxable: true },
+    { label: 'Rental (net)', amount: (rentalNetAnnual(op)), taxable: true },
+    { label: 'Retirement income (SS / pension / withdrawals)', amount: (retInc), taxable: true },
+    { label: 'Other income', amount: (otherAnnual), taxable: (a.otherTaxable !== 'no') },
+    { label: 'Benefits (SNAP/TANF/disability/UI/housing)', amount: (benefitAnnual(op)), taxable: false },
     { label: 'Child support / alimony', amount: toNum(a.supportMonthly) * 12, taxable: false },
-    { label: 'Scholarships / grants', amount: round2((Array.isArray(a.scholarships) ? a.scholarships : []).reduce((t: number, s: any) => t + (s?.freq === 'monthly' ? toNum(s.amount) * 12 : toNum(s.amount)), 0)), taxable: false },
+    { label: 'Scholarships / grants', amount: ((Array.isArray(a.scholarships) ? a.scholarships : []).reduce((t: number, s: any) => t + (s?.freq === 'monthly' ? toNum(s.amount) * 12 : toNum(s.amount)), 0)), taxable: false },
   ].filter((l) => l.amount > 0);
 
-  const taxableTotal = round2(income.filter((l) => l.taxable).reduce((t, l) => t + l.amount, 0));
-  const nonTaxableTotal = round2(income.filter((l) => !l.taxable).reduce((t, l) => t + l.amount, 0));
+  // Q46 (founder ruling 2026-09-08): gross income of taxable types → less the 401(k) → less the
+  // standard deduction → taxable income. Before this the screen printed the first figure under the
+  // last figure's name ($120,000 shown as taxable income where a return says $83,900).
+  const grossIncome = (income.filter((l) => l.taxable).reduce((t, l) => t + l.amount, 0));
+  const steps = taxableIncomeSteps(op, grossIncome);
+  const taxableTotal = steps.taxableIncome;
+  const nonTaxableTotal = (income.filter((l) => !l.taxable).reduce((t, l) => t + l.amount, 0));
   const contributions: TaxLine[] = [
-    { label: '401(k) — pre-tax', amount: toNum(a.c_401k) * 12, taxable: false },
+    { label: '401(k) — pre-tax', amount: steps.preTaxContributions, taxable: false },   // the ONE producer (MK-CF-F-188), every earner
     { label: 'Roth IRA', amount: toNum(a.c_roth) * 12, taxable: false },
   ].filter((l) => l.amount > 0);
 
@@ -113,8 +169,8 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
   if (toNum(a.c_401k) > 0) docs.push('401(k) contributions (shown on your W-2, box 12)');
 
   return {
-    year: opts.year, income, taxableTotal, nonTaxableTotal,
-    estTaxRate: Math.round(effectiveRate(op) * 100) / 100,
+    year: opts.year, income, steps, taxableTotal, nonTaxableTotal,
+    estTaxRate: (effectiveRate(op)),
     contributions, accounts: acct, documents: docs,
   };
 }
@@ -133,19 +189,22 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
  * Answers ..... ───────────────────────── Roth conversion (fill a low bracket) ───────────────────────── In a low-income year (e.g.
  *
  * Formula .....
- *     round(tax owed for(gross + amount, status, state rate) − tax owed for(gross, status, state rate), 2 dp)
+ *     tax owed for(gross + amount, status, state rate) − tax owed for(gross, status, state rate)
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
  *
+ * Decides .....
+ *     · The conversion is stacked on top of the year's other ordinary income and taxed through the brackets from there (A42). Not modelled: the Medicare income-related premium surcharge (IRMAA) two years later and the net-investment-income tax — both can change whether a conversion is worth doing at 55–70.
+ *
  * Formula also on the master file · functions_from_code · MK-PL-F-032
  * Changed ..... 2026-07-30 (a85874e)
  */
 export function rothConversionCost(gross: number, amount: number, status: import('../income/tax').FilingStatus, stateRate: number): number {
   const { taxOwedFor } = require('../income/tax');
-  return round2(taxOwedFor(gross + amount, status, stateRate) - taxOwedFor(gross, status, stateRate));
+  return (taxOwedFor(gross + amount, status, stateRate) - taxOwedFor(gross, status, stateRate));
 }
 
 // ───────────────────────── 529 / education savings ─────────────────────────
@@ -180,17 +239,15 @@ export interface EduPlan {
  *     n   otherwise
  *     monthly needed = gap ÷ factor   if n > 0 and factor > 0
  *     gap   otherwise
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-PL-M-036 · MK-PL-M-037
  *
  * Decides .....
  *     · Uses a built-in future total cost of 0.
- *     · Uses a built-in y of 0.
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-033
@@ -209,10 +266,10 @@ export function educationPlan(inp: EduPlanInput): EduPlan {
   const factor = r > 0 ? (Math.pow(1 + r, n) - 1) / r : n;
   const monthlyNeeded = n > 0 && factor > 0 ? gap / factor : gap;   // n=0 → need it all now
   return {
-    futureTotalCost: round2(futureTotalCost),
-    savingsAtStart: round2(savingsAtStart),
-    gap: round2(gap),
-    monthlyNeeded: round2(monthlyNeeded),
+    futureTotalCost: (futureTotalCost),
+    savingsAtStart: (savingsAtStart),
+    gap: (gap),
+    monthlyNeeded: (monthlyNeeded),
     onTrackPct: futureTotalCost > 0 ? Math.round((savingsAtStart / futureTotalCost) * 100) : 0,
   };
 }
@@ -247,6 +304,15 @@ export interface InsuranceNeed {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
+ * Decides .....
+ *     · Never lets annual income fall below 0.
+ *     · Never lets years to replace fall below 0.
+ *     · Never lets debts fall below 0.
+ *     · Never lets future goals fall below 0.
+ *     · Never lets final expenses fall below 0.
+ *     · Never lets liquid savings fall below 0.
+ *     · Never lets existing coverage fall below 0.
+ *
  * Formula also on the master file · functions_from_code · MK-PL-F-034
  * Changed ..... 2026-06-08 (eceb40c)
  */
@@ -255,9 +321,10 @@ export function lifeInsuranceNeed(inp: InsuranceInput): InsuranceNeed {
   const totalNeed = incomeReplacement + Math.max(0, inp.debts) + Math.max(0, inp.futureGoals) + Math.max(0, inp.finalExpenses);
   const covered = Math.max(0, inp.liquidSavings) + Math.max(0, inp.existingCoverage);
   return {
-    incomeReplacement: round2(incomeReplacement),
-    totalNeed: round2(totalNeed),
-    covered: round2(covered),
-    gap: round2(Math.max(0, totalNeed - covered)),
+    incomeReplacement: (incomeReplacement),
+    totalNeed: (totalNeed),
+    covered: (covered),
+    gap: (Math.max(0, totalNeed - covered)),
   };
 }
+

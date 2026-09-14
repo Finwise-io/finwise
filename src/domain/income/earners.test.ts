@@ -1,7 +1,7 @@
 /**
  * THE LAWS OF A TWO-EARNER HOUSEHOLD — finding B32.
  *
- * The app asked "Who earns this income? You / Partner / Both", stored the answer, and kept ONE
+ * The app asked "Who earns this income? You / Spouse / Both", stored the answer, and kept ONE
  * salary. Choosing "Both" tagged that single wage as belonging to two people; there was nowhere to
  * put the second. So a household on $84,000 and $54,000 was read as $84,000 — and the tax band,
  * which is set by everything the household is taxed on together, came off the smaller number.
@@ -53,14 +53,14 @@ test('THE LAW: every earner keeps their OWN match rule', () => {
   expect(employerMatchMonthly(both)).toBeCloseTo(400 + 150, 2);
 });
 
-test('an empty partner block is not a second earner', () => {
+test('an empty spouse block is not a second earner', () => {
   const both: any = { ...ME, whoEarns: 'both', partnerWage: {} };
   expect(hasTwoEarners(both)).toBe(false);
   expect(salaryAnnual(both)).toBeCloseTo(84_000, 2);
 });
 
-test("whoEarns 'partner' still counts the one wage on record, once", () => {
-  // how the app has always stored it: one salary, tagged as the partner's
+test("whoEarns 'spouse' still counts the one wage on record, once", () => {
+  // how the app has always stored it: one salary, tagged as the spouse’s
   const theirs: any = { ...ME, whoEarns: 'partner' };
   expect(earnerWages(theirs)).toHaveLength(1);
   expect(salaryAnnual(theirs)).toBeCloseTo(84_000, 2);

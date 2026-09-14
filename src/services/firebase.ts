@@ -75,7 +75,10 @@ export const db = getFirestore(firebaseApp);
  *     user = cred.user
  *     recovery code = recovery code
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-066 loginUser
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-066 loginUser
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -115,7 +118,7 @@ export async function registerUser(email: string, password: string, name: string
  * Answers ..... Resend the verification email to the signed-in user.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     sends the verification e-mail again to the signed-in person
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -177,12 +180,21 @@ export function isEmailVerified(): boolean {
  * Answers ..... The email of the account currently signed in to Firebase — the authoritative identity that account-level actions (delete, reauth) operate on.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = the signed-in person's identity token, or nothing
  *
  * Called by ... MK-XS-F-147 call
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-147 call
+ * Reaches ..... 103 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-XS-F-172 assetClassForSymbol
+ *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-036 benchmarkInfo
+ *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 85 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -341,7 +353,7 @@ export async function regenerateRecoveryCode(): Promise<string> {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     clears the data key, then signs out
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -361,7 +373,7 @@ export async function logoutUser() {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     sends a password-reset e-mail to the address
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -422,7 +434,7 @@ export async function deleteAccount(password: string): Promise<void> {
   const cred = EmailAuthProvider.credential(u.email, password);
   await reauthenticateWithCredential(u, cred);
 
-  // 2) Remove Firestore data while still authenticated. If part of a partner household, drop the
+  // 2) Remove Firestore data while still authenticated. If part of a spouse household, drop the
   //    membership doc too (rules let either side delete it). Best-effort so a missing doc never blocks.
   try {
     const root = await loadUserRoot(u.uid);
@@ -476,7 +488,10 @@ export async function saveUserData(uid: string, data: object) {
  *     await decrypt from sync(app state enc)   when app state enc ≠ nothing
  *     the answer = app state (or nothing when missing)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-077 setUserHousehold
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-077 setUserHousehold
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -491,17 +506,17 @@ export async function loadUserData(uid: string): Promise<Record<string, any> | n
   return d?.appState ?? null;   // legacy plaintext (pre-encryption accounts)
 }
 
-// ── Household / partner invites ─────────────────────────────────────
-// Partners share ONE data document: all reads/writes go to users/{householdId} where
+// ── Household / spouse invites ─────────────────────────────────────
+// Spouses share ONE data document: all reads/writes go to users/{householdId} where
 // householdId = the inviter's uid. Membership is recorded top-level on the member's own
 // user doc (users/{uid}.householdId, OUTSIDE appState) so it survives a fresh install.
-// Invites live at invites/{code} and are created client-side; the partner redeems the
+// Invites live at invites/{code} and are created client-side; the spouse redeems the
 // code at sign-up (or later) — no email backend needed, the inviter shares the code.
 
 /* ─ MK-XS-F-142 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * makeInviteCode
  *
- * Answers ..... ── Household / partner invites ───────────────────────────────────── Partners share ONE data document: all reads/writes go to users/{householdId} where householdId = the inviter's uid.
+ * Answers ..... ── Household / spouse invites ───────────────────────────────────── Spouses share ONE data document: all reads/writes go to users/{householdId} where householdId = the inviter's uid.
  *
  * Formula .....
  *     alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'

@@ -19,7 +19,7 @@ import { ageFromProfile } from '../utils/persona';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { UseThisPlanSheet, type PlanChange } from '../components/UseThisPlanSheet';
-import { TRYING_IT_OUT } from '../components/UI';
+import { TRYING_IT_OUT, EmptyNote } from '../components/UI';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -82,7 +82,7 @@ export default function RothScreen() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const changes: PlanChange[] = [
     { label: `Convert to Roth this year (${nowYear})`, from: adopted ? maskedMoney(Number(A.rothConversionThisYear)) : 'nothing planned', to: maskedMoney(amt) },
-    { label: 'Extra tax next April (estimate)', from: adopted ? `about ${maskedMoney(Number(A.rothConversionTax) || 0)}` : '—', to: `about ${maskedMoney(taxCost)}` },
+    { label: 'Extra tax next April (calculated)', from: adopted ? `about ${maskedMoney(Number(A.rothConversionTax) || 0)}` : '—', to: `about ${maskedMoney(taxCost)}` },
     { label: 'To do, with your brokerage', from: '—', to: `convert before Dec 31, ${nowYear}` },
   ];
 
@@ -130,6 +130,7 @@ export default function RothScreen() {
         <TextInput style={s.amtInput} keyboardType="number-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
           value={amount} onChangeText={setAmount} accessibilityLabel="Amount to convert this year" />
         <Text style={s.note}>from your pre-tax {maskedMoney(Math.round(preTax))}{num(amount) > preTax ? ' — capped at your balance' : ''}</Text>
+        {preTax === 0 && <EmptyNote door="accounts" />}   {/* Q48 (MK-PL-M-024): no pre-tax account entered */}
         <View style={s.chipRow}>
           {[10000, 25000, 50000].filter((v) => v <= preTax).map((v) => (
             <TouchableOpacity accessibilityRole="button" key={v} style={s.chip} onPress={() => setAmount(String(v))}
@@ -147,8 +148,8 @@ export default function RothScreen() {
             <SectionBand title="THE COST NOW" />
             <Text style={s.bigLine}>Tax bill next April: about {maskedMoney(taxCost)}</Text>
             <TouchableOpacity accessibilityRole="button" onPress={() => setRateOpen(!rateOpen)}
-              accessibilityLabel={`Tax rate used: ${Math.round(rate * 100)} percent, ${rateOverride !== '' ? 'set by you' : 'calculated from your income'}. Tap to change it.`}>
-              <Text style={s.link}>Rate used: {Math.round(rate * 100)}% ({rateOverride !== '' ? 'set by you' : 'calculated from your income'}) · change it ›</Text>
+              accessibilityLabel={`Tax rate used: ${Math.round(rate * 100)} percent, ${rateOverride !== '' ? 'you entered' : 'calculated from your income'}. Tap to change it.`}>
+              <Text style={s.link}>Rate used: {Math.round(rate * 100)}% ({rateOverride !== '' ? 'you entered' : 'calculated from your income'}) · change it ›</Text>
             </TouchableOpacity>
             {rateOpen && (
               <TextInput style={s.rateInput} keyboardType="decimal-pad" placeholder={`${Math.round((estRate ?? 0.22) * 100)}`}
@@ -169,7 +170,7 @@ export default function RothScreen() {
           {/* the will-it-last impact (r39) — honest when it barely moves */}
           {before.captured && before.chance != null && after?.chance != null && (
             <View style={s.card}>
-              <SectionBand title="YOUR MONEY-LASTS ODDS" />
+              <SectionBand title="WILL MY MONEY LAST?" />
               <Text style={s.line}>
                 {before.chance}% → {after.chance}%{Math.abs(after.chance - before.chance) < 2 ? ' — little change. This decision is about taxes, not the odds.' : ''}
               </Text>
@@ -203,7 +204,7 @@ const s = StyleSheet.create({
   tryBanner: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 10, marginBottom: Spacing.sm, overflow: 'hidden' },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md, lineHeight: 20 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
   adoptedCard: { backgroundColor: Colors.primaryLight },
@@ -224,3 +225,4 @@ const s = StyleSheet.create({
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   primaryTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
 });
+

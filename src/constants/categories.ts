@@ -1,4 +1,4 @@
-// Canonical budget categories — same set used in onboarding's spending plan, each tagged
+// Canonical budget categories — same set used in onboarding's budget, each tagged
 // with the budget bucket it rolls into. Used by add-expense + budget-vs-actual so logged
 // expenses match the categories you set up (incl. Insurance).
 export type BudgetBucket = 'fixed' | 'nonmonthly' | 'flexible';

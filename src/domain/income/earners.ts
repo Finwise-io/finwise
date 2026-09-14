@@ -1,19 +1,20 @@
 /**  WHO EARNS A WAGE — one, or two.
  *
- *  The app has always asked "Who earns this income? You / Partner / Both", stored the answer, and
+ *  The app has always asked "Who earns this income? You / Spouse / Both", stored the answer, and
  *  then kept ONE salary. Choosing "Both" tagged that single wage as belonging to two people; there
  *  was nowhere to put the second. So a household on $84,000 and $54,000 was read as $84,000 — and
  *  the tax band, which is set by everything the household is taxed on together, was read off the
  *  smaller number. That is finding B32, and it is the larger half of it: the missing salary itself.
  *
- *  The partner's wage is stored under THE SAME FIELD NAMES as the person's own, in its own block.
+ *  The spouse’s wage is stored under THE SAME FIELD NAMES as the person's own, in its own block.
  *  That is deliberate: every function that already reads a wage — hourly vs salaried, the month
  *  table, the take-home gross-up, the employer match — works on either block without being changed,
- *  so nothing about how a single wage is read could drift away from how a partner's is.
+ *  so nothing about how a single wage is read could drift away from how a spouse’s is.
  *
  *  Approved mock: income-v5, frames 2a–2e ("Each person's pay").
  */
 import type { OnboardingProfile, Money } from '../onboardingProfile';
+import { toNum } from '../_shared/num';
 
 /** Everything that describes one person's wage. Same names as the top-level profile fields. */
 export interface EarnerWage {
@@ -36,21 +37,21 @@ export interface EarnerWage {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = w exists and (base salary > 0 or the salary-by-month table has entries)
  *
  * Called by ... MK-CF-F-173 earnerWages
  *
- * Reaches ..... 48 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-CF-F-173 earnerWages
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
- *               MK-CF-F-010 emergencyTest · MK-CF-F-078 employerMatchMonthly
- *               MK-CF-F-180 enteredLandsAnnual · MK-CF-F-061 grossSalaryMonthly
- *               MK-CF-F-174 hasTwoEarners · MK-CF-F-079 incomeFromOnboarding
- *               … and 30 more — the full list is on functions_from_code
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-CF-F-173 earnerWages · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-078 employerMatchMonthly · MK-CF-F-180 enteredLandsAnnual
+ *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-174 hasTwoEarners
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -63,7 +64,7 @@ const hasWage = (w: any): boolean =>
 
 /** The wages this household actually has, in the order the screen shows them.
  *
- *  `whoEarns` says who the answers describe. 'partner' means the one wage on record is theirs, which
+ *  `whoEarns` says who the answers describe. 'spouse' means the one wage on record is theirs, which
  *  is how the app has always recorded it — so that wage is still counted, once, and not dropped. */
 /* ─ MK-CF-F-173 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * earnerWages
@@ -73,27 +74,27 @@ const hasWage = (w: any): boolean =>
  * Formula .....
  *     a = op (or none when missing)
  *     own = a
- *     partner = partner wage (or nothing when missing)
+ *     spouse = spouse wage (or nothing when missing)
  *     who = who earns (or 'you' when missing)
  *     out = [own]
  *     the answer = out
- *     [partner as earner wage]   when who = 'partner' and has wage(partner)
+ *     [spouse as earner wage]   when who = 'partner' and has wage(spouse)
  *
  * Called by ... MK-CF-F-174 hasTwoEarners · MK-CF-F-175 sumOverEarners
  *               MK-CF-F-176 sumMonthsOverEarners · MK-CF-F-180 enteredLandsAnnual
  *               MK-CF-F-181 rateInForce · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 47 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-078 employerMatchMonthly · MK-CF-F-180 enteredLandsAnnual
- *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-174 hasTwoEarners
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               … and 29 more — the full list is on functions_from_code
+ * Reaches ..... 52 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-078 employerMatchMonthly
+ *               MK-CF-F-180 enteredLandsAnnual · MK-CF-F-061 grossSalaryMonthly
+ *               MK-CF-F-174 hasTwoEarners · MK-CF-F-188 householdPreTaxContributionsAnnual
+ *               … and 34 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -110,7 +111,7 @@ export function earnerWages(op: OnboardingProfile | null): EarnerWage[] {
     if (hasWage(partner)) out.push(partner as EarnerWage);
     return out;
   }
-  // 'you' or 'partner' — one wage either way. Which person it belongs to changes the label on the
+  // 'you' or 'spouse' — one wage either way. Which person it belongs to changes the label on the
   // screen, never the arithmetic, so both read the block that holds it.
   if (who === 'partner' && hasWage(partner)) return [partner as EarnerWage];
   return [own];
@@ -145,13 +146,15 @@ export function hasTwoEarners(op: OnboardingProfile | null): boolean {
  * Formula .....
  *     Σ over earner wages(op) of (of(each) (or 0 when missing or zero))
  *
- * Called by ... MK-CF-F-078 employerMatchMonthly
+ * Called by ... MK-CF-F-078 employerMatchMonthly · MK-CF-F-188 householdPreTaxContributionsAnnual
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-078 employerMatchMonthly · MK-CF-F-079 incomeFromOnboarding
- *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
+ *               MK-CF-F-078 employerMatchMonthly · MK-CF-F-188 householdPreTaxContributionsAnnual
+ *               MK-CF-F-079 incomeFromOnboarding · MK-NW-F-041 monthlyContributionsFromOnboarding
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-031 taxOrganizer · MK-PL-F-082 taxableIncomeSteps
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -174,17 +177,17 @@ export function sumOverEarners(op: OnboardingProfile | null, of: (w: EarnerWage)
  *
  * Called by ... MK-CF-F-060 salaryGrossByMonth
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-080 jobActiveMonth · MK-CF-F-009 monthlyEssentials
- *               … and 23 more — the full list is on functions_from_code
+ * Reaches ..... 44 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-061 grossSalaryMonthly
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-080 jobActiveMonth
+ *               … and 26 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -199,4 +202,32 @@ export function sumMonthsOverEarners(
 ): number[] {
   const rows = earnerWages(op).map(of);
   return Array.from({ length: 12 }, (_, i) => rows.reduce((t, r) => t + (r[i] || 0), 0));
+}
+
+/** The household's pre-tax 401(k) contributions for the year — every earner's, added up. */
+/* ─ MK-CF-F-188 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * householdPreTaxContributionsAnnual
+ *
+ * Answers ..... The household's pre-tax 401(k) contributions for the year — every earner's, added up.
+ *
+ * Formula .....
+ *     Σ over every earner of (monthly 401(k) contribution) × 12
+ *
+ * Called by ... MK-PL-F-082 taxableIncomeSteps
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-031 taxOrganizer · MK-PL-F-082 taxableIncomeSteps
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Twelve equal months — a contribution entered monthly is taken as running all year.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-188
+ * Changed ..... not in git yet (—)
+ */
+export function householdPreTaxContributionsAnnual(op: OnboardingProfile | null): number {
+  return sumOverEarners(op, (w) => toNum(w.c_401k)) * 12;
 }

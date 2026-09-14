@@ -76,8 +76,8 @@ export default function MultiGoalScreen() {
     ...(extraDebt > 0 ? [{ goalId: 'extra-debt', label: 'Extra on debt', monthlyAmount: extraDebt }] : []),
   ];
   const changes: PlanChange[] = [
-    { label: 'Retirement saving', from: `${maskedMoney(A.contribMonthly ?? 0)}/mo`, to: `${maskedMoney(retirementMonthly)}/mo` },
-    ...commitments.map((c) => ({ label: c.label, from: 'not in your plan', to: `${maskedMoney(c.monthlyAmount)}/mo` })),
+    { label: 'Retirement saving', from: `${maskedMoney(A.contribMonthly ?? 0)}/month`, to: `${maskedMoney(retirementMonthly)}/month` },
+    ...commitments.map((c) => ({ label: c.label, from: 'not in your plan', to: `${maskedMoney(c.monthlyAmount)}/month` })),
   ];
 
   const saveScenario = () => {
@@ -109,14 +109,14 @@ export default function MultiGoalScreen() {
               <Switch value={d.on} onValueChange={(v) => setDial(d.id, { on: v })} trackColor={{ true: Colors.primary }}
                 accessibilityLabel={`${d.label} at ${spokenMoney(d.monthlyAmount)} a month`} />
               <Text style={s.dialLabel}>{d.label}</Text>
-              <Text style={s.dialAmt}>{maskedMoney(d.monthlyAmount)}/mo</Text>
+              <Text style={s.dialAmt}>{maskedMoney(d.monthlyAmount)}/month</Text>
             </View>
             {d.on && (
               <View style={s.stepRow}>
                 <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setDial(d.id, { monthlyAmount: bump(d.monthlyAmount, -STEP) })}
-                  accessibilityLabel={`Lower ${d.label} by $100 a month`}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
+                  accessibilityLabel={`Lower ${d.label} by $100/month`}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
                 <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setDial(d.id, { monthlyAmount: bump(d.monthlyAmount, STEP) })}
-                  accessibilityLabel={`Raise ${d.label} by $100 a month`}><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
+                  accessibilityLabel={`Raise ${d.label} by $100/month`}><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
                 {weighed.goalEnds[d.id] && <Text style={s.endDate}>done {weighed.goalEnds[d.id]}</Text>}
               </View>
             )}
@@ -130,14 +130,14 @@ export default function MultiGoalScreen() {
               <Switch value={extraDebt > 0} onValueChange={(v) => setExtraDebt(v ? 300 : 0)} trackColor={{ true: Colors.primary }}
                 accessibilityLabel={`Extra on debt at ${spokenMoney(extraDebt)} a month`} />
               <Text style={s.dialLabel}>Extra on debt</Text>
-              <Text style={s.dialAmt}>{maskedMoney(extraDebt)}/mo</Text>
+              <Text style={s.dialAmt}>{maskedMoney(extraDebt)}/month</Text>
             </View>
             {extraDebt > 0 && (
               <View style={s.stepRow}>
                 <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setExtraDebt(bump(extraDebt, -STEP))}
-                  accessibilityLabel="Lower extra debt payment by $100 a month"><Text style={s.stepTxt}>−</Text></TouchableOpacity>
+                  accessibilityLabel="Lower extra debt payment by $100/month"><Text style={s.stepTxt}>−</Text></TouchableOpacity>
                 <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setExtraDebt(bump(extraDebt, STEP))}
-                  accessibilityLabel="Raise extra debt payment by $100 a month"><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
+                  accessibilityLabel="Raise extra debt payment by $100/month"><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
                 {weighed.debtPayoff && <Text style={s.endDate}>paid off {weighed.debtPayoff.month} · saves {maskedMoney(weighed.debtPayoff.interestSaved)} interest</Text>}
               </View>
             )}
@@ -148,13 +148,13 @@ export default function MultiGoalScreen() {
         <View style={[s.dialRow, s.divider]}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={[s.dialLabel, { marginLeft: 0, fontWeight: '800' }]}>Keep retirement saving</Text>
-            <Text style={s.dialAmt}>{maskedMoney(retirementMonthly)}/mo</Text>
+            <Text style={s.dialAmt}>{maskedMoney(retirementMonthly)}/month</Text>
           </View>
           <View style={s.stepRow}>
             <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setRetirementMonthly(bump(retirementMonthly, -STEP))}
-              accessibilityLabel="Lower retirement saving by $100 a month"><Text style={s.stepTxt}>−</Text></TouchableOpacity>
+              accessibilityLabel="Lower retirement saving by $100/month"><Text style={s.stepTxt}>−</Text></TouchableOpacity>
             <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setRetirementMonthly(bump(retirementMonthly, STEP))}
-              accessibilityLabel="Raise retirement saving by $100 a month"><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
+              accessibilityLabel="Raise retirement saving by $100/month"><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
           </View>
         </View>
       </View>
@@ -165,7 +165,7 @@ export default function MultiGoalScreen() {
         <SectionBand title="CAN YOU DO IT ALL?" />
         <Text style={s.hint}>Your regular bills, including the mortgage, are already counted.</Text>
         <Text style={[s.verdict, { color: weighed.covered ? Colors.primary : Colors.red }]}>
-          {weighed.covered ? `Covered — ${maskedMoney(weighed.spare)}/mo to spare` : `Short ${maskedMoney(Math.abs(weighed.spare))}/mo`}
+          {weighed.covered ? `Covered — ${maskedMoney(weighed.spare)}/month to spare` : `Short ${maskedMoney(Math.abs(weighed.spare))}/month`}
         </Text>
         <TouchableOpacity accessibilityRole="button" onPress={() => setWhereOpen(!whereOpen)} accessibilityLabel="Where the money goes">
           <Text style={s.link}>where the money goes {whereOpen ? '▴' : '▾'}</Text>
@@ -177,7 +177,7 @@ export default function MultiGoalScreen() {
             {extraDebt > 0 && <Row label="Extra on debt" value={`−${maskedMoney(extraDebt)}`} />}
             <Row label="Retirement saving" value={`−${maskedMoney(retirementMonthly)}`} />
             <View style={s.rowDivider} />
-            <Row label={weighed.covered ? 'Left over' : 'Short'} value={maskedMoney(Math.abs(weighed.spare))} strong />
+            <Row label={weighed.covered ? 'Surplus' : 'Short'} value={maskedMoney(Math.abs(weighed.spare))} strong />
           </View>
         )}
       </View>

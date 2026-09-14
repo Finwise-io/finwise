@@ -12,7 +12,7 @@ import * as path from 'path';
 describe('annualCashflow reconciles the recap with the savings plan (#6)', () => {
   const op: OnboardingProfile = {
     taxMode: 'manual', manualTaxRate: '20',
-    baseSalary: '8000', salaryFreq: 'monthly',       // $96k/yr gross
+    baseSalary: '8000', salaryFreq: 'monthly',       // $96k/year gross
     bonusAnnual: '12000', bonusMonth: 12,            // lumpy → only the grid captures its timing
     c_401k: '750',                                   // employee 401(k), locked away
     monthlySpending: '4000',
@@ -60,8 +60,8 @@ describe('emergency stress test', () => {
     const r = emergencyTest(op, 5000, 3000);
     expect(r.coversIt).toBe(true);
     expect(r.cashAfter).toBe(2000);
-    expect(r.runwayAfter).toBe(1);              // $2k left ÷ $2k/mo
-    expect(r.jobLossRunway).toBe(2.5);          // $5k ÷ $2k/mo with no income
+    expect(r.runwayAfter).toBe(1);              // $2k left ÷ $2k/month
+    expect(r.jobLossRunway).toBe(2.5);          // $5k ÷ $2k/month with no income
     expect(r.recommendedFund).toBe(6000);       // 3 × essentials
     expect(r.gapToFund).toBe(1000);             // 6000 − 5000
   });
@@ -72,14 +72,14 @@ describe('emergency stress test', () => {
   });
 
   // BUG-LEDGER: B-33 — a user who gave a lump monthlySpending with no itemized categories used to
-  // get $0 essentials → "strong cushion" with $0 cash, contradicting "you'd go into the red."
+  // get $0 essentials → "strong emergency fund" with $0 cash, contradicting "you'd go into the red."
   test('lump monthlySpending with no categories falls back to that total (no $0-essentials)', () => {
     const lump: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0', monthlySpending: '5000' };
     expect(monthlyEssentials(lump)).toBe(5000);
     const r = emergencyTest(lump, 0, 3000);
     expect(r.coversIt).toBe(false);              // $0 cash can't absorb a $3k hit
     expect(r.recommendedFund).toBe(15000);       // 3 × $5k
-    expect(r.gapToFund).toBe(15000);             // and the full fund is the gap — NOT a "strong cushion"
+    expect(r.gapToFund).toBe(15000);             // and the full fund is the gap — NOT a "strong emergency fund"
   });
 });
 
@@ -115,7 +115,7 @@ describe('spending categories → buckets', () => {
       spendCats: [
         { id: 'rent', bucket: 'fixed', amount: '2000', unit: 'dollar' },
         { id: 'groceries', bucket: 'flexible', amount: '500', unit: 'dollar' },
-        { id: 'repairs', bucket: 'nonmonthly', amount: '1200', unit: 'dollar' },   // yearly → 100/mo
+        { id: 'repairs', bucket: 'nonmonthly', amount: '1200', unit: 'dollar' },   // yearly → 100/month
       ],
     };
     const b = spendBuckets(op);
@@ -126,7 +126,7 @@ describe('spending categories → buckets', () => {
   });
 
   test('percent amounts resolve against take-home income', () => {
-    // gross 120k salary, 0% manual tax → net = 120k → net monthly 10k; 30% fixed = 3000/mo
+    // gross 120k salary, 0% manual tax → net = 120k → net monthly 10k; 30% fixed = 3000/month
     const op: OnboardingProfile = {
       baseSalary: '10000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0',
       spendCats: [{ id: 'rent', bucket: 'fixed', amount: '30', unit: 'pct' }],
@@ -136,7 +136,7 @@ describe('spending categories → buckets', () => {
 
   // ── A-1: the %-of-income base is canonical take-home (after tax AND 401k), == the spending screen ──
   test('A-1: a % category resolves against take-home AFTER 401(k), matching the spending screen', () => {
-    // gross 10k/mo, 0% tax, but $1,000/mo into 401(k) → take-home = 9,000 (NOT net-of-tax 10,000)
+    // gross 10k/month, 0% tax, but $1,000/month into 401(k) → take-home = 9,000 (NOT net-of-tax 10,000)
     const op: any = {
       baseSalary: '10000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0',
       c_401k: '1000', spendCats: [{ id: 'rent', bucket: 'fixed', amount: '30', unit: 'pct' }],
@@ -210,12 +210,12 @@ describe('plannedMonthlySpend (B-50)', () => {
 describe('budget bucket totals reconcile with their line items (categoryMonthly = one source)', () => {
   const op = {
     taxMode: 'manual', manualTaxRate: '20',
-    baseSalary: '10000', salaryFreq: 'monthly',     // $120k/yr gross → net-of-tax 8000/mo
+    baseSalary: '10000', salaryFreq: 'monthly',     // $120k/year gross → net-of-tax 8000/month
     c_401k: '1000',                                  // 401(k) → take-home < net-of-tax
     spendCats: [
       { label: 'Rent', bucket: 'fixed', amount: '50', unit: 'pct' },             // % of take-home
       { label: 'Utilities', bucket: 'fixed', amount: '500', unit: 'dollar' },
-      { label: 'Travel', bucket: 'nonmonthly', amount: '3600', unit: 'dollar' }, // 3600/yr = 300/mo
+      { label: 'Travel', bucket: 'nonmonthly', amount: '3600', unit: 'dollar' }, // 3600/year = 300/month
     ],
   } as any;
 
@@ -282,9 +282,9 @@ describe('actualMonthFlow + allocatableThisMonth — the canonical month surplus
     const f = actualMonthFlow({ ym: '2026-06', takeHomeMonthly: 5000, debts: [],
                                 plannedExpenses: 0, expenses: expenses as any });
     const amountOf = (label: string) => f.lines.find((l) => l.label === label)?.amount;
-    expect(amountOf('In (take-home) received')).toBe(5000);
+    expect(amountOf('Actual inflow (income (take-home))')).toBe(5000);
     expect(amountOf('Other debt payments')).toBe(-800);   // logged debt, no debt record — still deducted
-    expect(amountOf('Spent so far')).toBe(-1200);         // groceries only — the $800 debt is NOT in spent
+    expect(amountOf('Actual expenses so far')).toBe(-1200);         // groceries only — the $800 debt is NOT in spent
     expect(f.surplus).toBe(3000);                         // 5000 − 1200 − 800 (after debt, once)
   });
 

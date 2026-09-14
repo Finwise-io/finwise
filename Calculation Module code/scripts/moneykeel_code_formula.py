@@ -383,6 +383,12 @@ def formula(name, sig, body, category=''):
 
     txt = '\n'.join(out)
     sen = ' '.join(x for x in say if x.strip(' .'))
+    # G23 (2026-09-08): a loop with a return inside it used to render as its LAST return only — the
+    # bracket function read "the answer = 0.37". Say so instead of printing a false answer.
+    if re.search(r'\b(for|while)\s*\(', code) and re.search(r'\b(for|while)\s*\([^\n]*\)\s*\{?[^}]*\breturn\b', code, re.S):
+        out = [o for o in out if not o.startswith('the answer =')]
+        txt = '\n'.join(out) + ('\n' if out else '') + '[LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]'
+        sen += ' The answer is found inside a loop that cannot be rendered here; read the code by hand.'
     if len(ordered) >= 11 or len(txt) > 1100:
         txt += '\n… the first steps only — the rest of the body needs reading by hand.'
         sen += ' Only the first steps are shown; the rest of the body needs reading by hand.'
@@ -396,6 +402,144 @@ def _strip(body):
 # ── written by hand, for the functions a wrong number would be chased through ──────────────────
 # These override the machine rendering. Each was read line by line against the code on 2026-08-26.
 OVERRIDES = {
+ # ── 2026-09-12: the 49 bodies the extractor could not render, read by hand (workplan row) ──
+ 'txnLabel': ('the answer = TYPE_LABEL[t], or t itself when the type has no label',
+   'The plain-English label for a transaction type, or the raw type when none is on record. No arithmetic.'),
+ 'cashEffect': ('DEPOSIT → +amount\nSELL → +shares × price, or +amount when no shares\nDIVIDEND / INTEREST / COUPON → 0 when reinvested, else +amount\nWITHDRAWAL / FEE / TRANSFER → −amount\nBUY → −(shares × price)\nanything else → 0',
+   'The signed cash effect of one transaction on its account, for display: money arriving is positive (a deposit, a sale, a payout that was not reinvested), money leaving is negative (a withdrawal, a fee, a transfer out, a purchase). A reinvested payout moves no cash.'),
+ 'zero12': ('the answer = twelve zeros, one per month',
+   'Twelve zeros, one per calendar month — the empty grid a month-by-month figure is built on. No arithmetic.'),
+ 'addDays': ('the answer = d + n × 86,400,000 milliseconds',
+   'The date n days after d — adding whole days in milliseconds.'),
+ 'findPos': ('the answer = the first holding in the account whose position id matches, or whose ticker matches (case-insensitive)',
+   'Finds the holding a transaction refers to — by position identifier first, then by ticker. No arithmetic.'),
+ 'inMonth': ("the answer = true when the expense date starts with the month text 'YYYY-MM'",
+   'Whether a logged expense falls in the given month: its date begins with that year and month. No arithmetic.'),
+ 'recurringDebtPayments': ("for each debt whose payment shape is 'installment' and whose required payment > 0: { label, monthly = required payment(debt) }",
+   'The instalment debts — mortgage, car, loans — each with its required monthly payment (MK-CF-F-023). A debt due in full is not an instalment and is left out; so is one with no payment.'),
+ 'daysBetweenDates': ('the answer = round((b − a) in milliseconds ÷ 86,400,000)',
+   'Whole days between two dates, rounded to the nearest day.'),
+ 'hasWage': ('the answer = w exists and (base salary > 0 or the salary-by-month table has entries)',
+   'Whether an earner record carries a wage at all — a base salary above zero, or a month-by-month salary table with at least one entry. No arithmetic.'),
+ 'asPercent': ("the answer = (r × 100) followed by '%'",
+   'A rate written the way a person says it: 0.038 becomes 3.8%. The hundred is the percent scale, not an option contract.'),
+ 'ym': ("the answer = 'YYYY-MM' from the date's year and month",
+   "The month text 'YYYY-MM' for a date. No arithmetic."),
+ 'pctTxt': ("the answer = round(d × 100) followed by '%'",
+   'A share written as a whole percent — 0.234 becomes 23%. Display only.'),
+ 'money0': ("the answer = '$' + round(n) with thousands separators",
+   'A dollar amount to the whole dollar with thousands separators, for the insight sentences. Display only.'),
+ 'wrapperAccount': ("401k → kind '401k', bucket PRE_TAX\ntrad_ira → 'trad_ira', PRE_TAX\nroth → 'roth_ira', ROTH\nhsa → 'hsa', PRE_TAX\nanything else → 'brokerage', TAXABLE",
+   'The account kind and tax bucket for the wrapper a person picked when adding an account — a 401(k), traditional IRA and HSA are pre-tax, a Roth is tax-free, anything else (or nothing) is a taxable brokerage. No arithmetic.'),
+ 'itemizedTotal': ('the answer = Σ over items of (value, or 0 when missing)',
+   'Adds up the value of every holding entered while itemising an account.'),
+ 'itemizeRemainder': ('the answer = (lump balance, or 0) − itemized total(items)',
+   'The lump balance less the holdings entered so far: positive means money still unallocated, negative means the holdings exceed the entered total.'),
+ 'bondInfo': ("face = face value or 0\ncoupon rate = coupon rate or 0\nmaturity = maturity date or ''\nvalue = balance or 0\naccrued interest = the entered figure, or nothing when not entered",
+   "Reads the bond's facts off the account record — face value, coupon rate, maturity date, the value as entered, and the accrued interest when the person entered it (MK-XS-I-065). No arithmetic."),
+ 'plural': ("the answer = n + ' ' + (one   when n = 1;   many   otherwise)",
+   "'1 account' or '3 accounts' — the word made plural when the count is not one. Display only."),
+ 'oddsAt': ('the answer = simulate({ …base, retire monthly spend today: monthly spend }).chance of success',
+   'The odds the money lasts when the monthly expenses in retirement are set to a given figure — one full run of the simulation (MK-PL-F-050) with that one input changed.'),
+ 'numOrZero': ('n = the number in the text after every character but digits and the decimal point is removed\nthe answer = 0 when that is not a number, else n',
+   'Reads a typed amount as a number — strips dollar signs, commas and spaces — and gives 0 when nothing numeric is left.'),
+ 'importKey': ("the answer = account | date | WORD | amount | units | security | ref | description, joined with '|' (missing parts empty)",
+   "The stable identity of an imported row: the account, the date, the institution's word in capitals, the amount, the units, the security, the reference and the description, joined with vertical bars. Re-importing the same row builds the same key, so it is never doubled."),
+ 'holdingId': ('the answer = date | account id | security key',
+   'The identity of one holding snapshot: its date, account and security, joined with vertical bars. No arithmetic.'),
+ 'accountId': ('the answer = date | account id',
+   'The identity of one account snapshot: its date and account, joined with a vertical bar. No arithmetic.'),
+ 'windowBounds': ('beginning as of = the day before the start\ndays = round((end − start) in days) + 1',
+   "The bounds of a return window: the beginning value is read on the day BEFORE the start, and the window's length counts both boundary days (brief D3, 2026-08-20)."),
+ 'balancesHidden': ('the answer = the hide-balances switch',
+   'Whether the person has hidden balances on screen. No arithmetic.'),
+ 'toUtc': ('the answer = the milliseconds since 1970 of the date at midnight UTC',
+   "A 'YYYY-MM-DD' text as a moment in time at midnight UTC, so day arithmetic is unaffected by the device's timezone."),
+ 'makeMonthlySnapshot': ('net worth = gross assets − gross debt\nv = the snapshot version',
+   'Builds a month-end snapshot: net worth is assets minus debts, computed here and never stored as a third figure that could disagree with its own halves.'),
+ 'readHistory': ('for each stored month: normalize snapshot(month, value); drop the unreadable ones; sort by month, oldest first',
+   'Reads the stored monthly snapshots, drops any that cannot be read, and sorts them oldest first. No arithmetic beyond the ordering.'),
+ 'tabOrder': ('retired → home, cashflow, analytics, plan, invest\notherwise → home, analytics, invest, cashflow, plan',
+   "The order of the tabs for the person's lens — cash flow comes second for someone retired. No arithmetic."),
+ 'cacheDataKey': ("keeps the data-encryption key in memory and in the device's secure store",
+   'Stores the data-encryption key in memory and in the secure keychain. Not a calculation.'),
+ 'clearDataKey': ('forgets the data-encryption key in memory and in the secure store',
+   'Removes the data-encryption key from memory and the secure keychain — done at sign-out. Not a calculation.'),
+ 'fetchEconomicData': ('inflation rate = the fetched figure, or the fallback when the fetch failed\ntreasury yield = the fetched figure, or the fallback when the fetch failed\nfetched at = now; each fallback flagged',
+   'Fetches the inflation rate and the ten-year Treasury yield; when either fetch fails its fallback is used and FLAGGED as a fallback, never passed off as live.'),
+ 'resendVerification': ('sends the verification e-mail again to the signed-in person',
+   'Resends the e-mail-verification message. Not a calculation.'),
+ 'currentIdToken': ("the answer = the signed-in person's identity token, or nothing",
+   "The signed-in person's identity token for the relay, or nothing when nobody is signed in. Not a calculation."),
+ 'logoutUser': ('clears the data key, then signs out',
+   'Forgets the decryption key and signs the person out. Not a calculation.'),
+ 'resetPassword': ('sends a password-reset e-mail to the address',
+   'Sends the password-reset e-mail. Not a calculation.'),
+ 'scheduleStreakReminder': ('cancels the existing reminder, then schedules a daily one at 20:00',
+   'Schedules the daily 8 pm streak reminder, replacing any existing one. Not a calculation.'),
+ 'cancelStreakReminder': ('cancels the daily reminder',
+   'Cancels the daily streak reminder. Not a calculation.'),
+ 'sendBudgetAlert': ("sends one alert now: '<category> budget at <round(pct)>%'",
+   'Sends an immediate alert naming the category and how much of its budget is used, to the whole percent. Display only.'),
+ 'scheduleWeeklySummary': ('cancels the existing summary, then schedules a weekly one on Monday at 09:00',
+   'Schedules the Monday 9 am weekly summary, replacing any existing one. Not a calculation.'),
+ 'stripNonMoney': ('the answer = the line with dates (30.04.24, 04/30/24, 2024-04-30) and times (08:30, 7:54:10) blanked out',
+   'Blanks the dates and times on a receipt line so only the money figures remain for reading. No arithmetic.'),
+ 'ocrAvailable': ('the answer = true when the text-recognition module is present and usable',
+   'Whether receipt scanning is available on this device. Not a calculation.'),
+ 'stAssetId': ("the answer = 'st-' + the SnapTrade account identifier",
+   "The app's identifier for a connected account: the institution's identifier with an 'st-' prefix. No arithmetic."),
+ 'activityKey': ('the answer = import key(account, trade date or settlement date, type, amount, units, security, reference, description)',
+   'The stable identity of one imported activity row, built by MK-ST-F-014 importKey from the account, the date, the type, the amount, the units, the security, the reference and the description.'),
+ 'relayUrl': ('the answer = the relay address from the app config, else from the environment, else nothing',
+   'Where the connection relay lives, read from the app configuration. Not a calculation.'),
+ 'usdCash': ('the answer = Σ over balances in USD (or with no currency) of (cash, or 0)',
+   'Adds up the cash balances a connected account reports in US dollars (a balance with no currency code counts as dollars). Other currencies are left out.'),
+ 'nameOf': ("the answer = the person's name for the account, else the institution, else the label, else 'this account'",
+   "What to call an account in a sentence — the person's own name for it, then the institution, then the label. No arithmetic."),
+ 'isYm': ("the answer = true when the text is exactly 'YYYY-MM'",
+   "Whether a text is a month key of the form 'YYYY-MM'. No arithmetic."),
+ 'loadSentry': ('the answer = the crash-reporting module, or nothing when it is absent',
+   'Loads the crash reporter if it is installed. Not a calculation.'),
+ 'inflationRateInForce': ("entered = the person's own rate from the cockpit, when set\nthe answer = { rate: entered, basis 'entered', label 'you entered' }   when entered exists\n             { rate: 2.5%, basis 'default', label '2.5% — the 30-year average of consumer prices (Bureau of Labor Statistics, 1996–2025)' }   otherwise",
+   "The person's own inflation rate when they set one on the cockpit; otherwise the dated default — 2.5% a year, the 30-year average of consumer prices — with its source, so the screen can say where the figure came from."),
+ 'seniorDeductionFor': ('0   when the tax year is outside 2025–2028, or filing separately, or nobody on the return is 65+, or the income is not known\npeople = min(2, over65)\nfull = people × $6,000\nthe answer = max(0, full − 6% × max(0, magi − start))   start = $75,000 single / head of household · $150,000 married',
+   'Nothing when the year is outside 2025 to 2028, when the person files separately, when nobody on the return is 65 or older, or when the income is not known. Otherwise $6,000 for each person 65 or older (at most two), reduced by six cents for every dollar of income above $75,000 ($150,000 on a joint return), and never below zero.'),
+ 'deductionFor': ('t = TAX_TABLES[status]\nthe answer = deduction + min(2, max(0, over65)) × over65 add + senior deduction for(status, over65, magi)',
+   'The standard deduction for the filing status, plus the 65-and-over add-on for each person 65+ (at most two), plus the senior deduction calculated by MK-CF-F-187 from the filing status, the number of people 65+ and the income.'),
+ 'taxableIncomeFor': ('max(0, gross − deduction for(status, over65, gross))   — gross is handed on as the income the senior deduction phases out against',
+   'Gross minus the deduction for that filing status, age count and income, never below zero. The same gross figure is handed to the deduction as the income the senior deduction phases out against.'),
+ 'taxOwedFor': ("ti = taxable income for(gross, status, over65)\nfederal = Σ over the bands of the filing status, lowest first, while ti is above the band's floor: (min(ti, top of band) − top of the band below) × rate of band\nthe answer = federal + ti × min(15%, max(0, state rate))",
+   "Taxable income is calculated first. Federal tax fills the bands in order: each band taxes the slice of income between the top of the band below and the smaller of the band's top and the income, at the band's rate. The person's flat state rate, capped at 15%, is then applied to the same taxable income."),
+ 'marginalBracketFor': ('ti = taxable income for(gross, status, over65)\nthe answer = the rate of the FIRST band whose top is ≥ ti, read in order from the table for the filing status (10% · 12% · 22% · 24% · 32% · 35% · 37%)',
+   "Taxable income is calculated first; the answer is the rate of the first band whose top is at or above it, reading the filing status's table from the lowest band up."),
+ 'drawOrderOutcome': ("gross-up per bucket: cash 0 · Roth 0 · pre-tax = the person's ordinary rate · taxable = the person's capital-gains rate × the gain share of their taxable holdings\nUNKNOWN (no answer, with the reason) when the gain share is not known and there is a taxable balance to draw\nneed each year = max(0, spending − guaranteed income)\nfor each age from today to the horizon:\n    at the required-withdrawal age: take the required amount from pre-tax first, tax it at the ordinary rate, use the net towards the need, reinvest any excess in taxable\n    then walk the buckets in the given order: gross needed = need ÷ (1 − rate); take = min(balance, gross needed); tax = take × rate; need −= take − tax\n    need still > 0 → the money ran out this year: lasts to age = this age\n    every bucket grows at the real return (never below −5%)\ntotal taxes = Σ tax, to the cent; lasts to age = nothing when it survives the whole horizon",
+   "Each year the gap between spending and guaranteed income is drawn from the accounts in the given order. Pre-tax draws are grossed up by the person's own marginal rate, taxable draws by their own capital-gains rate on the gain share of their holdings; cash and Roth draw tax-free. The required withdrawal is taken first from the year it applies. The year the gap cannot be met is the age the money lasts to. If the gain share is not known and there is a taxable balance, there is no answer — the reason is returned instead."),
+ 'taxableGainShare': ("over every holding in a TAXABLE account that has a price (the broker's mark, else the price feed): value += market value(holding, price) · basis += cost basis(holding)\nnothing   when value ≤ 0 (no priced taxable holding)\nthe answer = min(1, max(0, (value − basis) ÷ value))",
+   "Add up what the taxable holdings are worth today and what was paid for them; the gain share is the difference as a fraction of today's value, never below zero and never above one. With no priced taxable holding there is no answer."),
+ 'rmdRequiredThisYear': ("balance used = the pre-tax balance on 31 December last year, when the person entered one (> 0); otherwise today's pre-tax balance\namount = rmd at age(balance used, age)\nbasis = 'prior_year_end' or 'today' — so the screen can say which",
+   "If the person has entered last 31 December's pre-tax balance, the required amount is that balance divided by the life-expectancy factor for their age. If not, today's balance is used instead, and the answer carries a flag saying so, which the screen prints."),
+ 'annualHsaLimit': ('0   when enrolled in Medicare (no contribution is allowed)\n(family ? family limit : self-only limit) + (age ≥ 55 ? the 55+ catch-up : 0)   otherwise',
+   'Nothing while enrolled in Medicare. Otherwise the self-only limit (or the family limit when told so), plus the 55-and-over catch-up.'),
+ 'taxableIncomeSteps': ("gross income = Σ of the organizer's income lines of a taxable type\n401(k) contribution = household pre-tax contributions annual(op)\nstandard deduction = deduction for(filing status, people 65+, gross − 401(k))   — base figure + 65+ add-on + senior deduction\ntaxable income = max(0, gross income − 401(k) contribution − standard deduction)",
+   "Add up every income line of a taxable type; take off the household's pre-tax 401(k) contributions; take off the standard deduction for the filing status, the number of people 65 or older and the income; what is left is taxable income, never below zero. The deduction line says when it includes the 65+ add-on and the senior deduction."),
+ 'householdPreTaxContributionsAnnual': ('Σ over every earner of (monthly 401(k) contribution) × 12',
+   "Every earner's monthly 401(k) contribution, added up and taken as running all twelve months."),
+ 'essentialsFromLoggedSpending': ('window = the 12 complete calendar months before the current month\ncounted = the months in that window with at least one logged entry (every category — debt payments and big items included)\nmonthly = Σ amounts in the counted months ÷ number of counted months\nif no complete month has an entry but the current month does: monthly = the current month\'s total, counted = 1\nnothing when no month has an entry\nlabel = "<counted> month average"',
+   "Look at the twelve finished months before this one. Add up everything logged in the months that have anything logged — mortgage, debt payments and big one-offs included — and divide by how many of those months there are. Say how many: '7 month average'. If only the current month has entries, use it alone and say so. With nothing logged there is no answer."),
+ 'essentialsMonthly': ("logged = essentials from logged spending(expenses, now)\nlogged exists → monthly = logged.monthly, basis 'logged', label = logged.label\notherwise, typed > 0 → monthly = typed, basis 'entered', label 'you entered'\notherwise nothing — the screen shows its door, never a made-up number",
+   "The logged average when any month is logged; otherwise the figure the person typed, labelled 'you entered'; otherwise nothing."),
+ 'realizedFromLedger': ("rows = the ledger's BUY, Opening holding and SELL rows with a ticker, shares and a price (filtered to the ticker / account asked for), oldest first\nfor each row: a buy is queued per account and ticker; a sale takes from the oldest queued buys: take = min(lot shares, shares still to sell); basis += take × lot price; lot shares −= take; still to sell −= take; the lot is dropped when empty\ngain = covered shares × sale price − basis, to the cent; added to the all-time total, and to this year's when the sale date is in this year\na sale with shares still uncovered is counted as a sale without basis — reported, never guessed\nthe answer = { realized all time, realized this year, sells counted, sells without basis }",
+   'Every buy is queued, oldest first, per account and ticker. Each sale takes shares from the oldest queued buys; the cost of those shares is the basis; the gain is what the covered shares sold for less that basis, to the cent, with a separate total for sales this year. A sale that cannot be fully matched to recorded buys is counted separately and named on screen, never priced from a guess.'),
+ 'rothVsTraditional': ('lean = \'roth\'            when marginal now ≤ 12%     why = "You\'re in a low bracket now — pay the tax now (Roth) and withdraw tax-free later."\nlean = \'traditional\'     when marginal now ≥ 24% and marginal retire < marginal now     why = "High bracket now, likely lower in retirement — deduct now (Traditional), pay tax later."\nlean = \'either\'          otherwise     why = "Your brackets are similar — splitting Roth and Traditional hedges your future tax rate."',
+   'A marginal rate of 12% or less today leans Roth (pay the tax now, withdraw tax-free later). A rate of 24% or more today that is expected to be lower in retirement leans Traditional (deduct now, pay later). Anything else: either — split the two.'),
+ 'grossFromNet': ('0   when net ≤ 0\nlo = net, hi = net × 3\nrepeat 50 times: mid = (lo + hi) ÷ 2; if mid − tax owed for(mid, status, 0, over65) < net then lo = mid else hi = mid\nthe answer = (lo + hi) ÷ 2   — the gross whose take-home equals net, found by halving the interval',
+   'Searches for the gross pay whose take-home after federal tax equals the net entered: start with the interval from the net to three times the net, and halve it fifty times, keeping the half that brackets the answer. The result is that gross.'),
+ 'monthlyTaxRates': ("flat = effective rate(op)\n12 slots, each flat   when the person's own rate is in force\ntaxable = taxable by calendar month(op, now)\n12 slots, each flat   when Σ taxable ≤ 0\ntax = progressive monthly tax(taxable, filing status, state rate, people 65+)\nthe answer: for each month, min(60%, max(0, tax ÷ taxable))   if taxable > 0, else flat",
+   "One withholding rate per calendar month. If the person set their own rate it is used for every month. Otherwise the year's taxable income is laid out by month, the progressive tax on the running total gives each month's tax, and the month's rate is that tax over that month's taxable income, capped at 60%; a month with no taxable income takes the flat rate."),
+ 'factorOverMonths': ('pts = series.points\nnothing   when fewer than 2 points\ncutoff = the local calendar date `months` before today (year, month − months, day) — built from local date parts, never via UTC\nnothing   when the series starts after the cutoff\nstart = the last point on or before the cutoff; end = the last point\nnothing   when start.close is missing or ≤ 0\nthe answer = end.close ÷ start.close',
+   "The price factor over the trailing window: the latest close divided by the close on or just before the day the window opened. The window opens on the person's own calendar day that many months ago. A series that does not reach back that far gives no answer — no price is invented."),
+
  'round2': ('round2(n) = round(n × 100) ÷ 100',
    'Rounds to two decimal places — the cent. The hundred is the rounding scale, nothing to do with '
    'percentages or with an option contract being a hundred shares.'),
@@ -430,13 +574,13 @@ OVERRIDES = {
    'Adds the share count of every lot. A lot with no share count counts as zero, so "nothing '
    'recorded" and "a real zero" give the same answer.'),
  'costBasis': (
-   'cost basis(holding) = round(Σ over every lot of (shares × cost per share), 2 dp)',
+   'cost basis(holding) = Σ over every lot of (shares × cost per share)',
    'What was paid, added across the lots. A lot with no cost per share contributes nothing, so a '
    'holding with neither a price nor a cost lands at $0 and quietly leaves net worth.'),
- 'annualCoupon': ('annual coupon = round(face value × coupon rate, 2 dp)',
+ 'annualCoupon': ('annual coupon = face value × coupon rate',
    'What the bond pays in interest over a year: its face value times its stated rate. Paid '
    'semi-annually in practice; this figure is the yearly total.'),
- 'currentYield': ('current yield = round(annual coupon ÷ current value, 4 dp)',
+ 'currentYield': ('current yield = annual coupon ÷ current value',
    'The interest a year as a share of what the bond is worth now. If the recorded value is a dirty '
    'price it carries accrued interest, and the yield reads low — the file does not say which it is.'),
  'approxYTM': (
@@ -483,7 +627,7 @@ OVERRIDES = {
    'SSA rates are right. But the claim age is ROUNDED TO A WHOLE YEAR before the months are '
    'counted, so claiming at 62 and six months is priced as 63 — about 3.3% of the benefit, roughly '
    '$83 a month for life on a $2,500 benefit. Finding A38.'),
- 'ssBenefitAt': ('monthly benefit = round(statement amount at full retirement age × factor(claim age))',
+ 'ssBenefitAt': ('monthly benefit = statement amount at full retirement age × factor(claim age)',
    'The amount on the Social Security statement, scaled by the claim-age factor and rounded to '
    'whole dollars. In today\'s money — no inflation is applied here.'),
  'taxableIncome': ('taxable income = max(0, gross − standard deduction)',
@@ -537,3 +681,91 @@ OVERRIDES = {
    'after the anniversary, which is the IRS rule. An unreadable purchase date stays short term, '
    'the cautious side, because understating a tax bill is the worse mistake.'),
 }
+
+
+# ── assumptions read by hand — rulings, sources and conventions the sweep cannot see (2026-09-08) ──
+ASSUMPTIONS_EXTRA = {
+ 'ageToday': ['G9 (founder, 2026-09-12): birthday-aware when the birth month is known (the onboarding asks for it), the year-attained age when only the year is known, nothing when the birth year is unknown — never a stand-in month or age. Limits use the year-attained age instead (G1).'],
+ 'payrollTaxWithheld': ['G4 (founder agreed 2026-09-12): per earner, 6.2% of the wage up to the Social Security wage base ($184,500 in 2026), 1.45% of the whole wage, and 0.9% more above $200,000 — what a paycheck withholds. It is NEVER deducted from the take-home estimate; it sizes the sentence "the take-home above is higher than it will really be, by roughly $X a month".'],
+ # G1 (founder agreed 2026-09-12): the age every contribution limit uses
+ 'annual401kLimit': ['Age = the age attained at any time in the calendar year (this year − birth year), the IRS test for the 50+ catch-up and the 60–63 super catch-up (IRC §414(v)) — never the birthday-aware age (G1). No age → the base limit, no catch-up.'],
+ 'annualIraLimit': ['Age = the age attained at any time in the calendar year (this year − birth year), the IRS test for the 50+ catch-up (IRC §219(b)(5)(B)) — never the birthday-aware age (G1).'],
+ 'annualHsaLimit': ['Age = the age attained at any time in the calendar year (this year − birth year), the IRS test for the 55+ catch-up (IRC §223(b)(3)) — never the birthday-aware age (G1). Enrolled in Medicare → nothing (G10).'],
+ 'ageAttainedInYear': ['The IRS convention for limits: a person attains an age at any point in the calendar year, so this year − birth year — not the birthday-aware age used for display (G1 / G9).'],
+ # 2026-09-12 — second-verification rulings G5, G7, G11, G36 (his -jj comments)
+ 'willItLastInputs': ['The current age is birthday-aware when the birth month is known, else the year-attained age (G9, 2026-09-12).', 'Inflation: the percent figure entered (2.5) is divided by 100 before use — 0.025 a year (G5). The effective tax rate on pre-tax withdrawals is the person\'s own, from filing status and income (income floored at $30,000), clamped between 10% and 60% (G7 / G35).'],
+ 'yearsToMaturity': ['No maturity date, or an unreadable one, gives NO answer — not zero and not "due now" (G11, founder 2026-09-12); the yield to maturity and the rate sensitivity then refuse too.'],
+ 'monthsLeftInYear': ['The current month counts as remaining, so December divides by 1 (G36, founder 2026-09-12).'],
+ # 2026-09-12 — the August findings re-verified; what the code settles is now SAID on the row
+ 'rmdAtAge': ['Uses the IRS Uniform Lifetime table for everyone (A37). A person whose sole beneficiary is a spouse more than ten years younger may use the Joint Life and Last Survivor table, which gives a SMALLER required amount — not modelled, and not said on the screen yet.'],
+ 'rmdStartAge': ['When the birth year is missing the start age is taken as 73 — the rule for those born 1951–1959, the middle of the 55–70 audience (A36). The whole schedule is coded: 70½ before 1949, 72 for 1949–1950, 73 for 1951–1959, 75 from 1960.'],
+ 'ssLifetimeTotal': ["Monthly benefit × the months from the claim age to the life expectancy, in today's dollars — no cost-of-living rise and no discounting (A40). The retirement paycheck on another screen grows Social Security with inflation; this figure is the real-terms total, and the screen does not yet say so."],
+ 'rothConversionCost': ['The conversion is stacked on top of the year\'s other ordinary income and taxed through the brackets from there (A42). Not modelled: the Medicare income-related premium surcharge (IRMAA) two years later and the net-investment-income tax — both can change whether a conversion is worth doing at 55–70.'],
+ 'projectNestEgg': ['A contribution is treated as arriving at the END of its year, so it compounds for one year fewer than a start-of-year contribution would — the answer differs by a factor of (1 + r) between the two readings (A44 / B11). Contributions grow at their own rate, which is ZERO when nobody sets one. r is a nominal return; inflation is applied elsewhere.'],
+ 'inflationRateInForce': ['Founder ruling brief Q-50 (2026-08-20), executed 2026-09-08 (G30): the default is the dated 30-year average — 2.5% a year, Bureau of Labor Statistics CPI-U 1996–2025, checked 2026-09-08 — never a live feed; the person\'s own rate outranks it.'],
+ 'deductionFor': ['2026 standard deduction $16,100 single · $32,200 married · $16,100 filing separately · $24,150 head of household; 65+ add-on $2,050 single / head of household · $1,650 per person married (IRS Rev. Proc. 2025-32 §3.18).',
+                  'Plus the senior deduction of MK-CF-F-187 — $6,000 per person 65+, phased out 6% above $75,000 / $150,000, tax years 2025–2028 (P.L. 119-21 §70103).'],
+ 'seniorDeductionFor': ['Uses the published figures: $6,000 per person 65+, phased out at 6% above $75,000 ($150,000 joint), 2025–2028 (P.L. 119-21 §70103; checked 2026-09-08; lapses after 2028 — the statutory test fails when the tax year rolls past it).',
+                        'Takes the income handed to it as modified adjusted gross income — the untaxed part of Social Security and other adjustments are not modelled.',
+                        'Income not known → 0, never a guessed deduction.'],
+ 'taxOwedFor': ['The 2026 bands per filing status are the Reference tab\'s statutory table (IRS Rev. Proc. 2025-32 §4.01), checked by statutory_constants.test.ts.'],
+ 'drawOrderOutcome': ['NO built-in tax rates (founder ruling 2026-09-08, second verification G6; rule R2/brief Q-43 (2026-08-20)): the caller hands in the person\'s own marginal ordinary rate (MK-CF-F-103) and long-term gains rate (MK-CF-F-104), and the gain share of their taxable holdings (MK-PL-F-081); unknown gain share with a taxable balance → no answer, with the reason.',
+                      'Balances grow at the real return, floored at −5% a year.',
+                      'The required withdrawal is taken first from the year it applies (MK-PL-F-007).'],
+ 'taxableGainShare': ['A holding with no price is left out; no priced taxable holding at all → nothing, never a guessed 50% (founder ruling 2026-09-08, G6).',
+                      'A loss overall counts as a 0% gain share (no tax on drawing at a loss), never negative.'],
+ 'rmdRequiredThisYear': ['The law bases the year\'s required withdrawal on the prior 31 December balance (Treas. Reg. §1.401(a)(9)-5); when that balance is not entered, today\'s balance stands in and the screen says so — founder ruling 2026-09-08 (second verification G8).'],
+ 'annualHsaLimit': ['Enrolled in Medicare → 0 (IRS Publication 969: no HSA contribution while enrolled). Not enrolled, or not answered → the limit, and at 65+ the screen says "if you are not enrolled in Medicare" and asks — founder ruling 2026-09-08 (second verification G10).',
+                    'Self-only limit unless told it is a family plan.'],
+ 'taxableIncomeSteps': ['Founder ruling brief Q-46 (2026-08-20) (2026-09-08): the organizer shows gross income, the 401(k) contribution, the standard deduction and taxable income — not one unexplained total.',
+                        'The senior deduction phases out on gross income less the 401(k) contribution (the nearest figure the app holds to modified adjusted gross income).',
+                        'Only pre-tax 401(k) contributions come off; a Roth contribution does not reduce taxable income.'],
+ 'householdPreTaxContributionsAnnual': ['Twelve equal months — a contribution entered monthly is taken as running all year.'],
+ 'essentialsFromLoggedSpending': ['Founder ruling brief Q-21 (2026-08-20): the average of ACTUAL logged spending, mortgage and big items included — never the typed plan when logs exist.',
+                                  'Founder ruling Q47 (2026-09-08): fewer than 12 months logged → the average over the months logged, and the label says how many.',
+                                  'ASSUMPTION (mine, 2026-09-08, stated for the founder\'s ruling): the current, unfinished month is left out — a month three days old would drag the average down — unless it is the only month with entries.'],
+ 'essentialsMonthly': ['Logged spending outranks the typed figure whenever a month is logged (brief Q-21 (2026-08-20)); the typed figure is used only when nothing is logged, and it is labelled \'you entered\'.'],
+ 'emergencyTest': ['G21 (2026-09-08): essentials a month = the figure handed in by the screen (MK-CF-F-190: logged average, else typed), falling back to the typed categories only when nothing is handed in.'],
+ 'factorOverMonths': ['The window boundary is a LOCAL calendar date (the person\'s own day), so the answer is the same in every timezone (TZ-1, 2026-09-08).'],
+ 'approxYTM': ['\'value\' is the bond\'s current value as entered (the balance) — the SAME total basis as face, not a price per $100 (founder question G20, 2026-09-08).'],
+ 'portfolioPeriodReturn': ['Second verification G18, 2026-09-08: this is the value-weighted average of holding returns, not a Dietz return.'],
+ 'simulate': ['The tax on pre-tax withdrawals is the rate the caller passes, capped at 60%; when no rate is passed NO tax is applied and the result says so — never a built-in 22% (G7, founder 2026-09-12).', 'Founder ruling 2026-09-08 (G17): one count, 1,000 futures, on every surface; the guard test simulation_paths.test.ts fails on any other number.'],
+ 'realizedFromLedger': ['Sales dated in the current calendar year make the this-year total; the device clock decides which year that is.'],
+}
+# sweep lines that are false for a function and must not print
+ASSUMPTIONS_DROP = {
+ 'grossFromNet': ['Uses a built-in i'],
+ 'realizedFromLedger': ['Multiplies by 100'],
+}
+
+
+# ── one word for one concept, applied to every rendered formula (founder standing order 2026-09-02;
+# second verification G34). Lives here so the master file, the code headers and the agreement check
+# all see the same text.
+import re as _re
+CANON = [(r'\bnet a month\b','take-home /month'), (r'\bnet a year\b','take-home /year'), (r'\bNet / month\b','Take-home / month'),
+         (r'\btake-home a month\b','take-home /month'), (r'\btake-home a year\b','take-home /year'),
+         # cluster #16 (2026-09-10): spouse — the quoted code value 'partner' (a track id) stays as the code has it
+         (r"(?<!')\bpartner\b(?!')",'spouse'), (r"(?<!')\bPartner\b(?!')",'Spouse'), (r"(?<!')\bpartners\b(?!')",'spouses'),
+         (r"\byou set it\b",'you entered'),
+         # cluster #3, his answer 2026-09-12: 'spending' → 'expenses' in prose too — identifiers such as
+         # monthlySpending render as words, so the rendered words follow the canon; code values in quotes stay
+         (r"(?<!')\bspending\b(?!')",'expenses'), (r"(?<!')\bSpending\b(?!')",'Expenses'), (r"(?<!')\bSPENDING\b(?!')",'EXPENSES'),
+         (r'\bsafe draw\b','draw from savings'), (r'\bsafely drawn\b','drawn from savings'),
+         # cluster 0c (2026-09-13): 'engine' is retired (identifier standard) — the folder path code/engines and the old tab are spared
+         (r'(?<!code/)\bengines\b(?!-old-tab)','functions'), (r'(?<!code/)\bengine\b','function'), (r'(?<!code/)\bEngines\b','Functions'), (r'(?<!code/)\bEngine\b','Function'), (r'(?<!code/)\bENGINES\b','FUNCTIONS'), (r'(?<!code/)\bENGINE\b','FUNCTION'),
+         (r'\bCHEQUE\b','CHECK'), (r'\bcheque\b','check'), (r'\bAn estimate, and labelled as one\b','Calculated, and labelled as one')]
+_PATH = _re.compile(r'MK-[A-Z]{2}-[A-Z]-\d{3} [A-Za-z_][A-Za-z0-9_]*|\S*\.tsx?\b|\S*/\S+')   # an identifier's name after its MK-ID is code, as the guard reads it
+def canon(text):
+    """the one canon, applied to COPY only: a single token with no space is a code value (an identifier, a key)
+    and a path is a path — both pass through untouched, the same rule the one-term guard applies (2026-09-13)."""
+    if not isinstance(text, str): return text
+    if not _re.search(r'\s', text.strip()) and not _re.match(r'^[A-Z][a-z]', text.strip()): return text
+    keep = []
+    def hold(m): keep.append(m.group(0)); return '\x00%d\x00' % (len(keep) - 1)
+    text = _PATH.sub(hold, text)
+    for pat, rep in CANON: text = _re.sub(pat, rep, text)
+    return _re.sub(r'\x00(\d+)\x00', lambda m: keep[int(m.group(1))], text)
+
+# categories read by hand (C4, 2026-09-08): round2 rounds displayed money — it is a dependent function, not an action
+CATEGORY_OVERRIDES = {'round2': '3 · DEPENDENT'}

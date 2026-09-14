@@ -211,7 +211,7 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   back: { color: Colors.primary, fontSize: 17, fontWeight: '700', marginBottom: 6 },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginTop: 2, marginBottom: Spacing.md, lineHeight: 20 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.md },
   input: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: Spacing.md, fontSize: 17, color: Colors.textPrimary, marginBottom: Spacing.sm },
@@ -240,3 +240,4 @@ const s = StyleSheet.create({
   mergeOpt: { paddingVertical: 10, minHeight: 44, justifyContent: 'center' },
   mergeTxt: { fontSize: 15, color: Colors.textPrimary, fontWeight: '600' },
 });
+

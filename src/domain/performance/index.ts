@@ -4,7 +4,6 @@
 // Price data comes from a swappable PriceProvider (see services/marketData.ts) so the model and UI
 // never need rework if we change data source later.
 import type { EntityId } from '../_shared/ids';
-import { round2 } from '../_shared/num';
 
 /** One purchase lot — shares bought at a price on a date (enables true cost-basis ROI). */
 export interface Lot {
@@ -24,7 +23,112 @@ export interface Position {
   class_source?: 'user';        // B7: the person set the class themselves — it survives every sync
   class_flag?: { was: string; evidenceSays: string };   // B7: a sync wanted to move the class; kept + flagged instead
   last_price?: number;          // broker's daily mark (connected accounts — no live feed needed)
+  multiplier?: number;          // Q06 (founder, 2026-08-26): an option contract is 100 shares unless the broker or the person states otherwise
+  unit?: QuantityUnit;          // Q09 (founder, 2026-08-26): a quantity is never shown without its unit
   lots: Lot[];
+}
+
+export type QuantityUnit = 'shares' | 'coins' | 'contracts' | 'ounces' | 'units';
+
+/** Q06 (founder, 2026-08-26): options are contracts × 100 × price unless the broker or the person
+ *  states another multiplier. Everything that is not an option is 1. */
+export const OPTION_CONTRACT_MULTIPLIER = 100;
+/* ─ MK-PF-F-031 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * contractMultiplier
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     multiplier   when multiplier ≠ nothing and multiplier > 0
+ *     OPTION_CONTRACT_MULTIPLIER   if kind = 'options'
+ *     1   otherwise
+ *
+ * Called by ... MK-PF-F-002 costBasis · MK-PF-F-004 marketValue
+ *
+ * Reaches ..... 64 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-016 attribution
+ *               MK-PF-F-003 avgCost · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-PF-F-002 costBasis · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               … and 46 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-031
+ * Changed ..... not in git yet (—)
+ */
+export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'>): number {
+  if (p.multiplier != null && p.multiplier > 0) return p.multiplier;
+  return p.kind === 'options' ? OPTION_CONTRACT_MULTIPLIER : 1;
+}
+
+/** Q09 (founder, 2026-08-26): the unit beside a quantity — the person's when entered, else the one
+ *  the kind implies: coins for crypto, contracts for options, ounces for gold and commodities, shares
+ *  for everything else. */
+/* ─ MK-PF-F-032 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * quantityUnit
+ *
+ * Answers ..... Q09 (founder, 2026-08-26): the unit beside a quantity — the person's when entered, else the one the kind implies: coins for crypto, contracts for options, ounces for gold and commodities, shares for everything else.
+ *
+ * Formula .....
+ *     unit   when unit
+ *     'coins'   when kind = 'crypto'
+ *     'contracts'   when kind = 'options'
+ *     'ounces'   when kind = 'commodities'
+ *     'shares'
+ *
+ * Called by ... MK-PF-F-033 quantityWithUnit
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-033 quantityWithUnit
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-032
+ * Changed ..... not in git yet (—)
+ */
+export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
+  if (p.unit) return p.unit;
+  if (p.kind === 'crypto') return 'coins';
+  if (p.kind === 'options') return 'contracts';
+  if (p.kind === 'commodities') return 'ounces';
+  return 'shares';
+}
+
+/** "3 shares", "1 coin", "2 contracts" — the quantity printed with its unit, singular when it is one. */
+/* ─ MK-PF-F-033 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * quantityWithUnit
+ *
+ * Answers ..... "3 shares", "1 coin", "2 contracts" — the quantity printed with its unit, singular when it is one.
+ *
+ * Formula .....
+ *     unit = quantity unit(p)
+ *     the answer = `${format(qty)} ${qty = 1 ? unit.replace( ÷ s$ ÷ , '') : unit}`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-033
+ * Changed ..... not in git yet (—)
+ */
+export function quantityWithUnit(p: Pick<Position, 'kind' | 'unit'>, qty: number, format: (n: number) => string = String): string {
+  const unit = quantityUnit(p);
+  return `${format(qty)} ${qty === 1 ? unit.replace(/s$/, '') : unit}`;
 }
 
 /** A daily close series, oldest→newest, for return math. */
@@ -45,11 +149,17 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  * Called by ... MK-CF-F-111 applyTransaction · MK-PF-F-003 avgCost
  *               MK-PF-F-004 marketValue · MK-PF-F-018 portfolioTrend
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-111 applyTransaction · MK-PF-F-003 avgCost
- *               MK-PF-F-014 buildPerformance · MK-PF-F-004 marketValue
- *               MK-PF-F-018 portfolioTrend · MK-PF-F-007 totalROI
- *               MK-PF-F-005 unrealizedGain
+ * Reaches ..... 65 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
+ *               MK-PF-F-016 attribution · MK-PF-F-003 avgCost
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               … and 47 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-031
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -69,18 +179,28 @@ export function totalShares(p: Position): number {
  * Answers ..... What did I pay for this in total?
  *
  * Formula .....
- *     cost basis(holding) = round(Σ over every lot of (shares × cost per share), 2 dp)
+ *     cost basis(holding) = Σ over every lot of (shares × cost per share)
  *
  * Called by ... MK-PF-F-003 avgCost · MK-PF-F-005 unrealizedGain
  *               MK-PF-F-007 totalROI · MK-PF-F-014 buildPerformance
+ *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-PF-F-003 avgCost · MK-PF-F-014 buildPerformance
- *               MK-PF-F-007 totalROI · MK-PF-F-005 unrealizedGain
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-003 avgCost
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 40 more — the full list is on functions_from_code
  *
- * Serves ...... MK-NW-M-032 · MK-NW-M-033
+ * Serves ...... MK-NW-M-033
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
  *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -90,7 +210,7 @@ export function totalShares(p: Position): number {
  * Changed ..... 2026-06-05 (d925b9e)
  */
 export function costBasis(p: Position): number {
-  return round2((p.lots ?? []).reduce((t, l) => t + (l.shares || 0) * (l.cost_per_share || 0), 0));
+  return ((p.lots ?? []).reduce((t, l) => t + (l.shares || 0) * (l.cost_per_share || 0), 0) * contractMultiplier(p));
 }
 /* ─ MK-PF-F-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * avgCost
@@ -100,12 +220,12 @@ export function costBasis(p: Position): number {
  * Formula .....
  *     sh = total shares(p)
  *     the answer:
- *     round(cost basis(p) ÷ sh, 2 dp)   if sh > 0
+ *     cost basis(p) ÷ sh   if sh > 0
  *     0   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-NW-M-032
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
  *
@@ -114,7 +234,7 @@ export function costBasis(p: Position): number {
  */
 export function avgCost(p: Position): number {
   const sh = totalShares(p);
-  return sh > 0 ? round2(costBasis(p) / sh) : 0;
+  return sh > 0 ? (costBasis(p) / sh) : 0;
 }
 /* ─ MK-PF-F-004 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * marketValue
@@ -126,19 +246,31 @@ export function avgCost(p: Position): number {
  *                           = 0   when no price came back
  *
  * Called by ... MK-PF-F-005 unrealizedGain · MK-PF-F-014 buildPerformance
+ *               MK-PF-F-015 topHoldingConcentration · MK-PF-F-016 attribution
+ *               MK-PF-F-019 portfolioPeriodReturn · MK-PF-F-020 portfolioBenchReturn
+ *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-PF-F-014 buildPerformance · MK-PF-F-007 totalROI
- *               MK-PF-F-005 unrealizedGain
+ * Reaches ..... 61 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-016 attribution
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 43 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-030 · MK-NW-M-040
  * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-004
  * Changed ..... 2026-08-20 (77eea92)
  */
 export function marketValue(p: Position, price: number | null | undefined): number {
-  return price == null ? 0 : round2(totalShares(p) * price);
+  return price == null ? 0 : (totalShares(p) * price * contractMultiplier(p));
 }
 /** Unrealized gain = market value − cost basis (null price → 0). */
 /* ─ MK-PF-F-005 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -148,7 +280,7 @@ export function marketValue(p: Position, price: number | null | undefined): numb
  *
  * Formula .....
  *     0   if price = nothing
- *     round(market value(p, price) − cost basis(p), 2 dp)   otherwise
+ *     market value(p, price) − cost basis(p)   otherwise
  *
  * Called by ... MK-PF-F-007 totalROI · MK-PF-F-014 buildPerformance
  *
@@ -162,7 +294,7 @@ export function marketValue(p: Position, price: number | null | undefined): numb
  * Changed ..... 2026-08-20 (77eea92)
  */
 export function unrealizedGain(p: Position, price: number | null | undefined): number {
-  return price == null ? 0 : round2(marketValue(p, price) - costBasis(p));
+  return price == null ? 0 : (marketValue(p, price) - costBasis(p));
 }
 /** Unrealized capital gains split by holding period — long-term (held MORE than one year, the
  *  IRS line, day-precise) vs short-term. Computed per lot from its purchase date; lots without a
@@ -215,7 +347,7 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
     }
     if (longTerm) lg += gain; else sg += gain;
   }
-  return { longGain: round2(lg), shortGain: round2(sg), totalGain: round2(lg + sg) };
+  return { longGain: (lg), shortGain: (sg), totalGain: (lg + sg) };
 }
 // capGainsTax was CUT by the founder 2026-08-20 (brief §C, Q12) with the embedded-tax
 // metric: an estimate on an unrealised gain cannot be calculated honestly.
@@ -229,7 +361,7 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
  * Formula .....
  *     basis = cost basis(p)
  *     nothing   when price = nothing (or basis ≤ 0 when missing or zero)
- *     the answer = round(unrealized gain(p, price) ÷ basis, 4 dp)
+ *     the answer = unrealized gain(p, price) ÷ basis
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
@@ -239,16 +371,13 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *
  * Formula also on the master file · functions_from_code · MK-PF-F-007
  * Changed ..... 2026-08-01 (84a3ba5)
  */
 export function totalROI(p: Position, price: number | null | undefined): number | null {
   const basis = costBasis(p);
   if (price == null || basis <= 0) return null;
-  return Math.round((unrealizedGain(p, price) / basis) * 1e4) / 1e4;
+  return ((unrealizedGain(p, price) / basis));
 }
 
 // ---- period returns from a price series (price return of the security itself) ----
@@ -264,9 +393,9 @@ export function totalROI(p: Position, price: number | null | undefined): number 
  * Called by ... MK-PF-F-010 periodReturn · MK-PF-F-014 buildPerformance
  *               MK-PF-F-018 portfolioTrend
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-PF-F-014 buildPerformance · MK-PF-F-010 periodReturn
- *               MK-PF-F-018 portfolioTrend
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-021 periodDollarDelta
+ *               MK-PF-F-010 periodReturn · MK-PF-F-018 portfolioTrend
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -301,9 +430,10 @@ export function startDateFor(period: Period, now: Date): Date {
  * Called by ... MK-PF-F-010 periodReturn · MK-PF-F-011 periodReturnSince
  *               MK-PF-F-018 portfolioTrend
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-PF-F-014 buildPerformance · MK-PF-F-010 periodReturn
- *               MK-PF-F-011 periodReturnSince · MK-PF-F-018 portfolioTrend
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-021 periodDollarDelta
+ *               MK-PF-F-010 periodReturn · MK-PF-F-011 periodReturnSince
+ *               MK-PF-F-018 portfolioTrend
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -319,7 +449,7 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
   for (const p of pts) { if (new Date(p.date).getTime() <= t) chosen = p.close; else break; }
   return chosen ?? pts[0].close;   // target predates the series → first available
 }
-/* ─ MK-PF-F-009 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-009 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * latestClose
  *
  * Answers ..... What is the most recent price we hold for this?
@@ -329,11 +459,19 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
  *                  = nothing   when the series is empty
  *
  * Called by ... MK-PF-F-010 periodReturn · MK-PF-F-011 periodReturnSince
- *               MK-PF-F-014 buildPerformance
+ *               MK-PF-F-014 buildPerformance · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-PF-F-014 buildPerformance · MK-PF-F-010 periodReturn
- *               MK-PF-F-011 periodReturnSince
+ * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 39 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -357,20 +495,19 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
  *     start = close as of(series, start date for(period, now))
  *     nothing   when end = nothing (or start = nothing (or start ≤ 0 when missing or zero) when missing or zero)
  *     raw = end ÷ start − 1
- *     round((end ÷ start)^(1 ÷ 2) − 1, 4 dp)   when period = '2Y'
- *     the answer = round(raw, 4 dp)
+ *     (end ÷ start)^(1 ÷ 2) − 1   when period = '2Y'
+ *     the answer = raw
  *
- * Called by ... MK-PF-F-014 buildPerformance
+ * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-021 periodDollarDelta
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-PF-F-014 buildPerformance
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-021 periodDollarDelta
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-010
  * Changed ..... 2026-08-18 (98a342a)
@@ -385,8 +522,8 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
   // FOUNDER DECISION 2026-08-18: two years is the longest window offered, because two years is
   // exactly how much daily history the app keeps. Offering three would draw a line from a date
   // we have no record of. Multi-year returns are still shown per year, so 2Y sits fairly beside 1Y.
-  if (period === '2Y') return Math.round((Math.pow(end / start, 1 / 2) - 1) * 1e4) / 1e4;
-  return Math.round(raw * 1e4) / 1e4;
+  if (period === '2Y') return ((Math.pow(end / start, 1 / 2) - 1));
+  return (raw);
 }
 
 /** Price return from an explicit start DATE to now (for purchase-capped windows). */
@@ -400,7 +537,7 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
  *     end = latest close(series)
  *     start = close as of(series, new date(since iso))
  *     nothing   when end = nothing (or start = nothing (or start ≤ 0 when missing or zero) when missing or zero)
- *     the answer = round(end ÷ start − 1, 4 dp)
+ *     the answer = end ÷ start − 1
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
@@ -412,7 +549,6 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-011
  * Changed ..... 2026-07-20 (8f9b9f1)
@@ -422,7 +558,7 @@ export function periodReturnSince(series: PriceSeries | null | undefined, sinceI
   const end = latestClose(series);
   const start = closeAsOf(series, new Date(sinceISO));
   if (end == null || start == null || start <= 0) return null;
-  return Math.round((end / start - 1) * 1e4) / 1e4;
+  return ((end / start - 1));
 }
 
 /** Earliest dated lot — the day this holding became YOUR money. null when no lot carries a date. */
@@ -444,9 +580,6 @@ export function periodReturnSince(series: PriceSeries | null | undefined, sinceI
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-012
  * Changed ..... 2026-07-20 (8f9b9f1)
@@ -480,10 +613,19 @@ export const BENCHMARK_TICKER: Record<string, string> = {
  * Formula .....
  *     BENCHMARK_TICKER[kind ?? ''] (or 'SPY' when missing)
  *
- * Called by ... MK-PF-F-014 buildPerformance
+ * Called by ... MK-PF-F-014 buildPerformance · MK-XS-F-175 uid
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-PF-F-014 buildPerformance
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -540,7 +682,6 @@ export interface PerformanceRow {
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-014
  * Changed ..... 2026-07-20 (8f9b9f1)
@@ -568,19 +709,19 @@ export function buildPerformance(
       marketValue: marketValue(p, price), costBasis: costBasis(p), gain: unrealizedGain(p, price),
       totalROI: totalROI(p, price), periodReturn: pr,
       benchTicker, benchReturn,
-      beatBy: pr != null && benchReturn != null ? Math.round((pr - benchReturn) * 1e4) / 1e4 : null,
+      beatBy: pr != null && benchReturn != null ? ((pr - benchReturn)) : null,
       cappedSince: capped ? bought : null,
     };
   });
 }
 
-/** The holding-concentration FACT (Invest main + the insights engine share this one rule):
+/** The holding-concentration FACT (Invest main + the insights function share this one rule):
  *  the largest single holding as a % of invested money, reported only at 25%+ with 2+ holdings —
  *  below that it isn't a fact worth a card. Never advice, just the number and the ticker. */
 /* ─ MK-PF-F-015 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * topHoldingConcentration
  *
- * Answers ..... The holding-concentration FACT (Invest main + the insights engine share this one rule): the largest single holding as a % of invested money, reported only at 25%+ with 2+ holdings — below that it isn't a fact worth a card.
+ * Answers ..... The holding-concentration FACT (Invest main + the insights function share this one rule): the largest single holding as a % of invested money, reported only at 25%+ with 2+ holdings — below that it isn't a fact worth a card.
  *
  * Formula .....
  *     invested = Σ over rows of (market value)
@@ -598,7 +739,6 @@ export function buildPerformance(
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-015
@@ -627,10 +767,6 @@ export function topHoldingConcentration(rows: PerformanceRow[]): { ticker: strin
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
- *
  * Formula also on the master file · functions_from_code · MK-PF-F-016
  * Changed ..... 2026-06-06 (780f80d)
  */
@@ -639,7 +775,7 @@ export function attribution(rows: PerformanceRow[]): { position: Position; contr
   if (total <= 0) return [];
   return rows
     .filter((r) => r.periodReturn != null && r.marketValue > 0)
-    .map((r) => ({ position: r.position, weight: r.marketValue / total, contribution: Math.round((r.marketValue / total) * (r.periodReturn as number) * 1e4) / 1e4 }))
+    .map((r) => ({ position: r.position, weight: r.marketValue / total, contribution: ((r.marketValue / total) * (r.periodReturn as number)) }))
     .sort((a, b) => b.contribution - a.contribution);
 }
 
@@ -654,7 +790,7 @@ export interface AllocSlice { key: string; value: number; pct: number; }
  *     by kind = {}
  *     total = Σ over object.values(by kind) of (each)+ max(0, cash)
  *     []   when total ≤ 0
- *     slices = for each of object.entries(by kind): [key, v]) => ({ key, value: round2(v), pct: math.round((v ÷ total) × 1000) ÷ 10 }
+ *     slices = for each of object.entries(by kind): [key, v]) => ({ key, value: (v), pct: math.round((v ÷ total) × 1000) ÷ 10 }
  *     the answer = slices.sort((a, b) => value − value)
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -665,7 +801,7 @@ export interface AllocSlice { key: string; value: number; pct: number; }
  *
  * Decides .....
  *     · If by kind[k] is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Rounds the answer to a whole number.
+ *     · Never lets cash fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-017
  * Changed ..... 2026-06-06 (91a665e)
@@ -675,8 +811,8 @@ export function allocation(rows: PerformanceRow[], cash = 0): AllocSlice[] {
   rows.forEach((r) => { const k = r.position.kind ?? 'other_asset'; byKind[k] = (byKind[k] || 0) + r.marketValue; });
   const total = Object.values(byKind).reduce((t, v) => t + v, 0) + Math.max(0, cash);
   if (total <= 0) return [];
-  const slices: AllocSlice[] = Object.entries(byKind).map(([key, v]) => ({ key, value: round2(v), pct: Math.round((v / total) * 1000) / 10 }));
-  if (cash > 0) slices.push({ key: 'cash', value: round2(cash), pct: Math.round((cash / total) * 1000) / 10 });
+  const slices: AllocSlice[] = Object.entries(byKind).map(([key, v]) => ({ key, value: (v), pct: Math.round((v / total) * 1000) / 10 }));
+  if (cash > 0) slices.push({ key: 'cash', value: (cash), pct: Math.round((cash / total) * 1000) / 10 });
   return slices.sort((a, b) => b.value - a.value);
 }
 
@@ -699,7 +835,7 @@ export interface TrendPoint { date: string; value: number; bench: number; }
  *     value at = (d: date) => positions.reduce((t, p) => { const c = close as of(price of(ticker), d); return t + (c = nothing ? 0 : total shares(p) × c); }, 0)
  *     v0 = value at(dates[0])
  *     b0 = close as of(bench series, dates[0])
- *     value = round(value at(d), 2 dp)
+ *     value = value at(d)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -711,8 +847,6 @@ export interface TrendPoint { date: string; value: number; bench: number; }
  * Decides .....
  *     · Uses a built-in n of 12.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-018
  * Changed ..... 2026-06-06 (91a665e)
@@ -735,9 +869,9 @@ export function portfolioTrend(
   const v0 = valueAt(dates[0]);
   const b0 = closeAsOf(benchSeries, dates[0]);
   return dates.map((d) => {
-    const value = Math.round(valueAt(d) * 100) / 100;
+    const value = (valueAt(d));
     const braw = closeAsOf(benchSeries, d);
-    const bench = (b0 && braw != null && v0 > 0) ? Math.round(v0 * (braw / b0) * 100) / 100 : value;
+    const bench = (b0 && braw != null && v0 > 0) ? (v0 * (braw / b0)) : value;
     return { date: d.toISOString().slice(0, 10), value, bench };
   });
 }
@@ -752,15 +886,14 @@ export function portfolioTrend(
  *     usable = rows where period return ≠ nothing and market value > 0
  *     total = Σ over usable of (market value)
  *     nothing   when total ≤ 0
- *     the answer = round(Σ over usable of ((period return as number) × market value)÷ total, 4 dp)
+ *     the answer = Σ over usable of ((period return as number) × market value)÷ total
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... MK-XS-M-004
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
+ *     · Second verification G18, 2026-09-08: this is the value-weighted average of holding returns, not a Dietz return.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-019
  * Changed ..... 2026-07-29 (13c9be6)
@@ -769,7 +902,7 @@ export function portfolioPeriodReturn(rows: PerformanceRow[]): number | null {
   const usable = rows.filter((r) => r.periodReturn != null && r.marketValue > 0);
   const total = usable.reduce((t, r) => t + r.marketValue, 0);
   if (total <= 0) return null;
-  return Math.round((usable.reduce((t, r) => t + (r.periodReturn as number) * r.marketValue, 0) / total) * 1e4) / 1e4;
+  return ((usable.reduce((t, r) => t + (r.periodReturn as number) * r.marketValue, 0) / total));
 }
 
 /** Value-weighted benchmark ("the market, matched to your mix") return across holdings that have
@@ -789,9 +922,6 @@ export function portfolioPeriodReturn(rows: PerformanceRow[]): number | null {
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... MK-PF-M-008
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-020
  * Changed ..... 2026-07-29 (13c9be6)

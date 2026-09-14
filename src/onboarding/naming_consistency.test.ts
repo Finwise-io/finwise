@@ -21,7 +21,7 @@ test('the Net Worth donut reads labels from ASSET_CLASS_LABEL (single source —
 });
 
 test('the onboarding "property" goal uses the canonical class terms, not "belongings"', () => {
-  const src = fs.readFileSync(path.join(__dirname, 'engine.ts'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, 'steps.ts'), 'utf8');
   const line = src.split('\n').find((l) => l.includes("value: 'property'") && l.includes('title')) || '';
   expect(line).toMatch(/real estate/i);
   expect(line).toMatch(/personal property/i);
@@ -50,12 +50,12 @@ test('Theme 1: deprecated synonyms are retired from user-facing labels (one conc
   expect(modules).not.toMatch(/Available \(after tax & 401/);
 });
 
-test('Bonds + Alternatives expose a "Record a sale" action (they are sellable — secondary-market bonds, options before expiry)', () => {
+test('Bonds + Alternatives expose a "Sell" action (they are sellable — secondary-market bonds, options before expiry)', () => {
   const bonds = fs.readFileSync(path.join(__dirname, '..', 'screens', 'BondsScreen.tsx'), 'utf8');
   const alts = fs.readFileSync(path.join(__dirname, '..', 'screens', 'OtherInvestmentsScreen.tsx'), 'utf8');
   // a full sale closes the position (onDelete); a partial sale lowers the value (onSave) — both wired via applySale.
   for (const src of [bonds, alts]) {
-    expect(src).toMatch(/Record a sale/);
+    expect(src).toMatch(/Sell all/);
     expect(src).toMatch(/applySale/);
     expect(src).toMatch(/onDelete\?\.\(\)/);   // full sale closes
   }

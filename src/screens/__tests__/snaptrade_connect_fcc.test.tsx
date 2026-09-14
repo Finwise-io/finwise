@@ -106,3 +106,4 @@ describe('display & lifecycle', () => {
     expect(screen.getByText(/Vanguard needs re-linking — fix it ›/)).toBeOnTheScreen();
   });
 });
+

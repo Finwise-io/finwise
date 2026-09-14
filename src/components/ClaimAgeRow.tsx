@@ -60,7 +60,7 @@ export function ClaimAgeRow({ statementMonthly, adoptedAge, onAdopt }: {
       {/* WHY 70 IS THE END OF IT — a person who does not know this assumes waiting always pays more,
           and keeps waiting past the point where it stops. */}
       <Text style={s.foot}>
-        You can claim any time from {EARLIEST_CLAIM_AGE}. Each year you wait raises the cheque, and it stops
+        You can claim any time from {EARLIEST_CLAIM_AGE}. Each year you wait raises the check, and it stops
         rising at {LATEST_CREDIT_AGE} — waiting past then adds nothing.
       </Text>
 

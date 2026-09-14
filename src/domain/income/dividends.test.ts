@@ -3,7 +3,7 @@
  *
  * They were counted as money to spend. In most accounts they are reinvested where they are earned and
  * never reach the bank, so every surplus, runway and savings figure was too generous by the whole
- * dividend — $250 a month on $3,000 a year.
+ * dividend — $250/month on $3,000/year.
  *
  * The correction is not simply "remove them". They are still TAXED, so the tax still comes out of the
  * pay that does reach the bank. Someone with $3,000 of reinvested dividends ends up with LESS in hand
@@ -21,7 +21,7 @@ test('THE LAW: reinvested dividends are taxed', () => {
 test('THE LAW: reinvested dividends never reach the bank', () => {
   const withDiv = lands({ ...WAGE, invAnnual: '3000' });
   const paidOut = lands({ ...WAGE, invAnnual: '3000', invPaidToBank: 'yes' });
-  expect(paidOut - withDiv).toBeCloseTo(250, 0);          // the whole $3,000 a year, and not a cent less
+  expect(paidOut - withDiv).toBeCloseTo(250, 0);          // the whole $3,000/year, and not a cent less
 });
 
 test('THE LAW: money you never see still costs you tax', () => {

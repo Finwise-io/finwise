@@ -1,0 +1,137 @@
+[
+ {
+  "symbol": "TAX_BRACKETS",
+  "file": "src/domain/income/tax.ts",
+  "what": "Federal income-tax bands, single filer",
+  "publication": "IRS Rev. Proc. 2025-32 §4.01",
+  "valid_through": 2026,
+  "checked": "2026-09-01",
+  "note": "statutory_constants.test.ts types the published figures in by hand and compares"
+ },
+ {
+  "symbol": "TAX_TABLES",
+  "file": "src/domain/income/tax.ts",
+  "what": "Federal bands, standard deduction and 65+ add-on per filing status",
+  "publication": "IRS Rev. Proc. 2025-32 §§2.15, 4.01",
+  "valid_through": 2026,
+  "checked": "2026-09-01",
+  "note": "married filing separately derived as half the joint figures (IRC §1)"
+ },
+ {
+  "symbol": "STANDARD_DEDUCTION",
+  "file": "src/domain/income/tax.ts",
+  "what": "Standard deduction, single",
+  "publication": "IRS Rev. Proc. 2025-32 §2.15",
+  "valid_through": 2026,
+  "checked": "2026-09-01",
+  "note": ""
+ },
+ {
+  "symbol": "SENIOR_DEDUCTION",
+  "file": "src/domain/income/tax.ts",
+  "what": "$6,000 per person 65+, phased out 6% above $75,000 / $150,000",
+  "publication": "P.L. 119-21 §70103 (IRC §151(d)(5))",
+  "valid_through": 2028,
+  "checked": "2026-09-08",
+  "note": "lapses after tax year 2028"
+ },
+ {
+  "symbol": "TAX_YEAR",
+  "file": "src/domain/income/tax.ts",
+  "what": "The tax year the tables above apply to",
+  "publication": "IRS Rev. Proc. 2025-32",
+  "valid_through": 2026,
+  "checked": "2026-09-01",
+  "note": "when the calendar year passes this, the tables are stale until re-checked"
+ },
+ {
+  "symbol": "IRS_LIMITS",
+  "file": "src/domain/income/limits.ts",
+  "what": "401(k), IRA and catch-up contribution limits, including the 60–63 super catch-up",
+  "publication": "IRS Notice 2025-67 (2026 cost-of-living adjustments); SECURE 2.0 Act §109",
+  "valid_through": 2026,
+  "checked": "2026-09-01",
+  "note": "the notice number is as the founder should confirm against the IRS release"
+ },
+ {
+  "symbol": "annualHsaLimit",
+  "file": "src/domain/income/limits.ts",
+  "what": "HSA limits and the Medicare rule (no contribution once enrolled)",
+  "publication": "IRS Rev. Proc. 2025-19 (2026 HSA limits); IRC §223(b)(7)",
+  "valid_through": 2026,
+  "checked": "2026-09-08",
+  "note": "the procedure number is as the founder should confirm"
+ },
+ {
+  "symbol": "fullRetirementAge",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "what": "Social Security full retirement age by birth year",
+  "publication": "Social Security Act §216(l); SSA retirement-age table",
+  "valid_through": 2099,
+  "checked": "2026-09-12",
+  "note": "permanent schedule; the 1938–1954 rows added 2026-09-12 (A39)"
+ },
+ {
+  "symbol": "ssClaimFactorFor",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "what": "Early-claim reduction (5/9 of 1% a month for 36 months, then 5/12) and delayed credits (2/3 of 1% a month)",
+  "publication": "Social Security Act §202(q), §202(w)",
+  "valid_through": 2099,
+  "checked": "2026-09-12",
+  "note": "months count from 2026-09-12 (A38)"
+ },
+ {
+  "symbol": "UNIFORM_LIFETIME",
+  "file": "Calculation Module code/engines/rmd.ts",
+  "what": "Required-withdrawal divisors, ages 72 to 120+",
+  "publication": "Treas. Reg. §1.401(a)(9)-9 (IRS Publication 590-B, Table III, post-2022)",
+  "valid_through": 2099,
+  "checked": "2026-09-01",
+  "note": "typed in whole — no interpolation (A35)"
+ },
+ {
+  "symbol": "rmdStartAge",
+  "file": "Calculation Module code/engines/rmd.ts",
+  "what": "Required-withdrawal start age by birth year (70½ / 72 / 73 / 75)",
+  "publication": "SECURE Act 2019 §114; SECURE 2.0 Act 2022 §107",
+  "valid_through": 2099,
+  "checked": "2026-09-12",
+  "note": "the whole schedule from 2026-09-12 (A36)"
+ },
+ {
+  "symbol": "INFLATION_DEFAULT",
+  "file": "src/domain/retirement/inflation.ts",
+  "what": "Default inflation, the 30-year average of consumer prices",
+  "publication": "Bureau of Labor Statistics, CPI-U, 1996–2025",
+  "valid_through": 2026,
+  "checked": "2026-09-08",
+  "note": "re-check when the BLS publishes the next full year"
+ },
+ {
+  "symbol": "ageAttainedInYear",
+  "file": "src/domain/income/limits.ts",
+  "what": "The age a contribution limit tests — attained at any time in the calendar year",
+  "publication": "IRC §414(v)(1) (401(k) catch-up), §219(b)(5)(B) (IRA), §223(b)(3) (HSA)",
+  "valid_through": 2099,
+  "checked": "2026-09-12",
+  "note": "a rule, not a figure: this year − birth year"
+ },
+ {
+  "symbol": "SS_WAGE_BASE",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "what": "Social Security wage base — 6.2% is withheld up to it",
+  "publication": "Social Security Administration, 2026 contribution and benefit base (announced October 2025)",
+  "valid_through": 2026,
+  "checked": "2026-09-12",
+  "note": "used only in the caveat under the federal-only take-home (G4)"
+ },
+ {
+  "symbol": "MEDICARE_ADDITIONAL_THRESHOLD",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "what": "Wages above which an employer withholds 0.9% more Medicare tax",
+  "publication": "IRC §3101(b)(2); IRS Topic 560",
+  "valid_through": 2099,
+  "checked": "2026-09-12",
+  "note": "withholding threshold, regardless of filing status"
+ }
+]

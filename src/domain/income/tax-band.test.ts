@@ -5,7 +5,7 @@
  * Three things had to be true for that, and each was false until 2026-08-27:
  *   · both wages had to reach the total   — B32, closed by the earners block
  *   · the filing status had to be real     — B31, closed by asking, and by the pre-answer
- *   · one engine had to compute it         — closed when the second, single-filer-only one was deleted
+ *   · one function had to compute it         — closed when the second, single-filer-only one was deleted
  *
  * These are laws, not examples: they must hold for every household, not the one that was tried.
  */
@@ -32,7 +32,7 @@ test('THE LAW: a second wage counts — the household was read as one person bef
   expect(taxableAnnual(couple)).toBeGreaterThan(taxableAnnual(alone));
 });
 
-test('THE LAW: a partner means jointly until they say otherwise — never single by default', () => {
+test('THE LAW: a spouse means jointly until they say otherwise — never single by default', () => {
   expect(filingStatusOf({ ...ME } as any)).toBe('single');
   expect(filingStatusOf({ ...ME, hasPartner: 'yes' } as any)).toBe('married');
   // and their own answer always wins over the guess
@@ -56,7 +56,7 @@ test('THE LAW: being 65 or older never raises the tax bill, and a couple can be 
   expect(taxOwedFor(g, 'married', 0, 2)).toBeLessThan(taxOwedFor(g, 'married', 0, 0));
 });
 
-test('THE LAW: one engine — the rate on screen is the rate the brackets give', () => {
+test('THE LAW: one function — the rate on screen is the rate the brackets give', () => {
   const couple: any = { ...ME, hasPartner: 'yes', whoEarns: 'both', partnerWage: SAM };
   const g = taxableAnnual(couple);
   expect(effectiveRate(couple)).toBeCloseTo(taxOwedFor(g, filingStatusOf(couple), 0, over65CountOf(couple)) / g, 6);

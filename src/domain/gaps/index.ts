@@ -1,9 +1,9 @@
-// DATA GAPS — the ONE engine behind the missing-data banner and its fix-it sheet
+// DATA GAPS — the ONE function behind the missing-data banner and its fix-it sheet
 // (founder-approved final mocks, mockup-vf/networth-FINAL + performance-FINAL, 2026-08-04).
 //
 // The founder's rule, in their words: a standing disclaimer is useless — say nothing when the
 // numbers are complete, and speak up ONLY when a promised calculation is missing an input, naming
-// the exact gap. So this engine answers one question: which promised numbers on this screen are
+// the exact gap. So this function answers one question: which promised numbers on this screen are
 // incomplete right now? Zero gaps → no banner at all.
 //
 // Each gap carries: what's missing (title), what the app is honestly doing meanwhile (meanwhile),
@@ -113,7 +113,7 @@ const namesFor = (accounts: AssetAccount[]) => accountDisplayNames(accounts);
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = the person's name for the account, else the institution, else the label, else 'this account'
  *
  * Called by ... MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
  *
@@ -159,7 +159,7 @@ const nameOf = (a: AssetAccount, names: Map<string, string>) =>
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-006 price fetched at
- *               MK-XS-I-024 logged spending
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-033 the date a hand-typed value was set
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
@@ -247,14 +247,14 @@ export function dataGaps(
       }
     }
 
-    // 4) a value you typed once and haven't touched in a year
+    // 4) a value you entered once and haven't touched in a year
     if (a.source !== 'connected' && a.tax_bucket === 'PROPERTY') {
       const d = daysSince(a.value_as_of, now);
       if (d != null && d > STALE_VALUE_DAYS) {
         gaps.push({
           kind: 'stale-value', accountId: a.asset_id,
           title: `${a.label || 'A value'} hasn't been updated in ${Math.floor(d / 365)} year${d >= 730 ? 's' : ''}`,
-          meanwhile: 'We still count what you typed — property has no price feed, so only you can refresh it.',
+          meanwhile: 'We still count what you entered — property has no price feed, so only you can refresh it.',
           // the Net worth tab's route key is 'analytics' — '/(tabs)/networth' matches nothing, so this
           // button used to land on an unmatched route and bounce Home. Every fix button must reach the
           // exact cure: the account's own page, where Edit opens its editor.

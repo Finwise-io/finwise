@@ -14,7 +14,7 @@ import { resolveLens, type Lens } from '../domain/profile/lens';
 const INTENTS = [
   { id: 'grow', label: 'Know how your investments are doing vs the market' },
   { id: 'paycheck', label: 'Plan for a secure retirement' },
-  { id: 'cashflow', label: 'Stay on top of income and spending' },
+  { id: 'cashflow', label: 'Stay on top of income and expenses' },
   { id: 'whole_picture', label: 'See your full money picture' },
 ] as const;
 
@@ -61,7 +61,7 @@ export default function FirstRunScreen() {
         <View style={s.introCard}>
           {([
             ['All your assets and debts in one place', 'accounts (investment, 401k, checking, savings), your home and other property, and every debt (mortgage, cards, loans) — one live view.'],
-            ['Stay on top of your cash flow', "every dollar in and out — and what's left to spend."],
+            ['Stay on top of your cash flow', "every dollar in and out — and what's surplus."],
             ['See what needs attention', 'specific priorities with real dollar amounts.'],
             ['Honest odds on the big question', 'how long your money will last, told straight.'],
           ] as const).map(([lead, body]) => (
@@ -130,7 +130,7 @@ export default function FirstRunScreen() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.md },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.md },
   q: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginTop: Spacing.md, marginBottom: 8 },
   qSub: { fontSize: 13, fontWeight: '500', color: Colors.textSecondary },
   option: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 56 },
@@ -149,7 +149,7 @@ const s = StyleSheet.create({
   introCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   introMark: { width: 92, height: 92, alignSelf: 'center', marginBottom: Spacing.sm },
   introWordmark: { width: 170, height: 34, alignSelf: 'center', marginBottom: Spacing.sm },
-  introH1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', lineHeight: 33, marginBottom: Spacing.md },
+  introH1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', lineHeight: 33, marginBottom: Spacing.md },
   introRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 7 },
   introCheck: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
   introCheckTxt: { color: Colors.white, fontSize: 13, fontWeight: '800' },

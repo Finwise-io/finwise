@@ -14,7 +14,9 @@ import os, re, sys
 import openpyxl
 
 MASTER = 'MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx'
-ROOTS  = ['src/domain', 'MoneyKeel/functions', 'Calculation Module code/engines', 'src/services']
+import importlib.util as _il, os as _os
+_spec=_il.spec_from_file_location('mkfn', _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'moneykeel_functions.py')); _mkfn=_il.module_from_spec(_spec); _spec.loader.exec_module(_mkfn)
+ROOTS = _mkfn.CALC_ROOTS   # 2026-09-12: the ONE roots list — the sweep, the header writer and this check read the same files
 HEAD   = re.compile(r'^/\* ─ (MK-[A-Z]{2}-[FO]-\d{3}) ─')
 
 

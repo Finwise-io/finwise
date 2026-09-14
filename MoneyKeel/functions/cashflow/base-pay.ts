@@ -5,14 +5,15 @@
 // WHY THIS FILE EXISTS. Base pay used to be one field with a Gross / Take-home toggle. When
 // someone chose take-home the app inverted tax to find a gross, then taxed it back down — and
 // because take-home ALREADY has the 401(k) out of it, the contribution came off twice. Someone
-// typing $4,818 a month with $20,000 a year going into a 401(k) was shown $3,351: $1,467 a month
+// typing $4,818/month with $20,000/year going into a 401(k) was shown $3,351: $1,467/month
 // adrift from what they had just typed. That is finding B27.
 //
 // The fix is to stop deriving what the person can tell us. Gross is asked for and is required.
 // The 401(k) and the take-home are asked for and are optional. Nothing is ever grossed up.
 //
 // EVERY RULING BELOW IS THE FOUNDER'S, MADE 2026-08-27, and is named where it applies.
-import { toNum, round2 } from '../../../src/domain/_shared/num';
+import { declareFigures } from '../_figure-spec';
+import { toNum } from '../../../src/domain/_shared/num';
 import { taxOwedFor, marginalBracketFor, type FilingStatus } from '../../../src/domain/income/tax';
 import { money } from '../../../src/domain/_shared/num';
 import { salaryMonths } from '../../../src/domain/income/salary-months';
@@ -94,9 +95,6 @@ const periodsAYear = (e: BasePayEntry): number => PAY_PERIODS[String(e.freq)] ??
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Treats a year as twelve equal months.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-141
  * Changed ..... not in git yet (—)
  */
@@ -170,7 +168,7 @@ export function grossByMonth(e: BasePayEntry): [string, number][] {
  *
  *  [Founder 2026-08-27] Average the months given and multiply by twelve. NEVER sum the window:
  *  it runs from last month to twelve ahead, so fourteen months totalling $103,000 is an average of
- *  $7,357 and therefore $88,286 a year — not $103,000. Summing would tax fourteen months of pay as
+ *  $7,357 and therefore $88,286/year — not $103,000. Summing would tax fourteen months of pay as
  *  if it were twelve, which on those figures is $3,237 of tax nobody owes.
  *
  *  [Founder 2026-08-27] And it is never read from take-home — the take-home also carries
@@ -184,7 +182,7 @@ export function grossByMonth(e: BasePayEntry): [string, number][] {
  *     months = gross by month(e)
  *     0   when count of months is missing
  *     avg = count of months.reduce((t, [, v]) => t + v, 0) ÷ months
- *     the answer = round(avg × 12, 2 dp)
+ *     the answer = avg × 12
  *
  * Called by ... MK-CF-F-144 takeHomeAsEntered · MK-CF-F-145 deductionsFromPay
  *               MK-CF-F-171 earnerPay
@@ -206,7 +204,7 @@ export function annualisedGross(e: BasePayEntry): number {
   const months = grossByMonth(e);
   if (!months.length) return 0;
   const avg = months.reduce((t, [, v]) => t + v, 0) / months.length;
-  return round2(avg * 12);
+  return (avg * 12);
 }
 
 /** WHAT LANDS IN THE BANK, each month.
@@ -229,9 +227,9 @@ export interface TakeHome { monthly: number; estimated: boolean; why: string; }
  *     months = months of(lands by month)
  *     entered = lands typical
  *     gross = annualised gross(e)
- *     k401 = round(to num(monthly401k) × 12, 2 dp)
+ *     k401 = to num(monthly401k) × 12
  *     taxable = max(0, gross − k401)
- *     monthly = round((gross − k401 − tax owed for(taxable, filing status ?? 'single', 0, over65 ?? 0)) ÷ 12, 2 dp)
+ *     monthly = (gross − k401 − tax owed for(taxable, filing status ?? 'single', 0, over65 ?? 0)) ÷ 12
  *
  * Called by ... MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-171 earnerPay
@@ -246,9 +244,7 @@ export interface TakeHome { monthly: number; estimated: boolean; why: string; }
  *
  * Decides .....
  *     · If over65 is missing it uses 0.
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-144
@@ -260,33 +256,33 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
   // away and replaced by an estimate — and the month-by-month check was skipped with them.
   const months = monthsOf(e.landsByMonth);
   if (e.varies && months.length) {
-    return { monthly: round2(months.reduce((t, [, v]) => t + v, 0) / months.length),
+    return { monthly: (months.reduce((t, [, v]) => t + v, 0) / months.length),
              estimated: false, why: 'the take-home you entered, month by month' };
   }
   const entered = e.landsTypical;
   if (entered != null && String(entered).trim() !== '' && toNum(entered) > 0) {
-    return { monthly: round2(perMonth(entered, e)), estimated: false,
+    return { monthly: (perMonth(entered, e)), estimated: false,
              why: 'the take-home you entered' };
   }
   const gross = annualisedGross(e);
-  const k401 = round2(toNum(e.monthly401k) * 12);      // zero unless they entered one
+  const k401 = (toNum(e.monthly401k) * 12);      // zero unless they entered one
   if (e.estRate != null) {
     // The household rate in force — typed, or the federal estimate on the WHOLE household. Never
     // this wage through the schedule alone: that hands every earner the full standard deduction.
-    return { monthly: round2((gross * (1 - e.estRate) - k401) / 12), estimated: true,
-             why: `calculated at the household rate of ${Math.round(e.estRate * 100)}% — it reads high until the real figure is entered` };
+    return { monthly: ((gross * (1 - e.estRate) - k401) / 12), estimated: true,
+             why: `calculated at the household rate of ${Math.round(e.estRate * 100)}% — this take-home is higher than it will really be until the real figure is entered` };
   }
   const taxable = Math.max(0, gross - k401);
   // The band is a property of EVERYTHING the household is taxed on, never of this wage alone
   // (founder ruling 2026-08-27). Base pay READS it: the status and the over-65 count come in with
   // the entry, and default to a single filer only because that is what the app assumed before the
   // filing-status question existed.
-  const monthly = round2((gross - k401 - taxOwedFor(taxable, e.filingStatus ?? 'single', 0, e.over65 ?? 0)) / 12);
+  const monthly = ((gross - k401 - taxOwedFor(taxable, e.filingStatus ?? 'single', 0, e.over65 ?? 0)) / 12);
   return {
     monthly, estimated: true,
     why: k401 > 0
-      ? 'calculated from your gross pay, after your 401(k) and federal tax — it knows nothing about your state or your insurance, so it reads high'
-      : 'calculated from your gross pay and federal tax. Nothing is taken out for a 401(k), because you have not told us about one. It knows nothing about your state or your insurance either, so it reads high',
+      ? 'calculated from your gross pay, after your 401(k) and federal tax — it knows nothing about your state or your insurance, so this take-home is higher than it will really be'
+      : 'calculated from your gross pay and federal tax. Nothing is taken out for a 401(k), because you have not entered one. It knows nothing about your state or your insurance either, so this take-home is higher than it will really be',
   };
 }
 
@@ -306,7 +302,7 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
  * Formula .....
  *     t = take home as entered(e)
  *     nothing   when estimated
- *     the answer = round(annualised gross(e) − round2(to num(monthly401k) × 12) − round2(monthly × 12), 2 dp)
+ *     the answer = annualised gross(e) − (to num(monthly401k) × 12) − (monthly × 12)
  *
  * Called by ... MK-CF-F-171 earnerPay
  *
@@ -327,7 +323,7 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
 export function deductionsFromPay(e: BasePayEntry): number | null {
   const t = takeHomeAsEntered(e);
   if (t.estimated) return null;
-  return round2(annualisedGross(e) - round2(toNum(e.monthly401k) * 12) - round2(t.monthly * 12));
+  return (annualisedGross(e) - (toNum(e.monthly401k) * 12) - (t.monthly * 12));
 }
 
 /** DO THE THREE FIGURES AGREE?
@@ -354,11 +350,11 @@ export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
  *     ok = true
  *     warn = false
  *     say = ''   when estimated
- *     k401 = round(monthly401k read as a number (0 when it is not one), 2 dp)
+ *     k401 = monthly401k read as a number (0 when it is not one)
  *     gm = gross by month(e)
  *     lands = a lookup of lm
  *     landed = lands.get(key) as number   if lands.has(key)
- *     round(per month(lands typical, e), 2 dp)   otherwise
+ *     per month(lands typical, e)   otherwise
  *     left = gross − k401 − landed
  *     when = ''   if key = 'typical'
  *     ` in ${key}`   otherwise
@@ -378,7 +374,6 @@ export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-146
@@ -391,15 +386,15 @@ export function payFiguresAgree(e: BasePayEntry): PayVerdict {
   // [Founder 2026-08-27, approved mock] EVERY MONTH IS CHECKED ON ITS OWN, not only the total.
   // A year that balances can still hide one month entered at the wrong figure — two months out by
   // equal amounts in opposite directions cancel, and the total says nothing is wrong.
-  const k401 = round2(toNum(e.monthly401k));
+  const k401 = (toNum(e.monthly401k));
   const gm = grossByMonth(e);
   const lm = e.varies && e.landsByMonth
     ? monthsOf(e.landsByMonth)
-    : gm.map(([k]) => [k, round2(perMonth(e.landsTypical, e))] as [string, number]);
+    : gm.map(([k]) => [k, (perMonth(e.landsTypical, e))] as [string, number]);
   const lands = new Map(lm);
 
   for (const [key, gross] of gm) {
-    const landed = lands.has(key) ? (lands.get(key) as number) : round2(perMonth(e.landsTypical, e));
+    const landed = lands.has(key) ? (lands.get(key) as number) : (perMonth(e.landsTypical, e));
     const left = gross - k401 - landed;
     if (left < -AGREE_TOLERANCE) {
       const when = key === 'typical' ? '' : ` in ${key}`;
@@ -431,7 +426,7 @@ export function payFiguresAgree(e: BasePayEntry): PayVerdict {
  *  each other and hands back everything the screen shows. That is the whole point: a screen that
  *  assembles a figure from pieces keeps the assembly to itself, and the next screen that needs the
  *  same figure assembles it slightly differently. Two screens then disagree, which is exactly how
- *  "Out (bills + debt) $8,321" came to sit four rows above "of $0 planned". */
+ *  "Outflow (bills + debt) $8,321" came to sit four rows above "of $0 planned". */
 export interface EarnerPay {
   grossMonthly: number;
   grossAnnualised: number;
@@ -461,6 +456,7 @@ export interface EarnerPay {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
  *     · Treats a year as twelve equal months.
@@ -472,9 +468,9 @@ export function earnerPay(e: BasePayEntry): EarnerPay {
   const t = takeHomeAsEntered(e);
   const annual = annualisedGross(e);
   return {
-    grossMonthly: round2(annual / 12),
+    grossMonthly: (annual / 12),
     grossAnnualised: annual,
-    monthly401k: round2(toNum(e.monthly401k)),
+    monthly401k: (toNum(e.monthly401k)),
     landsInBank: t.monthly,
     landsIsEstimated: t.estimated,
     landsWhy: t.why,
@@ -482,7 +478,7 @@ export function earnerPay(e: BasePayEntry): EarnerPay {
     // Monthly is calculated HERE. Build 54 showed the annual figure in a monthly card ("$5,400"
     // beside a $5,000 paycheck) — and the founder's fix question was the right one: dividing on the
     // screen is how two screens come to divide differently. The screen prints this verbatim.
-    everythingElseMonthly: deductionsFromPay(e) == null ? null : round2((deductionsFromPay(e) as number) / 12),
+    everythingElseMonthly: deductionsFromPay(e) == null ? null : ((deductionsFromPay(e) as number) / 12),
     verdict: payFiguresAgree(e),
     months: grossByMonth(e),
   };
@@ -541,7 +537,102 @@ export interface BasePay {
   landsEstimated: boolean;        // any earner's take-home is calculated → the total wears ≈
   landsNote: string | null;       // whose figure is entered and whose is calculated, with the dollars
   monthly401k: number;            // every earner's own contribution, added — the card's 401(k)s row
+  otherTakenMonthly: number | null;  // MK-CF-M-036 at the household — the SUM of the earners' own
+                                  // everythingElseMonthly, never a second subtraction, so the household
+                                  // figure and its parts cannot disagree (rule 2). Null when any earner's
+                                  // is unknown: it refuses rather than understating. The base-pay card
+                                  // used to subtract this on the screen (rule 5).
 }
+
+/** ── THE FIGURES THIS DOOR HANDS OUT (founder rule 11, 2026-09-14) ───────────────────────────────
+ *  Declared beside the code that computes them. The master file's rows for the base-pay screen are
+ *  PRINTED from this — there is no second copy to keep in agreement.
+ */
+export const FIGURES = declareFigures({
+  'MK-CF-M-030': {
+    label: 'Each person’s pay', unit: 'money', per: 'year', screens: ['/base-pay'],
+    answers: 'What everyone in the household earns before anything is taken out.',
+    formula: 'gross a year = the sum of every earner’s wage, each annualised from the rhythm they are paid in',
+    inputs: ['MK-CF-I-001 wage', 'MK-CF-I-002 how often it is paid', 'MK-XS-I-021 spouse wage'],
+    decisions: ['A wage entered for a rhythm is annualised by that rhythm, never by a flat twelve.'],
+    ruled: '2026-09-14',
+    refusal: 'Shows $0 until a wage is entered; the screen offers the door to enter one.',
+  },
+  'MK-CF-M-031': {
+    label: 'Take-home', unit: 'money', per: 'month', screens: ['/base-pay', '/cashflow'],
+    answers: 'What actually reaches the bank each month, after federal tax and 401(k) — for one earner, and for the household.',
+    formula: 'for one earner: what they entered, or their gross less federal tax less their own 401(k). For the household: the sum of the earners’ figures, never a second calculation.',
+    inputs: ['MK-CF-I-001 wage', 'MK-CF-I-003 take-home as entered', 'MK-CF-I-004 401(k) contribution', 'MK-CF-I-005 tax rate as entered'],
+    decisions: ['Federal income tax only when it is calculated — no Social Security, Medicare or state tax (MK-CF-D-001).'],
+    ruled: '2026-09-14',
+    refusal: 'Shows $0 until a wage is entered.',
+    note: 'ONE figure over two sets: one earner, and the household — so a total and its parts cannot disagree (rule 2). It wears ≈ whenever the figure was calculated rather than entered.',
+  },
+  'MK-CF-M-032': {
+    label: 'Federal tax bracket', unit: 'percent', screens: ['/base-pay'],
+    answers: 'What the next dollar earned costs in federal income tax.',
+    formula: 'the published bracket the household’s gross falls in, for their filing status',
+    inputs: ['MK-CF-M-030 gross a year', 'MK-XS-I-024 filing status'],
+    decisions: ['Filing status is assumed to be jointly when two people earn and nobody has said (MK-CF-D-004).'],
+    ruled: '2026-09-14',
+    refusal: 'The row is not shown until a wage is entered.',
+  },
+  'MK-CF-M-033': {
+    label: 'Calculated federal tax', unit: 'money', per: 'month', screens: ['/base-pay'],
+    answers: 'The federal income tax we calculate on the household’s wages, when nobody has entered their own figure.',
+    formula: 'tax a month = federal tax on (gross less the standard deduction, at the published bands) ÷ 12',
+    inputs: ['MK-CF-M-030 gross a year', 'MK-XS-I-024 filing status', 'MK-XS-I-025 how many are over 65'],
+    decisions: ['Assumes the standard deduction, never itemised (MK-CF-D-002).'],
+    ruled: '2026-09-14',
+    refusal: 'The row appears only when the figure is ours; an entered take-home already has tax inside it.',
+  },
+  'MK-CF-M-034': {
+    label: 'Your 401(k)s', unit: 'money', per: 'month', screens: ['/base-pay'],
+    answers: 'What everyone in the household puts into their own 401(k) each month.',
+    formula: '401(k) a month = the sum of every earner’s own contribution, the employer’s match excluded',
+    inputs: ['MK-CF-I-004 401(k) contribution'],
+    decisions: ['The employer’s match is not counted here — it is not taken out of take-home (MK-CF-D-003).'],
+    ruled: '2026-09-14',
+    refusal: 'The row is hidden when nobody contributes.',
+  },
+  'MK-CF-M-035': {
+    label: 'The take-home above is higher than it will really be', unit: 'money', per: 'month', screens: ['/base-pay'],
+    answers: 'By roughly how much the calculated take-home overstates what will reach the bank, because only federal income tax is taken out of it.',
+    formula: 'overstated by = Σ over earners of (Social Security 6.2% of the wage up to the wage base + Medicare 1.45% of the whole wage + 0.9% of the wage above the additional-tax threshold) ÷ 12',
+    inputs: ['MK-CF-I-001 wage', 'MK-ST-I-030 Social Security wage base', 'MK-ST-I-031 Medicare additional-tax threshold'],
+    decisions: ['State tax is not in this figure, because we do not know their state (MK-CF-D-005).'],
+    ruled: '2026-09-14',
+    refusal: 'The warning appears only when the take-home is ours and estimated.',
+  },
+  'MK-CF-M-036': {
+    label: 'Everything else taken out', unit: 'money', per: 'month', screens: ['/base-pay'],
+    answers: 'What a payslip takes out beyond the 401(k) — tax, medical cover and anything else bought through work — read back from the figures the person entered.',
+    formula: 'for one earner: everything else = (their gross a year − their 401(k) a year − their take-home /year) ÷ 12. For the household: the sum of the earners’ figures, never a second subtraction.',
+    inputs: ['MK-CF-I-001 wage', 'MK-CF-I-003 take-home as entered', 'MK-CF-I-004 401(k) contribution'],
+    decisions: ['Shown only when the person entered their own take-home, so the difference is theirs and not ours.', 'The household figure is the sum of the earners’, so a total and its parts cannot disagree (rule 2).'],
+    ruled: '2026-09-14',
+    refusal: 'The row is hidden for anyone whose take-home was calculated rather than entered; the household row is hidden unless every earner entered one.',
+    note: 'ONE figure over two sets: one earner, and the household. Moved off the screen into this door on 2026-09-14 — the base-pay card used to do the subtraction itself (rule 5).',
+  },
+  'MK-CF-M-045': {
+    label: 'Social Security takes 6.2% of a wage up to', unit: 'money', per: 'year', screens: ['/base-pay'],
+    answers: 'The wage ceiling above which no more Social Security tax is taken, named in the warning so the 6.2% can be checked.',
+    formula: 'the published wage base for the tax year',
+    inputs: ['MK-ST-I-030 Social Security wage base'],
+    decisions: ['Published figure — the source and the year it applies to are on the master file’s Reference tab (guard D4).'],
+    ruled: '2026-09-14',
+    refusal: 'Never absent — it is a published figure, not a calculation.',
+  },
+  'MK-CF-M-046': {
+    label: 'Medicare 1.45% of everything, 0.9% more above', unit: 'money', per: 'year', screens: ['/base-pay'],
+    answers: 'The wage above which the extra Medicare tax starts, named in the warning so the 0.9% can be checked.',
+    formula: 'the published additional-Medicare-tax threshold for the tax year',
+    inputs: ['MK-ST-I-031 Medicare additional-tax threshold'],
+    decisions: ['Published figure — the source and the year it applies to are on the master file’s Reference tab (guard D4).'],
+    ruled: '2026-09-14',
+    refusal: 'Never absent — it is a published figure, not a calculation.',
+  },
+} as const);
 
 /* ─ MK-CF-O-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * basePay
@@ -553,13 +644,13 @@ export interface BasePay {
  *     status = filing status (or 'single' when missing)
  *     over65 = over65 (or 0 when missing)
  *     pre rate = rate in force(profile ?? nothing)
- *     gross annual = round(Σ over earners of (pay.gross annualised), 2 dp)
- *     lands in bank = round(Σ over earners of (pay.lands in bank), 2 dp)
+ *     gross annual = Σ over earners of (pay.gross annualised)
+ *     lands in bank = Σ over earners of (pay.lands in bank)
  *     first wage = earners[0].pay.gross annualised (or 0 when missing)
  *     band on one wage = marginal bracket for(first wage, status, over65)
  *     band on every wage = marginal bracket for(gross annual, status, over65)
  *     band note = nothing
- *     wrong = round((gross annual × band on one wage) ÷ 12, 2 dp)
+ *     wrong = (gross annual × band on one wage) ÷ 12
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-O-004 incomeSummary
@@ -567,17 +658,16 @@ export interface BasePay {
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
  *               MK-CF-O-004 incomeSummary
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-032 · MK-CF-M-033
+ *               MK-CF-M-034 · MK-CF-M-035 · MK-CF-M-036 · MK-CF-M-045
+ *               MK-CF-M-046
  * Reads ....... MK-XS-I-030 tax filing status and age
  *
  * Decides .....
  *     · If over65 is missing it uses 0.
  *     · If gross annualised is missing it uses 0.
  *     · Uses a built-in f i c a s h a r e of 7.65%.
- *     · Treats a year as twelve equal months.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-001
  * Changed ..... not in git yet (—)
@@ -593,8 +683,8 @@ export function basePay(h: HouseholdPayInput): BasePay {
   const earners = (h.earners ?? []).map((e) => ({ name: e.name,
     pay: earnerPay({ ...e.entry, filingStatus: status, over65, estRate: preRate.rate }) }));
 
-  const grossAnnual = round2(earners.reduce((t, e) => t + e.pay.grossAnnualised, 0));
-  const landsInBank = round2(earners.reduce((t, e) => t + e.pay.landsInBank, 0));
+  const grossAnnual = (earners.reduce((t, e) => t + e.pay.grossAnnualised, 0));
+  const landsInBank = (earners.reduce((t, e) => t + e.pay.landsInBank, 0));
   const firstWage = earners[0]?.pay.grossAnnualised ?? 0;
 
   const bandOnOneWage = marginalBracketFor(firstWage, status, over65);
@@ -604,8 +694,8 @@ export function basePay(h: HouseholdPayInput): BasePay {
   // a note explaining a difference of nothing is noise.
   let bandNote: string | null = null;
   if (earners.length > 1 && bandOnOneWage !== bandOnEveryWage) {
-    const wrong = round2((grossAnnual * bandOnOneWage) / 12);
-    const right = round2((grossAnnual * bandOnEveryWage) / 12);
+    const wrong = ((grossAnnual * bandOnOneWage) / 12);
+    const right = ((grossAnnual * bandOnEveryWage) / 12);
     bandNote = `Filing ${status === 'married' ? 'jointly' : 'as you do'}, the band comes from what you earn together. `
       + `On one wage alone we would have read ${Math.round(bandOnOneWage * 100)}% and shown about `
       + `${money(right - wrong)} a month more than your real take-home.`;
@@ -620,7 +710,7 @@ export function basePay(h: HouseholdPayInput): BasePay {
   // say what it assumed, and let the person replace it with a figure off their payslip.
   const inForce = rateInForce(profile ?? null);
   const wagesAnnual = earners.reduce((t, e) => t + e.pay.grossAnnualised, 0);
-  const monthlyTax = round2((grossAnnual * inForce.rate) / 12);
+  const monthlyTax = ((grossAnnual * inForce.rate) / 12);
   const entered = earners.filter((e) => !e.pay.landsIsEstimated);
   const estimatedE = earners.filter((e) => e.pay.landsIsEstimated);
   const mode: TaxOnPay['mode'] = estimatedE.length === 0 ? 'entered'
@@ -633,7 +723,7 @@ export function basePay(h: HouseholdPayInput): BasePay {
     estimated: inForce.source === 'estimated',
     covers: inForce.covers,
     // FICA_SHARE is NEVER added to the estimate — it exists so the screen can say what is missing.
-    shortBy: inForce.source === 'estimated' ? round2((wagesAnnual * FICA_SHARE) / 12) : null,
+    shortBy: inForce.source === 'estimated' ? (earners.reduce((t, e) => t + payrollTaxWithheld(e.pay.grossAnnualised), 0) / 12) : null,   // G4: per earner, the wage base respected
     mode,
     statusAssumed: (h.profile as any)?.filingStatus == null,
   };
@@ -670,13 +760,51 @@ export function basePay(h: HouseholdPayInput): BasePay {
     tax,
     landsEstimated: estimatedE.length > 0,
     landsNote,
-    monthly401k: round2(earners.reduce((t, e) => t + e.pay.monthly401k, 0)),
+    monthly401k: (earners.reduce((t, e) => t + e.pay.monthly401k, 0)),
+    otherTakenMonthly: earners.some((e) => e.pay.everythingElseMonthly == null)
+      ? null
+      : earners.reduce((t, e) => t + (e.pay.everythingElseMonthly as number), 0),
   };
 }
 
 /** Social Security and Medicare on a wage: 6.2% + 1.45%. Named so a screen can say what the calculated rate
  *  leaves out, in money. It is never ADDED to the estimate — see the note in basePay above. */
-export const FICA_SHARE = 0.0765;
+export const FICA_SHARE = 0.0765;   // kept for the record: the flat share the caveat used before G4
+
+/** THE PAYROLL TAX A PAYCHECK WITHHOLDS — what the federal-only estimate leaves out (G4, founder
+ *  2026-09-12). Social Security takes 6.2% of a wage up to the wage base, Medicare 1.45% of all of it,
+ *  and 0.9% more is withheld above $200,000 of wages (IRC §3101, §3121(a); the additional Medicare
+ *  tax is withheld per employer at $200,000 regardless of filing status). Per earner, a year. */
+export const SS_WAGE_BASE = 184_500;                 // 2026 Social Security wage base (SSA, October 2025 announcement)
+export const MEDICARE_ADDITIONAL_THRESHOLD = 200_000; // wages above this carry 0.9% more (IRC §3101(b)(2))
+/* ─ MK-CF-F-198 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * payrollTaxWithheld
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     w = max(0, wage annual)
+ *     the answer = min(w, SS_WAGE_BASE) × 0.062 + w × 0.0145 + max(0, w − MEDICARE_ADDITIONAL_THRESHOLD) × 0.009
+ *
+ * Called by ... MK-CF-O-001 basePay
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Applies a built-in rate of 1.45% to w.
+ *     · Never lets wage annual fall below 0.
+ *     · G4 (founder agreed 2026-09-12): per earner, 6.2% of the wage up to the Social Security wage base ($184,500 in 2026), 1.45% of the whole wage, and 0.9% more above $200,000 — what a paycheck withholds. It is NEVER deducted from the take-home estimate; it sizes the sentence "the take-home above is higher than it will really be, by roughly $X a month".
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-198
+ * Changed ..... not in git yet (—)
+ */
+export function payrollTaxWithheld(wageAnnual: number): number {
+  const w = Math.max(0, wageAnnual);
+  return Math.min(w, SS_WAGE_BASE) * 0.062 + w * 0.0145 + Math.max(0, w - MEDICARE_ADDITIONAL_THRESHOLD) * 0.009;
+}
 
 
 /** WHAT IS STORED → WHAT THIS FILE READS.
@@ -702,7 +830,8 @@ export const FICA_SHARE = 0.0765;
  *               MK-CF-O-004 incomeSummary
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-043 their own retirement contribution
+ * Reads ....... MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-043 their own retirement contribution
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-179
  * Changed ..... not in git yet (—)

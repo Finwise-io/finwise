@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Account — as built</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; } }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 80px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1300px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:28px; font-weight:800; margin:6px 0 10px;}
+  .lede{font-size:15px; line-height:1.6; color:var(--ink2); max-width:880px;}
+  .row{display:flex; gap:26px; flex-wrap:wrap; margin-top:26px; align-items:flex-start;}
+  .col{display:flex; flex-direction:column;}
+  .label{font-size:12px; font-weight:800; letter-spacing:.08em; color:var(--ink2); margin:0 0 8px 6px; text-transform:uppercase;}
+  .phone{width:393px; max-width:100%; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18; min-height:780px;}
+  .statusbar{display:flex; justify-content:space-between; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .content{padding:18px 20px 40px;}
+  .back{color:#178F6B; font-size:17px; font-weight:700; margin-bottom:6px;}
+  .h1{font-size:24px; font-weight:800;}
+  .q{font-size:15px; font-weight:800; margin:12px 0 8px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px;}
+  .chip{border:1.5px solid rgba(0,0,0,.10); border-radius:12px; padding:9px 12px; min-height:42px; display:inline-flex; align-items:center; background:#fff; font-size:13px; font-weight:700; color:#6B6B66;}
+  .chip.on{border-color:#178F6B; background:#E1F5EE; color:#0F6E56;}
+  .fl{font-size:13px; font-weight:700; color:#6B6B66; margin:12px 0 5px;}
+  .in{background:#fff; border:1.5px solid rgba(0,0,0,.10); border-radius:12px; padding:12px; font-size:17px; color:#76766F;}
+  .info{display:inline-flex; width:16px; height:16px; border-radius:8px; background:#E1F5EE; color:#0F6E56; font-size:11px; align-items:center; justify-content:center; margin-left:4px;}
+  .asof{font-size:13px; color:#76766F; margin-top:12px;}
+  .save{background:#178F6B; opacity:.4; color:#fff; border-radius:16px; min-height:50px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:800; margin-top:12px;}
+</style></head><body><div class="wrap">
+  <div class="eyebrow">Reference · the screen as built today · 2026-09-14</div>
+  <h1>Add an account — what it looks like today</h1>
+  <p class="lede">This is the screen that “Add by hand” opens. It is drawn from the code: the words, fields, buttons and their order below are what the app shows today, for each of the six kinds of account you can pick at the top. The screen is one form that changes its fields when you pick a kind. The Save button stays faded until a name and a balance are typed, and then reads “Save $20,000” with the amount. Nothing on this page is a proposed change.</p>
+  <div class="row"><div class="col"><div class="label">Cash — what opens first</div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="content">
+          <div class="back">‹ Back</div>
+          <div class="h1">Add an account</div>
+          <div class="q">What is it? *</div>
+          <div class="chips"><span class="chip on">Cash</span><span class="chip">Stocks / Funds</span><span class="chip">Bonds</span><span class="chip">Alternatives</span><span class="chip">Real estate</span><span class="chip">Debt</span></div>
+          <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">Interest rate % (optional)</div><div class="in">0.0</div>
+          <div class="asof">value as of Sep 14, 2026</div>
+          <div class="save">Save</div>
+        </div>
+      </div></div>
+    </div><div class="col"><div class="label">Stocks / Funds</div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="content">
+          <div class="back">‹ Back</div>
+          <div class="h1">Add an account</div>
+          <div class="q">What is it? *</div>
+          <div class="chips"><span class="chip">Cash</span><span class="chip on">Stocks / Funds</span><span class="chip">Bonds</span><span class="chip">Alternatives</span><span class="chip">Real estate</span><span class="chip">Debt</span></div>
+          <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">Held in</div><div class="chips"><span class="chip on">Taxable</span><span class="chip">401(k) / IRA</span><span class="chip">Roth</span></div><div class="fl">Retirement earmark % (optional) <span class="info">ⓘ</span></div><div class="in">100</div>
+          <div class="asof">value as of Sep 14, 2026</div>
+          <div class="save">Save</div>
+        </div>
+      </div></div>
+    </div><div class="col"><div class="label">Bonds</div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="content">
+          <div class="back">‹ Back</div>
+          <div class="h1">Add an account</div>
+          <div class="q">What is it? *</div>
+          <div class="chips"><span class="chip">Cash</span><span class="chip">Stocks / Funds</span><span class="chip on">Bonds</span><span class="chip">Alternatives</span><span class="chip">Real estate</span><span class="chip">Debt</span></div>
+          <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">Face value (optional)</div><div class="in">$10,000</div><div class="fl">Interest rate % (optional)</div><div class="in">4.5</div><div class="fl">Matures (optional)</div><div class="in">Tap to pick a date</div><div class="fl">Held in</div><div class="chips"><span class="chip on">Taxable</span><span class="chip">401(k) / IRA</span><span class="chip">Roth</span></div><div class="fl">Retirement earmark % (optional) <span class="info">ⓘ</span></div><div class="in">100</div>
+          <div class="asof">value as of Sep 14, 2026</div>
+          <div class="save">Save</div>
+        </div>
+      </div></div>
+    </div><div class="col"><div class="label">Alternatives</div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="content">
+          <div class="back">‹ Back</div>
+          <div class="h1">Add an account</div>
+          <div class="q">What is it? *</div>
+          <div class="chips"><span class="chip">Cash</span><span class="chip">Stocks / Funds</span><span class="chip">Bonds</span><span class="chip on">Alternatives</span><span class="chip">Real estate</span><span class="chip">Debt</span></div>
+          <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">Institution (optional)</div><div class="in">Chase</div><div class="fl">Balance *</div><div class="in">$0</div><div class="fl">What kind?</div><div class="chips"><span class="chip on">Crypto</span><span class="chip">Gold / commodities</span><span class="chip">Private stake</span><span class="chip">Annuity</span><span class="chip">Other</span></div><div class="fl">Held in</div><div class="chips"><span class="chip on">Taxable</span><span class="chip">401(k) / IRA</span><span class="chip">Roth</span></div><div class="fl">Retirement earmark % (optional) <span class="info">ⓘ</span></div><div class="in">100</div>
+          <div class="asof">value as of Sep 14, 2026</div>
+          <div class="save">Save</div>
+        </div>
+      </div></div>
+    </div><div class="col"><div class="label">Real estate</div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="content">
+          <div class="back">‹ Back</div>
+          <div class="h1">Add an account</div>
+          <div class="q">What is it? *</div>
+          <div class="chips"><span class="chip">Cash</span><span class="chip">Stocks / Funds</span><span class="chip">Bonds</span><span class="chip">Alternatives</span><span class="chip on">Real estate</span><span class="chip">Debt</span></div>
+          <div class="fl">Name *</div><div class="in">Chase checking</div><div class="fl">What it’s worth *</div><div class="in">$0</div><div class="fl">Debt balance (optional)</div><div class="in">$0</div>
+          <div class="asof">value as of Sep 14, 2026</div>
+          <div class="save">Save</div>
+        </div>
+      </div></div>
+    </div><div class="col"><div class="label">Debt</div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="content">
+          <div class="back">‹ Back</div>
+          <div class="h1">Add an account</div>
+          <div class="q">What is it? *</div>
+          <div class="chips"><span class="chip">Cash</span><span class="chip">Stocks / Funds</span><span class="chip">Bonds</span><span class="chip">Alternatives</span><span class="chip">Real estate</span><span class="chip on">Debt</span></div>
+          <div class="fl">Name *</div><div class="in">Car loan</div><div class="fl">Debt balance *</div><div class="in">$0</div><div class="fl">Interest rate % *</div><div class="in">7.0</div><div class="fl">Minimum monthly payment *</div><div class="in">$150</div>
+          <div class="asof">value as of Sep 14, 2026</div>
+          <div class="save">Save</div>
+        </div>
+      </div></div>
+    </div></div>
+</div></body></html>

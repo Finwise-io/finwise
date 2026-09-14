@@ -94,12 +94,12 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
       </View>
 
       <View style={[s.field, needsSpend && s.missingRow, focus === 'what you spend' && s.focused]}>
-        <Text style={[s.label, needsSpend && s.missingLabel]}>Monthly spending in retirement{needsSpend ? <Chip kind="missing" /> : <Chip kind="fact" />}</Text>
+        <Text style={[s.label, needsSpend && s.missingLabel]}>Monthly expenses in retirement{needsSpend ? <Chip kind="missing" /> : <Chip kind="fact" />}</Text>
         <View style={s.moneyIn}>
           <Text style={s.dollar}>$</Text>
           <TextInput style={s.input} value={spendText} onChangeText={saveSpend} keyboardType="number-pad"
             placeholder="—" placeholderTextColor={Colors.textTertiary} maxLength={7}
-            accessibilityLabel="Monthly spending in retirement" />
+            accessibilityLabel="Monthly expenses in retirement" />
         </View>
       </View>
       {/* NOT COUNTING DEBT — founder ruling, 2026-08-14: "we are telling the user that we will
@@ -107,7 +107,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
           takes them from the loan itself and charges them until they end.
           THIS SENTENCE IS LOad-BEARING. What a person spends today INCLUDES their mortgage, because
           it is money leaving their account. If they answer that way and we also add the loan on top,
-          we charge it twice — on Pat that is $2,400 a month counted double, pushing his odds well
+          we charge it twice — on Pat that is $2,400/month counted double, pushing his odds well
           below the truth. The question has to say what to leave out, at the point of answering. */}
       <Text style={s.hint}>
         Not counting loan or mortgage payments — we add those ourselves, from your loans, for as long
@@ -115,7 +115,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
       </Text>
       {mortgageMonthly > 0 && (
         <Text style={s.hint}>
-          We're including your {maskedMoney(mortgageMonthly)}/mo mortgage until it's paid off in {mortgagePayoffYear}, from your loan.
+          We're including your {maskedMoney(mortgageMonthly)}/month mortgage until it's paid off in {mortgagePayoffYear}, from your loan.
         </Text>
       )}
 

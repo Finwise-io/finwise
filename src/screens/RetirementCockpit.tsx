@@ -5,7 +5,9 @@
 //   Security (asked once) + a button into scenario analysis.
 // Screen 2 "Scenario analysis": what-if sliders → projected-nest-egg hero (deterministic, live) +
 //   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
+import { ageAttainedInYear } from '../domain/income/limits';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { inflationRateInForce, INFLATION_DEFAULT } from '../domain/retirement/inflation';
 import { displayOdds } from '../domain/retirement/willItLast';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, KeyboardAvoidingView, Platform, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path, Line, Circle, G, Rect, Text as SvgText } from 'react-native-svg';
@@ -29,7 +31,7 @@ import { totalGrossAnnual, retirementIncomeMonthly, guaranteedOutsideStreams } f
 import { Disclaimer } from '../components/Disclaimer';
 import { InfoDot, TRYING_IT_OUT } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
-import { useSliderPan } from '../components/sliderGesture';   // B47 finding 12: the one drag engine
+import { useSliderPan } from '../components/sliderGesture';   // B47 finding 12: the one drag function
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -60,7 +62,7 @@ export default function RetirementCockpit() {
   const [kindPick, setKindPick] = useState<AssetAccount | null>(null);
 
   // ---- data-derived ----
-  const age = op.birthYear ? new Date().getFullYear() - num(op.birthYear) : 45;
+  const age = ageAttainedInYear(num(op.birthYear) || null) ?? 45;   // G9: every rule and projection runs on the year-attained age; the 45 stand-in for a missing birth year is an open R2 item
   const nestEgg = retirementEarmarkedValue(assets);
   // Money you want to LEAVE behind isn't spendable in retirement — reserve it so "will it last"
   // reflects what you can actually draw down. (nestEgg = what you have; spendableEgg = what you can spend.)
@@ -73,13 +75,13 @@ export default function RetirementCockpit() {
   const scenarioReturn = A.expectedReturn ?? benchBlended;
   const growthRate = returnBasis === 'actual' ? (actualBlended ?? benchBlended) : returnBasis === 'scenario' ? scenarioReturn : benchBlended;
   const basisLabel = returnBasis === 'actual' ? 'your 12-month return' : returnBasis === 'scenario' ? 'your scenario return' : 'the blended benchmark';
-  const inflDefault = (store.inflationRate ?? 2.5) / 100;
+  const inflDefault = inflationRateInForce(null).rate;   // brief Q-50 (2026-08-20) (G30): the dated 30-year average, never the feed
   // B-31: guaranteed income defaults from EVERYTHING onboarding captured (Social Security + pension
   // + annuities/withdrawals), cadence-normalized — not just ri_ss. If the user never touched the
   // on-screen Social Security editor (ssEligible == null), use that onboarding figure rather than $0;
   // an explicit "Not eligible" still zeroes it.
   // Keep full precision (DR-5): round only at DISPLAY via money(). Rounding the monthly figure here
-  // and then ×12 dropped a few $/yr vs Money's totalGrossAnnual (e.g. $24,333.33→$24,333 → −$4/yr).
+  // and then ×12 dropped a few $/year vs Money's totalGrossAnnual (e.g. $24,333.33→$24,333 → −$4/year).
   // B5: outside money only — withdrawals/RMDs are what the simulation computes
   const outside = guaranteedOutsideStreams(op);
   const ssBase = outside.find((st) => st.kind === 'ss');
@@ -106,8 +108,8 @@ export default function RetirementCockpit() {
   const planRetireAge = A.retireAge ?? retireDefault;
   const planSave = A.contribMonthly ?? contribDefault;
   const planSpend = A.spendMonthly ?? spendDefault;
-  const planInfl = A.inflation ?? inflDefault;        // your applied inflation if set, else ACTUAL (economic data)
-  const inflIsActual = A.inflation == null;
+  const planInfl = A.inflation ?? inflDefault;        // the person's own rate if set, else the dated default
+  const inflIsActual = A.inflation == null;            // true = the default is in force
   const planGrowth = growthRate;                      // from the basis selector (benchmark / 12-mo / scenario)
   const planSalaryGrowth = A.salaryGrowth ?? 0;       // raises applied to contributions each year (0 by default)
   const isRetired = store.employmentStatus === 'retired' || age >= planRetireAge;
@@ -219,7 +221,7 @@ export default function RetirementCockpit() {
   const [saveMo, setSaveMo] = useState<number>(planSave);
   const [spendMo, setSpendMo] = useState<number>(planSpend);
   const [inflPct, setInflPct] = useState<number>(Math.round(planInfl * 1000) / 10);
-  const [salGrow, setSalGrow] = useState<number>(Math.round((A.salaryGrowth ?? 0) * 1000) / 10);   // raises %/yr
+  const [salGrow, setSalGrow] = useState<number>(Math.round((A.salaryGrowth ?? 0) * 1000) / 10);   // raises %/year
   const [horizonSand, setHorizonSand] = useState<number>(horizon);   // PRD F11#14 — plan-to age is a dial too
   const [scChance, setScChance] = useState<number | null>(null);
   const [scBand, setScBand] = useState<any>(null);
@@ -240,7 +242,7 @@ export default function RetirementCockpit() {
     annual_contribution: (scRetired ? 0 : saveMo) * 12, contribution_growth: salGrow / 100, retire_monthly_spend_today: spendMo,
     guaranteed_monthly_income: ssIncome, guaranteed_start_age: claimAge,
     inflation: inflPct / 100, mean_return: retPct / 100, vol_return: volOf(retPct / 100),
-    paths: 400, seed: 42, ...over,
+    paths: 1000, seed: 42, ...over,
   });
   // PRD F11#13 — compare two saved scenarios side by side, both re-run on TODAY'S balances
   const [pickMode, setPickMode] = useState(false);
@@ -254,7 +256,7 @@ export default function RetirementCockpit() {
     inflation: sc.assumptions?.inflation ?? inflPct / 100,
     guaranteed_start_age: sc.assumptions?.ssClaimAge ?? claimAge,
     horizon_age: Math.max((sc.assumptions?.retireAge ?? rAge) + 1, sc.assumptions?.horizonAge ?? horizon),
-    paths: 300,
+    paths: 1000,
   });
   const togglePick = (id: string) => {
     setPicked((xs) => xs.includes(id) ? xs.filter((x) => x !== id) : xs.length < 2 ? [...xs, id] : [xs[1], id]);
@@ -308,18 +310,18 @@ export default function RetirementCockpit() {
               <Text style={[styles.heroDelta, { color: scDelta >= 0 ? Colors.gainText : Colors.red }]}>{scDelta >= 0 ? '▲ +' : '▼ −'}{big(Math.abs(scDelta))}{scRetired ? ` / ${scHorizonYears}y` : ''}</Text>
             </View>
           </View>
-          {ssIncome > 0 && <Text style={styles.heroSs}>incl. Social Security {money(ssIncome)}/mo from {claimAge}</Text>}
+          {ssIncome > 0 && <Text style={styles.heroSs}>incl. Social Security {money(ssIncome)}/month from {claimAge}</Text>}
         </View>
         {scRetired && (
           <Text style={[styles.note, { fontWeight: '700', color: scDeplete == null ? Colors.primaryDark : Colors.red }]}>
-            {scDeplete == null ? `✅ At ${retPct.toFixed(1)}% return, your money lasts past age ${horizon}.` : `⚠️ At ${retPct.toFixed(1)}% return spending ${money(spendMo)}/mo, your money runs low around age ${scDeplete}.`}
+            {scDeplete == null ? `✅ At ${retPct.toFixed(1)}% return, your money lasts past age ${horizon}.` : `⚠️ At ${retPct.toFixed(1)}% return and ${money(spendMo)}/month of expenses, your money runs low around age ${scDeplete}.`}
           </Text>
         )}
         {/* the abstract lump-sum framing, demoted from the headline */}
         <Text style={styles.note}>
           {scRetired
-            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${retPct.toFixed(1)}%/yr minus ${money(spendMo)}/mo (rising with inflation) — raise the return or trim spending and it climbs. To fully fund your plan to age ${horizon} you'd need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`
-            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${retPct.toFixed(1)}%/yr. To fund ${money(spendMo)}/mo to age ${horizon} you'd need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`}
+            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${retPct.toFixed(1)}%/year minus ${money(spendMo)}/month (rising with inflation) — raise the return or trim expenses and it climbs. To fully fund your plan to age ${horizon} you'd need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`
+            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${retPct.toFixed(1)}%/year. To fund ${money(spendMo)}/month to age ${horizon} you'd need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`}
         </Text>
 
         {/* SLIDERS — with benchmark + current-plan reference markers */}
@@ -347,7 +349,8 @@ export default function RetirementCockpit() {
           {!scRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={(v) => { setSaveMo(v); invalidateMC(); }} markers={[{ value: planSave, label: 'plan' }]} fmt={(v) => money(v)} />}
           {!scRetired && <SliderRow label="Pay raises / year" valueLabel={salGrow === 0 ? 'none' : `${salGrow.toFixed(1)}%`} value={salGrow} min={0} max={6} step={0.5} onChange={(v) => { setSalGrow(v); invalidateMC(); }} fmt={(v) => v === 0 ? 'none' : `${v.toFixed(1)}%`} />}
           <SliderRow label="Planned spend / month" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={(v) => { setSpendMo(v); invalidateMC(); }} markers={[{ value: planSpend, label: 'plan' }]} fmt={(v) => money(v)} />
-          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: inflIsActual ? 'actual' : 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
+          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: inflIsActual ? 'default' : 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
+          <Text style={styles.note}>Inflation default {INFLATION_DEFAULT.percent}% — the {INFLATION_DEFAULT.basis} ({INFLATION_DEFAULT.source}). Yours to change.</Text>
           <Text style={styles.note}>▲ marks your benchmark, current plan, and 12-mo actual where relevant — so you can see how far a what-if drifts from them.</Text>
         </View>
 
@@ -419,7 +422,7 @@ export default function RetirementCockpit() {
             const rows: [string, string, string][] = [
               ['Retire at', String(A.assumptions?.retireAge ?? '—'), String(B.assumptions?.retireAge ?? '—')],
               ['Saving / month', maskedMoney(A.assumptions?.contribMonthly ?? 0), maskedMoney(B.assumptions?.contribMonthly ?? 0)],
-              ['Spending / month', maskedMoney(A.assumptions?.spendMonthly ?? 0), maskedMoney(B.assumptions?.spendMonthly ?? 0)],
+              ['Expenses /month', maskedMoney(A.assumptions?.spendMonthly ?? 0), maskedMoney(B.assumptions?.spendMonthly ?? 0)],
               ['Expected return', `${Math.round((A.assumptions?.expectedReturn ?? 0) * 1000) / 10}%`, `${Math.round((B.assumptions?.expectedReturn ?? 0) * 1000) / 10}%`],
               ['Odds it lasts', `${displayOdds(rA.chance_of_success)}%`, `${displayOdds(rB.chance_of_success)}%`],
               ['At retirement (median)', maskedMoney(Math.round(rA.projected_at_retirement)), maskedMoney(Math.round(rB.projected_at_retirement))],
@@ -440,7 +443,7 @@ export default function RetirementCockpit() {
                     <Text style={[styles.cmpCell, va !== vb && styles.cmpDiff]}>{vb}</Text>
                   </View>
                 ))}
-                <Text style={styles.cmpNote}>Estimates — same engine, same balances, only the dials differ. You decide.</Text>
+                <Text style={styles.cmpNote}>Estimates — same calculation, same balances, only the dials differ. You decide.</Text>
               </View>
             );
           })()}
@@ -478,7 +481,7 @@ export default function RetirementCockpit() {
                     {bequest > 0 ? (
                       <>
                         <View style={styles.lg}><Text style={styles.lgL}>− Set aside as legacy</Text><Text style={[styles.lgV, { color: Colors.textSecondary }]}>−{big(bequest)}</Text></View>
-                        <View style={[styles.lg, styles.lgTotal]}><Text style={[styles.lgL, { fontWeight: '800' }]}>Left to spend</Text><Text style={[styles.lgV, { color: Colors.primary }]}>{big(spendableEgg)}</Text></View>
+                        <View style={[styles.lg, styles.lgTotal]}><Text style={[styles.lgL, { fontWeight: '800' }]}>Surplus</Text><Text style={[styles.lgV, { color: Colors.primary }]}>{big(spendableEgg)}</Text></View>
                       </>
                     ) : (
                       segs.map((s) => (
@@ -513,7 +516,7 @@ export default function RetirementCockpit() {
                 <Text style={styles.divider}>WILL YOUR MONEY LAST?</Text>
                 <View style={[styles.insightBox, { backgroundColor: bg }]}>
                   <Text style={styles.verdictHead}>{head}</Text>
-                  <Text style={styles.verdictBody}>Your {big(spendableEgg)} covers your spending {lasts}{planChance != null ? ` in most futures — ${planChance}% of scenarios` : ''}.</Text>
+                  <Text style={styles.verdictBody}>Your {big(spendableEgg)} covers your expenses {lasts}{planChance != null ? ` in most futures — ${planChance}out of 100 simulated futures` : ''}.</Text>
                   <Text style={styles.verdictSub}>Each year you spend {money(dPlan.spendAnnual)}{dPlan.guaranteedAnnual > 0 ? `: Social Security / pension covers ${money(dPlan.guaranteedAnnual)}, and you take ${money(dPlan.netWithdrawal)} from savings` : ' from savings'} ({pace}).</Text>
                 </View>
               </>
@@ -539,17 +542,17 @@ export default function RetirementCockpit() {
               <Text style={styles.heroSub}>{retireAtAge
                 ? `today's ${big(nestEgg)} alone gets there by ${retireAtAge}`
                 : `today's ${big(nestEgg)} alone doesn't get there — even by 80`}</Text>
-              <Text style={styles.heroRoi}>growing at {(planGrowth * 100).toFixed(1)}%/yr</Text>
+              <Text style={styles.heroRoi}>growing at {(planGrowth * 100).toFixed(1)}%/year</Text>
             </View>
             <View style={[styles.heroCardG, { marginLeft: 5 }]}>
               <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(planRetireAge)}</Text>
               <Text style={styles.heroBig}>{big(projEnd)}</Text>
-              <Text style={styles.heroSub}>{planChance == null ? 'projected nest egg' : `${planChance}% chance it lasts to ${horizon}`}</Text>
-              <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(1)}%/yr</Text>
+              <Text style={styles.heroSub}>{planChance == null ? 'projected nest egg' : `${planChance}% odds it lasts to ${horizon}`}</Text>
+              <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(1)}%/year</Text>
             </View>
           </View>
-          {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% chance it lasts to {horizon}” = across 1,000 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
-          <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(planRetireAge)}{planSave > 0 ? `, keep saving ${money(planSave)}/mo` : ''}.</Text>
+          {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% odds it lasts to {horizon}” = across 1,000 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
+          <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(planRetireAge)}{planSave > 0 ? `, keep saving ${money(planSave)}/month` : ''}.</Text>
         </>
       )}
 
@@ -560,16 +563,16 @@ export default function RetirementCockpit() {
 
           {/* net withdrawal + rate */}
           <View style={styles.card}>
-            <View style={styles.dwRow}><Text style={styles.dwL}>You plan to spend</Text><Text style={styles.dwV}>{money(dPlan.spendAnnual)}/yr</Text></View>
-            {dPlan.guaranteedAnnual > 0 && <View style={styles.dwRow}><Text style={styles.dwL}>− Social Security / pension</Text><Text style={[styles.dwV, { color: Colors.primary }]}>−{money(dPlan.guaranteedAnnual)}/yr</Text></View>}
-            <View style={[styles.dwRow, styles.dwTotal]}><Text style={[styles.dwL, { fontWeight: '800', color: Colors.textPrimary }]}>From your portfolio</Text><Text style={styles.dwV}>{money(dPlan.netWithdrawal)}/yr</Text></View>
+            <View style={styles.dwRow}><Text style={styles.dwL}>You plan to spend</Text><Text style={styles.dwV}>{money(dPlan.spendAnnual)}/year</Text></View>
+            {dPlan.guaranteedAnnual > 0 && <View style={styles.dwRow}><Text style={styles.dwL}>− Social Security / pension</Text><Text style={[styles.dwV, { color: Colors.primary }]}>−{money(dPlan.guaranteedAnnual)}/year</Text></View>}
+            <View style={[styles.dwRow, styles.dwTotal]}><Text style={[styles.dwL, { fontWeight: '800', color: Colors.textPrimary }]}>From your portfolio</Text><Text style={styles.dwV}>{money(dPlan.netWithdrawal)}/year</Text></View>
             {dPlan.withdrawalRate != null && dPlan.netWithdrawal > 0 && (
               <View style={[styles.rateBox, { backgroundColor: dPlan.rateBand === 'safe' ? Colors.primaryLight : dPlan.rateBand === 'moderate' ? Colors.amberLight : Colors.redLight }]}>
                 <Text style={[styles.ratePct, { color: rateColor }]}>{(dPlan.withdrawalRate * 100).toFixed(1)}%</Text>
                 <Text style={styles.rateTxt}>withdrawal rate · {dPlan.rateBand === 'safe' ? 'within the ~4% guideline' : dPlan.rateBand === 'moderate' ? 'a bit above 4% — watch it' : 'above 5% — high risk of running short'}</Text>
               </View>
             )}
-            {dPlan.netWithdrawal === 0 && <Text style={styles.note}>Your guaranteed income covers your spending — your portfolio can keep growing.</Text>}
+            {dPlan.netWithdrawal === 0 && <Text style={styles.note}>Your guaranteed income covers your expenses — your portfolio can keep growing.</Text>}
           </View>
 
           {/* where the money sits + suggested withdrawal order (combined into one box) */}
@@ -607,8 +610,8 @@ export default function RetirementCockpit() {
               ? <>apply to you now — the IRS requires a withdrawal of about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> this year</>
               : <>start at {rmdStartAgeFor(age)}; on today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year</>} from pre-tax — taxed as income whether you need it or not. The success-chance figure tracks balances <Text style={{ fontStyle: 'italic' }}>before tax</Text>, so set aside a bit for the tax.</Text>}
             <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> {age >= 65
-              ? "you're on Medicare — budget for premiums + out-of-pocket (often $6–7k/person/yr), and watch IRMAA surcharges if your income is high."
-              : 'Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/yr). Retiring earlier? Plan for private coverage until then.'}</Text>
+              ? "you're on Medicare — budget for premiums + out-of-pocket (often $6–7k/person/year), and watch IRMAA surcharges if your income is high."
+              : 'Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/year). Retiring earlier? Plan for private coverage until then.'}</Text>
             {inRothWindow && dSplit.preTax > 0 && <Text style={[styles.note, { marginTop: 8 }]}>💡 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Roth conversion window:</Text> you're retired but before required withdrawals/Social Security, so your taxable income may be low. Converting some pre-tax to Roth now (filling the low brackets) can cut future required withdrawals and lifetime tax.</Text>}
           </View>
         </>
@@ -701,7 +704,7 @@ export default function RetirementCockpit() {
 
       {/* GROWTH-RATE BASIS — which return drives the projection (growth in accumulation, returns during drawdown) */}
       <View style={styles.card}>
-        <Text style={styles.liK}>{isRetired ? 'Assumed return on what\'s left' : 'Grow my nest egg using'}</Text>
+        <Text style={styles.liK}>{isRetired ? 'Assumed return on your remaining nest egg' : 'Grow my nest egg using'}</Text>
         <View style={styles.basisRow}>
           {([
             { k: 'benchmark', label: 'Benchmark', rate: benchBlended, warn: false },
@@ -728,7 +731,7 @@ export default function RetirementCockpit() {
       {!isRetired && nestEgg > 0 && projYears.length > 0 && (
         <View style={styles.card}>
           <View style={styles.li}><Text style={styles.liK}>Projected nest egg</Text><Text style={[styles.liV, { color: Colors.primary }]}>{big(projYears[projYears.length - 1].bal)} by {projYears[projYears.length - 1].year}</Text></View>
-          <Text style={styles.note}>If your {big(nestEgg)} grows at {(planGrowth * 100).toFixed(1)}% ({basisLabel}){planSave > 0 ? ` and you keep saving ${money(planSave)}/mo` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(planRetireAge)}.` : ''}</Text>
+          <Text style={styles.note}>If your {big(nestEgg)} grows at {(planGrowth * 100).toFixed(1)}% ({basisLabel}){planSave > 0 ? ` and you keep saving ${money(planSave)}/month` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(planRetireAge)}.` : ''}</Text>
           <ProjectionChartAuto data={projYears} />
           <View style={styles.breakdown}>
             <View style={styles.bdItem}><Text style={styles.bdV}>{big(nestEgg)}</Text><Text style={styles.bdL}>now</Text></View>
@@ -745,7 +748,7 @@ export default function RetirementCockpit() {
       {/* IN RETIREMENT — spend, anchored to target age */}
       <View style={styles.card}>
         <Text style={styles.liK}>In retirement (from {Math.round(spendEscFromAge)})</Text>
-        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/mo</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/mo</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(1)}%/yr <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
+        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/month</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(1)}%/year <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
         {/* B-32: when a recognized retirement location adjusts the figure, say so — don't apply COL silently */}
         {A.spendMonthly == null && (() => {
           const col = colFactor(op.retLocation);
@@ -755,7 +758,7 @@ export default function RetirementCockpit() {
         {/* B-39: the projection doesn't subtract debt separately — make that explicit so a user with a
             mortgage includes its payment in the spend above rather than assuming it's handled. */}
         {(store.liabilities ?? []).reduce((t: number, d: any) => t + (d.remaining_balance || 0), 0) > 0 && (
-          <Text style={[styles.note, { marginTop: 4 }]}>💳 This assumes any debt is covered within your spending — if a loan (e.g. a mortgage) will still be running, include its payment in the figure above.</Text>
+          <Text style={[styles.note, { marginTop: 4 }]}>💳 This assumes any debt is covered within your expenses — if a loan (e.g. a mortgage) will still be running, include its payment in the figure above.</Text>
         )}
       </View>
 
@@ -784,7 +787,7 @@ export default function RetirementCockpit() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.ssName}>{hasPension ? 'Social Security & pension' : 'Social Security'}</Text><InfoDot term="guaranteedIncome" /></View>
           <Text style={styles.ssSub}>{
             guarRowMonthly > 0
-              ? `${money(guarRowMonthly)}/mo${claimAge > age && ssIncome > 0 ? ` · Social Security part starts at ${claimAge}` : ''} · today's $${A.ssEligible == null ? ' · from your setup' : ''}`
+              ? `${money(guarRowMonthly)}/month${claimAge > age && ssIncome > 0 ? ` · Social Security part starts at ${claimAge}` : ''} · today's $${A.ssEligible == null ? ' · from your setup' : ''}`
               : A.ssEligible === false ? 'Not eligible — tap to change' : 'Are you eligible? Tap to set up ›'
           }</Text>
         </View>
@@ -855,7 +858,7 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
 // ───────────────────────── Slider ─────────────────────────
 // B47 finding 12 ("the sliders not working" on device): this was a second private copy of the
 // drag code the What-if slider already shipped broken once — no capture claim, host ScrollView
-// stealing the gesture, no scroll stand-down. It now rides the ONE shared engine (sliderGesture)
+// stealing the gesture, no scroll stand-down. It now rides the ONE shared function (sliderGesture)
 // and reports drags through SlidingCtx so the scenario page stops scrolling under the finger.
 const SlidingCtx = React.createContext<(dragging: boolean) => void>(() => {});
 function Slider({ value, min, max, step = 1, onChange, onComplete, color = Colors.primary, markers, a11yLabel }: {

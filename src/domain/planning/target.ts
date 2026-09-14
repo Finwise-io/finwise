@@ -1,8 +1,8 @@
-// THE TARGET, SOLVED BACKWARDS — the engine behind the second gauge (founder 2026-08-12).
+// THE TARGET, SOLVED BACKWARDS — the function behind the second gauge (founder 2026-08-12).
 //
 // The founder asked for a nest-egg target and the yearly saving it needs. The danger with a target
 // is that a TYPED one fights the odds: someone can be 80% of the way to a number they read in a
-// magazine and still have 45% odds, because odds account for spending, Social Security, big costs,
+// magazine and still have 45% odds, because odds account for expenses, Social Security, big costs,
 // market luck and the drawdown itself, while a pile is just a pile. So the target is DERIVED from
 // the same simulation the odds come from — the pot that puts the odds at 80% — and then the two
 // numbers are one fact drawn twice: how likely, and how far.
@@ -121,12 +121,12 @@ export function targetAtRetirement(base: RetirementInputs): number | null {
 }
 
 /** THE YEARLY SAVING: the total annual contribution that reaches TARGET_ODDS on the real plan —
- *  the one with their age, their years left, their spending, their big costs. Returned as the
+ *  the one with their age, their years left, their expenses, their big costs. Returned as the
  *  EXTRA over what they already put away, because that is the number a person can act on. */
 /* ─ MK-PL-F-041 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * requiredAnnualSaving
  *
- * Answers ..... THE YEARLY SAVING: the total annual contribution that reaches TARGET_ODDS on the real plan — the one with their age, their years left, their spending, their big costs.
+ * Answers ..... THE YEARLY SAVING: the total annual contribution that reaches TARGET_ODDS on the real plan — the one with their age, their years left, their expenses, their big costs.
  *
  * Formula .....
  *     with saving = (annual: number): retirement inputs => ({ ...base, annual contribution: annual })
@@ -229,8 +229,8 @@ export function savingToReachTarget(base: RetirementInputs, typedTarget: number)
  *
  * Formula .....
  *     years = max(0, base.retire age − base.current age)
- *     no saving = round(simulate({ ...base, annual contribution: 0 }).projected at retirement)
- *     with saving = round(simulate({ ...base, annual contribution: total annual saving }).projected at retirement)
+ *     no saving = simulate({ ...base, annual contribution: 0 }).projected at retirement
+ *     with saving = simulate({ ...base, annual contribution: total annual saving }).projected at retirement
  *     put in = total annual saving × years
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -239,9 +239,6 @@ export function savingToReachTarget(base: RetirementInputs, typedTarget: number)
  * Reads ....... MK-XS-I-018 retirement age
  *               MK-XS-I-043 their own retirement contribution
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *
  * Formula also on the master file · functions_from_code · MK-PL-F-043
  * Changed ..... 2026-08-15 (5670c43)
  */
@@ -249,8 +246,8 @@ export function howTheGapCloses(base: RetirementInputs, totalAnnualSaving: numbe
   growthOnExisting: number; putIn: number; growthOnNew: number; projectsTo: number;
 } {
   const years = Math.max(0, base.retire_age - base.current_age);
-  const noSaving = Math.round(simulate({ ...base, annual_contribution: 0 }).projected_at_retirement);
-  const withSaving = Math.round(simulate({ ...base, annual_contribution: totalAnnualSaving }).projected_at_retirement);
+  const noSaving = simulate({ ...base, annual_contribution: 0 }).projected_at_retirement;          // Q49: full precision inside
+  const withSaving = simulate({ ...base, annual_contribution: totalAnnualSaving }).projected_at_retirement;
   const putIn = totalAnnualSaving * years;
   return {
     growthOnExisting: noSaving - base.start_balance,
@@ -289,7 +286,7 @@ export interface PlanTarget {
  * Formula .....
  *     sim = simulate(base)
  *     odds = sim.chance of success
- *     projected = round(sim.projected at retirement)
+ *     projected = sim.projected at retirement
  *     already there = odds ≥ TARGET_ODDS
  *     target = target at retirement(base)
  *     typed = typed target   if typed target ≠ nothing and typed target > 0
@@ -309,8 +306,6 @@ export interface PlanTarget {
  *
  * Decides .....
  *     · If annual contribution is missing it uses 0.
- *     · Treats a year as twelve equal months.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-044
@@ -319,11 +314,11 @@ export interface PlanTarget {
 export function planTarget(base: RetirementInputs, annualIncome?: number, roomAnnual?: number, typedTarget?: number | null): PlanTarget {
   const sim = simulate(base);
   const odds = sim.chance_of_success;
-  const projected = Math.round(sim.projected_at_retirement);
+  const projected = sim.projected_at_retirement;   // Q49
   const alreadyThere = odds >= TARGET_ODDS;
   const target = targetAtRetirement(base);
   // THEIR number against TODAY'S money — this dial answers "how far along am I", so it compares what
-  // they have now to what they said they want. It is a plain division, never engine output.
+  // they have now to what they said they want. It is a plain division, never function output.
   const typed = typedTarget != null && typedTarget > 0 ? typedTarget : null;
   const savingToTarget = typed == null ? null : savingToReachTarget(base, typed);
   const saving = alreadyThere ? { total: base.annual_contribution ?? 0, extra: 0 } : requiredAnnualSaving(base);
@@ -340,7 +335,7 @@ export function planTarget(base: RetirementInputs, annualIncome?: number, roomAn
     projectedAtRetirement: projected,
     progressPct: target && target > 0 ? Math.round((projected / target) * 100) : null,
     requiredExtraAnnual: extra,
-    requiredExtraMonthly: extra == null ? null : Math.round(extra / 12),
+    requiredExtraMonthly: extra == null ? null : extra / 12,   // Q49
     yearsToRetire: Math.max(0, base.retire_age - base.current_age),
     alreadyThere,
     // no answer at all, or an answer bigger than their whole income — both mean "saving is not the lever"
@@ -406,7 +401,6 @@ export function ssUpliftFactor(fromAge: number, toAge: number): number {
  *     · If claim age is missing it uses 70.
  *     · If guaranteed monthly income is missing it uses 0.
  *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-046
  * Changed ..... 2026-08-12 (20ec5e5)

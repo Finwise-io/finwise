@@ -50,9 +50,6 @@ const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Uses a built-in i of 0.
- *
  * Formula also on the master file · functions_from_code · MK-XS-F-123
  * Changed ..... not in git yet (—)
  */
@@ -106,7 +103,7 @@ function decodeUtf8(b: number[], start = 0): string {
  *
  * Formula .....
  *     s = ''
- *     the answer = s
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-XS-F-012 decodeCsvBase64
  *
@@ -135,7 +132,7 @@ function decodeUtf16(b: number[], start: number, le: boolean): string {
  *     start = 0
  *     nul = 0; const probe = min(count of b, 400)
  *     decode utf16(b, 0, b[1] = 0)   when nul > probe ÷ 4
- *     the answer = decode utf8(b, start)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -144,7 +141,6 @@ function decodeUtf16(b: number[], start: number, le: boolean): string {
  * Decides .....
  *     · Uses a built-in start of 0.
  *     · Uses a built-in nul of 0.
- *     · Uses a built-in i of 0.
  *     · Caps length at 400.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-012
@@ -183,10 +179,6 @@ export function decodeCsvBase64(b64: string): string {
  *               MK-XS-F-015 importHoldings
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Uses a built-in i of 0.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-013
  * Changed ..... 2026-06-22 (feb22ca)
@@ -251,7 +243,7 @@ const numOrNaN = (v: string): number => {
  * Formula .....
  *     i = headers.find index((h) => re.test(h))
  *     i   when i ≥ 0
- *     the answer = -1
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-XS-F-015 importHoldings
  *
@@ -336,13 +328,13 @@ function cleanTicker(v: string): string | null {
   return t;
 }
 
-/** B7 (founder brief 2026-08-20): classification lives in the ONE engine — this road only adapts.
+/** B7 (founder brief 2026-08-20): classification lives in the ONE function — this road only adapts.
  *  All the evidence this function used to hold (money-market tickers, OCC option symbols, crypto
- *  and commodity lists, the company-word guard) moved into the engine verbatim, behavior kept. */
+ *  and commodity lists, the company-word guard) moved into the function verbatim, behavior kept. */
 /* ─ MK-XS-F-172 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * assetClassForSymbol
  *
- * Answers ..... B7 (founder brief 2026-08-20): classification lives in the ONE engine — this road only adapts.
+ * Answers ..... B7 (founder brief 2026-08-20): classification lives in the ONE function — this road only adapts.
  *
  * Formula .....
  *     classify holding class({ ticker: symbol, name, has security identity: true }).cls
@@ -373,7 +365,7 @@ export function assetClassForSymbol(symbol: string, name = ''): AssetClass {
  *     has sym = some((c) => ÷ ^(symbol|ticker)$ ÷ test(c))
  *     has qty = some((c) => ÷ ^(quantity|shares|qty|units)$ ÷ test(c))
  *     i   when has sym and has qty
- *     the answer = 0
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-XS-F-015 importHoldings
  *
@@ -382,9 +374,6 @@ export function assetClassForSymbol(symbol: string, name = ''): AssetClass {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
- *
- * Decides .....
- *     · Uses a built-in i of 0.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-129
  * Changed ..... not in git yet (—)
@@ -426,6 +415,7 @@ function findHeaderRow(rows: string[][]): number {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
  *     · Uses a built-in skipped of 0.
@@ -541,7 +531,6 @@ const normInst = (s?: string) => (s ?? '').trim().toLowerCase().replace(/[^a-z0-
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-016
  * Changed ..... 2026-07-13 (d33eeae)

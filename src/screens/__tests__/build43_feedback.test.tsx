@@ -190,7 +190,7 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
     expect(body).toMatch(/2\.5% a year/);                      // inflation, stated
     expect(body).toMatch(/S&P 500, 30 years/);                 // where the growth figures come from
     // founder ask 2026-08-11: the actual NUMBERS, not just the categories
-    expect(body).toMatch(/Shares and funds 10\.4%/);
+    expect(body).toMatch(/Stocks \/ Funds 10\.4%/);
     expect(body).toMatch(/bonds and CDs 4\.2%/);
     expect(body).toMatch(/shares ±18%/);                       // the swing, per year
     expect(body).toMatch(/a rate calculated from your own income and filing status/);   // B4/E8: no flat 22% any more

@@ -1,6 +1,6 @@
 /**
  * Critical account journeys through AuthScreen (cause #2 — journeys, not just units).
- * login→Home · forgot-password · login-needs-recovery→restore prompt · signup+partner-invite→join.
+ * login→Home · forgot-password · login-needs-recovery→restore prompt · signup+spouse-invite→join.
  */
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
@@ -45,7 +45,7 @@ test('login-needs-recovery: opens the recovery-code restore prompt instead of Ho
   expect(router.replace).not.toHaveBeenCalledWith('/(tabs)/home');
 });
 
-test('signup + partner-invite: joins the shared household and routes Home', async () => {
+test('signup + spouse-invite: joins the shared household and routes Home', async () => {
   (registerUser as jest.Mock).mockResolvedValue({ user: { uid: 'u2' }, recoveryCode: 'REC-CODE' });
   (lookupInvite as jest.Mock).mockResolvedValue({ householdId: 'h1', inviterName: 'Sam' });
   const { getByText, getByPlaceholderText } = render(<AuthScreen />);
@@ -54,7 +54,7 @@ test('signup + partner-invite: joins the shared household and routes Home', asyn
   fireEvent.changeText(getByPlaceholderText('you@email.com'), 'pat@b.com');
   fireEvent.changeText(getByPlaceholderText('At least 8 characters'), 'hunter2pass');
   fireEvent.changeText(getByPlaceholderText('Repeat your password'), 'hunter2pass');
-  fireEvent.changeText(getByPlaceholderText('Have a code from your partner?'), 'k7m2qx');
+  fireEvent.changeText(getByPlaceholderText('Have a code from your spouse?'), 'k7m2qx');
   fireEvent.press(getByText('Create account'));    // submit (register button)
   await waitFor(() => expect(registerUser).toHaveBeenCalled());
   await waitFor(() => expect(joinHouseholdMembership).toHaveBeenCalledWith('u2', 'h1', 'K7M2QX'));

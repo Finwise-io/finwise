@@ -154,7 +154,7 @@ describe('dedupe — id churn cannot double money', () => {
   });
   test('the key format is FROZEN — devices persist these strings; a format change re-imports history', () => {
     // construction moved into the Calculation Module (importKey, Track 1 step 2); this pins that
-    // the adapter's output stayed byte-identical to the pre-engine format.
+    // the adapter's output stayed byte-identical to the pre-function format.
     expect(activityKey('acct', a())).toBe('acct|2026-07-01|DIVIDEND|55.2||sym-1||');
   });
 });

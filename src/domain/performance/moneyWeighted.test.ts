@@ -7,7 +7,7 @@ const iso = (daysAgo: number) => new Date(NOW - daysAgo * DAY).toISOString().sli
 const ACC = [{ asset_id: 'brk', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0 }] as any[];
 const ids = new Set(['brk']);
 
-test('known answer: $10,000 in one year ago, worth $11,000 today → ~10%/yr', () => {
+test('known answer: $10,000 in one year ago, worth $11,000 today → ~10%/year', () => {
   const txns = [{ id: 't1', type: 'DEPOSIT', account_id: 'brk', amount: 10000, date: iso(365) }] as any[];
   const r = moneyWeightedReturn(txns, ACC, ids, 11000, NOW);
   expect(isMoneyWeighted(r)).toBe(true);

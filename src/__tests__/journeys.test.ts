@@ -59,7 +59,7 @@ describe('Journey: retiree 75 with a $250k portfolio', () => {
 
 // ───────────────────────── Producer → consumer inventory per persona ─────────────────────────
 describe('Journey: every onboarding answer reaches its consumer screen', () => {
-  test('employed + partner: accounts, debt, goals, and budget all reflect the answers', () => {
+  test('employed + spouse: accounts, debt, goals, and budget all reflect the answers', () => {
     const st = completeOnboarding(employedPartner);
 
     // Net Worth consumers

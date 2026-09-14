@@ -249,6 +249,35 @@ The founder agrees in principle with one identifier per calculated figure, with 
 appears recorded against it, so a trace from any screen lands on the same row. **Held deliberately**
 until the identifier nomenclature is designed, which is its own piece of work.
 
+## How a ruling is tracked — ruled, coded, tested, verified (founder question, 2026-09-09)
+
+A finding has had a status since 2026-08-27 (OPEN · FIXED · NOT A DEFECT · SUPERSEDED, with the date, what closed it and the test that fails if it comes back — `moneykeel_finding_status.py`). A **ruling** — a decision the founder makes — now has one too, on the master's `rulings` tab, generated on every build from `Calculation Module code/scripts/moneykeel_rulings.json`. Four stages, never skipped and never blank:
+
+| Stage | Means | Evidence on the row |
+|---|---|---|
+| **RULED** | The founder decided; his words are recorded with the date and where he said them (chat, a `-jj` file, a brief). Nothing built yet. | his words · date · source |
+| **CODED** | The code and the file both carry it, and they agree (the formula-agreement gate). For a file-only ruling this is the last build stage. | the functions and rows changed · date |
+| **TESTED** | A named test pins it and fails if it comes back. "Coded and tested" is this stage. | the test file |
+| **VERIFIED** | The founder confirmed it himself — on the device, or by approving the row in the file. Only he moves a ruling here. | his date and how |
+
+A FILE-ONLY ruling (a row corrected, a column regenerated) reaches TESTED the same way a code ruling does — by a check that fails if it comes back. Its `expect` on the rulings ledger names the tab, the row, the column and the words that must be there, and `check-rulings-in-file.py` reads the built file against it on every build (founder question 2026-09-12: "why not tested?"). CODED is never a file-only ruling's last stage.
+
+A ruling that is RULED but not CODED is a promise; the tab shows every one so none is forgotten. A ruling that is CODED but not TESTED is a claim; the tab shows those too. Precision and display: `moneykeel_calc_spec_precision-and-display_v01.md`.
+
+### What a ROW's status means — every comment, every finding, every formula (founder, 2026-09-10)
+
+The `STATUS — this row` column on every tab is the WORST stage of anything on that row. A row cannot be ahead of its slowest item.
+
+| A row is … | only when ALL of these hold |
+|---|---|
+| **WAITING ON YOU** | it carries an unanswered question, an input list to approve, or an answer to one of his comments he has not yet acknowledged — this overrides every other state |
+| **CODED** | every ruling touching it is at least CODED · every finding on it is FIXED or NOT A DEFECT · its formula in the file and in the code agree (the agreement gate) · every comment of his on it has an answer |
+| **TESTED** | CODED, and every ruling touching it is TESTED, and every FIXED finding names the test that fails if it comes back |
+| **VERIFIED** | TESTED, and HE has written his date and how in `ROW VERIFIED — founder, date and how`. Nobody else can move a row here. His mark also acknowledges the answers to his comments on that row. |
+| **NOTHING OPEN** | no question, no comment, no ruling and no finding touch the row at all — not the same as VERIFIED |
+
+A ruling that spans many rows (one word per concept, the empty-state pattern) counts on every row it names; it holds every one of them at RULED until it is coded.
+
 ## Open work created by this document
 
 - The verification-level column on the Engines tab, and the build guard that reads it.

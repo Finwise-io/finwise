@@ -47,14 +47,26 @@ the founder had approved all of it. Never again.
 ## ONE TERM PER CONCEPT — app-wide standing order (founder, 2026-09-02)
 - "Always use same words to describe same thing in the app. There is no score for creative writing
   use different terms to describe same thing." One canonical word per concept in EVERY user-visible
-  string; synonyms are RETIRED. The canon table lives in `docs/finwise-taxonomy-spec.md`
-  (§ One term per concept); `src/__tests__/one_term_per_concept.test.ts` scans `src/` and
-  `MoneyKeel/functions` (comments included) and fails the build on any retired word.
-- Adding copy? Check the canon FIRST. Naming a new concept? Pick its word, add the row, and put the
-  synonyms on the retired list in the same commit. Current canon: **take-home** (never "lands in
-  your bank", "takes home"), **calculated** (never "worked out", "our estimate", "Estimated" rows).
+  string; synonyms are RETIRED. The canon table — 20 rows: take-home, calculated, the retired word "engine" (0c, 2026-09-13), the connect door "Connect your bank ›" (17, 2026-09-14), and the sixteen
+  cluster rulings of 2026-09-10 (Surplus, odds out of 100 simulated futures, Expenses, you entered,
+  Inflow (sources), Emergency fund, Budget, Gross (before any deductions), Performance / Net worth,
+  Debt, Holding, activity, one-time, /month · /year, Will my money last, spouse) — lives in ONE
+  place: `MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md`,
+  section "One term per concept — the canon". `src/__tests__/one_term_per_concept.test.ts` READS
+  that table (nothing hard-coded) and scans `src/` + `MoneyKeel/functions` — strings with words,
+  template text, JSX text and every comment; a quoted lowercase token is a code value, not copy;
+  spoken accessibility labels keep "a month" / "a year" — and fails the build on any retired word.
+- Adding copy? Check the canon FIRST. Naming a new concept? Pick its word, add the row to that
+  table, and put the synonyms in its Retired column in the same commit. A row's status follows the
+  one vocabulary (RULED, NOT CODED → CODED, NOT TESTED → TESTED, NOT VERIFIED → VERIFIED); only the
+  founder's mark makes it VERIFIED.
+
+## PRECISION — standing order (founder, master question Q49, 2026-09-09)
+- Every calculation runs at FULL precision; nothing rounds inside a function. Rounding happens once, at display: whole dollars for totals/balances/projections, two decimals for prices/rates/expenses/per-share, eight for coin quantities, percents to two decimals; any other precision is stated on the figure's row. Standard: `MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md`. Guard: `src/__tests__/precision_guard.test.ts`.
+- A ruling's status (RULED → CODED → TESTED → VERIFIED) lives on the master's `rulings` tab, from `Calculation Module code/scripts/moneykeel_rulings.json`. Update it in the same commit as the change.
 
 ## MOCK-FIRST — standing order (2026-07-19, after the build-43 trust breach)
+- START FROM THE LAST APPROVED VERSION (founder, 2026-09-14, after six hours of mocks drawn over a Plan tab that never matched his approved v4): before any mock, find each screen's last approved design (approved mock, Claude Design handoff + brief e.g. `August 14th Design/`, Changelog APPROVED row) and the build that shipped it, compare the code with it, and report every difference FIRST. "As it will be built" starts from the approved design plus later rulings; "today" is the code. Standard: `MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md` step 0.
 - EVERY screen change gets a mock-up saved in `MoneyKeel/documents/<domain>/` BEFORE it is built — named by the
   file-and-folder standard (`moneykeel_pres_mock_<descriptor>_vNN.html`), NEVER overwritten: the
   superseded one gains its date and moves to that domain's `archive/`.
@@ -62,7 +74,7 @@ the founder had approved all of it. Never again.
   the app's REAL tokens from `src/utils/theme.ts` (colors, type sizes, radii) — never ASCII, never
   grayscale boxes. Show BOTH the rich state and the empty/first-day state.
 - Mocks show the FULL SCREEN, top to bottom (founder order, same day): status bar → header → hero →
-  every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth_v06.html`,
+  every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v06.html` (Net worth as Build 53 shipped it),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-detail_v01.html`. Numbers inside mocks must ADD UP (accuracy rule applies).
 - A mock is only satisfied when the built screen matches it in EVERY data state — including a
   fresh/empty account. Lesson: build 43 had the approved change+date elements in code but hid
@@ -148,3 +160,12 @@ The only accepted method — full procedure in `docs/MOCK-MATCH-AUDIT-STANDING-O
    would check it. Never let "audit complete" imply "looks right".
 Find every instance of a defect's CLASS before reporting. The founder must never be the one who
 finds the 6th gap.
+
+## POST FEEDBACK SYNC — "PFS" (founder, 2026-09-14)
+- When the founder says **PFS**: fold every unarchived feedback file of his (`-jj`, or a `jj/` folder) —
+  master and audit unless he names one — into its original, then archive it as
+  `YYYY-MM-DD_folded-in_<file>` in that folder's `JJ-feedback-archive/`. Full steps:
+  `MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md` § Post Feedback Sync.
+- Read EVERY comment, including a cell-by-cell diff against the original. A ruling is coded and tested the
+  same day; a question to Claude is answered on its row. His words are never rewritten — the master build
+  stops if any cell he typed changed. Report with a coverage line.

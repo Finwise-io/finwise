@@ -48,7 +48,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
  * Answers ..... ── Schedule daily streak reminder ─────────────────────────────────
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     cancels the existing reminder, then schedules a daily one at 20:00
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -82,7 +82,7 @@ export async function scheduleStreakReminder() {
  * Answers ..... ── Cancel streak reminder (e.g.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     cancels the daily reminder
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -142,7 +142,7 @@ export async function scheduleRmdReminder(year: number) {
  * Answers ..... ── Budget alert (fire immediately) ────────────────────────────────
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     sends one alert now: '<category> budget at <round(pct)>%'
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -173,11 +173,12 @@ export async function sendBudgetAlert(category: string, pct: number) {
  * Answers ..... ── Weekly summary notification ────────────────────────────────────
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     cancels the existing summary, then schedules a weekly one on Monday at 09:00
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-089
  * Changed ..... 2026-05-21 (e39fbd7)
@@ -189,7 +190,7 @@ export async function scheduleWeeklySummary() {
     identifier: 'weekly-summary',
     content: {
       title: '📊 Your weekly summary is ready',
-      body: 'See how your spending tracked this week and get personalized tips.',
+      body: 'See how your expenses tracked this week and get personalized tips.',
       data: { screen: 'budget' },
     },
     trigger: {

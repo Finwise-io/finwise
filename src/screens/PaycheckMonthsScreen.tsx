@@ -2,7 +2,8 @@
 // Tap a month and its rows visibly sum to the number (the month-detail pin): the checks that land
 // that month + the draw from savings − the big bills due, plus the regular bills the paycheck exists to pay
 // (listed for completeness, never subtracted twice). Pure renderer — every number comes from the
-// F5 paycheck engine and the F2 dated grid; this screen computes nothing of its own.
+// F5 paycheck function and the F2 dated grid; this screen computes nothing of its own.
+import { inflowLabel } from '../../MoneyKeel/functions/cashflow/this-month';
 import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -21,17 +22,17 @@ export default function PaycheckMonthsScreen() {
       <Text style={styles.h1}>Your paycheck, month by month</Text>
       <Text style={styles.sub}>
         Every month is its own real month — a pension that lands in December shows up in December, a
-        property tax in November dents November. This year: {maskedMoney(year.thisYear)} (estimate).
+        property tax in November dents November. This year: {maskedMoney(year.thisYear)} (calculated).
       </Text>
 
       {year.months.map((m, s) => {
         const open = openSlot === s;
         const dip = m.netSafeToSpend < year.safeDrawMonthly + m.guaranteedTotal - 0.005;   // a bill month
-        const regulars = grid.cells[s]?.billItems.filter((b) => b.kind === 'debt' || b.label === 'Everyday spending') ?? [];
+        const regulars = grid.cells[s]?.billItems.filter((b) => b.kind === 'debt' || b.label === 'Everyday expenses') ?? [];
         return (
           <View key={m.label} style={styles.monthCard}>
             <TouchableOpacity accessibilityRole="button"
-              accessibilityLabel={`${m.label}: left to spend ${spokenMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
+              accessibilityLabel={`${m.label}: surplus ${spokenMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
               style={styles.monthRow} onPress={() => setOpenSlot(open ? -1 : s)}>
               <Text style={styles.monthLabel}>{m.label}</Text>
               {dip && <Text style={styles.dipWord}>bill month</Text>}
@@ -39,8 +40,8 @@ export default function PaycheckMonthsScreen() {
             </TouchableOpacity>
             {open && (
               <View style={styles.detail}>
-                <SectionBand title="Money in" />
-                {m.guaranteed.length === 0 && <Text style={styles.line}>No guaranteed income captured yet</Text>}
+                <SectionBand title={inflowLabel('Inflow', m.guaranteed.map((g) => g.source))} />
+                {m.guaranteed.length === 0 && <Text style={styles.line}>No guaranteed income entered yet</Text>}
                 {m.guaranteed.map((g, i) => (
                   <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={maskedMoney(g.amount)} />
                 ))}
@@ -51,7 +52,7 @@ export default function PaycheckMonthsScreen() {
                 {m.bills.map((b, i) => (
                   <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={`−${maskedMoney(b.amount)}`} />
                 ))}
-                <Row label="= Left to spend" value={maskedMoney(m.netSafeToSpend)} bold />
+                <Row label="= Surplus" value={maskedMoney(m.netSafeToSpend)} bold />
                 {regulars.length > 0 && (
                   <>
                     <SectionBand title="Regular bills (this is what it pays for)" />
@@ -81,7 +82,7 @@ function Row({ label, value, bold, muted }: { label: string; value: string; bold
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
-  h1: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
+  h1: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginBottom: Spacing.md, lineHeight: 18 },
   monthCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, marginBottom: 6, overflow: 'hidden' },
   monthRow: { flexDirection: 'row', alignItems: 'center', padding: 14, minHeight: 48 },

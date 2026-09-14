@@ -4,7 +4,7 @@
 // and the tax config (SYSTEM_CALCULATED vs MANUAL_OVERRIDE).
 import type { UserId } from '../_shared/ids';
 import { newEntityId } from '../_shared/ids';
-import { toNum, round2 } from '../_shared/num';
+import { toNum } from '../_shared/num';
 import { hasMonthlySalaryTable, salaryCalendarYear } from './salary-months';
 import { sumMonthsOverEarners, sumOverEarners, earnerWages } from './earners';
 import { IncomeDoc, IncomeSource, WhoEarns, DEFAULT_TAX } from './types';
@@ -12,7 +12,7 @@ import type { OnboardingProfile } from '../onboardingProfile';
 
 const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// How many pay periods per year for each salary cadence (hourly = 40h/wk × 52).
+// How many pay periods per year for each salary cadence (hourly = 40 hours a week × 52).
 export const SALARY_PERIODS: Record<string, number> = {
   hourly: 2080, weekly: 52, biweekly: 26, monthly: 12, annually: 1,
 };
@@ -35,7 +35,8 @@ export const DEFAULT_HOURS_PER_WEEK = 40;
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
+ * Reads ....... MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-059
  * Changed ..... 2026-06-10 (66e36dc)
@@ -61,24 +62,24 @@ export function annualizedEnteredSalary(op: OnboardingProfile | null): number {
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth
  *
- * Reaches ..... 42 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-080 jobActiveMonth · MK-CF-F-009 monthlyEssentials
- *               … and 24 more — the full list is on functions_from_code
+ * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-061 grossSalaryMonthly
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-080 jobActiveMonth
+ *               … and 27 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
+ * Reads ....... MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
  *
  * Decides .....
  *     · If salary freq] is missing it uses 12.
- *     · Treats a year as twelve equal months.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-130
  * Changed ..... not in git yet (—)
@@ -108,17 +109,17 @@ function enteredMonthlyRaw(a: Record<string, any>): number {
  *               MK-CF-F-082 salaryAnnual · MK-CF-F-088 taxableByCalendarMonth
  *               MK-CF-F-092 incomeMonthlyGrid · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 40 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-080 jobActiveMonth · MK-CF-F-009 monthlyEssentials
- *               … and 22 more — the full list is on functions_from_code
+ * Reaches ..... 43 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-061 grossSalaryMonthly
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-080 jobActiveMonth
+ *               … and 25 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -143,21 +144,21 @@ export function salaryGrossByMonth(op: OnboardingProfile | null): number[] {
  *     a = w (or none when missing)
  *     has = has monthly salary table(a as any)
  *     typical = entered monthly raw(a)
- *     the answer = for each of raw: round(each, 2 dp)
+ *     the answer = for each of raw: each
  *
  * Called by ... MK-CF-F-060 salaryGrossByMonth
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-080 jobActiveMonth · MK-CF-F-009 monthlyEssentials
- *               … and 23 more — the full list is on functions_from_code
+ * Reaches ..... 44 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-061 grossSalaryMonthly
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-080 jobActiveMonth
+ *               … and 26 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -184,7 +185,7 @@ export function wageGrossByMonth(w: Record<string, any> | null): number[] {
   // to find a gross that would produce a take-home someone had typed — a guess laid on an estimate,
   // re-run on every read. The approved screen asks for gross AND the take-home as two figures that must
   // reconcile, and a profile saved before that is converted once on its way into the store.
-  return raw.map((x) => round2(x));
+  return raw.map((x) => (x));
 }
 
 /** A representative full-month GROSS salary (the highest month — undiluted by $0 gap months). */
@@ -229,17 +230,17 @@ export function grossSalaryMonthly(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-018 equityByMonth · MK-CF-F-064 equityCashFlow
  *               MK-CF-F-065 equityVestWeights · MK-CF-F-066 rsuAnnual
  *
- * Reaches ..... 39 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-018 equityByMonth · MK-CF-F-064 equityCashFlow
- *               MK-CF-F-065 equityVestWeights · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               … and 21 more — the full list is on functions_from_code
+ * Reaches ..... 42 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-018 equityByMonth
+ *               MK-CF-F-064 equityCashFlow · MK-CF-F-065 equityVestWeights
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               … and 24 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -267,17 +268,17 @@ export function equityRowValue(row: any, type: string, strike?: any, market?: an
  *
  * Called by ... MK-CF-F-064 equityCashFlow · MK-CF-F-066 rsuAnnual
  *
- * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-018 equityByMonth · MK-CF-F-064 equityCashFlow
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               … and 20 more — the full list is on functions_from_code
+ * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-018 equityByMonth
+ *               MK-CF-F-064 equityCashFlow · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               … and 23 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -328,7 +329,7 @@ export function equityCashFlow(op: OnboardingProfile | null): { year: number; am
 
 /** Vest-month weights (Jan→Dec, summing to 1) from the equity grant rows — THE one placement rule.
  *  Walk row 6 (audit PRD #4): every surface that spreads equity across the year reads this, so the
- *  cash-flow grid, the tax vector and the income engine's year view land vests in the SAME months
+ *  cash-flow grid, the tax vector and the income function's year view land vests in the SAME months
  *  (no more December lump on one screen and March/September on another). Null = no dated grants. */
 /* ─ MK-CF-F-065 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * equityVestWeights
@@ -351,17 +352,17 @@ export function equityCashFlow(op: OnboardingProfile | null): { year: number; am
  * Called by ... MK-CF-F-079 incomeFromOnboarding · MK-CF-F-088 taxableByCalendarMonth
  *               MK-CF-F-092 incomeMonthlyGrid
  *
- * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
- *               MK-CF-F-120 pctBaseMonthly · MK-CF-F-002 plannedMonthlySpend
- *               … and 8 more — the full list is on functions_from_code
+ * Reaches ..... 29 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
+ *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
+ *               … and 11 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -410,22 +411,19 @@ export function equityVestWeights(op: OnboardingProfile | null): number[] | null
  *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-092 incomeMonthlyGrid
  *               MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-018 equityByMonth · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               … and 18 more — the full list is on functions_from_code
+ * Reaches ..... 39 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-018 equityByMonth
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               … and 21 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-066
  * Changed ..... 2026-06-09 (e39df23)
@@ -458,23 +456,20 @@ export function rsuAnnual(op: OnboardingProfile | null): number {
  *
  * Called by ... MK-CF-F-068 rentalNetAnnual · MK-CF-F-079 incomeFromOnboarding
  *
- * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
- *               … and 18 more — the full list is on functions_from_code
+ * Reaches ..... 39 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
+ *               … and 21 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged spending
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-067
  * Changed ..... 2026-06-09 (e39df23)
@@ -506,20 +501,20 @@ export function rentalList(op: OnboardingProfile | null): { type: 'long' | 'shor
  *               MK-CF-O-004 incomeSummary · MK-PL-F-031 taxOrganizer
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               … and 16 more — the full list is on functions_from_code
+ * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               … and 19 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-010
- * Reads ....... MK-XS-I-024 logged spending
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · Turns a monthly figure into a year by multiplying by twelve.
@@ -547,22 +542,19 @@ export function rentalNetAnnual(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-020 cashflowYear · MK-CF-F-070 benefitAnnual
  *               MK-CF-F-092 incomeMonthlyGrid · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-070 benefitAnnual · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
- *               MK-CF-F-010 emergencyTest · MK-CF-F-071 extraIncome
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               … and 19 more — the full list is on functions_from_code
+ * Reaches ..... 40 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-070 benefitAnnual
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-071 extraIncome · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               … and 22 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-069
  * Changed ..... 2026-06-11 (80c3610)
@@ -584,17 +576,17 @@ export function benefitActiveMonths(op: OnboardingProfile | null): number[] {
  * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-071 extraIncome
  *               MK-CF-F-079 incomeFromOnboarding · MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-071 extraIncome · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               … and 18 more — the full list is on functions_from_code
+ * Reaches ..... 39 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-071 extraIncome
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               … and 21 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -637,22 +629,20 @@ export function benefitAnnual(op: OnboardingProfile | null): number {
  *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-092 incomeMonthlyGrid
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               … and 16 more — the full list is on functions_from_code
+ * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               … and 19 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Treats a year as twelve equal months.
+ * Reads ....... MK-XS-I-039 how often each income arrives
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-071
  * Changed ..... 2026-06-11 (7b390f8)
@@ -678,16 +668,16 @@ export function extraIncome(op: OnboardingProfile | null): {
   // TAXED, AND NOT SPENDABLE. Interest and dividends are income you are taxed on, but in most
   // accounts they are reinvested where they are earned and never reach the bank — so they must NOT
   // be counted as money to spend. They were, and that made every surplus, runway and savings figure
-  // too generous by the whole dividend: $250 a month on $3,000 a year. Finding B34, approved mock
+  // too generous by the whole dividend: $250/month on $3,000/year. Finding B34, approved mock
   // income-v5 frame 3c. They stay in taxableMonthly, because the tax base is unchanged; what changes
   // is that the income grid now takes this figure back out of the take-home.
   const reinvested = a.invPaidToBank === 'yes' ? 0 : invM;
   return {
-    taxableMonthly: round2(seM + invM + (othTaxable ? othM : 0)),
-    nontaxMonthly: round2(benM + supM + schM + (othTaxable ? 0 : othM)),
-    onetimeTaxable: round2(othTaxable ? othOnce : 0),
-    onetimeNontax: round2(othTaxable ? 0 : othOnce),
-    reinvestedMonthly: round2(reinvested),
+    taxableMonthly: (seM + invM + (othTaxable ? othM : 0)),
+    nontaxMonthly: (benM + supM + schM + (othTaxable ? 0 : othM)),
+    onetimeTaxable: (othTaxable ? othOnce : 0),
+    onetimeNontax: (othTaxable ? 0 : othOnce),
+    reinvestedMonthly: (reinvested),
   };
 }
 
@@ -712,20 +702,25 @@ export function extraIncome(op: OnboardingProfile | null): {
  *               MK-CF-F-092 incomeMonthlyGrid · MK-PL-F-031 taxOrganizer
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-024 resolveLens
  *
- * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
- *               … and 18 more — the full list is on functions_from_code
+ *               MK-CF-F-003 categoryMonthly · MK-CF-F-038 debtsFromOnboarding
+ *               … and 70 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-011 · MK-CF-M-024 · MK-PL-M-018 · MK-PL-M-032
- * Reads ....... MK-XS-I-040 whether a stream is already being received
+ * Reads ....... MK-XS-I-020 Social Security monthly amount
+ *               MK-XS-I-022 pension monthly amount
+ *               MK-XS-I-035 annuity income
+ *               MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-040 whether a stream is already being received
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-072
  * Changed ..... 2026-06-11 (6224e5b)
@@ -748,17 +743,17 @@ export function currentRetirementIncomeMonthly(op: OnboardingProfile | null): nu
  * Called by ... MK-CF-F-020 cashflowYear · MK-CF-F-088 taxableByCalendarMonth
  *               MK-CF-F-092 incomeMonthlyGrid · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               … and 7 more — the full list is on functions_from_code
+ * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               MK-CF-F-120 pctBaseMonthly · MK-CF-F-156 plannedMonthFlow
+ *               … and 10 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -782,20 +777,21 @@ export function otherIncomeMonth(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-079 incomeFromOnboarding · MK-CF-F-083 totalGrossAnnual
  *               MK-CF-F-084 taxableAnnual · MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
- *               … and 16 more — the full list is on functions_from_code
+ * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
+ *               … and 19 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
+ *               MK-XS-I-039 how often each income arrives
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -822,21 +818,26 @@ const RI_CAD_DIV: Record<string, number> = { monthly: 1, quarterly: 3, annual: 1
  *
  * Called by ... MK-CF-F-072 currentRetirementIncomeMonthly
  *
- * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ * Reaches ..... 89 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
  *               MK-CF-F-003 categoryMonthly · MK-CF-F-072 currentRetirementIncomeMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
- *               MK-CF-F-010 emergencyTest · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               … and 19 more — the full list is on functions_from_code
+ *               … and 71 more — the full list is on functions_from_code
  *
- * Serves ...... MK-CF-M-023
- * Reads ....... MK-XS-I-022 pension monthly amount
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-020 Social Security monthly amount
+ *               MK-XS-I-022 pension monthly amount
  *               MK-XS-I-035 annuity income
+ *               MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-037 required-withdrawal income stream (ri_rmd)
+ *               MK-XS-I-038 withdrawal income stream (ri_withdrawals)
+ *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-075
@@ -873,13 +874,13 @@ export interface GuaranteedStream { kind: 'ss' | 'pension' | 'annuity' | 'other'
  *               MK-XS-F-031 buildSnapshot · MK-PL-F-068 selectWillItLast
  *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-022 pension monthly amount
+ * Serves ...... MK-CF-M-022 · MK-CF-M-023
+ * Reads ....... MK-XS-I-020 Social Security monthly amount
+ *               MK-XS-I-022 pension monthly amount
  *               MK-XS-I-035 annuity income
+ *               MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-076
  * Changed ..... 2026-08-20 (16a56f7)
@@ -917,23 +918,19 @@ export function guaranteedOutsideStreams(op: OnboardingProfile | null): Guarante
  *
  * Called by ... MK-CF-F-092 incomeMonthlyGrid
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-120 pctBaseMonthly · MK-CF-F-002 plannedMonthlySpend
- *               MK-CF-F-011 savingsByMonth · MK-XS-F-032 snapshotFromOnboarding
- *               … and 5 more — the full list is on functions_from_code
+ * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-120 pctBaseMonthly
+ *               MK-CF-F-156 plannedMonthFlow · MK-CF-F-002 plannedMonthlySpend
+ *               … and 8 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Uses a built-in i of 0.
- *     · Treats a year as twelve equal months.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-077
  * Changed ..... 2026-06-09 (e39df23)
@@ -999,7 +996,13 @@ export function employerMatchMonthly(op: OnboardingProfile | null): number {
  *     (to num(c 401k) × val) ÷ 100   if employer match mode = 'pct'
  *     val   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-078 employerMatchMonthly
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-078 employerMatchMonthly · MK-CF-F-079 incomeFromOnboarding
+ *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-043 their own retirement contribution
@@ -1036,13 +1039,9 @@ export function wageMatchMonthly(w: Record<string, any> | null): number {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
- *               MK-XS-I-024 logged spending
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-059 the month a bonus lands
- *
- * Decides .....
- *     · Treats a year as twelve equal months.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-079
  * Changed ..... 2026-06-09 (e39df23)
@@ -1133,23 +1132,22 @@ export function jobActiveMonth(op: OnboardingProfile | null, i: number, _now: Da
  *
  * Called by ... MK-CF-F-074 tipsAnnual
  *
- * Reaches ..... 35 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
- *               … and 17 more — the full list is on functions_from_code
+ * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
+ *               … and 20 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-081
  * Changed ..... 2026-06-09 (e39df23)
@@ -1170,17 +1168,17 @@ export function salaryActiveMonths(op: OnboardingProfile | null, _now: Date = ne
  *               MK-CF-F-084 taxableAnnual · MK-CF-F-181 rateInForce
  *               MK-CF-O-004 incomeSummary · MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
- *               … and 16 more — the full list is on functions_from_code
+ * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
+ *               … and 19 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -1213,8 +1211,7 @@ export function salaryAnnual(op: OnboardingProfile | null, _now: Date = new Date
  *               MK-PL-F-068 selectWillItLast · MK-CF-F-019 upcomingBills
  *               MK-CF-F-091 userCapGainsRates · MK-PL-F-067 willItLastInputs
  *
- * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-027
- *               MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
  *
  * Decides .....
@@ -1244,17 +1241,17 @@ export function totalGrossAnnual(op: OnboardingProfile | null, now: Date = new D
  * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-181 rateInForce
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               … and 10 more — the full list is on functions_from_code
+ * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               … and 13 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -1284,25 +1281,26 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
  *     a = op (or none when missing)
  *     who = who earns
  *     the answer:
- *     'married'   if has partner = 'yes' (or who = 'both' (or who = 'partner' when missing or zero) when missing or zero)
+ *     'married'   if has spouse = 'yes' (or who = 'both' (or who = 'partner' when missing or zero) when missing or zero)
  *     'single'   otherwise
  *     v = filing status
  *
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-091 userCapGainsRates
  *               MK-CF-F-181 rateInForce · MK-CF-F-186 convertTakeHomeMode
  *               MK-CF-O-004 incomeSummary · MK-PL-F-067 willItLastInputs
+ *               MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
  *               MK-CF-F-003 categoryMonthly · MK-CF-F-186 convertTakeHomeMode
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
- *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -1312,13 +1310,13 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
  */
 export function filingStatusOf(op: OnboardingProfile | null): import('./tax').FilingStatus {
   const a: any = op ?? {};
-  // THE PRE-ANSWER IS REAL, NOT COSMETIC. Someone who has told us they have a partner and has not yet
+  // THE PRE-ANSWER IS REAL, NOT COSMETIC. Someone who has told us they have a spouse and has not yet
   // reached the filing question is far likelier to file jointly than singly — and until 2026-08-27
   // this fell back to 'single' for them, which is finding B31: every couple taxed as one person, on
-  // five surfaces, worth $328–$866 a month. The screen still asks, and their answer always wins.
+  // five surfaces, worth $328–$866/month. The screen still asks, and their answer always wins.
   if (a.filingStatus == null || a.filingStatus === '') {
-    // Saying "Both of us" (or "Just my partner") on the base-pay screen is telling us there is a
-    // partner, even though the partner QUESTION comes later in the flow. Build 54 banded a
+    // Saying "Both of us" (or "Just my spouse") on the base-pay screen is telling us there is a
+    // spouse, even though the spouse QUESTION comes later in the flow. Build 54 banded a
     // two-earner household as single because this read only hasPartner — 32% where jointly reads
     // 24% (founder's device test, 2026-09-02). Assumed status is STATED on screen, and the filing
     // answer still always wins.
@@ -1339,17 +1337,17 @@ export function filingStatusOf(op: OnboardingProfile | null): import('./tax').Fi
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-091 userCapGainsRates
  *               MK-CF-F-181 rateInForce · MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               … and 13 more — the full list is on functions_from_code
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1371,30 +1369,26 @@ export function stateRateOf(op: OnboardingProfile | null): number {
  * Answers ..... PRD F2#11 — the ONE per-calendar-month effective tax-rate vector (Jan→Dec).
  *
  * Formula .....
- *     a = op (or none when missing)
  *     flat = effective rate(op)
- *     12 slots, each flat   when rate in force(op).mine
+ *     12 slots, each flat   when the person's own rate is in force
  *     taxable = taxable by calendar month(op, now)
- *     total = Σ over taxable of (each)
- *     12 slots, each flat   when total ≤ 0
- *     tax = progressive monthly tax(taxable, filing status of(op), state rate of(op), over65 count of(op))
- *     the answer:
- *     for each of taxable: min(0.6, max(0, tax[i] ÷ each))   if each > 0
- *     flat   otherwise
+ *     12 slots, each flat   when Σ taxable ≤ 0
+ *     tax = progressive monthly tax(taxable, filing status, state rate, people 65+)
+ *     the answer: for each month, min(60%, max(0, tax ÷ taxable))   if taxable > 0, else flat
  *
  * Called by ... MK-CF-F-092 incomeMonthlyGrid · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-120 pctBaseMonthly · MK-CF-F-002 plannedMonthlySpend
- *               MK-CF-F-011 savingsByMonth · MK-XS-F-032 snapshotFromOnboarding
- *               … and 5 more — the full list is on functions_from_code
+ * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-120 pctBaseMonthly
+ *               MK-CF-F-156 plannedMonthFlow · MK-CF-F-002 plannedMonthlySpend
+ *               … and 8 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1411,7 +1405,7 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
   // we work out a rate we were not given; running it over one the person handed us would replace
   // their answer with our guess. Until 2026-08-28 this checked only taxMode, so a household that had
   // entered an exact take-home still had it re-estimated here, and the income grid
-  // disagreed with the base-pay screen by $572 a month on the founder's own persona.
+  // disagreed with the base-pay screen by $572/month on the founder's own persona.
   const { rateInForce } = require('./tax-rate');
   if (rateInForce(op).mine) return new Array(12).fill(flat);
   const taxable = taxableByCalendarMonth(op, now);
@@ -1445,17 +1439,17 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
  *
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-092 incomeMonthlyGrid
  *
- * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               … and 6 more — the full list is on functions_from_code
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               MK-CF-F-120 pctBaseMonthly · MK-CF-F-156 plannedMonthFlow
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -1463,8 +1457,8 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
  *               MK-XS-I-059 the month a bonus lands
  *
  * Decides .....
- *     · Treats a year as twelve equal months.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Never lets t fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-088
  * Changed ..... 2026-07-29 (13c9be6)
@@ -1488,7 +1482,7 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
     if (i === 0) t += toNum(a.signingOnetime);
     if (i === otherIdx) t += ex.onetimeTaxable;
     // B05 (founder audit 2026-08-26): a traditional 401(k) contribution is taken from pay BEFORE
-    // tax, so it was never taxable income. It was being taxed — $4,400 a year too much on a
+    // tax, so it was never taxable income. It was being taxed — $4,400/year too much on a
     // $120,000 salary putting in $20,000, and the same wrong base set the withholding rate for
     // every month, so it reached take-home, surplus, essentials and the whole cash-flow module.
     // Only in a month with pay: nobody contributes out of a month with none.
@@ -1518,18 +1512,19 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-091 userCapGainsRates
  *               MK-CF-F-181 rateInForce · MK-CF-F-186 convertTakeHomeMode
  *               MK-CF-O-004 incomeSummary · MK-PL-F-067 willItLastInputs
+ *               MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
  *               MK-CF-F-003 categoryMonthly · MK-CF-F-186 convertTakeHomeMode
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
- *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
@@ -1545,7 +1540,7 @@ export function over65CountOf(op: OnboardingProfile | null): number {
   const a: any = op ?? {};
   // A COUPLE CAN BE TWO. This read one birth year and returned 0 or 1, so a joint return where both
   // are 65 or older was short $1,650 of standard deduction — every time. We know the person's age
-  // from their birth year; we have never known their partner's, so on a joint return we ask, and
+  // from their birth year; we have never known their spouse’s, so on a joint return we ask, and
   // the answer wins. Founder ruling 2026-08-27 (finding B33, approved mock income-v5 frame 4b).
   const joint = a.filingStatus === 'married';
   if (joint && a.over65Who) {
@@ -1567,17 +1562,17 @@ export function over65CountOf(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-020 cashflowYear
  *               MK-CF-F-087 monthlyTaxRates · MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               … and 7 more — the full list is on functions_from_code
+ * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               MK-CF-F-120 pctBaseMonthly · MK-CF-F-156 plannedMonthFlow
+ *               … and 10 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-029
  *
@@ -1588,7 +1583,7 @@ export function effectiveRate(op: OnboardingProfile | null): number {
   // THE RATE IN FORCE, and only that. This used to know two of the three answers: a typed rate, or
   // our own estimate. It never asked the third — what the person told us LANDS in their bank —
   // although that is the least guessed figure of all. So every screen but base pay re-estimated a
-  // number the person had already given us, and the two disagreed by $572 a month on the founder's
+  // number the person had already given us, and the two disagreed by $572/month on the founder's
   // own persona. See tax-rate.ts for which answer wins and why.
   const { rateInForce } = require('./tax-rate');
   return rateInForce(op).rate;
@@ -1655,17 +1650,17 @@ export function userCapGainsRates(op: OnboardingProfile | null): { lt: number; s
  *               MK-CF-F-012 annualCashflow · MK-CF-F-120 pctBaseMonthly
  *               MK-CF-O-004 incomeSummary · MK-XS-F-027 takeHomeMonthly
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-120 pctBaseMonthly
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
+ *               MK-CF-F-120 pctBaseMonthly · MK-CF-F-156 plannedMonthFlow
  *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-F-004 spendBuckets
- *               … and 4 more — the full list is on functions_from_code
+ *               … and 7 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-018 · MK-XS-M-006
  * Reads ....... MK-XS-I-023 salary and other income
@@ -1673,7 +1668,6 @@ export function userCapGainsRates(op: OnboardingProfile | null): { lt: number; s
  *               MK-XS-I-059 the month a bonus lands
  *
  * Decides .....
- *     · Treats a year as twelve equal months.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-092
@@ -1726,14 +1720,14 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
     // `taxable`. Theirs comes off a payslip — everything that came out, divided by everything they
     // earned — so it applies to what the job actually paid, BEFORE the 401(k). Applying a rate of
     // gross to a base that already has the 401(k) removed understates the tax by the rate times the
-    // contribution: $137 a month on the founder's persona, which is exactly how far the base-pay
+    // contribution: $137/month on the founder's persona, which is exactly how far the base-pay
     // screen and the income grid still disagreed after the first half of this fix.
     const tax = rateIsTheirs ? earnedBefore401k * rates[i] : taxable * rates[i];
     const k401 = salByMonth[i] > 0 ? c401kM : 0;   // nobody contributes out of a month with no pay
     const amount = mode === 'gross' ? gross
                  : mode === 'available' ? gross - tax - k401     // take-home: after tax AND 401(k)
                  : gross - tax;                                   // net: after tax, before the 401(k)
-    return { label, amount: round2(amount) };
+    return { label, amount: (amount) };
   });
 }
 

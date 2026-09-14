@@ -23,7 +23,7 @@ const ROOTS = ['src/domain', 'MoneyKeel/functions', 'Calculation Module code/eng
 /** Where screens live. A screen re-implementing a calculation is the same defect wearing a different
  *  hat — and the FIRST version of this guard could not see any of it, so it reported clean while
  *  `employerMatchMonthly` sat in both src/domain/income and src/onboarding, `takeHomeMonthly` gave two
- *  different answers for a household with a partner, and two screens stamped dates in UTC while the
+ *  different answers for a household with a spouse, and two screens stamped dates in UTC while the
  *  cash-flow code used the local day. A guard that looks in too few places is worse than none,
  *  because it gets trusted. */
 const SCREEN_ROOTS = ['src/screens', 'src/components', 'src/onboarding', 'app'];

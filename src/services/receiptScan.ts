@@ -12,7 +12,7 @@ try { MLKit = require('@react-native-ml-kit/text-recognition').default; } catch 
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = true when the text-recognition module is present and usable
  *
  * Called by ... MK-XS-F-097 ocrReceipt
  *
@@ -90,17 +90,15 @@ export async function pickReceipt(source: 'camera' | 'library'): Promise<string 
  *     safe amounts = []
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-XS-F-097 ocrReceipt
+ * Called by ... MK-XS-F-094 parseReceiptText · MK-XS-F-097 ocrReceipt
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-097 ocrReceipt
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-097 ocrReceipt · MK-XS-F-094 parseReceiptText
+ *               MK-XS-F-092 parseReceiptWithOCR
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-010 transaction words (the institution's own wording)
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-058
  * Changed ..... 2026-08-12 (4d85bb3)

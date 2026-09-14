@@ -1,0 +1,1331 @@
+{
+ "_about": "THE WORKING PLAN — the source. moneykeel_calc_plan_workplan_v01.xlsx is GENERATED from this by build-workplan.py; a hand edit to the workbook survives only in the founder columns (Status, Comments), which the builder reads back by key before it writes. A row is never deleted (founder standing order 2026-09-12).",
+ "columns": [
+  "Task description",
+  "What needs to be done",
+  "Status",
+  "Reference file and rows",
+  "Date added",
+  "Comments"
+ ],
+ "rows": [
+  {
+   "task": "Live prices: the Tiingo key (price feed is seam-ready, no key)",
+   "todo": "Founder: get the Tiingo key and paste it into the app config",
+   "status": "WAITING ON YOU",
+   "ref": "docs/README.md · price-provider-onepager-v1-2026-07-29.xlsx",
+   "date": "2026-06-25",
+   "comments": "",
+   "key": "66a3e47a67",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "FCC core design approved — strategy, high-level design, PRD v1.1, detailed design v1.1 (40 screens), UX v1.1. Build everything, gate with the suite, one build.",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/FCC-core-PRD-v1.1-2026-07-01.xlsx · FCC-core-detailed-design-v1.1-2026-07-06.xlsx · FCC-core-UX-design-v1.1-2026-07-06.xlsx",
+   "date": "2026-07-12",
+   "comments": "",
+   "key": "1165218a4c",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Build 41 (the redesign build) cut and walked on the device",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/FCC-build-tracker.md · FCC-launch-review-2026-07-13.md",
+   "date": "2026-07-13",
+   "comments": "",
+   "key": "0dbe6b54f8",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Standing order: release gate — no build without your literal \"cut the build\" to a presented checklist",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "CLAUDE.md § RELEASE GATE",
+   "date": "2026-07-14",
+   "comments": "",
+   "key": "63198031cf",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Standing order: definition of complete — the union of every approved document; \"deferred\" goes to you first",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "CLAUDE.md § DEFINITION OF COMPLETE",
+   "date": "2026-07-15",
+   "comments": "",
+   "key": "eca589c704",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Design audit v1.0 — every approved screen against the code",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/FCC-design-audit-v1.0-2026-07-16.xlsx",
+   "date": "2026-07-16",
+   "comments": "",
+   "key": "1aa1959abe",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Bank and brokerage connection (SnapTrade) shipped",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/bank-connect-research-2026-07-18.md",
+   "date": "2026-07-18",
+   "comments": "",
+   "key": "d81b69c31f",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Standing order: mock-first — full-colour, full-screen mock in every data state before any screen is built; Build 43 feedback fixed",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "CLAUDE.md § MOCK-FIRST · docs/FCC-core-55-70/build43-feedback-v1-2026-07-19.xlsx",
+   "date": "2026-07-19",
+   "comments": "",
+   "key": "17944c9f31",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Launch sign-off v2",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/launch-signoff-v2-2026-07-21.xlsx",
+   "date": "2026-07-21",
+   "comments": "",
+   "key": "17a2e69ab0",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Build 45 root causes; July-24 audit → standing order: same-day changelog row for every approval",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/build45-feedback-root-causes-2026-07-24.md · build-analysis-july24.xlsx · CLAUDE.md § SAME-DAY CHANGELOG",
+   "date": "2026-07-24",
+   "comments": "",
+   "key": "ac3ab8ff6c",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Builds 46 and 47 item walks; standing order: full-surface done (coverage line on every done-claim)",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/build46-item-walk-v1-2026-07-28.xlsx · build47-item-walk-v1-2026-07-29.xlsx · CLAUDE.md § FULL-SURFACE DONE",
+   "date": "2026-07-29",
+   "comments": "",
+   "key": "ea3d4866a3",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Pre-build-48 alignment audit; Build 48 founder walk",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/pre-build48-alignment-audit-v1-2026-08-02.xlsx · build48-founder-walk-v1-2026-08-03.xlsx",
+   "date": "2026-08-03",
+   "comments": "",
+   "key": "d2789d07ca",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Your rules: cash = cash only, CDs are bonds; change-walk mock; institution data research; UX v1.2",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/FCC-core-UX-design-v1.2-2026-08-04.xlsx · institution-data-research-v2-official-specs-2026-08-04.md · nw-change-roi-display-research-v1-2026-08-04.md",
+   "date": "2026-08-04",
+   "comments": "",
+   "key": "4f9b80e272",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Standing order: mock-match audit — string-by-string diff, order, nesting, alignment, appearance",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/MOCK-MATCH-AUDIT-STANDING-ORDER.md",
+   "date": "2026-08-10",
+   "comments": "",
+   "key": "8730b2b706",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Builds 50 and 52 walks; your Q6 (debts composition bar)",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/build52-founder-walk-2026-08-11.xlsx",
+   "date": "2026-08-11",
+   "comments": "",
+   "key": "b8202f9f4c",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Plan redesign brief v3; screen map + orphan-route guard; briefs-are-code guard; build audit of the redesign",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "August 14th Design/PLAN-REDESIGN-BRIEF-v3-2026-08-14.md · docs/FCC-core-55-70/build-audit-plan-redesign-2026-08-14.xlsx · CLAUDE.md § SCREEN MAP, § BRIEFS ARE CODE",
+   "date": "2026-08-14",
+   "comments": "",
+   "key": "d2a165bef0",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Build 53 cut — Plan redesign and the mortgage engine",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "git 2026-08-15 \"Build 53 finished and submitted\"",
+   "date": "2026-08-15",
+   "comments": "",
+   "key": "cfec3c9410",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Standing orders: act as a fiduciary adviser; every master tab in one metric order; no prose from me — code and specialist review",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "memory: CFA stance · No prose",
+   "date": "2026-08-19",
+   "comments": "",
+   "key": "750d9c6dab",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Brief: your 56 decisions — fixes B1–B8 (pensions, Social Security factors, legacy target, RMD age, RMD as income, odds calibration, money-market class, decimals), 14 metrics cut, D1–D7 builds, E corrections",
+   "todo": "Claude: tally each of the 56 against the code and record the ones not yet on the rulings tab (B6, B8 and brief Q-50 are already there as executed)",
+   "status": "TO DO",
+   "ref": "Calculation Module/decomposition/BRIEF-decisions-and-fixes-2026-08-20.md § B–F",
+   "date": "2026-08-20",
+   "comments": "",
+   "key": "58e841db4e",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Your four objectives + the objectives-and-verification standard (file-and-code rule, verification ladder)",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
+   "date": "2026-08-22",
+   "comments": "",
+   "key": "c3d7ca8fac",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Standing orders: identifiers everywhere; no blanket decisions — each case to you with its specifics",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/standards/moneykeel_naming_spec_unique-identifier_v01.md",
+   "date": "2026-08-25",
+   "comments": "",
+   "key": "76f27b9e7a",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "First master audit — 51 findings A01–A51: A09, A10, A11, A44 fixed; the other 47 are recorded on their master rows, not yet worked",
+   "todo": "Claude: re-verify each against the screen (the method used for the second verification), then fix or bring the decision to you; A13 (one name, two functions) is yours to decide",
+   "status": "TO DO",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · screen tabs · column \"Audit finding — 2026-08-25 review\" and \"Where each finding stands\"",
+   "date": "2026-08-25",
+   "comments": "",
+   "key": "40c0ccdade",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Formula audit — 25 findings B01–B25: B05 (401(k) taxed) fixed; B02, B03, B04 are file fixes; B01 (minimum-payment rule never built) and B06 (three return methods, one label) need your decision; B07–B25 not re-verified",
+   "todo": "Claude: re-verify B07–B25 against the screen; Founder: decide B01 and B06",
+   "status": "TO DO",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · screen tabs · column \"Formula audit — metric vs the function it names (2026-08-26)\" · standards/moneykeel_calc_spec_two-day-status_v01.html",
+   "date": "2026-08-26",
+   "comments": "",
+   "key": "e5e4b38684",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Your comments on the master (column W): questions Q01–Q33 recorded; rulings Q06, Q07, Q08, Q09, A15, A46, A47 and the bond display rule",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · rows Q06–Q09, A15, A46, A47",
+   "date": "2026-08-26",
+   "comments": "",
+   "key": "ac499e4c8c",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Bond display rule (nine facts on a bond; value = current, else cost, else face) — ruled, not coded; three specifics open as Q38",
+   "todo": "Founder: answer Q38 (bond fields and display); then Claude: mock, then code + test",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · row \"Bond display rule\" · questions column Q38",
+   "date": "2026-08-26",
+   "comments": "What's the questions?",
+   "key": "1561d2b714",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "What's the questions?"
+   }
+  },
+  {
+   "task": "Function identifiers made permanent (register); a header on every function; guards B1 (header is a printed view) and B2 (formula agrees); build spec of 22 guards — 17 built, 1 partial, 4 to build",
+   "todo": "Claude: build the four missing guards (A4, B4, D1, D3, D4) and finish B3",
+   "status": "TO DO",
+   "ref": "MoneyKeel/documents/standards/moneykeel_build_spec_guards-before-a-build_v01.md",
+   "date": "2026-08-26",
+   "comments": "",
+   "key": "47bd2a36a6",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Formulas read from the code onto every master row — 49 of 596 still read \"NOT READ YET\" (bodies the generator cannot render)",
+   "todo": "Claude: read the 49 by hand into the hand-read formula list, then rebuild",
+   "status": "TO DO",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · functions_from_code · column \"Formula (in words)\" = NOT READ YET (49 rows)",
+   "date": "2026-08-27",
+   "comments": "",
+   "key": "7c1c0005a0",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Build 54 — the income rebuild (two earners, one tax engine, one rate); 46 new + 19 changed functions documented",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/standards/moneykeel_calc_spec_built-since-build-53_v01.html",
+   "date": "2026-09-01",
+   "comments": "",
+   "key": "fd53ed0af8",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Standing order: one term per concept — canon take-home and calculated; guard test",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "CLAUDE.md § ONE TERM PER CONCEPT",
+   "date": "2026-09-02",
+   "comments": "",
+   "key": "0de0491e7a",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Second verification — 41 findings (G1–G37, C1–C4) assessed; you ruled 27 on 2026-09-08; all 27 executed",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/audit/moneykeel_audit_assessment_second-verification_v02.xlsx · tab \"Assessment — all 41\"",
+   "date": "2026-09-03",
+   "comments": "",
+   "key": "600b730bff",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Second verification — your 2026-09-12 comments folded in: 14 rows ruled and coded the same day (G1, G2, G4, G5, G7, G9, G11, G12, G15, G24, G36, G37, C1, C3); your \"ok\" recorded on G14, G16, G20, G22, G32, G35",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/audit/moneykeel_audit_assessment_second-verification_v02.xlsx · tab \"Assessment — all 41\" · STATUS starts with WAITING ON YOU (2 rows)",
+   "date": "2026-09-03",
+   "comments": "",
+   "key": "b9455e6579",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Second verification — 14 rulings coded but without a named test: G14, G16, G18, G19, G20, G23, G25, G26, G27, G29, G33, G35, C2, C4 (plus Q07, A15 and the cash-flow worked example on the rulings tab)",
+   "todo": "Claude: write the test that fails on the old code for each, then move the row to TESTED",
+   "status": "TO DO",
+   "ref": "MoneyKeel/documents/audit/moneykeel_audit_assessment_second-verification_v02.xlsx · STATUS = CODED (14 rows) · MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · STATUS = CODED (17 rows)",
+   "date": "2026-09-03",
+   "comments": "",
+   "key": "6f4edf8915",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Synonym clusters — 16 concepts, one word each",
+   "todo": "—",
+   "status": "DONE (ruled 09-10, coded + tested 09-11)",
+   "ref": "MoneyKeel/documents/audit/moneykeel_audit_decisions_synonym-clusters_v02.xlsx · tab \"Clusters\" · rows 1–16",
+   "date": "2026-09-03",
+   "comments": "",
+   "key": "8eecd2d661",
+   "_written": {
+    "status": "DONE (ruled 09-10, coded + tested 09-11)",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Your -jj comments on the master (20) and typed answers (7) folded into the master on their rows; the four wrong-number findings fixed",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · screen tabs · columns \"Founder comment\" and \"YOUR ANSWER\"",
+   "date": "2026-09-08",
+   "comments": "",
+   "key": "85b63c2d46",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Master questions Q34–Q45 and Q50 (your cash-flow example arithmetic) — open",
+   "todo": "Founder: answer in the master (column \"YOUR ANSWER — use the same number\"); the REVIEW column filters every coloured cell: 42 questions, 10 input lists, 25 answers to read",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · multiple_screens and screen tabs · column \"Questions for you\" · Q34–Q45, Q50",
+   "date": "2026-09-08",
+   "comments": "",
+   "key": "28e3d89013",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Per-asset-class capture list — 15 items NOT CAPTURED, 4 DERIVED but blocked, 1 rule pending, 1 wrong until Q42 (options), display currency Q43",
+   "todo": "Founder: answer Q42 and Q43; Claude: build the 15 missing captures (mock-first)",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · capture-list tab · STATUS ≠ CAPTURED (21 rows)",
+   "date": "2026-09-08",
+   "comments": "",
+   "key": "12c0af4050",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Timezone fix (look-back window on the local date) and the inflation default (2.5%, 30-year average, brief Q-50)",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · rows TZ-1, G30",
+   "date": "2026-09-08",
+   "comments": "",
+   "key": "d95498415d",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Q48 — empty state: \"$0 — nothing entered yet.\" plus the door; one mock of the pattern built",
+   "todo": "— mock approved 2026-09-12 (your words); built the same day on 46 of the 58 rows with two tests; 4 rows do not apply (a holding page exists only once a holding was entered, so its $0 means sold); the 8 rows not built and one question are the next row",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_empty-state-pattern_v01.html · MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · row G32 / Q48",
+   "date": "2026-09-09",
+   "comments": "",
+   "key": "eb5dfdd456",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Q49 — full precision inside every calculation, rounding once at display; 317 roundings removed; standard written",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md · CLAUDE.md § PRECISION",
+   "date": "2026-09-09",
+   "comments": "",
+   "key": "b0a72866b4",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "G28 — inputs reconciliation: the sweep fixed; the code's own record sits beside each figure's claimed inputs; verdicts: 3 agree, 35 partly, 23 reached but not declared, 3 neither, 1 declared but not reached",
+   "todo": "Retired 2026-09-14 after your comment on MK-XS-M-001, 'Not sure what you want me to approve?': a figure's inputs are approved with its row under rule 11, so there is nothing separate to type. The answer is on that row of the master.",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · reconciliation tab (65 inputs, column Verdict) · screen tabs · column \"Inputs — approved list (founder, dated)\"",
+   "date": "2026-09-09",
+   "comments": "",
+   "key": "fd670d1b85",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Status on every tab and every row of the three working files, one vocabulary; rules for CODED / TESTED / VERIFIED; JJ-feedback-archive folders",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "objectives-and-verification standard § \"What a ROW's status means\" · MoneyKeel/documents/*/JJ-feedback-archive/",
+   "date": "2026-09-10",
+   "comments": "",
+   "key": "a4bcc145df",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Your onboarding notes on build 53 — 12 notes: 4 folded in, 8 not yet confirmed line by line",
+   "todo": "Claude: done 2026-09-12 — all twelve notes checked against the code and the file archived as 2026-09-12_folded-in_onboarding screens-build53.xlsx. This row still read TO DO because the plan had been saved in Excel from an older copy; the Post Feedback Sync of 2026-09-14 found it. Two questions from the notes are on their own row, dated 2026-09-14.",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/other/jj/onboarding screens-build53.xlsx · MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · row \"Onboarding notes, build 53\"",
+   "date": "2026-09-10",
+   "comments": "",
+   "key": "6c0b9790af",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Two of your earlier answers still open on their rows: the current-month rule for the essentials window (MK-CF-F-190) and where the Medicare question sits (MK-XS-I-062)",
+   "todo": "Founder: confirm the current-month assumption and the Medicare placement",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · rows G21 / Q47 and G10 (notes column)",
+   "date": "2026-09-10",
+   "comments": "",
+   "key": "4b490a78b2",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Everything ruled, coded and tested: 16 clusters, Q06 (options × 100), Q08 (foreign currency = cash), Q09 (unit on every quantity), A46 (no coupon → $0), A47 (accrued interest); canon table = the guard's one source; six new functions",
+   "todo": "—",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · 21 rows TESTED 2026-09-11 · MoneyKeel/documents/audit/moneykeel_audit_decisions_synonym-clusters_v02.xlsx",
+   "date": "2026-09-11",
+   "comments": "",
+   "key": "cdf0611ab9",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Two judgment calls in the coding to confirm: A46 read strictly (an assumed return no longer stands in for a missing coupon); A47 applied to current yield only, not yield to maturity",
+   "todo": "Founder: confirm or redirect",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · rows A46, A47 (notes column)",
+   "date": "2026-09-11",
+   "comments": "",
+   "key": "bf2a50eee6",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Four questions from the cluster work: #3 \"spending\" in prose (173 places), #11 the \"Close position\" button, #13 \"plan for the lump sum\" (my answer is on the row), #14 \"/qtr\", \"/wk\" labels",
+   "todo": "Founder: answer in column \"YOUR ANSWER\"; then Claude: code + test",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/audit/moneykeel_audit_decisions_synonym-clusters_v02.xlsx · tab \"Clusters\" · rows 3, 11, 13, 14 · column \"QUESTION FOR YOU\"",
+   "date": "2026-09-11",
+   "comments": "",
+   "key": "109a22e2fa",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One stale header: MK-CF-F-123 (the retired local-date helper) carries a header but has no master row",
+   "todo": "Claude: remove the retired function or restore its row, then rebuild",
+   "status": "TO DO",
+   "ref": "src/domain/cashflow/index.ts · check-formula-agreement.py output",
+   "date": "2026-09-11",
+   "comments": "",
+   "key": "0d046cb466",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "VERIFIED marks — 33 rulings, 18 cluster rows and 11 assessment rows stand at TESTED, NOT VERIFIED",
+   "todo": "Founder: write your date and how you checked in column \"ROW VERIFIED — founder, date and how\"; the next build moves the row",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · STATUS = TESTED (33) · MoneyKeel/documents/audit/moneykeel_audit_decisions_synonym-clusters_v02.xlsx · rows 0a–16 · MoneyKeel/documents/audit/moneykeel_audit_assessment_second-verification_v02.xlsx · STATUS = TESTED (11)",
+   "date": "2026-09-12",
+   "comments": "",
+   "key": "8c4f15a4b3",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Build 55 — release gate: scope complete, audits closed, journey pass, checklist presented",
+   "todo": "Claude: present the pre-build checklist once the rows above are closed; Founder: \"cut the build\"",
+   "status": "TO DO",
+   "ref": "CLAUDE.md § RELEASE GATE · docs/FCC-core-55-70/FCC-build-tracker.md",
+   "date": "2026-09-12",
+   "comments": "",
+   "key": "548b0064aa",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Commit — 278 changed files on branch taxonomy-v1.0.7 since commit addbf53; nothing committed since 2026-09-01",
+   "todo": "Founder: say when to commit and push",
+   "status": "WAITING ON YOU",
+   "ref": "git status · branch taxonomy-v1.0.7",
+   "date": "2026-09-12",
+   "comments": "",
+   "key": "a06cbc2594",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Five approved mocks still carry words the canon retired (cash-flow this-month v06 and money-four-tabs v01: \"spending\"; filing-status v02: \"partner\", \"told us\"; look-ahead v03: \"/mo\"; empty-state-pattern v01: \"spending\"). The app copy is on the canon; these mocks are not.",
+   "todo": "Founder: say whether each gets a new version on the canon (old archived) now, or at its next change; then Claude: re-version the ones you name",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/cashflow/, networth-and-performance/ — the five files named",
+   "date": "2026-09-12",
+   "comments": "",
+   "key": "f4f7289f57",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Stand-in ages when the birth year is missing: the Retirement cockpit and Insights assume 45, the cash-flow model and the draw steer assume 68, the onboarding helper 35 (or 65 for the retirement age). Your rule R2 says an unknown input gives no number and a reason.",
+   "todo": "Founder: say what those screens show when the birth year is missing (ask for it in place? show the door?); then Claude: mock first, then code",
+   "status": "WAITING ON YOU",
+   "ref": "src/screens/RetirementCockpit.tsx · InsightsScreen.tsx · CashFlowScreen.tsx · components/DrawSteerSheet.tsx · hooks/useCashflowModel.ts · onboarding/modules.tsx ageOrDefault",
+   "date": "2026-09-12",
+   "comments": "",
+   "key": "9ac8f58052",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Empty state, the last 8 of 58 rows (4 more do not apply — the holding page): Account detail (the classes and income inside one account — MK-NW-M-019/020/021); a past month that predates tracking (MK-CF-M-004); a goal row (MK-CF-M-021, appears only when committed); the Roth \"Extra tax\" row (MK-PL-M-023, \"—\" until a plan is adopted); Job safety asks in place (MK-MN-M-021). And one question: Debts cannot tell \"I have none\" from \"nothing entered\" — no such answer exists.",
+   "todo": "Claude: build the Account-detail rows; Founder: say whether the three rows that show a dash or vanish should show $0 with the line instead, and whether to add an \"I have no debts\" answer (a new input)",
+   "status": "WAITING ON YOU",
+   "ref": "master · rulings tab · row \"G32 / Q48\" (notes column)",
+   "date": "2026-09-12",
+   "comments": "",
+   "key": "e7f99cc577",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One-door architecture — step 2, the photograph: every figure two people see on eight screens recorded before any function moves behind a door",
+   "todo": "Claude: done — 237 figures in 16 snapshots at a fixed date; a move that changes one stops and comes to you",
+   "status": "DONE",
+   "ref": "src/__tests__/photograph_figures.test.tsx · __snapshots__/ · one-door spec § Where it stands · build spec row D5",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "3fc9279b2f",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One-door architecture — the will-it-last ratchet: 16 files reach past the door today; the list can only shrink",
+   "todo": "Claude: done — guard freezes the 16 by name; struck one by one as each moves behind MK-PL-O-001 thePlan",
+   "status": "DONE",
+   "ref": "src/__tests__/guard_one_door_will_it_last.test.ts · build spec row D6",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "ca49b879e9",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One-door architecture — three decisions the spec leaves to you: (1) the pilot question, (2) does a door hand out figures only or also the walk behind them, (3) what doors are called",
+   "todo": "Founder: decide. Claude recommends (1) Social Security timing — 4 callers, 8 functions, a real money decision, statutory figures already registered; (2) figures plus the walk, because the Retirement screen and What-if both show the walk; (3) MK-<family>-O-NNN <verb-noun>, the form the four cash-flow doors already use",
+   "status": "WAITING ON YOU",
+   "ref": "moneykeel_calc_spec_one-door-per-question_v01.md § Not yet decided",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "d6965ecedd",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One-door architecture — step 1 for the pilot: the row (what it answers, formula in plain English, inputs, decisions, identifier, exact list of figures the door hands out)",
+   "todo": "Claude: draft the row the day the pilot is chosen; Founder: approve the row — nothing is built before that",
+   "status": "WAITING ON YOU",
+   "ref": "master · Metrics tabs · one-door spec § six steps",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "3e48eebed3",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One-door architecture — will it last, MK-PL-O-001 thePlan: the row, then the door beside the old code, then 16 callers moved one at a time against the photograph, then the old doors closed",
+   "todo": "Claude: after the pilot proves the pattern; each caller moved with the suite green and the photograph byte-identical",
+   "status": "TO DO",
+   "ref": "guard_one_door_will_it_last.test.ts (the 16) · photograph_figures.test.tsx",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "1975082820",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The retired word \"engine\" (identifier standard, 2026-08-22) was still in use: 119 code lines, 94 test lines, 81 document lines, ~230 master cells, two visible strings, a spec title, two file names",
+   "todo": "Claude: done — canon row 0c added and the guard enforces it; the builder applies the canon to every live tab; code, tests, documents, durable homes and this plan swept; spec renamed moneykeel_calc_spec_one-door-per-question_v01.md (old draft archived). Left by design: the folder path Calculation Module code/engines/ and the engines-old-tab sheet, until that folder empties into MoneyKeel/functions/",
+   "status": "DONE",
+   "ref": "moneykeel_naming_spec_calculation-vocabulary_v01.md canon row 0c · one_term_per_concept.test.ts · build-moneykeel-master.py (final canon pass)",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "665affd8bd",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Closing the loop — screen to orchestrator to screen: the loop must prove completeness (no figure on screen left out; every orchestrator carries every function it should; no orchestrator orphan), and orchestrators are grouped by a written rule BEFORE any is built (his example: total assets vs total assets by institution must be one function, not two)",
+   "todo": "Founder: ruled 2026-09-13 — the ten design rules. Claude: built the orchestrator map",
+   "status": "DONE",
+   "ref": "moneykeel_calc_spec_one-door-per-question_v01.md § Closing the loop · § The design rules",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "1397b7b4a8",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 0 — the ten design rules (one question one orchestrator — the same question on any screen, the same orchestrator; one concept one function; no orchestrator calls an orchestrator; inputs once per family; screens compute nothing; shared dependents recorded; door = figures + walk, MK-family-O-NNN; action and data-in outside; three completeness proofs; map before code)",
+   "todo": "Claude: done — ledger Orchestrator rule 1–10 RULED; spec § The design rules",
+   "status": "DONE",
+   "ref": "moneykeel_rulings.json · moneykeel_calc_spec_one-door-per-question_v01.md § The design rules",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "e6134f5b13",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 1a — figure census: render every screen in every data state and record every figure a person can read; every one claimed by a row",
+   "todo": "Claude: done 2026-09-13 — src/__tests__/figure_census.test.tsx renders 46 screens × 4 data states, opens every in-screen tab, and (2026-09-14) records the exact file and line that prints each dollar figure",
+   "status": "DONE",
+   "ref": "src/__tests__/figure_census.test.tsx · moneykeel_figure_census.json",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "0591932711",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 1b — function closure: the call graph from the code; per question its closure by identifier; every displayed or dependent function inside no closure listed",
+   "todo": "Claude: done 2026-09-13 — closure per question generated from the functions_from_code dependency lists; Census lists the functions inside no question",
+   "status": "DONE",
+   "ref": "build-orchestrator-map.py · moneykeel_function_categories.json",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "9b4fb71d8f",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 1c — the Map: one row per proposed orchestrator — question, screens, figures by identifier, closure by identifier, inputs, decisions, status, question for you, your answer",
+   "todo": "Claude: done 2026-09-13 — moneykeel_calc_spec_orchestrator-map_v01.xlsx tab Map: 22 questions, 164 of 164 rows assigned; built from moneykeel_orchestrator_questions.json (the hand-kept half)",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/standards/moneykeel_calc_spec_orchestrator-map_v01.xlsx",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "8aeaf8d2ba",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 1d — Conflicts: every grouping conflict one row by identifier with a recommendation (two totals for one concept; a function under two questions; two functions for one concept; a figure the screen computes)",
+   "todo": "Claude: done 2026-09-13 — tab Conflicts, 30 rows each with a recommendation; Founder: answer each row",
+   "status": "WAITING ON YOU",
+   "ref": "moneykeel_calc_spec_orchestrator-map_v01.xlsx tab Conflicts",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "33b135c317",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 1e — orphans: orchestrators no row names or no screen imports; functions nobody reaches",
+   "todo": "Claude: done 2026-09-13 — Census rows: 3 of the 4 doors are orphans (basePay named by no row; spending and thisMonth imported by no screen)",
+   "status": "DONE",
+   "ref": "moneykeel_calc_spec_orchestrator-map_v01.xlsx tab Census",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "3716b066e2",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 1 gate — approve the Map, answer Conflicts, name the pilot question (proposed: Social Security timing)",
+   "todo": "Founder: on the Map mark YES per row or say what moves; on Conflicts answer each row; on Census confirm the proposed rows; name the pilot",
+   "status": "WAITING ON YOU",
+   "ref": "moneykeel_calc_spec_orchestrator-map_v01.xlsx — tabs Read me · Map · Census · Conflicts",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "98218ca4a8",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 2 — the loop guards: one producer per figure row; the forward hop read from screen imports; the reverse hop generated from the rows; the trace test",
+   "todo": "Claude: after the phase-1 gate; four guards in build-all.sh",
+   "status": "TO DO",
+   "ref": "moneykeel_calc_spec_one-door-per-question_v01.md § Closing the loop steps 1, 2, 3, 5",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "03188fc492",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 3 — the pilot question through the six steps (row → photograph → door → callers moved one at a time → old doors closed → reconcile)",
+   "todo": "Claude; Founder: verdict on the pilot's row before it is built",
+   "status": "TO DO",
+   "ref": "moneykeel_calc_spec_one-door-per-question_v01.md § How it would be executed",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "8b07b3f5f4",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 4 — will my money last: MK-PL-O-001 thePlan; the 16 files move behind the door",
+   "todo": "Claude; Founder: verdict on its row",
+   "status": "TO DO",
+   "ref": "guard_one_door_will_it_last.test.ts (the 16)",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "32b3372b88",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 5 — every remaining Map row by blast radius, one question at a time, same gate each",
+   "todo": "Claude; Founder: verdict per row",
+   "status": "TO DO",
+   "ref": "moneykeel_calc_spec_orchestrator-map_v01.xlsx tab Map",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "06e4431248",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan · phase 6 — the walls: every ratchet at zero and turned into a wall; Calculation Module code/engines/ emptied and removed; the trace test over all figure rows",
+   "todo": "Claude; Founder: VERIFIED marks",
+   "status": "TO DO",
+   "ref": "moneykeel_calc_spec_one-door-per-question_v01.md § The plan",
+   "date": "2026-09-13",
+   "comments": "",
+   "key": "6ded2cd145",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Orchestrator plan — proposed rule 11: a door DECLARES each figure by identifier beside the code that computes it, the screen prints only by identifier, and the builder generates the master's figure rows from those declarations (deleting the ~140 hand-typed lines that are the origin of every mismatch)",
+   "todo": "Founder: rule on it before the pilot is built — it changes what a door is. As specified today the door hands out property names, not identifiers, and the row is still typed by hand, so two records must be kept in agreement and they drift",
+   "status": "WAITING ON YOU",
+   "ref": "moneykeel_calc_spec_one-door-per-question_v01.md § Proposed rule 11 · build-moneykeel-master.py lines 363–563",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "1a7f26e82e",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The census now finds figures in the CODE, not in the words: the three money formatters are wrapped during the render, so every dollar figure is recorded with the exact file and line that printed it. 303 places, 242 once a figure and its spoken label are merged — 40 already have a row, 105 could be one of several (Claude reads), 97 have none (Claude proposes, you confirm)",
+   "todo": "Claude: done 2026-09-14 — replaces the word-matching that was putting 281 judgements in front of you",
+   "status": "DONE",
+   "ref": "src/__tests__/figure_census.test.tsx · build-orchestrator-map.py · map tab Census",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "40a839c4ff",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The working plan is now GENERATED from moneykeel_workplan.json, and your Status and Comments edits are read back before it is written",
+   "todo": "Claude: done 2026-09-14 after 18 rows were lost — the workbook had been opened in Microsoft Excel and saved from a copy made before the rows were added, and the file is not in git. Edit Status and Comments in Excel as before; they survive. Rows are added by Claude in the source file",
+   "status": "DONE",
+   "ref": "Calculation Module code/scripts/moneykeel_workplan.json · build-workplan.py",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "e1a619234f",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Rule 11 step 1 — a door DECLARES each figure it hands out, beside the code that computes it: identifier, the words on screen, unit, the formula in plain English, inputs, decisions, and what it says when it cannot be computed",
+   "todo": "Claude: done 2026-09-14 — MoneyKeel/functions/_figure-spec.ts (what a declaration holds) and figures.ts (the register, which refuses two doors claiming one identifier). 17 figures declared by MK-CF-O-001 basePay (9) and MK-CF-O-004 incomeSummary (8)",
+   "status": "DONE",
+   "ref": "MoneyKeel/functions/_figure-spec.ts · figures.ts · cashflow/base-pay.ts · cashflow/income-summary.ts",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "17aca12883",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Rule 11 step 2 — a screen prints a figure only by its identifier, so the place that prints carries it; the rounding and the /month · /year wording come from the declaration",
+   "todo": "Claude: done 2026-09-14 — src/components/figure.ts (fig · figPer · figSpoken). Your base pay and Your income now print every figure by identifier: zero raw money() calls left on either. The photograph is byte-identical, so no number and no word on either screen changed",
+   "status": "DONE",
+   "ref": "src/components/figure.ts · src/screens/BasePayScreen.tsx · src/screens/IncomeSummaryScreen.tsx · photograph_figures.test.tsx",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "b79c78466f",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Rule 11 step 3 — the master file's figure rows are PRINTED from the declarations instead of typed; the hand-written lists shrink as each door declares",
+   "todo": "Claude: done 2026-09-14 — the 17 declared figures now generate their own rows on the cashflow tab (181 rows, up from 164), with formula, inputs, decisions, refusal, grain and period all from the code. The four hand-typed lists still hold the other 164 and only fall from here",
+   "status": "DONE",
+   "ref": "build-moneykeel-master.py (declared_for · declared_row) · moneykeel_figures.json · src/__tests__/figure_register_export.test.ts",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "9abc8b8b9b",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Rule 11 guard — a screen may not start printing a figure the file knows nothing about: 673 places in 57 files still format a number directly, frozen as a ratchet that only falls (Your base pay and Your income are already at zero)",
+   "todo": "Claude: done 2026-09-14 — guard_figures_declared.test.ts; each question that declares its figures lowers its files' lines, and at zero the ratchet becomes the wall",
+   "status": "DONE",
+   "ref": "src/__tests__/guard_figures_declared.test.ts · moneykeel_undeclared_figures.json",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "10af6cdb29",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Two figures the base-pay screen was working out itself are now the door's, and the household figure is the SUM of the earners' rather than a second subtraction — a total and its parts cannot disagree (rule 2, his total-assets example)",
+   "todo": "Claude: done 2026-09-14 — basePay gains otherTakenMonthly; MK-CF-M-036 is ONE figure over two sets (one earner, the household), and so is MK-CF-M-031 take-home",
+   "status": "DONE",
+   "ref": "MoneyKeel/functions/cashflow/base-pay.ts · master cashflow tab MK-CF-M-031 · MK-CF-M-036",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "adbc0495e2",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The next questions to declare their figures — each one lowers the ratchet and takes its slice of the findings out of existence",
+   "todo": "Founder: name the order, or approve the Map so it follows the map. Claude recommends the two remaining cash-flow doors next (MK-CF-O-002 spending, MK-CF-O-003 thisMonth — both still orphans, no screen walks through them), then the pilot question",
+   "status": "WAITING ON YOU",
+   "ref": "moneykeel_calc_spec_orchestrator-map_v01.xlsx tab Map · moneykeel_undeclared_figures.json",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "5187a96fdf",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "A declaration now records whether YOU have ruled on it — a figure with no ruling date prints its row marked DRAFT, WAITING FOR YOUR VERDICT, with the question in your usual column (rule 10 made mechanical)",
+   "todo": "Claude: done 2026-09-14",
+   "status": "DONE",
+   "ref": "MoneyKeel/functions/_figure-spec.ts (ruled) · build-moneykeel-master.py · master screen tabs, column 'Row status'",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "69b37bc1fe",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Q-CF-2 'how much have I spent this month, against the plan, and what is left' — eight figures DRAFTED on MK-CF-O-003 thisMonth: expected inflow, planned outflow, planned surplus, each planned line, inflow so far, outflow so far, surplus so far, each received line (MK-CF-M-047…054)",
+   "todo": "Founder: read the eight rows on the master's cashflow tab (Row status says DRAFT) and say yes, or say what changes. Claude: the moment you do, the Cash flow screen, the month detail screen and Home's cell move behind the door and stop working figures out themselves",
+   "status": "WAITING ON YOU",
+   "ref": "master · cashflow tab · MK-CF-M-047 to MK-CF-M-054 · MoneyKeel/functions/cashflow/this-month.ts",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "9722ba16a0",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Post Feedback Sync (PFS) named — your word for: fold every feedback copy of yours into its original, keep your words exactly, answer your questions on the row, rebuild and check, archive the copy with the date, report with a coverage line",
+   "todo": "Claude: done 2026-09-14 — written into the naming standard (§ Post Feedback Sync), the repo rules (CLAUDE.md) and memory; the build now prints how many feedback files are waiting for a PFS",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md § Post Feedback Sync · CLAUDE.md · build-all.sh",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "b44d115459",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "PFS 2026-09-14 — the master file: your feedback copy read in full (36 cells of yours, plus a cell-by-cell comparison with the master); 32 already in, 3 comments restored to your exact words, 1 new comment answered on its row; copy archived",
+   "todo": "Claude: done 2026-09-14 — your new comment on MK-XS-M-001 ('Not sure what you want me to approve?') stays on the row and is answered there; archived as other/JJ-feedback-archive/2026-09-14_folded-in_moneykeel_calc_master_calculation-master_v01-jj.xlsx",
+   "status": "DONE",
+   "ref": "master · multiple_screens · MK-XS-M-001 · networth MK-NW-M-029/030 · functions_from_code MK-XS-F-143",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "25f2fd07c8",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Defect found by the PFS: the file-wide wording pass (2026-09-13) had rewritten your own words — 'why dependency on engine and not function?' read 'why dependency on function and not function?', and two of your rulings on the rulings tab had 'engine' changed",
+   "todo": "Claude: done 2026-09-14 — your columns and your rulings are skipped by the wording pass, your originals restored from your copy, and the master build now STOPS if any cell you typed or any ruling in your words changes",
+   "status": "DONE",
+   "ref": "build-moneykeel-master.py (the final wording pass · his words unchanged check)",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "2396c8385b",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "PFS 2026-09-14 — the audit files: your two feedback copies archived on 2026-09-12 compared cell by cell with the live files — 63 entries of yours; 61 were already in, 2 were not and are now: your 'ok' on G31 (assessment) and your corrected wording 'do not' on synonym ruling 11, which still read 'dod not' in the synonym workbook and on the rulings ledger. The Build 54 findings workbook (9 findings, all fixed or built) archived",
+   "todo": "Claude: done 2026-09-14 — archived as audit/JJ-feedback-archive/2026-09-14_folded-in_moneykeel_build_audit_device-test-build-54-feedback_v01.xlsx; the Build 54 test checklist is not feedback and stays",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/audit/ · audit/JJ-feedback-archive/",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "89befb6230",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Two questions from your build-53 onboarding notes, still open: (1) your note says 'connect your first account' where the door says 'Connect your bank ›' — which wording? (2) 'circular loop' — which screens loop, and what should happen instead?",
+   "todo": "Both closed 2026-09-14. (1) You answered \"Connect your bank\": Home was the only screen still saying 'Connect your first account ›'; it now uses the same words as every other screen, the onboarding spec is v02, and the build fails if the old words come back. (2) 'Circular loop' needed nothing from you. It was Home's first-run screen: 'Or answer guided setup questions ›' and 'Pick up where you left off →' both sent you straight back to Home, so the guided setup could never be reached. It was fixed on 2026-08-28, shipped in Build 54, and a test holds it. I should not have asked: the answer was already in the code.",
+   "status": "DONE",
+   "ref": "master · rulings tab · row 'Onboarding notes, build 53' · src/constants/doors.ts",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "57b8be7c48",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Same door, two destinations: Home's 'Add something by hand ›' opens the Net worth tab, while the same door on Sharpen your plan and What counts toward retirement opens Add account. The small line under it also differs: Home says 'Add it by hand — your home, savings, or an account with no login.', the other two say 'Your home, savings, or an account with no login.'",
+   "todo": "Done 2026-09-14 on your \"love it. do it.\": the door opens the Add account form in one tap on all three screens, with one line under it; the first account saved by hand also creates the rows for accounts you named during setup. Onboarding spec v03. A guard fails if any screen types a door itself.",
+   "status": "DONE",
+   "ref": "src/constants/doors.ts · src/screens/HomeScreen.tsx (first-run block)",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "cd71a64119",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The design changelog has no row after 2026-09-02, although the same-day changelog standing order asks for one on every approval — the cluster rulings of 2026-09-10, the empty-state mock of 2026-09-12 and others are missing; today's two door rulings are now in",
+   "todo": "Claude: backfill one dated row per approval from 2026-09-03 to 2026-09-13, from the rulings ledger",
+   "status": "TO DO",
+   "ref": "docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-2026-08-14.xlsx · tab Changelog",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "dedeb4bb1a",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One door, one term: the three ways to add an account read 'Link it (read-only)', 'Add by hand' and 'Import from a file' on every screen, under the heading 'How do you want to add an account?' — Home, Sharpen your plan, the Plan tab, Net worth (first day and the add sheet), the Connect an account screen and Performance",
+   "todo": "Founder: approve the mock MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html (every affected screen, before and after). Claude: then build all of it the same day, with the tests and the canon row",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html · rulings ledger · src/constants/doors.ts",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "952fc13d73",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Screen titles are not one size in the app, and the standard never set one: 31 screens use 24 points, Will it last and Look back use 20, Cash flow uses 30, and the Net worth tab has no screen title at all (founder 2026-09-14: \"we cannot have screen without title\")",
+   "todo": "Ruled 2026-09-14: one size, 20 points; and a title is not required on every screen (the Net worth tab stays without one). Claude: code 20 points on every screen title with a guard test, the same day",
+   "status": "DONE",
+   "ref": "docs/FCC-core-55-70/FCC-core-UX-design-v1.2-2026-08-04.xlsx (Type & readability 65+: the scale only) · src/screens/CashFlowScreen.tsx · WillItLastScreen.tsx · LookBackScreen.tsx · NetWorthScreen.tsx",
+   "date": "2026-09-14",
+   "comments": "2026-09-14: coded. 38 title styles on every screen are now 20 points, and a guard test fails if one is not. Mock v10 of the ways-to-add-an-account page draws every title at 20.",
+   "key": "3067c907cc",
+   "_written": {
+    "status": "DONE",
+    "comments": "2026-09-14: coded. 38 title styles on every screen are now 20 points, and a guard test fails if one is not. Mock v10 of the ways-to-add-an-account page draws every title at 20."
+   }
+  },
+  {
+   "task": "MoneyKeel at the top of every screen — today only the five tab screens show it; every pushed screen (Import from File, Add by hand, Link an account, Sharpen your plan and the rest) has a native bar or none",
+   "todo": "Claude: draw it on every pushed screen in mock v10 (‹ Back in place of Menu); Founder: approve before it is built",
+   "status": "WAITING ON YOU",
+   "ref": "src/components/TopBar.tsx · app/_layout.tsx · mock v10",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "66d6399baa",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One standard for designing a new screen — every rule a screen and its mock must meet, in one document, so a mock is right before it reaches you (founder 2026-09-14: \"We spent 5 hours trying to design one set of screens\")",
+   "todo": "Claude: write it after mock v10, from every standard that exists today",
+   "status": "TO DO",
+   "ref": "MoneyKeel/documents/standards/",
+   "date": "2026-09-14",
+   "comments": "",
+   "key": "7437057924",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The master's STATUS column said NOTHING OPEN on the eight cash flow rows that wait on your verdict (MK-CF-M-047 to MK-CF-M-054, Row status DRAFT)",
+   "todo": "Claude: fixed 2026-09-14 — every DRAFT row now reads WAITING ON YOU in STATUS and is coloured yellow, on every tab",
+   "status": "DONE",
+   "ref": "master · cashflow tab · rows MK-CF-M-047 to MK-CF-M-054 · column STATUS — this row · build-moneykeel-master.py",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One standard for creating a new screen: every rule a screen and its mock must meet, in one document (founder 2026-09-14: \"We spent 5 hours trying to design one set of screens\")",
+   "todo": "Written and sent 2026-09-14 (draft v01). Founder: read it and say yes, or say what changes; three rulings inside it wait on you (section 6): the MoneyKeel top bar on screens opened from another screen, one sheet title size, and mock v10",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The Plan tab does not match the Plan design you approved (Claude Design Plan v4, brief v3-2026-08-14, built for Build 53). Built from it: the two dials, the typed target, Retire / Goals / Prepare, 'Can I spend more?' in plain English, the Social Security row. NOT built: 'Your plan at a glance' — seven equal question rows, collapsed, dials staying small while it is open. Today's app still shows the 08-12 layout you rejected (FACTS — SAVE AS YOU GO · WHAT COUNTS TOWARD RETIREMENT · BIG ONE-TIME COSTS · CHOICES — TRY THEM), rows as labels not questions, and the Roth row as 'Is a Roth move worth it?' instead of 'Is converting to a Roth worth it?'. The seven-row component (src/components/PlanGlanceRows.tsx) exists and no screen uses it. The 49-check audit of 08-15 never checked the glance.",
+   "todo": "Founder: say whether to (a) run a full mock-match audit of the Plan tab against the v4 design, then mock the tab as approved with today's rulings, then build — or say otherwise. Claude: mock v10 sections 4 and 5 were drawn from today's code, so they show the rejected layout; they are not to be approved as they stand",
+   "status": "WAITING ON YOU",
+   "ref": "August 14th Design/design_handoff_net_worth/Plan.dc.html · August 14th Design/PLAN-REDESIGN-BRIEF-v3-2026-08-14.md §3.2 · src/screens/PlanHubScreen.tsx · src/components/PlanInputs.tsx · census /plan (4 of 4 states show FACTS and CHOICES, 0 show the glance)",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Nothing recorded which design each screen was built from. The Build 53 Net worth and Performance finals (networth-FINAL.html, performance-FINAL.html, the two Net worth PDFs, Net worth screens 01 to 11) were filed under networth-and-performance/archive/ on 2026-09-01, which marks them replaced. They were not replaced. Six hours of mocks then started from the wrong files. CORRECTION 2026-09-14: Build 53 Net worth was built from Quiet Instrument mock v5 (full-width banners, 2026-08-11) on top of networth-FINAL, plus square bar corners built the same day with no mock (founder: 'no mock up ... just build it'). No mock file draws the square-cornered screen; v5 still shows rounded top corners.",
+   "todo": "Claude: done 2026-09-14 — Build 53 files matched by exact content and recorded in MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md. Founder: (1) confirm Net worth = v5 + square corners; (2) say whether to draw Net worth v6 from the Build 53 code (v5 with square corners) so one picture matches what shipped; (3) say whether to move the Build 53 set out of archive/. Home, Cash flow and the other screens are still to be traced.",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/networth-and-performance/archive/2026-08-10_moneykeel_pres_mock_net-worth_v01.html · …_performance_v01.html · commit 263f741",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Net worth mock v06 — one picture of the Net worth screen as Build 53 shipped it (Quiet Instrument v5 plus the square, edge-to-edge bars and the other changes built 2026-08-11 to 08-14 without a mock)",
+   "todo": "Claude: done 2026-09-14 — all seven states rendered from the Build 53 code (commit 263f741) and saved as MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v06.html; the July net-worth_v06 moved to archive/. Founder: confirm this is the Net worth screen you approved.",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v06.html · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "date": "2026-09-14",
+   "comments": "2026-09-14 founder: \"This is the right one.\" Recorded in the design changelog the same day.",
+   "_written": {
+    "status": "DONE",
+    "comments": "2026-09-14 founder: \"This is the right one.\" Recorded in the design changelog the same day."
+   }
+  },
+  {
+   "task": "Net worth v07 — the three ways to add an account on Net worth (first day, the add sheet, the add button), plus every ruling since Build 53 that touches the screen (empty state, Debts, Emergency fund, Stocks / Funds, /month, you entered, expenses, odds to the nearest 5), each marked",
+   "todo": "Founder: say yes to v08, or name a mark. Also: today's money for the retirement figures and tax on taxable withdrawals (recommended); whether dark/light bars replace the Plan tab's quiet labels. Claude: once approved, record v08 as the current Net worth design, archive v06, then build marks 1–4 and 10–14 with tests (odds exact and Linked / Link again are app-wide).",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html (v07 in archive/)",
+   "date": "2026-09-14",
+   "comments": "2026-09-14 founder reviewed v07: odds exact · return 2 decimals · keep Tight ⚠ · Linked unless stale · Linked / Link again · dark bars for sections, light-green for sub-headings · state C too much duplication · asked whether the retirement figures are right. v08 answers all of it.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "2026-09-14 founder reviewed v07: odds exact · return 2 decimals · keep Tight ⚠ · Linked unless stale · Linked / Link again · dark bars for sections, light-green for sub-headings · state C too much duplication · asked whether the retirement figures are right. v08 answers all of it."
+   }
+  },
+  {
+   "task": "The master still named two Net worth figures with retired words: MK-NW-M-009 'WHAT YOU OWE · 💳 DEBTS' and MK-NW-M-013 'EMERGENCY CUSHION — X.X months', while the app says DEBTS and EMERGENCY FUND (canon rows 10 and 6)",
+   "todo": "Claude: fixed 2026-09-14 in build-moneykeel-master.py (the names are typed there) and the master rebuilt. The canon check never read that list — to add to the guard.",
+   "status": "DONE",
+   "ref": "Calculation Module code/scripts/build-moneykeel-master.py · master networth tab MK-NW-M-009, MK-NW-M-013",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The retirement sentence (Net worth, Plan, Home) prints future dollars without saying so, and the odds calculation charges no tax on withdrawals from taxable accounts — found checking the founder's question on v07 ($4.1M at 65 is about $2.0M in today's money)",
+   "todo": "Founder: say whether to show today's money and to tax taxable withdrawals (recommended). Claude: then write both as findings on the master rows (MK-XS-M-002 and the pot/leftover figures) before any code.",
+   "status": "WAITING ON YOU",
+   "ref": "src/domain/retirement/index.ts simulate (MK-PL-F-050) · src/domain/retirement/willItLast.ts willItLastInputs (MK-PL-F-067) · onCourseSentence",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  }
+ ]
+}

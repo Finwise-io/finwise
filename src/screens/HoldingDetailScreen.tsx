@@ -2,6 +2,7 @@
 // full story — what you own, what you paid, what it's worth, how it compares, and the tax facts
 // if you sold (clearly an estimate). Every number is the SAME helper the Invest main list uses;
 // nothing is recomputed differently here (r24: same row object, no recomputation).
+import { quantityWithUnit } from '../domain/performance';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -13,7 +14,7 @@ import { useStore } from '../store/useStore';
 import { coverageFor } from '../../Calculation Module code/engines/coverage';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { maskedMoney, maskedMoney2, maskedPrice3, spokenMoney } from '../components/useMoney';
+import { maskedMoney, maskedMoney2, maskedPrice, coinQuantity, spokenMoney } from '../components/useMoney';
 import { realizedFromLedger } from '../domain/performance/realized';
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
@@ -167,7 +168,8 @@ export default function HoldingDetailScreen() {
         {closed ? (
           <>
             <Text style={s.big}>{maskedMoney(0)}</Text>
-            <Text style={s.gainLine}>Position closed — all shares sold. Its history is kept below.</Text>
+            {/* Q48 does not apply here: a holding page exists only once a holding was entered, so $0 means sold */}
+            <Text style={s.gainLine}>Holding liquidated — all shares sold. Its history is kept below.</Text>
           </>
         ) : hasPrice ? (
           <>
@@ -203,8 +205,8 @@ export default function HoldingDetailScreen() {
                 <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text>
                   <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{maskedMoney2(Math.abs(gain))}{roi != null ? ` (${pct(roi)})` : ''}</Text></View>
               )}
-              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{shares} share{shares === 1 ? '' : 's'}</Text></View>
-              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{maskedPrice3(rawAvg)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{maskedPrice(rawAvg)}</Text></View>
             </View>
           </>
         ) : (
@@ -213,8 +215,8 @@ export default function HoldingDetailScreen() {
             <Text style={s.big}>{maskedMoney2(value)}</Text>
             <Text style={s.metaLine}>⏱ live pricing arrives with the price provider</Text>
             <View style={s.tblTop}>
-              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{shares} share{shares === 1 ? '' : 's'}</Text></View>
-              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{maskedPrice3(rawAvg)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{maskedPrice(rawAvg)}</Text></View>
             </View>
             <Text style={s.note}>No market compare, dividends or tax estimate without a live price — sections appear when pricing does. Nothing invented.</Text>
           </>
@@ -324,7 +326,7 @@ const s = StyleSheet.create({
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: Spacing.sm },
   back: { color: Colors.primary, fontSize: 17, fontWeight: '700' },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
   big: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },

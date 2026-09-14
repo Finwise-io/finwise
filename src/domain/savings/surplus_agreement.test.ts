@@ -1,10 +1,9 @@
 // SURPLUS AGREEMENT (Theme 1 P0, 2026-06-23 decision): "Surplus" = take-home − spending − debt (AFTER
 // debt), one definition, shown as "Planned" (CashFlow/Budget/recap) and "Actual" (Home). This pins the
-// math so the four surfaces can never drift back to the B-67 fork (Home "Left over" ≠ CashFlow "Surplus").
+// math so the four surfaces can never drift back to the B-67 fork (Home "Surplus" ≠ CashFlow "Surplus").
 import { takeHomeMonthly, monthlySavings, surplusByMonth } from './index';
 import { plannedMonthlySpend } from '../budget';
 import { actualDebtPayment, type Debt } from '../debt';
-import { round2 } from '../_shared/num';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -16,13 +15,13 @@ const debts: Debt[] = [{
 
 describe('surplus = take-home − spending − debt (canonical, after debt)', () => {
   test('monthlySavings IS take-home − planned spend − debt', () => {
-    expect(monthlySavings(op, debts)).toBe(
-      round2(takeHomeMonthly(op) - plannedMonthlySpend(op) - actualDebtPayment(debts)),
+    expect(monthlySavings(op, debts)).toBeCloseTo(
+      takeHomeMonthly(op) - plannedMonthlySpend(op) - actualDebtPayment(debts), 2,
     );
   });
 
   test('debt reduces surplus by exactly the debt service (proves AFTER-debt)', () => {
-    expect(monthlySavings(op, debts)).toBe(round2(monthlySavings(op, []) - actualDebtPayment(debts)));
+    expect(monthlySavings(op, debts)).toBeCloseTo(monthlySavings(op, []) - actualDebtPayment(debts), 2);
   });
 
   test('surplusByMonth grid reconciles with the scalar (avg ≈ monthlySavings)', () => {
@@ -36,7 +35,7 @@ describe('surplus = take-home − spending − debt (canonical, after debt)', ()
     const debt = actualDebtPayment(debts);
     const withDebt = surplusByMonth(op, debts);
     const noDebt = surplusByMonth(op, []);
-    withDebt.forEach((m, i) => expect(m.amount).toBe(round2(noDebt[i].amount - debt)));
+    withDebt.forEach((m, i) => expect(m.amount).toBeCloseTo(noDebt[i].amount - debt, 2));
   });
 });
 
@@ -45,22 +44,22 @@ const screen = (f: string) => fs.readFileSync(path.join(__dirname, '..', '..', '
 
 test('CashFlow THIS-MONTH surplus = In − Out from the SAME month cell (B46 finding 7)', () => {
   // The card's equals sign must be TRUE BY CONSTRUCTION: surplus derives from the very cell the
-  // In/Out rows display — never a second engine (monthlySavings measured a related-but-different
+  // In/Out rows display — never a second function (monthlySavings measured a related-but-different
   // concept and disagreed by $572 on the founder's device).
   const s = screen('CashFlowScreen.tsx');
   expect(s).toMatch(/const surplus = Math\.round\(inflow - outflow\)/);
-  expect(s).not.toMatch(/monthlySavings\(/);        // the second engine stays out of this screen
+  expect(s).not.toMatch(/monthlySavings\(/);        // the second function stays out of this screen
   expect(s).toMatch(/Planned surplus/);
   expect(s).toMatch(/useCashflowModel/);           // by-month = the ONE dated grid
   expect(s).not.toMatch(/savingsByMonth\(op\)/);   // the old before-debt grid must be gone
 });
 
-test('Home labels the actual cash-flow residual "Surplus" (not "Left over")', () => {
+test('Home labels the actual cash-flow residual "Surplus" (not "Surplus")', () => {
   // FCC Home displays hero/net-worth/insights/will-it-last only — it renders NO cash-flow residual
   // of its own (one home per number: Cash flow owns it). The shared surplus sheet keeps the word.
   const s = screen('HomeScreen.tsx');
   expect(s).not.toMatch(/>Surplus</);
-  expect(s).not.toMatch(/>Left over</);
+  expect(s).not.toMatch(/>Surplus</);
   const sheets = fs.readFileSync(path.join(__dirname, '..', '..', 'components', 'MoneySheets.tsx'), 'utf8');
   expect(sheets).toMatch(/surplus to work/);
 });
@@ -69,11 +68,11 @@ test('Budget plan total = canonical take-home − spend − debt, labeled "Plann
   const s = screen('BudgetScreen.tsx');
   expect(s).toMatch(/takeHomeMonthly\(op\)/);
   expect(s).toMatch(/Planned surplus/);
-  expect(s).not.toMatch(/Left over to save/);
+  expect(s).not.toMatch(/Surplus to save/);
 });
 
 test('Goals "free cash to save" capacity = canonical AFTER-debt surplus (build-34 #1)', () => {
   const s = screen('GoalsScreen.tsx');
   expect(s).toMatch(/surplusByMonth\(/);              // uses the after-debt grid
-  expect(s).not.toMatch(/savingsByMonth\(op\)/);      // NOT the before-debt grid (over-stated "free up $/mo" by the whole debt payment)
+  expect(s).not.toMatch(/savingsByMonth\(op\)/);      // NOT the before-debt grid (over-stated "free up $/month" by the whole debt payment)
 });

@@ -72,3 +72,4 @@ const s = StyleSheet.create({
   note: { fontSize: 11, color: Colors.textTertiary, marginTop: 8, lineHeight: 16 },
   radii: { borderRadius: Radii.lg },
 });
+

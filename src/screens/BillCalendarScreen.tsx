@@ -1,5 +1,5 @@
 // Bill calendar v2 (FCC detailed design v1.1, Cash flow r34-r43): the SAME 12 dated months as
-// everywhere else, viewed as a running-balance table — money in, money out, and what's left at
+// everywhere else, viewed as a running-balance table — money in, money out, and the surplus at
 // the end of each month, starting from real cash on hand. Big bills get day-level treatment
 // ('will the money be there two days before it's due?'). Dated bills are added and edited HERE,
 // and a deferred loan visibly starts paying in its real first month. One grid (F2), no second math.
@@ -55,7 +55,7 @@ export default function BillCalendarScreen() {
     paymentShape(d) === 'due_in_full' && (d.remaining_balance || 0) > 0 && d.payoff_date), [liabilities]);
   const critical = (Array.isArray(op.spendCats) ? op.spendCats : []).filter((c: any) => (c.tier ?? 'flex') === 'critical' && num(c.amount) > 0);
 
-  // ── add / edit a dated bill (r41): writes a non-monthly spending category, year supported ──
+  // ── add / edit a dated bill (r41): writes a non-monthly expenses category, year supported ──
   const [form, setForm] = useState<{ open: boolean; id?: string; label: string; amount: string; month: number; day: string; year: string; yearly: boolean; essential: boolean }>(
     { open: false, label: '', amount: '', month: new Date().getMonth() + 1, day: '', year: '', yearly: true, essential: true });
   const saveBill = () => {
@@ -87,7 +87,7 @@ export default function BillCalendarScreen() {
         <Text style={styles.h1}>Bill calendar</Text>
         <Text style={[styles.sub, { textAlign: 'center' }]}>
           This calendar maps when your money lands against when your bills are due — it's built from
-          the income and spending you enter during setup.
+          the income and expenses you enter during setup.
         </Text>
         <TouchableOpacity accessibilityRole="button" style={styles.gateBtn}
           onPress={() => { store.setOnboardingPaused?.(false); router.replace('/onboarding'); }}>
@@ -110,7 +110,7 @@ export default function BillCalendarScreen() {
   return (
     <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Bill calendar</Text>
-      <Text style={styles.sub}>{grid.cells[0]?.label} {grid.cells[0]?.year} – {grid.cells[11]?.label} {grid.cells[11]?.year} · when money lands, when bills are due, and what's left.</Text>
+      <Text style={styles.sub}>{grid.cells[0]?.label} {grid.cells[0]?.year} – {grid.cells[11]?.label} {grid.cells[11]?.year} · when money lands, when bills are due, and the surplus.</Text>
 
       <View style={styles.card}>
         <Text style={styles.fieldL}>Cash on hand now</Text>
@@ -173,7 +173,7 @@ export default function BillCalendarScreen() {
           ))}
           {dueInFullDebts.map((d: any) => (
             <View key={d.debt_id} style={styles.billRow} accessible
-              accessibilityLabel={`${d.label}: ${spokenMoney(d.remaining_balance)} due in full ${fmtDate(d.payoff_date)}. No monthly payment — plan for the lump sum.`}>
+              accessibilityLabel={`${d.label}: ${spokenMoney(d.remaining_balance)} due in full ${fmtDate(d.payoff_date)}. No monthly payment — the full balance is due on that date.`}>
               <Text style={styles.billName}>{d.label} — {maskedMoney(d.remaining_balance)} due in full {fmtDate(d.payoff_date)}</Text>
               <Text style={styles.billShort}>One lump payment, not a monthly bill — it's in that month's Out column.</Text>
             </View>
@@ -227,7 +227,7 @@ export default function BillCalendarScreen() {
             </View>
             {!form.yearly && (
               <View style={{ flex: 1 }}>
-                <Text style={styles.fieldL}>Year (one-off)</Text>
+                <Text style={styles.fieldL}>Year (one-time)</Text>
                 <TextInput style={styles.input} keyboardType="number-pad" placeholder={String(new Date().getFullYear())} placeholderTextColor={Colors.textTertiary}
                   value={form.year} onChangeText={(t) => setForm({ ...form, year: t })} accessibilityLabel="Year, for a one-time bill" />
               </View>
@@ -268,7 +268,7 @@ export default function BillCalendarScreen() {
         </View>
       )}
 
-      <Text style={styles.foot}>A forward plan, not a promise: spending uses your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose. Tap any row for that month's full detail.</Text>
+      <Text style={styles.foot}>A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose. Tap any row for that month's full detail.</Text>
       <View style={{ height: 40 }} />
     </KeyboardAwareScreen>
   );
@@ -276,7 +276,7 @@ export default function BillCalendarScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   gateWrap: { flex: 1, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
   gateEmoji: { fontSize: 38 },
   gateBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, paddingHorizontal: 28, marginTop: Spacing.md },

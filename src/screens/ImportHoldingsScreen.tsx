@@ -235,7 +235,7 @@ export default function ImportHoldingsScreen() {
           </View>
         </View>
 
-        <Text style={styles.note}>🔒 The file is read on this device; your saved data syncs encrypted to your cloud backup. Prices update once you open Net Worth or Investments.</Text>
+        <Text style={styles.note}>🔒 The file is read on this device; your saved data syncs encrypted to your cloud backup. Prices update once you open Net worth or Performance.</Text>
 
         <TouchableOpacity style={[styles.primary, (busy || !institution.trim()) && { opacity: 0.6 }]} onPress={confirmImport} disabled={busy || !institution.trim()} accessibilityRole="button"
           accessibilityLabel={!institution.trim() ? 'Name the institution first, then import' : `Import ${result.holdings.length} holdings`}>
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
   emoji: { fontSize: 38, textAlign: 'center', marginTop: 8 },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, textAlign: 'center' },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, textAlign: 'center' },
   sub: { fontSize: 15, color: Colors.textSecondary, lineHeight: 20, textAlign: 'center', marginTop: 6, marginBottom: Spacing.lg },
   bold: { fontWeight: '800', color: Colors.textPrimary },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginBottom: Spacing.base },

@@ -128,6 +128,57 @@ Read downwards. Net worth, as it actually works today.
 
 ---
 
+## A sentence names what it is about (founder, 2026-09-12)
+
+"Let's not assume that the reader knows what the statement is referring to. Always be explicit." A
+sentence on a screen, in the file or in a mock names its subject — the figure, the row, the account —
+inside the sentence. "So this reads high — by roughly $880 a month" failed the rule: nothing said what
+"this" was. "The take-home above is higher than it will really be, by roughly $880 a month" passes.
+The same applies to a note that follows a figure: it says which figure, never "it" or "this".
+
+## One term per concept — the canon
+
+Founder standing order 2026-09-02 ("always use the same words to describe the same thing"), and the
+sixteen cluster rulings of 2026-09-10 (synonym workbook v02). One word for one concept in every place a
+person can read it: screen copy, spoken labels, notes, and the comments in the code — a comment is where
+a retired word creeps back. The guard `src/__tests__/one_term_per_concept.test.ts` reads THIS table and
+nothing else, and fails on any retired word. A row is added here the day its concept is ruled. Its
+status follows the one vocabulary (RULED, NOT CODED · CODED, NOT TESTED · TESTED, NOT VERIFIED ·
+VERIFIED); it becomes VERIFIED only on the founder's mark, and the synonym-workbook row closes then.
+
+How the "Retired" column is read by the guard: entries are separated by " · ". A plain entry is a whole
+phrase, matched exactly as cased. An entry in backticks written `/…/` is a regular expression (a
+trailing `i` means any casing). Identifiers in code are not copy and are not checked; a single lowercase
+token in quotes is a code value, not copy.
+
+| # | Concept | The one word | In context | Retired · never again | Status | Ruled |
+|---|---|---|---|---|---|---|
+| 0a | Money after tax and everything taken out | take-home | Base salary (take-home) · Income (take-home) | `/lands in \S+ bank\b/` · `/lands in \S+ account\b/` · what lands · `/takes home ≈?\$/` · `/\bAfter Tax\b/` | TESTED, NOT VERIFIED | 2026-09-02 |
+| 0b | A figure the app computed, not entered | calculated | "(calculated)" beside the figure | worked out · `/\bour estimate\b/` · Estimated federal tax · work it out · work them out · work this out · work these out · estimated from your | TESTED, NOT VERIFIED | 2026-09-02 |
+| 1 | The money left after everything out, per month | Surplus | Planned surplus · Surplus after your budget | Left over · LEFT OVER · Left to spend · left to spend · LEFT TO SPEND · Free to spend · free to spend · `/what[’']s left\b/` · `/^Available$/` | TESTED, NOT VERIFIED | 2026-09-10 |
+| 2 | The retirement success percentage | odds — "In 78 out of 100 simulated futures, your money lasts to age 90." | odds it lasts · odds of running short | chance it lasts · chance of lasting · chance of running short · % of scenarios · of every 100 futures · future simulation · future simulations · `/\bout of 10\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
+| 3 | The money going out in a month | Expenses — in prose too (founder, 2026-09-12): "spending" is retired everywhere; the verb "spend" stays | planned expenses · actual expenses · recurring expenses · Outflow (expenses + debt) — the brackets say what is inside | outgo · Spent so far · `/\b[Ss]pending\b/` · SPENDING · Actual spend · Planned out · `/\bOut \(/` · essential bills · must-pay bills | TESTED, NOT VERIFIED | 2026-09-10 |
+| 4 | A figure the person gave us | you entered | what you entered · the amounts you entered | you told us · you set it · set by you · you typed · captured amounts · income captured | TESTED, NOT VERIFIED | 2026-09-10 |
+| 5 | The money arriving in a month | Inflow (…) — the brackets name the sources: Inflow (income (take-home) + rent) | Planned inflow · Actual inflow (…) | MONEY IN · `/\bMoney [Ii]n\b(?! [a-z])/` · Expected in · In (take-home) · In (received) · A usual month | TESTED, NOT VERIFIED | 2026-09-10 |
+| 6 | Cash saved for emergencies | Emergency fund | — | cushion · Cushion · CUSHION | TESTED, NOT VERIFIED | 2026-09-10 |
+| 7 | The per-category monthly plan | Budget | your expense budget · Set your budget | monthly plan · expense plan · spending plan · Set limits · category limits | TESTED, NOT VERIFIED | 2026-09-10 |
+| 8 | Pay before anything comes out | Gross (before any deductions) — income before tax is NOT gross (gross − 401(k) − premiums) | — | Gross (before tax) · `/before tax\)/` | TESTED, NOT VERIFIED | 2026-09-10 |
+| 9 | The investments tab, when other screens point to it | Performance, and Net worth | — | from Portfolio · Investments tab · Portfolio tab · open Net Worth or Investments | TESTED, NOT VERIFIED | 2026-09-10 |
+| 10 | Money owed | Debt — the types stay (mortgage, card, loan); the info dot says "Debt is the amount you owe" | Debt balance | WHAT YOU OWE · Amount you owe · Still owed on it | TESTED, NOT VERIFIED | 2026-09-10 |
+| 11 | One ticker inside an account | Holding — never a blind swap for "position"; the sale notice says "Holding liquidated — all shares sold"; the sale buttons say "Sell all" (everything) and "Sell" (part) (founder, 2026-09-12) | Stocks / Funds · Sell all · Sell | Position closed · Close position · Record sale · Record a sale · Stocks & funds · Shares and funds | TESTED, NOT VERIFIED | 2026-09-10 |
+| 12 | The logged ledger rows | activity | this month’s activity | `/month[’']s transactions/` · Check your transactions · your transactions · Records a Debt payment | TESTED, NOT VERIFIED | 2026-09-10 |
+| 13 | Money that arrives or leaves once | one-time — "lump sum" is NOT always one-time; a debt due at once says "the full balance is due on that date" (founder, 2026-09-12) | — | one-off · One-off · ONE-OFF · plan for the lump sum | TESTED, NOT VERIFIED | 2026-09-10 |
+| 14 | How a label says per month / per year | /month · /year · /quarter · /week · /2 weeks (founder, 2026-09-12) | $500/month · Gross /year | `/\/mo\b/` · `/\/yr\b/` · `/\/qtr\b/` · `/\/wk\b/` · `/\/2wk\b/` · Gross a year · take-home a year · `/\$[\d,]+ a month\b/` · `/\$[\d,]+ a year\b/` · `/\} ?a month\b/` · `/\} ?a year\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
+| 15 | Naming the will-it-last question | Will my money last — one form for both lenses | WILL MY MONEY LAST? | IS MY MONEY LASTING · Is my money lasting · MONEY-LASTS | TESTED, NOT VERIFIED | 2026-09-10 |
+| 16 | The other adult in the household | spouse | Spouse’s name · your spouse | `/\b[Pp]artners?\b/` · `/\b[Pp]artner[’']s\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
+| 17 | The door that links a bank or brokerage account | Connect your bank ›  (founder, 2026-09-14) | the door title on Home, Sharpen your plan and What counts toward retirement — one list, src/constants/doors.ts | `/\bconnect your first account\b/i` | TESTED, NOT VERIFIED (2026-09-14) — src/screens/__tests__/first_run_lens.test.tsx pins Home to the list | 2026-09-14 |
+| 0c | what produces a figure | function (the one answering a whole question: orchestrator function) | Identifier standard 2026-08-22: `E` retired — "a word invented for something that does not exist in the code"; enforced in copy and comments 2026-09-13 | `/(?<!code\/)\bengines?\b(?!-old-tab)/i` | TESTED, NOT VERIFIED (2026-09-13) — the guard reads this row; the folder path `Calculation Module code/engines/` and the `engines-old-tab` sheet are spared until that folder empties into `MoneyKeel/functions/` | 2026-08-22, identifier standard (`E` retired); guard 2026-09-13 |
+
+Two things the guard also holds that are not synonyms: a run-count on screen must say 1,000 (the
+simulation runs 1,000 paths — `~400` is retired), and the words in the code's own comments count.
+
+---
+
 ## Where each of these lives in the master file
 
 | Word | Tab |

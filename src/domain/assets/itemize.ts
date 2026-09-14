@@ -5,7 +5,6 @@
 //
 // THE INVARIANT (trust): the account total NEVER drifts. A positive remainder (lump − Σ holdings) is kept
 // as a cash sleeve at the same institution, so  Σ(itemized) + remainder  ===  the lump you started with.
-import { round2 } from '../_shared/num';
 import type { AssetAccount, TaxBucket } from './index';
 
 export type ItemClass = 'stocks_etf' | 'bonds' | 'alternatives' | 'cash';
@@ -31,7 +30,7 @@ const KIND_FOR: Record<ItemClass, string> = {
  * Answers ..... Σ of the itemized holding values.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = Σ over items of (value, or 0 when missing)
  *
  * Called by ... MK-NW-F-050 itemizeRemainder · MK-NW-F-051 itemizedResultTotal
  *
@@ -48,7 +47,7 @@ const KIND_FOR: Record<ItemClass, string> = {
  * Changed ..... 2026-06-28 (e637ba5)
  */
 export const itemizedTotal = (items: ItemHolding[]): number =>
-  round2(items.reduce((t, h) => t + (h.value || 0), 0));
+  (items.reduce((t, h) => t + (h.value || 0), 0));
 
 /** Lump balance − Σ holdings. Positive = still unallocated; negative = holdings exceed the entered total. */
 /* ─ MK-NW-F-050 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -57,7 +56,7 @@ export const itemizedTotal = (items: ItemHolding[]): number =>
  * Answers ..... Lump balance − Σ holdings.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = (lump balance, or 0) − itemized total(items)
  *
  * Called by ... MK-NW-F-051 itemizedResultTotal · MK-NW-F-052 buildItemizedAccounts
  *
@@ -73,7 +72,7 @@ export const itemizedTotal = (items: ItemHolding[]): number =>
  * Changed ..... 2026-06-28 (e637ba5)
  */
 export const itemizeRemainder = (lumpBalance: number, items: ItemHolding[]): number =>
-  round2((lumpBalance || 0) - itemizedTotal(items));
+  ((lumpBalance || 0) - itemizedTotal(items));
 
 /** The account total AFTER itemizing. With keep-as-cash and a non-negative remainder this equals the lump
  *  exactly (total preserved). If holdings exceed the lump, the total rises to Σ (the estimate was low). */
@@ -86,7 +85,7 @@ export const itemizeRemainder = (lumpBalance: number, items: ItemHolding[]): num
  *     sum = itemized total(items)
  *     remainder = itemize remainder(lump.balance, items)
  *     the answer:
- *     round(sum + remainder, 2 dp)   if keep remainder as cash and remainder > 0
+ *     sum + remainder   if keep remainder as cash and remainder > 0
  *     sum   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -102,7 +101,7 @@ export const itemizedResultTotal = (
 ): number => {
   const sum = itemizedTotal(items);
   const remainder = itemizeRemainder(lump.balance, items);
-  return keepRemainderAsCash && remainder > 0 ? round2(sum + remainder) : sum;
+  return keepRemainderAsCash && remainder > 0 ? (sum + remainder) : sum;
 };
 
 /** Build the new accounts to CREATE when committing an itemization. The caller then deletes the lump and
@@ -150,13 +149,13 @@ export function buildItemizedAccounts(
       asset_class: h.cls,
       kind: h.kind || KIND_FOR[h.cls],
       tax_bucket: bucket,
-      balance: round2(h.value || 0),
+      balance: (h.value || 0),
       target_return: 0,
     };
     if (h.cls === 'bonds') {
       acct.coupon_rate = h.couponRate || 0;
       acct.maturity_date = h.maturityDate || undefined;
-      acct.face_value = round2(h.value || 0);
+      acct.face_value = (h.value || 0);
     }
     return acct;
   });

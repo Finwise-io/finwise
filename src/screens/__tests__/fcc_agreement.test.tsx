@@ -123,7 +123,7 @@ describe('pin 2b — SS adoption feeds the claim-age-adjusted check into the odd
     const { accounts } = resolveNetWorthRows('local', s.onboardingProfile, false, s.assetAccounts, []);
     const adopted = { ssEligible: true, ssMonthly: 2600, ssClaimAge: 62, guaranteedMonthly: ssBenefitAtClaimAge(2600, 62) };
     const inputs = willItLastInputs({ op: s.onboardingProfile, accounts, assumptions: adopted })!;
-    expect(inputs.guaranteed_monthly_income).toBe(1820);
+    expect(inputs.guaranteed_monthly_income).toBeCloseTo(1820, 6);
     expect(inputs.guaranteed_monthly_income).toBe(ssBenefitAtClaimAge(2600, 62));
     expect(inputs.guaranteed_start_age).toBe(62);
   });
@@ -184,19 +184,19 @@ describe('pin 4 — the lens contract on the two hero surfaces', () => {
   test('retired: the paycheck leads Home and Cash flow; the hidden-balances banner shows when masked', () => {
     seed(RETIREE);
     const home = render(<HomeScreen />);
-    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
     home.unmount();
     render(<CashFlowScreen />);
-    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
   });
 
   test('working: the Grow & Track hero leads Home; no paycheck anywhere', () => {
     seed(WORKER);
     const home = render(<HomeScreen />);
     expect(screen.getByText('YOUR INVESTMENTS')).toBeOnTheScreen();
-    expect(screen.queryByText(/LEFT TO SPEND —/)).toBeNull();
+    expect(screen.queryByText(/SURPLUS —/)).toBeNull();
     home.unmount();
     render(<CashFlowScreen />);
-    expect(screen.queryByText(/LEFT TO SPEND —/)).toBeNull();
+    expect(screen.queryByText(/SURPLUS —/)).toBeNull();
   });
 });

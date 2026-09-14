@@ -31,20 +31,21 @@ let cachedKey: string | null = null;
  * Formula .....
  *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
  *
- * Called by ... MK-XS-F-042 getDataKey
+ * Called by ... MK-XS-F-042 getDataKey · MK-XS-F-173 getOrCreateKey
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-055 decryptFromSync · MK-XS-F-072 deleteAccount
  *               MK-XS-F-054 encryptForSync · MK-XS-F-042 getDataKey
- *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
- *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-073 saveUserData
+ *               MK-XS-F-173 getOrCreateKey · MK-XS-F-074 loadUserData
+ *               MK-XS-F-079 loadUserRoot · MK-XS-F-068 regenerateRecoveryCode
+ *               MK-XS-F-073 saveUserData · MK-XS-F-077 setUserHousehold
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-135
  * Changed ..... not in git yet (—)
  */
-async function secureGet(name: string): Promise<string | null> {
+export async function secureGet(name: string): Promise<string | null> {
   try { return await SecureStore.getItemAsync(name); }
   catch { return await AsyncStorage.getItem(`__fallback_${name}`); }
 }
@@ -56,18 +57,19 @@ async function secureGet(name: string): Promise<string | null> {
  * Formula .....
  *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
  *
- * Called by ... MK-XS-F-041 cacheDataKey
+ * Called by ... MK-XS-F-041 cacheDataKey · MK-XS-F-173 getOrCreateKey
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-041 cacheDataKey · MK-XS-F-066 loginUser
- *               MK-XS-F-060 registerUser · MK-XS-F-067 restoreWithRecoveryCode
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-041 cacheDataKey · MK-XS-F-173 getOrCreateKey
+ *               MK-XS-F-066 loginUser · MK-XS-F-060 registerUser
+ *               MK-XS-F-067 restoreWithRecoveryCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-136
  * Changed ..... not in git yet (—)
  */
-async function secureSet(name: string, value: string): Promise<void> {
+export async function secureSet(name: string, value: string): Promise<void> {
   try { await SecureStore.setItemAsync(name, value); }
   catch { await AsyncStorage.setItem(`__fallback_${name}`, value); }
 }
@@ -103,7 +105,7 @@ async function secureDelete(name: string): Promise<void> {
  * Answers ..... ── DEK lifecycle (the cached, unwrapped key the sync layer uses) ───── Cache the unwrapped DEK (memory + keychain).
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     keeps the data-encryption key in memory and in the device's secure store
  *
  * Called by ... MK-XS-F-060 registerUser · MK-XS-F-066 loginUser
  *               MK-XS-F-067 restoreWithRecoveryCode
@@ -134,11 +136,11 @@ export async function cacheDataKey(dek: string): Promise<void> {
  * Called by ... MK-XS-F-054 encryptForSync · MK-XS-F-055 decryptFromSync
  *               MK-XS-F-068 regenerateRecoveryCode
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-055 decryptFromSync · MK-XS-F-072 deleteAccount
  *               MK-XS-F-054 encryptForSync · MK-XS-F-074 loadUserData
  *               MK-XS-F-079 loadUserRoot · MK-XS-F-068 regenerateRecoveryCode
- *               MK-XS-F-073 saveUserData
+ *               MK-XS-F-073 saveUserData · MK-XS-F-077 setUserHousehold
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -157,7 +159,7 @@ export async function getDataKey(): Promise<string | null> {
  * Answers ..... Forget the DEK (on logout / account deletion).
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     forgets the data-encryption key in memory and in the secure store
  *
  * Called by ... MK-XS-F-069 logoutUser · MK-XS-F-072 deleteAccount
  *
@@ -218,9 +220,6 @@ export function generateDataKey(): string {
  *               MK-XS-F-060 registerUser
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Uses a built-in i of 0.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-045
  * Changed ..... 2026-06-20 (8652b08)
@@ -415,12 +414,12 @@ export function rewrapRecovery(env: KeyEnvelope, dek: string, uid: string, recov
  *
  * Called by ... MK-XS-F-053 decryptWithKey · MK-XS-F-055 decryptFromSync
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-055 decryptFromSync · MK-XS-F-053 decryptWithKey
  *               MK-XS-F-072 deleteAccount · MK-XS-F-074 loadUserData
  *               MK-XS-F-079 loadUserRoot · MK-XS-F-066 loginUser
- *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-047 unwrapWithPassword
- *               MK-XS-F-048 unwrapWithRecovery
+ *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-077 setUserHousehold
+ *               MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -471,11 +470,12 @@ export function encryptWithKey(obj: unknown, keyHex: string): string {
  * Called by ... MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
  *               MK-XS-F-055 decryptFromSync
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-055 decryptFromSync · MK-XS-F-072 deleteAccount
  *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
  *               MK-XS-F-066 loginUser · MK-XS-F-067 restoreWithRecoveryCode
- *               MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
+ *               MK-XS-F-077 setUserHousehold · MK-XS-F-047 unwrapWithPassword
+ *               MK-XS-F-048 unwrapWithRecovery
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -537,9 +537,9 @@ export async function encryptForSync(obj: unknown): Promise<string | null> {
  *
  * Called by ... MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-072 deleteAccount · MK-XS-F-074 loadUserData
- *               MK-XS-F-079 loadUserRoot
+ *               MK-XS-F-079 loadUserRoot · MK-XS-F-077 setUserHousehold
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

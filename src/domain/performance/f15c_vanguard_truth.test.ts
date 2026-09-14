@@ -46,7 +46,7 @@ test('the ledger claims $1.4m of money moving in and out; the broker says none m
   });
   expect(honest.wealthGenerated).toBeCloseTo(REAL.returns, 2);
   expect(honest.marketChange).toBeCloseTo(-19_762.99, 2);   // Vanguard's own market gain/loss
-  // …so the engine is capable of the right answer. It is being fed internal moves as if they were
+  // …so the function is capable of the right answer. It is being fed internal moves as if they were
   // external ones. Buying and selling inside an account is not money arriving or leaving.
 });
 

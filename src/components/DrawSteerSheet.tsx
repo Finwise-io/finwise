@@ -13,11 +13,13 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from './useMoney';
 import { InfoDot } from './UI';
 import {
-  taxBucketSplit, withdrawalOrder, drawOrderOutcome, rmdAtAge,
+  taxBucketSplit, withdrawalOrder, drawOrderOutcome, taxableGainShare, rmdAtAge,
   DEFAULT_DRAW_ORDER, rmdStartAgeFor, type DrawBucket,
 } from '../domain/decumulation';
 import { plannedMonthlySpend } from '../domain/budget';
-import { currentRetirementIncomeMonthly } from '../domain/income';
+import { currentRetirementIncomeMonthly, taxableAnnual, filingStatusOf, over65CountOf } from '../domain/income';
+import { marginalBracketFor, ltcgRateFor } from '../domain/income/tax';
+import { latestClose } from '../domain/performance';
 import { ageFromProfile } from '../utils/persona';
 import { modalAnimation } from '../hooks/reducedMotion';
 
@@ -58,25 +60,40 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
     if (spendAnnual <= 0) return null;
     const horizon = A.horizonAge ?? 92;
     const realGrowth = Math.max(-0.02, (A.expectedReturn ?? 0.055) - (A.inflation ?? 0.025));
-    const base = { age, horizon, spendAnnual, guaranteedAnnual, realGrowth };
+    // G6 (founder ruling 2026-09-08): the person's OWN rates, never 22% / 15% / 50% built in.
+    // Income base = everything they told us is taxable this year plus the guaranteed income they
+    // receive now (Social Security counted in full — its untaxed share is not modelled, so the band
+    // can read one step high). Gain share = the unrealised gain in their taxable holdings.
+    const incomeBase = taxableAnnual(op) + guaranteedAnnual;
+    const status = filingStatusOf(op), over65 = over65CountOf(op);
+    const ordinaryRate = marginalBracketFor(incomeBase, status, over65);
+    const capGainsRate = ltcgRateFor(incomeBase, status, over65);
+    const gainShare = taxableGainShare(accounts, (t) => latestClose(store.priceCache?.[String(t).toUpperCase()]));
+    const base = { age, horizon, spendAnnual, guaranteedAnnual, realGrowth, ordinaryRate, capGainsRate, gainShare };
     return {
       math: drawOrderOutcome(split, DEFAULT_DRAW_ORDER, base),
       mine: drawOrderOutcome(split, order, base),
-      horizon,
+      horizon, ordinaryRate, capGainsRate, gainShare,
     };
-  }, [op, split, order, age, A.horizonAge, A.expectedReturn, A.inflation]);
+  }, [op, accounts, split, order, age, A.horizonAge, A.expectedReturn, A.inflation, store.priceCache]);
 
   const comparison = useMemo(() => {
     if (!outcome) return null;
-    const { math, mine, horizon } = outcome;
+    const { math, mine, horizon, ordinaryRate, capGainsRate, gainShare } = outcome;
+    if (math.totalTaxes == null || mine.totalTaxes == null) {
+      const why = math.unknown ?? mine.unknown ?? 'the tax on the draw cannot be calculated';
+      return { text: `Can't compare the orders yet — ${why}. Add the purchase price of your taxable holdings and this will run.`, spoken: `Cannot compare yet: ${why}.`, rates: null };
+    }
+    const rates = `Rates used — yours, calculated: ${Math.round(ordinaryRate * 100)}% on pre-tax draws · ${Math.round(capGainsRate * 100)}% on gains · gains are ${Math.round((gainShare ?? 0) * 100)}% of your taxable holdings' value.`;
     const ageTxt = (r: { lastsToAge: number | null }) => (r.lastsToAge == null ? `past ${horizon}` : `${r.lastsToAge}`);
     const sameAge = (math.lastsToAge ?? horizon + 1) === (mine.lastsToAge ?? horizon + 1);
     const taxDelta = mine.totalTaxes - math.totalTaxes;
     const smallTax = Math.abs(taxDelta) < Math.max(500, math.totalTaxes * 0.05);
-    if (sameAge && smallTax) return { text: 'With your order: about the same — this reorder changes taxes too little to move the answer.', spoken: 'About the same.' };
+    if (sameAge && smallTax) return { text: 'With your order: about the same — this reorder changes taxes too little to move the answer.', spoken: 'About the same.', rates };
     return {
       text: `With your order: lasts to ${ageTxt(math)} → ${ageTxt(mine)} · taxes over the plan ~${maskedMoney(Math.round(math.totalTaxes))} → ~${maskedMoney(Math.round(mine.totalTaxes))} (estimates)`,
       spoken: `Lasts to age ${ageTxt(math)} with the math's order, ${ageTxt(mine)} with yours. Estimated taxes ${maskedMoney(Math.round(math.totalTaxes))} versus ${maskedMoney(Math.round(mine.totalTaxes))}.`,
+      rates,
     };
   }, [outcome]);
 
@@ -146,6 +163,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
           {ran && comparison && (
             <View style={s.compareBox} accessible accessibilityLabel={comparison.spoken}>
               <Text style={s.compareTxt}>{comparison.text}</Text>
+              {comparison?.rates ? <Text style={s.note}>{comparison.rates}</Text> : null}
               <Text style={s.note}>The will-it-last percent isn't re-run per order — the odds model isn't order-aware, and we won't fake a shift.</Text>
             </View>
           )}

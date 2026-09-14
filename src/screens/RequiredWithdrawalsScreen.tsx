@@ -12,7 +12,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { ageFromProfile } from '../utils/persona';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
-import { taxBucketSplit, rmdAtAge, rmdSchedule, rmdTakenThisYear, rmdStartAgeFor } from '../domain/decumulation';
+import { taxBucketSplit, rmdAtAge, rmdSchedule, rmdTakenThisYear, rmdStartAgeFor, rmdRequiredThisYear } from '../domain/decumulation';
 import { requestNotificationPermission, scheduleRmdReminder } from '../services/notifications';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { isoLocalDate } from '../domain/_shared/dates';
@@ -32,7 +32,11 @@ export default function RequiredWithdrawalsScreen() {
   const preTax = taxBucketSplit(accounts).preTax;          // the SAME bucket rule Net worth's by-type view uses
   const applies = age != null && age >= rmdStartAgeFor(age);
 
-  const required = applies ? rmdAtAge(preTax, age as number) : 0;
+  // G8 (founder ruling 2026-09-08): the law bases this year's figure on LAST 31 December's balance.
+  // When the person has entered it, that balance is used; otherwise today's, and the screen says so.
+  const priorYearEnd = num(op?.rmdPriorYearEndPreTax) || null;
+  const thisYear = applies ? rmdRequiredThisYear(preTax, priorYearEnd, age as number) : null;
+  const required = thisYear?.amount ?? 0;
   const taken = useMemo(
     () => rmdTakenThisYear(store.transactions ?? [], preTaxAccts.map((a: any) => a.asset_id)),
     [store.transactions, preTaxAccts],
@@ -128,6 +132,14 @@ export default function RequiredWithdrawalsScreen() {
             accessibilityLabel={`This year: required ${spokenMoney(Math.round(required))}, taken so far ${spokenMoney(Math.round(taken))}, still to take ${spokenMoney(Math.round(still))} by December 31`}>
             <SectionBand title={`THIS YEAR (${nowYear})`} />
             <Text style={s.bigLine}>Required {maskedMoney(Math.round(required))}</Text>
+            {thisYear?.basis === 'prior_year_end' ? (
+              <Text style={s.note}>Based on your pre-tax balance of {maskedMoney(Math.round(thisYear.balanceUsed))} on Dec 31, {nowYear - 1} (you entered).</Text>
+            ) : (
+              <Text style={[s.note, s.warnTxt]}>Based on today's balance. Enter your pre-tax balance on Dec 31, {nowYear - 1} to calculate it exactly — the law bases the required withdrawal on last Dec 31's balance.</Text>
+            )}
+            <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`Pre-tax balance on Dec 31, ${nowYear - 1}`} placeholderTextColor={Colors.textTertiary}
+              defaultValue={priorYearEnd ? String(priorYearEnd) : ''} accessibilityLabel={`Your pre-tax balance on December 31, ${nowYear - 1}`}
+              onEndEditing={(e) => store.setOnboardingProfile?.({ ...(op ?? {}), rmdPriorYearEndPreTax: e.nativeEvent.text })} />
             <Text style={s.line}>Taken so far {maskedMoney(Math.round(taken))} · <Text style={[s.strong, still > 0 && s.warnTxt]}>Still to take {maskedMoney(Math.round(still))}</Text> by Dec 31</Text>
             {still <= 0 && <Text style={s.doneTxt}>✓ Done for {nowYear} — nothing left to take.</Text>}
             {age === rmdStartAgeFor(age) && (
@@ -243,7 +255,7 @@ export default function RequiredWithdrawalsScreen() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
   kicker: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 6 },

@@ -1,7 +1,7 @@
 // THE OUTCOME — the answer at the top of the Plan tab (founder-approved 2026-08-12).
 //
 // ONE score on this screen: the odds. Everything else is arithmetic.
-// The Claude Design handoff drew a second gauge — assets against a target — and building the engine
+// The Claude Design handoff drew a second gauge — assets against a target — and building the function
 // proved why it could not stay: progress compares ONE future (the middle one) against a threshold,
 // while the odds count how many of the 400 futures lasted. A person can be 80% of the way along the
 // middle path with 31% odds, because the spread is wide. Two proportional shapes side by side would
@@ -37,7 +37,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
   // the solves are ~a quarter-second of simulation — never on a render, only when a number moves
   const t = useMemo(() => (inputs ? planTarget(inputs, annualIncome, roomAnnual, typedTarget) : null),
                     [inputs, annualIncome, roomAnnual, typedTarget]);
-  // the three parts of the closing sentence — computed once, from the engine, never by hand
+  // the three parts of the closing sentence — computed once, from the function, never by hand
   const gap = useMemo(
     () => (inputs && t?.savingToTarget ? howTheGapCloses(inputs, t.savingToTarget.total) : null),
     [inputs, t?.savingToTarget?.total],
@@ -56,13 +56,13 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
     <View style={s.wrap}>
       {/* quiet: a question is a section title, and ESTIMATE is a tag, not a total (v3 hierarchy) */}
       <SectionBand inCard quiet
-        title={lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'}
+        title="WILL MY MONEY LAST?"
         value="ESTIMATE"
       />
 
       {/* the one score */}
       <View style={s.gaugeRow} accessible
-        accessibilityLabel={`${lens === 'retired' ? 'Is my money lasting' : 'Will my money last'}: ${oddsLine(lens, chance, horizonAge)}, an estimate${band ? `. In the worst markets ${band.low} percent, in the best ${band.high} percent` : ''}.`}>
+        accessibilityLabel={`Will my money last: ${oddsLine(lens, chance, horizonAge)}, an estimate${band ? `. In the worst markets ${band.low} percent, in the best ${band.high} percent` : ''}.`}>
         <GaugeArc pct={chance} />
         <View style={s.gaugeText}>
           <Text style={s.pct}>{chance}%</Text>
@@ -90,7 +90,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         </View>
       )}
 
-      {/* THE HERO SENTENCE — today's money against THEIR number. A plain subtraction, never engine
+      {/* THE HERO SENTENCE — today's money against THEIR number. A plain subtraction, never function
           output, and it must never be drawn as a contradiction of the odds above it. */}
       {!retired && t?.typedTarget != null && t.shortOfTarget != null && (
         <Text style={s.heroLine}>
@@ -195,3 +195,4 @@ const s = StyleSheet.create({
   leverLabel: { fontSize: 13, color: Colors.textPrimary, flex: 1 },
   leverPts: { fontSize: 15, fontWeight: '800', color: Colors.primaryDeep, fontVariant: ['tabular-nums'] },
 });
+

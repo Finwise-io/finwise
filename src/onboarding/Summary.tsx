@@ -5,7 +5,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { Status, Track } from './engine';
+import { Status, Track } from './steps';
 import { num, grossAnnual, retirementMonthlyIncome } from './modules';
 import { rsuAnnual, rentalNetAnnual } from '../domain/income';
 import Mascot from './Mascot';
@@ -48,8 +48,8 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
     { key: 'income', icon: '💵', title: 'Income Tracker', badge: 'SYNCED', active: incomeActive, route: '/income-manager',
       activeDesc: incomeStreams(a), unlockDesc: 'Capture salary, bonus, equity and rental inflows.' },
     { key: 'budget', icon: '🧾', title: 'Budget Ledger', badge: 'ACTIVE', active: hasSpend, route: '/(tabs)/budget',
-      activeDesc: 'Spending grouped into fixed, non-monthly & flexible.', unlockDesc: 'Group your spending and track it by category.' },
-    { key: 'savings', icon: '🐷', title: 'Savings Engine', badge: 'READY', active: hasSpend, route: '/savings',
+      activeDesc: 'Expenses grouped into fixed, non-monthly & flexible.', unlockDesc: 'Group your expenses and track them by category.' },
+    { key: 'savings', icon: '🐷', title: 'Savings', badge: 'READY', active: hasSpend, route: '/savings',
       activeDesc: 'A month-by-month plan from your cash flow.', unlockDesc: 'Turn leftover cash flow into a monthly savings plan.' },
     { key: 'networth', icon: '💎', title: 'Net Worth', badge: 'ACTIVE', active: netWorthActive, route: '/(tabs)/analytics',
       activeDesc: 'Your assets minus liabilities, over time.', unlockDesc: 'Aggregate assets and subtract liabilities to find your baseline wealth.' },
@@ -67,7 +67,7 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
         <Mascot accessory="🎉" mood="celebrate" size={120} />
         <Text style={s.kicker}>SETUP COMPLETE</Text>
         <Text style={s.heroTitle}>Congratulations{firstName ? `, ${firstName}` : ''}! 🎉</Text>
-        <Text style={s.heroSub}>You're all set to manage your income, spending and savings smartly.</Text>
+        <Text style={s.heroSub}>You're all set to manage your income, expenses and savings smartly.</Text>
       </View>
 
       <Text style={s.section}>WHAT'S ACTIVE — TAP TO OPEN</Text>

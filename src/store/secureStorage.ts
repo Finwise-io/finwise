@@ -17,15 +17,33 @@ const PREFIX = 'enc:';
 
 let cachedKey: string | null = null;
 
-async function secureGet(name: string): Promise<string | null> {
-  try { return await SecureStore.getItemAsync(name); }
-  catch { return await AsyncStorage.getItem(`__fallback_${name}`); }
-}
-async function secureSet(name: string, value: string): Promise<void> {
-  try { await SecureStore.setItemAsync(name, value); }
-  catch { await AsyncStorage.setItem(`__fallback_${name}`, value); }
-}
+// B4 (2026-09-12): one declaration — the secure read/write live in services/dataCrypto (MK-XS-F-135 / 136)
+import { secureGet, secureSet } from '../services/dataCrypto';
 
+/* ─ MK-XS-F-173 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * getOrCreateKey
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     cached key   when cached key
+ *     key = await secure get(KEY_NAME)
+ *     the answer = key
+ *     raw = await async storage.get item(name)
+ *     nothing   when raw = nothing
+ *     raw   when !raw.starts with(PREFIX)
+ *     key = await get or create key()
+ *     plain = crypto js.AES.decrypt(raw.slice(PREFIX.length), key).to string(crypto js.enc.utf8)
+ *     key = await get or create key()
+ *     cipher = crypto js.AES.encrypt(value, key).to string()
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-173
+ * Changed ..... not in git yet (—)
+ */
 async function getOrCreateKey(): Promise<string> {
   if (cachedKey) return cachedKey;
   let key = await secureGet(KEY_NAME);

@@ -1,11 +1,10 @@
 // Individual bonds (Phase B). A bond is held as an AssetAccount with bond fields (face_value,
 // coupon_rate, maturity_date); its `balance` is the current value, so it flows into Net Worth and the
 // nest egg via the existing balance machinery. These pure helpers compute the bond-specific metrics.
-import { round2 } from '../_shared/num';
 import type { AssetAccount } from '../assets';
 import { assetClassOf } from '../assets';
 
-export interface BondInfo { face: number; couponRate: number; maturity: string; value: number; }
+export interface BondInfo { face: number; couponRate: number; maturity: string; value: number; accruedInterest?: number | null; }
 
 /** An AssetAccount is a bond if its ASSET CLASS is bonds (spec §2: "detected by assetClass, NOT maturity
  *  date"). So a bond FUND/ETF with no maturity counts, and a CD/T-bill (cash) with a maturity does NOT.
@@ -18,7 +17,10 @@ export interface BondInfo { face: number; couponRate: number; maturity: string; 
  * Formula .....
  *     asset class of(a) = 'bonds'
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-062 couponIncomeAnnual
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-062 couponIncomeAnnual
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -34,10 +36,11 @@ export function isBond(a: AssetAccount): boolean {
  * Answers ..... What are this holding's bond facts?
  *
  * Formula .....
- *     face = face value (or 0 when missing or zero)
- *     coupon rate = coupon rate (or 0 when missing or zero)
- *     maturity = maturity date (or '' when missing or zero)
- *     value = balance (or 0 when missing or zero)
+ *     face = face value or 0
+ *     coupon rate = coupon rate or 0
+ *     maturity = maturity date or ''
+ *     value = balance or 0
+ *     accrued interest = the entered figure, or nothing when not entered
  *
  * Called by ... MK-NW-F-062 couponIncomeAnnual
  *
@@ -50,6 +53,7 @@ export function isBond(a: AssetAccount): boolean {
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-049 bond price — what the bond is worth today
+ *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
  *
  * Decides .....
  *     · If face value is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -60,7 +64,8 @@ export function isBond(a: AssetAccount): boolean {
  * Changed ..... 2026-06-06 (2c5ce55)
  */
 export function bondInfo(a: AssetAccount): BondInfo {
-  return { face: a.face_value || 0, couponRate: a.coupon_rate || 0, maturity: a.maturity_date || '', value: a.balance || 0 };
+  return { face: a.face_value || 0, couponRate: a.coupon_rate || 0, maturity: a.maturity_date || '', value: a.balance || 0,
+           accruedInterest: a.accrued_interest == null ? null : a.accrued_interest };
 }
 
 /** Annual coupon income = face value × coupon rate (paid as cash). */
@@ -70,7 +75,7 @@ export function bondInfo(a: AssetAccount): BondInfo {
  * Answers ..... Annual coupon income = face value × coupon rate (paid as cash).
  *
  * Formula .....
- *     annual coupon = round(face value × coupon rate, 2 dp)
+ *     annual coupon = face value × coupon rate
  *
  * Called by ... MK-NW-F-059 currentYield · MK-NW-F-060 approxYTM
  *               MK-NW-F-061 bondSummary · MK-NW-F-062 couponIncomeAnnual
@@ -90,7 +95,7 @@ export function bondInfo(a: AssetAccount): BondInfo {
  * Changed ..... 2026-06-06 (2c5ce55)
  */
 export function annualCoupon(b: BondInfo): number {
-  return round2(b.face * b.couponRate);
+  return (b.face * b.couponRate);
 }
 /* ─ MK-NW-F-058 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * yearsToMaturity
@@ -111,12 +116,15 @@ export function annualCoupon(b: BondInfo): number {
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · No maturity date, or an unreadable one, gives NO answer — not zero and not "due now" (G11, founder 2026-09-12); the yield to maturity and the rate sensitivity then refuse too.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-058
  * Changed ..... 2026-06-06 (2c5ce55)
  */
-export function yearsToMaturity(maturity: string, now: Date = new Date()): number {
-  if (!maturity) return 0;
+export function yearsToMaturity(maturity: string, now: Date = new Date()): number | null {
+  // G11 (founder, 2026-09-12): no date, or an unreadable one, is NOT "due now" — it is unknown, and
+  // everything that needs the years (yield to maturity, rate sensitivity) says so instead of inventing 0.
+  if (!maturity || Number.isNaN(new Date(maturity).getTime())) return null;
   return Math.max(0, (new Date(maturity).getTime() - now.getTime()) / (365.25 * 86400000));
 }
 /** Current yield = annual coupon ÷ current price/value. */
@@ -126,21 +134,46 @@ export function yearsToMaturity(maturity: string, now: Date = new Date()): numbe
  * Answers ..... Current yield = annual coupon ÷ current price/value.
  *
  * Formula .....
- *     current yield = round(annual coupon ÷ current value, 4 dp)
+ *     current yield = annual coupon ÷ current value
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... MK-NW-M-027 · MK-NW-M-044
  * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
+ *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
+ *     · If accrued interest is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-059
  * Changed ..... 2026-06-06 (2c5ce55)
  */
 export function currentYield(b: BondInfo): number | null {
-  return b.value > 0 ? Math.round((annualCoupon(b) / b.value) * 1e4) / 1e4 : null;
+  const clean = b.value - (b.accruedInterest ?? 0);   // A47 (founder, 2026-08-26): accrued interest is subtracted when known
+  return clean > 0 ? ((annualCoupon(b) / clean)) : null;
+}
+
+/** A47 (founder, 2026-08-26): subtract accrued interest when known; say so when not. */
+/* ─ MK-NW-F-070 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * accruedInterestCaveat
+ *
+ * Answers ..... A47 (founder, 2026-08-26): subtract accrued interest when known; say so when not.
+ *
+ * Formula .....
+ *     'accrued interest not entered — the yield uses the price as you entered it'   if accrued interest = nothing
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
+ *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-070
+ * Changed ..... not in git yet (—)
+ */
+export function accruedInterestCaveat(b: BondInfo): string | null {
+  return b.accruedInterest == null ? 'accrued interest not entered — the yield uses the price as you entered it' : null;
 }
 /** Approximate yield to maturity (standard approximation), decimal. null if matured / no value. */
 /* ─ MK-NW-F-060 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -164,17 +197,17 @@ export function currentYield(b: BondInfo): number | null {
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
+ *     · 'value' is the bond's current value as entered (the balance) — the SAME total basis as face, not a price per $100 (founder question G20, 2026-09-08).
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-060
  * Changed ..... 2026-06-06 (2c5ce55)
  */
 export function approxYTM(b: BondInfo, now: Date = new Date()): number | null {
   const n = yearsToMaturity(b.maturity, now);
-  if (n <= 0 || b.value <= 0) return null;
+  if (n == null || n <= 0 || b.value <= 0) return null;
   const c = annualCoupon(b);
   const ytm = (c + (b.face - b.value) / n) / ((b.face + b.value) / 2);
-  return Math.round(ytm * 1e4) / 1e4;
+  return (ytm);
 }
 
 export interface BondSummary { count: number; totalValue: number; totalFace: number; annualCoupon: number; avgYield: number | null; nextMaturity: string | null; }
@@ -185,10 +218,10 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *
  * Formula .....
  *     list = bonds (or none when missing)
- *     total value = round(Σ over list of (value), 2 dp)
- *     total face = round(Σ over list of (face), 2 dp)
- *     coupon = round(Σ over list of (annual coupon(each)), 2 dp)
- *     avg yield = round(coupon ÷ total value, 4 dp)   if total value > 0
+ *     total value = Σ over list of (value)
+ *     total face = Σ over list of (face)
+ *     coupon = Σ over list of (annual coupon(each))
+ *     avg yield = coupon ÷ total value   if total value > 0
  *     nothing   otherwise
  *     future = for each of list: maturity where boolean where the date each).get time() ≥ now.get time(, in order
  *     the answer:
@@ -208,18 +241,16 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-061
  * Changed ..... 2026-06-22 (2a41cac)
  */
 export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSummary {
   const list = bonds ?? [];
-  const totalValue = round2(list.reduce((t, b) => t + b.value, 0));
-  const totalFace = round2(list.reduce((t, b) => t + b.face, 0));
-  const coupon = round2(list.reduce((t, b) => t + annualCoupon(b), 0));
-  const avgYield = totalValue > 0 ? Math.round((coupon / totalValue) * 1e4) / 1e4 : null;
+  const totalValue = (list.reduce((t, b) => t + b.value, 0));
+  const totalFace = (list.reduce((t, b) => t + b.face, 0));
+  const coupon = (list.reduce((t, b) => t + annualCoupon(b), 0));
+  const avgYield = totalValue > 0 ? ((coupon / totalValue)) : null;
   const future = list.map((b) => b.maturity).filter(Boolean).filter((m) => new Date(m).getTime() >= now.getTime()).sort();
   return { count: list.length, totalValue, totalFace, annualCoupon: coupon, avgYield, nextMaturity: future[0] ?? null };
 }
@@ -230,29 +261,23 @@ export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSumm
  * Answers ..... Total annual coupon income across the user's INDIVIDUAL bonds (kept for the Bonds screen summary).
  *
  * Formula .....
- *     round(Σ over accounts (or none when missing) where is bond of (annual coupon(bond info(each))), 2 dp)
+ *     Σ over accounts (or none when missing) where is bond of (annual coupon(bond info(each)))
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Uses a built-in d e f a u l t b o n d y i e l d of 4.2%.
- *     · Leaves some rows out of the answer — check which.
- *
  * Formula also on the master file · functions_from_code · MK-NW-F-062
  * Changed ..... 2026-08-04 (abb4c23)
  */
 export function couponIncomeAnnual(accounts: AssetAccount[]): number {
-  return round2((accounts ?? []).filter(isBond).reduce((t, a) => t + annualCoupon(bondInfo(a)), 0));
+  return ((accounts ?? []).filter(isBond).reduce((t, a) => t + annualCoupon(bondInfo(a)), 0));
 }
 
-const DEFAULT_BOND_YIELD = 0.042;   // US Aggregate Bond ~yield; used when a bond fund carries no rate
-
-/** Canonical annual INTEREST income across all interest-bearing holdings (Term #6). Fixes the
- *  silent-$0 bug: a bond FUND (asset class 'bonds', no maturity/coupon) now earns value × yield, and
- *  a CD (now class 'bonds', founder rule 2026-08-04) or a rate-stated cash account (HYSA) keeps contributing its interest — both
- *  of which the old isBond-only `couponIncomeAnnual` dropped. Individual bonds: face × coupon. */
+/** Canonical annual INTEREST income across all interest-bearing holdings (Term #6). Individual
+ *  bonds: face × coupon. A CD (class 'bonds', founder rule 2026-08-04) or a rate-stated cash account
+ *  (HYSA) contributes balance × its stated rate. A bond FUND with no coupon rate contributes $0 —
+ *  A46 (founder, 2026-08-26): if the coupon rate is not available use 0, never a built-in yield. */
 /* ─ MK-NW-F-063 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * interestIncomeAnnual
  *
@@ -263,9 +288,7 @@ const DEFAULT_BOND_YIELD = 0.042;   // US Aggregate Bond ~yield; used when a bon
  *     coupon = (coupon rate or 0) × (face value or 0)
  *     t + coupon   when coupon > 0
  *     t + (balance or 0) × (coupon rate as number)   when (coupon rate or 0) > 0
- *     yld = target return   if target return and target return > 0
- *     DEFAULT_BOND_YIELD   otherwise
- *     the answer = t + (balance or 0) × yld
+ *     the answer = t
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -273,7 +296,6 @@ const DEFAULT_BOND_YIELD = 0.042;   // US Aggregate Bond ~yield; used when a bon
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
- *               MK-XS-I-028 assumed return
  *
  * Decides .....
  *     · If coupon rate is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -284,14 +306,13 @@ const DEFAULT_BOND_YIELD = 0.042;   // US Aggregate Bond ~yield; used when a bon
  * Changed ..... 2026-08-04 (abb4c23)
  */
 export function interestIncomeAnnual(accounts: AssetAccount[]): number {
-  return round2((accounts ?? []).reduce((t, a) => {
+  return ((accounts ?? []).reduce((t, a) => {
     const cls = assetClassOf(a);
     if (cls === 'bonds') {
       const coupon = (a.coupon_rate || 0) * (a.face_value || 0);
       if (coupon > 0) return t + coupon;                                   // individual bond (face × coupon)
       if ((a.coupon_rate || 0) > 0) return t + (a.balance || 0) * (a.coupon_rate as number);   // CD / rate-stated bond, no face (founder rule 2026-08-04: CDs are bonds)
-      const yld = (a.target_return && a.target_return > 0) ? a.target_return : DEFAULT_BOND_YIELD;
-      return t + (a.balance || 0) * yld;                                   // bond fund (no coupon/face)
+      return t;                                                            // A46 (founder, 2026-08-26): no coupon rate → $0, never a built-in yield
     }
     if (cls === 'cash' && (a.coupon_rate || 0) > 0) {
       return t + (a.balance || 0) * (a.coupon_rate as number);            // CD / money-market with a stated rate
@@ -315,10 +336,12 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
  * Answers ..... Price the bond's future cash flows at a given annual yield (yearly approximation).
  *
  * Formula .....
- *     n = max(1, round(years to maturity(maturity, now)))
+ *     years = years to maturity(maturity, now)
+ *     value   when years = nothing
+ *     n = max(1, round(years))
  *     c = annual coupon(b)
  *     pv = 0
- *     the answer = pv
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-NW-F-064 bondRateSensitivity
  *
@@ -332,14 +355,15 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
  *
  * Decides .....
  *     · Uses a built-in pv of 0.
- *     · Uses a built-in t of 1.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-069
  * Changed ..... not in git yet (—)
  */
 function priceAtYield(b: BondInfo, y: number, now: Date): number {
-  const n = Math.max(1, Math.round(yearsToMaturity(b.maturity, now)));
+  const years = yearsToMaturity(b.maturity, now);
+  if (years == null) return b.value;   // G11: no maturity date → the price cannot be moved; the value as entered stands
+  const n = Math.max(1, Math.round(years));
   const c = annualCoupon(b);
   let pv = 0;
   for (let t = 1; t <= n; t++) pv += c / Math.pow(1 + y, t);
@@ -362,7 +386,7 @@ function priceAtYield(b: BondInfo, y: number, now: Date): number {
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-NW-M-028
  * Reads ....... MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-049 bond price — what the bond is worth today

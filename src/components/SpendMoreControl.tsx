@@ -17,7 +17,7 @@ const STEP = 500;
 
 export function SpendMoreControl({ inputs, maxExtra, horizonAge, onCommit }: {
   inputs: RetirementInputs;
-  /** the most she could add — what the paycheck engine already says she has room for */
+  /** the most she could add — what the paycheck function already says she has room for */
   maxExtra: number;
   horizonAge: number;
   onCommit?: (newMonthlySpend: number) => void;
@@ -40,9 +40,9 @@ export function SpendMoreControl({ inputs, maxExtra, horizonAge, onCommit }: {
       {/* THE ANSWER, FIRST — and it is the free room, which the old static label hid entirely */}
       {state.freeExtra > 0 ? (
         <>
-          <Text style={s.answer}>Yes — about {maskedMoney(state.freeExtra)} a month more, and nothing changes.</Text>
+          <Text style={s.answer}>Yes — about {maskedMoney(state.freeExtra)}/month more, and nothing changes.</Text>
           <Text style={s.answerSub}>
-            You spend <Text style={s.b}>{maskedMoney(today)}</Text> a month now. At{' '}
+            You spend <Text style={s.b}>{maskedMoney(today)}</Text>/month now. At{' '}
             <Text style={s.b}>{maskedMoney(today + state.freeExtra)}</Text> your money still lasts past {horizonAge},
             exactly as it does today.
           </Text>
@@ -58,7 +58,7 @@ export function SpendMoreControl({ inputs, maxExtra, horizonAge, onCommit }: {
             accessibilityRole="button" accessibilityLabel="Spend less extra" disabled={extra <= 0}>
             <Text style={[s.btnTxt, extra <= 0 && s.btnOff]}>−</Text>
           </TouchableOpacity>
-          <Text style={s.amt} accessibilityLabel={`Spending ${spokenMoney(extra)} extra a month`}>{maskedMoney(extra)}</Text>
+          <Text style={s.amt} accessibilityLabel={`${spokenMoney(extra)} more in expenses each month`}>{maskedMoney(extra)}</Text>
           <TouchableOpacity style={s.btn} onPress={() => setExtra(clamp(extra + STEP))}
             accessibilityRole="button" accessibilityLabel="Spend more extra" disabled={extra >= maxExtra}>
             <Text style={[s.btnTxt, extra >= maxExtra && s.btnOff]}>+</Text>
@@ -70,8 +70,8 @@ export function SpendMoreControl({ inputs, maxExtra, horizonAge, onCommit }: {
           arrow at it as though a decision had been made. It says so plainly now. */}
       <Text style={s.total}>
         {extra === 0
-          ? <>You'd spend <Text style={s.b}>{maskedMoney(total)}</Text> a month — the same as now.</>
-          : <>You'd spend <Text style={s.b}>{maskedMoney(total)}</Text> a month{extra >= maxExtra ? ' — the most your income and savings can cover.' : '.'}</>}
+          ? <>You'd spend <Text style={s.b}>{maskedMoney(total)}</Text>/month — the same as now.</>
+          : <>You'd spend <Text style={s.b}>{maskedMoney(total)}</Text>/month{extra >= maxExtra ? ' — the most your income and savings can cover.' : '.'}</>}
       </Text>
 
       <View style={[s.verdict, said.tone === 'edge' ? s.vEdge : said.tone === 'watch' ? s.vWatch : s.vClear]}>
@@ -82,12 +82,12 @@ export function SpendMoreControl({ inputs, maxExtra, horizonAge, onCommit }: {
 
       {onCommit && extra > 0 && (
         <TouchableOpacity style={s.use} onPress={() => onCommit(total)} accessibilityRole="button"
-          accessibilityLabel={`Use as my plan — spending ${spokenMoney(total)} a month`}>
+          accessibilityLabel={`Use as my plan — ${spokenMoney(total)} a month of expenses`}>
           <Text style={s.useTxt}>Use as my plan</Text>
         </TouchableOpacity>
       )}
 
-      {/* THE ONE SENTENCE THE ROW WAS MISSING. She was expected to work out that spending more and
+      {/* THE ONE SENTENCE THE ROW WAS MISSING. She was expected to work out that expenses more and
           taking more from savings are the same act for her — obvious to us, invisible to her. */}
       <Text style={s.foot}>Your Social Security and pension don't change, so anything extra comes out of savings.</Text>
     </View>

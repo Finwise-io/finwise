@@ -1,4 +1,4 @@
-import { goalOptionsFor, goalGroupsFor, buildSteps, type Status } from './engine';
+import { goalOptionsFor, goalGroupsFor, buildSteps, type Status } from './steps';
 
 describe('onboarding goals — grouped, stage-ordered sections', () => {
   test('student leads with "Manage money now" (spending/goals/debt); retirement lower', () => {

@@ -35,7 +35,7 @@ const dayMs = 86_400_000;
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = the milliseconds since 1970 of the date at midnight UTC
  *
  * Called by ... MK-ST-F-038 windowBounds · MK-ST-F-063 shiftDay
  *               MK-ST-F-064 modifiedDietzOverWindow
@@ -83,7 +83,8 @@ export interface WindowBounds {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     beginning as of = the day before the start
+ *     days = round((end − start) in days) + 1
  *
  * Called by ... MK-ST-F-064 modifiedDietzOverWindow
  *

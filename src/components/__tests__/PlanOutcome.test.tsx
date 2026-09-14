@@ -7,7 +7,7 @@ import type { RetirementInputs } from '../../domain/retirement';
 
 // PAT'S REAL INPUTS (corrected 2026-08-14). The fixture used to assume 7.7% growth and no saving,
 // which put him ABOVE the 80% line — so the closing sentence, which only speaks to someone still
-// short, never rendered here. His four accounts blend to 5.85% and he puts away $12,000 a year;
+// short, never rendered here. His four accounts blend to 5.85% and he puts away $12,000/year;
 // those are the numbers pinned in brief_figures_guard and the ones every persona figure comes from.
 const PAT: RetirementInputs = {
   current_age: 58, retire_age: 65, horizon_age: 90,

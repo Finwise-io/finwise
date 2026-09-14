@@ -4,7 +4,7 @@
 // never a recommendation about tomorrow. null when either series lacks the window (honest absence,
 // never an invented price).
 import type { PriceSeries } from './index';
-import { round2 } from '../_shared/num';
+import { isoLocalDate } from '../_shared/dates';
 
 export interface LookBackLeg { endValue: number; delta: number; pct: number }
 export interface LookBackResult {
@@ -23,12 +23,11 @@ export interface LookBackResult {
  *
  * Formula .....
  *     pts = series.points
- *     nothing   when pts is missing (or pts.length < 2 when missing or zero)
- *     cutoff = the first 10 of the date now.get full year(), now.get month() − months, now.get date()).to isostring(
- *     nothing   when pts[0].date > cutoff
- *     start = the first of pts
- *     end = pts[pts.length − 1]
- *     nothing   when start.close is missing (or start.close ≤ 0 when missing or zero)
+ *     nothing   when fewer than 2 points
+ *     cutoff = the local calendar date `months` before today (year, month − months, day) — built from local date parts, never via UTC
+ *     nothing   when the series starts after the cutoff
+ *     start = the last point on or before the cutoff; end = the last point
+ *     nothing   when start.close is missing or ≤ 0
  *     the answer = end.close ÷ start.close
  *
  * Called by ... MK-PF-F-023 lookBack
@@ -41,6 +40,7 @@ export interface LookBackResult {
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · The window boundary is a LOCAL calendar date (the person's own day), so the answer is the same in every timezone (TZ-1, 2026-09-08).
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-022
  * Changed ..... 2026-07-13 (d058ce1)
@@ -48,7 +48,11 @@ export interface LookBackResult {
 export function factorOverMonths(series: PriceSeries | null | undefined, months: number, now: Date = new Date()): number | null {
   const pts = series?.points;
   if (!pts || pts.length < 2) return null;
-  const cutoff = new Date(now.getFullYear(), now.getMonth() - months, now.getDate()).toISOString().slice(0, 10);
+  // The window opens `months` before today, in the PERSON'S OWN calendar day. Built from local date
+  // parts — never through UTC: converting local midnight to UTC moves the date back a day anywhere
+  // east of Greenwich, and that shift made every look-back answer "nothing" on a device set to India
+  // time (found 2026-09-08 when the probe suite ran on a machine in IST).
+  const cutoff = isoLocalDate(new Date(now.getFullYear(), now.getMonth() - months, now.getDate()));
   // the series must actually START at/before the window opening — a shorter history can't answer
   if (pts[0].date > cutoff) return null;
   let start = pts[0];
@@ -73,7 +77,7 @@ export function factorOverMonths(series: PriceSeries | null | undefined, months:
  *     the answer:
  *     stayed = stayed
  *     moved = moved
- *     difference = round(moved.end value − stayed.end value, 2 dp)
+ *     difference = moved.end value − stayed.end value
  *     months = months
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -82,7 +86,6 @@ export function factorOverMonths(series: PriceSeries | null | undefined, months:
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-023
  * Changed ..... 2026-07-13 (d058ce1)
@@ -93,11 +96,11 @@ export function lookBack(amount: number, fromSeries: PriceSeries | null | undefi
   const fTo = factorOverMonths(toSeries, months, now);
   if (fFrom == null || fTo == null) return null;
   const leg = (f: number): LookBackLeg => ({
-    endValue: round2(amount * f),
-    delta: round2(amount * f - amount),
+    endValue: (amount * f),
+    delta: (amount * f - amount),
     pct: Math.round((f - 1) * 1000) / 10,
   });
   const stayed = leg(fFrom);
   const moved = leg(fTo);
-  return { stayed, moved, difference: round2(moved.endValue - stayed.endValue), months };
+  return { stayed, moved, difference: (moved.endValue - stayed.endValue), months };
 }

@@ -6,7 +6,6 @@
 import { simulate, projectNestEgg, type RetirementInputs } from '../retirement';
 import { monthsToGoal, type GoalLike } from '../goals';
 import { payoffPlan, type Debt } from '../debt';
-import { round2 } from '../_shared/num';
 
 export interface GoalDial {
   id: string;
@@ -84,8 +83,8 @@ export function retireAgeWithContribution(inp: RetirementInputs, monthlyContribu
  *     now = now (or new date() when missing)
  *     on dials = dials where on
  *     extra debt = max(0, extra debt monthly (or 0 when missing))
- *     committed = round(Σ over on dials of (monthly amount (or 0 when missing or zero))+ extra debt + max(0, retirement monthly), 2 dp)
- *     spare = round(capacity monthly − committed, 2 dp)
+ *     committed = Σ over on dials of (monthly amount (or 0 when missing or zero))+ extra debt + max(0, retirement monthly)
+ *     spare = capacity monthly − committed
  *     goal ends = {}
  *     m = months to goal({ target: target, saved: saved ?? 0 } as goal like, monthly amount)
  *     end = the date now.get full year(), now.get month() + m, 1
@@ -110,7 +109,7 @@ export function retireAgeWithContribution(inp: RetirementInputs, monthlyContribu
  *     · If monthly amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
+ *     · Never lets retirement monthly fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-036
  * Changed ..... 2026-07-13 (f26bf23)
@@ -119,8 +118,8 @@ export function weighGoals(w: WeighInputs): WeighResult {
   const now = w.now ?? new Date();
   const onDials = w.dials.filter((d) => d.on);
   const extraDebt = Math.max(0, w.extraDebtMonthly ?? 0);
-  const committed = round2(onDials.reduce((t, d) => t + (d.monthlyAmount || 0), 0) + extraDebt + Math.max(0, w.retirementMonthly));
-  const spare = round2(w.capacityMonthly - committed);
+  const committed = (onDials.reduce((t, d) => t + (d.monthlyAmount || 0), 0) + extraDebt + Math.max(0, w.retirementMonthly));
+  const spare = (w.capacityMonthly - committed);
 
   // finish dates at the chosen pace — the SAME monthsToGoal the goal shows anywhere else (the pin)
   const goalEnds: Record<string, string | null> = {};
@@ -140,11 +139,11 @@ export function weighGoals(w: WeighInputs): WeighResult {
     const end = new Date(now.getFullYear(), now.getMonth() + withExtra.months, 1);
     debtPayoff = {
       month: `${MONTHS[end.getMonth()]} ${end.getFullYear()}`,
-      interestSaved: round2(Math.max(0, without.totalInterest - withExtra.totalInterest)),
+      interestSaved: (Math.max(0, without.totalInterest - withExtra.totalInterest)),
     };
   }
 
-  // effect on retirement: the shared inputs with the dial as the contribution — same seeded engine
+  // effect on retirement: the shared inputs with the dial as the contribution — same seeded function
   let retireAge: number | null = null;
   let chance: number | null = null;
   if (w.baseInputs) {
@@ -186,9 +185,7 @@ export interface TrimHint {
  * Reads ....... MK-XS-I-018 retirement age
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-037
  * Changed ..... 2026-07-13 (f26bf23)

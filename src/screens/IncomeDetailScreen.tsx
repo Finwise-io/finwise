@@ -14,7 +14,7 @@ import { interestIncomeAnnual } from '../domain/bonds';
 import { incomeFromAccounts } from '../domain/income/from-accounts';
 
 const CADENCE: Record<string, string> = {
-  MONTHLY: '/mo', ANNUAL: '/yr', QUARTERLY: '/qtr', WEEKLY: '/wk', BIWEEKLY: '/2wk', ONETIME: 'one-time',
+  MONTHLY: '/month', ANNUAL: '/year', QUARTERLY: '/quarter', WEEKLY: '/week', BIWEEKLY: '/2 weeks', ONETIME: 'one-time',
 };
 // P0 (design audit ID-1): single-letter axis had three J's and two M's — unreadable ambiguity.
 // 3-letter labels on alternating months keep the axis legible without crowding.
@@ -50,7 +50,7 @@ export default function IncomeDetailScreen() {
   if (!sources.length) {
     return (
       <View style={[styles.root, { padding: Spacing.lg }]}>
-        <Text style={styles.sub}>No income captured yet. Run setup to add your salary, bonus, RSUs, and more.</Text>
+        <Text style={styles.sub}>No income entered yet. Run setup to add your salary, bonus, RSUs, and more.</Text>
         <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center', marginTop: 8 }} onPress={() => router.push('/income-manager')}
           accessibilityLabel="Add your income"><Text style={{ fontSize: 15, fontWeight: '700', color: Colors.primary }}>Add your income ›</Text></TouchableOpacity>
       </View>
@@ -64,13 +64,13 @@ export default function IncomeDetailScreen() {
       {/* totals */}
       <View style={styles.card}>
         {/* the headline fact leads (audit ID-2): net income as the hero, not a same-size row */}
-        <Text style={styles.heroK}>NET INCOME / YEAR</Text>
+        <Text style={styles.heroK}>TAKE-HOME / YEAR</Text>
         <Text style={styles.heroV}>{money(state.total_net_annual)}</Text>
         <Row label="Gross / year" value={money(state.total_gross_annual)} bold />
         <Row label="Effective tax rate" value={`${(state.effective_tax_rate * 100).toFixed(1)}%`} />
         <View style={styles.divider} />
-        <Row label="Net / month" value={`${money(state.net_monthly_income)}/mo`} />
-        {state.employer_match_annual > 0 && <Row label="Employer 401(k) match" value={`${money(state.employer_match_annual)}/yr`} />}
+        <Row label="Take-home / month" value={`${money(state.net_monthly_income)}/month`} />
+        {state.employer_match_annual > 0 && <Row label="Employer 401(k) match" value={`${money(state.employer_match_annual)}/year`} />}
       </View>
 
       {/* sources */}

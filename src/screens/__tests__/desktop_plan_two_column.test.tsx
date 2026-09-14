@@ -67,7 +67,7 @@ describe('inline desktop sandbox — one brain with the verdict', () => {
     expect(screen.getByText('move a dial — the odds re-run live')).toBeOnTheScreen();
   });
 
-  test('moving a dial re-runs the REAL engine and names the trade before deciding', () => {
+  test('moving a dial re-runs the REAL function and names the trade before deciding', () => {
     const real = simulate({ ...INPUTS, retire_age: 65 }).chance_of_success;
     render(<DesktopPlanSandbox lens="preretired" inputs={INPUTS} planChance={83} />);
     fireEvent.press(screen.getByLabelText('Retire at age down'));

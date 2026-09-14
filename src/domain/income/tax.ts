@@ -18,7 +18,7 @@ export const STANDARD_DEDUCTION = 16_100;   // 2026 single-filer standard deduct
 
 
 /** Invert the schedule: the gross income whose take-home equals `net` (bisection). */
-/* ─ MK-CF-F-097 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-097 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * grossFromNet
  *
  * Answers ..... Invert the schedule: the gross income whose take-home equals `net` (bisection).
@@ -26,20 +26,25 @@ export const STANDARD_DEDUCTION = 16_100;   // 2026 single-filer standard deduct
  * Formula .....
  *     0   when net ≤ 0
  *     lo = net, hi = net × 3
- *     mid = (lo + hi) ÷ 2
- *     the answer = round((lo + hi) ÷ 2)
+ *     repeat 50 times: mid = (lo + hi) ÷ 2; if mid − tax owed for(mid, status, 0, over65) < net then lo = mid else hi = mid
+ *     the answer = (lo + hi) ÷ 2   — the gross whose take-home equals net, found by halving the interval
  *
  * Called by ... MK-CF-F-186 convertTakeHomeMode
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-186 convertTakeHomeMode
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-186 convertTakeHomeMode
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
- *
- * Decides .....
- *     · Uses a built-in i of 0.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-097
  * Changed ..... 2026-07-14 (cf50737)
@@ -51,7 +56,7 @@ export function grossFromNet(net: number, status: FilingStatus = 'single', over6
     const mid = (lo + hi) / 2;
     if (mid - taxOwedFor(mid, status, 0, over65) < net) lo = mid; else hi = mid;
   }
-  return Math.round((lo + hi) / 2);
+  return (lo + hi) / 2;   // Q49: full precision inside; the display rounds
 }
 
 /** PRD F2#11 — progressive PER-MONTH tax: brackets fill as the year's taxable income accumulates
@@ -73,20 +78,24 @@ export function grossFromNet(net: number, status: FilingStatus = 'single', over6
  *
  * Called by ... MK-CF-F-049 buildIncomeState · MK-CF-F-087 monthlyTaxRates
  *
- * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-049 buildIncomeState · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-010 emergencyTest · MK-CF-F-052 getIncomeState
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               … and 8 more — the full list is on functions_from_code
+ * Reaches ..... 29 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-049 buildIncomeState
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-052 getIncomeState · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               … and 11 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Decides .....
+ *     · Never lets g fall below 0.
+ *     · Never lets state rate fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-098
  * Changed ..... 2026-08-20 (764ca16)
@@ -112,7 +121,7 @@ export function progressiveMonthlyTax(taxableByMonth: number[], status: FilingSt
 //   E9: the married table is EXPLICIT, never derived by doubling — the 37% threshold for married
 //       filers is $768,700, not 2 × $640,600 = $1,281,200. The doubling shortcut was wrong by half
 //       a million dollars exactly where the rate is highest. Head-of-household likewise explicit.
-//   E8: the over-65 ADDITIONAL standard deduction exists — this audience is 55–70 and no engine
+//   E8: the over-65 ADDITIONAL standard deduction exists — this audience is 55–70 and no function
 //       took an age. Per person 65+; a spouse's age is not captured, so married counts the person
 //       only (the error direction overstates tax slightly — conservative for a plan).
 //   E10: the user's flat state rate applies to TAXABLE income, never to gross — applying it to
@@ -147,40 +156,110 @@ export const TAX_TABLES: Record<FilingStatus, { brackets: [number, number][]; de
   },
 };
 
-/** The standard deduction with the age-65 additions (E8). `over65` = how many people on the
- *  return are 65 or older (0, 1, or 2 on a joint return). */
-/* ─ MK-CF-F-099 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
- * deductionFor
+/** The standard deduction with the age-65 additions (E8) and the SENIOR DEDUCTION (G3, founder
+ *  ruling 2026-09-08). `over65` = how many people on the return are 65 or older (0, 1, or 2 on a
+ *  joint return). `magi` = the income the phase-out is measured against; null = not known, and then
+ *  the senior deduction is NOT given (never guessed). */
+// SENIOR DEDUCTION — One Big Beautiful Bill Act, P.L. 119-21 §70103 (new IRC §151(d)(5)), tax years
+// 2025–2028: $6,000 per qualifying individual aged 65 or older, on top of the standard deduction and
+// the 65+ add-on; reduced by 6% of modified adjusted gross income above $75,000 ($150,000 on a joint
+// return); a married person must file JOINTLY to claim it (not available when filing separately).
+// Source checked 2026-09-08; re-check when the tax year rolls, and it lapses after 2028.
+export const SENIOR_DEDUCTION = {
+  amount: 6_000,
+  phaseOutStart: { single: 75_000, married: 150_000, mfs: 0, hoh: 75_000 } as Record<FilingStatus, number>,
+  phaseOutRate: 0.06,
+  firstYear: 2025,
+  lastYear: 2028,
+  eligible: { single: true, married: true, mfs: false, hoh: true } as Record<FilingStatus, boolean>,
+} as const;
+
+/** How much of the $6,000-per-person senior deduction does this return get? (P.L. 119-21 §70103, tax years 2025–2028; founder ruling 2026-09-08, G3.) */
+/* ─ MK-CF-F-187 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * seniorDeductionFor
  *
- * Answers ..... The standard deduction with the age-65 additions (E8).
+ * Answers ..... How much of the $6,000-per-person senior deduction does this return get?
  *
  * Formula .....
- *     t = TAX_TABLES[status]
- *     the answer = deduction + min(2, max(0, over65)) × over65 add
+ *     0   when the tax year is outside 2025–2028, or filing separately, or nobody on the return is 65+, or the income is not known
+ *     people = min(2, over65)
+ *     full = people × $6,000
+ *     the answer = max(0, full − 6% × max(0, magi − start))   start = $75,000 single / head of household · $150,000 married
  *
- * Called by ... MK-CF-F-100 taxableIncomeFor
+ * Called by ... MK-CF-F-099 deductionFor · MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 47 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ * Reaches ..... 102 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-049 buildIncomeState
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-CF-F-049 buildIncomeState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-145 deductionsFromPay
- *               MK-CF-F-171 earnerPay · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-102 effectiveRateOnGrossFor
- *               MK-CF-F-048 effectiveTaxRate · MK-CF-F-010 emergencyTest
- *               … and 29 more — the full list is on functions_from_code
+ *               … and 84 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
  *
+ * Decides .....
+ *     · Never lets over65 fall below 0.
+ *     · Uses the published figures: $6,000 per person 65+, phased out at 6% above $75,000 ($150,000 joint), 2025–2028 (P.L. 119-21 §70103; checked 2026-09-08; lapses after 2028 — the statutory test fails when the tax year rolls past it).
+ *     · Takes the income handed to it as modified adjusted gross income — the untaxed part of Social Security and other adjustments are not modelled.
+ *     · Income not known → 0, never a guessed deduction.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-187
+ * Changed ..... not in git yet (—)
+ */
+export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, magi: number | null = null): number {
+  const S = SENIOR_DEDUCTION;
+  if (TAX_YEAR < S.firstYear || TAX_YEAR > S.lastYear) return 0;
+  if (!S.eligible[status] || magi == null) return 0;
+  const people = Math.min(2, Math.max(0, over65));
+  if (people === 0) return 0;
+  const full = people * S.amount;
+  const excess = Math.max(0, magi - S.phaseOutStart[status]);
+  return Math.max(0, full - S.phaseOutRate * excess);
+}
+
+/* ─ MK-CF-F-099 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * deductionFor
+ *
+ * Answers ..... What amount of income is tax-free before the brackets start. Answers: $16,100 single · $32
+ *
+ * Formula .....
+ *     t = TAX_TABLES[status]
+ *     the answer = deduction + min(2, max(0, over65)) × over65 add + senior deduction for(status, over65, magi)
+ *
+ * Called by ... MK-CF-F-100 taxableIncomeFor · MK-PL-F-082 taxableIncomeSteps
+ *
+ * Reaches ..... 101 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-CF-F-049 buildIncomeState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               … and 83 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Decides .....
+ *     · Never lets over65 fall below 0.
+ *     · 2026 standard deduction $16,100 single · $32,200 married · $16,100 filing separately · $24,150 head of household; 65+ add-on $2,050 single / head of household · $1,650 per person married (IRS Rev. Proc. 2025-32 §3.18).
+ *     · Plus the senior deduction of MK-CF-F-187 — $6,000 per person 65+, phased out 6% above $75,000 / $150,000, tax years 2025–2028 (P.L. 119-21 §70103).
+ *
  * Formula also on the master file · functions_from_code · MK-CF-F-099
  * Changed ..... 2026-08-20 (764ca16)
  */
-export function deductionFor(status: FilingStatus = 'single', over65 = 0): number {
+export function deductionFor(status: FilingStatus = 'single', over65 = 0, magi: number | null = null): number {
   const t = TAX_TABLES[status];
-  return t.deduction + Math.min(2, Math.max(0, over65)) * t.over65Add;
+  return t.deduction + Math.min(2, Math.max(0, over65)) * t.over65Add + seniorDeductionFor(status, over65, magi);
 }
 
 /* ─ MK-CF-F-100 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -189,31 +268,31 @@ export function deductionFor(status: FilingStatus = 'single', over65 = 0): numbe
  * Answers ..... What income is taxed, given how this person files?
  *
  * Formula .....
- *     max(0, gross − deduction for(status, over65))
+ *     max(0, gross − deduction for(status, over65, gross))   — gross is handed on as the income the senior deduction phases out against
  *
  * Called by ... MK-CF-F-098 progressiveMonthlyTax · MK-CF-F-101 taxOwedFor
  *               MK-CF-F-103 marginalBracketFor · MK-CF-F-104 ltcgRateFor
  *
- * Reaches ..... 46 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ * Reaches ..... 99 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-049 buildIncomeState
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-CF-F-049 buildIncomeState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-145 deductionsFromPay
- *               MK-CF-F-171 earnerPay · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-102 effectiveRateOnGrossFor
- *               MK-CF-F-048 effectiveTaxRate · MK-CF-F-010 emergencyTest
- *               … and 28 more — the full list is on functions_from_code
+ *               … and 81 more — the full list is on functions_from_code
  *
- * Serves ...... MK-MN-M-027 · MK-MN-M-028
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-100
  * Changed ..... 2026-08-20 (764ca16)
  */
 export function taxableIncomeFor(gross: number, status: FilingStatus = 'single', over65 = 0): number {
-  return Math.max(0, gross - deductionFor(status, over65));
+  return Math.max(0, gross - deductionFor(status, over65, gross));
 }
 
 /** Federal tax owed under a filing status, plus an optional user-set FLAT state rate applied to
@@ -226,27 +305,31 @@ export function taxableIncomeFor(gross: number, status: FilingStatus = 'single',
  *
  * Formula .....
  *     ti = taxable income for(gross, status, over65)
- *     tax = 0, lower = 0
- *     the answer = tax + ti × min(0.15, max(0, state rate))
+ *     federal = Σ over the bands of the filing status, lowest first, while ti is above the band's floor: (min(ti, top of band) − top of the band below) × rate of band
+ *     the answer = federal + ti × min(15%, max(0, state rate))
  *
  * Called by ... MK-CF-F-097 grossFromNet · MK-CF-F-098 progressiveMonthlyTax
  *               MK-CF-F-102 effectiveRateOnGrossFor · MK-CF-F-144 takeHomeAsEntered
  *               MK-PL-F-032 rothConversionCost
  *
- * Reaches ..... 42 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-049 buildIncomeState
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-CF-F-049 buildIncomeState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-145 deductionsFromPay
- *               MK-CF-F-171 earnerPay · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-102 effectiveRateOnGrossFor
- *               MK-CF-F-048 effectiveTaxRate · MK-CF-F-010 emergencyTest
- *               … and 24 more — the full list is on functions_from_code
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Decides .....
+ *     · Never lets state rate fall below 0.
+ *     · The 2026 bands per filing status are the Reference tab's statutory table (IRS Rev. Proc. 2025-32 §4.01), checked by statutory_constants.test.ts.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-101
  * Changed ..... 2026-08-20 (764ca16)
@@ -273,20 +356,20 @@ export function taxOwedFor(gross: number, status: FilingStatus = 'single', state
  *     tax owed for(gross, status, state rate, over65) ÷ gross   if gross > 0
  *     0   otherwise
  *
- * Called by ... MK-CF-F-048 effectiveTaxRate · MK-CF-F-181 rateInForce
- *               MK-PL-F-067 willItLastInputs
+ * Called by ... MK-CF-F-046 employerMatchAnnual · MK-CF-F-048 effectiveTaxRate
+ *               MK-CF-F-181 rateInForce · MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-049 buildIncomeState
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
- *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
- *               MK-CF-F-048 effectiveTaxRate · MK-CF-F-010 emergencyTest
+ * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-049 buildIncomeState · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-090 effectiveRate · MK-CF-F-048 effectiveTaxRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-046 employerMatchAnnual
  *               MK-CF-F-052 getIncomeState · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
- *               … and 15 more — the full list is on functions_from_code
+ *               … and 19 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -298,14 +381,15 @@ export function effectiveRateOnGrossFor(gross: number, status: FilingStatus = 's
   return gross > 0 ? taxOwedFor(gross, status, stateRate, over65) / gross : 0;
 }
 
+/** Which federal band does this person's last dollar fall in? */
 /* ─ MK-CF-F-103 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * marginalBracketFor
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Which federal band does this person's last dollar fall in?
  *
  * Formula .....
  *     ti = taxable income for(gross, status, over65)
- *     the answer = 0.37
+ *     the answer = the rate of the FIRST band whose top is ≥ ti, read in order from the table for the filing status (10% · 12% · 22% · 24% · 32% · 35% · 37%)
  *
  * Called by ... MK-CF-F-091 userCapGainsRates · MK-CF-O-001 basePay
  *               MK-CF-O-004 incomeSummary
@@ -335,7 +419,7 @@ const LTCG: Record<FilingStatus, [number, number]> = {
   hoh: [66_200, 579_600],
 };
 /** The user's own long-term capital-gains rate, from their income + filing status (federal). */
-/* ─ MK-CF-F-104 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-104 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * ltcgRateFor
  *
  * Answers ..... The user's own long-term capital-gains rate, from their income + filing status (federal).

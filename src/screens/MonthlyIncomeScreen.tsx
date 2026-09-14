@@ -1,7 +1,7 @@
 // Your monthly income (Social Security · pension · annuity · other) — the retired lens's front
 // door (approved detailed design v1.1; the user-lens walkthrough's worst finding was that this
 // screen didn't exist). Two numbers a retiree knows by heart, ~20 seconds, no bank login.
-// Writes the ri_* fields the F5 paycheck engine reads — LOCKED guaranteed set: ss / pension /
+// Writes the ri_* fields the F5 paycheck function reads — LOCKED guaranteed set: ss / pension /
 // annuities / other (withdrawals & required minimums live elsewhere; the draw from savings replaces them).
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
@@ -57,7 +57,7 @@ export default function MonthlyIncomeScreen() {
       ri_other_freq: 'monthly',
     };
     // the received-now gate reads incomeSources — saving an amount here MUST open that gate,
-    // or the paycheck engine would see nothing (the B-31 lesson, enforced by test)
+    // or the paycheck function would see nothing (the B-31 lesson, enforced by test)
     if (guaranteedMonthly > 0) {
       const srcs: string[] = Array.isArray(op.incomeSources) ? op.incomeSources : [];
       if (!srcs.includes('retirement_income')) patch.incomeSources = [...srcs, 'retirement_income'];
@@ -161,7 +161,7 @@ export default function MonthlyIncomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  h1: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
+  h1: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   section: { fontSize: 17, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.xs },

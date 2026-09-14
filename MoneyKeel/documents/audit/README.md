@@ -9,3 +9,5 @@ A test sheet is named for the build it verifies — `moneykeel_build_audit_devic
 checked, not a living document. The founder's own filled-in copies follow his rule and carry `-jj`.
 
 Never here: specifications (standards/), mockups (the domain folders), or anything the app reads.
+
+His feedback copies (`-jj`) move to `JJ-feedback-archive/` once folded into the original, with the date as a prefix (founder, 2026-09-10).

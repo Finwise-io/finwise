@@ -38,7 +38,7 @@ test('AUDIT C — 10 flows', () => {
     // the seven live in one component; asking any of them twice is the defect this check exists for
     expect(screen.getAllByText(/What's your target nest egg\?/).length).toBe(1);
     expect(screen.getByLabelText('Your age in years')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Monthly spending in retirement')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Monthly expenses in retirement')).toBeOnTheScreen();
     expect(screen.getByLabelText('Your target nest egg')).toBeOnTheScreen();
     expect(screen.getByLabelText('Raise Retire at')).toBeOnTheScreen();
     expect(screen.getByLabelText('Raise Plan to age')).toBeOnTheScreen();
@@ -83,7 +83,7 @@ test('AUDIT C — 10 flows', () => {
   // C6 SPEND MORE → drive the stepper to the end and back
   render(<SpendMoreControl inputs={JUNE_IN} maxExtra={2555} horizonAge={94} />);
   check('C6', 'spend-more: stepping up changes the sentence', () => {
-    expect(screen.getByText(/in every future simulation we tested/)).toBeOnTheScreen();
+    expect(screen.getByText(/in every simulated future we tested/)).toBeOnTheScreen();
     const up = screen.getByLabelText('Spend more extra');
     for (let i = 0; i < 6; i++) fireEvent.press(up);
     expect(screen.getByText(/runs out before 94/)).toBeOnTheScreen();
@@ -92,7 +92,7 @@ test('AUDIT C — 10 flows', () => {
     const down = screen.getByLabelText('Spend less extra');
     for (let i = 0; i < 8; i++) fireEvent.press(down);
     expect(screen.getByText(/the same as now/)).toBeOnTheScreen();
-    expect(screen.getByText(/in every future simulation we tested/)).toBeOnTheScreen();
+    expect(screen.getByText(/in every simulated future we tested/)).toBeOnTheScreen();
   });
   screen.unmount();
 

@@ -42,8 +42,8 @@ test('working verdict: the percent AND the if-clause that names THEIR plan', () 
   expect(screen.getByText(/^\d{1,3}%$/)).toBeOnTheScreen();
   expect(screen.queryByText(/Likely|Uncertain|Unlikely/)).toBeNull();
   // 2026-08-12: the if-clause is gone — the inputs sit directly beneath the number and say it
-  // truthfully. The old line also claimed "you set it" of a spending figure the app had derived.
-  expect(screen.queryByText(/your planned spending — you set it/)).toBeNull();
+  // truthfully. The old line also claimed "you entered" of a spending figure the app had derived.
+  expect(screen.queryByText(/your planned spending — you entered/)).toBeNull();
   expect(screen.getByText('FACTS — SAVE AS YOU GO')).toBeOnTheScreen();
   expect(screen.getByText('CHOICES — TRY THEM, NOTHING CHANGES YET')).toBeOnTheScreen();
   expect(screen.getByText('What drives this? ›')).toBeOnTheScreen();
@@ -71,11 +71,11 @@ test('working: Social Security is not offered to someone decades away from it', 
 test('retired verdict: the present-tense question, the spending frame, and the withdrawal pace', () => {
   seedRetired();
   render(<PlanHubScreen />);
-  expect(screen.getByText('IS MY MONEY LASTING?')).toBeOnTheScreen();
+  expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
   expect(screen.getByText(/odds of lasting to age \d+/)).toBeOnTheScreen();
   expect(screen.getByText(/^\d{1,3}%$/)).toBeOnTheScreen();
   expect(screen.queryByText(/Holding|Watch closely|Running short/)).toBeNull();
-  expect(screen.getByText(/Your \$4,500\/mo spending/)).toBeOnTheScreen();
+  expect(screen.getByText(/Your \$4,500\/month expenses/)).toBeOnTheScreen();
 });
 
 test('retired: the required withdrawal LEADS the decisions list, wearing its date', () => {
@@ -104,14 +104,14 @@ test('one decision, one place: the dated row is not ALSO repeated further down t
   expect(screen.queryAllByText('Have I taken my required withdrawal?')).toHaveLength(0);
 });
 
-test('retired: the paycheck card carries the SAME engine numbers as Home (guaranteed + safe draw = paycheck)', () => {
+test('retired: the paycheck card carries the SAME function numbers as Home (guaranteed + safe draw = paycheck)', () => {
   seedRetired();
   render(<PlanHubScreen />);
   expect(screen.getByText(/WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK/)).toBeOnTheScreen();
   expect(screen.getByText('= Guaranteed')).toBeOnTheScreen();
   expect(screen.getByText('+ Draw from savings')).toBeOnTheScreen();
   expect(screen.getByText('Your paycheck')).toBeOnTheScreen();
-  expect(screen.getByText(/The same paycheck as Home's card — one engine/)).toBeOnTheScreen();
+  expect(screen.getByText(/The same paycheck as Home's card — one function/)).toBeOnTheScreen();
   // settled Social Security shows as handled, not hidden
   // FOUNDER 2026-08-12: for someone already drawing, the claim question is REMOVED — not shown
   // settled. A decision you cannot make is not a decision to display.

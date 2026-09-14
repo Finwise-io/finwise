@@ -1,7 +1,7 @@
 // Home (FCC detailed design v1.1, Home sheet) — the two-second glance, lens-driven:
 //   working lens → Grow & Track hero (investments, vs the market, freshness stamp)
-//   retired lens → Left to spend hero (the F5 month-named paycheck)
-// then one quiet net-worth line, WHAT NEEDS YOU (top 3 from the ONE insights engine), and the
+//   retired lens → Surplus hero (the F5 month-named paycheck)
+// then one quiet net-worth line, WHAT NEEDS YOU (top 3 from the ONE insights function), and the
 // will-it-last strip (reads the one selector's number — Home displays, it never re-derives).
 // Home only displays numbers; the single capture affordance is the '+ Expense' button (M4).
 import React, { useMemo, useState, useEffect } from 'react';
@@ -18,7 +18,7 @@ import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
-import { investmentsTotal, buildAssetsState, investableAssets } from '../domain/assets';
+import { investmentsTotal, buildAssetsState, investableAssets, assetClassOf } from '../domain/assets';
 import { DesktopInvestTable } from '../../desktop/platform/DesktopInvestTable';
 import { buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, periodDollarDelta, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
@@ -31,11 +31,17 @@ import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/mile
 import { makeMonthlySnapshot, readHistory } from '../domain/history';
 import { useInsights } from './InsightsScreen';
 import { maskedMoney, maskDollars, spokenDollars, spokenMoney } from '../components/useMoney';
-import { InfoDot } from '../components/UI';
+import { InfoDot, EmptyNote } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { SectionBand } from '../components/SectionBand';
 import { DotJoined } from '../components/SepDot';
 import { isoLocalDate } from '../domain/_shared/dates';
+import { DOORS } from '../constants/doors';
+// The connect door's words come from the one list of ways in (founder ruling 2026-09-14: "Connect your bank"),
+// so Home can never re-type them differently again — his build-53 note found Home using its own, different words.
+const CONNECT_DOOR = DOORS.find((d) => d.route === '/connect')!;
+const IMPORT_DOOR = DOORS.find((d) => d.route === '/import-holdings')!;
+const BY_HAND_DOOR = DOORS.find((d) => d.route === '/add-account')!;
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -159,6 +165,7 @@ export default function HomeScreen() {
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──
   const investTotal = investmentsTotal(resolvedRows.accounts);
+  const hasIncomeEntered = salaryAnnual(op) > 0 || (store.incomes ?? []).length > 0 || currentRetirementIncomeMonthly(op) > 0;   // Q48: a real $0 income is not "nothing entered"
   const positions: Position[] = useMemo(
     () => (store.assetAccounts ?? []).flatMap((a: any) => a.positions ?? []),
     [store.assetAccounts]);
@@ -213,21 +220,24 @@ export default function HomeScreen() {
         {/* connect: a real door into the flow — the flow itself says honestly whether live
             bank linking is switched on yet (never a dead button, never a hidden feature) */}
         <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/connect' as any)}
-          accessibilityLabel="Connect your first account. Takes about 2 minutes. Read-only: we can look, never touch your money.">
-          <Text style={styles.doorTitle}>Connect your first account ›</Text>
+          accessibilityLabel={`${CONNECT_DOOR.title.replace(' ›', '')}. Takes about 2 minutes. Read-only: we can look, never touch your money.`}>
+          <Text style={styles.doorTitle}>{CONNECT_DOOR.title}</Text>
           <Text style={styles.doorSub}>Takes about 2 minutes. Read-only: we can look, never touch your money.</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/import-holdings')}
-          accessibilityLabel="Import a file from your brokerage">
-          <Text style={styles.doorTitle}>Import a file from your brokerage ›</Text>
-          <Text style={styles.doorSub}>The CSV export — we read your holdings, nothing is uploaded.</Text>
+        <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push(IMPORT_DOOR.route as any)}
+          accessibilityLabel={IMPORT_DOOR.title.replace(' ›', '')}>
+          <Text style={styles.doorTitle}>{IMPORT_DOOR.title}</Text>
+          <Text style={styles.doorSub}>{IMPORT_DOOR.sub}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/(tabs)/analytics')}
-          accessibilityLabel="Add something by hand — your home, or an account with no login">
-          <Text style={styles.doorTitle}>Add something by hand ›</Text>
-          <Text style={styles.doorSub}>Add it by hand — your home, savings, or an account with no login.</Text>
+        {/* FOUNDER RULING 2026-09-14 ("love it. do it."): one destination and one wording for this door on every
+            screen — it opens the Add account form in one tap. Home used to send it to the Net worth tab, four taps
+            from the form, with its own line under it. */}
+        <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push(BY_HAND_DOOR.route as any)}
+          accessibilityLabel={`${BY_HAND_DOOR.title.replace(' ›', '')}. ${BY_HAND_DOOR.sub}`}>
+          <Text style={styles.doorTitle}>{BY_HAND_DOOR.title}</Text>
+          <Text style={styles.doorSub}>{BY_HAND_DOOR.sub}</Text>
         </TouchableOpacity>
 
         {!draft && (
@@ -265,6 +275,7 @@ export default function HomeScreen() {
               <InfoDot term="investments" />
             </View>
             <Text style={styles.heroBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{maskedMoney(investTotal)}</Text>
+            {investTotal === 0 && !resolvedRows.accounts.some((a: any) => ['stocks_etf', 'bonds', 'alternatives', 'mixed'].includes(assetClassOf(a))) && <EmptyNote door="accounts" />}   {/* Q48 (MK-XS-M-003) */}
             {/* Build-43 feedback #3: the approved mock shows change + date under the hero ALWAYS —
                 hiding them in the empty state made the built screen look nothing like the mock. */}
             {youReturn != null ? (
@@ -369,7 +380,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
   </>);
   const needsBlock = (<>
-        {/* WHAT NEEDS YOU — top 3 from the ONE insights engine (same items/order as Insights) */}
+        {/* WHAT NEEDS YOU — top 3 from the ONE insights function (same items/order as Insights) */}
         <View style={styles.box}>
           <SectionBand inCard title={`CHIEF OF STAFF — WHAT NEEDS YOU ${topInsights.length > 0 ? `(${topInsights.length})` : ''}`.trim()} />
           {topInsights.length === 0 && <Text style={styles.nothingTxt}>Nothing needs you today — nice.</Text>}
@@ -380,7 +391,7 @@ export default function HomeScreen() {
               accessibilityLabel={`${i + 1}. ${spokenDollars(ins.title)}. ${spokenDollars(ins.body)}`}>
               <Text style={[styles.needRank, i === 0 && styles.needRankTop]}>{i + 1}{i === 0 ? '◆' : '·'}</Text>
               <View style={{ flex: 1 }}>
-                {/* engine sentences carry dollar figures — mask them, keep the words (the walk test) */}
+                {/* function sentences carry dollar figures — mask them, keep the words (the walk test) */}
                 <Text style={[styles.needTitle, i === 0 && { fontWeight: '800' }]}>{maskDollars(ins.title)}</Text>
                 <Text style={styles.needBody}>{maskDollars(ins.body)}</Text>
               </View>
@@ -407,7 +418,7 @@ export default function HomeScreen() {
               <InfoDot term="estimate" />
             </View>
           ) : (
-            // founder 2026-07-15: a living tease of the prediction engine, never a chore — the full
+            // founder 2026-07-15: a living tease of the prediction function, never a chore — the full
             // gauge visual, LOCKED, with the number visibly blank (a fake 88% would be a trust bug)
             <View style={styles.gaugeRow}>
               <View accessible={false}>
@@ -430,15 +441,15 @@ export default function HomeScreen() {
         </TouchableOpacity>
   </>);
   const cashflowBlock = (<>
-        {/* THIS MONTH'S CASH FLOW — the dashboard readout (founder 2026-07-15): income vs spending
+        {/* THIS MONTH'S CASH FLOW — the dashboard readout (founder 2026-07-15): income vs expenses
             at a glance, the SAME two figures the month math above uses (thisMonthNet / bva) */}
         {(() => {
           // the approved mock (2026-07-16): pace carries a WORD (never color alone) + the three
-          // money figures at money size — Income / Spent so far / Left in 17pt lining figures
+          // money figures at money size — Income / Actual expenses so far / Left in 17pt lining figures
           const over = thisMonthNet <= 0 || bva.spent_total > thisMonthNet;
           const fast = !over && bva.spent_total > 0.7 * thisMonthNet;
           const pace = over ? { word: 'Over', bg: Colors.redLight, fg: Colors.red }
-            : fast ? { word: 'Spending fast', bg: Colors.amberLight, fg: Colors.amber }
+            : fast ? { word: 'Expenses running fast', bg: Colors.amberLight, fg: Colors.amber }
             : { word: '✓ On pace', bg: Colors.primaryLight, fg: Colors.primaryDark };
           const pctSpent = thisMonthNet > 0 ? Math.min(999, Math.round((bva.spent_total / thisMonthNet) * 100)) : null;
           const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -458,8 +469,8 @@ export default function HomeScreen() {
                 }]} />
               </View>
               <View style={styles.cfRow}>
-                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(thisMonthNet))}</Text></View>
-                <View style={styles.cfCell}><Text style={styles.cfLabel}>Spent so far</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></View>
+                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(thisMonthNet))}</Text>{thisMonthNet === 0 && !hasIncomeEntered && <EmptyNote door="income" />}</View>
+                <View style={styles.cfCell}><Text style={styles.cfLabel}>Actual expenses so far</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></View>
                 <View style={styles.cfCell}>
                   <Text style={styles.cfLabel}>{left >= 0 ? 'Left' : 'Over'}</Text>
                   <Text style={[styles.cfNum, { color: left >= 0 ? Colors.primaryDark : Colors.red }]}>{maskedMoney(Math.abs(Math.round(left)))}</Text>
@@ -569,7 +580,7 @@ const styles = StyleSheet.create({
   // Type sizes on this screen come from the official ladder only (11/13/15/17/20/24/38) —
   // approved mock 2026-07-16; money figures use lining (tabular) digits so columns align.
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary },
   staleLine: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 44, justifyContent: 'center' },
   staleTxt: { fontSize: 13, fontWeight: '700', color: Colors.amber },

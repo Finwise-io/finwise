@@ -28,7 +28,7 @@ export interface TaxProfile {
   use_manual_tax_override: boolean;
   manual_effective_tax_rate: number | null;  // 0–1
   /** Who the return is filed as, and how many on it are 65 or older. Carried here so the rows
-   *  converted out of the onboarding profile are taxed by the SAME engine, with the SAME answer,
+   *  converted out of the onboarding profile are taxed by the SAME function, with the SAME answer,
    *  as every other screen. Absent means single — the old behaviour, unchanged. */
   filing_status?: import('./tax').FilingStatus;
   over65?: number;

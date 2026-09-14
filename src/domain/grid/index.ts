@@ -3,12 +3,12 @@
 // labels like "Jan ’27"), each cell carrying ITEM LISTS so a month-detail's rows visibly sum to its
 // bar. Dated items beyond the window land in `later` — visible, never silently dropped.
 //
-// SAMENESS: this engine derives from the SAME canonical helpers the app already trusts —
+// SAMENESS: this function derives from the SAME canonical helpers the app already trusts —
 // salaryGrossByMonth / equityByMonth / benefitActiveMonths / spendByMonth / effectiveRate — and the
 // grid.test.ts agreement suite pins Σcells to cashflowYear's totals, so promoting screens onto the
 // grid can never change their numbers.
 import type { OnboardingProfile } from '../onboardingProfile';
-import { toNum, round2 } from '../_shared/num';
+import { toNum } from '../_shared/num';
 import {
   salaryGrossByMonth, effectiveRate, monthlyTaxRates, currentRetirementIncomeMonthly, otherIncomeMonth,
   benefitActiveMonths, rentalNetAnnual,
@@ -57,7 +57,7 @@ export interface GridOptions {
    *  months). When provided, the flat retirement-income line is omitted — the dated rows replace
    *  it (never both; no double counting). */
   guaranteedIncome?: { source: string; amount: number; month: number; year?: number; day?: number }[];
-  /** F11 seam: one-off planned items an ADOPTED plan creates (e.g. the Roth conversion's tax bill
+  /** F11 seam: one-time planned items an ADOPTED plan creates (e.g. the Roth conversion's tax bill
    *  next April). Placed like named bills; months outside the window land in `later`. */
   oneOffs?: { label: string; amount: number; month: number; year?: number; critical?: boolean }[];
 }
@@ -80,6 +80,7 @@ export interface GridOptions {
  *     slot of = (m1to12: number) => ((m1to12 − 1) − start month + 12) % 12
  *     slot of(m1to12)   when year is missing
  *     idx = year × 12 + (m1to12 − 1) − now idx
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-107 buildPaycheckYear
@@ -90,24 +91,21 @@ export interface GridOptions {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-026 big costs (amount and year)
- *               MK-XS-I-032 spending categories the person set up
+ *               MK-XS-I-032 expenses categories the person set up
+ *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
  *               MK-XS-I-052 the day of the month a debt payment is due
- *               MK-XS-I-053 the month a debt is first paid
- *               MK-XS-I-054 the date a debt is due to be paid off in full
  *
  * Decides .....
  *     · If year is missing it uses 0.
  *     · If a year is missing it uses 0.
  *     · If start balance is missing it uses 0.
- *     · Uses a built-in s of 0.
- *     · Uses a built-in q of 0.
- *     · Uses a built-in t of 0.
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
+ *     · Never lets start idx fall below 0.
+ *     · Caps end idx at 11.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-004
  * Changed ..... 2026-07-14 (cf50737)
@@ -207,7 +205,7 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
   }
 
   // ── bills: named non-monthly items + a reconciling remainder, so Σ billItems(bill) per cell
-  //    EQUALS the canonical spendByMonth to the cent (one spend engine, agreement-tested) ──
+  //    EQUALS the canonical spendByMonth to the cent (one spend function, agreement-tested) ──
   const spendCal = spendByMonth(op);
   const netMonthlyIncome = (() => { let t = 0; for (const cell of income) for (const i of cell) t += i.amount; return t / 12; })();
   const named: number[] = new Array(12).fill(0);
@@ -216,7 +214,7 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
     const amt = toNum(c?.amount); if (amt <= 0) continue;
     const yearly = c?.unit === 'pct' ? (amt / 100) * netMonthlyIncome * 12 : amt;
     const ms = Array.isArray(c?.months) && c.months.length ? c.months : [1];
-    const yr = toNum(c?.year) || undefined;                       // one-off bills may carry a YEAR (v1.1)
+    const yr = toNum(c?.year) || undefined;                       // one-time bills may carry a YEAR (v1.1)
     for (const m of ms) {
       const s = slotForMY(m, yr);
       const item: GridBillItem = { label: c.label ?? c.id ?? 'Bill', amount: yearly / ms.length, day: toNum(c?.dueDay) || undefined, kind: 'bill', critical: (c.tier ?? 'flex') === 'critical' };
@@ -226,10 +224,10 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
   }
   for (let s = 0; s < 12; s++) {
     const rest = spendCal[calMonth(s)] - named[s];
-    if (rest > 0.004) bills[s].push({ label: 'Everyday spending', amount: rest, kind: 'bill' });
+    if (rest > 0.004) bills[s].push({ label: 'Everyday expenses', amount: rest, kind: 'bill' });
   }
-  // one-off planned items from an adopted plan (kept OUT of the spend reconciliation above —
-  // they are additions the plan created, not part of stated everyday spending)
+  // one-time planned items from an adopted plan (kept OUT of the spend reconciliation above —
+  // they are additions the plan created, not part of stated everyday expenses)
   for (const o of (opts.oneOffs ?? [])) {
     if (!o || !(o.amount > 0)) continue;
     const s = slotForMY(o.month, o.year);
@@ -274,15 +272,16 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
     bal += inflow - outflow; totalIn += inflow; totalOut += outflow;
     return {
       calendarMonth: cm + 1, year: yr, label,
-      incomeItems: income[s].map((i) => ({ ...i, amount: round2(i.amount), gross: i.gross == null ? undefined : round2(i.gross) })),
-      billItems: bills[s].map((b) => ({ ...b, amount: round2(b.amount) })),
-      inflow: round2(inflow), outflow: round2(outflow), net: round2(inflow - outflow), runningBalance: round2(bal),
+      incomeItems: income[s].map((i) => ({ ...i, amount: (i.amount), gross: i.gross == null ? undefined : (i.gross) })),
+      billItems: bills[s].map((b) => ({ ...b, amount: (b.amount) })),
+      inflow: (inflow), outflow: (outflow), net: (inflow - outflow), runningBalance: (bal),
     };
   });
   const shortMonths = cells.filter((c) => c.runningBalance < -0.005).map((c) => c.label);
   return {
     cells, later, shortMonths,
-    lowestBalance: round2(Math.min(...cells.map((c) => c.runningBalance))),
-    totalIn: round2(totalIn), totalOut: round2(totalOut),
+    lowestBalance: (Math.min(...cells.map((c) => c.runningBalance))),
+    totalIn: (totalIn), totalOut: (totalOut),
   };
 }
+

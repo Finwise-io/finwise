@@ -25,10 +25,10 @@ test('2a — the screen names itself and says what it is NOT for', () => {
 test('2a — one earner: the household block shows gross, a band and what lands', () => {
   setProfile(ME);
   render(<BasePayScreen />);
-  expect(screen.getByText('Gross a year')).toBeOnTheScreen();
+  expect(screen.getByText('Gross /year')).toBeOnTheScreen();
   expect(screen.getByText('$84,000')).toBeOnTheScreen();          // 7,000 x 12
   expect(screen.getByText('= Take-home')).toBeOnTheScreen();
-  expect(screen.getAllByText('$5,000/mo').length).toBeGreaterThan(0);   // the band figure repeats it (v6 #7)
+  expect(screen.getAllByText('$5,000/month').length).toBeGreaterThan(0);   // the band figure repeats it (v6 #7)
   // with one wage there is no second band to compare against, so no note is invented
   expect(screen.queryByText(/what you earn together/)).toBeNull();
 });
@@ -39,7 +39,7 @@ test('2a — two earners: a section each, and the household is their sum', () =>
   expect(screen.getByText('You')).toBeOnTheScreen();
   expect(screen.getByText('Sam')).toBeOnTheScreen();
   expect(screen.getByText('$138,000')).toBeOnTheScreen();          // 84,000 + 54,000
-  expect(screen.getAllByText('$8,300/mo').length).toBeGreaterThan(0);   // 5,000 + 3,300
+  expect(screen.getAllByText('$8,300/month').length).toBeGreaterThan(0);   // 5,000 + 3,300
   // v6 (founder device feedback #3): ONE bracket row — the old band pair is gone, its comparison
   // lives in the sentence below the card.
   expect(screen.getByText('Federal tax bracket')).toBeOnTheScreen();

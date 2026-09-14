@@ -50,7 +50,9 @@ const TREASURY_API = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10';
  * Answers ..... What are inflation and the 10-year Treasury yield?
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     inflation rate = the fetched figure, or the fallback when the fetch failed
+ *     treasury yield = the fetched figure, or the fallback when the fetch failed
+ *     fetched at = now; each fallback flagged
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -101,8 +103,7 @@ export async function fetchEconomicData(): Promise<EconomicData> {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
+ *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-140
  * Changed ..... not in git yet (—)
@@ -134,7 +135,7 @@ async function fetchInflation(): Promise<number> {
  *     rows = csv.trim().split('\n').slice(1)
  *     value = rows[i].split(',')[1].trim()
  *     rate = parse float(value)
- *     the answer = round(rate, 2 dp)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-XS-F-056 fetchEconomicData
  *
@@ -144,8 +145,7 @@ async function fetchInflation(): Promise<number> {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
+ *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-141
  * Changed ..... not in git yet (—)
@@ -184,7 +184,7 @@ export type ExpenseAnalysis = {
 /* ─ MK-XS-F-057 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
  * analyzeExpenses
  *
- * Answers ..... What is worth saying about this spending?
+ * Answers ..... What is worth saying about this expenses?
  *
  * Formula .....
  *     data = await res.json()
@@ -193,7 +193,7 @@ export type ExpenseAnalysis = {
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged spending
+ * Reads ....... MK-XS-I-024 logged expenses
  *               MK-XS-I-029 inflation rate
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-057

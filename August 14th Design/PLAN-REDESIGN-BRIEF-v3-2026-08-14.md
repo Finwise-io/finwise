@@ -1,3 +1,5 @@
+> **Figures re-run 2026-09-09** under founder ruling Q49 — every calculation now runs at full precision and rounds only at display. Pat's blended return is used unrounded (5.8538%, shown as 5.85%), which moves the projections by a few thousand dollars: projects to $2,008,606 (was $2,008,196), growth on what he has $422,645 (was $426,859), growth on new money $134,309 (was $129,685), the mirror $1,505,353 (was $1,505,001). The engine guard (brief_figures_guard.test.ts) holds the brief to these. The previous text is archived beside this file.
+
 # Plan surface — redesign brief v3
 
 **For:** Claude Design
@@ -159,9 +161,9 @@ possibly be right.
 | Where the $1,090,848 actually closes from | |
 |---|---|
 | Money he puts in — $77,500 × 7 | **$542,500** |
-| Growth on the $909,152 he already has | **$426,859** |
-| Growth on the new money as it goes in | **$129,685** |
-| **Projects to** | **$2,008,196** |
+| Growth on the $909,152 he already has | **$422,645** |
+| Growth on the new money as it goes in | **$134,309** |
+| **Projects to** | **$2,008,606** |
 
 **Nearly half the gap is closed by growth, and the sentence never mentioned that growth exists.**
 
@@ -193,7 +195,7 @@ per-year figure will be subtracted — treat that as a certainty, not a risk.
 **Solve it, do not formula it.** A closed-form annuity calculation lands short of the target it just
 promised to reach — the same class of defect as audit D1/D2. Find the smallest yearly saving whose
 projection actually reaches the target and round it **up**. Measured on Pat: **$77,500 lands at
-$2,008,196, and one $500 step lower lands at $1,989,909 and misses.**
+$2,008,606, and one $500 step lower lands at $1,989,909 and misses.**
 
 **When they are already past their target, the sentence changes rather than disappearing** — see §5,
 state 6.
@@ -980,7 +982,7 @@ the person rather than printing a fixed menu.
    savings no longer matter would have been both false and discouraging.
 
    **THE MIRROR — on target, and the odds still are not there.** Pat with a **$1,500,000** target:
-   saving **$17,500 a year** projects to **$1,505,001**, which reaches it, and the odds at that point
+   saving **$17,500 a year** projects to **$1,505,353**, which reaches it, and the odds at that point
    are **74%**. *(Verified on the engine.)*
 
    > **You'll reach your $1,500,000 target nest egg** — saving $17,500 a year gets you there by 65.

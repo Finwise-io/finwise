@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { DateField } from '../components/DateField';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { InfoDot } from '../components/UI';
+import { InfoDot, EmptyNote } from '../components/UI';
 import { assetKind, benchmarkReturn, investableAssets, type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isAlternative, alternativesSummary, ALT_KINDS_CAPTURE } from '../domain/alternatives';
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -44,6 +44,8 @@ export default function OtherInvestmentsScreen() {
 
       {alts.length === 0 ? (
         <View style={styles.card}>
+          <View style={styles.summary}><Text style={styles.sumLab}>Total value</Text><Text style={styles.sumVal}>{money(0)}</Text></View>
+          <EmptyNote door="investment" onPress={() => setAddOpen(true)} />   {/* Q48 (MK-MN-M-022/023) */}
           <Text style={styles.empty}>Track alternatives — crypto, private equity, hedge funds, commodities, annuities — at a value you set. They count toward your net worth and retirement nest egg.</Text>
           <TouchableOpacity style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add an investment</Text></TouchableOpacity>
         </View>
@@ -61,7 +63,7 @@ export default function OtherInvestmentsScreen() {
           {alts.map((a) => (
             <TouchableOpacity key={a.asset_id} accessibilityRole="button" accessibilityLabel={`Edit ${a.label}, ${money(a.balance || 0)}`} style={styles.card} onPress={() => setEdit(a)}>
               <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{a.label}</Text><Text style={styles.val}>{money(a.balance || 0)}</Text></View>
-              <Text style={styles.sub}>{a.institution?.trim() ? `${a.institution.trim()} · ` : ''}{assetKind(a.kind)?.label ?? 'Other'} · ~{(benchmarkReturn(a.kind) * 100).toFixed(1)}%/yr expected</Text>
+              <Text style={styles.sub}>{a.institution?.trim() ? `${a.institution.trim()} · ` : ''}{assetKind(a.kind)?.label ?? 'Other'} · ~{(benchmarkReturn(a.kind) * 100).toFixed(1)}%/year expected</Text>
             </TouchableOpacity>
           ))}
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add an investment" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add an investment</Text></TouchableOpacity>
@@ -105,12 +107,12 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
     const sold = num(sellAmt); const cur = num(value); if (sold <= 0 || cur <= 0) return;
     const full = sold >= cur - 0.005;
     Alert.alert(
-      full ? 'Close this investment?' : 'Record a sale?',
+      full ? 'Sell all of this investment?' : 'Sell part of this investment?',
       full ? `Marks all ${money(cur)} as sold and removes it from your holdings.`
            : `Lowers ${label.trim() || 'this investment'} from ${money(cur)} to ${money(cur - sold)} — the sale shows in this account's activity.`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: full ? 'Close position' : 'Record sale', onPress: () => {
+        { text: full ? 'Sell all' : 'Sell', onPress: () => {
           if (full) { onDelete?.(); return; }
           if (item) recordTransaction?.({ type: 'SELL', account_id: item.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Sale' });
           onSave({ kind, label: label.trim(), institution: inst.trim(), tax_bucket: bucket, ...(item ? {} : { balance: Math.round((cur - sold) * 100) / 100 }) });
@@ -130,7 +132,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           <View style={styles.chips}>{ALT_KINDS_CAPTURE.map((k) => (
             <TouchableOpacity key={k} style={[styles.chip, kind === k && styles.chipOn]} onPress={() => setKind(k)}><Text style={[styles.chipT, kind === k && styles.chipTOn]}>{assetKind(k)?.label ?? 'Other'}</Text></TouchableOpacity>
           ))}</View>
-          <Text style={styles.hint}>{ALT_HINT[kind]} ~{(benchmarkReturn(kind) * 100).toFixed(1)}%/yr historical benchmark.</Text>
+          <Text style={styles.hint}>{ALT_HINT[kind]} ~{(benchmarkReturn(kind) * 100).toFixed(1)}%/year historical benchmark.</Text>
           <Text style={styles.fieldL}>Name</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Bitcoin, Fund III, Gold" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Where it's held (institution)</Text>
@@ -145,12 +147,12 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           ))}</View>
           {item && (
             <View style={styles.sellBox}>
-              <Text style={styles.sellTitle}>🔻 Record a sale</Text>
+              <Text style={styles.sellTitle}>🔻 Sell</Text>
               <Text style={styles.hint}>Sold this (or part of it) — e.g. an option before expiration, or some crypto? Enter the proceeds to lower or close the position. To re-mark its price, edit “Current value” above.</Text>
               <View style={styles.sellRow}>
                 <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
                   placeholder={`amount sold (up to ${money(num(value))})`} placeholderTextColor={Colors.textTertiary} />
-                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Record sale" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sell" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
                   <Text style={styles.sellBtnT}>Record</Text>
                 </TouchableOpacity>
               </View>
@@ -172,7 +174,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, marginBottom: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, marginBottom: 8 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10 },
   empty: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
   addBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: 14 },
@@ -213,3 +215,4 @@ const styles = StyleSheet.create({
   saveBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
   deleteLink: { fontSize: 13, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: 14 },
 });
+

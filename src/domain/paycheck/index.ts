@@ -1,4 +1,4 @@
-// F5 — the safe-to-spend paycheck engine (approved detailed design v1.1; the headline net-new
+// F5 — the safe-to-spend paycheck function (approved detailed design v1.1; the headline net-new
 // build of the 55-70 core). Answers "how much can I spend THIS month?" with that month's REAL
 // facts: the guaranteed checks that land that month + a level safe draw from savings − the big
 // dated bills due that month. Never a flat average (Principle 5).
@@ -10,10 +10,10 @@
 //
 // SAFE DRAW: the largest level monthly draw that keeps the will-it-last simulation at or above
 // Likely (chance ≥ 80), found by binary search over ~10 seeded runs (deterministic, testable).
-// Assumptions are ADOPTED from Plan — this engine never invents its own. The classic 4%-a-year
+// Assumptions are ADOPTED from Plan — this function never invents its own. The classic 4%-a-year
 // guideline is a sanity BAND (drawRateFlag), never the derivation.
 import type { OnboardingProfile } from '../onboardingProfile';
-import { toNum, round2 } from '../_shared/num';
+import { toNum } from '../_shared/num';
 import { simulate, type RetirementInputs } from '../retirement';
 import { retirementEarmarkedValue, type AssetAccount } from '../assets';
 import { buildDatedGrid, type GridBillItem } from '../grid';
@@ -38,7 +38,7 @@ export interface PaycheckMonth {
   guaranteedTotal: number;
   safeDraw: number;                  // level by design — the steadying flywheel
   bills: { label: string; amount: number; day?: number }[];   // big DATED bills only (everyday
-  billsTotal: number;                                          // monthly spending is what the
+  billsTotal: number;                                          // monthly expenses is what the
   netSafeToSpend: number;                                      // paycheck is FOR — not subtracted)
 }
 export interface PaycheckYear {
@@ -46,8 +46,8 @@ export interface PaycheckYear {
   thisMonth: PaycheckMonth;
   thisYear: number;                  // EXACT sum of the 12 months — never monthly × 12
   safeDrawMonthly: number;
-  drawRateFlag: 'ok' | 'high' | null;   // 'high' = above the classic 4%/yr guideline (inform, never advise)
-  guaranteedMissing: boolean;        // no guaranteed income captured → the UI prompts, never fakes $0
+  drawRateFlag: 'ok' | 'high' | null;   // 'high' = above the classic 4%/year guideline (inform, never advise)
+  guaranteedMissing: boolean;        // no guaranteed income entered → the UI prompts, never fakes $0
   nestEgg: number;
 }
 export interface PaycheckSimInputs {
@@ -96,12 +96,10 @@ export interface PaycheckOptions {
  *               MK-CF-F-107 buildPaycheckYear
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-040 whether a stream is already being received
+ * Reads ....... MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-040 whether a stream is already being received
  *
  * Decides .....
- *     · Uses a built-in q of 0.
- *     · Uses a built-in s of 0.
- *     · Treats a year as twelve equal months.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-105
@@ -140,9 +138,9 @@ export function guaranteedRows(op: OnboardingProfile | null, now: Date = new Dat
  *     0   when nest egg ≤ 0
  *     years = max(1, sim.horizon age − sim.current age)
  *     lo = 0, hi = max(100, (nest egg ÷ years ÷ 12) × 2)
- *     round(hi, 2 dp)   when chance at(hi) ≥ chance floor
+ *     hi   when chance at(hi) ≥ chance floor
  *     mid = (lo + hi) ÷ 2
- *     the answer = round(round down(lo ÷ 5) × 5, 2 dp)
+ *     the answer = round down(lo ÷ 5) × 5
  *
  * Called by ... MK-CF-F-107 buildPaycheckYear
  *
@@ -156,9 +154,8 @@ export function guaranteedRows(op: OnboardingProfile | null, now: Date = new Dat
  *               MK-XS-I-043 their own retirement contribution
  *
  * Decides .....
- *     · If paths is missing it uses 300.
+ *     · If paths is missing it uses 1000.
  *     · If seed is missing it uses 42.
- *     · Uses a built-in i of 0.
  *     · Treats a year as twelve equal months.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-106
@@ -172,19 +169,19 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
     retire_monthly_spend_today: 0, guaranteed_monthly_income: guaranteedMonthlyAvg,
     guaranteed_start_age: sim.current_age,
     inflation: sim.inflation, mean_return: sim.mean_return, vol_return: sim.vol_return,
-    paths: sim.paths ?? 300, seed: sim.seed ?? 42,
+    paths: sim.paths ?? 1000, seed: sim.seed ?? 42,
   };
   const chanceAt = (draw: number) =>
     simulate({ ...base, retire_monthly_spend_today: guaranteedMonthlyAvg + draw }).chance_of_success;
   // upper bound: spend the whole egg flat over the remaining years, doubled — always infeasible
   const years = Math.max(1, sim.horizon_age - sim.current_age);
   let lo = 0, hi = Math.max(100, (nestEgg / years / 12) * 2);
-  if (chanceAt(hi) >= chanceFloor) return round2(hi);          // even the cap is safe (huge egg / short horizon)
+  if (chanceAt(hi) >= chanceFloor) return (hi);          // even the cap is safe (huge egg / short horizon)
   for (let i = 0; i < 12; i++) {
     const mid = (lo + hi) / 2;
     if (chanceAt(mid) >= chanceFloor) lo = mid; else hi = mid;
   }
-  return round2(Math.floor(lo / 5) * 5);                       // round DOWN to $5 — never overstate "safe"
+  return (Math.floor(lo / 5) * 5);                       // round DOWN to $5 — never overstate "safe"
 }
 
 /** Build the month-by-month paycheck. Pure; recompute triggers are the caller's job. */
@@ -196,9 +193,9 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
  * Formula .....
  *     now = opts.now (or new date() when missing)
  *     rows = guaranteed rows(op, now)
- *     nest egg = round(opts.nest egg (or retirement earmarked value(opts.accounts ?? []) when missing), 2 dp)
+ *     nest egg = opts.nest egg (or retirement earmarked value(opts.accounts ?? []) when missing)
  *     guaranteed annual = Σ over rows of (amount)
- *     safe draw = solve safe draw(nest egg, guaranteed annual ÷ 12, opts.sim, opts.chance floor ?? 80)
+ *     draw from savings = solve draw from savings(nest egg, guaranteed annual ÷ 12, opts.sim, opts.chance floor ?? 80)
  *     grid = build dated grid(op, { now, liabilities: opts.liabilities, guaranteed income: rows })
  *     start month = now.get month(), start year = now.get full year()
  *     cm = ((start month + s) % 12) + 1
@@ -209,15 +206,15 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ * Serves ...... MK-CF-M-022
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · If chance floor is missing it uses 80.
  *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-107
  * Changed ..... 2026-07-12 (652a06e)
@@ -225,18 +222,18 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
 export function buildPaycheckYear(op: OnboardingProfile | null, opts: PaycheckOptions): PaycheckYear {
   const now = opts.now ?? new Date();
   const rows = guaranteedRows(op, now);
-  const nestEgg = round2(opts.nestEgg ?? retirementEarmarkedValue(opts.accounts ?? []));
+  const nestEgg = (opts.nestEgg ?? retirementEarmarkedValue(opts.accounts ?? []));
   const guaranteedAnnual = rows.reduce((t, r) => t + r.amount, 0);
   const safeDraw = solveSafeDraw(nestEgg, guaranteedAnnual / 12, opts.sim, opts.chanceFloor ?? 80);
   const drawRateFlag: PaycheckYear['drawRateFlag'] =
     nestEgg <= 0 || safeDraw <= 0 ? null : (safeDraw * 12) / nestEgg > 0.045 ? 'high' : 'ok';
 
   // dated bills come from the F2 grid (one grid — the paycheck never invents its own calendar);
-  // big bills = the NAMED dated items; the grid's 'Everyday spending' reconciler and regular
+  // big bills = the NAMED dated items; the grid's 'Everyday expenses' reconciler and regular
   // monthly debt payments stay OUT — the paycheck exists to pay those.
   const grid = buildDatedGrid(op, { now, liabilities: opts.liabilities, guaranteedIncome: rows });
   const bigBills = (items: GridBillItem[]) =>
-    items.filter((b) => b.kind === 'bill' && b.label !== 'Everyday spending');
+    items.filter((b) => b.kind === 'bill' && b.label !== 'Everyday expenses');
 
   const startMonth = now.getMonth(), startYear = now.getFullYear();
   const months: PaycheckMonth[] = Array.from({ length: 12 }, (_, s) => {
@@ -244,23 +241,24 @@ export function buildPaycheckYear(op: OnboardingProfile | null, opts: PaycheckOp
     const yr = startYear + Math.floor((startMonth + s) / 12);
     const label = MONTHS[cm - 1] + (yr > startYear ? ` ’${String(yr).slice(2)}` : '');
     const g = rows.filter((r) => r.month === cm && r.year === yr)
-      .map((r) => ({ source: r.source, amount: round2(r.amount), day: r.day }));
+      .map((r) => ({ source: r.source, amount: (r.amount), day: r.day }));
     const gTotal = g.reduce((t, x) => t + x.amount, 0);
     const cell = grid.cells[s];
     const bills = bigBills(cell.billItems).map((b) => ({ label: b.label, amount: b.amount, day: b.day }));
     const bTotal = bills.reduce((t, b) => t + b.amount, 0);
     return {
       calendarMonth: cm, year: yr, label,
-      guaranteed: g, guaranteedTotal: round2(gTotal),
-      safeDraw, bills, billsTotal: round2(bTotal),
-      netSafeToSpend: round2(gTotal + safeDraw - bTotal),
+      guaranteed: g, guaranteedTotal: (gTotal),
+      safeDraw, bills, billsTotal: (bTotal),
+      netSafeToSpend: (gTotal + safeDraw - bTotal),
     };
   });
   return {
     months, thisMonth: months[0],
-    thisYear: round2(months.reduce((t, m) => t + m.netSafeToSpend, 0)),   // exact sum, never ×12
+    thisYear: (months.reduce((t, m) => t + m.netSafeToSpend, 0)),   // exact sum, never ×12
     safeDrawMonthly: safeDraw, drawRateFlag,
     guaranteedMissing: rows.length === 0,
     nestEgg,
   };
 }
+

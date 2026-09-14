@@ -1,4 +1,4 @@
-// Adaptive onboarding engine — DATA-DRIVEN from docs/onboarding-data-matrix.md (v3).
+// Adaptive onboarding function — DATA-DRIVEN from docs/onboarding-data-matrix.md (v3).
 // The flow is computed: steps = baseline ∪ (per selected service: must-have + optional fields,
 // given life stage), service-ordered, de-duplicated, with a recap after each of S1–S4, then summary.
 
@@ -46,7 +46,7 @@ export interface GoalGroup { title: string; items: GoalOption[] }
 
 // Plain-language option labels + a one-line scope hint each.
 const GOAL_DEF: Record<Track, GoalOption> = {
-  spend:      { value: 'spend',      icon: '📊', title: 'Track income & spending', sub: 'See what comes in and where it goes' },
+  spend:      { value: 'spend',      icon: '📊', title: 'Track income & expenses', sub: 'See what comes in and where it goes' },
   debt:       { value: 'debt',       icon: '💳', title: 'Pay off my debt',          sub: 'A plan to clear what you owe' },
   goals:      { value: 'goals',      icon: '🎯', title: 'Save for travel, big purchases & goals', sub: 'Set targets and track progress' },
   invest:     { value: 'invest',     icon: '📈', title: 'Track my investments',     sub: 'Stocks, funds, bonds, crypto — vs the market' },
@@ -55,7 +55,7 @@ const GOAL_DEF: Record<Track, GoalOption> = {
   retire_acc: { value: 'retire_acc', icon: '🏖️', title: 'Plan for retirement',      sub: 'Are you on track — and when can you retire?' },
   retire_dec: { value: 'retire_dec', icon: '🛟', title: 'Make my money last',        sub: 'Will your savings last through retirement?' },
   legacy:     { value: 'legacy',     icon: '🎁', title: 'Leave money to family or a cause', sub: 'Plan what you pass on' },
-  partner:    { value: 'partner',    icon: '👫',   title: 'Plan with a partner',     sub: 'Manage money together' },
+  partner:    { value: 'partner',    icon: '👫',   title: 'Plan with a spouse',     sub: 'Manage money together' },
   family:     { value: 'family',     icon: '👨‍👩‍👧', title: 'Plan with family',        sub: 'Dependents and family finances' },
 };
 
@@ -119,7 +119,7 @@ export function incomeSourceOptionsFor(status: Status | null): { value: IncomeSo
     investment_income: { value: 'investment_income', icon: '💵', title: 'Interest & dividends',         sub: 'Money your savings or investments pay you' },
     rental:            { value: 'rental',            icon: '🏠', title: 'Rent from a property',         sub: 'You rent out a place you own' },
     retirement_income: { value: 'retirement_income', icon: '🏖️', title: 'Retirement income',            sub: 'Social Security, pension, 401(k)/IRA withdrawals' },
-    other_income:      { value: 'other_income',      icon: '🧾', title: 'Something else',               sub: 'Gifts, a one-off payment, anything else' },
+    other_income:      { value: 'other_income',      icon: '🧾', title: 'Something else',               sub: 'Gifts, a one-time payment, anything else' },
   };
   const ORDER: Record<Status, IncomeSourceKey[]> = {
     student:  ['employment', 'scholarship', 'loans', 'self_employment', 'support', 'benefits', 'investment_income', 'other_income'],
@@ -286,7 +286,7 @@ export function buildSteps(status: Status | null, tracks: Track[], answers?: Rec
   const emit = (f: StepId) => { if (!seen.has(f)) { seen.add(f); steps.push(f); } };
 
   // Household context FIRST — "who earns this income?" on the salary screen only makes
-  // sense after we've asked whether a partner is in the picture.
+  // sense after we've asked whether a spouse is in the picture.
   if (tracks.includes('partner')) emit('hasPartner');
   if (tracks.includes('family')) emit('dependentsCount');
 

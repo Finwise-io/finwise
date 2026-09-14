@@ -1,4 +1,4 @@
-// Insights — the centralized engine's ranked results, GROUPED BY THEME, each with a provenance drill-down
+// Insights — the centralized function's ranked results, GROUPED BY THEME, each with a provenance drill-down
 // (which accounts + the math) so a number is never a mystery. useInsights() computes the inputs AND the
 // per-insight detail breakdowns from the store + domain.
 import React, { useMemo, useState } from 'react';
@@ -13,6 +13,7 @@ import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
 import { plannedMonthlySpend } from '../domain/budget';
+import { essentialsMonthly } from '../../MoneyKeel/functions/cashflow/essentials';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
 import { maskDollars, spokenDollars } from '../components/useMoney';
 import { buildPerformance, topHoldingConcentration } from '../domain/performance';
@@ -44,7 +45,10 @@ export function useInsights(limit?: number): Insight[] {
     const accounts = store.assetAccounts ?? [];
     const liabilities = store.liabilities ?? [];
     const age = ageFromProfile(op) ?? 45;
-    const monthlySpending = plannedMonthlySpend(op);
+    // G21 / Q21 / Q47 (2026-09-08): the runway divides by the ONE essentials figure (MK-CF-F-190)
+    const essentials = essentialsMonthly(store.expenses ?? [], plannedMonthlySpend(op));
+    const monthlySpending = essentials?.monthly ?? 0;
+    const essentialsLabel = essentials?.label ?? '';
     const cash = cashTotal(accounts);
     const investable = investableAssets(accounts);
     const investAccts = accounts.filter((a: any) => a.tax_bucket !== 'PROPERTY' && a.tax_bucket !== 'CASH');
@@ -141,7 +145,7 @@ export function useInsights(limit?: number): Insight[] {
       'cash-drag': () => accounts.filter((a: any) => assetClassOf(a) === 'cash').map((a: any) => ({ label: nm(a), value: money(a.balance || 0) }))
         .concat([{ label: 'Cash total', value: money(cash) }, { label: 'Investable total', value: money(investable) },
                  { label: 'Cash share', value: investable > 0 ? `${Math.round((cash / investable) * 100)}%` : '—' }]),
-      runway: () => [{ label: 'Cash on hand', value: money(cash) }, { label: 'Monthly spending', value: money(monthlySpending) },
+      runway: () => [{ label: 'Cash on hand', value: money(cash) }, { label: `Essentials a month (${essentialsLabel})`, value: money(monthlySpending) },
                      { label: 'Months covered', value: monthlySpending > 0 ? (cash / monthlySpending).toFixed(1) : '—' }],
       'k401-room': () => { const h = k401Headroom(age, num(op.c_401k) * 12); return [
         { label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: "You've contributed", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },
@@ -152,8 +156,8 @@ export function useInsights(limit?: number): Insight[] {
       'toxic-debt': () => toxic ? [{ label: toxic.label, value: `${pct(toxic.interest_rate_apr)} APR` }, { label: 'Balance', value: money(toxic.remaining_balance || 0) }] : [],
       'retire-offtrack': () => [{ label: 'Chance your plan lasts', value: typeof store.lastRetireChance === 'number' ? `${store.lastRetireChance}%` : '—' }, { label: 'Healthy target', value: '60%+' }],
       'rmd-due': () => [{ label: 'Pre-tax balance', value: money(preTax) }, { label: 'Your age', value: String(age) }, { label: 'Required this year', value: money(rmdDue?.amount ?? 0) }],
-      'goals-gap': () => activeGoals.map((g) => ({ label: g.label, value: `${money(requiredMonthly(g) ?? 0)}/mo needed` }))
-        .concat([{ label: 'Planned surplus', value: `${money(freed)}/mo` }]),
+      'goals-gap': () => activeGoals.map((g) => ({ label: g.label, value: `${money(requiredMonthly(g) ?? 0)}/month needed` }))
+        .concat([{ label: 'Planned surplus', value: `${money(freed)}/month` }]),
     };
     return built.filter(notDismissed).slice(0, limit ?? built.length).map((i) => ({ ...i, details: detailsById[i.id]?.() }));
   }, [store.onboardingProfile, store.assetAccounts, store.liabilities, store.lastRetireChance, store.txnFlags, store.goals, store.retirementAssumptions, plan.pct, limit]);
@@ -241,7 +245,7 @@ export default function InsightsScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   groupHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginTop: Spacing.lg, marginBottom: 2 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
@@ -266,3 +270,4 @@ const styles = StyleSheet.create({
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
   ctaTxt: { color: Colors.white, fontSize: 15, fontWeight: '800' },
 });
+

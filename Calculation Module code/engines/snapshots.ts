@@ -69,7 +69,7 @@ export interface SnapshotDay {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = date | account id | security key
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -86,9 +86,23 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = date | account id
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-ST-F-031 valueOn · MK-XS-F-108 activityKey
+ *               MK-XS-F-109 dedupeActivities · MK-XS-F-147 call
+ *               MK-XS-F-149 allActivities · MK-XS-F-175 uid
+ *
+ * Reaches ..... 108 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
+ *               MK-XS-F-108 activityKey · MK-XS-F-149 allActivities
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-XS-F-172 assetClassForSymbol
+ *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-036 benchmarkInfo
+ *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               … and 90 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -124,7 +138,7 @@ export interface AccountLike {
 /** Today's SnapshotDay, observed from the live account state. This is the write the old code never
  *  made — the reason "beginning" had to be back-solved. securityKey falls back to the ticker until
  *  a resolved security id exists on stored positions. */
-/* ─ MK-ST-F-028 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-ST-F-028 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * buildDayFromAccounts
  *
  * Answers ..... Today's SnapshotDay, observed from the live account state.
@@ -142,7 +156,19 @@ export interface AccountLike {
  *     origin = 'observed'
  *     written at = written at
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -157,8 +183,6 @@ export interface AccountLike {
  *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If cost per share is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses a built-in d a i l y y e a r s of 2.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-028
  * Changed ..... 2026-08-20 (6854e9b)
@@ -177,7 +201,7 @@ export function buildDayFromAccounts(accounts: AccountLike[], date: string, writ
         units, price: p.last_price ?? null,
         // the broker's mark when there is one; the honest cost fallback when there is not —
         // the same rule pricing uses everywhere (never $0 for an unpriced holding)
-        value: p.last_price != null ? Math.round(units * p.last_price * 100) / 100 : Math.round(basis * 100) / 100,
+        value: p.last_price != null ? (units * p.last_price) : (basis),
         currency: 'USD',
       });
     }
@@ -252,9 +276,6 @@ const isMonthEnd = (date: string, allDates: Set<string>): boolean => {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
  *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
- *
  * Formula also on the master file · functions_from_code · MK-ST-F-029
  * Changed ..... 2026-08-18 (3bd88c8)
  */
@@ -269,7 +290,7 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
 // ── writing ─────────────────────────────────────────────────────────────────────────────────────
 /** Add a day. A day already present is SUPERSEDED, not edited: the newer row wins and the older is
  *  dropped from the working set, so what is read is always the latest belief about that date. */
-/* ─ MK-ST-F-030 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-ST-F-030 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * record
  *
  * Answers ..... ── writing ───────────────────────────────────────────────────────────────────────────────────── Add a day.
@@ -278,13 +299,22 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *     rest = days where date ! = day.date
  *     the answer = [...rest, day].sort((a, b) => date.locale compare(date))
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-174 recomputeBalances
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-030
  * Changed ..... 2026-08-18 (3bd88c8)
@@ -310,16 +340,15 @@ export function record(days: SnapshotDay[], day: SnapshotDay): SnapshotDay[] {
  *     holdings = Σ over day.holdings where in set(account id) of (value)
  *     cash = Σ over day.accounts where in set(account id) of (cash + (typed value ?? 0))
  *     nothing   when !day.holdings.some((h) => in set(account id)) and !day.accounts.some((a) => in set(account id))
- *     the answer = round(holdings + cash, 2 dp)
+ *     the answer = holdings + cash
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-PF-M-001 · MK-PF-M-004
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
  *
  * Decides .....
  *     · If typed value is missing it uses 0.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-031
  * Changed ..... 2026-08-20 (9f201fb)
@@ -331,7 +360,7 @@ export function valueOn(days: SnapshotDay[], accountIds: Set<string>, date: stri
   const holdings = day.holdings.filter((h) => inSet(h.accountId)).reduce((t, h) => t + h.value, 0);
   const cash = day.accounts.filter((a) => inSet(a.accountId)).reduce((t, a) => t + a.cash + (a.typedValue ?? 0), 0);
   if (!day.holdings.some((h) => inSet(h.accountId)) && !day.accounts.some((a) => inSet(a.accountId))) return null;
-  return round2(holdings + cash);
+  return (holdings + cash);
 }
 
 /** How many units of one holding were held on a date — what the trend chart needs and never had.
@@ -370,7 +399,7 @@ export function unitsOn(days: SnapshotDay[], accId: string, securityKey: string,
  *
  * Formula .....
  *     best = nothing
- *     the answer = best
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-ST-F-006 canAnswer · MK-ST-F-031 valueOn
  *               MK-ST-F-032 unitsOn
@@ -402,11 +431,16 @@ export function onOrBefore<T extends { date: string }>(days: T[], date: string):
  *     nothing   otherwise
  *
  * Called by ... MK-ST-F-004 coverageFor · MK-ST-F-005 measuredFromLabel
- *               MK-ST-F-035 covers
+ *               MK-ST-F-006 canAnswer · MK-ST-F-035 covers
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-ST-F-004 coverageFor · MK-ST-F-035 covers
- *               MK-ST-F-005 measuredFromLabel
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-143 annualisedGross · MK-CF-O-001 basePay
+ *               MK-ST-F-006 canAnswer · MK-ST-F-004 coverageFor
+ *               MK-ST-F-035 covers · MK-CF-F-145 deductionsFromPay
+ *               MK-CF-F-171 earnerPay · MK-CF-F-128 grossByMonth
+ *               MK-CF-O-004 incomeSummary · MK-ST-F-005 measuredFromLabel
+ *               MK-CF-F-142 monthsOf · MK-CF-F-146 payFiguresAgree
+ *               MK-CF-F-144 takeHomeAsEntered
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -428,7 +462,14 @@ export function firstDate<T extends { date: string }>(days: T[]): string | null 
  *     f = first date(days)
  *     the answer = f ≠ nothing and f ≤ from
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-142 monthsOf · MK-CF-O-001 basePay
+ *
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-143 annualisedGross · MK-CF-O-001 basePay
+ *               MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
+ *               MK-CF-F-128 grossByMonth · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-142 monthsOf · MK-CF-F-146 payFiguresAgree
+ *               MK-CF-F-144 takeHomeAsEntered
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -455,26 +496,37 @@ export function covers(days: SnapshotDay[], from: string): boolean {
  *     ours = ours
  *     theirs = theirs
  *     difference = nothing   if theirs = nothing
- *     round(ours − theirs, 2 dp)   otherwise
+ *     ours − theirs   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-177 wageGrossByMonth · MK-XS-F-028 surplusByMonth
+ *
+ * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-061 grossSalaryMonthly
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-080 jobActiveMonth
+ *               … and 27 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
  *
  * Decides .....
  *     · If cash is missing it uses 0.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-036
  * Changed ..... 2026-08-18 (3bd88c8)
  */
 export function reconcile(day: SnapshotDay, accId: string): { ours: number; theirs: number | null; difference: number | null } {
-  const ours = round2(
+  const ours = (
     day.holdings.filter((h) => h.accountId === accId).reduce((t, h) => t + h.value, 0) +
     (day.accounts.find((a) => a.accountId === accId)?.cash ?? 0));
   const theirs = day.accounts.find((a) => a.accountId === accId)?.statedTotal ?? null;
-  return { ours, theirs, difference: theirs == null ? null : round2(ours - theirs) };
+  return { ours, theirs, difference: theirs == null ? null : (ours - theirs) };
 }
 
 // ── the later cloud sync ────────────────────────────────────────────────────────────────────────
@@ -493,9 +545,6 @@ export function reconcile(day: SnapshotDay, accId: string): { ours: number; thei
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-037
  * Changed ..... 2026-08-18 (3bd88c8)

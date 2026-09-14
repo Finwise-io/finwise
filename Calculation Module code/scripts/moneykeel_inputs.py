@@ -1,6 +1,6 @@
 """The inputs tab, rebuilt against the code — which FUNCTION reads each raw value.
 
-Replaces the engine vocabulary the tab was written in. The old tab said BOND_FACTS and
+Replaces the retired vocabulary the tab was written in. The old tab said BOND_FACTS and
 MK-NW-E-015; neither has existed since the vocabulary standard of 2026-08-25, and neither could
 be looked up in the code. This reads the code instead.
 
@@ -52,7 +52,7 @@ FIELDS = {
  'MK-XS-I-036': ['otherGuaranteed', 'guaranteed_streams', 'guaranteedOutside'],
  'MK-XS-I-037': ['ri_rmd'],
  'MK-XS-I-038': ['ri_withdrawals'],
- 'MK-XS-I-039': ['frequency', 'payment_frequency', 'cadence'],
+ 'MK-XS-I-039': ['frequency', 'payment_frequency', 'cadence', 'salaryFreq', 'seFreq', 'otherFreq', r'_freq\b', 'RI_CAD_DIV'],
  'MK-XS-I-040': ['alreadyReceiving', 'income_sources', 'incomeSources'],
  'MK-XS-I-041': ['monthly_payment'],
  'MK-XS-I-042': ['payment_type', 'paymentShape'],
@@ -82,7 +82,7 @@ NEW = {
  'MK-XS-I-055': ('the wrapper an account sits in — ISA, 401(k), IRA and the rest',
                  'typed at setup, or from the connection', ['wrapper_confirmed', 'kind']),
  'MK-XS-I-056': ('how a holding was classified, and by whom',
-                 'the engine, the institution, or the person', ['class_source', 'class_flag']),
+                 'the function, the institution, or the person', ['class_source', 'class_flag']),
  'MK-XS-I-057': ('the date an account history begins',
                  'the institution download', ['history_from']),
  'MK-XS-I-058': ('a break between our figure and the institution\'s',
@@ -91,12 +91,24 @@ NEW = {
                  'typed by the person', ['bonusMonth']),
  'MK-XS-I-060': ('how a person is paid — weekly, fortnightly, monthly',
                  'typed at setup', ['salaryMode', 'SALARY_PERIODS']),
+ # 2026-09-08 — founder rulings G8 and G10 (second verification)
+ 'MK-XS-I-061': ('pre-tax balance on 31 December last year',
+                 'typed by the person on the Required-withdrawals screen', ['rmdPriorYearEndPreTax', 'priorYearEndPreTax']),
+ 'MK-XS-I-062': ('enrolled in Medicare (yes / no)',
+                 'typed by the person on the Contribution-room screen (HSA card, shown at 65+)', ['medicareEnrolled']),
+ # 2026-09-11 — founder rulings Q06, Q09, A47 (his -jj master, column W, 2026-08-26)
+ 'MK-XS-I-063': ('option contract multiplier — 100 unless the broker or the person states otherwise',
+                 'set by the broker on a connected holding, or typed by the person', ['multiplier', 'OPTION_CONTRACT_MULTIPLIER', 'contractMultiplier']),
+ 'MK-XS-I-064': ('the unit beside a quantity — shares, coins, contracts, ounces or units',
+                 'typed by the person on the holding; otherwise the unit the kind implies', ['unit', 'quantityUnit', 'quantityWithUnit']),
+ 'MK-XS-I-065': ('accrued interest on a bond — interest earned since the last coupon',
+                 'typed by the person on the Bonds screen (optional)', ['accrued_interest', 'accruedInterest', 'accruedInterestCaveat']),
 }
 
 # MoneyKeel/functions added 2026-08-27 — new calculations live there, and a folder the sweep
 # cannot see is a function with no identifier, no row and no formula. That blind spot is how
 # recomputeBalances came to build the balance net worth is made of with nothing on record.
-CALC_ROOTS = ['src/domain', 'MoneyKeel/functions', 'Calculation Module code/engines', 'src/services']
+CALC_ROOTS = ['src/domain', 'MoneyKeel/functions', 'Calculation Module code/engines', 'src/services', 'src/store']   # MUST equal moneykeel_functions.CALC_ROOTS — the build asserts it (2026-09-12: src/store added, B3)
 
 
 def _strip(b):
@@ -104,13 +116,25 @@ def _strip(b):
     return '\n'.join(re.sub(r'//.*$', '', l) for l in b.split('\n'))
 
 
+# Inputs the app reads through a key built at run time — a['ri_' + k] — which no field pattern can
+# see (2026-09-09, G28). Named by hand from the code; the build adds these readers to the sweep's.
+DYNAMIC = {
+ 'MK-XS-I-020': ['retirementIncomeMonthly', 'guaranteedOutsideStreams', 'currentRetirementIncomeMonthly'],
+ 'MK-XS-I-022': ['retirementIncomeMonthly', 'guaranteedOutsideStreams', 'currentRetirementIncomeMonthly'],
+ 'MK-XS-I-035': ['retirementIncomeMonthly', 'guaranteedOutsideStreams', 'currentRetirementIncomeMonthly'],
+ 'MK-XS-I-036': ['retirementIncomeMonthly', 'guaranteedOutsideStreams', 'currentRetirementIncomeMonthly'],
+ 'MK-XS-I-037': ['retirementIncomeMonthly'],
+ 'MK-XS-I-038': ['retirementIncomeMonthly'],
+ 'MK-XS-I-039': ['retirementIncomeMonthly', 'guaranteedOutsideStreams', 'currentRetirementIncomeMonthly'],
+}
+
 def readers(bodies_by_name):
     """input identifier → the names of the functions whose body touches one of its fields."""
     out = {}
     for iid, fields in list(FIELDS.items()) + [(k, v[2]) for k, v in NEW.items()]:
         parts = [f if f.startswith(('r', '\\')) or '\\' in f else re.escape(f) for f in fields]
         pat = re.compile(r'(?:\b|(?<=\.))(?:' + '|'.join(parts) + r')\b')
-        hits = sorted(n for n, b in bodies_by_name.items() if pat.search(_strip(b)))
+        hits = sorted(set(n for n, b in bodies_by_name.items() if pat.search(_strip(b))) | {n for n in DYNAMIC.get(iid, []) if n in bodies_by_name})
         out[iid] = hits
     return out
 

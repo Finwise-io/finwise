@@ -1,6 +1,6 @@
 // Shared persona fixtures for the invariants / journey / edge suites.
-// Field names follow the consolidated onboardingProfile shape used by src/onboarding/engine.ts
-// and mirrored in src/domain/scenarios.test.ts — keep them in sync with the engine's step ids.
+// Field names follow the consolidated onboardingProfile shape used by src/onboarding/steps.ts
+// and mirrored in src/domain/scenarios.test.ts — keep them in sync with the function's step ids.
 // NOTE: this lives in src/testing (NOT __tests__) so Jest's testMatch doesn't treat it as a suite.
 import type { OnboardingProfile } from '../domain/onboardingProfile';
 import type { EconomicData } from '../domain/snapshot';
@@ -25,7 +25,7 @@ export const retiree75: OnboardingProfile = {
   ],
 };
 
-/** Employed professional with partner: salary, 401(k)+match, Roth + taxable investing, a car loan,
+/** Employed professional with spouse: salary, 401(k)+match, Roth + taxable investing, a car loan,
  *  retirement savings + holdings to seed Net Worth, and two goals. */
 export const employedPartner: OnboardingProfile = {
   taxMode: 'manual', manualTaxRate: '20',
@@ -78,7 +78,7 @@ export const hourlyServer: OnboardingProfile = {
   ],
 };
 
-/** Simple flat persona: 0% tax, no 401(k), fixed-only spending, no lumpy items.
+/** Simple flat persona: 0% tax, no 401(k), fixed-only expenses, no lumpy items.
  *  The smoothed baseline and the month-placed grid must agree exactly for this one. */
 export const simpleFlat: OnboardingProfile = {
   ...NO_TAX,

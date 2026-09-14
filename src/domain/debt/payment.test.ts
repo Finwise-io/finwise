@@ -52,7 +52,7 @@ describe('loanPayment rate-unit guard (P0)', () => {
     expect(spy).not.toHaveBeenCalled();
     spy.mockRestore();
   });
-  test('production callers pass percent: 7% on $10k/10yr ≈ $116/mo (not the $83 a decimal would give)', () => {
+  test('production callers pass percent: 7% on $10k/10yr ≈ $116/month (not the $83 a decimal would give)', () => {
     expect(loanPayment(10000, 7, 10).monthly).toBeCloseTo(116.11, 1);
   });
 });
@@ -78,12 +78,12 @@ describe('B47 finding 11 — enter either the payment or the end date, the other
     const pmt = paymentToClearBy(412000, 0.0625, 240);           // 20-yr mortgage
     expect(monthsToClear(412000, 0.0625, pmt)).toBe(240);
   });
-  test('mortgage sanity: $412k at 6.25% paying $2,850/mo clears in ~21 years', () => {
+  test('mortgage sanity: $412k at 6.25% paying $2,850/month clears in ~21 years', () => {
     const months = monthsToClear(412000, 0.0625, 2850)!;
     expect(months).toBeGreaterThan(240); expect(months).toBeLessThan(276);
   });
   test('a payment that only covers interest NEVER pays off (null, not a huge number)', () => {
-    expect(monthsToClear(100000, 0.06, 500)).toBeNull();         // interest alone is $500/mo
+    expect(monthsToClear(100000, 0.06, 500)).toBeNull();         // interest alone is $500/month
   });
   test('zero-rate loans divide evenly', () => {
     expect(monthsToClear(12000, 0, 1000)).toBe(12);

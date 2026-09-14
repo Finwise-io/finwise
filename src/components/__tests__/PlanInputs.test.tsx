@@ -34,7 +34,7 @@ test('a FACT writes the moment it changes — there is nothing to remember to sa
   harness();
   fireEvent.changeText(screen.getByLabelText('Your age in years'), '61');
   expect((useStore.getState() as any).onboardingProfile.birthYear).toBe(String(YEAR - 61));
-  fireEvent.changeText(screen.getByLabelText('Monthly spending in retirement'), '4800');
+  fireEvent.changeText(screen.getByLabelText('Monthly expenses in retirement'), '4800');
   expect((useStore.getState() as any).retirementAssumptions.spendMonthly).toBe(4800);
 });
 
@@ -47,7 +47,7 @@ test('spending in retirement is ASKED, not derived — and it is the figure the 
   // The question now says what to leave out, at the point of answering.
   expect(screen.getByText(/Not counting loan or mortgage payments/)).toBeOnTheScreen();
   expect(screen.getByText(/we add those ourselves, from your loans/)).toBeOnTheScreen();
-  fireEvent.changeText(screen.getByLabelText('Monthly spending in retirement'), '6100');
+  fireEvent.changeText(screen.getByLabelText('Monthly expenses in retirement'), '6100');
   const { selectWillItLast } = require('../../domain/retirement/willItLast');
   const s: any = useStore.getState();
   const wil = selectWillItLast({ op: s.onboardingProfile, accounts: s.assetAccounts, assumptions: s.retirementAssumptions, employmentStatus: s.employmentStatus });

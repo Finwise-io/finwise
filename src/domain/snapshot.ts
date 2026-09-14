@@ -3,6 +3,7 @@
 // so the UI never waits on per-module Firestore round-trips. Each module's pure
 // onboarding-mapper + calc is reused, so the snapshot can't drift from the modules.
 import type { UserId } from './_shared/ids';
+import { inflationRateInForce } from './retirement/inflation';
 import { toNum } from './_shared/num';
 
 import { profileFromOnboarding, toReadModel, ProfileReadModel } from './profile';
@@ -28,7 +29,7 @@ export interface FinancialSnapshot {
 }
 
 /** NEGATIVE CASH FLOW DRAINS WEALTH — committed contributions don't create money. If the year's
- *  free cash (after tax, 401(k), spending — month-placement-aware, so $0-pay months and lumpy
+ *  free cash (after tax, 401(k), expenses — month-placement-aware, so $0-pay months and lumpy
  *  gifts count where they land) can't cover the non-401(k) contributions, the shortfall is
  *  deducted from the effective amount added to the nest egg; an outright deficit goes negative
  *  and the projection correctly shows wealth declining. */
@@ -40,7 +41,7 @@ export interface FinancialSnapshot {
  * Formula .....
  *     a = op (or none when missing)
  *     stated annual = monthly contributions from onboarding(op) × 12
- *     has spend data = to num(monthly spending) > 0 (or array.is array(spend cats) and spend cats.length > 0 when missing or zero)
+ *     has spend data = to num(monthly expenses) > 0 (or array.is array(spend cats) and spend cats.length > 0 when missing or zero)
  *     stated annual   when has spend data is missing
  *     free cash annual = Σ over savings by month(a as any) of (amount)
  *     non401k annual = (to num(c roth) + to num(c invest) + to num(c property)) × 12
@@ -52,7 +53,7 @@ export interface FinancialSnapshot {
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-032 spending categories the person set up
+ * Reads ....... MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-043 their own retirement contribution
  *
  * Decides .....
@@ -163,12 +164,12 @@ export function buildSnapshot(
     retire_monthly_spend_today: retirementSpendMonthly(a) || budget.monthly_spending,
     guaranteed_monthly_income: guaranteedMonthly,
     guaranteed_streams: outsideStreams.map((st) => ({ kind: st.kind, monthly: st.monthly, inflates: st.inflates })),
-    inflation: (econ.inflationRate || 2.4) / 100,
+    inflation: inflationRateInForce(null).rate,   // brief Q-50 (2026-08-20) (G30, 2026-09-08): the dated default, not the feed (was 2.4 here and 2.5 elsewhere)
     // walk row 10 (audit PRD #5): the ONE expected-return figure — the same blendedReturn the
     // cockpit and will-it-last read; the snapshot's own average_target_return stays display-only.
     mean_return: blendedReturn(acctRows) || 0.07,
     vol_return: 0.12,
-    paths: 500,
+    paths: 1000,   // founder ruling 2026-09-08 (G17): 1,000 everywhere
   });
 
   return { profile, income, assets, debt, networth, budget, goals, retirement };

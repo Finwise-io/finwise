@@ -13,6 +13,7 @@ import { useStore } from '../../store/useStore';
 import { taxBucketSplit, rmdAtAge, rmdTakenThisYear } from '../../domain/decumulation';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../../domain/milestones';
 import { buildDatedGrid } from '../../domain/grid';
+import { money } from '../../domain/_shared/num';
 
 const mockPushes: string[] = [];
 jest.mock('expo-router', () => ({
@@ -68,7 +69,7 @@ test('editable rate: overriding it recomputes the tax bill and says who set it',
   fireEvent.press(screen.getByLabelText(/Tax rate used/));
   fireEvent.changeText(screen.getByLabelText('Tax rate percent'), '30');
   expect(screen.getByText(/Tax bill next April: about \$6,000/)).toBeOnTheScreen();
-  expect(screen.getByText(/set by you/)).toBeOnTheScreen();
+  expect(screen.getByText(/you entered/)).toBeOnTheScreen();
 });
 
 test('ADOPTION (r40 pin): Use this plan writes the patch AND the tax lands in April next year', () => {
@@ -176,4 +177,21 @@ test('PRD F9#16: the FIRST-year RMD states the April-1 deferral rule as a fact (
   useStore.setState({ onboardingProfile: { ...WORKER60, birthYear: String(new Date().getFullYear() - 74), status: 'retired' } } as any);
   render(<RequiredWithdrawalsScreen />);
   expect(screen.queryByText(/April 1/)).toBeNull();                                        // 74+: not the first year
+});
+
+// ═══ G8 (founder ruling 2026-09-08): the required-withdrawal basis is stated, and last Dec 31's balance wins ═══
+test('required withdrawal: without the Dec 31 balance it says "based on today\'s balance" and asks for it', () => {
+  useStore.setState({ onboardingProfile: { ...WORKER60, status: 'retired', birthYear: String(new Date().getFullYear() - 75) } } as any);
+  render(<RequiredWithdrawalsScreen />);
+  const y = new Date().getFullYear() - 1;
+  expect(screen.getByText(new RegExp(`Based on today's balance\\. Enter your pre-tax balance on Dec 31, ${y} to calculate it exactly`))).toBeOnTheScreen();
+  expect(screen.getByLabelText(`Your pre-tax balance on December 31, ${y}`)).toBeOnTheScreen();
+});
+
+test('required withdrawal: with the Dec 31 balance entered, the figure stands on it and says so', () => {
+  useStore.setState({ onboardingProfile: { ...WORKER60, status: 'retired', birthYear: String(new Date().getFullYear() - 75), rmdPriorYearEndPreTax: '250000' } } as any);
+  render(<RequiredWithdrawalsScreen />);
+  const y = new Date().getFullYear() - 1;
+  expect(screen.getByText(new RegExp(`Based on your pre-tax balance of \\$250,000 on Dec 31, ${y} \\(you entered\\)`))).toBeOnTheScreen();
+  expect(screen.getByText(`Required ${money(Math.round(rmdAtAge(250_000, 75)))}`)).toBeOnTheScreen();
 });

@@ -2,7 +2,7 @@
 // The standard Social Security Administration schedule applied to YOUR statement amount — the
 // monthly benefit at YOUR full retirement age: claiming early reduces the check 5/9 of 1% per
 // month for the first 36 months and 5/12 of 1% per month beyond, waiting adds 2/3 of 1% per month
-// (8%/yr) to 70 — the same schedule as ssa.gov. Pure math, today's dollars, no opinion.
+// (8%/year) to 70 — the same schedule as ssa.gov. Pure math, today's dollars, no opinion.
 //
 // B2 (founder brief 2026-08-20): the factor used to be anchored at a hard-coded 67. People born
 // 1955–1959 have full retirement ages between 66y2m and 66y10m — roughly the OLDEST THIRD of a
@@ -41,9 +41,6 @@ export const FULL_RETIREMENT_AGE = 67;
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
  *
- * Decides .....
- *     · Treats a year as twelve equal months.
- *
  * Formula also on the master file · functions_from_code · MK-PL-F-057
  * Changed ..... 2026-08-20 (16a56f7)
  */
@@ -51,13 +48,17 @@ export function fullRetirementAge(birthYear?: number | null): number {
   const y = Number(birthYear);
   // no birth year (null coerces to 0) → the 1960+ default, never the ≤1954 branch
   if (!y || !Number.isFinite(y) || y >= 1960) return 67;
+  // A39 (2026-09-12): the whole published schedule, not only the 55–70 slice — a silent 66 for
+  // someone born in 1940 was a wrong answer, not a refusal.
+  if (y <= 1937) return 65;
+  if (y <= 1942) return 65 + ((y - 1937) * 2) / 12;   // two months per birth year, 1938–1942
   if (y <= 1954) return 66;
   return 66 + ((y - 1954) * 2) / 12;             // two months per birth year, 1955–1959
 }
 
 /** SSA factor for a claim age (62–70), relative to the statement amount at the person's OWN
- *  full retirement age. Month-precise: 5/9 of 1%/mo for the first 36 early months, 5/12 of 1%/mo
- *  beyond, 2/3 of 1%/mo delayed credit to 70. */
+ *  full retirement age. Month-precise: 5/9 of 1%/month for the first 36 early months, 5/12 of 1%/month
+ *  beyond, 2/3 of 1%/month delayed credit to 70. */
 /* ─ MK-PL-F-058 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * ssClaimFactorFor
  *
@@ -82,8 +83,8 @@ export function fullRetirementAge(birthYear?: number | null): number {
  *               MK-XS-I-021 Social Security claim age
  *
  * Decides .....
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Caps early at 36.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-058
@@ -91,7 +92,7 @@ export function fullRetirementAge(birthYear?: number | null): number {
  */
 export function ssClaimFactorFor(claimAge: number, birthYear?: number | null): number {
   const fra = fullRetirementAge(birthYear);
-  const a = Math.min(LATEST_CREDIT_AGE, Math.max(EARLIEST_CLAIM_AGE, Math.round(claimAge)));
+  const a = Math.min(LATEST_CREDIT_AGE, Math.max(EARLIEST_CLAIM_AGE, claimAge));   // A38: months count — 62 and 6 months is not 63
   const months = Math.round((a - fra) * 12);
   if (months === 0) return 1;
   if (months < 0) {
@@ -131,7 +132,7 @@ export function ssClaimFactor(claimAge: number): number {
  * Answers ..... Monthly benefit at a claim age from the at-FRA statement amount (today's dollars, whole $).
  *
  * Formula .....
- *     monthly benefit = round(statement amount at full retirement age × factor(claim age))
+ *     monthly benefit = statement amount at full retirement age × factor(claim age)
  *
  * Called by ... MK-PL-F-061 ssBenefitAtClaimAge · MK-PL-F-062 ssLifetimeTotal
  *               MK-PL-F-067 willItLastInputs
@@ -147,13 +148,12 @@ export function ssClaimFactor(claimAge: number): number {
  *
  * Decides .....
  *     · If statement monthly is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-060
  * Changed ..... 2026-08-20 (16a56f7)
  */
 export function ssBenefitAt(statementMonthly: number, claimAge: number, birthYear?: number | null): number {
-  return Math.round((statementMonthly || 0) * ssClaimFactorFor(claimAge, birthYear));
+  return (statementMonthly || 0) * ssClaimFactorFor(claimAge, birthYear);   // Q49: full precision inside
 }
 /** Kept for callers not yet passing a birth year (behaves as born-1960+). */
 /* ─ MK-PL-F-061 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -197,6 +197,7 @@ export function ssBenefitAtClaimAge(statementMonthly: number, claimAge: number):
  * Decides .....
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Rounds the answer to a whole number.
+ *     · Monthly benefit × the months from the claim age to the life expectancy, in today's dollars — no cost-of-living rise and no discounting (A40). The retirement paycheck on another screen grows Social Security with inflation; this figure is the real-terms total, and the screen does not yet say so.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-062
  * Changed ..... 2026-08-20 (16a56f7)

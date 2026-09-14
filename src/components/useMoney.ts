@@ -23,11 +23,13 @@ export function useMoney() {
 export const maskedMoney = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money(n));
 // cents-precise sibling (B44 founder finding: holding-detail showed integers where cents matter)
 export const maskedMoney2 = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money2(n));
-/** Sub-$2 prices (a thin-priced holding's $1.132 average cost) keep 3 decimals — masked like all money. */
-export const maskedPrice3 = (n: number) =>
-  useStore.getState().hideBalances ? BALANCE_MASK : n > 0 && n < 2 ? `$${(Math.round(n * 1000) / 1000).toFixed(3)}` : money2(n);   // money-mask-ok: this IS a masked formatter (hidden-gated first)
+/** A price — two decimals (founder ruling Q49, 2026-09-09: display uses two decimals unless a row states
+ *  otherwise; the earlier three-decimal case for sub-$2 prices was not a stated exception). Masked like all money. */
+export const maskedPrice = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money2(n));
+/** A coin quantity — eight decimals, the convention crypto exchanges use (founder ruling Q49). Not money, never masked. */
+export const coinQuantity = (n: number) => n.toFixed(8).replace(/\.?0+$/, '') || '0';
 
-/** Mask the dollar figures INSIDE a template sentence (insight bodies, engine copy) while keeping
+/** Mask the dollar figures INSIDE a template sentence (insight bodies, function copy) while keeping
  *  the words — '8 times your usual' stays readable, the balances become ••••. */
 export const maskDollars = (text: string, hidden?: boolean) =>
   (hidden ?? useStore.getState().hideBalances) ? text.replace(/\$\s?[\d,]+(\.\d+)?/g, BALANCE_MASK) : text;

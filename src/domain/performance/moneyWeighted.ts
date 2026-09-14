@@ -7,14 +7,14 @@
 //  · only accounts whose history STARTS in the ledger count (an opening row or a first deposit)
 //    — a balance that predates its ledger can't be reconstructed, so it isn't;
 //  · at least ~30 days between the first flow and today, or annualizing is noise;
-//  · the solver must actually converge inside sane bounds (−95%…+1000%/yr).
+//  · the solver must actually converge inside sane bounds (−95%…+1000%/year).
 // Internal moves (buys, sells, reinvested dividends, fees, transfers WITHIN the measured set)
 // are not user flows; a transfer leaving the set is money out, entering it is money in.
 import type { Transaction } from '../transactions';
 import type { AssetAccount } from '../assets';
 
 export interface MoneyWeighted {
-  ratePerYear: number;          // decimal, e.g. 0.072 = +7.2%/yr
+  ratePerYear: number;          // decimal, e.g. 0.072 = +7.2%/year
   flows: number;                // how many dated user flows it stands on
   sinceDays: number;
 }
@@ -45,13 +45,12 @@ const DAY = 86400000;
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date
- *               MK-XS-I-024 logged spending
+ *               MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If price is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-024
  * Changed ..... 2026-07-14 (f22902e)
@@ -98,6 +97,7 @@ export function userFlows(transactions: Transaction[], accountIds: Set<string>):
  *     false   when first is missing
  *     false   when !['OPENING_CASH', 'OPENING_POSITION', 'DEPOSIT'].includes(first.type as string)
  *     true
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-PF-F-026 moneyWeightedReturn
  *
@@ -105,10 +105,7 @@ export function userFlows(transactions: Transaction[], accountIds: Set<string>):
  *               MK-PF-F-026 moneyWeightedReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged spending
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-025
  * Changed ..... 2026-07-14 (f22902e)
@@ -133,7 +130,7 @@ export function historyIsComplete(transactions: Transaction[], accounts: AssetAc
  * Formula .....
  *     disc = (when: number) => (1 + rate)^(-((when − t0) ÷ DAY) ÷ 365)
  *     v = 0
- *     the answer = v + end value × disc(end date)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-PF-F-026 moneyWeightedReturn
  *
@@ -143,7 +140,6 @@ export function historyIsComplete(transactions: Transaction[], accounts: AssetAc
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Uses a built-in v of 0.
  *     · Treats a year as 365 days.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-030
@@ -174,18 +170,17 @@ function npv(rate: number, flows: { date: number; amount: number }[], endValue: 
  *     f = (r: number) => npv(r, flows, math.max(0, current value), now, t0)
  *     f lo = f(lo), f hi = f(hi)
  *     reason = 'no_solution'   when f lo × f hi > 0
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged spending
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Decides .....
- *     · Uses a built-in i of 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
+ *     · Never lets current value fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-026
  * Changed ..... 2026-07-14 (f22902e)
@@ -213,11 +208,11 @@ export function moneyWeightedReturn(
     const mid = (lo + hi) / 2;
     const fMid = f(mid);
     if (Math.abs(fMid) < 1e-7 || hi - lo < 1e-7) {
-      return { ratePerYear: Math.round(mid * 1e4) / 1e4, flows: flows.length, sinceDays };
+      return { ratePerYear: (mid), flows: flows.length, sinceDays };
     }
     if (fLo * fMid <= 0) { hi = mid; fHi = fMid; } else { lo = mid; fLo = fMid; }
   }
-  return { ratePerYear: Math.round(((lo + hi) / 2) * 1e4) / 1e4, flows: flows.length, sinceDays };
+  return { ratePerYear: (((lo + hi) / 2)), flows: flows.length, sinceDays };
 }
 
 /* ─ MK-PF-F-027 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED

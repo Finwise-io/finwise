@@ -1,9 +1,9 @@
-// The ONE slider drag engine (B46 "slider still not moving" + B47 finding 12, both ON DEVICE with
+// The ONE slider drag function (B46 "slider still not moving" + B47 finding 12, both ON DEVICE with
 // tests green). Every slider must: claim the touch in the CAPTURE phase, refuse termination, block
 // the native responder, anchor at grant via pageX − locationX (locationX goes stale mid-drag), and
 // tell its host ScrollView to stop scrolling for the drag. Simulated touches never involve the
 // native recognizers — which is exactly how the same bug shipped twice (What-if, then Scenario
-// analysis). One engine so there is no third time.
+// analysis). One function so there is no third time.
 import { useRef } from 'react';
 import { PanResponder } from 'react-native';
 

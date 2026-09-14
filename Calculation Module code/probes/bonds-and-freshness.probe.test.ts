@@ -44,8 +44,8 @@ describe('BOND_COUPON / YIELD / YTM', () => {
     expect(approxYTM(B({ value: 0 }), NOW)).toBeNull();
   });
 
-  test('no maturity date at all is treated as zero years, not as forever', () => {
-    expect(yearsToMaturity('', NOW)).toBe(0);
+  test('no maturity date at all is UNKNOWN — not zero years, not forever (G11, founder 2026-09-12)', () => {
+    expect(yearsToMaturity('', NOW)).toBeNull();
   });
 });
 

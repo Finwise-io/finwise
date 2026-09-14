@@ -13,10 +13,20 @@
  * Formula .....
  *     `${get full year()}-${string(get month() + 1).pad start(2, '0')}-${string(get date()).pad start(2, '0')}`
  *
- * Called by ... MK-CF-F-183 paidOutByAccount
+ * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-183 paidOutByAccount
+ *               MK-PF-F-022 factorOverMonths · MK-XS-F-175 uid
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-184 incomeFromAccounts · MK-CF-F-183 paidOutByAccount
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-PF-F-022 factorOverMonths · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

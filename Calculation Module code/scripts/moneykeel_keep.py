@@ -23,15 +23,20 @@ import openpyxl
 SCREEN_TABS = ('multiple_screens', 'home', 'networth', 'performance', 'plan', 'cashflow', 'menu')
 
 # tab → the columns HE owns. Everything not listed here is generated and is overwritten every build.
-YOURS = {t: ['YOUR ANSWER — use the same number', 'Your name for it (72-metric file)']
+YOURS = {t: ['YOUR ANSWER — use the same number', 'Your name for it (72-metric file)',
+             'Founder comment — 2026-08-26 (the column it was written on)',
+             'Inputs — approved list (founder, dated)',
+             'ROW VERIFIED — founder, date and how']
          for t in SCREEN_TABS}
 YOURS['core_screens'] = ['JJ — Decision (Y/N)']
+YOURS['functions_from_code'] = ['Founder comment — 2026-08-26 (the column and metric row it was written on)']
 YOURS['inputs'] = []          # nothing of his here yet; listed so adding one is a one-line change
 
 # which column holds the identifier a value is keyed to
 KEY_COL = {t: 'Metric ID' for t in SCREEN_TABS}
 KEY_COL['core_screens'] = 'Screen name'
 KEY_COL['inputs'] = 'Input ID'
+KEY_COL['functions_from_code'] = 'Function ID'
 
 
 def read(path):
@@ -70,8 +75,14 @@ def apply(wb, kept):
             lost.append((tab, key, col, val)); continue
         ws = wb[tab]
         head = [str(c.value) if c.value is not None else '' for c in ws[1]]
-        if col not in head or KEY_COL[tab] not in head:
+        if KEY_COL[tab] not in head:
             lost.append((tab, key, col, val)); continue
+        if col not in head:
+            # a column HE owns that the build does not write (his comment column, 2026-09-08):
+            # create it so his words land, rather than reporting them lost
+            ws.cell(1, len(head) + 1).value = col
+            ws.cell(1, len(head) + 1).font = ws.cell(1, 1).font.copy(); ws.cell(1, len(head) + 1).fill = ws.cell(1, 1).fill.copy()
+            head.append(col)
         ki, ci = head.index(KEY_COL[tab]), head.index(col)
         hit = False
         for r in range(2, ws.max_row + 1):

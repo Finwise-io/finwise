@@ -55,7 +55,7 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
         <Text style={s.body}
           accessibilityLabel={`${rates} A dollar into your mortgage saves you ${c.direction === 'paying-down-wins' ? 'more' : 'less'} than the same dollar would earn in Treasuries, about ${spokenMoney(yearly)} a year.`}>
           So a dollar into your mortgage <Text style={s.b}>saves you {c.direction === 'paying-down-wins' ? 'more' : 'less'}</Text>{' '}
-          than the same dollar would earn sitting in Treasuries — about <Text style={s.b}>{maskedMoney(yearly)} a year</Text> at your balance.
+          than the same dollar would earn sitting in Treasuries — about <Text style={s.b}>{maskedMoney(yearly)}/year</Text> at your balance.
           {lifetime > 0 && (
             <> Over the life of the loan, paying the extra {maskedMoney(extraMonthly)} a month leaves you around{' '}
               <Text style={s.b}>{maskedMoney(lifetime)} {c.lifetimeDifference > 0 ? 'better off' : 'worse off'}</Text>{' '}
@@ -71,9 +71,9 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
       {effect && (
         <Text style={s.body}
           accessibilityLabel={`Paying the extra means less going into savings. Your money lasts in about ${effect.before} of 100 futures today, and about ${effect.after} of 100 if you do this.`}>
-          {'\n'}That's {maskedMoney(extraMonthly)} a month not going into savings while the loan runs — and the whole
+          {'\n'}That's {maskedMoney(extraMonthly)}/month not going into savings while the loan runs — and the whole
           payment freeing up once it clears, {effect.fasterPayoffYear} instead of {effect.payoffYear}. Taken together, your
-          money lasts in about <Text style={s.b}>{effect.before} future simulations out of 100</Text> today, and about{' '}
+          money lasts in about <Text style={s.b}>{effect.before} out of 100 simulated futures</Text> today, and about{' '}
           <Text style={s.b}>{effect.after} out of 100</Text> if you do this.
         </Text>
       )}
@@ -102,3 +102,4 @@ const s = StyleSheet.create({
   caveat: { fontSize: 11, lineHeight: 17, color: Colors.textSecondary, marginTop: Spacing.sm },
   stale: { fontSize: 11, lineHeight: 17, color: Colors.amber, marginTop: 6, fontWeight: '600' },
 });
+

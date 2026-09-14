@@ -24,8 +24,8 @@ test('5a — two totals, each named', () => {
   render(<IncomeSummaryScreen />);
   expect(screen.getByText('Take-home each month')).toBeOnTheScreen();
   expect(screen.getByText('What it is taxed on')).toBeOnTheScreen();
-  expect(screen.getByText('= A usual month')).toBeOnTheScreen();
-  expect(screen.getByText('= Gross a year')).toBeOnTheScreen();
+  expect(screen.getByText('= Income (take-home), a usual month')).toBeOnTheScreen();
+  expect(screen.getByText('= Gross /year')).toBeOnTheScreen();
 });
 
 test('5a — a section per earner in what lands, and per source in what is taxed', () => {
@@ -62,12 +62,13 @@ test('without a rate of their own it says the bracket and what the estimate assu
   expect(screen.getByText('assumes you take the standard deduction')).toBeOnTheScreen();
 });
 
-test('5b — a fresh account keeps both headings and shows no invented $0', () => {
+test('5b — a fresh account keeps both headings and shows $0 with the one line (Q48, 2026-09-12 — a dash was the old form)', () => {
   set({});
   render(<IncomeSummaryScreen />);
   expect(screen.getByText('Take-home each month')).toBeOnTheScreen();
   expect(screen.getByText('What it is taxed on')).toBeOnTheScreen();
-  expect(screen.getAllByText('—')).toHaveLength(2);
-  expect(screen.queryByText(/\$0/)).toBeNull();
+  expect(screen.queryByText('—')).toBeNull();
+  expect(screen.getAllByText('$0')).toHaveLength(2);
+  expect(screen.getAllByText(/^Nothing entered yet\./).length).toBe(2);
   expect(screen.getByLabelText('Add your income')).toBeOnTheScreen();
 });

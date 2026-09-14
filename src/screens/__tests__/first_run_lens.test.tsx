@@ -1,6 +1,7 @@
 // First run — the lens questions. Pins: the stage answer writes the ONE lensOverride field the
 // resolver reads; intents order suggestions only; the retired+paycheck fast-path lands on the
 // Monthly-income door; Skip never writes anything and never dead-ends.
+import { DOORS } from '../../constants/doors';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import FirstRunScreen from '../FirstRunScreen';
@@ -9,14 +10,16 @@ import { resolveLens } from '../../domain/profile/lens';
 import { isoLocalDate } from '../../domain/_shared/dates';
 
 const mockReplaces: string[] = [];
+const mockPushes: string[] = [];
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: (r: string) => mockReplaces.push(r) }),
+  useRouter: () => ({ back: jest.fn(), push: (r: string) => mockPushes.push(r), replace: (r: string) => mockReplaces.push(r) }),
   useLocalSearchParams: () => ({}),
 }));
 
 beforeEach(() => {
   useStore.getState().resetAll();
   mockReplaces.length = 0;
+  mockPushes.length = 0;
 });
 
 test('answering the stage question sets the lens for the whole app (the one resolver field)', () => {
@@ -81,14 +84,26 @@ test('answering the questions without any money data still shows the three doors
   expect(screen.getByText("Let's get your real numbers in.")).toBeOnTheScreen();
   expect(screen.getByLabelText('Import a file from your brokerage')).toBeOnTheScreen();
   expect(screen.getByLabelText(/Add something by hand/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/Connect your first account/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Connect your bank/)).toBeOnTheScreen();
+  // FOUNDER RULING 2026-09-14 (his build-53 onboarding note): the connect door reads "Connect your bank ›" — the
+  // same words as the one list of ways in, src/constants/doors.ts. Home used to re-type its own "Connect your
+  // first account ›"; this fails if Home's words and the list's ever differ again.
+  expect(screen.getByText(DOORS.find((d) => d.route === '/connect')!.title)).toBeOnTheScreen();
+  expect(screen.queryByText(/Connect your first account/)).toBeNull();
+  // FOUNDER RULING 2026-09-14 ("love it. do it."): the by-hand door opens the Add account form in ONE tap, with the
+  // same words as every other screen — Home used to send it to the Net worth tab, four taps from the form.
+  const byHand = DOORS.find((d) => d.route === '/add-account')!;
+  expect(screen.getByText(byHand.sub)).toBeOnTheScreen();
+  fireEvent.press(screen.getByText(byHand.title));
+  expect(mockPushes).toEqual(['/add-account']);
+  expect(screen.queryByText(/Add it by hand — your home/)).toBeNull();
 });
 
 test('the cash-flow goal card exists and toggles (screen-1 benefit has its matching goal)', () => {
   useStore.getState().resetAll();
   render(<FirstRunScreen />);
   fireEvent.press(screen.getByLabelText('Continue'));                       // intro → questions
-  fireEvent.press(screen.getByLabelText('Stay on top of income and spending'));
+  fireEvent.press(screen.getByLabelText('Stay on top of income and expenses'));
   fireEvent.press(screen.getByLabelText('Still working'));
   fireEvent.press(screen.getByLabelText('Continue'));
   expect(((useStore.getState() as any).onboardingProfile.intents)).toContain('cashflow');

@@ -1,4 +1,4 @@
-// F10 engine tests — pins the fixed v1 rules: 3×-typical AND ≥$500 (median of 90 days), $1,000
+// F10 function tests — pins the fixed v1 rules: 3×-typical AND ≥$500 (median of 90 days), $1,000
 // cold-start line, first-time payee ≥$250, 3-in-a-day ≥$1,000 combined, and the two hard guarantees:
 // hand-typed transactions are NEVER flagged, and the comparison figure is stored at flag time.
 import { reviewTransactions, flagComparisonText, isMoneyOut, type TxnFlag } from './flags';
@@ -139,3 +139,4 @@ describe('possible_duplicate (walk row 19)', () => {
     expect(flags).toHaveLength(0);
   });
 });
+

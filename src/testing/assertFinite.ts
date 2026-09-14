@@ -21,3 +21,4 @@ export function expectAllFinite(value: unknown, label?: string): void {
     throw new Error(`Non-finite numbers${label ? ` in ${label}` : ''}:\n  ${bad.join('\n  ')}`);
   }
 }
+

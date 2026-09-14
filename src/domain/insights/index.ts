@@ -1,4 +1,4 @@
-// Centralized insight service — one rules engine that turns the user's financial state into a ranked
+// Centralized insight service — one rules function that turns the user's financial state into a ranked
 // list of insights, instead of hardcoding them per screen. Each rule is a pure function returning an
 // Insight (or null). Screens compute the primitive inputs and render the top results.
 export type InsightTheme = 'protect' | 'grow' | 'optimize';   // the three themes the list is grouped under
@@ -9,7 +9,7 @@ export interface Insight {
 }
 
 export interface InsightInput {
-  cashMonths: number | null;                       // emergency-fund runway (months of spending)
+  cashMonths: number | null;                       // emergency-fund runway (months of expenses)
   toxicDebt: { label: string; apr: number } | null; // highest-APR debt above the toxic threshold
   k401Remaining: number;                            // 401(k) headroom this year
   hasEarnedIncome: boolean;                         // has W-2 wages this year (401(k) needs earned income)
@@ -32,7 +32,7 @@ export interface InsightInput {
   // 60-to-70 decision window they are in — because at 60 and 61 the window is not open, it is
   // coming, and the card must not say otherwise. See the ss-window rule below.
   ssWindow?: 'approaching' | 'open' | null;
-  goalsGap?: number | null;                         // $/mo goals need beyond the planned surplus (quantified)
+  goalsGap?: number | null;                         // $/month goals need beyond the planned surplus (quantified)
   goalOffTrack?: { label: string; monthsBehind: number } | null;   // r12: worst dated goal running late at its REAL funding rate
 }
 
@@ -42,7 +42,7 @@ export interface InsightInput {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = round(d × 100) followed by '%'
  *
  * Called by ... MK-HM-F-006 money0
  *
@@ -53,7 +53,6 @@ export interface InsightInput {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-HM-F-005
@@ -66,7 +65,7 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = '$' + round(n) with thousands separators
  *
  * Called by ... MK-CF-O-001 basePay
  *
@@ -74,10 +73,10 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-027 goals (target, saved, date)
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-027 goals (target, saved, date)
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *     · Shows 1 decimal place.
  *
@@ -109,10 +108,10 @@ const RULES: Rule[] = [
   (i) => i.rmdDue ? { id: 'rmd-due', priority: 1, icon: '📌', title: 'Required withdrawal due', body: `${money0(i.rmdDue.amount)} must come out of your pre-tax retirement accounts by Dec 31 — the IRS requires it from age 73.`, route: '/required-withdrawals' } : null,
   (i) => i.toxicDebt ? { id: 'toxic-debt', priority: 1, icon: '🔥', title: 'Tackle high-interest debt first', body: `${i.toxicDebt.label} is at ${pctTxt(i.toxicDebt.apr)} APR — paying it down beats almost any investment return.`, route: '/(tabs)/goals' } : null,
   // B-44: a robotic "0.0 months" alarms a user with plenty in investments; word the no-cash case plainly.
-  (i) => (i.cashMonths != null && i.cashMonths < 3) ? { id: 'runway', priority: 1, icon: '🛟', title: 'Build your emergency fund', body: i.cashMonths < 0.1 ? `You have no cash set aside for emergencies — most planners use 3–6 months of spending as the range (investments aren't counted here).` : `Your cash covers about ${i.cashMonths.toFixed(1)} months of spending — most planners' range is 3–6.`, route: '/(tabs)/goals' } : null,
-  (i) => (i.retireChance != null && i.retireChance < 60) ? { id: 'retire-offtrack', priority: 1, icon: '🏖️', title: 'Your retirement plan needs attention', body: `Only a ${i.retireChance}% chance it lasts — adjust savings, age, or spending in the scenario.`, route: '/retirement' } : null,
+  (i) => (i.cashMonths != null && i.cashMonths < 3) ? { id: 'runway', priority: 1, icon: '🛟', title: 'Build your emergency fund', body: i.cashMonths < 0.1 ? `You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren't counted here).` : `Your cash covers about ${i.cashMonths.toFixed(1)} months of expenses — most planners' range is 3–6.`, route: '/(tabs)/goals' } : null,
+  (i) => (i.retireChance != null && i.retireChance < 60) ? { id: 'retire-offtrack', priority: 1, icon: '🏖️', title: 'Your retirement plan needs attention', body: `Only a ${i.retireChance}% odds it lasts — adjust savings, age, or expenses in the scenario.`, route: '/retirement' } : null,
   // B-48: a 401(k) needs earned income — don't nudge a retiree / no-wage user to contribute.
-  (i) => (i.k401Remaining > 1000 && i.hasEarnedIncome) ? { id: 'k401-room', priority: 2, icon: '💼', title: 'Room left in your 401(k)', body: `About ${money0(i.k401Remaining)} of this year's tax-advantaged room looks unused — an estimate from what you told us you contribute, not from your payroll.`, route: '/contribution-room' } : null,
+  (i) => (i.k401Remaining > 1000 && i.hasEarnedIncome) ? { id: 'k401-room', priority: 2, icon: '💼', title: 'Room left in your 401(k)', body: `About ${money0(i.k401Remaining)} of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll.`, route: '/contribution-room' } : null,
   (i) => (i.beatBy != null && i.beatBy < -0.02) ? { id: 'behind-bench', priority: 2, icon: '📉', title: 'Trailing your benchmark', body: `Your portfolio is ${Math.abs(Math.round(i.beatBy * 100))} pts behind its benchmark — review your holdings.`, route: '/performance' } : null,
   // Cash drag CUT by the founder 2026-08-20 (brief §C, Q24): an opinion multiplied by an assumed
   // return. Months-of-cash (the runway rule above) is the kept cash fact.
@@ -127,7 +126,7 @@ const RULES: Rule[] = [
   // r12 (pre-48 audit C4a): a dated goal funded at a pace that misses its date — said in months, no instruction
   (i) => i.goalOffTrack ? { id: 'goal-offtrack', priority: 2, icon: '🗓️', title: 'A goal is running behind its date', body: `${i.goalOffTrack.label} is about ${i.goalOffTrack.monthsBehind} month${i.goalOffTrack.monthsBehind === 1 ? '' : 's'} behind at this month's funding pace — the date, the amount, or the pace can move. Your call.`, route: '/(tabs)/goals' } : null,
   // FCC: goals need more per month than the plan frees up — a quantified fact, no instruction.
-  (i) => (i.goalsGap != null && i.goalsGap > 0) ? { id: 'goals-gap', priority: 2, icon: '🎯', title: 'Your goals outpace your surplus', body: `Hitting every goal on time needs about ${money0(i.goalsGap)}/mo more than your plan frees up — see the trade-offs in Plan.`, route: '/(tabs)/goals' } : null,
+  (i) => (i.goalsGap != null && i.goalsGap > 0) ? { id: 'goals-gap', priority: 2, icon: '🎯', title: 'Your goals outpace your surplus', body: `Hitting every goal on time needs about ${money0(i.goalsGap)}/month more than your plan frees up — see the trade-offs in Plan.`, route: '/(tabs)/goals' } : null,
   // FCC: the Social Security claim decision is live and no timing has been adopted — logistics, no opinion.
   // 2026-08-14: this used to fire from 62 to under-70 while the Plan tab used the founder's 60-to-70
   // ruling, so the same decision had two different age gates. Both ends were wrong. At 60 and 61 it
@@ -158,9 +157,6 @@ const RULES: Rule[] = [
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-HM-F-001
  * Changed ..... 2026-07-30 (62656b7)

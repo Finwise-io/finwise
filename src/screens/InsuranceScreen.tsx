@@ -76,8 +76,8 @@ export default function InsuranceScreen() {
 
       <Text style={styles.foot}>A rule-of-thumb estimate (the “DIME” method — debts, income, mortgage, education), not a recommendation.</Text>
       {need.gap > 0 && (
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Stress-test your cushion with this in mind" style={styles.nextStep} onPress={() => router.push('/stress-test' as any)}>
-          <Text style={styles.nextStepT}>Next: stress-test your cushion ›</Text>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Stress-test your emergency fund with this in mind" style={styles.nextStep} onPress={() => router.push('/stress-test' as any)}>
+          <Text style={styles.nextStepT}>Next: stress-test your emergency fund ›</Text>
         </TouchableOpacity>
       )}
       <View style={{ height: 40 }} />
@@ -87,7 +87,7 @@ export default function InsuranceScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   row: { flexDirection: 'row', gap: Spacing.sm, marginBottom: 4 },

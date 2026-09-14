@@ -7,6 +7,27 @@ import { Colors, Typography, Spacing, Radii, Shadows } from '../utils/theme';
 import { formatMoney } from '../domain/_shared/money';
 import { GLOSSARY, type GlossaryTerm } from '../domain/glossary';
 import { useStore } from '../store/useStore';
+import { router } from 'expo-router';
+import { EMPTY_DOORS, type EmptyDoor } from '../constants/doors';
+
+// ── EmptyNote — the Q48 empty state under a figure (founder mock approved 2026-09-12) ────────────
+/** "Nothing entered yet. Add your accounts ›" — the one line under a $0 that has nothing behind it.
+ *  A real zero that was entered gets no note. The door names the thing to add; it routes, or opens
+ *  a sheet when onPress is given. */
+export function EmptyNote({ door, onPress, style }: { door: EmptyDoor; onPress?: () => void; style?: TextStyle }) {
+  const d = EMPTY_DOORS[door];
+  const go = onPress ?? (() => router.push(d.route as any));
+  return (
+    <Text style={[emptyNote.note, style]} accessibilityLabel={`Nothing entered yet. ${d.label}`}>
+      Nothing entered yet.{' '}
+      <Text style={emptyNote.link} accessibilityRole="link" onPress={go}>{d.label}</Text>
+    </Text>
+  );
+}
+const emptyNote = StyleSheet.create({
+  note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, paddingVertical: 4 },
+  link: { color: Colors.primary, fontWeight: '700' },
+});
 
 // ── Card ─────────────────────────────────────────────────────────────
 export function Card({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {

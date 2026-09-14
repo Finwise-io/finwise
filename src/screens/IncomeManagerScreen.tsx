@@ -1,5 +1,5 @@
 // Income manager — see EVERY income source you entered and add/update them in one place.
-// Pulls structured sources from onboarding (salary/bonus/equity/rental), one-off incomes from the
+// Pulls structured sources from onboarding (salary/bonus/equity/rental), one-time incomes from the
 // store, and investment income (dividends/interest) from the transaction ledger.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform , Alert } from 'react-native';
@@ -24,13 +24,13 @@ function annualOf(s: any): number {
   if (s.frequency === 'MONTHLY') return Math.round((s.gross_amount - (s.operating_expenses || 0)) * 12);
   return Math.round(s.gross_amount);   // ANNUAL or ONETIME shown as-is
 }
-const freqLabel = (f: string) => (f === 'MONTHLY' ? '/yr (from monthly)' : f === 'ONETIME' ? 'one-time' : '/yr');
+const freqLabel = (f: string) => (f === 'MONTHLY' ? '/year (from monthly)' : f === 'ONETIME' ? 'one-time' : '/year');
 
 export default function IncomeManagerScreen() {
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const uid = store.user?.uid ?? 'local';
-  const incomes = store.incomes ?? [];               // one-off entries
+  const incomes = store.incomes ?? [];               // one-time entries
   const transactions = store.transactions ?? [];
   const [baseOpen, setBaseOpen] = useState(false);
   const [editKey, setEditKey] = useState<null | 'bonusAnnual' | 'signingOnetime'>(null);
@@ -101,7 +101,7 @@ export default function IncomeManagerScreen() {
               onPress={() => open?.()}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowName}>{s.label}</Text>
-                <Text style={styles.rowSub}>{s.who_earns === 'partner' ? 'partner · ' : ''}{freqLabel(s.frequency)}{s.operating_expenses ? ` · net of ${money(s.operating_expenses)}/mo costs` : ''}{editable ? ' · tap to edit' : ''}</Text>
+                <Text style={styles.rowSub}>{s.who_earns === 'partner' ? 'spouse · ' : ''}{freqLabel(s.frequency)}{s.operating_expenses ? ` · net of ${money(s.operating_expenses)}/month costs` : ''}{editable ? ' · tap to edit' : ''}</Text>
               </View>
               <Text style={styles.rowVal}>{money(annualOf(s))}</Text>
             </TouchableOpacity>
@@ -109,7 +109,7 @@ export default function IncomeManagerScreen() {
         })}
         {sources.length === 0 && (
           <View>
-            <Text style={styles.empty}>No income captured yet.</Text>
+            <Text style={styles.empty}>No income entered yet.</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add your income" style={styles.emptyBtn} onPress={() => setBaseOpen(true)}>
               <Text style={styles.emptyBtnT}>＋ Add your income</Text>
             </TouchableOpacity>
@@ -149,11 +149,11 @@ export default function IncomeManagerScreen() {
             ))}
           </View>
         )}
-        <Text style={styles.note}>Reinvested dividends grow the holding instead of paying cash, so they're not counted as income here. Log dividends from Portfolio → Record transaction.</Text>
+        <Text style={styles.note}>Reinvested dividends grow the holding instead of paying cash, so they're not counted as income here. Log dividends from Performance → Record transaction.</Text>
       </View>
 
-      {/* ONE-OFF INCOME */}
-      <SectionBand title="ONE-OFF INCOME" />
+      {/* ONE-TIME INCOME */}
+      <SectionBand title="ONE-TIME INCOME" />
       <View style={styles.card}>
         {incomes.length === 0 && <Text style={styles.empty}>None logged.</Text>}
         {incomes.map((i: any) => (
@@ -170,7 +170,7 @@ export default function IncomeManagerScreen() {
               ])}><Text style={styles.del}>✕</Text></TouchableOpacity>
           </View>
         ))}
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add one-off income" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add one-off income</Text></TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add one-time income" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add one-time income</Text></TouchableOpacity>
       </View>
 
       <View style={{ height: 40 }} />
@@ -239,7 +239,7 @@ function SelfEmploymentEditor({ open, op, onClose, onSave }: { open: boolean; op
           </View>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Save self-employment income" style={styles.saveBtn}
             onPress={() => onSave({ seAmount: num(amt) > 0 ? String(num(amt)) : '', seFreq: freq })}>
-            <Text style={styles.saveBtnT}>Save · {money(annual)}/yr</Text>
+            <Text style={styles.saveBtnT}>Save · {money(annual)}/year</Text>
           </TouchableOpacity>
           <View style={{ height: 16 }} />
         </View>
@@ -273,14 +273,14 @@ function BasePayEditor({ open, op, onClose, onSave }: { open: boolean; op: any; 
         ))}</View>
         <Text style={styles.fieldL}>This is</Text>
         <View style={styles.chips}>
-          <TouchableOpacity style={[styles.chip, mode === 'gross' && styles.chipOn]} onPress={() => setMode('gross')}><Text style={[styles.chipT, mode === 'gross' && styles.chipTOn]}>Gross (before tax)</Text></TouchableOpacity>
+          <TouchableOpacity style={[styles.chip, mode === 'gross' && styles.chipOn]} onPress={() => setMode('gross')}><Text style={[styles.chipT, mode === 'gross' && styles.chipTOn]}>Gross (before any deductions)</Text></TouchableOpacity>
           <TouchableOpacity style={[styles.chip, mode === 'takehome' && styles.chipOn]} onPress={() => setMode('takehome')}><Text style={[styles.chipT, mode === 'takehome' && styles.chipTOn]}>Take-home</Text></TouchableOpacity>
         </View>
         {/* B-40: a per-month salary table takes precedence over a flat amount, so editing base pay to
             a flat figure must clear that table — otherwise the edit silently does nothing. */}
         <TouchableOpacity style={[styles.saveBtn, num(amt) <= 0 && { opacity: 0.4 }]} disabled={num(amt) <= 0}
           onPress={() => onSave({ baseSalary: String(num(amt)), salaryFreq: freq, salaryMode: mode, salaryByMonth: undefined, salaryMonthMode: undefined })}>
-          <Text style={styles.saveBtnT}>Save · {money(annual)}/yr</Text>
+          <Text style={styles.saveBtnT}>Save · {money(annual)}/year</Text>
         </TouchableOpacity>
       </View>
       </KeyboardAvoidingView>
@@ -330,7 +330,7 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <Text style={styles.sheetT}>Add one-off income</Text>
+        <Text style={styles.sheetT}>Add one-time income</Text>
         <Text style={styles.fieldL}>What was it?</Text>
         <TextInput style={styles.input} value={source} onChangeText={setSource} placeholder="e.g. Gift, stock sale, freelance" placeholderTextColor={Colors.textTertiary} />
         <Text style={styles.fieldL}>Amount</Text>
@@ -391,3 +391,4 @@ const styles = StyleSheet.create({
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 18 },
   saveBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
 });
+

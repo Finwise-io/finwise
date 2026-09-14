@@ -23,13 +23,13 @@ const ESTIMATED = { baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800' }; 
 test('when they told us what lands, the figures are THEIRS — read back, never estimated', () => {
   set(TOLD_US);
   render(<BasePayScreen />);
-  // v6: the entered card shows their own figure back — "Everything taken out · what you told us" —
+  // v6: the entered card shows their own figure back — "Everything taken out · what you entered" —
   // and says in a sentence that nothing is estimated.
   expect(screen.getAllByText('Everything else taken out').length).toBeGreaterThan(0);
-  expect(screen.getByText('what you told us')).toBeOnTheScreen();
+  expect(screen.getByText('what you entered')).toBeOnTheScreen();
   expect(screen.getByText(/nothing here is calculated/)).toBeOnTheScreen();
   expect(screen.queryByText('Calculated federal tax')).toBeNull();
-  expect(screen.queryByText(/Federal income tax only\./)).toBeNull();   // no shortfall warning
+  expect(screen.queryByText(/The take-home above is higher than it will really be/)).toBeNull();   // no shortfall warning
 });
 
 test('the bracket is NAMED, and the estimate says what it assumed', () => {
@@ -38,19 +38,20 @@ test('the bracket is NAMED, and the estimate says what it assumed', () => {
   expect(screen.getByText('Federal tax bracket')).toBeOnTheScreen();
   expect(screen.getByText('Calculated federal tax')).toBeOnTheScreen();
   expect(screen.getByText('assumes you take the standard deduction')).toBeOnTheScreen();
-  // the tax figure is MONEY, as a payslip shows it — never a percentage. Two rows carry a ≈$/mo
+  // the tax figure is MONEY, as a payslip shows it — never a percentage. Two rows carry a ≈$/month
   // figure here: the tax, and what lands. Neither may carry a % — that was the confusion.
   // v6: three ≈ figures — the band echo, the estimated tax, and the lands total (#7, #8)
-  expect(screen.getAllByText(/^≈\$[\d,]+\/mo$/).length).toBeGreaterThanOrEqual(2);
+  expect(screen.getAllByText(/^≈\$[\d,]+\/month$/).length).toBeGreaterThanOrEqual(2);
   expect(screen.queryByText(/\$[\d,]+ · \d+%$/)).toBeNull();
 });
 
 test('when we are estimating, it names the shortfall IN MONEY', () => {
   set(ESTIMATED);
   render(<BasePayScreen />);
-  expect(screen.getByText(/Federal income tax only\./)).toBeOnTheScreen();
-  expect(screen.getByText(/Social Security and Medicare take about another 7\.7%/)).toBeOnTheScreen();
-  expect(screen.getByText(/reads high — by roughly \$[\d,]+ a month/)).toBeOnTheScreen();
+  // G4 (founder, 2026-09-12): the sentence names its subject and the real withholding — never a flat 7.7%
+  expect(screen.getByText(/The take-home above is higher than it will really be, by roughly \$[\d,]+ a month\./)).toBeOnTheScreen();
+  expect(screen.getByText(/Social Security takes 6\.2% of a wage up to \$184,500 a year and Medicare 1\.45% of all of it/)).toBeOnTheScreen();
+  expect(screen.queryByText(/7\.7%/)).toBeNull();
 });
 
 test('the field asks for a payslip figure — never an "effective tax rate"', () => {

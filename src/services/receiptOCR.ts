@@ -93,7 +93,7 @@ export async function parseReceiptWithOCR(imageUri: string): Promise<ParsedRecei
  * Answers ..... A DATE IS NOT MONEY.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = the line with dates (30.04.24, 04/30/24, 2024-04-30) and times (08:30, 7:54:10) blanked out
  *
  * Called by ... MK-XS-F-058 parseReceipt · MK-XS-F-094 parseReceiptText
  *
@@ -148,7 +148,6 @@ export function stripNonMoney(line: string): string {
  *     · Uses a built-in subtotal of 0.
  *     · Uses a built-in largest safe of 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-094
  * Changed ..... 2026-07-21 (b409e89)

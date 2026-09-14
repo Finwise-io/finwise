@@ -74,7 +74,7 @@ test('SEAM adoption→3 surfaces→revert: the Roth tax appears on the grid AND 
 test('SEAM add-account→milestone: adding real money on the unified screen fires the watched crossing on Home', () => {
   useStore.setState({ onboardingProfile: WORKER, nwSeeded: true, milestoneHighSeen: 100000 } as any);
   const add = render(<AddAccountScreen />);
-  fireEvent.press(screen.getByLabelText('Stocks & funds'));
+  fireEvent.press(screen.getByLabelText('Stocks / Funds'));
   fireEvent.changeText(screen.getByLabelText('Account name'), 'Brokerage');
   fireEvent.changeText(screen.getByLabelText('Balance'), '300000');
   fireEvent.press(screen.getByLabelText('Save this account'));
@@ -117,7 +117,7 @@ test('MASK: the connect accounts-found list and the add screen respect hide-bala
   expect(screen.queryByText(/\$4,211/)).toBeNull();
 });
 
-test('EDGE: a one-off bill dated for a PASSED month this year lands in Later — never silently dropped, never doubled', () => {
+test('EDGE: a one-time bill dated for a PASSED month this year lands in Later — never silently dropped, never doubled', () => {
   const now = new Date();
   const passedMonth = now.getMonth() === 0 ? 12 : now.getMonth();        // last month (or Dec of a past year edge)
   const op = { ...WORKER, spendCats: [{ id: 'x', label: 'Old bill', bucket: 'nonmonthly', amount: 900, months: [passedMonth], year: now.getFullYear() - (now.getMonth() === 0 ? 1 : 0), tier: 'flex' }] };

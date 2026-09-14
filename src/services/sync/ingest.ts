@@ -8,7 +8,7 @@
 import type { AssetAccount } from '../../domain/assets';
 import type { Transaction } from '../../domain/transactions';
 import { newEntityId } from '../../domain/_shared/ids';
-// THE CALCULATION MODULE. Classification and amounts come from the engines, so the app and the
+// THE CALCULATION MODULE. Classification and amounts come from the functions, so the app and the
 // standalone bench compute identically. The guard in
 // "Calculation Module code/engines/__tests__/no-stale-code.test.ts" fails the build if this file
 // ever goes back to the old paths.
@@ -39,7 +39,7 @@ export interface SyncResult {
  * Answers ..... What do we call this connected account internally?
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = 'st-' + the SnapTrade account identifier
  *
  * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-116 runSnapTradeSync
  *
@@ -94,9 +94,7 @@ export const stAssetId = (snapTradeAccountId: string) => `st-${snapTradeAccountI
  *     · If cost per share is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
+ *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-102
  * Changed ..... 2026-07-18 (0dc9061)
@@ -274,9 +272,9 @@ export function ingestSync(
         ticker: row.ticker,
         shares: row.shares,
         price: row.price,
-        // THE APP-STORE EDGE. The engine holds an exact decimal; the store still holds floats until
+        // THE APP-STORE EDGE. The function holds an exact decimal; the store still holds floats until
         // Track 1 carries Dec into it. Rounded ONCE here (R6) — never summed again as a float in
-        // the engine layer, where every total now runs exact.
+        // the function layer, where every total now runs exact.
         amount: row.amount.isZero() ? undefined : row.amount.toNumber(2),
         reinvested: row.reinvested,
         note: [row.note, row.recognised ? undefined : `broker word: ${row.sourceWord}`]
@@ -314,3 +312,4 @@ export function ingestSync(
 export function confirmWrapper(accounts: AssetAccount[], assetId: string, kind: string, taxBucket: AssetAccount['tax_bucket']): AssetAccount[] {
   return accounts.map((a) => (a.asset_id === assetId ? { ...a, kind, tax_bucket: taxBucket, wrapper_confirmed: true } : a));
 }
+

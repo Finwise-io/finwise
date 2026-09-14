@@ -1,7 +1,6 @@
 // Other / alternative investments (Phase C) — crypto, private equity, hedge funds, commodities,
 // annuities, and anything else that isn't a ticker stock/ETF (Performance) or an individual bond
 // (Bonds). Modeled as manually-valued AssetAccounts, so they already flow to Net Worth + nest egg.
-import { round2 } from '../_shared/num';
 import { benchmarkReturn, type AssetAccount } from '../assets';
 
 export const ALT_KINDS = ['crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities', 'options', 'other_asset'] as const;
@@ -20,7 +19,10 @@ export type AltKind = typeof ALT_KINDS[number];
  * Formula .....
  *     ALT_KINDS.includes((kind ?? '') as alt kind) and !maturity date and tax bucket ! = 'PROPERTY'
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-002 alternativesSummary
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-002 alternativesSummary
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -53,8 +55,6 @@ export interface AltSummary { count: number; totalValue: number; blendedReturn: 
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-002
  * Changed ..... 2026-06-06 (a41cd47)
@@ -65,8 +65,8 @@ export function alternativesSummary(accounts: AssetAccount[]): AltSummary {
   const weighted = total > 0 ? alts.reduce((t, a) => t + (a.balance || 0) * benchmarkReturn(a.kind), 0) / total : 0;
   return {
     count: alts.length,
-    totalValue: round2(total),
-    blendedReturn: Math.round(weighted * 1e4) / 1e4,
-    estAnnualGrowth: round2(total * weighted),
+    totalValue: (total),
+    blendedReturn: (weighted),
+    estAnnualGrowth: (total * weighted),
   };
 }

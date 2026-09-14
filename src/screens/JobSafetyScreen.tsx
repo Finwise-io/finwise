@@ -1,4 +1,4 @@
-// Your cushion — REBUILT 2026-07-17 to the founder-approved mock (design audit: this screen
+// Your emergency fund — REBUILT 2026-07-17 to the founder-approved mock (design audit: this screen
 // predated the FCC design language). Calm word cards (no smiley radios), the funding gap as the
 // single 34pt hero with its math spelled out in one sentence, honest inputs (no silent $2,500
 // default — the screen ASKS when nothing is logged), and a real action (save the gap as a goal)
@@ -7,7 +7,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
-import { useStore, useMonthlyStats } from '../store/useStore';
+import { useStore } from '../store/useStore';
+import { essentialsFromLoggedSpending } from '../../MoneyKeel/functions/cashflow/essentials';
 import { Disclaimer } from '../components/Disclaimer';
 import { money } from '../domain/_shared/num';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -20,13 +21,16 @@ const RISK_OPTIONS: { level: RiskLevel; label: string; sub: string }[] = [
   { level: 'high', label: 'Worried', sub: 'income could stop within a year' },
 ];
 const MONTH_CHOICES = [3, 6, 9, 12];
-const EXAMPLE_PACE = 300;   // $/mo — always LABELED as an example, never presented as advice
+const EXAMPLE_PACE = 300;   // $/month — always LABELED as an example, never presented as advice
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
 export default function JobSafetyScreen() {
   const { jobRiskLevel, emergencyMonths, setJobRisk, setEmergencyMonths, savings, investments, goals, addGoal } = useStore() as any;
-  const { monthSpend } = useMonthlyStats() as any;
+  // G21 / Q21 / Q47 (2026-09-08): the logged baseline is the average over the months logged (MK-CF-F-189),
+  // not this month's spend alone; the label says how many months it stands on.
+  const logged = essentialsFromLoggedSpending(((useStore.getState() as any).expenses ?? []) as any[]);
+  const monthSpend = logged?.monthly ?? 0;
 
   const [selected, setSelected] = useState<RiskLevel | null>(jobRiskLevel ?? null);
   const [months, setMonths] = useState<number>(MONTH_CHOICES.includes(emergencyMonths) ? emergencyMonths : 6);
@@ -56,7 +60,7 @@ export default function JobSafetyScreen() {
 
   return (
     <KeyboardAwareScreen style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      <Text style={s.h1}>Your cushion</Text>
+      <Text style={s.h1}>Your emergency fund</Text>
       <Text style={s.sub}>If your income stopped, how long would your cash carry you?</Text>
 
       {/* 1 · the stability question — calm word cards, selection = ✓ + weight, saved on tap */}
@@ -76,29 +80,29 @@ export default function JobSafetyScreen() {
         </View>
       </View>
 
-      {/* 2 · the cushion — the gap IS the hero; the math is one readable sentence */}
+      {/* 2 · the emergency fund — the gap IS the hero; the math is one readable sentence */}
       <View style={s.card}>
-        <SectionBand title={covered ? 'YOUR CUSHION' : 'STILL NEEDED FOR YOUR CUSHION'} />
+        <SectionBand title={covered ? 'YOUR EMERGENCY FUND' : 'STILL NEEDED FOR YOUR EMERGENCY FUND'} />
 
         {ess <= 0 ? (
           <>
-            <Text style={s.askLine}>What do your essential bills come to in a typical month? (rent, food, utilities — the must-pays)</Text>
+            <Text style={s.askLine}>What do your essential expenses come to in a typical month? (rent, food, utilities — the must-pays)</Text>
             <TextInput style={s.input} keyboardType="decimal-pad" placeholder="$2,800" placeholderTextColor={Colors.textTertiary}
-              value={customExpenses} onChangeText={setCustomExpenses} accessibilityLabel="Essential monthly bills" />
+              value={customExpenses} onChangeText={setCustomExpenses} accessibilityLabel="Essential monthly expenses" />
           </>
         ) : (
           <>
             <Text style={[s.hero, { color: covered ? Colors.gainText : Colors.amber }]}>{covered ? '✓ Covered' : money(gap)}</Text>
             <Text style={s.heroLine}>
-              {months} months of essentials is {money(target)} ({money(ess)}/mo) — your {basisWord} cover {money(Math.min(available, target))} of it.
+              {months} months of essentials is {money(target)} ({money(ess)}/month) — your {basisWord} cover {money(Math.min(available, target))} of it.
             </Text>
             {monthSpend > 0 && !customExpenses && (
-              <Text style={s.baselineNote}>Using {money(monthSpend)}/mo from your logged spending — type your own if a typical month differs.</Text>
+              <Text style={s.baselineNote}>Using {money(monthSpend)}/month — {logged?.label} of your logged expenses — type your own if a typical month differs.</Text>
             )}
             {monthSpend > 0 && (
               <TextInput style={[s.input, { marginTop: 8 }]} keyboardType="decimal-pad" placeholder={`${Math.round(monthSpend)}`}
                 placeholderTextColor={Colors.textTertiary} value={customExpenses} onChangeText={setCustomExpenses}
-                accessibilityLabel="Essential monthly bills, editable" />
+                accessibilityLabel="Essential monthly expenses, editable" />
             )}
           </>
         )}
@@ -108,7 +112,7 @@ export default function JobSafetyScreen() {
             const on = months === m;
             return (
               <TouchableOpacity accessibilityRole="radio" accessibilityState={{ selected: on }} key={m}
-                accessibilityLabel={`${m} months of cushion`} style={[s.chip, on && s.chipOn]} onPress={() => pickMonths(m)}>
+                accessibilityLabel={`${m} months of emergency fund`} style={[s.chip, on && s.chipOn]} onPress={() => pickMonths(m)}>
                 <Text style={[s.chipTxt, on && s.chipTxtOn]}>{on ? '✓ ' : ''}{m} mo</Text>
               </TouchableOpacity>
             );
@@ -136,15 +140,15 @@ export default function JobSafetyScreen() {
         <View style={s.card}>
           <SectionBand title="WHAT WOULD CLOSE IT" />
           <Text style={s.closeLine}>
-            Setting aside <Text style={s.bold}>{money(EXAMPLE_PACE)}/mo</Text> closes the gap in <Text style={s.bold}>{monthsToClose} months</Text> — an example pace, set your own.
+            Setting aside <Text style={s.bold}>{money(EXAMPLE_PACE)}/month</Text> closes the gap in <Text style={s.bold}>{monthsToClose} months</Text> — an example pace, set your own.
           </Text>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Save the cushion as a goal" style={s.goalLink} onPress={saveAsGoal}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Save the emergency fund as a goal" style={s.goalLink} onPress={saveAsGoal}>
             <Text style={s.goalLinkT}>Save it as a goal ›</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      <Text style={s.foot}>Estimates from your logged spending — not advice.</Text>
+      <Text style={s.foot}>Estimates from your logged expenses — not advice.</Text>
       <Disclaimer />
       <View style={{ height: 40 }} />
     </KeyboardAwareScreen>
@@ -154,7 +158,7 @@ export default function JobSafetyScreen() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 4 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 4 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 12, lineHeight: 18 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8 },
   kicker: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7 },

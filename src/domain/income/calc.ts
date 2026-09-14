@@ -115,7 +115,6 @@ export function employerMatchAnnual(sources: IncomeSource[]): number {
 // SYSTEM_CALCULATED default uses the IRS federal bracket schedule (see ./tax.ts).
 // Deliberately federal-single-filer for now — state tax, filing status, deductions deferred.
 import { effectiveRateOnGrossFor, progressiveMonthlyTax } from './tax';
-import { round2 } from '../_shared/num';
 
 
 /* ─ MK-CF-F-048 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -146,7 +145,7 @@ export function effectiveTaxRate(grossAnnual: number, tax: TaxProfile): number {
   if (tax.use_manual_tax_override && tax.manual_effective_tax_rate != null) {
     return Math.min(Math.max(tax.manual_effective_tax_rate, 0), 1);
   }
-  // The SAME engine every other screen reads. Until 2026-08-27 this branch called a second,
+  // The SAME function every other screen reads. Until 2026-08-27 this branch called a second,
   // single-filer-only one, so a married couple got one rate here and a different rate everywhere
   // else — from the same profile, on the same day.
   return effectiveRateOnGrossFor(grossAnnual, tax.filing_status ?? 'single', 0, tax.over65 ?? 0);
@@ -179,8 +178,7 @@ export function effectiveTaxRate(grossAnnual: number, tax: TaxProfile): number {
  *     · If landing month is missing it uses 12.
  *     · If landing month is missing it uses 1.
  *     · If operating expenses is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Uses a built-in i of 0.
- *     · Treats a year as twelve equal months.
+ *     · Never lets month fall below 1.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-161
  * Changed ..... not in git yet (—)
@@ -224,10 +222,6 @@ function monthlyGrossOfSource(s: IncomeSource): number[] {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Uses a built-in i of 0.
- *     · Treats a year as twelve equal months.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-049
  * Changed ..... 2026-07-14 (cf50737)
  */
@@ -245,17 +239,17 @@ export function buildIncomeState(userId: string, sources: IncomeSource[], tax: T
   const grid: MonthlyCell[] = [];
   for (let i = 0; i < 12; i++) {
     const g = monthlyGross[i];
-    grid.push({ month: i + 1, gross: round2(g), net: round2(g - monthlyTax[i]) });
+    grid.push({ month: i + 1, gross: (g), net: (g - monthlyTax[i]) });
   }
 
   return {
     user_id: userId,
-    total_gross_annual: round2(gross),
-    total_net_annual: round2(net),
+    total_gross_annual: (gross),
+    total_net_annual: (net),
     effective_tax_rate: round4(rate),
-    net_monthly_income: round2(net / 12),
+    net_monthly_income: (net / 12),
     monthly_cash_flow_grid: grid,
-    employer_match_annual: round2(employerMatchAnnual(sources)),
+    employer_match_annual: (employerMatchAnnual(sources)),
   };
 }
 
@@ -265,7 +259,7 @@ export function buildIncomeState(userId: string, sources: IncomeSource[], tax: T
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     round(n × 10000) ÷ 10000
+ *     n
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
@@ -275,10 +269,7 @@ export function buildIncomeState(userId: string, sources: IncomeSource[], tax: T
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-129
  * Changed ..... not in git yet (—)
  */
-const round4 = (n: number) => Math.round(n * 10000) / 10000;
+const round4 = (n: number) => (n);

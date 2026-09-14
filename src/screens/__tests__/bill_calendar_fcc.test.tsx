@@ -1,6 +1,6 @@
 // Bill calendar v2 (design r34-r43). Pins: the table IS the one F2 grid (rows = the Cash flow
 // bars' cells, End chains exactly from editable cash-on-hand); the verdict names dated months
-// and the biggest cause; a dated ONE-OFF bill (with a year) lands in its real cell exactly once;
+// and the biggest cause; a dated ONE-TIME bill (with a year) lands in its real cell exactly once;
 // a deferred debt shows no payment before its first month ANYWHERE (grid + payoff math, the r42
 // four-surface pin); coming-up speaks 55-70 (savings or a backup — never a family ask); masked
 // state keeps the verdict's words.
@@ -36,7 +36,7 @@ test('the window title states the dated span; End chains EXACTLY (prev End + In 
   render(<BillCalendarScreen />);
   const grid = buildDatedGrid(RETIREE as any, { startBalance: 18400 });
   expect(screen.getByText(new RegExp(`${grid.cells[0].label} .*– ${grid.cells[11].label}`))).toBeOnTheScreen();
-  // chaining identity on the same engine the screen reads
+  // chaining identity on the same function the screen reads
   let bal = 18400;
   for (const c of grid.cells) {
     bal = bal + c.inflow - c.outflow;
@@ -62,14 +62,14 @@ test('editing cash on hand re-chains every End immediately', () => {
   expect(screen.getByLabelText(new RegExp(`${c0.label} ${c0.year}: in .*ending balance ${endTxt}`))).toBeOnTheScreen();
 });
 
-test('a dated ONE-OFF bill (year field) lands in its real cell exactly once — and every surface moves together', () => {
+test('a dated ONE-TIME bill (year field) lands in its real cell exactly once — and every surface moves together', () => {
   render(<BillCalendarScreen />);
   fireEvent.press(screen.getByLabelText('Add a dated bill'));
   fireEvent.changeText(screen.getByLabelText('Bill name'), 'Roof repair');
   fireEvent.changeText(screen.getByLabelText('Bill amount'), '4200');
   const nextYear = new Date().getFullYear() + 1;
   fireEvent.press(screen.getByLabelText('Due in Mar'));
-  fireEvent(screen.getByLabelText('Repeats every year'), 'valueChange', false);   // toggle OFF → one-off
+  fireEvent(screen.getByLabelText('Repeats every year'), 'valueChange', false);   // toggle OFF → one-time
   fireEvent.changeText(screen.getByLabelText('Year, for a one-time bill'), String(nextYear));
   fireEvent.press(screen.getByLabelText('Save this bill'));
   const op = (useStore.getState() as any).onboardingProfile;

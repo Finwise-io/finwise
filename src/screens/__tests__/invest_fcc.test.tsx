@@ -145,7 +145,7 @@ test('tapping a bond row opens its account page (the routed holding detail)', ()
 
 test('the plan chip shows the adopted monthly saving (F11 propagation: Plan is visible here too)', () => {
   render(<PerformanceScreen />);
-  expect(screen.getByText(/Saving \$1,500\/mo toward retirement \(from your Plan\)/)).toBeOnTheScreen();
+  expect(screen.getByText(/Saving \$1,500\/month toward retirement \(from your Plan\)/)).toBeOnTheScreen();
 });
 
 test('the two what-if entry cards say what they are: estimate forward, facts backward', () => {
@@ -180,7 +180,7 @@ test('PRD F3#16: with a complete ledger the personal return renders, spoken as a
     priceCache: {},
   } as any);
   render(<PerformanceScreen />);
-  expect(screen.getByText(/money-weighted return: \+10%\/yr/)).toBeOnTheScreen();
+  expect(screen.getByText(/money-weighted return: \+10%\/year/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/counting when you added money.*an estimate/)).toBeOnTheScreen();
 });
 
@@ -262,7 +262,7 @@ describe('period chips + category earnings (final mock, 2026-08-04)', () => {
   });
 });
 
-// FINAL mock: one collapsible walk PER ACCOUNT, using the same engine as the all-accounts walk.
+// FINAL mock: one collapsible walk PER ACCOUNT, using the same function as the all-accounts walk.
 test('per-account walks: collapsed by default with a one-line summary, expanding to the full walk', () => {
   const { fireEvent } = require('@testing-library/react-native');
   useStore.setState({

@@ -88,7 +88,9 @@ def check(path=MASTER):
     # 6. every question number is unique and lands on a row
     qs = []
     for t, r in rows:
-        qs += re.findall(r'Q\d\d', str(r[col(t, 'Questions for you (numbered)')] or ''))
+        # a question is the number that HEADS a paragraph, 'Qnn —'; a number quoted inside another
+        # question's text ('your Q06') is a reference, not a second question (2026-09-08)
+        qs += re.findall(r'(?m)^Q\d\d(?= —)', str(r[col(t, 'Questions for you (numbered)')] or ''))
     for q in sorted({q for q in qs if qs.count(q) > 1}):
         breaks.append('QUESTION USED TWICE — %s appears on more than one row' % q)
 

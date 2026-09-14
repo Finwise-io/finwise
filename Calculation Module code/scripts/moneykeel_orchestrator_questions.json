@@ -1,0 +1,525 @@
+{
+ "_about": "The proposed questions — one orchestrator each (Orchestrator rule 1, 2026-09-13). Hand-kept: the judgement half of the map. Everything else on the map is generated from the master, the census and the code by build-orchestrator-map.py. A row here is a PROPOSAL until the founder marks it on the map.",
+ "mains": {
+  "Home": [
+   "/home"
+  ],
+  "Networth": [
+   "/analytics"
+  ],
+  "Performance": [
+   "/invest"
+  ],
+  "Plan": [
+   "/plan"
+  ],
+  "Cashflow": [
+   "/cashflow"
+  ],
+  "Menu": []
+ },
+ "questions": [
+  {
+   "id": "Q-NW-1",
+   "family": "NW",
+   "question": "What am I worth — in total, by class, by institution, by tax bucket, and how it has moved",
+   "screens": [
+    "/home",
+    "/analytics",
+    "/insights",
+    "/other-investments"
+   ],
+   "rows": [
+    "MK-XS-M-001",
+    "MK-XS-M-003",
+    "MK-HM-M-001",
+    "MK-HM-M-002",
+    "MK-NW-M-001",
+    "MK-NW-M-002",
+    "MK-NW-M-003",
+    "MK-NW-M-004",
+    "MK-NW-M-005",
+    "MK-NW-M-006",
+    "MK-NW-M-007",
+    "MK-NW-M-008",
+    "MK-NW-M-009",
+    "MK-NW-M-010",
+    "MK-NW-M-011",
+    "MK-NW-M-012",
+    "MK-NW-M-016",
+    "MK-NW-M-017",
+    "MK-MN-M-016",
+    "MK-MN-M-022",
+    "MK-MN-M-023"
+   ],
+   "note": "Home's card, the Net worth tab and Insights' totals are one question (rule 1). Other investments (MN-M-022/023) are a class inside it, not a question of their own — recommendation, for your ruling. Prices-updated (HM-M-001) rides with it as the freshness of the same balances."
+  },
+  {
+   "id": "Q-NW-2",
+   "family": "NW",
+   "question": "What is this one account worth, what is inside it, and what happened in it",
+   "screens": [
+    "/account-detail",
+    "/itemize"
+   ],
+   "rows": [
+    "MK-NW-M-018",
+    "MK-NW-M-019",
+    "MK-NW-M-020",
+    "MK-NW-M-021",
+    "MK-NW-M-022",
+    "MK-NW-M-038",
+    "MK-NW-M-039",
+    "MK-NW-M-040"
+   ],
+   "note": "Same value function as Q-NW-1 over one account (rule 2); the activity list is the ledger read for one account."
+  },
+  {
+   "id": "Q-NW-3",
+   "family": "NW",
+   "question": "How is this one holding doing — value, cost, gains realised and unrealised",
+   "screens": [
+    "/holding-detail"
+   ],
+   "rows": [
+    "MK-NW-M-029",
+    "MK-NW-M-030",
+    "MK-NW-M-031",
+    "MK-NW-M-032",
+    "MK-NW-M-033",
+    "MK-NW-M-034",
+    "MK-NW-M-035",
+    "MK-NW-M-036",
+    "MK-NW-M-037"
+   ],
+   "note": "Shares the holding value and cost functions with Q-PF-1 (rule 6, recorded)."
+  },
+  {
+   "id": "Q-NW-4",
+   "family": "NW",
+   "question": "What are my bonds worth, what do they pay, and what happens if rates move",
+   "screens": [
+    "/bonds",
+    "/account-detail"
+   ],
+   "rows": [
+    "MK-NW-M-023",
+    "MK-NW-M-024",
+    "MK-NW-M-025",
+    "MK-NW-M-026",
+    "MK-NW-M-027",
+    "MK-NW-M-028",
+    "MK-NW-M-041",
+    "MK-NW-M-042",
+    "MK-NW-M-043",
+    "MK-NW-M-044",
+    "MK-NW-M-045"
+   ]
+  },
+  {
+   "id": "Q-NW-5",
+   "family": "NW",
+   "question": "How long would my cash cover my essentials — the cushion, a job loss, a sudden hit",
+   "screens": [
+    "/analytics",
+    "/jobsafety",
+    "/stress-test"
+   ],
+   "rows": [
+    "MK-NW-M-013",
+    "MK-NW-M-014",
+    "MK-MN-M-020",
+    "MK-MN-M-021",
+    "MK-MN-M-024",
+    "MK-MN-M-025",
+    "MK-MN-M-026"
+   ],
+   "note": "Three screens ask the same question today with three names (Emergency cushion · Job safety · Stress test) — one orchestrator (rule 1)."
+  },
+  {
+   "id": "Q-PF-1",
+   "family": "PF",
+   "question": "How are my investments doing — the change walk, each account's return, the honest comparison",
+   "screens": [
+    "/invest",
+    "/home"
+   ],
+   "rows": [
+    "MK-XS-M-004",
+    "MK-PF-M-001",
+    "MK-PF-M-002",
+    "MK-PF-M-003",
+    "MK-PF-M-004",
+    "MK-PF-M-005",
+    "MK-PF-M-006",
+    "MK-PF-M-007",
+    "MK-PF-M-008",
+    "MK-PF-M-009"
+   ]
+  },
+  {
+   "id": "Q-PF-2",
+   "family": "PF",
+   "question": "What would this holding be worth had I moved it — the look-back",
+   "screens": [
+    "/look-back"
+   ],
+   "rows": [
+    "MK-PF-M-010",
+    "MK-PF-M-011",
+    "MK-PF-M-012"
+   ]
+  },
+  {
+   "id": "Q-PL-1",
+   "family": "PL",
+   "question": "Will my money last — the odds, the nest egg, what a change does to them",
+   "screens": [
+    "/home",
+    "/plan",
+    "/will-it-last",
+    "/what-if",
+    "/retirement",
+    "/analytics",
+    "/cashflow",
+    "/big-costs",
+    "/ss-timing"
+   ],
+   "rows": [
+    "MK-XS-M-002",
+    "MK-NW-M-015",
+    "MK-PL-M-001",
+    "MK-PL-M-002",
+    "MK-PL-M-007",
+    "MK-PL-M-008",
+    "MK-PL-M-009",
+    "MK-PL-M-010",
+    "MK-PL-M-011",
+    "MK-PL-M-025",
+    "MK-PL-M-026",
+    "MK-PL-M-027",
+    "MK-PL-M-033",
+    "MK-PL-M-034",
+    "MK-PL-M-035",
+    "MK-MN-M-001",
+    "MK-MN-M-002"
+   ],
+   "note": "MK-PL-O-001 thePlan. Big costs are an input it assembles (rule 4), listed as a figure because the Big costs screen prints their total."
+  },
+  {
+   "id": "Q-PL-2",
+   "family": "PL",
+   "question": "What will my retirement paycheck be — guaranteed income plus the draw from savings",
+   "screens": [
+    "/plan",
+    "/cashflow",
+    "/monthly-income",
+    "/retirement",
+    "/ss-timing"
+   ],
+   "rows": [
+    "MK-PL-M-003",
+    "MK-PL-M-004",
+    "MK-PL-M-005",
+    "MK-PL-M-006",
+    "MK-PL-M-018",
+    "MK-PL-M-032",
+    "MK-CF-M-011",
+    "MK-CF-M-022",
+    "MK-CF-M-023",
+    "MK-CF-M-024"
+   ],
+   "note": "Plan's paycheck, Cash flow's future paycheck and the guaranteed-income lines on three other screens are one question (rule 1)."
+  },
+  {
+   "id": "Q-PL-3",
+   "family": "PL",
+   "question": "When should I claim Social Security — what each claim age pays, monthly and in total",
+   "screens": [
+    "/ss-timing"
+   ],
+   "rows": [
+    "MK-PL-M-017",
+    "MK-PL-M-019",
+    "MK-PL-M-020",
+    "MK-PL-M-021"
+   ],
+   "note": "Proposed pilot: 4 callers, 8 functions, statutory figures already registered."
+  },
+  {
+   "id": "Q-PL-4",
+   "family": "PL",
+   "question": "What must I withdraw this year, and each year after — required withdrawals",
+   "screens": [
+    "/required-withdrawals"
+   ],
+   "rows": [
+    "MK-PL-M-012",
+    "MK-PL-M-013",
+    "MK-PL-M-014",
+    "MK-PL-M-015",
+    "MK-PL-M-016"
+   ]
+  },
+  {
+   "id": "Q-PL-5",
+   "family": "PL",
+   "question": "What would converting to Roth cost me this year",
+   "screens": [
+    "/roth"
+   ],
+   "rows": [
+    "MK-PL-M-022",
+    "MK-PL-M-023",
+    "MK-PL-M-024"
+   ],
+   "note": "Uses the one tax function (rule 2) and reads the odds from Q-PL-1's dependent functions, never from its door (rule 3)."
+  },
+  {
+   "id": "Q-PL-6",
+   "family": "PL",
+   "question": "Can I afford my goals — each goal, the monthly amount, what it does to retirement and to debt",
+   "screens": [
+    "/goals",
+    "/multi-goal",
+    "/cashflow"
+   ],
+   "rows": [
+    "MK-PL-M-028",
+    "MK-PL-M-029",
+    "MK-PL-M-030",
+    "MK-PL-M-031",
+    "MK-MN-M-008",
+    "MK-MN-M-009",
+    "MK-MN-M-010",
+    "MK-CF-M-021"
+   ]
+  },
+  {
+   "id": "Q-PL-7",
+   "family": "PL",
+   "question": "What will school cost, and what closes the gap",
+   "screens": [
+    "/education"
+   ],
+   "rows": [
+    "MK-PL-M-036",
+    "MK-PL-M-037"
+   ]
+  },
+  {
+   "id": "Q-PL-8",
+   "family": "PL",
+   "question": "Am I covered — the life-cover gap",
+   "screens": [
+    "/insurance"
+   ],
+   "rows": [
+    "MK-MN-M-017",
+    "MK-MN-M-018",
+    "MK-MN-M-019"
+   ],
+   "note": "No function on record for any of its three figures today — the screen computes them (breaks rule 5)."
+  },
+  {
+   "id": "Q-CF-1",
+   "family": "CF",
+   "question": "What do I earn and what do I take home — every source, each earner, the tax band",
+   "screens": [
+    "/base-pay",
+    "/cashflow",
+    "/home",
+    "/income-detail",
+    "/income-manager",
+    "/income-summary"
+   ],
+   "rows": [
+    "MK-XS-M-006",
+    "MK-CF-M-006",
+    "MK-CF-M-007",
+    "MK-CF-M-008",
+    "MK-CF-M-009",
+    "MK-CF-M-010",
+    "MK-CF-M-027",
+    "MK-CF-M-029",
+    "MK-MN-M-011",
+    "MK-MN-M-012",
+    "MK-MN-M-013",
+    "MK-MN-M-014",
+    "MK-CF-M-030",
+    "MK-CF-M-031",
+    "MK-CF-M-032",
+    "MK-CF-M-033",
+    "MK-CF-M-034",
+    "MK-CF-M-035",
+    "MK-CF-M-036",
+    "MK-CF-M-037",
+    "MK-CF-M-038",
+    "MK-CF-M-039",
+    "MK-CF-M-040",
+    "MK-CF-M-041",
+    "MK-CF-M-042",
+    "MK-CF-M-043",
+    "MK-CF-M-044",
+    "MK-CF-M-045",
+    "MK-CF-M-046"
+   ],
+   "note": "Two doors exist today — MK-CF-O-001 basePay (each earner's pay and tax) and MK-CF-O-004 incomeSummary (every source, the year). Conflict C-1 asks whether they are one question or two. The 17 figures MK-CF-M-030…046 are DECLARED IN THE CODE (rule 11, 2026-09-14) by MK-CF-O-001 basePay and MK-CF-O-004 incomeSummary; their rows on the master are printed from those declarations."
+  },
+  {
+   "id": "Q-CF-2",
+   "family": "CF",
+   "question": "How much have I spent this month, against the plan, and what is left",
+   "screens": [
+    "/cashflow",
+    "/home",
+    "/expense",
+    "/month-detail"
+   ],
+   "rows": [
+    "MK-XS-M-005",
+    "MK-XS-M-007",
+    "MK-HM-M-004",
+    "MK-CF-M-001",
+    "MK-CF-M-002",
+    "MK-CF-M-003",
+    "MK-CF-M-004",
+    "MK-CF-M-005",
+    "MK-CF-M-013",
+    "MK-CF-M-014",
+    "MK-CF-M-015",
+    "MK-CF-M-018",
+    "MK-CF-M-019",
+    "MK-CF-M-020",
+    "MK-CF-M-025",
+    "MK-MN-M-007",
+    "MK-CF-M-047",
+    "MK-CF-M-048",
+    "MK-CF-M-049",
+    "MK-CF-M-050",
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053",
+    "MK-CF-M-054"
+   ],
+   "note": "Two doors exist today — MK-CF-O-002 expenses and MK-CF-O-003 thisMonth. Conflict C-2 asks whether they are one question or two. MK-CF-M-047…054 are DRAFT declarations on MK-CF-O-003 thisMonth (rule 11) — printed on the master and waiting for the founder's verdict before the Cash flow screen moves behind the door."
+  },
+  {
+   "id": "Q-CF-3",
+   "family": "CF",
+   "question": "Which bills and paychecks are coming, and which look out of the ordinary",
+   "screens": [
+    "/cashflow",
+    "/bill-calendar",
+    "/paycheck-months",
+    "/worth-a-look"
+   ],
+   "rows": [
+    "MK-CF-M-012",
+    "MK-CF-M-016",
+    "MK-CF-M-017",
+    "MK-CF-M-026",
+    "MK-CF-M-028",
+    "MK-MN-M-030"
+   ]
+  },
+  {
+   "id": "Q-CF-4",
+   "family": "CF",
+   "question": "How much room is left in my 401(k), IRA and HSA this year, and what fills it",
+   "screens": [
+    "/contribution-room",
+    "/tax-organizer",
+    "/home"
+   ],
+   "rows": [
+    "MK-MN-M-003",
+    "MK-MN-M-004",
+    "MK-MN-M-005",
+    "MK-MN-M-029"
+   ]
+  },
+  {
+   "id": "Q-CF-5",
+   "family": "CF",
+   "question": "What will my taxes look like — each taxable line, the deduction, the tax",
+   "screens": [
+    "/tax-organizer"
+   ],
+   "rows": [
+    "MK-MN-M-027",
+    "MK-MN-M-028"
+   ],
+   "note": "The tax function MK-CF-F-099 taxOwedFor is shared with Q-CF-1 (rule 2: one tax function)."
+  },
+  {
+   "id": "Q-CF-6",
+   "family": "CF",
+   "question": "How much of my credit line is used",
+   "screens": [
+    "/credit"
+   ],
+   "rows": [
+    "MK-MN-M-006"
+   ]
+  },
+  {
+   "id": "Q-HM-1",
+   "family": "HM",
+   "question": "What needs my attention — the ranked insights and the dollars behind each",
+   "screens": [
+    "/home",
+    "/insights"
+   ],
+   "rows": [
+    "MK-HM-M-003",
+    "MK-MN-M-015"
+   ],
+   "note": "A question ABOUT the other answers. Under rule 3 it may not call the other doors; conflict C-3 asks how it gets their figures."
+  }
+ ],
+ "conflicts_by_hand": [
+  {
+   "kind": "two functions for one concept (rule 2)",
+   "ids": "MK-CF-F-014 budgetVsActual · MK-CF-F-004 spendBuckets · MK-CF-F-194 monthOutflow",
+   "where": "Q-CF-2 · Home · Cash flow",
+   "what": "\"spent so far this month\" is computed three ways: budgetVsActual (Home's cell), spendBuckets (the month card), monthOutflow (the this-month door). The 2026-06 divergence B-24 was this.",
+   "rec": "one function, monthOutflow (MK-CF-F-194, the door's), the other two read it"
+  },
+  {
+   "kind": "two functions for one concept (rule 2)",
+   "ids": "MK-PL-F-055 projectNestEgg · MK-PL-F-067 willItLastInputs (nest egg) · MK-NW-F-022 investableAssets",
+   "where": "Q-PL-1 · Q-NW-1",
+   "what": "\"what you have\" (the nest egg today) is assembled inside willItLastInputs from accounts, and separately by investableAssets for Net worth and Insights; the 2026-08-22 spec found Net worth and Cash flow could show different nest eggs for one person.",
+   "rec": "one dependent function for the nest egg today, read by both questions; the projection stays in Q-PL-1"
+  },
+  {
+   "kind": "two functions for one concept (rule 2)",
+   "ids": "MK-NW-F-065 buildNetWorth · MK-XS-F-174 recomputeBalances · MK-XS-F-005 trendPoints",
+   "where": "Q-NW-1",
+   "what": "net worth today (buildNetWorth), the balances it is made of (recomputeBalances, in the store) and the recorded history (trendPoints) — three places a net-worth figure is formed.",
+   "rec": "buildNetWorth reads recomputeBalances' balances and records the day; trendPoints only reads the record — recorded on the Q-NW-1 row as the chain"
+  },
+  {
+   "kind": "two functions for one concept (rule 2)",
+   "ids": "MK-CF-F-072 currentRetirementIncomeMonthly · MK-CF-F-076 guaranteedOutsideStreams",
+   "where": "Q-PL-2 · Q-CF-1",
+   "what": "guaranteed monthly income (Social Security, pension) is summed by two functions with different source lists.",
+   "rec": "one function; the other retired or shown to be a different concept (today's income vs at retirement) and renamed"
+  },
+  {
+   "kind": "two functions for one concept (rule 2)",
+   "ids": "MK-CF-F-190 essentialsMonthly · MK-CF-F-189 essentialsFromLoggedSpending · MK-CF-F-010 emergencyTest",
+   "where": "Q-NW-5",
+   "what": "\"must-pay essentials a month\" — the cushion, Job safety and Stress test each start from a different function.",
+   "rec": "one function for essentials, the three screens read it (rule 1: same question, same orchestrator)"
+  },
+  {
+   "kind": "two functions for one concept (rule 2)",
+   "ids": "MK-PL-F-023 goalStatus · monthlySavings (capacity) · surplus",
+   "where": "Q-PL-6 · Q-CF-2",
+   "what": "\"what I can put toward goals each month\" is read from savings capacity on Goals and from the month's surplus on Cash flow (the B-24 family of divergences).",
+   "rec": "one dependent function for the monthly surplus; goal capacity derives from it"
+  }
+ ]
+}

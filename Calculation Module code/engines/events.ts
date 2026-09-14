@@ -192,11 +192,13 @@ export interface Classified {
  *     word = w
  *     matched by = source
  *     recognised = true
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
- * Called by ... MK-ST-F-012 toLedgerRow
+ * Called by ... MK-ST-F-012 toLedgerRow · MK-XS-F-106 mapOptionHolding
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync · MK-ST-F-012 toLedgerRow
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-XS-F-106 mapOptionHolding
+ *               MK-ST-F-012 toLedgerRow
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

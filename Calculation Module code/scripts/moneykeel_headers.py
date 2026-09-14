@@ -14,6 +14,10 @@ WHAT IT WILL NEVER TOUCH. Only the comment block between its own markers. The co
 read, moved or reformatted, and a comment the author wrote by hand is left where it is, below.
 """
 import json, os, re, subprocess
+import importlib.util as _il
+_cfspec = _il.spec_from_file_location('mkcf_canon_h', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_code_formula.py'))
+_cfmod = _il.module_from_spec(_cfspec); _cfspec.loader.exec_module(_cfmod)
+_canon = _cfmod.canon
 
 MARK_OPEN  = '/* ─ '
 MARK_ID    = re.compile(r'^/\* ─ (MK-[A-Z]{2}-[FO]-\d{3}) ─{2,}.*$')
@@ -126,7 +130,8 @@ def block(f, data):
     L.append(f' * Formula also on the master file · functions_from_code · {f["id"]}')
     L.append(f' * Changed ..... {data["changed"]}')
     L.append(' */')
-    return '\n'.join(L)
+    # a header is a printed view: the one canon (moneykeel_code_formula.CANON) applies to every line
+    return _canon('\n'.join(L))
 
 
 def strip_existing(lines, i):

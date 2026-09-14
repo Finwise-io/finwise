@@ -13,6 +13,10 @@ describe('contribution limits + tax moves', () => {
     expect(annualIraLimit(50)).toBe(7_500 + 1_100);
     expect(annualHsaLimit(40, false)).toBe(4_400);
     expect(annualHsaLimit(60, true)).toBe(8_750 + 1_000);   // family + the 55+ catch-up
+    // G10 (founder ruling 2026-09-08): enrolled in Medicare → no contribution allowed (IRS Pub 969)
+    expect(annualHsaLimit(66, false, true)).toBe(0);
+    expect(annualHsaLimit(66, false, false)).toBe(4_400 + 1_000);   // 65+ but not enrolled: the limit stands
+    expect(annualHsaLimit(66, false, null)).toBe(4_400 + 1_000);    // not answered: the limit, and the screen asks
   });
 
   test('SECURE 2.0: ages 60–63 get the super catch-up, and it drops back at 64', () => {

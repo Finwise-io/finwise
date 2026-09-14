@@ -25,7 +25,7 @@ export function usePlanCompleteness() {
     hasInvestments: accounts.some((a: any) => a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY'),
     goalCount: (store.goals ?? []).length,
     // "retirement set" is done for an already-retired user, or anyone with guaranteed retirement
-    // income captured at onboarding (SS / pension / annuities) — not only when the SS editor was opened.
+    // income entered at onboarding (SS / pension / annuities) — not only when the SS editor was opened.
     ssAnswered: A.ssEligible != null || store.employmentStatus === 'retired' || retirementIncomeMonthly(op) > 0,
     // P0 dedup: use the canonical planned spend (MAX of stated estimate + categories), not the raw field.
     monthlySpending: plannedMonthlySpend(op) || num(store.monthlyBudgetTarget),
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   backBtn: { alignSelf: 'flex-start', marginTop: 4, minHeight: 44, justifyContent: 'center' },
   back: { color: Colors.primary, fontSize: 17, fontWeight: '700' },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, lineHeight: 19 },
   kicker: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginTop: 18, marginBottom: 2 },
   scoreCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 14, alignItems: 'center' },

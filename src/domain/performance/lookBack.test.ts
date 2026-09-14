@@ -1,4 +1,4 @@
-// Look-back engine pins: real prices only (no window → null, never an invented number), the design's
+// Look-back function pins: real prices only (no window → null, never an invented number), the design's
 // worked example ($20k: BND −3% vs VTI +10.1% → $2,620 difference), and the signed difference
 // (a move that would have LOST shows negative — closure, not regret-bait).
 import { lookBack, factorOverMonths } from './lookBack';

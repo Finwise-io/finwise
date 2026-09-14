@@ -4,8 +4,8 @@
  * Onboarding used to work take-home out for itself: tax on the full gross, then the 401(k) taken off
  * afterwards. Every other screen read the income grid, where the 401(k) comes off BEFORE tax, which
  * is what a traditional contribution is. On the employedPartner persona that was $6,400 in onboarding
- * against $6,560 everywhere else — the rate times the contribution, $160 a month, and only on the
- * persona with a partner.
+ * against $6,560 everywhere else — the rate times the contribution, $160/month, and only on the
+ * persona with a spouse.
  *
  * It is the same defect as B05. B05 was fixed in the grid on 2026-08-27; this copy never saw the fix,
  * because a second implementation cannot be fixed by fixing the first. There is one producer now, and

@@ -1,11 +1,10 @@
-// Plan-hub selectors (founder-approved mock v9, 2026-08-01). Three small pure engines:
+// Plan-hub selectors (founder-approved mock v9, 2026-08-01). Three small pure functions:
 //   oddsLine       — THE one sentence for the odds, everywhere they are said
 //   planDoor       — the DYNAMIC first-day door: counts ONLY the missing answers, credits live accounts
 //   nextDecision   — the ONE amber card: the single most urgent dated decision, absent when none is
 import type { AssetAccount } from '../assets';
 import { retirementEarmarkedValue } from '../assets';
-import { rmdStartAgeFor, rmdAtAge, rmdTakenThisYear } from '../decumulation';
-import { round2 } from '../_shared/num';
+import { rmdStartAgeFor, rmdAtAge, rmdRequiredThisYear, rmdTakenThisYear } from '../decumulation';
 
 /** THE ONE way the odds are said, anywhere they are said (founder rule 2026-08-11: "we should have
  *  the same language on Home, NW and Plan"). Three screens had three phrasings for one number —
@@ -80,8 +79,8 @@ export interface PlanDoor {
  *     a = op (or none when missing)
  *     missing = []
  *     has age = number(birth year) > 1900 (or number(age) > 0 when missing or zero)
- *     has spend = number(monthly spending) > 0 (or number(spend monthly) > 0 when missing or zero)
- *     total = round(Σ over accounts (or none when missing) of (balance (or 0 when missing or zero)), 2 dp)
+ *     has spend = number(monthly expenses) > 0 (or number(spend monthly) > 0 when missing or zero)
+ *     total = Σ over accounts (or none when missing) of (balance (or 0 when missing or zero))
  *     earmarked = retirement earmarked value(accounts ?? [])
  *     has have = earmarked > 0
  *
@@ -103,7 +102,7 @@ export function planDoor(op: Record<string, any> | null, accounts: AssetAccount[
   const missing: PlanDoor['missing'] = [];
   const hasAge = Number(a.birthYear) > 1900 || Number(a.age) > 0;
   const hasSpend = Number(a.monthlySpending) > 0 || Number(a.spendMonthly) > 0;
-  const total = round2((accounts ?? []).reduce((t, x) => t + (x.balance || 0), 0));
+  const total = ((accounts ?? []).reduce((t, x) => t + (x.balance || 0), 0));
   // FOUNDER FINDING 2026-08-11: this counted ANY account with a balance, but the odds run on what is
   // EARMARKED for retirement. Someone whose only asset is the home they live in looked complete to
   // this door and produced no odds at all — landing on a bare "See your plan ›", the very fallback
@@ -139,7 +138,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  *
  * Formula .....
  *     now = args.now (or new date() when missing)
- *     due = rmd at age(args.pre tax balance, args.age)
+ *     due = rmd required this year(args.pre tax balance, args.prior year end pre tax, args.age).amount
  *     taken = rmd taken this year(args.transactions ?? [], args.pre tax account ids, now.get full year())
  *     opens = the date args.birth year + 62, now.get month(), 1
  *     the answer = nothing
@@ -149,8 +148,9 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
  *               MK-XS-I-021 Social Security claim age
- *               MK-XS-I-024 logged spending
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-061 pre-tax balance on 31 December last year
  *
  * Decides .....
  *     · Uses a built-in s a m p l e c h a n c e of 84.
@@ -166,8 +166,9 @@ export function nextDecision(args: {
   age: number | null;
   birthYear?: number | null;
   ssClaimAge?: number | null;         // set = the decision is made (settled)
-  alreadyClaiming?: boolean;          // a cheque is already arriving — the question no longer exists
+  alreadyClaiming?: boolean;          // a check is already arriving — the question no longer exists
   preTaxBalance: number;
+  priorYearEndPreTax?: number | null;   // MK-XS-I-061 — last 31 December's pre-tax balance, when entered (G8)
   preTaxAccountIds: string[];
   transactions: any[];
   moneyWord: (n: number) => string;   // masked formatter from the caller (mask rule holds)
@@ -176,7 +177,7 @@ export function nextDecision(args: {
   const now = args.now ?? new Date();
   // 1) a required withdrawal due THIS year and not yet taken outranks everything — it has a deadline
   if (args.age != null && args.age >= rmdStartAgeFor(args.age) && args.preTaxBalance > 0) {
-    const due = rmdAtAge(args.preTaxBalance, args.age);
+    const due = rmdRequiredThisYear(args.preTaxBalance, args.priorYearEndPreTax, args.age).amount;   // G8: last Dec 31's balance when entered
     const taken = rmdTakenThisYear(args.transactions ?? [], args.preTaxAccountIds, now.getFullYear());
     if (due > 0 && taken < due) {
       return {

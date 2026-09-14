@@ -1,7 +1,7 @@
 # Engine architecture — one door per engine
 
-Proposal, 2026-08-22. **Nothing has been built or changed.** This describes what is proposed and
-how it would be executed, for the founder's decision.
+Proposal, 2026-08-22. Status 2026-09-13: **the machinery is built** (photograph, ratchet — see
+"Where it stands"); **no engine has moved**, because step 1 of every engine is the founder's row.
 
 Named by `moneykeel_naming_spec_file-and-folder-naming_v01.md`. Serves the objectives in
 `moneykeel_calc_spec_objectives-and-verification_v01.md` — objective 1 (one source of truth),
@@ -104,6 +104,23 @@ deliberately, with its row and its identifier — never dragged across in bulk.
 - Signs off any number that genuinely changes.
 
 Everything else is mine.
+
+## Where it stands — 2026-09-13
+
+Measured against the code on 2026-09-13:
+
+| What the architecture needs | Today |
+|---|---|
+| A screen calls only an orchestrator | 4 orchestrators exist, all in Cash flow (MK-CF-O-001 basePay, O-002 expenses, O-003 thisMonth, O-004 incomeSummary). 67 screen or component files still import 299 functions straight from `src/domain` or the engines. |
+| One door for "will it last" | None. The engine exposes nine inner parts (simulate, selectWillItLast, willItLastInputs, projectNestEgg, displayOdds, capitalNeeded, volOf, solveRetireAge, RetirementInputs) and **16 files** reach for them, each assembling its own inputs. |
+| Functions living in `MoneyKeel/functions/` | 32 of 607 (all Cash flow). The folders `retirement/`, `networth-and-performance/`, `home-screen/`, `other/` are empty. |
+| Step 2, the photograph | ✅ Built. `src/__tests__/photograph_figures.test.tsx` renders two people — Pat, 55 and working; Lee, 68 and retired — on eight screens (Home, Net worth, Cash flow, Plan hub, Performance, Retirement, Will it last, Income summary) and records every dollar, percent, month and age a person could read: 237 figures in 16 snapshots under `__snapshots__/`, taken at a fixed date so they do not change overnight. Moving a caller behind a door must leave that file byte-identical; a difference stops the work and goes to the founder. |
+| Step 5, the guard | ✅ Built as a ratchet. `src/__tests__/guard_one_door_will_it_last.test.ts` freezes the 16 files; no file may start reaching past the door, and a file that stops is struck from the list so the count only falls. At zero the ratchet is the wall. D1 (nobody in the kitchen) holds the same line for dependent functions generally: 18 imports in 9 files, only ever down. |
+| Step 1, the row | ⏳ **Waiting on the founder.** No row has been put in front of him yet — the pilot engine is not chosen (below). |
+
+Steps still ahead, per engine, in the order the six steps give: the row (his verdict), the door
+beside the old code, callers moved one at a time against the photograph, old doors closed, the
+row's worked example run through the real engine.
 
 ## Not yet decided
 

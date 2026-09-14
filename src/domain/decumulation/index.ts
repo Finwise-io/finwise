@@ -2,9 +2,9 @@
 // Tax-bucket split of the nest egg, net withdrawal + rate vs the 4% guideline, deterministic
 // depletion age, a tax-efficient withdrawal order, and required minimum distributions (RMDs).
 import type { AssetAccount } from '../assets';
-import { rmdStartAgeFromAge, rmdDivisor as engineRmdDivisor } from '../../../Calculation Module code/engines/rmd';
+import { rmdStartAgeFromAge, rmdDivisor as tableRmdDivisor } from '../../../Calculation Module code/engines/rmd';
 import { earmarkedAmount } from '../assets';
-import { round2 } from '../_shared/num';
+import { marketValue, costBasis } from '../performance';
 
 // ---- where the money sits, by tax treatment ----
 export interface BucketSplit { taxable: number; preTax: number; roth: number; cash: number; total: number; }
@@ -22,10 +22,12 @@ export interface BucketSplit { taxable: number; preTax: number; roth: number; ca
  *     v = earmarked amount(a)
  *     the answer = s
  *
- * Called by ... MK-PL-F-067 willItLastInputs
+ * Called by ... MK-PL-F-049 retirementSpendMonthly · MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -45,7 +47,7 @@ export function taxBucketSplit(accounts: AssetAccount[]): BucketSplit {
     else s.taxable += v;                          // TAXABLE
     s.total += v;
   }
-  (Object.keys(s) as (keyof BucketSplit)[]).forEach((k) => { s[k] = round2(s[k]); });
+  (Object.keys(s) as (keyof BucketSplit)[]).forEach((k) => { s[k] = (s[k]); });
   return s;
 }
 
@@ -62,10 +64,10 @@ export interface WithdrawalPlan {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     spend annual = round(spend monthly × 12, 2 dp)
- *     guaranteed annual = round(guaranteed monthly × 12, 2 dp)
- *     net withdrawal = max(0, round(spend annual − guaranteed annual, 2 dp))
- *     withdrawal rate = round(net withdrawal ÷ nest egg, 4 dp)   if nest egg > 0
+ *     spend annual = spend monthly × 12
+ *     guaranteed annual = guaranteed monthly × 12
+ *     net withdrawal = max(0, spend annual − guaranteed annual)
+ *     withdrawal rate = net withdrawal ÷ nest egg   if nest egg > 0
  *     nothing   otherwise
  *     the answer = { spend annual, guaranteed annual, net withdrawal, withdrawal rate, rate band }
  *
@@ -75,16 +77,15 @@ export interface WithdrawalPlan {
  *
  * Decides .....
  *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-002
  * Changed ..... 2026-06-05 (8ada09f)
  */
 export function withdrawalPlan(spendMonthly: number, guaranteedMonthly: number, nestEgg: number): WithdrawalPlan {
-  const spendAnnual = round2(spendMonthly * 12);
-  const guaranteedAnnual = round2(guaranteedMonthly * 12);
-  const netWithdrawal = Math.max(0, round2(spendAnnual - guaranteedAnnual));
-  const withdrawalRate = nestEgg > 0 ? Math.round((netWithdrawal / nestEgg) * 1e4) / 1e4 : null;
+  const spendAnnual = (spendMonthly * 12);
+  const guaranteedAnnual = (guaranteedMonthly * 12);
+  const netWithdrawal = Math.max(0, (spendAnnual - guaranteedAnnual));
+  const withdrawalRate = nestEgg > 0 ? ((netWithdrawal / nestEgg)) : null;
   const rateBand: RateBand = netWithdrawal === 0 ? 'none'
     : withdrawalRate == null ? 'none'
     : withdrawalRate <= 0.04 ? 'safe'
@@ -171,9 +172,6 @@ export const DEFAULT_DRAW_ORDER: DrawBucket[] = ['cash', 'taxable', 'preTax', 'r
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-029 inflation rate
  *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
- *
  * Formula also on the master file · functions_from_code · MK-PL-F-004
  * Changed ..... 2026-08-02 (a58480f)
  */
@@ -201,14 +199,14 @@ export function withdrawalOrder(split: BucketSplit, age = 0, userOrder?: DrawBuc
 
 // ---- Required Minimum Distributions ----
 // B4 (founder brief 2026-08-20): the rule lives in ONE dated, sourced table — the Calculation
-// Module's rmd engine. The start age follows the birth-year rule (73 born 1951–1959, 75 born
+// Module's rmd function. The start age follows the birth-year rule (73 born 1951–1959, 75 born
 // 1960+); Roth 401(k)s are exempt BY CONSTRUCTION here — taxBucketSplit puts every ROTH-bucket
 // account outside the pre-tax base this math runs on (pinned by test).
 /** The start age for a person known only by AGE (birth year ≈ this year − age). */
 /* ─ MK-PL-F-005 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * rmdStartAgeFor
  *
- * Answers ..... ---- Required Minimum Distributions ---- B4 (founder brief 2026-08-20): the rule lives in ONE dated, sourced table — the Calculation Module's rmd engine.
+ * Answers ..... ---- Required Minimum Distributions ---- B4 (founder brief 2026-08-20): the rule lives in ONE dated, sourced table — the Calculation Module's rmd function.
  *
  * Formula .....
  *     73   if age = nothing
@@ -240,14 +238,15 @@ export function rmdStartAgeFor(age?: number | null, nowYear = new Date().getFull
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     engine rmd divisor(age, now year − age)
+ *     table rmd divisor(age, now year − age)
  *
  * Called by ... MK-PL-F-007 rmdAtAge · MK-PL-F-008 rmdSchedule
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
  *               MK-PL-F-027 nextDecision · MK-PL-F-007 rmdAtAge
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-080 rmdRequiredThisYear · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-004 withdrawalOrder
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -258,7 +257,7 @@ export function rmdStartAgeFor(age?: number | null, nowYear = new Date().getFull
  * Changed ..... not in git yet (—)
  */
 export function rmdDivisorAtAge(age: number, nowYear = new Date().getFullYear()): number {
-  return engineRmdDivisor(age, nowYear - age);
+  return tableRmdDivisor(age, nowYear - age);
 }
 /** Required minimum distribution from pre-tax balances at a given age (0 before the start age). */
 /* ─ MK-PL-F-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -272,21 +271,58 @@ export function rmdDivisorAtAge(age: number, nowYear = new Date().getFullYear())
  *
  * Called by ... MK-PL-F-003 depletionAge · MK-PL-F-004 withdrawalOrder
  *               MK-PL-F-008 rmdSchedule · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-027 nextDecision
+ *               MK-PL-F-080 rmdRequiredThisYear
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-027 nextDecision · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-027 nextDecision · MK-PL-F-080 rmdRequiredThisYear
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-004 withdrawalOrder
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses the IRS Uniform Lifetime table for everyone (A37). A person whose sole beneficiary is a spouse more than ten years younger may use the Joint Life and Last Survivor table, which gives a SMALLER required amount — not modelled, and not said on the screen yet.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-007
  * Changed ..... 2026-07-14 (63edc6b)
  */
 export function rmdAtAge(preTaxBalance: number, age: number): number {
   const d = rmdDivisorAtAge(age);
-  return d > 0 ? round2(preTaxBalance / d) : 0;
+  return d > 0 ? (preTaxBalance / d) : 0;
+}
+
+/** This year's required withdrawal and the balance it stands on. */
+export interface RmdThisYear { amount: number; basis: 'prior_year_end' | 'today'; balanceUsed: number }
+/** What must be taken out this year, and which balance is it based on? (Founder ruling 2026-09-08, G8.) */
+/* ─ MK-PL-F-080 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * rmdRequiredThisYear
+ *
+ * Answers ..... What must be taken out this year, and which balance is it based on?
+ *
+ * Formula .....
+ *     balance used = the pre-tax balance on 31 December last year, when the person entered one (> 0); otherwise today's pre-tax balance
+ *     amount = rmd at age(balance used, age)
+ *     basis = 'prior_year_end' or 'today' — so the screen can say which
+ *
+ * Called by ... MK-PL-F-027 nextDecision
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-027 nextDecision
+ *
+ * Serves ...... MK-PL-M-013
+ * Reads ....... MK-XS-I-061 pre-tax balance on 31 December last year
+ *
+ * Decides .....
+ *     · If pre tax today is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · The law bases the year's required withdrawal on the prior 31 December balance (Treas. Reg. §1.401(a)(9)-5); when that balance is not entered, today's balance stands in and the screen says so — founder ruling 2026-09-08 (second verification G8).
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-080
+ * Changed ..... not in git yet (—)
+ */
+export function rmdRequiredThisYear(preTaxToday: number, priorYearEndPreTax: number | null | undefined, age: number): RmdThisYear {
+  const prior = priorYearEndPreTax != null && priorYearEndPreTax > 0 ? priorYearEndPreTax : null;
+  const balanceUsed = prior ?? Math.max(0, preTaxToday || 0);
+  return { amount: rmdAtAge(balanceUsed, age), basis: prior != null ? 'prior_year_end' : 'today', balanceUsed };
 }
 
 // ── FCC: the required-withdrawals screen (detailed design Plan r43-r51) ─────────────────────
@@ -325,7 +361,6 @@ export interface RmdYearRow {
  *
  * Decides .....
  *     · If exp return is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Uses a built-in i of 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *     · Rounds the answer to a whole number.
  *
@@ -368,66 +403,60 @@ export function rmdSchedule(preTaxNow: number, ageNow: number, expReturn: number
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date
- *               MK-XS-I-024 logged spending
+ *               MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-009
  * Changed ..... 2026-07-14 (0cbdfee)
  */
 export function rmdTakenThisYear(transactions: { type?: string; account_id?: string; amount?: number; date?: string }[], preTaxAccountIds: string[], nowYear = new Date().getFullYear()): number {
   const ids = new Set(preTaxAccountIds.map(String));
-  return round2((transactions ?? [])
+  return ((transactions ?? [])
     .filter((t) => t.type === 'WITHDRAWAL' && ids.has(String(t.account_id)) && String(t.date ?? '').startsWith(String(nowYear)))
     .reduce((s, t) => s + (t.amount || 0), 0));
 }
 
 // ── the draw-order steer sheet's comparator (design r50) ───────────────────────────────────
 // Deterministic bucket-by-bucket depletion with the assumptions stated, no Monte-Carlo cosplay:
-// each year the spending gap (spend − guaranteed) is drawn from the buckets in the given order;
+// each year the expenses gap (spend − guaranteed) is drawn from the buckets in the given order;
 // pre-tax draws are grossed up by the ordinary rate, taxable draws by the capital-gains rate on
 // the gain share; cash and Roth draw tax-free. Balances grow at a REAL return (inflation already
 // removed), so dollars stay today-sized. From 73 the law forces the RMD out of pre-tax first —
 // spent toward the need, any excess moved (after tax) into the taxable bucket.
-export interface DrawOutcome { lastsToAge: number | null; totalTaxes: number; }
+/** totalTaxes is null — with `unknown` saying why — when the tax on a draw cannot be calculated
+ *  from the person's own data (founder rule rule R2 / brief Q-43 (2026-08-20): an unknown input gives no number, never a default). */
+export interface DrawOutcome { lastsToAge: number | null; totalTaxes: number | null; unknown?: string }
+/** If the draw came from the accounts in this order, how long would the money last and what tax would it cost? */
 /* ─ MK-PL-F-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * drawOrderOutcome
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... If the draw came from the accounts in this order, how long would the money last and what tax would it cost?
  *
  * Formula .....
- *     ord = ordinary rate (or 0.22, cg = (cap gains rate ?? 0.15) × (gain share ?? 0.5) when missing)
- *     gross up = cash = 0
- *     taxable = cg
- *     pre tax = ord
- *     roth = 0
- *     bal = cash = split.cash
- *     taxable = split.taxable
- *     pre tax = split.pre tax
- *     roth = split.roth
- *     taxes = 0
- *     need0 = max(0, spend annual − guaranteed annual)
- *     lasts to age = nothing
- *     total taxes = 0   when need0 ≤ 0
- *     need = need0
- *     rmd = rmd at age(bal.pre tax, age)
- *     take = min(rmd, bal.pre tax)
- *     tax = take × ord; taxes += tax
- *     net = take − tax
- *     … the first steps only — the rest of the body needs reading by hand.
+ *     gross-up per bucket: cash 0 · Roth 0 · pre-tax = the person's ordinary rate · taxable = the person's capital-gains rate × the gain share of their taxable holdings
+ *     UNKNOWN (no answer, with the reason) when the gain share is not known and there is a taxable balance to draw
+ *     need each year = max(0, expenses − guaranteed income)
+ *     for each age from today to the horizon:
+ *         at the required-withdrawal age: take the required amount from pre-tax first, tax it at the ordinary rate, use the net towards the need, reinvest any excess in taxable
+ *         then walk the buckets in the given order: gross needed = need ÷ (1 − rate); take = min(balance, gross needed); tax = take × rate; need −= take − tax
+ *         need still > 0 → the money ran out this year: lasts to age = this age
+ *         every bucket grows at the real return (never below −5%)
+ *     total taxes = Σ tax, to the cent; lasts to age = nothing when it survives the whole horizon
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · If ordinary rate is missing it uses 22%.
- *     · If cap gains rate is missing it uses 15%.
- *     · If gain share is missing it uses 50%.
+ *     · If gain share is missing it uses 0.
  *     · Uses a built-in taxes of 0.
+ *     · Never lets real growth fall below -0.05.
+ *     · NO built-in tax rates (founder ruling 2026-09-08, second verification G6; rule R2/brief Q-43 (2026-08-20)): the caller hands in the person's own marginal ordinary rate (MK-CF-F-103) and long-term gains rate (MK-CF-F-104), and the gain share of their taxable holdings (MK-PL-F-081); unknown gain share with a taxable balance → no answer, with the reason.
+ *     · Balances grow at the real return, floored at −5% a year.
+ *     · The required withdrawal is taken first from the year it applies (MK-PL-F-007).
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-010
  * Changed ..... 2026-07-14 (0cbdfee)
@@ -435,9 +464,12 @@ export interface DrawOutcome { lastsToAge: number | null; totalTaxes: number; }
 export function drawOrderOutcome(
   split: BucketSplit,
   order: DrawBucket[],
-  o: { age: number; horizon: number; spendAnnual: number; guaranteedAnnual: number; realGrowth: number; ordinaryRate?: number; capGainsRate?: number; gainShare?: number },
+  o: { age: number; horizon: number; spendAnnual: number; guaranteedAnnual: number; realGrowth: number; ordinaryRate: number; capGainsRate: number; gainShare: number | null },
 ): DrawOutcome {
-  const ord = o.ordinaryRate ?? 0.22, cg = (o.capGainsRate ?? 0.15) * (o.gainShare ?? 0.5);
+  if (o.gainShare == null && split.taxable > 0) {
+    return { lastsToAge: null, totalTaxes: null, unknown: 'no cost basis is recorded for your taxable holdings, so the tax on drawing them cannot be calculated' };
+  }
+  const ord = o.ordinaryRate, cg = o.capGainsRate * (o.gainShare ?? 0);
   const grossUp: Record<DrawBucket, number> = { cash: 0, taxable: cg, preTax: ord, roth: 0 };
   const bal: Record<DrawBucket, number> = { cash: split.cash, taxable: split.taxable, preTax: split.preTax, roth: split.roth };
   let taxes = 0;
@@ -464,8 +496,48 @@ export function drawOrderOutcome(
       const tax = take * rate; taxes += tax;
       need -= take - tax;
     }
-    if (need > 0.005) return { lastsToAge: age, totalTaxes: round2(taxes) };
+    if (need > 0.005) return { lastsToAge: age, totalTaxes: (taxes) };
     (Object.keys(bal) as DrawBucket[]).forEach((b) => { bal[b] = bal[b] * (1 + Math.max(-0.05, o.realGrowth)); });
   }
-  return { lastsToAge: null, totalTaxes: round2(taxes) };   // survives the whole horizon
+  return { lastsToAge: null, totalTaxes: (taxes) };   // survives the whole horizon
+}
+
+/** What share of the person's taxable holdings is unrealised gain? */
+/* ─ MK-PL-F-081 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * taxableGainShare
+ *
+ * Answers ..... What share of the person's taxable holdings is unrealised gain?
+ *
+ * Formula .....
+ *     over every holding in a TAXABLE account that has a price (the broker's mark, else the price feed): value += market value(holding, price) · basis += cost basis(holding)
+ *     nothing   when value ≤ 0 (no priced taxable holding)
+ *     the answer = min(1, max(0, (value − basis) ÷ value))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *
+ * Decides .....
+ *     · A holding with no price is left out; no priced taxable holding at all → nothing, never a guessed 50% (founder ruling 2026-09-08, G6).
+ *     · A loss overall counts as a 0% gain share (no tax on drawing at a loss), never negative.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-081
+ * Changed ..... not in git yet (—)
+ */
+export function taxableGainShare(accounts: AssetAccount[], priceOf: (ticker: string) => number | null): number | null {
+  let value = 0, basis = 0;
+  for (const a of accounts ?? []) {
+    if (a.tax_bucket !== 'TAXABLE') continue;
+    for (const p of a.positions ?? []) {
+      const price = p.last_price ?? priceOf(p.ticker);
+      if (price == null) continue;
+      value += marketValue(p, price);
+      basis += costBasis(p);
+    }
+  }
+  if (value <= 0) return null;
+  return Math.min(1, Math.max(0, (value - basis) / value));
 }

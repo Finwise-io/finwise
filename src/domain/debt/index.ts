@@ -1,7 +1,7 @@
 // Debt & Liability module (spec service 3). Owns `debts/{uid}`.
 import type { UserId, EntityId } from '../_shared/ids';
 import { newEntityId } from '../_shared/ids';
-import { toNum, round2 } from '../_shared/num';
+import { toNum } from '../_shared/num';
 import { getUserDoc, setUserDoc } from '../_shared/firestore';
 import { emit } from '../_shared/eventBus';
 
@@ -43,17 +43,17 @@ export interface Debt {
  *
  * Called by ... MK-CF-F-022 paymentShape
  *
- * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
  *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
  *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-041 getDebtState
  *               MK-CF-F-152 isRadarItem · MK-CF-F-159 isRecurringDebt
  *               MK-CF-F-025 minimumDebtService · MK-XS-F-029 monthlySavings
- *               MK-CF-F-022 paymentShape · MK-CF-F-034 payoffPlan
- *               MK-CF-F-156 plannedMonthFlow · MK-CF-F-153 radar
- *               MK-CF-F-149 recurringDebtPayments · MK-CF-F-023 requiredPayment
- *               … and 7 more — the full list is on functions_from_code
+ *               MK-XS-F-008 normalizeSnapshot · MK-CF-F-022 paymentShape
+ *               MK-CF-F-034 payoffPlan · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-F-153 radar · MK-XS-F-009 readHistory
+ *               … and 10 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -77,17 +77,17 @@ export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type'
  *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-152 isRadarItem
  *               MK-CF-F-159 isRecurringDebt · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
  *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
  *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-041 getDebtState
  *               MK-CF-F-152 isRadarItem · MK-CF-F-159 isRecurringDebt
  *               MK-CF-F-025 minimumDebtService · MK-XS-F-029 monthlySavings
- *               MK-CF-F-034 payoffPlan · MK-CF-F-156 plannedMonthFlow
- *               MK-CF-F-153 radar · MK-CF-F-149 recurringDebtPayments
- *               MK-CF-F-023 requiredPayment · MK-XS-F-032 snapshotFromOnboarding
- *               … and 6 more — the full list is on functions_from_code
+ *               MK-XS-F-008 normalizeSnapshot · MK-CF-F-034 payoffPlan
+ *               MK-CF-F-156 plannedMonthFlow · MK-CF-F-153 radar
+ *               MK-XS-F-009 readHistory · MK-CF-F-149 recurringDebtPayments
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -114,15 +114,17 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
  *               MK-CF-F-149 recurringDebtPayments · MK-CF-F-153 radar
  *               MK-CF-F-156 plannedMonthFlow · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
  *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
  *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-041 getDebtState · MK-XS-F-029 monthlySavings
- *               MK-CF-F-156 plannedMonthFlow · MK-CF-F-153 radar
+ *               MK-XS-F-008 normalizeSnapshot · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-F-153 radar · MK-XS-F-009 readHistory
  *               MK-CF-F-149 recurringDebtPayments · MK-XS-F-032 snapshotFromOnboarding
  *               MK-CF-O-002 spending · MK-XS-F-028 surplusByMonth
  *               MK-CF-O-003 thisMonth · MK-CF-F-024 totalDebtMonthly
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-019 · MK-NW-M-011
  * Reads ....... MK-XS-I-016 debt minimum payment
@@ -156,7 +158,7 @@ export function requiredPayment(d: Debt): number {
  *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
  *               MK-XS-F-028 surplusByMonth
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-NW-M-012
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-024
  * Changed ..... 2026-07-31 (8428ea8)
@@ -173,8 +175,8 @@ export function totalDebtMonthly(debts: Debt[]): number {
  * Answers ..... Term #9 — TWO clearly-named monthly-debt numbers (they're different concepts, not a bug to pick one): Σ MINIMUM required payments — the contractual obligation.
  *
  * Formula .....
- *     round(Σ over debts (or none when missing) of (0   if payment shape(each) = 'due_in_full'
- *     minimum monthly payment (or 0 when missing or zero)   otherwise), 2 dp)
+ *     Σ over debts (or none when missing) of (0   if payment shape(each) = 'due_in_full'
+ *     minimum monthly payment (or 0 when missing or zero)   otherwise)
  *
  * Called by ... MK-CF-F-036 buildDebtState
  *
@@ -193,7 +195,7 @@ export function totalDebtMonthly(debts: Debt[]): number {
  * Changed ..... 2026-07-31 (8428ea8)
  */
 export function minimumDebtService(debts: Debt[]): number {
-  return round2((debts ?? []).reduce((t, d) => t + (paymentShape(d) === 'due_in_full' ? 0 : d.minimum_monthly_payment || 0), 0));
+  return ((debts ?? []).reduce((t, d) => t + (paymentShape(d) === 'due_in_full' ? 0 : d.minimum_monthly_payment || 0), 0));
 }
 /** Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account. Use for CASH FLOW. */
 /* ─ MK-CF-F-026 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -202,7 +204,7 @@ export function minimumDebtService(debts: Debt[]): number {
  * Answers ..... Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account.
  *
  * Formula .....
- *     round(total debt monthly(debts ?? []), 2 dp)
+ *     total debt monthly(debts ?? [])
  *
  * Called by ... MK-CF-F-036 buildDebtState · MK-XS-F-028 surplusByMonth
  *
@@ -217,7 +219,7 @@ export function minimumDebtService(debts: Debt[]): number {
  * Changed ..... 2026-06-24 (8dd4f24)
  */
 export function actualDebtPayment(debts: Debt[]): number {
-  return round2(totalDebtMonthly(debts ?? []));
+  return (totalDebtMonthly(debts ?? []));
 }
 /** Σ outstanding debt BALANCE — what you still owe (not a monthly payment). The one canonical
  *  "total debt" so net worth, the debt screen, and insurance can't show different totals. */
@@ -227,7 +229,7 @@ export function actualDebtPayment(debts: Debt[]): number {
  * Answers ..... Σ outstanding debt BALANCE — what you still owe (not a monthly payment).
  *
  * Formula .....
- *     round(Σ over debts (or none when missing) of (remaining balance (or 0 when missing or zero)), 2 dp)
+ *     Σ over debts (or none when missing) of (remaining balance (or 0 when missing or zero))
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -241,14 +243,14 @@ export function actualDebtPayment(debts: Debt[]): number {
  * Changed ..... 2026-07-12 (9684f57)
  */
 export function totalDebtBalance(debts: Debt[]): number {
-  return round2((debts ?? []).reduce((t, d) => t + (d.remaining_balance || 0), 0));
+  return ((debts ?? []).reduce((t, d) => t + (d.remaining_balance || 0), 0));
 }
 
 // ── Loan repayment (standard amortization) — e.g. what a student loan costs once you're repaying ──
 export interface LoanPlan { monthly: number; totalInterest: number; totalPaid: number; }
 /** UNIT LANDMINE (P0): `aprPct` is a PERCENT (7 = 7%), unlike Debt.interest_rate_apr which is a
  *  DECIMAL (0.07). Passing a decimal here silently computes a ~100× lower rate. The dev-time guard
- *  below flags decimal-looking inputs; term-loan rates genuinely under 1%/yr don't occur in our
+ *  below flags decimal-looking inputs; term-loan rates genuinely under 1%/year don't occur in our
  *  flows (0% promos pass 0, which is fine). */
 /* ─ MK-CF-F-028 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * loanPayment
@@ -266,16 +268,15 @@ export interface LoanPlan { monthly: number; totalInterest: number; totalPaid: n
  *     principal ÷ n   otherwise
  *     total paid = monthly × n
  *     the answer:
- *     monthly = round(monthly, 2 dp)
- *     total interest = round(total paid − principal, 2 dp)
- *     total paid = round(total paid, 2 dp)
+ *     monthly = monthly
+ *     total interest = total paid − principal
+ *     total paid = total paid
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Rounds the answer to a whole number.
  *
@@ -291,7 +292,7 @@ export function loanPayment(principal: number, aprPct: number, termYears: number
   if (principal <= 0 || n <= 0) return { monthly: 0, totalInterest: 0, totalPaid: 0 };
   const monthly = r > 0 ? (principal * r) / (1 - Math.pow(1 + r, -n)) : principal / n;
   const totalPaid = monthly * n;
-  return { monthly: round2(monthly), totalInterest: round2(totalPaid - principal), totalPaid: round2(totalPaid) };
+  return { monthly: (monthly), totalInterest: (totalPaid - principal), totalPaid: (totalPaid) };
 }
 
 // ── B47 finding 11: the installment two-way math — enter the payment OR the end date, the app
@@ -316,9 +317,6 @@ export function loanPayment(principal: number, aprPct: number, termYears: number
  *               MK-CF-F-042 mortgageOddsEffect
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Treats a year as twelve equal months.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-029
  * Changed ..... 2026-07-31 (8428ea8)
@@ -348,10 +346,6 @@ export function monthsToClear(principal: number, aprDecimal: number, payment: nu
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Treats a year as twelve equal months.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-030
  * Changed ..... 2026-07-31 (8428ea8)
@@ -386,7 +380,7 @@ export interface CreditUtil { ratio: number; status: 'good' | 'caution' | 'high'
  * Reads ....... MK-XS-I-001 account balance
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
+ *     · Rounds the answer to 3 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-031
  * Changed ..... 2026-06-08 (5568e46)
@@ -445,8 +439,8 @@ export interface DTI { ratio: number; monthlyDebt: number; grossMonthly: number;
  *     'high'   otherwise   otherwise
  *     the answer:
  *     ratio = round(ratio, 3 dp)
- *     monthly debt = round(monthly debt, 2 dp)
- *     gross monthly = round(gross monthly, 2 dp)
+ *     monthly debt = monthly debt
+ *     gross monthly = gross monthly
  *     guideline = guideline
  *     status = status
  *
@@ -455,7 +449,7 @@ export interface DTI { ratio: number; monthlyDebt: number; grossMonthly: number;
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
+ *     · Rounds the answer to 3 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-033
  * Changed ..... 2026-06-07 (766aee3)
@@ -464,7 +458,7 @@ export function debtToIncome(monthlyDebt: number, grossMonthly: number, homeowne
   const ratio = grossMonthly > 0 ? monthlyDebt / grossMonthly : 0;
   const guideline = homeowner ? 0.36 : 0.20;   // CFPB: renters 15–20%, homeowners ≤36% (incl. mortgage)
   const status: DTI['status'] = ratio <= guideline ? 'good' : ratio <= guideline * 1.4 ? 'caution' : 'high';
-  return { ratio: Math.round(ratio * 1000) / 1000, monthlyDebt: round2(monthlyDebt), grossMonthly: round2(grossMonthly), guideline, status };
+  return { ratio: Math.round(ratio * 1000) / 1000, monthlyDebt: (monthlyDebt), grossMonthly: (grossMonthly), guideline, status };
 }
 
 // ── Debt-payoff plan (avalanche = highest APR first; snowball = smallest balance first) ──
@@ -496,7 +490,7 @@ export interface PayoffResult {
  * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-037 trimHints · MK-PL-F-036 weighGoals
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-PL-M-031
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
@@ -506,10 +500,9 @@ export interface PayoffResult {
  *
  * Decides .....
  *     · Uses a built-in month of 0.
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
+ *     · Never lets extra monthly fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-034
  * Changed ..... 2026-07-31 (8428ea8)
@@ -523,7 +516,7 @@ export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMe
       const m = d.payoff_date?.match(/^(\d{4})-(\d{2})/);
       const dueMonth = m ? Math.max(1, (+m[1] * 12 + (+m[2] - 1)) - (now.getFullYear() * 12 + now.getMonth())) : 1;
       const interest = d.remaining_balance * (Math.pow(1 + d.interest_rate_apr / 12, dueMonth) - 1);
-      return { debt_id: d.debt_id, label: d.label, payoffMonth: dueMonth, interestPaid: round2(interest) };
+      return { debt_id: d.debt_id, label: d.label, payoffMonth: dueMonth, interestPaid: (interest) };
     });
   const live = (debts ?? []).filter((d) => d.remaining_balance > 0 && paymentShape(d) !== 'due_in_full')
     .map((d) => {
@@ -534,7 +527,7 @@ export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMe
       return { id: d.debt_id, label: d.label, bal: d.remaining_balance, apr: d.interest_rate_apr, min: d.minimum_monthly_payment, interest: 0, payoffMonth: 0, startAfter };
     });
   const lumpMonths = lumps.reduce((m, l) => Math.max(m, l.payoffMonth), 0);
-  const lumpInterest = round2(lumps.reduce((t, l) => t + l.interestPaid, 0));
+  const lumpInterest = (lumps.reduce((t, l) => t + l.interestPaid, 0));
   if (!live.length) return { months: lumpMonths, totalInterest: lumpInterest, neverPaysOff: false, order: lumps.sort((a, b) => a.payoffMonth - b.payoffMonth) };
   // budget grows as deferred debts come due (their minimum joins when payments start)
   const budgetAt = (month: number) => live.concat(cleared).reduce((t, d) => t + (month > d.startAfter ? d.min : 0), 0) + Math.max(0, extraMonthly);
@@ -553,9 +546,9 @@ export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMe
   const all = [...cleared, ...live];
   return {
     months: neverPaysOff ? 600 : Math.max(month, lumpMonths),
-    totalInterest: round2(all.reduce((t, d) => t + d.interest, 0) + lumpInterest),
+    totalInterest: (all.reduce((t, d) => t + d.interest, 0) + lumpInterest),
     neverPaysOff,
-    order: cleared.map((d) => ({ debt_id: d.id, label: d.label, payoffMonth: d.payoffMonth, interestPaid: round2(d.interest) }))
+    order: cleared.map((d) => ({ debt_id: d.id, label: d.label, payoffMonth: d.payoffMonth, interestPaid: (d.interest) }))
       .concat(lumps).sort((a, b) => a.payoffMonth - b.payoffMonth),
   };
 }
@@ -622,12 +615,9 @@ export const TOXIC_APR = 0.07;
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
  *               MK-XS-F-032 snapshotFromOnboarding
  *
- * Serves ...... MK-NW-M-009 · MK-NW-M-010 · MK-NW-M-012 · MK-NW-M-017
+ * Serves ...... MK-NW-M-009 · MK-NW-M-017
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-036
  * Changed ..... 2026-06-22 (b8657c4)
@@ -637,10 +627,10 @@ export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
   const highest = debts.length ? debts.reduce((m, d) => (d.interest_rate_apr > m.interest_rate_apr ? d : m)) : null;
   const toxic = debts.filter((d) => d.interest_rate_apr > TOXIC_APR).reduce((t, d) => t + d.remaining_balance, 0);
   return {
-    user_id: uid, total_debt_balance: round2(total),
+    user_id: uid, total_debt_balance: (total),
     total_monthly_debt_service: minimumDebtService(debts),   // DTI obligation (Σ minimum)
     total_actual_payment: actualDebtPayment(debts),          // cash-flow outflow (override-aware)
-    debts, highest_rate_debt: highest, toxic_debt_balance: round2(toxic),
+    debts, highest_rate_debt: highest, toxic_debt_balance: (toxic),
   };
 }
 
@@ -664,9 +654,17 @@ export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
  *
  * Called by ... MK-CF-F-038 debtsFromOnboarding
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-033 resolveNetWorthRows
- *               MK-XS-F-032 snapshotFromOnboarding
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -700,9 +698,19 @@ export function inferDebtType(label: string | undefined): DebtType {
  *     debts = debts
  *
  * Called by ... MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-033 resolveNetWorthRows
+ *               MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-033 resolveNetWorthRows · MK-XS-F-032 snapshotFromOnboarding
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance

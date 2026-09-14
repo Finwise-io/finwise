@@ -15,7 +15,7 @@ _CODEY = re.compile(r'=>|\?\?|\bMath\.|\bnew \w|=== |\bundefined\b|\btypeof\b'
                     r'|starts with|ends with|includes|index of|keys|values|entries|from entries)\b'
                     r'|\$\{|`')
 
-CALC_ROOTS = ['src/domain', 'MoneyKeel/functions', 'Calculation Module code/engines', 'src/services']
+CALC_ROOTS = ['src/domain', 'MoneyKeel/functions', 'Calculation Module code/engines', 'src/services', 'src/store']   # src/store added 2026-09-12 (B3 / A09): recomputeBalances builds the balance net worth is made of
 SCREEN_ROOTS = ['src/screens', 'src/components', 'app', 'src/onboarding']
 
 OUTSIDE = re.compile(r'\b(fetch|getDoc|getDocs|onSnapshot|readAsStringAsync|getItem|axios)\s*\(')
@@ -251,20 +251,33 @@ def assumptions_in(body):
 
     # a rate or share written into the code
     for m in re.finditer(r'(?:const|let)\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?::[^=]+)?=\s*(0\.\d+|\d+(?:\.\d+)?)\s*[;\n]', code):
+        if len(m.group(1)) == 1 and m.group(2) in ('0', '1'): continue   # a loop counter (A17), not an assumption
         add('Uses a built-in %s of %s.' % (_words(m.group(1)), _num(m.group(2))))
     for m in re.finditer(r'([A-Za-z_][A-Za-z0-9_.]*)\s*\*\s*(0\.\d+)', code):
         add('Applies a built-in rate of %s to %s.' % (_num(m.group(2)), _words(m.group(1).split('.')[-1])))
 
     # time
-    if re.search(r'/\s*12\b', code):  add('Treats a year as twelve equal months.')
+    # A18 (2026-09-12): only an ANNUAL amount divided by twelve is the twelve-equal-months assumption;
+    # a bare /12 is as often a month index. The 30-day, ×100 and .filter phrases were notes to myself
+    # (A16) and are gone — a real assumption of that kind is declared by hand in ASSUMPTIONS_EXTRA.
+    if re.search(r'[Aa]nnual\w*\s*/\s*12\b|[Yy]ear\w*\s*/\s*12\b|Yr\s*/\s*12\b', code):  add('Treats a year as twelve equal months.')
     if re.search(r'\*\s*12\b', code): add('Turns a monthly figure into a year by multiplying by twelve.')
     if re.search(r'/\s*365(\.25)?\b', code): add('Treats a year as 365 days.')
-    if re.search(r'\*\s*30\b|/\s*30\b', code): add('Treats a month as 30 days.')
     if re.search(r'new Date\(\)|Date\.now\(\)', code): add("Uses today's date from the device clock, so the answer changes by itself overnight.")
 
-    # options and percentages
-    if re.search(r'\*\s*100\b', code):
-        add('Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.')
+    # rounding idioms FIRST (C4 / A15, 2026-09-08): Math.round(n × 100) ÷ 100 is two decimals, not
+    # "a whole number" and not "a percentage" — the hundred is the rounding scale.
+    scaled = re.findall(r'Math\.round\([^;]*?\*\s*(1e\d|\d+)\s*\)\s*/\s*(1e\d|\d+)', code)
+    places_seen = set()
+    for a, b in scaled:
+        if a == b:
+            n = int(float(a)); places = len(str(n)) - 1
+            places_seen.add(places)
+            add({1: 'Rounds the answer to 1 decimal place.', 2: 'Rounds the answer to two decimals (cents).',
+                 3: 'Rounds the answer to 3 decimal places.', 4: 'Rounds the answer to 4 decimal places.'}.get(places, 'Rounds the answer to %d decimal places.' % places))
+    code_no_round = re.sub(r'Math\.round\([^;]*?\*\s*(1e\d|\d+)\s*\)\s*/\s*(1e\d|\d+)', ' ', code)
+    code_no_round = re.sub(r'\*\s*100\)\s*\.toFixed', ' ', code_no_round)
+    # options and percentages — only a ×100 that is NOT part of a rounding or a percent display
 
     # caps and floors
     for m in re.finditer(r'clamp\(\s*[^,]+,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)', code):
@@ -272,12 +285,16 @@ def assumptions_in(body):
     for m in re.finditer(r'Math\.(min|max)\(\s*([A-Za-z_][A-Za-z0-9_.]*)\s*,\s*(-?[\d.]+)\s*\)', code):
         add(('Caps %s at %s.' if m.group(1) == 'min' else 'Never lets %s fall below %s.')
             % (_words(m.group(2).split('.')[-1]), _num(m.group(3))))
+    # the same caps written number-first: Math.min(0.15, rate) — the undeclared caps of G35
+    for m in re.finditer(r'Math\.(min|max)\(\s*(-?[\d.]+)\s*,\s*([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*\)', code):
+        if m.group(3).startswith('Math'): continue
+        add(('Caps %s at %s.' if m.group(1) == 'min' else 'Never lets %s fall below %s.')
+            % (_words(m.group(3).split('.')[-1]), _num(m.group(2))))
 
-    # rounding and what is left out
-    if re.search(r'Math\.round', code): add('Rounds the answer to a whole number.')
+    # rounding and what is left out — a bare Math.round with no scale is a whole number
+    if re.search(r'Math\.round', code_no_round) and not places_seen: add('Rounds the answer to a whole number.')
     for m in re.finditer(r'toFixed\((\d)\)', code):
         add('Shows %s decimal place%s.' % (m.group(1), '' if m.group(1) == '1' else 's'))
-    if re.search(r'\.filter\(', code): add('Leaves some rows out of the answer — check which.')
     return found
 
 def strip_comments(body):
@@ -481,8 +498,11 @@ def with_ids_and_chains(rows=None, funcs=None):
         if n in _calls_cache:
             return _calls_cache[n]
         body = funcs[n]['body'] if n in funcs else ''
-        out = [m for m in sorted({x for x in re.findall(r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\(', body)
-                                  if x in names and x != n})]
+        called = {x for x in re.findall(r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\(', body)}
+        # a function handed to another as a callback — sumOverEarners(op, wageMatchMonthly) — is a
+        # call too; the old regex saw only `name(` and lost every such link (2026-09-09, G28)
+        passed = {x for x in re.findall(r'\b([A-Za-z_][A-Za-z0-9_]*)\s*(?=[,)])', body)}
+        out = [m for m in sorted({x for x in (called | passed) if x in names and x != n})]
         _calls_cache[n] = out
         return out
     # Only the first handful of paths is ever printed, so stop once there are enough. Without the
@@ -519,6 +539,8 @@ def with_ids_and_chains(rows=None, funcs=None):
     labels = screen_labels(set(funcs))
     for r in rows:
         r['id'] = ident[r['name']]
+        if r['name'] in getattr(_cf, 'CATEGORY_OVERRIDES', {}):   # C4: a category read by hand outranks the sweep
+            r['category'] = _cf.CATEGORY_OVERRIDES[r['name']]
         r['inputs'], r['output'] = signature_parts(funcs[r['name']]['sig'], funcs[r['name']]['body'])
         note = (funcs[r['name']].get('note') or '').strip()
         if note:
@@ -534,12 +556,19 @@ def with_ids_and_chains(rows=None, funcs=None):
             r['read_as'] = 'NOT READ — nothing is claimed rather than something guessed'
         elif _fm.startswith(('It reaches outside', 'It records')):
             r['read_as'] = 'NO ARITHMETIC — there is no formula to state'
+        elif '[LOOP' in _fm:
+            r['read_as'] = 'PARTLY READ — the body has a loop the extractor cannot render; the steps shown are the ones before it. Needs a hand pass (G23).'
         elif _CODEY.search(_fm):
             r['read_as'] = 'PARTLY READ — some of the code is still showing through; needs a hand pass'
         else:
             r['read_as'] = 'READ FROM THE CODE — rendered from the expressions the function runs'
-        r['formula_math'], r['formula_words'] = _fm, _fw
+        r['formula_math'], r['formula_words'] = _cf.canon(_fm), _cf.canon(_fw)   # G34: the same words in the file and in the header
         found = assumptions_in(funcs[r['name']]['body'])
+        # lines read by hand for this function — rulings, sources, conventions the sweep cannot see
+        for extra in getattr(_cf, 'ASSUMPTIONS_EXTRA', {}).get(r['name'], []):
+            if extra not in found: found.append(extra)
+        for drop in getattr(_cf, 'ASSUMPTIONS_DROP', {}).get(r['name'], []):
+            found = [x for x in found if not x.startswith(drop)]
         r['assumptions'] = ('\n'.join('· ' + f for f in found) if found else
                             'None found in this function — anything it assumes comes from the functions it depends on.')
         r['screen_labels'] = (' · '.join(sorted(labels.get(r['name'], []))[:6])

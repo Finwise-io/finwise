@@ -1,4 +1,4 @@
-// The ONE place the F5 paycheck engine and F2 dated grid are invoked with live store state.
+// The ONE place the F5 paycheck function and F2 dated grid are invoked with live store state.
 // Every paycheck surface (Home hero card, Cash flow main, month rows, month detail) reads THIS,
 // so "hero = bar = month-detail total" is true by construction — one cell, four surfaces.
 import { useMemo } from 'react';
@@ -34,7 +34,7 @@ export function useCashflowModel(): CashflowModel {
         mean_return: mean,
         vol_return: Math.min(0.2, Math.max(0.05, mean * 1.7)),   // cockpit convention
         inflation: A.inflation ?? 0.025,
-        seed: 42, paths: 300,
+        seed: 42, paths: 1000,
       },
     });
     // F11 propagation (design r40 pin): an adopted Roth conversion shows its tax bill in the

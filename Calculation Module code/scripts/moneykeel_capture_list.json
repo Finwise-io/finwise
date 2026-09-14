@@ -1,0 +1,570 @@
+[
+ {
+  "asset_class": "Fixed income",
+  "item": "Holding Institution",
+  "where": "MK-XS-I-003 institution name",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Holding Account Number",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "new",
+  "note": "A connected account keeps the last four digits (the mask); nothing stores the number for a typed account."
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Issuer",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "Q38 (2026-09-08)",
+  "note": "The institution field stands in for the issuer today."
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "CUSIP / ISIN / Ticker",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "Q38 (2026-09-08)",
+  "note": "Stocks carry a ticker; a bond record carries none."
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Face Value",
+  "where": "MK-XS-I-011 bond face value",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Quantity",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "Q38 (1) (2026-09-08)",
+  "note": "Number of bonds versus total face — your answer decides the field."
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Cost Price",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "Q38 (2026-09-08)",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Current Price",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "Q38 (3) (2026-09-08)",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Current Value",
+  "where": "MK-XS-I-001 / MK-XS-I-049 (the balance entered)",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Total Cost",
+  "where": "derived — quantity × cost, once both exist",
+  "status": "DERIVED — blocked",
+  "decider": "Q38 (2026-09-08)",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Unrealized Gain/Loss",
+  "where": "derived — current value − total cost",
+  "status": "DERIVED — blocked",
+  "decider": "Q38 (2026-09-08)",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Purchase Date",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "Q38 (2026-09-08)",
+  "note": "Stocks keep a purchase date per lot (MK-XS-I-007); bonds do not."
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Maturity Date",
+  "where": "MK-XS-I-013 bond maturity date",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Coupon",
+  "where": "MK-XS-I-012 bond coupon rate",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Frequency of Interest",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "new",
+  "note": "Needed for accrued interest and the paid-interest calendar."
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Annual Income",
+  "where": "derived — MK-NW-F-057 annualCoupon (face × rate; matured bonds to be excluded, JJ-3)",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Paid Interest",
+  "where": "derived — the ledger's INTEREST rows for the bond",
+  "status": "DERIVED — blocked",
+  "decider": "Q38 (2) (2026-09-08)",
+  "note": "'earned interest' in your bond rule."
+ },
+ {
+  "asset_class": "Fixed income",
+  "item": "Accrued Interest",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "A47 (2026-08-26)",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Holding Institution",
+  "where": "MK-XS-I-003 institution name",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Holding Account Number",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "new",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Ticker",
+  "where": "the holding's own ticker — its identity, not an input row",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Quantity",
+  "where": "MK-XS-I-004 holding quantity",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Cost Price",
+  "where": "MK-XS-I-007 purchase price per lot",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Current Price",
+  "where": "MK-XS-I-005 holding price",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Current Value",
+  "where": "derived — MK-PF-F-004 marketValue",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Total Cost",
+  "where": "derived — MK-PF-F-002 costBasis",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Unrealized Gain/Loss",
+  "where": "derived — MK-PF-F-005 unrealizedGain",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Purchase Date",
+  "where": "MK-XS-I-007 purchase date per lot",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Dividend",
+  "where": "the ledger's DIVIDEND rows (MK-XS-I-008 · MK-XS-I-009) → MK-NW-M-034",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Divident Frequency",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "new",
+  "note": ""
+ },
+ {
+  "asset_class": "Stocks / funds",
+  "item": "Annual Income",
+  "where": "derived — the dividend and interest income functions",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Holding Institution",
+  "where": "MK-XS-I-003 institution name",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Holding Account Number",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "new",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Currency Code",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "Q43 · Q09 (2026-09-08)",
+  "note": "No unit on the quantity today (finding S32)."
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Quantity",
+  "where": "MK-XS-I-004 (no unit)",
+  "status": "CAPTURED — no unit",
+  "decider": "Q09 (2026-09-08)",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Cost Price",
+  "where": "MK-XS-I-007",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Current Price",
+  "where": "MK-XS-I-005 — no exchange rate",
+  "status": "CAPTURED — no rate",
+  "decider": "Q43 (2026-09-08)",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Current Value",
+  "where": "derived — not converted to dollars today",
+  "status": "DERIVED — blocked",
+  "decider": "Q43 (2026-09-08)",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Total Cost",
+  "where": "derived",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Unrealized Gain/Loss",
+  "where": "derived",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Purchase Date",
+  "where": "MK-XS-I-007",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Dividend",
+  "where": "n/a — your ruling Q08 (2026-08-26): a currency held is cash in that currency; no dividend, no income",
+  "status": "N/A",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Divident Frequency",
+  "where": "n/a — your ruling Q08 (2026-08-26): a currency held is cash in that currency; no dividend, no income",
+  "status": "N/A",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Currencies",
+  "item": "Annual Income",
+  "where": "n/a — your ruling Q08 (2026-08-26): a currency held is cash in that currency; no dividend, no income",
+  "status": "N/A",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Holding Institution",
+  "where": "MK-XS-I-003 institution name",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Holding Account Number",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "new",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Crypto Symbol",
+  "where": "the holding's own ticker (BTC, ETH mapped to the feed's pairs)",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Quantity (8 digits after the decimal)",
+  "where": "MK-XS-I-004 — shown to 8 decimals since 2026-09-09 (your Q07)",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Cost Price",
+  "where": "MK-XS-I-007",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Current Price",
+  "where": "MK-XS-I-005",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Current Value",
+  "where": "derived — MK-PF-F-004",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Total Cost",
+  "where": "derived — MK-PF-F-002",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Unrealized Gain/Loss",
+  "where": "derived — MK-PF-F-005",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Purchase Date",
+  "where": "MK-XS-I-007",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Dividend",
+  "where": "n/a for a coin",
+  "status": "N/A",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Divident Frequency",
+  "where": "n/a",
+  "status": "N/A",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Crypto",
+  "item": "Annual Income",
+  "where": "n/a",
+  "status": "N/A",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Holding Institution",
+  "where": "MK-XS-I-003",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Holding Account Number",
+  "where": "—",
+  "status": "NOT CAPTURED",
+  "decider": "new",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Underlying Stock",
+  "where": "MK-XS-I-034 option positions",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Strike Price",
+  "where": "MK-XS-I-034",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Expiration Date",
+  "where": "MK-XS-I-034",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Option Type",
+  "where": "MK-XS-I-034 (put or call)",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Quantity",
+  "where": "MK-XS-I-034 contracts — the ×100 rule not applied",
+  "status": "CAPTURED — rule pending",
+  "decider": "Q42 · your Q06 (2026-08-26)",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Cost Price",
+  "where": "MK-XS-I-007",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Current Price",
+  "where": "MK-XS-I-005",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Current Value",
+  "where": "derived — MK-PF-F-004, no contract multiplier today",
+  "status": "DERIVED — wrong until Q42",
+  "decider": "Q42 (2026-09-08)",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Total Cost",
+  "where": "derived",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Unrealized Gain/Loss",
+  "where": "derived",
+  "status": "DERIVED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Options",
+  "item": "Purchase Date",
+  "where": "MK-XS-I-007",
+  "status": "CAPTURED",
+  "decider": "",
+  "note": ""
+ },
+ {
+  "asset_class": "Commodities",
+  "item": "(no rows in your file)",
+  "where": "—",
+  "status": "N/A",
+  "decider": "your answer to master Q13",
+  "note": "GLD is a fund; physical metal is the only genuinely new thing."
+ }
+]

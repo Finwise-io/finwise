@@ -232,7 +232,7 @@ export default function RewardsScreen() {
                 {!done && req != null && (
                   <Text style={styles.goalPct}>
                     {st === 'on_track' ? '🟢 On track · ' : st === 'behind' ? '🟡 Behind · ' : ''}
-                    need {money(req)}/mo{goal.targetDate ? ` by ${fmtYM(goal.targetDate)}` : ''}
+                    need {money(req)}/month{goal.targetDate ? ` by ${fmtYM(goal.targetDate)}` : ''}
                   </Text>
                 )}
               </View>

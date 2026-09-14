@@ -66,7 +66,7 @@ describe('debt payoff', () => {
   });
 
   test('payments below interest → never pays off (flagged)', () => {
-    const r = payoffPlan([d('card', 10000, 0.25, 50)], 0, 'avalanche');   // $50 < interest (~$208/mo)
+    const r = payoffPlan([d('card', 10000, 0.25, 50)], 0, 'avalanche');   // $50 < interest (~$208/month)
     expect(r.neverPaysOff).toBe(true);
   });
 });

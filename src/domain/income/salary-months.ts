@@ -58,9 +58,6 @@ export function monthKey(d: Date): string {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Uses a built-in i of 0.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-164
  * Changed ..... not in git yet (—)
  */
@@ -85,25 +82,25 @@ export function monthWindow(from: Date, back: number, count: number): string[] {
  * Formula .....
  *     raw = (op ?? ({} as any)).salary by month
  *     out = {}
- *     the answer = out
  *     y = now.get full year()
  *     out = {}
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-CF-F-166 hasMonthlySalaryTable · MK-CF-F-167 salaryCalendarYear
  *               MK-CF-F-168 salaryWindow · MK-CF-F-169 withSalaryMonth
  *               MK-CF-F-179 entryFromWage
  *
- * Reaches ..... 47 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-179 entryFromWage · MK-CF-F-061 grossSalaryMonthly
- *               MK-CF-F-166 hasMonthlySalaryTable · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               … and 29 more — the full list is on functions_from_code
+ * Reaches ..... 50 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-179 entryFromWage
+ *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-166 hasMonthlySalaryTable
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               … and 32 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -142,17 +139,17 @@ export function salaryMonths(op: OnboardingProfile | null, now: Date = new Date(
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth
  *
- * Reaches ..... 42 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-080 jobActiveMonth · MK-CF-F-009 monthlyEssentials
- *               … and 24 more — the full list is on functions_from_code
+ * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-061 grossSalaryMonthly
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-080 jobActiveMonth
+ *               … and 27 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -179,17 +176,17 @@ export function hasMonthlySalaryTable(op: OnboardingProfile | null): boolean {
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth
  *
- * Reaches ..... 42 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-061 grossSalaryMonthly · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-080 jobActiveMonth · MK-CF-F-009 monthlyEssentials
- *               … and 24 more — the full list is on functions_from_code
+ * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-061 grossSalaryMonthly
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-080 jobActiveMonth
+ *               … and 27 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

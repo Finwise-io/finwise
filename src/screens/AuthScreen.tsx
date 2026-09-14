@@ -32,7 +32,7 @@ export default function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [inviteCode, setInviteCode] = useState('');     // optional partner-invite (household join) at signup
+  const [inviteCode, setInviteCode] = useState('');     // optional spouse-invite (household join) at signup
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 
@@ -48,14 +48,14 @@ export default function AuthScreen() {
   const emailValid = isValidEmail(email);
   const showEmailError = emailTouched && !emailValid;
 
-  // Optional partner-invite join (ported from the former onboarding account step, L-4). Returns true
+  // Optional spouse-invite join (ported from the former onboarding account step, L-4). Returns true
   // when we joined a shared household (and navigated Home); false to fall through to solo onboarding.
   async function joinHousehold(uid: string): Promise<boolean> {
     const code = inviteCode.trim();
     if (!code) return false;
     const inv = await lookupInvite(code);
     if (!inv) {
-      Alert.alert('Invite code not found', "Double-check the code with your partner — or continue without it and join later.");
+      Alert.alert('Invite code not found', "Double-check the code with your spouse — or continue without it and join later.");
       return false;
     }
     // Claim membership FIRST (carries the code; rules gate the shared-doc read on this member doc
@@ -69,7 +69,7 @@ export default function AuthScreen() {
     s.setOnboardingDraft?.(null);
     s.setOnboardingPaused?.(false);
     s.setOnboardingComplete?.(true);
-    Alert.alert("You're in! 🎉", `You're sharing a plan with ${inv.inviterName ?? 'your partner'} — you'll both see the same accounts, plans and goals.`);
+    Alert.alert("You're in! 🎉", `You're sharing a plan with ${inv.inviterName ?? 'your spouse'} — you'll both see the same accounts, plans and goals.`);
     router.replace('/(tabs)/home');
     return true;
   }
@@ -123,7 +123,7 @@ export default function AuthScreen() {
           name: name.trim(),
           createdAt: new Date().toISOString(),
         });
-        // Optional: if they entered a partner invite code, join that shared household. On success it
+        // Optional: if they entered a spouse invite code, join that shared household. On success it
         // navigates Home; on failure we fall through and the auth listener routes to solo onboarding.
         if (inviteCode.trim()) {
           try {
@@ -354,10 +354,10 @@ export default function AuthScreen() {
 
           {mode === 'register' && (
             <Field
-              label="Partner invite code (optional)"
+              label="Spouse invite code (optional)"
               value={inviteCode}
               onChange={(t) => setInviteCode(t.toUpperCase())}
-              placeholder="Have a code from your partner?"
+              placeholder="Have a code from your spouse?"
               autoCapitalize="characters"
             />
           )}
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   wordmark: { width: 150, height: 30, marginTop: 2 },
   tagline: { fontSize: Typography.sizes.base, color: Colors.textSecondary, marginTop: 2 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.xl, borderWidth: 0.5, borderColor: Colors.border, padding: Spacing.xl },
-  cardTitle: { fontSize: Typography.sizes.xl, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
+  cardTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
   cardSub: { fontSize: Typography.sizes.base, color: Colors.textSecondary, marginBottom: Spacing.lg },
   inputLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary, marginBottom: 6 },
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.base, paddingVertical: 13, fontSize: Typography.sizes.md, color: Colors.textPrimary },

@@ -490,12 +490,12 @@ test('the three questions screen shows ALL three, missing first, prefilled with 
   expect(screen.getByText(/can't be calculated yet\. Add what you spend/)).toBeOnTheScreen();
   // the answered ones are STILL shown, prefilled, so they can be changed in place
   expect(screen.getByLabelText('Your age in years').props.value).toBe('55');
-  expect(screen.getByText('Monthly spending in retirement  MISSING')).toBeOnTheScreen();
+  expect(screen.getByText('Monthly expenses in retirement  MISSING')).toBeOnTheScreen();
   expect(screen.getByText('WHAT COUNTS TOWARD RETIREMENT')).toBeOnTheScreen();
   expect(screen.getByLabelText(/IRA.*Counts toward retirement\. Tap to change\./)).toBeOnTheScreen();
   // the payoff sits on the SAME screen — the sample until it becomes theirs
   expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
-  fireEvent.changeText(screen.getByLabelText('Monthly spending in retirement'), '4500');
+  fireEvent.changeText(screen.getByLabelText('Monthly expenses in retirement'), '4500');
   expect((useStore.getState() as any).retirementAssumptions.spendMonthly).toBe(4500);
 });
 
@@ -753,7 +753,7 @@ test('every account with value gets its own walk, so the per-account walks sum t
 });
 
 // ── WHOSE FACT IS THIS ROW? (handoff 2026-08-11) ───────────────────────────────────────────────
-test('a row you typed is marked yours and editable; a broker row says where it came from and is not', () => {
+test('a row you entered is marked yours and editable; a broker row says where it came from and is not', () => {
   useStore.setState({
     assetAccounts: [{ asset_id: 'van', label: 'Brokerage', institution: 'Vanguard', kind: 'brokerage',
       tax_bucket: 'TAXABLE', balance: 10000, target_return: 0, source: 'connected', last_synced: new Date().toISOString() }],

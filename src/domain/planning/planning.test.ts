@@ -1,4 +1,4 @@
-import { educationPlan, lifeInsuranceNeed, rothConversionCost, taxOrganizer } from './index';
+import { educationPlan, lifeInsuranceNeed, rothConversionCost, taxOrganizer, taxableIncomeSteps } from './index';
 import type { OnboardingProfile } from '../onboardingProfile';
 
 describe('tax organizer', () => {
@@ -12,7 +12,11 @@ describe('tax organizer', () => {
     const o = taxOrganizer(op, { accounts: [{ kind: 'brokerage', balance: 50000 }], liabilities: [{ debt_type: 'MORTGAGE' }], year: 2026 });
     expect(o.income.find((l) => l.label === 'Wages (W-2)')!.amount).toBe(96000);
     expect(o.income.find((l) => l.label === 'Bonus')!.amount).toBe(10000);
-    expect(o.taxableTotal).toBeGreaterThan(100000);
+    // Q46: gross 108,000 (96,000 + 10,000 + 2,000) − 18,000 401(k) − 16,100 standard deduction
+    expect(o.steps.grossIncome).toBe(108000);
+    expect(o.steps.preTaxContributions).toBe(18000);
+    expect(o.steps.standardDeduction).toBe(16100);
+    expect(o.taxableTotal).toBe(108000 - 18000 - 16100);
     expect(o.contributions.find((c) => c.label.startsWith('401'))!.amount).toBe(18000);
     expect(o.documents).toEqual(expect.arrayContaining(['W-2 from each employer', '1099-INT, 1099-DIV, and 1099-B (brokerage)', '1098-E (student-loan interest)']));
     expect(o.documents.some((d) => d.includes('1098 (mortgage'))).toBe(true);
@@ -29,6 +33,29 @@ describe('tax organizer', () => {
     expect(o.income.find((l) => l.label.startsWith('Retirement income'))?.amount ?? 0).toBe(0);  // absent or $0
     const withoutRi = taxOrganizer(op, { year: 2026 });
     expect(o.taxableTotal).toBe(withoutRi.taxableTotal);   // adding future SS changed nothing
+  });
+
+  // Q46 (founder ruling 2026-09-08): the four lines a return shows — the reviewers' example
+  test('the founder\'s example: $120,000 salary, $20,000 into the 401(k), single → taxable $83,900', () => {
+    const p: OnboardingProfile = { baseSalary: '10000', salaryFreq: 'monthly', salaryMode: 'gross', c_401k: '1666.6667', incomeSources: ['employment'], filingStatus: 'single' } as any;
+    const o = taxOrganizer(p, { year: 2026 });
+    expect(o.steps.grossIncome).toBe(120000);
+    expect(Math.round(o.steps.preTaxContributions)).toBe(20000);
+    expect(o.steps.standardDeduction).toBe(16100);
+    expect(Math.round(o.steps.taxableIncome)).toBe(83900);
+    expect(o.contributions.find((c) => c.label.startsWith('401'))!.amount).toBe(o.steps.preTaxContributions);   // one producer, one figure
+  });
+  test('at 66 the standard deduction line carries the 65+ add-on and the senior deduction, and says so', () => {
+    const p: OnboardingProfile = { baseSalary: '5000', salaryFreq: 'monthly', salaryMode: 'gross', incomeSources: ['employment'], filingStatus: 'single', birthYear: String(new Date().getFullYear() - 66) } as any;
+    const st = taxableIncomeSteps(p, 60000);
+    expect(st.standardDeduction).toBe(16100 + 2050 + 6000);
+    expect(st.deductionIncludes).toEqual(['the 65+ add-on (one person)', 'the senior deduction (2025–2028)']);
+    expect(st.taxableIncome).toBe(60000 - 24150);
+  });
+  test('a two-earner household: both 401(k)s come off', () => {
+    const p: OnboardingProfile = { baseSalary: '6000', salaryFreq: 'monthly', salaryMode: 'gross', c_401k: '500', incomeSources: ['employment'], whoEarns: 'both',
+      partnerWage: { baseSalary: '4000', salaryFreq: 'monthly', salaryMode: 'gross', c_401k: '300' } } as any;
+    expect(taxableIncomeSteps(p, 120000).preTaxContributions).toBe((500 + 300) * 12);
   });
 
   test('a retiree who receives it DOES report retirement income', () => {

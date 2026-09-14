@@ -56,8 +56,10 @@ test('THE LAW: an account we cannot read is NAMED, never assumed away', () => {
   expect(r.missing).toMatch(/dividend yield/);
 });
 
-test('an assumed rate says it is assumed', () => {
+test('A46 (founder, 2026-08-26): no coupon rate → counted as $0, and the line says so', () => {
   const r = incomeFromAccounts([acct({ asset_id: 'f', kind: 'bond', label: 'Bond fund', balance: 50_000 })] as any, [], NOW);
   expect(r.lines[0].assumed).toBe(true);
-  expect(r.lines[0].why).toMatch(/assumed/);
+  expect(r.lines[0].annual).toBe(0);
+  expect(r.lines[0].why).toMatch(/counted as \$0/);
+  expect(r.annual).toBe(0);
 });

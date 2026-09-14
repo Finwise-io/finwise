@@ -9,7 +9,7 @@ describe('ssClaimFactor — the standard SSA schedule', () => {
 
   test('62 ≈ 70% (five years early: 3×6.67% + 2×5%)', () => {
     expect(ssClaimFactor(62)).toBeCloseTo(0.70, 10);
-    expect(ssBenefitAtClaimAge(2600, 62)).toBe(1820);
+    expect(ssBenefitAtClaimAge(2600, 62)).toBeCloseTo(1820, 6);
   });
 
   test('70 = 124% (three years of 8% delayed credit)', () => {
@@ -29,7 +29,7 @@ describe('ssClaimFactor — the standard SSA schedule', () => {
 
 describe('lifetime totals (the design example: statement $2,600, live to 90)', () => {
   test('62: $1,820 × 336 months = $611,520', () => {
-    expect(ssLifetimeTotal(2600, 62, 90)).toBe(611_520);
+    expect(ssLifetimeTotal(2600, 62, 90)).toBeCloseTo(611_520, 6);
   });
   test('67: $2,600 × 276 months = $717,600', () => {
     expect(ssLifetimeTotal(2600, 67, 90)).toBe(717_600);
@@ -73,5 +73,23 @@ describe('the FRA table — the oldest third of the audience is not born 1960+',
   test('born 1960+ reproduces the old anchored-at-67 factors exactly', () => {
     expect(ssClaimFactorFor(62, 1965)).toBeCloseTo(0.70, 10);
     expect(ssClaimFactorFor(70, 1965)).toBeCloseTo(1.24, 10);
+  });
+});
+
+
+describe('A38 / A39 (2026-09-12) — the whole schedule, and months count', () => {
+  const { fullRetirementAge, ssClaimFactorFor } = require('./ssTiming');
+  test('A39: the published full-retirement ages before 1943 — 65, then two months a year', () => {
+    expect(fullRetirementAge(1937)).toBe(65);
+    expect(fullRetirementAge(1930)).toBe(65);
+    expect(fullRetirementAge(1940)).toBeCloseTo(65.5, 10);
+    expect(fullRetirementAge(1942)).toBeCloseTo(65 + 10 / 12, 10);
+    expect(fullRetirementAge(1943)).toBe(66);
+  });
+  test('A38: a claim at 62 and 6 months is priced as 62 and 6 months, not 63', () => {
+    const f62 = ssClaimFactorFor(62, 1960), f625 = ssClaimFactorFor(62.5, 1960), f63 = ssClaimFactorFor(63, 1960);
+    expect(f625).toBeGreaterThan(f62);
+    expect(f625).toBeLessThan(f63);
+    expect(f625).toBeCloseTo(1 - 36 * (5 / 9) / 100 - 18 * (5 / 12) / 100, 10);   // 54 months early
   });
 });

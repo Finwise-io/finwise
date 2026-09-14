@@ -69,7 +69,7 @@ describe('the banned word never returns to anything the user can read', () => {
 
   test('the founder-approved replacements are the ones actually on screen', () => {
     const paycheck = fs.readFileSync(path.join(ROOT, 'components/PaycheckCard.tsx'), 'utf8');
-    expect(paycheck).toContain('LEFT TO SPEND');
+    expect(paycheck).toContain('SURPLUS');
     expect(paycheck).toContain('+ Draw from savings');
     expect(paycheck).not.toContain('SAFE TO SPEND');   // the banned original
 

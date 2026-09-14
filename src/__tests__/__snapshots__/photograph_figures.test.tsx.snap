@@ -1,0 +1,318 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`photograph — retiree CashFlowScreen 1`] = `
+[
+  "[spoken] Surplus in Sep: an estimate. $4,025",
+  "$4,025",
+  "$2,400",
+  "$2,400",
+  "$1,625",
+  "$48,300",
+  "[spoken] Expense pace: $0 of $4,025 surplus — 0 percent spent, 40 percent of the month gone. Opens this month's detail.",
+  "$0",
+  "$4,025",
+  "[spoken] Will my money last: 95 percent, an estimate. Lives in your Plan.",
+]
+`;
+
+exports[`photograph — retiree HomeScreen 1`] = `
+[
+  "[spoken] Surplus in Sep: an estimate. $4,025",
+  "$4,025",
+  "$2,400",
+  "$2,400",
+  "$1,625",
+  "$48,300",
+  "[spoken] Net worth $420,000. Opens the Net worth tab.",
+  "$420,000",
+  "[spoken] 1. Concentrated in one account. $400,000 (95%) of your invested money sits in a single account — spreading across accounts lowers risk.",
+  "$400,000 (95%) of your invested money sits in a single account — spreading across accounts lowers risk.",
+  "[spoken] 2. Nudge up your investing. You're investing about 0% of your gross income toward retirement — even +1% compounds over time.",
+  "You're investing about 0% of your gross income toward retirement — even +1% compounds over time.",
+  "[spoken] Will my money last: 95 percent odds of lasting to age 92, an estimate. Opens Plan.",
+  "95% odds of lasting to age 92",
+  "[spoken] This month's cash flow, On pace: income $2,400, spent so far $0, $2,400 left, bills may still be coming. Opens the Cash flow tab.",
+  "0% spent ·",
+  "$2,400",
+  "$0",
+  "$2,400",
+]
+`;
+
+exports[`photograph — retiree IncomeSummaryScreen 1`] = `
+[
+  "$2,400",
+  "$2,400",
+  "$28,800",
+  "$28,800",
+  "10%",
+  "≈$465/year",
+]
+`;
+
+exports[`photograph — retiree NetWorthScreen 1`] = `
+[
+  "[spoken] Net worth $420,000. By asset class: Unclassified 95 percent, Cash 5 percent.",
+  "$420,000",
+  "$0",
+  "$420,000",
+  "[spoken] Your retirement plan: on course to last past 92, ~$685,000 to spare. Opens the Plan tab.",
+  "95% odds of lasting to age 92",
+  "on course to last past 92, ~$685,000 to spare",
+  "$420,000",
+  "[spoken] What you own by category: Unclassified 95 percent, Cash 5 percent.",
+  "[spoken] Cash, $20,000, 1 account. Collapses them.",
+  "$20,000",
+  "[spoken] Ally Savings, $20,000. Opens its page.",
+  "$20,000",
+  "[spoken] Investments, $400,000, 1 account. Collapses them.",
+  "$400,000",
+  "[spoken] Unclassified, $400,000. Expands its 1 account. Tap an account to say what is inside.",
+  "$400,000",
+  "$20,000",
+  "$4,000",
+  "3–6 months is the usual guide",
+]
+`;
+
+exports[`photograph — retiree PerformanceScreen 1`] = `
+[
+  "$400,000",
+  "Accounts — add holdings for live tracking $400,000",
+  "[spoken] Traditional IRA, $400,000. Opens its page.",
+  "$400,000",
+]
+`;
+
+exports[`photograph — retiree PlanHubScreen 1`] = `
+[
+  "[spoken] Will my money last: 95% odds of lasting to age 92, an estimate.",
+  "$4,000",
+  "— on course to last past 92, ~$685,000 to spare",
+  "$350,000",
+  "$420,000",
+  "[spoken] Fidelity Traditional IRA, $400,000. Counts toward retirement. Tap to change.",
+  "$400,000",
+  "[spoken] Ally Savings, $20,000. Counts toward retirement. Tap to change.",
+  "$20,000",
+  "+$0",
+  "[spoken] Your retirement paycheck: guaranteed $2,400, draw from savings $1,625, total $4,025 a month. Opens your income.",
+  "$2,400",
+  "$2,400",
+  "$1,625",
+  "$4,025",
+  "$4,000",
+  "$1,600",
+  "— 4.6% of your savings a year, a bit above the 4% guideline — worth watching",
+  "$1,625",
+  "[spoken] $0 more in expenses each month",
+  "$0",
+  "$4,000",
+]
+`;
+
+exports[`photograph — retiree RetirementCockpit 1`] = `
+[
+  "$420K",
+  "$420K",
+  "$20K",
+  "$400K",
+  "$420K",
+  "past age 92",
+  "in most futures — 90out of 100 simulated futures",
+  "$48,000",
+  ": Social Security / pension covers $28,800, and you take $19,200 from savings",
+  "$400K",
+  "$20K",
+  "7.6%",
+  "7.6%",
+  "$4,000",
+  "$7K",
+  "$2,400/month · today's $ · from your setup",
+]
+`;
+
+exports[`photograph — retiree WillItLastScreen 1`] = `
+[
+  "[spoken] Will my money last to 92: 95 percent, an estimate.",
+  "out of 100 simulated futures, your money lasts to",
+  "[spoken] What you have (nest egg): $420,000, your live account balances. Opens where you can change it.",
+  "$420,000",
+  "[spoken] Monthly expenses in retirement: $4,000, calculated from your data. Opens where you can change it.",
+  "$4,000",
+  "[spoken] Guaranteed income: $2,400/month from age 67, from your setup answers. Opens where you can change it.",
+  "$2,400/month from age 67",
+  "[spoken] Yearly growth assumed: 7.6%, the blended benchmark for your mix. Opens where you can change it.",
+  "7.6%",
+  "[spoken] Inflation assumed: 2.5%, from economic data. Opens where you can change it.",
+  "2.5%",
+]
+`;
+
+exports[`photograph — worker CashFlowScreen 1`] = `
+[
+  "[spoken] $2,700 planned surplus this month",
+  "$2,700",
+  "$7,200",
+  "$4,500",
+  "$2,700",
+  "[spoken] Expense pace: $0 of $0 planned — 0 percent spent, 40 percent of the month gone. Opens this month's detail.",
+  "$0",
+  "$0",
+  "[spoken] Your future paycheck — a projection, an estimate, not a promise. At 65: about $2,460 a month.",
+  "$2,460",
+  "~$2,460",
+  "[spoken] Will my money last: 15 percent, an estimate. Lives in your Plan.",
+]
+`;
+
+exports[`photograph — worker HomeScreen 1`] = `
+[
+  "[spoken] Your investments: $300,000, prices updated not updated yet",
+  "$300,000",
+  "[spoken] Net worth $320,000. Opens the Net worth tab.",
+  "$320,000",
+  "[spoken] 1. Your retirement plan needs attention. Only a 15% odds it lasts — adjust savings, age, or expenses in the scenario.",
+  "Only a 15% odds it lasts — adjust savings, age, or expenses in the scenario.",
+  "[spoken] 2. Room left in your 401(k). About $32,500 of this year's tax-advantaged room looks unused — an estimate from what you entered you contribut",
+  "About $32,500 of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll.",
+  "[spoken] 3. Concentrated in one account. $300,000 (94%) of your invested money sits in a single account — spreading across accounts lowers risk.",
+  "$300,000 (94%) of your invested money sits in a single account — spreading across accounts lowers risk.",
+  "[spoken] Will my money last: 15 percent odds of lasting to age 92, an estimate. Opens Plan.",
+  "15% odds of lasting to age 92",
+  "[spoken] This month's cash flow, On pace: income $7,200, spent so far $0, $7,200 left, bills may still be coming. Opens the Cash flow tab.",
+  "0% spent ·",
+  "$7,200",
+  "$0",
+  "$7,200",
+]
+`;
+
+exports[`photograph — worker IncomeSummaryScreen 1`] = `
+[
+  "$7,200",
+  "$7,200",
+  "$7,200",
+  "$108,000",
+  "$108,000",
+  "$108,000",
+  "22%",
+  "your rate, 20% (edit on Your base pay screen)",
+  "$21,600/year",
+]
+`;
+
+exports[`photograph — worker NetWorthScreen 1`] = `
+[
+  "[spoken] Net worth $320,000. By asset class: Stocks / Funds 94 percent, Cash 6 percent.",
+  "$320,000",
+  "$0",
+  "$320,000",
+  "[spoken] Your retirement plan: retire at 65 with ~$634,000, running short around age 77. Opens the Plan tab.",
+  "15% odds of lasting to age 92",
+  "retire at 65 with ~$634,000, running short around age 77",
+  "$320,000",
+  "[spoken] What you own by category: Stocks / Funds 94 percent, Cash 6 percent.",
+  "[spoken] Cash, $20,000, 1 account. Collapses them.",
+  "$20,000",
+  "[spoken] Ally Savings, $20,000. Opens its page.",
+  "$20,000",
+  "[spoken] Investments, $300,000, 1 account. Collapses them.",
+  "$300,000",
+  "[spoken] Stocks / Funds, $300,000. Expands its 1 account.",
+  "$300,000",
+  "$20,000",
+  "$4,500",
+  "3–6 months is the usual guide",
+]
+`;
+
+exports[`photograph — worker PerformanceScreen 1`] = `
+[
+  "$300,000",
+  "$0",
+  "HOW $300,000 BECAME $300,000 · ALL ACCOUNTS",
+  "$300,000",
+  "$0",
+  "$0",
+  "$0",
+  "$0",
+  "$0",
+  "$0",
+  "$300,000",
+  "[spoken] Vanguard, $0. Expands its walk.",
+  "$0",
+  "$0",
+  "[spoken] Ally Savings, $20,000. Expands its walk.",
+  "$20,000",
+  "$0",
+  "[spoken] Portfolio value $300,000. Not enough price history yet for this period.",
+  "$0",
+  "$300,000",
+  "Stocks / Funds $0",
+  "[spoken] VTI, $270,000, no current price, showing what you paid. Opens its page.",
+  "$270,000",
+]
+`;
+
+exports[`photograph — worker PlanHubScreen 1`] = `
+[
+  "[spoken] Will my money last: 15% odds of lasting to age 92, an estimate.",
+  "$1,150,000",
+  "$1,150,000",
+  "$320,000",
+  "[spoken] Vanguard Brokerage, $300,000. Counts toward retirement. Tap to change.",
+  "$300,000",
+  "[spoken] Ally Savings, $20,000. Counts toward retirement. Tap to change.",
+  "$20,000",
+  "+$0",
+]
+`;
+
+exports[`photograph — worker RetirementCockpit 1`] = `
+[
+  "today's $320K alone gets there by 72",
+  "$669K",
+  "15% odds it lasts to 92",
+  "[spoken] Retirement nest egg $320K, by account type: Cash $20,000, Investments $300,000",
+  "$320K",
+  "$20K",
+  "$300K",
+  "$300K",
+  "$20K",
+  "assumes age 65",
+  "7.6%",
+  "7.6%",
+  "$669K",
+  "$320K",
+  "$320K",
+  "$0",
+  "$349K",
+  "$669K",
+  "$4,500",
+  "$9K",
+  "$32,500",
+  "(incl. the $8,000 age-50+ catch-up)",
+  "$32,500",
+  "$8,600",
+]
+`;
+
+exports[`photograph — worker WillItLastScreen 1`] = `
+[
+  "[spoken] Will my money last to 92: 15 percent, an estimate.",
+  "out of 100 simulated futures, your money lasts to",
+  "[spoken] What you have (nest egg): $320,000, your live account balances. Opens where you can change it.",
+  "$320,000",
+  "[spoken] Monthly expenses in retirement: $4,500, calculated from your data. Opens where you can change it.",
+  "$4,500",
+  "[spoken] Guaranteed income: $0/month from age 67, from your setup answers. Opens where you can change it.",
+  "$0/month from age 67",
+  "[spoken] Monthly saving until then: $0/month, calculated from your data. Opens where you can change it.",
+  "$0/month",
+  "[spoken] Yearly growth assumed: 7.6%, the blended benchmark for your mix. Opens where you can change it.",
+  "7.6%",
+  "[spoken] Inflation assumed: 2.5%, from economic data. Opens where you can change it.",
+  "2.5%",
+]
+`;

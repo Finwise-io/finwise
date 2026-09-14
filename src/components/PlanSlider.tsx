@@ -13,7 +13,7 @@ export function PlanSlider({ label, value, min, max, onChange, onSettle, onDragg
   onSettle?: (v: number) => void;          // finger up — the moment we SAVE
   onDraggingChange?: (dragging: boolean) => void;   // parent disables its ScrollView during the drag
 }) {
-  // The drag lives in the shared engine (sliderGesture.ts) — the B45/B46 device lessons (capture
+  // The drag lives in the shared function (sliderGesture.ts) — the B45/B46 device lessons (capture
   // claim, termination refusal, pageX anchoring, scroll stand-down) are encoded ONCE there.
   const valueRef = useRef(value);
   valueRef.current = value;

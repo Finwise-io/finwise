@@ -32,14 +32,14 @@ export default function MonthDetailScreen() {
 
   const retired = lens === 'retired';
   const headline = retired ? pm.netSafeToSpend : cell.net;
-  const biggestBill = retired ? pm.bills[0] : cell.billItems.filter((b: any) => b.label !== 'Everyday spending')[0];
+  const biggestBill = retired ? pm.bills[0] : cell.billItems.filter((b: any) => b.label !== 'Everyday expenses')[0];
   const reason = retired
     ? (pm.billsTotal > 0 ? `lower than usual — ${biggestBill?.label ?? 'a big bill'} lands this month` : null)
     : (cell.net < -0.005 ? `short month — ${biggestBill?.label ?? 'spending'} exceeds what comes in` : null);
 
   // regular bills: the everyday envelope + debts (listed for completeness, never subtracted twice)
-  const regulars = cell.billItems.filter((b: any) => b.kind === 'debt' || b.label === 'Everyday spending');
-  const bigBills = retired ? pm.bills : cell.billItems.filter((b: any) => b.kind === 'bill' && b.label !== 'Everyday spending');
+  const regulars = cell.billItems.filter((b: any) => b.kind === 'debt' || b.label === 'Everyday expenses');
+  const bigBills = retired ? pm.bills : cell.billItems.filter((b: any) => b.kind === 'bill' && b.label !== 'Everyday expenses');
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -58,15 +58,15 @@ export default function MonthDetailScreen() {
 
       {/* headline + reason (the same cell the bar and — for the current month — the hero show) */}
       <View style={styles.card}
-        accessible accessibilityLabel={`${retired ? 'Left to spend' : 'Left over'} in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
-        <SectionBand title={`${retired ? 'LEFT TO SPEND' : 'LEFT OVER'}${isCurrent ? ' · AS OF TODAY' : ''}`} />
+        accessible accessibilityLabel={`${retired ? 'Surplus' : 'Surplus'} in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
+        <SectionBand title={`${retired ? 'SURPLUS' : 'SURPLUS'}${isCurrent ? ' · AS OF TODAY' : ''}`} />
         <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${maskedMoney(Math.abs(headline))} short` : maskedMoney(headline)}</Text>
         {reason && <Text style={styles.reason}>⚑ {reason}</Text>}
       </View>
 
       {/* money in, with real dates — rows visibly sum */}
       <View style={styles.card}>
-        <SectionBand title="MONEY IN" />
+        <SectionBand title="INFLOW" />
         {retired ? (
           <>
             {pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={maskedMoney(g.amount)} />)}
@@ -92,7 +92,7 @@ export default function MonthDetailScreen() {
         {retired && (
           <>
             <View style={styles.dividerLine} />
-            <Row label="= Left to spend" value={maskedMoney(pm.netSafeToSpend)} strong />
+            <Row label="= Surplus" value={maskedMoney(pm.netSafeToSpend)} strong />
           </>
         )}
       </View>
@@ -100,7 +100,7 @@ export default function MonthDetailScreen() {
       {/* regular bills the envelope pays for (never subtracted twice) */}
       <View style={styles.card}>
         <SectionBand title="REGULAR BILLS" />
-        <Text style={styles.cardHdrSub}>{retired ? "These come out of what's left to spend." : 'Including everyday spending.'}</Text>
+        <Text style={styles.cardHdrSub}>{retired ? "These come out of what's surplus." : 'Including everyday expenses.'}</Text>
         {regulars.length === 0 && <Text style={styles.empty}>No regular bills recorded.</Text>}
         {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={maskedMoney(b.amount)} />)}
         {isCurrent && bva && (
@@ -144,3 +144,4 @@ const styles = StyleSheet.create({
   soFar: { fontSize: 13, color: Colors.textSecondary, marginTop: 8 },
   footer: { fontSize: 13, color: Colors.textTertiary, textAlign: 'center', marginTop: 4 },
 });
+

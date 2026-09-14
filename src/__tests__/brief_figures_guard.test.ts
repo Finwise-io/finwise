@@ -1,4 +1,4 @@
-// EVERY NUMBER IN THE DESIGN BRIEF MUST COME FROM THE ENGINE — OR SAY WHERE IT CAME FROM.
+// EVERY NUMBER IN THE DESIGN BRIEF MUST COME FROM THE FUNCTION — OR SAY WHERE IT CAME FROM.
 //
 // WHY THIS EXISTS (2026-08-14). Three errors were caught in the Plan brief in a single day, and all
 // three were the same kind of thing: a figure or a claim that nobody had run:
@@ -11,8 +11,8 @@
 //
 // The founder asked how to stop this happening in the next brief. The answer is not more care — I
 // was reading carefully and still wrote all three. It is that a brief is a document full of claims
-// the code can settle, and until now nothing settled them. So: the engine recomputes every persona
-// figure here, and the build fails when the brief and the engine disagree.
+// the code can settle, and until now nothing settled them. So: the function recomputes every persona
+// figure here, and the build fails when the brief and the function disagree.
 //
 // The same lesson as the orphan-route guard and the banned-word guard, both of which caught real
 // defects within minutes of existing: enforce with a gate, not an intention.
@@ -55,17 +55,17 @@ const RAY  = { current_age: 64, horizon_age: 92, retire_age: 67, start_balance: 
 /** The brief must literally contain this figure. */
 const inBrief = (s: string) => expect(brief.includes(s) ? s : `MISSING FROM BRIEF: ${s}`).toBe(s);
 
-describe('the brief agrees with the engine', () => {
+describe('the brief agrees with the function', () => {
   test("Pat's accounts sum to his balance, and they are what produce his odds", () => {
     expect(PAT_ACCOUNTS.reduce((t: number, a: any) => t + a.balance, 0)).toBe(909_152);
     inBrief('$380,000'); inBrief('$379,152'); inBrief('$90,000'); inBrief('$60,000');
     inBrief(`${(PAT.mean_return * 100).toFixed(2)}%`);                 // 5.85% — stated in his table
     expect(odds({ ...PAT, annual_contribution: PAT_SAVES })).toBe(67);
     inBrief('**67%** of lasting to 90');
-    inBrief('$12,000 a year');                                         // what he saves — was never stated
+    inBrief('$12,000 a year');   // the brief is a document, not app copy — its own words stand                                         // what he saves — was never stated
   });
 
-  test('the target we SUGGEST is the engine\'s 80% pot, and it differs from what Pat typed', () => {
+  test('the target we SUGGEST is the function\'s 80% pot, and it differs from what Pat typed', () => {
     // BASE carries inflation/seed/paths — omitting it silently solves a different simulation and
     // returned $70,000 instead of $1,250,000. The guard caught that; I would not have.
     const suggested = targetAtRetirement({ ...BASE, ...PAT, annual_contribution: PAT_SAVES } as any);
@@ -89,7 +89,7 @@ describe('the brief agrees with the engine', () => {
     inBrief(money(p - noSaving - 77_500 * 7));                         // growth on the new money
   });
 
-  test('state 6 and its mirror carry the numbers the engine returns', () => {
+  test('state 6 and its mirror carry the numbers the function returns', () => {
     const mirror = projected({ ...PAT, annual_contribution: 17_500 });
     expect(mirror).toBeGreaterThanOrEqual(1_500_000);
     inBrief(money(mirror));                                                       // $1,505,001
@@ -108,7 +108,7 @@ describe('the brief agrees with the engine', () => {
   });
 
   test('the mortgage consequence is a second honest run, not a subtracted penalty', () => {
-    // $500/mo extra on the mortgage = $6,000/yr that stops going into savings
+    // $500/month extra on the mortgage = $6,000/year that stops going into savings
     expect(odds({ ...PAT, annual_contribution: PAT_SAVES })).toBe(67);
     expect(odds({ ...PAT, annual_contribution: PAT_SAVES - 6_000 })).toBe(65);
     inBrief('67 future simulations out of 100'); inBrief('65 out of 100');
@@ -155,7 +155,7 @@ describe('handoff v4 defects — pinned so a corrected file can be checked mecha
   const TSY = 0.0463;   // the live ten-year, per the Federal Reserve series
 
   test('V1 — the below-yield frame changed the balance but kept the old balance\'s figures', () => {
-    // the design draws "$380,000 at 3.1%" while printing $6,304/yr and $40,217, both computed for
+    // the design draws "$380,000 at 3.1%" while printing $6,304/year and $40,217, both computed for
     // the brief's $412,000 example. Either restore the balance or recompute — these are the two
     // values a corrected frame must land on.
     expect(Math.round((TSY - 0.031) * 412_000)).toBe(6_304);      // correct AT $412,000

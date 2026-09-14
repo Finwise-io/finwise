@@ -1,5 +1,5 @@
 // Will-it-last detail — the pins: the headline IS the hub's selector number (one number, opened
-// up); every driver is sourced (you set it / estimated) and routes somewhere changeable; the
+// up); every driver is sourced (you entered / estimated) and routes somewhere changeable; the
 // not-captured state invites, never guesses.
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -35,7 +35,7 @@ test('the headline equals the hub selector to the digit, with the range and the 
   // distribution's clothes; the odds stand alone, rounded to 5.
   expect(screen.queryByText(/range \d+–\d+% across bad-to-good markets/)).toBeNull();
   expect(hub.chance! % 5).toBe(0);
-  expect(screen.getByText(new RegExp(`In ${hub.chance} of every 100 futures`))).toBeOnTheScreen();
+  expect(screen.getByText(new RegExp(`In ${hub.chance} out of 100 simulated futures`))).toBeOnTheScreen();
   // every driver names its source and is a labeled road to change it
   expect(screen.getByLabelText(/What you have \(nest egg\).*your live account balances/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Guaranteed income.*Opens where you can change it/)).toBeOnTheScreen();

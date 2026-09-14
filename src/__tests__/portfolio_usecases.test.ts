@@ -1,4 +1,4 @@
-// Use-case harness: run real user journeys through the actual engine and report works vs gaps.
+// Use-case harness: run real user journeys through the actual function and report works vs gaps.
 // Mirrors the store pipeline: applyTransaction → recomputeBalances. Each case logs expected vs actual.
 import { applyTransaction, makeTransaction, investmentIncomeAnnual, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 import { totalShares, latestClose, type PriceSeries } from '../domain/performance';

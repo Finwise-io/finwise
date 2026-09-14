@@ -18,7 +18,7 @@ const SIM = { current_age: 64, horizon_age: 92, mean_return: 0.055, vol_return: 
 const RAY_BALANCE = 500_000;
 const STATEMENT = 2600;          // his statement amount at full retirement age
 const SPENDING = 4800;
-const CONTRIB_ANNUAL = 6000;     // $500 a month, part-time
+const CONTRIB_ANNUAL = 6000;     // $500/month, part-time
 const TYPED_TARGET = 750_000;
 
 const oddsClaimingAt = (claimAge: number) => simulate({
@@ -53,7 +53,7 @@ test('THE POINT OF HIM: the claim decision alone takes him from 73% to 80%', () 
 test('his two dials disagree and both are honest — 67% of a target he will not reach, 73% odds', () => {
   expect(Math.round((RAY_BALANCE / TYPED_TARGET) * 100)).toBe(67);
   expect(TYPED_TARGET - RAY_BALANCE).toBe(250_000);
-  // three years of $500 a month is $18,000 of new money — the gap does not close by saving
+  // three years of $500/month is $18,000 of new money — the gap does not close by saving
   expect(CONTRIB_ANNUAL * 3).toBeLessThan(TYPED_TARGET - RAY_BALANCE);
   expect(oddsClaimingAt(FULL_RETIREMENT_AGE)).toBeGreaterThan(Math.round((RAY_BALANCE / TYPED_TARGET) * 100) - 10);
 });

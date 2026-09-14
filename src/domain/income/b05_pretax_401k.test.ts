@@ -18,7 +18,7 @@ const gridTotal = (op: any, mode: any) =>
   sum(incomeMonthlyGrid(op, mode, NOW).map((m: any) => m.amount));
 
 const person = (c401kMonthly: number) => ({
-  salaryByMonth: new Array(12).fill(10_000),   // $120,000 a year
+  salaryByMonth: new Array(12).fill(10_000),   // $120,000/year
   c_401k: c401kMonthly,
   taxMode: 'auto',
 });

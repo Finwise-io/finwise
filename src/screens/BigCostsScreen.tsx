@@ -3,6 +3,8 @@
 // is subtracted in its year inside the SAME simulation the Plan needle runs; the screen says plainly
 // what the list did to the odds. Empty state = the honest default: no entries means the plan
 // quietly assumes no big one-time costs.
+import { EmptyNote } from '../components/UI';
+import { money } from '../domain/_shared/num';
 import React, { useMemo, useState } from 'react';
 import { displayOdds } from '../domain/retirement/willItLast';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
@@ -41,7 +43,7 @@ export default function BigCostsScreen() {
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.tagline}>We lay it out. You decide.</Text>
       <View style={s.card}>
-        <SectionBand title="YOUR BIG ONE-TIME COSTS" />
+        <SectionBand title="YOUR BIG ONE-TIME COSTS" value={costs.length === 0 ? money(0) : undefined} />
         {costs.length === 0 ? (
           <>
             <Text style={s.emptyBody}>A new roof, replacing the car, a family wedding — money that leaves once, in a year you can name. Add it and the odds account for it; leave it out and the plan quietly assumes it never happens.</Text>
@@ -49,7 +51,8 @@ export default function BigCostsScreen() {
               accessibilityLabel="Add your first big cost">
               <Text style={s.ctaTxt}>＋ Add your first big cost</Text>
             </TouchableOpacity>
-            <Text style={s.note}>Nothing here yet — your odds currently assume no big one-time costs.</Text>
+            <EmptyNote door="bigCost" onPress={() => setSheet({ open: true })} />   {/* Q48 (MK-MN-M-001/002): $0 above, the one line, the door */}
+            <Text style={s.note}>Your odds currently assume no big one-time costs.</Text>
           </>
         ) : (
           <>

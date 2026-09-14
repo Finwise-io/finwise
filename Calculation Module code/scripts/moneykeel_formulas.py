@@ -1,4 +1,5 @@
 MATH = {
+ 'worked out on the screen: the sum of the accounts in the personal-property section': 'personal property = Σ balance of every account whose class is personal property (vehicles, valuables — not real estate)',
 'NET_WORTH':'net worth = Σ(all asset balances) − Σ(all debt balances)',
 'NET_WORTH · DEBT_PICTURE':'net worth = Σ(assets) − Σ(debts);  debts = Σ(remaining balance of each debt)',
 'TOTAL_CASH':'cash = Σ(balance of each account whose class = Cash)',
@@ -34,8 +35,8 @@ MATH = {
 'BOND_RATE_SENSITIVITY':'change in value ≈ − duration × change in rate × value',
 'ALTERNATIVES_TOTAL':'total = Σ(recorded value of each alternative holding)',
 'ALTERNATIVES_GROWTH':'estimated growth a year = Σ(value × its stated growth rate)',
-'TOTAL_INCOME':'gross a year = salary + self-employment + bonus + equity vesting + rental + other;  net a month = (gross − tax withheld − pre-tax contributions) ÷ 12',
-'RENTAL_INCOME_A_YEAR':'rental net a year = rent received − running costs',
+'TOTAL_INCOME':'gross a year = salary + self-employment + bonus + equity vesting + rental + other;  take-home a month = (gross − tax withheld − pre-tax contributions) ÷ 12',
+'RENTAL_INCOME_A_YEAR':'rental take-home a year = rent received − running costs',
 'EMPLOYER_MATCH':'match a year = the employer’s stated rate × pay, capped at the stated limit',
 'SPENDING_BY_KIND':'spent in a bucket = Σ(expenses this month in that bucket);  debt payments are excluded',
 'PLANNED_SPENDING':'planned a month = Σ(each category’s planned amount);  remaining = planned − spent',
@@ -93,7 +94,7 @@ NOTDOC = {
   'Notices when net worth passes a round number for the first time, and remembers the highest one already shown so the same milestone is never announced twice.'),
 'NOT IN OLD MASTER — useInsights, src/domain/insights':('each insight scores its own dollars at stake; the list = the highest few, ranked',
   'Works out what is worth saying today, puts a dollar amount against each, and shows the few that matter most.'),
-'NOT IN OLD MASTER — retirementPaycheckYear, src/domain/paycheck':('for each month: guaranteed total = Σ(streams live that month);  paycheck = guaranteed total + safe draw',
+'NOT IN OLD MASTER — retirementPaycheckYear, src/domain/paycheck':('for each month: guaranteed total = Σ(streams live that month);  paycheck = guaranteed total + draw from savings',
   'Builds the retirement paycheck month by month: what is guaranteed that month, plus what can safely be drawn from savings.'),
 'NOT IN OLD MASTER — the by-month grid, src/domain/cashflow':('for month m: expected in = Σ(income landing in m);  planned out = Σ(bills and planned spending dated in m);  planned surplus = expected in − planned out',
   'Lays the year out month by month so a month with a big bill in it can be seen before it arrives.'),
@@ -126,8 +127,9 @@ OTHER = {
 }
 
 WORDS = {
+ 'worked out on the screen: the sum of the accounts in the personal-property section': 'Adds up the balances of every account whose class is personal property — vehicles and valuables. Real estate is its own section. Written by hand 2026-09-08 (G29): this section total is computed on the screen itself.',
 'ALTERNATIVES_TOTAL':'Adds up the recorded value of every alternative holding — the things with no market price of their own.',
-'ALTERNATIVES_GROWTH':'Applies each alternative holding\'s own stated growth rate to its value and adds the results. An estimate, and labelled as one.',
+'ALTERNATIVES_GROWTH':'Applies each alternative holding\'s own stated growth rate to its value and adds the results. Calculated, and labelled as one.',
 'BIG_COSTS':'Adds up the one-off costs the person has told us about, each sitting in the year it is expected.',
 'BOND_RATE_SENSITIVITY':'Shows roughly what a one percent move in interest rates would do to the bond\'s value. Longer to maturity means a bigger swing. An illustration, not a forecast.',
 'CONTRIBUTION_ROOM':'Takes the year\'s legal limit for the account, subtracts what has already gone in, and divides what is left by the months remaining.',
@@ -379,7 +381,7 @@ DUPLICATES = {
 NOT_DUPLICATES = {
  'HOLDING_CAP_GAINS':'Long-term and short-term gain are two answers from one engine, not one figure twice.',
  'BOND_FACTS':'Face value, the bonds total and the count are three different figures.',
- 'TOTAL_INCOME':'Base salary, self-employment and bonus are separate sources; gross a year, net a year and net a month are separate figures.',
+ 'TOTAL_INCOME':'Base salary, self-employment and bonus are separate sources; gross a year, take-home a year and take-home a month are separate figures.',
  'WILL_IT_LAST_RESULT':'The odds and the age the money runs out are two different answers from one run.',
  'PERFORMANCE_TABLE':'Per account, per category and the total are three cuts, not one figure.',
  'INSURANCE_NEED':'The gap, the income to replace and the total need are the parts and the whole.',
@@ -523,3 +525,25 @@ NEW_INPUTS = [
  ('money to leave behind','Typed by the person','the odds — the pot may not be run to zero','WILL_IT_LAST_INPUTS · WILL_IT_LAST_RESULT'),
  ('the person’s own asset-class answer','Typed by the person, and it outranks the institution','what class a holding is counted as','ALLOCATION_BY_CLASS · ASSET_CLASS_OF_ACCOUNT'),
 ]
+
+
+# ── questions keyed by the FIGURE'S identifier (2026-09-08) — identifiers never move, so a question
+# lands on the same row on every build; the engine-keyed dictionary above still serves the old ones.
+QUESTIONS_BY_METRIC = {
+ 'MK-NW-M-032': ["Q34 — Approve the exact wording for the average-price rule (info dot + column Q): 'Shares with no recorded purchase price are left out of the average. N of your shares are in that position.' — and the refusal: 'Average not available — none of these shares has a recorded price.'"],
+ 'MK-NW-M-034': ["Q35 — Approve the exact label and the canon phrase for the twelve-month window. Proposed: 'Dividends received (trailing twelve months)' here, and 'trailing twelve months' in the other four places (spelled out — no initialism).",
+                 "Q36 — Dividends on this card: THIS account only, matching 'Realized from sales' beside it? Recommended: yes."],
+ 'MK-NW-M-035': ["Q37 — For a connected account: log an 'Opening holding' row per broker lot at first sync (dated the lot's purchase date, at the broker's cost) so every later sale is covered — recommended — or keep 'not counted + say so' for pre-history purchases?"],
+ 'MK-NW-M-041': ["Q38 — Your bond display rule, three specifics before the mock: (1) 'quantity' for a bond = the number of bonds (each of face $1,000), or the total face amount? (2) 'earned interest' = the INTEREST rows recorded in the ledger for this bond — the only source we have — yes? (3) 'current price' = price per $100 of face as brokers quote it, or the dollar value of the position? Then I mock the bond card and screen before any code."],
+ 'MK-NW-M-043': ["Q39 — On a matured bond: show '$0/yr · matured' on the coupon line (recommended), or hide the line?",
+                 "Q40 — Approve the one label for face × coupon rate (replaces 'COUPON / YR', '$X/yr coupon', 'Interest payments'). Your wording: 'Calculated annual interest'. Alternative in the pay-card pattern ('Base salary (take-home)'): 'Annual interest (calculated)'. Which?"],
+ 'MK-NW-M-045': ["Q41 — One date format for maturity everywhere: 'Jan 15, 2030' (recommended) or '2030-01-15'? And NEXT MATURITY on the summary: full date, or year only as today?"],
+ 'MK-NW-M-030': ["Q42 — Options (your Q06): 'stated otherwise' = a multiplier field on the position, default 100, filled by the broker's feed and editable by you — confirm?",
+                 "Q43 — Foreign currency (your Q08/Q09): show in US dollars converted at the rate fetched with the prices, with the rate and date stated ('converted at 1 CHF = $1.12 on Sep 8') — recommended — or in the native currency with a label?",
+                 "Q44 — Your A46 (coupon rate missing → 0) covers MK-NW-F-063 and the paycheck income lines. Two separate cases, NOT covered unless you say so: (c) the 4.2% EXPECTED RETURN on the fixed-income / high-yield-savings / CD kinds used in projections — keep or 0? (d) the 4% target-return fallback when a bond is added without a coupon — keep, or use the coupon only?"],
+ 'MK-NW-M-044': ["Q45 — Approve the caveat when accrued interest is not recorded: 'Yield uses the value you entered. If that value includes accrued interest, the true yield is slightly higher.'"],
+ 'MK-MN-M-027': ["Q46 — Tax organizer 'Taxable income' (G22): (a) show the three steps — income of taxable types → less pre-tax contributions → less the standard deduction (with the 65+ and senior deductions) → taxable income — from one new function, this row naming it (recommended); or (b) keep the arithmetic and relabel the figure 'Income of taxable types (before deductions)'. Which?  [ANSWERED 2026-09-08 — see YOUR ANSWER]"],
+ 'MK-NW-M-013': ["Q47 — Essentials a month (G21, ruling brief Q-21 (2026-08-20)): when fewer than 12 months of spending are logged, use the months that exist and say 'average of N months' on screen (recommended), or fall back to the essentials figure the person typed at setup (MK-XS-I-025) and say so? And is the very first month (a partial month) left out?  [ANSWERED 2026-09-08 — see YOUR ANSWER]"],
+ 'MK-XS-M-001': ["Q48 — G32, the invented zero. WHAT IS WRONG: 54 figures — net worth itself among them — say 'Adds up to $0 when there is nothing to add', so a person who has entered nothing and a person whose accounts genuinely sum to $0 see the same $0. Your own rule (Hunt 5) forbids an invented figure. On 22 more rows the refusal text talks about 'a division with nothing on the bottom' where there is no division (MK-XS-M-006, MK-CF-M-006/007/008, MK-MN-M-011/012/013 are sums). THE FIX I PROPOSE, as one rule: when nothing has been entered the figure is NOT shown as $0 — the card shows its door ('Add your accounts ›', the wording the Net worth cushion already uses); a real $0 (entered, adds to nothing) still shows $0. Then I write the 54 refusal texts and the 22 corrected ones row by row and put them in front of you in batches, so you approve the rows, not the policy. Approve the rule?  [ANSWERED 2026-09-09 — see YOUR ANSWER]",
+                 "Q49 — G37, floats versus decimals. TWO OF YOUR OWN STATEMENTS CONFLICT: the Reference tab's standing decision (2026-08-22) says 'every number is held as a float internally, rounding once at the edge'; your ruling brief Q-56 (2026-08-20) says full-precision DECIMAL end to end, rounded once at display. Today the code is floats (JavaScript numbers) with cents rounding at many points, so it matches the 22 August line and not brief Q-56 (2026-08-20). THE QUESTION: which stands? (a) the float line stands and brief Q-56 (2026-08-20) is marked superseded, dated — nothing to build; or (b) brief Q-56 (2026-08-20) stands, the Reference line is marked superseded, and decimal arithmetic on the money paths becomes scheduled work (finding B8). My recommendation: (a) for now — the sums are to the cent and a decimal library is a large change for no wrong number on screen today.  [ANSWERED 2026-09-09 — see YOUR ANSWER]"],
+}

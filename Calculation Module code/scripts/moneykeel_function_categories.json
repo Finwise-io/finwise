@@ -1,0 +1,3052 @@
+{
+ "accountAllowsTicker": {
+  "id": "MK-NW-F-005",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "accountClassBreakdown": {
+  "id": "MK-NW-F-027",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "accountDisplayName": {
+  "id": "MK-NW-F-025",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "accountDisplayNames": {
+  "id": "MK-NW-F-026",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "accountId": {
+  "id": "MK-ST-F-027",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "1 · ACTION"
+ },
+ "accountLastFour": {
+  "id": "MK-NW-F-024",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "accruedInterestCaveat": {
+  "id": "MK-NW-F-070",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "activeCurrency": {
+  "id": "MK-ST-F-047",
+  "file": "src/domain/_shared/money.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "activeSyncProvider": {
+  "id": "MK-XS-F-099",
+  "file": "src/services/sync/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "activityKey": {
+  "id": "MK-XS-F-108",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "actualDebtPayment": {
+  "id": "MK-CF-F-026",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "actualMonthFlow": {
+  "id": "MK-CF-F-005",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "actualSpending": {
+  "id": "MK-CF-F-151",
+  "file": "MoneyKeel/functions/cashflow/spending.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "addDays": {
+  "id": "MK-CF-F-122",
+  "file": "src/domain/cashflow/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "addLot": {
+  "id": "MK-CF-F-138",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "addNotificationResponseListener": {
+  "id": "MK-XS-F-090",
+  "file": "src/services/notifications.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "affectedAccountIds": {
+  "id": "MK-CF-F-113",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "ageAttainedInYear": {
+  "id": "MK-CF-F-197",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "ageToday": {
+  "id": "MK-XS-F-179",
+  "file": "src/domain/profile/calc.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "allActivities": {
+  "id": "MK-XS-F-149",
+  "file": "src/services/sync/snaptradeSync.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "allocatableThisMonth": {
+  "id": "MK-CF-F-006",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "allocation": {
+  "id": "MK-PF-F-017",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "alternativesSummary": {
+  "id": "MK-NW-F-002",
+  "file": "src/domain/alternatives/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "alternativesTotal": {
+  "id": "MK-NW-F-019",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "amortise": {
+  "id": "MK-CF-F-125",
+  "file": "src/domain/debt/mortgageVsTreasury.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "analyzeExpenses": {
+  "id": "MK-XS-F-057",
+  "file": "src/services/economicData.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "annual401kLimit": {
+  "id": "MK-CF-F-053",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "annualCashflow": {
+  "id": "MK-CF-F-012",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "annualCoupon": {
+  "id": "MK-NW-F-057",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "annualHsaLimit": {
+  "id": "MK-CF-F-055",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "annualIraLimit": {
+  "id": "MK-CF-F-054",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "annualNet": {
+  "id": "MK-CF-F-044",
+  "file": "src/domain/income/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "annualisedGross": {
+  "id": "MK-CF-F-143",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "annualizedEnteredSalary": {
+  "id": "MK-CF-F-059",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "applyTransaction": {
+  "id": "MK-CF-F-111",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "approxYTM": {
+  "id": "MK-NW-F-060",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "asPercent": {
+  "id": "MK-CF-F-182",
+  "file": "src/domain/income/from-accounts.ts",
+  "category": "1 · ACTION"
+ },
+ "assetAllocation": {
+  "id": "MK-NW-F-029",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "assetClassForSymbol": {
+  "id": "MK-XS-F-172",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "assetClassOf": {
+  "id": "MK-NW-F-011",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "assetKind": {
+  "id": "MK-NW-F-007",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "assetsFromOnboarding": {
+  "id": "MK-NW-F-040",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "attribution": {
+  "id": "MK-PF-F-016",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "authenticate": {
+  "id": "MK-XS-F-035",
+  "file": "src/services/appLock.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "availableCash": {
+  "id": "MK-CF-F-135",
+  "file": "src/domain/transactions/index.ts",
+  "category": "1 · ACTION"
+ },
+ "availableToSaveSummary": {
+  "id": "MK-PL-F-016",
+  "file": "src/domain/goals/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "avgCost": {
+  "id": "MK-PF-F-003",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "balancesHidden": {
+  "id": "MK-ST-F-046",
+  "file": "src/domain/_shared/money.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "base64ToBytes": {
+  "id": "MK-XS-F-123",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "basePay": {
+  "id": "MK-CF-O-001",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "benchmarkInfo": {
+  "id": "MK-NW-F-036",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "benchmarkReturn": {
+  "id": "MK-NW-F-034",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "benchmarkTicker": {
+  "id": "MK-PF-F-013",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "benefitActiveMonths": {
+  "id": "MK-CF-F-069",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "benefitAnnual": {
+  "id": "MK-CF-F-070",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "blendedReturn": {
+  "id": "MK-NW-F-037",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "blendedVolatility": {
+  "id": "MK-NW-F-035",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "bondInfo": {
+  "id": "MK-NW-F-056",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "bondRateSensitivity": {
+  "id": "MK-NW-F-064",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "bondSummary": {
+  "id": "MK-NW-F-061",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "budgetFromOnboarding": {
+  "id": "MK-CF-F-013",
+  "file": "src/domain/budget/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "budgetVsActual": {
+  "id": "MK-CF-F-014",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildAssetsState": {
+  "id": "MK-NW-F-039",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildBudgetState": {
+  "id": "MK-CF-F-001",
+  "file": "src/domain/budget/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "buildChangeWalk": {
+  "id": "MK-XS-F-011",
+  "file": "src/domain/history.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildDatedGrid": {
+  "id": "MK-XS-F-004",
+  "file": "src/domain/grid/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildDayFromAccounts": {
+  "id": "MK-ST-F-028",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "buildDebtState": {
+  "id": "MK-CF-F-036",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildGoalsState": {
+  "id": "MK-PL-F-011",
+  "file": "src/domain/goals/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "buildIncomeState": {
+  "id": "MK-CF-F-049",
+  "file": "src/domain/income/calc.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildInsights": {
+  "id": "MK-HM-F-001",
+  "file": "src/domain/insights/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildItemizedAccounts": {
+  "id": "MK-NW-F-052",
+  "file": "src/domain/assets/itemize.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildNetWorth": {
+  "id": "MK-NW-F-065",
+  "file": "src/domain/networth/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildPaycheckYear": {
+  "id": "MK-CF-F-107",
+  "file": "src/domain/paycheck/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildPerformance": {
+  "id": "MK-PF-F-014",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "buildRetirementState": {
+  "id": "MK-PL-F-053",
+  "file": "src/domain/retirement/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "buildSnapshot": {
+  "id": "MK-XS-F-031",
+  "file": "src/domain/snapshot.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "bumpCash": {
+  "id": "MK-CF-F-136",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "cacheDataKey": {
+  "id": "MK-XS-F-041",
+  "file": "src/services/dataCrypto.ts",
+  "category": "1 · ACTION"
+ },
+ "call": {
+  "id": "MK-XS-F-147",
+  "file": "src/services/sync/snaptradeClient.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "canAnswer": {
+  "id": "MK-ST-F-006",
+  "file": "Calculation Module code/engines/coverage.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "cancelStreakReminder": {
+  "id": "MK-XS-F-086",
+  "file": "src/services/notifications.ts",
+  "category": "1 · ACTION"
+ },
+ "capGains": {
+  "id": "MK-PF-F-006",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "capitalNeeded": {
+  "id": "MK-PL-F-048",
+  "file": "src/domain/retirement/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "captureException": {
+  "id": "MK-XS-F-037",
+  "file": "src/services/crashReporter.ts",
+  "category": "1 · ACTION"
+ },
+ "cash": {
+  "id": "MK-CF-F-155",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "1 · ACTION"
+ },
+ "cashEffect": {
+  "id": "MK-CF-F-118",
+  "file": "src/domain/transactions/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "cashOf": {
+  "id": "MK-CF-F-133",
+  "file": "src/domain/transactions/index.ts",
+  "category": "1 · ACTION"
+ },
+ "cashTotal": {
+  "id": "MK-NW-F-016",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "cashflowYear": {
+  "id": "MK-CF-F-020",
+  "file": "src/domain/cashflow/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "categoryMonthly": {
+  "id": "MK-CF-F-003",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "claimWindow": {
+  "id": "MK-PL-F-064",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "clamp": {
+  "id": "MK-PL-F-077",
+  "file": "src/domain/retirement/willItLast.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "classPortionLabel": {
+  "id": "MK-NW-F-028",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "classifyEvent": {
+  "id": "MK-ST-F-007",
+  "file": "Calculation Module code/engines/events.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "classifyHolding": {
+  "id": "MK-XS-F-014",
+  "file": "Calculation Module code/engines/classify.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "classifyHoldingClass": {
+  "id": "MK-ST-F-011",
+  "file": "Calculation Module code/engines/holding-class.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "cleanTicker": {
+  "id": "MK-XS-F-128",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "clearDataKey": {
+  "id": "MK-XS-F-043",
+  "file": "src/services/dataCrypto.ts",
+  "category": "1 · ACTION"
+ },
+ "closeAsOf": {
+  "id": "MK-PF-F-029",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "colFactor": {
+  "id": "MK-PL-F-047",
+  "file": "src/domain/retirement/col.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "compareMortgageToTreasury": {
+  "id": "MK-CF-F-043",
+  "file": "src/domain/debt/mortgageVsTreasury.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "confirmWrapper": {
+  "id": "MK-XS-F-103",
+  "file": "src/services/sync/ingest.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "connectionFreshness": {
+  "id": "MK-XS-F-100",
+  "file": "src/services/sync/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "contractMultiplier": {
+  "id": "MK-PF-F-031",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "convertTakeHomeMode": {
+  "id": "MK-CF-F-186",
+  "file": "src/domain/income/take-home-mode-migration.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "correctClassOf": {
+  "id": "MK-NW-F-053",
+  "file": "src/domain/assets/reclassify.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "costBasis": {
+  "id": "MK-PF-F-002",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "couponIncomeAnnual": {
+  "id": "MK-NW-F-062",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "coverageFor": {
+  "id": "MK-ST-F-004",
+  "file": "Calculation Module code/engines/coverage.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "covers": {
+  "id": "MK-ST-F-035",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "crashReportingEnabled": {
+  "id": "MK-XS-F-039",
+  "file": "src/services/crashReporter.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "createInvite": {
+  "id": "MK-XS-F-075",
+  "file": "src/services/firebase.ts",
+  "category": "2 · DISPLAYED (presentation only)"
+ },
+ "creditScoreBand": {
+  "id": "MK-CF-F-032",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "creditUtilization": {
+  "id": "MK-CF-F-031",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "currencySymbol": {
+  "id": "MK-ST-F-048",
+  "file": "src/domain/_shared/money.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "currentAge": {
+  "id": "MK-XS-F-017",
+  "file": "src/domain/profile/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "currentIdToken": {
+  "id": "MK-XS-F-064",
+  "file": "src/services/firebase.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "currentRetirementIncomeMonthly": {
+  "id": "MK-CF-F-072",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "currentUserEmail": {
+  "id": "MK-XS-F-065",
+  "file": "src/services/firebase.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "currentYield": {
+  "id": "MK-NW-F-059",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "dataGaps": {
+  "id": "MK-XS-F-002",
+  "file": "src/domain/gaps/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "dayWords": {
+  "id": "MK-ST-F-003",
+  "file": "Calculation Module code/engines/coverage.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "daysApart": {
+  "id": "MK-CF-F-162",
+  "file": "src/domain/transactions/flags.ts",
+  "category": "1 · ACTION"
+ },
+ "daysBetweenDates": {
+  "id": "MK-CF-F-160",
+  "file": "src/domain/cashflow/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "daysSince": {
+  "id": "MK-XS-F-170",
+  "file": "src/domain/gaps/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "debtKind": {
+  "id": "MK-CF-F-035",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "debtPaymentsByDebt": {
+  "id": "MK-CF-F-157",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "debtPaymentsCountedAsExpenses": {
+  "id": "MK-CF-F-150",
+  "file": "MoneyKeel/functions/cashflow/spending.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "debtToIncome": {
+  "id": "MK-CF-F-033",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "debtsFromOnboarding": {
+  "id": "MK-CF-F-038",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "declareFigures": {
+  "id": "MK-XS-F-180",
+  "file": "MoneyKeel/functions/_figure-spec.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "decodeCsvBase64": {
+  "id": "MK-XS-F-012",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "decodeUtf16": {
+  "id": "MK-XS-F-125",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "decodeUtf8": {
+  "id": "MK-XS-F-124",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "decryptFromSync": {
+  "id": "MK-XS-F-055",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "decryptWithKey": {
+  "id": "MK-XS-F-053",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "deductionFor": {
+  "id": "MK-CF-F-099",
+  "file": "src/domain/income/tax.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "deductionsFromPay": {
+  "id": "MK-CF-F-145",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "dedupeActivities": {
+  "id": "MK-XS-F-109",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "defaultPaymentType": {
+  "id": "MK-CF-F-021",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "deleteAccount": {
+  "id": "MK-XS-F-072",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
+ "depletionAge": {
+  "id": "MK-PL-F-003",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "deriveKeyFromSecret": {
+  "id": "MK-XS-F-138",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "directionOf": {
+  "id": "MK-ST-F-009",
+  "file": "Calculation Module code/engines/events.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "displayOdds": {
+  "id": "MK-PL-F-066",
+  "file": "src/domain/retirement/willItLast.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "divRounded": {
+  "id": "MK-ST-F-057",
+  "file": "Calculation Module code/engines/decimal.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "drawOrderOutcome": {
+  "id": "MK-PL-F-010",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "earliestPurchaseDate": {
+  "id": "MK-PF-F-012",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "earmarkDefault": {
+  "id": "MK-NW-F-030",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "earmarkedAmount": {
+  "id": "MK-NW-F-032",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "earmarkedKinds": {
+  "id": "MK-NW-F-038",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "earnerPay": {
+  "id": "MK-CF-F-171",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "earnerWages": {
+  "id": "MK-CF-F-173",
+  "file": "src/domain/income/earners.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "educationPlan": {
+  "id": "MK-PL-F-033",
+  "file": "src/domain/planning/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "effectiveAnnualContribution": {
+  "id": "MK-XS-F-030",
+  "file": "src/domain/snapshot.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "effectiveRate": {
+  "id": "MK-CF-F-090",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "effectiveRateOnGrossFor": {
+  "id": "MK-CF-F-102",
+  "file": "src/domain/income/tax.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "effectiveTaxRate": {
+  "id": "MK-CF-F-048",
+  "file": "src/domain/income/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "emergencyTest": {
+  "id": "MK-CF-F-010",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "emit": {
+  "id": "MK-ST-F-040",
+  "file": "src/domain/_shared/eventBus.ts",
+  "category": "1 · ACTION"
+ },
+ "employerMatchAnnual": {
+  "id": "MK-CF-F-046",
+  "file": "src/domain/income/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "employerMatchMonthly": {
+  "id": "MK-CF-F-078",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "encryptForSync": {
+  "id": "MK-XS-F-054",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "encryptWithKey": {
+  "id": "MK-XS-F-052",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "enteredLandsAnnual": {
+  "id": "MK-CF-F-180",
+  "file": "src/domain/income/tax-rate.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "enteredMonthlyRaw": {
+  "id": "MK-CF-F-130",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "entryFromWage": {
+  "id": "MK-CF-F-179",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "equitiesTotal": {
+  "id": "MK-NW-F-017",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "equityByMonth": {
+  "id": "MK-CF-F-018",
+  "file": "src/domain/cashflow/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "equityCashFlow": {
+  "id": "MK-CF-F-064",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "equityRowValue": {
+  "id": "MK-CF-F-062",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "equityVestWeights": {
+  "id": "MK-CF-F-065",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "essentialsFromLoggedSpending": {
+  "id": "MK-CF-F-189",
+  "file": "MoneyKeel/functions/cashflow/essentials.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "essentialsMonthly": {
+  "id": "MK-CF-F-190",
+  "file": "MoneyKeel/functions/cashflow/essentials.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "extraIncome": {
+  "id": "MK-CF-F-071",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "factorOverMonths": {
+  "id": "MK-PF-F-022",
+  "file": "src/domain/performance/lookBack.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "fetchEconomicData": {
+  "id": "MK-XS-F-056",
+  "file": "src/services/economicData.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "fetchInflation": {
+  "id": "MK-XS-F-140",
+  "file": "src/services/economicData.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "fetchPriceSeries": {
+  "id": "MK-XS-F-083",
+  "file": "src/services/marketData.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "fetchTreasuryYield": {
+  "id": "MK-XS-F-141",
+  "file": "src/services/economicData.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "figureSpec": {
+  "id": "MK-XS-F-182",
+  "file": "MoneyKeel/functions/figures.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "filingStatusOf": {
+  "id": "MK-CF-F-085",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "findCol": {
+  "id": "MK-XS-F-126",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "findHeaderRow": {
+  "id": "MK-XS-F-129",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "findPos": {
+  "id": "MK-CF-F-137",
+  "file": "src/domain/transactions/index.ts",
+  "category": "1 · ACTION"
+ },
+ "firstDate": {
+  "id": "MK-ST-F-034",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "fixedIncomeTotal": {
+  "id": "MK-NW-F-018",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "flagComparisonText": {
+  "id": "MK-CF-F-110",
+  "file": "src/domain/transactions/flags.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "flatSymbol": {
+  "id": "MK-XS-F-145",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "formatMoney": {
+  "id": "MK-ST-F-049",
+  "file": "src/domain/_shared/money.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "formatMoneyCents": {
+  "id": "MK-ST-F-050",
+  "file": "src/domain/_shared/money.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "fraLabel": {
+  "id": "MK-PL-F-063",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "fullRetirementAge": {
+  "id": "MK-PL-F-057",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "futureValue": {
+  "id": "MK-CF-F-126",
+  "file": "src/domain/debt/mortgageVsTreasury.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "gapsHeadline": {
+  "id": "MK-XS-F-003",
+  "file": "src/domain/gaps/index.ts",
+  "category": "2 · DISPLAYED (presentation only)"
+ },
+ "generateDataKey": {
+  "id": "MK-XS-F-044",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "generateRecoveryCode": {
+  "id": "MK-XS-F-045",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "getAssetsState": {
+  "id": "MK-NW-F-044",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "getDataKey": {
+  "id": "MK-XS-F-042",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "getDebtState": {
+  "id": "MK-CF-F-041",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "getIncomeState": {
+  "id": "MK-CF-F-052",
+  "file": "src/domain/income/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "getOrCreateKey": {
+  "id": "MK-XS-F-173",
+  "file": "src/store/secureStorage.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "getProfileReadModel": {
+  "id": "MK-XS-F-023",
+  "file": "src/domain/profile/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "getUserDoc": {
+  "id": "MK-ST-F-041",
+  "file": "src/domain/_shared/firestore.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "goalMonthsRemaining": {
+  "id": "MK-PL-F-019",
+  "file": "src/domain/goals/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "goalProgressPct": {
+  "id": "MK-PL-F-022",
+  "file": "src/domain/goals/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "goalStatus": {
+  "id": "MK-PL-F-023",
+  "file": "src/domain/goals/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "goalsFromOnboarding": {
+  "id": "MK-PL-F-013",
+  "file": "src/domain/goals/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "grossAnnualBaseline": {
+  "id": "MK-CF-F-045",
+  "file": "src/domain/income/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "grossByMonth": {
+  "id": "MK-CF-F-128",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "grossFromNet": {
+  "id": "MK-CF-F-097",
+  "file": "src/domain/income/tax.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "grossSalaryMonthly": {
+  "id": "MK-CF-F-061",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "growOneYear": {
+  "id": "MK-PL-F-054",
+  "file": "src/domain/retirement/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "guaranteedOutsideStreams": {
+  "id": "MK-CF-F-076",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "guaranteedRows": {
+  "id": "MK-CF-F-105",
+  "file": "src/domain/paycheck/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "guessCategory": {
+  "id": "MK-XS-F-144",
+  "file": "src/services/receiptOCR.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "has": {
+  "id": "MK-ST-F-056",
+  "file": "Calculation Module code/engines/classify.ts",
+  "category": "1 · ACTION"
+ },
+ "hasMonthlySalaryTable": {
+  "id": "MK-CF-F-166",
+  "file": "src/domain/income/salary-months.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "hasTwoEarners": {
+  "id": "MK-CF-F-174",
+  "file": "src/domain/income/earners.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "hasWage": {
+  "id": "MK-CF-F-172",
+  "file": "src/domain/income/earners.ts",
+  "category": "1 · ACTION"
+ },
+ "historyCoverage": {
+  "id": "MK-NW-F-046",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "historyIsComplete": {
+  "id": "MK-PF-F-025",
+  "file": "src/domain/performance/moneyWeighted.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "holdingId": {
+  "id": "MK-ST-F-026",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "1 · ACTION"
+ },
+ "householdPreTaxContributionsAnnual": {
+  "id": "MK-CF-F-188",
+  "file": "src/domain/income/earners.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "howTheGapCloses": {
+  "id": "MK-PL-F-043",
+  "file": "src/domain/planning/target.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "importHoldings": {
+  "id": "MK-XS-F-015",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "importKey": {
+  "id": "MK-ST-F-014",
+  "file": "Calculation Module code/engines/ledger.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "inMonth": {
+  "id": "MK-CF-F-148",
+  "file": "MoneyKeel/functions/cashflow/logged-expenses.ts",
+  "category": "1 · ACTION"
+ },
+ "incomeBearingClassOf": {
+  "id": "MK-NW-F-008",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "incomeFromAccounts": {
+  "id": "MK-CF-F-184",
+  "file": "src/domain/income/from-accounts.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "incomeFromOnboarding": {
+  "id": "MK-CF-F-079",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "incomeMonthlyGrid": {
+  "id": "MK-CF-F-092",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "incomeSummary": {
+  "id": "MK-CF-O-004",
+  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "inferDebtType": {
+  "id": "MK-CF-F-037",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "inflationRateInForce": {
+  "id": "MK-PL-F-083",
+  "file": "src/domain/retirement/inflation.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "inflowLabel": {
+  "id": "MK-CF-F-192",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "inflowSourceWord": {
+  "id": "MK-CF-F-193",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "ingestSync": {
+  "id": "MK-XS-F-102",
+  "file": "src/services/sync/ingest.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "initCrashReporting": {
+  "id": "MK-XS-F-036",
+  "file": "src/services/crashReporter.ts",
+  "category": "1 · ACTION"
+ },
+ "installGlobalHandler": {
+  "id": "MK-XS-F-134",
+  "file": "src/services/crashReporter.ts",
+  "category": "1 · ACTION"
+ },
+ "interestIncomeAnnual": {
+  "id": "MK-NW-F-063",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "inverseOf": {
+  "id": "MK-CF-F-116",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "investableAssets": {
+  "id": "MK-NW-F-022",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "investableChangePct": {
+  "id": "MK-XS-F-010",
+  "file": "src/domain/history.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "investmentIncomeAnnual": {
+  "id": "MK-CF-F-119",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "investmentsTotal": {
+  "id": "MK-NW-F-021",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "isAlternative": {
+  "id": "MK-NW-F-001",
+  "file": "src/domain/alternatives/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "isBond": {
+  "id": "MK-NW-F-055",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "isCashKind": {
+  "id": "MK-NW-F-006",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
+ },
+ "isEmailVerified": {
+  "id": "MK-XS-F-063",
+  "file": "src/services/firebase.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "isEncrypted": {
+  "id": "MK-XS-F-051",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "isLockAvailable": {
+  "id": "MK-XS-F-034",
+  "file": "src/services/appLock.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "isMoneyOut": {
+  "id": "MK-CF-F-108",
+  "file": "src/domain/transactions/flags.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "isMoneyWeighted": {
+  "id": "MK-PF-F-027",
+  "file": "src/domain/performance/moneyWeighted.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "isMonthEnd": {
+  "id": "MK-ST-F-061",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "isPlausibleTicker": {
+  "id": "MK-XS-F-081",
+  "file": "src/services/marketData.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "isRadarItem": {
+  "id": "MK-CF-F-152",
+  "file": "MoneyKeel/functions/cashflow/spending.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "isRealAsset": {
+  "id": "MK-NW-F-014",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "isRecurringDebt": {
+  "id": "MK-CF-F-159",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "1 · ACTION"
+ },
+ "isRental": {
+  "id": "MK-CF-F-127",
+  "file": "src/domain/income/calc.ts",
+  "category": "1 · ACTION"
+ },
+ "isYm": {
+  "id": "MK-XS-F-121",
+  "file": "src/domain/history.ts",
+  "category": "1 · ACTION"
+ },
+ "isoLocalDate": {
+  "id": "MK-ST-F-065",
+  "file": "src/domain/_shared/dates.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "itemizeRemainder": {
+  "id": "MK-NW-F-050",
+  "file": "src/domain/assets/itemize.ts",
+  "category": "1 · ACTION"
+ },
+ "itemizedResultTotal": {
+  "id": "MK-NW-F-051",
+  "file": "src/domain/assets/itemize.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "itemizedTotal": {
+  "id": "MK-NW-F-049",
+  "file": "src/domain/assets/itemize.ts",
+  "category": "1 · ACTION"
+ },
+ "jobActiveMonth": {
+  "id": "MK-CF-F-080",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "joinHouseholdMembership": {
+  "id": "MK-XS-F-078",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
+ "k401Headroom": {
+  "id": "MK-CF-F-056",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "latestClose": {
+  "id": "MK-PF-F-009",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "leverDeltas": {
+  "id": "MK-PL-F-046",
+  "file": "src/domain/planning/target.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "lifeInsuranceNeed": {
+  "id": "MK-PL-F-034",
+  "file": "src/domain/planning/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "load": {
+  "id": "MK-XS-F-132",
+  "file": "src/services/appLock.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "loadAssets": {
+  "id": "MK-NW-F-042",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "loadBudget": {
+  "id": "MK-CF-F-015",
+  "file": "src/domain/budget/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "loadDebt": {
+  "id": "MK-CF-F-039",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "loadGoals": {
+  "id": "MK-PL-F-014",
+  "file": "src/domain/goals/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "loadIncome": {
+  "id": "MK-CF-F-050",
+  "file": "src/domain/income/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "loadProfile": {
+  "id": "MK-XS-F-021",
+  "file": "src/domain/profile/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "loadSentry": {
+  "id": "MK-XS-F-133",
+  "file": "src/services/crashReporter.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "loadUserData": {
+  "id": "MK-XS-F-074",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "loadUserRoot": {
+  "id": "MK-XS-F-079",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "loanPayment": {
+  "id": "MK-CF-F-028",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "loginUser": {
+  "id": "MK-XS-F-066",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "logoutUser": {
+  "id": "MK-XS-F-069",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
+ "lookBack": {
+  "id": "MK-PF-F-023",
+  "file": "src/domain/performance/lookBack.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "looksFixedIncome": {
+  "id": "MK-ST-F-001",
+  "file": "Calculation Module code/engines/classify.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "lookupInvite": {
+  "id": "MK-XS-F-076",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "ltcgRateFor": {
+  "id": "MK-CF-F-104",
+  "file": "src/domain/income/tax.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "makeEnvelope": {
+  "id": "MK-XS-F-046",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "makeInviteCode": {
+  "id": "MK-XS-F-142",
+  "file": "src/services/firebase.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "makeMonthlySnapshot": {
+  "id": "MK-XS-F-007",
+  "file": "src/domain/history.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "makeTransaction": {
+  "id": "MK-CF-F-112",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "map": {
+  "id": "MK-CF-F-132",
+  "file": "src/domain/transactions/index.ts",
+  "category": "1 · ACTION"
+ },
+ "mapAccountType": {
+  "id": "MK-XS-F-104",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "mapActivityType": {
+  "id": "MK-XS-F-107",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "mapOptionHolding": {
+  "id": "MK-XS-F-106",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "mapPosition": {
+  "id": "MK-XS-F-105",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "marginalBracketFor": {
+  "id": "MK-CF-F-103",
+  "file": "src/domain/income/tax.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "marketValue": {
+  "id": "MK-PF-F-004",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "matchImportAccount": {
+  "id": "MK-XS-F-016",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "maturityClass": {
+  "id": "MK-NW-F-009",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "measuredFromLabel": {
+  "id": "MK-ST-F-005",
+  "file": "Calculation Module code/engines/coverage.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "median": {
+  "id": "MK-PL-F-074",
+  "file": "src/domain/_shared/num.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "merge": {
+  "id": "MK-XS-F-181",
+  "file": "MoneyKeel/functions/figures.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "mergeHistoryFrom": {
+  "id": "MK-XS-F-111",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "milestoneCrossed": {
+  "id": "MK-HM-F-004",
+  "file": "src/domain/milestones.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "milestoneFloor": {
+  "id": "MK-HM-F-003",
+  "file": "src/domain/milestones.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "milestoneLabel": {
+  "id": "MK-HM-F-002",
+  "file": "src/domain/milestones.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "minimumDebtService": {
+  "id": "MK-CF-F-025",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "modifiedDietzOverWindow": {
+  "id": "MK-ST-F-064",
+  "file": "Calculation Module code/engines/window-return.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "money": {
+  "id": "MK-ST-F-053",
+  "file": "src/domain/_shared/num.ts",
+  "category": "1 · ACTION"
+ },
+ "money0": {
+  "id": "MK-HM-F-006",
+  "file": "src/domain/insights/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "money2": {
+  "id": "MK-ST-F-054",
+  "file": "src/domain/_shared/num.ts",
+  "category": "1 · ACTION"
+ },
+ "moneyCompact": {
+  "id": "MK-ST-F-051",
+  "file": "src/domain/_shared/money.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "moneyWeightedReturn": {
+  "id": "MK-PF-F-026",
+  "file": "src/domain/performance/moneyWeighted.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthKey": {
+  "id": "MK-CF-F-163",
+  "file": "src/domain/income/salary-months.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthOutflow": {
+  "id": "MK-CF-F-194",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthWindow": {
+  "id": "MK-CF-F-164",
+  "file": "src/domain/income/salary-months.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthWords": {
+  "id": "MK-ST-F-002",
+  "file": "Calculation Module code/engines/coverage.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "monthlyContributionsFromOnboarding": {
+  "id": "MK-NW-F-041",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthlyEssentials": {
+  "id": "MK-CF-F-009",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthlyGrossOfSource": {
+  "id": "MK-CF-F-161",
+  "file": "src/domain/income/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "monthlySavings": {
+  "id": "MK-XS-F-029",
+  "file": "src/domain/savings/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthlyTaxRates": {
+  "id": "MK-CF-F-087",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthsLeftInYear": {
+  "id": "MK-CF-F-195",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthsOf": {
+  "id": "MK-CF-F-142",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "monthsToClear": {
+  "id": "MK-CF-F-029",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthsToGoal": {
+  "id": "MK-PL-F-021",
+  "file": "src/domain/goals/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthsUntil": {
+  "id": "MK-PL-F-018",
+  "file": "src/domain/goals/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "mortgageOddsEffect": {
+  "id": "MK-CF-F-042",
+  "file": "src/domain/debt/mortgageOdds.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "mulberry32": {
+  "id": "MK-PL-F-072",
+  "file": "src/domain/retirement/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "n": {
+  "id": "MK-XS-F-122",
+  "file": "src/domain/history.ts",
+  "category": "1 · ACTION"
+ },
+ "nameEvidence": {
+  "id": "MK-ST-F-010",
+  "file": "Calculation Module code/engines/holding-class.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "nameOf": {
+  "id": "MK-XS-F-120",
+  "file": "src/domain/gaps/index.ts",
+  "category": "1 · ACTION"
+ },
+ "namesFor": {
+  "id": "MK-XS-F-119",
+  "file": "src/domain/gaps/index.ts",
+  "category": "1 · ACTION"
+ },
+ "needsTakeHomeConversion": {
+  "id": "MK-CF-F-185",
+  "file": "src/domain/income/take-home-mode-migration.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "netCashSleeve": {
+  "id": "MK-XS-F-110",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "newEntityId": {
+  "id": "MK-ST-F-043",
+  "file": "src/domain/_shared/ids.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "nextDecision": {
+  "id": "MK-PL-F-027",
+  "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "nextOccurrence": {
+  "id": "MK-CF-F-124",
+  "file": "src/domain/cashflow/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "nonMonthlyBasis": {
+  "id": "MK-CF-F-007",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "normInst": {
+  "id": "MK-XS-F-130",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "1 · ACTION"
+ },
+ "normPayee": {
+  "id": "MK-CF-F-131",
+  "file": "src/domain/transactions/flags.ts",
+  "category": "1 · ACTION"
+ },
+ "normal": {
+  "id": "MK-PL-F-073",
+  "file": "src/domain/retirement/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "normalizeSnapshot": {
+  "id": "MK-XS-F-008",
+  "file": "src/domain/history.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "npv": {
+  "id": "MK-PF-F-030",
+  "file": "src/domain/performance/moneyWeighted.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "numOrNaN": {
+  "id": "MK-XS-F-171",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "numOrZero": {
+  "id": "MK-PL-F-079",
+  "file": "src/domain/retirement/willItLast.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "numberOrUndefined": {
+  "id": "MK-ST-F-058",
+  "file": "Calculation Module code/engines/ledger.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "ocrAvailable": {
+  "id": "MK-XS-F-095",
+  "file": "src/services/receiptScan.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "ocrReceipt": {
+  "id": "MK-XS-F-097",
+  "file": "src/services/receiptScan.ts",
+  "category": "2 · DISPLAYED (presentation only)"
+ },
+ "oddsAt": {
+  "id": "MK-PL-F-069",
+  "file": "src/domain/planning/spendMore.ts",
+  "category": "1 · ACTION"
+ },
+ "oddsLine": {
+  "id": "MK-PL-F-024",
+  "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "oddsOf": {
+  "id": "MK-PL-F-071",
+  "file": "src/domain/planning/target.ts",
+  "category": "1 · ACTION"
+ },
+ "on": {
+  "id": "MK-ST-F-039",
+  "file": "src/domain/_shared/eventBus.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "onAuthChange": {
+  "id": "MK-XS-F-071",
+  "file": "src/services/firebase.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "onCourseSentence": {
+  "id": "MK-PL-F-030",
+  "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "onOrBefore": {
+  "id": "MK-ST-F-033",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "otherIncomeMonth": {
+  "id": "MK-CF-F-073",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "over65CountOf": {
+  "id": "MK-CF-F-089",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "paidOutByAccount": {
+  "id": "MK-CF-F-183",
+  "file": "src/domain/income/from-accounts.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "parseCsv": {
+  "id": "MK-XS-F-013",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "parseReceipt": {
+  "id": "MK-XS-F-058",
+  "file": "src/services/receiptScan.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "parseReceiptText": {
+  "id": "MK-XS-F-094",
+  "file": "src/services/receiptOCR.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "parseReceiptWithOCR": {
+  "id": "MK-XS-F-092",
+  "file": "src/services/receiptOCR.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "payFiguresAgree": {
+  "id": "MK-CF-F-146",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "paymentShape": {
+  "id": "MK-CF-F-022",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "paymentToClearBy": {
+  "id": "MK-CF-F-030",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "payoffPlan": {
+  "id": "MK-CF-F-034",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "payrollTaxWithheld": {
+  "id": "MK-CF-F-198",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "pctBaseMonthly": {
+  "id": "MK-CF-F-120",
+  "file": "src/domain/budget/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "pctOfSorted": {
+  "id": "MK-PL-F-075",
+  "file": "src/domain/retirement/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "pctTxt": {
+  "id": "MK-HM-F-005",
+  "file": "src/domain/insights/index.ts",
+  "category": "1 · ACTION"
+ },
+ "pendingUpload": {
+  "id": "MK-ST-F-037",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "perMonth": {
+  "id": "MK-CF-F-141",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "perMonthToFill": {
+  "id": "MK-CF-F-196",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "periodDollarDelta": {
+  "id": "MK-PF-F-021",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "periodReturn": {
+  "id": "MK-PF-F-010",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "periodReturnSince": {
+  "id": "MK-PF-F-011",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "periodsAYear": {
+  "id": "MK-CF-F-140",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "1 · ACTION"
+ },
+ "personalFlowTotals": {
+  "id": "MK-ST-F-013",
+  "file": "Calculation Module code/engines/ledger.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "pickReceipt": {
+  "id": "MK-XS-F-096",
+  "file": "src/services/receiptScan.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "planCompleteness": {
+  "id": "MK-XS-F-001",
+  "file": "src/domain/completeness/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "planDoor": {
+  "id": "MK-PL-F-026",
+  "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "planTarget": {
+  "id": "MK-PL-F-044",
+  "file": "src/domain/planning/target.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "plannedMonthFlow": {
+  "id": "MK-CF-F-156",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "plannedMonthlySpend": {
+  "id": "MK-CF-F-002",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "plural": {
+  "id": "MK-NW-F-067",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
+ },
+ "portfolioActualReturn": {
+  "id": "MK-NW-F-004",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "portfolioBenchReturn": {
+  "id": "MK-PF-F-020",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "portfolioPeriodReturn": {
+  "id": "MK-PF-F-019",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "portfolioTrend": {
+  "id": "MK-PF-F-018",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "prettyDate": {
+  "id": "MK-XS-F-118",
+  "file": "src/domain/gaps/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "prettyDay": {
+  "id": "MK-NW-F-068",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "prettyExpiry": {
+  "id": "MK-XS-F-146",
+  "file": "src/services/sync/snaptrade.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "priceAtYield": {
+  "id": "MK-NW-F-069",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "priceFreshness": {
+  "id": "MK-XS-F-082",
+  "file": "src/services/marketData.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "primaryCarIdOf": {
+  "id": "MK-NW-F-031",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "profileFromOnboarding": {
+  "id": "MK-XS-F-026",
+  "file": "src/domain/profile/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "progressiveMonthlyTax": {
+  "id": "MK-CF-F-098",
+  "file": "src/domain/income/tax.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "projectNestEgg": {
+  "id": "MK-PL-F-055",
+  "file": "src/domain/retirement/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "prune": {
+  "id": "MK-ST-F-029",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "pruneDaily": {
+  "id": "MK-XS-F-006",
+  "file": "src/domain/history.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "publishSurplus": {
+  "id": "MK-CF-F-017",
+  "file": "src/domain/budget/index.ts",
+  "category": "1 · ACTION"
+ },
+ "quantityUnit": {
+  "id": "MK-PF-F-032",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "quantityWithUnit": {
+  "id": "MK-PF-F-033",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "radar": {
+  "id": "MK-CF-F-153",
+  "file": "MoneyKeel/functions/cashflow/spending.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "rateInForce": {
+  "id": "MK-CF-F-181",
+  "file": "src/domain/income/tax-rate.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "readFileString": {
+  "id": "MK-XS-F-059",
+  "file": "src/services/fileRead.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "readHistory": {
+  "id": "MK-XS-F-009",
+  "file": "src/domain/history.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "readMoney": {
+  "id": "MK-ST-F-018",
+  "file": "Calculation Module code/engines/money.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "realEstateTotal": {
+  "id": "MK-NW-F-020",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "realEstateUseOf": {
+  "id": "MK-NW-F-013",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "realizedFromLedger": {
+  "id": "MK-PF-F-028",
+  "file": "src/domain/performance/realized.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "reclassifyAccounts": {
+  "id": "MK-NW-F-054",
+  "file": "src/domain/assets/reclassify.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "recomputeBalances": {
+  "id": "MK-XS-F-174",
+  "file": "src/store/useStore.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "reconcile": {
+  "id": "MK-ST-F-036",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "reconcileAccountTotal": {
+  "id": "MK-ST-F-022",
+  "file": "Calculation Module code/engines/reconcile.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "reconcileLedgerIdentity": {
+  "id": "MK-ST-F-023",
+  "file": "Calculation Module code/engines/reconcile.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "record": {
+  "id": "MK-ST-F-030",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "recurringDebtPayments": {
+  "id": "MK-CF-F-149",
+  "file": "MoneyKeel/functions/cashflow/spending.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "refreshEmailVerified": {
+  "id": "MK-XS-F-062",
+  "file": "src/services/firebase.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "regenerateRecoveryCode": {
+  "id": "MK-XS-F-068",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "registerUser": {
+  "id": "MK-XS-F-060",
+  "file": "src/services/firebase.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "relayUrl": {
+  "id": "MK-XS-F-112",
+  "file": "src/services/sync/snaptradeClient.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "removeShares": {
+  "id": "MK-CF-F-139",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rentalList": {
+  "id": "MK-CF-F-067",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rentalNetAnnual": {
+  "id": "MK-CF-F-068",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "requestNotificationPermission": {
+  "id": "MK-XS-F-084",
+  "file": "src/services/notifications.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "requiredAnnualSaving": {
+  "id": "MK-PL-F-041",
+  "file": "src/domain/planning/target.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "requiredMonthly": {
+  "id": "MK-PL-F-020",
+  "file": "src/domain/goals/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "requiredPayment": {
+  "id": "MK-CF-F-023",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "resendVerification": {
+  "id": "MK-XS-F-061",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
+ "resetPassword": {
+  "id": "MK-XS-F-070",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
+ "resolveLens": {
+  "id": "MK-XS-F-024",
+  "file": "src/domain/profile/lens.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "resolveNetWorthRows": {
+  "id": "MK-XS-F-033",
+  "file": "src/domain/snapshot.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "restoreUndo": {
+  "id": "MK-CF-F-115",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "restoreWithRecoveryCode": {
+  "id": "MK-XS-F-067",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "retireAgeWithContribution": {
+  "id": "MK-PL-F-035",
+  "file": "src/domain/planning/multiGoal.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "retirementEarmarkedValue": {
+  "id": "MK-NW-F-033",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "retirementHorizonYears": {
+  "id": "MK-XS-F-019",
+  "file": "src/domain/profile/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "retirementIncomeMonthly": {
+  "id": "MK-CF-F-075",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "retirementSpendMonthly": {
+  "id": "MK-PL-F-049",
+  "file": "src/domain/retirement/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "reviewTransactions": {
+  "id": "MK-CF-F-109",
+  "file": "src/domain/transactions/flags.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rewrapPassword": {
+  "id": "MK-XS-F-049",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rewrapRecovery": {
+  "id": "MK-XS-F-050",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rmdAtAge": {
+  "id": "MK-PL-F-007",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rmdDivisor": {
+  "id": "MK-PL-F-006",
+  "file": "Calculation Module code/engines/rmd.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "rmdDivisorAtAge": {
+  "id": "MK-PL-F-078",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rmdRequiredThisYear": {
+  "id": "MK-PL-F-080",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rmdSchedule": {
+  "id": "MK-PL-F-008",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rmdStartAge": {
+  "id": "MK-ST-F-024",
+  "file": "Calculation Module code/engines/rmd.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rmdStartAgeFor": {
+  "id": "MK-PL-F-005",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rmdStartAgeFromAge": {
+  "id": "MK-ST-F-025",
+  "file": "Calculation Module code/engines/rmd.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rmdTakenThisYear": {
+  "id": "MK-PL-F-009",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rothConversionCost": {
+  "id": "MK-PL-F-032",
+  "file": "src/domain/planning/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rothConversionWindow": {
+  "id": "MK-CF-F-058",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rothVsTraditional": {
+  "id": "MK-CF-F-057",
+  "file": "src/domain/income/limits.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "round2": {
+  "id": "MK-ST-F-055",
+  "file": "Calculation Module code/engines/money.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "round4": {
+  "id": "MK-CF-F-129",
+  "file": "src/domain/income/calc.ts",
+  "category": "1 · ACTION"
+ },
+ "round8": {
+  "id": "MK-ST-F-059",
+  "file": "Calculation Module code/engines/ledger.ts",
+  "category": "1 · ACTION"
+ },
+ "rowVestYear": {
+  "id": "MK-CF-F-063",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rowsFor": {
+  "id": "MK-ST-F-015",
+  "file": "Calculation Module code/engines/ledger.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "rsuAnnual": {
+  "id": "MK-CF-F-066",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "runSnapTradeSync": {
+  "id": "MK-XS-F-116",
+  "file": "src/services/sync/snaptradeSync.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "salaryActiveMonths": {
+  "id": "MK-CF-F-081",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "salaryAnnual": {
+  "id": "MK-CF-F-082",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "salaryCalendarYear": {
+  "id": "MK-CF-F-167",
+  "file": "src/domain/income/salary-months.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "salaryGrossByMonth": {
+  "id": "MK-CF-F-060",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "salaryMonths": {
+  "id": "MK-CF-F-165",
+  "file": "src/domain/income/salary-months.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "salaryWindow": {
+  "id": "MK-CF-F-168",
+  "file": "src/domain/income/salary-months.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "salaryYearFromCells": {
+  "id": "MK-CF-F-170",
+  "file": "src/domain/income/salary-months.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "sampleAskLine": {
+  "id": "MK-PL-F-028",
+  "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "sampleOddsLine": {
+  "id": "MK-PL-F-025",
+  "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "saveAssets": {
+  "id": "MK-NW-F-043",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
+ },
+ "saveBudget": {
+  "id": "MK-CF-F-016",
+  "file": "src/domain/budget/index.ts",
+  "category": "1 · ACTION"
+ },
+ "saveDebt": {
+  "id": "MK-CF-F-040",
+  "file": "src/domain/debt/index.ts",
+  "category": "1 · ACTION"
+ },
+ "saveGoals": {
+  "id": "MK-PL-F-015",
+  "file": "src/domain/goals/index.ts",
+  "category": "1 · ACTION"
+ },
+ "saveIncome": {
+  "id": "MK-CF-F-051",
+  "file": "src/domain/income/index.ts",
+  "category": "1 · ACTION"
+ },
+ "saveProfile": {
+  "id": "MK-XS-F-022",
+  "file": "src/domain/profile/index.ts",
+  "category": "1 · ACTION"
+ },
+ "saveUserData": {
+  "id": "MK-XS-F-073",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
+ "savingToReachTarget": {
+  "id": "MK-PL-F-042",
+  "file": "src/domain/planning/target.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "savingsByMonth": {
+  "id": "MK-CF-F-011",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "scheduleRmdReminder": {
+  "id": "MK-XS-F-087",
+  "file": "src/services/notifications.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "scheduleSsWindowReminder": {
+  "id": "MK-XS-F-091",
+  "file": "src/services/notifications.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "scheduleStreakReminder": {
+  "id": "MK-XS-F-085",
+  "file": "src/services/notifications.ts",
+  "category": "1 · ACTION"
+ },
+ "scheduleWeeklySummary": {
+  "id": "MK-XS-F-089",
+  "file": "src/services/notifications.ts",
+  "category": "1 · ACTION"
+ },
+ "scholarshipByCalendarMonth": {
+  "id": "MK-CF-F-077",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "secureDelete": {
+  "id": "MK-XS-F-137",
+  "file": "src/services/dataCrypto.ts",
+  "category": "1 · ACTION"
+ },
+ "secureGet": {
+  "id": "MK-XS-F-135",
+  "file": "src/services/dataCrypto.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "secureSet": {
+  "id": "MK-XS-F-136",
+  "file": "src/services/dataCrypto.ts",
+  "category": "1 · ACTION"
+ },
+ "selectWillItLast": {
+  "id": "MK-PL-F-068",
+  "file": "src/domain/retirement/willItLast.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "sendBudgetAlert": {
+  "id": "MK-XS-F-088",
+  "file": "src/services/notifications.ts",
+  "category": "1 · ACTION"
+ },
+ "sendTestReport": {
+  "id": "MK-XS-F-040",
+  "file": "src/services/crashReporter.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "seniorDeductionFor": {
+  "id": "MK-CF-F-187",
+  "file": "src/domain/income/tax.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "setHideBalances": {
+  "id": "MK-ST-F-045",
+  "file": "src/domain/_shared/money.ts",
+  "category": "1 · ACTION"
+ },
+ "setMoneyFormat": {
+  "id": "MK-ST-F-044",
+  "file": "src/domain/_shared/money.ts",
+  "category": "1 · ACTION"
+ },
+ "setSyncProviderForTesting": {
+  "id": "MK-XS-F-098",
+  "file": "src/services/sync/index.ts",
+  "category": "1 · ACTION"
+ },
+ "setUserDoc": {
+  "id": "MK-ST-F-042",
+  "file": "src/domain/_shared/firestore.ts",
+  "category": "1 · ACTION"
+ },
+ "setUserHousehold": {
+  "id": "MK-XS-F-077",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
+ "setUserScope": {
+  "id": "MK-XS-F-038",
+  "file": "src/services/crashReporter.ts",
+  "category": "1 · ACTION"
+ },
+ "shiftDay": {
+  "id": "MK-ST-F-063",
+  "file": "Calculation Module code/engines/window-return.ts",
+  "category": "1 · ACTION"
+ },
+ "shortfallAgeFromBand": {
+  "id": "MK-PL-F-029",
+  "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "shouldDailySync": {
+  "id": "MK-XS-F-115",
+  "file": "src/services/sync/snaptradeSync.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "signed": {
+  "id": "MK-ST-F-019",
+  "file": "Calculation Module code/engines/money.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "simulate": {
+  "id": "MK-PL-F-050",
+  "file": "src/domain/retirement/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "sinkingFund": {
+  "id": "MK-PL-F-017",
+  "file": "src/domain/goals/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "smallestThatWorks": {
+  "id": "MK-PL-F-070",
+  "file": "src/domain/planning/target.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "snapshotFromOnboarding": {
+  "id": "MK-XS-F-032",
+  "file": "src/domain/snapshot.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "snaptradeConfigured": {
+  "id": "MK-XS-F-113",
+  "file": "src/services/sync/snaptradeClient.ts",
+  "category": "1 · ACTION"
+ },
+ "solveRetireAge": {
+  "id": "MK-PL-F-056",
+  "file": "src/domain/retirement/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "solveSafeDraw": {
+  "id": "MK-CF-F-106",
+  "file": "src/domain/paycheck/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "sourceWording": {
+  "id": "MK-NW-F-045",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "spendBuckets": {
+  "id": "MK-CF-F-004",
+  "file": "src/domain/budget/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "spendByMonth": {
+  "id": "MK-CF-F-008",
+  "file": "src/domain/budget/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "spendMoreSentence": {
+  "id": "MK-PL-F-039",
+  "file": "src/domain/planning/spendMore.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "spendMoreState": {
+  "id": "MK-PL-F-038",
+  "file": "src/domain/planning/spendMore.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "spending": {
+  "id": "MK-CF-O-002",
+  "file": "MoneyKeel/functions/cashflow/spending.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "ssBenefitAt": {
+  "id": "MK-PL-F-060",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "ssBenefitAtClaimAge": {
+  "id": "MK-PL-F-061",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "ssClaimFactor": {
+  "id": "MK-PL-F-059",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "ssClaimFactorFor": {
+  "id": "MK-PL-F-058",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "ssLifetimeTotal": {
+  "id": "MK-PL-F-062",
+  "file": "src/domain/retirement/ssTiming.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "ssStreamOf": {
+  "id": "MK-PL-F-051",
+  "file": "src/domain/retirement/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "ssUpliftFactor": {
+  "id": "MK-PL-F-045",
+  "file": "src/domain/planning/target.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "stAssetId": {
+  "id": "MK-XS-F-101",
+  "file": "src/services/sync/ingest.ts",
+  "category": "1 · ACTION"
+ },
+ "startDateFor": {
+  "id": "MK-PF-F-008",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "stateRateOf": {
+  "id": "MK-CF-F-086",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "stripNonMoney": {
+  "id": "MK-XS-F-093",
+  "file": "src/services/receiptOCR.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "submitFeedback": {
+  "id": "MK-XS-F-080",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
+ "sumMonthsOverEarners": {
+  "id": "MK-CF-F-176",
+  "file": "src/domain/income/earners.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "sumOverEarners": {
+  "id": "MK-CF-F-175",
+  "file": "src/domain/income/earners.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "sumSigned": {
+  "id": "MK-ST-F-020",
+  "file": "Calculation Module code/engines/money.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "sumWhere": {
+  "id": "MK-NW-F-066",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "surplusByMonth": {
+  "id": "MK-XS-F-028",
+  "file": "src/domain/savings/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "tabOrder": {
+  "id": "MK-XS-F-025",
+  "file": "src/domain/profile/lens.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "takeHomeAsEntered": {
+  "id": "MK-CF-F-144",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "takeHomeMonthly": {
+  "id": "MK-XS-F-027",
+  "file": "src/domain/savings/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "targetAtRetirement": {
+  "id": "MK-PL-F-040",
+  "file": "src/domain/planning/target.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "taxBucketSplit": {
+  "id": "MK-PL-F-001",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "taxOrganizer": {
+  "id": "MK-PL-F-031",
+  "file": "src/domain/planning/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "taxOwedFor": {
+  "id": "MK-CF-F-101",
+  "file": "src/domain/income/tax.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "taxTreatmentOf": {
+  "id": "MK-NW-F-012",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "taxableAnnual": {
+  "id": "MK-CF-F-084",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "taxableByCalendarMonth": {
+  "id": "MK-CF-F-088",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "taxableGainShare": {
+  "id": "MK-PL-F-081",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "taxableIncomeFor": {
+  "id": "MK-CF-F-100",
+  "file": "src/domain/income/tax.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "taxableIncomeSteps": {
+  "id": "MK-PL-F-082",
+  "file": "src/domain/planning/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "thisMonth": {
+  "id": "MK-CF-O-003",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "tipsAnnual": {
+  "id": "MK-CF-F-074",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "toInt": {
+  "id": "MK-XS-F-131",
+  "file": "src/domain/profile/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "toIsoDate": {
+  "id": "MK-XS-F-127",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "toLedgerRow": {
+  "id": "MK-ST-F-012",
+  "file": "Calculation Module code/engines/ledger.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "toNum": {
+  "id": "MK-ST-F-052",
+  "file": "src/domain/_shared/num.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "toNumber": {
+  "id": "MK-ST-F-021",
+  "file": "Calculation Module code/engines/money.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "toReadModel": {
+  "id": "MK-XS-F-020",
+  "file": "src/domain/profile/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "toUtc": {
+  "id": "MK-ST-F-062",
+  "file": "Calculation Module code/engines/window-return.ts",
+  "category": "1 · ACTION"
+ },
+ "topHoldingConcentration": {
+  "id": "MK-PF-F-015",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "totalAssets": {
+  "id": "MK-NW-F-015",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "totalDebtBalance": {
+  "id": "MK-CF-F-027",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "totalDebtMonthly": {
+  "id": "MK-CF-F-024",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "totalGrossAnnual": {
+  "id": "MK-CF-F-083",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "totalOf": {
+  "id": "MK-ST-F-016",
+  "file": "Calculation Module code/engines/ledger.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "totalROI": {
+  "id": "MK-PF-F-007",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "totalShares": {
+  "id": "MK-PF-F-001",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "touches": {
+  "id": "MK-ST-F-008",
+  "file": "Calculation Module code/engines/events.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "trendPoints": {
+  "id": "MK-XS-F-005",
+  "file": "src/domain/history.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "trimHints": {
+  "id": "MK-PL-F-037",
+  "file": "src/domain/planning/multiGoal.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "txnLabel": {
+  "id": "MK-CF-F-117",
+  "file": "src/domain/transactions/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "uberGroupOf": {
+  "id": "MK-NW-F-047",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
+ },
+ "uberGroupRows": {
+  "id": "MK-NW-F-048",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "uid": {
+  "id": "MK-XS-F-175",
+  "file": "src/store/useStore.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "unclassified": {
+  "id": "MK-ST-F-017",
+  "file": "Calculation Module code/engines/ledger.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "undoSnapshot": {
+  "id": "MK-CF-F-114",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "unitsOn": {
+  "id": "MK-ST-F-032",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "unrealizedGain": {
+  "id": "MK-PF-F-005",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "unwrapActivities": {
+  "id": "MK-XS-F-148",
+  "file": "src/services/sync/snaptradeSync.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "unwrapWithPassword": {
+  "id": "MK-XS-F-047",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "unwrapWithRecovery": {
+  "id": "MK-XS-F-048",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "upcomingBills": {
+  "id": "MK-CF-F-019",
+  "file": "src/domain/cashflow/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "usdCash": {
+  "id": "MK-XS-F-114",
+  "file": "src/services/sync/snaptradeClient.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "useCategorySpend": {
+  "id": "MK-XS-F-177",
+  "file": "src/store/useStore.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "useLevel": {
+  "id": "MK-XS-F-178",
+  "file": "src/store/useStore.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "useMonthlyStats": {
+  "id": "MK-XS-F-176",
+  "file": "src/store/useStore.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "userCapGainsRates": {
+  "id": "MK-CF-F-091",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "userFlows": {
+  "id": "MK-PF-F-024",
+  "file": "src/domain/performance/moneyWeighted.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "usesSleeve": {
+  "id": "MK-CF-F-134",
+  "file": "src/domain/transactions/index.ts",
+  "category": "1 · ACTION"
+ },
+ "valueFreshness": {
+  "id": "MK-NW-F-003",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "valueOn": {
+  "id": "MK-ST-F-031",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "verdict": {
+  "id": "MK-ST-F-060",
+  "file": "Calculation Module code/engines/reconcile.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "volOf": {
+  "id": "MK-PL-F-065",
+  "file": "src/domain/retirement/willItLast.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "wageGrossByMonth": {
+  "id": "MK-CF-F-177",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "wageMatchMonthly": {
+  "id": "MK-CF-F-178",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "waterfall": {
+  "id": "MK-PL-F-012",
+  "file": "src/domain/goals/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "weighGoals": {
+  "id": "MK-PL-F-036",
+  "file": "src/domain/planning/multiGoal.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "willItLastInputs": {
+  "id": "MK-PL-F-067",
+  "file": "src/domain/retirement/willItLast.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "windowBounds": {
+  "id": "MK-ST-F-038",
+  "file": "Calculation Module code/engines/window-return.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "withSalaryMonth": {
+  "id": "MK-CF-F-169",
+  "file": "src/domain/income/salary-months.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "withSsStream": {
+  "id": "MK-PL-F-052",
+  "file": "src/domain/retirement/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "withdrawalOrder": {
+  "id": "MK-PL-F-004",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "withdrawalPlan": {
+  "id": "MK-PL-F-002",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "wrapWithSecret": {
+  "id": "MK-XS-F-139",
+  "file": "src/services/dataCrypto.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "wrapperAccount": {
+  "id": "MK-NW-F-010",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "wrapperWord": {
+  "id": "MK-NW-F-023",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
+ },
+ "yahooSymbol": {
+  "id": "MK-XS-F-143",
+  "file": "src/services/marketData.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "yearsToMaturity": {
+  "id": "MK-NW-F-058",
+  "file": "src/domain/bonds/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "yearsToRetirement": {
+  "id": "MK-XS-F-018",
+  "file": "src/domain/profile/calc.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "ym": {
+  "id": "MK-CF-F-191",
+  "file": "MoneyKeel/functions/cashflow/essentials.ts",
+  "category": "1 · ACTION"
+ },
+ "zero12": {
+  "id": "MK-CF-F-121",
+  "file": "src/domain/cashflow/index.ts",
+  "category": "3 · DEPENDENT"
+ }
+}

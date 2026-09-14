@@ -93,10 +93,10 @@ describe('state contract (FCC-state-contract.md)', () => {
     // B4: the mirror is GONE — one dated, sourced table in the Calculation Module; the domain
     // adapter and the simulation both read it, so agreement holds by construction.
     const { rmdDivisorAtAge } = require('../domain/decumulation');
-    const engine = require('../../Calculation Module code/engines/rmd');
+    const rmdTable = require('../../Calculation Module code/engines/rmd');
     expect(rmdStartAgeFor(74, 2026)).toBe(73);                       // born ~1952
     expect(rmdStartAgeFor(60, 2026)).toBe(75);                       // born ~1966 (SECURE 2.0 §107)
-    expect(Math.abs(rmdDivisorAtAge(75) - engine.UNIFORM_LIFETIME[75])).toBeLessThan(0.01);
+    expect(Math.abs(rmdDivisorAtAge(75) - rmdTable.UNIFORM_LIFETIME[75])).toBeLessThan(0.01);
   });
 
   test('PRD F2#11 — progressive monthly withholding: EXACT annual identity + honest bonus months + manual stays flat', () => {

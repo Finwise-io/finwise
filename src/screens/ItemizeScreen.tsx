@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
   close: { fontSize: 20, fontWeight: '700', color: Colors.textSecondary, paddingLeft: 8 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: Spacing.md, lineHeight: 19 },
   link: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: Spacing.md },
@@ -184,3 +184,4 @@ const styles = StyleSheet.create({
   done: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: Spacing.md, alignItems: 'center', marginTop: Spacing.sm },
   doneT: { color: Colors.white, fontSize: 17, fontWeight: '800' },
 });
+

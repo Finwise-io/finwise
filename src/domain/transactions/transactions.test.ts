@@ -6,7 +6,7 @@ const acct = (id: string, over: Partial<AssetAccount> = {}): AssetAccount => ({
 });
 const txn = (p: Partial<Transaction>): Transaction => makeTransaction({ date: '2025-01-02', type: 'BUY', account_id: 'A', ...p } as any);
 
-describe('transaction engine — applyTransaction', () => {
+describe('transaction function — applyTransaction', () => {
   test('DEPOSIT / WITHDRAWAL move cash', () => {
     let accs = [acct('A')];
     accs = applyTransaction(accs, txn({ type: 'DEPOSIT', amount: 1000 }));

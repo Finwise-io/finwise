@@ -25,20 +25,20 @@ test('calm word cards — the smiley radios are gone; picking one persists immed
   expect(screen.getByText(/✓ Some uncertainty/)).toBeOnTheScreen();        // word + weight, never tint alone
 });
 
-test('no silent default: with nothing logged the screen ASKS for essential bills — $2,500 never appears', () => {
+test('no silent default: with nothing logged the screen ASKS for essential expenses — $2,500 never appears', () => {
   render(<JobSafetyScreen />);
-  expect(screen.getByText(/What do your essential bills come to/)).toBeOnTheScreen();
+  expect(screen.getByText(/What do your essential expenses come to/)).toBeOnTheScreen();
   expect(screen.queryByText(/\$2,500/)).toBeNull();
 });
 
 test('the gap is the hero with its math in one sentence; months persist on tap', () => {
   useStore.setState({ savings: [{ id: 's1', amount: 8400, date: '2026-07-01' }] } as any);
   render(<JobSafetyScreen />);
-  fireEvent.changeText(screen.getByLabelText('Essential monthly bills'), '2800');
+  fireEvent.changeText(screen.getByLabelText('Essential monthly expenses'), '2800');
   // 6 months default: target 16,800 − 8,400 savings = 8,400 gap
   expect(screen.getByText('$8,400')).toBeOnTheScreen();
-  expect(screen.getByText(/6 months of essentials is \$16,800 \(\$2,800\/mo\)/)).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText('3 months of cushion'));
+  expect(screen.getByText(/6 months of essentials is \$16,800 \(\$2,800\/month\)/)).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText('3 months of emergency fund'));
   expect((useStore.getState() as any).emergencyMonths).toBe(3);
   expect(screen.getByText('✓ Covered')).toBeOnTheScreen();                 // 3mo target 8,400 = covered
 });
@@ -46,9 +46,9 @@ test('the gap is the hero with its math in one sentence; months persist on tap',
 test('the example pace is LABELED and the gap saves as a real goal', () => {
   useStore.setState({ savings: [{ id: 's1', amount: 2400, date: '2026-07-01' }] } as any);
   render(<JobSafetyScreen />);
-  fireEvent.changeText(screen.getByLabelText('Essential monthly bills'), '2800');
+  fireEvent.changeText(screen.getByLabelText('Essential monthly expenses'), '2800');
   expect(screen.getByText(/an example pace, set your own/)).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText('Save the cushion as a goal'));
+  fireEvent.press(screen.getByLabelText('Save the emergency fund as a goal'));
   const goals = (useStore.getState() as any).goals;
   expect(goals.some((g: any) => g.label === 'Emergency fund')).toBe(true);
 });

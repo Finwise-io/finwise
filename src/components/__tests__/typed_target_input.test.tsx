@@ -62,7 +62,7 @@ test('it takes digits only — a typed "$2,000,000" does not become NaN', () => 
 // "We are telling the user that we will include the mortgage payment for the left duration." So the
 // app owns loan payments and takes them from the loan itself. The DANGER is double counting: what a
 // person spends today includes their mortgage, so if they answer that way and we add it again, we
-// charge it twice — on Pat, $2,400 a month counted double.
+// charge it twice — on Pat, $2,400/month counted double.
 describe('spending excludes debt, because the app adds it', () => {
   test('the question says what to leave out, where they answer it', () => {
     renderInputs();
@@ -73,7 +73,7 @@ describe('spending excludes debt, because the app adds it', () => {
   test('and it names the loan it is adding, with the year it stops', () => {
     render(<PlanInputs draft={DRAFT} committed={DRAFT} onDraft={jest.fn()} onCommit={jest.fn()}
       mortgageMonthly={2400} mortgagePayoffYear={2054} />);
-    expect(screen.getByText(/including your \$2,400\/mo mortgage until it's paid off in 2054/)).toBeOnTheScreen();
+    expect(screen.getByText(/including your \$2,400\/month mortgage until it's paid off in 2054/)).toBeOnTheScreen();
   });
 
   test('with no loan on file it says nothing about one', () => {

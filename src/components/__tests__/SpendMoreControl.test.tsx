@@ -17,7 +17,7 @@ const show = () => render(<SpendMoreControl inputs={JUNE} maxExtra={2555} horizo
 
 test('THE ANSWER COMES FIRST, and it is the free room', () => {
   show();
-  expect(screen.getByText(/Yes — about \$1,000 a month more, and nothing changes\./)).toBeOnTheScreen();
+  expect(screen.getByText(/Yes — about \$1,000\/month more, and nothing changes\./)).toBeOnTheScreen();
   expect(screen.getByText(/You spend/)).toBeOnTheScreen();
   expect(screen.getByText(/still lasts past 94, exactly as it does today/)).toBeOnTheScreen();
 });
@@ -25,7 +25,7 @@ test('THE ANSWER COMES FIRST, and it is the free room', () => {
 test('at rest the total is named as what she already spends, not a result', () => {
   show();
   expect(screen.getByText(/the same as now/)).toBeOnTheScreen();
-  expect(screen.getByText(/Your money lasts past 94, in every future simulation we tested/)).toBeOnTheScreen();
+  expect(screen.getByText(/Your money lasts past 94, in every simulated future we tested/)).toBeOnTheScreen();
 });
 
 test('the consequence is a real run at every position — not a bucket', () => {
@@ -33,15 +33,15 @@ test('the consequence is a real run at every position — not a bucket', () => {
   const up = screen.getByLabelText('Spend more extra');
   for (let i = 0; i < 5; i++) fireEvent.press(up);          // 0 -> 2500
   // the design said "9 out of 10" here; it is 8
-  expect(screen.getByText(/about 8 future simulations out of 10/)).toBeOnTheScreen();
-  expect(screen.queryByText(/about 9 future simulations out of 10/)).toBeNull();
+  expect(screen.getByText(/about 81 out of 100 simulated futures/)).toBeOnTheScreen();
+  expect(screen.queryByText(/about 90 out of 100/)).toBeNull();
 });
 
 test('at the maximum it names the losing case rather than leaving it to imagination', () => {
   show();
   const up = screen.getByLabelText('Spend more extra');
   for (let i = 0; i < 8; i++) fireEvent.press(up);          // clamps at 2555
-  expect(screen.getByText(/In the other 2, it runs out before 94/)).toBeOnTheScreen();
+  expect(screen.getByText(/In the other 20, it runs out before 94/)).toBeOnTheScreen();
   expect(screen.getByText(/the most your income and savings can cover/)).toBeOnTheScreen();
 });
 

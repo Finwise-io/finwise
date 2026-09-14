@@ -24,14 +24,15 @@ import { trendPoints, investableChangePct, buildChangeWalk } from '../domain/his
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup, uberGroupOf } from '../domain/assets';
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
+import { essentialsMonthly } from '../../MoneyKeel/functions/cashflow/essentials';
 import { willItLastInputs } from '../domain/retirement/willItLast';
 import { projectNestEgg } from '../domain/retirement';
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
-import { InfoDot } from '../components/UI';
+import { InfoDot, EmptyNote } from '../components/UI';
 import { type GlossaryTerm } from '../domain/glossary';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
@@ -86,7 +87,7 @@ const RIGHT_SLOT = ARROW + Spacing.sm;
 // The debt bar's ramp lives in the theme (DebtRamp): ONE hue in four lightness steps, so the
 // segments are told apart by light-vs-dark rather than by hue — readable with any colour blindness,
 // and in a greyscale screenshot. Every segment is still named with its percent in the legend too.
-// The cushion bar fills against the top of the usual 3-6 month guide, so a full bar means "covered".
+// The emergency fund bar fills against the top of the usual 3-6 month guide, so a full bar means "covered".
 const CUSHION_FULL_MONTHS = 6;
 
 // (The donut ring that used to live here was removed 2026-08-11 — founder Q6: "bar replaces donut".
@@ -180,9 +181,12 @@ export default function NetWorthScreen() {
   const choice = (store.nwSetupChoice as ('guided' | 'self' | null)) ?? ((assets.length || liabilities.length || store.nwSeeded) ? 'self' : null);
   const aState = useMemo(() => buildAssetsState(uid, assets), [assets]);
   const dState = useMemo(() => buildDebtState(uid, liabilities), [liabilities]);
-  // emergency-fund runway: cash ÷ monthly spending
+  // emergency-fund runway: cash ÷ monthly expenses
   const cashOnHand = cashTotal(assets);   // canonical cash (asset class), single source
-  const monthlySpend = plannedMonthlySpend(op);   // B-50: same definition as budget.monthly_spending + the runway insight
+  // G21 / Q21 / Q47 (2026-09-08): ONE essentials figure (MK-CF-F-190) — the average of logged expenses
+  // over the months logged, labelled "N month average"; the typed plan only when nothing is logged.
+  const essentials = useMemo(() => essentialsMonthly(store.expenses ?? [], plannedMonthlySpend(op)), [store.expenses, op]);
+  const monthlySpend = essentials?.monthly ?? 0;
   const runwayMonths = monthlySpend > 0 ? cashOnHand / monthlySpend : null;
   const nw = buildNetWorth(uid, aState.total_asset_value, dState.total_debt_balance);
 
@@ -262,7 +266,7 @@ export default function NetWorthScreen() {
 
   // ONE class-row renderer — used inside every uber-group (and by the legacy path), so a row can
   // never look different depending on where it is drawn.
-  // the retirement line: the SAME engine + the SAME approved words as the Plan hub
+  // the retirement line: the SAME function + the SAME approved words as the Plan hub
   const nwWil = selectWillItLast({ op: op ?? {}, accounts: assets, assumptions: store.retirementAssumptions ?? {}, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true });
   const nwSim = nwWil.inputs ? simulate({ ...nwWil.inputs, with_band: true }) : null;
   const nwLens = resolveLens(op ?? {}, store.lensOverride);
@@ -472,13 +476,13 @@ export default function NetWorthScreen() {
                       <Text style={styles.rowTitle}>{d.label}</Text>
                       {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
                     </View>
-                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(1)}% APR · {maskedMoney(d.minimum_monthly_payment)}/mo</Text>
+                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(1)}% APR · {maskedMoney(d.minimum_monthly_payment)}/month</Text>
                   </View>
                   <Text style={styles.rowVal}>{maskedMoney(d.remaining_balance)}</Text>
                 </TouchableOpacity>
               );
             })}
-            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{maskedMoney(dState.total_monthly_debt_service)}/mo</Text></View>
+            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{maskedMoney(dState.total_monthly_debt_service)}/month</Text></View>
           </>)}
       </View>
     </View>
@@ -518,7 +522,7 @@ export default function NetWorthScreen() {
           <View style={styles.blockBody}>
             <Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>
             <HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>
-            <Text style={[styles.glanceDelta, { color: Colors.gainText }]}>Add your first account and this becomes your one live number ›</Text>
+            <EmptyNote door="accounts" onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }} />   {/* Q48 mock frame 1 */}
           </View>
         </View>
 
@@ -540,8 +544,11 @@ export default function NetWorthScreen() {
           <SectionBand title="WHAT YOU OWN" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
           {nwGrouping === 'class' ? (<>
             <SectionBand light title="💵 CASH" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+            <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }} /></View>
             <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+            <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }} /></View>
             <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+            <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }} /></View>
           </>) : (
             <Text style={[styles.empty, styles.ledgerPad]}>Your banks and brokerages will be listed here, each with what it holds.</Text>
           )}
@@ -566,17 +573,18 @@ export default function NetWorthScreen() {
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
 
-          <SectionBand title="WHAT YOU OWE" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+          <SectionBand title="DEBTS" infoTerm="debt" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+          <View style={styles.ledgerPad}><EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} /></View>
           <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Add a mortgage, card, or loan"
             onPress={() => setDebtSheet({ open: true })}>
             <Text style={styles.doorTxt}>Add a mortgage, card, or loan</Text>
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
 
-          <SectionBand title="EMERGENCY CUSHION" trailing={RIGHT_SLOT} />
+          <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
           <View style={styles.ledgerPad}>
             <Text style={styles.cushionEmpty}>— months</Text>
-            <Text style={styles.rowSub}>appears with your first cash account + monthly spending</Text>
+            <Text style={styles.rowSub}>appears with your first cash account + monthly expenses</Text>
           </View>
         </View>
       </ScrollView>
@@ -611,11 +619,11 @@ export default function NetWorthScreen() {
     );
   } else {
     // ── manager: the FCC glance-that-expands (approved wireframe, Net worth sheet) ──
-    // One number, its yearly change, a simple trend — then WHAT YOU OWN / WHAT YOU OWE rows,
+    // One number, its yearly change, a simple trend — then WHAT YOU OWN / DEBTS rows,
     // the own−owe math line, a collapsed accounts-and-detail expander, the tiny cash-flow
     // glance, and ONE add-or-connect button with three honest paths. Calm by design: the
     // captions, explore box and insight cards moved off this screen (Home's insights
-    // engine owns the nudges; class rows carry the allocation story).
+    // function owns the nudges; class rows carry the allocation story).
     // APPROVED 2026-07-19 (daily snapshots): the trend draws from monthly snapshots PLUS the daily
     // net-worth points captured at app open — a real line within days of first use, never invented.
     const series = trendPoints(store.monthlySnapshots, store.nwDaily)
@@ -633,7 +641,7 @@ export default function NetWorthScreen() {
     const coverage = coverageFor(historyDates, windowStart, isoLocalDate(new Date()));
     const measuredFrom = measuredFromLabel(historyDates, windowStart);
     // FOUNDER DECISION 2026-08-18: the label now ALWAYS names the date it is measured from, with the
-    // year, rather than saying "this year" when the record began in July. The engine writes it.
+    // year, rather than saying "this year" when the record began in July. The function writes it.
     const sinceLabel = !janPoint ? '' : measuredFrom;
     // founder rule 2026-08-04: the change PERCENT is measured on cash + investments only —
     // property moves only when retyped, so a total-NW percent is noise. Appears only once the
@@ -651,7 +659,7 @@ export default function NetWorthScreen() {
     const deltaZero = deltaRounded === 0;   // a non-finite value renders the tracking line instead
     // the change line carries the MOVE only; the line beneath carries the date (never repeated).
     // Founder 2026-08-10: a zero net change still says "$0" and stays TAPPABLE — $0 can hide real
-    // motion (a $500 contribution offset by $500 of spending), and the walk sheet shows exactly that.
+    // motion (a $500 contribution offset by $500 of expenses), and the walk sheet shows exactly that.
     // Founder wording 2026-08-10: "Change in net worth <signed $> · Return on cash + investments <signed %>".
     const deltaText = deltaRounded == null ? null
       : `Change in net worth ${deltaZero ? maskedMoney(0) : `${deltaRounded > 0 ? '+' : '−'}${maskedMoney(Math.abs(deltaRounded))}`}${pctText}`;
@@ -670,7 +678,7 @@ export default function NetWorthScreen() {
     // reports and the SAME ledger the account pages show — the rows sum to the headline by design.
     const inWindow = (t: any) => !janPoint || String(t.date ?? '').slice(0, 10) >= String(janPoint.month).slice(0, 10);
     const led = ((store.transactions ?? []) as any[]).filter(inWindow);
-    // ONE flows engine (Track 1 step 3) — the abs-sum this replaces made a reversal ADD instead of
+    // ONE flows function (Track 1 step 3) — the abs-sum this replaces made a reversal ADD instead of
     // cancel, the $2,387 class at the screen layer.
     const flows = personalFlowTotals(led);
     const changeWalk = janPoint && changeThisYear != null ? buildChangeWalk({
@@ -719,7 +727,9 @@ export default function NetWorthScreen() {
                 </Text>
               </TouchableOpacity>
             ) : (
-              <Text style={[styles.glanceDelta, { color: Colors.textSecondary }]}>tracking starts today — change shows as history builds</Text>
+              (assets.length + liabilities.length === 0)
+                ? <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />   /* Q48 mock frame 1: $0, the one line, the door */
+                : <Text style={[styles.glanceDelta, { color: Colors.textSecondary }]}>tracking starts today — change shows as history builds</Text>
             )}
             {/* the mock's second line: the TRUE date the change is measured from — never "as of today".
                 Founder 2026-08-10: the date reads as a plain line, not another bold figure. */}
@@ -791,7 +801,7 @@ export default function NetWorthScreen() {
             reserving the same trailing arrow column. */}
         <View style={styles.ledger}>
         <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} trailing={RIGHT_SLOT} />
-          {classRows.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>Nothing yet — use the button below to add or import.</Text>}
+          {/* Q48: nothing entered is said row by row below (the one line and the door), not here */}
           {/* Founder finding 2026-08-11: the bar used to stay by category even on the institution
               tab, so the picture and the list underneath answered different questions. It follows
               the toggle now — same totals, regrouped the way you asked to see them. */}
@@ -800,7 +810,7 @@ export default function NetWorthScreen() {
             : <CompositionBar rows={institutionRows} spoken="What you own by institution" />)}
           {/* By institution (handoff, 2026-08-10): the same collapsible shape as By category, biggest
               first. An institution's row is what it HOLDS — a debt at the same bank never merges into
-              it; the Chase Visa stays under WHAT YOU OWE. Open/closed is remembered per view. */}
+              it; the Chase Visa stays under DEBTS. Open/closed is remembered per view. */}
           {nwGrouping === 'institution' && (() => {
             const groups = new Map<string, { total: number; members: AssetAccount[] }>();
             for (const a of assets) {
@@ -863,11 +873,24 @@ export default function NetWorthScreen() {
               </View>
             );
           })}
+          {/* Q48 mock frame 2: a group with nothing behind it still shows, at $0, with the one line and the door */}
+          {nwGrouping === 'class' && [{ group: 'cash', icon: '💵', label: 'Cash' }, { group: 'investments', icon: '📈', label: 'Investments' }]
+            .filter((e) => !uberGroupRows(classRows).some((g) => g.group === e.group))
+            .map((e) => {
+              // an account entered at $0 is a real zero: the band shows a plain $0 and no line (mock frame 2, note 5)
+              const entered = assets.some((a) => uberGroupOf(assetClassOf(a)) === e.group);
+              return (
+                <View key={`empty-${e.group}`}>
+                  <SectionBand light trailing={RIGHT_SLOT} title={`${e.icon} ${e.label}`} value={maskedMoney(0)} />
+                  {!entered && <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => setAddChooser(true)} /></View>}
+                </View>
+              );
+            })}
 
-        {/* WHAT YOU OWE — minus numbers, the word carries the meaning */}
-        <SectionBand title="WHAT YOU OWE" trailing={RIGHT_SLOT}
+        {/* DEBTS — minus numbers, the word carries the meaning */}
+        <SectionBand title="DEBTS" infoTerm="debt" trailing={RIGHT_SLOT}
           value={dState.total_debt_balance > 0 ? `−${maskedMoney(Math.round(dState.total_debt_balance))}` : undefined} />
-          {liabilities.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>No debts — it's all yours.</Text>}
+          {liabilities.length === 0 && <View style={styles.ledgerPad}><EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} /></View>}   {/* Q48: nothing entered — a "no debts" answer does not exist yet, so an entered none cannot be told apart (question for the founder) */}
           {/* the debts' own composition bar (founder Q6, 2026-08-11) — the same shape as the assets
               bar above, in the warning family so the two sections can never be misread for each other */}
           {liabilities.length > 0 && (
@@ -889,15 +912,15 @@ export default function NetWorthScreen() {
             </TouchableOpacity>
           ))}
 
-        {/* EMERGENCY CUSHION (mock approved 2026-07-31): cash ÷ monthly essentials, the math on the
-            card, word + icon always; no spending captured → a door, never a made-up number */}
+        {/* EMERGENCY FUND (mock approved 2026-07-31): cash ÷ monthly essentials, the math on the
+            card, word + icon always; no expenses captured → a door, never a made-up number */}
         {monthlySpend > 0 && runwayMonths != null ? (() => {
           // ONE figure drives the words AND the bar: the bar must never be drawn from a number the
           // person cannot see (2.0 months on the label and 1.96 in the bar is two truths).
           const shownMonths = Math.round(runwayMonths * 10) / 10;
           return (
           <View>
-            <SectionBand title="EMERGENCY CUSHION" trailing={RIGHT_SLOT} />
+            <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
             <View style={styles.ledgerPad}>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
                 <Text style={styles.cushionMonths}>{shownMonths.toFixed(1)} months</Text>
@@ -905,7 +928,7 @@ export default function NetWorthScreen() {
                   {shownMonths < 3 ? 'Tight ⚠' : 'Comfortable ✓'}
                 </Text>
               </View>
-              {/* the cushion's progress bar (founder Q6, 2026-08-11): it fills against the top of the
+              {/* the emergency fund's progress bar (founder Q6, 2026-08-11): it fills against the top of the
                   3-6 month guide the note beneath names, so a full bar means "covered" — never an
                   unlabelled meter (the word and the figure above always carry the meaning too) */}
               <View style={styles.cushionTrack}>
@@ -914,17 +937,17 @@ export default function NetWorthScreen() {
                   backgroundColor: shownMonths < 3 ? Colors.amber : Colors.gainText,
                 }]} />
               </View>
-              <Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/mo essentials</Text>
+              <Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/month essentials — {essentials?.label}</Text>
               <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
             </View>
           </View>
           );
         })() : cashOnHand > 0 ? (
           <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/cashflow')}
-            accessibilityLabel={`Emergency cushion: your cash is ${spokenMoney(Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
-            <SectionBand title="EMERGENCY CUSHION" trailing={RIGHT_SLOT} />
+            accessibilityLabel={`Emergency fund: your cash is ${spokenMoney(Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
+            <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
             <View style={styles.ledgerPad}>
-              <Text style={styles.cushionMath}>Your cash is {maskedMoney(Math.round(cashOnHand))} — tell us what a typical month costs and this becomes a real number.</Text>
+              <Text style={styles.cushionMath}>Your cash is {maskedMoney(Math.round(cashOnHand))} — tell us your typical monthly expenses and this becomes a real number.</Text>
               <Text style={styles.link}>Answer one question in Cash flow ›</Text>
             </View>
           </TouchableOpacity>
@@ -933,7 +956,7 @@ export default function NetWorthScreen() {
 
         {/* the "This month's cash flow" glance was DELETED here (founder Q3, 2026-08-11): this screen
             answers what you own and owe; movement is the Cash flow tab's whole job, and Home already
-            carries the monthly glance. The cushion's own door still reaches Cash flow when it needs to. */}
+            carries the monthly glance. The emergency fund's own door still reaches Cash flow when it needs to. */}
 
         {/* ONE button, three honest paths */}
         <TouchableOpacity accessibilityRole="button" style={[styles.addConnect, styles.inset]} onPress={() => setAddChooser(true)}
@@ -997,7 +1020,7 @@ const WRAPPER_OPTS: { key: AddWrapper; label: string }[] = [
   { key: 'trad_ira', label: 'Trad. IRA' }, { key: 'roth', label: 'Roth IRA' }, { key: 'hsa', label: 'HSA' },
 ];
 const RET_OPTS: { key: AddWrapper; label: string }[] = WRAPPER_OPTS.filter((w) => w.key !== 'taxable');
-const CASH_OPTS = ['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt'];
+const CASH_OPTS = ['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt', 'foreign_currency'];
 // Founder 2026-08-04: PE/HF out of phase 1 (keep it simple) — the kinds stay in the data model,
 // so anything already saved still renders; only the capture chips are trimmed.
 const ALT_OPTS = ['crypto', 'commodities', 'annuities', 'options'];
@@ -1310,7 +1333,7 @@ const styles = StyleSheet.create({
   doorTxtQuiet: { flex: 1, fontSize: 15, fontWeight: '400', color: Colors.textTertiary },
   intro: { flex: 1, justifyContent: 'center', padding: Spacing.xl },
   introEmoji: { fontSize: 38, textAlign: 'center', marginBottom: Spacing.sm },
-  introTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  introTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   introSub: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: Spacing.lg, lineHeight: 21 },
   introPrimary: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginBottom: Spacing.sm },
   introPrimaryTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
@@ -1320,7 +1343,7 @@ const styles = StyleSheet.create({
   introBtnSub2: { color: Colors.textTertiary, fontSize: 13, marginTop: 2 },
   introNote: { fontSize: 13, color: Colors.textTertiary, textAlign: 'center', marginTop: Spacing.md },
   wizStep: { fontSize: 13, fontWeight: '700', color: Colors.textTertiary },
-  wizTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  wizTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   wizSub: { fontSize: 13, color: Colors.primaryDark, marginTop: 4, marginBottom: Spacing.sm },
   wizTotal: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: Spacing.md, paddingHorizontal: 4 },
   wizTotalL: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600' },

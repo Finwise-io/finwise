@@ -6,12 +6,12 @@
 // what $5,600 was, and what "odds of 80%" referred to when the dial above said 100%.
 //
 // So the row LEADS WITH THE ANSWER, and the answer is free money: the largest extra she can spend
-// with nothing changing at all. On June's numbers that is about $1,000 a month, and the old static
+// with nothing changing at all. On June's numbers that is about $1,000/month, and the old static
 // "held at odds of 80%" label was sitting directly on top of it.
 //
 // CONSEQUENCE IS A COUNT, COMPUTED LIVE. The returned design bucketed everything under the maximum
-// as "about 9 out of 10", but its stepper lands on $2,500 where the real answer is 81% — nine
-// points, in the flattering direction, on the screen about spending more. Every position here is a
+// as "about 90 out of 100", but its stepper lands on $2,500 where the real answer is 81% — nine
+// points, in the flattering direction, on the screen about expenses more. Every position here is a
 // real run.
 import { simulate, type RetirementInputs } from '../retirement';
 
@@ -20,7 +20,7 @@ export interface SpendMoreState {
   maxExtra: number;
   /** the largest extra that changes NOTHING — the headline, and the reason the row exists */
   freeExtra: number;
-  /** odds at today's spending, so the row can say "exactly as it does today" truthfully */
+  /** odds at today's expenses, so the row can say "exactly as it does today" truthfully */
   oddsToday: number;
 }
 
@@ -30,7 +30,7 @@ export interface SpendMoreState {
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = simulate({ …base, retire monthly spend today: monthly spend }).chance of success
  *
  * Called by ... MK-PL-F-038 spendMoreState · MK-PL-F-039 spendMoreSentence
  *
@@ -89,7 +89,7 @@ export function spendMoreState(base: RetirementInputs, maxExtra: number, step = 
 /**
  * What the screen says at a given stepper position — a real run every time, never a bucket.
  *
- * Counts, not percentages: "4 future simulations out of 5" lands with people who bounce off "80%",
+ * Counts, not percentages: "80 out of 100 simulated futures" lands with people who bounce off "80%",
  * and where the news is bad the sentence NAMES the losing case rather than leaving her to imagine
  * it. Words banned from this row: draw · odds · held at · floor (§7.1 and the founder's rewrite).
  */
@@ -100,19 +100,15 @@ export function spendMoreState(base: RetirementInputs, maxExtra: number, step = 
  *
  * Formula .....
  *     chance = odds at(base, base.retire monthly spend today + extra)
- *     in ten = round(chance ÷ 10)
- *     failing = 10 − in ten
+ *     failing = 100 − chance
  *     the answer:
  *     chance = chance
  *     tone = 'watch'
- *     text = `lasts in almost every future simulation — about ${chance} out of 100.`
+ *     text = `lasts in almost every simulated future — about ${chance} out of 100.`
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-039
  * Changed ..... 2026-08-15 (9542793)
@@ -125,20 +121,20 @@ export function spendMoreSentence(base: RetirementInputs, extra: number, horizon
     return {
       chance, tone: 'clear',
       text: extra === 0
-        ? `Your money lasts past ${horizonAge}, in every future simulation we tested.`
+        ? `Your money lasts past ${horizonAge}, in every simulated future we tested.`
         : `Still lasts past ${horizonAge} — nothing changes.`,
     };
   }
-  // "about N in 10" reads plainly; below 95 we also name what happens in the futures that fail,
-  // because a bare count invites a person to imagine something worse than the truth.
-  const inTen = Math.round(chance / 10);
-  const failing = 10 - inTen;
+  // Cluster #2 ruling (2026-09-10): the odds are always "N out of 100 simulated futures"; below 95
+  // we also name what happens in the futures that fail, because a bare count invites a person to
+  // imagine something worse than the truth.
+  const failing = 100 - chance;
   if (chance >= 95) {
-    return { chance, tone: 'watch', text: `Lasts in almost every future simulation — about ${chance} out of 100.` };
+    return { chance, tone: 'watch', text: `Lasts in almost every simulated future — about ${chance} out of 100.` };
   }
   return {
     chance,
     tone: chance >= 85 ? 'watch' : 'edge',
-    text: `Lasts in about ${inTen} future simulations out of 10. In the other ${failing}, it runs out before ${horizonAge}.`,
+    text: `Lasts in about ${chance} out of 100 simulated futures. In the other ${failing}, it runs out before ${horizonAge}.`,
   };
 }

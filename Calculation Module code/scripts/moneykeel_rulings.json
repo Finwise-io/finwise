@@ -1,0 +1,2013 @@
+[
+ {
+  "id": "G3",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "agree — add the $6,000 senior deduction (65+, 2025–2028)",
+  "rows": "MK-MN-M-027 · MK-MN-M-028 · every tax figure through MK-CF-F-099",
+  "status": "TESTED",
+  "code": "MK-CF-F-187 seniorDeductionFor (new) · MK-CF-F-099 deductionFor · MK-CF-F-100 taxableIncomeFor",
+  "proof": "src/__tests__/statutory_constants.test.ts (published figures + worked examples: 66-year-old single on $60,000 → $4,054)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "G6",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "agree — no built-in tax rates on the draw-order comparison; the person's own rates, or no number with the reason",
+  "rows": "the draw-order steer sheet (no metric row yet — S21)",
+  "status": "TESTED",
+  "code": "MK-PL-F-010 drawOrderOutcome · MK-PL-F-081 taxableGainShare (new) · DrawSteerSheet",
+  "proof": "src/screens/__tests__/draw_steer_fcc.test.tsx",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "G8",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "revise the message: 'Based on today's balance. Provide last Dec 31st balance …'",
+  "rows": "MK-PL-M-013 · MK-PL-M-015",
+  "status": "TESTED",
+  "code": "MK-PL-F-080 rmdRequiredThisYear (new) · MK-XS-I-061 (new input) · RequiredWithdrawalsScreen · Plan hub",
+  "proof": "src/domain/decumulation/decumulation.test.ts · src/screens/__tests__/plan_fcc.test.tsx",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "G10",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "show the HSA limit at 65+ only with 'If you are not enrolled in Medicare …' and a place to update it",
+  "rows": "MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005",
+  "status": "TESTED",
+  "code": "MK-CF-F-055 annualHsaLimit · MK-XS-I-062 (new input) · ContributionRoomScreen",
+  "proof": "src/domain/income/limits.test.ts · src/screens/__tests__/contribution_room_medicare.test.tsx",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "He asked for a link to an existing page; none captures Medicare, so the question sits on the HSA card. Placement is his to confirm."
+ },
+ {
+  "id": "G13",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — the paycheck's guaranteed line = the four outside sources",
+  "rows": "MK-CF-M-023",
+  "status": "TESTED",
+  "code": "CashFlowScreen (future paycheck card) → MK-CF-F-076 guaranteedOutsideStreams",
+  "proof": "src/screens/__tests__/cashflow_fcc.test.tsx",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "Was code as well as file: the card summed the six-source function beside its own savings draw."
+ },
+ {
+  "id": "G14",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "question answered: yes, the row named the wrong function; the screen was right",
+  "rows": "MK-CF-M-022",
+  "status": "TESTED",
+  "code": "file only — the row names MK-CF-F-107 · MK-CF-F-076 · MK-PL-F-050 and states the draw rule",
+  "proof": "the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "cashflow",
+    "key": "MK-CF-M-022",
+    "col": "Function ID",
+    "contains": [
+     "MK-CF-F-107",
+     "MK-CF-F-076",
+     "MK-PL-F-050"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G16",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "question answered: the legacy-target words on MK-PL-M-008; now match MK-PL-F-067 and brief Q-41 (2026-08-20)",
+  "rows": "MK-PL-M-008",
+  "status": "TESTED",
+  "code": "file only",
+  "proof": "the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "plan",
+    "key": "MK-PL-M-008",
+    "col": "Formula (in words)",
+    "contains": [
+     "NO AGE MEANS NO ANSWER"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G17",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "1000 everywhere",
+  "rows": "MK-XS-M-002 · MK-CF-M-022 · every surface that runs the odds",
+  "status": "TESTED",
+  "code": "MK-PL-F-050 simulate default · snapshot · paycheck · cockpit scenarios",
+  "proof": "src/__tests__/simulation_paths.test.ts (fails on any other count)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "G18",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — the math column is the value-weighted average",
+  "rows": "MK-XS-M-004",
+  "status": "TESTED",
+  "code": "file + MK-PF-F-019 header",
+  "proof": "the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "multiple_screens",
+    "key": "MK-XS-M-004",
+    "col": "Formula (mathematical)",
+    "contains": [
+     "Σ over usable holdings of (period return × market value)"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G19",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — one payment rule in both columns",
+  "rows": "MK-NW-M-011",
+  "status": "TESTED",
+  "code": "file only",
+  "proof": "the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "networth",
+    "key": "MK-NW-M-011",
+    "col": "Formula (mathematical)",
+    "contains": [
+     "larger of the stated minimum"
+    ]
+   },
+   {
+    "tab": "networth",
+    "key": "MK-NW-M-011",
+    "col": "Formula (in words)",
+    "contains": [
+     "LARGER of the minimum"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G20",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "question answered: 'value' = the bond's current value as entered; the approximation stated in both columns",
+  "rows": "MK-NW-M-026",
+  "status": "TESTED",
+  "code": "file + MK-NW-F-060 header",
+  "proof": "the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "networth",
+    "key": "MK-NW-M-026",
+    "col": "Formula (mathematical)",
+    "contains": [
+     "straight-line approximation",
+     "value = the bond's current value as entered"
+    ]
+   },
+   {
+    "tab": "networth",
+    "key": "MK-NW-M-026",
+    "col": "Formula (in words)",
+    "contains": [
+     "(annual coupon + (face − value) ÷ years left) ÷ ((face + value) ÷ 2)"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G21 / Q47",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I) · chat 2026-09-08 (Q47)",
+  "ruling": "ok — one producer for essentials per brief Q-21 (2026-08-20); fewer than 12 months logged → the average for the logged months, labelled 'N month average'",
+  "rows": "MK-NW-M-013 · MK-NW-M-014 · MK-MN-M-020 · MK-MN-M-021 · MK-MN-M-024 · MK-MN-M-025 · MK-MN-M-026",
+  "status": "TESTED",
+  "code": "MK-CF-F-189 essentialsFromLoggedSpending (new) · MK-CF-F-190 essentialsMonthly (new) · four screens · MK-CF-F-010 emergencyTest",
+  "proof": "src/__tests__/g21_essentials.test.ts · src/screens/__tests__/g21_essentials_screens.test.tsx",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "One assumption of mine awaits his word: the unfinished current month is left out unless it is the only month."
+ },
+ {
+  "id": "G22 / Q46",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I) · chat 2026-09-08 (Q46)",
+  "ruling": "the tax organizer shows gross income, 401(k) contribution, standard deduction and taxable income",
+  "rows": "MK-MN-M-027 · MK-MN-M-028",
+  "status": "TESTED",
+  "code": "MK-PL-F-082 taxableIncomeSteps (new) · MK-CF-F-188 householdPreTaxContributionsAnnual (new) · TaxOrganizerScreen + export",
+  "proof": "src/domain/planning/planning.test.ts · src/screens/__tests__/tax_organizer_q46.test.tsx",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "JJ-5 opened: the income grid may take off only the first earner's 401(k) — to verify."
+ },
+ {
+  "id": "G23",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — the bracket loops written by hand; the statutory tables in the file",
+  "rows": "MK-CF-F-101 · MK-CF-F-103 · Reference tab",
+  "status": "TESTED",
+  "code": "hand-read formulas in moneykeel_code_formula.py; the extractor marks any loop it cannot render",
+  "proof": "the header guard + the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "functions_from_code",
+    "key": "MK-CF-F-101",
+    "col": "Formula (mathematical)",
+    "contains": [
+     "Σ over the bands"
+    ],
+    "not_contains": [
+     "NOT READ YET"
+    ]
+   },
+   {
+    "tab": "functions_from_code",
+    "key": "MK-CF-F-103",
+    "col": "Formula (mathematical)",
+    "contains": [
+     "the rate of the FIRST band"
+    ],
+    "not_contains": [
+     "NOT READ YET"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G25",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — the statement amount cites MK-XS-I-020 (and I-021 for the claim age)",
+  "rows": "MK-PL-M-017 · MK-PL-M-019",
+  "status": "TESTED",
+  "code": "file only",
+  "proof": "the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-09",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "plan",
+    "key": "MK-PL-M-017",
+    "col": "Inputs it needs",
+    "contains": [
+     "[MK-XS-I-020]",
+     "[MK-XS-I-021]"
+    ]
+   },
+   {
+    "tab": "plan",
+    "key": "MK-PL-M-019",
+    "col": "Inputs it needs",
+    "contains": [
+     "[MK-XS-I-021]"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G26",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — the dependency column from the live function registry; a check that no row cites a retired identifier",
+  "rows": "every active figure",
+  "status": "TESTED",
+  "code": "the builder (dep_from_functions) + a build guard",
+  "proof": "the build stops on a retired identifier · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "cashflow",
+    "key": "MK-CF-M-022",
+    "col": "Dependency — function ID → the output it uses",
+    "contains": [
+     "MK-"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G27",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — 'Figures that name it' from the screen tabs' Function ID column",
+  "rows": "every function row",
+  "status": "TESTED",
+  "code": "the builder",
+  "proof": "the build · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "functions_from_code",
+    "key": "MK-PL-F-050",
+    "col": "Figures that name it",
+    "contains": [
+     "MK-XS-M-002",
+     "MK-PL-M-034",
+     "MK-CF-M-022"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G28",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I) · chat 2026-09-09 (the hybrid approach)",
+  "ruling": "ok — inputs' reach and the reconciliation by identifier, all inputs; then: the code's record beside each row's claim, he approves rows in batches, the gate compares approved against the code",
+  "rows": "every active figure (150) · 62 inputs",
+  "status": "CODED — awaiting his approval of rows",
+  "code": "the sweep (field names, run-time keys, callbacks) · the builder (code record, approval column, reporting gate)",
+  "proof": "the build reports approved-vs-code differences; becomes build-stopping once the record is trusted",
+  "coded": "2026-09-09",
+  "verified": "",
+  "notes": "I called this DONE on 2026-09-08 when only the check had been rebuilt — corrected 2026-09-09. Batch 1 (10 rows) awaits his ruling."
+ },
+ {
+  "id": "G29",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — Specification counts from the build; MK-NW-M-006 carries its formula",
+  "rows": "Specification · MK-NW-M-006",
+  "status": "TESTED",
+  "code": "the builder + moneykeel_formulas.py",
+  "proof": "the build · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "networth",
+    "key": "MK-NW-M-006",
+    "col": "Formula (in words)",
+    "contains": [
+     "personal property"
+    ],
+    "not_contains": [
+     "NOT READ YET"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G30",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — brief Q-50 (2026-08-20): inflation defaults to the dated 30-year average, adjustable; no feed",
+  "rows": "MK-XS-I-029 · the odds, the snapshot, the cockpit",
+  "status": "TESTED",
+  "code": "MK-PL-F-083 inflationRateInForce (new) · willItLast · snapshot · RetirementCockpit",
+  "proof": "src/__tests__/inflation_default.test.ts",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "G32 / Q48",
+  "date": "2026-09-09",
+  "source": "chat",
+  "ruling": "the screen shows $0 with a sentence explaining nothing is entered, and the door; the sentence approved; one mock of the pattern on one screen",
+  "rows": "49 figures on 17 screens + 21 rows with the false division text",
+  "status": "TESTED",
+  "code": "Mock approved 2026-09-12 (moneykeel_pres_mock_empty-state-pattern_v01.html). One component, EmptyNote (src/components/UI.tsx): '$0' stays, then 'Nothing entered yet.' and the door; one wording per thing in EMPTY_DOORS (src/constants/doors.ts). Built on 46 of the 58 rows: Net worth (hero, Cash, Investments, Debts, the identity line) · Home (investments, the Income cell) · Cash flow (sources, received, the month card, the categories, the this-month inflow and outflow rows, the planned rows, the big-ticket radar) · Performance (day one) · Plan (the paycheck lines) · Roth (from your pre-tax) · Big costs · Goals (the non-monthly budget) · Income summary (both bands, $0 never a dash) · Other investments · Stress test (cash, essentials) · Bonds. A real zero that was entered shows a plain $0 (an account at $0 gets no line). The 58 file cells say what the mock says.",
+  "proof": "src/screens/__tests__/empty_state_q48.test.tsx (the mock's screen, frame 1 and frame 2) · empty_state_q48_screens.test.tsx (the other screens)",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "Not applicable (4 of 58): MK-NW-M-031/032/033/034 — a holding page exists only once a holding was entered, so its $0 means sold, and the screen says so. Not built (8 of 58): MK-NW-M-019/020/021 (Account detail — the classes and income inside one account), MK-CF-M-004 (a past month that predates tracking keeps its own sentence), MK-CF-M-021 (a goal row appears only when a goal is committed), MK-PL-M-023 (the Roth 'Extra tax' row reads '—' until a plan is adopted), MK-MN-M-021 (Job safety asks for the figure in place). Open question: 'Debts' cannot tell an entered none from nothing entered — no 'I have no debts' answer exists; add one (a new input) or accept the line?"
+ },
+ {
+  "id": "G33",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — units derived by rule say so; S04/S06/S07 read PARTIAL",
+  "rows": "Specification · every figure's unit column",
+  "status": "TESTED",
+  "code": "the builder",
+  "proof": "the build · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "Reading units from the function's return is open work. TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "Specification",
+    "key": "S04",
+    "col": "Where it stands in this file today",
+    "contains": [
+     "PARTIAL"
+    ]
+   },
+   {
+    "tab": "Specification",
+    "key": "S06",
+    "col": "Where it stands in this file today",
+    "contains": [
+     "PARTIAL"
+    ]
+   },
+   {
+    "tab": "Specification",
+    "key": "S07",
+    "col": "Where it stands in this file today",
+    "contains": [
+     "PARTIAL"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G34",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — one word per concept in the master's words; the screen labels to match; a build check",
+  "rows": "the master's words columns · 'Take-home / month' · 'TAKE-HOME / YEAR' · '(calculated)' · 'check'",
+  "status": "TESTED",
+  "code": "the builder's canon + BANNED guard · moneykeel_formulas.py · three screens",
+  "proof": "src/__tests__/one_term_per_concept.test.ts + the build guard",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "G35",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "explained and fixed in the file: the four mis-rendered functions written by hand; caps declared",
+  "rows": "MK-CF-F-057 · MK-CF-F-097 · MK-CF-F-087 · MK-CF-F-101",
+  "status": "TESTED",
+  "code": "hand-read formulas + assumptions in moneykeel_code_formula.py",
+  "proof": "the header guard + the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "functions_from_code",
+    "key": "MK-CF-F-057",
+    "col": "Formula (mathematical)",
+    "not_contains": [
+     "NOT READ YET"
+    ]
+   },
+   {
+    "tab": "functions_from_code",
+    "key": "MK-CF-F-097",
+    "col": "Formula (mathematical)",
+    "not_contains": [
+     "NOT READ YET"
+    ]
+   },
+   {
+    "tab": "functions_from_code",
+    "key": "MK-CF-F-087",
+    "col": "Formula (mathematical)",
+    "not_contains": [
+     "NOT READ YET"
+    ]
+   },
+   {
+    "tab": "functions_from_code",
+    "key": "MK-CF-F-101",
+    "col": "Formula (mathematical)",
+    "not_contains": [
+     "NOT READ YET"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G37 / Q49",
+  "date": "2026-09-09",
+  "source": "chat",
+  "ruling": "full precision for calculation; display two decimals unless stated (whole dollars for totals, balances, projections; eight for coin quantities); fix the code in one pass",
+  "rows": "every calculation (307 + 10 rounding sites) · Reference standing decision · the display formatters",
+  "status": "TESTED",
+  "code": "34 calculation files · useMoney.ts (maskedPrice, coinQuantity) · HoldingDetailScreen · the standard moneykeel_calc_spec_precision-and-display_v01.md",
+  "proof": "src/__tests__/precision_guard.test.ts · golden.test.ts and 12 other suites re-pinned to the cent",
+  "coded": "2026-09-09",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "C2",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — the odds row's words: no band, 1,000 futures, nearest 5",
+  "rows": "MK-XS-M-002",
+  "status": "TESTED",
+  "code": "file only",
+  "proof": "the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-09",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "multiple_screens",
+    "key": "MK-XS-M-002",
+    "col": "Formula (in words)",
+    "contains": [
+     "1,000 simulated futures",
+     "nearest 5",
+     "The best-to-worst band was removed"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "C4",
+  "date": "2026-09-08",
+  "source": "his -jj copy of the second-verification assessment (column I)",
+  "ruling": "ok — round2 is two decimals; reclassified",
+  "rows": "MK-ST-F-055 and every chain that reaches it",
+  "status": "CODED",
+  "code": "the extractor (rounding idioms) + CATEGORY_OVERRIDES",
+  "proof": "the header guard",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "After Q49 the function is called by no calculation; it serves the display layer."
+ },
+ {
+  "id": "Synonym cluster #1",
+  "date": "2026-09-03",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v01-jj.xlsx",
+  "ruling": "the money left after everything out → Surplus",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied 2026-09-11 — LEFT OVER / Left to spend / Free to spend / what’s left / Available → Surplus across src + MoneyKeel/functions; by hand: Cash-flow pace line ('Spent $X of $Y surplus this month'), the hero's spoken label ('surplus after your budget'), Tips summary 'Budget remaining', Bill-calendar sub-line ('and the surplus'), Retirement cockpit 'Assumed return on your remaining nest egg'.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 1) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #2",
+  "date": "2026-09-03",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v01-jj.xlsx",
+  "ruling": "the retirement success percentage → odds, explained as 'In 78 out of 100 simulated futures, your money lasts to age 90'",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — spendMore.ts: 'Lasts in about N out of 100 simulated futures. In the other M, it runs out before AGE.'; Will-it-last screen: 'In N out of 100 simulated futures, your money lasts to AGE.'; Mortgage compare likewise; 'future simulation(s)' → 'simulated future(s)' everywhere; '% of scenarios' / 'of every 100 futures' retired. Tests repinned: spendMore, SpendMoreControl, MortgageRateCompare, build_audit_decisions D7.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 2) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #3",
+  "date": "2026-09-03",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v01-jj.xlsx",
+  "ruling": "money going out in a month → Expenses (planned / actual / recurring by context); 'Outflow (expenses + debt)' for money leaving; evaluate context, never replace blindly · his answer 2026-09-12: replace with expenses in prose too. Again keep in mind context per my prior response",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied in context, not blindly — 'Spent so far' → 'Actual expenses so far'; 'Out (bills + debt)' → 'Outflow (bills + debt)'; 'Actual spend' → 'Actual expenses' (Budget strip, Tips); 'outgo' → 'expenses'; the Cash-flow tab 'Spending' → 'Expenses'; onboarding recap and legend 'Spending' → 'Expenses'; 'essential / must-pay bills' → 'essential expenses'. OPEN FOR YOU: the word 'spending' in running prose — 173 places (e.g. 'Monthly spending in retirement', 'Stay on top of income and spending', 'GET YOUR SPENDING IN', 'your logged spending'). Replace with 'expenses' in prose too, or only where it is a label? Say the rule and I list them row by row.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 3) + the repinned screen tests",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "Your answer 2026-09-12 applied the same day: 'spending' → 'expenses' in every copy string, screen text and comment (191 places, 55 files), verbs kept ('spend down', 'before you spend anything'); grammar fixed where the swap needed it ('What are your average monthly expenses?', 'expenses use your planned amounts', 'your expenses are more than you keep'). Retired in the canon table: spending, Spending, SPENDING."
+ },
+ {
+  "id": "Synonym cluster #4",
+  "date": "2026-09-03",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v01-jj.xlsx",
+  "ruling": "a figure the person gave us → 'you entered'",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — you told us / you set it / set by you / you typed / captured → you entered ('No guaranteed income entered yet', Roth tax-rate spoken label, Filing status 'On the $X you entered', account-income 'the accounts you entered'); comments too.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 4) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #5",
+  "date": "2026-09-03",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v01-jj.xlsx",
+  "ruling": "money arriving in a month → take-home; 'Base salary (take-home)', 'Income (take-home)'; cash flow always 'Inflow (income (take-home) + rent)' / Outflow",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — new function MK-CF-F-192 inflowLabel (with MK-CF-F-193 inflowSourceWord) (MoneyKeel/functions/cashflow/this-month.ts) builds 'Inflow (income (take-home) + rent)' from the month's actual sources; used by plannedMonthFlow, actualMonthFlow, the Cash-flow This-month card and the Paycheck-months card ('Inflow (Social Security + pension)'); 'Money in (one-time income)' → 'Inflow (one-time income)'; 'MONEY IN' → 'INFLOW'; 'Expected in' → 'Planned inflow'; 'In (received)' → 'Actual inflow'. Test: inflow-label.test.ts — your own example is the test.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 5) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #6",
+  "date": "2026-09-03",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v01-jj.xlsx",
+  "ruling": "cash saved for emergencies → Emergency fund",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — cushion → emergency fund everywhere, including the rewards badge and the Net-worth spoken label.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 6) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #7",
+  "date": "2026-09-03",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v01-jj.xlsx",
+  "ruling": "the per-category monthly plan → Budget; review context before replacing",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied in context — 'Your monthly plan' → 'Your budget'; 'your expense plan' → 'your expense budget'; 'Set limits' → 'Set your budget'; 'spending plan' → 'budget'; 'category limits' → 'Edit your budget — each category, with the live surplus math'.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 7) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Q06",
+  "date": "2026-08-26",
+  "source": "his -jj master (column W)",
+  "ruling": "options: value = contracts × 100 × price unless the broker or the person states otherwise",
+  "rows": "MK-NW-M-030 · MK-XS-I-034",
+  "status": "TESTED",
+  "code": "src/domain/performance/index.ts — MK-PF-F-031 contractMultiplier: 100 for kind 'options' unless Position.multiplier (MK-XS-I-063) is set; applied in MK-PF-F-004 marketValue and MK-PF-F-002 costBasis so the gain scales with them",
+  "proof": "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": "Broker-itemised option_holdings keep the broker's own value (the broker 'states otherwise'). A person-typed multiplier on the holding editor: Q42."
+ },
+ {
+  "id": "Q07",
+  "date": "2026-08-26",
+  "source": "his -jj master (column W)",
+  "ruling": "crypto quantities to 8 decimals",
+  "rows": "MK-NW-M-031",
+  "status": "TESTED",
+  "code": "display: coinQuantity (8 dp) on holding detail (2026-09-09, with Q49); storage precision unchanged (floats)",
+  "proof": "precision_guard + holding detail tests",
+  "coded": "2026-09-09",
+  "verified": "",
+  "notes": "Moved to TESTED 2026-09-12: precision_guard.test.ts and holding_detail_fcc.test.tsx already pin the 8-decimal display."
+ },
+ {
+  "id": "Q08",
+  "date": "2026-08-26",
+  "source": "his -jj master (column W)",
+  "ruling": "a foreign currency is cash held in that currency; no interest or dividend",
+  "rows": "MK-NW-M-030",
+  "status": "TESTED",
+  "code": "src/domain/assets/index.ts — new kind 'foreign_currency' (Cash section, CASH bucket, return 0, class cash); income/from-accounts.ts skips it (no interest, not 'missing'); Net-worth cash picker offers it",
+  "proof": "src/domain/assets/q08_foreign_currency.test.ts · selectors.test.ts",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": "Entered as what it is worth in dollars today — no exchange-rate feed exists (display currency: Q43)."
+ },
+ {
+  "id": "Q09",
+  "date": "2026-08-26",
+  "source": "his -jj master (column W)",
+  "ruling": "always capture the unit beside a quantity",
+  "rows": "MK-NW-M-031",
+  "status": "TESTED",
+  "code": "src/domain/performance/index.ts — MK-PF-F-032 quantityUnit / MK-PF-F-033 quantityWithUnit; Position.unit (MK-XS-I-064); the Holding-detail Quantity row prints '3 shares', '0.50000000 coins', '2 contracts', '1 ounce'",
+  "proof": "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": "The unit the kind implies stands until a typed unit field is added to the holding editor."
+ },
+ {
+  "id": "A15",
+  "date": "2026-08-26",
+  "source": "his -jj master (column W)",
+  "ruling": "if round2 rounds to two decimals, fix the file",
+  "rows": "MK-ST-F-055",
+  "status": "TESTED",
+  "code": "file/extractor (see C4)",
+  "proof": "the header guard · check-rulings-in-file.py (fails if the row loses this)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "expect": [
+   {
+    "tab": "functions_from_code",
+    "key": "MK-ST-F-055",
+    "col": "Formula (mathematical)",
+    "contains": [
+     "round(n × 100) ÷ 100"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "A46",
+  "date": "2026-08-26",
+  "source": "his -jj master (column W)",
+  "ruling": "if the coupon rate is not available use 0",
+  "rows": "MK-NW-F-063 · the paycheck income lines",
+  "status": "TESTED",
+  "code": "src/domain/bonds/index.ts MK-NW-F-063 interestIncomeAnnual + src/domain/income/from-accounts.ts MK-CF-F-184: no coupon rate → $0, the line reads 'no coupon rate entered — counted as $0 on $X until one is'; the 4.2% constant deleted in both",
+  "proof": "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts · bonds/income.test.ts · income/from-accounts.test.ts",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": "Strict reading: an assumed return (MK-XS-I-028) is not a coupon, so it no longer stands in for one. The 4.2% on the hysa / cd / fixed-income kinds is a benchmark return (Q44), untouched."
+ },
+ {
+  "id": "A47",
+  "date": "2026-08-26",
+  "source": "his -jj master (column W)",
+  "ruling": "subtract accrued interest when known; say so when not",
+  "rows": "MK-NW-F-059 · MK-NW-M-044",
+  "status": "TESTED",
+  "code": "AssetAccount.accrued_interest (MK-XS-I-065) → BondInfo.accruedInterest; MK-NW-F-059 currentYield divides by price − accrued when known; MK-NW-F-070 accruedInterestCaveat: 'accrued interest not entered — the yield uses the price as you entered it'; Bonds screen: optional field + the caveat under the yield (MK-NW-M-044)",
+  "proof": "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": "Applied to MK-NW-F-059 as ruled; MK-NW-F-060 approxYTM still uses the price as entered — say if it should follow."
+ },
+ {
+  "id": "Bond display rule",
+  "date": "2026-08-26",
+  "source": "his -jj master (threaded comment on MK-NW-M-041/042/045)",
+  "ruling": "nine facts on a bond; value = current, else cost, else face; else 'need more information'",
+  "rows": "MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-045",
+  "status": "RULED",
+  "code": "not coded — five of the nine facts have no field; mock first",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": "Three specifics to settle: Q38."
+ },
+ {
+  "id": "TZ-1",
+  "date": "2026-09-08",
+  "source": "found while running the gate",
+  "ruling": "the look-back window must be a local calendar date",
+  "rows": "MK-PF-F-022 factorOverMonths",
+  "status": "TESTED",
+  "code": "src/domain/performance/lookBack.ts",
+  "proof": "Calculation Module code/probes/performance-portfolio.probe.test.ts (passes in every timezone)",
+  "coded": "2026-09-08",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #8",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "Gross should be before any deductions. For example Income before tax is not same as gross as Income Before Tax = Gross Income - 401K - any other deductions such as medical premium.",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — 'Gross (before tax)' → 'Gross (before any deductions)'; the onboarding cash-flow toggle now reads Gross · Net · Take-home (was 'Available').",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 8) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #9",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "Performance, and Net worth",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — 'open Net Worth or Investments' → 'open Net worth or Performance'; 'from Portfolio' → 'from Performance'.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 9) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #10",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "debt and keep debt types. Explain in info dot Debt is amount you owe.",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — 'WHAT YOU OWE' → 'DEBTS'; 'Amount you owe' / 'Still owed on it' → 'Debt balance'; info dot on the DEBTS band (Net worth): 'Debt is the amount you owe — the balance still to be paid on a mortgage, loan or card, not the monthly payment.' Debt types untouched.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 10) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #11",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "Stock/fund. Holding but do not just replace position with holding.  Notification, alert message should say - holding liquidated - all shares sold. · his answer 2026-09-12: \"Sell all\" for selling all bonds or \"Sell\" for partial sale.",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — 'Position closed — all shares sold' → 'Holding liquidated — all shares sold'; 'Stocks & funds' / 'Shares and funds' → 'Stocks / Funds'; 'position' NOT swept blindly (its 148 code uses are layout, not copy). OPEN FOR YOU: the Bonds sale sheet's button reads 'Close position' — keep, or 'Sell all'?",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 11) + the repinned screen tests",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "Your answer 2026-09-12 applied: the sale sheet on Bonds and Other investments — 'Sell all' when everything goes, 'Sell' for part; the sheet title '🔻 Sell'; the Account-detail door 'Buy more / Sell ›'; the confirm asks 'Sell all of this bond?' / 'Sell part of this bond?'. Retired: Close position, Record sale, Record a sale."
+ },
+ {
+  "id": "Synonym cluster #12",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "activity",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — 'month’s transactions ›' → 'month’s activity ›'; 'Check your transactions.' → 'Check your activity.'; 'Records a Debt payment in Activity' → 'Adds a debt payment to Activity'; import sheet 'your transactions' → 'your bank activity'; spoken 'See that month’s activity on the Expenses tab'.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 12) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #13",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "one-time. Lump-sum does not always mean one-time. What's the intent behind \"plan for the lump sum\" before you change it to one-time? · his answer 2026-09-12: No monthly payment — the full balance is due on that date.",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — one-off → one-time everywhere (Base-pay note: 'One-time events like a Roth conversion'). 'Lump sum' left as is, per your question. ANSWER FOR YOU: 'plan for the lump sum' is the spoken (VoiceOver) label on the Bill calendar for a debt with NO monthly payment that is due in full on one date — a balloon, or a bill paid at once. It means 'set the whole balance aside for that date', not a one-time income. If you want it changed: 'No monthly payment — the full balance is due on that date.'",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 13) + the repinned screen tests",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "Your answer 2026-09-12 applied: the Bill-calendar spoken label now reads 'No monthly payment — the full balance is due on that date.' Retired: plan for the lump sum."
+ },
+ {
+  "id": "Synonym cluster #14",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "/month, /year · his answer 2026-09-12: /quarter, /week, /2 weeks",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — /mo → /month, /yr → /year, '$X a month' → '$X/month', 'Gross a year' → 'Gross /year' in visible copy. Spoken (VoiceOver) labels keep 'a month' / 'a year' because '/month' is read aloud as 'slash month'. OPEN FOR YOU: the Income-detail frequency labels also carry '/qtr', '/wk', '/2wk' — write them '/quarter', '/week', '/2 weeks'?",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 14) + the repinned screen tests",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "Your answer 2026-09-12 applied: the Income-detail frequency labels read /quarter, /week, /2 weeks. Retired: /qtr, /wk, /2wk."
+ },
+ {
+  "id": "Synonym cluster #15",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "Will my money last",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — 'IS MY MONEY LASTING?' (retired lens) and 'YOUR MONEY-LASTS ODDS' (Roth) → 'WILL MY MONEY LAST?'; the spoken label likewise.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 15) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Synonym cluster #16",
+  "date": "2026-09-10",
+  "source": "moneykeel_audit_decisions_synonym-clusters_v02.xlsx (YOUR RULING)",
+  "ruling": "spouse",
+  "rows": "app copy, every screen carrying the concept",
+  "status": "TESTED",
+  "code": "Applied — partner → spouse in copy and comments: 'Do you manage money with a spouse?', 'Spouse’s name (optional)', the invite screen, Filing status, Cash-flow earner names, the sign-in message. Code values (the 'partner' track id, the partnerName field) unchanged — they are not copy.",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (reads the canon table, row 16) + the repinned screen tests",
+  "coded": "2026-09-11",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Cash-flow worked example",
+  "date": "2026-08-27",
+  "source": "cashflow-thismonth+spending-screen-jj.xlsx",
+  "ruling": "This-month screen, Planned: In (take-home) 5,000 · mortgage 2,000 · car 250 · expenses 2,000 · HELOC from the big-ticket radar 200 · credit-card payment entered by hand 200 · surplus 750. Actual: 5,000 · mortgage paid 2,000 · car paid 0 · expenses entered 500 · expenses imported from the card 1,200 · HELOC 200 · card payment 200 · surplus 1,300. Spending: recurring (mortgage 2,000, car 250), planned expenses (gas 200, grocery 900, utilities 200, other 700 = 2,000), radar: card payment 1,200 NOT counted as an expense, HELOC 200 counted, card payment entered by hand 200 counted.",
+  "rows": "MK-CF-M-002 · MK-CF-M-004 · MK-CF-M-015 · MK-CF-M-019 · MK-CF-O-003 thisMonth · MK-CF-O-002 spending",
+  "status": "CODED",
+  "code": "the This-month + Spending mock v06 (2026-08-27) and the radar rule in MoneyKeel/functions/cashflow/spending.ts ('a credit-card or HELOC payment is always a radar item; recurring debt never') were built from it; the master's rows carried none of it until 2026-09-10",
+  "proof": "src/screens/__tests__/cashflow_fcc.test.tsx (the This-month arithmetic)",
+  "coded": "2026-08-27",
+  "verified": "",
+  "notes": "One question back (master Q50): your planned surplus 750 = 5,000 − 2,000 − 250 − 2,000, and your actual 1,300 = 5,000 − 2,000 − 0 − 500 − 1,200 — neither subtracts the HELOC 200 or the card payment 200 that the spending section says are counted as expenses. Which is right: in the surplus, or not?"
+ },
+ {
+  "id": "Net-worth flow diagram",
+  "date": "2026-08-26",
+  "source": "NW-sankey-diagram-jj.jpeg",
+  "ruling": "Sources (Chase checking/savings, Vanguard IRA/brokerage, Fidelity 401k, Wise EUR account, Zillow home estimate, mortgage servicer, manual collectibles) → categories (cash & liquid $15k, investments $354k, real estate & assets $452k, mortgage debt $412k, revolving debt $6k) → total assets $821,000 and total liabilities $418,000 → the net-worth engine → net worth $395,152; provenance badges on figures (imported · calculated · assumed 7% equity return · grand-prob); an FX rate 1.0925 on the EUR account.",
+  "rows": "MK-XS-M-001 · MK-NW-M-004 · MK-NW-M-005 · MK-NW-M-007 · MK-NW-M-009 · MK-NW-M-017",
+  "status": "CODED — in part",
+  "code": "The category split and the assets − debts = net worth line are the Net worth screen (mock v06). Provenance per account exists (connected · imported · manual) and the canon words 'you entered' / 'calculated'; a per-figure badge on the Net worth screen and the exchange-rate conversion for a foreign-currency account are NOT built (Q43).",
+  "proof": "src/screens/__tests__/NetWorthScreen.test.tsx (the split and the math line)",
+  "coded": "2026-08-04",
+  "verified": "",
+  "notes": "Recorded 2026-09-10; it had never been written into the file."
+ },
+ {
+  "id": "Onboarding notes, build 53",
+  "date": "2026-08",
+  "source": "MoneyKeel/documents/other/jj/onboarding screens-build53.xlsx",
+  "ruling": "Twelve notes on the onboarding screens: the tagline card ('Your finance command center', four bullets on what the app does), 'Customize your command center' (primary goals, where are you these days), 'Let's get your numbers in' (connect your first account).",
+  "rows": "the onboarding flow (moneykeel_pres_spec_onboarding-flow_v03.html)",
+  "status": "TESTED",
+  "code": "All twelve notes checked against the code 2026-09-12: 'Your finance command center' + four bullets (tagline card) · 'Customize your command center' (primary goals, where are you these days) · 'Let's get your real numbers in.' (Home with no money data, HomeScreen.tsx) · the three doors in one wording everywhere (src/constants/doors.ts: 'Connect your bank ›', 'Import a file from your brokerage ›', 'Add something by hand ›') · 'Or answer guided setup questions ›' · 'Pick up where you left off →'. Two notes differ from the code: your note says 'connect your first account' where the door says 'Connect your bank'; and 'circular loop' — two words, no screen named.",
+  "proof": "src/screens/__tests__/first_run_lens.test.tsx (Home's connect door equals the one list of ways in) · src/navigation/__tests__/routeGuard.test.ts (the guided-setup door stays open — the loop cannot come back)",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "Both questions closed 2026-09-14. (1) His answer: \"Connect your bank\" — Home was the one screen still saying 'Connect your first account ›'; it now takes the words from src/constants/doors.ts, the onboarding spec is v02, and canon row 17 retires the old words. (2) 'circular loop' needed no answer from him: it is Home's first-run block, where 'Or answer guided setup questions ›' and 'Pick up where you left off →' both bounced straight back to Home, so the guided setup could never be reached. The route guard was fixed on 2026-08-28 and shipped in Build 54 (commit 6e360fb), and routeGuard.test.ts holds it. The question should not have been asked: the answer was already written in the code."
+ },
+ {
+  "id": "Brief R1",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "never the word \"safe\" — kills \"safe to spend\" and \"safe withdrawal rate\"",
+  "rows": "every screen",
+  "status": "TESTED",
+  "code": "PlanHubScreen rateWords (no \"safe\"); \"safe to spend\" cut with the metric; the builder's BANNED-word guard",
+  "proof": "build guard (BANNED words) + one_term_per_concept.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief R2",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "an unknown input produces no number and a reason — never a default",
+  "rows": "every figure",
+  "status": "CODED",
+  "code": "A46 (no coupon → $0, named); Q48 empty state ($0 — nothing entered yet, mock pending); the 4.2% defaults deleted",
+  "proof": "A46 tests",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": "Still open: the kind-level benchmark returns (ASSET_KINDS ret) act as assumed growth — Q44."
+ },
+ {
+  "id": "Brief R3",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "show the fact, not the verdict — no grading",
+  "rows": "ratios and figures",
+  "status": "CODED — in part",
+  "code": "odds shown without a verdict band; Tips \"Overspent by\" is a fact",
+  "proof": "—",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": "Still graded: Goals debt-to-income colours good / caution / red (GoalsScreen dti.status). Your call: cut the grading?"
+ },
+ {
+  "id": "Brief R4",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "a tax figure requires a YEAR — net worth shows no tax",
+  "rows": "MK-NW-M-036 area",
+  "status": "TESTED",
+  "code": "HoldingDetailScreen: the estimated-tax line cut (brief §C Q12)",
+  "proof": "src/screens/__tests__/holding_detail_fcc.test.tsx",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief R5",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "class and liquidity are separate fields",
+  "rows": "asset records",
+  "status": "RULED",
+  "code": "not built — no liquidity field exists (see Brief D1)",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief R6",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "full precision throughout, round once at display",
+  "rows": "every function",
+  "status": "TESTED",
+  "code": "executed as Q49 / G37 on 2026-09-09",
+  "proof": "src/__tests__/precision_guard.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief R7",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "source always, date only when stale",
+  "rows": "every published figure",
+  "status": "CODED — in part",
+  "code": "valueFreshness dates on balances; inflation default carries source + checked date",
+  "proof": "—",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": "Kind-A figures (tax bands, deduction, SS factors, RMD table) name no source in the FILE — finding A41 open."
+ },
+ {
+  "id": "Brief R8",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "one mechanism per shape: amount + start year + end year + growth rate",
+  "rows": "loan payments, part-time income, health premiums",
+  "status": "RULED",
+  "code": "not built — see Brief D7 (part-time, health premiums)",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief B1",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "flat pensions are being inflated — a fixed-versus-inflating flag per stream; Social Security inflates, pensions and annuities flat",
+  "rows": "MK-PL-M-… will-it-last inputs",
+  "status": "TESTED",
+  "code": "RetirementCockpit.tsx:130 — streams carry inflates; Social Security true, pension/annuity flat",
+  "proof": "src/domain/invariants.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief B2",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "Social Security factors anchored at 67 — full-retirement-age table by birth year; the input is the statement (FRA) amount",
+  "rows": "MK-PL-… ssTiming",
+  "status": "TESTED",
+  "code": "src/domain/retirement/ssTiming.ts fullRetirementAge + FULL_RETIREMENT_AGE; RetirementCockpit:98 ssMonthly = statement amount at FRA",
+  "proof": "src/__tests__/ray_numbers_probe.test.ts· src/__tests__/statutory_constants.test.ts· src/domain/retirement/ssTiming.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief B3",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "the legacy target comes off the pot while working too, not only once retired",
+  "rows": "will-it-last inputs",
+  "status": "TESTED",
+  "code": "RetirementCockpit.tsx:68 spendableEgg = nestEgg − bequest, unconditional (B3 comment at :123)",
+  "proof": "src/__tests__/edge_extremes.test.ts· src/__tests__/golden.test.ts· src/domain/retirement/col.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief B4",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "RMD start age by birth-year rule, one dated table, Roth 401(k) exempt, no duplicate literal",
+  "rows": "MK-PL-F-… decumulation",
+  "status": "TESTED",
+  "code": "src/domain/decumulation rmdStartAgeFor (birth-year rule) — the one place",
+  "proof": "src/__tests__/state_contract.test.ts· src/domain/decumulation/decumulation.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief B5",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "withdrawals and RMDs are not guaranteed income — paycheck lists each line; the plan input is outside money only",
+  "rows": "MK-CF-M-… paycheck · will-it-last",
+  "status": "TESTED",
+  "code": "guaranteedOutsideStreams (G13, 2026-09-08); the paycheck lists Social Security, pension, withdrawal, RMD separately",
+  "proof": "src/screens/__tests__/build43_feedback.test.tsx",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief B6",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "odds: more than 400 paths, nearest 5, no best-to-worst band",
+  "rows": "MK-PL-M-… odds",
+  "status": "TESTED",
+  "code": "1,000 paths (seed 42); rounded to 5 (C2); the band removed",
+  "proof": "src/screens/__tests__/cashflow_fcc.test.tsx· src/screens/__tests__/will_it_last_detail.test.tsx",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief B7",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "money-market: name-first classification on every road, broker tag as fallback; a class change between syncs is kept and flagged",
+  "rows": "MK-NW-… classes",
+  "status": "TESTED",
+  "code": "assetClassOf → incomeBearingClassOf(label) first; class_flag on Position; class_source user wins",
+  "proof": "src/__tests__/e2e_walk_2026_08_11.test.tsx· src/__tests__/founder_2026_08_11.test.tsx· src/domain/assets/reclassify.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief B8",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "decimal arithmetic — full precision, round once",
+  "rows": "every function",
+  "status": "TESTED",
+  "code": "executed as Q49 (2026-09-09): full-precision JavaScript numbers, rounding once at display",
+  "proof": "src/__tests__/precision_guard.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": "Corrected 2026-09-12: the ledger and money functions (Calculation Module code/engines/money.ts, decimal.ts) have run on an exact decimal type since 2026-08-20 (Track 0); the app's domain code keeps JavaScript numbers at full precision and rounds once (Q49). Say if the domain should move to the decimal type too — a separate build."
+ },
+ {
+  "id": "Brief C",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "14 metrics cut: tax-loss harvesting, cash drag, age of money, savings rate, safe to spend, personal inflation, sequence buffer, drift, funded ratio, risk measures, look-through, fund fees, embedded tax, employer-stock flag",
+  "rows": "the 14 metric rows",
+  "status": "TESTED",
+  "code": "none of the 14 is on a screen; cash drag and embedded tax carry a dated CUT comment; the savings-rate function remains for the budget only",
+  "proof": "src/screens/__tests__/insights_screen.test.tsx · holding_detail_fcc.test.tsx",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief C — deferred",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "deferred, not dropped: forward income (Q18), budget rollover (Q28), non-USD holdings (Q25 — store the currency field now)",
+  "rows": "—",
+  "status": "RULED",
+  "code": "not built; the currency field is not stored (Q08 gave foreign currency a cash kind valued in dollars; the code is Q43)",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief D1",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "liquidity tiers — Liquid / Sellable / Locked / Not spendable; liquid net worth = first tier; retirement tagged by age",
+  "rows": "net-worth figures",
+  "status": "RULED",
+  "code": "not built",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief D2",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "hand-entered revaluations marked; market-priced entries spread evenly across the gap; house/car booked on the day",
+  "rows": "change walk · returns",
+  "status": "RULED",
+  "code": "not built",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief D3",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "both boundary days inside; beginning value = close of the day before the start; Dietz weights over the inclusive count",
+  "rows": "MK-PF-… window returns",
+  "status": "TESTED",
+  "code": "Calculation Module code/engines/window-return.ts — beginningAsOf = the day before the start",
+  "proof": "src/screens/__tests__/coverage_line.test.tsx",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief D4",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "return stays money-weighted; thresholds in one module; timing-sensitivity band replaces the 10% gate; refuse when the denominator ≤ 0",
+  "rows": "MK-PF-… return",
+  "status": "TESTED",
+  "code": "window-return.ts dateless-flow share threshold; PerformanceScreen:342 the band refusal shows the dollar walk",
+  "proof": "src/screens/__tests__/coverage_line.test.tsx",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief D5",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "the Plaid overlap — both versions side by side, the person chooses per transaction; stable pair identity; unmatched rows kept and flagged",
+  "rows": "imports",
+  "status": "RULED",
+  "code": "not built as a choice — the sync dedupes on a stable row identity (snaptrade.ts) so re-ingesting never doubles money; no side-by-side screen",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief D6",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "affordability replaces safe-to-spend: recurring cost with an end date; one-off purchase against liquid assets and months of cover",
+  "rows": "cash flow",
+  "status": "RULED",
+  "code": "not built",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief D7 — inflation lever",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "default to the dated 30-year average, editable",
+  "rows": "MK-PL-F-083",
+  "status": "TESTED",
+  "code": "executed as G30 (2026-09-08)",
+  "proof": "src/domain/retirement/inflation",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief D7 — the rest",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "property sale/purchase as two events · stepped part-time income · pre-65 health premiums as a spread · owner tag you/spouse/joint with a full-value joint column · survivor inputs · insurance labels (SIPC clause) · amber box sorted by money · expense-to-income ratio (TTM) · pacing method stated · debt-to-asset · debt-payments-to-income denominator stated",
+  "rows": "—",
+  "status": "RULED",
+  "code": "not built: property events, part-time steps, health premiums, owner tag, survivor inputs, insurance labels, expense-to-income ratio, debt-to-asset. Partly there: the unclassified section (amber), the pace card (method not stated on screen), debt-to-income on Goals (graded — see R3)",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief E1",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "state tax in the capital-gains figure — one tab said missing, one said included",
+  "rows": "MK-NW-M-036/037",
+  "status": "RULED",
+  "code": "the code applies NO state tax to capital gains (capGains, performance/index.ts); the file must say \"federal only\"",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": "File fix: the master row to state federal only."
+ },
+ {
+  "id": "Brief E2 · E4 · E5 · E6 · E12",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "status disagreements, work-list generation, engine counts, tab references, the PINNED word — all in the old metrics deliverable",
+  "rows": "the old METRICS-DELIVERABLE file",
+  "status": "CODED — superseded",
+  "code": "the master is built from the code since 2026-08-26 (identifiers, headers, formula agreement); the old file and its statuses are retired",
+  "proof": "build-moneykeel-master.py · check-formula-agreement.py",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief E3",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "\"money-weighted\" names two things — rename PORTFOLIO_RETURN to value-weighted; reserve money-weighted for the IRR",
+  "rows": "MK-PF-M-… return",
+  "status": "RULED",
+  "code": "not done: moneyWeightedReturn (bisection IRR) and the value-weighted average both still read \"money-weighted\" (findings A12, B06)",
+  "proof": "—",
+  "coded": "",
+  "verified": "",
+  "notes": "Needs your decision with A12/B06: which method is THE return."
+ },
+ {
+  "id": "Brief E7",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "the long-term rule is \"more than one year\", not twelve whole months",
+  "rows": "MK-NW-M-036",
+  "status": "TESTED",
+  "code": "capGains: long-term begins the day after the first anniversary (performance/index.ts:325) — the code is right; the file wording (B10) still says ≥ 365 whole days",
+  "proof": "src/domain/performance/performance.test.ts· src/domain/scenarios.test.ts· src/screens/__tests__/draw_steer_fcc.test.tsx",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": "File fix pending (B10)."
+ },
+ {
+  "id": "Brief E8",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "over-65 additional standard deduction",
+  "rows": "MK-CF-F-187",
+  "status": "TESTED",
+  "code": "executed as G3 (2026-09-08)",
+  "proof": "src/domain/income/tax tests",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief E9",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "married bands are not double the single ones at the top",
+  "rows": "MK-CF-F-… tax",
+  "status": "TESTED",
+  "code": "tax.ts TAX_TABLES: the married table is explicit (37% threshold $768,700), never derived by doubling",
+  "proof": "MoneyKeel/functions/cashflow/base-pay.test.ts· src/__tests__/adversarial_pass.test.tsx· src/__tests__/state_contract.test.ts",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief E10",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "state tax applies to taxable income, never gross",
+  "rows": "MK-CF-F-… tax",
+  "status": "CODED",
+  "code": "tax.ts:104 and :338 — the state rate multiplies taxable income",
+  "proof": "—",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": ""
+ },
+ {
+  "id": "Brief E11",
+  "date": "2026-08-20",
+  "source": "Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
+  "ruling": "both ledger reconciliation assertions (holdings + cash = the broker total; re-ingest never doubles money)",
+  "rows": "sync",
+  "status": "TESTED",
+  "code": "snaptrade.ts stable row identity; the sync dedupe registry",
+  "proof": "Calculation Module code/probes/reconciliation-golden.probe.test.ts (both assertions, golden files) · the sync dedupe tests",
+  "coded": "2026-09-12 (tallied)",
+  "verified": "",
+  "notes": "Corrected 2026-09-12: both assertions were built and golden-tested on 2026-08-20 (Track 1 step 5)."
+ },
+ {
+  "id": "G2",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "agree — long-term means MORE than one year; exactly one year is short-term",
+  "rows": "MK-NW-M-036 · MK-NW-M-037 · MK-PF-F-006",
+  "status": "TESTED",
+  "code": "the code was right (capGains tests the day after the first anniversary); both formula columns on the two rows corrected 2026-09-12",
+  "proof": "src/domain/performance/performance.test.ts · check-rulings-in-file.py",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "",
+  "expect": [
+   {
+    "tab": "networth",
+    "key": "MK-NW-M-036",
+    "col": "Formula (mathematical)",
+    "contains": [
+     "MORE than one year"
+    ]
+   },
+   {
+    "tab": "networth",
+    "key": "MK-NW-M-037",
+    "col": "Formula (in words)",
+    "contains": [
+     "day after the first anniversary"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G5",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "agree — the file must say 2.5% is divided by 100 before use",
+  "rows": "MK-PL-F-067 willItLastInputs",
+  "status": "TESTED",
+  "code": "the code was consistent ((inflationRate ?? 2.5) / 100); the assumption now says so on the function row",
+  "proof": "src/domain/retirement/inflation tests · check-rulings-in-file.py",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "",
+  "expect": [
+   {
+    "tab": "functions_from_code",
+    "key": "MK-PL-F-067",
+    "col": "Assumptions it makes",
+    "contains": [
+     "divided by 100"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G7",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "agree — no flat 22% inside the odds; every caller passes its own effective rate. His question: what if a caller has no rate to pass?",
+  "rows": "MK-PL-F-050 simulate · MK-PL-F-067",
+  "status": "TESTED",
+  "code": "the 0.22 default deleted (retirement/index.ts): no rate → no tax applied, and the row says so; the one real caller (willItLastInputs) always passes the person's own rate; the 10%–60% clamp and the 60% cap declared",
+  "proof": "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "ANSWER: a caller with no rate gets NO tax on withdrawals — not a guess — and the assumption on the row says so. In practice the rate is always computable from filing status and income, which the odds path already does.",
+  "expect": [
+   {
+    "tab": "functions_from_code",
+    "key": "MK-PL-F-050",
+    "col": "Assumptions it makes",
+    "contains": [
+     "never a built-in 22%"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G11",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "agree — a missing maturity date is unknown, not \"due now\"",
+  "rows": "MK-NW-M-025 · MK-NW-M-026 · MK-NW-F-058 · MK-NW-F-060 · MK-NW-F-064",
+  "status": "TESTED",
+  "code": "yearsToMaturity → nothing when the date is missing or unreadable; approxYTM, bondRateSensitivity and priceAtYield refuse in turn; the two rows say so",
+  "proof": "src/domain/bonds/g11_no_maturity.test.ts · check-rulings-in-file.py",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "",
+  "expect": [
+   {
+    "tab": "networth",
+    "key": "MK-NW-M-025",
+    "col": "Formula (in words)",
+    "contains": [
+     "NO answer"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G12",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "agree; ensure compliance with the synonym ruling",
+  "rows": "MK-CF-M-004 · MK-CF-M-019 · MK-XS-M-007",
+  "status": "TESTED",
+  "code": "the month's outflow (expenses + debt paid) now comes from ONE function, MK-CF-F-194 monthOutflow (MoneyKeel/functions/cashflow/this-month.ts), not from the screen; the labels read 'Outflow (expenses + debt)' and 'Outflow (expenses)' per cluster #3",
+  "proof": "MoneyKeel/functions/cashflow/month-outflow.test.ts · cashflow_fcc.test.tsx",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "MK-CF-M-004 names MK-CF-F-194 from 2026-09-12.",
+  "expect": [
+   {
+    "tab": "cashflow",
+    "key": "MK-CF-M-004",
+    "col": "Function ID",
+    "contains": [
+     "MK-CF-F-194"
+    ]
+   },
+   {
+    "tab": "cashflow",
+    "key": "MK-CF-M-004",
+    "col": "Formula (in words)",
+    "contains": [
+     "Outflow (expenses + debt)"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G15",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "agree — the words must say the statement amount is at the person's OWN full retirement age",
+  "rows": "MK-PL-M-008 · MK-PL-M-011 · MK-PL-M-029",
+  "status": "TESTED",
+  "code": "the code was right; the three rows' words now state the schedule (66 to 67 by birth year) and the SSA reduction and credit formula",
+  "proof": "src/domain/retirement/ssTiming.test.ts · check-rulings-in-file.py",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "",
+  "expect": [
+   {
+    "tab": "plan",
+    "key": "MK-PL-M-008",
+    "col": "Formula (in words)",
+    "contains": [
+     "YOUR full retirement age",
+     "5/9 of 1%"
+    ]
+   },
+   {
+    "tab": "plan",
+    "key": "MK-PL-M-011",
+    "col": "Formula (in words)",
+    "contains": [
+     "YOUR full retirement age",
+     "5/9 of 1%"
+    ]
+   },
+   {
+    "tab": "plan",
+    "key": "MK-PL-M-029",
+    "col": "Formula (in words)",
+    "contains": [
+     "YOUR full retirement age",
+     "5/9 of 1%"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G24",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "ok — the per-class benchmark table (value, source, period) on the Reference tab; the generator fixed",
+  "rows": "Reference tab · MK-NW-F-035 · MK-NW-F-037",
+  "status": "TESTED",
+  "code": "the Reference tab prints BENCHMARK — <kind>: return · source · period · ESTIMATE, read from ASSET_KINDS and BENCHMARK_META on every build; the rounding and ×100 phrases fixed 2026-09-08 (C4)",
+  "proof": "check-rulings-in-file.py",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "",
+  "expect": [
+   {
+    "tab": "Reference",
+    "key": "BENCHMARK — Stocks / Funds",
+    "col": "Detail",
+    "contains": [
+     "10.4% a year",
+     "S&P 500"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G36",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "ok — state the months-left convention; move the division off the screen",
+  "rows": "MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029",
+  "status": "TESTED",
+  "code": "MK-CF-F-195 monthsLeftInYear and MK-CF-F-196 perMonthToFill in src/domain/income/limits.ts (the current month counts; December → 1); the Contribution-room screen calls them; the four rows say so",
+  "proof": "src/domain/income/g36_months_left.test.ts · check-rulings-in-file.py",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "",
+  "expect": [
+   {
+    "tab": "menu",
+    "key": "MK-MN-M-005",
+    "col": "Formula (in words)",
+    "contains": [
+     "current month counted"
+    ]
+   },
+   {
+    "tab": "menu",
+    "key": "MK-MN-M-005",
+    "col": "Function ID",
+    "contains": [
+     "MK-CF-F-196"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "C1",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "ok — keep both engines (money-weighted and window return are different figures); fix the file row",
+  "rows": "MK-XS-M-004 · MK-PF-F-019",
+  "status": "TESTED",
+  "code": "the row corrected under G18; both functions stay, each row describing its own figure",
+  "proof": "check-rulings-in-file.py (G18)",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "Which method is THE return on the Performance screen stays your decision (A12 / E3)."
+ },
+ {
+  "id": "C3",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "ok — the file names the real classes; Unclassified counts as investments",
+  "rows": "MK-XS-M-003 · MK-NW-F-021",
+  "status": "TESTED",
+  "code": "no silent drop (the code includes the mixed class); the row's maths now lists Stocks / Funds, Bonds & CDs, Alternatives, Unclassified",
+  "proof": "check-rulings-in-file.py",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "",
+  "expect": [
+   {
+    "tab": "multiple_screens",
+    "key": "MK-XS-M-003",
+    "col": "Formula (mathematical)",
+    "contains": [
+     "Unclassified"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G1",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
+  "ruling": "agree — every contribution limit uses the age attained in the calendar year (this year − birth year), the IRS test",
+  "rows": "MK-CF-F-053 · MK-CF-F-054 · MK-CF-F-055 · the onboarding 401(k) step · the Contribution-room screen",
+  "status": "TESTED",
+  "code": "ageAttainedInYear in src/domain/income/limits.ts; the onboarding 401(k) step and the Contribution-room screen both use it (the onboarding step used the birthday-aware age and offered $8,000 where the law gives $11,250); the convention stated on the three limit rows; the rule in the published-sources register",
+  "proof": "src/domain/income/g1_age_attained_in_year.test.ts · guard_d4_published_sources.test.ts · check-rulings-in-file.py",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "ANSWER to his question: the three limit functions are the 401(k), IRA and HSA limits by age — MK-CF-F-053, -054, -055.",
+  "expect": [
+   {
+    "tab": "functions_from_code",
+    "key": "MK-CF-F-053",
+    "col": "Assumptions it makes",
+    "contains": [
+     "attained at any time in the calendar year"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "G4",
+  "date": "2026-09-12",
+  "source": "his -jj copy of the second-verification assessment (column I) and chat, 2026-09-12",
+  "ruling": "the caveat under the federal-only take-home must name its subject and use the real withholding: 6.2% up to the wage base, 1.45% on all, 0.9% more above $200,000 — \"Let's not assume that reader knows what statement is referring to. Always be explicit.\"",
+  "rows": "MK-CF-O-001 basePay (shortBy) · the Base-pay screen · mock income-end-to-end v07",
+  "status": "TESTED",
+  "code": "payrollTaxWithheld in MoneyKeel/functions/cashflow/base-pay.ts (SS_WAGE_BASE $184,500, MEDICARE_ADDITIONAL_THRESHOLD $200,000), summed per earner for shortBy; the sentence on the Base-pay screen and in the mock now opens \"The take-home above is higher than it will really be, by roughly $X a month.\"; the mock's $1,460 (which did not follow from its own $138,000) is $880; the mock's household band now equals the card's take-home",
+  "proof": "MoneyKeel/functions/cashflow/payroll-tax.test.ts · guard_d4_published_sources.test.ts",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "The flat 7.65% was never deducted from take-home (Gemini's claim was false); only the caveat's figure was overstated above the wage base."
+ },
+ {
+  "id": "G9",
+  "date": "2026-09-12",
+  "source": "chat, 2026-09-12 (\"ask for it\")",
+  "ruling": "ask for the birth month (already asked, required); one age convention PER PURPOSE — every rule and projection runs on the age attained in the calendar year; what a person reads about themselves and Social Security timing use the birthday-aware age; no stand-in month",
+  "rows": "MK-XS-F-017 currentAge · MK-PL-F-067 willItLastInputs · the Retirement cockpit · the onboarding age helper",
+  "status": "TESTED",
+  "code": "the onboarding asks month + year (both required). Two helpers, each named for its purpose: ageFromProfile / ageAttainedInYear (year-attained) for every rule, limit, withdrawal start and the plan's calendar-year stepping; ageToday / ageTodayFromProfile (birthday-aware with the month, year-attained without, nothing without a year) for what the person reads and for Social Security timing (SsTimingScreen). The June stand-in is gone.",
+  "proof": "src/domain/profile/g9_age_convention.test.ts",
+  "coded": "2026-09-12",
+  "verified": "",
+  "notes": "Stand-ins remain where the birth year is MISSING: the cockpit assumes 45, Insights 45, the cash-flow model and the draw steer 68, the onboarding helper 35/65 — an open R2 item on the workplan for your call."
+ },
+ {
+  "id": "Orchestrator rule 1",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "one question, one orchestrator — orchestrators are grouped by the question a screen asks (what am I worth · will my money last · what did my pay come to this month), never by data type; an orchestrator composes dependent functions and hands out figures, and does no arithmetic of its own; the same question asked on different screens is answered by the same orchestrator — a screen never gets its own copy (founder, 2026-09-13: \"same question on different screen — same orchestrator\")",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 2",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "one concept, one function — a concept is computed by exactly one dependent function, called over whatever set it is asked about (total assets over all accounts, and over one institution's accounts, is the same function); a total and the sum of its parts are pinned by an invariant test, never assumed",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 3",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "orchestrators do not call orchestrators — a figure two questions need is a dependent function both call; a screen that needs two questions answered calls two orchestrators",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 4",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "inputs assembled once per family — one function builds the person's state for a family and every orchestrator in that family reads it; no orchestrator and no screen assembles its own",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 5",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "screens compute nothing — a figure derived on screen from two others (a share, a difference, a percentage) is a function with a row, however small",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 6",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "shared dependent functions are allowed and are recorded on every orchestrator row whose closure holds them; the closure is generated from the code, never typed",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 7",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "a door hands out figures and the walk behind them; it is named MK-<family>-O-NNN plus a verb-noun, the form the four cash-flow doors already use",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 8",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "action functions and bring-data-in functions sit outside every orchestrator, and each is listed as such so the closure check has nothing unexplained",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 9",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "completeness is proven three ways before a question is closed — every figure rendered on a screen is claimed by one row (figure census from the rendered screens, not from reading); every displayed or dependent function is inside at least one orchestrator's closure; every orchestrator is named by at least one row and imported by at least one screen file",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 10",
+  "date": "2026-09-13",
+  "source": "chat, 2026-09-13 (\"I like your recommendations. Let's create a plan.\")",
+  "ruling": "the map before the code — no orchestrator is built before its row on the orchestrator map is approved by the founder; grouping conflicts go to him one row each, by identifier, with a recommendation",
+  "rows": "moneykeel_calc_spec_one-door-per-question_v01.md § The design rules · the orchestrator map (to be built) · every MK-XX-O-NNN row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Becomes a guard when the loop is built (spec § Closing the loop, steps 1–3 and 5) — until then it is a rule on paper."
+ },
+ {
+  "id": "Orchestrator rule 11",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (\"go ahead and execute on step 1, 2, 3\")",
+  "ruling": "a door DECLARES each figure it hands out beside the code that computes it (identifier, the words on screen, unit, formula in plain English, inputs, decisions, refusal); a screen prints a figure ONLY by its identifier; and the master file's figure rows are PRINTED from those declarations rather than typed, so the file and the code cannot disagree",
+  "rows": "MK-CF-M-030…046 · moneykeel_calc_spec_one-door-per-question_v01.md § Rule 11",
+  "status": "TESTED",
+  "code": "MoneyKeel/functions/_figure-spec.ts · MoneyKeel/functions/figures.ts · src/components/figure.ts · build-moneykeel-master.py (declared_for · declared_row)",
+  "proof": "src/__tests__/figure_register_export.test.ts (every declaration complete, register written) · src/__tests__/guard_figures_declared.test.ts (the ratchet) · src/__tests__/photograph_figures.test.tsx (byte-identical: no figure changed)",
+  "coded": "2026-09-14",
+  "verified": "",
+  "notes": "17 figures declared on the two income doors; the other 164 rows stay in the builder's hand-typed lists and only fall from here."
+ },
+ {
+  "id": "Door wording — Connect your bank",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (\"connect your bank\")",
+  "ruling": "connect your bank",
+  "rows": "src/constants/doors.ts (the one list of ways in) · Home first-run block · Sharpen your plan · What counts toward retirement · moneykeel_pres_spec_onboarding-flow_v03.html",
+  "status": "TESTED",
+  "code": "HomeScreen.tsx reads its connect door from DOORS instead of typing 'Connect your first account ›'; canon row 17 retires the old words across the app",
+  "proof": "src/screens/__tests__/first_run_lens.test.tsx · src/__tests__/one_term_per_concept.test.ts (canon row 17)",
+  "coded": "2026-09-14",
+  "verified": "",
+  "notes": "From his build-53 onboarding note, which said 'connect your first account' where the door already said 'Connect your bank ›'. Superseded the same day by 'One door, one term — the ways to add an account': the connect door becomes 'Link it (read-only)' once that mock is approved and built."
+ },
+ {
+  "id": "Door — Add something by hand",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (\"love it. do it.\")",
+  "ruling": "love it. do it.",
+  "rows": "src/constants/doors.ts · Home first-run block · Sharpen your plan · What counts toward retirement · Add account · moneykeel_pres_spec_onboarding-flow_v03.html",
+  "status": "TESTED",
+  "code": "One destination: the door opens the Add account form in one tap on all three screens (Home took it to the Net worth tab). One wording: the line under it is the shared list's, 'Your home, savings, or an account with no login.' Nothing lost from setup: the first account saved by hand also creates the rows for accounts named during setup, which until now only the Net worth tab did.",
+  "proof": "src/__tests__/guard_one_list_of_doors.test.ts (no screen types a door itself) · src/screens/__tests__/first_run_lens.test.tsx (Home's door opens /add-account) · src/screens/__tests__/add_by_hand_prefill.test.tsx (setup rows appear once, from any door)",
+  "coded": "2026-09-14",
+  "verified": "",
+  "notes": "The recommendation he approved: one destination, one wording, nothing lost from setup."
+ },
+ {
+  "id": "One door, one term — the ways to add an account",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (\"one door one term rule - so change on all.\")",
+  "ruling": "one door one term rule - so change on all.",
+  "rows": "src/constants/doors.ts · Home first-run block · Sharpen your plan · Plan tab, What counts toward retirement · Net worth first day · Net worth add sheet · Connect an account screen · Performance · MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "The three doors read \"Link it (read-only)\", \"Add by hand\" and \"Import from a file\" on every screen, under the heading \"How do you want to add an account?\" — the words he chose from the Net worth add sheet, and the heading he asked for because \"it\" named nothing. Supersedes the same morning's \"Connect your bank\". A screen change, so the mock comes first (standing order 2026-07-19): MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html. Nothing is built until he approves it."
+ },
+ {
+  "id": "Screen title size — 20 points",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14",
+  "ruling": "standard size 20",
+  "rows": "every screen's title text (the h1 and every style that plays that part)",
+  "status": "TESTED",
+  "code": "src/screens/*.tsx — h1 on 32 screens (CashFlowScreen 30→20, the 24s→20), PerformanceScreen investTitle, NetWorthScreen introTitle and wizTitle, OnboardingScreen heading, FirstRunScreen introH1, AuthScreen cardTitle: 38 styles set to 20",
+  "proof": "src/__tests__/guard_screen_title_size.test.ts — fails if any screen title is not 20 points; seen failing when GoalsScreen h1 was put back to 24",
+  "coded": "2026-09-14",
+  "verified": "",
+  "notes": "Every screen title is 20 points (Typography lg). Today 31 screens use 24, Cash flow 30, Will it last and Look back 20. Coded the same day with a guard test. Figures that look like titles stay as they are: Will it last headline (the odds), Month detail headline, Required withdrawals bigLine, Home heroBig."
+ },
+ {
+  "id": "Screen titles — not required on every screen",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14",
+  "ruling": "I take back title not need for every screen.",
+  "rows": "all screens",
+  "status": "TESTED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Withdraws the same day's \"we cannot have screen without title\". The Net worth tab keeps no title. Nothing to code."
+ },
+ {
+  "id": "MoneyKeel at the top of every screen",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14",
+  "ruling": "Your Import from a file screen did not look similar to Net worth because you did not have \"MoneyKeel\" at the top which every other screen has.",
+  "rows": "the pushed screens: Import from File, Add by hand, Link an account, the step before signing in, Sharpen your plan and every other screen without the top bar",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "In the app today only the five tab screens (and sign-in and first-run) show MoneyKeel at the top; every pushed screen has a native bar or none. Drawn on every pushed screen in mock v10, with ‹ Back in place of Menu, for approval before it is built."
+ },
+ {
+  "id": "Odds — exact, no rounding",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (on Net worth mock v07)",
+  "ruling": "per the latest ruling use exact everywhere no rounding for odds",
+  "rows": "every surface that shows the odds · MK-XS-M-002 · MK-PL-F-025 displayOdds · the precision standard (its 'nearest 5' line)",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Supersedes Brief B6 (2026-08-20) and C2 (2026-09-08), which both said nearest 5. Drawn in Net worth mock v08; the app and the file change together once v08 is approved."
+ },
+ {
+  "id": "Return on cash + investments — two decimals",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (on Net worth mock v07)",
+  "ruling": "Return on cash - use 2 decimals",
+  "rows": "MK-NW-M-002 · the Net worth change line",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "The precision standard (Q49) already says two decimals for returns; the master row and the app said one. Drawn in v08."
+ },
+ {
+  "id": "Tight ⚠ beside the emergency fund — kept",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (on Net worth mock v07)",
+  "ruling": "tight besides emergency funds - keep it",
+  "rows": "MK-NW-M-013 · the Emergency fund card",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "A named exception to Brief R3 (show the fact, not the verdict)."
+ },
+ {
+  "id": "Source chip — Linked, date only when stale",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (on Net worth mock v07)",
+  "ruling": "connected only unless stale",
+  "rows": "src/components/SourceChip.tsx · every account row",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Applies Brief R7 (source always, date only when stale) to the chip."
+ },
+ {
+  "id": "Linked / Link again",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (on Net worth mock v07)",
+  "ruling": "connected / reconnected - change to linked / link again",
+  "rows": "every screen: the source chip, the fix sheet's Reconnect button, and the words for an account that is linked",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "One term per concept: the door says 'Link it (read-only)', so an account that went through it is 'Linked' and the repair is 'Link again'. A canon row is added when it is built."
+ },
+ {
+  "id": "Headings — dark bars and light-green bars",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (on Net worth mock v07)",
+  "ruling": "full green bars - dark bars for section headings and light green for sub-headings",
+  "rows": "Net worth · the screen standard §2.3",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Said about Net worth's five bars. Open: whether it also replaces the quiet section labels on the Plan tab (2026-08-13 rule)."
+ },
+ {
+  "id": "Net worth first day — no duplicated doors",
+  "date": "2026-09-14",
+  "source": "chat, 2026-09-14 (on Net worth mock v07)",
+  "ruling": "State C - what you own section has 'add account three times, + how you want to add an account - too much duplication",
+  "rows": "Net worth first day (state C)",
+  "status": "RULED",
+  "code": "",
+  "proof": "",
+  "coded": "",
+  "verified": "",
+  "notes": "Drawn in v08: one line and one set of doors under What you own; the same fix applied to Debts."
+ }
+]

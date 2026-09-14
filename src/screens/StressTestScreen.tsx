@@ -1,5 +1,6 @@
 // Emergency "what if" — stress-test a sudden expense (medical, car, job loss) against your cash:
 // can you absorb it, how long would you last, and how big should your emergency fund be?
+import { EmptyNote } from '../components/UI';
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
@@ -7,6 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { emergencyTest, monthlyEssentials } from '../domain/budget';
+import { essentialsMonthly } from '../../MoneyKeel/functions/cashflow/essentials';
 import { cashTotal } from '../domain/assets';   // canonical cash, single source
 import { Disclaimer } from '../components/Disclaimer';
 
@@ -27,8 +29,11 @@ export default function StressTestScreen() {
   const [cashStr, setCashStr] = useState(cashGuess > 0 ? String(Math.round(cashGuess)) : '');
   const [shockStr, setShockStr] = useState('3000');
   const cash = num(cashStr), shock = num(shockStr);
-  const r = useMemo(() => emergencyTest(op, cash, shock), [op, cash, shock]);
-  const ess = monthlyEssentials(op);
+  // G21 / Q21 / Q47 (2026-09-08): ONE essentials figure (MK-CF-F-190) — logged average first, typed categories only when nothing is logged
+  const essentials = useMemo(() => essentialsMonthly(store.expenses ?? [], monthlyEssentials(op)), [store.expenses, op]);
+  const ess = essentials?.monthly ?? 0;
+  const essLabel = essentials?.label ?? '';
+  const r = useMemo(() => emergencyTest(op, cash, shock, ess), [op, cash, shock, ess]);
 
   const tone = (months: number) => (months >= 6 ? Colors.primary : months >= 3 ? Colors.amber : Colors.red);
 
@@ -58,9 +63,10 @@ export default function StressTestScreen() {
         </Text>
         <Text style={styles.vSub}>
           {r.coversIt
-            ? `You'd have ${money(r.cashAfter)} left — about ${r.runwayAfter.toFixed(1)} months of essentials (${money(ess)}/mo).`
+            ? `You'd have ${money(r.cashAfter)} left — about ${r.runwayAfter.toFixed(1)} months of essentials (${money(ess)}/month — ${essLabel}).`
             : `You'd need ${money(Math.abs(r.cashAfter))} more to absorb it without borrowing.`}
         </Text>
+        {cash === 0 && <EmptyNote door="accounts" />}   {/* Q48 (MK-MN-M-024/025): no cash account entered */}
       </View>
 
       {/* job loss */}
@@ -72,10 +78,13 @@ export default function StressTestScreen() {
               <Text style={[styles.big, { color: tone(r.jobLossRunway) }]}>{r.jobLossRunway.toFixed(1)}</Text>
               <Text style={styles.bigUnit}>months your cash would last</Text>
             </View>
-            <Text style={styles.note}>Covering your {money(ess)}/mo of must-pay bills with no paycheck coming in. 3–6 months of essentials is the range most planners use.</Text>
+            <Text style={styles.note}>Covering your {money(ess)}/month of essentials ({essLabel}) with no paycheck coming in. 3–6 months of essentials is the range most planners use.</Text>
           </>
         ) : (
-          <Text style={styles.note}>Add your monthly must-pay bills (rent, food, utilities) in your spending plan to see how long your cash would last.</Text>
+          <>
+            <Text style={styles.note}>Your essential expenses come to {money(0)}/month.</Text>
+            <EmptyNote door="expenses" />   {/* Q48 (MK-MN-M-026) */}
+          </>
         )}
       </View>
 
@@ -85,12 +94,12 @@ export default function StressTestScreen() {
         {r.gapToFund > 0 ? (
           <Text style={styles.fundTxt}>3 months of essentials is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.bold, { color: Colors.amber }]}>{money(r.gapToFund)}</Text> short of it today — a goal can track it, if you want one.</Text>
         ) : (
-          <Text style={styles.fundTxt}>✓ You already have at least 3 months of essentials set aside. A strong cushion — some stretch toward 6 months — your call.</Text>
+          <Text style={styles.fundTxt}>✓ You already have at least 3 months of essentials set aside. A strong emergency fund — some stretch toward 6 months — your call.</Text>
         )}
       </View>
 
       {/* P0 (design audit ST-1): the definition every number depends on — body size, never fine print */}
-      <Text style={styles.essDef}>“Essentials” are your recurring must-pay bills (Critical + Important), not one-off or nice-to-have spending. A planning estimate.</Text>
+      <Text style={styles.essDef}>“Essentials” are your recurring essential expenses (Critical + Important), not one-time or nice-to-have expenses. A planning estimate.</Text>
       <Disclaimer />
       <View style={{ height: 40 }} />
     </KeyboardAwareScreen>
@@ -99,7 +108,7 @@ export default function StressTestScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   cardTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },

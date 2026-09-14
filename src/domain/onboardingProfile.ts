@@ -24,7 +24,7 @@ export interface OnboardingProfile {
   salaryByMonth?: Record<string, Money> | Money[];
   salaryMonthMode?: 'same' | 'months';
   tipsMonthly?: Money; whoEarns?: 'you' | 'partner' | 'both';
-  /** The partner's wage, under the SAME field names as the person's own, so every function that
+  /** The spouse’s wage, under the SAME field names as the person's own, so every function that
    *  reads a wage works on either block unchanged. Until 2026-08-27 whoEarns:'both' tagged ONE
    *  salary as belonging to two people and there was nowhere to put the second — finding B32. */
   partnerWage?: import('./income/earners').EarnerWage;
@@ -51,7 +51,7 @@ export interface OnboardingProfile {
    *  unanswered they are treated as REINVESTED, which is what they are in most accounts —
    *  counted as income you are taxed on, never as money you can spend. Mock income-v5, 3c. */
   invPaidToBank?: 'yes' | 'no';
-  // spending
+  // expenses
   monthlySpending?: Money; spendCats?: SpendCat[]; savingsByMonth?: Money[]; savingsMode?: 'auto' | 'custom';
   b_fixed?: Money; b_nonmonthly?: Money; b_flexible?: Money;
   // retirement plan
@@ -67,8 +67,15 @@ export interface OnboardingProfile {
   hasPartner?: 'yes' | 'no'; partnerName?: string; inviteCode?: string; dependentsCount?: Money;
   /** How you file, and — on a joint return only — which of you is 65 or older. Being 65+ adds
    *  to the standard deduction ($1,650 each on a joint return); we know the person's birth
-   *  year and have never known their partner's, so a couple is asked. */
+   *  year and have never known their spouse’s, so a couple is asked. */
   filingStatus?: import('./income/tax').FilingStatus;
   over65Who?: 'me' | 'both' | 'neither';
   debtName?: string; debtBalance?: Money; debtRate?: Money; debtPayment?: Money; legacyTarget?: Money;
+  /** MK-XS-I-061 — the pre-tax balance on 31 December of last year, typed by the person. The law
+   *  bases this year's required withdrawal on that balance (Treas. Reg. §1.401(a)(9)-5); when it is
+   *  not entered the app uses today's balance and says so (founder ruling 2026-09-08, G8). */
+  rmdPriorYearEndPreTax?: Money;
+  /** MK-XS-I-062 — whether the person is enrolled in Medicare. Enrolled → no HSA contribution is
+   *  allowed (IRS Publication 969); founder ruling 2026-09-08 (G10). */
+  medicareEnrolled?: 'yes' | 'no';
 }

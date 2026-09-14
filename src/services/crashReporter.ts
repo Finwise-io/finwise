@@ -18,7 +18,7 @@ let enabled = false;
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = the crash-reporting module, or nothing when it is absent
  *
  * Called by ... MK-XS-F-036 initCrashReporting
  *

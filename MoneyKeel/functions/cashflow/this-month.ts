@@ -1,14 +1,15 @@
 // Cash flow · This month — the plan, and what has actually happened.
 //
 // TWO BLOCKS THAT NEVER SHARE A ROW. Planned is what you said would happen; actual is what did.
-// Mixing them is what produced "Out (bills + debt) $8,321" sitting four rows above "Spent $45 of
+// Mixing them is what produced "Outflow (bills + debt) $8,321" sitting four rows above "Spent $45 of
 // $0 planned" — two definitions of the word planned on one card, differing by the whole amount.
 // That is finding B26.
 //
 // THE RULE THIS FILE OBEYS: every row shown is a row deducted. Nothing appears in either block
 // without being in its sum. The founder's own sheet had HELOC and a card payment listed but not
 // subtracted, which is how its surpluses read 750 and 1,300 instead of 350 and 900.
-import { toNum, round2 } from '../../../src/domain/_shared/num';
+import { declareFigures } from '../_figure-spec';
+import { toNum } from '../../../src/domain/_shared/num';
 import { requiredPayment, paymentShape, type Debt } from '../../../src/domain/debt';
 import { inMonth, DEBT_CATEGORY, type LoggedExpense } from './logged-expenses';
 
@@ -17,13 +18,109 @@ import { inMonth, DEBT_CATEGORY, type LoggedExpense } from './logged-expenses';
 export interface MonthInput {
   ym: string;                    // 'YYYY-MM' — the month being shown
   takeHomeMonthly: number;       // from basePay — the take-home
+  inflowSources?: string[];      // the sources inside takeHomeMonthly, by name — the inflow line prints them (cluster #5 ruling, 2026-09-10)
   debts: Debt[];
   plannedExpenses: number;       // from plannedMonthlySpend — the ONE canonical planned figure
   expenses: LoggedExpense[];     // everything logged, debt payments included
 }
 
 export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'spend'; paid?: boolean; note?: string; }
+
+/** THE MONTH'S OUTFLOW — expenses plus the debt actually paid — from one place. G12 (founder,
+ *  2026-09-12): the Cash-flow month card used to add the two on the screen itself; a screen doing
+ *  arithmetic is a second definition waiting to happen. A month with a saved snapshot uses the
+ *  snapshot's expenses and debt paid; a month without one uses the expenses logged so far. */
+/* ─ MK-CF-F-194 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * monthOutflow
+ *
+ * Answers ..... THE MONTH'S OUTFLOW — expenses plus the debt actually paid — from one place.
+ *
+ * Formula .....
+ *     (snap.expenses ?? 0) + (snap.debt paid ?? 0)   if snap
+ *     logged so far   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-CF-M-004
+ *
+ * Decides .....
+ *     · If expenses is missing it uses 0.
+ *     · If debt paid is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-194
+ * Changed ..... not in git yet (—)
+ */
+export function monthOutflow(snap: { spending?: number | null; debt_paid?: number | null } | null | undefined, loggedSoFar: number): number {
+  return snap ? ((snap.spending ?? 0) + (snap.debt_paid ?? 0)) : loggedSoFar;
+}
 export interface MonthBlock { lines: Line[]; surplus: number; }
+
+/** The inflow line names what is inside it — founder's cluster #5 ruling (2026-09-10): the words in
+ *  the brackets are the sources, "Inflow (income (take-home) + rent)". No sources named → the
+ *  take-home alone. */
+/* ─ MK-CF-F-192 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * inflowLabel
+ *
+ * Answers ..... The inflow line names what is inside it — founder's cluster #5 ruling (2026-09-10): the words in the brackets are the sources, "Inflow (income (take-home) + rent)".
+ *
+ * Formula .....
+ *     words = []
+ *     w = inflow source word(s)
+ *     the answer = `${prefix} (${words.join(' + ')})`
+ *
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-O-003 thisMonth
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-192
+ * Changed ..... not in git yet (—)
+ */
+export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow', sources?: string[]): string {
+  const words: string[] = [];
+  for (const s of sources ?? []) {
+    const w = inflowSourceWord(s);
+    if (!words.includes(w)) words.push(w);
+  }
+  if (words.length === 0) words.push('income (take-home)');
+  return `${prefix} (${words.join(' + ')})`;
+}
+
+/** One source of money arriving, as the bracket says it: pay is "income (take-home)", a rental is
+ *  "rent", Social Security keeps its name, anything else is its own name in lower case. */
+/* ─ MK-CF-F-193 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * inflowSourceWord
+ *
+ * Answers ..... One source of money arriving, as the bracket says it: pay is "income (take-home)", a rental is "rent", Social Security keeps its name, anything else is its own name in lower case.
+ *
+ * Formula .....
+ *     s = source.trim().to lower case()
+ *     'income (take − home)'   when starts with('salary') (or starts with('base salary') (or starts with('paycheck') (or s = 'income (take − home)' when missing or zero) when missing or zero) when missing or zero)
+ *     'rent'   when starts with('rental') (or s = 'rent' when missing or zero)
+ *     'social Security'   when starts with('social security')
+ *     the answer = replace( ÷ \(. × \)$ ÷ , '')
+ *
+ * Called by ... MK-CF-F-192 inflowLabel
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-192 inflowLabel
+ *               MK-CF-F-156 plannedMonthFlow · MK-CF-O-003 thisMonth
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-193
+ * Changed ..... not in git yet (—)
+ */
+export function inflowSourceWord(source: string): string {
+  const s = source.trim().toLowerCase();
+  if (s.startsWith('salary') || s.startsWith('base salary') || s.startsWith('paycheck') || s === 'income (take-home)') return 'income (take-home)';
+  if (s.startsWith('rental') || s === 'rent') return 'rent';
+  if (s.startsWith('social security')) return 'Social Security';
+  return s.replace(/ \(.*\)$/, '');
+}
 
 
 
@@ -36,44 +133,51 @@ export interface MonthBlock { lines: Line[]; surplus: number; }
  *
  * Formula .....
  *     0   if n = 0
- *     round(n, 2 dp)   otherwise
+ *     n   otherwise
  *
- * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
- *               MK-HM-F-006 money0 · MK-NW-F-008 incomeBearingClassOf
- *               MK-PL-F-022 goalProgressPct
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-156 plannedMonthFlow · MK-HM-F-006 money0
+ *               MK-NW-F-004 portfolioActualReturn · MK-NW-F-005 accountAllowsTicker
+ *               MK-NW-F-007 assetKind · MK-NW-F-008 incomeBearingClassOf
+ *               MK-NW-F-010 wrapperAccount · MK-NW-F-026 accountDisplayNames
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-035 blendedVolatility
+ *               MK-NW-F-056 bondInfo · MK-PF-F-017 allocation
+ *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-022 goalProgressPct
+ *               MK-ST-F-031 valueOn · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-107 mapActivityType
  *
- * Reaches ..... 47 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 113 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
- *               MK-CF-F-005 actualMonthFlow · MK-NW-F-002 alternativesSummary
- *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
- *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
+ *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
+ *               MK-CF-F-005 actualMonthFlow · MK-PF-F-017 allocation
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-011 assetClassOf
+ *               MK-NW-F-007 assetKind · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-O-001 basePay · MK-NW-F-036 benchmarkInfo
  *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
- *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-NW-F-016 cashTotal
- *               MK-PL-F-077 clamp · MK-NW-F-053 correctClassOf
- *               … and 29 more — the full list is on functions_from_code
+ *               MK-NW-F-035 blendedVolatility · MK-NW-F-056 bondInfo
+ *               … and 95 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-155
  * Changed ..... not in git yet (—)
  */
-const cash = (n: number): number => (n === 0 ? 0 : round2(n));
+const cash = (n: number): number => (n === 0 ? 0 : (n));
 
 
-/** THE PLAN for this month: the take-home, less each debt, less planned spending.
+/** THE PLAN for this month: the take-home, less each debt, less planned expenses.
  *
  *  Each debt is its own line — never lumped into "bills + debt". A person chasing a wrong figure
  *  can see which debt it came from without opening another screen. */
 /* ─ MK-CF-F-156 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * plannedMonthFlow
  *
- * Answers ..... THE PLAN for this month: the take-home, less each debt, less planned spending.
+ * Answers ..... THE PLAN for this month: the take-home, less each debt, less planned expenses.
  *
  * Formula .....
- *     lines = [{ label: 'in (take − home)', amount: round2(take home monthly), kind: 'in' }]
- *     due = round(required payment(d), 2 dp)
+ *     lines = [{ label: inflow label('Inflow', inflow sources), amount: (take home monthly), kind: 'in' }]
+ *     due = required payment(d)
  *     the answer:
  *     lines = lines
  *     surplus = cash(lines.reduce((t, l) => t + amount, 0))
@@ -90,13 +194,13 @@ const cash = (n: number): number => (n === 0 ? 0 : round2(n));
  * Changed ..... not in git yet (—)
  */
 export function plannedMonthFlow(m: MonthInput): MonthBlock {
-  const lines: Line[] = [{ label: 'In (take-home)', amount: round2(m.takeHomeMonthly), kind: 'in' }];
+  const lines: Line[] = [{ label: inflowLabel('Inflow', m.inflowSources), amount: (m.takeHomeMonthly), kind: 'in' }];
   for (const d of m.debts ?? []) {
-    const due = round2(requiredPayment(d));
+    const due = (requiredPayment(d));
     if (due > 0) lines.push({ label: d.label, amount: cash(-due), kind: 'debt' });
   }
   lines.push({ label: 'Expenses', amount: cash(-m.plannedExpenses), kind: 'spend',
-               note: 'from your spending plan' });
+               note: 'from your budget' });
   return { lines, surplus: cash(lines.reduce((t, l) => t + l.amount, 0)) };
 }
 
@@ -113,12 +217,12 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  * Formula .....
  *     logged = expenses (or none when missing) where in month(each, ym)
  *     paid for = debt payments by debt(m)
- *     lines = [{ label: 'in (take − home) received', amount: round2(take home monthly), kind: 'in' }]
- *     paid = round(paid for.get(debt id) (or 0 when missing), 2 dp)
+ *     lines = [{ label: inflow label('actual inflow', inflow sources), amount: (take home monthly), kind: 'in' }]
+ *     paid = paid for.get(debt id) (or 0 when missing)
  *     matched = Σ over [...paid for.values()] of (each)
- *     unmatched = round(all debt paid − matched, 2 dp)
- *     spending = logged where category ! = DEBT_CATEGORY
- *     spent = round(Σ over spending of (amount read as a number (0 when it is not one)), 2 dp)
+ *     unmatched = all debt paid − matched
+ *     expenses = logged where category ! = DEBT_CATEGORY
+ *     spent = Σ over expenses of (amount read as a number (0 when it is not one))
  *     the answer:
  *     lines = lines
  *     surplus = cash(lines.reduce((t, l) => t + amount, 0))
@@ -129,11 +233,8 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-O-003 thisMonth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged spending
+ * Reads ....... MK-XS-I-024 logged expenses
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-005
  * Changed ..... not in git yet (—)
@@ -141,10 +242,10 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
 export function actualMonthFlow(m: MonthInput): MonthBlock {
   const logged = (m.expenses ?? []).filter((e) => inMonth(e, m.ym));
   const paidFor = debtPaymentsByDebt(m);
-  const lines: Line[] = [{ label: 'In (take-home) received', amount: round2(m.takeHomeMonthly), kind: 'in' }];
+  const lines: Line[] = [{ label: inflowLabel('Actual inflow', m.inflowSources), amount: (m.takeHomeMonthly), kind: 'in' }];
   for (const d of m.debts ?? []) {
-    if (round2(requiredPayment(d)) <= 0) continue;
-    const paid = round2(paidFor.get(d.debt_id) ?? 0);
+    if ((requiredPayment(d)) <= 0) continue;
+    const paid = (paidFor.get(d.debt_id) ?? 0);
     lines.push({ label: d.label, amount: cash(-paid), kind: 'debt', paid: paid > 0,
                  note: paid > 0 ? 'paid' : 'not paid yet' });
   }
@@ -153,16 +254,16 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
   // totalled EVERY logged debt payment, and without this line a person who deleted a paid-off debt
   // would have seen their surplus rise by the amount they had just paid.
   const matched = [...paidFor.values()].reduce((t, v) => t + v, 0);
-  const allDebtPaid = round2(logged.filter((e) => e.category === DEBT_CATEGORY)
+  const allDebtPaid = (logged.filter((e) => e.category === DEBT_CATEGORY)
                                    .reduce((t, e) => t + toNum(e.amount), 0));
-  const unmatched = round2(allDebtPaid - matched);
+  const unmatched = (allDebtPaid - matched);
   if (unmatched > 0) {
     lines.push({ label: 'Other debt payments', amount: cash(-unmatched), kind: 'debt', paid: true,
                  note: 'logged, but not against a debt you still hold' });
   }
   const spending = logged.filter((e) => e.category !== DEBT_CATEGORY);
-  const spent = round2(spending.reduce((t, e) => t + toNum(e.amount), 0));
-  lines.push({ label: 'Spent so far', amount: cash(-spent), kind: 'spend',
+  const spent = (spending.reduce((t, e) => t + toNum(e.amount), 0));
+  lines.push({ label: 'Actual expenses so far', amount: cash(-spent), kind: 'spend',
                note: `${spending.length} logged` });
   return { lines, surplus: cash(lines.reduce((t, l) => t + l.amount, 0)) };
 }
@@ -189,7 +290,8 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-F-005 actualMonthFlow · MK-CF-O-003 thisMonth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged spending
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-157
  * Changed ..... not in git yet (—)
@@ -201,7 +303,7 @@ export function debtPaymentsByDebt(m: MonthInput): Map<string, number> {
     if (e.category !== DEBT_CATEGORY || !inMonth(e, m.ym)) continue;
     const id = byLabel.get(String(e.store ?? '').trim().toLowerCase());
     if (!id) continue;                       // a payment against a debt that no longer exists
-    out.set(id, round2((out.get(id) ?? 0) + toNum(e.amount)));
+    out.set(id, ((out.get(id) ?? 0) + toNum(e.amount)));
   }
   return out;
 }
@@ -212,6 +314,88 @@ export function debtPaymentsByDebt(m: MonthInput): Map<string, number> {
  *  It does no arithmetic of its own. Both blocks come back together so the screen cannot show one
  *  without the other, and cannot build "planned" from a different source than the row beneath it. */
 export interface ThisMonth { planned: MonthBlock; actual: MonthBlock; }
+
+/** ── THE FIGURES THIS DOOR HANDS OUT (founder rule 11) ───────────────────────────────────────────
+ *  DRAFT, 2026-09-14 — declared and printed on the master file, waiting for the founder's verdict
+ *  before the Cash flow screen moves behind this door (rule 10: the row before the code).
+ *
+ *  The question is "how much have I spent this month, against the plan, and what is left". It is
+ *  answered TWICE for the same month and the two answers are never mixed: what the plan says the
+ *  month holds, and what has actually happened so far. Every figure below says which of the two it is.
+ */
+export const FIGURES = declareFigures({
+  'MK-CF-M-047': {
+    label: 'Expected inflow', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
+    answers: 'What the plan says comes in this month — take-home, and anything else that lands in this particular month.',
+    formula: 'expected inflow = Σ of every income source that lands in this month, at its take-home amount; a source that lands once a year counts only in the month it lands',
+    inputs: ['MK-CF-M-037 take-home each month', 'MK-CF-I-006 other income', 'MK-CF-I-007 rental income', 'MK-CF-I-008 retirement income'],
+    decisions: ['A month is a real calendar month, never a twelfth of a year (founder, 2026-08-28).'],
+    grain: 'one figure per household per month',
+    refusal: 'Shows $0 until income is entered, with the door to enter it.',
+  },
+  'MK-CF-M-048': {
+    label: 'Planned outflow (expenses + debt)', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
+    answers: 'What the plan says goes out this month — the budget, plus the debt payments due, plus any big bill that falls in this month.',
+    formula: 'planned outflow = planned everyday expenses + Σ of the debt payments due this month + Σ of the big bills that fall in this month',
+    inputs: ['MK-CF-I-012 planned expenses', 'MK-CF-I-013 debt payment', 'MK-CF-I-014 big bill'],
+    decisions: ['A debt payment is counted as an outflow, not as saving (founder, 2026-06-21).', 'A bill that falls once a year is shown in its own month, never spread.'],
+    grain: 'one figure per household per month',
+    refusal: 'Shows $0 until expenses or debts are entered.',
+  },
+  'MK-CF-M-049': {
+    label: '= Planned surplus', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
+    answers: 'What the plan leaves over this month, before anything has actually happened.',
+    formula: 'planned surplus = expected inflow − planned outflow',
+    inputs: ['MK-CF-M-047 expected inflow', 'MK-CF-M-048 planned outflow'],
+    grain: 'one figure per household per month',
+    refusal: 'Shows $0 until both sides are entered.',
+    note: 'The Cash flow screen used to subtract this itself (rule 5). It is the door’s figure now.',
+  },
+  'MK-CF-M-050': {
+    label: 'each planned line', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
+    answers: 'Each thing the plan says comes in or goes out this month, named, so the two totals can be checked by hand.',
+    formula: 'one line per source or commitment that falls in this month, at its amount for this month',
+    inputs: ['MK-CF-M-047 expected inflow', 'MK-CF-M-048 planned outflow'],
+    grain: 'one figure per line per month',
+    refusal: 'The list is replaced by the door to enter income or expenses when nothing is entered.',
+  },
+  'MK-CF-M-051': {
+    label: 'Inflow', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail', '/home'],
+    answers: 'What has actually come in so far this month, as opposed to what the plan expected.',
+    formula: 'inflow so far = Σ of the income recorded as received in this month up to today',
+    inputs: ['MK-CF-I-015 income recorded as received'],
+    decisions: ['Nothing is assumed to have arrived; a source counts only once it is recorded (founder, 2026-08-28).'],
+    grain: 'one figure per household per month',
+    refusal: 'Shows $0 until something is recorded as received.',
+    note: 'The words beside it name what is inside it — "Inflow (income (take-home) + rent)" — his cluster 5 ruling of 2026-09-10.',
+  },
+  'MK-CF-M-052': {
+    label: 'Outflow (expenses + debt)', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail', '/home'],
+    answers: 'What has actually gone out so far this month: the expenses logged, plus the debt payments due in the month.',
+    formula: 'outflow so far = expenses logged so far this month + Σ of the debt payments due this month',
+    inputs: ['MK-CF-I-016 logged expense', 'MK-CF-I-013 debt payment'],
+    decisions: ['Debt payments are counted in full for the month, logged or not, because they are committed.'],
+    grain: 'one figure per household per month',
+    refusal: 'Shows $0 until an expense is logged or a debt is entered.',
+  },
+  'MK-CF-M-053': {
+    label: '= Surplus', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail', '/home'],
+    answers: 'What is actually left this month so far — not what the plan said, what has happened.',
+    formula: 'surplus so far = inflow so far − outflow so far',
+    inputs: ['MK-CF-M-051 inflow so far', 'MK-CF-M-052 outflow so far'],
+    grain: 'one figure per household per month',
+    refusal: 'Shows $0 until something is recorded.',
+    note: 'The Cash flow screen used to subtract this itself (rule 5). It is the door’s figure now.',
+  },
+  'MK-CF-M-054': {
+    label: 'each received line', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
+    answers: 'Each payment recorded as received this month, named, so the inflow total can be checked by hand.',
+    formula: 'one line per payment recorded as received in this month, at its amount',
+    inputs: ['MK-CF-I-015 income recorded as received'],
+    grain: 'one figure per payment',
+    refusal: 'The list is replaced by the door to record income when nothing is recorded.',
+  },
+} as const);
 
 /* ─ MK-CF-O-003 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * thisMonth
@@ -224,7 +408,8 @@ export interface ThisMonth { planned: MonthBlock; actual: MonthBlock; }
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-050
+ *               MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-053 · MK-CF-M-054
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-003
  * Changed ..... not in git yet (—)
@@ -234,7 +419,7 @@ export function thisMonth(m: MonthInput): ThisMonth {
 }
 
 /** Is this debt one that repeats unchanged every month? Installment debt is; revolving is not.
- *  Exported here because both this file and Spending need the same answer. */
+ *  Exported here because both this file and Expenses need the same answer. */
 /* ─ MK-CF-F-159 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * isRecurringDebt
  *

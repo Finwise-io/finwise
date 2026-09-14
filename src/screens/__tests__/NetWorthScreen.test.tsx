@@ -23,14 +23,14 @@ describe('NetWorthScreen first-run intro', () => {
     expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();
     expect(screen.getByText(/Own .* − Owe /)).toBeOnTheScreen();
     expect(screen.getByText('WHAT YOU OWN')).toBeOnTheScreen();
-    expect(screen.getByText('WHAT YOU OWE')).toBeOnTheScreen();
+    expect(screen.getByText('DEBTS')).toBeOnTheScreen();
     expect(screen.getByText('💵 CASH')).toBeOnTheScreen();
     expect(screen.getByText('📈 INVESTMENTS')).toBeOnTheScreen();
     expect(screen.getByText('🏠 PERSONAL PROPERTY')).toBeOnTheScreen();
     // FOUNDER RULE 2026-08-11: ONE wording everywhere — Home, Net worth and Plan all say it this way
     expect(screen.getByText('Sample: 84% odds of lasting to age 90')).toBeOnTheScreen();
     expect(screen.getByText(/a sample, not your number/)).toBeOnTheScreen();
-    expect(screen.getByText('EMERGENCY CUSHION')).toBeOnTheScreen();
+    expect(screen.getByText('EMERGENCY FUND')).toBeOnTheScreen();
     expect(screen.getByText('— months')).toBeOnTheScreen();
     // the three ways in are ledger rows now — the label and its arrow are separate cells, so the
     // arrow can sit in the SAME trailing column every other row uses

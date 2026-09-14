@@ -8,7 +8,7 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
 
 /** The class an account SHOULD carry under the current rule. Explicit user choices are respected
  *  only when they still agree with the rule — a stale 'cash' on a CD is exactly what we are fixing. */
-/* ─ MK-NW-F-053 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-053 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * correctClassOf
  *
  * Answers ..... The class an account SHOULD carry under the current rule.
@@ -23,8 +23,17 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-054 reclassifyAccounts
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -42,7 +51,7 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
   return null;
 }
 
-/* ─ MK-NW-F-054 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-054 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * reclassifyAccounts
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -54,7 +63,19 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  *     ps = (next.positions ?? []) as any[]
  *     the answer = p
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-175 uid
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)

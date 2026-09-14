@@ -8,7 +8,7 @@
  *  2 · THEIRS, IMPLIED. They entered their take-home. Then the rate is not a guess either: it
  *      is their own gross, less their own 401(k), less what they said lands. Until 2026-08-28 this
  *      was thrown away — every screen but base pay re-estimated a figure the person had already
- *      given us, and disagreed with itself by $572 a month on the founder's own persona.
+ *      given us, and disagreed with itself by $572/month on the founder's own persona.
  *  3 · OURS, ESTIMATED. Federal income tax only, assuming the standard deduction. It does not
  *      include Social Security and Medicare (about 7.7% of a wage) or any state tax, so it reads low
  *      as a deduction and high as take-home. Founder ruling 2026-08-28: it stays federal, because
@@ -21,7 +21,7 @@
  *  conversion costs $2,400 when it costs $3,200 — and advised to make it on that basis.
  */
 import type { OnboardingProfile } from '../onboardingProfile';
-import { toNum, round2 } from '../_shared/num';
+import { toNum } from '../_shared/num';
 import { earnerWages, type EarnerWage } from './earners';
 import { salaryAnnual, taxableAnnual, filingStatusOf, stateRateOf, over65CountOf } from './onboarding';
 import { effectiveRateOnGrossFor } from './tax';
@@ -52,23 +52,24 @@ export interface RateInForce {
  *     total = 0
  *     v = (w as any).lands typical read as a number (0 when it is not one)
  *     nothing   when not (v > 0)
- *     the answer = round(total, 2 dp)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-CF-F-181 rateInForce
  *
- * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               … and 10 more — the full list is on functions_from_code
+ * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               … and 13 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-039 how often each income arrives
  *
  * Decides .....
  *     · Uses a built-in total of 0.
@@ -85,7 +86,7 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
     if (!(v > 0)) return null;                       // one silence and the household figure is a guess
     total += v * (PERIODS[String(w.salaryFreq ?? 'monthly')] ?? 12);
   }
-  return round2(total);
+  return (total);
 }
 
 /** THE ONE ANSWER every screen reads. */
@@ -108,17 +109,17 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-001 basePay
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-090 effectiveRate · MK-CF-F-010 emergencyTest
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-120 pctBaseMonthly
- *               … and 9 more — the full list is on functions_from_code
+ * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-004 incomeSummary · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-087 monthlyTaxRates
+ *               … and 12 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -126,7 +127,6 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *
  * Decides .....
  *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-181
@@ -141,7 +141,7 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
     const rate = Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
     return { rate, source: 'typed', mine: true,
              label: `your rate, ${Math.round(rate * 100)}%`,
-             covers: 'everything that comes out of your pay, as you told us' };
+             covers: 'everything that comes out of your pay, as you entered' };
   }
 
   const gross = salaryAnnual(op);

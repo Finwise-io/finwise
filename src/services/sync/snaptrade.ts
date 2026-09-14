@@ -157,8 +157,8 @@ export function mapAccountType(rawType: string | null | undefined, category?: st
  *
  * Called by ... MK-XS-F-105 mapPosition
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-105 mapPosition
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-XS-F-105 mapPosition
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -185,13 +185,13 @@ export interface MappedPosition {
   cashEquivalent: boolean;
   lots: { purchase_date: string | null; shares: number; cost_per_share: number | null }[];
 }
-// B7 (founder brief 2026-08-20): classification lives in the ONE engine — name first, broker tag
+// B7 (founder brief 2026-08-20): classification lives in the ONE function — name first, broker tag
 // as fallback only. This road only gathers the evidence. (Supersedes the inline 2026-08-04 rule
-// and the B47 finding-5 fixed-income patterns — both moved into the engine, behavior kept.)
+// and the B47 finding-5 fixed-income patterns — both moved into the function, behavior kept.)
 /* ─ MK-XS-F-105 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * mapPosition
  *
- * Answers ..... B7 (founder brief 2026-08-20): classification lives in the ONE engine — name first, broker tag as fallback only.
+ * Answers ..... B7 (founder brief 2026-08-20): classification lives in the ONE function — name first, broker tag as fallback only.
  *
  * Formula .....
  *     sym = flat symbol(p)
@@ -200,7 +200,10 @@ export interface MappedPosition {
  *     code = (sym.type.code ?? '').to lower case()
  *     tick = (sym.raw symbol or sym.symbol or '').to upper case()
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -210,7 +213,6 @@ export interface MappedPosition {
  * Decides .....
  *     · If units is missing it uses 0.
  *     · If quantity is missing it uses 0.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-105
  * Changed ..... 2026-08-20 (026b132)
@@ -295,12 +297,12 @@ export interface MappedOption { label: string; contracts: number; value: number;
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
  *     · If units is missing it uses 0.
  *     · If price is missing it uses 0.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
+ *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-106
  * Changed ..... 2026-07-18 (99d220a)
@@ -427,7 +429,7 @@ export function mapActivityType(a: StActivity): MappedActivity {
 // SnapTrade activity ids can change when they reprocess history, so identity = the composite of
 // everything that makes the row THAT row. Re-ingesting an overlapping window never doubles money.
 // The identity itself lives in the Calculation Module (importKey — Track 1 step 2); this road
-// only maps its fields in. The output is BYTE-IDENTICAL to the pre-engine format, so every
+// only maps its fields in. The output is BYTE-IDENTICAL to the pre-function format, so every
 // seenKeys registry already persisted on a device stays valid.
 /* ─ MK-XS-F-108 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * activityKey
@@ -435,7 +437,7 @@ export function mapActivityType(a: StActivity): MappedActivity {
  * Answers ..... ── duplicate-proofing ───────────────────────────────────────────────────────────────────────── SnapTrade activity ids can change when they reprocess history, so identity = the composite of everything that makes the row THAT row.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = import key(account, trade date or settlement date, type, amount, units, security, reference, description)
  *
  * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-109 dedupeActivities
  *
@@ -513,9 +515,7 @@ export function dedupeActivities(accountId: string, incoming: StActivity[], seen
  * Decides .....
  *     · If price is missing it uses 0.
  *     · If balances cash is missing it uses 0.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
+ *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-110
  * Changed ..... 2026-08-07 (0482964)
@@ -551,10 +551,7 @@ export function netCashSleeve(balancesCash: number | null | undefined, positions
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
  *               MK-XS-F-102 ingestSync
  *
- * Serves ...... MK-NW-M-022
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-111
  * Changed ..... 2026-08-07 (0482964)

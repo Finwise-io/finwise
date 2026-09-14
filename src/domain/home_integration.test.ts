@@ -17,7 +17,7 @@ const op: Record<string, any> = {
     { id: 'utilities', bucket: 'fixed', amount: '180', unit: 'dollar' },
     { id: 'groceries', bucket: 'flexible', amount: '600', unit: 'dollar' },
     { id: 'dining', bucket: 'flexible', amount: '300', unit: 'dollar' },
-    { id: 'travel', bucket: 'nonmonthly', amount: '2400', unit: 'dollar' },   // yearly → 200/mo
+    { id: 'travel', bucket: 'nonmonthly', amount: '2400', unit: 'dollar' },   // yearly → 200/month
   ],
   birthYear: '1990', birthMonth: '6', currentRetirementSavings: '50000',
   targetRetirementAge: '65', expectedRetirementSpending: '5000',

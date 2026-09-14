@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric']
+TAB_ORDER = ['Reference','Specification','rulings','capture-list','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Function that produces it','Function ID',
@@ -34,7 +34,13 @@ COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen
         'Why no function',
         'Wrong on screen — build first',
         'Where each finding stands',
-        'Active or decommissioned','Date last modified']
+        'Active or decommissioned','Date last modified',
+        'Founder comment — 2026-08-26 (the column it was written on)',
+        'Answer to the founder comment — checked against the code, 2026-09-08 (what the code does · verdict · fix)',
+        'Inputs the code reads (from the chain, this build)',
+        'Inputs — as claimed before 2026-09-09 (old inventory)',
+        'Inputs — approved list (founder, dated)',
+        'ROW VERIFIED — founder, date and how']
 
 # formulas: the mathematical form is written here; the words come from the old master where the
 # engine has a row there, and are written here where it does not.
@@ -71,7 +77,7 @@ def _load_old_words():
         if not n: continue
         n=str(n).strip()
         _KNOWN_ENGINES.add(n)
-        _oldwords[n] = str(r[jx['Formula — the actual rules']] or '').strip()
+        _oldwords[n] = canon(str(r[jx['Formula — the actual rules']] or '').strip())
         a = str(r[jx['What it answers']] or '').strip().replace('\n',' ')
         _answers[n] = (a.split('?')[0].strip() + '?') if '?' in a else (a[:90] or '')
 
@@ -95,7 +101,7 @@ def assumptions(engine, math_text, decided):
     e=str(engine); mt=(math_text or '').lower(); out=[]
     if decided: out.append('[Founder] ' + decided)
     if 'inflation' in mt or 'inflation' in e.lower():
-        out.append('[Built in] Inflation comes from a published feed, with a fallback figure when the feed is silent.')
+        out.append('[Founder] brief Q-50 (2026-08-20): inflation defaults to the 30-year average of consumer prices — 2.5% a year (Bureau of Labor Statistics CPI-U, 1996–2025), fixed and dated, stated on screen, and the person can change it on the cockpit. No live feed feeds a calculation (G30, executed 2026-09-08).')
     if '(1 + r)' in mt or 'random return' in mt or 'return' in mt and 'assumed' in mt:
         out.append('[Built in] The assumed rate of return, which the person can change on the cockpit.')
     if 'life expectancy' in mt:
@@ -110,6 +116,21 @@ def assumptions(engine, math_text, decided):
         out.append('NOT DETERMINED — no assumption recorded for this figure yet.')
     return '\n'.join(out)
 
+
+CANON = [(r'\bnet a month\b','take-home a month'), (r'\bnet a year\b','take-home a year'), (r'\bNet / month\b','Take-home / month'),
+         (r'\bsafe draw\b','draw from savings'), (r'\bsafely drawn\b','drawn from savings'),
+         (r'\bCHEQUE\b','CHECK'), (r'\bcheque\b','check'), (r'\bAn estimate, and labelled as one\b','Calculated, and labelled as one')]
+import importlib.util as _ilc, os as _osc
+_cfspec = _ilc.spec_from_file_location('mkcf_canon', _osc.path.join(_osc.path.dirname(_osc.path.abspath(__file__)), 'moneykeel_code_formula.py'))
+_cfmod = _ilc.module_from_spec(_cfspec); _cfspec.loader.exec_module(_cfmod)
+def canon(text):
+    """One word for one concept (founder standing order 2026-09-02; second verification G34).
+    The builder's own rules first, then the ONE canon list in moneykeel_code_formula.CANON — so a word
+    retired there (spending → expenses, partner → spouse, 2026-09-12) is retired on every tab."""
+    if not isinstance(text, str): return text
+    for pat, rep in CANON: text = re.sub(pat, rep, text)
+    return _cfmod.canon(text)
+BANNED = [r'\bnet a month\b', r'\bnet a year\b', r'\bNet / month\b', r'\bsafe draw\b', r'\bsafely drawn\b', r'\bcheque\b', r'\bCHEQUE\b']
 
 def numbered(text, sep='\n'):
     """A cell holding more than one thing is numbered, so it can be read and referred to."""
@@ -365,11 +386,11 @@ NETWORTH = [
  ('🏠 PERSONAL PROPERTY','sectionTotals','worked out on the screen: the sum of the accounts in the personal-property section'),
  ('class rows — by class, institution or type','classRows',     'ALLOCATION_BY_CLASS'),
  ('each account and its balance',            'a.balance',      'ACCOUNT_SPLIT'),
- ('WHAT YOU OWE · 💳 DEBTS',                  'dState.total_debt_balance', 'DEBT_PICTURE'),
+ ('DEBTS',                  'dState.total_debt_balance', 'DEBT_PICTURE'),
  ('each debt and what is left on it',        'd.remaining_balance', 'DEBT_PICTURE'),
  ('minimum monthly payment on a debt',       'd.minimum_monthly_payment', 'DEBT_REQUIRED_PAYMENT'),
  ('Monthly debt payments $X/mo',             'dState.total_monthly_debt_service', 'DEBT_PICTURE'),
- ('EMERGENCY CUSHION — X.X months',          'runwayMonths',   'worked out on the screen: cash ÷ a typical month of essentials'),
+ ('EMERGENCY FUND — X.X months',          'runwayMonths',   'worked out on the screen: cash ÷ a typical month of essentials'),
  ('of essentials covered by your cash — $X cash ÷ $Y/mo essentials','cashOnHand / monthlySpend','TOTAL_CASH · PLANNED_SPENDING'),
  ('YOUR RETIREMENT PLAN — on track for $X by age Y','pathAhead','POT_AT_RETIREMENT'),
  ('Net worth so far (setup)',                'nw.net_worth',   'NET_WORTH'),
@@ -479,7 +500,7 @@ SECONDARY = {
   ('/ss-timing','about $X in total by age N','r.lifetime','SS_LIFETIME_TOTAL'),
   ('/ss-timing','Showing example numbers (a $X/mo statement)','exampleStmt','the worked example used until a real statement goes in'),
   ('/roth','Convert to Roth this year (<year>)','A.rothConversionThisYear','the amount the person chose'),
-  ('/roth','Extra tax next April (estimate) — about $X','taxCost','TAX_ON_CONVERSION'),
+  ('/roth','Extra tax next April (calculated) — about $X','taxCost','TAX_ON_CONVERSION'),
   ('/roth','from your pre-tax $X','preTax','PRE_TAX_BALANCE'),
   ('/what-if','+$X/mo (the saving dial)','addMonthly','the amount the person chose'),
   ('/what-if','$X → $Y (nest egg before and after)','result.before.egg / result.after.egg','POT_AT_RETIREMENT'),
@@ -513,9 +534,9 @@ SECONDARY = {
   ('/goals','typical free cash to save $X/mo','capacity.avg','GOAL_CAPACITY'),
   ('/goals','each goal — $X of $Y · $Z to go','g.saved / g.target','GOAL_PROGRESS'),
   ('/goals','your non-monthly budget','sinkBasis','SINKING_FUNDS'),
-  ('/income-detail','net a year','state.total_net_annual','TOTAL_INCOME'),
+  ('/income-detail','TAKE-HOME / YEAR','state.total_net_annual','TOTAL_INCOME'),
   ('/income-detail','Gross / year','state.total_gross_annual','TOTAL_INCOME'),
-  ('/income-detail','Net / month','state.net_monthly_income','TOTAL_INCOME'),
+  ('/income-detail','Take-home / month','state.net_monthly_income','TOTAL_INCOME'),
   ('/income-detail','Employer 401(k) match','state.employer_match_annual','EMPLOYER_MATCH'),
   ('/insights','each insight and the dollars behind it','shareOf(v)','NOT IN OLD MASTER — useInsights, src/domain/insights'),
   ('/insights','Total invested · Cash total · Investable total','investable / cash','TOTAL_INVESTABLE · TOTAL_CASH'),
@@ -692,6 +713,45 @@ def _mreg_save():
     if _mreg_dirty:
         json.dump(_MREG, open(_MREG_PATH, 'w'), indent=1, sort_keys=True)
 
+# ---- THE DECLARED FIGURES (founder rule 11, 2026-09-14) ────────────────────────────────────────
+#  A door declares each figure it hands out, beside the code that computes it; the register is written
+#  to moneykeel_figures.json by src/__tests__/figure_register_export.test.ts. These rows are PRINTED
+#  from those declarations. The hand-typed lists below (MULTI, HOME, NETWORTH, SECONDARY) are what the
+#  declarations replace: a figure moves out of them the day its door declares it, and the count only
+#  falls. When they are empty the last hand-maintained part of this file is gone.
+_FIGPATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_figures.json')
+DECLARED = json.load(open(_FIGPATH))['figures'] if os.path.exists(_FIGPATH) else {}
+UNIT_WORDS = {'money': 'dollars, whole', 'money-cents': 'dollars, two decimals', 'percent': 'a percentage, whole',
+              'percent-2dp': 'a percentage, two decimals', 'count': 'a count', 'months': 'a number of months',
+              'age': 'an age in years', 'date': 'a date', 'words': 'a sentence'}
+FAM_OF_TAB = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL','multiple_screens':'XS'}
+def declared_for(tab):
+    """the declared figures whose family is this tab's, newest last"""
+    fam = FAM_OF_TAB.get(tab)
+    return sorted(((i, f) for i, f in DECLARED.items() if i.split('-')[1] == fam), key=lambda x: x[0])
+def declared_row(mid, f, tab):
+    """one row of the master, printed from a door's declaration — nothing here is typed twice"""
+    door = f.get('door', ''); fid = door.split(' ')[0] if door else ''
+    per = (' a ' + f['per']) if f.get('per') else ''
+    routes = [r for r in f.get('screens', [])]
+    unit = UNIT_WORDS.get(f.get('unit', ''), f.get('unit', ''))
+    decisions = '\n'.join(f.get('decisions') or []) or 'NONE RECORDED — the declaration names none.'
+    name = re.sub(r'[^a-z0-9 ]', '', f['label'].lower()).strip().replace(' ', '_')[:40]
+    return [mid, PARENTS.get(tab, ''), ' · '.join(routes) if routes else 'NA', f['label'], name,
+            door.split(' ', 1)[1] if ' ' in door else '', fid,
+            f['formula'], f['formula'],
+            '\n'.join(f.get('inputs') or []), unit + per, f['refusal'],
+            f.get('grain') or 'one figure per household', ('a ' + f['per']) if f.get('per') else 'as of today',
+            'Declared by ' + door, 'Declared by ' + door, decisions, decisions,
+            '', decisions, f.get('note', ''),
+            ('' if f.get('ruled') else '1. Is this row right — the words on screen, the formula, the inputs, the decisions and what it says when it cannot be computed? Say yes, or say what changes.'), '',
+            '', '', ('DECLARED IN THE CODE (rule 11) — printed from the door, not typed. RULED ' + f['ruled'] if f.get('ruled')
+                     else 'DRAFT — declared in the code and printed here, WAITING FOR YOUR VERDICT before the screens move behind the door (rule 10)'),
+            '', '', '', '', '', 'ACTIVE', TODAY,
+            '', '', '', '', '', '',
+            (('TESTED, NOT VERIFIED — you ruled on this row ' + f['ruled'] + '; the figure, its formula, inputs and refusal live in ' + door)
+             if f.get('ruled') else ('RULED? NOT YET — read this row and say yes, or say what changes. Nothing moves behind ' + door + ' until you do.'))]
+
 # ---- engine identifiers: one per engine, assigned once
 ENGINE_FAMILY = {}
 engine_id = {}
@@ -756,6 +816,56 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
         ws.append(['', PARENTS[tab], r] + ['']*20 + ['NOT STARTED — screen not yet read'])
+    # the figures this family's doors DECLARE (founder rule 11) — printed, never typed
+    for _mid, _fig in declared_for(tab):
+        _row = declared_row(_mid, _fig, tab)
+        ws.append(_row + [''] * (len(COLS) - len(_row)) if len(_row) < len(COLS) else _row[:len(COLS)])
+
+# ---- POST-PASS over the screen tabs (2026-09-08, founder rulings G26 · G34 · questions by identifier)
+def dep_from_functions(fid_cell):
+    """The dependency column, from the function registry: each function ONE step below the producer,
+    by its identifier, and what it hands up. Replaces the retired engine identifiers (G26)."""
+    idx = _fn_index()
+    ids = re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', str(fid_cell or ''))
+    if not ids: return 'No function on record — nothing to chain'
+    out = []
+    for fid in ids:
+        r = idx.get(fid)
+        if not r: continue
+        for dep in re.findall(r'(MK-[A-Z]{2}-[FO]-\d{3}) ([A-Za-z_][A-Za-z0-9_]*)', str(r.get('depends_on') or '')):
+            d = idx.get(dep[0]); outp = (d or {}).get('output') or 'output not declared'
+            line = '%s (%s) → %s' % (dep[0], dep[1], outp)
+            if line not in out: out.append(line)
+    return numbered('\n'.join(out)) if out else 'None — it reads its inputs and answers'
+
+# overrides on the PRODUCER columns are applied now, before 'Figures that name it' and the inputs'
+# reach are computed from them (G27 · G28) — the full pass runs again at the end
+_OV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_overrides.json')
+_OV = json.load(open(_OV_PATH)) if os.path.exists(_OV_PATH) else []
+for _o in _OV:
+    if _o['col'] not in ('Function ID', 'Function that produces it') or _o['tab'] not in wb.sheetnames: continue
+    _sh = wb[_o['tab']]; _hd = [str(c.value) if c.value is not None else '' for c in _sh[1]]
+    if _o['col'] not in _hd: continue
+    _ci = _hd.index(_o['col']) + 1
+    for _r in range(2, _sh.max_row + 1):
+        if str(_sh.cell(_r, 1).value or '').strip() == _o['key']:
+            _sh.cell(_r, _ci).value = _o['text']; break
+_QBM = getattr(_f, 'QUESTIONS_BY_METRIC', {})
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
+    _iO = _hd.index('Dependency — function ID → the output it uses') + 1
+    _iG = _hd.index('Function ID') + 1
+    _iV = _hd.index('Questions for you (numbered)') + 1
+    for _r in range(2, _sh.max_row + 1):
+        _mid = _sh.cell(_r, 1).value
+        if not _mid: continue
+        _sh.cell(_r, _iO).value = dep_from_functions(_sh.cell(_r, _iG).value)
+        if _mid in _QBM:
+            _cur = str(_sh.cell(_r, _iV).value or '').strip()
+            _sh.cell(_r, _iV).value = (_cur + '\n\n' if _cur else '') + '\n\n'.join(_QBM[_mid])
+        for _c in range(1, len(_hd) + 1):
+            _v = _sh.cell(_r, _c).value
+            if isinstance(_v, str): _sh.cell(_r, _c).value = canon(_v)
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
@@ -763,6 +873,7 @@ ws = sheet('inputs', INPUT_COLS)
 # stored under. The engine columns are gone: the word was retired on 2026-08-25 and neither the
 # name nor the E identifier could be looked up in the code.
 _BODIES = {}
+assert _inp.CALC_ROOTS == _fn.CALC_ROOTS if '_fn' in globals() and hasattr(_fn, 'CALC_ROOTS') else True, 'the two CALC_ROOTS lists differ — the header writer and the sweep would see different files'
 for _root in _inp.CALC_ROOTS:
     for _dp, _, _fs in os.walk(_root):
         if '__tests__' in _dp: continue
@@ -772,6 +883,18 @@ for _root in _inp.CALC_ROOTS:
                     _BODIES.setdefault(_n, _b)
 _READERS = _inp.readers(_BODIES)
 _FID = {r['name']: r['id'] for r in _FN_ROWS}
+# every function ABOVE a function — the ones whose answer it feeds, however many steps up (G28)
+_ABOVE = {}
+for _rr in _FN_ROWS:
+    for _d in re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', str(_rr.get('depends_on') or '')):
+        _ABOVE.setdefault(_d, set()).add(_rr['id'])
+def _above_closure(fid):
+    out, stack = set(), [fid]
+    while stack:
+        x = stack.pop()
+        for y in _ABOVE.get(x, ()):
+            if y not in out: out.add(y); stack.append(y)
+    return out
 # a function identifier → every metric identifier whose row names it
 _MET_BY_FN = {}
 for _t2 in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
@@ -784,7 +907,7 @@ for _t2 in ['multiple_screens','home','networth','performance','plan','cashflow'
 def _input_row(iid, var, source, fields):
     names = _READERS.get(iid, [])
     fns = [f'{_FID[n]} {n}' for n in names if n in _FID]
-    mets = sorted({m for n in names if n in _FID for m in _MET_BY_FN.get(_FID[n], ())})
+    mets = sorted({m for n in names if n in _FID for f in ({_FID[n]} | _above_closure(_FID[n])) for m in _MET_BY_FN.get(f, ())})
     if fns:
         who = numbered(' · '.join(fns[:14]), ' · ')
         if len(fns) > 14: who += '\n… and %d more — the full list is on functions_from_code' % (len(fns)-14)
@@ -811,6 +934,93 @@ for _iid in sorted(_inp.NEW):
 for _c in range(1, len(INPUT_COLS)+1):
     ws.column_dimensions[get_column_letter(_c)].width = [15,34,34,34,62,30,26,34,20][_c-1]
 
+
+# one term per concept (2026-09-12): the input NAMES are register keys and never change, but what the
+# file prints — and what the headers' "Reads" lines copy from it — follows the canon.
+for _r in range(2, ws.max_row + 1):
+    for _c in range(2, ws.max_column + 1):
+        _v = ws.cell(_r, _c).value
+        if isinstance(_v, str): ws.cell(_r, _c).value = canon(_v)
+
+# ---- the code's record of each figure's inputs (G28, 2026-09-09): the producer function and every
+#      function below it, and the inputs their bodies read — written beside the row's own claim so
+#      the two records can be ruled row by row. Never merged into the claim: that is his to rule.
+_READS_BY_FN = {}
+for _iid, _names in _READERS.items():
+    for _n in _names:
+        if _n in _FID: _READS_BY_FN.setdefault(_FID[_n], set()).add(_iid)
+_IN_NAME = {}
+for _r in wb['inputs'].iter_rows(min_row=2, values_only=True):
+    if _r and _r[0]: _IN_NAME[_r[0]] = str(_r[1] or '')
+def _code_inputs(fid_cell):
+    idx = _fn_index(); ids = re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', str(fid_cell or ''))
+    if not ids: return 'No function on record — nothing to read from'
+    found = {}
+    for fid in ids:
+        r = idx.get(fid)
+        if not r: continue
+        below = [fid] + re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', str(r.get('fed_by') or ''))
+        for f in below:
+            for iid in _READS_BY_FN.get(f, ()):
+                found.setdefault(iid, set()).add(f)
+    if not found: return 'NONE — no function in this chain reads a stored input the sweep knows'
+    return numbered('\n'.join('%s %s — read by %s' % (iid, _IN_NAME.get(iid, ''), ', '.join(sorted(fs))[:80]) for iid, fs in sorted(found.items())))
+# Founder ruling 2026-09-09 (G28): the row's input list IS the code's record, regenerated every build;
+# the old claim is kept beside it as the independent record until he approves the row; his approved
+# list (kept across builds) is what the gate compares the code against.
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
+    _iC = _hd.index('Inputs the code reads (from the chain, this build)') + 1; _iG = _hd.index('Function ID') + 1
+    _iJ = _hd.index('Inputs it needs') + 1; _iOld = _hd.index('Inputs — as claimed before 2026-09-09 (old inventory)') + 1
+    for _r in range(2, _sh.max_row + 1):
+        if not _sh.cell(_r, 1).value: continue
+        # 2026-09-09, later the same day: the code record is EVIDENCE beside the claim, not the row's
+        # statement — it is blind to inputs handed in as arguments (net worth reads 'nothing') and
+        # over-inclusive on deep chains (a static call graph counts every branch below). The claim
+        # stays the row's list until the founder approves the row; his approved list is the record.
+        _code = _code_inputs(_sh.cell(_r, _iG).value)
+        _sh.cell(_r, _iC).value = _code + '\n[the code\'s record, this build — evidence for the ruling, not the row\'s statement: it cannot see inputs handed in as arguments, and it counts every branch below the producer]'
+        _sh.cell(_r, _iOld).value = '(the claim now stands in \'Inputs it needs\' until the row is approved)'
+        for _c in (_iC, _iOld): _sh.cell(_r, _c).alignment = Alignment(wrap_text=True, vertical='top')
+
+# ---- RULINGS — every decision the founder has made, and where each stands (founder question,
+#      2026-09-09). RULED → CODED → TESTED → VERIFIED; only he moves a ruling to VERIFIED.
+_RUL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_rulings.json')
+_RUL = json.load(open(_RUL_PATH)) if os.path.exists(_RUL_PATH) else []
+RUL_COLS = ['Ruling', 'Date ruled', 'Where he said it', 'His ruling, in his words', 'Rows and functions it touches',
+            'STATUS — RULED · CODED · TESTED · VERIFIED', 'What was changed (code and file)', 'Proof — the test that fails if it comes back',
+            'Date coded', 'Verified by the founder — date and how', 'Notes']
+ws = sheet('rulings', RUL_COLS)
+ws.append(['Four stages, never skipped: RULED — his words recorded, nothing built · CODED — code and file both carry it and agree (the last stage for a file-only ruling) · TESTED — a named test pins it · VERIFIED — he confirmed it, on the device or by approving the row. A ruling that is RULED but not CODED is a promise; CODED but not TESTED is a claim.'] + [''] * (len(RUL_COLS) - 1))
+ws.cell(ws.max_row, 1).font = Font(bold=True, color='1F3864')
+_STATUS_FILL = {'RULED': PatternFill('solid', fgColor='FCE4D6'), 'CODED': PatternFill('solid', fgColor='FFF2CC'), 'TESTED': PatternFill('solid', fgColor='E2EFDA'), 'VERIFIED': PatternFill('solid', fgColor='DDEBF7')}
+for _e in _RUL:
+    ws.append([_e['id'], _e['date'], _e['source'], _e['ruling'], _e['rows'], _e['status'], _e.get('code', ''), _e.get('proof', ''), _e.get('coded', ''), _e.get('verified', ''), _e.get('notes', '')])
+    _st = _e['status'].split(' ')[0]
+    if _st in _STATUS_FILL: ws.cell(ws.max_row, 6).fill = _STATUS_FILL[_st]
+for _i, _w in enumerate([18, 11, 30, 56, 40, 24, 50, 46, 11, 26, 44], start=1):
+    ws.column_dimensions[get_column_letter(_i)].width = _w
+for _r in range(2, ws.max_row + 1):
+    for _c in range(1, len(RUL_COLS) + 1): ws.cell(_r, _c).alignment = Alignment(wrap_text=True, vertical='top')
+ws.freeze_panes = 'B3'; ws.auto_filter.ref = 'A2:%s%d' % (get_column_letter(len(RUL_COLS)), ws.max_row)
+import collections as _co
+_rul_counts = _co.Counter(e['status'].split(' ')[0] for e in _RUL)
+print('rulings — %s' % ' · '.join('%s %d' % (k, v) for k, v in sorted(_rul_counts.items())))
+
+# ---- CAPTURE LIST — his per-asset-class 'data to capture' (Calculations-jj.xlsx, 2026-08-26), every
+#      item mapped to an input, a function, or NOT CAPTURED with the question that decides it.
+_CAP = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_capture_list.json')))
+CAP_COLS = ['Asset class', 'Data to capture — his words', 'Where it is today (input or function)', 'STATUS — this row', 'Open item that decides it', 'Notes']
+ws = sheet('capture-list', CAP_COLS)
+_CAP_FILL = {'CAPTURED': PatternFill('solid', fgColor='E2EFDA'), 'DERIVED': PatternFill('solid', fgColor='DDEBF7'), 'NOT': PatternFill('solid', fgColor='FCE4D6')}
+for _c in _CAP:
+    ws.append([_c['asset_class'], _c['item'], _c['where'], _c['status'], _c.get('decider', ''), _c.get('note', '')])
+    _k = _c['status'].split(' ')[0]
+    if _k in _CAP_FILL: ws.cell(ws.max_row, 4).fill = _CAP_FILL[_k]
+for _i, _w in enumerate([14, 36, 48, 26, 26, 50], start=1): ws.column_dimensions[get_column_letter(_i)].width = _w
+for _r in range(2, ws.max_row + 1):
+    for _c in range(1, 7): ws.cell(_r, _c).alignment = Alignment(wrap_text=True, vertical='top')
+ws.freeze_panes = 'C2'; ws.auto_filter.ref = 'A1:F%d' % ws.max_row
 
 # ---- Specification: what a row must carry before its calculation can be written
 SPEC = [
@@ -845,6 +1055,31 @@ SPEC = [
  ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down.','READY FOR THE FOUNDER — the core_screens tab lists all 49 screens with my recommendation (39 in, 5 out, 5 borderline) and a column for his decision.'),
 ]
 
+import collections as _co
+# counts read off the workbook as built (G29, 2026-09-08) — a typed count was wrong within a week
+_n_fn = len(_FN_ROWS)
+_act, _both, _nofn = 0, 0, 0
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
+    _iH, _iI, _iG, _iAF = _hd.index('Formula (mathematical)'), _hd.index('Formula (in words)'), _hd.index('Function ID'), _hd.index('Active or decommissioned')
+    for _r in _sh.iter_rows(min_row=2, values_only=True):
+        if not _r[0] or not str(_r[_iAF] or '').startswith('ACTIVE'): continue
+        _act += 1
+        if str(_r[_iH] or '').strip() and str(_r[_iI] or '').strip() and not str(_r[_iH]).startswith('NOT') : _both += 1
+        if not re.search(r'MK-[A-Z]{2}-[FO]-\d{3}', str(_r[_iG] or '')): _nofn += 1
+_read = _co.Counter(str(r.get('read_as','')).split(' — ')[0] for r in _FN_ROWS)
+_SPEC_LIVE = {
+ 'S01': ('COMPLETE — %d of %d active figures carry both forms.' if _both == _act else 'PARTIAL — %d of %d active figures carry both forms.') % (_both, _act),
+ 'S04': 'PARTIAL — the unit is derived by rule from the label and formula on every figure and marked as derived; it is NOT read from the function that produces it (G33, 2026-09-08). Read as a hint, not a fact.',
+ 'S06': 'PARTIAL — derived by rule on every figure and marked as derived; not read from the engine (G33).',
+ 'S07': 'PARTIAL — derived by rule on every figure and marked as derived; not read from the engine (G33).',
+ 'S12': 'COMPLETE for functions — file and line for all %d, read from the code on this build. PARTIAL for figures: %d of %d active figures name no function.' % (_n_fn, _nofn, _act),
+ 'S20': 'OPEN — %d of %d active figures name no function; counted per screen on the functions_per_metric tab.' % (_nofn, _act),
+ 'S21': 'PARTIAL — every function carries its identifier in a header inside its own file, written by the build (write-headers.py) and checked by its guard. The link from a FIGURE to its function still travels through the inventory map (moneykeel_fn_map.json), not through the screen code.',
+ 'S13': 'BUILT 2026-09-09 as the rulings tab (from moneykeel_rulings.json): %d rulings — %s. VERIFIED is his stage alone; the approval columns on the screen tabs (YOUR ANSWER, Inputs — approved list) are where a row gets his verdict.' % (len(_RUL), ' · '.join('%s %d' % (k, v) for k, v in sorted(_rul_counts.items()))),
+ 'S23': 'PARTIAL — all %d functions carry both forms on this build: ' % _n_fn + ' · '.join('%d %s' % (v, k.lower()) for k, v in sorted(_read.items())) + '.',
+}
+SPEC = [(n, a, b, _SPEC_LIVE.get(n, c)) for n, a, b, c in SPEC]
 ws = sheet('Specification', ['No.','What is needed','Why it is needed','Where it stands in this file today'])
 for n,a,b,c in SPEC:
     ws.append([n,a,b,c])
@@ -889,7 +1124,7 @@ DB = [
  ('NOT SAVED — DEVICE ONLY','invDaily','Cash + investments captured daily — the baseline the Net worth return line is measured from.','Return on cash + investments','once a day, on the first open','one entry per day','not sent at all'),
  ('NOT SAVED — DEVICE ONLY','transactions','The append-only ledger read from institution downloads: every buy, sell, contribution, withdrawal, dividend and interest line. Read by 32 places in the app.','contributions · withdrawals · income · realised gain · the change walk','when a file is imported or a connection syncs','one entry per transaction','not sent at all'),
  ('NOT SAVED','prices','Prices are fetched fresh and held only on the device.','holding price · price fetched at','never written to the cloud','—','—'),
- ('NOT SAVED','economic figures (inflation, the 10-year yield)','Fetched from a feed each time; deliberately left out of the sync.','inflation rate','never written to the cloud','—','—'),
+ ('NOT SAVED','economic figures (the 10-year yield)','The 10-year Treasury yield is fetched from a feed each time and deliberately left out of the sync. Inflation is NO LONGER fetched for any calculation (founder ruling brief Q-50 (2026-08-20), executed 2026-09-08): it is the dated 30-year average, 2.5% a year, adjustable by the person.','the 10-year yield','never written to the cloud','—','—'),
 ]
 
 ws = sheet('database', DB_COLS)
@@ -936,32 +1171,39 @@ for r in range(2, ws.max_row+1):
 
 
 # ---- reconciliation: the two directions of the input map must agree
-REC_COLS = ['Input ID','Input','Engines the inputs tab says use it',
-            'Engines that actually name it in their own input list','Verdict']
+REC_COLS = ['Input ID','Input','Figures whose own input list names it (the screen tabs, column J)',
+            'Figures it actually reaches through the functions that read it (the inputs tab, swept from the code)','Verdict']
 ws = sheet('reconciliation', REC_COLS)
-declared = {}
-_iid = 0
-for var, source, metrics, engines in INPUTS + _f.NEW_INPUTS:
-    _iid += 1
-    iid = 'MK-XS-I-%03d' % _iid
-    dec = {e.strip() for e in str(engines).split('·') if e.strip() and e.strip() != '—'}
-    act = USED_BY.get(iid, set())
-    both = dec & act
-    only_dec = dec - act
-    only_act = act - dec
+# Both directions by IDENTIFIER, for every row of the inputs tab (G28, 2026-09-08). The old version
+# matched engine names and covered 48 rows; engine names are retired and could not be looked up.
+_inp_ws = wb['inputs']; _ih = [c.value for c in _inp_ws[1]]
+_iI, _iV, _iF = _ih.index('Input ID'), _ih.index('Variable name'), _ih.index('Figures it reaches')
+_declared_by_input = {}
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _sh = wb[_t]; _hd = [c.value for c in _sh[1]]; _iJ = _hd.index('Inputs it needs')
+    for _r in _sh.iter_rows(min_row=2, values_only=True):
+        if not _r[0]: continue
+        for _iid in re.findall(r'MK-XS-I-\d{3}', str(_r[_iJ] or '')):
+            _declared_by_input.setdefault(_iid, set()).add(_r[0])
+for _r in _inp_ws.iter_rows(min_row=2, values_only=True):
+    iid = _r[_iI]
+    if not iid: continue
+    dec = _declared_by_input.get(iid, set())
+    act = set(re.findall(r'MK-[A-Z]{2}-M-\d{3}', str(_r[_iF] or '')))
+    only_dec, only_act = dec - act, act - dec
     if not dec and not act:
-        verdict = 'NOT USED ANYWHERE — no engine on either side names this input. Either it is not needed, or an engine reads it without saying so.'
+        verdict = 'NOT REACHED AND NOT DECLARED — no figure names this input and no function that reads it serves a figure. Either it is not needed, or it is read by code the sweep cannot see.'
     elif not act:
-        verdict = 'DECLARED BUT NEVER NAMED — the inputs tab says these engines use it, but no engine names it in its own input list. Unproved in one direction.'
+        verdict = 'DECLARED BUT NOT REACHED — figures name this input, but no function that reads it serves any of them. Unproved in one direction.'
     elif not dec:
-        verdict = 'USED BUT NOT DECLARED — engines name this input, but the inputs tab does not list them.'
+        verdict = 'REACHED BUT NOT DECLARED — functions reading this input serve these figures, but no figure lists it among its inputs.'
     elif only_dec or only_act:
-        verdict = 'PARTLY AGREES — ' + (('declared but not naming it: ' + ', '.join(sorted(only_dec))) if only_dec else '') + \
+        verdict = 'PARTLY AGREES — ' + (('declared but not reached: ' + ', '.join(sorted(only_dec))) if only_dec else '') + \
                   ('  |  ' if only_dec and only_act else '') + \
-                  (('naming it but not declared: ' + ', '.join(sorted(only_act))) if only_act else '')
+                  (('reached but not declared: ' + ', '.join(sorted(only_act))) if only_act else '')
     else:
-        verdict = 'AGREES — both directions name the same engines.'
-    ws.append([iid, var, ' · '.join(sorted(dec)) or '—', ' · '.join(sorted(act)) or '—', verdict])
+        verdict = 'AGREES — both directions name the same figures.'
+    ws.append([iid, _r[_iV], ' · '.join(sorted(dec)) or '—', ' · '.join(sorted(act)) or '—', verdict])
 
 ws.append([])
 ws.append(['GAPS — inputs an engine names that are on NO row of the inputs tab.',
@@ -1012,15 +1254,15 @@ _cat_counts = _co.Counter()
 for row in _fn_index().values() if False else sorted(_fn_index().values(), key=lambda r: r['id']):
     old = _fn_to_old.get(row['name'], '')
     eid = engine_id.get(old, '') if old else ''
-    mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
+    mids = sorted(_MET_BY_FN.get(row['id'], ()))   # G27: from the screen tabs' Function ID column, never the old inventory
     _cat_counts[row['category']] += 1
     _purpose = row.get('purpose') or (_answers.get(_fn_to_old.get(row['name'],''),'') or '')
     if not _purpose:
         _purpose = 'NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.'
-    ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], _purpose,
-               row['formula_math'], row['formula_words'], row['read_as'],
+    ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], canon(_purpose),
+               canon(row['formula_math']), canon(row['formula_words']), row['read_as'],
                numbered(row['inputs'], ' · '), row['output'],
-               numbered(row['screen_labels'], ' · '), numbered(row['assumptions']),
+               canon(numbered(row['screen_labels'], ' · ')), canon(numbered(row['assumptions'])),
                row['can_reach_a_screen'], numbered(row['depends_on'], ' · '), row['feeder_count'],
                numbered(row['fed_by'], ' · '), numbered(row['chain']),
                ' · '.join(mids) or '—', old or '—',
@@ -1033,6 +1275,11 @@ for r in range(2, ws.max_row+1):
     for c in range(1,len(FN_COLS)+1): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
     ws.cell(r,_fcol).font = Font(name='Menlo', size=10)
 print('functions_from_code:', dict(_cat_counts))
+# Guard D1 (2026-09-12) reads this: every function's identifier, file and category, written by the build
+# so the test compares screens against what the file says a function IS — never against a guess.
+with open('Calculation Module code/scripts/moneykeel_function_categories.json', 'w') as _fh:
+    json.dump({r['name']: {'id': r['id'], 'file': r['file'], 'category': r['category']} for r in _fn_index().values()},
+              _fh, indent=1, ensure_ascii=False)
 
 
 # ---- one row per engine identifier: the definitive list the rest of the file points at
@@ -1237,22 +1484,61 @@ ref = [
   'and the objectives-and-verification. These findings belong to the FILE rather than to any one '
   'row. The ones that land on rows are in the last column of each screen tab, numbered from the '
   'same list, so a number means the same thing wherever it is read.')] + _audit.reference_rows()
+# A41 / guard D4 (2026-09-12): every statutory figure names its publication and year IN THE FILE,
+# read from moneykeel_published_sources.json — the same register guard_d4_published_sources.test.ts checks.
+ref.append(('', ''))
+ref.append(('PUBLISHED SOURCES — where every statutory figure in the code comes from', 'One row per figure: the publication, the year it applies to, when it was last checked against that publication, and where it sits in the code. The guard fails when a figure is missing here, or when its year has rolled past without a re-check.'))
+for _src in json.load(open('Calculation Module code/scripts/moneykeel_published_sources.json')):
+    ref.append(('PUBLISHED SOURCE — ' + _src['symbol'], '%s · %s · valid through %s · checked %s · %s · %s' % (_src['what'], _src['publication'], _src['valid_through'], _src['checked'], _src['file'], _src.get('note', ''))))
+# G24 (founder ok 2026-09-12): the per-class return and volatility table the odds run on, read from
+# src/domain/assets/index.ts (ASSET_KINDS ret · BENCHMARK_META source and period) — never typed here.
+_assets_src = open('src/domain/assets/index.ts', encoding='utf8').read()
+_rets = {m.group(1): (m.group(2), float(m.group(3))) for m in re.finditer(r"\{ id: '(\w+)', label: '([^']+)', icon: '[^']*', bucket: '\w+', section: '[^']+', ret: ([\d.]+) \}", _assets_src)}
+_meta = {m.group(1): (m.group(2), m.group(3), bool(m.group(4))) for m in re.finditer(r"^\s*(\w+):\s*\{ source: '([^']+)', period: '([^']+)'(, estimate: true)? \}", _assets_src, flags=re.M)}
+ref.append(('', ''))
+ref.append(('BENCHMARK RETURNS — the per-class figures the projections and the odds run on', 'One row per account kind: the return the code assumes (ASSET_KINDS.ret), where it comes from and over what period (BENCHMARK_META). A row marked ESTIMATE is a flagged guess, not a measured series. Read from the code on every build.'))
+for _id, (_label, _ret) in _rets.items():
+    _src, _per, _est = _meta.get(_id, ('no benchmark named in the code', '—', True))
+    ref.append(('BENCHMARK — ' + _label, '%.1f%% a year · %s · %s%s' % (_ret * 100, _src, _per, ' · ESTIMATE' if _est else '')))
 for a,b in ref: ws.append([a,b])
 ws.column_dimensions['A'].width=46; ws.column_dimensions['B'].width=118
 for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
+# Column widths by what the column holds (founder, 2026-09-09): identifiers, screens, flags and dates
+# stay narrow so the prose columns can be wide enough to read on one screen.
+WIDTHS = {
+ 'Metric ID': 14, 'Parent Screen Name': 11, 'Secondary Screen Name': 15, 'Name on Screen': 28,
+ 'Name of Underlying Metric': 18, 'Function that produces it': 22, 'Function ID': 14,
+ 'Formula (mathematical)': 50, 'Formula (in words)': 54, 'Inputs it needs': 42,
+ 'What comes out — unit and rounding': 26, 'What it says when it cannot be computed': 42,
+ 'Grain — one figure per what': 18, 'Period — as of when, over what window': 18,
+ 'Dependency — function ID → the output it uses': 36, 'The chain of functions behind it': 42,
+ 'Assumptions made anywhere in that chain': 50, 'Secondary calculations and decisions the engine makes': 36,
+ 'Errors or findings to address': 46, 'Decisions made': 42, 'Same figure as (S16)': 26,
+ 'Questions for you (numbered)': 50, 'YOUR ANSWER — use the same number': 42,
+ 'Your name for it (72-metric file)': 18, 'Core screen?': 10, 'Row status': 12,
+ 'Audit finding — 2026-08-25 review': 46, 'Formula audit — metric vs the function it names (2026-08-26)': 46,
+ 'Why no function': 30, 'Wrong on screen — build first': 30, 'Where each finding stands': 54,
+ 'Active or decommissioned': 12, 'Date last modified': 11,
+ 'Founder comment — 2026-08-26 (the column it was written on)': 42,
+ 'Answer to the founder comment — checked against the code, 2026-09-08 (what the code does · verdict · fix)': 58,
+ 'Inputs the code reads (from the chain, this build)': 46,
+ 'Inputs — as claimed before 2026-09-09 (old inventory)': 20,
+ 'Inputs — approved list (founder, dated)': 36,
+}
 for name in wb.sheetnames:
-    if name in ('Reference','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric'): continue
+    if name in ('Reference','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric','inputs'): continue
     w=wb[name]
-    for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
-        w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
+    for i,col in enumerate([c.value for c in w[1]], start=1):
+        w.column_dimensions[get_column_letter(i)].width = WIDTHS.get(str(col), 30)
+    w.freeze_panes = 'B2'   # the identifier stays in view while scrolling right
 
 wb._sheets = [wb[n] for n in TAB_ORDER if n in wb.sheetnames]
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 # GUARD: every question must have landed on a row. A question the founder cannot see is a
 # question that will never be answered.
-_all_q = {q.split(' ')[0] for v in getattr(_f,'QUESTIONS',{}).values() for q in v}
+_all_q = {q.split(' ')[0] for v in getattr(_f,'QUESTIONS',{}).values() for q in v} | {q.split(' ')[0] for v in getattr(_f,'QUESTIONS_BY_METRIC',{}).values() for q in v}
 _placed = set()
 for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
     _hd = [c.value for c in wb[_t][1]]; _qi = _hd.index('Questions for you (numbered)')
@@ -1272,6 +1558,228 @@ _placed, _lost = _keepmod.apply(wb, _KEPT)
 _keepmod.write_orphans(_lost, os.path.join(os.path.dirname(OUT), 'kept-but-unplaced.md'))
 print(_keepmod.report(_placed, _lost))
 
+# ---- OVERRIDES: cells read by hand against the code, keyed by identifier (2026-09-08).
+# A generated cell that was found wrong is corrected HERE, with its date and reason, so the
+# correction survives every build. 'replace' sets the cell; 'append' adds lines under it.
+_KEYCOL = {'Reference': 'Item', 'inputs': 'Input ID', 'functions_from_code': 'Function ID', 'core_screens': 'Screen name'}
+_ov_placed, _ov_lost = 0, []
+for _o in _OV:
+    _t = _o['tab']
+    if _t not in wb.sheetnames: _ov_lost.append(_o); continue
+    _sh = wb[_t]; _hd = [str(c.value) if c.value is not None else '' for c in _sh[1]]
+    _kc = _KEYCOL.get(_t, 'Metric ID')
+    if _t == 'Reference':
+        _hd = ['Item', 'Detail']
+    if _o['col'] not in _hd:
+        _sh.cell(1, len(_hd) + 1).value = _o['col']; _sh.cell(1, len(_hd) + 1).font = H; _sh.cell(1, len(_hd) + 1).fill = HFILL
+        _sh.column_dimensions[get_column_letter(len(_hd) + 1)].width = 70
+        _hd.append(_o['col'])
+    _ki, _ci = _hd.index(_kc) + 1, _hd.index(_o['col']) + 1
+    _hit = None
+    for _r in range(2, _sh.max_row + 1):
+        if str(_sh.cell(_r, _ki).value or '').strip() == _o['key']: _hit = _r; break
+    if _hit is None:
+        if _t == 'Reference':
+            _sh.append([_o['key'], _o['text']]); _hit = _sh.max_row
+            _sh.cell(_hit, 1).font = Font(bold=True)
+        else:
+            _ov_lost.append(_o); continue
+    else:
+        _cur = _sh.cell(_hit, _ci).value
+        _otext = canon(_o['text'])   # an override written before a word was retired still prints the canon
+        if _o.get('mode') == 'append' and _cur and str(_cur).strip() and _otext not in str(_cur):
+            _sh.cell(_hit, _ci).value = str(_cur).rstrip() + '\n' + _otext
+        else:
+            _sh.cell(_hit, _ci).value = _otext
+    _sh.cell(_hit, _ci).alignment = Alignment(wrap_text=True, vertical='top')
+    _ov_placed += 1
+print('overrides read by hand: %d placed, %d could not be placed' % (_ov_placed, len(_ov_lost)))
+for _o in _ov_lost[:20]: print('   LOST  %s · %s · %s' % (_o['tab'], _o['key'], _o['col']))
+
+# ---- COLOUR CODING for the founder (2026-09-09): every cell that waits on HIM is coloured, on every
+#      build, from what the cells hold — never by hand.
+#      YELLOW = a question to answer (the question cell, and the answer cell beside it)
+#      BLUE   = an input list to approve (the approval cell, and the code's record it rests on)
+#      GREEN  = an answer to one of his comments, to read
+_YELLOW = PatternFill('solid', fgColor='FFF2CC'); _BLUE = PatternFill('solid', fgColor='DDEBF7'); _GREEN = PatternFill('solid', fgColor='E2EFDA')
+_nq = _ni = _na = 0
+_QHEAD = re.compile(r'(?m)^Q\d\d(?= —)')
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu','functions_from_code']:
+    _sh = wb[_t]; _hd = [str(c.value) if c.value is not None else '' for c in _sh[1]]
+    def _ci(name): return _hd.index(name) + 1 if name in _hd else None
+    _iV, _iW, _iAL, _iAJ, _iAE = _ci('Questions for you (numbered)'), _ci('YOUR ANSWER — use the same number'), _ci('Inputs — approved list (founder, dated)'), _ci('Inputs the code reads (from the chain, this build)'), _ci('Where each finding stands')
+    _iAI = next((i + 1 for i, h in enumerate(_hd) if h.startswith('Answer to the founder comment')), None)
+    for _r in range(2, _sh.max_row + 1):
+        if not _sh.cell(_r, 1).value: continue
+        if _iV and _iW:
+            _asked = set(_QHEAD.findall(str(_sh.cell(_r, _iV).value or '')))
+            _answered = set(re.findall(r'Q\d\d', str(_sh.cell(_r, _iW).value or '')))
+            if _asked - _answered:
+                _sh.cell(_r, _iV).fill = _YELLOW; _sh.cell(_r, _iW).fill = _YELLOW; _nq += len(_asked - _answered)
+        if False and _iAL and _iAE:   # RETIRED 2026-09-14 (PFS, after his comment 'Not sure what you want me to approve?'): a figure's inputs are approved with its row under rule 11 — no separate ask
+            _sh.cell(_r, _iAL).fill = _BLUE
+            if _iAJ: _sh.cell(_r, _iAJ).fill = _BLUE
+            _ni += 1
+        if _iAI and str(_sh.cell(_r, _iAI).value or '').strip():
+            _sh.cell(_r, _iAI).fill = _GREEN; _na += 1
+print('coloured for the founder — questions to answer: %d · input lists to approve: %d · answers to read: %d' % (_nq, _ni, _na))
+# STATUS — one column, every tab, every row, the same five words everywhere (founder, 2026-09-09):
+#   WAITING ON YOU (a question, an input list, an answer to read) · RULED, NOT CODED · CODED, NOT TESTED ·
+#   TESTED, NOT VERIFIED · VERIFIED · OPEN FINDING · NOTHING OPEN. Derived from the rulings ledger, the
+#   finding statuses and the cells themselves, so no tab can disagree with another.
+_RUL_ALL = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_rulings.json'))) if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_rulings.json')) else []
+_STAGE = {'RULED': 0, 'CODED': 1, 'TESTED': 2, 'VERIFIED': 3}
+_STAGE_TEXT = {0: 'RULED, NOT CODED', 1: 'CODED, NOT TESTED', 2: 'TESTED, NOT VERIFIED', 3: 'VERIFIED'}
+_ORANGE = PatternFill('solid', fgColor='FCE4D6')
+def _rulings_on(ident):
+    out = []
+    for _e in _RUL_ALL:
+        if re.search(r'(?<![\w-])' + re.escape(ident) + r'(?![\w-])', str(_e.get('rows', '')) + ' ' + str(_e.get('code', ''))):
+            out.append((_STAGE.get(_e['status'].split(' ')[0], 0), _e['id']))
+    return out
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu','functions_from_code','inputs']:
+    _sh = wb[_t]; _hd = [str(c.value) if c.value is not None else '' for c in _sh[1]]
+    if 'REVIEW — what waits on you' in _hd:
+        _sh.cell(1, _hd.index('REVIEW — what waits on you') + 1).value = 'STATUS — this row'; _hd[_hd.index('REVIEW — what waits on you')] = 'STATUS — this row'
+    if 'STATUS — this row' not in _hd:
+        _sh.cell(1, len(_hd) + 1).value = 'STATUS — this row'; _sh.cell(1, len(_hd) + 1).font = H; _sh.cell(1, len(_hd) + 1).fill = HFILL
+        _sh.column_dimensions[get_column_letter(len(_hd) + 1)].width = 30; _hd.append('STATUS — this row')
+    _iS = _hd.index('STATUS — this row') + 1
+    _ci = lambda name: (_hd.index(name) + 1) if name in _hd else None
+    _iV, _iW, _iAL, _iAE = _ci('Questions for you (numbered)'), _ci('YOUR ANSWER — use the same number'), _ci('Inputs — approved list (founder, dated)'), _ci('Where each finding stands')
+    _iAI = next((k + 1 for k, h in enumerate(_hd) if h.startswith('Answer to the founder comment')), None)
+    _iREC = _ci('Figures it reaches')
+    for _r in range(2, _sh.max_row + 1):
+        _id = str(_sh.cell(_r, 1).value or '').strip()
+        if not _id.startswith('MK-'): continue
+        _parts = []; _fill = None
+        if _iV and _iW:
+            _asked = set(_QHEAD.findall(str(_sh.cell(_r, _iV).value or ''))); _answered = set(re.findall(r'Q\d\d', str(_sh.cell(_r, _iW).value or '')))
+            if _asked - _answered: _parts.append('WAITING ON YOU — question ' + ', '.join(sorted(_asked - _answered))); _fill = _YELLOW
+        if False and _iAL and _iAE:   # RETIRED 2026-09-14 (PFS, after his comment 'Not sure what you want me to approve?'): a figure's inputs are approved with its row under rule 11 — no separate ask
+            _parts.append('WAITING ON YOU — input list to approve'); _fill = _fill or _BLUE
+        if _iAI and str(_sh.cell(_r, _iAI).value or '').strip(): _parts.append('WAITING ON YOU — answer to read'); _fill = _fill or _GREEN
+        # a DRAFT figure (rule 11, declared in the code, not yet ruled) waits on his verdict — never NOTHING OPEN (2026-09-14)
+        _iRS = _ci('Row status')
+        if _iRS and str(_sh.cell(_r, _iRS).value or '').startswith('DRAFT'):
+            _parts.append('WAITING ON YOU — row to approve: say yes in YOUR ANSWER, or say what changes'); _fill = _fill or _YELLOW
+        _rs = _rulings_on(_id)
+        if _rs:
+            _low = min(st for st, _ in _rs)
+            _parts.append(_STAGE_TEXT[_low] + ' (' + ', '.join(sorted({rid for st, rid in _rs if st == _low})) + ')')
+            _fill = _fill or {0: _ORANGE, 1: _YELLOW, 2: _GREEN, 3: _BLUE}[_low]
+        if _iAE:
+            _ae = str(_sh.cell(_r, _iAE).value or '')
+            _open = re.findall(r'\b([ABGC]\d{1,2}|JJ-\d)\b(?= — OPEN)', _ae)
+            if _open: _parts.append('OPEN FINDING ' + ', '.join(sorted(set(_open)))); _fill = _fill or _ORANGE
+            # a FIXED finding with no test named holds the row at CODED (the rule of 2026-09-10)
+            _fixed_no_proof = [f for f in re.findall(r'\b([AB]\d{2})\b(?= — FIXED)', _ae) if 'test' not in _ae.split(f + ' — FIXED', 1)[-1][:400].lower()]
+            if _fixed_no_proof and not _rs: _parts.append('CODED, NOT TESTED (finding ' + ', '.join(sorted(set(_fixed_no_proof))) + ' names no test)'); _fill = _fill or _YELLOW
+        # VERIFIED is HIS stage alone: only his dated mark moves a row there, and only from TESTED
+        _iRV = _ci('ROW VERIFIED — founder, date and how')
+        _his = str(_sh.cell(_r, _iRV).value or '').strip() if _iRV else ''
+        if _his and _parts and all(p.startswith(('TESTED, NOT VERIFIED', 'WAITING ON YOU — answer to read')) for p in _parts):
+            _parts = ['VERIFIED — ' + _his[:60]]; _fill = _BLUE
+        elif _his and any(p.startswith('WAITING ON YOU') for p in _parts) and not any(p.startswith(('RULED', 'CODED', 'OPEN FINDING')) for p in _parts):
+            _parts = [p for p in _parts if not p.startswith('WAITING ON YOU — answer to read')] or ['VERIFIED — ' + _his[:60]]
+        if _t == 'inputs' and _iREC:
+            _parts.append('reach generated from the code each build')
+        _sh.cell(_r, _iS).value = ' · '.join(_parts) if _parts else 'NOTHING OPEN'
+        _sh.cell(_r, _iS).alignment = Alignment(wrap_text=True, vertical='top')
+        if _fill: _sh.cell(_r, _iS).fill = _fill
+    _sh.auto_filter.ref = 'A1:%s%d' % (get_column_letter(_iS), _sh.max_row)
+_ref = wb['Reference']
+_ref.insert_rows(2)
+_ref.cell(2, 1).value = 'COLOUR KEY — what waits on you'
+_ref.cell(2, 2).value = ('YELLOW — a question to answer: the question in "Questions for you", and the cell beside it where you answer (start with the question number). '
+                        'BLUE — RETIRED 2026-09-14: a figure\'s inputs are approved with its row under rule 11, not typed separately into "Inputs — approved list (founder, dated)"; the code\'s record next to it is the evidence. '
+                        'GREEN — an answer to one of your comments, to read. '
+                        'Set by the build from what the cells hold, so a colour disappears the moment the cell is dealt with. Counts this build: %d questions · %d input lists · %d answers.' % (_nq, _ni, _na))
+_ref.cell(2, 1).font = Font(bold=True); _ref.cell(2, 2).alignment = Alignment(wrap_text=True, vertical='top')
+_ref.cell(2, 1).fill = _YELLOW
+
+# ---- GUARDS (2026-09-08). G26: no active figure may cite a retired engine identifier. G34: no
+# banned word in any generated or overridden cell a person reads.
+_bad_e, _bad_w = [], []
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
+    _iO = _hd.index('Dependency — function ID → the output it uses'); _iAF = _hd.index('Active or decommissioned')
+    _iP = _hd.index('The chain of functions behind it')
+    for _r in _sh.iter_rows(min_row=2, values_only=True):
+        if not _r[0] or not str(_r[_iAF] or '').startswith('ACTIVE'): continue
+        for _c in (_iO, _iP):
+            if re.search(r'MK-[A-Z]{2}-E-\d{3}', str(_r[_c] or '')): _bad_e.append('%s %s' % (_r[0], _hd[_c][:20]))
+        for _c, _v in enumerate(_r):
+            if isinstance(_v, str) and _hd[_c] in ('Name on Screen','Formula (mathematical)','Formula (in words)','What it says when it cannot be computed'):
+                for _pat in BANNED:
+                    if re.search(_pat, _v): _bad_w.append('%s · %s · %s' % (_r[0], _hd[_c][:24], _pat))
+_appr_diff, _appr_n, _unappr = [], 0, 0
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
+    _iC = _hd.index('Inputs the code reads (from the chain, this build)'); _iA = _hd.index('Inputs — approved list (founder, dated)'); _iAF = _hd.index('Active or decommissioned')
+    for _r in _sh.iter_rows(min_row=2, values_only=True):
+        if not _r[0] or not str(_r[_iAF] or '').startswith('ACTIVE'): continue
+        _a = str(_r[_iA] or '').strip()
+        if _a and not re.search(r'MK-XS-I-\d{3}', _a): _a = ''   # a comment or a question is not an approval (PFS, 2026-09-14)
+        if not _a: _unappr += 1; continue
+        _appr_n += 1
+        _want = set(re.findall(r'MK-XS-I-\d{3}', _a)); _have = set(re.findall(r'MK-XS-I-\d{3}', str(_r[_iC] or '')))
+        if _want != _have: _appr_diff.append('%s — approved %s · code %s' % (_r[0], ', '.join(sorted(_want - _have)) or '—', ', '.join(sorted(_have - _want)) or '—'))
+print('input lists — approved by the founder: %d · not yet approved: %d · approved but the code now differs: %d' % (_appr_n, _unappr, len(_appr_diff)))
+for _b in _appr_diff[:10]: print('   APPROVED LIST DIFFERS  ' + _b)
+# The approval gate REPORTS for now: the code record over- and under-approximates (see above), so a
+# difference is an item to read, not yet proof of a break. It becomes build-stopping once the
+# record is trusted — the founder decides when.
+if _bad_e:
+    for _b in _bad_e[:10]: print('   RETIRED IDENTIFIER  ' + _b)
+    raise SystemExit('BUILD STOPPED — %d active figures still cite a retired engine identifier (G26).' % len(_bad_e))
+if _bad_w:
+    for _b in _bad_w[:10]: print('   BANNED WORD  ' + _b)
+    raise SystemExit('BUILD STOPPED — %d cells carry a banned word (G34, one term per concept).' % len(_bad_w))
+
+# one term per concept — the whole file (2026-09-13, cluster 0c): every string cell on every live tab
+# follows the canon; the retired old inventory keeps its words so earlier work can be traced.
+# HIS WORDS ARE NEVER REWRITTEN (Post Feedback Sync, 2026-09-14). This pass once turned his comment
+# "why dependency on engine and not function?" into "why dependency on function and not function?".
+# Every column he authors is skipped, and the check below stops the build if any of his cells changed.
+_FOUNDER_COLS = ({c for _cols in _keepmod.YOURS.values() for c in _cols}
+                 | {'His ruling, in his words', 'Verified by the founder — date and how', 'JJ — Decision (Y/N)'})
+for _ws in wb.worksheets:
+    if _ws.title == 'engines-old-tab': continue
+    _hdr = [str(c.value) if c.value is not None else '' for c in _ws[1]]
+    _skip = {i for i, h in enumerate(_hdr) if h in _FOUNDER_COLS}
+    for _row in _ws.iter_rows():
+        for _i, _cell in enumerate(_row):
+            if _i in _skip and _cell.row > 1: continue
+            if isinstance(_cell.value, str): _cell.value = canon(_cell.value)
+
+def _his_words_unchanged():
+    """Every cell he typed reads exactly as he typed it, and every ruling prints in his words."""
+    bad = []
+    for (_tab, _key, _col), _val in _KEPT.items():
+        if _tab not in wb.sheetnames: continue
+        _w = wb[_tab]; _h = [str(c.value) if c.value is not None else '' for c in _w[1]]
+        if _col not in _h or _keepmod.KEY_COL[_tab] not in _h: continue
+        _ki, _ci = _h.index(_keepmod.KEY_COL[_tab]), _h.index(_col)
+        for _r in range(2, _w.max_row + 1):
+            if str(_w.cell(_r, _ki + 1).value or '').strip() == _key:
+                if str(_w.cell(_r, _ci + 1).value or '').strip() != str(_val).strip():
+                    bad.append('%s · %s · %s' % (_tab, _key, _col))
+                break
+    _led = {e['id']: e['ruling'] for e in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_rulings.json')))}
+    if 'rulings' in wb.sheetnames:
+        _w = wb['rulings']; _h = [str(c.value) if c.value is not None else '' for c in _w[1]]
+        if 'His ruling, in his words' in _h:
+            _ci = _h.index('His ruling, in his words')
+            for _r in range(2, _w.max_row + 1):
+                _id = _w.cell(_r, 1).value
+                if _id in _led and str(_w.cell(_r, _ci + 1).value or '').strip() != str(_led[_id]).strip():
+                    bad.append('rulings · %s · His ruling, in his words' % _id)
+    return bad
+_rewritten = _his_words_unchanged()
+if _rewritten:
+    raise SystemExit('STOP — the build changed words the founder typed (Post Feedback Sync rule): ' + '; '.join(_rewritten))
+print('his words: every cell he typed and every ruling reads exactly as he wrote it')
 wb.save(OUT)
 _mreg_save()   # the identifiers this build issued, kept so they never move again
 print("wrote", OUT)

@@ -171,7 +171,7 @@ describe('Emergency stress test at the extremes', () => {
     expect(r.gapToFund).toBe(r.recommendedFund);
   });
 
-  test('huge cash cushion covers any shock', () => {
+  test('huge cash emergency fund covers any shock', () => {
     const r = emergencyTest(retiree75, 1000000, 25000);
     expect(r.coversIt).toBe(true);
     expect(r.jobLossRunway).toBeGreaterThan(100);

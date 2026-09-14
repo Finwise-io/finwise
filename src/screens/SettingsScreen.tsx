@@ -749,3 +749,4 @@ const styles = StyleSheet.create({
   typeBtnText: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: '500' },
   typeBtnTextOn: { color: Colors.primaryDeep, fontWeight: '600' },
 });
+

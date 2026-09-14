@@ -50,7 +50,7 @@ describe('Student scenarios', () => {
   test('4. Is taking the $5k loan affordable later?', () => {
     const p = loanPayment(5000, 6, 10);
     expect(p.monthly).toBeGreaterThan(0);
-    expect(p.monthly).toBeLessThan(100);            // ~$55/mo — manageable
+    expect(p.monthly).toBeLessThan(100);            // ~$55/month — manageable
   });
 });
 
@@ -70,7 +70,7 @@ describe('Variable-income scenarios', () => {
     expect(cf.shortMonths.length).toBeGreaterThan(0);                                    // and tip you short
   });
 
-  test('2. Medical emergency with no cushion', () => {
+  test('2. Medical emergency with no emergency fund', () => {
     expect(runway(300, 2000)).toBeLessThan(0.25);   // <1 week of runway — app should flag (< 3 months)
   });
 
@@ -170,19 +170,19 @@ describe('Negative cash flow is deducted (never floored at zero)', () => {
     expect(effectiveAnnualContribution({
       ...NO_TAX, baseSalary: '10000', salaryMode: 'gross', salaryFreq: 'monthly',
       monthlySpending: '3000', c_roth: '1000',
-    })).toBe(12000);                                  // $1k/mo Roth, fully covered by free cash
+    })).toBe(12000);                                  // $1k/month Roth, fully covered by free cash
   });
   test('a household deficit makes the effective nest-egg inflow NEGATIVE (wealth declines)', () => {
     expect(effectiveAnnualContribution({
       ...NO_TAX, baseSalary: '4000', salaryMode: 'gross', salaryFreq: 'monthly',
       monthlySpending: '15000', c_roth: '1000',
-    })).toBeLessThan(0);                              // burning ~$11k/mo: contributions can't save you
+    })).toBeLessThan(0);                              // burning ~$11k/month: contributions can't save you
   });
   test('partial funding: shortfall is deducted, not ignored', () => {
     const v = effectiveAnnualContribution({
       ...NO_TAX, baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly',
-      monthlySpending: '4500', c_roth: '1000',        // free cash $500/mo < $1k/mo commitment
+      monthlySpending: '4500', c_roth: '1000',        // free cash $500/month < $1k/month commitment
     });
-    expect(v).toBeCloseTo(6000, 0);                   // only the funded $500/mo actually accrues
+    expect(v).toBeCloseTo(6000, 0);                   // only the funded $500/month actually accrues
   });
 });

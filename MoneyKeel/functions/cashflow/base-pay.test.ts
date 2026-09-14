@@ -58,7 +58,7 @@ describe('what lands in the bank', () => {
   });
 
   it('THE LAW: it is never grossed up and taxed back down', () => {
-    // the old road took $4,818 with a $20,000/yr 401(k) and showed $3,351
+    // the old road took $4,818 with a $20,000/year 401(k) and showed $3,351
     const t = takeHomeAsEntered(steady({ grossTypical: 9000, monthly401k: 1666.67, landsTypical: 4818 }));
     expect(t.monthly).toBeCloseTo(4818, 2);
   });
@@ -197,7 +197,7 @@ describe('the card adds up, and every figure says whose it is (mock v6, rule 8e)
                           partnerWage: { baseSalary: '4500', salaryFreq: 'monthly' } } });
     expect(p.tax.mode).toBe('estimated');
     const identity = p.grossAnnual / 12 - p.tax.monthly - p.monthly401k;
-    expect(p.landsInBank).toBeCloseTo(identity, 1);         // build 54 was $1,280/mo off itself
+    expect(p.landsInBank).toBeCloseTo(identity, 1);         // build 54 was $1,280/month off itself
   });
 
   it('THE LAW: a mixed household shows NO single tax row, and the sentence names each figure', () => {
@@ -208,7 +208,7 @@ describe('the card adds up, and every figure says whose it is (mock v6, rule 8e)
     expect(p.landsEstimated).toBe(true);                    // the total wears ≈
     expect(p.landsNote).toMatch(/Your take-home: \$5,000 \(you entered\)/);
     expect(p.landsNote).toMatch(/Sam’s take-home: ≈\$[\d,]+ \(calculated/);
-    // entered beats estimated: your figure is exactly what you typed
+    // entered beats estimated: your figure is exactly what you entered
     expect(p.earners[0].pay.landsInBank).toBe(5000);
   });
 

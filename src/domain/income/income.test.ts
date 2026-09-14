@@ -71,7 +71,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     const st = buildIncomeState('u1', doc.sources, doc.tax);
     // 6500×12 + 12000 + (50×400) + 10000 = 78000+12000+20000+10000
     expect(st.total_gross_annual).toBe(120000);
-    expect(st.employer_match_annual).toBe(3000);                          // $250/mo × 12
+    expect(st.employer_match_annual).toBe(3000);                          // $250/month × 12
     const g = st.monthly_cash_flow_grid.map((c) => c.gross);
     expect(g[0]).toBeGreaterThan(g[1]);                                    // Jan carries the one-time signing bonus
     expect(g[11]).toBeGreaterThan(g[10]);                                  // Dec carries annual bonus + RSUs
@@ -79,7 +79,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
 
   test('employer match as a % of YOUR contribution resolves to $/month', () => {
     expect(employerMatchMonthly({ c_401k: '1000', employerMatchMode: 'pct', employerMatchValue: '50' }))
-      .toBeCloseTo(500, 2);                                                // 50% match of $1,000/mo contribution
+      .toBeCloseTo(500, 2);                                                // 50% match of $1,000/month contribution
   });
 
   test('RSUs sum across multiple grants (refreshers stack), with legacy single-grant fallback', () => {
@@ -307,10 +307,10 @@ describe('future retirement income must not leak into CURRENT income', () => {
   });
 });
 
-// Build-46 walk row 6 (audit PRD #4): $24,000/yr vesting in March + September must land $12,000 in
-// Mar and $12,000 in Sep on EVERY surface — the income engine's year view used to park it all in
+// Build-46 walk row 6 (audit PRD #4): $24,000/year vesting in March + September must land $12,000 in
+// Mar and $12,000 in Sep on EVERY surface — the income function's year view used to park it all in
 // December while the cash-flow grid placed it right, so a vesting user saw two different years.
-describe('equity vesting months agree across the engine (walk row 6)', () => {
+describe('equity vesting months agree across the function (walk row 6)', () => {
   const yr = new Date().getFullYear();
   const op: any = {
     equityType: 'rsu',

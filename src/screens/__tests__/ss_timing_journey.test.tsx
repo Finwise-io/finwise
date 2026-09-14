@@ -70,7 +70,7 @@ test('Back to previous plan restores the pre-adoption assumptions exactly (F11 r
 test('already receiving: never asked for a statement, sent to Monthly income instead', () => {
   useStore.setState({ onboardingProfile: { ...PRE_RETIREE, status: 'retired', incomeSources: ['retirement_income'], ri_ss: '2600' } } as any);
   render(<SsTimingScreen />);
-  expect(screen.getByText(/You receive \$2,600\/mo/)).toBeOnTheScreen();
+  expect(screen.getByText(/You receive \$2,600\/month/)).toBeOnTheScreen();
   expect(screen.queryByLabelText(/Monthly amount from your Social Security statement/)).toBeNull();
 });
 

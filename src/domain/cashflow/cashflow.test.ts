@@ -29,7 +29,7 @@ describe('cashflow / bill calendar', () => {
       incomeSources: ['scholarship'],
       scholarships: [{ amount: '6000', freq: 'annual', months: [8] }],   // all aid in Aug
       monthlySpending: '0',
-      spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '500', unit: 'dollar' }], // $500/mo rent
+      spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '500', unit: 'dollar' }], // $500/month rent
     };
     // pinned clock like the test above — run FROM January (on a real Aug 1 the aid month IS month 1
     // and no short window exists; this flaked the day the calendar rolled to August)

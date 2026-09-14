@@ -30,7 +30,7 @@ test('opening the date picker commits the default maturity, so Save works withou
 test('recording a partial sale writes a SELL ledger row that lowers the bond value', () => {
   const { Alert } = require('react-native');
   jest.spyOn(Alert, 'alert').mockImplementation((_t: any, _m: any, btns: any) => {
-    const go = (btns ?? []).find((b: any) => b.text === 'Record sale');
+    const go = (btns ?? []).find((b: any) => b.text === 'Sell');
     go?.onPress?.();
   });
   const { useStore } = require('../../store/useStore');
@@ -46,7 +46,7 @@ test('recording a partial sale writes a SELL ledger row that lowers the bond val
     <BondEditor bond={bond} open onClose={() => {}} onSave={onSave} />,
   );
   fireEvent.changeText(getByPlaceholderText(/amount sold/), '4000');
-  fireEvent.press(getByLabelText('Record sale'));
+  fireEvent.press(getByLabelText('Sell'));
 
   const s = useStore.getState() as any;
   const sell = (s.transactions ?? []).find((t: any) => t.type === 'SELL' && t.account_id === 'cd1');

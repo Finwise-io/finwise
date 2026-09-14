@@ -14,6 +14,96 @@ export const IRS_LIMITS = {
   hsa_catch_up_55: 1_000,           // additional HSA, age 55+
 } as const;
 
+/** THE AGE THE LIMITS USE — the age a person attains at any time in the calendar year, which is
+ *  this year minus the birth year. That is the IRS test for every catch-up (IRC §414(v)(1): "attains
+ *  age 50 before the close of the taxable year"; the 60–63 super catch-up likewise; HSA 55+ under
+ *  IRC §223(b)(3)). Someone turning 60 in November is 60 for the whole year's limit. G1 (founder
+ *  agreed 2026-09-12): one convention for limits, stated here; never the birthday-aware age. No birth
+ *  year → nothing, and the limit functions then give the base limit with no catch-up. */
+/* ─ MK-CF-F-197 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * ageAttainedInYear
+ *
+ * Answers ..... THE AGE THE LIMITS USE — the age a person attains at any time in the calendar year, which is this year minus the birth year.
+ *
+ * Formula .....
+ *     y = birth year read as a number
+ *     nothing   when y is missing (or !number.is finite(y) (or y < 1900 when missing or zero) when missing or zero)
+ *     the answer = now.get full year() − y
+ *
+ * Called by ... MK-PL-F-067 willItLastInputs
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-017 birth year
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · The IRS convention for limits: a person attains an age at any point in the calendar year, so this year − birth year — not the birthday-aware age used for display (G1 / G9).
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-197
+ * Changed ..... not in git yet (—)
+ */
+export function ageAttainedInYear(birthYear: number | null | undefined, now: Date = new Date()): number | null {
+  const y = Number(birthYear);
+  if (!y || !Number.isFinite(y) || y < 1900) return null;
+  return now.getFullYear() - y;
+}
+
+/** Months left in the year INCLUDING the current one — December counts as 1, never 0. G36 (founder,
+ *  2026-09-12): the convention is stated here once; the Contribution-room screen used to divide on
+ *  the screen itself. */
+/* ─ MK-CF-F-195 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * monthsLeftInYear
+ *
+ * Answers ..... Months left in the year INCLUDING the current one — December counts as 1, never 0.
+ *
+ * Formula .....
+ *     max(1, 12 − now.get month())
+ *
+ * Called by ... MK-CF-F-196 perMonthToFill
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-196 perMonthToFill
+ *
+ * Serves ...... MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · The current month counts as remaining, so December divides by 1 (G36, founder 2026-09-12).
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-195
+ * Changed ..... not in git yet (—)
+ */
+export function monthsLeftInYear(now: Date = new Date()): number {
+  return Math.max(1, 12 - now.getMonth());
+}
+
+/** What to put in each remaining month to use the room left this year, rounded to $100 for display. */
+/* ─ MK-CF-F-196 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * perMonthToFill
+ *
+ * Answers ..... What to put in each remaining month to use the room left this year, rounded to $100 for display.
+ *
+ * Formula .....
+ *     round(room left ÷ months left in year(now) ÷ 100) × 100
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-196
+ * Changed ..... not in git yet (—)
+ */
+export function perMonthToFill(roomLeft: number, now: Date = new Date()): number {
+  return Math.round(roomLeft / monthsLeftInYear(now) / 100) * 100;
+}
+
 /** Annual employee 401(k) limit for the user's age (adds the 50+ catch-up). */
 /* ─ MK-CF-F-053 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * annual401kLimit
@@ -30,6 +120,9 @@ export const IRS_LIMITS = {
  *               MK-CF-F-056 k401Headroom
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Age = the age attained at any time in the calendar year (this year − birth year), the IRS test for the 50+ catch-up and the 60–63 super catch-up (IRC §414(v)) — never the birthday-aware age (G1). No age → the base limit, no catch-up.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-053
  * Changed ..... 2026-06-05 (7f0d417)
@@ -51,7 +144,10 @@ export function annual401kLimit(age: number | null): number {
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-MN-M-003 · MK-MN-M-004
+ *
+ * Decides .....
+ *     · Age = the age attained at any time in the calendar year (this year − birth year), the IRS test for the 50+ catch-up (IRC §219(b)(5)(B)) — never the birthday-aware age (G1).
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-054
  * Changed ..... 2026-06-05 (7f0d417)
@@ -59,22 +155,30 @@ export function annual401kLimit(age: number | null): number {
 export function annualIraLimit(age: number | null): number {
   return IRS_LIMITS.ira + (age != null && age >= 50 ? IRS_LIMITS.ira_catch_up_50 : 0);
 }
+/** How much can this person put into a health savings account this year? (Enrolled in Medicare → nothing; founder ruling 2026-09-08, G10.) */
 /* ─ MK-CF-F-055 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * annualHsaLimit
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... How much can this person put into a health savings account this year?
  *
  * Formula .....
- *     (family ? IRS_LIMITS.hsa family : IRS_LIMITS.hsa self) + (age ≠ nothing and age ≥ 55 ? IRS_LIMITS.hsa catch up 55 : 0)
+ *     0   when enrolled in Medicare (no contribution is allowed)
+ *     (family ? family limit : self-only limit) + (age ≥ 55 ? the 55+ catch-up : 0)   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-MN-M-003 · MK-MN-M-004
+ * Reads ....... MK-XS-I-062 enrolled in Medicare (yes / no)
+ *
+ * Decides .....
+ *     · Enrolled in Medicare → 0 (IRS Publication 969: no HSA contribution while enrolled). Not enrolled, or not answered → the limit, and at 65+ the screen says "if you are not enrolled in Medicare" and asks — founder ruling 2026-09-08 (second verification G10).
+ *     · Self-only limit unless told it is a family plan.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-055
  * Changed ..... 2026-06-05 (7f0d417)
  */
-export function annualHsaLimit(age: number | null, family = false): number {
+export function annualHsaLimit(age: number | null, family = false, medicareEnrolled: boolean | null = null): number {
+  if (medicareEnrolled === true) return 0;
   return (family ? IRS_LIMITS.hsa_family : IRS_LIMITS.hsa_self) + (age != null && age >= 55 ? IRS_LIMITS.hsa_catch_up_55 : 0);
 }
 
@@ -91,15 +195,15 @@ export interface Headroom { limit: number; used: number; remaining: number; catc
  *     the answer:
  *     limit = limit
  *     used = min(used, limit)
- *     remaining = max(0, round(limit − used))
+ *     remaining = max(0, limit − used)
  *     catch up = age ≠ nothing and age ≥ 50
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Serves ...... MK-MN-M-003 · MK-MN-M-004
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
+ *     · Never lets annual401k contribution fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-056
  * Changed ..... 2026-06-05 (7f0d417)
@@ -107,7 +211,7 @@ export interface Headroom { limit: number; used: number; remaining: number; catc
 export function k401Headroom(age: number | null, annual401kContribution: number): Headroom {
   const limit = annual401kLimit(age);
   const used = Math.max(0, annual401kContribution);
-  return { limit, used: Math.min(used, limit), remaining: Math.max(0, Math.round(limit - used)), catchUp: age != null && age >= 50 };
+  return { limit, used: Math.min(used, limit), remaining: Math.max(0, limit - used), catchUp: age != null && age >= 50 };
 }
 
 /** Roth vs Traditional lean from current vs expected-retirement marginal rate (decimals). */
@@ -117,12 +221,9 @@ export function k401Headroom(age: number | null, annual401kContribution: number)
  * Answers ..... Roth vs Traditional lean from current vs expected-retirement marginal rate (decimals).
  *
  * Formula .....
- *     lean = 'roth'
- *     why = "You're in a low bracket now — pay the tax now (roth) and withdraw tax − free later."   when marginal now ≤ 0.12
- *     lean = 'traditional'
- *     why = 'high bracket now, likely lower in retirement — deduct now (traditional), pay tax later.'   when marginal now ≥ 0.24 and marginal retire < marginal now
- *     lean = 'either'
- *     why = 'your brackets are similar — splitting roth and traditional hedges your future tax rate.'
+ *     lean = 'roth'            when marginal now ≤ 12%     why = "You're in a low bracket now — pay the tax now (Roth) and withdraw tax-free later."
+ *     lean = 'traditional'     when marginal now ≥ 24% and marginal retire < marginal now     why = "High bracket now, likely lower in retirement — deduct now (Traditional), pay tax later."
+ *     lean = 'either'          otherwise     why = "Your brackets are similar — splitting Roth and Traditional hedges your future tax rate."
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *

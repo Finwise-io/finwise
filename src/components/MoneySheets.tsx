@@ -69,7 +69,7 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
 
-  // Categories grouped the way the budget thinks, everyday spending first (the ones you log most),
+  // Categories grouped the way the budget thinks, everyday expenses first (the ones you log most),
   // so the list reads in a deliberate order — not the storage order (founder UX review 2026-07-16).
   const catSections: { title: string; items: { label: string; icon: string }[] }[] = [
     { title: 'EVERYDAY', items: BUDGET_CATEGORIES.filter((c) => c.bucket === 'flexible').map((c) => ({ label: c.label, icon: c.icon })) },
@@ -127,12 +127,12 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
             <Text style={sh.title}>Add expense</Text>
             {/* design r64 (pre-48 audit C4c): the not-an-expense escape hatch — three doors */}
             <TouchableOpacity accessibilityRole="button" style={sh.elseLink}
-              accessibilityLabel="Add something else — a dated bill, an account, or one-off money in"
+              accessibilityLabel="Add something else — a dated bill, an account, or one-time money in"
               onPress={() => {
                 Alert.alert('Add something else', 'Where does it belong?', [
                   { text: 'A dated bill', onPress: () => { reset(); onClose(); router.push('/bill-calendar' as any); } },
                   { text: 'An account', onPress: () => { reset(); onClose(); router.push('/add-account' as any); } },
-                  { text: 'Money in (one-off income)', onPress: () => { reset(); onClose(); router.push('/income-manager' as any); } },
+                  { text: 'Inflow (one-time income)', onPress: () => { reset(); onClose(); router.push('/income-manager' as any); } },
                   { text: 'Cancel', style: 'cancel' },
                 ]);
               }}>
@@ -333,7 +333,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
   );
 }
 
-// ── income bottom sheet — add a one-off inflow OR edit base pay ────────────────
+// ── income bottom sheet — add a one-time inflow OR edit base pay ────────────────
 const FREQS = [{ v: 'hourly', l: 'Hourly' }, { v: 'weekly', l: 'Weekly' }, { v: 'biweekly', l: 'Bi-weekly' }, { v: 'monthly', l: 'Monthly' }];
 const INCOME_SOURCES = [
   { label: 'Gift', icon: '🎁' }, { label: 'Bonus', icon: '💰' }, { label: 'Stock sale', icon: '📈' },
@@ -345,7 +345,7 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
   const store = useStore() as any;
   const router = useRouter();
   const [tab, setTab] = useState<'add' | 'base'>('add');
-  // add one-off income
+  // add one-time income
   const [amount, setAmount] = useState('');
   const [src, setSrc] = useState('');
   const [otherSrc, setOtherSrc] = useState('');
@@ -399,7 +399,7 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
 
             {tab === 'add' ? (
               <>
-                <Text style={sh.bucketHint}>A one-off for {isCurrentMonth ? 'this month' : monthLabel} — gift, stock sale, refund…</Text>
+                <Text style={sh.bucketHint}>A one-time for {isCurrentMonth ? 'this month' : monthLabel} — gift, stock sale, refund…</Text>
                 <View style={sh.amtRow}>
                   <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
                   <TextInput style={sh.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={amount} onChangeText={setAmount} autoFocus />

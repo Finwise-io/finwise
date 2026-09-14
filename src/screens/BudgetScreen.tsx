@@ -36,7 +36,7 @@ const DEBT_TYPES: { value: DebtEntry['type']; label: string; icon: string }[] = 
 ];
 
 // v1.3 CASH FLOW SURFACE (founder-approved 2026-07-19): this screen's battle-tested tab bodies now
-// ALSO render EMBEDDED inside the consolidated Cash flow surface (its Spending/Debts tabs and the
+// ALSO render EMBEDDED inside the consolidated Cash flow surface (its Expenses/Debts tabs and the
 // plan editor). `embedded` hides this screen's own tab selector; a provided `monthOffset` makes the
 // surface's ONE month switcher steer the Activity body (its own arrows hide). Standalone rendering
 // still works (the /budget route redirects, but tests and deep links keep functioning).
@@ -119,7 +119,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const [txnSheet, setTxnSheet] = useState<{ open: boolean; editing?: any }>({ open: false });
   const [deleted, setDeleted] = useState<{ kind: 'income' | 'expense'; entry: any } | null>(null);
   const [recurringMgr, setRecurringMgr] = useState(false);
-  // materialize any due recurring income/expenses once when Money opens (idempotent: the engine
+  // materialize any due recurring income/expenses once when Money opens (idempotent: the function
   // advances each rule's nextDate, so re-running generates nothing until the next period is due)
   React.useEffect(() => { applyRecurringIncomes?.(); applyRecurringExpenses?.(); }, []);
 
@@ -163,12 +163,12 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const inSelMonth = (e: any) => String(e.date ?? '').startsWith(selYm);
   const q = search.trim().toLowerCase();
   // Income = recurring take-home for the month (onboarding salary, same source Home/Budget use)
-  // + any logged one-off income. Without this, a salaried user with no logged income shows $0.
+  // + any logged one-time income. Without this, a salaried user with no logged income shows $0.
   const baseNetSel = Math.round((op ? incomeMonthlyGrid(op, 'net') : [])[selDate.getMonth()]?.amount ?? 0);
   const loggedIncomeSel = allEntries.filter((e) => e.kind === 'income' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
   const monthIncomeSel = baseNetSel + loggedIncomeSel;
   const monthSpendSel = allEntries.filter((e) => e.kind === 'expense' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
-  // "Actual spend" sums ALL expenses, and debt payments are logged as expenses (category 'Debt payment'),
+  // "Actual expenses" sums ALL expenses, and debt payments are logged as expenses (category 'Debt payment'),
   // so it already includes debt → "Income − spend(incl. debt) = Surplus" (canonical, matches Home/Cash-flow).
   const monthDebtSel = allEntries.filter((e) => e.kind === 'expense' && (e as any).category === 'Debt payment' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
   const filtered = allEntries.filter((e) => {
@@ -211,7 +211,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       importFromCSV(rows);
       Alert.alert(
         'Import complete! 📊',
-        `${rows.length} rows imported successfully. Check your transactions.`,
+        `${rows.length} rows imported successfully. Check your activity.`,
         [{ text: 'View transactions', onPress: () => setTab('Activity') }]
       );
     } catch (err) {
@@ -221,7 +221,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
     }
   }
 
-  // ── Budget = the monthly PLAN: Income − Expenses − Debt = Left over (single source of truth) ──
+  // ── Budget = the monthly PLAN: Income − Expenses − Debt = Surplus (single source of truth) ──
   const num = (v: any) => parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')) || 0;
   // This is the PLANNED monthly surplus (typical month) — take-home (after tax AND 401k) − planned spend
   // − debt — the SAME canonical monthlySavings the savings rate and Cash-Flow screen use, so the plan
@@ -365,12 +365,12 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
 
           <View style={styles.strip}>
             <View style={styles.stripItem}>
-              <Text style={styles.stripLabel}>Income</Text>
+              <Text style={styles.stripLabel}>Income (take-home)</Text>
               <Text style={[styles.stripValue, { color: Colors.primary }]}>{money(Math.round(monthIncomeSel))}</Text>
             </View>
             <View style={styles.stripDivider} />
             <View style={styles.stripItem}>
-              <Text style={styles.stripLabel}>{monthDebtSel > 0 ? 'Actual spend + debt' : 'Actual spend'}</Text>
+              <Text style={styles.stripLabel}>{monthDebtSel > 0 ? 'Actual expenses + debt' : 'Actual expenses'}</Text>
               <Text style={[styles.stripValue, { color: Colors.red }]}>{money(Math.round(monthSpendSel))}</Text>
             </View>
             <View style={styles.stripDivider} />
@@ -482,9 +482,9 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       {tab === 'Budget' && (
         <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
 
-          {/* YOUR MONTHLY PLAN — Income − Expenses − Debt = Left over */}
+          {/* YOUR MONTHLY PLAN — Income − Expenses − Debt = Surplus */}
           <Card>
-            <Text style={styles.budgetCardTitle}>Your monthly plan</Text>
+            <Text style={styles.budgetCardTitle}>Your budget</Text>
             <View style={styles.planRow}><Text style={styles.planLabel}>Income (take-home)</Text><Text style={styles.planVal}>{money(planIncome)}</Text></View>
             <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{money(planExpenses)}</Text></View>
             {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>−  Debt (min payments)</Text><Text style={styles.planVal}>{money(planDebt)}</Text></View>}
@@ -495,7 +495,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               </View>
               <Text style={[styles.planTotalVal, { color: planLeftOver >= 0 ? Colors.primary : Colors.red }]}>{money(planLeftOver)}</Text>
             </View>
-            {planIncome > 0 && <Text style={styles.planNote}>Your expense plan is {budgetPctOfIncome}% of take-home pay.</Text>}
+            {planIncome > 0 && <Text style={styles.planNote}>Your expense budget is {budgetPctOfIncome}% of take-home pay.</Text>}
             <View style={{ marginTop: Spacing.md }}>
               <ProgressBar pct={Math.round(spentPct * 100)} color={spentOver ? Colors.red : Colors.primary} height={8} />
               <View style={styles.budgetFooterRow}>
@@ -510,14 +510,14 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {/* EXPENSES BY BUCKET — bucketed spendCats (the single budget source) */}
           <View style={styles.sectionRow}>
             <Text style={styles.sectionTitle}>Expenses by bucket</Text>
-            <TouchableOpacity onPress={openLimitsModal}><Text style={styles.sectionLink}>Set limits →</Text></TouchableOpacity>
+            <TouchableOpacity onPress={openLimitsModal}><Text style={styles.sectionLink}>Set your budget →</Text></TouchableOpacity>
           </View>
           {planExpenses === 0 && spentTotal === 0 ? (
             <Card>
               <View style={styles.empty}>
                 <Text style={{ fontSize: 38, marginBottom: Spacing.sm }}>📊</Text>
                 <Text style={styles.emptyTitle}>No budget yet</Text>
-                <Text style={styles.emptySub}>Tap “Set limits” to plan what you'll spend, by category.</Text>
+                <Text style={styles.emptySub}>Tap “Set your budget” to plan what you'll spend, by category.</Text>
               </View>
             </Card>
           ) : (
@@ -550,7 +550,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               );
             })
           )}
-          {/* (removed the duplicate bottom "Set monthly limits" button — the "Set limits →" header link
+          {/* (removed the duplicate bottom "Set monthly limits" button — the "Set your budget →" header link
               above is the single entry point, consistent with the other section headers.) */}
 
           {/* DEBT THIS MONTH — managed in the Debts tab */}
@@ -565,7 +565,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                   <View key={d.id} style={[styles.bcatRow, i > 0 && { borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8, marginTop: 2 }]}>
                     <Text style={styles.bcatIcon}>{DEBT_TYPES.find((t) => t.value === d.type)?.icon || '📄'}</Text>
                     <Text style={styles.bcatLabel} numberOfLines={1}>{d.name}</Text>
-                    <Text style={styles.bcatAmt}>{money(Math.round(d.minimumPayment))}<Text style={styles.bcatLimit}> /mo min</Text></Text>
+                    <Text style={styles.bcatAmt}>{money(Math.round(d.minimumPayment))}<Text style={styles.bcatLimit}> /month min</Text></Text>
                   </View>
                 ))}
               </Card>
@@ -665,7 +665,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               <View style={{ flex: 1 }}>
                 <Text style={styles.budgetCardTitle}>Total debt</Text>
                 <Text style={[styles.budgetCardSub, { marginTop: 2 }]}>
-                  {activeDebts.length} account{activeDebts.length !== 1 ? 's' : ''} · {money(totalMinMonthly)}/mo min · ~{money(totalInterestMonthly)}/mo interest
+                  {activeDebts.length} account{activeDebts.length !== 1 ? 's' : ''} · {money(totalMinMonthly)}/month min · ~{money(totalInterestMonthly)}/month interest
                 </Text>
               </View>
               <Text style={{ fontSize: 24, fontWeight: '700', color: totalDebt > 0 ? Colors.red : Colors.primary }}>
@@ -695,7 +695,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               </View>
               <View style={styles.payoffSummary}>
                 <View style={styles.payoffStat}><Text style={[styles.payoffStatV, plan.neverPaysOff && { color: Colors.red }]}>{debtFreeLabel}</Text><Text style={styles.payoffStatL}>debt-free</Text></View>
-                <View style={styles.payoffStat}><Text style={styles.payoffStatV}>{money(totalMinMonthly + Math.round(num(extraPay)))}</Text><Text style={styles.payoffStatL}>/mo total</Text></View>
+                <View style={styles.payoffStat}><Text style={styles.payoffStatV}>{money(totalMinMonthly + Math.round(num(extraPay)))}</Text><Text style={styles.payoffStatL}>/month total</Text></View>
                 <View style={styles.payoffStat}><Text style={[styles.payoffStatV, { color: Colors.red }]}>{plan.neverPaysOff ? '—' : money(Math.round(plan.totalInterest))}</Text><Text style={styles.payoffStatL}>total interest</Text></View>
               </View>
               {plan.neverPaysOff && (
@@ -744,7 +744,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                           <Text style={[styles.catAmt, { color: Colors.red }]}>{money(Math.round(d.remaining_balance || 0))}</Text>
                         </View>
                         <Text style={styles.catLimit}>
-                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}% yearly interest (APR) · {money(Math.round(requiredPayment(d)))}/mo min · ~{money(Math.round(monthlyInterest))}/mo interest{pm ? ` · clear in ${pm} mo` : ''}
+                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}% yearly interest (APR) · {money(Math.round(requiredPayment(d)))}/month min · ~{money(Math.round(monthlyInterest))}/month interest{pm ? ` · clear in ${pm} mo` : ''}
                         </Text>
                         {(() => {
                           const dd = d.due_day; if (!dd) return null;
@@ -784,7 +784,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             <Text style={{ fontSize: 38, marginBottom: Spacing.md }}>📂</Text>
             <Text style={styles.importTitle}>Import from Excel or CSV</Text>
             <Text style={styles.importSub}>
-              Upload a spreadsheet of your transactions and we'll import them automatically.
+              Upload a spreadsheet of your bank activity and we'll import it automatically.
             </Text>
             <Button label={importing ? 'Importing...' : 'Choose file'} onPress={handleImport} loading={importing} style={{ marginTop: Spacing.md }} />
           </Card>
@@ -858,7 +858,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
             <TipCard color="green">
               <Text style={{ fontSize: Typography.sizes.sm, color: Colors.primaryDeep, lineHeight: 20 }}>
-                Set a monthly limit per category — tap the $ to switch it to a % of your take-home pay. Leave blank for no limit. These limits are your expense plan everywhere in the app.
+                Set a monthly limit per category — tap the $ to switch it to a % of your take-home pay. Leave blank for no limit. These limits are your expense budget everywhere in the app.
               </Text>
             </TipCard>
             {(['fixed', 'nonmonthly', 'flexible'] as const).map((bk) => (
@@ -942,7 +942,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   );
 }
 
-// next month's same day as an ISO string (the recurring engine reads new Date(nextDate))
+// next month's same day as an ISO string (the recurring function reads new Date(nextDate))
 const nextMonthISO = (ymd: string) => { const [y, m, dd] = ymd.split('-').map(Number); return new Date(y, m, dd).toISOString(); };
 
 // ── Add / edit a transaction (income or expense) ──────────────────────────────
@@ -1194,3 +1194,4 @@ const styles = StyleSheet.create({
   limitDollar: { fontSize: Typography.sizes.base, color: Colors.textSecondary, marginRight: 2 },
   limitInput: { flex: 1, fontSize: Typography.sizes.base, color: Colors.textPrimary, paddingVertical: 0 },
 });
+

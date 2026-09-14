@@ -2,7 +2,9 @@
 // one shared assumptions object + profile + accounts, and runs the seeded simulation. The Plan hub,
 // Home's strip, Cash flow's strip and every decision screen read THIS — never a screen-local copy.
 // The derivation mirrors RetirementCockpit's committed-plan inputs exactly (pinned by tests).
+import { ageAttainedInYear } from '../income/limits';
 import { simulate, retirementSpendMonthly, type RetirementInputs } from './index';
+import { inflationRateInForce } from './inflation';
 import { ssBenefitAt } from './ssTiming';
 import { retirementEarmarkedValue, blendedReturn, blendedVolatility, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../assets';
 import { taxBucketSplit } from '../decumulation';
@@ -16,7 +18,8 @@ import { retirementIncomeMonthly, guaranteedOutsideStreams, over65CountOf } from
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     n = the number in the text after every character but digits and the decimal point is removed
+ *     the answer = 0 when that is not a number, else n
  *
  * Called by ... MK-PL-F-067 willItLastInputs · MK-PL-F-068 selectWillItLast
  *
@@ -37,11 +40,11 @@ const numOrZero = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^
  * Formula .....
  *     max(lo, min(hi, v))
  *
- * Called by ... MK-PL-F-065 volOf
+ * Called by ... MK-PL-F-008 rmdSchedule · MK-PL-F-065 volOf
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-065 volOf
- *               MK-PL-F-067 willItLastInputs
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -94,7 +97,7 @@ export interface WillItLastArgs {
 }
 
 export interface WillItLastResult {
-  captured: boolean;                 // the three questions answered (age, spending, something saved)?
+  captured: boolean;                 // the three questions answered (age, expenses, something saved)?
   chance: number | null;             // Monte-Carlo % (null when not captured — never a guessed number)
   /** B6: gone from the result — the 'best-to-worst range' was two extra runs at different return
    *  assumptions, a sensitivity test wearing a distribution's clothes. Dropped, per the founder. */
@@ -152,8 +155,7 @@ export function displayOdds(chance: number): number {
  * Formula .....
  *     op = op (or none when missing)
  *     a = assumptions (or none when missing)
- *     age = the date ).get full year() − num or zero(op.birth year   if op.birth year
- *     nothing   otherwise
+ *     age = age attained in year(num or zero(op.birth year) or nothing)
  *     nothing   when age = nothing
  *     nest egg = retirement earmarked value(accounts)
  *     bequest = num or zero(op.legacy target)
@@ -180,14 +182,14 @@ export function displayOdds(chance: number): number {
  *               MK-XS-I-036 other guaranteed income
  *
  * Decides .....
- *     · If inflation rate is missing it uses 2.5.
  *     · If social security claim age is missing it uses 67.
  *     · If monthly is missing it uses 0.
  *     · If salary growth is missing it uses 0.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
+ *     · The current age is birthday-aware when the birth month is known, else the year-attained age (G9, 2026-09-12).
+ *     · Inflation: the percent figure entered (2.5) is divided by 100 before use — 0.025 a year (G5). The effective tax rate on pre-tax withdrawals is the person's own, from filing status and income (income floored at $30,000), clamped between 10% and 60% (G7 / G35).
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-067
  * Changed ..... 2026-07-13 (9ac80a7)
@@ -195,7 +197,7 @@ export function displayOdds(chance: number): number {
 export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const op = a.op ?? {};
   const A = a.assumptions ?? {};
-  const age = op.birthYear ? new Date().getFullYear() - numOrZero(op.birthYear) : null;
+  const age = ageAttainedInYear(numOrZero(op.birthYear) || null);   // G9: the plan steps calendar YEARS, so its age is the one attained this year — the birthday-aware age is for what a person reads (ageToday)
   if (age == null) return null;
 
   const nestEgg = retirementEarmarkedValue(a.accounts);
@@ -208,9 +210,10 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const scenarioReturn = A.expectedReturn ?? benchBlended;
   const growthRate = returnBasis === 'actual' ? (actualBlended ?? benchBlended) : returnBasis === 'scenario' ? scenarioReturn : benchBlended;
 
-  const inflDefault = (a.inflationRate ?? 2.5) / 100;
+  // brief Q-50 (2026-08-20) (G30, 2026-09-08): the dated 30-year average — never the feed handed in as inflationRate
+  const inflDefault = inflationRateInForce(null).rate;
   // B5: the plan's guaranteed income is OUTSIDE money only — withdrawals and RMDs are what the
-  // simulation computes, and counting them let the pot fund itself (the odds rose with spending).
+  // simulation computes, and counting them let the pot fund itself (the odds rose with expenses).
   const outside = guaranteedOutsideStreams(op);
   const ssBase = outside.find((st) => st.kind === 'ss');
   const flatStreams = outside.filter((st) => st.kind !== 'ss');
@@ -288,7 +291,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
  *     op = op (or none when missing)
  *     inputs = will it last inputs(a)
  *     nest egg = retirement earmarked value(accounts)
- *     spend known = (retirement spend monthly(op) or num or zero(op.monthly spending)) > 0 (or (assumptions.spend monthly ?? nothing) ≠ nothing when missing or zero)
+ *     spend known = (retirement spend monthly(op) or num or zero(op.monthly expenses)) > 0 (or (assumptions.spend monthly ?? nothing) ≠ nothing when missing or zero)
  *     captured = inputs ≠ nothing and spend known and nest egg > 0
  *     the answer:
  *     captured = false

@@ -7,13 +7,14 @@
 //
 // A RECAP SHOWS, IT DOES NOT ASK (founder, 2026-08-28). The tax rate is set in one place, on Your
 // base pay, and this screen reads it and says whose it is.
+import { EmptyNote } from '../components/UI';
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
-import { money } from '../domain/_shared/num';
+import { fig, figPer } from '../components/figure';
 
 export default function IncomeSummaryScreen() {
   const router = useRouter();
@@ -31,15 +32,12 @@ export default function IncomeSummaryScreen() {
 
       <View style={s.bandRow}>
         <Text style={s.band}>Take-home each month</Text>
-        <Text style={s.bandNum}>{sum.ready ? money(sum.lands.usualMonth) : '—'}</Text>
+        <Text style={s.bandNum}>{fig('MK-CF-M-037', sum.ready ? sum.lands.usualMonth : 0)}</Text>   {/* Q48: $0, never a dash */}
       </View>
       <View style={s.card}>
         {!sum.ready ? (
           <>
-            <Text style={s.empty}>
-              Nothing yet. Tell us where your money comes from and this fills in — it is what every other screen
-              measures against.
-            </Text>
+            <EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} />   {/* Q48 (MK-MN-M-011/013) */}
             <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/base-pay')}
               accessibilityLabel="Add your income">
               <Text style={s.link}>Add your income ›</Text>
@@ -47,15 +45,15 @@ export default function IncomeSummaryScreen() {
           </>
         ) : (
           <>
-            {sum.lands.lines.map((l) => <Row key={l.label} label={l.label} note={l.note} value={money(l.amount)} />)}
-            <Row label="= A usual month" value={money(sum.lands.usualMonth)} strong />
+            {sum.lands.lines.map((l) => <Row key={l.label} label={l.label} note={l.note} value={fig('MK-CF-M-038', l.amount)} />)}
+            <Row label="= Income (take-home), a usual month" value={fig('MK-CF-M-037', sum.lands.usualMonth)} strong />
             {sum.lands.standoutMonth && (
               <Row label={sum.lands.standoutMonth.label} note="its own month, never spread"
-                   value={money(sum.lands.standoutMonth.amount)} />
+                   value={fig('MK-CF-M-039', sum.lands.standoutMonth.amount)} />
             )}
             {sum.taxedNotLanded > 0 && (
               <Text style={s.note}>
-                Your {money(sum.taxedNotLanded)} a month of interest and dividends is not here — it is reinvested
+                Your {fig('MK-CF-M-040', sum.taxedNotLanded)} a month of interest and dividends is not here — it is reinvested
                 where it is earned and never reaches your bank. It is taxed, so it appears below.
               </Text>
             )}
@@ -65,22 +63,22 @@ export default function IncomeSummaryScreen() {
 
       <View style={s.bandRow}>
         <Text style={s.band}>What it is taxed on</Text>
-        <Text style={s.bandNum}>{sum.ready ? money(sum.taxed.grossAnnual) : '—'}</Text>
+        <Text style={s.bandNum}>{fig('MK-CF-M-041', sum.ready ? sum.taxed.grossAnnual : 0)}</Text>   {/* Q48: $0, never a dash */}
       </View>
       <View style={s.card}>
         {!sum.ready ? (
-          <Text style={s.empty}>We will calculate this once you have told us about a wage.</Text>
+          <EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} />   /* Q48 (MK-MN-M-012) */
         ) : (
           <>
-            {sum.taxed.lines.map((l) => <Row key={l.label} label={l.label} value={money(l.amount)} />)}
-            <Row label="= Gross a year" value={money(sum.taxed.grossAnnual)} strong />
+            {sum.taxed.lines.map((l) => <Row key={l.label} label={l.label} value={fig('MK-CF-M-042', l.amount)} />)}
+            <Row label="= Gross /year" value={fig('MK-CF-M-041', sum.taxed.grossAnnual)} strong />
             <Row label="Federal tax bracket" note="every source counted"
-                 value={`${Math.round(sum.taxed.bracket * 100)}%`} />
+                 value={fig('MK-CF-M-043', sum.taxed.bracket)} />
             <Row label={sum.taxed.estimated ? 'Calculated federal tax' : 'Tax'}
                  note={sum.taxed.estimated
                    ? 'assumes you take the standard deduction'
                    : `${sum.taxed.whose} (edit on Your base pay screen)`}
-                 value={`${sum.taxed.estimated ? '≈' : ''}${money(sum.taxed.tax)}/yr`} />
+                 value={`${sum.taxed.estimated ? '≈' : ''}${figPer('MK-CF-M-044', sum.taxed.tax)}`} />
             <Text style={s.note}>
               {sum.taxed.estimated
                 ? 'Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.'
@@ -113,7 +111,7 @@ function Row({ label, note, value, strong }: { label: string; note?: string; val
 const s = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: Colors.bgSecondary, padding: Spacing.lg },
   back: { fontSize: 15, fontWeight: '700', color: Colors.textSecondary, marginBottom: 10 },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   band: { fontSize: 11, fontWeight: '800', letterSpacing: 0.6, color: Colors.textSecondary, textTransform: 'uppercase', marginTop: 24 },
   bandRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },

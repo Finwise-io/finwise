@@ -17,32 +17,23 @@ export interface RealizedResult {
  * Answers ..... How much profit have I actually taken?
  *
  * Formula .....
- *     now = opts.now (or new date() when missing)
- *     yr = string(now.get full year())
- *     queues = new map<string, { shares: number; price: number }[]>()
- *     key of = (t: transaction) => `${account id}|${string(ticker).to upper case()}`
- *     all = 0, year = 0, counted = 0, uncovered = 0
- *     k = key of(t)
- *     q = queues.get(k) (or none when missing)
- *     q = queues.get(k) (or none when missing)
- *     to sell = shares!
- *     basis = 0, covered = 0
- *     lot = the first of q
- *     … the first steps only — the rest of the body needs reading by hand.
+ *     rows = the ledger's BUY, Opening holding and SELL rows with a ticker, shares and a price (filtered to the ticker / account asked for), oldest first
+ *     for each row: a buy is queued per account and ticker; a sale takes from the oldest queued buys: take = min(lot shares, shares still to sell); basis += take × lot price; lot shares −= take; still to sell −= take; the lot is dropped when empty
+ *     gain = covered shares × sale price − basis, to the cent; added to the all-time total, and to this year's when the sale date is in this year
+ *     a sale with shares still uncovered is counted as a sale without basis — reported, never guessed
+ *     the answer = { realized all time, realized this year, sells counted, sells without basis }
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... MK-NW-M-035
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-009 transaction date
- *               MK-XS-I-024 logged spending
+ *               MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · If shares is missing it uses 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
+ *     · Sales dated in the current calendar year make the this-year total; the device clock decides which year that is.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-028
  * Changed ..... 2026-07-18 (50e9885)
@@ -87,7 +78,7 @@ export function realizedFromLedger(
       if (lot.shares <= 1e-9) q.shift();
     }
     if (covered > 0) {
-      const gain = Math.round((covered * t.price! - basis) * 100) / 100;
+      const gain = ((covered * t.price! - basis));
       all += gain;
       if (t.date.startsWith(yr)) year += gain;
       counted++;
@@ -95,8 +86,8 @@ export function realizedFromLedger(
     if (toSell > 1e-9) uncovered++;   // partially/fully unpriceable — reported, never guessed
   }
   return {
-    realizedAllTime: Math.round(all * 100) / 100,
-    realizedThisYear: Math.round(year * 100) / 100,
+    realizedAllTime: (all),
+    realizedThisYear: (year),
     sellsCounted: counted,
     sellsWithoutBasis: uncovered,
   };

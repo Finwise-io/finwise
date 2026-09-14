@@ -94,10 +94,11 @@ export function readMoney(
  *     amount   if direction = 'IN'
  *     dec.ZERO   otherwise   otherwise
  *
- * Called by ... MK-ST-F-012 toLedgerRow
+ * Called by ... MK-ST-F-012 toLedgerRow · MK-ST-F-020 sumSigned
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync · MK-ST-F-012 toLedgerRow
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-ST-F-020 sumSigned
+ *               MK-ST-F-012 toLedgerRow
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -179,83 +180,33 @@ export function toNumber(raw: number | string | null | undefined): number | null
   return parenthesised ? -Math.abs(n) : n;
 }
 
-/* ─ MK-ST-F-055 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+/** Rounds a money figure to the cent — two decimals. */
+/* ─ MK-ST-F-055 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * round2
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Rounds a money figure to the cent — two decimals.
  *
  * Formula .....
  *     round2(n) = round(n × 100) ÷ 100
  *
- * Called by ... MK-CF-F-001 buildBudgetState · MK-CF-F-004 spendBuckets
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-009 monthlyEssentials
- *               MK-CF-F-010 emergencyTest · MK-CF-F-011 savingsByMonth
- *               MK-CF-F-012 annualCashflow · MK-CF-F-014 budgetVsActual
- *               MK-CF-F-019 upcomingBills · MK-CF-F-020 cashflowYear
- *               MK-CF-F-025 minimumDebtService · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-027 totalDebtBalance · MK-CF-F-028 loanPayment
- *               MK-CF-F-033 debtToIncome · MK-CF-F-034 payoffPlan
- *               MK-CF-F-036 buildDebtState · MK-CF-F-049 buildIncomeState
- *               MK-CF-F-071 extraIncome · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-F-106 solveSafeDraw · MK-CF-F-107 buildPaycheckYear
- *               MK-CF-F-111 applyTransaction · MK-CF-F-119 investmentIncomeAnnual
- *               MK-CF-F-136 bumpCash · MK-CF-F-139 removeShares
- *               MK-CF-F-143 annualisedGross · MK-CF-F-144 takeHomeAsEntered
- *               MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
- *               MK-CF-F-149 recurringDebtPayments · MK-CF-F-150 debtPaymentsCountedAsExpenses
- *               MK-CF-F-151 actualSpending · MK-CF-F-153 radar
- *               MK-CF-F-155 cash · MK-CF-F-156 plannedMonthFlow
- *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-171 earnerPay
- *               MK-CF-F-177 wageGrossByMonth · MK-CF-F-180 enteredLandsAnnual
- *               MK-CF-F-182 asPercent · MK-CF-F-183 paidOutByAccount
- *               MK-CF-F-184 incomeFromAccounts · MK-CF-F-186 convertTakeHomeMode
- *               MK-CF-O-001 basePay · MK-CF-O-002 spending
- *               MK-CF-O-004 incomeSummary · MK-NW-F-002 alternativesSummary
- *               MK-NW-F-015 totalAssets · MK-NW-F-016 cashTotal
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-029 assetAllocation
- *               MK-NW-F-032 earmarkedAmount · MK-NW-F-033 retirementEarmarkedValue
- *               MK-NW-F-039 buildAssetsState · MK-NW-F-048 uberGroupRows
- *               MK-NW-F-049 itemizedTotal · MK-NW-F-050 itemizeRemainder
- *               MK-NW-F-051 itemizedResultTotal · MK-NW-F-052 buildItemizedAccounts
- *               MK-NW-F-057 annualCoupon · MK-NW-F-061 bondSummary
- *               MK-NW-F-062 couponIncomeAnnual · MK-NW-F-063 interestIncomeAnnual
- *               MK-NW-F-065 buildNetWorth · MK-NW-F-066 sumWhere
- *               MK-PF-F-002 costBasis · MK-PF-F-003 avgCost
- *               MK-PF-F-004 marketValue · MK-PF-F-005 unrealizedGain
- *               MK-PF-F-006 capGains · MK-PF-F-017 allocation
- *               MK-PF-F-023 lookBack · MK-PL-F-001 taxBucketSplit
- *               MK-PL-F-002 withdrawalPlan · MK-PL-F-007 rmdAtAge
- *               MK-PL-F-009 rmdTakenThisYear · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-011 buildGoalsState · MK-PL-F-012 waterfall
- *               MK-PL-F-020 requiredMonthly · MK-PL-F-026 planDoor
- *               MK-PL-F-031 taxOrganizer · MK-PL-F-032 rothConversionCost
- *               MK-PL-F-033 educationPlan · MK-PL-F-034 lifeInsuranceNeed
- *               MK-PL-F-036 weighGoals · MK-PL-F-048 capitalNeeded
- *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-050 simulate
- *               MK-PL-F-055 projectNestEgg · MK-ST-F-031 valueOn
- *               MK-ST-F-036 reconcile · MK-XS-F-004 buildDatedGrid
- *               MK-XS-F-005 trendPoints · MK-XS-F-007 makeMonthlySnapshot
- *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-011 buildChangeWalk
- *               MK-XS-F-027 takeHomeMonthly · MK-XS-F-028 surplusByMonth
- *               MK-XS-F-029 monthlySavings
+ * Called by ... MK-ST-F-044 setMoneyFormat · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 183 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-151 actualSpending · MK-PF-F-017 allocation
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
- *               MK-CF-F-012 annualCashflow · MK-NW-F-057 annualCoupon
- *               MK-CF-F-143 annualisedGross · MK-CF-F-111 applyTransaction
- *               MK-NW-F-060 approxYTM · MK-CF-F-182 asPercent
- *               MK-NW-F-029 assetAllocation · MK-NW-F-011 assetClassOf
- *               MK-NW-F-007 assetKind · MK-PF-F-003 avgCost
- *               … and 165 more — the full list is on functions_from_code
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *     · Rounds the answer to a whole number.
+ *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-055
  * Changed ..... 2026-08-18 (bfea15e)

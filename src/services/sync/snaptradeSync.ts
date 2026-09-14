@@ -133,11 +133,10 @@ async function allActivities(accountId: string, startDate?: string): Promise<StA
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged spending
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-116
  * Changed ..... 2026-07-18 (0dc9061)

@@ -40,7 +40,7 @@ describe('E1 — Social Security at 71 (all standard claim ages passed)', () => 
     const { ssBenefitAt } = require('../domain/retirement/ssTiming');
     const expected = ssBenefitAt(2600, 70, new Date().getFullYear() - 71);
     expect(screen.getByText(/at 71 \(now\)/)).toBeOnTheScreen();
-    expect(screen.getByText(`$${expected.toLocaleString()}`)).toBeOnTheScreen();
+    expect(screen.getByText(`$${Math.round(expected).toLocaleString()}`)).toBeOnTheScreen();   // the screen rounds at display (Q49)
     expect(screen.getByText(/waiting longer adds nothing/i)).toBeOnTheScreen();
     expect(screen.getByLabelText('Use claim at 71 as my plan')).toBeOnTheScreen();   // a real button exists
     expect(screen.queryByText(/at 62/)).toBeNull();   // choices that no longer exist are never shown

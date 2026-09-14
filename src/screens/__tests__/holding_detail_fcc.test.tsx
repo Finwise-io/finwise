@@ -1,6 +1,6 @@
 // Holding detail — equity per-ticker page (detailed design v1.1, Invest r20-r31). Pins: the header
 // numbers are the SAME helpers the Invest list uses; the tax card's two gains sum to the header gain;
-// honest states (no price / closed / masked); look-back arrives pre-filled; the engine's new
+// honest states (no price / closed / masked); look-back arrives pre-filled; the function's new
 // holding-concentration insight uses the same shared rule the Invest callout shows.
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -141,7 +141,7 @@ test('sub-$2 average cost keeps 3 decimals (the LCTX case) — and still masks w
       positions: [{ position_id: 'p1', ticker: 'LCTX', label: 'Lineage Inc', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 1000, cost_per_share: 1.132, purchase_date: '2024-05-01' }] }] }],
   } as any);
   const r = render(<HoldingDetailScreen />);
-  expect(screen.getByText('$1.132')).toBeOnTheScreen();
+  expect(screen.getByText('$1.13')).toBeOnTheScreen();   // Q49 (2026-09-09): prices show two decimals; the three-decimal case was not a stated exception
   r.unmount();
   useStore.setState({ hideBalances: true } as any);
   render(<HoldingDetailScreen />);
@@ -154,7 +154,7 @@ test("all lots sold: 'Position closed' with $0 — correct here, and history is 
       positions: [{ ...NVDA_POS, lots: [] }, { position_id: 'p2', ticker: 'VTI', kind: 'stocks_etf', lots: [] }] }],
   } as any);
   render(<HoldingDetailScreen />);
-  expect(screen.getByText(/Position closed — all shares sold/)).toBeOnTheScreen();
+  expect(screen.getByText(/Holding liquidated — all shares sold/)).toBeOnTheScreen();
 });
 
 test('hide balances: dollars mask; shares, dates and percentages stay readable', () => {
@@ -177,7 +177,7 @@ test('Invest main equity rows ROUTE to this page (no more inline-editor dead end
   expect(mockPushes).toContain('/holding-detail?account=brk&position=p1');
 });
 
-test('engine: holding-concentration insight fires from the SAME shared rule the Invest callout uses', () => {
+test('function: holding-concentration insight fires from the SAME shared rule the Invest callout uses', () => {
   const st = useStore.getState() as any;
   const rows = buildPerformance([NVDA_POS as any, { position_id: 'p2', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'l3', shares: 10, cost_per_share: 200, purchase_date: '2024-01-02' }] } as any],
     (t: string) => st.priceCache[t], '1Y');

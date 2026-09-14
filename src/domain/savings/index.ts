@@ -3,7 +3,7 @@
 // denominator share a basis), researched 2026-06-22:
 //   • Cash savings rate (50/30/20): money set aside ÷ TAKE-HOME, excl 401(k) + debt. ~20% benchmark.
 //   • Total savings rate (Fidelity): (cash saved + 401(k) + employer match) ÷ GROSS. ~15% benchmark.
-import { round2, toNum } from '../_shared/num';
+import { toNum } from '../_shared/num';
 import type { OnboardingProfile } from '../onboardingProfile';
 import { incomeMonthlyGrid, totalGrossAnnual, employerMatchMonthly } from '../income';
 import { plannedMonthlySpend, savingsByMonth } from '../budget';
@@ -17,26 +17,36 @@ import { actualDebtPayment, type Debt } from '../debt';
  *
  * Formula .....
  *     grid = income monthly grid(op, 'available')
- *     the answer = round(Σ over grid of (amount)÷ 12, 2 dp)
+ *     the answer = Σ over grid of (amount)÷ 12
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-002 plannedMonthlySpend · MK-CF-F-003 categoryMonthly
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
+ *
+ * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
+ *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-F-004 spendBuckets
+ *               … and 5 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Treats a year as twelve equal months.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-027
  * Changed ..... 2026-07-30 (a85874e)
  */
 export function takeHomeMonthly(op: OnboardingProfile | null): number {
   const grid = incomeMonthlyGrid(op, 'available');
-  return round2(grid.reduce((t, m) => t + m.amount, 0) / 12);
+  return (grid.reduce((t, m) => t + m.amount, 0) / 12);
 }
 
 /** Planned SURPLUS, month by month, AFTER debt (the canonical word, per the 2026-06-23 decision).
  *  = the income-vs-spend grid (savingsByMonth) minus the constant monthly debt service.
- *  THE one capacity engine (Build-47 walk row 7): everything else derives from this. */
+ *  THE one capacity function (Build-47 walk row 7): everything else derives from this. */
 /* ─ MK-XS-F-028 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * surplusByMonth
  *
@@ -46,7 +56,7 @@ export function takeHomeMonthly(op: OnboardingProfile | null): number {
  *     debt = actual debt payment(debts)
  *     the answer:
  *     for each of savings by month(op): label = label
- *     amount = round(amount − debt, 2 dp)
+ *     amount = amount − debt
  *
  * Called by ... MK-XS-F-029 monthlySavings
  *
@@ -60,7 +70,7 @@ export function takeHomeMonthly(op: OnboardingProfile | null): number {
  */
 export function surplusByMonth(op: OnboardingProfile | null, debts: Debt[] = []): { label: string; amount: number }[] {
   const debt = actualDebtPayment(debts);
-  return savingsByMonth(op).map((m) => ({ label: m.label, amount: round2(m.amount - debt) }));
+  return savingsByMonth(op).map((m) => ({ label: m.label, amount: (m.amount - debt) }));
 }
 
 /** Monthly savings (the FLOW) — Build-47 walk row 7: DERIVED as the 12-month average of
@@ -73,21 +83,18 @@ export function surplusByMonth(op: OnboardingProfile | null, debts: Debt[] = [])
  *
  * Formula .....
  *     months = surplus by month(op, debts)
- *     the answer = round(Σ over months of (amount)÷ 12, 2 dp)
+ *     the answer = Σ over months of (amount)÷ 12
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Treats a year as twelve equal months.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-029
  * Changed ..... 2026-08-20 (1ca34d7)
  */
 export function monthlySavings(op: OnboardingProfile | null, debts: Debt[] = []): number {
   const months = surplusByMonth(op, debts);
-  return round2(months.reduce((t, m) => t + m.amount, 0) / 12);
+  return (months.reduce((t, m) => t + m.amount, 0) / 12);
 }
 
 // The savings-rate functions were CUT by the founder 2026-08-20 (brief §C, Q29): a benchmark aimed

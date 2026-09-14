@@ -9,7 +9,7 @@ import { Button, Card, ProgressBar } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import {
   Status, Track, STATUS_OPTIONS, goalOptionsFor, goalGroupsFor, buildSteps, isOptional,
-} from '../onboarding/engine';
+} from '../onboarding/steps';
 import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress } from '../onboarding/modules';
 import Summary from '../onboarding/Summary';
 import Mascot from '../onboarding/Mascot';
@@ -24,7 +24,7 @@ const STEP_SECTION: Record<string, string> = {
   income_investment: 'Income', income_benefits: 'Income', income_support: 'Income',
   income_scholarship: 'Income', income_loans: 'Income', income_other: 'Income', income_tax: 'Income',
   recap_income: 'Income', birth: 'About you',
-  monthlySpending: 'Spending', flexBuckets: 'Spending', savingsRateTarget: 'Spending', recap_spend: 'Spending',
+  monthlySpending: 'Expenses', flexBuckets: 'Expenses', savingsRateTarget: 'Expenses', recap_spend: 'Expenses',
   currentRetirementSavings: 'Retirement', contributionsByType: 'Retirement', targetRetirementAge: 'Retirement',
   expectedRetirementSpending: 'Retirement', currentSavingsPortfolio: 'Retirement',
   retirementIncomeSources: 'Retirement', horizonAge: 'Retirement', retLocation: 'Retirement',
@@ -58,7 +58,7 @@ function sectionProgress(steps: string[], index: number): string {
 }
 
 // Module breadcrumb — every module in this user's flow, chevron-separated:
-// "✓ Profile › ✓ Income › [Spending] › Retirement › …" — done ✓, current highlighted, upcoming dim.
+// "✓ Profile › ✓ Income › [Expenses] › Retirement › …" — done ✓, current highlighted, upcoming dim.
 function ModuleCrumbs({ steps, index }: { steps: string[]; index: number }) {
   const secs = sectionsFor(steps);
   const seq: string[] = [];
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   progressBarFixed: { paddingTop: 60, paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm, backgroundColor: Colors.bgSecondary },
   progressText: { marginTop: 6, fontSize: 13, color: Colors.textTertiary, textAlign: 'right' },
   headWrap: { alignItems: 'center', marginBottom: Spacing.lg },
-  heading: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  heading: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sub: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', marginTop: 6 },
   groupHeader: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
   choice: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm, borderWidth: 2, borderColor: 'transparent' },

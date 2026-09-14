@@ -1,6 +1,6 @@
 // Will-it-last detail (FCC detailed design v1.1, Plan sheet) — open the hood on the ONE number:
 // what it means, the honest best-to-worst range, and what drives it. Every driver shows its value
-// AND where it came from (you set it / calculated from your data) with a road to change it. The
+// AND where it came from (you entered / calculated from your data) with a road to change it. The
 // headline is the SAME selector run the hub, Home and Cash flow read — never a second computation.
 import React, { useMemo } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -43,16 +43,16 @@ export default function WillItLastScreen() {
   }
 
   const inp = wil.inputs;
-  // each driver: the value + its source (you set it vs calculated from your data) + where to change it
+  // each driver: the value + its source (you entered vs calculated from your data) + where to change it
   const drivers: { label: string; value: string; source: string; route: string }[] = [
-    { label: 'Plan to age', value: String(inp.horizon_age), source: A.horizonAge != null ? 'you set it' : 'from your setup answers', route: '/retirement' },
-    { label: 'Retire age', value: inp.retire_age <= inp.current_age ? `already retired (${inp.current_age})` : String(inp.retire_age), source: A.retireAge != null ? 'you set it' : 'from your setup answers', route: '/retirement' },
+    { label: 'Plan to age', value: String(inp.horizon_age), source: A.horizonAge != null ? 'you entered' : 'from your setup answers', route: '/retirement' },
+    { label: 'Retire age', value: inp.retire_age <= inp.current_age ? `already retired (${inp.current_age})` : String(inp.retire_age), source: A.retireAge != null ? 'you entered' : 'from your setup answers', route: '/retirement' },
     { label: 'What you have (nest egg)', value: maskedMoney(inp.start_balance), source: 'your live account balances', route: '/(tabs)/analytics' },
-    { label: 'Monthly spending in retirement', value: maskedMoney(inp.retire_monthly_spend_today), source: A.spendMonthly != null ? 'you set it' : 'calculated from your data', route: '/retirement' },
-    { label: 'Guaranteed income', value: `${maskedMoney(inp.guaranteed_monthly_income)}/mo from age ${inp.guaranteed_start_age ?? inp.retire_age}`, source: A.ssMonthly != null || A.ssClaimAge != null ? 'you set it' : 'from your setup answers', route: '/ss-timing' },
-    ...(inp.retire_age > inp.current_age ? [{ label: 'Monthly saving until then', value: `${maskedMoney(inp.annual_contribution / 12)}/mo`, source: A.contribMonthly != null ? 'you set it' : 'calculated from your data', route: '/multi-goal' }] : []),
-    { label: 'Yearly growth assumed', value: `${((inp.mean_return ?? 0) * 100).toFixed(1)}%`, source: A.returnBasis === 'actual' ? 'your reported returns' : A.returnBasis === 'scenario' ? 'you set it' : 'the blended benchmark for your mix', route: '/retirement' },
-    { label: 'Inflation assumed', value: `${((inp.inflation ?? 0) * 100).toFixed(1)}%`, source: A.inflation != null ? 'you set it' : 'from economic data', route: '/retirement' },
+    { label: 'Monthly expenses in retirement', value: maskedMoney(inp.retire_monthly_spend_today), source: A.spendMonthly != null ? 'you entered' : 'calculated from your data', route: '/retirement' },
+    { label: 'Guaranteed income', value: `${maskedMoney(inp.guaranteed_monthly_income)}/month from age ${inp.guaranteed_start_age ?? inp.retire_age}`, source: A.ssMonthly != null || A.ssClaimAge != null ? 'you entered' : 'from your setup answers', route: '/ss-timing' },
+    ...(inp.retire_age > inp.current_age ? [{ label: 'Monthly saving until then', value: `${maskedMoney(inp.annual_contribution / 12)}/month`, source: A.contribMonthly != null ? 'you entered' : 'calculated from your data', route: '/multi-goal' }] : []),
+    { label: 'Yearly growth assumed', value: `${((inp.mean_return ?? 0) * 100).toFixed(1)}%`, source: A.returnBasis === 'actual' ? 'your reported returns' : A.returnBasis === 'scenario' ? 'you entered' : 'the blended benchmark for your mix', route: '/retirement' },
+    { label: 'Inflation assumed', value: `${((inp.inflation ?? 0) * 100).toFixed(1)}%`, source: A.inflation != null ? 'you entered' : 'from economic data', route: '/retirement' },
   ];
 
   return (
@@ -69,7 +69,7 @@ export default function WillItLastScreen() {
         <SectionBand title="WHAT THIS MEANS" />
         <Text style={s.body}>
           We play out hundreds of possible market futures — some kind, some rough — using the numbers below.
-          In {wil.chance} of every 100 futures, your money lasts to {wil.horizonAge}. It's an honest estimate
+          In {wil.chance} out of 100 simulated futures, your money lasts to {wil.horizonAge}. It's an honest estimate
           that moves with your balances — never a promise, never a prediction of any single year.
         </Text>
       </View>
@@ -117,3 +117,4 @@ const s = StyleSheet.create({
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   primaryTxt: { color: Colors.white, fontSize: 15, fontWeight: '800' },
 });
+

@@ -1,7 +1,7 @@
 /**
  * Cross-screen AGREEMENT guard for "take-home" (the bug a user caught on build #30: the income recap
- * showed $22,990/mo while the spending plan showed $24,490 — they disagreed by exactly the 401(k),
- * because the spending plan used `monthlyIncome` (net of tax, BEFORE 401(k)) and the income screen used
+ * showed $22,990/month while the budget showed $24,490 — they disagreed by exactly the 401(k),
+ * because the budget used `monthlyIncome` (net of tax, BEFORE 401(k)) and the income screen used
  * after-401(k)). Lesson: every screen that DISPLAYS a concept must read ONE helper; agreement tests must
  * cover rendered numbers across screens, not just intra-domain reconciliation.
  *
@@ -9,7 +9,7 @@
  * `monthlyIncome(a) - num(a.c_401k)` — which taxed the full gross and then took the 401(k) off
  * afterwards. That is the wrong order for a traditional contribution, and every other screen used the
  * income grid, which takes it off first: $6,400 here against $6,560 there on a household with a
- * partner. The test could not see it, because it was checking that the code still said what it said.
+ * spouse. The test could not see it, because it was checking that the code still said what it said.
  * A test that pins an implementation cannot notice the implementation is wrong. These pin behaviour.
  *
  * modules.tsx imports React Native, so the two screen-wiring checks still read the source text — but
@@ -34,6 +34,6 @@ test('the spending-plan screen shows take-home from the shared helper (the bug f
 });
 
 test('no screen displays the BEFORE-401(k) figure as "take-home" (regression guard)', () => {
-  // the exact buggy line: spending plan binding its displayed net to the net-of-tax helper
+  // the exact buggy line: budget binding its displayed net to the net-of-tax helper
   expect(src).not.toMatch(/const net = monthlyIncome\(a\)/);
 });

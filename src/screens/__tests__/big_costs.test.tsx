@@ -19,7 +19,7 @@ const BASE = {
   inflation: 0.025, mean_return: 0.055, vol_return: 0.09, paths: 300, seed: 42, now_year: 2026,
 } as any;
 
-test('engine: a big cost lowers the odds; the same cost past the horizon changes nothing', () => {
+test('function: a big cost lowers the odds; the same cost past the horizon changes nothing', () => {
   const base = simulate(BASE).chance_of_success;
   const withRoof = simulate({ ...BASE, one_off_costs: [{ amount: 120000, year: 2030 }] }).chance_of_success;
   expect(withRoof).toBeLessThan(base);                               // real money leaves in 2030
@@ -27,14 +27,17 @@ test('engine: a big cost lowers the odds; the same cost past the horizon changes
   expect(beyond).toBe(base);                                         // beyond the horizon: not simulated
 });
 
-test('engine: no one_off_costs is byte-identical to the legacy behavior (old pins safe)', () => {
+test('function: no one_off_costs is byte-identical to the legacy behavior (old pins safe)', () => {
   expect(simulate(BASE).chance_of_success).toBe(simulate({ ...BASE, one_off_costs: [] }).chance_of_success);
 });
 
 test('screen: empty state states the honest default and offers ONE action', () => {
   const BigCostsScreen = require('../BigCostsScreen').default;
   render(<BigCostsScreen />);
-  expect(screen.getByText(/your odds currently assume no big one-time costs/)).toBeOnTheScreen();
+  // Q48 (mock approved 2026-09-12): $0, the one line, the door — then the honest default
+  expect(screen.getByText(/^Nothing entered yet\./)).toBeOnTheScreen();
+  expect(screen.getByText('Add a big cost ›')).toBeOnTheScreen();
+  expect(screen.getByText(/Your odds currently assume no big one-time costs/)).toBeOnTheScreen();
   expect(screen.getByLabelText('Add your first big cost')).toBeOnTheScreen();
 });
 

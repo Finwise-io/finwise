@@ -32,7 +32,7 @@ export interface MortgageOddsEffect {
  *
  * `base` must be the plan as committed, with the mortgage ALREADY expressed as a `recurring_until`
  * payment — the founder's ruling is that we tell the person we include their loan for as long as it
- * runs, so it is never buried inside their spending answer.
+ * runs, so it is never buried inside their expenses answer.
  */
 /* ─ MK-CF-F-042 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * mortgageOddsEffect
@@ -54,7 +54,6 @@ export interface MortgageOddsEffect {
  * Reads ....... MK-XS-I-001 account balance
  *
  * Decides .....
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-042

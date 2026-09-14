@@ -1,8 +1,8 @@
-// Cash-flow / bill-calendar engine. Turns onboarding answers into a 12-month picture of money IN
+// Cash-flow / bill-calendar function. Turns onboarding answers into a 12-month picture of money IN
 import type { OnboardingProfile } from '../onboardingProfile';
 // (paychecks, scholarships, loan disbursements, benefits…) vs money OUT (bills by their due months),
 // with a running balance so we can flag the months where you'd come up short.
-import { toNum, round2 } from '../_shared/num';
+import { toNum } from '../_shared/num';
 import {
   grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, salaryGrossByMonth,
   effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly,
@@ -18,7 +18,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = twelve zeros, one per month
  *
  * Called by ... MK-CF-F-018 equityByMonth · MK-CF-F-020 cashflowYear
  *
@@ -49,7 +49,7 @@ function zero12(): number[] { return new Array(12).fill(0); }
  *     idx = min(11, max(0, +m[1] − 1))   if m
  *     11   otherwise
  *     annual = rsu annual(op), out = zero12()
- *     the answer = out
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-CF-F-020 cashflowYear · MK-XS-F-004 buildDatedGrid
  *
@@ -61,7 +61,6 @@ function zero12(): number[] { return new Array(12).fill(0); }
  *
  * Decides .....
  *     · Uses a built-in total of 0.
- *     · Uses a built-in i of 0.
  *     · Uses a built-in d a y m s of 86400000.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-018
@@ -95,7 +94,7 @@ const DAY_MS = 86400000;
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = round((b − a) in milliseconds ÷ 86,400,000)
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
@@ -117,7 +116,7 @@ function daysBetweenDates(a: Date, b: Date): number { return Math.round((b.getTi
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = d + n × 86,400,000 milliseconds
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
@@ -130,25 +129,7 @@ function daysBetweenDates(a: Date, b: Date): number { return Math.round((b.getTi
  * Changed ..... not in git yet (—)
  */
 function addDays(d: Date, n: number): Date { return new Date(d.getTime() + n * DAY_MS); }
-/* ─ MK-CF-F-123 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * iso
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
- *
- * Called by ... MK-CF-F-019 upcomingBills
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-019 upcomingBills
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-CF-F-123
- * Changed ..... not in git yet (—)
- */
-import { isoLocalDate as iso } from '../_shared/dates';
+import { isoLocalDate } from '../_shared/dates';
 /** The next time (month, day) occurs on/after `now`, unless an explicit year is given. */
 /* ─ MK-CF-F-124 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * nextOccurrence
@@ -203,7 +184,7 @@ export interface UpcomingBill {
  *     buffer = opts.buffer days (or 2, lead = opts.ask lead days (or 10, horizon = opts.horizon days (or 365 when missing) when missing) when missing)
  *     rate = effective rate(op)
  *     b = spend buckets(op)
- *     uncategorized = max(0, to num(monthly spending) − monthly total)
+ *     uncategorized = max(0, to num(monthly expenses) − monthly total)
  *     steady out monthly = fixed + flexible + uncategorized
  *     steady daily net = (steady in monthly − steady out monthly) × 12 ÷ 365
  *     inflows = []
@@ -211,6 +192,7 @@ export interface UpcomingBill {
  *     ms = sc.months   if count of array.is array(sc.months) and sc.months
  *     [1]   otherwise
  *     amt = to num(ln.amount); if (amt ≤ 0) continue
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -218,18 +200,17 @@ export interface UpcomingBill {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-023 salary and other income
- *               MK-XS-I-032 spending categories the person set up
+ *               MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-040 whether a stream is already being received
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
  *     · If buffer days is missing it uses 2.
  *     · If ask lead days is missing it uses 10.
  *     · If horizon days is missing it uses 365.
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Treats a year as 365 days.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-019
  * Changed ..... 2026-06-09 (e39df23)
@@ -295,11 +276,11 @@ export function upcomingBills(
     .map((bill) => {
       const needBy = addDays(bill.date, -buffer);
       const avail = balanceOn(needBy, bill.id);
-      const shortfall = Math.max(0, round2(bill.amount - avail));
+      const shortfall = Math.max(0, (bill.amount - avail));
       return {
-        id: bill.id, label: bill.label, amount: round2(bill.amount),
-        dueDate: iso(bill.date), needByDate: iso(needBy), askByDate: iso(addDays(needBy, -lead)),
-        availableByNeed: round2(avail), shortfall, coverSource, daysAway: daysBetweenDates(now, bill.date),
+        id: bill.id, label: bill.label, amount: (bill.amount),
+        dueDate: isoLocalDate(bill.date), needByDate: isoLocalDate(needBy), askByDate: isoLocalDate(addDays(needBy, -lead)),
+        availableByNeed: (avail), shortfall, coverSource, daysAway: daysBetweenDates(now, bill.date),
       };
     });
 }
@@ -342,15 +323,13 @@ export interface CashflowYear {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-059 the month a bonus lands
  *
  * Decides .....
  *     · Uses a built-in beyond window of 0.
- *     · Uses a built-in s of 0.
- *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-020
  * Changed ..... 2026-06-09 (e39df23)
@@ -435,9 +414,10 @@ export function cashflowYear(op: OnboardingProfile | null, startBalance = 0, now
     const outflow = out[s];
     bal += inflow - outflow;
     totalIn += inflow; totalOut += outflow;
-    return { label, inflow: round2(inflow), outflow: round2(outflow), net: round2(inflow - outflow), balance: round2(bal) };
+    return { label, inflow: (inflow), outflow: (outflow), net: (inflow - outflow), balance: (bal) };
   });
   const shortMonths = months.filter((m) => m.balance < -0.005).map((m) => m.label);
-  const lowestBalance = round2(Math.min(...months.map((m) => m.balance)));
-  return { months, shortMonths, lowestBalance, totalIn: round2(totalIn), totalOut: round2(totalOut), beyondWindow };
+  const lowestBalance = (Math.min(...months.map((m) => m.balance)));
+  return { months, shortMonths, lowestBalance, totalIn: (totalIn), totalOut: (totalOut), beyondWindow };
 }
+

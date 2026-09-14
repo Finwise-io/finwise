@@ -2,7 +2,7 @@
  * HOW DO YOU FILE YOUR TAXES? — the screen, against the approved mock (income-v5, frames 4a–4c).
  *
  * The app read a filing status, found nothing, and taxed everyone as a single filer — including the
- * couple who had just said they have a partner. It COULD be set, but only from three chips buried in
+ * couple who had just said they have a spouse. It COULD be set, but only from three chips buried in
  * the Tax organizer, and married-filing-separately was not among them though its table exists.
  */
 import React from 'react';
@@ -27,15 +27,15 @@ test('4a — just me: pre-answered as Single, and it says why', () => {
   set(SOLO);
   render(<FilingStatusScreen />);
   expect(screen.getByLabelText('Single').props.accessibilityState.selected).toBe(true);
-  expect(screen.getByText(/because you told us it is just you/)).toBeOnTheScreen();
+  expect(screen.getByText(/because you entered it is just you/)).toBeOnTheScreen();
   expect(screen.queryByText('Is either of you 65 or older?')).toBeNull();   // not asked of one person
 });
 
-test('4b — a partner: pre-answered as jointly, names them, and asks who is 65 or older', () => {
+test('4b — a spouse: pre-answered as jointly, names them, and asks who is 65 or older', () => {
   set(COUPLE);
   render(<FilingStatusScreen />);
   expect(screen.getByLabelText('Married filing jointly').props.accessibilityState.selected).toBe(true);
-  expect(screen.getByText(/because you told us about Sam/)).toBeOnTheScreen();
+  expect(screen.getByText(/because you entered about Sam/)).toBeOnTheScreen();
   expect(screen.getByText('Is either of you 65 or older?')).toBeOnTheScreen();
   expect(screen.getByText(/\$1,650 each on a joint return/)).toBeOnTheScreen();
 });

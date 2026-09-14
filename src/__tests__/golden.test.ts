@@ -28,7 +28,7 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
       inflation: 0, mean_return: 0.07, vol_return: 0,
     };
     const p = projectNestEgg(inp);
-    expect(p.will_have).toBe(196_715.14);   // 4-dp truth 196,715.1357, rounded at the edge (DR-11)
+    expect(p.will_have).toBeCloseTo(196_715.14, 2);   // full precision inside (founder ruling Q49, 2026-09-09); the display rounds
     expect(p.will_need).toBe(0);
     expect(p.shortfall).toBe(0);
   });
@@ -40,7 +40,7 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
       annual_contribution: 0, retire_monthly_spend_today: 0, guaranteed_monthly_income: 0,
       inflation: 0, mean_return: 0.07, vol_return: 0, paths: 200, seed: 42,
     };
-    expect(simulate(inp).projected_at_retirement).toBe(196_715.14);
+    expect(simulate(inp).projected_at_retirement).toBeCloseTo(196_715.14, 2);
   });
 
   // ── QA-T1-003  Seed reproducibility: identical seed → identical result ───────
@@ -58,17 +58,17 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
   });
 
   // ── QA-T1-004  Capital-needed (amortized, net of guaranteed income) ──────────
-  // spend $5,000/mo, guaranteed $2,000/mo, retire 65, plan-to 95 (30 yrs), real 3%, no bequest.
+  // spend $5,000/month, guaranteed $2,000/month, retire 65, plan-to 95 (30 yrs), real 3%, no bequest.
   // netAnnual = (5000−2000)×12 = 36,000.  annuityFactor = (1 − 1.03^-30)/0.03 = 19.6004…
   // needed = 36,000 × 19.600440 = 705,615.84
-  test('QA-T1-004 capitalNeeded: $3k/mo net for 30y @3% real ≈ $705,615.84', () => {
+  test('QA-T1-004 capitalNeeded: $3k/month net for 30y @3% real ≈ $705,615.84', () => {
     const c = capitalNeeded({
       monthlySpend: 5_000, guaranteedMonthly: 2_000, retireAge: 65,
       horizonAge: 95, realReturn: 0.03, bequest: 0,
     });
     expect(c.years).toBe(30);
     expect(c.netAnnual).toBe(36_000);
-    expect(c.annuityFactor).toBe(19.6);            // round2 of 19.6004
+    expect(c.annuityFactor).toBeCloseTo(19.6004, 4);   // full precision inside (Q49)
     expect(c.needed).toBeCloseTo(705_615.84, 0);   // within $0.5 of hand value
     expect(c.pvBequest).toBe(0);
   });
@@ -97,26 +97,26 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
   // ── QA-T1-008  Loan amortization ────────────────────────────────────────────
   // $30,000 @ 6% APR, 5 yr.  r=0.005, n=60.  monthly = 30000×0.005/(1−1.005^-60) = $579.98 (hand-checked).
   // totalPaid = monthly×60 = 34,799.04; interest = 4,799.04 (full-precision monthly, rounded at the edge).
-  test('QA-T1-008 loanPayment($30k, 6%, 5y): $579.98/mo, ~$4,799 interest', () => {
+  test('QA-T1-008 loanPayment($30k, 6%, 5y): $579.98/month, ~$4,799 interest', () => {
     const l = loanPayment(30_000, 6, 5);
-    expect(l.monthly).toBe(579.98);
-    expect(l.totalInterest).toBe(4_799.04);
-    expect(l.totalPaid).toBe(34_799.04);
+    expect(l.monthly).toBeCloseTo(579.98, 2);
+    expect(l.totalInterest).toBeCloseTo(4_799.04, 2);
+    expect(l.totalPaid).toBeCloseTo(34_799.04, 2);
     expect(l.totalPaid).toBeCloseTo(l.totalInterest + 30_000, 2);  // accounting identity holds
   });
 
   // ── QA-T1-009  Bond current yield ───────────────────────────────────────────
-  // $10,000 face @ 4.5% coupon = $450/yr; current value $9,500 → 450/9,500 = 0.047368 → 0.0474
+  // $10,000 face @ 4.5% coupon = $450/year; current value $9,500 → 450/9,500 = 0.047368 → 0.0474
   test('QA-T1-009 currentYield: $450 coupon / $9,500 value = 0.0474', () => {
     const b = bondInfo(acct({ face_value: 10_000, coupon_rate: 0.045, balance: 9_500, maturity_date: '2043-01-01' }));
-    expect(currentYield(b)).toBe(0.0474);
+    expect(currentYield(b)).toBeCloseTo(0.0474, 4);
   });
 
   // ── QA-T1-010  RMD (IRS Uniform Lifetime Table) ─────────────────────────────
   // age 73 divisor = 26.5.  $500,000 / 26.5 = 18,867.9245… → round2 18,867.92
   test('QA-T1-010 rmdAtAge($500k, 73): divisor 26.5 → $18,867.92', () => {
     expect(rmdDivisorAtAge(73)).toBe(26.5);
-    expect(rmdAtAge(500_000, 73)).toBe(18_867.92);
+    expect(rmdAtAge(500_000, 73)).toBeCloseTo(18_867.92, 2);
     expect(rmdAtAge(500_000, 72)).toBe(0);          // below RMD start age → no RMD
   });
 

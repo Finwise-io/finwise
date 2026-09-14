@@ -13,6 +13,50 @@ import { fetchPriceSeries } from '../services/marketData';
 
 // Recompute the cached `balance` of every ledger-managed account = cash sleeve + Σ(position × live price).
 // Pure manual accounts (no positions, no cash sleeve) keep their entered balance.
+/* ─ MK-XS-F-174 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * recomputeBalances
+ *
+ * Answers ..... Recompute the cached `balance` of every ledger-managed account = cash sleeve + Σ(position × live price).
+ *
+ * Formula .....
+ *     a   when source = 'connected'
+ *     ledger managed = derive balance = true (or cash balance ≠ nothing when missing or zero)
+ *     a   when ledger managed is missing
+ *     mv = (positions ?? []).reduce((t, p) => { const px = latest close(cache[ticker.trim().to upper case()]); return t + (px = nothing ? cost basis(p) : market value(p, px)); }, 0)
+ *     the answer:
+ *     ...a = ...a
+ *     balance = round((cash balance or 0) + mv, 2 dp)
+ *
+ * Called by ... MK-XS-F-175 uid
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-006 price fetched at
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-018 retirement age
+ *               MK-XS-I-020 Social Security monthly amount
+ *
+ * Decides .....
+ *     · If cash balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-174
+ * Changed ..... not in git yet (—)
+ */
 function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeries>): AssetAccount[] {
   return accs.map((a) => {
     // Only accounts whose value is BUILT from their holdings (a fully position-tracked brokerage, or one
@@ -176,7 +220,7 @@ export type RetirementAssumptions = {
   expectedReturn: number | null;             // decimal nominal, e.g. 0.06 (null → from asset mix)
   inflation: number | null;                  // decimal, e.g. 0.025 (null → from economic data)
   ssEligible: boolean | null;                // null = not yet asked
-  ssMonthly: number | null;                  // estimated Social Security benefit, today's $/mo
+  ssMonthly: number | null;                  // estimated Social Security benefit, today's $/month
   ssClaimAge: number | null;                 // age SS begins (default 67)
   // THEIRS, not ours (founder, first correction of the redesign): "target nest egg is a number
   // entered by the user based on what is their target." The app used to derive this and label it
@@ -189,7 +233,7 @@ export type RetirementAssumptions = {
   actualReturn: number | null;               // self-reported actual portfolio return, trailing 12mo (decimal)
   returnBasis: 'benchmark' | 'actual' | 'scenario' | null;  // which growth rate drives the nest-egg projection
   // F4/F11 (FCC): adopted goal commitments — each appears as a named planned line on Cash flow
-  // ('Parents $2,000/mo · from your Plan'); written ONLY through the adoption sheet.
+  // ('Parents $2,000/month · from your Plan'); written ONLY through the adoption sheet.
   commitments?: { goalId: string; label: string; monthlyAmount: number; endDate?: string }[];
 };
 
@@ -211,7 +255,7 @@ type AppState = {
   onboardingPaused: boolean;   // user tapped "Save & come back later" → allow them into the app
   appLockEnabled: boolean;     // F-2: require Face ID / Touch ID / passcode to open the app (device-local)
   // Shared-household sync: when set, ALL cloud reads/writes target users/{householdId} instead of
-  // users/{uid} — both partners see and edit the same data. Device-local identity, never synced.
+  // users/{uid} — both spouses see and edit the same data. Device-local identity, never synced.
   householdId: string | null;
 
   // Onboarding settings
@@ -443,13 +487,91 @@ const DEFAULT_BADGES: Badge[] = [
   { id: 'streak_30',       label: '30-day streak',   icon: '🌟', earned: false, description: 'Check in 30 days in a row' },
   { id: 'expense_analyzer',label: 'Analyst',         icon: '🔍', earned: false, description: 'Run your first AI expense analysis' },
   { id: 'goal_set',        label: 'Goal setter',     icon: '🎯', earned: false, description: 'Create your first savings goal' },
-  { id: 'emergency_fund',  label: 'Cushion',         icon: '🛡', earned: false, description: 'Fund your emergency fund goal' },
+  { id: 'emergency_fund',  label: 'Emergency fund',  icon: '🛡', earned: false, description: 'Fund your emergency fund goal' },
   { id: 'debt_free',       label: 'Debt free',       icon: '🦸', earned: false, description: 'Zero debt for 3 months running' },
   { id: 'savings_10k',     label: '$10k saved',      icon: '💰', earned: false, description: 'Reach $10,000 in savings' },
   { id: 'investor',        label: 'Investor',        icon: '📈', earned: false, description: 'Log your first investment' },
   { id: 'retirement_set',  label: 'Future planner',  icon: '🏖', earned: false, description: 'Set up your retirement plan' },
 ];
 
+/* ─ MK-XS-F-175 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * uid
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     math.random().to string(36).slice(2, 10) + date.now().to string(36)
+ *     {}   when f is missing
+ *     {}   when goals seeded
+ *     goals seeded = true   when count of fresh is missing
+ *     a   when it is missing
+ *     g   when it is missing
+ *     {}   when reclassify version = RECLASSIFY_VERSION
+ *     {}   when prev is missing
+ *     r   when active is missing
+ *     r   when next > today
+ *     r   when active is missing
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-001 buildBudgetState · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-015 loadBudget · MK-CF-F-017 publishSurplus
+ *               MK-CF-F-036 buildDebtState · MK-CF-F-038 debtsFromOnboarding
+ *               MK-CF-F-039 loadDebt · MK-CF-F-041 getDebtState
+ *               MK-CF-F-050 loadIncome · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-079 incomeFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-042 loadAssets
+ *               MK-NW-F-044 getAssetsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-011 buildGoalsState · MK-PL-F-013 goalsFromOnboarding
+ *               MK-PL-F-014 loadGoals · MK-PL-F-053 buildRetirementState
+ *               MK-ST-F-041 getUserDoc · MK-ST-F-042 setUserDoc
+ *               MK-XS-F-021 loadProfile · MK-XS-F-023 getProfileReadModel
+ *               MK-XS-F-026 profileFromOnboarding · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-033 resolveNetWorthRows
+ *               MK-XS-F-046 makeEnvelope · MK-XS-F-047 unwrapWithPassword
+ *               MK-XS-F-048 unwrapWithRecovery · MK-XS-F-049 rewrapPassword
+ *               MK-XS-F-050 rewrapRecovery · MK-XS-F-060 registerUser
+ *               MK-XS-F-066 loginUser · MK-XS-F-067 restoreWithRecoveryCode
+ *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-073 saveUserData · MK-XS-F-074 loadUserData
+ *               MK-XS-F-077 setUserHousehold · MK-XS-F-078 joinHouseholdMembership
+ *               MK-XS-F-079 loadUserRoot · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-XS-F-139 wrapWithSecret
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-006 price fetched at
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-018 retirement age
+ *               MK-XS-I-020 Social Security monthly amount
+ *
+ * Decides .....
+ *     · If length is missing it uses 0.
+ *     · If change amount is missing it uses 0.
+ *     · If allocated by month[ym] is missing it uses 0.
+ *     · If ym] is missing it uses 0.
+ *     · If saved is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Uses a built-in total of 0.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Rounds the answer to two decimals (cents).
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-175
+ * Changed ..... not in git yet (—)
+ */
 function uid() {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -1097,6 +1219,37 @@ export const useStore = create<AppState>()(
 );
 
 // ── Selectors ──────────────────────────────────────────────────────────
+/* ─ MK-XS-F-176 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * useMonthlyStats
+ *
+ * Answers ..... ── Selectors ──────────────────────────────────────────────────────────
+ *
+ * Formula .....
+ *     now = new date()
+ *     d = the date date
+ *     the answer = to date string() = now.to date string()
+ *     week ago = the date now.get time() − 7 × 86400000
+ *     period income = Σ over incomes where filter by period(date) of (amount)
+ *     period spend = Σ over expenses where filter by period(date) of (amount)
+ *     period savings = Σ over savings where filter by period(date) of (amount)
+ *     total savings = Σ over savings of (amount)
+ *     remaining = period income − period spend − period savings
+ *     pct spent = min((period spend ÷ period income) × 100, 100)   if period income > 0
+ *     0   otherwise
+ *     is over budget = period spend + period savings > period income and period income > 0
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-176
+ * Changed ..... 2026-05-21 (e39fbd7)
+ */
 export function useMonthlyStats() {
   const { incomes, expenses, savings, budgetFrequency, monthlyBudgetTarget } = useStore();
   const now = new Date();
@@ -1129,6 +1282,31 @@ export function useMonthlyStats() {
   };
 }
 
+/* ─ MK-XS-F-177 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * useCategorySpend
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     now = new date()
+ *     d = the date date
+ *     to date string() = now.to date string()   when budget frequency = 'daily'
+ *     d ≥ new date(now.get time() − 7 × 86400000)   when budget frequency = 'weekly'
+ *     the answer = get full year() = now.get full year() and get month() = now.get month()
+ *     map = {}
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Decides .....
+ *     · If category] is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-177
+ * Changed ..... 2026-05-21 (e39fbd7)
+ */
 export function useCategorySpend() {
   const { expenses, budgetFrequency } = useStore();
   const now = new Date();
@@ -1143,6 +1321,25 @@ export function useCategorySpend() {
   return Object.entries(map).map(([category, total]) => ({ category, total })).sort((a, b) => b.total - a.total);
 }
 
+/* ─ MK-XS-F-178 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * useLevel
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     xp = use store((s) => xp)
+ *     current = levels[0], next = levels[1]
+ *     pct = min(((xp − current.min) ÷ (next.min − current.min)) × 100, 100)   if next.min > current.min
+ *     100   otherwise
+ *     the answer = { ...current, next, xp, pct }
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-178
+ * Changed ..... 2026-05-22 (2b73eed)
+ */
 export function useLevel() {
   const xp = useStore((s) => s.xp);
   const levels = [

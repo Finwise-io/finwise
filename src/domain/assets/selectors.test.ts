@@ -71,7 +71,7 @@ describe('a connected account with no position detail keeps its own class', () =
     expect(assetAllocation([acct]).mixed).toBe(0);
   });
 
-  test('a connected savings account is Cash — and the cushion counts it', () => {
+  test('a connected savings account is Cash — and the emergency fund counts it', () => {
     const acct = connected({ label: 'Ally Savings', kind: 'savings', tax_bucket: 'CASH', balance: 12000 });
     expect(assetAllocation([acct]).cash).toBe(12000);
     expect(cashTotal([acct])).toBe(12000);
@@ -84,10 +84,10 @@ describe('a connected account with no position detail keeps its own class', () =
 });
 
 // ── ONE CASH NUMBER (L-7, 2026-08-10) ───────────────────────────────────────────────────────────
-// The Net worth screen printed "CASH $8,838" one inch above "…$8,000 cash ÷ $4,500/mo": the CASH
-// group counted a connected brokerage's sweep balance and the emergency cushion did not. Both read
+// The Net worth screen printed "CASH $8,838" one inch above "…$8,000 cash ÷ $4,500/month": the CASH
+// group counted a connected brokerage's sweep balance and the emergency emergency fund did not. Both read
 // the same breakdown now, so the two figures cannot disagree again.
-test('cash includes a connected brokerage sweep balance — the CASH group and the cushion agree', () => {
+test('cash includes a connected brokerage sweep balance — the CASH group and the emergency fund agree', () => {
   const p: AssetAccount[] = [
     a({ label: 'Chase Checking', kind: 'checking', tax_bucket: 'CASH', balance: 8000 }),
     a({ label: 'Vanguard Brokerage', kind: 'brokerage', balance: 349333, source: 'connected', cash_balance: 838,
@@ -95,7 +95,7 @@ test('cash includes a connected brokerage sweep balance — the CASH group and t
         lots: [{ lot_id: 'l1', shares: 3319, cost_per_share: 84 }] }] } as any),
   ];
   expect(assetAllocation(p).cash).toBe(8838);
-  expect(cashTotal(p)).toBe(8838);            // the cushion's numerator — the same number the group shows
+  expect(cashTotal(p)).toBe(8838);            // the emergency fund's numerator — the same number the group shows
   expect(assetAllocation(p).stocks_etf).toBe(348495);
 });
 
@@ -125,9 +125,9 @@ describe('cash sub-types (HYSA / money-market / CD / cash management)', () => {
     expect(cashTotal(p)).toBe(2000);
   });
 
-  test('the Cash picker now offers 6 types in order (checking, savings, then the four new ones)', () => {
+  test('the Cash picker offers 7 types in order (checking, savings, the four sub-types, then foreign currency — Q08)', () => {
     const cashIds = ASSET_KINDS.filter((k) => k.section === 'Cash').map((k) => k.id);
-    expect(cashIds).toEqual(['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt']);
+    expect(cashIds).toEqual(['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt', 'foreign_currency']);
   });
 });
 

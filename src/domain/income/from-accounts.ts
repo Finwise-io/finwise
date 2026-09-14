@@ -15,10 +15,8 @@
  */
 import type { AssetAccount } from '../assets';
 import { assetClassOf } from '../assets';
-import { round2, money } from '../_shared/num';
+import { money } from '../_shared/num';
 import { isoLocalDate } from '../_shared/dates';
-
-const DEFAULT_BOND_YIELD = 0.042;   // US Aggregate ~yield, used when a bond fund states no rate
 
 export interface AccountIncomeLine {
   label: string;        // the account, as the person named it
@@ -42,7 +40,7 @@ export interface AccountIncome {
  * Answers ..... A rate as the person would say it: 3.8%, not 0.038.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = (r × 100) followed by '%'
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts
  *
@@ -51,13 +49,10 @@ export interface AccountIncome {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-182
  * Changed ..... not in git yet (—)
  */
-const asPercent = (r: number) => `${round2(r * 100)}%`;
+const asPercent = (r: number) => `${(r * 100)}%`;
 
 /** What each account actually PAID OUT in the last year, by account. Reinvested income is excluded:
  *  it never reached the bank. */
@@ -79,7 +74,7 @@ const asPercent = (r: number) => `${round2(r * 100)}%`;
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-008 transaction amount
- *               MK-XS-I-024 logged spending
+ *               MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -96,7 +91,7 @@ function paidOutByAccount(txns: any[] | null | undefined, now: Date): Map<string
     if (String(t?.date ?? '') < cutoff) continue;
     const id = String(t?.account_id ?? '');
     if (!id) continue;
-    out.set(id, round2((out.get(id) ?? 0) + (t.amount || 0)));
+    out.set(id, ((out.get(id) ?? 0) + (t.amount || 0)));
   }
   return out;
 }
@@ -131,8 +126,8 @@ function paidOutByAccount(txns: any[] | null | undefined, now: Date): Map<string
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
- *               MK-XS-I-024 logged spending
- *               MK-XS-I-028 assumed return
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -169,26 +164,27 @@ export function incomeFromAccounts(
     if (cls === 'bonds') {
       const face = (a as any).face_value || 0;
       if (rate > 0 && face > 0) {
-        lines.push({ label, why: `${asPercent(rate)} coupon on ${money(face)} face`, annual: round2(rate * face), assumed: false });
+        lines.push({ label, why: `${asPercent(rate)} coupon on ${money(face)} face`, annual: (rate * face), assumed: false });
       } else if (rate > 0) {
-        lines.push({ label, why: `${asPercent(rate)} on ${money(balance)}`, annual: round2(rate * balance), assumed: false });
+        lines.push({ label, why: `${asPercent(rate)} on ${money(balance)}`, annual: (rate * balance), assumed: false });
       } else {
-        const y = ((a as any).target_return && (a as any).target_return > 0) ? (a as any).target_return : DEFAULT_BOND_YIELD;
-        lines.push({ label, why: `${asPercent(y)} assumed on ${money(balance)}`, annual: round2(y * balance), assumed: true });
+        // A46 (founder, 2026-08-26): if the coupon rate is not available use 0 — named, never a built-in yield
+        lines.push({ label, why: `no coupon rate entered — counted as $0 on ${money(balance)} until one is`, annual: 0, assumed: true });
       }
       continue;
     }
     if (cls === 'cash' && rate > 0) {
-      lines.push({ label, why: `${asPercent(rate)} on ${money(balance)}`, annual: round2(rate * balance), assumed: false });
+      lines.push({ label, why: `${asPercent(rate)} on ${money(balance)}`, annual: (rate * balance), assumed: false });
       continue;
     }
+    if (a.kind === 'foreign_currency') continue;   // Q08 (founder, 2026-08-26): cash held in that currency — no interest, nothing to count or to miss
     if (balance > 0) unseen.push(label);
   }
 
   return {
-    annual: round2(lines.reduce((t, l) => t + l.annual, 0)),
+    annual: (lines.reduce((t, l) => t + l.annual, 0)),
     lines,
-    covers: 'interest and coupons from the accounts you have told us about',
+    covers: 'interest and coupons from the accounts you entered',
     missing: unseen.length
       ? `Not counted: ${unseen.slice(0, 3).join(', ')}${unseen.length > 3 ? ` and ${unseen.length - 3} more` : ''}. `
         + 'We do not hold a dividend yield for shares and funds, so we cannot say what they pay — add it below if you know.'

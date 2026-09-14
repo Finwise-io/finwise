@@ -1,6 +1,6 @@
 // The two Invest what-ifs. Pins: Look back shows the design's honest states (real prices or a plain
 // 'we can't answer' — never an invented number); the forward what-if runs the SAME shared inputs as
-// the hub (before-chance = hub chance) and the +$/mo dial moves both estimates; the 401(k)-room
+// the hub (before-chance = hub chance) and the +$/month dial moves both estimates; the 401(k)-room
 // try-it prefill lands with its number.
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -79,7 +79,7 @@ describe('What if I add more?', () => {
     seed();
     mockParams = { addMonthly: '1500' };
     render(<WhatIfScreen />);
-    expect(screen.getByText('+$1,500/mo')).toBeOnTheScreen();
+    expect(screen.getByText('+$1,500/month')).toBeOnTheScreen();
   });
 
   test('no plan basics yet → the no-guessed-numbers state', () => {

@@ -50,12 +50,12 @@ describe('retired lens', () => {
     seedRetired();
     render(<CashFlowScreen />);
     // the hero (PaycheckCard) leads
-    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
-    // compute the same engine the screen's hook runs (same params by construction)
+    expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
+    // compute the same function the screen's hook runs (same params by construction)
     const s = useStore.getState() as any;
     const year = buildPaycheckYear(s.onboardingProfile, {
       accounts: s.assetAccounts, liabilities: [],
-      sim: { current_age: 68, horizon_age: 92, mean_return: 0.055, vol_return: Math.min(0.2, Math.max(0.05, 0.055 * 1.7)), inflation: 0.025, seed: 42, paths: 300 },
+      sim: { current_age: 68, horizon_age: 92, mean_return: 0.055, vol_return: Math.min(0.2, Math.max(0.05, 0.055 * 1.7)), inflation: 0.025, seed: 42, paths: 1000 },
     });
     // the current-month bar carries the same in/out the cell holds
     const currentBar = screen.getByLabelText(new RegExp(`^${year.months[0].label}: ${Math.round(year.months[0].guaranteedTotal + year.months[0].safeDraw)} dollars in`));
@@ -82,7 +82,7 @@ describe('retired lens', () => {
     expect(screen.getByText(/Social Security · 3rd/)).toBeOnTheScreen();
     expect(screen.getByText(/Pension · 1st/)).toBeOnTheScreen();
     expect(screen.getByText('= In')).toBeOnTheScreen();
-    expect(screen.getByText('= Left to spend')).toBeOnTheScreen();
+    expect(screen.getByText('= Surplus')).toBeOnTheScreen();
     expect(screen.getByText(/Estimates — these move with your live account balances/)).toBeOnTheScreen();
   });
 });
@@ -97,10 +97,10 @@ describe('working lens', () => {
     seedWorker();
     render(<CashFlowScreen />);
     expect(screen.getByText('THIS MONTH')).toBeOnTheScreen();
-    expect(screen.getByText('In (take-home)')).toBeOnTheScreen();
+    expect(screen.getByText('Inflow (income (take-home))')).toBeOnTheScreen();
     expect(screen.getByText(/= Planned surplus/)).toBeOnTheScreen();
     expect(screen.getByText(/Spent .* of .* planned/)).toBeOnTheScreen();
-    expect(screen.queryByText(/LEFT TO SPEND —/)).toBeNull();   // no retiree hero on the working lens
+    expect(screen.queryByText(/SURPLUS —/)).toBeNull();   // no retiree hero on the working lens
   });
 
   test('the future-paycheck card is projection-labeled (mandatory copy) and never a promise', () => {
@@ -121,7 +121,7 @@ describe('PIN 2 — this-year is the exact sum of the 12 cells (never ×12)', ()
     const s = useStore.getState() as any;
     const year = buildPaycheckYear(s.onboardingProfile, {
       accounts: s.assetAccounts, liabilities: [],
-      sim: { current_age: 68, horizon_age: 92, mean_return: 0.055, vol_return: Math.min(0.2, Math.max(0.05, 0.055 * 1.7)), inflation: 0.025, seed: 42, paths: 300 },
+      sim: { current_age: 68, horizon_age: 92, mean_return: 0.055, vol_return: Math.min(0.2, Math.max(0.05, 0.055 * 1.7)), inflation: 0.025, seed: 42, paths: 1000 },
     });
     const sum = year.months.reduce((t: number, m: any) => t + m.netSafeToSpend, 0);
     expect(Math.abs(year.thisYear - sum)).toBeLessThan(0.01);                        // exact sum
@@ -130,7 +130,7 @@ describe('PIN 2 — this-year is the exact sum of the 12 cells (never ×12)', ()
 });
 
 // B46 finding 7: the THIS MONTH card's arithmetic must hold by construction — the surplus row IS
-// In − Out from the same month cell, never a second engine's figure (monthlySavings disagreed by
+// In − Out from the same month cell, never a second function's figure (monthlySavings disagreed by
 // $572 on the founder's device: "In 8,600 − Out 0 = 9,172. How?").
 test('THIS MONTH: In − Out = Planned surplus, to the dollar, always', () => {
   useStore.setState({
@@ -138,7 +138,7 @@ test('THIS MONTH: In − Out = Planned surplus, to the dollar, always', () => {
       status: 'employed', incomeSources: ['employment'],
       baseSalary: '5000', salaryMode: 'takehome', salaryFreq: 'monthly',
       monthlySpending: '3000',   // makes plan-level "capacity" differ from the dated cell on purpose
-      invAnnual: '6000',         // investment income widens the two engines' gap further
+      invAnnual: '6000',         // investment income widens the two functions' gap further
     },
   } as any);
   render(<CashFlowScreen />);
@@ -150,9 +150,9 @@ test('THIS MONTH: In − Out = Planned surplus, to the dollar, always', () => {
     const m = texts.join(' ').match(/\$([\d,]+)/g);
     return m ? Number(m[m.length - 1].replace(/[$,]/g, '')) : NaN;
   };
-  const inn = num(/^In \(take-home\)$/);
-  const out = num(/^Out \(bills/);
-  const sur = num(/^= Planned surplus$|^Free to spend after your plan$/);   // the ROW label (the hero sub duplicates the words)
+  const inn = num(/^Inflow \(/);   // cluster #5: the brackets name the sources
+  const out = num(/^Outflow \(expenses/);
+  const sur = num(/^= Planned surplus$|^Surplus after your budget$/);   // the ROW label (the hero sub duplicates the words)
   expect(Number.isFinite(inn) && Number.isFinite(out) && Number.isFinite(sur)).toBe(true);
   expect(sur).toBe(inn - out);   // the equals sign is earned
 });
@@ -170,7 +170,7 @@ test('a gross biweekly salary is described truthfully and reconciles with the In
   const expectedNet = Math.round(salaryGrossByMonth(op)[m] * (1 - monthlyTaxRates(op)[m]));
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByText('Income'));
-  const bridge = 'before tax · every 2 weeks · ≈ ' + '$' + expectedNet.toLocaleString() + '/mo take-home';
+  const bridge = 'before tax · every 2 weeks · ≈ ' + '$' + expectedNet.toLocaleString() + '/month take-home';
   expect(screen.getByText(bridge)).toBeOnTheScreen();
   expect(screen.queryByText('take-home · monthly')).toBeNull();   // the old hardcoded lie
 });

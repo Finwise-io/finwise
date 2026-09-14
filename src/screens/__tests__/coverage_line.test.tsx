@@ -9,9 +9,9 @@ const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8
 
 describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
   for (const f of SCREENS) {
-    test(`${f} computes coverage from the engine and renders the sentence`, () => {
+    test(`${f} computes coverage from the function and renders the sentence`, () => {
       const src = read(f);
-      expect(src).toContain("engines/coverage");          // the ONE engine, not a local rewrite
+      expect(src).toContain("engines/coverage");          // the ONE function, not a local rewrite
       expect(src).toMatch(/coverageFor\(/);
       expect(src).toMatch(/coverage\.sentence !== ''/);    // silent when the record covers the window
     });
@@ -20,15 +20,15 @@ describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
   test('no screen writes its own version of the sentence', () => {
     for (const f of SCREENS) {
       const src = read(f);
-      expect(src).not.toMatch(/when your records begin/);  // the words live in the engine only
+      expect(src).not.toMatch(/when your records begin/);  // the words live in the function only
     }
   });
 });
 
 // ── Track 1 step 7: the beginning value is READ from the daily record, never back-solved,
-// wherever the record covers the window — pinned as source, and proven through the engine. ──
+// wherever the record covers the window — pinned as source, and proven through the function. ──
 describe('BEGINNING VALUES COME FROM THE RECORD', () => {
-  test('PerformanceScreen reads valueOn/covers from the snapshot engine for BOTH walks', () => {
+  test('PerformanceScreen reads valueOn/covers from the snapshot function for BOTH walks', () => {
     const src = read('PerformanceScreen.tsx');
     expect(src).toContain("engines/snapshots");
     expect(src).toMatch(/snapshotCovers\(snapDays, bounds\.beginningAsOf\)/);    // the summary walk
@@ -36,7 +36,7 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     expect(src).toMatch(/beginningAsOf/);   // D3: the close of the day BEFORE the start
   });
 
-  test('a covered window resolves the beginning from the record (engine truth)', () => {
+  test('a covered window resolves the beginning from the record (function truth)', () => {
     const { buildDayFromAccounts, record, valueOn, covers } = require('../../../Calculation Module code/engines/snapshots');
     const day = buildDayFromAccounts([
       { asset_id: 'vg', source: 'connected', balance: 378022, cash_balance: 837.94,

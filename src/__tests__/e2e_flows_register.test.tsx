@@ -56,9 +56,9 @@ test('E2E-37 month detail renders the dated headline and Previous/Next months na
   mockParams = { slot: '0' };
   const MonthDetailScreen = require('../screens/MonthDetailScreen').default;
   render(<MonthDetailScreen />);
-  expect(screen.getByLabelText(/Left over in .*:/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Surplus in .*:/)).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('Next month'));
-  expect(screen.getByLabelText(/Left over in .*:/)).toBeOnTheScreen();   // still standing after nav
+  expect(screen.getByLabelText(/Surplus in .*:/)).toBeOnTheScreen();   // still standing after nav
 });
 
 // ── E2E-38 · what-if: two +$100 taps → the before/after estimate moves ──
@@ -121,7 +121,7 @@ test('E2E-41 Your setup revisit: working → retired flips the Cash flow main to
   fr.unmount();
   const CashFlowScreen = require('../screens/CashFlowScreen').default;
   render(<CashFlowScreen />);
-  expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
+  expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
 });
 
 // ── E2E-42 · import classifies crypto as an ALTERNATIVE, correctable before save ──
@@ -265,7 +265,7 @@ test('E2E-50 paycheck months: twelve dated rows, each a full left-to-spend sente
   useStore.setState({ onboardingProfile: RETIREE74, assetAccounts: EGG } as any);
   const PaycheckMonthsScreen = require('../screens/PaycheckMonthsScreen').default;
   render(<PaycheckMonthsScreen />);
-  expect(screen.getAllByLabelText(/left to spend/).length).toBeGreaterThanOrEqual(12);
+  expect(screen.getAllByLabelText(/surplus/).length).toBeGreaterThanOrEqual(12);
 });
 
 // ── E2E-51 · the worker peeks at the steer sheet: projection mode is bannered ──

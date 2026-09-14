@@ -469,3 +469,4 @@ const styles = StyleSheet.create({
   scanning: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.md, backgroundColor: Colors.bgSecondary },
   scanningText: { fontSize: Typography.sizes.lg, fontWeight: '600', color: Colors.textPrimary },
 });
+

@@ -3,13 +3,13 @@
 // Built from the approved mock: MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v05.html, frames 4a–4c.
 //
 // The code has always read a filing status, found nothing, and fallen back to SINGLE — for everyone,
-// including the couple who had just said they have a partner. Five surfaces depend on it: every
+// including the couple who had just said they have a spouse. Five surfaces depend on it: every
 // month's withholding, the effective rate, the Roth conversion, the retirement tax rate, and the
 // base-pay estimate. It could be set, but only from deep inside the Tax Organizer, which is not a
 // place someone passes through.
 //
 // PRE-ANSWERED FROM WHAT THEY ALREADY SAID, so most people confirm rather than choose (mock 4a/4b).
-// IT DOES NO TAX ARITHMETIC: every figure comes from MK-CF-F-099 taxOwedFor, the one engine.
+// IT DOES NO TAX ARITHMETIC: every figure comes from MK-CF-F-099 taxOwedFor, the one function.
 import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -73,7 +73,7 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
         /* 4c — shown once, right after the answer, so the question feels worth having answered. */
         <>
           <Text style={s.h1}>That changes your take-home</Text>
-          <Text style={s.sub}>On the {money(gross)} you told us about</Text>
+          <Text style={s.sub}>On the {money(gross)} you entered</Text>
           <View style={s.card}>
             <Row label="Taxed as single" note="what we were assuming" value={`${money(asSingle)} a year`} />
             <Row label={OPTIONS.find((o) => o.v === status)?.label ?? ''} value={`${money(asChosen)} a year`} />
@@ -124,8 +124,8 @@ export function FilingStatusQuestions({ op, status, onStatus, over65, onOver65 }
       <Text style={s.why}>
         Set to <Text style={s.whyB}>{OPTIONS.find((o) => o.v === suggested)?.label}</Text>
         {partner
-          ? ` because you told us about ${partnerName || 'your partner'}.`
-          : ' because you told us it is just you. Change it if that is not right.'}
+          ? ` because you entered about ${partnerName || 'your spouse'}.`
+          : ' because you entered it is just you. Change it if that is not right.'}
       </Text>
 
       {status === 'married' && (
@@ -142,7 +142,7 @@ export function FilingStatusQuestions({ op, status, onStatus, over65, onOver65 }
           <Text style={s.note}>
             {iAmOver65 ? 'You are 65 or older, so we have you already. ' : ''}
             Being 65 or older adds to your standard deduction — $1,650 each on a joint return. We know
-            your age from your birth year; we have never asked about your partner’s.
+            your age from your birth year; we have never asked about your spouse’s.
           </Text>
         </>
       )}
@@ -167,7 +167,7 @@ const s = StyleSheet.create({
   prog: { height: 4, backgroundColor: Colors.bgTertiary, borderRadius: 2, marginBottom: 18 },
   progFill: { width: '70%', height: 4, backgroundColor: Colors.primary, borderRadius: 2 },
   back: { fontSize: 15, fontWeight: '700', color: Colors.textSecondary, marginBottom: 10 },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, marginBottom: 14 },
   opt: { minHeight: 52, justifyContent: 'center', paddingHorizontal: 14, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, marginTop: 8, backgroundColor: Colors.cardBg },
   optOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },

@@ -227,7 +227,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const { Colors } = require('../utils/theme');
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
-    const titles = ['YOUR NET WORTH', 'YOUR RETIREMENT PLAN', 'WHAT YOU OWN', 'WHAT YOU OWE', 'EMERGENCY CUSHION'];
+    const titles = ['YOUR NET WORTH', 'YOUR RETIREMENT PLAN', 'WHAT YOU OWN', 'DEBTS', 'EMERGENCY FUND'];
     const bands: any[] = [];
     const walk = (n: any) => {
       if (!n || typeof n === 'string') return;
@@ -268,7 +268,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     render(<NW />);
     const strings = dumpStrings();
     const own = strings.indexOf('WHAT YOU OWN');
-    const owe = strings.indexOf('WHAT YOU OWE');
+    const owe = strings.indexOf('DEBTS');
     // assets legend, biggest first, immediately under the section total
     expect(strings.slice(own, owe).join(' ')).toMatch(/Real estate 55 % Stocks \/ Funds 43 % Cash 1 % Bonds & CDs 1 %/);
     // debts get the same shape in the warning family
@@ -286,7 +286,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     expect(rest.indexOf('Stocks / Funds')).toBeLessThan(rest.indexOf('Bonds & CDs'));   // 348,495 before 5,819
   });
 
-  test('the cushion carries its own progress bar, and it is never the only signal', () => {
+  test('the emergency fund carries its own progress bar, and it is never the only signal', () => {
     const { Colors } = require('../utils/theme');
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
@@ -328,13 +328,13 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     expect(screen.queryByText('Unclassified')).toBeNull();
   });
 
-  test('the cushion divides by the SAME cash the CASH group shows (one number, two places)', () => {
+  test('the emergency fund divides by the SAME cash the CASH group shows (one number, two places)', () => {
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
     expect(screen.getByText('$8,838')).toBeOnTheScreen();                    // the CASH group total
     const strings = dumpStrings();
     const math = strings.indexOf('of essentials covered by your cash —');
-    expect(strings[math + 1]).toBe('$8,838');                                // and the cushion divides the same figure
+    expect(strings[math + 1]).toBe('$8,838');                                // and the emergency fund divides the same figure
     expect(strings[strings.indexOf('months') - 1]).toBe('2.0');              // 8,838 ÷ 4,500 = 2.0, not 1.8
   });
 });

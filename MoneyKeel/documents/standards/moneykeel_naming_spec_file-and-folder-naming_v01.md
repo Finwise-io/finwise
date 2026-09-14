@@ -2,7 +2,7 @@
 
 Approved by the founder 2026-08-22. This document is itself named by the rule it describes.
 
-**In two sentences:** `engines/` is the maths and `documents/` is the paper; the same six
+**In two sentences:** `functions/` is the maths and `documents/` is the paper; the same six
 sub-folders sit under every top folder, so anything can be found in one guess. A file with **no
 date** in its name is the live one, and the moment it is replaced it gains its date and moves to
 `archive/`.
@@ -13,7 +13,7 @@ date** in its name is the live one, and the moment it is replaced it gains its d
 |---|---|---|
 | `MoneyKeel/documents/` | Workbooks, specifications, decisions, standards — the paper the founder reads and approves | Code of any kind |
 | `MoneyKeel/functions/` | Every calculation the app makes, one family per file, its test beside it | Screens, wording, colours |
-| `MoneyKeel/screens/` | Layout, wording, what to show when | Arithmetic — a screen asks an engine |
+| `MoneyKeel/screens/` | Layout, wording, what to show when | Arithmetic — a screen asks an orchestrator function |
 | `MoneyKeel/data/` | Reading downloads, connections, saving and loading | Arithmetic |
 | `MoneyKeel/archive/` | Dated copies of anything replaced | Anything the app still uses |
 
@@ -37,7 +37,7 @@ date** in its name is the live one, and the moment it is replaced it gains its d
 | Decimal arithmetic — what rounds, what stays whole | `standards` | It is a rule about how numbers are held |
 | What each institution's words mean (Sweep out, Redemption…) | `standards` | It is the translation table |
 | Tax | `other` | It serves several screens |
-| The ledger engine | `networth-and-performance` | Founder's ruling |
+| The ledger functions | `networth-and-performance` | Founder's ruling |
 
 A rule has two homes and one identifier: the **written rule** in `documents/standards/`, and the
 **code that obeys it** in `functions/standards/`.
@@ -54,8 +54,8 @@ and once it is superseded, the same name with its date in front:
 |---|---|---|
 | Date | Only on superseded copies, in `archive/`. **The live file carries no date.** | `2026-08-22` |
 | Domain | The product | `moneykeel` (older files keep `finwise` until next touched) |
-| Layer | What kind of work it is | `naming` standards and dictionaries · `calc` maths and engines · `data` schemas and contracts · `pres` screens and mockups |
-| Type | What the artifact is | `spec`, `enum`, `engine`, `formula`, `schema`, `master`, `audit`, `mock`, `mockup`, `component` |
+| Layer | What kind of work it is | `naming` standards and dictionaries · `calc` maths and functions · `data` schemas and contracts · `pres` screens and mockups |
+| Type | What the artifact is | `spec`, `enum`, `formula`, `schema`, `master`, `audit`, `mock`, `mockup`, `component`, `plan` (the working plan — one tab, one row per task, added 2026-09-12) |
 | Descriptor | **The only part you invent** — see the rule below | `will-money-last`, `monte-carlo-simulator` |
 | Version | Lifecycle | `v01`, `v02`, `draft`, `final` |
 
@@ -131,3 +131,32 @@ input of record, like his answered metrics file, and it is kept forever.
 The repository already has a `docs/` folder holding 81 files. Keeping both `docs/` and
 `documents/` recreates exactly the confusion this document exists to end. Recommendation: `docs/`
 is folded into `documents/` during the move, and only `documents/` survives.
+
+
+## His feedback files — and where they go once they are folded in (founder, 2026-09-10)
+
+- His feedback carries `-jj` before the extension (or sits in a `jj/` folder). No script writes, overwrites or renames one.
+- Every sub-folder of `documents/` carries a `JJ-feedback-archive/` folder.
+- When every comment in a feedback file has been read and written into the original file (the master, the decisions workbook, the assessment), the feedback file moves to that folder's `JJ-feedback-archive/` with the date it was folded in as a prefix: `2026-09-10_folded-in_<his filename>`.
+- Why: he always starts his next review from the latest original, and the original and his feedback copy can never drift apart. A feedback file still sitting beside the original is one not yet folded in.
+
+## Post Feedback Sync — PFS (founder, 2026-09-14)
+
+The founder named the fold-and-archive process so he can ask for it in three letters: **PFS**. When he
+says it, every feedback file of his not yet in a `JJ-feedback-archive/` folder — the master file and the
+audit files, unless he names one — goes through these seven steps:
+
+1. **Find** every unarchived feedback file under `MoneyKeel/documents/`.
+2. **Read every comment in full**: his own columns, cell comments, and a cell-by-cell comparison of his
+   copy with the current original for anything typed elsewhere.
+3. **Sort each one**: already in the original · new, written into its durable home (a generated file is
+   never hand-edited) · a ruling, coded and tested the same day · a question, answered on its row.
+4. **His words are kept exactly as he typed them.** The canon never rewrites them, and the master build
+   stops if any cell he typed, or any ruling in his words, has changed.
+5. **Rebuild and check** that every comment now appears in the original.
+6. **Archive** the feedback file as `YYYY-MM-DD_folded-in_<his filename>`.
+7. **Report with a coverage line** — comments read, already in, newly folded, answered, files archived —
+   and update the working plan.
+
+The build prints how many feedback files are waiting for a PFS, so a copy left beside its original is
+seen rather than remembered.

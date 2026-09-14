@@ -33,7 +33,7 @@ test('AUDIT A — 10 calculations', () => {
   const br = blendedReturn(ACC);
   check('A2', 'blended return is a real weighted average', br > 0.05 && br < 0.07, `got ${(br*100).toFixed(2)}%`);
 
-  // A3 the target dial is a plain division, NOT engine output
+  // A3 the target dial is a plain division, NOT function output
   const p = planTarget(PAT, undefined, undefined, 2_000_000);
   check('A3', 'target % = balance / typed target', p.targetPct === Math.round(909_152 / 2_000_000 * 100), `got ${p.targetPct}`);
 
@@ -63,12 +63,12 @@ test('AUDIT A — 10 calculations', () => {
 
   // A9 Social Security schedule — independent arithmetic, not the helper's own
   const at70 = Math.round(ssBenefitAtClaimAge(2600, 70));
-  check('A9', 'delayed credit is 8%/yr for 3 years', at70 === Math.round(2600 * (1 + 0.08 * 3)), `got ${at70}`);
+  check('A9', 'delayed credit is 8%/year for 3 years', at70 === Math.round(2600 * (1 + 0.08 * 3)), `got ${at70}`);
 
   // A10 the mortgage comparison's yearly figure is the rate gap times the balance
   const c = compareMortgageToTreasury({ balance: 412_000, annualRate: 0.055, monthlyPayment: 2400, extraMonthly: 500, treasuryYield: 0.0463 })!;
   check('A10', 'yearly difference = gap × balance',
-    c.annualDifference === Math.round((0.055 - 0.0463) * 412_000), `got ${c.annualDifference}`);
+    Math.abs(c.annualDifference - (0.055 - 0.0463) * 412_000) < 0.005, `got ${c.annualDifference}`);   // Q49: full precision inside, compared to the cent
 
   // BONUS checks that matter as much
   const rmd = rmdAtAge(420_000, 73);

@@ -1,5 +1,5 @@
 // PRD F11#13 — comparing two saved scenarios side by side: pick two chips, see dials AND
-// re-run outcomes (same engine, today's balances), rows spoken as sentences with 'different'
+// re-run outcomes (same function, today's balances), rows spoken as sentences with 'different'
 // flagged in words. Closing changes nothing.
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -41,7 +41,7 @@ test('pick two → the side-by-side shows dials AND re-run outcomes, differences
   expect(screen.getByLabelText(/Retire at: 65 versus 68 — different/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Saving \/ month: \$1,200 versus \$1,500 — different/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Odds it lasts: \d+% versus \d+%/)).toBeOnTheScreen();     // real re-run, not the cached chip
-  expect(screen.getByText(/same engine, same balances, only the dials differ/)).toBeOnTheScreen();
+  expect(screen.getByText(/same calculation, same balances, only the dials differ/)).toBeOnTheScreen();
 });
 
 test('closing the comparison changes nothing (no adoption, no plan writes)', () => {

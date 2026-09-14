@@ -14,10 +14,12 @@ describe('interestIncomeAnnual', () => {
     ])).toBe(4500);
   });
 
-  test('bond FUND (no coupon/maturity) earns value × yield — NOT silently $0', () => {
-    expect(interestIncomeAnnual([a({ label: 'AGG bond fund', kind: 'fixed_income', balance: 50000, target_return: 0.03 })])).toBe(1500);
-    // no explicit yield → falls back to the default bond yield (4.2%)
-    expect(interestIncomeAnnual([a({ label: 'BND', kind: 'fixed_income', balance: 50000, target_return: 0 })])).toBe(2100);
+  test('A46 (founder, 2026-08-26): a bond FUND with no coupon rate contributes $0 — never a built-in yield', () => {
+    // an assumed return is a growth guess, not a coupon: the ruling says 0 whenever the coupon rate is missing
+    expect(interestIncomeAnnual([a({ label: 'AGG bond fund', kind: 'fixed_income', balance: 50000, target_return: 0.03 })])).toBe(0);
+    expect(interestIncomeAnnual([a({ label: 'BND', kind: 'fixed_income', balance: 50000, target_return: 0 })])).toBe(0);
+    // a stated coupon rate on a fund still counts
+    expect(interestIncomeAnnual([a({ label: 'BND 3%', kind: 'fixed_income', balance: 50000, coupon_rate: 0.03 })])).toBe(1500);
   });
 
   test('CD interest is kept — balance × its stated rate (CDs are Bonds & CDs, founder rule 2026-08-04)', () => {
@@ -33,9 +35,9 @@ describe('interestIncomeAnnual', () => {
   test('sums across a mixed portfolio', () => {
     const port: AssetAccount[] = [
       a({ label: 'US Treasury 4.5%', coupon_rate: 0.045, face_value: 100000, maturity_date: '2032-01-01', balance: 98000 }), // 4500
-      a({ label: 'AGG fund', kind: 'fixed_income', balance: 50000, target_return: 0.03 }),                                    // 1500
+      a({ label: 'AGG fund', kind: 'fixed_income', balance: 50000, target_return: 0.03 }),                                    // 0 — A46: no coupon rate
       a({ label: 'AAPL', kind: 'stocks_etf', balance: 30000 }),                                                              // 0
     ];
-    expect(interestIncomeAnnual(port)).toBe(6000);
+    expect(interestIncomeAnnual(port)).toBe(4500);
   });
 });

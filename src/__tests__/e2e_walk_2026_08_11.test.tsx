@@ -102,7 +102,7 @@ test('C1 first day — Home and Net worth both open, invite the first answer, an
   render(React.createElement(screens.Home()));
   noNonsense();
   // Home's first day is the three ways in — and it promises nothing it cannot yet know
-  expect(screen.getByText(/Connect your first account/)).toBeOnTheScreen();
+  expect(screen.getByText(/Connect your bank/)).toBeOnTheScreen();   // founder ruling 2026-09-14
   expect(screen.getByText(/Add something by hand/)).toBeOnTheScreen();
   expect(visible().some((t) => /\d+% odds/.test(t))).toBe(false);
   screen.unmount();
@@ -228,7 +228,7 @@ test('C7 add a card balance — net worth falls by exactly that amount and What 
 
   render(React.createElement(screens.NW()));
   noNonsense();
-  expect(screen.getByText('WHAT YOU OWE')).toBeOnTheScreen();
+  expect(screen.getByText('DEBTS')).toBeOnTheScreen();
   expect(screen.getAllByText(/\$5,000/).length).toBeGreaterThan(0);      // the card, on the band and the row
   expect(screen.getAllByText('$15,000').length).toBeGreaterThan(0);   // 20,000 less 5,000 — the number at the top
 });

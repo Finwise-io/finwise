@@ -1,5 +1,5 @@
 // Account detail (FCC Net worth sheet): one page per account — the pins:
-//   every recorded action goes through the ONE transactions engine (balance + ledger move together);
+//   every recorded action goes through the ONE transactions function (balance + ledger move together);
 //   a transfer moves both sides; the 6-month stale-value nudge re-stamps or updates honestly;
 //   the balance shown IS the stored number every total reads (no per-screen recomputation).
 import React from 'react';
@@ -35,7 +35,7 @@ test('shows the balance, class in plain words, and the by-hand source sentence (
   expect(screen.getByText(/Cash · taxable/)).toBeOnTheScreen();
 });
 
-test('recording a deposit moves the BALANCE and the LEDGER together (the one engine)', () => {
+test('recording a deposit moves the BALANCE and the LEDGER together (the one function)', () => {
   render(<AccountDetailScreen />);
   fireEvent.press(screen.getByLabelText('Record a deposit for Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '2000');
@@ -119,7 +119,7 @@ describe('bond and alternative detail sections', () => {
     render(<AccountDetailScreen />);
     expect(screen.getByText('BOND FACTS')).toBeOnTheScreen();
     expect(screen.getByLabelText(/Face value: \$100,000/)).toBeOnTheScreen();
-    expect(screen.getByLabelText(/Interest payments: 4.50%\/yr · \$4,500\/yr/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Interest payments: 4.50%\/year · \$4,500\/year/)).toBeOnTheScreen();
     expect(screen.getByLabelText(/Yield if held to maturity: about .*estimate/)).toBeOnTheScreen();
     expect(screen.getByText('IF INTEREST RATES MOVE')).toBeOnTheScreen();
     expect(screen.getAllByText('estimate')[0]).toBeOnTheScreen();

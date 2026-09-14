@@ -18,7 +18,7 @@ describe('decumulation', () => {
   });
 
   test('withdrawal plan: net of guaranteed income + rate band', () => {
-    // spend $6,000/mo, SS $2,000/mo, nest egg $1.2M → net $48k/yr → 4.0% → safe
+    // spend $6,000/month, SS $2,000/month, nest egg $1.2M → net $48k/year → 4.0% → safe
     const p = withdrawalPlan(6000, 2000, 1_200_000);
     expect(p.netWithdrawal).toBe(48000);
     expect(p.withdrawalRate).toBeCloseTo(0.04, 4);
@@ -30,7 +30,7 @@ describe('decumulation', () => {
   });
 
   test('depletion age: runs out vs lasts to horizon', () => {
-    // $500k, $60k/yr net, 4% return, 3% inflation → depletes before 90
+    // $500k, $60k/year net, 4% return, 3% inflation → depletes before 90
     const dep = depletionAge({ age: 65, horizon: 95, nestEgg: 500000, netWithdrawalNow: 60000, returnRate: 0.04, inflation: 0.03 });
     expect(dep).not.toBeNull();
     expect(dep! < 95).toBe(true);
@@ -76,5 +76,31 @@ describe('rmdSchedule grows by the shared step (walk row 9)', () => {
     let bal = 1000;
     for (let i = 0; i < 7; i++) bal = growOneYear(bal, 0.06);
     expect(bal).toBeCloseTo(1000 * Math.pow(1.06, 7), 8);
+  });
+});
+
+// ── G8 (founder ruling 2026-09-08): this year's required withdrawal stands on LAST 31 December's
+// balance when the person entered it; otherwise on today's, and it says which. ──
+describe('rmdRequiredThisYear — MK-PL-F-080', () => {
+  const { rmdRequiredThisYear } = require('./index');
+  test('the entered 31 December balance wins, and the basis says so', () => {
+    const r = rmdRequiredThisYear(400_000, 500_000, 75);
+    expect(r.basis).toBe('prior_year_end');
+    expect(r.balanceUsed).toBe(500_000);
+    expect(r.amount).toBe(rmdAtAge(500_000, 75));
+  });
+  test('no entered balance → today\'s balance, labelled as such', () => {
+    const r = rmdRequiredThisYear(400_000, null, 75);
+    expect(r.basis).toBe('today');
+    expect(r.amount).toBe(rmdAtAge(400_000, 75));
+  });
+  test('a zero or negative entry counts as not entered — never a $0 requirement by accident', () => {
+    expect(rmdRequiredThisYear(400_000, 0, 75).basis).toBe('today');
+    expect(rmdRequiredThisYear(400_000, -1, 75).basis).toBe('today');
+  });
+  test('in a year the market moved 15%, the two bases differ by 15% — which is why the law names one', () => {
+    const today = rmdRequiredThisYear(460_000, null, 75).amount;
+    const lastDec = rmdRequiredThisYear(460_000, 400_000, 75).amount;
+    expect(today / lastDec).toBeCloseTo(1.15, 6);
   });
 });

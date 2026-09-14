@@ -23,6 +23,17 @@ python3 "Calculation Module code/scripts/write-headers.py" --check
 step "B2 · the formula in the code and the formula in the file agree"
 python3 "Calculation Module code/scripts/check-formula-agreement.py"
 
+step "B3 · every file-only ruling still reads as ruled"
+python3 "Calculation Module code/scripts/check-rulings-in-file.py"
+
+echo "── the working plan and the orchestrator map are printed from their sources (hand edits die)"
+python3 "Calculation Module code/scripts/build-workplan.py"   # the script has already moved to the repo root (line 12), so the path is written from there
+python3 "Calculation Module code/scripts/build-orchestrator-map.py"
+echo "── Post Feedback Sync (PFS): feedback files of his still sitting beside their originals"
+_pfs=$(find MoneyKeel/documents -iname "*-jj*" -not -path "*JJ-feedback-archive*" -not -path "*/archive/*" | sort)
+if [ -n "$_pfs" ]; then echo "PFS pending: $(echo "$_pfs" | wc -l | tr -d ' ') file(s) not yet folded in —"; echo "$_pfs" | sed 's/^/  /'; else echo "PFS: nothing waiting — every feedback file is folded in and archived"; fi
+
+
 step "C1 · types"
 npx tsc --noEmit
 
@@ -36,5 +47,5 @@ step "C6 · the screen map is current"
 node scripts/screen-map.mjs | tail -3
 
 printf '\n── every guard that exists has passed.\n'
-printf '   Still to build: A4 (dead), B3 (partial), B4, D1, D3, D4 — see the build spec.\n'
+printf '   Every guard in the spec is built (2026-09-12): D1 is a ratchet with 18 owed imports, D3 covers two shared figures.\n'
 printf '   E · the founder has said yes — not a command. Nothing above substitutes for it.\n'

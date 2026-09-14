@@ -1,9 +1,8 @@
-// PRD F1#15 — the ENGINE-OWNED, versioned net-worth history. Before this module the monthly
+// PRD F1#15 — the FUNCTION-OWNED, versioned net-worth history. Before this module the monthly
 // snapshots were an untyped Record<string, any> blob written by a screen effect and read
 // loosely by two screens; trend math stood on unchecked fields. Now: ONE typed shape with a
 // version stamp, ONE writer helper (the Home freeze effect calls it), ONE reader that
 // normalizes legacy blobs and drops garbage instead of charting it.
-import { round2 } from './_shared/num';
 
 export const SNAPSHOT_VERSION = 1 as const;
 
@@ -64,13 +63,13 @@ export function trendPoints(
 ): TrendPoint[] {
   const pts: TrendPoint[] = readHistory(monthly).map((s) => ({ key: s.month, nw: s.net_worth }));
   for (const [k, v] of Object.entries(daily ?? {})) {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(k) && typeof v === 'number' && Number.isFinite(v)) pts.push({ key: k, nw: round2(v) });
+    if (/^\d{4}-\d{2}-\d{2}$/.test(k) && typeof v === 'number' && Number.isFinite(v)) pts.push({ key: k, nw: (v) });
   }
   return pts.sort((a, b) => a.key.localeCompare(b.key));
 }
 
 /** Prune helper for the store writer: newest DAILY_KEEP days survive. */
-/* ─ MK-XS-F-006 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-XS-F-006 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * pruneDaily
  *
  * Answers ..... Prune helper for the store writer: newest DAILY_KEEP days survive.
@@ -81,12 +80,21 @@ export function trendPoints(
  *     keep = a list with no repeats of keys.slice(-DAILY_KEEP)
  *     the answer = object.from entries(object.entries(daily).filter(([k]) => keep.has(k)))
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-175 uid
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-006
  * Changed ..... 2026-07-19 (6c94acf)
@@ -104,7 +112,7 @@ export function pruneDaily(daily: Record<string, number>): Record<string, number
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     the answer = true when the text is exactly 'YYYY-MM'
  *
  * Called by ... MK-XS-F-008 normalizeSnapshot
  *
@@ -127,11 +135,31 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *     v   if typeof v = 'number' and number.is finite(v)
  *     fallback   otherwise
  *
- * Called by ... MK-XS-F-007 makeMonthlySnapshot · MK-XS-F-008 normalizeSnapshot
+ * Called by ... MK-CF-F-028 loanPayment · MK-CF-F-129 round4
+ *               MK-CF-F-155 cash · MK-CF-F-189 essentialsFromLoggedSpending
+ *               MK-CF-O-001 basePay · MK-HM-F-006 money0
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-060 approxYTM
+ *               MK-NW-F-069 priceAtYield · MK-PF-F-006 capGains
+ *               MK-PL-F-033 educationPlan · MK-PL-F-050 simulate
+ *               MK-PL-F-079 numOrZero · MK-ST-F-021 toNumber
+ *               MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
+ *               MK-ST-F-051 moneyCompact · MK-ST-F-052 toNum
+ *               MK-ST-F-053 money · MK-ST-F-054 money2
+ *               MK-ST-F-058 numberOrUndefined · MK-XS-F-007 makeMonthlySnapshot
+ *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-131 toInt
+ *               MK-XS-F-171 numOrNaN · MK-XS-F-175 uid
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-007 makeMonthlySnapshot · MK-XS-F-008 normalizeSnapshot
- *               MK-XS-F-009 readHistory · MK-XS-F-005 trendPoints
+ * Reaches ..... 249 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-151 actualSpending
+ *               MK-PF-F-017 allocation · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-019 alternativesTotal · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-143 annualisedGross · MK-CF-F-059 annualizedEnteredSalary
+ *               MK-NW-F-060 approxYTM · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
+ *               … and 231 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -147,7 +175,8 @@ const n = (v: unknown, fallback = 0): number => (typeof v === 'number' && Number
  * Answers ..... The ONE writer — stamps the version and keeps the arithmetic identity by construction.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     net worth = gross assets − gross debt
+ *     v = the snapshot version
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -161,7 +190,7 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
     ...i,
     v: SNAPSHOT_VERSION,
     // the identity is structural: net worth IS assets − debt (never a third number)
-    net_worth: round2(n(i.gross_assets) - n(i.gross_debt)),
+    net_worth: (n(i.gross_assets) - n(i.gross_debt)),
   };
 }
 
@@ -181,7 +210,7 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
  *     nothing   when month is missing
  *     gross assets = n(gross assets, na n)
  *     gross debt = n(gross debt, na n)
- *     net worth = n(net worth, number.is finite(gross assets − gross debt) ? round2(gross assets − gross debt) : na n)
+ *     net worth = n(net worth, number.is finite(gross assets − gross debt) ? (gross assets − gross debt) : na n)
  *     nothing   when !number.is finite(net worth)
  *
  * Called by ... MK-XS-F-009 readHistory
@@ -201,7 +230,7 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
   if (!month) return null;
   const grossAssets = n(r.gross_assets, NaN);
   const grossDebt = n(r.gross_debt, NaN);
-  const netWorth = n(r.net_worth, Number.isFinite(grossAssets - grossDebt) ? round2(grossAssets - grossDebt) : NaN);
+  const netWorth = n(r.net_worth, Number.isFinite(grossAssets - grossDebt) ? (grossAssets - grossDebt) : NaN);
   if (!Number.isFinite(netWorth)) return null;
   return {
     v: SNAPSHOT_VERSION,
@@ -230,7 +259,7 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
  * Answers ..... The ONE reader every history surface uses: normalized, garbage-free, sorted by month.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     for each stored month: normalize snapshot(month, value); drop the unreadable ones; sort by month, oldest first
  *
  * Called by ... MK-XS-F-005 trendPoints
  *
@@ -239,9 +268,6 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
- *
- * Decides .....
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-009
  * Changed ..... 2026-08-05 (db8f3c8)
@@ -272,10 +298,6 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... MK-NW-M-002
- *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-010
  * Changed ..... 2026-08-05 (db8f3c8)
@@ -317,13 +339,13 @@ export interface ChangeWalk {
  *     dividends = max(0, args.dividends (or 0 when missing))
  *     interest = max(0, args.interest (or 0 when missing))
  *     debt principal = max(0, args.debt principal (or 0 when missing))
- *     total = round(args.ending − args.beginning, 2 dp)
- *     wealth generated = round(total − contributions + withdrawals − debt principal, 2 dp)
- *     market change = round(wealth generated − dividends − interest, 2 dp)
+ *     total = args.ending − args.beginning
+ *     wealth generated = total − contributions + withdrawals − debt principal
+ *     market change = wealth generated − dividends − interest
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... MK-PF-M-001 · MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-004
+ * Serves ...... MK-PF-M-002 · MK-PF-M-003
  *
  * Decides .....
  *     · If contributions is missing it uses 0.
@@ -344,14 +366,14 @@ export function buildChangeWalk(args: {
   const dividends = Math.max(0, args.dividends ?? 0);
   const interest = Math.max(0, args.interest ?? 0);
   const debtPrincipal = Math.max(0, args.debtPrincipal ?? 0);
-  const total = round2(args.ending - args.beginning);
+  const total = (args.ending - args.beginning);
   // the residual IS market movement — the walk must reach the ending value exactly
-  const wealthGenerated = round2(total - contributions + withdrawals - debtPrincipal);
-  const marketChange = round2(wealthGenerated - dividends - interest);
+  const wealthGenerated = (total - contributions + withdrawals - debtPrincipal);
+  const marketChange = (wealthGenerated - dividends - interest);
   return {
     fromLabel: args.fromLabel, toLabel: args.toLabel,
-    beginning: round2(args.beginning), contributions, withdrawals,
+    beginning: (args.beginning), contributions, withdrawals,
     wealthGenerated, dividends, interest, marketChange, debtPrincipal,
-    ending: round2(args.ending),
+    ending: (args.ending),
   };
 }

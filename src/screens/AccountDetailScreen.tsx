@@ -1,7 +1,7 @@
 // Account detail — any class (FCC detailed design v1.1, Net worth sheet). One page per account:
 // the balance, where the number comes from and how fresh it is, what it holds, its full activity
 // history, and the right record-activity buttons for its class. Every recorded action goes through
-// the ONE transactions engine (recordTransaction) — balances update by the same tested rules
+// the ONE transactions function (recordTransaction) — balances update by the same tested rules
 // everywhere, and hand-recorded rows are never questioned by the F10 watch (no source field).
 import React, { useMemo, useState } from 'react';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
@@ -103,7 +103,7 @@ export default function AccountDetailScreen() {
     // real and is still counted — at the ACCOUNT level, in the Income figure above, where it belongs.
     const rowsFor = !tk ? [] : ledger.filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST')
       && !!t.ticker && String(t.ticker).toUpperCase() === tk);
-    // ONE flows engine (Track 1 step 3) — abs-summing here made a reversal add, the $2,387 class
+    // ONE flows function (Track 1 step 3) — abs-summing here made a reversal add, the $2,387 class
     const tkFlows = personalFlowTotals(rowsFor);
     const div = tkFlows.dividends.toNumber(2);
     const int = tkFlows.interest.toNumber(2);
@@ -151,7 +151,7 @@ export default function AccountDetailScreen() {
   // ticker trades and bond/alt buys-sells keep their existing full flows — one recorder each
   const tradeLink = cls === 'stocks_etf' || cls === 'mixed' ? { label: 'Buy / Sell holdings ›', route: '/(tabs)/invest' }
     : cls === 'bonds' ? { label: 'Buy more / Sell this bond ›', route: '/bonds' }
-    : cls === 'alternatives' ? { label: 'Buy more / Record a sale ›', route: '/other-investments' }
+    : cls === 'alternatives' ? { label: 'Buy more / Sell ›', route: '/other-investments' }
     : null;
 
   const shown = showAll ? txns : txns.slice(0, 8);
@@ -342,7 +342,7 @@ export default function AccountDetailScreen() {
       {/* your reported return — the same actual_ttm field the Retirement cockpit reads (one field, two readers) */}
       {(cls === 'bonds' || cls === 'alternatives') && <ReportedReturnCard account={account} />}
 
-      {/* record activity — the ONE engine, surfaced here per class */}
+      {/* record activity — the ONE function, surfaced here per class */}
       {(actions.length > 0 || tradeLink) && (
         <>
           <SectionBand title="RECORD ACTIVITY" />
@@ -372,7 +372,7 @@ export default function AccountDetailScreen() {
           const eff = incoming ? (t.amount || 0) : cashEffect(t);
             // HANDOFF 2026-08-11: a row is either the BROKER'S fact or YOURS, and the list has to say
             // which. A broker row cannot be edited — the next sync would overwrite it — so it says
-            // where it came from and offers nothing. A row you typed is yours to correct, so it wears
+            // where it came from and offers nothing. A row you entered is yours to correct, so it wears
             // "you entered this" and a pencil. Before this they looked identical, which meant a typo
             // you made was indistinguishable from the broker's own record and equally unfixable.
             const mine = t.source !== 'connected';
@@ -427,7 +427,7 @@ export default function AccountDetailScreen() {
 function BondDetail({ account }: { account: AssetAccount }) {
   const b = bondInfo(account);
   if (!(b.face > 0 && b.couponRate > 0 && b.maturity)) return null;   // a bond FUND — no honest bond math
-  const years = yearsToMaturity(b.maturity);
+  const years = yearsToMaturity(b.maturity) ?? 0;   // G11: no maturity date → 0 here only for the words; the yield itself refuses
   const ytm = approxYTM(b);
   const cy = currentYield(b);
   const sens = bondRateSensitivity(b);
@@ -437,7 +437,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
       <View style={s.card}>
         <Text style={s.cardHdr2}>BOND FACTS</Text>
         <FactRow label="Face value" value={maskedMoney(b.face)} />
-        <FactRow label="Interest payments" value={`${(b.couponRate * 100).toFixed(2)}%/yr · ${maskedMoney(annualCoupon(b))}/yr`} />
+        <FactRow label="Interest payments" value={`${(b.couponRate * 100).toFixed(2)}%/year · ${maskedMoney(annualCoupon(b))}/year`} />
         <FactRow label="Matures" value={matured ? `${b.maturity} (matured)` : `${b.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`} />
         {!matured && ytm != null && <FactRow label="Yield if held to maturity" value={`about ${(ytm * 100).toFixed(1)}% · estimate`} />}
         {cy != null && <FactRow label="Yield on today's value" value={`${(cy * 100).toFixed(1)}%`} />}
@@ -649,7 +649,7 @@ function UpdateValueSheet({ account, visible, onClose }: { account: AssetAccount
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginTop: 6, lineHeight: 20 },
   chipRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6, marginBottom: Spacing.sm, flexWrap: 'wrap' },
   chip: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, overflow: 'hidden' },
@@ -735,7 +735,7 @@ const s = StyleSheet.create({
 // ── EDIT A RECORD YOU ENTERED (handoff 2026-08-11) ─────────────────────────────────────────────
 // Only rows the person typed reach this sheet — a broker row is the broker's own fact and the next
 // sync would overwrite any change, so it is never editable. A correction is applied as a REVERSAL
-// plus a fresh record, through the one transactions engine, so the account's balance moves by the
+// plus a fresh record, through the one transactions function, so the account's balance moves by the
 // same tested rules as every other change rather than being patched behind the ledger's back.
 function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: () => void }) {
   const store = useStore() as any;

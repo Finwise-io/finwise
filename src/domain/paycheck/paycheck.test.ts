@@ -1,4 +1,4 @@
-// F5 paycheck engine — pins the LOCKED guaranteed definition, real month placement (never a flat
+// F5 paycheck function — pins the LOCKED guaranteed definition, real month placement (never a flat
 // average), the solved safe draw (deterministic, ≥80% chance, never overstated), and the exact
 // this-year sum. Drives the real simulate() — no stub.
 import { guaranteedRows, solveSafeDraw, buildPaycheckYear } from './index';

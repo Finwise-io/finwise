@@ -46,12 +46,19 @@ export const RMD_RULE_ASOF = '2026-08-20';
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
  *
+ * Decides .....
+ *     · When the birth year is missing the start age is taken as 73 — the rule for those born 1951–1959, the middle of the 55–70 audience (A36). The whole schedule is coded: 70½ before 1949, 72 for 1949–1950, 73 for 1951–1959, 75 from 1960.
+ *
  * Formula also on the master file · functions_from_code · MK-ST-F-024
  * Changed ..... 2026-08-20 (16a56f7)
  */
 export function rmdStartAge(birthYear?: number | null): number {
   const y = Number(birthYear);
-  if (!y || !Number.isFinite(y)) return 73;
+  if (!y || !Number.isFinite(y)) return 73;   // no birth year: taken as 73 — declared as an assumption on the row (A36)
+  // A36 (2026-09-12): the whole SECURE 2.0 schedule — 70½ for those born before 1949 was reached,
+  // 72 for 1949–1950, 73 for 1951–1959, 75 from 1960.
+  if (y <= 1948) return 70.5;
+  if (y <= 1950) return 72;
   return y >= 1960 ? 75 : 73;
 }
 

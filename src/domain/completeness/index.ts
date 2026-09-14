@@ -8,7 +8,7 @@ export interface CompletenessInput {
   hasInvestments: boolean;  // any positions / bonds / alternatives
   goalCount: number;        // goals.length
   ssAnswered: boolean;      // retirementAssumptions.ssEligible != null
-  monthlySpending: number;  // spending captured
+  monthlySpending: number;  // expenses captured
   hasDebtsOrSkipped: boolean; // liabilities entered OR user has no debt (we can't tell skipped; treat any as done)
 }
 
@@ -32,9 +32,7 @@ export interface CompletenessInput {
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
  *
  * Decides .....
- *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
  *     · Rounds the answer to a whole number.
- *     · Leaves some rows out of the answer — check which.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-001
  * Changed ..... 2026-06-06 (abfe24a)
@@ -43,7 +41,7 @@ export function planCompleteness(i: CompletenessInput): { checks: PlanCheck[]; d
   const checks: PlanCheck[] = [
     { key: 'income', label: 'Add your income', detail: 'Salary, bonus, equity, rental — drives every projection.', done: i.incomeAnnual > 0, route: '/income-manager' },
     { key: 'networth', label: 'Add your accounts', detail: 'Cash, investments, property → your net worth.', done: i.accountCount > 0, route: '/(tabs)/analytics' },
-    { key: 'spending', label: 'Set a spending plan', detail: 'So we can track budget vs actual and savings.', done: i.monthlySpending > 0, route: '/(tabs)/budget' },
+    { key: 'spending', label: 'Set a budget', detail: 'So we can track budget vs actual and savings.', done: i.monthlySpending > 0, route: '/(tabs)/budget' },
     { key: 'investments', label: 'Track investments', detail: 'Holdings, bonds, or alternatives vs benchmark.', done: i.hasInvestments, route: '/performance' },
     { key: 'retirement', label: 'Set up retirement', detail: 'Social Security, target age, drawdown.', done: i.ssAnswered, route: '/retirement' },
     { key: 'goals', label: 'Add a goal', detail: 'Emergency fund, home, a trip — and a debt-payoff plan.', done: i.goalCount > 0, route: '/(tabs)/goals' },

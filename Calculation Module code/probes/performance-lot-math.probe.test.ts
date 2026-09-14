@@ -23,7 +23,7 @@ describe('HOLDING_SHARES / COST_BASIS / AVG_COST', () => {
     const p = P(lot(10, 100), lot(5, 120));
     expect(totalShares(p)).toBe(15);
     expect(costBasis(p)).toBe(1600);              // 10×100 + 5×120
-    expect(avgCost(p)).toBe(106.67);              // 1600 ÷ 15, to the cent
+    expect(avgCost(p)).toBeCloseTo(106.67, 2);              // 1600 ÷ 15, to the cent
   });
 
   test('no lots is zero, not an error and not a guess', () => {

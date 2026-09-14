@@ -1,4 +1,4 @@
-// THE DERIVED TARGET — the second gauge's engine. The point of these tests is that the target and
+// THE DERIVED TARGET — the second gauge's function. The point of these tests is that the target and
 // the odds can never contradict each other, because they come from one simulation.
 import { planTarget, targetAtRetirement, requiredAnnualSaving, leverDeltas, ssUpliftFactor, TARGET_ODDS } from './target';
 import { simulate, type RetirementInputs } from '../retirement';
@@ -36,7 +36,7 @@ test('the target and the odds are one fact, not two — progress and odds move t
 test('both figures are measured AT RETIREMENT, so the comparison is apples to apples', () => {
   const p = planTarget(PAT);
   // the numerator is what the plan is on track for at the same moment the target describes
-  expect(p.projectedAtRetirement).toBe(Math.round(simulate(PAT).projected_at_retirement));
+  expect(p.projectedAtRetirement).toBeCloseTo(simulate(PAT).projected_at_retirement, 6);   // Q49: full precision inside
   expect(p.projectedAtRetirement).toBeGreaterThan(PAT.start_balance);   // seven years of growth
   expect(p.progressPct).toBe(Math.round((p.projectedAtRetirement / p.targetAtRetirement!) * 100));
 });
@@ -69,7 +69,7 @@ test('the levers are real re-runs — each one names what it is worth, biggest f
   expect(levers.length).toBeGreaterThan(0);
   for (const l of levers) expect(l.points).toBeGreaterThan(0);
   expect(levers.map((l) => l.points)).toEqual([...levers.map((l) => l.points)].sort((a, b) => b - a));
-  // each lever's claim is checkable against the engine it came from
+  // each lever's claim is checkable against the function it came from
   const base = simulate({ ...PAT, start_balance: 400_000, guaranteed_monthly_income: 2_600 }).chance_of_success;
   for (const l of levers) {
     const moved = simulate({ ...PAT, start_balance: 400_000, guaranteed_monthly_income: 2_600, ...l.apply }).chance_of_success;

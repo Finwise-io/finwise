@@ -10,7 +10,7 @@ const PAT: RetirementInputs = {
 } as any;
 const LOAN = { balance: 412_000, annualRate: 0.055, monthlyPayment: 2400, nowYear: 2026 };
 
-test('both numbers come out of the engine — neither is derived from the other', () => {
+test('both numbers come out of the function — neither is derived from the other', () => {
   const e = mortgageOddsEffect({ base: PAT, ...LOAN, extraMonthly: 500 })!;
   expect(e.before).toBeGreaterThanOrEqual(0);
   expect(e.after).toBeGreaterThanOrEqual(0);

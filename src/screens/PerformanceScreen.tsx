@@ -33,7 +33,7 @@ import { moneyWeightedReturn, isMoneyWeighted } from '../domain/performance/mone
 // THE CALCULATION MODULE — say plainly when a window reaches further back than our record.
 // Founder 2026-08-18: the memory limit was a code comment; nobody using the app was ever told.
 import { coverageFor } from '../../Calculation Module code/engines/coverage';
-import { InfoDot, EstimateTag } from '../components/UI';
+import { InfoDot, EstimateTag, EmptyNote } from '../components/UI';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
@@ -94,7 +94,7 @@ export default function PerformanceScreen() {
   const anyCapped = rows.some((r) => r.cappedSince != null);
   const portReturn = portfolioPeriodReturn(rows);
   // FINAL mock: every chip shows ITS OWN return — a window with no data shows an em-dash, never a
-  // guess. Same rows/engine as the headline, just run per period, so chips can't disagree with it.
+  // guess. Same rows and function as the headline, just run per period, so chips can't disagree with it.
   // the earliest day we actually have data for — the mock's "Since <date>" chip
   const dataStartLabel = useMemo(() => {
     const keys = Object.keys((store.invDaily ?? {}) as Record<string, number>).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
@@ -172,7 +172,7 @@ export default function PerformanceScreen() {
     ? [leader, ...(laggard && laggard !== leader && laggard.gain < 0 ? [laggard] : [])].filter(Boolean) as typeof ranked
     : ranked;
   // concentration: one HOLDING at 25%+ of invested money — the SAME shared rule the insights
-  // engine uses (one concept, one helper), a quantified fact, never advice
+  // function uses (one concept, one helper), a quantified fact, never advice
   const concentration = topHoldingConcentration(rows);
   const bondAccts = accounts.filter(isBond);
   const altAccts = accounts.filter(isAlternative);
@@ -254,6 +254,7 @@ export default function PerformanceScreen() {
               <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>{maskedMoney(0)}</Text></View>
               <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text></View>
             </View>
+            <EmptyNote door="accounts" />   {/* Q48 (MK-PF-M-005..008): $0 above, the one line, the door */}
             <Text style={styles.sumNote}>Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</Text>
           </View>
 
@@ -322,7 +323,7 @@ export default function PerformanceScreen() {
           {rows.length > 0 && (() => {
             const windowStart = periodStartKey(period);
             const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
-            const flows = personalFlowTotals(led);   // ONE flows engine (Track 1 step 3)
+            const flows = personalFlowTotals(led);   // ONE flows function (Track 1 step 3)
             const contributions = flows.contributions.toNumber(2);
             const withdrawals = flows.withdrawals.toNumber(2);
             const ending = investTotalAll;
@@ -405,7 +406,7 @@ export default function PerformanceScreen() {
 
           {/* PER-ACCOUNT WALKS (final mock): the same card, one per account, collapsible — a
               person with eight accounts sees a list, not an endless scroll. Every account's walk
-              uses the SAME engine as the all-accounts walk, so the parts sum to the whole. */}
+              uses the SAME function as the all-accounts walk, so the parts sum to the whole. */}
           {rows.length > 0 && (() => {
             const windowStart = periodStartKey(period);
             const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
@@ -583,7 +584,7 @@ export default function PerformanceScreen() {
             <View style={styles.card} accessible
               accessibilityLabel={`Your money-weighted return: ${mwr.ratePerYear >= 0 ? 'plus' : 'minus'} ${Math.abs(Math.round(mwr.ratePerYear * 1000) / 10)} percent a year, counting when you added money. From ${mwr.flows} recorded moves — an estimate.`}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Text style={styles.glanceLine}>Your money-weighted return: {mwr.ratePerYear >= 0 ? '+' : '−'}{Math.abs(Math.round(mwr.ratePerYear * 1000) / 10)}%/yr — counts when you added money</Text>
+                <Text style={styles.glanceLine}>Your money-weighted return: {mwr.ratePerYear >= 0 ? '+' : '−'}{Math.abs(Math.round(mwr.ratePerYear * 1000) / 10)}%/year — counts when you added money</Text>
                 <InfoDot term="moneyWeighted" />
               </View>
             </View>
@@ -661,7 +662,7 @@ export default function PerformanceScreen() {
 
           {/* the plan is visible HERE too (F11 propagation) */}
           {contribMonthly != null && contribMonthly > 0 && (
-            <Text style={styles.planChip}>Saving {maskedMoney(contribMonthly)}/mo toward retirement (from your Plan)</Text>
+            <Text style={styles.planChip}>Saving {maskedMoney(contribMonthly)}/month toward retirement (from your Plan)</Text>
           )}
 
           {/* YOUR INVESTMENTS — every class in one place, grouped, collapsible */}
@@ -1213,7 +1214,7 @@ const styles = StyleSheet.create({
   walkV: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'], minWidth: 92, textAlign: 'right' },
   walkTotal: { borderTopWidth: 1, borderTopColor: Colors.bgTertiary, marginTop: 4, paddingTop: 10 },
   eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
-  investTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
+  investTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
   heroValue: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   honestBlock: { borderTopWidth: 1, borderTopColor: Colors.bgTertiary, marginTop: 10, paddingTop: 8 },
   honestKicker: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 4 },
@@ -1365,3 +1366,4 @@ const styles = StyleSheet.create({
   saveBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
   deleteLink: { fontSize: 13, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: 14 },
 });
+

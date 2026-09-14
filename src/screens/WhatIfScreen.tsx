@@ -1,5 +1,5 @@
 // What if I add more? — the forward what-if (FCC detailed design v1.1, Invest sheet), the promised
-// companion to Look back. One dial (+$/mo) against the SAME shared plan inputs the hub uses:
+// companion to Look back. One dial (+$/month) against the SAME shared plan inputs the hub uses:
 // projected nest egg at retirement and the will-it-last chance, before → after, every figure an
 // estimate. Prefillable (?addMonthly=) so the 401(k)-room nudge lands here with its number.
 import React, { useMemo, useState } from 'react';
@@ -99,7 +99,7 @@ export default function WhatIfScreen() {
               accessibilityLabel="Lower the extra monthly amount by $100">
               <Text style={s.stepTxt}>−</Text>
             </TouchableOpacity>
-            <Text style={s.dial}>+{maskedMoney(addMonthly)}/mo</Text>
+            <Text style={s.dial}>+{maskedMoney(addMonthly)}/month</Text>
             <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setAddMonthly((n) => n + STEP)}
               accessibilityLabel="Raise the extra monthly amount by $100">
               <Text style={s.stepTxt}>＋</Text>
@@ -134,7 +134,7 @@ export default function WhatIfScreen() {
         </View>
       ) : result?.retired ? (
         <View style={s.card}>
-          <Text style={s.note}>You're already drawing down, so monthly contributions aren't the lever — the Plan tab's scenarios (spending, claim timing) are where your choices live.</Text>
+          <Text style={s.note}>You're already drawing down, so monthly contributions aren't the lever — the Plan tab's scenarios (expenses, claim timing) are where your choices live.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/plan')}
             accessibilityLabel="Open the Plan tab"><Text style={s.emptyLinkT}>Open the Plan tab ›</Text></TouchableOpacity>
         </View>
@@ -174,7 +174,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 const s = StyleSheet.create({
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
   savedNote: { fontSize: 11, fontWeight: '600', color: Colors.primaryDark, marginTop: 10 },
   emptyLink: { minHeight: 44, justifyContent: 'center', marginTop: 4 },
   emptyLinkT: { fontSize: 15, fontWeight: '700', color: Colors.primary },

@@ -1,6 +1,6 @@
 // THE PAYCHECK ROWS MUST SAY WHOSE MONEY THEY ARE (audit D5, fixed 2026-08-13).
 //
-// The Plan tab read `.label` off each guaranteed-income row; the engine's field is `source`. So
+// The Plan tab read `.label` off each guaranteed-income row; the function's field is `source`. So
 // June's paycheck rendered two bare amounts with no names beside them — a bill with the line items
 // blanked out — directly above a note claiming "the same paycheck as Home's card". Three of the four
 // screens that show these rows were always right; only Plan was wrong.
@@ -51,7 +51,7 @@ test('and it names them the same way Home does — the note under it says one se
   useStore.setState(JUNE as any);
   const { PaycheckCard } = require('../components/PaycheckCard');
   const { useCashflowModel } = require('../hooks/useCashflowModel');
-  // render Home's card through a probe so both screens read the one engine
+  // render Home's card through a probe so both screens read the one function
   const Probe = () => { const { year } = useCashflowModel(); return <PaycheckCard year={year} />; };
   render(<Probe />);
   expect(screen.getByText(/Social Security/)).toBeOnTheScreen();
@@ -69,10 +69,10 @@ test('GUARD: no screen reads .label off a guaranteed-income row again', () => {
     const src = fs.readFileSync(path.join(root, rel), 'utf8');
     // the map callback over `guaranteed` must not reach for `.label`
     for (const m of src.matchAll(/guaranteed\s*\?\?\s*\[\]\)?\.map\([\s\S]{0,400}?\)\)/g)) {
-      if (/\bg\.label\b/.test(m[0])) offenders.push(`${rel}: reads g.label — the engine's field is g.source`);
+      if (/\bg\.label\b/.test(m[0])) offenders.push(`${rel}: reads g.label — the function's field is g.source`);
     }
     if (/\.guaranteed\.map\([\s\S]{0,400}?g\.label/.test(src)) {
-      offenders.push(`${rel}: reads g.label — the engine's field is g.source`);
+      offenders.push(`${rel}: reads g.label — the function's field is g.source`);
     }
   }
   expect(offenders).toEqual([]);

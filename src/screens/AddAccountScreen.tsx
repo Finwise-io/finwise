@@ -22,7 +22,7 @@ const humanDate = (s: string) => (s ? parseISO(s).toLocaleDateString('en-US', { 
 
 type Cls = 'cash' | 'stocks' | 'bonds' | 'alts' | 'property' | 'debt';
 const CLASSES: { id: Cls; label: string }[] = [
-  { id: 'cash', label: 'Cash' }, { id: 'stocks', label: 'Stocks & funds' },
+  { id: 'cash', label: 'Cash' }, { id: 'stocks', label: 'Stocks / Funds' },
   { id: 'bonds', label: 'Bonds' }, { id: 'alts', label: 'Alternatives' },
   { id: 'property', label: 'Real estate' }, { id: 'debt', label: 'Debt' },
 ];
@@ -71,6 +71,11 @@ export default function AddAccountScreen() {
 
   const save = () => {
     if (!ready) return;
+    // FOUNDER RULING 2026-09-14: accounts named during setup become rows whichever door brings someone here.
+    // Until today only the Net worth tab created them, so a person who came straight to this form from Home
+    // would never see them. It runs once, before the new account is added, so the account typed here is kept
+    // and a setup row someone already edited is never re-created over their edit.
+    if (!editMode && !store.nwSeeded) store.seedNetWorth?.(store.onboardingProfile ?? null);
     const today = isoLocalDate(new Date());
     if (cls === 'debt') {
       store.addLiability?.({ label: name.trim(), debt_type: 'OTHER', remaining_balance: num(balance), interest_rate_apr: num(apr) / 100, minimum_monthly_payment: num(minPay) });
@@ -135,7 +140,7 @@ export default function AddAccountScreen() {
 
       {field('Name', name, setName, { placeholder: cls === 'debt' ? 'Car loan' : 'Chase checking', required: true, a11y: 'Account name' })}
       {cls !== 'debt' && cls !== 'property' && field('Institution (optional)', institution, setInstitution, { placeholder: 'Chase', a11y: 'Institution' })}
-      {field(cls === 'debt' ? 'Amount you owe' : cls === 'property' ? 'What it’s worth' : 'Balance', balance, setBalance, { placeholder: '$0', keyboard: 'decimal-pad', required: true, a11y: 'Balance' })}
+      {field(cls === 'debt' ? 'Debt balance' : cls === 'property' ? 'What it’s worth' : 'Balance', balance, setBalance, { placeholder: '$0', keyboard: 'decimal-pad', required: true, a11y: 'Balance' })}
       {cls === 'cash' && field('Interest rate % (optional)', rate, setRate, { placeholder: '0.0', keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}
 
       {cls === 'bonds' && (
@@ -174,7 +179,7 @@ export default function AddAccountScreen() {
         </>
       )}
 
-      {cls === 'property' && !editMode && field('Still owed on it (optional)', owe, setOwe, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
+      {cls === 'property' && !editMode && field('Debt balance (optional)', owe, setOwe, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
       {cls === 'debt' && (
         <>
           {field('Interest rate % *', apr, setApr, { placeholder: '7.0', keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}
@@ -223,7 +228,7 @@ const s = StyleSheet.create({
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   backBtn: { alignSelf: 'flex-start', marginBottom: 6 },
   back: { color: Colors.primary, fontSize: 17, fontWeight: '700' },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, lineHeight: 19 },
   q: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginTop: Spacing.md, marginBottom: 8 },
   chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4 },
@@ -238,3 +243,4 @@ const s = StyleSheet.create({
   deleteBtn: { minHeight: 46, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
   deleteTxt: { fontSize: 15, fontWeight: '700', color: Colors.red },
 });
+

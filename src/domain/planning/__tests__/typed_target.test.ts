@@ -1,4 +1,4 @@
-// THE TYPED TARGET — the founder's first correction of this engagement, finally in the engine.
+// THE TYPED TARGET — the founder's first correction of this engagement, finally in the function.
 //
 // "Target nest egg is a number entered by user based on what is their target. And odds are simply
 // calculated based on target nest egg entered by the user." Until now the app derived it (the pot
@@ -77,9 +77,10 @@ test('solving beats the formula: the closed-form annuity answer lands SHORT of t
 test('the gap breakdown explains itself — growth does nearly half the work', () => {
   const g = howTheGapCloses(PAT, 77_500);
   expect(g.putIn).toBe(542_500);
-  expect(g.growthOnExisting).toBe(426_859);
-  expect(g.growthOnNew).toBe(129_685);
-  expect(g.projectsTo).toBe(2_008_196);
+  // Q49 (2026-09-09): full precision inside — the blended return is no longer rounded to 4 places
+  expect(g.growthOnExisting).toBeCloseTo(422_645, 0);
+  expect(Math.round(g.growthOnNew)).toBe(134_308);
+  expect(g.projectsTo).toBeCloseTo(2_008_606, 0);
   // the three parts plus what he already has equal the projection — nothing unexplained
   expect(909_152 + g.growthOnExisting + g.putIn + g.growthOnNew).toBe(g.projectsTo);
   // and growth is nearly half of the closing, which is why the sentence must say so

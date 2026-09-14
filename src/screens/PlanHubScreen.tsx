@@ -16,7 +16,7 @@ import { retirementIncomeMonthly } from '../domain/income';
 import { k401Headroom } from '../domain/income/limits';
 import { ageFromProfile } from '../utils/persona';
 import { usePlanCompleteness } from './SharpenPlanScreen';
-import { InfoDot } from '../components/UI';
+import { InfoDot, EmptyNote } from '../components/UI';
 import { maskedMoney, spokenMoney, maskDollars } from '../components/useMoney';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
@@ -42,7 +42,7 @@ import { salaryAnnual } from '../domain/income';
 const rateWords = (band: string | null | undefined) =>
   band === 'safe' ? 'within the ~4% guideline'
     : band === 'moderate' ? 'a bit above the 4% guideline — worth watching'
-    : 'above 5% — a high chance of running short';
+    : 'above 5% — a high odds of running short';
 
 // saved-scenario dates read like the rest of the app — never raw ISO (audit PH-3)
 const prettySavedDate = (v: any) => { const d = new Date(String(v ?? '')); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
@@ -91,7 +91,7 @@ export default function PlanHubScreen() {
     [trying, draft, op, accounts, A, store.inflationRate, store.employmentStatus, wil],
   );
   const commitDraft = () => {
-    Alert.alert('Use this as your plan?', `Retire at ${draft.retireAge}, plan to ${draft.horizonAge}${draft.extraMonthly ? `, saving ${money(draft.extraMonthly)}/mo more` : ''}.\n\nYour odds become ${draftWil.chance}%.`, [
+    Alert.alert('Use this as your plan?', `Retire at ${draft.retireAge}, plan to ${draft.horizonAge}${draft.extraMonthly ? `, saving ${money(draft.extraMonthly)}/month more` : ''}.\n\nYour odds become ${draftWil.chance}%.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Use as my plan', onPress: () => store.setRetirementAssumptions?.({ retireAge: draft.retireAge, horizonAge: draft.horizonAge, contribMonthly: draft.extraMonthly }) },
     ]);
@@ -103,7 +103,7 @@ export default function PlanHubScreen() {
   // is what the app already knows can go somewhere tax-advantaged
   // The HOUSEHOLD's wages. This read one person's baseSalary and multiplied by 12 only when they
   // were paid monthly — so a fortnightly earner's plan was built on a fortnight's pay, and a
-  // partner's wage was not in it at all. salaryAnnual sums every earner and every frequency.
+  // spouse’s wage was not in it at all. salaryAnnual sums every earner and every frequency.
   const annualIncomeForPlan = Math.round(salaryAnnual(op)) || undefined;
   // WIRED 2026-08-14 (audit D12). The bridge sentence has always been able to say how much of the
   // required saving fits somewhere tax-advantaged — the sentence was written, and the value feeding
@@ -147,7 +147,7 @@ export default function PlanHubScreen() {
   );
 
   // THE LOAN THE APP ADDS ON TOP (founder, 2026-08-14). Taken from the debt itself, not from what
-  // the person remembered to include — which is the point: they answer spending without it.
+  // the person remembered to include — which is the point: they answer expenses without it.
   const mortgage = useMemo(() => {
     const loans = (store.liabilities ?? []).filter((d: any) =>
       (d.remaining_balance ?? 0) > 50_000 && (d.interest_rate_apr ?? 0) > 0 && (d.interest_rate_apr ?? 0) < 0.12);
@@ -162,10 +162,10 @@ export default function PlanHubScreen() {
 
   const next = useMemo(() => nextDecision({
     lens, age, birthYear: Number(op.birthYear) || null, ssClaimAge: A.ssClaimAge != null ? Number(A.ssClaimAge) : null,
-    preTaxBalance: preTaxBal, preTaxAccountIds: preTaxIds, transactions: store.transactions ?? [], moneyWord: maskedMoney,
+    preTaxBalance: preTaxBal, priorYearEndPreTax: Number(op.rmdPriorYearEndPreTax) || null, preTaxAccountIds: preTaxIds, transactions: store.transactions ?? [], moneyWord: maskedMoney,
     alreadyClaiming,
   }), [lens, age, op.birthYear, A.ssClaimAge, preTaxBal, store.transactions]);
-  // retired: the honest spend-more delta — the SAME engine re-run with +$500/mo, never a guess
+  // retired: the honest spend-more delta — the SAME function re-run with +$500/month, never a guess
   const spendMore = useMemo(() => {
     if (lens !== 'retired' || wil.chance == null || !wil.inputs) return null;
     const bumped = displayOdds(simulate({ ...wil.inputs, retire_monthly_spend_today: (wil.inputs.retire_monthly_spend_today || 0) + 500 }).chance_of_success);
@@ -213,7 +213,7 @@ export default function PlanHubScreen() {
               both became quiet labels it was plain. Dropped 2026-08-14: the tab itself will be
               named Retire, under Plan, so the card does not need to announce what tab it is on.
               The question underneath is the heading. */}
-          {/* ONE score, then arithmetic — the second gauge was dropped once the engine proved it
+          {/* ONE score, then arithmetic — the second gauge was dropped once the function proved it
               could read "80% of the way" beside 31% odds (founder 2026-08-12). */}
           <PlanOutcome
             inputs={draftWil.inputs ?? null}
@@ -230,15 +230,15 @@ export default function PlanHubScreen() {
           {trying && <Text style={styles.tryingTag}>Trying it out — your plan still says {wil.chance}%.</Text>}
           {/* the withdrawal rate USED to be tacked on to the retired line below, beside the money left
               over — a rate describing money going OUT, printed next to money staying in. It measures
-              the draw (spending less guaranteed income), so it now sits with that draw on the paycheck
+              the draw (expenses less guaranteed income), so it now sits with that draw on the paycheck
               card further down (founder 2026-08-13). */}
           {lens === 'retired' ? (
             <Text style={styles.ifLine}>
-              Your {maskedMoney(planSpend)}/mo spending{onCourse ? ` — ${onCourse}` : ` — ${oddsLine(lens, wil.chance!, wil.horizonAge)}`}.
+              Your {maskedMoney(planSpend)}/month expenses{onCourse ? ` — ${onCourse}` : ` — ${oddsLine(lens, wil.chance!, wil.horizonAge)}`}.
             </Text>
           ) : (
             // the outcome block and the inputs directly beneath it now say all of this, and say it
-            // for the DRAFT — the old pair repeated the plan and claimed "you set it" of a spending
+            // for the DRAFT — the old pair repeated the plan and claimed "you entered" of a expenses
             // figure the app had derived (founder 2026-08-12).
             null
           )}
@@ -257,7 +257,7 @@ export default function PlanHubScreen() {
         <>
           {/* FIRST DAY — the page previews itself: locked sample gauge + the DYNAMIC door */}
           <View style={styles.card}>
-            <SectionBand inCard quiet title={lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'} />
+            <SectionBand inCard quiet title="WILL MY MONEY LAST?" />
             <View style={styles.gaugeRow} accessible
               accessibilityLabel={`Sample gauge: ${lens === 'retired' ? 'Holding, 88' : 'Likely, 84'} in 100 — a sample, not your number.`}>
               <GaugeArc locked />
@@ -304,39 +304,40 @@ export default function PlanHubScreen() {
   // of the list, wearing its deadline, which is also what the ordering rule already asked for
   // (anything with a real date goes first, because it expires).
   const paycheckBlock = (<>
-      {/* RETIRED: the paycheck — the SAME engine as Home's card, one set of numbers */}
+      {/* RETIRED: the paycheck — the SAME function as Home's card, one set of numbers */}
       {lens === 'retired' && wil.captured && wil.chance != null && payMonth && (
         <>
           <SectionBand quiet title="WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK" />
           <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/monthly-income')}
             accessibilityLabel={`Your retirement paycheck: guaranteed ${spokenMoney(Math.round(payMonth.guaranteedTotal))}, draw from savings ${spokenMoney(Math.round(payMonth.safeDraw))}, total ${spokenMoney(Math.round(paycheckTotal))} a month. Opens your income.`}>
-            {/* `source` is the engine's field — Home's PaycheckCard, MonthDetail and PaycheckMonths all
+            {/* `source` is the function's field — Home's PaycheckCard, MonthDetail and PaycheckMonths all
                 read it. This screen read `.label`, which does not exist, so every row rendered its
                 amount with no name beside it (audit D5, 2026-08-12). */}
+            {(payMonth.guaranteed ?? []).length === 0 && <EmptyNote door="plan" />}   {/* Q48 (MK-PL-M-003): no guaranteed income entered */}
             {(payMonth.guaranteed ?? []).map((g: any, i: number) => (
               <View key={i} style={styles.payRow}><Text style={styles.payL}>{g.source}</Text><Text style={styles.payV}>{maskedMoney(Math.round(g.amount))}</Text></View>
             ))}
             <View style={styles.payRow}><Text style={[styles.payL, styles.payStrong]}>= Guaranteed</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(payMonth.guaranteedTotal))}</Text></View>
             <View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Draw from savings</Text><InfoDot term="safeDraw" /></View><Text style={styles.payV}>{maskedMoney(Math.round(payMonth.safeDraw))}</Text></View>
-            <View style={[styles.payRow, styles.payTotal]}><Text style={[styles.payL, styles.payStrong]}>Your paycheck</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(paycheckTotal))}/mo</Text></View>
+            <View style={[styles.payRow, styles.payTotal]}><Text style={[styles.payL, styles.payStrong]}>Your paycheck</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(paycheckTotal))}/month</Text></View>
             {/* THE RATE BELONGS TO THE DRAW, not to what is left over (founder 2026-08-13). It is
-                (spending − guaranteed income) ÷ savings, so it is printed beside the very figure it
+                (expenses − guaranteed income) ÷ savings, so it is printed beside the very figure it
                 divides. NOTE: the two "safe" words on this line are replaced with the founder's own
                 approved wording because the line is being rewritten anyway — re-typing a banned word
                 into new code is not defensible. The remaining occurrences across the app still await
                 the sweep he approved. */}
             {planSpend > 0 && (paycheckTotal >= planSpend ? (
               <Text style={styles.payOk}>
-                ✓ covers your {maskedMoney(planSpend)}/mo spending. You're drawing {maskedMoney(Math.round(drawUsed))} a month
+                ✓ covers your {maskedMoney(planSpend)}/month expenses. You're drawing {maskedMoney(Math.round(drawUsed))}/month
                 {wplan?.withdrawalRate != null ? ` — ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year, ${rateWords(wplan.rateBand)}` : ''}. You could draw up to {maskedMoney(Math.round(payMonth.safeDraw))}.
               </Text>
             ) : (
               <Text style={styles.payWarn}>
-                your {maskedMoney(planSpend)}/mo spending runs {maskedMoney(Math.round(planSpend - paycheckTotal))} above this paycheck — worth a look below
+                your {maskedMoney(planSpend)}/month of expenses run {maskedMoney(Math.round(planSpend - paycheckTotal))} above this paycheck — worth a look below
                 {wplan?.withdrawalRate != null ? `. You'd be drawing ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year — ${rateWords(wplan.rateBand)}` : ''}
               </Text>
             ))}
-            <Text style={styles.payNote}>The same paycheck as Home's card — one engine, one set of numbers.</Text>
+            <Text style={styles.payNote}>The same paycheck as Home's card — one function, one set of numbers.</Text>
           </TouchableOpacity>
         </>
       )}
@@ -519,8 +520,8 @@ export default function PlanHubScreen() {
     );
   }
 
-  // What she has room for — the maximum draw the paycheck engine already computes, minus what her
-  // current spending actually uses. One engine, no second opinion (lesson L-7).
+  // What she has room for — the maximum draw the paycheck function already computes, minus what her
+  // current expenses actually uses. One function, no second opinion (lesson L-7).
   // their own statement amount — the only honest input for a claim-age comparison
   const ssStatement = Number(A?.ssMonthly ?? op?.ri_ss ?? 0) || 0;
 
@@ -582,7 +583,7 @@ const styles = StyleSheet.create({
   deskRight: { flex: 0.85, minWidth: 0 },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
-  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },   // never outweigh the verdict hero (audit PH-2)
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },   // never outweigh the verdict hero (audit PH-2)
   tagline: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
   section: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: Spacing.xs },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },

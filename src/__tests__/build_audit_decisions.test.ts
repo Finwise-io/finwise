@@ -38,10 +38,10 @@ test('AUDIT D — 10 founder decisions, in the code', () => {
 
   // D6 the word "safe" is gone from money copy, and a guard stops it returning
   check('D6', 'banned-word guard exists', fs.existsSync(path.join(R, '__tests__/banned_word_guard.test.ts')));
-  check('D6b', 'the retiree hero says LEFT TO SPEND', /LEFT TO SPEND/.test(read('components/PaycheckCard.tsx')));
+  check('D6b', 'the retiree hero says SURPLUS', /SURPLUS/.test(read('components/PaycheckCard.tsx')));
 
   // D7 counts, not bare percentages, on consequence sentences
-  check('D7', 'consequences read as counts', /future simulations out of/.test(spend));
+  check('D7', 'consequences read as counts', /out of 100 simulated futures/.test(spend));
 
   // D8 "projects to", never "reaches" — no promise about an uncertain future
   check('D8', 'the closing sentence projects', /projects to/.test(outcome) && !/reaches your target/.test(outcome));

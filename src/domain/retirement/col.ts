@@ -1,5 +1,5 @@
 // Cost-of-living factors for the retirement-location question (retLocation free text).
-// Factor scales the user's expected retirement spending: US average = 1.0 baseline.
+// Factor scales the user's expected retirement expenses: US average = 1.0 baseline.
 // Rough composite cost-of-living-plus-rent indices (Numbeo-style, 2025 era), rounded to 0.05 —
 // deliberately coarse: this is a planning adjustment, not a quote.
 const COL_TABLE: { keys: string[]; name: string; factor: number }[] = [
@@ -62,6 +62,7 @@ export interface ColMatch { factor: number; name: string | null }
  *     the answer:
  *     factor = row.factor
  *     name = row.name
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-PL-F-049 retirementSpendMonthly
  *

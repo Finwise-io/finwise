@@ -1,4 +1,4 @@
-// F1 — the secure-sync seam (FCC detailed design, engines row 'F1 secure sync seam + connection
+// F1 — the secure-sync seam (FCC detailed design, functions row 'F1 secure sync seam + connection
 // freshness'). ONE provider interface between the connect-flow UI and whatever vendor does the
 // actual bank linking. The UI, the merge gate, the freshness rules, and every test run against
 // this seam. The REAL provider is SnapTrade (design v2 2026-07-18): snaptradeClient.ts +
@@ -118,7 +118,7 @@ export interface ConnectionFreshness { label: string; stale: boolean; daysOld: n
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged spending
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
