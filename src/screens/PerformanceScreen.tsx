@@ -149,6 +149,8 @@ export default function PerformanceScreen() {
   const [listMode, setListMode] = useState<'top' | 'all' | 'account'>('top');
   // ONE definition of a period's start — the walk, the ledger filter and the gap checks all use it
   const periodStartKey = (p: string): string => {
+    // the "Since <date>" chip starts where the record starts — it used to fall through to a year ago
+    if (p === 'SINCE') return Object.keys((store.invDaily ?? {}) as Record<string, number>).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0] ?? isoLocalDate(new Date());
     const d = new Date();
     const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
     if (p === 'YTD') return `${d.getFullYear()}-01-01`;
@@ -162,6 +164,10 @@ export default function PerformanceScreen() {
     return coverageFor(dates, periodStartKey(period), isoLocalDate(new Date()));
   }, [store.invDaily, period]);
   const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
+  // FOUND 2026-09-14: tapping "Since <date>" crashed the screen — the phrase table had no entry for it,
+  // so the summary title read undefined.toUpperCase(). Every window now has words, the Since one included.
+  const phraseFor = (p: string): string => (p === 'SINCE' ? `since ${dataStartLabel ?? 'your records began'}` : PERIOD_PHRASE[p] ?? 'this window');
+  const beginLabelFor = (p: string): string => (p === 'SINCE' ? (dataStartLabel ?? 'start') : `${phraseFor(p)} start`);
   const freshLine = (() => {
     const f = priceFreshness(store.pricesFetchedAt, Date.now());
     return store.pricesFetchedAt ? `${f.stale ? 'Prices may be out of date — ' : 'Prices updated '}${f.label}` : null;
@@ -353,14 +359,14 @@ export default function PerformanceScreen() {
             }) : null;
             const shownReturn = mw ? mw.rate : portReturn;
             const walk = buildChangeWalk({
-              beginning, ending, fromLabel: PERIOD_PHRASE[period], toLabel: 'today',
+              beginning, ending, fromLabel: phraseFor(period), toLabel: 'today',
               contributions, withdrawals, dividends: breakdown.dividends, interest: breakdown.interest,
             });
             const gaps = dataGaps(accounts, windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any);
             return (
               <>
                 <View style={styles.card}>
-                  <SectionBand inCard title={`SUMMARY · ${PERIOD_PHRASE[period].toUpperCase()}`} />
+                  <SectionBand inCard title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} />
                   <View style={styles.trioRow}>
                     <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(ending))}</Text></View>
                     <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(walk.wealthGenerated)))}</Text></View>
@@ -369,7 +375,7 @@ export default function PerformanceScreen() {
                   <Text style={styles.sumNote}>
                     {mw && mw.rate == null
                       ? mw.sentence
-                      : `Return is for the window you picked (${PERIOD_PHRASE[period]}) — not a yearly rate. Money you added never counts as return.`}
+                      : `Return is for the window you picked (${phraseFor(period)}) — not a yearly rate. Money you added never counts as return.`}
                   </Text>
                   {/* the value graph lives INSIDE the summary card (approved performance-FINAL) */}
                   {trend.length > 1 && <TrendChartAuto data={trend} />}
@@ -380,7 +386,7 @@ export default function PerformanceScreen() {
                 <View style={styles.card}>
                   <SectionBand inCard title={`HOW ${maskedMoney(Math.round(walk.beginning))} BECAME ${maskedMoney(Math.round(walk.ending))} · ALL ACCOUNTS`} />
                   {[
-                    { l: `Beginning market value (${PERIOD_PHRASE[period]} start)`, v: walk.beginning },
+                    { l: `Beginning market value (${beginLabelFor(period)})`, v: walk.beginning },
                     { l: 'Contributions', v: walk.contributions },
                     { l: 'Withdrawals', v: -walk.withdrawals },
                     { l: 'Wealth generated', v: walk.wealthGenerated, strong: true },
@@ -439,7 +445,7 @@ export default function PerformanceScreen() {
                 ? valueOn(snapDays2, new Set([String(id)]), bounds2.beginningAsOf) : null;
               const w = buildChangeWalk({
                 beginning: acctBeginning ?? (a.ending - a.gain - contributions + withdrawals), ending: a.ending,
-                fromLabel: PERIOD_PHRASE[period], toLabel: 'today',
+                fromLabel: phraseFor(period), toLabel: 'today',
                 contributions, withdrawals, dividends: acctFlows.dividends.toNumber(2), interest: acctFlows.interest.toNumber(2),
               });
               const isOpen = !!openAcctWalk[id];
@@ -510,7 +516,7 @@ export default function PerformanceScreen() {
             if (!shown.length) return null;                       // nothing received → no table at all
             return (
               <View style={styles.card}>
-                <SectionBand inCard title="WHAT EACH CATEGORY EARNED" value={PERIOD_PHRASE[period]} />
+                <SectionBand inCard title="WHAT EACH CATEGORY EARNED" value={phraseFor(period)} />
                 <View style={styles.catHead}>
                   <Text style={styles.catHeadL}>CATEGORY</Text>
                   <Text style={styles.catHeadV}>EARNED</Text>
@@ -538,11 +544,11 @@ export default function PerformanceScreen() {
           {/* PORTFOLIO VALUE hero (founder mock 2026-07-15): the level first, the period gain
               second, then the NAMED honest comparison + the freshness clock — one card, one story */}
           {rows.length > 0 && <View style={styles.card} accessible
-            accessibilityLabel={`Portfolio value ${spokenMoney(investTotalAll)}. ${portReturn == null ? 'Not enough price history yet for this period.' : `${periodDollar >= 0 ? 'Up' : 'Down'} ${spokenMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}, ${PERIOD_PHRASE[period]}.`}${benchPort != null ? ` Honest comparison — stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
+            accessibilityLabel={`Portfolio value ${spokenMoney(investTotalAll)}. ${portReturn == null ? 'Not enough price history yet for this period.' : `${periodDollar >= 0 ? 'Up' : 'Down'} ${spokenMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}, ${phraseFor(period)}.`}${benchPort != null ? ` Honest comparison — stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
             {/* APPROVED invest-v3 FINAL (2026-07-19): the RETURN leads and is named YOURS — every
                 row it rolls up counts from the later of the period start or the day you bought */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <SectionBand inCard title={`YOUR RETURN (${PERIOD_PHRASE[period].toUpperCase()})`} />
+              <SectionBand inCard title={`YOUR RETURN (${phraseFor(period).toUpperCase()})`} />
               <InfoDot term="yourReturn" />
             </View>
             <HeroAmount style={styles.heroValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>

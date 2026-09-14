@@ -1374,6 +1374,30 @@
     "status": "WAITING ON YOU",
     "comments": ""
    }
+  },
+  {
+   "task": "Performance crashed when the \"Since <date>\" window chip was tapped — in Build 53 and since: the window's words came from a table with no Since entry (undefined.toUpperCase), and its start date fell through to a year ago. Found rendering Build 53 for the Performance step.",
+   "todo": "Claude: fixed 2026-09-14 — every window has words (Since reads \"since Aug 29\"), the Since walk starts where the record starts, the spoken summary uses the same words; performance_window_chips.test.tsx taps every chip.",
+   "status": "DONE",
+   "ref": "src/screens/PerformanceScreen.tsx (phraseFor, periodStartKey) · src/screens/__tests__/performance_window_chips.test.tsx",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Performance step findings still to take to the founder: (1) the Since chip's OWN return is worked out from today, because startDateFor (MK-PF-F-…, src/domain/performance) has no Since case; (2) with a year's window and 16 days of record, each per-account walk reads $0 for accounts worth $301,610 and $52,704; (3) Build 53 still carries the older Invest sections below the approved design (Your return, Honest comparison, Look ahead / Look back, Your investments list, add/import/record buttons); (4) the account page has no per-account walk, no return per holding and no Total row that the approved design draws.",
+   "todo": "Claude: draw Performance as Build 53 shipped it for the founder to confirm, with each of these marked, before any change.",
+   "status": "TO DO",
+   "ref": "MoneyKeel/documents/networth-and-performance/archive/2026-08-10_moneykeel_pres_mock_performance_v01.html (approved final) · August 14th Design/design_handoff_net_worth/Performance.dc.html",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
   }
  ]
 }
