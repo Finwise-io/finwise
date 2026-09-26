@@ -1578,6 +1578,30 @@
     "status": "DONE",
     "comments": ""
    }
+  },
+  {
+   "task": "Plan · present value vs future value — the screen subtracts today’s pot from a target stated in the retirement year’s dollars, and called the result “today’s money” (founder, 2026-09-26). The simulation is nominal: spending is inflated to retirement and the pot grows at the nominal return.",
+   "todo": "Founder: which money does the Plan tab speak in? (a) everything in TODAY’s money — deflate the target and the projection ($2,000,000 at 65 is $1,682,530 now), or (b) everything in the retirement year’s money, said once on the screen. Claude recommends (a): a person can only judge a number against the prices they know. Either way the subtraction stops mixing the two.",
+   "status": "WAITING ON YOU",
+   "ref": "mock v06, the PV mark · src/domain/retirement/index.ts simulate()",
+   "date": "2026-09-26",
+   "comments": "B-101 in the bug ledger.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "B-101 in the bug ledger."
+   }
+  },
+  {
+   "task": "Plan · tax on withdrawals — the plan charges tax ONLY on the required withdrawal from pre-tax accounts (from 73), at the person’s effective rate on TODAY’S gross income. Voluntary withdrawals, anything above the required amount, and gains in taxable accounts are untaxed (founder question, 2026-09-26).",
+   "todo": "Founder: should the plan tax ordinary withdrawals too — pre-tax at the ordinary rate, taxable at the gain share, Roth at nothing — and should the rate come from the RETIREMENT year’s income rather than today’s? Claude recommends yes to both: a retiree’s rate is usually lower than their working rate, so today’s rate is wrong in both directions. Engine work, sized before it starts.",
+   "status": "WAITING ON YOU",
+   "ref": "src/domain/retirement/index.ts (the RMD branch) · willItLast.ts rmd_tax_rate · mock v06, the TAX mark",
+   "date": "2026-09-26",
+   "comments": "B-102 in the bug ledger. Founder ruling G7 (2026-09-12) bars a built-in default rate — whatever is chosen has to come from his own numbers.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "B-102 in the bug ledger. Founder ruling G7 (2026-09-12) bars a built-in default rate — whatever is chosen has to come from his own numbers."
+   }
   }
  ]
 }
