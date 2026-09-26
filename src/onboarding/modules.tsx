@@ -562,7 +562,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
                 { value: 'yes', title: 'Yes — it is paid out',  sub: 'It is paid into your bank and you can spend it.' }]} />
             </Card>
             <Callout
-              text={`About ${money(annual)} a year`}
+              text={`About ${money(annual)}/year`}
               sub={a.invPaidToBank === 'yes'
                 ? 'Counted as income you are taxed on, and as money that reaches your bank.'
                 : `Counted as income you are taxed on — but not as money to spend, because it is reinvested where it is earned. The tax on it still comes out of your pay.`} />
@@ -809,7 +809,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           )}
         </Card>
         {matchMonthly > 0 && <Callout text={`≈ ${money(matchMonthly)}/month of free money`}
-          sub={`About ${money(matchMonthly * 12)} a year your employer adds on top of your own savings.`} />}
+          sub={`About ${money(matchMonthly * 12)}/year your employer adds on top of your own savings.`} />}
       </>);
     }
 
@@ -936,8 +936,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const rs = num(a.expectedRetirementSpending), now = num(a.monthlySpending);
       return (<><Header emoji="💸" title="Expected expenses in retirement" sub="Per month, in today's dollars." />
         <Card><HeroAmount ctx={ctx} k="expectedRetirementSpending" label="Monthly (retirement)" /></Card>
-        {rs > 0 && <Callout text={now > 0 ? `${Math.round((rs / now) * 100)}% of what you spend today` : `${money(rs * 12)} a year`}
-          sub={`About ${money(rs * 12)} a year in today's dollars.`} />}
+        {rs > 0 && <Callout text={now > 0 ? `${Math.round((rs / now) * 100)}% of what you spend today` : `${money(rs * 12)}/year`}
+          sub={`About ${money(rs * 12)}/year in today's dollars.`} />}
       </>);
     }
 
@@ -995,7 +995,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               : `Born ${by < 1960 ? '1951–1959 → 73' : '1960 or later → 75'}. Traditional 401(k)/IRA will require yearly withdrawals then; Roth is exempt.`} />
         )}
         {tot > 0 && <Callout text={`${money(tot)}/month in retirement income`}
-          sub={`About ${money(tot * 12)} a year before drawing on savings.`
+          sub={`About ${money(tot * 12)}/year before drawing on savings.`
             + (num(a.ri_ss) > 0 ? ' Up to 85% of Social Security can be taxable, depending on your other income.' : '')} />}
       </>);
     }
@@ -1966,7 +1966,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
     {investMo > 0 && (() => {
       const investYr = investMo * 12;
       const leftover = annualSave - investYr;
-      if (!hasCashflow) return <Callout text={`Investing ${money(investYr)} a year (≈ ${money(investMo)}/month)`} />;
+      if (!hasCashflow) return <Callout text={`Investing ${money(investYr)}/year (≈ ${money(investMo)}/month)`} />;
       // GENUINELY over the year's net free cash → the only case where "less" is the answer
       if (investYr > annualSave) {
         return <Callout warn text={`${money(investYr)}/year is more than your ${money(annualSave)} of free cash`}
@@ -1977,7 +1977,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
         return <Callout text={`Funded for the year — timing matters`}
           sub={`In ${monthRanges(leanIdx, sug.map((m) => m.label))} free cash runs below ${money(investMo)}/month, so those deposits come from the surplus you bank in the strong months — keep that surplus in cash until then. ${leftover > 0 ? `${money(leftover)}/year is left for goals and buffer.` : 'At 100%, nothing is left for goals or emergencies — any surprise breaks the plan.'}`} />;
       }
-      return <Callout text={`Investing ${money(investYr)} a year (≈ ${money(investMo)}/month)`}
+      return <Callout text={`Investing ${money(investYr)}/year (≈ ${money(investMo)}/month)`}
         sub={`Covered by your free cash in every month; ${money(Math.max(0, leftover))}/year is left for goals and your cash buffer.`} />;
     })()}
   </>);
@@ -2171,7 +2171,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
     {totalMo > 0 && <Callout text={net > 0 ? `${pctOfNet}% of your take-home is spoken for` : `${money(totalMo)}/month total expenses`}
       sub={net > 0
         ? `${money(Math.max(0, save))}/month left to save${save < 0 ? ' — you\'re over by ' + money(-save) : ''}.`
-        : `About ${money(totalMo * 12)} a year.`}
+        : `About ${money(totalMo * 12)}/year.`}
       warn={net > 0 && save < 0} />}
 
     {TIERS.map((tk) => {
@@ -2245,7 +2245,7 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
     ))}
     <TouchableOpacity style={s.addBtn} onPress={addProp}><Text style={s.addBtnT}>+ Add property</Text></TouchableOpacity>
     {count > 0 && <Callout text={`${money(netMonthly)}/month net rental income`}
-      sub={`About ${money(netMonthly * 12)} a year across ${count} propert${count > 1 ? 'ies' : 'y'} after costs.`} warn={netMonthly < 0} />}
+      sub={`About ${money(netMonthly * 12)}/year across ${count} propert${count > 1 ? 'ies' : 'y'} after costs.`} warn={netMonthly < 0} />}
   </>);
 }
 
@@ -2351,8 +2351,8 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
   const goalCap = goalCapRaw >= 25 ? goalCapRaw : 0;
   return (<><Header emoji="🎯" title="What are you saving for?" sub="Add a goal — target amount and when." />
     {investMo0 > 0 && (goalCap > 0
-      ? <Callout text={`You have about ${money(goalCap)} a month for goals`}
-          sub={`What's left of your income after taxes, expenses, your 401(k), and the ${money(investMo0 * 12)} a year you're investing.`} />
+      ? <Callout text={`You have about ${money(goalCap)}/month for goals`}
+          sub={`What's left of your income after taxes, expenses, your 401(k), and the ${money(investMo0 * 12)}/year you're investing.`} />
       : <Callout warn text="Nothing is left over for goals right now"
           sub={`Your investing plan (${money(investMo0 * 12)}/year) uses all your free cash — goals here would need that number dialed down. It's one pot of money.`} />)}
     <Card>

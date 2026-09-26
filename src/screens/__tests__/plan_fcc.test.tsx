@@ -56,7 +56,7 @@ test('typing an amount → the tax line (estimate, editable rate) + the two late
   expect(screen.getByText(/Tax bill next April: about \$/)).toBeOnTheScreen();
   expect(screen.getByText(/calculated from your income.*change it/)).toBeOnTheScreen();
   expect(screen.getByText(/Estimate — your tax preparer has the exact number/)).toBeOnTheScreen();
-  expect(screen.getByText(/a year smaller/)).toBeOnTheScreen();                    // RMD effect
+  expect(screen.getByText(/\/year smaller/)).toBeOnTheScreen();                    // RMD effect
   expect(screen.getByText(/\$118,000 → /)).toBeOnTheScreen();                      // tax-free bucket grows
   // the amount is CAPPED at the real balance
   fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '999999');

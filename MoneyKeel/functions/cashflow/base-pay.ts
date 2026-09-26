@@ -698,7 +698,7 @@ export function basePay(h: HouseholdPayInput): BasePay {
     const right = ((grossAnnual * bandOnEveryWage) / 12);
     bandNote = `Filing ${status === 'married' ? 'jointly' : 'as you do'}, the band comes from what you earn together. `
       + `On one wage alone we would have read ${Math.round(bandOnOneWage * 100)}% and shown about `
-      + `${money(right - wrong)} a month more than your real take-home.`;
+      + `${money(right - wrong)}/month more than your real take-home.`;
   }
 
   // THE TAX ON THIS PAY — the bracket by name, the tax in money, and whose rate produced it.

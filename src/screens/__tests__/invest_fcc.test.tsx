@@ -102,14 +102,14 @@ describe('the window selector', () => {
     render(<PerformanceScreen />);
     fireEvent.press(screen.getAllByText('2Y')[0]);
     // the segment says which kind of figure it is, and the summary states both
-    expect(screen.getAllByText('a year').length).toBeGreaterThan(0);
-    expect(screen.getByText(/% over the two years, which is .*% a year/)).toBeOnTheScreen();
+    expect(screen.getAllByText('/year').length).toBeGreaterThan(0);          // the segment says which kind of figure it is
+    expect(screen.getByText(/% over the two years, which is .*%\/year/)).toBeOnTheScreen();
   });
 
   test('a window of a year or less is the window itself, with no yearly wording', () => {
     render(<PerformanceScreen />);
     fireEvent.press(screen.getAllByText('1M')[0]);
-    expect(screen.queryByText(/a year, which is/)).toBeNull();
+    expect(screen.queryByText(/which is .*%\/year/)).toBeNull();
   });
 });
 

@@ -165,8 +165,8 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
         {pay.tax.estimated && pay.landsEstimated && (
           <View style={s.warn}>
             <Text style={s.warnT}>
-              <Text style={{ fontWeight: '800' }}>The take-home above is higher than it will really be, by roughly {fig('MK-CF-M-035', pay.tax.shortBy ?? 0)} a month.</Text>{' '}
-              Only federal income tax is taken out here. Social Security takes 6.2% of a wage up to {fig('MK-CF-M-045', SS_WAGE_BASE)} a year and Medicare 1.45% of all of it
+              <Text style={{ fontWeight: '800' }}>The take-home above is higher than it will really be, by roughly {fig('MK-CF-M-035', pay.tax.shortBy ?? 0)}/month.</Text>{' '}
+              Only federal income tax is taken out here. Social Security takes 6.2% of a wage up to {fig('MK-CF-M-045', SS_WAGE_BASE)}/year and Medicare 1.45% of all of it
               (0.9% more above {fig('MK-CF-M-046', MEDICARE_ADDITIONAL_THRESHOLD)}), and your state may take more. If you itemise rather than take the standard deduction, your bill is different again.
             </Text>
           </View>

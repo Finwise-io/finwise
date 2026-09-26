@@ -99,7 +99,40 @@ export function copySegments(file: string, text: string): Segment[] {
   return out;
 }
 
+/** Copy as a person MEETS it: the text with the expression boundaries still in, so an entry written
+ *  across code and words ("} a year") is read the way it was written. Spoken labels are left out —
+ *  the canon keeps "a month" and "a year" for them. */
+function renderedSegments(file: string, text: string): Segment[] {
+  const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const out: Segment[] = [];
+  const lineOf = (pos: number) => sf.getLineAndCharacterOfPosition(pos).line + 1;
+  const spoken = (n: ts.Node): boolean => {
+    for (let p: ts.Node | undefined = n; p; p = p.parent) {
+      if (ts.isJsxAttribute(p) && /accessibility(Label|Hint)|aria-label/.test(p.name.getText(sf))) return true;
+      if (ts.isPropertyAssignment(p) && /accessibility(Label|Hint)/.test(p.name.getText(sf))) return true;
+    }
+    return false;
+  };
+  const visit = (n: ts.Node) => {
+    if (ts.isTemplateExpression(n) && !spoken(n)) {
+      // the boundary, not what is inside it: `About ${money(x)} a year` reads as "About } a year",
+      // so "} a year" is caught while an identifier inside the expression (spending.length) is not
+      // copy and cannot raise a false alarm
+      const rendered = n.head.text + n.templateSpans.map((sp) => `}${sp.literal.text}`).join('');
+      out.push({ text: rendered, line: lineOf(n.getStart(sf)) });
+    } else if ((ts.isJsxElement(n) || ts.isJsxFragment(n)) && !spoken(n)) {
+      const rendered = n.children.map((c) => (ts.isJsxText(c) ? c.text : ts.isJsxExpression(c) ? '}' : '')).join('');
+      if (rendered.trim()) out.push({ text: rendered, line: lineOf(n.getStart(sf)) });
+    }
+    ts.forEachChild(n, visit);
+  };
+  visit(sf);
+  return out;
+}
+
 const canon = readCanon(fs.readFileSync(STANDARD, 'utf8'));
+/** The entries that straddle code and copy — they only mean anything against rendered text. */
+const STRADDLING = canon.filter((r) => /[}{$)\]]/.test(r.re.source));
 
 test('THE LAW: a retired word appears nowhere a person could meet it', () => {
   const offences: string[] = [];
@@ -112,9 +145,20 @@ test('THE LAW: a retired word appears nowhere a person could meet it', () => {
           if (r.re.test(t)) offences.push(`${file}:${seg.line} — cluster ${r.cluster} ${r.re} → use "${r.word}"`);
         }
       }
+      // THE BLIND SPOT, found 2026-09-26 when the founder asked whether the screens just built were
+      // clean. A canon entry written with PUNCTUATION — row 14's `/\} ?a year\b/` — can never match
+      // a copy segment: the "}" belongs to the expression and the segment holds only the text beside
+      // it. The guard called the app clean while Performance printed "{pct(perYear)} a year".
+      // So those entries are tested against what RENDERS: the text with its expression boundaries
+      // left in. Spoken labels are exempt by the canon itself ("a month" / "a year" stay there).
+      for (const seg of renderedSegments(file, text)) {
+        for (const r of STRADDLING) {
+          if (r.re.test(seg.text)) offences.push(`${file}:${seg.line} — cluster ${r.cluster} ${r.re} → use "${r.word}" (as it renders)`);
+        }
+      }
     }
   }
-  expect(offences).toEqual([]);
+  expect([...new Set(offences)]).toEqual([]);
 }, 120_000);
 
 test('the count on screen is the count the simulation runs (1,000 paths)', () => {

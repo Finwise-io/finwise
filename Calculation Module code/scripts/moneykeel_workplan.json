@@ -660,16 +660,16 @@
    }
   },
   {
-   "task": "Five approved mocks still carry words the canon retired (cash-flow this-month v06 and money-four-tabs v01: \"spending\"; filing-status v02: \"partner\", \"told us\"; look-ahead v03: \"/mo\"; empty-state-pattern v01: \"spending\"). The app copy is on the canon; these mocks are not.",
-   "todo": "Founder: say whether each gets a new version on the canon (old archived) now, or at its next change; then Claude: re-version the ones you name",
+   "task": "EIGHT live mocks still DRAW words the canon retired (measured 2026-09-26 over the drawn frames, not the commentary): cash-flow this-month v06 (\"In (take-home)\", \"spending\") · income end-to-end v07 (\"A usual month\", \"Gross a year\") · look-ahead v03 (\"/mo\") · money-four-tabs v01 (\"In (take-home)\", \"Out (\", \"/mo\", \"spending\") · account-detail v01 (\"Connected ·\") · empty-state-pattern v01 (\"WHAT YOU OWE\", \"spending\") · filing-status v02 (\"partner\", \"$X a month\") · plan v05 (odds said \"out of 10\", \"spending\", \"/mo\", \"%/yr\"). The app copy is on the canon; these mocks are not. Net worth v08 and Performance v14 are clean in their frames.",
+   "todo": "Founder: say whether each gets a new version on the canon now (old archived), or at its next change. Plan v05 already carries its list inside the file as mark 14 and is fixed when v06 is drawn.",
    "status": "WAITING ON YOU",
    "ref": "MoneyKeel/documents/cashflow/, networth-and-performance/ — the five files named",
    "date": "2026-09-12",
-   "comments": "",
+   "comments": "Recounted 2026-09-26: the old row said five; the drawn-frame scan finds eight.",
    "key": "f4f7289f57",
    "_written": {
     "status": "WAITING ON YOU",
-    "comments": ""
+    "comments": "Recounted 2026-09-26: the old row said five; the drawn-frame scan finds eight."
    }
   },
   {
@@ -1493,6 +1493,90 @@
    "_written": {
     "status": "DONE",
     "comments": "Radii.pill on a short chip is always a semicircle — the radius must be under half the height. | v12’s five separate 42-point chips still did not read as one control (founder, 2026-09-25); v13 makes them one."
+   }
+  },
+  {
+   "task": "Plan — the approved design filed into the MoneyKeel structure and made standalone (founder, 2026-09-26: “move it to moneykeel structure. I do not want to work on anything which is not is new file structure, and meets new standards.”)",
+   "todo": "Founder: read MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v05.html and answer the eight questions marked in it (Q1 extra-saving row, Q2 save-as-you-type, Q3 cap or overfill, Q4 where the suggested target sits, Q5 the mortgage odds placeholder, Q6 today’s money + tax on the retirement sentence, Q7 the cockpit disagreement, Q8 Ray at 79.5%). Then Claude fixes the five blockers, re-runs every figure at 1,000 futures, and draws v06 for approval before any code.",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v05.html · brief v03 + both design reviews beside it",
+   "date": "2026-09-26",
+   "comments": "Three copies of Plan.dc.html existed in August 14th Design/ and they differ; the v4 one is now filed as archive/2026-08-14_moneykeel_pres_mock_plan_v04.html. The design record warns the old copies off.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "Three copies of Plan.dc.html existed in August 14th Design/ and they differ; the v4 one is now filed as archive/2026-08-14_moneykeel_pres_mock_plan_v04.html. The design record warns the old copies off."
+   }
+  },
+  {
+   "task": "Plan v06 — the five blockers fixed and every figure re-run at 1,000 futures: the below-yield mortgage frame ($6,304 → $5,814; $40,217 → $31,873), the spend-more bucket that says 9 in 10 where $2,500 is really 81%, the mortgage caption stated as fact, the 10.5-point chip, and amber meaning two things on day one",
+   "todo": "Blocked on the founder’s answers to Q1–Q8 in moneykeel_pres_mock_plan_v05.html. Then Claude draws v06 for approval. No code.",
+   "status": "TO DO",
+   "ref": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v05.html",
+   "date": "2026-09-26",
+   "comments": "The design step only — the Plan tab’s code is a separate row and waits on its doors.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "The design step only — the Plan tab’s code is a separate row and waits on its doors."
+   }
+  },
+  {
+   "task": "Q-PL-3 — ‘When should I claim Social Security’ as the PILOT door: 4 figures, 3 functions, one screen (/ss-timing). The smallest thing on the Map that proves the six steps end to end, and its answer is a decision row inside the Plan design.",
+   "todo": "Founder: name it as the pilot at the phase 1 gate (the spec already proposes it). Then step 1 is his row — what it answers, the formula in plain English, inputs, decisions, identifier, the exact figures — before any code.",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/standards/moneykeel_calc_spec_orchestrator-map_v01.xlsx · Map row Q-PL-3",
+   "date": "2026-09-26",
+   "comments": "Identifier not yet assigned — it is named with his row at step 1.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "Identifier not yet assigned — it is named with his row at step 1."
+   }
+  },
+  {
+   "task": "Q-PL-2 — ‘What will my retirement paycheck be’ behind its own door: 10 figures, 88 functions, spilling onto Plan, Cash flow, Monthly income and Retirement. The Plan tab prints its paycheck, so this door and MK-PL-O-001 both stand between the approved design and a built Plan tab.",
+   "todo": "After the pilot. Step 1 is the founder’s row; the identifier is named there.",
+   "status": "TO DO",
+   "ref": "Map row Q-PL-2",
+   "date": "2026-09-26",
+   "comments": "",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "SEQUENCING DECISION — is the Plan tab’s CODE built against its doors (MK-PL-O-001 thePlan for Q-PL-1, and the Q-PL-2 door) or in front of them? Built in front, the screen is built twice and can still disagree with Home about the same household — which is what it does today (13.3 vs 13.9; 87.8 vs 93.2).",
+   "todo": "Founder: say which. Claude’s recommendation 2026-09-26: finish the Plan DESIGN now (no code), then the pilot, then Q-PL-1 and Q-PL-2 behind their doors, then build the Plan tab once against them.",
+   "status": "WAITING ON YOU",
+   "ref": "moneykeel_calc_spec_one-door-per-question_v01.md · Map rows Q-PL-1, Q-PL-2",
+   "date": "2026-09-26",
+   "comments": "Performance was rebuilt in front of its door on 2026-09-25 (Q-PF-1 is still PROPOSED), so it will move again later — a recorded debt, not a surprise.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "Performance was rebuilt in front of its door on 2026-09-25 (Q-PF-1 is still PROPOSED), so it will move again later — a recorded debt, not a surprise."
+   }
+  },
+  {
+   "task": "Canon guard blind spot — a retired pattern that contains punctuation can never fire. one_term_per_concept scans the TypeScript AST (string literals, template text, JSX text, comments), so `/\\} ?a year\\b/` (row 14) cannot match: the “}” belongs to the expression, not to the JSX text node. Found 2026-09-26 by scanning the raw source of the two screens just built.",
+   "todo": "Claude: scan the RAW source as well as the AST for canon entries that are written as patterns with punctuation, so the table means what it says. Then re-run over src/.",
+   "status": "TO DO",
+   "ref": "src/__tests__/one_term_per_concept.test.ts · canon row 14",
+   "date": "2026-09-26",
+   "comments": "The guard reported the app clean while one line on Performance matched a canon pattern.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "The guard reported the app clean while one line on Performance matched a canon pattern."
+   }
+  },
+  {
+   "task": "Copy decision — “+7.30% a year” on Performance against canon row 14, which retires a figure followed by “a year” in visible copy (labels read “/year”). The founder approved that exact sentence on 2026-09-25 as the readable way to say it.",
+   "todo": "Founder: (a) the sentence becomes “+7.30%/year”, or (b) row 14 gains a stated exception — in a full sentence explaining a rate, “a year” is allowed; the LABEL form stays “/year”. Claude recommends (b): his approved wording reads better, and the canon already lets spoken labels say “a year”.",
+   "status": "WAITING ON YOU",
+   "ref": "src/screens/PerformanceScreen.tsx:375 · canon row 14",
+   "date": "2026-09-26",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
    }
   }
  ]

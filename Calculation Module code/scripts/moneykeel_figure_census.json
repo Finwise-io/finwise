@@ -35229,7 +35229,7 @@
     },
     {
      "k": "t",
-     "s": "a month."
+     "s": "/month."
     },
     {
      "k": "t",
@@ -35241,7 +35241,7 @@
     },
     {
      "k": "t",
-     "s": "a year and Medicare 1.45% of all of it (0.9% more above"
+     "s": "/year and Medicare 1.45% of all of it (0.9% more above"
     },
     {
      "k": "t",
@@ -38822,7 +38822,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:935",
+   "site": "src/screens/NetWorthScreen.tsx:936",
    "routes": [
     "/analytics"
    ],

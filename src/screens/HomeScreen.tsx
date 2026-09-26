@@ -284,7 +284,7 @@ export default function HomeScreen() {
                  two can never disagree (accuracy rule: one source per concept). */
               <Text style={styles.heroLine}>
                 <Text style={{ color: youReturn >= 0 ? Colors.gainText : Colors.red, fontWeight: '800' }}>
-                  {youReturn >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.abs(periodDollarDelta(investTotal, youReturn)))} ({pctToOneDp(Math.abs(youReturn))})
+                  {youReturn >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.abs(periodDollarDelta(investTotal, youReturn)))} ({pctTwoDp(Math.abs(youReturn))})
                 </Text>
                 <Text> this month</Text>
               </Text>
@@ -295,7 +295,7 @@ export default function HomeScreen() {
             )}
             {youReturn != null && marketReturn != null && (
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                <DotJoined style={styles.heroVs} parts={[`you ${signedPct(youReturn)}`, `market ${signedPct(marketReturn)}`, `${youReturn >= marketReturn ? 'ahead' : 'behind'} by ${pctToOneDp(Math.abs(youReturn - marketReturn))}`]} />
+                <DotJoined style={styles.heroVs} parts={[`you ${signedPct(youReturn)}`, `market ${signedPct(marketReturn)}`, `${youReturn >= marketReturn ? 'ahead' : 'behind'} by ${pctTwoDp(Math.abs(youReturn - marketReturn))}`]} />
                 <InfoDot term="benchmark" />
               </View>
             )}
@@ -568,8 +568,11 @@ export default function HomeScreen() {
 function greeting() { const h = new Date().getHours(); return h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'; }
 /** One decimal place. domain/insights has a whole-number pctTxt; two precisions must not share
  *  one name. */
-const pctToOneDp = (d: number) => `${(Math.round(d * 1000) / 10).toFixed(1)}%`;
-const signedPct = (d: number) => `${d >= 0 ? '+' : '−'}${pctToOneDp(Math.abs(d))}`;
+// Q49 (founder, 2026-09-09): a percent shows TWO decimals. This printed the hero return to one,
+// so a +0.54% month read as +0.5% on the first screen a person sees — the same defect the founder
+// found on Performance, in the place it is most visible.
+const pctTwoDp = (d: number) => `${(Math.round(d * 10000) / 100).toFixed(2)}%`;
+const signedPct = (d: number) => `${d >= 0 ? '+' : '−'}${pctTwoDp(Math.abs(d))}`;
 
 const styles = StyleSheet.create({
   // desktop two-column (approved shell mock: 1fr/1fr, 16 gap)

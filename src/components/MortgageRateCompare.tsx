@@ -57,7 +57,7 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
           So a dollar into your mortgage <Text style={s.b}>saves you {c.direction === 'paying-down-wins' ? 'more' : 'less'}</Text>{' '}
           than the same dollar would earn sitting in Treasuries — about <Text style={s.b}>{maskedMoney(yearly)}/year</Text> at your balance.
           {lifetime > 0 && (
-            <> Over the life of the loan, paying the extra {maskedMoney(extraMonthly)} a month leaves you around{' '}
+            <> Over the life of the loan, paying the extra {maskedMoney(extraMonthly)}/month leaves you around{' '}
               <Text style={s.b}>{maskedMoney(lifetime)} {c.lifetimeDifference > 0 ? 'better off' : 'worse off'}</Text>{' '}
               than putting it in Treasuries instead.</>
           )}

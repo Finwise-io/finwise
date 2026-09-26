@@ -162,7 +162,7 @@ export default function RothScreen() {
           {/* the two later effects (r38) */}
           <View style={s.card}>
             <SectionBand title="WHAT IT BUYS LATER" />
-            <Text style={s.line}>Required withdrawals at {rmdStartAgeFor(age)}: about <Text style={s.strong}>{maskedMoney(rmdSmaller)} a year smaller</Text></Text>
+            <Text style={s.line}>Required withdrawals at {rmdStartAgeFor(age)}: about <Text style={s.strong}>{maskedMoney(rmdSmaller)}/year smaller</Text></Text>
             <Text style={s.line}>Tax-free bucket: {maskedMoney(Math.round(rothNow))} → <Text style={s.strong}>{maskedMoney(Math.round(rothNow + amt))}</Text></Text>
             <Text style={s.note}>From {rmdStartAgeFor(age)} the government requires yearly withdrawals from pre-tax accounts — converting shrinks that requirement.</Text>
           </View>

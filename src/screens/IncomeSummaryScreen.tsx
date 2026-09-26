@@ -53,7 +53,7 @@ export default function IncomeSummaryScreen() {
             )}
             {sum.taxedNotLanded > 0 && (
               <Text style={s.note}>
-                Your {fig('MK-CF-M-040', sum.taxedNotLanded)} a month of interest and dividends is not here — it is reinvested
+                Your {fig('MK-CF-M-040', sum.taxedNotLanded)}/month of interest and dividends is not here — it is reinvested
                 where it is earned and never reaches your bank. It is taxed, so it appears below.
               </Text>
             )}

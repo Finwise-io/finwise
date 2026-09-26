@@ -121,7 +121,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
       {!retired && t && !t.alreadyThere && t.savingToTarget && gap && (
         <>
           <Text style={s.bridge}>
-            Saving <Text style={s.b}>{maskedMoney(t.savingToTarget.total)} a year</Text> to {retireAge} projects to
+            Saving <Text style={s.b}>{maskedMoney(t.savingToTarget.total)}/year</Text> to {retireAge} projects to
             about <Text style={s.b}>{maskedMoney(Math.round(gap.projectsTo / 1000) * 1000)}</Text>
             {t.typedTarget != null && gap.projectsTo >= t.typedTarget ? ' — just past your target nest egg.' : '.'}
           </Text>
@@ -145,7 +145,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         <>
           <Text style={s.bridge}>
             {t.requiredExtraAnnual != null
-              ? <>Reaching {TARGET_ODDS}% by saving alone would take <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)} a year</Text> — more than you earn. That number is real. Here's what actually moves it:</>
+              ? <>Reaching {TARGET_ODDS}% by saving alone would take <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)}/year</Text> — more than you earn. That number is real. Here's what actually moves it:</>
               : <>Saving alone cannot reach {TARGET_ODDS}% from here. That is real. Here's what actually moves it:</>}
           </Text>
           <SectionBand inCard quiet title="WHAT ACTUALLY MOVES IT" />

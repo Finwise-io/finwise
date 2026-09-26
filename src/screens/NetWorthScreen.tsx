@@ -477,7 +477,7 @@ export default function NetWorthScreen() {
                       <Text style={styles.rowTitle}>{d.label}</Text>
                       {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
                     </View>
-                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(1)}% APR · {maskedMoney(d.minimum_monthly_payment)}/month</Text>
+                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(2)}% APR · {maskedMoney(d.minimum_monthly_payment)}/month</Text>
                   </View>
                   <Text style={styles.rowVal}>{maskedMoney(d.remaining_balance)}</Text>
                 </TouchableOpacity>
@@ -912,6 +912,7 @@ export default function NetWorthScreen() {
         {monthlySpend > 0 && runwayMonths != null ? (() => {
           // ONE figure drives the words AND the bar: the bar must never be drawn from a number the
           // person cannot see (2.0 months on the label and 1.96 in the bar is two truths).
+          // one decimal, stated (Q49): a tenth of a month is about three days — finer would be false precision
           const shownMonths = Math.round(runwayMonths * 10) / 10;
           return (
           <View>

@@ -49,8 +49,8 @@ test('when we are estimating, it names the shortfall IN MONEY', () => {
   set(ESTIMATED);
   render(<BasePayScreen />);
   // G4 (founder, 2026-09-12): the sentence names its subject and the real withholding — never a flat 7.7%
-  expect(screen.getByText(/The take-home above is higher than it will really be, by roughly \$[\d,]+ a month\./)).toBeOnTheScreen();
-  expect(screen.getByText(/Social Security takes 6\.2% of a wage up to \$184,500 a year and Medicare 1\.45% of all of it/)).toBeOnTheScreen();
+  expect(screen.getByText(/The take-home above is higher than it will really be, by roughly \$[\d,]+\/month\./)).toBeOnTheScreen();
+  expect(screen.getByText(/Social Security takes 6\.2% of a wage up to \$184,500\/year and Medicare 1\.45% of all of it/)).toBeOnTheScreen();
   expect(screen.queryByText(/7\.7%/)).toBeNull();
 });
 

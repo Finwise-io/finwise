@@ -56,7 +56,7 @@ test('4c — answering shows what it is worth, once', () => {
   fireEvent.press(screen.getByLabelText('Save'));
   expect(screen.getByText('That changes your take-home')).toBeOnTheScreen();
   expect(screen.getByText('Taxed as single')).toBeOnTheScreen();
-  expect(screen.getByText(/a month more/)).toBeOnTheScreen();
+  expect(screen.getByText(/\/month more/)).toBeOnTheScreen();          // canon row 14: a figure carries /month
   expect(screen.getByLabelText('Got it')).toBeOnTheScreen();
 });
 

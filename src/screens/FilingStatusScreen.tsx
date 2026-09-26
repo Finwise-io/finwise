@@ -75,12 +75,12 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
           <Text style={s.h1}>That changes your take-home</Text>
           <Text style={s.sub}>On the {money(gross)} you entered</Text>
           <View style={s.card}>
-            <Row label="Taxed as single" note="what we were assuming" value={`${money(asSingle)} a year`} />
-            <Row label={OPTIONS.find((o) => o.v === status)?.label ?? ''} value={`${money(asChosen)} a year`} />
+            <Row label="Taxed as single" note="what we were assuming" value={`${money(asSingle)}/year`} />
+            <Row label={OPTIONS.find((o) => o.v === status)?.label ?? ''} value={`${money(asChosen)}/year`} />
             {status === 'married' && (
-              <Row label="…and both of you over 65" value={`${money(asChosenBoth65)} a year`} />
+              <Row label="…and both of you over 65" value={`${money(asChosenBoth65)}/year`} />
             )}
-            <Text style={s.big}>{money((asSingle - asChosen) / 12)} a month more</Text>
+            <Text style={s.big}>{money((asSingle - asChosen) / 12)}/month more</Text>
             <Text style={s.note}>
               take-home than we were showing you — {money((asSingle - asChosenBoth65) / 12)} if you are
               both over 65. Federal only: it knows nothing about your state.

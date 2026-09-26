@@ -35,7 +35,7 @@ export default function MonthDetailScreen() {
   const biggestBill = retired ? pm.bills[0] : cell.billItems.filter((b: any) => b.label !== 'Everyday expenses')[0];
   const reason = retired
     ? (pm.billsTotal > 0 ? `lower than usual — ${biggestBill?.label ?? 'a big bill'} lands this month` : null)
-    : (cell.net < -0.005 ? `short month — ${biggestBill?.label ?? 'spending'} exceeds what comes in` : null);
+    : (cell.net < -0.005 ? `short month — ${biggestBill?.label ?? 'your expenses'} exceeds what comes in` : null);
 
   // regular bills: the everyday envelope + debts (listed for completeness, never subtracted twice)
   const regulars = cell.billItems.filter((b: any) => b.kind === 'debt' || b.label === 'Everyday expenses');

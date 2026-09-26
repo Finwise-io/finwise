@@ -372,7 +372,7 @@ export default function PerformanceScreen() {
                       Nothing said so until mock v14 mark 15 — a rate nobody can name is a trap. */}
                   {perYear != null && cumulative != null && (
                     <Text style={styles.sumNote}>
-                      {pct(cumulative)} over the {yearsWord}, which is {pct(perYear)} a year — a yearly rate, so it sits fairly beside a one-year window.
+                      {pct(cumulative)} over the {yearsWord}, which is {pct(perYear)}/year — a yearly rate, so it sits fairly beside a one-year window.
                     </Text>
                   )}
                   {/* the value graph lives INSIDE the summary card (approved performance-FINAL),
@@ -812,7 +812,7 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
               <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segRest]}>{w.label}</Text>
               <Text numberOfLines={1} style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>{ret == null ? '—' : pct(ret)}</Text>
               {figures[w.key]?.perYear != null && (
-                <Text numberOfLines={1} style={[styles.segPer, on && styles.segOnT]}>a year</Text>
+                <Text numberOfLines={1} style={[styles.segPer, on && styles.segOnT]}>/year</Text>
               )}
             </TouchableOpacity>
           </React.Fragment>
