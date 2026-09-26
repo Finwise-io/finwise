@@ -80,6 +80,24 @@ for f in glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/*/*.html')):
         look('mock-up', f, s[:m.start()].count('\n') + 1, s[m.start():m.start() + 400])
         break            # one per file: the block, not every mark inside it
 
+# A LIVE MOCK MUST NAME ITS OWN VERSION, AND SAY WHAT CHANGED (founder, 2026-09-26: "how do I know
+# what changed between V06 and V07?"). income v07 called itself v6 inside and had no changelog row,
+# so the only way to know was to diff two files by hand.
+mock_faults = []
+for f in glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/*/*.html')):
+    if '/archive/' in f or 'JJ-feedback' in f: continue
+    base = os.path.basename(f)
+    m = re.search(r'_v(\d{2})\.html$', base)
+    if not m: continue
+    ver = int(m.group(1))
+    if ver < 2:
+        continue                      # a first version supersedes nothing, so it explains nothing
+    head = open(f, errors='ignore').read()[:20000]
+    if not re.search(r'\bv0?' + str(ver) + r'\b', head):
+        mock_faults.append(f'{os.path.relpath(f, ROOT)} — the file is v{ver:02d}, but its own heading does not say so')
+    elif not re.search(r'(?i)what changed', head):
+        mock_faults.append(f'{os.path.relpath(f, ROOT)} — no "what changed from v{ver - 1:02d}" block: the only way to know is to diff two files by hand')
+
 print('── PFS sweep · where the questions are')
 by_kind = {}
 for k, *_ in found: by_kind[k] = by_kind.get(k, 0) + 1
@@ -93,5 +111,8 @@ if untracked:
     if len(untracked) > 20: print(f'   …and {len(untracked) - 20} more')
 else:
     print('\n   every question raised in a document has a row in the working plan.')
-print(f'\n   {len(found)} raised · {len(found) - len(untracked)} tracked · {len(untracked)} untracked')
+if mock_faults:
+    print(f'\n   VERSIONS THAT CANNOT SAY WHAT THEY ARE ({len(mock_faults)}):')
+    for x in mock_faults: print(f'   · {x}')
+print(f'\n   {len(found)} raised · {len(found) - len(untracked)} tracked · {len(untracked)} untracked · {len(mock_faults)} version(s) unexplained')
 sys.exit(0)

@@ -70,6 +70,25 @@ Examples: `moneykeel_naming_spec_retirement-metrics-dictionary_v01.md` ·
 `moneykeel_data_schema_plan-inputs-contract_v02.json` ·
 `archive/2026-08-19_moneykeel_naming_spec_retirement-metrics-dictionary_v01.md`
 
+### A new version says what changed, inside itself (founder, 2026-09-26)
+
+> *"Why do we have two versions in the folder? … How do I know what changed between V06 and V07?"*
+
+One live version per file, the rest dated in `archive/` — that rule was being kept. What was missing
+is the answer to his second question: **income v07 existed with nothing anywhere saying why.** Its own
+eyebrow still called it v6, and the changelog had no row for it, so the only way to know was to diff
+two files by hand.
+
+From now on, a version bump carries three things, on the day it is made:
+
+1. **A "what changed from vNN, and why" block at the top of the new file** — every change, in plain
+   words, separated into figures that moved, copy that changed, and anything else. A reader opening
+   the file alone learns what happened without opening the old one.
+2. **The file's own eyebrow names its version and date**, and says which version it supersedes.
+3. **One row in the design changelog**, the same day, with his words in the Why when it came from him.
+
+If a version cannot say what changed, it is not a version — it is an edit that has not been recorded.
+
 ### The descriptor is the only part you invent — and there is one rule for it
 
 Every other field is picked from a fixed list. The descriptor is written fresh each time, so it is
