@@ -28,6 +28,7 @@ python3 "Calculation Module code/scripts/check-rulings-in-file.py"
 
 step "B4 · the files agree with each other — a decision reached every file that carries it"
 python3 "Calculation Module code/scripts/check-rulings-sync.py"
+python3 "Calculation Module code/scripts/pfs-sweep.py"
 
 echo "── the working plan and the orchestrator map are printed from their sources (hand edits die)"
 python3 "Calculation Module code/scripts/build-workplan.py"   # the script has already moved to the repo root (line 12), so the path is written from there

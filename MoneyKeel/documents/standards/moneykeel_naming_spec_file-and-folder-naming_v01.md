@@ -188,5 +188,31 @@ the build rather than by him.
 
 **Before writing copy or a mock on a ruled subject:** `python3 "Calculation Module code/scripts/rulings-for.py" <topic>`.
 
+### When PFS runs — and why an agreed-but-not-coded decision is not a mismatch
+
+The founder's question, 2026-09-26: *"at what step do we run PFS — considering calculation file is
+written from code, so if we have only agreed but not coded, we will have mismatch."*
+
+It is not one step. It runs at three moments, and the STATUS LADDER carries the gap between a
+decision and its code, so the two never have to pretend to agree:
+
+| When | What updates | The status |
+|---|---|---|
+| **The moment he decides** — any document, any channel | The rulings ledger (his words) · the standard, if the rule is not about one screen · the screen's own row · the working plan (every asking row CLOSED) · the design changelog | **RULED, NOT CODED** |
+| **The moment the code lands** | The code and its test; the master is rebuilt, and formula-agreement and the headers now check code against file | **CODED → TESTED** |
+| **His mark on the device** | Nothing but the status | **VERIFIED** |
+
+**Why there is no mismatch in between.** The master's code-derived cells are printed FROM THE CODE.
+A decision never edits one — it edits its own source: the ruling, an override, a standard. So while
+a decision is agreed and not yet built, the file says two true things at once: *this is what the code
+does today*, and *this is what he has ruled, not yet coded*. The moment the code lands, the ladder
+moves and the generated cells change with it. A file that could not say both would force us to
+choose between recording his decision late and printing something the code does not do.
+
+**The sweep.** `pfs-sweep.py` (step B4 of the build) reads all five kinds of document — the master,
+the standards, the audit files, the planning files and the mock-ups — and prints every question
+raised in one of them that has no row in the working plan. A question may be RAISED anywhere; it is
+not a question until it is a row. That is what stops the same thing being asked twice in two files.
+
 The build prints how many feedback files are waiting for a PFS, so a copy left beside its original is
 seen rather than remembered.
