@@ -149,7 +149,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-131 toInt
  *               MK-XS-F-171 numOrNaN · MK-XS-F-175 uid
  *
- * Reaches ..... 249 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 251 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
  *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-151 actualSpending
@@ -159,7 +159,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-NW-F-060 approxYTM · MK-NW-F-029 assetAllocation
  *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
  *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               … and 231 more — the full list is on functions_from_code
+ *               … and 233 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

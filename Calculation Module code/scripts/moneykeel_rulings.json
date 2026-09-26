@@ -2009,5 +2009,57 @@
   "coded": "2026-09-14",
   "verified": "",
   "notes": "Drawn in v08: one line and one set of doors under What you own; the same fix applied to Debts."
+ },
+ {
+  "id": "Performance — day one rebuilt from the broker's own records",
+  "date": "2026-09-25",
+  "source": "chat, 2026-09-25 (on Performance mock v11)",
+  "ruling": "Yes rebuild - day one history",
+  "rows": "Performance day one · the value line · the beginning value",
+  "status": "TESTED",
+  "code": "Calculation Module code/engines/rebuild-history.ts (rebuildDays, rebuildableFrom) + store action rebuildLinkedHistory: a LINKED account's holdings are walked back through its own transactions and priced at each day's close, back to its first record; hand-entered accounts and cash keep their honest start; a day we cannot price is left empty; rebuilt days are marked origin 'reconstructed' and never replace an observed day",
+  "proof": "Calculation Module code/engines/__tests__/rebuild-history.test.ts (14 tests)",
+  "coded": "2026-09-25",
+  "verified": "",
+  "notes": "His words: “Why day 1 we are not able to import historic data on account and show past records? Currently, what app will show will not match the account, and confuse user.”"
+ },
+ {
+  "id": "Performance — one meaning of return",
+  "date": "2026-09-25",
+  "source": "chat, 2026-09-25 (his question about the E*TRADE account header)",
+  "ruling": "why income when % is calculated using wealth generated?",
+  "rows": "Performance summary · account header · window selector",
+  "status": "TESTED",
+  "code": "figuresFor() in PerformanceScreen: every window's return is wealth generated ÷ the money working (Modified Dietz), the same figure the selector, the summary and the walk all read. The price-only, holding-weighted figure is gone; a window with nothing behind it shows —, never +0.00%",
+  "proof": "src/screens/__tests__/invest_fcc.test.tsx",
+  "coded": "2026-09-25",
+  "verified": "",
+  "notes": "The old summary Return counted price change only while Wealth generated beside it counted dividends and interest."
+ },
+ {
+  "id": "Performance — the window selector is one control",
+  "date": "2026-09-25",
+  "source": "chat, 2026-09-25",
+  "ruling": "Can it be done like one row with dividers for different periods? … cannot see since when? and what %?",
+  "rows": "Performance window selector",
+  "status": "TESTED",
+  "code": "WindowSelector in PerformanceScreen: one tray, the chosen window on a white card, hairline dividers between the resting windows, 42-point segments, two lines each (the window with its date above its own return). Five windows: Since · 1M · This year · 1Y · 2Y — 3M, 6M and the initialism YTD are gone",
+  "proof": "src/screens/__tests__/invest_fcc.test.tsx · src/screens/__tests__/performance_window_chips.test.tsx",
+  "coded": "2026-09-25",
+  "verified": "",
+  "notes": "A 12-point radius on a 26-point-tall chip draws a semicircle; the app's radio buttons are 42 tall. Five windows carrying returns need 434-492 points against the 362 a phone gives, so the return sits on a second line."
+ },
+ {
+  "id": "Performance — the screen is the approved design and nothing else",
+  "date": "2026-09-25",
+  "source": "chat, 2026-09-25 (approval of mock v14)",
+  "ruling": "approved. save and built it",
+  "rows": "Performance main",
+  "status": "TESTED",
+  "code": "The older Invest sections are removed: Your return, Honest comparison, Winners & laggards, Look ahead / Look back, Your investments, and Add investment / Import / Record / Activity. Walks are titled by ACCOUNT and cover investment accounts only (a home no longer gets one). The value line has a Y axis and is drawn only from days the record holds.",
+  "proof": "src/screens/__tests__/invest_fcc.test.tsx",
+  "coded": "2026-09-25",
+  "verified": "",
+  "notes": "Build 53 opened on the past year and back-solved beginnings (−$448,028 on his 2026-08-17 screenshot); it also gave his home its own walk."
  }
 ]

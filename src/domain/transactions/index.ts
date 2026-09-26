@@ -84,19 +84,19 @@ export interface Transaction {
  *               MK-ST-F-010 nameEvidence · MK-ST-F-016 totalOf
  *               MK-ST-F-020 sumSigned · MK-ST-F-022 reconcileAccountTotal
  *               MK-ST-F-029 prune · MK-ST-F-061 isMonthEnd
- *               MK-ST-F-064 modifiedDietzOverWindow · MK-XS-F-004 buildDatedGrid
- *               MK-XS-F-005 trendPoints · MK-XS-F-009 readHistory
- *               MK-XS-F-015 importHoldings · MK-XS-F-028 surplusByMonth
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
- *               MK-XS-F-083 fetchPriceSeries · MK-XS-F-094 parseReceiptText
- *               MK-XS-F-102 ingestSync · MK-XS-F-103 confirmWrapper
- *               MK-XS-F-105 mapPosition · MK-XS-F-111 mergeHistoryFrom
- *               MK-XS-F-116 runSnapTradeSync · MK-XS-F-129 findHeaderRow
- *               MK-XS-F-146 prettyExpiry · MK-XS-F-174 recomputeBalances
- *               MK-XS-F-175 uid · MK-XS-F-177 useCategorySpend
- *               MK-XS-F-181 merge
+ *               MK-ST-F-064 modifiedDietzOverWindow · MK-ST-F-073 rebuildDays
+ *               MK-XS-F-004 buildDatedGrid · MK-XS-F-005 trendPoints
+ *               MK-XS-F-009 readHistory · MK-XS-F-015 importHoldings
+ *               MK-XS-F-028 surplusByMonth · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-058 parseReceipt · MK-XS-F-083 fetchPriceSeries
+ *               MK-XS-F-094 parseReceiptText · MK-XS-F-102 ingestSync
+ *               MK-XS-F-103 confirmWrapper · MK-XS-F-105 mapPosition
+ *               MK-XS-F-111 mergeHistoryFrom · MK-XS-F-116 runSnapTradeSync
+ *               MK-XS-F-129 findHeaderRow · MK-XS-F-146 prettyExpiry
+ *               MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
+ *               MK-XS-F-177 useCategorySpend · MK-XS-F-181 merge
  *
- * Reaches ..... 232 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 233 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
  *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-138 addLot
@@ -106,7 +106,7 @@ export interface Transaction {
  *               MK-NW-F-029 assetAllocation · MK-XS-F-172 assetClassForSymbol
  *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
  *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-016 attribution
- *               … and 214 more — the full list is on functions_from_code
+ *               … and 215 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -123,7 +123,19 @@ const map = (accs: AssetAccount[], id: EntityId, fn: (a: AssetAccount) => AssetA
  * Formula .....
  *     cash balance (or 0 when missing or zero)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-ST-F-073 rebuildDays
+ *
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

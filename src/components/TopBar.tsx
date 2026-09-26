@@ -46,7 +46,9 @@ const FOOTER: Mod[] = [
 ];
 const hit = { top: 10, bottom: 10, left: 10, right: 10 };
 
-export default function TopBar() {
+// `back` (approved performance mock v14, second phone): a page opened FROM another screen carries
+// "‹ Back" where a tab screen carries Menu — same bar, same wordmark, same modes on the right.
+export default function TopBar({ back }: { back?: boolean } = {}) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const store = useStore() as any;
@@ -62,17 +64,30 @@ export default function TopBar() {
 
   return (
     <View style={[s.bar, { paddingTop: insets.top + 6 }]}>
-      <TouchableOpacity
-        onPress={() => setMenu(true)}
-        hitSlop={hit}
-        style={s.menuBtn}
-        accessibilityRole="button"
-        accessibilityLabel="Menu"
-        accessibilityHint="Opens all modules"
-      >
-        <Ionicons name="grid" size={16} color={Colors.textSecondary} />
-        <Text style={s.menuTxt}>Menu</Text>
-      </TouchableOpacity>
+      {back ? (
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={hit}
+          style={s.menuBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          accessibilityHint="Goes back to the screen you came from"
+        >
+          <Text style={s.menuTxt}>‹ Back</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          onPress={() => setMenu(true)}
+          hitSlop={hit}
+          style={s.menuBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Menu"
+          accessibilityHint="Opens all modules"
+        >
+          <Ionicons name="grid" size={16} color={Colors.textSecondary} />
+          <Text style={s.menuTxt}>Menu</Text>
+        </TouchableOpacity>
+      )}
       {/* B45 founder finding: flat green TEXT didn't match the designed logo — the wordmark is the
           logo art itself now (Money teal · Keel navy), same asset as sign-in and first-run. */}
       <Image source={require('../../assets/brand/wordmark.png')} style={s.brandImg} resizeMode="contain" accessibilityRole="header" accessibilityLabel="MoneyKeel" />

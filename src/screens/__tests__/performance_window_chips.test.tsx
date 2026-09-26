@@ -36,11 +36,26 @@ test('tapping "Since <date>" shows that window instead of crashing, measured fro
   expect(screen.getByText(`Beginning market value (${label})`)).toBeOnTheScreen();
 });
 
-test('every other window chip can be tapped too', () => {
+test('every other window in the selector can be picked too', () => {
   const P = require('../PerformanceScreen').default;
   render(<P />);
-  for (const chip of ['1M', '3M', '6M', 'YTD', '1Y', '2Y']) {
-    fireEvent.press(screen.getAllByText(new RegExp(`^${chip}\\b`))[0]);   // the chip reads "1M —" in one line
+  // mock v14 (approved 2026-09-25): FIVE windows, each its own segment — 3M, 6M and the initialism
+  // "YTD" are gone, and "This year" says it in words
+  for (const w of ['1M', 'This year', '1Y', '2Y']) {
+    fireEvent.press(screen.getAllByText(w)[0]);
     expect(screen.getAllByText(/^SUMMARY · /).length).toBeGreaterThan(0);
   }
+  expect(screen.queryByText('3M')).toBeNull();
+  expect(screen.queryByText('6M')).toBeNull();
+  expect(screen.queryByText('YTD')).toBeNull();
+});
+
+test('the window selector carries each window and its own return, on two lines', () => {
+  const P = require('../PerformanceScreen').default;
+  render(<P />);
+  // the window, and beneath it either its return to two decimals or an em-dash where we have none
+  for (const w of ['1M', 'This year', '1Y', '2Y']) expect(screen.getAllByText(w).length).toBeGreaterThan(0);
+  const figures = screen.queryAllByText(/^[+−-]?\d+\.\d\d%$/);
+  const dashes = screen.queryAllByText('—');
+  expect(figures.length + dashes.length).toBeGreaterThanOrEqual(5);
 });

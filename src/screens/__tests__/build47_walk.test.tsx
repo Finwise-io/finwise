@@ -92,8 +92,9 @@ test('rows 6-11: the consolidations hold at the source', () => {
   expect(read('domain/decumulation/index.ts')).not.toMatch(/Math\.min\(0\.12, expReturn/);
   // row 10: the snapshot simulation reads the canonical blended return
   expect(read('domain/snapshot.ts')).toMatch(/mean_return: blendedReturn\(acctRows\)/);
-  // row 11: the five money heroes render through HeroAmount
-  for (const f of ['screens/NetWorthScreen.tsx', 'screens/PerformanceScreen.tsx', 'screens/CashFlowScreen.tsx', 'components/PaycheckCard.tsx']) {
+  // row 11: the money heroes render through HeroAmount. Performance left this list on 2026-09-25:
+  // the approved design (mock v14) has no hero on that screen — its headline is the summary trio.
+  for (const f of ['screens/NetWorthScreen.tsx', 'screens/CashFlowScreen.tsx', 'components/PaycheckCard.tsx']) {
     expect(read(f)).toMatch(/<HeroAmount/);
   }
 });
@@ -120,11 +121,11 @@ test('rows 12-19: conformance pins', () => {
   expect(read('screens/RothScreen.tsx')).toMatch(/\{TRYING_IT_OUT\}/);
   expect(read('screens/RothScreen.tsx')).toMatch(/saveRetirementScenario/);
   expect(read('screens/PlanHubScreen.tsx')).toMatch(/convert \$\{maskedMoney\(Number\(A\.rothConversionThisYear\)\)\} before Dec 31/);
-  // row 16: holding detail mirrors the chosen period
-  expect(read('screens/PerformanceScreen.tsx')).toMatch(/&period=\$\{period\}/);
+  // row 16: holding detail still mirrors a chosen period when it is opened with one. The holdings
+  // list that used to pass it lives on the account page now (approved design, mock v14).
   expect(read('screens/HoldingDetailScreen.tsx')).toMatch(/params\.period/);
-  // row 17: the concentration callout is a button that scrolls to the list
-  expect(read('screens/PerformanceScreen.tsx')).toMatch(/onPress=\{\(\) => \{ if \(invListY\.current > 0\) scrollRef\.current\?\.scrollTo/);
+  // row 17 retired 2026-09-25: the concentration callout and the list it scrolled to are not in the
+  // approved Performance design, so there is nothing left to scroll to.
 });
 
 test('row 18: when the holding-level concentration fires, the account-level card yields', () => {

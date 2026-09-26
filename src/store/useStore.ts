@@ -5,7 +5,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { secureStorage } from './secureStorage';
 import { assetsFromOnboarding, type AssetAccount } from '../domain/assets';
-import { benchmarkTicker, marketValue, latestClose, costBasis, type Position, type PriceSeries } from '../domain/performance';
+import { benchmarkTicker, marketValue, latestClose, closeOnOrBefore, costBasis, type Position, type PriceSeries } from '../domain/performance';
 import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, type Transaction } from '../domain/transactions';
 import { reviewTransactions, type TxnFlag } from '../domain/transactions/flags';
 import { round2 } from '../domain/_shared/num';
@@ -77,7 +77,8 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
 }
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
 import { ingestSync as ingestSyncPure, type AccountSyncPayload } from '../services/sync/ingest';
-import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
+import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, DAILY_YEARS, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
+import { rebuildDays } from '../../Calculation Module code/engines/rebuild-history';
 import { newEntityId } from '../domain/_shared/ids';
 import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
@@ -301,6 +302,8 @@ type AppState = {
   monthlySnapshots: Record<string, any>;         // 'YYYY-MM' → frozen month-end metrics (net worth, income, spend, savings, debt)
   nwDaily: Record<string, number>;               // 'YYYY-MM-DD' → net worth chart point (founder 2026-07-19: graph within days); pruned to DAILY_KEEP
   invDaily: Record<string, number>;              // 'YYYY-MM-DD' → cash+investments point — the NW change-% denominator (founder rule 2026-08-04)
+  rebuiltFrom: Record<string, string>;           // account id → the first day its history was rebuilt to, from the broker's own records (founder 2026-09-25)
+  rebuiltAt: string | null;                      // ISO of the last rebuild pass
   snapshotDays: SnapshotDay[];                   // Track 1 step 6: the full daily record (per-account, per-holding, units+price apart) — what "beginning" is READ from instead of back-solved
   retirementAssumptions: RetirementAssumptions;   // user overrides for the retirement projection (null fields → derive from data)
   estatePlan: Record<string, boolean>;            // estate checklist: item id → done
@@ -420,6 +423,7 @@ type AppState = {
   skipAllocPrompt: (ym: string) => void;
   captureMonthlySnapshot: (ym: string, data: any) => void;
   captureDailyNw: (dateKey: string, nw: number, investable?: number) => void;
+  rebuildLinkedHistory: () => void;              // rebuild each linked account's past from its own records (founder approved 2026-09-25)
   runReclassifyOnce: () => void;
   reclassifyVersion?: string;
   reclassifiedCount?: number;
@@ -507,10 +511,12 @@ const DEFAULT_BADGES: Badge[] = [
  *     a   when it is missing
  *     g   when it is missing
  *     {}   when reclassify version = RECLASSIFY_VERSION
+ *     {}   when count of linked is missing
+ *     rebuilt from = out.start by account
+ *     rebuilt at = the date ).to isostring(   when count of out.days is missing
  *     {}   when prev is missing
  *     r   when active is missing
- *     r   when next > today
- *     r   when active is missing
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-001 buildBudgetState · MK-CF-F-013 budgetFromOnboarding
@@ -624,6 +630,8 @@ export const useStore = create<AppState>()(
       nwDaily: {},
       invDaily: {},
       snapshotDays: [],
+      rebuiltFrom: {},
+      rebuiltAt: null,
       retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, debtExtraMonthly: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
       retirementScenarios: [],
@@ -967,6 +975,31 @@ export const useStore = create<AppState>()(
           recordSnapshotDay(s.snapshotDays ?? [], buildDayFromAccounts(s.assetAccounts ?? [], dateKey, new Date().toISOString())),
           dateKey),
       })),
+      // FOUNDER APPROVED 2026-09-25 ("Yes rebuild - day one history"): a LINKED account's past is
+      // not a blank. The broker hands over its whole transaction history on the first sync, and the
+      // price cache holds daily closes, so today's holdings walked backwards through those records
+      // and priced at each day's close IS the account's real history — the same one the broker
+      // shows. Hand-entered accounts and cash have no ledger: they keep their honest start date.
+      // An observed day is never replaced by a reconstruction.
+      rebuildLinkedHistory: () => set((s: any) => {
+        const linked = ((s.assetAccounts ?? []) as any[]).filter((a) => a.source === 'connected');
+        if (!linked.length) return {};
+        const today = isoLocalDate(new Date());
+        const earliest = isoLocalDate(new Date(Date.now() - DAILY_YEARS * 365 * 86_400_000));
+        const out = rebuildDays({
+          accounts: (s.assetAccounts ?? []) as any,
+          transactions: (s.transactions ?? []) as any,
+          priceOn: (key: string, day: string) => closeOnOrBefore(s.priceCache?.[key.toUpperCase()], day),
+          today, earliest,
+          accountIds: new Set(linked.map((a) => String(a.asset_id))),
+          writtenAt: new Date().toISOString(),
+        });
+        if (!out.days.length) return { rebuiltFrom: out.startByAccount, rebuiltAt: new Date().toISOString() };
+        const observed = new Set(((s.snapshotDays ?? []) as SnapshotDay[]).filter((d) => d.origin === 'observed').map((d) => d.date));
+        let days: SnapshotDay[] = s.snapshotDays ?? [];
+        for (const d of out.days) if (!observed.has(d.date)) days = recordSnapshotDay(days, d);
+        return { snapshotDays: pruneSnapshots(days, today), rebuiltFrom: out.startByAccount, rebuiltAt: new Date().toISOString() };
+      }),
       setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),
       adoptPlan: (patch, label) => set((s) => ({
         planHistory: [{ snapshot: { ...s.retirementAssumptions }, label, date: isoLocalDate(new Date()) }, ...s.planHistory].slice(0, 5),
@@ -1172,7 +1205,7 @@ export const useStore = create<AppState>()(
       addBigCost: (c) => set((st: any) => ({ bigCosts: [...(st.bigCosts ?? []), { id: `bc_${(st.bigCosts?.length ?? 0) + 1}_${c.year}`, ...c }] })),
       updateBigCost: (id, patch) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).map((x: any) => x.id === id ? { ...x, ...patch } : x) })),
       deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
-      allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {}, invDaily: {}, snapshotDays: [],
+      allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {}, invDaily: {}, snapshotDays: [], rebuiltFrom: {}, rebuiltAt: null,
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, debtExtraMonthly: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
         retirementScenarios: [], planHistory: [],

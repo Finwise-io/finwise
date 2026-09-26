@@ -449,6 +449,50 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
   for (const p of pts) { if (new Date(p.date).getTime() <= t) chosen = p.close; else break; }
   return chosen ?? pts[0].close;   // target predates the series → first available
 }
+
+/** The close ON OR BEFORE a day, with NO fallback. `closeAsOf` reaches forward to the first price
+ *  it holds when a date predates the series, which is right for a chart that must draw something
+ *  and WRONG for rebuilding a past day: it would price a 2024 holding at a 2026 price. A day we
+ *  hold no price for returns null here, so the rebuilt record leaves an honest gap instead
+ *  (founder, 2026-09-25 — "what app will show will not match the account"). */
+/* ─ MK-PF-F-034 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * closeOnOrBefore
+ *
+ * Answers ..... The close ON OR BEFORE a day, with NO fallback.
+ *
+ * Formula .....
+ *     pts = series.points (or none when missing)
+ *     nothing   when count of pts is missing (or ! ÷ ^\d{4}-\d{2}-\d{2}$ ÷ .test(iso date) when missing or zero)
+ *     chosen = nothing
+ *     the answer = chosen
+ *
+ * Called by ... MK-XS-F-175 uid
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-034
+ * Changed ..... not in git yet (—)
+ */
+export function closeOnOrBefore(series: PriceSeries | null | undefined, isoDate: string): number | null {
+  const pts = series?.points ?? [];
+  if (!pts.length || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return null;
+  let chosen: number | null = null;
+  for (const p of pts) { if (String(p.date).slice(0, 10) <= isoDate) chosen = p.close; else break; }
+  return chosen;
+}
 /* ─ MK-PF-F-009 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * latestClose
  *
@@ -527,7 +571,7 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
 }
 
 /** Price return from an explicit start DATE to now (for purchase-capped windows). */
-/* ─ MK-PF-F-011 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-011 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * periodReturnSince
  *
  * Answers ..... Price return from an explicit start DATE to now (for purchase-capped windows).
@@ -754,7 +798,7 @@ export function topHoldingConcentration(rows: PerformanceRow[]): { ticker: strin
 
 /** Per-holding contribution to the portfolio's period return = weight × the holding's return (pts).
  *  The contributions sum (approx) to the portfolio return; sorted best→worst for winners/detractors. */
-/* ─ MK-PF-F-016 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-016 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * attribution
  *
  * Answers ..... Per-holding contribution to the portfolio's period return = weight × the holding's return (pts).
@@ -781,7 +825,7 @@ export function attribution(rows: PerformanceRow[]): { position: Position; contr
 
 /** Current allocation by asset kind (+ a cash slice), as value + % of the portfolio. */
 export interface AllocSlice { key: string; value: number; pct: number; }
-/* ─ MK-PF-F-017 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-017 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * allocation
  *
  * Answers ..... How is my invested money spread?
@@ -819,7 +863,7 @@ export function allocation(rows: PerformanceRow[], cash = 0): AllocSlice[] {
 /** Portfolio value over time vs a benchmark rebased to the same starting value.
  *  Uses CURRENT holdings across the window (growth-of-holdings view; ignores past buys/sells). */
 export interface TrendPoint { date: string; value: number; bench: number; }
-/* ─ MK-PF-F-018 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-018 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * portfolioTrend
  *
  * Answers ..... How has my portfolio moved over the period, against its benchmark?

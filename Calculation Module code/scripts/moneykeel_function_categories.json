@@ -107,7 +107,7 @@
  "allocation": {
   "id": "MK-PF-F-017",
   "file": "src/domain/performance/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "alternativesSummary": {
   "id": "MK-NW-F-002",
@@ -123,6 +123,11 @@
   "id": "MK-CF-F-125",
   "file": "src/domain/debt/mortgageVsTreasury.ts",
   "category": "3 · DEPENDENT"
+ },
+ "amountOf": {
+  "id": "MK-ST-F-069",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "1 · ACTION"
  },
  "analyzeExpenses": {
   "id": "MK-XS-F-057",
@@ -212,7 +217,7 @@
  "attribution": {
   "id": "MK-PF-F-016",
   "file": "src/domain/performance/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "authenticate": {
   "id": "MK-XS-F-035",
@@ -496,6 +501,11 @@
  },
  "closeAsOf": {
   "id": "MK-PF-F-029",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "closeOnOrBefore": {
+  "id": "MK-PF-F-034",
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
  },
@@ -1112,7 +1122,7 @@
  "historyIsComplete": {
   "id": "MK-PF-F-025",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "holdingId": {
   "id": "MK-ST-F-026",
@@ -1249,6 +1259,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "1 · ACTION"
  },
+ "isDayKey": {
+  "id": "MK-ST-F-066",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "1 · ACTION"
+ },
  "isEmailVerified": {
   "id": "MK-XS-F-063",
   "file": "src/services/firebase.ts",
@@ -1272,12 +1287,17 @@
  "isMoneyWeighted": {
   "id": "MK-PF-F-027",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "isMonthEnd": {
   "id": "MK-ST-F-061",
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "isOpening": {
+  "id": "MK-ST-F-070",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "1 · ACTION"
  },
  "isPlausibleTicker": {
   "id": "MK-XS-F-081",
@@ -1577,7 +1597,7 @@
  "moneyWeightedReturn": {
   "id": "MK-PF-F-026",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "monthKey": {
   "id": "MK-CF-F-163",
@@ -1732,7 +1752,7 @@
  "npv": {
   "id": "MK-PF-F-030",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "numOrNaN": {
   "id": "MK-XS-F-171",
@@ -1897,7 +1917,7 @@
  "periodReturnSince": {
   "id": "MK-PF-F-011",
   "file": "src/domain/performance/index.ts",
-  "category": "3 · DEPENDENT"
+  "category": "2 · DISPLAYED"
  },
  "periodsAYear": {
   "id": "MK-CF-F-140",
@@ -1962,7 +1982,7 @@
  "portfolioTrend": {
   "id": "MK-PF-F-018",
   "file": "src/domain/performance/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "prettyDate": {
   "id": "MK-XS-F-118",
@@ -2074,6 +2094,21 @@
   "file": "src/domain/performance/realized.ts",
   "category": "2 · DISPLAYED"
  },
+ "rebuildDays": {
+  "id": "MK-ST-F-073",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rebuildableFrom": {
+  "id": "MK-ST-F-071",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rebuiltSentence": {
+  "id": "MK-ST-F-074",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "2 · DISPLAYED"
+ },
  "reclassifyAccounts": {
   "id": "MK-NW-F-054",
   "file": "src/domain/assets/reclassify.ts",
@@ -2102,7 +2137,7 @@
  "record": {
   "id": "MK-ST-F-030",
   "file": "Calculation Module code/engines/snapshots.ts",
-  "category": "3 · DEPENDENT"
+  "category": "2 · DISPLAYED"
  },
  "recurringDebtPayments": {
   "id": "MK-CF-F-149",
@@ -2644,6 +2679,11 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "2 · DISPLAYED"
  },
+ "stepDay": {
+  "id": "MK-ST-F-068",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "1 · ACTION"
+ },
  "stripNonMoney": {
   "id": "MK-XS-F-093",
   "file": "src/services/receiptOCR.ts",
@@ -2869,6 +2909,11 @@
   "file": "Calculation Module code/engines/ledger.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "undo": {
+  "id": "MK-ST-F-072",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "1 · ACTION"
+ },
  "undoSnapshot": {
   "id": "MK-CF-F-114",
   "file": "src/domain/transactions/index.ts",
@@ -2932,11 +2977,16 @@
  "userFlows": {
   "id": "MK-PF-F-024",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "usesSleeve": {
   "id": "MK-CF-F-134",
   "file": "src/domain/transactions/index.ts",
+  "category": "1 · ACTION"
+ },
+ "utcOfDay": {
+  "id": "MK-ST-F-067",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
   "category": "1 · ACTION"
  },
  "valueFreshness": {

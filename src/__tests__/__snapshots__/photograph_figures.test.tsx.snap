@@ -78,8 +78,15 @@ exports[`photograph — retiree NetWorthScreen 1`] = `
 exports[`photograph — retiree PerformanceScreen 1`] = `
 [
   "$400,000",
-  "Accounts — add holdings for live tracking $400,000",
-  "[spoken] Traditional IRA, $400,000. Opens its page.",
+  "$0",
+  "HOW $400,000 BECAME $400,000 · ALL ACCOUNTS",
+  "$400,000",
+  "$0",
+  "$0",
+  "$0",
+  "$0",
+  "$0",
+  "$0",
   "$400,000",
 ]
 `;
@@ -240,18 +247,6 @@ exports[`photograph — worker PerformanceScreen 1`] = `
   "$0",
   "$0",
   "$300,000",
-  "[spoken] Vanguard, $0. Expands its walk.",
-  "$0",
-  "$0",
-  "[spoken] Ally Savings, $20,000. Expands its walk.",
-  "$20,000",
-  "$0",
-  "[spoken] Portfolio value $300,000. Not enough price history yet for this period.",
-  "$0",
-  "$300,000",
-  "Stocks / Funds $0",
-  "[spoken] VTI, $270,000, no current price, showing what you paid. Opens its page.",
-  "$270,000",
 ]
 `;
 

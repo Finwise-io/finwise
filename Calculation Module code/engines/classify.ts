@@ -96,11 +96,12 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-PL-F-009 rmdTakenThisYear · MK-PL-F-031 taxOrganizer
  *               MK-ST-F-010 nameEvidence · MK-ST-F-024 rmdStartAge
  *               MK-ST-F-031 valueOn · MK-ST-F-061 isMonthEnd
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-006 pruneDaily
- *               MK-XS-F-014 classifyHolding · MK-XS-F-104 mapAccountType
- *               MK-XS-F-109 dedupeActivities · MK-XS-F-175 uid
+ *               MK-ST-F-073 rebuildDays · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-006 pruneDaily · MK-XS-F-014 classifyHolding
+ *               MK-XS-F-104 mapAccountType · MK-XS-F-109 dedupeActivities
+ *               MK-XS-F-175 uid
  *
- * Reaches ..... 197 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 198 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
  *               MK-CF-F-005 actualMonthFlow · MK-NW-F-002 alternativesSummary
  *               MK-NW-F-019 alternativesTotal · MK-CF-F-012 annualCashflow
@@ -110,7 +111,7 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
  *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               … and 179 more — the full list is on functions_from_code
+ *               … and 180 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

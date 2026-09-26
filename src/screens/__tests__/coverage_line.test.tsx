@@ -51,6 +51,10 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
   test('the D4 return refusals are wired: a refused rate shows its sentence in the summary note', () => {
     const src = read('PerformanceScreen.tsx');
     expect(src).toContain("engines/window-return");
-    expect(src).toMatch(/mw && mw\.rate == null\s*\?\s*mw\.sentence/);
+    // the refusal is carried on the window's own figures now (one set of figures per window,
+    // 2026-09-25) and only a REAL refusal speaks: having no record yet is an em-dash, not a sentence
+    expect(src).toMatch(/const refused = verdict != null && verdict\.rate == null;/);
+    expect(src).toMatch(/sentence: refused \? verdict!\.sentence : ''/);
+    expect(src).toMatch(/\{sentence\s*\n?\s*\?\s*sentence/);
   });
 });

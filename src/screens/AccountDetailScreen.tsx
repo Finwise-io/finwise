@@ -11,12 +11,20 @@ import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
+import { periodReturnSince } from '../domain/performance';
 import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
+import TopBar from '../components/TopBar';
+// ONE walk builder and ONE window return for the whole app: the account page calls exactly what the
+// Performance screen calls, so an account's figures and the portfolio's can never disagree.
+import { buildChangeWalk } from '../domain/history';
+import { windowBounds, modifiedDietzOverWindow } from '../../Calculation Module code/engines/window-return';
+import { valueOn } from '../../Calculation Module code/engines/snapshots';
+import { Dec } from '../../Calculation Module code/engines/decimal';
 
 const TAX_WORDS: Record<string, string> = {
   taxable: 'taxable',
@@ -30,6 +38,27 @@ const ACTION_LABEL: Record<ActionType, string> = {
   DEPOSIT: 'Deposit', WITHDRAWAL: 'Withdraw', TRANSFER: 'Transfer',
   DIVIDEND: 'Dividend', INTEREST: 'Interest', COUPON: 'Coupon received',
 };
+// THE THREE DOORS (approved mock v14, second phone). Five buttons in a row never read as one thing,
+// and two kinds of record had no door at all. Every kind a person can log now arrives through one of
+// three doors, in the mock's order and wording; the kinds behind a door are still the SAME recorder.
+const MONEY_KINDS: ActionType[] = ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER'];
+const INCOME_KINDS: ActionType[] = ['DIVIDEND', 'INTEREST', 'COUPON'];
+
+/** Founder ruling Q49: a percentage a person reads carries TWO decimals — +0.57%, never +0.6%. The
+ *  arithmetic keeps full precision; the rounding happens here, at the display, and nowhere earlier. */
+const pct2 = (v: number | null): string => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(v * 100).toFixed(2)}%`);
+/** A stated yearly rate, worded the one way the canon allows (cluster 14 spells the period in full). */
+const rateWords = (rate: number): string => `${(rate * 100).toFixed(2)}%/year`;
+/** Money as a person reads it — whole dollars, rounded HERE and nowhere earlier, in one place, so two
+ *  rows showing the same figure can never round differently. */
+const mny = (v: number): string => maskedMoney(Math.round(v));
+/** 'Jul 19' — the short day the approved walk prints in its first and its last row. It carries its own
+ *  name because MK-ST-F-003 dayWords already words a date the long way ('19 Jul 2026'). */
+const dayShort = (d: string): string => new Date(`${d}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+/** The day after a date. D3 (MK-ST-F-038 windowBounds): a window's beginning value is the close of the
+ *  day BEFORE its start — so a window whose beginning IS the daily record's first day opens the day
+ *  after it, and the beginning is READ from the record instead of being back-solved. */
+const dayAfter = (d: string): string => new Date(Date.parse(`${d}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
 
 export default function AccountDetailScreen() {
   const router = useRouter();
@@ -39,7 +68,8 @@ export default function AccountDetailScreen() {
   const classView = classParam && ['stocks_etf', 'bonds', 'cash', 'alternatives'].includes(String(classParam)) ? String(classParam) : null;
   const store = useStore() as any;
   const account: AssetAccount | undefined = (store.assetAccounts ?? []).find((a: AssetAccount) => String(a.asset_id) === String(id));
-  const [action, setAction] = useState<ActionType | null>(null);
+  // which DOOR is open, and so which kinds of record its sheet offers (mock v14: three doors)
+  const [door, setDoor] = useState<ActionType[] | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [valueSheet, setValueSheet] = useState(false);
   const [editRow, setEditRow] = useState<Transaction | null>(null);   // a row YOU entered, opened to correct
@@ -56,13 +86,16 @@ export default function AccountDetailScreen() {
   if (!account) {
     // A pre-seed row derived from setup answers isn't a real account yet — say so honestly.
     return (
-      <View style={[s.root, { justifyContent: 'center', padding: Spacing.lg }]}>
+      <View style={s.page}>
+        <TopBar back />
+        <View style={[s.root, { justifyContent: 'center', padding: Spacing.lg }]}>
         <Text style={s.h1}>This one lives in your setup answers</Text>
         <Text style={s.sub}>Add it as a real account on the Net worth tab to record activity and see history.</Text>
         <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} onPress={() => router.push('/(tabs)/analytics')}
           accessibilityLabel="Open the Net worth tab">
           <Text style={s.primaryTxt}>Open Net worth ›</Text>
         </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -112,12 +145,57 @@ export default function AccountDetailScreen() {
     if (int > 0) parts.push(`${maskedMoney(Math.round(int))} interest`);
     return parts.join(' · ');
   };
-  // header trio numbers — the account's own ledger; no estimate ever fills a blank
+  // the account's own income — no estimate ever fills a blank. It is NOT a headline figure any more
+  // (mock v14): it sits with the holding that earned it, and the account's total is said out loud in
+  // the note under BY CATEGORY & HOLDING, where the mock says it.
   const acctFlows = personalFlowTotals(ledger.filter((t) => t.type === 'DIVIDEND' || t.type === 'INTEREST'));
   const acctIncome = acctFlows.dividends.add(acctFlows.interest).toNumber(2);
-  const acctCost = ((account.positions ?? []) as any[]).reduce((n, p) =>
-    n + ((p.lots ?? []) as any[]).reduce((m: number, l: any) => m + (l.shares || 0) * (l.cost_per_share || 0), 0), 0);
-  const acctReturn = acctCost > 0 ? ((account.balance || 0) - acctCost) / acctCost : null;
+
+  // ── THE WINDOW ("THIS ACCOUNT · SINCE JUL 19" on the approved mock) ─────────────────────────
+  // This page carries no window picker, so it answers ONE window: since the daily record began —
+  // the same window the Performance screen opens on, read from the same daily record, so the two
+  // screens can never name different windows. The record's first day IS the beginning value, so the
+  // window opens the day after it (see dayAfter).
+  const todayKey = iso(new Date());
+  const recordFrom = Object.keys((store.invDaily ?? {}) as Record<string, number>)
+    .filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0] ?? null;
+  const windowStart = recordFrom ? dayAfter(recordFrom) : null;
+  const bounds = windowStart && windowStart <= todayKey ? windowBounds(windowStart, todayKey) : null;
+  // The beginning is READ from the daily record, never back-solved: MK-ST-F-031 valueOn answers
+  // nothing when the record does not reach that far back, and nothing means this page says "—".
+  const beginning = bounds
+    ? valueOn((store.snapshotDays ?? []) as any, new Set([String(account.asset_id)]), bounds.beginningAsOf)
+    : null;
+  const windowLedger = ledger.filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
+  const wFlows = personalFlowTotals(windowLedger);
+  // THE SAME BUILDER the Performance screen uses (MK-XS-F-011 buildChangeWalk), given this account's
+  // own rows — so the account's walk and the portfolio's walk are the same arithmetic, one narrower.
+  const walk = beginning == null || !bounds ? null : buildChangeWalk({
+    beginning, ending: account.balance || 0,
+    fromLabel: `since ${dayShort(bounds.beginningAsOf)}`, toLabel: 'today',
+    contributions: wFlows.contributions.toNumber(2), withdrawals: wFlows.withdrawals.toNumber(2),
+    dividends: wFlows.dividends.toNumber(2), interest: wFlows.interest.toNumber(2),
+  });
+  // THE DEFECT THE FOUNDER FOUND (mock v14, mark 4). This was (balance − cost) / cost — the LIFETIME
+  // return on cost, which disagreed with the walk printed directly beneath it. The header figure is
+  // the WINDOW return now: wealth generated ÷ the money working in the window, from the one function
+  // the Performance screen uses (MK-ST-F-064 modifiedDietzOverWindow). Its numerator IS the walk's
+  // wealth generated (ending − beginning − net flows), so the header and the walk cannot disagree.
+  // A refusal is an answer: rate comes back null and the screen shows "—", never a guess.
+  const acctReturn = beginning == null || !bounds ? null : modifiedDietzOverWindow({
+    beginning: Dec.of(String(beginning)), ending: Dec.of(String(account.balance || 0)),
+    flows: windowLedger
+      .filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
+      .map((t: any) => ({
+        date: String(t.date ?? '').slice(0, 10) || null,
+        amount: (Dec.parse(t.amount) ?? Dec.ZERO).mul(Dec.of(t.type === 'WITHDRAWAL' ? '-1' : '1')),
+      })),
+    start: bounds.start, end: bounds.end,
+  });
+  const acctReturnText = pct2(acctReturn?.rate ?? null);
+  // ONE string for this account's market value: the band, the trio and the Total row all print it,
+  // so three places on one screen can never show three different roundings of the same figure.
+  const marketValueText = mny(account.balance || 0);
   const insideRows = !breakdown ? [] : [
     ...((account.positions ?? []) as any[]).map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
@@ -128,7 +206,7 @@ export default function AccountDetailScreen() {
         posId: p.position_id,
         name: cls2 === 'stocks_etf' && sh > 0 ? `${holdingWord(p)} · ${sh.toLocaleString()} share${sh === 1 ? '' : 's'}` : holdingWord(p),
         sub: cls2 === 'bonds' ? 'CDs & Treasuries' : cls2 === 'cash' ? 'counts as cash' : undefined,
-        color: ClassMarkColors[cls2], value, cls: cls2,
+        color: ClassMarkColors[cls2], value, cls: cls2, ticker: p.ticker,
       };
     }),
     ...(((account as any).cash_balance ?? 0) !== 0 ? [{ key: '__cash', name: 'Cash in the account', sub: undefined as string | undefined, color: ClassMarkColors.cash, value: (account as any).cash_balance as number, cls: 'cash' }] : []),
@@ -139,6 +217,46 @@ export default function AccountDetailScreen() {
     }))),
   ].sort((x, y) => Math.abs(y.value) - Math.abs(x.value));
 
+  // ── THE RETURN COLUMN (mock v14, second phone: RETURN beside MARKET VALUE) ──────────────────
+  // Every figure in this column is the SAME window return the header shows, never a second method:
+  //   · a bond or a CD states its own yearly rate, and the app already shows that rate (BOND FACTS
+  //     further down this page) — where a row has one, the column shows it with the period spelled
+  //     out in full (canon cluster 14);
+  //   · a class, or a single holding, that IS the whole account has the account's return by
+  //     definition — same beginning, same ending, same flows — so it shows that figure;
+  //   · a priced holding shows what ITS OWN price did over the same window, read from the daily
+  //     closes we hold. That is the figure the approved mock draws beside each holding (LCTX
+  //     +2.10%), and its income is never folded into it — income sits on its own line beneath the
+  //     row, where the founder put it. A LIFETIME return on cost is never printed here: that is
+  //     exactly the disagreement v14 fixes;
+  //   · a class shows its holdings' price return weighted by what each is worth;
+  //   · a holding we hold no price for shows "—", never a guess.
+  const statedYearlyRate = (rowClass: string): number | null => {
+    const r = account.coupon_rate ?? 0;
+    return rowClass === 'bonds' && r > 0 ? r : null;
+  };
+  /** A holding's own price move over the window the header names — nothing else folded in. */
+  const priceReturnOf = (ticker?: string): number | null => {
+    if (!ticker || !windowStart) return null;
+    return periodReturnSince(store.priceCache?.[String(ticker).trim().toUpperCase()], windowStart);
+  };
+  const returnTextFor = (rowClass: string, value: number, ticker?: string): string => {
+    const stated = statedYearlyRate(rowClass);
+    if (stated != null) return rateWords(stated);
+    if (Math.round(value) === Math.round(account.balance || 0)) return acctReturnText;
+    return pct2(priceReturnOf(ticker));
+  };
+  /** A class's price return, weighted by what each holding inside it is worth. */
+  const classReturnText = (rowClass: string, total: number, rowsInClass: any[]): string => {
+    const stated = statedYearlyRate(rowClass);
+    if (stated != null) return rateWords(stated);
+    if (Math.round(total) === Math.round(account.balance || 0)) return acctReturnText;
+    const priced = rowsInClass.map((rw) => ({ v: Math.abs(rw.value || 0), r: priceReturnOf(rw.ticker) })).filter((x) => x.r != null && x.v > 0);
+    const weight = priced.reduce((t, x) => t + x.v, 0);
+    if (!priced.length || weight <= 0) return '—';
+    return pct2(priced.reduce((t, x) => t + (x.r as number) * x.v, 0) / weight);
+  };
+
   // per-class actions (design: only what makes sense for this account)
   // FINAL mock (mockup-vf/performance-FINAL): EVERY kind of record has a way in on every account —
   // money in/out, income received, and (via tradeLink) a buy or sale. Previously bonds offered only
@@ -148,15 +266,25 @@ export default function AccountDetailScreen() {
     : cls === 'cash' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'INTEREST']   // a savings account earns interest
     : cls === 'bonds' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'COUPON', 'INTEREST']
     : ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'INTEREST'];
-  // ticker trades and bond/alt buys-sells keep their existing full flows — one recorder each
-  const tradeLink = cls === 'stocks_etf' || cls === 'mixed' ? { label: 'Buy / Sell holdings ›', route: '/(tabs)/invest' }
-    : cls === 'bonds' ? { label: 'Buy more / Sell this bond ›', route: '/bonds' }
-    : cls === 'alternatives' ? { label: 'Buy more / Sell ›', route: '/other-investments' }
+  // ticker trades and bond/alt buys-sells keep their existing full flows — one recorder each. The
+  // third door carries the mock's one wording for every class; the ROUTE is what differs, and a class
+  // that can hold nothing to buy or sell (a savings account) shows no third door rather than a door
+  // onto a screen that cannot record anything for it.
+  const tradeRoute = cls === 'stocks_etf' || cls === 'mixed' ? '/(tabs)/invest'
+    : cls === 'bonds' ? '/bonds'
+    : cls === 'alternatives' ? '/other-investments'
     : null;
+  const moneyKinds = MONEY_KINDS.filter((k) => actions.includes(k));
+  const incomeKinds = INCOME_KINDS.filter((k) => actions.includes(k));
 
   const shown = showAll ? txns : txns.slice(0, 8);
 
   return (
+    // TOP BAR (approved mock v14, second phone): the app's own MoneyKeel bar, with "‹ Back" where a
+    // tab screen carries Menu — this page is opened from another screen, so back is the escape hatch
+    // it needs. The screen title stays the app's one title size, 20 points (s.h1).
+    <View style={s.page}>
+    <TopBar back />
     <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       {/* header: name + source + freshness — same source language everywhere */}
       <Text style={s.h1}>{accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}</Text>
@@ -172,13 +300,13 @@ export default function AccountDetailScreen() {
       {classView && breakdown ? (
         <View style={s.card}>
           <SectionBand title={`${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT`} />
-          <Text style={s.balance}>{maskedMoney(Math.round((breakdown as any)[classView] || 0))}</Text>
+          <Text style={s.balance}>{mny((breakdown as any)[classView] || 0)}</Text>
           {/* FOUNDER FINDING 2026-08-11: two bare figures ($224,190 above, $224,690 here) read as a
               mismatch. Say the arithmetic out loud — this slice PLUS everything else IS the total. */}
           <Text style={s.classLine}>
-            {maskedMoney(Math.round((breakdown as any)[classView] || 0))} of {maskedMoney(Math.round(account.balance || 0))} in {accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}
+            {mny((breakdown as any)[classView] || 0)} of {mny(account.balance || 0)} in {accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}
             {Math.round((account.balance || 0) - ((breakdown as any)[classView] || 0)) > 0
-              ? ` — the other ${maskedMoney(Math.round((account.balance || 0) - ((breakdown as any)[classView] || 0)))} is ${breakdownClasses.filter((k) => k !== classView).map((k) => ASSET_CLASS_LABEL[k as keyof typeof ASSET_CLASS_LABEL]).join(' + ') || 'other types'}`
+              ? ` — the other ${mny((account.balance || 0) - ((breakdown as any)[classView] || 0))} is ${breakdownClasses.filter((k) => k !== classView).map((k) => ASSET_CLASS_LABEL[k as keyof typeof ASSET_CLASS_LABEL]).join(' + ') || 'other types'}`
               : ''}
           </Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="See the whole account"
@@ -197,23 +325,47 @@ export default function AccountDetailScreen() {
                   <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
                   {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
                 </View>
-                <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
+                <Text style={s.optVal}>{mny(rw.value)}</Text>
               </TouchableOpacity>
             ))}
-            <Text style={s.optNote}>{insideRows.filter((rw: any) => rw.cls === classView).map((rw: any) => maskedMoney(rw.value)).join(' + ')} = {maskedMoney(Math.round((breakdown as any)[classView] || 0))}. Everything else lives on the whole-account page — one tap away above.</Text>
+            <Text style={s.optNote}>{insideRows.filter((rw: any) => rw.cls === classView).map((rw: any) => mny(rw.value)).join(' + ')} = {mny((breakdown as any)[classView] || 0)}. Everything else lives on the whole-account page — one tap away above.</Text>
           </View>
         </View>
       ) : (
+      /* The spoken summary names the holdings ONLY when they are not listed below (mock v14 gives
+         them their own card, each row spoken with its own value and return) — reading a summary of a
+         list that is right there made the card the first thing a screen reader, and a test looking
+         for a holding, landed on. */
       <View style={s.card} accessible
-        accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
-        <Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>
-        {/* HEADER TRIO (approved performance-FINAL account portfolio): market value · return ·
-            income. Income is the account's OWN ledger rows — never estimated; a blank stays blank. */}
+        accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${insideRows.length === 0 && tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
+        <SectionBand inCard value={marketValueText}
+          title={`THIS ACCOUNT${bounds ? ` · SINCE ${dayShort(bounds.beginningAsOf).toUpperCase()}` : ''}`} />
+        <Text style={s.balance}>{marketValueText}</Text>
+        {/* HEADER TRIO (approved mock v14, second phone): Market value · Wealth generated · Return,
+            in that order. Income left the headline — it sits with the holding that earned it and in
+            this account's own walk below. Wealth generated comes from the walk, and the Return is the
+            walk's own figure over the money working in the window, so the three agree by construction. */}
         <View style={s.trioRow}>
-          <View style={s.trioCell}><Text style={s.trioLbl}>Market value</Text><Text style={s.trioVal}>{maskedMoney(Math.round(account.balance || 0))}</Text></View>
-          <View style={s.trioCell}><Text style={s.trioLbl}>Return</Text><Text style={s.trioVal}>{acctReturn == null ? '—' : `${acctReturn >= 0 ? '+' : '−'}${Math.abs(acctReturn * 100).toFixed(1)}%`}</Text></View>
-          <View style={s.trioCell}><Text style={s.trioLbl}>Income</Text><Text style={s.trioVal}>{acctIncome > 0 ? maskedMoney(Math.round(acctIncome)) : '—'}</Text></View>
+          <View style={s.trioCell}><Text style={s.trioLbl}>Market value</Text><Text style={s.trioVal}>{marketValueText}</Text></View>
+          <View style={s.trioCell}><Text style={s.trioLbl}>Wealth generated</Text>
+            <Text style={[s.trioVal, walk != null && walk.wealthGenerated < 0 && { color: Colors.red }]}>
+              {walk == null ? '—' : `${walk.wealthGenerated < 0 ? '−' : ''}${mny(Math.abs(walk.wealthGenerated))}`}
+            </Text>
+          </View>
+          <View style={s.trioCell}><Text style={s.trioLbl}>Return</Text>
+            <Text style={[s.trioVal, (acctReturn?.rate ?? 0) < 0 && { color: Colors.red }]}>{acctReturnText}</Text>
+          </View>
         </View>
+        {/* A refusal is an answer (D4). When the daily record does not reach back far enough, or WHEN
+            money moved drives the percentage, the two figures above say "—" and this line says why —
+            never a guess dressed as a measurement. */}
+        {(walk == null || acctReturn?.rate == null) && (
+          <Text style={s.trioNote}>
+            {walk == null
+              ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
+              : acctReturn?.sentence}
+          </Text>
+        )}
         {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called
             what it is — "Mixed holdings" — never mislabeled by its single biggest type */}
         {/* NOTE for the live review: the mock's portfolio header shows the trio only, but this line
@@ -222,44 +374,118 @@ export default function AccountDetailScreen() {
         {account.status && account.status !== 'open' && (
           <Text style={s.statusBadge}>This account is {account.status} at {account.institution ?? 'the broker'} — kept here so its history stays.</Text>
         )}
-        {insideRows.length > 0 ? (
-          /* FINAL mock (mockup-vf/performance-FINAL): holdings sit UNDER their class, on the same
-             light-green sub-band the Net-worth groups use; each holding carries its own income
-             beneath it — income belongs to the holding that earned it, not to the class. */
-          <View style={s.optBlock}>
-            <SectionBand inCard title="BY CATEGORY & HOLDING" />
-            {(['stocks_etf', 'bonds', 'cash', 'alternatives'] as const).map((k) => {
-              const inClass = insideRows.filter((rw: any) => rw.cls === k);
-              if (!inClass.length) return null;
-              const total = inClass.reduce((t: number, rw: any) => t + (rw.value || 0), 0);
-              return (
-                <View key={k}>
-                  <SectionBand light title={`${ASSET_CLASS_LABEL[k]}`} value={maskedMoney(Math.round(total))} />
-                  {inClass.map((rw: any) => (
-                    <View key={rw.key}>
-                      <TouchableOpacity style={s.insideRow} disabled={!rw.posId}
-                        accessibilityRole={rw.posId ? 'button' : undefined} accessible
-                        onPress={() => rw.posId && router.push(`/holding-detail?account=${account.asset_id}&position=${rw.posId}` as any)}
-                        accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
-                        <View style={[s.insideDot, { backgroundColor: rw.color }]} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
-                          {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
-                        </View>
-                        <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
-                      </TouchableOpacity>
-                      {!!incomeOf(rw) && <Text style={s.incomeLine}>Income: {incomeOf(rw)}</Text>}
-                    </View>
-                  ))}
-                </View>
-              );
-            })}
-            <Text style={s.optNote}>Counted inside this account's total — listed here so nothing is hidden. Income sits with the holding that earned it.</Text>
-          </View>
-        ) : tickers.length > 0 ? (
+        {insideRows.length === 0 && tickers.length > 0 && (
           <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>
-        ) : null}
+        )}
       </View>
+      )}
+
+      {/* THIS ACCOUNT'S OWN WALK (approved mock v14, second phone) — a card of its own, directly
+          under the header trio and above BY CATEGORY & HOLDING. Contributions and withdrawals live
+          HERE, per account, and the rows reach the ending value exactly because the SAME builder the
+          Performance screen uses makes the residual the change in investment value. */}
+      {!classView && walk != null && bounds != null && (
+        <View style={s.card}>
+          <SectionBand inCard title={`HOW ${mny(walk.beginning)} BECAME ${mny(walk.ending)} · THIS ACCOUNT`} />
+          {[
+            { l: `Beginning market value (${dayShort(bounds.beginningAsOf)})`, v: walk.beginning },
+            { l: 'Contributions', v: walk.contributions },
+            { l: 'Withdrawals', v: -walk.withdrawals },
+            { l: 'Wealth generated', v: walk.wealthGenerated, strong: true },
+            { l: 'Dividends', v: walk.dividends, indent: true },
+            { l: 'Interest', v: walk.interest, indent: true },
+            { l: 'Change in investment value', v: walk.marketChange, indent: true },
+          ].map((r) => (
+            /* "Every line opens the rows behind it" (the mock's own words): a walk line is a summary
+               of ledger rows, so tapping one opens this account's full activity list below — the place
+               a wrong number is actually fixed. */
+            <TouchableOpacity key={r.l} style={[s.walkRow, (r as any).indent && { paddingLeft: 20 }]}
+              // a walk line is a 30-point row in the approved drawing; hitSlop carries the tap target
+              // back to the 44 points a finger needs without stretching the card to twice its height
+              hitSlop={{ top: 7, bottom: 7, left: 8, right: 8 }}
+              accessibilityRole="button" onPress={() => setShowAll(true)}
+              accessibilityLabel={`${r.l}, ${r.v < 0 ? 'minus ' : ''}${spokenMoney(Math.abs(Math.round(r.v)))}. Opens the activity records behind this walk.`}>
+              <Text style={[s.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
+              <Text style={[s.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
+                {r.v < 0 ? '−' : ''}{mny(Math.abs(r.v))}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          <View style={[s.walkRow, s.walkTotal]} accessible
+            accessibilityLabel={`Ending market value today, ${spokenMoney(Math.round(walk.ending))}`}>
+            <Text style={[s.walkL, { fontWeight: '800' }]}>Ending market value ({dayShort(todayKey)})</Text>
+            <Text style={[s.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{mny(walk.ending)}</Text>
+          </View>
+          <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)}
+            accessibilityLabel="Open the activity records behind this walk">
+            <Text style={s.walkNote}>Every line opens the rows behind it ›</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* BY CATEGORY & HOLDING (approved mock v14, second phone) — its own card, with a RETURN column
+          beside MARKET VALUE and a Total row that carries the account's own two figures. Holdings sit
+          UNDER their class; each holding carries its own income beneath it, because income belongs to
+          the holding that earned it, not to the class. */}
+      {!classView && insideRows.length > 0 && (
+        <View style={s.card}>
+          <SectionBand inCard title="BY CATEGORY & HOLDING" />
+          <View style={s.colHdrRow} accessible accessibilityLabel="Columns: category or holding, market value, return">
+            <Text style={[s.colHdr, { flex: 1, textAlign: 'left' }]}>CATEGORY / HOLDING</Text>
+            <Text style={[s.colHdr, s.colValW]}>MARKET VALUE</Text>
+            <Text style={[s.colHdr, s.colRetW]}>RETURN</Text>
+          </View>
+          {(['stocks_etf', 'bonds', 'cash', 'alternatives'] as const).map((k) => {
+            const inClass = insideRows.filter((rw: any) => rw.cls === k);
+            if (!inClass.length) return null;
+            const total = inClass.reduce((t: number, rw: any) => t + (rw.value || 0), 0);
+            return (
+              <View key={k}>
+                {/* the light-green class band, hand-built for ONE reason: SectionBand carries a single
+                    trailing figure and this row carries two (market value AND return). Same band
+                    colour, same 11-point caps, same square edge-to-edge bar as every other band. */}
+                <View style={s.classBand} accessible
+                  accessibilityLabel={`${ASSET_CLASS_LABEL[k]}, ${spokenMoney(Math.round(total))}, return ${classReturnText(k, total, inClass)}`}>
+                  <Text style={s.classBandT} numberOfLines={1}>{ASSET_CLASS_LABEL[k]}</Text>
+                  <Text style={[s.classBandV, s.colValW]}>{mny(total)}</Text>
+                  <Text style={[s.classBandV, s.colRetW]}>{classReturnText(k, total, inClass)}</Text>
+                </View>
+                {inClass.map((rw: any) => (
+                  <View key={rw.key}>
+                    <TouchableOpacity style={s.insideRow} disabled={!rw.posId}
+                      accessibilityRole={rw.posId ? 'button' : undefined} accessible
+                      onPress={() => rw.posId && router.push(`/holding-detail?account=${account.asset_id}&position=${rw.posId}` as any)}
+                      accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}, return ${returnTextFor(rw.cls, rw.value, rw.ticker)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
+                      <View style={[s.insideDot, { backgroundColor: rw.color }]} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
+                        {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
+                      </View>
+                      <Text style={[s.optVal, s.colValW]}>{mny(rw.value)}</Text>
+                      <Text style={[s.optRet, s.colRetW]}>{returnTextFor(rw.cls, rw.value, rw.ticker)}</Text>
+                    </TouchableOpacity>
+                    {!!incomeOf(rw) && <Text style={s.incomeLine}>Income: {incomeOf(rw)}</Text>}
+                  </View>
+                ))}
+              </View>
+            );
+          })}
+          {/* the Total row (mock v14): the account's market value and the account's return — the SAME
+              string the header trio printed, so the two places can never say different things. */}
+          <View style={[s.insideRow, s.totalRow]} accessible
+            accessibilityLabel={`Total, ${spokenMoney(Math.round(account.balance || 0))}, return ${acctReturnText}`}>
+            <Text style={[s.optLabel, { fontWeight: '800' }]}>Total</Text>
+            <Text style={[s.optVal, s.colValW]}>{marketValueText}</Text>
+            <Text style={[s.optRet, s.colRetW, { fontWeight: '800' }]}>{acctReturnText}</Text>
+          </View>
+          <Text style={s.optNote}>
+            Counted inside this account's total — listed here so nothing is hidden. A holding's return is
+            what its own price did in this window; the income it paid sits on the line beneath it. Income sits with the
+            holding that earned it{acctIncome > 0
+              ? <Text> — <Text style={s.optNoteFig}>{mny(acctIncome)}</Text> for this account</Text>
+              : null}.
+          </Text>
+        </View>
       )}
 
       {/* MATURED BOND (mock approved 2026-07-31): a dated banner with the three real outcomes —
@@ -342,27 +568,6 @@ export default function AccountDetailScreen() {
       {/* your reported return — the same actual_ttm field the Retirement cockpit reads (one field, two readers) */}
       {(cls === 'bonds' || cls === 'alternatives') && <ReportedReturnCard account={account} />}
 
-      {/* record activity — the ONE function, surfaced here per class */}
-      {(actions.length > 0 || tradeLink) && (
-        <>
-          <SectionBand title="RECORD ACTIVITY" />
-          <View style={s.actionRow}>
-            {actions.map((t) => (
-              <TouchableOpacity accessibilityRole="button" key={t} style={s.actionBtn} onPress={() => setAction(t)}
-                accessibilityLabel={`Record a ${ACTION_LABEL[t].toLowerCase()} for ${account.label}`}>
-                <Text style={s.actionTxt}>{ACTION_LABEL[t]}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {tradeLink && (
-            <TouchableOpacity accessibilityRole="button" onPress={() => router.push(tradeLink.route as any)}
-              accessibilityLabel={tradeLink.label}>
-              <Text style={s.link}>{tradeLink.label}</Text>
-            </TouchableOpacity>
-          )}
-        </>
-      )}
-
       {/* activity history — the ledger, in plain words with signed effects */}
       <SectionBand title="ACTIVITY" value={txns.length ? `${txns.length} record${txns.length === 1 ? '' : 's'}` : undefined} />
       <View style={s.card}>
@@ -397,6 +602,28 @@ export default function AccountDetailScreen() {
             </View>
           );
         })}
+        {/* THE THREE DOORS (approved mock v14, second phone) — they sit at the foot of the ACTIVITY
+            card, in the mock's order and wording. Five separate buttons never read as one thing, and
+            two kinds of record had no door at all; each door opens the SAME recorder as before, so
+            every capability that was reachable still is. */}
+        {moneyKinds.length > 0 && (
+          <TouchableOpacity accessibilityRole="button" style={s.doorPrimary} onPress={() => setDoor(moneyKinds)}
+            accessibilityLabel={`Add a contribution or withdrawal for ${account.label}`}>
+            <Text style={s.doorPrimaryTxt}>Add a contribution or withdrawal ›</Text>
+          </TouchableOpacity>
+        )}
+        {incomeKinds.length > 0 && (
+          <TouchableOpacity accessibilityRole="button" style={s.doorOutline} onPress={() => setDoor(incomeKinds)}
+            accessibilityLabel={`Add a dividend or interest for ${account.label}`}>
+            <Text style={s.doorOutlineTxt}>Add a dividend or interest ›</Text>
+          </TouchableOpacity>
+        )}
+        {tradeRoute && (
+          <TouchableOpacity accessibilityRole="button" style={s.doorOutline} onPress={() => router.push(tradeRoute as any)}
+            accessibilityLabel={`Add a buy or sale for ${account.label}`}>
+            <Text style={s.doorOutlineTxt}>Add a buy or sale ›</Text>
+          </TouchableOpacity>
+        )}
         {/* HANDOFF 2026-08-11: the door names the DATE the list stops at, not just a count. "10 more"
             tells you nothing about whether the missing rows are last week or four years ago — and
             this list is what someone checks when a total looks wrong, so the boundary is the fact
@@ -415,11 +642,12 @@ export default function AccountDetailScreen() {
         })()}
       </View>
 
-      <RecordActivitySheet account={account} action={action} onClose={() => setAction(null)} />
+      <RecordActivitySheet account={account} kinds={door} onClose={() => setDoor(null)} />
       <EditRecordSheet row={editRow} onClose={() => setEditRow(null)} />
       <UpdateValueSheet account={account} visible={valueSheet} onClose={() => setValueSheet(false)} />
       <View style={{ height: 40 }} />
     </ScrollView>
+    </View>
   );
 }
 
@@ -527,18 +755,23 @@ function FactRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ── the small record sheet: date + amount (+ destination for transfers) + effect preview ──
-function RecordActivitySheet({ account, action, onClose }: { account: AssetAccount; action: ActionType | null; onClose: () => void }) {
+// ── the small record sheet: which kind, then date + amount (+ destination for transfers) + effect ──
+// One door can carry more than one kind of record (money in, money out, a move between accounts), so
+// the sheet names the kinds behind the door it was opened by and records through the ONE recorder.
+function RecordActivitySheet({ account, kinds, onClose }: { account: AssetAccount; kinds: ActionType[] | null; onClose: () => void }) {
   const store = useStore() as any;
   const [amount, setAmount] = useState('');
   const [day, setDay] = useState<'today' | 'yesterday'>('today');
   const [destId, setDestId] = useState<string | null>(null);
+  const [action, setAction] = useState<ActionType | null>(null);
   const amt = parseFloat(String(amount).replace(/[^0-9.]/g, '')) || 0;
   const others = ((store.assetAccounts ?? []) as AssetAccount[]).filter((a) => a.asset_id !== account.asset_id);
   const dest = others.find((a) => String(a.asset_id) === String(destId)) ?? null;
   const ready = amt > 0 && (action !== 'TRANSFER' || !!dest);
 
-  React.useEffect(() => { if (action) { setAmount(''); setDay('today'); setDestId(null); } }, [action]);
+  React.useEffect(() => {
+    if (kinds) { setAmount(''); setDay('today'); setDestId(null); setAction(kinds[0] ?? null); }
+  }, [kinds]);
 
   const save = () => {
     if (!action || !ready) return;
@@ -556,12 +789,24 @@ function RecordActivitySheet({ account, action, onClose }: { account: AssetAccou
     : `+${maskedMoney(amt)} into ${account.label}`;
 
   return (
-    <Modal visible={action != null} transparent animationType={modalAnimation()} onRequestClose={onClose}>
+    <Modal visible={kinds != null} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without saving" style={s.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={s.sheet} onStartShouldSetResponder={() => true}>
           <View style={s.handle} />
           <Text style={s.sheetTitle}>{action ? ACTION_LABEL[action] : ''} — {account.label}</Text>
+          {/* the kinds behind this door. One kind → no chips to choose from; the door already said it. */}
+          {(kinds?.length ?? 0) > 1 && (
+            <View style={s.kindRow}>
+              {(kinds ?? []).map((k) => (
+                <TouchableOpacity accessibilityRole="button" key={k} style={[s.dayChip, action === k && s.destOn]}
+                  onPress={() => setAction(k)} accessibilityState={{ selected: action === k }}
+                  accessibilityLabel={`Record a ${ACTION_LABEL[k].toLowerCase()} for ${account.label}`}>
+                  <Text style={s.destTxt}>{ACTION_LABEL[k]}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
           {/* Founder finding 2026-08-11: a deposit never said where the money went, so it looked as
               though the app had silently decided. It has not decided anything — money arriving in an
               investment account IS settlement cash until a purchase moves it. Say that. */}
@@ -647,6 +892,7 @@ function UpdateValueSheet({ account, visible, onClose }: { account: AssetAccount
 }
 
 const s = StyleSheet.create({
+  page: { flex: 1, backgroundColor: Colors.bgSecondary },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
@@ -671,6 +917,35 @@ const s = StyleSheet.create({
   trioCell: { minWidth: 88 },
   trioLbl: { fontSize: 11, color: Colors.textSecondary },
   trioVal: { fontSize: 17, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'] },
+  trioNote: { fontSize: 11, color: Colors.textSecondary, marginTop: 6, lineHeight: 15 },
+  // the walk: one row per line, the figure on the shared right edge
+  walkRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 5, minHeight: 30 },
+  walkL: { fontSize: 13, color: Colors.textPrimary, flexShrink: 1 },
+  walkV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  walkTotal: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4, paddingTop: 8 },
+  walkNote: { fontSize: 11, fontWeight: '700', color: Colors.primary, marginTop: 8, paddingVertical: 12, minHeight: 44 },
+  // BY CATEGORY & HOLDING: the two right-hand columns every row, band and total share
+  colHdrRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingBottom: 2 },
+  colHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4, textAlign: 'right' },
+  colValW: { minWidth: 84, textAlign: 'right' },
+  colRetW: { minWidth: 64, textAlign: 'right' },
+  optRet: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  // the class band: SectionBand's light band, rebuilt here because this row carries TWO figures
+  classBand: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: Colors.bandLight, paddingVertical: 8, paddingHorizontal: Spacing.md,
+    marginHorizontal: -Spacing.md, marginBottom: Spacing.xs, borderRadius: 0 },
+  classBandT: { flex: 1, color: Colors.primaryDeep, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
+  classBandV: { color: Colors.primaryDeep, fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  totalRow: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4, paddingTop: 8 },
+  optNoteFig: { fontWeight: '800', color: Colors.textPrimary },
+  // the three doors (mock v14): one filled, two outlined, stacked as the mock stacks them
+  doorPrimary: { backgroundColor: Colors.primaryDeep, borderRadius: Radii.md, paddingHorizontal: 14,
+    minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start', marginTop: 8 },
+  doorPrimaryTxt: { fontSize: 13, fontWeight: '800', color: Colors.white },
+  doorOutline: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.primaryDeep, borderRadius: Radii.md,
+    paddingHorizontal: 14, minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start', marginTop: 6 },
+  doorOutlineTxt: { fontSize: 13, fontWeight: '800', color: Colors.primaryDeep },
+  kindRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: Spacing.sm, justifyContent: 'center' },
   incomeLine: { fontSize: 11, color: Colors.textSecondary, paddingLeft: 20, paddingBottom: 6, marginTop: -2 },
   optNote: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
   maturedCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, padding: 12, marginBottom: Spacing.sm },
@@ -686,9 +961,6 @@ const s = StyleSheet.create({
   staleBtn: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 14, minHeight: 40, justifyContent: 'center' },
   staleBtnTxt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   section: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
-  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  actionBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: 20, paddingHorizontal: 16, minHeight: 44, justifyContent: 'center' },
-  actionTxt: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   link: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: 4, paddingVertical: 12, minHeight: 44, textAlignVertical: 'center' },
   txnRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 40 },
   txnMine: { fontSize: 11, fontWeight: '700', color: Colors.primaryDark, marginTop: 1 },

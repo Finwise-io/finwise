@@ -171,10 +171,15 @@ test('a deleted holding degrades honestly (no crash, a way back to Invest)', () 
   expect(screen.getByText("This holding isn't here any more")).toBeOnTheScreen();
 });
 
-test('Invest main equity rows ROUTE to this page (no more inline-editor dead end)', () => {
-  render(<PerformanceScreen />);
-  fireEvent.press(screen.getAllByLabelText(/NVIDIA.*Opens its page/)[0]);
-  expect(mockPushes).toContain('/holding-detail?account=brk&position=p1');
+test('the holdings list ROUTES to this page — from the account page, where the holdings now live', () => {
+  // The list moved on 2026-09-25: the approved Performance design (mock v14) carries the walks and
+  // what each category earned, and each account's own page carries its holdings. Pinned at the
+  // source so it survives however the account page is laid out: the account page opens this screen,
+  // and Performance no longer tries to.
+  const fs = require('fs'); const path = require('path');
+  const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+  expect(read('AccountDetailScreen.tsx')).toMatch(/\/holding-detail\?account=/);
+  expect(read('PerformanceScreen.tsx')).not.toMatch(/\/holding-detail\?account=/);
 });
 
 test('function: holding-concentration insight fires from the SAME shared rule the Invest callout uses', () => {

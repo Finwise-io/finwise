@@ -1398,6 +1398,102 @@
     "status": "TO DO",
     "comments": ""
    }
+  },
+  {
+   "task": "Performance v10 → v14 (APPROVED, BUILT) — Performance FINAL (2026-08-04) plus every ruling since, then the founder’s four changes of 2026-09-25: window chips on one row with the app’s corner radius, a Y axis on the summary graph, the account header reading Market value · Wealth generated · Return, and day-one history",
+   "todo": "Built 2026-09-25 after his \"approved. save and built it\": the window selector, one meaning of return, the Y axis, the rebuilt day one, the older Invest sections removed. Waiting only on his VERIFIED mark on device.",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v14.html",
+   "date": "2026-09-14",
+   "comments": "Drawn and sent 2026-09-14: 9 marks, a no-accounts frame, and the six places Build 53 did not match FINAL. Self-audit before sending: no retired words, square bars, markup clean, sums add up. | v11 sent 2026-09-25: marks 10-13 added. Chip row measured: 355 of the 362 points a 390-point phone gives. | v12 sent 2026-09-25: chips 42 points tall so the 12-point radius reads as a corner, window labels only (five chips WITH returns need 434-492 points against 362 once data exists), and day one drawn as a linked account with its history rebuilt. | v13 sent 2026-09-25: the five window buttons become ONE segmented control — a single bordered row split by hairline dividers, five segments of 71 points across the card’s 362, the chosen one wearing the app’s light-green fill; and the hand-entered day-one phone now says “By hand · you update it” instead of “Linked” (founder caught it). | v14 sent 2026-09-25: the window selector is a designed segmented control — a quiet tray, the chosen window lifted onto a white card, hairline dividers between the resting windows, and TWO lines in every segment (the window with its date above its own return), because five windows carrying returns on one line need 434-492 points against 362. | Built and tested 2026-09-25.",
+   "_written": {
+    "status": "DONE",
+    "comments": "Drawn and sent 2026-09-14: 9 marks, a no-accounts frame, and the six places Build 53 did not match FINAL. Self-audit before sending: no retired words, square bars, markup clean, sums add up. | v11 sent 2026-09-25: marks 10-13 added. Chip row measured: 355 of the 362 points a 390-point phone gives. | v12 sent 2026-09-25: chips 42 points tall so the 12-point radius reads as a corner, window labels only (five chips WITH returns need 434-492 points against 362 once data exists), and day one drawn as a linked account with its history rebuilt. | v13 sent 2026-09-25: the five window buttons become ONE segmented control — a single bordered row split by hairline dividers, five segments of 71 points across the card’s 362, the chosen one wearing the app’s light-green fill; and the hand-entered day-one phone now says “By hand · you update it” instead of “Linked” (founder caught it). | v14 sent 2026-09-25: the window selector is a designed segmented control — a quiet tray, the chosen window lifted onto a white card, hairline dividers between the resting windows, and TWO lines in every segment (the window with its date above its own return), because five windows carrying returns on one line need 434-492 points against 362. | Built and tested 2026-09-25."
+   }
+  },
+  {
+   "task": "Performance · account header disagrees with its own walk — MK-PF-M: the header Return on AccountDetailScreen is worked out from cost since purchase ((balance − cost) ÷ cost), while the walk directly beneath it computes the window’s return (wealth generated ÷ beginning). Two different returns on one screen. Found 2026-09-25 answering the founder’s question about Market value · Return · Income.",
+   "todo": "Build with Performance v11 mark 12: one return, the window’s, and the header trio reads Market value · Wealth generated · Return like every other screen.",
+   "status": "TO DO",
+   "ref": "src/screens/AccountDetailScreen.tsx (the trio) · mock v11 mark 12",
+   "date": "2026-09-25",
+   "comments": "Income $220 (dividends + interest) never reconciled with +0.57%, which comes from wealth generated $300.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Income $220 (dividends + interest) never reconciled with +0.57%, which comes from wealth generated $300."
+   }
+  },
+  {
+   "task": "Performance · the value graph back-fills history — portfolioTrend (MK-PF-F-018) values TODAY’s share count at past closing prices, so someone who bought last month is shown a year-long line that never happened and will not match the broker’s statement. Found 2026-09-25.",
+   "todo": "Built 2026-09-25: the line is drawn from the daily record only (portfolioTrend is no longer used by the screen); closeOnOrBefore never reaches forward to a later price.",
+   "status": "DONE",
+   "ref": "src/domain/performance/index.ts portfolioTrend · mock v11 mark 13",
+   "date": "2026-09-25",
+   "comments": "Contradicts the day-one promise on the screen: “We never back-fill a year we didn’t see.”",
+   "_written": {
+    "status": "DONE",
+    "comments": "Contradicts the day-one promise on the screen: “We never back-fill a year we didn’t see.”"
+   }
+  },
+  {
+   "task": "Performance · rebuild past history for linked accounts (founder question 2026-09-25: “Why day 1 we are not able to import historic data… what app will show will not match the account”). On first sync the broker sends its whole transaction history and the date of its first record; market data gives 3 years of daily closes. Walking today’s holdings back through the transactions and pricing each day gives a real line back to the broker’s first record. Hand-entered accounts and cash honestly start the day they are entered.",
+   "todo": "Built 2026-09-25: Calculation Module code/engines/rebuild-history.ts + store.rebuildLinkedHistory, run after every price refresh on Performance.",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v11.html · src/services/sync/snaptradeSync.ts · src/services/marketData.ts",
+   "date": "2026-09-25",
+   "comments": "Recommended: rebuild, and name the source and start on the screen — “Rebuilt from E*TRADE’s records · Jun 3, 2024”. | Approved 2026-09-25.",
+   "_written": {
+    "status": "DONE",
+    "comments": "Recommended: rebuild, and name the source and start on the screen — “Rebuilt from E*TRADE’s records · Jun 3, 2024”. | Approved 2026-09-25."
+   }
+  },
+  {
+   "task": "App-wide · selector corner radius is inconsistent — 23 places use the semicircle (Radii.pill) and 157 use the 12-point corner (Radii.md); the Performance window chips were semicircles. Founder, 2026-09-25: “make the buttons same as all radio buttons across all screens — rounded corners not semicircle ends.”",
+   "todo": "Performance chips are fixed in mock v11 (mark 10). Sweep the other semicircle selectors and bring them to 12 points, screen by screen, each with its own mock.",
+   "status": "TO DO",
+   "ref": "grep Radii.pill · MonthlyIncomeScreen, NetWorthScreen groupPill, BondsScreen, IncomeManagerScreen, SnapTradeConnect, JobSafetyScreen and others",
+   "date": "2026-09-25",
+   "comments": "Counted 2026-09-25.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Counted 2026-09-25."
+   }
+  },
+  {
+   "task": "Performance · the summary Return does not count income — portfolioPeriodReturn (MK-PF-F) weights each holding’s PRICE return by market value, so dividends and interest are excluded, while “Wealth generated” beside it includes them. The two figures disagree on real data. Found 2026-09-25.",
+   "todo": "Built 2026-09-25 with the v14 build.",
+   "status": "DONE",
+   "ref": "src/domain/performance/index.ts portfolioPeriodReturn · mock v12",
+   "date": "2026-09-25",
+   "comments": "On the final design’s example the two agree by luck: +0.54% ≈ 1,910 ÷ 352,404.",
+   "_written": {
+    "status": "DONE",
+    "comments": "On the final design’s example the two agree by luck: +0.54% ≈ 1,910 ÷ 352,404."
+   }
+  },
+  {
+   "task": "Performance · the 2Y figure is a yearly rate and nothing says so — periodReturn annualises 2Y (founder ruling 2026-08-18) while every other window is a window rate. Found 2026-09-25.",
+   "todo": "Built 2026-09-25 (the screen says \"2Y is shown per year, so it sits fairly beside 1Y\"). FOUNDER QUESTION OPEN 2026-09-25: he asked for the 2Y to be the return over two years instead. Checked: GIPS forbids annualising under a year and annualises above it; brokerage statements annualise periods of a year or more; Fidelity warns that cumulative returns of different periods should not be compared. Recommendation sent: the segment says \"+7.30% a year\" and the summary says \"+15.10% over the two years, which is +7.30% a year\". Awaiting his word.",
+   "status": "WAITING ON YOU",
+   "ref": "src/domain/performance/index.ts periodReturn · mock v12",
+   "date": "2026-09-25",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Performance · window chips cannot carry their returns on one row — measured 2026-09-25: five chips WITH returns need 434 to 492 points against the 362 a 390-point phone gives; window labels alone need 305 to 348. The chip shape was also wrong: a 26-point-tall chip with a 12-point radius draws a semicircle (founder: “they are still semi circle at the ends”).",
+   "todo": "Built 2026-09-25 with the v14 build.",
+   "status": "DONE",
+   "ref": "mock v12 mark 10 · src/screens/PerformanceScreen.tsx periodPill",
+   "date": "2026-09-25",
+   "comments": "Radii.pill on a short chip is always a semicircle — the radius must be under half the height. | v12’s five separate 42-point chips still did not read as one control (founder, 2026-09-25); v13 makes them one.",
+   "_written": {
+    "status": "DONE",
+    "comments": "Radii.pill on a short chip is always a semicircle — the radius must be under half the height. | v12’s five separate 42-point chips still did not read as one control (founder, 2026-09-25); v13 makes them one."
+   }
   }
  ]
 }

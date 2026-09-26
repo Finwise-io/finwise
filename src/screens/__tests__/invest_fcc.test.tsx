@@ -1,7 +1,9 @@
-// Invest main — the FCC glance-then-drill (approved wireframe). Pins: the TOTAL RETURN glance
-// speaks $ AND % with the word up/down + the points gap; winners & laggards come from the SAME
-// rows; the concentration callout is a quantified fact at 25%+; bonds and alternatives are folded
-// into ONE grouped list with value-as-of stamps and stale flags; the plan chip shows adopted saving.
+// Performance main — the design the founder confirmed on 2026-09-14 (Performance FINAL, 2026-08-04)
+// with his changes of 2026-09-25 (mock v14). The screen is FIVE things and nothing else: the window
+// selector, the summary with its value line, the all-accounts walk, one walk per account, and what
+// each category earned. Everything the older Invest screen carried below that — Your return, Honest
+// comparison, Winners & laggards, Look ahead / Look back, Your investments, Add investment — is not
+// in the approved design and is pinned ABSENT here so it cannot creep back.
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react-native';
 import { GLOSSARY } from '../../domain/glossary';
@@ -59,157 +61,47 @@ beforeEach(() => {
   } as any);
 });
 
-test('the hero (invest-v3/v4 FINAL, 2026-07-19): YOUR RETURN leads with the gain in $ and %, the NAMED honest comparison + points', () => {
-  render(<PerformanceScreen />);
-  expect(screen.getByText(/YOUR RETURN \(PAST YEAR\)/)).toBeOnTheScreen();       // renamed — it's what happened to YOUR money
-  expect(screen.getByLabelText('What is Your return?')).toBeOnTheScreen();       // the ⓘ explains the purchase cap
-  expect(screen.getByText(/▲ up \$[\d,]+/)).toBeOnTheScreen();                   // gain in $, word + arrow
-  expect(screen.getByText('HONEST COMPARISON')).toBeOnTheScreen();
-  // approved "all three" + v7 FINAL (2026-07-19): true name, ONE footnote dot, weights, table headers
-  expect(screen.getByText(/vs the market, matched to your mix/)).toBeOnTheScreen();
-  expect(screen.getByText('How these numbers work')).toBeOnTheScreen();
-  expect(screen.getByLabelText('What is How these numbers work?')).toBeOnTheScreen();
-  expect(GLOSSARY.howReturnsWork.body).toMatch(/counted from the day you bought/);
-  expect(GLOSSARY.howReturnsWork.body).toMatch(/same dates/);
-  expect(GLOSSARY.howReturnsWork.body).toMatch(/Dividends and interest aren't included yet/);
-  expect(screen.getAllByText(/^\d+%$/).length).toBeGreaterThan(0);               // portfolio weights in the list
-  expect(screen.getAllByText('HOLDING').length).toBe(2);                         // winners table + holdings list headers
-  expect(screen.getByText('CHANGE')).toBeOnTheScreen();
-  expect(screen.getAllByText('RETURN').length).toBe(2);
-  expect(screen.getByText('WEIGHT')).toBeOnTheScreen();
-  // BUILD-44 FIX + CONSISTENCY SWEEP 2026-08-04 (founder: one type scale app-wide): every header cell
-  // wears the SAME header type, now the scale's xs (11pt) — the column styles supply
-  // width/alignment only, so "RETURN" can never wrap its last letter again
-  for (const el of [...screen.getAllByText('HOLDING'), screen.getByText('CHANGE'), ...screen.getAllByText('RETURN'), screen.getByText('WEIGHT')]) {
-    expect(el).toHaveStyle({ fontSize: 11 });
-    expect(el.props.numberOfLines).toBe(1);
-  }
-  expect(screen.getByText(/★ You're (ahead|behind) by .* points/)).toBeOnTheScreen();
+
+// ── the window selector (mock v14 mark 10/14) ───────────────────────────────────────────────────
+describe('the window selector', () => {
+  test('five windows, each carrying its own return — and no 3M, 6M or "YTD"', () => {
+    render(<PerformanceScreen />);
+    for (const w of ['1M', 'This year', '1Y', '2Y']) expect(screen.getAllByText(w).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/^Since/).length).toBeGreaterThan(0);
+    expect(screen.queryByText('3M')).toBeNull();
+    expect(screen.queryByText('6M')).toBeNull();
+    expect(screen.queryByText('YTD')).toBeNull();
+  });
+
+  test('a window with nothing behind it says so aloud, and shows an em-dash rather than +0.00%', () => {
+    render(<PerformanceScreen />);
+    expect(screen.getByLabelText(/Show 1Y, (no data for that window yet|[−+]?\d)/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Show 2Y/)).toBeOnTheScreen();
+  });
+
+  test('picking a window moves the whole screen to it', () => {
+    render(<PerformanceScreen />);
+    fireEvent.press(screen.getAllByText('This year')[0]);
+    expect(screen.getByText('SUMMARY · THIS YEAR')).toBeOnTheScreen();
+  });
+
+  test('2Y says it is a yearly rate — every other window is the window itself', () => {
+    render(<PerformanceScreen />);
+    expect(screen.queryByText(/2Y is shown per year/)).toBeNull();
+    fireEvent.press(screen.getAllByText('2Y')[0]);
+    expect(screen.getByText(/2Y is shown per year, so it sits fairly beside 1Y/)).toBeOnTheScreen();
+  });
 });
 
-test('the period chips switch the WHOLE story: 3M relabels the hero kicker', () => {
-  render(<PerformanceScreen />);
-  fireEvent.press(screen.getByLabelText(/Show 3M performance/));   // chips now carry their own return in the label
-  expect(screen.getByText(/YOUR RETURN \(PAST 3 MONTHS\)/)).toBeOnTheScreen();
-});
-
-test('winners: top mode words Leader + Laggard (v7 table — no emoji); by-account groups under account names', () => {
-  render(<PerformanceScreen />);
-  expect(screen.getByText(/Leader: /)).toBeOnTheScreen();
-  expect(screen.getByText(/Laggard: /)).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText('View by account'));
-  expect(screen.getByText('Brokerage')).toBeOnTheScreen();                        // the account header
-});
-
-test('winners & laggards from the SAME rows: NVDA up, BND down with the word', () => {
-  render(<PerformanceScreen />);
-  expect(screen.getByText('Winners & laggards (1Y)')).toBeOnTheScreen();
-  expect(screen.getByLabelText(/NVDA, up \+?\$?[\d,]+/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/BND, down/)).toBeOnTheScreen();
-});
-
-test('the concentration callout is a quantified fact when one holding is 25%+ (NVDA here)', () => {
-  render(<PerformanceScreen />);
-  expect(screen.getByText(/% of your invested money is in one stock \(NVDA\)/)).toBeOnTheScreen();
-});
-
-test('B44 fix: a LONG alternative label (a dated option) shrinks — value-as-of chip and amount keep their columns', () => {
-  useStore.setState({
-    assetAccounts: [{ asset_id: 'opt1', label: 'QQQ $600 put · exp Dec 31 2026', kind: 'options', tax_bucket: 'TAXABLE', asset_class: 'alternatives', balance: 1408, value_as_of: '2026-07-01' }],
-    priceCache: {},
-  } as any);
-  render(<PerformanceScreen />);
-  const label = screen.getByText('QQQ $600 put · exp Dec 31 2026');
-  expect(label.props.numberOfLines).toBe(1);                       // truncates, never wraps or spills
-  expect(label).toHaveStyle({ flexShrink: 1 });                    // the label yields; columns never overlap
-  expect(screen.getAllByText('$1,408').length).toBeGreaterThan(0);  // the amount renders in its own column
-  expect(screen.getByText(/Value as of 2026-07/)).toBeOnTheScreen();
-});
-
-test('bonds and alternatives fold into the grouped list with value-as-of stamps and stale flags', () => {
-  render(<PerformanceScreen />);
-  expect(screen.getByText(/YOUR INVESTMENTS/)).toBeOnTheScreen();
-  expect(screen.getByText(/Bonds & CDs\s+\$95,000/)).toBeOnTheScreen();
-  expect(screen.getByText(new RegExp(`Value as of ${FRESH.slice(0, 7)}`))).toBeOnTheScreen();   // fresh: a dated CHIP, no flag
-  expect(screen.getByText(/Alternatives\s+\$9,000/)).toBeOnTheScreen();
-  expect(screen.getByText(/⏱ \d+ mo old/)).toBeOnTheScreen();                // Nov 2025 gold → the stale chip
-});
-
-test('tapping a bond row opens its account page (the routed holding detail)', () => {
-  render(<PerformanceScreen />);
-  // 2026-08-11: the account now also appears in the per-account walks (every account with value
-  // gets one, so the parts sum to the whole), so target the HOLDINGS row explicitly
-  fireEvent.press(screen.getByLabelText(/Treasury 4.5% ’36.*Opens/));
-  expect(pushes).toContain('/account-detail?id=bnd1');
-});
-
-test('the plan chip shows the adopted monthly saving (F11 propagation: Plan is visible here too)', () => {
-  render(<PerformanceScreen />);
-  expect(screen.getByText(/Saving \$1,500\/month toward retirement \(from your Plan\)/)).toBeOnTheScreen();
-});
-
-test('the two what-if entry cards say what they are: estimate forward, facts backward', () => {
-  render(<PerformanceScreen />);
-  fireEvent.press(screen.getByLabelText(/Look ahead: what saving more could do/));
-  expect(pushes).toContain('/what-if');
-  fireEvent.press(screen.getByLabelText(/Look back: what a past move would have done/));
-  expect(pushes).toContain('/look-back');
-});
-
-test('a bonds-only user still gets the grouped list, never the add-a-ticker empty state', () => {
-  useStore.setState({
-    assetAccounts: [{ asset_id: 'bnd1', label: 'Treasury', kind: 'fixed_income', tax_bucket: 'TAXABLE', asset_class: 'bonds', balance: 50000, face_value: 50000, coupon_rate: 0.04, maturity_date: '2033-01-01' }],
-    priceCache: {},
-  } as any);
-  render(<PerformanceScreen />);
-  expect(screen.queryByText(/Add a holding with its ticker/)).toBeNull();
-  expect(screen.getByText(/Bonds & CDs\s+\$50,000/)).toBeOnTheScreen();
-});
-
-test('PRD F3#16: the money-weighted line shows ONLY when the ledger stands behind it', () => {
-  // fixture accounts have no ledger history → honest absence
-  render(<PerformanceScreen />);
-  expect(screen.queryByText(/money-weighted/)).toBeNull();
-});
-
-test('PRD F3#16: with a complete ledger the personal return renders, spoken as an estimate', () => {
-  const yearAgo = new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10);
-  useStore.setState({
-    assetAccounts: [{ asset_id: 'brk2', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 11000 }],
-    transactions: [{ id: 'op1', type: 'DEPOSIT', account_id: 'brk2', amount: 10000, date: yearAgo }],
-    priceCache: {},
-  } as any);
-  render(<PerformanceScreen />);
-  expect(screen.getByText(/money-weighted return: \+10%\/year/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/counting when you added money.*an estimate/)).toBeOnTheScreen();
-});
-
-test('Build-46 walk row 2: a holding with NO price shows what you paid — never $0 (audit Invest #2)', () => {
-  useStore.setState({
-    assetAccounts: [
-      { asset_id: 'brk', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
-        positions: [pos('p1', 'NVDA', 200, 300), pos('px', 'LCTX', 1000, 1.132)] },   // LCTX: no priceCache entry
-    ],
-  } as any);
-  render(<PerformanceScreen />);
-  // the LCTX row: cost basis (1000 × $1.132 = $1,132), said in words — the detail page's treatment
-  expect(screen.getByText('LCTX')).toBeOnTheScreen();
-  expect(screen.getByText('$1,132')).toBeOnTheScreen();
-  expect(screen.getByText('what you paid')).toBeOnTheScreen();
-  // and its spoken label says so too — and the ROW itself carries no $0 anywhere
-  const row = screen.getByLabelText(/LCTX, \$1,132, no current price, showing what you paid/);
-  expect(within(row).queryByText('$0')).toBeNull();
-});
-
-// r16 (mock return-breakdown-v1, founder-approved 2026-08-03): the four where-it-came-from lines
-describe('the value walk (founder final mock, 2026-08-04) — where the return came from', () => {
+// ── the summary and the walk (approved 2026-08-04, unchanged by v14) ────────────────────────────
+describe('the summary and the value walk', () => {
   test('the walk renders in the approved order and its rows reach the ending value', () => {
     useStore.setState({ transactions: [
-      { account_id: 'b1', type: 'DIVIDEND', amount: 300, date: isoLocalDate(new Date()) },
-      { account_id: 'b1', type: 'INTEREST', amount: 120, date: isoLocalDate(new Date()) },
+      { account_id: 'brk', type: 'DIVIDEND', amount: 300, date: isoLocalDate(new Date()) },
+      { account_id: 'brk', type: 'INTEREST', amount: 120, date: isoLocalDate(new Date()) },
     ] } as any);
     render(<PerformanceScreen />);
-    expect(screen.getByText(/HOW .* BECAME /)).toBeOnTheScreen();
+    expect(screen.getByText(/HOW .* BECAME .* · ALL ACCOUNTS/)).toBeOnTheScreen();
     expect(screen.getByText(/Beginning market value/)).toBeOnTheScreen();
     expect(screen.getByText('Contributions')).toBeOnTheScreen();
     expect(screen.getByText('Withdrawals')).toBeOnTheScreen();
@@ -217,10 +109,10 @@ describe('the value walk (founder final mock, 2026-08-04) — where the return c
     expect(screen.getByText('Dividends')).toBeOnTheScreen();
     expect(screen.getByText('Interest')).toBeOnTheScreen();
     expect(screen.getByText('Change in investment value')).toBeOnTheScreen();
-    expect(screen.getByText('Ending market value (today)')).toBeOnTheScreen();   // "market value" here — it is true on this tab
+    expect(screen.getByText('Ending market value (today)')).toBeOnTheScreen();
   });
 
-  test('the summary trio states the window rule in plain words', () => {
+  test('the trio is Ending value · Wealth generated · Return, and states the window rule in words', () => {
     render(<PerformanceScreen />);
     expect(screen.getByText('Ending value')).toBeOnTheScreen();
     expect(screen.getAllByText('Wealth generated').length).toBeGreaterThan(0);
@@ -228,19 +120,55 @@ describe('the value walk (founder final mock, 2026-08-04) — where the return c
     expect(screen.getByText(/not a yearly rate/)).toBeOnTheScreen();
     expect(screen.getByText(/Money you added never counts as return/)).toBeOnTheScreen();
   });
+
+  test('every percentage on the screen carries two decimals (Q49)', () => {
+    render(<PerformanceScreen />);
+    for (const t of screen.queryAllByText(/%$/)) {
+      const s = String(t.props.children);
+      if (/^[+−-]?\d/.test(s)) expect(s).toMatch(/\.\d\d%/);
+    }
+  });
 });
 
+// ── one walk per account, named by ACCOUNT (founder screenshot 2026-08-17: Build 53 said VANGUARD) ─
+test('per-account walks: collapsed by default, named by account, expanding to the full walk', () => {
+  useStore.setState({
+    assetAccounts: [
+      { asset_id: 'a1', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+        positions: [{ position_id: 'q1', ticker: 'NVDA', kind: 'stocks_etf', lots: [{ lot_id: 'm1', shares: 200, cost_per_share: 300, purchase_date: '2024-01-02' }] }] },
+      { asset_id: 'a2', label: 'E*TRADE Account 1', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+        positions: [{ position_id: 'q2', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'm2', shares: 100, cost_per_share: 200, purchase_date: '2024-01-02' }] }] },
+    ],
+  } as any);
+  render(<PerformanceScreen />);
+  // the name comes from the app's ONE account-name helper, so a walk is titled exactly as the
+  // account is titled everywhere else — Build 53 titled it with the institution instead
+  expect(screen.getByLabelText(/Vanguard Brokerage, .*Expands its walk/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/E\*TRADE Brokerage, .*Expands its walk/)).toBeOnTheScreen();
+  expect(screen.getAllByText(/tap to see the walk/).length).toBe(2);
+  fireEvent.press(screen.getByLabelText(/Vanguard Brokerage, .*Expands its walk/));
+  expect(screen.getAllByText('Beginning market value').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('Ending market value').length).toBeGreaterThan(0);
+});
 
-// FINAL mock: chips carry their own window return; the category table shows dollars received with
-// the rate NAMED, and never fakes a $0 for a category with no records.
-describe('period chips + category earnings (final mock, 2026-08-04)', () => {
-  test('each chip states its own return, or an em-dash when that window has no data', () => {
-    render(<PerformanceScreen />);
-    expect(screen.getByLabelText(/Show 1Y performance, [−+]?\d/)).toBeOnTheScreen();
-    expect(screen.getByLabelText(/Show 2Y performance/)).toBeOnTheScreen();
-  });
+test('a home gets no walk on a screen about investments (Build 53 gave it one: "HOME $852,000")', () => {
+  useStore.setState({
+    assetAccounts: [
+      { asset_id: 'a1', label: 'Vanguard Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+        positions: [{ position_id: 'q1', ticker: 'NVDA', kind: 'stocks_etf', lots: [{ lot_id: 'm1', shares: 200, cost_per_share: 300, purchase_date: '2024-01-02' }] }] },
+      { asset_id: 'a2', label: 'E*TRADE Account 1', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+        positions: [{ position_id: 'q2', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'm2', shares: 100, cost_per_share: 200, purchase_date: '2024-01-02' }] }] },
+      { asset_id: 'home', label: 'Home', kind: 'home', asset_class: 'real_estate', tax_bucket: 'TAXABLE', balance: 852000 },
+    ],
+  } as any);
+  render(<PerformanceScreen />);
+  expect(screen.queryByLabelText(/Home, .*walk/)).toBeNull();
+  expect(screen.queryByText('$852,000')).toBeNull();
+});
 
-  test('the category table sums the ledger income and labels its columns', () => {
+// ── what each category earned (approved 2026-08-04) ─────────────────────────────────────────────
+describe('what each category earned', () => {
+  test('the table sums the ledger income and labels its columns', () => {
     const today = isoLocalDate(new Date());
     useStore.setState({ transactions: [
       { account_id: 'brk', type: 'DIVIDEND', ticker: 'VTI', amount: 300, date: today },
@@ -249,7 +177,7 @@ describe('period chips + category earnings (final mock, 2026-08-04)', () => {
     render(<PerformanceScreen />);
     expect(screen.getByText('CATEGORY')).toBeOnTheScreen();
     expect(screen.getByText('EARNED')).toBeOnTheScreen();
-    expect(screen.getAllByText('RETURN').length).toBeGreaterThan(0);   // also appears in the hero kicker
+    expect(screen.getAllByText('RETURN').length).toBeGreaterThan(0);
     expect(screen.getByText('All categories')).toBeOnTheScreen();
     expect(screen.getByText('$420')).toBeOnTheScreen();                     // 300 + 120, the ledger's own rows
     expect(screen.getByText(/never a false \$0/)).toBeOnTheScreen();
@@ -262,21 +190,65 @@ describe('period chips + category earnings (final mock, 2026-08-04)', () => {
   });
 });
 
-// FINAL mock: one collapsible walk PER ACCOUNT, using the same function as the all-accounts walk.
-test('per-account walks: collapsed by default with a one-line summary, expanding to the full walk', () => {
-  const { fireEvent } = require('@testing-library/react-native');
+// ── what the approved design does NOT carry (mock v14). Each of these shipped in Build 53. ───────
+test('the older Invest screen is gone: no hero, no comparison, no winners, no what-ifs, no list, no buttons', () => {
+  render(<PerformanceScreen />);
+  for (const gone of [/YOUR RETURN/, /HONEST COMPARISON/, /Winners & laggards/, /LOOK AHEAD/, /LOOK BACK/,
+    /YOUR INVESTMENTS/, /＋ Add investment/, /Import file/, /Record a transaction/, /View transaction activity/]) {
+    expect(screen.queryByText(gone)).toBeNull();
+  }
+  // and nothing routes to the screens they used to open — those doors live elsewhere now
+  expect(pushes).toEqual([]);
+});
+
+// ── where the history came from (mock v14 mark 13) ──────────────────────────────────────────────
+test('a rebuilt line names its source and its first day, and says what could not be rebuilt', () => {
+  const iso2 = (back: number) => isoLocalDate(new Date(Date.now() - back * 86400000));
   useStore.setState({
     assetAccounts: [
-      { asset_id: 'a1', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+      { asset_id: 'et', label: 'E*TRADE Account 1', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE',
+        source: 'connected', balance: 10000, cash_balance: 0,
+        positions: [{ position_id: 'p1', ticker: 'VTI', kind: 'stocks_etf', last_price: 100,
+          lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 80, purchase_date: iso2(30) }] }] },
+      { asset_id: 'byhand', label: 'Old 401(k)', kind: '401k', tax_bucket: 'PRE_TAX', source: 'manual', balance: 50000 },
+    ],
+    transactions: [{ id: 't1', account_id: 'et', type: 'DEPOSIT', amount: 4000, date: iso2(20), created_at: '' }],
+    priceCache: { VTI: { ticker: 'VTI', points: Array.from({ length: 40 }, (_, i) => ({ date: iso2(39 - i), close: 100 })) } },
+  } as any);
+  (useStore.getState() as any).rebuildLinkedHistory();
+  render(<PerformanceScreen />);
+  const day = new Date(`${iso2(20)}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  expect(screen.getByText(new RegExp(`Rebuilt from E\\*TRADE.s own records, back to ${day}`))).toBeOnTheScreen();
+  expect(screen.getByText(/Anything entered by hand starts the day you entered it/)).toBeOnTheScreen();
+});
+
+// mock v14 mark 9: with nothing entered, the ONE line opens the three ways to add an account —
+// the separate "＋ Add a holding" button and "Import from a file instead" link are gone.
+test('the empty line opens the three ways to add an account, and nothing else asks twice', () => {
+  const { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } = require('../../constants/doors');
+  useStore.setState({ assetAccounts: [], transactions: [], priceCache: {} } as any);
+  render(<PerformanceScreen />);
+  expect(screen.queryByText(/＋ Add a holding/)).toBeNull();
+  expect(screen.queryByText(/Import from a file instead/)).toBeNull();
+  fireEvent.press(screen.getByText(/Add your accounts/));
+  expect(screen.getByText(ADD_ACCOUNT_QUESTION)).toBeOnTheScreen();
+  for (const d of ADD_ACCOUNT_DOORS) expect(screen.getByLabelText(`${d.title}. ${d.sub}`)).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText(`${ADD_ACCOUNT_DOORS[0].title}. ${ADD_ACCOUNT_DOORS[0].sub}`));
+  expect(pushes).toContain(ADD_ACCOUNT_DOORS[0].route);
+});
+
+// mock v14, first phone: every account walk carries its own quiet source line
+test('each account walk says where its numbers come from', () => {
+  useStore.setState({
+    assetAccounts: [
+      { asset_id: 'a1', label: 'Vanguard Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+        source: 'connected', last_synced: new Date().toISOString(),
         positions: [{ position_id: 'q1', ticker: 'NVDA', kind: 'stocks_etf', lots: [{ lot_id: 'm1', shares: 200, cost_per_share: 300, purchase_date: '2024-01-02' }] }] },
-      { asset_id: 'a2', label: 'E*TRADE', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+      { asset_id: 'a2', label: 'Old 401(k)', kind: '401k', tax_bucket: 'PRE_TAX', balance: 0, derive_balance: true, source: 'manual',
         positions: [{ position_id: 'q2', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'm2', shares: 100, cost_per_share: 200, purchase_date: '2024-01-02' }] }] },
     ],
   } as any);
   render(<PerformanceScreen />);
-  expect(screen.getByLabelText(/Vanguard, .*Expands its walk/)).toBeOnTheScreen();
-  expect(screen.getAllByText(/tap to see the walk/).length).toBe(2);      // both collapsed by default
-  fireEvent.press(screen.getByLabelText(/Vanguard, .*Expands its walk/));
-  expect(screen.getAllByText('Beginning market value').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('Ending market value').length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/🔗 Linked/).length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/By hand · you update it/).length).toBeGreaterThan(0);
 });

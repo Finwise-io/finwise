@@ -634,5 +634,15 @@
 "src/domain/profile/calc.ts::ageToday": "not in git yet|\u2014",
 "MoneyKeel/functions/_figure-spec.ts::declareFigures": "not in git yet|\u2014",
 "MoneyKeel/functions/figures.ts::figureSpec": "not in git yet|\u2014",
-"MoneyKeel/functions/figures.ts::merge": "not in git yet|\u2014"
+"MoneyKeel/functions/figures.ts::merge": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::rebuiltSentence": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::rebuildDays": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::undo": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::rebuildableFrom": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::isOpening": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::amountOf": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::stepDay": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::utcOfDay": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::isDayKey": "not in git yet|\u2014",
+"src/domain/performance/index.ts::closeOnOrBefore": "not in git yet|\u2014"
 }

@@ -143,10 +143,10 @@ export function inflowSourceWord(source: string): string {
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-035 blendedVolatility
  *               MK-NW-F-056 bondInfo · MK-PF-F-017 allocation
  *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-022 goalProgressPct
- *               MK-ST-F-031 valueOn · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-107 mapActivityType
+ *               MK-ST-F-031 valueOn · MK-ST-F-072 undo
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-107 mapActivityType
  *
- * Reaches ..... 113 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 115 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
  *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
  *               MK-CF-F-005 actualMonthFlow · MK-PF-F-017 allocation
@@ -156,7 +156,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-CF-O-001 basePay · MK-NW-F-036 benchmarkInfo
  *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
  *               MK-NW-F-035 blendedVolatility · MK-NW-F-056 bondInfo
- *               … and 95 more — the full list is on functions_from_code
+ *               … and 97 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -37,6 +37,9 @@ test('shows the balance, class in plain words, and the by-hand source sentence (
 
 test('recording a deposit moves the BALANCE and the LEDGER together (the one function)', () => {
   render(<AccountDetailScreen />);
+  // mock v14: the five buttons became three doors — money in/out lives behind the first one, and the
+  // kind is chosen inside the sheet it opens. Same recorder, one door instead of three buttons.
+  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   fireEvent.press(screen.getByLabelText('Record a deposit for Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '2000');
   expect(screen.getByText(/\+\$2,000 into Checking/)).toBeOnTheScreen();   // the effect preview
@@ -50,6 +53,7 @@ test('recording a deposit moves the BALANCE and the LEDGER together (the one fun
 
 test('a transfer needs a destination and moves BOTH sides', () => {
   render(<AccountDetailScreen />);
+  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   fireEvent.press(screen.getByLabelText('Record a transfer for Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '500');
   fireEvent.press(screen.getByLabelText('Transfer into Savings'));
@@ -90,13 +94,21 @@ test('Update value re-stamps the as-of date with the new amount', () => {
   expect(a.value_as_of).toBe(isoLocalDate(new Date()));
 });
 
-test('property accounts get no money-movement buttons; cash gets deposit/withdraw/transfer AND interest (savings earns it)', () => {
+test('property accounts get no money-movement doors; cash gets deposit/withdraw/transfer AND interest (savings earns it)', () => {
   render(<AccountDetailScreen />);
+  // mock v14: two doors on a cash account — money in/out, and income received. No buy-or-sale door:
+  // a savings account holds nothing to buy or sell.
+  expect(screen.getByText('Add a contribution or withdrawal ›')).toBeOnTheScreen();
+  expect(screen.getByText('Add a dividend or interest ›')).toBeOnTheScreen();
+  expect(screen.queryByText('Add a buy or sale ›')).toBeNull();
+  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   expect(screen.getByLabelText('Record a deposit for Checking')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Record a withdraw for Checking')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Record a transfer for Checking')).toBeOnTheScreen();
   expect(screen.queryByLabelText(/Record a coupon/)).toBeNull();
   mockParams = { id: 'hme' };
   render(<AccountDetailScreen />);
-  expect(screen.queryByText('RECORD ACTIVITY')).toBeNull();
+  expect(screen.queryByText('Add a contribution or withdrawal ›')).toBeNull();
 });
 
 test('an unknown id (a pre-seed setup row) gets the honest fallback, not a crash', () => {

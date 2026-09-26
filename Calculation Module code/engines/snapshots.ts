@@ -290,7 +290,7 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
 // ── writing ─────────────────────────────────────────────────────────────────────────────────────
 /** Add a day. A day already present is SUPERSEDED, not edited: the newer row wins and the older is
  *  dropped from the working set, so what is read is always the latest belief about that date. */
-/* ─ MK-ST-F-030 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-ST-F-030 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * record
  *
  * Answers ..... ── writing ───────────────────────────────────────────────────────────────────────────────────── Add a day.
@@ -433,14 +433,17 @@ export function onOrBefore<T extends { date: string }>(days: T[], date: string):
  * Called by ... MK-ST-F-004 coverageFor · MK-ST-F-005 measuredFromLabel
  *               MK-ST-F-006 canAnswer · MK-ST-F-035 covers
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-143 annualisedGross · MK-CF-O-001 basePay
- *               MK-ST-F-006 canAnswer · MK-ST-F-004 coverageFor
- *               MK-ST-F-035 covers · MK-CF-F-145 deductionsFromPay
- *               MK-CF-F-171 earnerPay · MK-CF-F-128 grossByMonth
- *               MK-CF-O-004 incomeSummary · MK-ST-F-005 measuredFromLabel
- *               MK-CF-F-142 monthsOf · MK-CF-F-146 payFiguresAgree
- *               MK-CF-F-144 takeHomeAsEntered
+ * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-143 annualisedGross · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-ST-F-006 canAnswer
+ *               MK-ST-F-004 coverageFor · MK-ST-F-035 covers
+ *               MK-CF-F-038 debtsFromOnboarding · MK-CF-F-145 deductionsFromPay
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               … and 50 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -463,13 +466,19 @@ export function firstDate<T extends { date: string }>(days: T[]): string | null 
  *     the answer = f ≠ nothing and f ≤ from
  *
  * Called by ... MK-CF-F-142 monthsOf · MK-CF-O-001 basePay
+ *               MK-ST-F-072 undo
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-143 annualisedGross · MK-CF-O-001 basePay
- *               MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
- *               MK-CF-F-128 grossByMonth · MK-CF-O-004 incomeSummary
- *               MK-CF-F-142 monthsOf · MK-CF-F-146 payFiguresAgree
- *               MK-CF-F-144 takeHomeAsEntered
+ * Reaches ..... 64 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-143 annualisedGross · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-CF-F-145 deductionsFromPay · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-171 earnerPay
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               … and 46 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots

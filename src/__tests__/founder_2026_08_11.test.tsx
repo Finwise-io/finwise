@@ -469,6 +469,8 @@ test('the deposit sheet says where the money lands, so nothing is decided silent
   mockParams = { id: 'van' };
   const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
   render(<AccountDetailScreen />);
+  // mock v14: the deposit sheet opens through the contribution-or-withdrawal door
+  fireEvent.press(screen.getByLabelText(/Add a contribution or withdrawal/));
   fireEvent.press(screen.getByLabelText(/Record a deposit/));
   expect(screen.getByText(/Lands as cash in this account/)).toBeOnTheScreen();
 });

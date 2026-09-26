@@ -11,7 +11,6 @@ const ROOTS = ['src/screens', 'src/components', 'app'];
 /** Owed, each named with where it gets decided — the list may only shrink. */
 const OWED: Record<string, string> = {
   'src/screens/ConnectFlowScreen.tsx': 'the Link an account screen — ways-to-add-an-account mock v10 waits on the founder',
-  'src/screens/PerformanceScreen.tsx': '"Import from a file instead" — the Performance screen step, next',
   'src/screens/CashFlowScreen.tsx': '"Add by hand" adds an EXPENSE there, not an account — the same words for a different door; to the founder',
 };
 const walk = (dir: string): string[] => !fs.existsSync(dir) ? [] : fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => {

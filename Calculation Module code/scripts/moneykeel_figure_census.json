@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-14",
+ "generated": "2026-09-26",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 14"
+     "s": "Sep 26"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "14"
+     "s": "26"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -319,6 +319,18 @@
     {
      "k": "t",
      "s": "not updated yet"
+    },
+    {
+     "k": "t",
+     "s": "⏱ Vanguard part as of Sep 12 — 14 days old"
+    },
+    {
+     "k": "t",
+     "s": "·"
+    },
+    {
+     "k": "t",
+     "s": "pull to refresh"
     },
     {
      "k": "t",
@@ -470,7 +482,7 @@
     },
     {
      "k": "t",
-     "s": "14"
+     "s": "26"
     },
     {
      "k": "t",
@@ -516,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -788,7 +800,7 @@
     },
     {
      "k": "t",
-     "s": "14"
+     "s": "26"
     },
     {
      "k": "t",
@@ -907,7 +919,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 14, 2026"
+     "s": "YOUR NET WORTH · SEP 26, 2026"
     },
     {
      "k": "a",
@@ -1221,7 +1233,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 14, 2026"
+     "s": "YOUR NET WORTH · SEP 26, 2026"
     },
     {
      "k": "a",
@@ -1519,7 +1531,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 14, 2026"
+     "s": "YOUR NET WORTH · SEP 26, 2026"
     },
     {
      "k": "a",
@@ -1563,7 +1575,7 @@
     },
     {
      "k": "a",
-     "s": "1 number needs more information. Vanguard Brokerage hasn't shared dividend records. Opens how to fix them."
+     "s": "2 numbers need more information. Vanguard Brokerage last updated Sep 12. Vanguard Brokerage hasn't shared dividend records. Opens how to fix them."
     },
     {
      "k": "t",
@@ -1571,11 +1583,19 @@
     },
     {
      "k": "t",
-     "s": "1 number needs more information"
+     "s": "2 numbers need more information"
     },
     {
      "k": "t",
      "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "·"
+    },
+    {
+     "k": "t",
+     "s": "Vanguard Brokerage last updated Sep 12"
     },
     {
      "k": "t",
@@ -1953,7 +1973,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 14, 2026"
+     "s": "YOUR NET WORTH · SEP 26, 2026"
     },
     {
      "k": "a",
@@ -1997,7 +2017,7 @@
     },
     {
      "k": "a",
-     "s": "1 number needs more information. Vanguard Brokerage hasn't shared dividend records. Opens how to fix them."
+     "s": "2 numbers need more information. Vanguard Brokerage last updated Sep 12. Vanguard Brokerage hasn't shared dividend records. Opens how to fix them."
     },
     {
      "k": "t",
@@ -2005,11 +2025,19 @@
     },
     {
      "k": "t",
-     "s": "1 number needs more information"
+     "s": "2 numbers need more information"
     },
     {
      "k": "t",
      "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "·"
+    },
+    {
+     "k": "t",
+     "s": "Vanguard Brokerage last updated Sep 12"
     },
     {
      "k": "t",
@@ -2189,7 +2217,7 @@
     },
     {
      "k": "t",
-     "s": "Linked"
+     "s": "Linked · 14 days old"
     },
     {
      "k": "t",
@@ -2435,7 +2463,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 14, 2026"
+     "s": "YOUR NET WORTH · SEP 26, 2026"
     },
     {
      "k": "a",
@@ -2713,7 +2741,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 14, 2026"
+     "s": "YOUR NET WORTH · SEP 26, 2026"
     },
     {
      "k": "a",
@@ -3358,7 +3386,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 14, 2026"
+     "s": "Sep 26, 2026"
     },
     {
      "k": "a",
@@ -3370,7 +3398,19 @@
     },
     {
      "k": "a",
-     "s": "Show 1M performance, no data for that window yet"
+     "s": "Show Since today, no data for that window yet"
+    },
+    {
+     "k": "t",
+     "s": "Since today"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "Show 1M, no data for that window yet"
     },
     {
      "k": "t",
@@ -3382,23 +3422,11 @@
     },
     {
      "k": "a",
-     "s": "Show 3M performance, no data for that window yet"
+     "s": "Show This year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "3M"
-    },
-    {
-     "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "a",
-     "s": "Show 6M performance, no data for that window yet"
-    },
-    {
-     "k": "t",
-     "s": "6M"
+     "s": "This year"
     },
     {
      "k": "t",
@@ -3406,19 +3434,7 @@
     },
     {
      "k": "a",
-     "s": "Show YTD performance, no data for that window yet"
-    },
-    {
-     "k": "t",
-     "s": "YTD"
-    },
-    {
-     "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "a",
-     "s": "Show 1Y performance, no data for that window yet"
+     "s": "Show 1Y, no data for that window yet"
     },
     {
      "k": "t",
@@ -3430,7 +3446,7 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y performance, no data for that window yet"
+     "s": "Show 2Y, no data for that window yet"
     },
     {
      "k": "t",
@@ -3449,40 +3465,12 @@
      "s": "We have not recorded anything yet. Figures will start once the app has been open for a day."
     },
     {
-     "k": "a",
-     "s": "Look ahead: what saving more could do. An estimate."
+     "k": "t",
+     "s": "SUMMARY · SINCE YOUR RECORDS BEGAN"
     },
     {
      "k": "t",
-     "s": "LOOK AHEAD: what saving more could do"
-    },
-    {
-     "k": "t",
-     "s": "estimate"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Look back: what a past move would have done. Facts about the past."
-    },
-    {
-     "k": "t",
-     "s": "LOOK BACK: what a past move would have done"
-    },
-    {
-     "k": "t",
-     "s": "facts"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
-     "s": "YOUR INVESTMENTS"
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -3490,23 +3478,99 @@
     },
     {
      "k": "t",
-     "s": "Accounts — add holdings for live tracking $165,000"
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Return"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Return is for the window you picked (since your records began) — not a yearly rate. Money you added never counts as return."
+    },
+    {
+     "k": "t",
+     "s": "HOW $165,000 BECAME $165,000 · ALL ACCOUNTS"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (start)"
+    },
+    {
+     "k": "t",
+     "s": "$165,000"
+    },
+    {
+     "k": "t",
+     "s": "Contributions"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Withdrawals"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$165,000"
     },
     {
      "k": "a",
-     "s": "Retirement (Traditional), $120,000. Opens its page."
+     "s": "Retirement (Traditional), $120,000. Expands its walk."
     },
     {
      "k": "t",
-     "s": "Retirement (Traditional)"
-    },
-    {
-     "k": "t",
-     "s": "73"
-    },
-    {
-     "k": "t",
-     "s": "%"
+     "s": "▸ Retirement (Traditional)"
     },
     {
      "k": "t",
@@ -3514,23 +3578,31 @@
     },
     {
      "k": "t",
-     "s": "›"
+     "s": "✍️"
+    },
+    {
+     "k": "t",
+     "s": "By hand · you update it"
+    },
+    {
+     "k": "t",
+     "s": "wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "· tap to see the walk"
     },
     {
      "k": "a",
-     "s": "Investments, $45,000. Opens its page."
+     "s": "Investments, $45,000. Expands its walk."
     },
     {
      "k": "t",
-     "s": "Investments"
-    },
-    {
-     "k": "t",
-     "s": "27"
-    },
-    {
-     "k": "t",
-     "s": "%"
+     "s": "▸ Investments"
     },
     {
      "k": "t",
@@ -3538,47 +3610,23 @@
     },
     {
      "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Add investment"
+     "s": "✍️"
     },
     {
      "k": "t",
-     "s": "＋ Add investment"
-    },
-    {
-     "k": "a",
-     "s": "Import holdings from a file"
+     "s": "By hand · you update it"
     },
     {
      "k": "t",
-     "s": "📄 Import file"
-    },
-    {
-     "k": "a",
-     "s": "Record a transaction"
+     "s": "wealth generated"
     },
     {
      "k": "t",
-     "s": "＋ Record"
-    },
-    {
-     "k": "a",
-     "s": "View transaction activity"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "Activity ›"
-    },
-    {
-     "k": "t",
-     "s": "End-of-day prices"
-    },
-    {
-     "k": "t",
-     "s": ". Comparisons are for information only — no trades suggested. The concentration note is a fact for awareness, not advice."
+     "s": "· tap to see the walk"
     }
    ],
    "rich": [
@@ -3588,7 +3636,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 14, 2026"
+     "s": "Sep 26, 2026"
     },
     {
      "k": "a",
@@ -3616,7 +3664,19 @@
     },
     {
      "k": "a",
-     "s": "Show 1M performance, no data for that window yet"
+     "s": "Show Since today, no data for that window yet"
+    },
+    {
+     "k": "t",
+     "s": "Since today"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "Show 1M, no data for that window yet"
     },
     {
      "k": "t",
@@ -3628,23 +3688,11 @@
     },
     {
      "k": "a",
-     "s": "Show 3M performance, no data for that window yet"
+     "s": "Show This year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "3M"
-    },
-    {
-     "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "a",
-     "s": "Show 6M performance, no data for that window yet"
-    },
-    {
-     "k": "t",
-     "s": "6M"
+     "s": "This year"
     },
     {
      "k": "t",
@@ -3652,19 +3700,7 @@
     },
     {
      "k": "a",
-     "s": "Show YTD performance, no data for that window yet"
-    },
-    {
-     "k": "t",
-     "s": "YTD"
-    },
-    {
-     "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "a",
-     "s": "Show 1Y performance, no data for that window yet"
+     "s": "Show 1Y, no data for that window yet"
     },
     {
      "k": "t",
@@ -3676,7 +3712,7 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y performance, no data for that window yet"
+     "s": "Show 2Y, no data for that window yet"
     },
     {
      "k": "t",
@@ -3696,7 +3732,7 @@
     },
     {
      "k": "t",
-     "s": "SUMMARY · PAST YEAR"
+     "s": "SUMMARY · SINCE YOUR RECORDS BEGAN"
     },
     {
      "k": "t",
@@ -3724,11 +3760,11 @@
     },
     {
      "k": "t",
-     "s": "Return is for the window you picked (past year) — not a yearly rate. Money you added never counts as return."
+     "s": "Return is for the window you picked (since your records began) — not a yearly rate. Money you added never counts as return."
     },
     {
      "k": "a",
-     "s": "1 number needs more information. Vanguard Brokerage hasn't shared dividend records. Opens how to fix them."
+     "s": "2 numbers need more information. Vanguard Brokerage last updated Sep 12. Vanguard Brokerage hasn't shared dividend records. Opens how to fix them."
     },
     {
      "k": "t",
@@ -3736,11 +3772,19 @@
     },
     {
      "k": "t",
-     "s": "1 number needs more information"
+     "s": "2 numbers need more information"
     },
     {
      "k": "t",
      "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "·"
+    },
+    {
+     "k": "t",
+     "s": "Vanguard Brokerage last updated Sep 12"
     },
     {
      "k": "t",
@@ -3756,7 +3800,7 @@
     },
     {
      "k": "t",
-     "s": "Beginning market value (past year start)"
+     "s": "Beginning market value (start)"
     },
     {
      "k": "t",
@@ -3820,19 +3864,11 @@
     },
     {
      "k": "a",
-     "s": "Vanguard, $0. Expands its walk."
+     "s": "Vanguard Brokerage, $0. Expands its walk."
     },
     {
      "k": "t",
-     "s": "▸ Vanguard"
-    },
-    {
-     "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "t",
-     "s": "wealth generated"
+     "s": "▸ Vanguard Brokerage"
     },
     {
      "k": "t",
@@ -3840,19 +3876,11 @@
     },
     {
      "k": "t",
-     "s": "· tap to see the walk"
-    },
-    {
-     "k": "a",
-     "s": "Ally Savings, $20,000. Expands its walk."
+     "s": "🔗"
     },
     {
      "k": "t",
-     "s": "▸ Ally Savings"
-    },
-    {
-     "k": "t",
-     "s": "$20,000"
+     "s": "Linked · 14 days old"
     },
     {
      "k": "t",
@@ -3880,6 +3908,14 @@
     },
     {
      "k": "t",
+     "s": "✍️"
+    },
+    {
+     "k": "t",
+     "s": "By hand · you update it"
+    },
+    {
+     "k": "t",
      "s": "wealth generated"
     },
     {
@@ -3904,6 +3940,14 @@
     },
     {
      "k": "t",
+     "s": "✍️"
+    },
+    {
+     "k": "t",
+     "s": "By hand · you update it"
+    },
+    {
+     "k": "t",
      "s": "wealth generated"
     },
     {
@@ -3913,242 +3957,6 @@
     {
      "k": "t",
      "s": "· tap to see the walk"
-    },
-    {
-     "k": "a",
-     "s": "Portfolio value $709,800. Not enough price history yet for this period."
-    },
-    {
-     "k": "t",
-     "s": "YOUR RETURN (PAST YEAR)"
-    },
-    {
-     "k": "a",
-     "s": "What is Your return?"
-    },
-    {
-     "k": "t",
-     "s": "ⓘ"
-    },
-    {
-     "k": "t",
-     "s": "▲ up"
-    },
-    {
-     "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "t",
-     "s": "("
-    },
-    {
-     "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "t",
-     "s": ")"
-    },
-    {
-     "k": "t",
-     "s": "HONEST COMPARISON"
-    },
-    {
-     "k": "t",
-     "s": "How these numbers work"
-    },
-    {
-     "k": "a",
-     "s": "What is How these numbers work?"
-    },
-    {
-     "k": "t",
-     "s": "ⓘ"
-    },
-    {
-     "k": "t",
-     "s": "you"
-    },
-    {
-     "k": "t",
-     "s": "the market (same start)"
-    },
-    {
-     "k": "a",
-     "s": "Look ahead: what saving more could do. An estimate."
-    },
-    {
-     "k": "t",
-     "s": "LOOK AHEAD: what saving more could do"
-    },
-    {
-     "k": "t",
-     "s": "estimate"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Look back: what a past move would have done. Facts about the past."
-    },
-    {
-     "k": "t",
-     "s": "LOOK BACK: what a past move would have done"
-    },
-    {
-     "k": "t",
-     "s": "facts"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
-     "s": "YOUR INVESTMENTS"
-    },
-    {
-     "k": "t",
-     "s": "$709,800"
-    },
-    {
-     "k": "t",
-     "s": "Stocks / Funds $0"
-    },
-    {
-     "k": "t",
-     "s": "HOLDING"
-    },
-    {
-     "k": "t",
-     "s": "WEIGHT"
-    },
-    {
-     "k": "t",
-     "s": "VALUE"
-    },
-    {
-     "k": "t",
-     "s": "RETURN"
-    },
-    {
-     "k": "a",
-     "s": "VTI, $270,000, no current price, showing what you paid. Opens its page."
-    },
-    {
-     "k": "t",
-     "s": "VTI"
-    },
-    {
-     "k": "t",
-     "s": "what you paid"
-    },
-    {
-     "k": "t",
-     "s": "$270,000"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
-     "s": "Bonds & CDs $9,800"
-    },
-    {
-     "k": "a",
-     "s": "Treasury note, $9,800. Opens its page."
-    },
-    {
-     "k": "t",
-     "s": "Treasury note"
-    },
-    {
-     "k": "t",
-     "s": "1"
-    },
-    {
-     "k": "t",
-     "s": "%"
-    },
-    {
-     "k": "t",
-     "s": "$9,800"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
-     "s": "Accounts — add holdings for live tracking $400,000"
-    },
-    {
-     "k": "a",
-     "s": "Traditional IRA, $400,000. Opens its page."
-    },
-    {
-     "k": "t",
-     "s": "Traditional IRA"
-    },
-    {
-     "k": "t",
-     "s": "56"
-    },
-    {
-     "k": "t",
-     "s": "%"
-    },
-    {
-     "k": "t",
-     "s": "$400,000"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Add investment"
-    },
-    {
-     "k": "t",
-     "s": "＋ Add investment"
-    },
-    {
-     "k": "a",
-     "s": "Import holdings from a file"
-    },
-    {
-     "k": "t",
-     "s": "📄 Import file"
-    },
-    {
-     "k": "a",
-     "s": "Record a transaction"
-    },
-    {
-     "k": "t",
-     "s": "＋ Record"
-    },
-    {
-     "k": "a",
-     "s": "View transaction activity"
-    },
-    {
-     "k": "t",
-     "s": "Activity ›"
-    },
-    {
-     "k": "t",
-     "s": "End-of-day prices"
-    },
-    {
-     "k": "t",
-     "s": ". Comparisons are for information only — no trades suggested. The concentration note is a fact for awareness, not advice."
     }
    ],
    "retiree": [
@@ -4158,7 +3966,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 14, 2026"
+     "s": "Sep 26, 2026"
     },
     {
      "k": "a",
@@ -4170,7 +3978,19 @@
     },
     {
      "k": "a",
-     "s": "Show 1M performance, no data for that window yet"
+     "s": "Show Since today, no data for that window yet"
+    },
+    {
+     "k": "t",
+     "s": "Since today"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "Show 1M, no data for that window yet"
     },
     {
      "k": "t",
@@ -4182,23 +4002,11 @@
     },
     {
      "k": "a",
-     "s": "Show 3M performance, no data for that window yet"
+     "s": "Show This year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "3M"
-    },
-    {
-     "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "a",
-     "s": "Show 6M performance, no data for that window yet"
-    },
-    {
-     "k": "t",
-     "s": "6M"
+     "s": "This year"
     },
     {
      "k": "t",
@@ -4206,19 +4014,7 @@
     },
     {
      "k": "a",
-     "s": "Show YTD performance, no data for that window yet"
-    },
-    {
-     "k": "t",
-     "s": "YTD"
-    },
-    {
-     "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "a",
-     "s": "Show 1Y performance, no data for that window yet"
+     "s": "Show 1Y, no data for that window yet"
     },
     {
      "k": "t",
@@ -4230,7 +4026,7 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y performance, no data for that window yet"
+     "s": "Show 2Y, no data for that window yet"
     },
     {
      "k": "t",
@@ -4249,40 +4045,12 @@
      "s": "We have not recorded anything yet. Figures will start once the app has been open for a day."
     },
     {
-     "k": "a",
-     "s": "Look ahead: what saving more could do. An estimate."
+     "k": "t",
+     "s": "SUMMARY · SINCE YOUR RECORDS BEGAN"
     },
     {
      "k": "t",
-     "s": "LOOK AHEAD: what saving more could do"
-    },
-    {
-     "k": "t",
-     "s": "estimate"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Look back: what a past move would have done. Facts about the past."
-    },
-    {
-     "k": "t",
-     "s": "LOOK BACK: what a past move would have done"
-    },
-    {
-     "k": "t",
-     "s": "facts"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
-     "s": "YOUR INVESTMENTS"
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -4290,23 +4058,31 @@
     },
     {
      "k": "t",
-     "s": "Accounts — add holdings for live tracking $250,000"
-    },
-    {
-     "k": "a",
-     "s": "Savings / portfolio, $250,000. Opens its page."
+     "s": "Wealth generated"
     },
     {
      "k": "t",
-     "s": "Savings / portfolio"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "100"
+     "s": "Return"
     },
     {
      "k": "t",
-     "s": "%"
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Return is for the window you picked (since your records began) — not a yearly rate. Money you added never counts as return."
+    },
+    {
+     "k": "t",
+     "s": "HOW $250,000 BECAME $250,000 · ALL ACCOUNTS"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (start)"
     },
     {
      "k": "t",
@@ -4314,47 +4090,59 @@
     },
     {
      "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Add investment"
+     "s": "Contributions"
     },
     {
      "k": "t",
-     "s": "＋ Add investment"
-    },
-    {
-     "k": "a",
-     "s": "Import holdings from a file"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "📄 Import file"
-    },
-    {
-     "k": "a",
-     "s": "Record a transaction"
+     "s": "Withdrawals"
     },
     {
      "k": "t",
-     "s": "＋ Record"
-    },
-    {
-     "k": "a",
-     "s": "View transaction activity"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "Activity ›"
+     "s": "Wealth generated"
     },
     {
      "k": "t",
-     "s": "End-of-day prices"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": ". Comparisons are for information only — no trades suggested. The concentration note is a fact for awareness, not advice."
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$250,000"
     }
    ],
    "new": [
@@ -4364,7 +4152,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 14, 2026"
+     "s": "Sep 26, 2026"
     },
     {
      "k": "a",
@@ -4375,6 +4163,22 @@
      "s": "↻ Refresh"
     },
     {
+     "k": "a",
+     "s": "Show Since today, no data for that window yet"
+    },
+    {
+     "k": "t",
+     "s": "Since today"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "Show 1M, no data for that window yet"
+    },
+    {
      "k": "t",
      "s": "1M"
     },
@@ -4383,28 +4187,20 @@
      "s": "—"
     },
     {
+     "k": "a",
+     "s": "Show This year, no data for that window yet"
+    },
+    {
      "k": "t",
-     "s": "3M"
+     "s": "This year"
     },
     {
      "k": "t",
      "s": "—"
     },
     {
-     "k": "t",
-     "s": "6M"
-    },
-    {
-     "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "t",
-     "s": "YTD"
-    },
-    {
-     "k": "t",
-     "s": "—"
+     "k": "a",
+     "s": "Show 1Y, no data for that window yet"
     },
     {
      "k": "t",
@@ -4413,6 +4209,10 @@
     {
      "k": "t",
      "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "Show 2Y, no data for that window yet"
     },
     {
      "k": "t",
@@ -4468,7 +4268,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS"
+     "s": "HOW TODAY'S VALUE STANDS · ALL ACCOUNTS"
     },
     {
      "k": "t",
@@ -4545,22 +4345,6 @@
     {
      "k": "t",
      "s": "Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0."
-    },
-    {
-     "k": "a",
-     "s": "Add a holding"
-    },
-    {
-     "k": "t",
-     "s": "＋ Add a holding"
-    },
-    {
-     "k": "a",
-     "s": "Import holdings from a file"
-    },
-    {
-     "k": "t",
-     "s": "📄 Import from a file instead"
     }
    ]
   },
@@ -6616,7 +6400,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -6648,7 +6432,7 @@
     },
     {
      "k": "t",
-     "s": "47"
+     "s": "87"
     },
     {
      "k": "t",
@@ -6986,7 +6770,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -7018,7 +6802,7 @@
     },
     {
      "k": "t",
-     "s": "47"
+     "s": "87"
     },
     {
      "k": "t",
@@ -7874,7 +7658,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -7906,7 +7690,7 @@
     },
     {
      "k": "t",
-     "s": "47"
+     "s": "87"
     },
     {
      "k": "t",
@@ -8244,7 +8028,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -8276,7 +8060,7 @@
     },
     {
      "k": "t",
-     "s": "47"
+     "s": "87"
     },
     {
      "k": "t",
@@ -9078,14 +8862,6 @@
     },
     {
      "k": "t",
-     "s": "🔔"
-    },
-    {
-     "k": "t",
-     "s": "payment due in 1 day"
-    },
-    {
-     "k": "t",
      "s": "Log payment"
     },
     {
@@ -9127,6 +8903,14 @@
     {
      "k": "t",
      "s": "· clear in 258 mo"
+    },
+    {
+     "k": "t",
+     "s": "🔔"
+    },
+    {
+     "k": "t",
+     "s": "payment due in 5 days"
     },
     {
      "k": "t",
@@ -9316,7 +9100,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9348,7 +9132,7 @@
     },
     {
      "k": "t",
-     "s": "47"
+     "s": "87"
     },
     {
      "k": "t",
@@ -9706,7 +9490,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9738,7 +9522,7 @@
     },
     {
      "k": "t",
-     "s": "47"
+     "s": "87"
     },
     {
      "k": "t",
@@ -16857,6 +16641,26 @@
    "file": "src/screens/AccountDetailScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
      "k": "t",
      "s": "Retirement (Traditional)"
     },
@@ -16878,6 +16682,14 @@
     },
     {
      "k": "t",
+     "s": "THIS ACCOUNT"
+    },
+    {
+     "k": "t",
+     "s": "$120,000"
+    },
+    {
+     "k": "t",
      "s": "$120,000"
     },
     {
@@ -16890,6 +16702,14 @@
     },
     {
      "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
      "s": "Return"
     },
     {
@@ -16898,11 +16718,7 @@
     },
     {
      "k": "t",
-     "s": "Income"
-    },
-    {
-     "k": "t",
-     "s": "—"
+     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
     },
     {
      "k": "t",
@@ -16954,67 +16770,67 @@
     },
     {
      "k": "t",
-     "s": "RECORD ACTIVITY"
-    },
-    {
-     "k": "a",
-     "s": "Record a deposit for Retirement (Traditional)"
-    },
-    {
-     "k": "t",
-     "s": "Deposit"
-    },
-    {
-     "k": "a",
-     "s": "Record a withdraw for Retirement (Traditional)"
-    },
-    {
-     "k": "t",
-     "s": "Withdraw"
-    },
-    {
-     "k": "a",
-     "s": "Record a transfer for Retirement (Traditional)"
-    },
-    {
-     "k": "t",
-     "s": "Transfer"
-    },
-    {
-     "k": "a",
-     "s": "Record a dividend for Retirement (Traditional)"
-    },
-    {
-     "k": "t",
-     "s": "Dividend"
-    },
-    {
-     "k": "a",
-     "s": "Record a interest for Retirement (Traditional)"
-    },
-    {
-     "k": "t",
-     "s": "Interest"
-    },
-    {
-     "k": "a",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
      "s": "ACTIVITY"
     },
     {
      "k": "t",
      "s": "Log a deposit or a buy — your history starts here."
+    },
+    {
+     "k": "a",
+     "s": "Add a contribution or withdrawal for Retirement (Traditional)"
+    },
+    {
+     "k": "t",
+     "s": "Add a contribution or withdrawal ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a dividend or interest for Retirement (Traditional)"
+    },
+    {
+     "k": "t",
+     "s": "Add a dividend or interest ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a buy or sale for Retirement (Traditional)"
+    },
+    {
+     "k": "t",
+     "s": "Add a buy or sale ›"
     }
    ],
    "rich": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Vanguard Brokerage"
     },
@@ -17032,11 +16848,19 @@
     },
     {
      "k": "t",
-     "s": "Updated Sep 12, 5:30 PM"
+     "s": "Updated Sep 12, 5:00 AM"
     },
     {
      "k": "a",
-     "s": "Balance $300,000. Stocks / Funds, taxable. Holds VTI"
+     "s": "Balance $300,000. Stocks / Funds, taxable"
+    },
+    {
+     "k": "t",
+     "s": "THIS ACCOUNT"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
     },
     {
      "k": "t",
@@ -17052,19 +16876,23 @@
     },
     {
      "k": "t",
-     "s": "Return"
-    },
-    {
-     "k": "t",
-     "s": "+11.1%"
-    },
-    {
-     "k": "t",
-     "s": "Income"
+     "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Return"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
     },
     {
      "k": "t",
@@ -17083,6 +16911,26 @@
      "s": "BY CATEGORY & HOLDING"
     },
     {
+     "k": "a",
+     "s": "Columns: category or holding, market value, return"
+    },
+    {
+     "k": "t",
+     "s": "CATEGORY / HOLDING"
+    },
+    {
+     "k": "t",
+     "s": "MARKET VALUE"
+    },
+    {
+     "k": "t",
+     "s": "RETURN"
+    },
+    {
+     "k": "a",
+     "s": "Stocks / Funds, $300,000, return —"
+    },
+    {
      "k": "t",
      "s": "Stocks / Funds"
     },
@@ -17091,8 +16939,12 @@
      "s": "$300,000"
     },
     {
+     "k": "t",
+     "s": "—"
+    },
+    {
      "k": "a",
-     "s": "VTI · 3,000 shares, $300,000. Opens its page."
+     "s": "VTI · 3,000 shares, $300,000, return —. Opens its page."
     },
     {
      "k": "t",
@@ -17104,7 +16956,31 @@
     },
     {
      "k": "t",
-     "s": "Counted inside this account's total — listed here so nothing is hidden. Income sits with the holding that earned it."
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "Total, $300,000, return —"
+    },
+    {
+     "k": "t",
+     "s": "Total"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Counted inside this account's total — listed here so nothing is hidden. A holding's return is what its own price did in this window; the income it paid sits on the line beneath it. Income sits with the holding that earned it"
+    },
+    {
+     "k": "t",
+     "s": "."
     },
     {
      "k": "a",
@@ -17116,67 +16992,67 @@
     },
     {
      "k": "t",
-     "s": "RECORD ACTIVITY"
-    },
-    {
-     "k": "a",
-     "s": "Record a deposit for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Deposit"
-    },
-    {
-     "k": "a",
-     "s": "Record a withdraw for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Withdraw"
-    },
-    {
-     "k": "a",
-     "s": "Record a transfer for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Transfer"
-    },
-    {
-     "k": "a",
-     "s": "Record a dividend for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Dividend"
-    },
-    {
-     "k": "a",
-     "s": "Record a interest for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Interest"
-    },
-    {
-     "k": "a",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
      "s": "ACTIVITY"
     },
     {
      "k": "t",
      "s": "Log a deposit or a buy — your history starts here."
+    },
+    {
+     "k": "a",
+     "s": "Add a contribution or withdrawal for Brokerage"
+    },
+    {
+     "k": "t",
+     "s": "Add a contribution or withdrawal ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a dividend or interest for Brokerage"
+    },
+    {
+     "k": "t",
+     "s": "Add a dividend or interest ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a buy or sale for Brokerage"
+    },
+    {
+     "k": "t",
+     "s": "Add a buy or sale ›"
     }
    ],
    "rich|account:brokerage": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Vanguard Brokerage"
     },
@@ -17194,11 +17070,19 @@
     },
     {
      "k": "t",
-     "s": "Updated Sep 12, 5:30 PM"
+     "s": "Updated Sep 12, 5:00 AM"
     },
     {
      "k": "a",
-     "s": "Balance $300,000. Stocks / Funds, taxable. Holds VTI"
+     "s": "Balance $300,000. Stocks / Funds, taxable"
+    },
+    {
+     "k": "t",
+     "s": "THIS ACCOUNT"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
     },
     {
      "k": "t",
@@ -17214,19 +17098,23 @@
     },
     {
      "k": "t",
-     "s": "Return"
-    },
-    {
-     "k": "t",
-     "s": "+11.1%"
-    },
-    {
-     "k": "t",
-     "s": "Income"
+     "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Return"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
     },
     {
      "k": "t",
@@ -17245,6 +17133,26 @@
      "s": "BY CATEGORY & HOLDING"
     },
     {
+     "k": "a",
+     "s": "Columns: category or holding, market value, return"
+    },
+    {
+     "k": "t",
+     "s": "CATEGORY / HOLDING"
+    },
+    {
+     "k": "t",
+     "s": "MARKET VALUE"
+    },
+    {
+     "k": "t",
+     "s": "RETURN"
+    },
+    {
+     "k": "a",
+     "s": "Stocks / Funds, $300,000, return —"
+    },
+    {
      "k": "t",
      "s": "Stocks / Funds"
     },
@@ -17253,8 +17161,12 @@
      "s": "$300,000"
     },
     {
+     "k": "t",
+     "s": "—"
+    },
+    {
      "k": "a",
-     "s": "VTI · 3,000 shares, $300,000. Opens its page."
+     "s": "VTI · 3,000 shares, $300,000, return —. Opens its page."
     },
     {
      "k": "t",
@@ -17266,7 +17178,31 @@
     },
     {
      "k": "t",
-     "s": "Counted inside this account's total — listed here so nothing is hidden. Income sits with the holding that earned it."
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "Total, $300,000, return —"
+    },
+    {
+     "k": "t",
+     "s": "Total"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Counted inside this account's total — listed here so nothing is hidden. A holding's return is what its own price did in this window; the income it paid sits on the line beneath it. Income sits with the holding that earned it"
+    },
+    {
+     "k": "t",
+     "s": "."
     },
     {
      "k": "a",
@@ -17278,66 +17214,66 @@
     },
     {
      "k": "t",
-     "s": "RECORD ACTIVITY"
-    },
-    {
-     "k": "a",
-     "s": "Record a deposit for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Deposit"
-    },
-    {
-     "k": "a",
-     "s": "Record a withdraw for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Withdraw"
-    },
-    {
-     "k": "a",
-     "s": "Record a transfer for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Transfer"
-    },
-    {
-     "k": "a",
-     "s": "Record a dividend for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Dividend"
-    },
-    {
-     "k": "a",
-     "s": "Record a interest for Brokerage"
-    },
-    {
-     "k": "t",
-     "s": "Interest"
-    },
-    {
-     "k": "a",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
      "s": "ACTIVITY"
     },
     {
      "k": "t",
      "s": "Log a deposit or a buy — your history starts here."
+    },
+    {
+     "k": "a",
+     "s": "Add a contribution or withdrawal for Brokerage"
+    },
+    {
+     "k": "t",
+     "s": "Add a contribution or withdrawal ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a dividend or interest for Brokerage"
+    },
+    {
+     "k": "t",
+     "s": "Add a dividend or interest ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a buy or sale for Brokerage"
+    },
+    {
+     "k": "t",
+     "s": "Add a buy or sale ›"
     }
    ],
    "rich|account:savings": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Ally Savings"
@@ -17360,6 +17296,14 @@
     },
     {
      "k": "t",
+     "s": "THIS ACCOUNT"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "t",
      "s": "$20,000"
     },
     {
@@ -17372,6 +17316,14 @@
     },
     {
      "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
      "s": "Return"
     },
     {
@@ -17380,11 +17332,7 @@
     },
     {
      "k": "t",
-     "s": "Income"
-    },
-    {
-     "k": "t",
-     "s": "—"
+     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
     },
     {
      "k": "t",
@@ -17436,50 +17384,58 @@
     },
     {
      "k": "t",
-     "s": "RECORD ACTIVITY"
-    },
-    {
-     "k": "a",
-     "s": "Record a deposit for Ally Savings"
-    },
-    {
-     "k": "t",
-     "s": "Deposit"
-    },
-    {
-     "k": "a",
-     "s": "Record a withdraw for Ally Savings"
-    },
-    {
-     "k": "t",
-     "s": "Withdraw"
-    },
-    {
-     "k": "a",
-     "s": "Record a transfer for Ally Savings"
-    },
-    {
-     "k": "t",
-     "s": "Transfer"
-    },
-    {
-     "k": "a",
-     "s": "Record a interest for Ally Savings"
-    },
-    {
-     "k": "t",
-     "s": "Interest"
-    },
-    {
-     "k": "t",
      "s": "ACTIVITY"
     },
     {
      "k": "t",
      "s": "Log a deposit or a buy — your history starts here."
+    },
+    {
+     "k": "a",
+     "s": "Add a contribution or withdrawal for Ally Savings"
+    },
+    {
+     "k": "t",
+     "s": "Add a contribution or withdrawal ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a dividend or interest for Ally Savings"
+    },
+    {
+     "k": "t",
+     "s": "Add a dividend or interest ›"
     }
    ],
    "rich|account:trad_ira": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Fidelity Traditional IRA"
@@ -17502,6 +17458,14 @@
     },
     {
      "k": "t",
+     "s": "THIS ACCOUNT"
+    },
+    {
+     "k": "t",
+     "s": "$400,000"
+    },
+    {
+     "k": "t",
      "s": "$400,000"
     },
     {
@@ -17514,6 +17478,14 @@
     },
     {
      "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
      "s": "Return"
     },
     {
@@ -17522,11 +17494,7 @@
     },
     {
      "k": "t",
-     "s": "Income"
-    },
-    {
-     "k": "t",
-     "s": "—"
+     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
     },
     {
      "k": "t",
@@ -17578,66 +17546,66 @@
     },
     {
      "k": "t",
-     "s": "RECORD ACTIVITY"
-    },
-    {
-     "k": "a",
-     "s": "Record a deposit for Traditional IRA"
-    },
-    {
-     "k": "t",
-     "s": "Deposit"
-    },
-    {
-     "k": "a",
-     "s": "Record a withdraw for Traditional IRA"
-    },
-    {
-     "k": "t",
-     "s": "Withdraw"
-    },
-    {
-     "k": "a",
-     "s": "Record a transfer for Traditional IRA"
-    },
-    {
-     "k": "t",
-     "s": "Transfer"
-    },
-    {
-     "k": "a",
-     "s": "Record a dividend for Traditional IRA"
-    },
-    {
-     "k": "t",
-     "s": "Dividend"
-    },
-    {
-     "k": "a",
-     "s": "Record a interest for Traditional IRA"
-    },
-    {
-     "k": "t",
-     "s": "Interest"
-    },
-    {
-     "k": "a",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
      "s": "ACTIVITY"
     },
     {
      "k": "t",
      "s": "Log a deposit or a buy — your history starts here."
+    },
+    {
+     "k": "a",
+     "s": "Add a contribution or withdrawal for Traditional IRA"
+    },
+    {
+     "k": "t",
+     "s": "Add a contribution or withdrawal ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a dividend or interest for Traditional IRA"
+    },
+    {
+     "k": "t",
+     "s": "Add a dividend or interest ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a buy or sale for Traditional IRA"
+    },
+    {
+     "k": "t",
+     "s": "Add a buy or sale ›"
     }
    ],
    "rich|account:bond": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "TreasuryDirect Treasury note"
@@ -17660,6 +17628,14 @@
     },
     {
      "k": "t",
+     "s": "THIS ACCOUNT"
+    },
+    {
+     "k": "t",
+     "s": "$9,800"
+    },
+    {
+     "k": "t",
      "s": "$9,800"
     },
     {
@@ -17672,6 +17648,14 @@
     },
     {
      "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
      "s": "Return"
     },
     {
@@ -17680,11 +17664,7 @@
     },
     {
      "k": "t",
-     "s": "Income"
-    },
-    {
-     "k": "t",
-     "s": "—"
+     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
     },
     {
      "k": "t",
@@ -17892,66 +17872,66 @@
     },
     {
      "k": "t",
-     "s": "RECORD ACTIVITY"
-    },
-    {
-     "k": "a",
-     "s": "Record a deposit for Treasury note"
-    },
-    {
-     "k": "t",
-     "s": "Deposit"
-    },
-    {
-     "k": "a",
-     "s": "Record a withdraw for Treasury note"
-    },
-    {
-     "k": "t",
-     "s": "Withdraw"
-    },
-    {
-     "k": "a",
-     "s": "Record a transfer for Treasury note"
-    },
-    {
-     "k": "t",
-     "s": "Transfer"
-    },
-    {
-     "k": "a",
-     "s": "Record a coupon received for Treasury note"
-    },
-    {
-     "k": "t",
-     "s": "Coupon received"
-    },
-    {
-     "k": "a",
-     "s": "Record a interest for Treasury note"
-    },
-    {
-     "k": "t",
-     "s": "Interest"
-    },
-    {
-     "k": "a",
-     "s": "Buy more / Sell this bond ›"
-    },
-    {
-     "k": "t",
-     "s": "Buy more / Sell this bond ›"
-    },
-    {
-     "k": "t",
      "s": "ACTIVITY"
     },
     {
      "k": "t",
      "s": "Log a deposit or a buy — your history starts here."
+    },
+    {
+     "k": "a",
+     "s": "Add a contribution or withdrawal for Treasury note"
+    },
+    {
+     "k": "t",
+     "s": "Add a contribution or withdrawal ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a dividend or interest for Treasury note"
+    },
+    {
+     "k": "t",
+     "s": "Add a dividend or interest ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a buy or sale for Treasury note"
+    },
+    {
+     "k": "t",
+     "s": "Add a buy or sale ›"
     }
    ],
    "retiree": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Savings / portfolio"
@@ -17974,6 +17954,14 @@
     },
     {
      "k": "t",
+     "s": "THIS ACCOUNT"
+    },
+    {
+     "k": "t",
+     "s": "$250,000"
+    },
+    {
+     "k": "t",
      "s": "$250,000"
     },
     {
@@ -17986,6 +17974,14 @@
     },
     {
      "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
      "s": "Return"
     },
     {
@@ -17994,11 +17990,7 @@
     },
     {
      "k": "t",
-     "s": "Income"
-    },
-    {
-     "k": "t",
-     "s": "—"
+     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
     },
     {
      "k": "t",
@@ -18050,66 +18042,66 @@
     },
     {
      "k": "t",
-     "s": "RECORD ACTIVITY"
-    },
-    {
-     "k": "a",
-     "s": "Record a deposit for Savings / portfolio"
-    },
-    {
-     "k": "t",
-     "s": "Deposit"
-    },
-    {
-     "k": "a",
-     "s": "Record a withdraw for Savings / portfolio"
-    },
-    {
-     "k": "t",
-     "s": "Withdraw"
-    },
-    {
-     "k": "a",
-     "s": "Record a transfer for Savings / portfolio"
-    },
-    {
-     "k": "t",
-     "s": "Transfer"
-    },
-    {
-     "k": "a",
-     "s": "Record a dividend for Savings / portfolio"
-    },
-    {
-     "k": "t",
-     "s": "Dividend"
-    },
-    {
-     "k": "a",
-     "s": "Record a interest for Savings / portfolio"
-    },
-    {
-     "k": "t",
-     "s": "Interest"
-    },
-    {
-     "k": "a",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
-     "s": "Buy / Sell holdings ›"
-    },
-    {
-     "k": "t",
      "s": "ACTIVITY"
     },
     {
      "k": "t",
      "s": "Log a deposit or a buy — your history starts here."
+    },
+    {
+     "k": "a",
+     "s": "Add a contribution or withdrawal for Savings / portfolio"
+    },
+    {
+     "k": "t",
+     "s": "Add a contribution or withdrawal ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a dividend or interest for Savings / portfolio"
+    },
+    {
+     "k": "t",
+     "s": "Add a dividend or interest ›"
+    },
+    {
+     "k": "a",
+     "s": "Add a buy or sale for Savings / portfolio"
+    },
+    {
+     "k": "t",
+     "s": "Add a buy or sale ›"
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "This one lives in your setup answers"
@@ -18128,6 +18120,34 @@
     }
    ],
    "new|Open the Net worth": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "This one lives in your setup answers"
@@ -19739,7 +19759,7 @@
     },
     {
      "k": "t",
-     "s": "matures May 15, 2031 (4.7y)"
+     "s": "matures May 15, 2031 (4.6y)"
     },
     {
      "k": "t",
@@ -19767,7 +19787,7 @@
     },
     {
      "k": "t",
-     "s": "4.47%"
+     "s": "4.48%"
     },
     {
      "k": "t",
@@ -21764,7 +21784,7 @@
     },
     {
      "k": "t",
-     "s": "Jun 8, 2026"
+     "s": "Jun 7, 2026"
     },
     {
      "k": "t",
@@ -21796,7 +21816,7 @@
     },
     {
      "k": "t",
-     "s": "Jun 5, 2026"
+     "s": "Jun 4, 2026"
     },
     {
      "k": "t",
@@ -35790,7 +35810,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:208",
+   "site": "src/screens/AccountDetailScreen.tsx:340",
    "routes": [
     "/account-detail"
    ],
@@ -35800,7 +35820,7 @@
     "/account-detail|worker"
    ],
    "inside": "AccountDetailScreen",
-   "line": "accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.leng",
+   "line": "accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${insideRows.l",
    "values": [
     "$120,000",
     "$300,000",
@@ -35812,7 +35832,52 @@
    "renders": 7
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:209",
+   "site": "src/screens/AccountDetailScreen.tsx:448",
+   "routes": [
+    "/account-detail"
+   ],
+   "states": [
+    "/account-detail|rich"
+   ],
+   "inside": "AccountDetailScreen",
+   "line": "accessibilityLabel={`${ASSET_CLASS_LABEL[k]}, ${spokenMoney(Math.round(total))}, return ${classReturnText(k, total, inClass)}`}>",
+   "values": [
+    "$300,000"
+   ],
+   "renders": 2
+  },
+  {
+   "site": "src/screens/AccountDetailScreen.tsx:458",
+   "routes": [
+    "/account-detail"
+   ],
+   "states": [
+    "/account-detail|rich"
+   ],
+   "inside": "AccountDetailScreen",
+   "line": "accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}, return ${returnTextFor(rw.cls, rw.value, rw.ticker)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.po",
+   "values": [
+    "$300,000"
+   ],
+   "renders": 2
+  },
+  {
+   "site": "src/screens/AccountDetailScreen.tsx:476",
+   "routes": [
+    "/account-detail"
+   ],
+   "states": [
+    "/account-detail|rich"
+   ],
+   "inside": "AccountDetailScreen",
+   "line": "accessibilityLabel={`Total, ${spokenMoney(Math.round(account.balance || 0))}, return ${acctReturnText}`}>",
+   "values": [
+    "$300,000"
+   ],
+   "renders": 2
+  },
+  {
+   "site": "src/screens/AccountDetailScreen.tsx:54",
    "routes": [
     "/account-detail"
    ],
@@ -35821,8 +35886,8 @@
     "/account-detail|rich",
     "/account-detail|worker"
    ],
-   "inside": "AccountDetailScreen",
-   "line": "<Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>",
+   "inside": "mny",
+   "line": "const mny = (v: number): string => maskedMoney(Math.round(v));",
    "values": [
     "$120,000",
     "$300,000",
@@ -35831,77 +35896,10 @@
     "$9,800",
     "$250,000"
    ],
-   "renders": 7
+   "renders": 11
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:213",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|retiree",
-    "/account-detail|rich",
-    "/account-detail|worker"
-   ],
-   "inside": "AccountDetailScreen",
-   "line": "<View style={s.trioCell}><Text style={s.trioLbl}>Market value</Text><Text style={s.trioVal}>{maskedMoney(Math.round(account.balance || 0))}</Text></View>",
-   "values": [
-    "$120,000",
-    "$300,000",
-    "$20,000",
-    "$400,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:237",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "AccountDetailScreen",
-   "line": "<SectionBand light title={`${ASSET_CLASS_LABEL[k]}`} value={maskedMoney(Math.round(total))} />",
-   "values": [
-    "$300,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:243",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "AccountDetailScreen",
-   "line": "accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>",
-   "values": [
-    "$300,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:249",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "AccountDetailScreen",
-   "line": "<Text style={s.optVal}>{maskedMoney(rw.value)}</Text>",
-   "values": [
-    "$300,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:439",
+   "site": "src/screens/AccountDetailScreen.tsx:667",
    "routes": [
     "/account-detail"
    ],
@@ -35916,7 +35914,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:440",
+   "site": "src/screens/AccountDetailScreen.tsx:668",
    "routes": [
     "/account-detail"
    ],
@@ -35931,7 +35929,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:447",
+   "site": "src/screens/AccountDetailScreen.tsx:675",
    "routes": [
     "/account-detail"
    ],
@@ -35947,7 +35945,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:453",
+   "site": "src/screens/AccountDetailScreen.tsx:681",
    "routes": [
     "/account-detail"
    ],
@@ -35963,7 +35961,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:454",
+   "site": "src/screens/AccountDetailScreen.tsx:682",
    "routes": [
     "/account-detail"
    ],
@@ -35978,7 +35976,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:455",
+   "site": "src/screens/AccountDetailScreen.tsx:683",
    "routes": [
     "/account-detail"
    ],
@@ -39032,7 +39030,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:259",
+   "site": "src/screens/PerformanceScreen.tsx:292",
    "routes": [
     "/invest"
    ],
@@ -39047,7 +39045,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:260",
+   "site": "src/screens/PerformanceScreen.tsx:293",
    "routes": [
     "/invest"
    ],
@@ -39062,7 +39060,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:272",
+   "site": "src/screens/PerformanceScreen.tsx:308",
    "routes": [
     "/invest"
    ],
@@ -39077,7 +39075,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:277",
+   "site": "src/screens/PerformanceScreen.tsx:313",
    "routes": [
     "/invest"
    ],
@@ -39092,94 +39090,134 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:371",
+   "site": "src/screens/PerformanceScreen.tsx:345",
    "routes": [
     "/invest"
    ],
    "states": [
-    "/invest|rich"
+    "/invest|retiree",
+    "/invest|rich",
+    "/invest|worker"
    ],
    "inside": "PerformanceScreen",
-   "line": "<View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(ending))}</Text></View>",
+   "line": "<View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(walk.ending))}</Text></View>",
    "values": [
-    "$709,800"
+    "$165,000",
+    "$709,800",
+    "$250,000"
    ],
-   "renders": 2
+   "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:372",
+   "site": "src/screens/PerformanceScreen.tsx:346",
    "routes": [
     "/invest"
    ],
    "states": [
-    "/invest|rich"
+    "/invest|retiree",
+    "/invest|rich",
+    "/invest|worker"
    ],
    "inside": "PerformanceScreen",
    "line": "<View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGener",
    "values": [
     "$0"
    ],
-   "renders": 2
+   "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:387",
+   "site": "src/screens/PerformanceScreen.tsx:373",
    "routes": [
     "/invest"
    ],
    "states": [
-    "/invest|rich"
+    "/invest|retiree",
+    "/invest|rich",
+    "/invest|worker"
    ],
    "inside": "PerformanceScreen",
    "line": "<SectionBand inCard title={`HOW ${maskedMoney(Math.round(walk.beginning))} BECAME ${maskedMoney(Math.round(walk.ending))} · ALL ACCOUNTS`} />",
    "values": [
-    "$709,800"
+    "$165,000",
+    "$709,800",
+    "$250,000"
    ],
-   "renders": 4
+   "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:400",
+   "site": "src/screens/PerformanceScreen.tsx:386",
    "routes": [
     "/invest"
    ],
    "states": [
-    "/invest|rich"
+    "/invest|retiree",
+    "/invest|rich",
+    "/invest|worker"
    ],
    "inside": "PerformanceScreen",
    "line": "{r.v < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(r.v)))}",
    "values": [
+    "$165,000",
+    "$0",
     "$709,800",
-    "$0"
+    "$250,000"
    ],
-   "renders": 14
+   "renders": 28
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:406",
+   "site": "src/screens/PerformanceScreen.tsx:392",
    "routes": [
     "/invest"
    ],
    "states": [
-    "/invest|rich"
+    "/invest|retiree",
+    "/invest|rich",
+    "/invest|worker"
    ],
    "inside": "PerformanceScreen",
    "line": "<Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{maskedMoney(Math.round(walk.ending))}</Text>",
    "values": [
-    "$709,800"
+    "$165,000",
+    "$709,800",
+    "$250,000"
    ],
-   "renders": 2
+   "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:456",
+   "site": "src/screens/PerformanceScreen.tsx:449",
    "routes": [
     "/invest"
    ],
    "states": [
-    "/invest|rich"
+    "/invest|rich",
+    "/invest|worker"
    ],
    "inside": "PerformanceScreen",
    "line": "accessibilityLabel={`${a.label}, ${spokenMoney(Math.round(a.ending))}. ${isOpen ? 'Collapses' : 'Expands'} its walk.`}>",
    "values": [
+    "$120,000",
+    "$45,000",
     "$0",
-    "$20,000",
+    "$400,000",
+    "$9,800"
+   ],
+   "renders": 8
+  },
+  {
+   "site": "src/screens/PerformanceScreen.tsx:450",
+   "routes": [
+    "/invest"
+   ],
+   "states": [
+    "/invest|rich",
+    "/invest|worker"
+   ],
+   "inside": "PerformanceScreen",
+   "line": "<SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))} />",
+   "values": [
+    "$120,000",
+    "$45,000",
+    "$0",
     "$400,000",
     "$9,800"
    ],
@@ -39191,25 +39229,8 @@
     "/invest"
    ],
    "states": [
-    "/invest|rich"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "<SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))} />",
-   "values": [
-    "$0",
-    "$20,000",
-    "$400,000",
-    "$9,800"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:461",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|rich"
+    "/invest|rich",
+    "/invest|worker"
    ],
    "inside": "PerformanceScreen",
    "line": "wealth generated {w.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(w.wealthGenerated)))} · tap to see the walk",
@@ -39217,148 +39238,6 @@
     "$0"
    ],
    "renders": 8
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:547",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|rich"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "accessibilityLabel={`Portfolio value ${spokenMoney(investTotalAll)}. ${portReturn == null ? 'Not enough price history yet for this period.' : `${periodDollar >= 0 ? 'Up' : 'Down'} ${spokenMoney(Math.a",
-   "values": [
-    "$709,800"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:555",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|rich"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "<Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ up ' : '▼ down '}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>",
-   "values": [
-    "$0"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:675",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|retiree",
-    "/invest|rich",
-    "/invest|worker"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "<Text style={styles.groupHdrTop} onLayout={(e) => { invListY.current = e.nativeEvent.layout.y; }}>YOUR INVESTMENTS   <Text>{maskedMoney(investTotalAll)}</Text></Text>",
-   "values": [
-    "$165,000",
-    "$709,800",
-    "$250,000"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:686",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|retiree",
-    "/invest|rich",
-    "/invest|worker"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "<SectionBand title={`${label}   ${maskedMoney(Math.round(total as number))}`} />",
-   "values": [
-    "$165,000",
-    "$0",
-    "$9,800",
-    "$400,000",
-    "$250,000"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:707",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|rich"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "accessibilityLabel={`${it.position.label || it.position.ticker}, ${spokenMoney(Math.round(shownVal))}${unpriced ? ', no current price, showing what you paid' : ''}${it.periodReturn != null ? `, ${it.p",
-   "values": [
-    "$270,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:723",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|rich"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "<Text style={styles.invVal}>{maskedMoney(Math.round(shownVal))}</Text>",
-   "values": [
-    "$270,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:733",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|retiree",
-    "/invest|rich",
-    "/invest|worker"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "accessibilityLabel={`${it.label}, ${spokenMoney(Math.round(it.balance || 0))}${fresh ? `, value as of ${fresh.asOf}${fresh.stale ? `, ${fresh.monthsOld} months old` : ''}` : ''}. Opens its page.`}>",
-   "values": [
-    "$120,000",
-    "$45,000",
-    "$9,800",
-    "$400,000",
-    "$250,000"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/screens/PerformanceScreen.tsx:743",
-   "routes": [
-    "/invest"
-   ],
-   "states": [
-    "/invest|retiree",
-    "/invest|rich",
-    "/invest|worker"
-   ],
-   "inside": "PerformanceScreen",
-   "line": "<Text style={styles.invVal}>{maskedMoney(Math.round(it.balance || 0))}</Text>",
-   "values": [
-    "$120,000",
-    "$45,000",
-    "$9,800",
-    "$400,000",
-    "$250,000"
-   ],
-   "renders": 7
   },
   {
    "site": "src/screens/PlanHubScreen.tsx:237",

@@ -148,9 +148,12 @@ test('E2E-43 deposit then withdraw on a cash account: balance right, history sho
   mockParams = { id: 'chk' };
   const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
   render(<AccountDetailScreen />);
+  // mock v14: money in and money out share ONE door, and the kind is chosen inside its sheet
+  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   fireEvent.press(screen.getByLabelText('Record a deposit for Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '500');
   fireEvent.press(screen.getByLabelText('Save this deposit'));
+  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   fireEvent.press(screen.getByLabelText('Record a withdraw for Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '200');
   fireEvent.press(screen.getByLabelText('Save this withdraw'));

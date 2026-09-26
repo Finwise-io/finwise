@@ -2,10 +2,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import Svg, { Path, Line } from 'react-native-svg';
+import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
+import { SourceChip } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
 import { buildChangeWalk } from '../domain/history';
@@ -13,10 +14,10 @@ import { personalFlowTotals } from '../../Calculation Module code/engines/ledger
 import { windowBounds, modifiedDietzOverWindow } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
 import { valueOn, covers as snapshotCovers } from '../../Calculation Module code/engines/snapshots';
-import { Colors, Spacing, Radii, ChartPalette, ClassMarkColors } from '../utils/theme';
+import { Colors, Spacing, Radii, Shadows, ClassMarkColors } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
+import { ASSET_KINDS, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { isBond } from '../domain/bonds';
 import { isAlternative } from '../domain/alternatives';
@@ -24,26 +25,26 @@ import { valueFreshness } from '../domain/assets';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { searchTickers } from '../constants/tickers';
 import {
-  buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, benchmarkTicker, totalShares, costBasis,
-  attribution, allocation, portfolioTrend, topHoldingConcentration,
-  PERIODS, type Period, type Position, type Lot, type TrendPoint,
+  buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
+  type Period, type Position, type Lot,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
-import { moneyWeightedReturn, isMoneyWeighted } from '../domain/performance/moneyWeighted';
 // THE CALCULATION MODULE — say plainly when a window reaches further back than our record.
 // Founder 2026-08-18: the memory limit was a code comment; nobody using the app was ever told.
 import { coverageFor } from '../../Calculation Module code/engines/coverage';
-import { InfoDot, EstimateTag, EmptyNote } from '../components/UI';
+import { EmptyNote } from '../components/UI';
+import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../constants/doors';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
-import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { BondEditor } from './BondsScreen';
 import { AltEditor } from './OtherInvestmentsScreen';
 import { isoLocalDate } from '../domain/_shared/dates';
+import { rebuiltSentence } from '../../Calculation Module code/engines/rebuild-history';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
-const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
+// Q49 (founder, 2026-09-09): two decimals on every return — one rounding, at display.
+const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(2)}%`);
 // A holding's TYPE = its instrument class (sets the benchmark) — not an account type (401k/IRA/529/brokerage).
 const ACCOUNT_TYPE_IDS = ['brokerage', '401k', 'trad_ira', 'roth_ira', 'hsa', 'college_529', 'checking', 'savings', 'home', 'vehicle'];
 const KIND_OPTIONS = ASSET_KINDS.filter((k) => k.section === 'Investments' && !ACCOUNT_TYPE_IDS.includes(k.id));
@@ -56,11 +57,11 @@ export default function PerformanceScreen() {
   const simple = (store.displayMode ?? 'simple') === 'simple';   // Simple hides technical detail; Advisor shows it
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
   const priceCache = store.priceCache ?? {};
-  const [period, setPeriod] = useState<Period>('1Y');
+  // mock v14: the screen opens on SINCE — the window our own record actually covers. Build 53
+  // opened on the past year and back-solved a beginning for days it never saw (founder screenshot
+  // 2026-08-17: "HOW −$448,028 BECAME $362,089").
+  const [period, setPeriod] = useState<Period>('SINCE' as any);
   const [openAcctWalk, setOpenAcctWalk] = useState<Record<string, boolean>>({});   // per-account walks (final mock)
-  // walk row 17: the concentration callout scrolls to the holdings list (reach-through, wired at last)
-  const scrollRef = React.useRef<ScrollView>(null);
-  const invListY = React.useRef(0);
   // B46 findings 3+6 router: the non-ticker types open their OWN editors (separate fields)
   const [bondAddOpen, setBondAddOpen] = React.useState(false);
   const [altAddKind, setAltAddKind] = React.useState<string | null>(null);
@@ -69,6 +70,7 @@ export default function PerformanceScreen() {
   const [edit, setEdit] = useState<{ accountId: string; position: Position } | null>(null);
   const [txnOpen, setTxnOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [addChooser, setAddChooser] = useState(false);   // mock v14 mark 9: the one line opens the three ways to add an account
 
   // every position across accounts, tagged with its owning account
   const owned = useMemo(() => accounts.flatMap((a) => (a.positions ?? []).map((p) => ({ accountId: a.asset_id, p }))), [accounts]);
@@ -92,7 +94,6 @@ export default function PerformanceScreen() {
     [owned, priceCache, period, earliestBuyByTicker]);
   const sinceWord = (iso: string) => `since you bought · ${new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
   const anyCapped = rows.some((r) => r.cappedSince != null);
-  const portReturn = portfolioPeriodReturn(rows);
   // FINAL mock: every chip shows ITS OWN return — a window with no data shows an em-dash, never a
   // guess. Same rows and function as the headline, just run per period, so chips can't disagree with it.
   // the earliest day we actually have data for — the mock's "Since <date>" chip
@@ -100,16 +101,6 @@ export default function PerformanceScreen() {
     const keys = Object.keys((store.invDaily ?? {}) as Record<string, number>).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
     return keys.length ? new Date(`${keys[0]}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
   }, [store.invDaily]);
-  const chipReturns = useMemo(() => {
-    const out: Record<string, number | null> = {};
-    for (const p of [...PERIODS, 'SINCE' as any]) {
-      const r = p === period ? rows : buildPerformance(positions, priceOf, p, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()] ?? null);
-      out[p] = portfolioPeriodReturn(r);
-    }
-    return out;
-  }, [rows, period, owned, priceCache, earliestBuyByTicker]);
-  const benchPort = portfolioBenchReturn(rows);   // the ONE shared formula Home uses too (walk row 5)
-  const portBeat = portReturn != null && benchPort != null ? portReturn - benchPort : null;
   const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
   // FCC glance pin: the SAME resolved rows + helper Home's hero uses — the two can never disagree
   const resolvedNwAccounts = resolveNetWorthRows(
@@ -118,30 +109,11 @@ export default function PerformanceScreen() {
   const investTotalAll = investmentsTotal(resolvedNwAccounts);
   const investedValue = rows.reduce((t, r) => t + r.marketValue, 0);
   const totalValue = investedValue + cashTotal;
-  const attr = useMemo(() => attribution(rows), [rows]);
-  const alloc = useMemo(() => allocation(rows, cashTotal), [rows, cashTotal]);
-  const trend = useMemo(() => portfolioTrend(positions, priceOf, period), [owned, priceCache, period]);
-  const trendChange = trend.length > 1 ? { you: trend[trend.length - 1].value / trend[0].value - 1, bench: trend[0].bench > 0 ? trend[trend.length - 1].bench / trend[0].bench - 1 : 0 } : null;
   // FCC glance-then-drill: the period's DOLLAR gain (same rows as the %), winners & laggards,
   // the holding-concentration fact, and the grouped all-investments list (bonds + alts folded in)
   // capped rows: the dollar is YOUR true gain (value − cost) — same math as unrealized everywhere
   const rowGain = (r: any) => (r.cappedSince ? r.gain : r.periodReturn != null && r.marketValue > 0 ? r.marketValue * (1 - 1 / (1 + r.periodReturn)) : 0);
   const periodDollar = rows.reduce((t, r) => t + rowGain(r), 0);
-  // r16 (mock return-breakdown-v1, founder-approved 2026-08-03): where the return came from —
-  // realized/dividends/interest are LEDGER rows in the window; price change is the on-paper
-  // remainder, so the four lines sum to the period total by construction. Ledger-only, no estimates.
-  const breakdown = useMemo(() => {
-    const { startDateFor } = require('../domain/performance');
-    const { realizedFromLedger } = require('../domain/performance/realized');
-    const startIso = startDateFor(period, new Date()).toISOString().slice(0, 10);
-    const txns = ((store.transactions ?? []) as any[]).filter((t) => String(t.date ?? '') >= startIso);
-    const sum = (type: string) => txns.filter((t) => t.type === type).reduce((t2, x) => t2 + (x.amount || 0), 0);
-    const dividends = Math.round(sum('DIVIDEND'));
-    const interest = Math.round(sum('INTEREST'));
-    const realized = Math.round(realizedFromLedger((store.transactions ?? []).filter((t: any) => String(t.date ?? '') >= startIso), {}).realizedAllTime || 0);
-    const price = Math.round(periodDollar) - realized - dividends - interest;
-    return { price, realized, dividends, interest };
-  }, [store.transactions, period, periodDollar]);
   const ranked = rows.filter((r) => r.periodReturn != null && r.marketValue > 0)
     .map((r) => ({ r, gain: rowGain(r) })).sort((a, b) => b.gain - a.gain);
   const laggards = ranked.filter((x) => x.gain < 0).slice(-2);
@@ -168,48 +140,127 @@ export default function PerformanceScreen() {
   // so the summary title read undefined.toUpperCase(). Every window now has words, the Since one included.
   const phraseFor = (p: string): string => (p === 'SINCE' ? `since ${dataStartLabel ?? 'your records began'}` : PERIOD_PHRASE[p] ?? 'this window');
   const beginLabelFor = (p: string): string => (p === 'SINCE' ? (dataStartLabel ?? 'start') : `${phraseFor(p)} start`);
+  // THE FIVE WINDOWS the screen offers (mock v14). "This year" is YTD said in words; 3M and 6M go —
+  // Build 53 offered six windows and called YTD "YTD".
+  const WINDOWS: { key: string; label: string }[] = [
+    { key: 'SINCE', label: dataStartLabel ? `Since ${dataStartLabel}` : 'Since today' },
+    { key: '1M', label: '1M' }, { key: 'YTD', label: 'This year' }, { key: '1Y', label: '1Y' }, { key: '2Y', label: '2Y' },
+  ];
+  // ONE MEANING OF RETURN on this screen (founder, 2026-09-25 — he caught the same disagreement on
+  // the account page). It is wealth generated ÷ the money that was working in the window, counting
+  // each contribution for the part of the window it was there (Modified Dietz). The old figure came
+  // from PRICE CHANGE only, weighted by holding, so it silently disagreed with "Wealth generated"
+  // standing beside it, which counts dividends and interest. Same function for the window selector,
+  // the summary and the walk, so no two figures on this screen can tell different stories.
+  const investIds = useMemo(() => new Set<string>(resolvedNwAccounts
+    .filter((a: any) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives' || c === 'mixed'; })
+    .map((a: any) => String(a.asset_id))), [resolvedNwAccounts]);
+  const figuresFor = (p: string) => {
+    const windowStart = periodStartKey(p);
+    const todayKey = isoLocalDate(new Date());
+    const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
+    const flows = personalFlowTotals(led);
+    const contributions = flows.contributions.toNumber(2);
+    const withdrawals = flows.withdrawals.toNumber(2);
+    const dividends = flows.dividends.toNumber(2);
+    const interest = flows.interest.toNumber(2);
+    const ending = investTotalAll;
+    const bounds = windowStart ? windowBounds(windowStart, todayKey) : null;
+    const snapDays = (store as any).snapshotDays ?? [];
+    // the beginning is READ from the daily record — which now reaches back through a linked
+    // account's own transactions (store.rebuildLinkedHistory) — and only derived when it cannot be read
+    const measured = bounds && snapshotCovers(snapDays, bounds.beginningAsOf) ? valueOn(snapDays, investIds, bounds.beginningAsOf) : null;
+    const priced = p === period ? rows : buildPerformance(positions, priceOf, p as Period, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()] ?? null);
+    const pricedDollar = priced.reduce((t: number, r: any) => t + rowGain(r), 0);
+    const beginning = measured ?? (ending - pricedDollar - contributions + withdrawals);
+    const walk = buildChangeWalk({
+      beginning, ending, fromLabel: phraseFor(p), toLabel: 'today',
+      contributions, withdrawals, dividends, interest,
+    });
+    const verdict = bounds ? modifiedDietzOverWindow({
+      // money enters the decimal arithmetic at cents — a derived beginning is a float with a long tail
+      beginning: Dec.of(beginning.toFixed(2)), ending: Dec.of(ending.toFixed(2)),
+      flows: led.filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
+        .map((t: any) => ({ date: String(t.date ?? '').slice(0, 10) || null,
+          amount: (Dec.parse(t.amount) ?? Dec.ZERO).mul(t.type === 'WITHDRAWAL' ? Dec.of('-1') : Dec.of('1')) })),
+      start: windowStart!, end: todayKey,
+    }) : null;
+    // a rate needs something to stand on: either a beginning READ from the record, or movement we
+    // can point at. Neither, and the window says "—" — never a confident +0.00%.
+    const hasBasis = measured != null || walk.wealthGenerated !== 0;
+    // A REFUSAL is an answer and says why (D4's timing band). Simply having no record yet is not a
+    // refusal — the window shows "—" and the screen keeps its plain note about what a return means.
+    const refused = verdict != null && verdict.rate == null;
+    return { windowStart, led, walk, measured, ret: hasBasis ? verdict?.rate ?? null : null,
+      sentence: refused ? verdict!.sentence : '', bounds };
+  };
+  const windowFigures = useMemo(() => {
+    const out: Record<string, ReturnType<typeof figuresFor>> = {};
+    for (const w of WINDOWS) out[w.key] = figuresFor(w.key);
+    return out;
+  }, [store.transactions, store.snapshotDays, investTotalAll, owned, priceCache, period, dataStartLabel]);
+  // THE VALUE LINE (mock v14 mark 11). It is read from the daily record — which a linked account's
+  // rebuild now fills backwards from its own transactions — between the window's start and today.
+  // What it will never do again is take TODAY's share count and price it at past dates: that drew a
+  // line that never happened, and it could not match the broker's own statement (founder, 2026-09-25).
+  const graphPoints = useMemo(() => {
+    const days = ((store as any).snapshotDays ?? []) as any[];
+    if (!days.length) return [] as { date: string; value: number }[];
+    const start = periodStartKey(period);
+    const inWindow = days.filter((d) => d.date >= start).map((d) => d.date).sort();
+    const step = Math.max(1, Math.ceil(inWindow.length / 26));
+    const out: { date: string; value: number }[] = [];
+    for (let i = 0; i < inWindow.length; i += step) {
+      const v = valueOn(days, investIds, inWindow[i]);
+      if (v != null) out.push({ date: inWindow[i], value: v });
+    }
+    const last = inWindow[inWindow.length - 1];
+    if (last && out[out.length - 1]?.date !== last) {
+      const v = valueOn(days, investIds, last);
+      if (v != null) out.push({ date: last, value: v });
+    }
+    return out;
+  }, [store.snapshotDays, period, investIds]);
+  // The screen has something to say whenever there ARE investments — a balance-only 401(k) with no
+  // itemised holdings is still money, and gating on priced rows alone left that person staring at an
+  // empty screen while Home showed their total (agreement pin 1).
+  const hasInvestments = rows.length > 0 || investTotalAll > 0;
+  // WHERE THE HISTORY CAME FROM (mock v14 mark 13). A rebuilt line is not an observation, so the
+  // screen names its source and its first day — and says plainly what could not be rebuilt.
+  const rebuilt = useMemo(() => {
+    const from = (store.rebuiltFrom ?? {}) as Record<string, string>;
+    const ids = Object.keys(from);
+    if (!ids.length) return null;
+    const earliest = ids.map((id) => from[id]).sort()[0];
+    const one = ids.length === 1 ? accounts.find((a) => String(a.asset_id) === ids[0]) : null;
+    const byHand = accounts.some((a) => a.source !== 'connected' && investIds.has(String(a.asset_id)));
+    return { sentence: rebuiltSentence(one?.institution ?? (ids.length > 1 ? 'your linked accounts' : null), earliest), byHand };
+  }, [store.rebuiltFrom, accounts, investIds]);
   const freshLine = (() => {
     const f = priceFreshness(store.pricesFetchedAt, Date.now());
     return store.pricesFetchedAt ? `${f.stale ? 'Prices may be out of date — ' : 'Prices updated '}${f.label}` : null;
   })();
-  const leader = ranked[0];
-  const laggard = ranked.length > 1 ? ranked[ranked.length - 1] : null;
-  const shownRanked = listMode === 'top'
-    ? [leader, ...(laggard && laggard !== leader && laggard.gain < 0 ? [laggard] : [])].filter(Boolean) as typeof ranked
-    : ranked;
-  // concentration: one HOLDING at 25%+ of invested money — the SAME shared rule the insights
-  // function uses (one concept, one helper), a quantified fact, never advice
-  const concentration = topHoldingConcentration(rows);
   const bondAccts = accounts.filter(isBond);
   const altAccts = accounts.filter(isAlternative);
-  const equitiesTotal = rows.reduce((t, r) => t + r.marketValue, 0);
-  const bondsTotal = bondAccts.reduce((t, a) => t + (a.balance || 0), 0);
-  const altsTotal = altAccts.reduce((t, a) => t + (a.balance || 0), 0);
-  const contribMonthly = (store.retirementAssumptions ?? {}).contribMonthly as number | null;
-  // PRD F3#16 — the money-weighted personal return over the investment accounts; shown ONLY
-  // when the ledger can stand behind it (complete history, ≥30 days) — absence over a guess
-  const mwr = useMemo(() => {
-    const investAccts = accounts.filter((a) => !['cash', 'real_estate', 'personal_property'].includes(assetClassOf(a)));
-    if (investAccts.length === 0) return null;
-    // end value = the SAME investments total the header shows (balance-only accounts included)
-    const r = moneyWeightedReturn(store.transactions ?? [], investAccts, new Set(investAccts.map((a) => String(a.asset_id))), investTotalAll);
-    return isMoneyWeighted(r) ? r : null;
-  }, [accounts, store.transactions, investTotalAll]);
   // investment ACCOUNTS without tickers (a balance-only 401(k)/brokerage) still belong on this
   // tab — they're inside investmentsTotal, so hiding them would break the Home=Invest pin
   const untracked = accounts.filter((a) => !isBond(a) && !isAlternative(a)
     && (a.positions?.length ?? 0) === 0
     && !['cash', 'real_estate', 'personal_property'].includes(assetClassOf(a)));
-  const untrackedTotal = untracked.reduce((t, a) => t + (a.balance || 0), 0);
-  const [showAllClass, setShowAllClass] = useState<Record<string, boolean>>({});
-  const allocLabel = (k: string) => (k === 'cash' ? 'Cash' : assetKind(k)?.label ?? 'Other');
-  const ALLOC_COLORS = ChartPalette;   // one shared palette — Net worth colors classes identically
 
-  const refresh = async () => { setLoading(true); try { await store.refreshPrices(); } finally { setLoading(false); } };
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      await store.refreshPrices();
+      // with fresh daily closes in hand, walk each LINKED account's holdings back through its own
+      // transactions so the line starts where the broker's records start (founder approved 2026-09-25)
+      store.rebuildLinkedHistory?.();
+    } finally { setLoading(false); }
+  };
   useEffect(() => { if (positions.length) refresh(); }, [positions.length]);   // fetch on open / when holdings change
 
   return (
-    <ScrollView ref={scrollRef} automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <HiddenBalancesBanner />
       {/* Invest (FCC glance-then-drill): title + refresh; the grouped list below owns the total */}
       <View style={styles.headRow}>
@@ -233,25 +284,7 @@ export default function PerformanceScreen() {
            structure is IDENTICAL to the rich screen — chips, summary, walk, category table —
            with honest zeros. Nothing hides, nothing is invented, nothing moves position later. */
         <View>
-          <View style={styles.periodRow}>
-            {/* the mock's leading chip is the DATA-START window — an honest "since you connected"
-                option that no fixed period can express (and it is the default when history is young) */}
-            {dataStartLabel && (
-              <TouchableOpacity style={[styles.periodPill, (period as string) === 'SINCE' && styles.periodPillOn]}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button"
-                accessibilityLabel={`Show performance since ${dataStartLabel}`}
-                onPress={() => setPeriod('SINCE' as any)}>
-                <Text style={[styles.periodT, (period as string) === 'SINCE' && styles.periodTOn]}>
-                  Since {dataStartLabel} {chipReturns['SINCE'] == null ? '—' : pct(chipReturns['SINCE']!)}
-                </Text>
-              </TouchableOpacity>
-            )}
-            {PERIODS.map((p) => (
-              <View key={p} style={[styles.periodPill, p === period && styles.periodPillOn]}>
-                <Text style={[styles.periodT, p === period && styles.periodTOn]}>{p} —</Text>
-              </View>
-            ))}
-          </View>
+          <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
 
           <View style={styles.card}>
             <SectionBand inCard title="SUMMARY · SINCE TODAY" />
@@ -260,12 +293,15 @@ export default function PerformanceScreen() {
               <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>{maskedMoney(0)}</Text></View>
               <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text></View>
             </View>
-            <EmptyNote door="accounts" />   {/* Q48 (MK-PF-M-005..008): $0 above, the one line, the door */}
+            {/* Q48 (MK-PF-M-005..008): $0 above, the one line, the door. Mock v14 mark 9: the line
+                opens the SAME three ways to add an account Net worth opens — the separate
+                separate add button and the separate import link are gone. */}
+            <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />
             <Text style={styles.sumNote}>Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</Text>
           </View>
 
           <View style={styles.card}>
-            <SectionBand inCard title="HOW TODAY'S VALUE STANDS" />
+            <SectionBand inCard title="HOW TODAY'S VALUE STANDS · ALL ACCOUNTS" />
             {['Beginning market value (today)', 'Contributions', 'Withdrawals', 'Wealth generated', 'Dividends', 'Interest', 'Change in investment value'].map((l, i) => (
               <View key={l} style={[styles.walkRow, i >= 4 && { paddingLeft: 20 }]}>
                 <Text style={[styles.walkL, i >= 4 && { color: Colors.textSecondary }, i === 3 && { fontWeight: '800' }]}>{l}</Text>
@@ -284,39 +320,11 @@ export default function PerformanceScreen() {
             <Text style={styles.sumNote}>Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</Text>
           </View>
 
-          <TouchableOpacity style={styles.addBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add a holding" onPress={() => setAddOpen(true)}>
-            <Text style={styles.addBtnT}>＋ Add a holding</Text>
-          </TouchableOpacity>
-          <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file" onPress={() => router.push('/import-holdings')} style={{ marginTop: 14 }}>
-            <Text style={styles.addLink}>📄 Import from a file instead</Text>
-          </TouchableOpacity>
         </View>
       ) : (
         <>
           {/* PERIOD SELECTOR */}
-          <View style={styles.periodRow}>
-            {/* the mock's leading chip is the DATA-START window — an honest "since you connected"
-                option that no fixed period can express (and it is the default when history is young) */}
-            {dataStartLabel && (
-              <TouchableOpacity style={[styles.periodPill, (period as string) === 'SINCE' && styles.periodPillOn]}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button"
-                accessibilityLabel={`Show performance since ${dataStartLabel}`}
-                onPress={() => setPeriod('SINCE' as any)}>
-                <Text style={[styles.periodT, (period as string) === 'SINCE' && styles.periodTOn]}>
-                  Since {dataStartLabel} {chipReturns['SINCE'] == null ? '—' : pct(chipReturns['SINCE']!)}
-                </Text>
-              </TouchableOpacity>
-            )}
-            {PERIODS.map((p) => (
-              <TouchableOpacity key={p} style={[styles.periodPill, period === p && styles.periodPillOn]} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button"
-                accessibilityLabel={`Show ${p} performance${chipReturns[p] == null ? ', no data for that window yet' : `, ${pct(chipReturns[p]!)}`}`}
-                onPress={() => setPeriod(p)}>
-                <Text style={[styles.periodT, period === p && styles.periodTOn]}>
-                  {p} {chipReturns[p] == null ? '—' : pct(chipReturns[p]!)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
           {/* FOUNDER 2026-08-18: a chip may name a longer window than our record covers. Say so,
               rather than answering a shorter period under the longer label. Silent when covered. */}
           {coverage.sentence !== '' && (
@@ -326,59 +334,37 @@ export default function PerformanceScreen() {
           {/* FINAL mock (mockup-vf/performance-FINAL, founder-approved 2026-08-04): the SUMMARY trio
               and the VALUE WALK. Both read the same rows/breakdown the hero below uses, so the two
               can never disagree; the walk's rows sum to the ending value by construction. */}
-          {rows.length > 0 && (() => {
-            const windowStart = periodStartKey(period);
-            const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
-            const flows = personalFlowTotals(led);   // ONE flows function (Track 1 step 3)
-            const contributions = flows.contributions.toNumber(2);
-            const withdrawals = flows.withdrawals.toNumber(2);
-            const ending = investTotalAll;
-            // Track 1 step 7: the beginning is READ from the daily record when it covers the
-            // window — the close of the day BEFORE the start (D3). Only when the record does not
-            // reach back that far does the derived figure remain, and the record grows daily.
-            const todayKey = isoLocalDate(new Date());
-            const bounds = windowStart ? windowBounds(windowStart, todayKey) : null;
-            const snapDays = (store as any).snapshotDays ?? [];
-            const investIds = new Set<string>(resolvedNwAccounts
-              .filter((a: any) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives' || c === 'mixed'; })
-              .map((a: any) => String(a.asset_id)));
-            const snapBeginning = bounds && snapshotCovers(snapDays, bounds.beginningAsOf)
-              ? valueOn(snapDays, investIds, bounds.beginningAsOf) : null;
-            const beginning = snapBeginning ?? (ending - periodDollar - contributions + withdrawals);
-            // D4: with a MEASURED beginning, the Return is money-weighted (Modified Dietz) with
-            // the timing-sensitivity band — a refusal shows the dollar walk below instead of a
-            // rate that timing drives. Until the record covers the window, the price-based figure
-            // stands with its existing coverage sentence.
-            const mw = snapBeginning != null && bounds ? modifiedDietzOverWindow({
-              beginning: Dec.of(String(snapBeginning)), ending: Dec.of(String(ending)),
-              flows: led
-                .filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
-                .map((t: any) => ({ date: String(t.date ?? '').slice(0, 10) || null,
-                  amount: (Dec.parse(t.amount) ?? Dec.ZERO).mul(t.type === 'WITHDRAWAL' ? Dec.of('-1') : Dec.of('1')) })),
-              start: windowStart!, end: todayKey,
-            }) : null;
-            const shownReturn = mw ? mw.rate : portReturn;
-            const walk = buildChangeWalk({
-              beginning, ending, fromLabel: phraseFor(period), toLabel: 'today',
-              contributions, withdrawals, dividends: breakdown.dividends, interest: breakdown.interest,
-            });
+          {hasInvestments && (() => {
+            const { windowStart, walk, ret: shownReturn, sentence } = windowFigures[period] ?? figuresFor(period);
             const gaps = dataGaps(accounts, windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any);
             return (
               <>
                 <View style={styles.card}>
                   <SectionBand inCard title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} />
                   <View style={styles.trioRow}>
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(ending))}</Text></View>
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(walk.ending))}</Text></View>
                     <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(walk.wealthGenerated)))}</Text></View>
                     <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (shownReturn ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn == null ? '—' : pct(shownReturn)}</Text></View>
                   </View>
                   <Text style={styles.sumNote}>
-                    {mw && mw.rate == null
-                      ? mw.sentence
+                    {sentence
+                      ? sentence
                       : `Return is for the window you picked (${phraseFor(period)}) — not a yearly rate. Money you added never counts as return.`}
                   </Text>
-                  {/* the value graph lives INSIDE the summary card (approved performance-FINAL) */}
-                  {trend.length > 1 && <TrendChartAuto data={trend} />}
+                  {rebuilt && (
+                    <Text style={styles.sumNote}>
+                      ↺ {rebuilt.sentence}{rebuilt.byHand ? ' Anything entered by hand starts the day you entered it.' : ''}
+                    </Text>
+                  )}
+                  {/* founder ruling 2026-08-18 annualises the 2Y figure so it sits fairly beside 1Y.
+                      Nothing said so until mock v14 mark 15 — a rate nobody can name is a trap. */}
+                  {period === ('2Y' as any) && (
+                    <Text style={styles.sumNote}>2Y is shown per year, so it sits fairly beside 1Y.</Text>
+                  )}
+                  {/* the value graph lives INSIDE the summary card (approved performance-FINAL),
+                      now with a Y axis (mock v14 mark 11) and drawn ONLY from days we have a record
+                      for — never today's share count priced at old dates */}
+                  <ValueGraph points={graphPoints} />
                 </View>
 
                 <DataGapsBanner gaps={gaps} />
@@ -413,15 +399,19 @@ export default function PerformanceScreen() {
           {/* PER-ACCOUNT WALKS (final mock): the same card, one per account, collapsible — a
               person with eight accounts sees a list, not an endless scroll. Every account's walk
               uses the SAME function as the all-accounts walk, so the parts sum to the whole. */}
-          {rows.length > 0 && (() => {
+          {hasInvestments && (() => {
             const windowStart = periodStartKey(period);
             const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
+            const names = accountDisplayNames(accounts);   // one account name, used everywhere
             const byAcct = new Map<string, { label: string; ending: number; gain: number }>();
             for (const r of rows as any[]) {
               const o = owned.find((x) => x.p.position_id === r.position.position_id);
               if (!o) continue;
               const acct = accounts.find((a) => a.asset_id === o.accountId);
-              const cur = byAcct.get(o.accountId) ?? { label: acct?.institution?.trim() || acct?.label || 'Account', ending: 0, gain: 0 };
+              // named by ACCOUNT, the way the approved design draws it ("Vanguard Brokerage",
+              // "E*TRADE Account 1"). Build 53 titled the walk with the institution ("VANGUARD"),
+              // so two accounts at one broker could not be told apart (founder screenshot 2026-08-17).
+              const cur = byAcct.get(o.accountId) ?? { label: names.get(o.accountId) ?? acct?.label ?? 'Account', ending: 0, gain: 0 };
               cur.ending += r.marketValue; cur.gain += rowGain(r);
               byAcct.set(o.accountId, cur);
             }
@@ -431,7 +421,9 @@ export default function PerformanceScreen() {
             // list — the parts stopped adding up to the whole with no sign that anything was missing.
             for (const a of (accounts ?? []) as AssetAccount[]) {
               if (byAcct.has(a.asset_id) || !(a.balance > 0)) continue;
-              byAcct.set(a.asset_id, { label: accountDisplayNames(accounts).get(a.asset_id) ?? a.label, ending: a.balance, gain: 0 });
+              // a home, a car, a chequing account is not an investment and gets no walk here
+              if (!investIds.has(String(a.asset_id))) continue;
+              byAcct.set(a.asset_id, { label: names.get(a.asset_id) ?? a.label, ending: a.balance, gain: 0 });
             }
             if (byAcct.size < 2) return null;                    // one account → the all-accounts walk already says it
             return [...byAcct.entries()].map(([id, a]) => {
@@ -449,6 +441,7 @@ export default function PerformanceScreen() {
                 contributions, withdrawals, dividends: acctFlows.dividends.toNumber(2), interest: acctFlows.interest.toNumber(2),
               });
               const isOpen = !!openAcctWalk[id];
+              const acctOf = accounts.find((x) => String(x.asset_id) === String(id));
               return (
                 <View key={id} style={styles.card}>
                   <TouchableOpacity accessibilityRole="button" activeOpacity={0.85}
@@ -456,6 +449,9 @@ export default function PerformanceScreen() {
                     accessibilityLabel={`${a.label}, ${spokenMoney(Math.round(a.ending))}. ${isOpen ? 'Collapses' : 'Expands'} its walk.`}>
                     <SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))} />
                   </TouchableOpacity>
+                  {/* the approved design carries ONE quiet line under each account band: where its
+                      numbers come from and how fresh they are (mock v14, first phone) */}
+                  {!!acctOf && <View style={styles.walkChip}><SourceChip account={acctOf} /></View>}
                   {!isOpen ? (
                     <Text style={styles.sumNote}>
                       wealth generated {w.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(w.wealthGenerated)))} · tap to see the walk
@@ -492,7 +488,7 @@ export default function PerformanceScreen() {
           {/* WHAT EACH CATEGORY EARNED (final mock): dollars received in this window, then the
               rate WITH ITS NAME. Income is ledger-only — a category with no records shows an
               em-dash, never a false $0. Rows sum to the walk's income lines by construction. */}
-          {rows.length > 0 && (() => {
+          {hasInvestments && (() => {
             const windowStart = periodStartKey(period);
             const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
             const classOfTicker = (tk: string) => {
@@ -500,7 +496,10 @@ export default function PerformanceScreen() {
               return (r?.position?.kind ?? r?.position?.asset_class ?? 'stocks_etf') as string;
             };
             const buckets: { key: string; label: string; color: string; earned: number; ret: string }[] = [
-              { key: 'stocks_etf', label: 'Stocks / Funds', color: ClassMarkColors.stocks_etf, earned: 0, ret: portReturn == null ? '—' : pct(portReturn) },
+              // each category's OWN price return over the window — the whole portfolio's figure
+              // used to stand in for the stocks row, which made it disagree with its own holdings
+              { key: 'stocks_etf', label: 'Stocks / Funds', color: ClassMarkColors.stocks_etf, earned: 0,
+                ret: (() => { const r = portfolioPeriodReturn(rows.filter((x: any) => (x.position?.asset_class ?? 'stocks_etf') === 'stocks_etf')); return r == null ? '—' : pct(r); })() },
               { key: 'bonds', label: 'Bonds & CDs', color: ClassMarkColors.bonds, earned: 0, ret: '—' },
               { key: 'cash', label: 'Sweep cash', color: ClassMarkColors.cash, earned: 0, ret: '—' },
             ];
@@ -541,237 +540,35 @@ export default function PerformanceScreen() {
             );
           })()}
 
-          {/* PORTFOLIO VALUE hero (founder mock 2026-07-15): the level first, the period gain
-              second, then the NAMED honest comparison + the freshness clock — one card, one story */}
-          {rows.length > 0 && <View style={styles.card} accessible
-            accessibilityLabel={`Portfolio value ${spokenMoney(investTotalAll)}. ${portReturn == null ? 'Not enough price history yet for this period.' : `${periodDollar >= 0 ? 'Up' : 'Down'} ${spokenMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}, ${phraseFor(period)}.`}${benchPort != null ? ` Honest comparison — stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
-            {/* APPROVED invest-v3 FINAL (2026-07-19): the RETURN leads and is named YOURS — every
-                row it rolls up counts from the later of the period start or the day you bought */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <SectionBand inCard title={`YOUR RETURN (${phraseFor(period).toUpperCase()})`} />
-              <InfoDot term="yourReturn" />
-            </View>
-            <HeroAmount style={styles.heroValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
-              <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ up ' : '▼ down '}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
-              <Text style={styles.glancePct}>  ({pct(portReturn)})</Text>
-            </HeroAmount>
-            {/* the old inline breakdown was SUPERSEDED by the value walk above (founder's
-                approved structure) — one concept, one place. */}
-            <View style={styles.honestBlock}>
-              <SectionBand inCard title="HONEST COMPARISON" />
-              {benchPort != null && (
-                /* approved "all three" (2026-07-19): the blend deserves its true name — each holding
-                   against its own yardstick (bonds vs the bond index), value-weighted */
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                  <Text style={styles.glanceLine}>{anyCapped ? 'vs the market, same dates + your mix:' : 'vs the market, matched to your mix:'}  {pct(benchPort)}</Text>
-                  <InfoDot term="benchmark" />
-                </View>
-              )}
-              {portBeat != null && <Text style={[styles.glanceLine, { fontWeight: '800' }]}>★ You're {portBeat >= 0 ? 'ahead' : 'behind'} by {Math.abs(portBeat * 100).toFixed(1)} points</Text>}
-              {/* v7 FINAL: ONE plain footnote — the dot holds the full founder-approved explanation
-                  (purchase-capping, same-dates mix-matched market, dividends excluded) */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                <Text style={styles.freshInHero}>How these numbers work</Text>
-                <InfoDot term="howReturnsWork" />
-                
-              </View>
-            </View>
-            {trend.length > 1 && (
-              <View style={styles.legendRow}>
-                <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.primary }]} /><Text style={styles.legT}>you</Text></View>
-                <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.textTertiary }]} /><Text style={styles.legT}>the market (same start)</Text></View>
-              </View>
-            )}
-          </View>}
-
-          {/* PRD F3#16 — YOUR money-weighted return: renders whenever the ledger can stand
-              behind it (works for balance-only accounts too), never guessed */}
-          {mwr && (
-            <View style={styles.card} accessible
-              accessibilityLabel={`Your money-weighted return: ${mwr.ratePerYear >= 0 ? 'plus' : 'minus'} ${Math.abs(Math.round(mwr.ratePerYear * 1000) / 10)} percent a year, counting when you added money. From ${mwr.flows} recorded moves — an estimate.`}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Text style={styles.glanceLine}>Your money-weighted return: {mwr.ratePerYear >= 0 ? '+' : '−'}{Math.abs(Math.round(mwr.ratePerYear * 1000) / 10)}%/year — counts when you added money</Text>
-                <InfoDot term="moneyWeighted" />
-              </View>
-            </View>
-          )}
-
-          {/* WINNERS & LAGGARDS — the same rows as the glance, so they visibly add up */}
-          {ranked.length > 0 && (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Winners & laggards ({period})</Text>
-              {/* v7 FINAL (founder-approved table): header row, split $/% columns, arrow inside CHANGE */}
-              <View style={styles.wlHead}>
-                <Text numberOfLines={1} style={[{ flex: 1 }, styles.wlHeadT]}>HOLDING</Text>
-                <Text numberOfLines={1} style={[styles.wlChange, styles.wlHeadT]}>CHANGE</Text>
-                <Text numberOfLines={1} style={[styles.wlPct, styles.wlHeadT]}>RETURN</Text>
-              </View>
-              {(listMode === 'account'
-                ? [...owned].sort((a, b) => a.accountId.localeCompare(b.accountId))
-                    .map((o) => ranked.find((x) => x.r.position.position_id === o.p.position_id))
-                    .filter(Boolean) as typeof ranked
-                : shownRanked
-              ).map(({ r, gain }, idx, arr) => {
-                const o = owned.find((x) => x.p.position_id === r.position.position_id)!;
-                const acct = accounts.find((a) => a.asset_id === o.accountId);
-                const prevAcct = idx > 0 ? owned.find((x) => x.p.position_id === arr[idx - 1].r.position.position_id)?.accountId : null;
-                const roleWord = listMode === 'top' ? (gain >= 0 ? 'Leader' : 'Laggard') : null;
-                return (
-                  <View key={r.position.position_id}>
-                    {listMode === 'account' && o.accountId !== prevAcct && (
-                      <SectionBand light title={acct?.institution?.trim() || acct?.label || 'Account'} />
-                    )}
-                    <TouchableOpacity accessibilityRole="button" style={styles.wlRow}
-                      onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}
-                      accessibilityLabel={`${roleWord ? roleWord + ' ' : ''}${r.position.label || r.position.ticker}${r.cappedSince ? `, ${sinceWord(r.cappedSince)}` : ''}, ${gain >= 0 ? 'up' : 'down'} ${spokenMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
-                      <View style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={styles.wlTicker} numberOfLines={1}>{roleWord ? `${roleWord}: ` : ''}{r.position.ticker}</Text>
-                        {r.cappedSince && <Text style={styles.wlSince}>{sinceWord(r.cappedSince)}</Text>}
-                      </View>
-                      <Text numberOfLines={1} style={[styles.wlChange, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
-                      <Text numberOfLines={1} style={[styles.wlPct, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{pct(r.periodReturn)}</Text>
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
-              <View style={styles.actionRow}>
-                <TouchableOpacity accessibilityRole="button" onPress={() => setListMode(listMode === 'all' ? 'top' : 'all')}
-                  accessibilityLabel={listMode === 'all' ? 'Show the leader and laggard only' : `See all ${ranked.length}`}>
-                  <Text style={styles.addLink2}>{listMode === 'all' ? 'Show top ‹' : `See all ${ranked.length} ›`}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity accessibilityRole="button" onPress={() => setListMode(listMode === 'account' ? 'top' : 'account')}
-                  accessibilityLabel={listMode === 'account' ? 'Back to leader and laggard' : 'View by account'}>
-                  <Text style={styles.addLink2}>{listMode === 'account' ? 'By gain ‹' : 'By account ›'}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-
-          {/* concentration — a quantified fact, shown only when real (25%+ in one holding) */}
-          {concentration && (
-            <TouchableOpacity style={styles.concCard} accessibilityRole="button"
-              onPress={() => { if (invListY.current > 0) scrollRef.current?.scrollTo({ y: invListY.current, animated: true }); }}
-              accessibilityLabel={`${concentration.pct} percent of your invested money is in one stock, ${concentration.ticker}. Shows it in your list.`}>
-              <Text style={styles.concTxt}>⚑ {concentration.pct}% of your invested money is in one stock ({concentration.ticker}) ›</Text>
-            </TouchableOpacity>
-          )}
-
-          {/* the two honest what-ifs — forward (estimate) and backward (facts) */}
-          <TouchableOpacity accessibilityRole="button" style={styles.entryCard} onPress={() => router.push('/what-if')}
-            accessibilityLabel="Look ahead: what saving more could do. An estimate.">
-            <Text style={styles.entryTitle}>LOOK AHEAD: what saving more could do <EstimateTag /> ›</Text>
-          </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" style={styles.entryCard} onPress={() => router.push('/look-back')}
-            accessibilityLabel="Look back: what a past move would have done. Facts about the past.">
-            <Text style={styles.entryTitle}>LOOK BACK: what a past move would have done <Text style={styles.entryTag}>facts</Text> ›</Text>
-          </TouchableOpacity>
-
-          {/* the plan is visible HERE too (F11 propagation) */}
-          {contribMonthly != null && contribMonthly > 0 && (
-            <Text style={styles.planChip}>Saving {maskedMoney(contribMonthly)}/month toward retirement (from your Plan)</Text>
-          )}
-
-          {/* YOUR INVESTMENTS — every class in one place, grouped, collapsible */}
-          <Text style={styles.groupHdrTop} onLayout={(e) => { invListY.current = e.nativeEvent.layout.y; }}>YOUR INVESTMENTS   <Text>{maskedMoney(investTotalAll)}</Text></Text>
-          {([['Stocks / Funds', equitiesTotal, 'eq'], [ASSET_CLASS_LABEL.bonds, bondsTotal, 'bond'], ['Alternatives', altsTotal, 'alt'], ['Accounts — add holdings for live tracking', untrackedTotal, 'acct']] as const).map(([label, total, kind]) => {
-            if (kind === 'eq' && rows.length === 0) return null;
-            if (kind === 'bond' && bondAccts.length === 0) return null;
-            if (kind === 'alt' && altAccts.length === 0) return null;
-            if (kind === 'acct' && untracked.length === 0) return null;
-            const items: any[] = kind === 'eq' ? rows : kind === 'bond' ? bondAccts : kind === 'alt' ? altAccts : untracked;
-            const showAll = !!showAllClass[kind];
-            const shown = showAll ? items : items.slice(0, 5);
-            return (
-              <View key={kind} style={styles.card}>
-                <SectionBand title={`${label}   ${maskedMoney(Math.round(total as number))}`} />
-                {kind === 'eq' && (
-                  /* v7 FINAL: the column header sits under the first asset class, labeling the list once */
-                  <View style={styles.wlHead}>
-                    <Text numberOfLines={1} style={[{ flex: 1 }, styles.wlHeadT]}>HOLDING</Text>
-                    <Text numberOfLines={1} style={[styles.invWeight, styles.wlHeadT]}>WEIGHT</Text>
-                    <Text numberOfLines={1} style={[styles.invVal, styles.wlHeadT]}>VALUE</Text>
-                    <Text numberOfLines={1} style={[styles.invRet, styles.wlHeadT]}>RETURN</Text>
-                    <Text style={styles.invChev}> </Text>
-                  </View>
-                )}
-                {shown.map((it: any, idx: number) => {
-                  if (kind === 'eq') {
-                    const o = owned.find((x) => x.p.position_id === it.position.position_id)!;
-                    // Walk row 2 (audit Invest #2): no price must never read as $0 — show what
-                    // you paid, said in words, the same honest treatment the detail page uses.
-                    const unpriced = it.price == null;
-                    const shownVal = unpriced ? it.costBasis : it.marketValue;
-                    return (
-                      <TouchableOpacity accessibilityRole="button" key={it.position.position_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
-                        onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${it.position.position_id}&period=${period}` as any)}
-                        accessibilityLabel={`${it.position.label || it.position.ticker}, ${spokenMoney(Math.round(shownVal))}${unpriced ? ', no current price, showing what you paid' : ''}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}${it.price != null ? (priceFreshness(store.pricesFetchedAt, Date.now()).stale ? ', price may be out of date' : ', live price') : ''}. Opens its page.`}>
-                        <View style={{ flex: 1, minWidth: 0 }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                            <Text style={[styles.invName, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>{it.position.ticker}</Text>
-                            {it.price != null && (
-                              <View style={[styles.freshChip, priceFreshness(store.pricesFetchedAt, Date.now()).stale && styles.freshChipStale]}>
-                                <Text style={[styles.freshChipTxt, priceFreshness(store.pricesFetchedAt, Date.now()).stale && { color: Colors.amber }]}>{priceFreshness(store.pricesFetchedAt, Date.now()).stale ? 'Prices old' : 'Live'}</Text>
-                              </View>
-                            )}
-                          </View>
-                          {unpriced && <Text style={styles.wlSince}>what you paid</Text>}
-                          {it.cappedSince && <Text style={styles.wlSince}>{sinceWord(it.cappedSince)}</Text>}
-                        </View>
-                        {/* approved "all three": the weight — investors think in % of portfolio.
-                            An unpriced holding gets NO weight: 0% would be a wrong number. */}
-                        {investTotalAll > 0 && !unpriced && <Text style={styles.invWeight}>{Math.round((it.marketValue / investTotalAll) * 100)}%</Text>}
-                        <Text style={styles.invVal}>{maskedMoney(Math.round(shownVal))}</Text>
-                        {it.periodReturn != null && <Text numberOfLines={1} style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.gainText : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
-                        <Text style={styles.invChev}>›</Text>
-                      </TouchableOpacity>
-                    );
-                  }
-                  const fresh = valueFreshness(it);
-                  return (
-                    <TouchableOpacity accessibilityRole="button" key={it.asset_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
-                      onPress={() => router.push(`/account-detail?id=${it.asset_id}` as any)}
-                      accessibilityLabel={`${it.label}, ${spokenMoney(Math.round(it.balance || 0))}${fresh ? `, value as of ${fresh.asOf}${fresh.stale ? `, ${fresh.monthsOld} months old` : ''}` : ''}. Opens its page.`}>
-                      <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <Text style={[styles.invName, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>{it.label}</Text>
-                        {fresh && (
-                          <View style={[styles.freshChip, fresh.stale && styles.freshChipStale]}>
-                            <Text style={[styles.freshChipTxt, fresh.stale && { color: Colors.amber }]}>{fresh.stale ? `⏱ ${fresh.monthsOld} mo old` : `Value as of ${fresh.asOf.slice(0, 7)}`}</Text>
-                          </View>
-                        )}
-                      </View>
-                      {investTotalAll > 0 && <Text style={styles.invWeight}>{Math.round(((it.balance || 0) / investTotalAll) * 100)}%</Text>}
-                      <Text style={styles.invVal}>{maskedMoney(Math.round(it.balance || 0))}</Text>
-                      <Text style={styles.invChev}>›</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-                {items.length > 5 && (
-                  <TouchableOpacity accessibilityRole="button" onPress={() => setShowAllClass((m) => ({ ...m, [kind]: !showAll }))}
-                    accessibilityLabel={showAll ? `Show top 5 ${label}` : `Show all ${items.length} ${label}`}>
-                    <Text style={styles.addLink2}>{showAll ? 'Show top 5 ‹' : `Show all ${items.length} ›`}</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            );
-          })}
-
-          {/* add / record / import / activity */}
-          <View style={styles.card}>
-            <TouchableOpacity style={styles.primaryAction} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add investment" onPress={() => setAddOpen(true)}>
-              <Text style={styles.primaryActionT}>＋ Add investment</Text>
-            </TouchableOpacity>
-            <View style={styles.actionRow}>
-              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file" onPress={() => router.push('/import-holdings')}><Text style={styles.addLink2}>📄 Import file</Text></TouchableOpacity>
-              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Record a transaction" onPress={() => setTxnOpen(true)}><Text style={styles.addLink2}>＋ Record</Text></TouchableOpacity>
-              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="View transaction activity" onPress={() => setHistoryOpen(true)}><Text style={styles.addLink2}>Activity ›</Text></TouchableOpacity>
-            </View>
-          </View>
-
-          <Text style={styles.foot}>End-of-day prices{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}. Comparisons are for information only — no trades suggested. The concentration note is a fact for awareness, not advice.</Text>
+          {/* NOT IN THE APPROVED DESIGN, so they are gone (founder confirmed the Performance
+              FINAL of 2026-08-04 on 2026-09-14, approved mock v14 on 2026-09-25): the older Invest
+              screen's Your return hero, Honest comparison, the money-weighted card, Winners &
+              laggards, the concentration note, Look ahead / Look back, the plan chip, the Your
+              investments list and the Add investment / Import / Record / Activity row. Nothing is
+              stranded: What if is reached from Contribution room, Look back from Holding detail and
+              Account detail, importing from the add-an-account doors, and every holding, record and
+              activity row from its own account page. */
+          }
         </>
       )}
 
       <View style={{ height: 40 }} />
+      {/* the three ways to add an account, from the one list every screen reads (founder 2026-09-14) */}
+      <Modal visible={addChooser} transparent animationType={modalAnimation()} onRequestClose={() => setAddChooser(false)}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={styles.chooserBackdrop} activeOpacity={1} onPress={() => setAddChooser(false)}>
+          <View style={styles.chooserCard} onStartShouldSetResponder={() => true}>
+            <Text style={styles.chooserHead}>{ADD_ACCOUNT_QUESTION}</Text>
+            {ADD_ACCOUNT_DOORS.map((d) => (
+              <TouchableOpacity key={d.route} accessibilityRole="button" style={styles.chooserRow}
+                accessibilityLabel={`${d.title}. ${d.sub}`}
+                onPress={() => { setAddChooser(false); router.push(d.route as any); }}>
+                <Text style={styles.chooserTitle}>{d.icon}  {d.title}</Text>
+                <Text style={styles.chooserSub}>{d.sub}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
       <HoldingEditor
         open={addOpen || edit != null}
         accounts={accounts}
@@ -967,26 +764,94 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
 }
 const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2, 8)}`, shares: 0, cost_per_share: 0, purchase_date: isoLocalDate(new Date()) });
 
-// ── trend line chart (portfolio vs rebased benchmark) ──
-function TrendChartAuto({ data }: { data: TrendPoint[] }) {
-  const [w, setW] = useState(0);
-  return <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)}>{w > 0 && <TrendChart data={data} width={w} />}</View>;
-}
-function TrendChart({ data, width }: { data: TrendPoint[]; width: number }) {
-  const H = 120, padTop = 8, padBot = 6;
-  const vals = data.flatMap((d) => [d.value, d.bench]);
-  const min = Math.min(...vals), max = Math.max(...vals);
-  const x = (i: number) => (i / (data.length - 1 || 1)) * width;
-  const y = (v: number) => padTop + (1 - (v - min) / ((max - min) || 1)) * (H - padTop - padBot);
-  const path = (key: 'value' | 'bench') => 'M ' + data.map((d, i) => `${x(i).toFixed(1)},${y(d[key]).toFixed(1)}`).join(' L ');
+
+/** THE WINDOW SELECTOR — mock v14 (founder-approved 2026-09-25), after three tries.
+ *  ONE control, not five buttons: a quiet tray, the chosen window lifted onto a white card, and
+ *  hairline dividers only between the windows at rest. Two lines in every segment — the window
+ *  with its date above its own return — because five windows carrying returns cannot fit one line
+ *  at any readable size (measured: 434–492 points against the 362 a 390-point phone gives).
+ *  Shape note worth keeping: a 12-point radius on a 26-point-tall chip IS a semicircle. The app's
+ *  radio buttons are 42 tall with that radius, which is why they read as corners; so is a segment. */
+function WindowSelector({ windows, chosen, figures, onPick }: {
+  windows: { key: string; label: string }[];
+  chosen: string;
+  figures: Record<string, { ret: number | null }>;
+  onPick: (key: string) => void;
+}) {
   return (
-    <Svg width={width} height={H}>
-      <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
-      <Path d={path('bench')} stroke={Colors.textTertiary} strokeWidth={1.5} strokeDasharray="4,3" fill="none" />
-      <Path d={path('value')} stroke={Colors.primary} strokeWidth={2.5} fill="none" />
-    </Svg>
+    <View style={styles.segBar}>
+      {windows.map((w, i) => {
+        const on = w.key === chosen;
+        const ret = figures[w.key]?.ret ?? null;
+        const divider = i > 0 && !on && chosen !== windows[i - 1].key;
+        return (
+          <React.Fragment key={w.key}>
+            {divider && <View style={styles.segDivider} />}
+            <TouchableOpacity
+              style={[styles.seg, w.key === 'SINCE' && styles.segWide, on && styles.segOn]}
+              accessibilityRole="button" accessibilityState={{ selected: on }}
+              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${pct(ret)}`}`}
+              onPress={() => onPick(w.key)}>
+              <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segRest]}>{w.label}</Text>
+              <Text numberOfLines={1} style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>{ret == null ? '—' : pct(ret)}</Text>
+            </TouchableOpacity>
+          </React.Fragment>
+        );
+      })}
+    </View>
   );
 }
+
+/** THE VALUE LINE with a Y AXIS (mock v14 mark 11). A rising line with no figures beside it can
+ *  mean $20 or $20,000; four dollar gridlines say which. Every point comes from the daily record,
+ *  so the line starts where the record starts and not a day earlier. */
+function ValueGraph({ points }: { points: { date: string; value: number }[] }) {
+  const [w, setW] = useState(0);
+  if (points.length < 2) return null;
+  const H = 120, padTop = 10, padBot = 16, gutter = 52;
+  const vals = points.map((p) => p.value);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const ticks = niceTicks(lo, hi, 4);
+  const top = ticks[0], bottom = ticks[ticks.length - 1];
+  const y = (v: number) => padTop + (1 - (v - bottom) / ((top - bottom) || 1)) * (H - padTop - padBot);
+  const x = (i: number) => gutter + (i / (points.length - 1 || 1)) * ((w || 1) - gutter - 4);
+  const path = 'M ' + points.map((p, i) => `${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(' L ');
+  const day = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return (
+    <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)} style={{ paddingHorizontal: Spacing.base, paddingBottom: 10 }}>
+      {w > 0 && (
+        <>
+          <Svg width={w} height={H}>
+            {ticks.map((t) => (
+              <React.Fragment key={t}>
+                <Line x1={gutter} y1={y(t)} x2={w} y2={y(t)} stroke={Colors.border} strokeWidth={1} />
+                <SvgText x={0} y={y(t) + 3} fontSize={11} fill={Colors.textTertiary}>{maskedMoney(t)}</SvgText>
+              </React.Fragment>
+            ))}
+            <Path d={path} stroke={Colors.primary} strokeWidth={2.5} fill="none" />
+          </Svg>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginLeft: gutter }}>
+            <Text style={styles.axisDay}>{day(points[0].date)}</Text>
+            <Text style={styles.axisDay}>{day(points[points.length - 1].date)}</Text>
+          </View>
+        </>
+      )}
+    </View>
+  );
+}
+
+/** Round gridline values a person can read — 352,000 rather than 352,404.17. */
+function niceTicks(lo: number, hi: number, count: number): number[] {
+  if (!(hi > lo)) { const v = Math.round(hi); return [v + 1, v, v - 1].slice(0, count); }
+  const rawStep = (hi - lo) / (count - 1);
+  const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((c) => c >= rawStep) ?? 10 * mag;
+  const bottom = Math.floor(lo / step) * step;
+  const out: number[] = [];
+  for (let i = count - 1; i >= 0; i -= 1) out.push(Math.round(bottom + i * step));
+  return out;
+}
+
 
 // ───────────────────────── Record a transaction ─────────────────────────
 const TXN_TYPES: { k: TxnType; label: string }[] = [
@@ -1279,6 +1144,25 @@ const styles = StyleSheet.create({
   addBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
 
   periodRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
+  // the window selector (mock v14): a tray, the chosen window on a white card, hairline dividers
+  segBar: { flexDirection: 'row', backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, padding: 3, marginBottom: 10 },
+  seg: { flex: 1, minHeight: 50, alignItems: 'center', justifyContent: 'center', borderRadius: 9, paddingHorizontal: 3 },
+  segWide: { flex: 1.55 },                       // the Since window carries a date, so it gets the room
+  segOn: { backgroundColor: Colors.white, ...Shadows.card },
+  segDivider: { width: 1, marginVertical: 12, backgroundColor: Colors.border },
+  segK: { fontSize: 11, fontWeight: '700', color: Colors.textSecondary },
+  segV: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  segOnT: { color: Colors.primaryDark },
+  segRest: { color: Colors.textTertiary },
+  axisDay: { fontSize: 11, color: Colors.textSecondary },
+  walkChip: { paddingHorizontal: Spacing.base, paddingTop: 4 },
+  // the add-an-account sheet — the same shape Net worth uses, so one question looks like one question
+  chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },
+  chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.md },
+  chooserRow: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 64, justifyContent: 'center' },
+  chooserTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  chooserSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   periodPill: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: Radii.pill, backgroundColor: Colors.cardBg },
   // the coverage sentence: quiet, wraps rather than truncating — a limit stated in half a sentence
   // is worse than not stating it at all.

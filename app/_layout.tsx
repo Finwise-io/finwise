@@ -202,7 +202,9 @@ export default function RootLayout() {
           <Stack.Screen name="big-costs" options={{ title: 'What big costs are coming?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="ss-timing" options={{ title: 'When should I claim Social Security?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="month-detail" options={{ title: 'Month detail', headerShown: true, ...backBtn(() => router.back()) }} />
-          <Stack.Screen name="account-detail" options={{ title: 'Account', headerShown: true, ...backBtn(() => router.back()) }} />
+          {/* the account page carries the app's own MoneyKeel top bar with "‹ Back" (approved
+              performance mock v14), so the navigator's header would be a second bar above it */}
+          <Stack.Screen name="account-detail" options={{ headerShown: false }} />
           <Stack.Screen name="multi-goal" options={{ title: 'Afford it all?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="first-run" options={{ title: 'Your setup', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="look-back" options={{ title: 'Look back', headerShown: true, ...backBtn(() => router.back()) }} />

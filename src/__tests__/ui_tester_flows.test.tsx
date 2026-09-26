@@ -162,6 +162,8 @@ describe('FLOW 5 · money management: add → drill → move money → hide it a
 
     mockParams = { id: 'chk' };
     const det = render(<AccountDetailScreen />);
+    // mock v14: a transfer lives behind the contribution-or-withdrawal door
+    fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
     fireEvent.press(screen.getByLabelText('Record a transfer for Checking'));
     fireEvent.changeText(screen.getByLabelText('Amount'), '500');
     fireEvent.press(screen.getByLabelText('Transfer into Savings'));

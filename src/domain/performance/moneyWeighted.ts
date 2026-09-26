@@ -24,7 +24,7 @@ const DAY = 86400000;
 
 /** The user's dated flows for a measured set of accounts, investor-sign convention:
  *  money the user PUT IN is negative, money TAKEN OUT is positive. */
-/* ─ MK-PF-F-024 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-024 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * userFlows
  *
  * Answers ..... The user's dated flows for a measured set of accounts, investor-sign convention: money the user PUT IN is negative, money TAKEN OUT is positive.
@@ -88,7 +88,7 @@ export function userFlows(transactions: Transaction[], accountIds: Set<string>):
 }
 
 /** True iff every measured account's story begins IN the ledger (openable honestly). */
-/* ─ MK-PF-F-025 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-025 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * historyIsComplete
  *
  * Answers ..... True iff every measured account's story begins IN the ledger (openable honestly).
@@ -122,7 +122,7 @@ export function historyIsComplete(transactions: Transaction[], accounts: AssetAc
   return true;
 }
 
-/* ─ MK-PF-F-030 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-030 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * npv
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -153,7 +153,7 @@ function npv(rate: number, flows: { date: number; amount: number }[], endValue: 
 }
 
 /** XIRR via bisection — deterministic, no derivative games. */
-/* ─ MK-PF-F-026 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-026 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * moneyWeightedReturn
  *
  * Answers ..... XIRR via bisection — deterministic, no derivative games.
@@ -215,7 +215,7 @@ export function moneyWeightedReturn(
   return { ratePerYear: (((lo + hi) / 2)), flows: flows.length, sinceDays };
 }
 
-/* ─ MK-PF-F-027 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-027 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * isMoneyWeighted
  *
  * Answers ..... Did the personal return produce a number, or a reason it could not?
