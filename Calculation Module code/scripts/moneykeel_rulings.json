@@ -2086,7 +2086,9 @@
   "proof": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
   "coded": "",
   "verified": "",
-  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors."
+  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors.",
+  "standard": "",
+  "screen_only": true
  },
  {
   "id": "Plan Q2 — the seven facts save as you type",
@@ -2099,7 +2101,9 @@
   "proof": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
   "coded": "",
   "verified": "",
-  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors."
+  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors.",
+  "standard": "",
+  "screen_only": true
  },
  {
   "id": "Plan Q3 — past target the dial caps at 100%",
@@ -2112,7 +2116,9 @@
   "proof": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
   "coded": "",
   "verified": "",
-  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors."
+  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors.",
+  "standard": "",
+  "screen_only": true
  },
  {
   "id": "Plan Q4 — day one offers our target and says whose it is",
@@ -2125,7 +2131,9 @@
   "proof": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
   "coded": "",
   "verified": "",
-  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors."
+  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors.",
+  "standard": "",
+  "screen_only": true
  },
  {
   "id": "Plan Q5 — the mortgage row says what it cannot answer",
@@ -2138,20 +2146,24 @@
   "proof": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
   "coded": "",
   "verified": "",
-  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors."
+  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors.",
+  "standard": "",
+  "screen_only": true
  },
  {
-  "id": "Plan Q6 — the retirement sentence is in today’s money, after tax",
+  "id": "Plan Q6 — what the hero says about money and tax",
   "date": "2026-09-26",
   "source": "chat, 2026-09-26: “Plan - Q1 - 8 - your recommendation approved”",
-  "ruling": "Q6 — future dollars and tax → today’s money, after tax, and say which",
+  "ruling": "Q6 — future dollars and tax. FIRST ANSWER (mine, and wrong): “today’s money, after tax”. HIS CORRECTION, 2026-09-26: “does this even make sense to you? … I thought I already made decision in the past … to keep retirement number pre-tax, as we cannot determine tax accurately. The lengthly explanation is horrible.”",
   "rows": "Plan · Retire",
   "status": "RULED",
-  "code": "Said on the hero line",
+  "code": "The hero stays EXACTLY as Build 53 shipped it and v4 drew it — “$909,152 of your $2,000,000 target nest egg — short $1,090,848”. Nothing about tax is printed: per G6 (2026-09-08) and G7 (2026-09-12) the plan’s figures are BEFORE tax except the required withdrawal at his own rate. The present-value question (the subtraction crosses two years’ money, as the shipped code does) stays open as one line, off the screen.",
   "proof": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
   "coded": "",
   "verified": "",
-  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors."
+  "notes": "Superseded my own first answer the same day. The ledger is not a place to leave a claim he has contradicted.",
+  "standard": "",
+  "screen_only": true
  },
  {
   "id": "Plan Q7 — one odds number everywhere",
@@ -2164,7 +2176,9 @@
   "proof": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
   "coded": "",
   "verified": "",
-  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors."
+  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors.",
+  "standard": "",
+  "screen_only": true
  },
  {
   "id": "Plan Q8 — Ray stops treating 80% as crossed",
@@ -2177,7 +2191,9 @@
   "proof": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
   "coded": "",
   "verified": "",
-  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors."
+  "notes": "Drawn in v06 on 2026-09-26; not built — the Plan tab’s code waits on its doors.",
+  "standard": "",
+  "screen_only": true
  },
  {
   "id": "A rate in a sentence carries /year, not “a year”",
@@ -2190,7 +2206,8 @@
   "proof": "src/screens/__tests__/invest_fcc.test.tsx",
   "coded": "2026-09-26",
   "verified": "",
-  "notes": ""
+  "notes": "",
+  "standard": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md"
  },
  {
   "id": "The canon guard reads copy as it renders",
@@ -2203,7 +2220,8 @@
   "proof": "src/__tests__/one_term_per_concept.test.ts",
   "coded": "2026-09-26",
   "verified": "",
-  "notes": "The guard had reported the app clean on a pattern it structurally could not see."
+  "notes": "The guard had reported the app clean on a pattern it structurally could not see.",
+  "standard": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md § One term per concept"
  },
  {
   "id": "Net worth and Home print percentages to two decimals",
@@ -2216,6 +2234,7 @@
   "proof": "src/__tests__/one_decimal_percent_ratchet.test.ts",
   "coded": "2026-09-26",
   "verified": "",
-  "notes": ""
+  "notes": "",
+  "standard": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md"
  }
 ]

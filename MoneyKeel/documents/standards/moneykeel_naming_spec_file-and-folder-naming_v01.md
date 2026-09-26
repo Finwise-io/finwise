@@ -158,5 +158,35 @@ audit files, unless he names one — goes through these seven steps:
 7. **Report with a coverage line** — comments read, already in, newly folded, answered, files archived —
    and update the working plan.
 
+### What PFS was missing, and now covers (founder, 2026-09-26)
+
+> *"something is broken — the whole purpose of executing PFS after every change or decision is to
+> ensure all files are in sync and not out of sync, and this is how we wasted 6 hours, and months."*
+
+The seven steps above move HIS FEEDBACK FILE into its original. They never said where a **decision**
+has to land, so one could sit in the rulings ledger while every other file knew nothing about it.
+That is exactly what happened with G6 and G7 on tax: on the master's rulings tab, in no standard, on
+no screen row, and contradicted by a row I had left open in the working plan. The question was asked
+again, and the wrong words reached a mock.
+
+**Every decision lands in all of these, the same day, or it is not recorded:**
+
+| Where | What goes there |
+|---|---|
+| `moneykeel_rulings.json` | His words, verbatim · what it governs (`rows`) · a test (`proof`) or a file check (`expect`) |
+| A **standard** | Any rule that is not about one screen — named on the ruling as `standard:` — or the ruling says `screen_only: true` |
+| The **screen's own rows** on the master | So someone reading the figure sees the rule that governs it |
+| The **working plan** | Every open row the decision answers is CLOSED, not left asking |
+| The **design changelog** | One dated row, his words in the Why |
+| **Code and a test** | Or the ruling stays RULED, never TESTED |
+
+**The gate:** `Calculation Module code/scripts/check-rulings-sync.py`, step B4 of the build. It fails
+when a ruling governs nothing, when its proof does not exist, or when a ruling made after 2026-09-26
+names no standard and is not marked screen-only. It also prints every open working-plan row that
+still ASKS about a subject already ruled — the shape of this miss — so a repeat question is caught by
+the build rather than by him.
+
+**Before writing copy or a mock on a ruled subject:** `python3 "Calculation Module code/scripts/rulings-for.py" <topic>`.
+
 The build prints how many feedback files are waiting for a PFS, so a copy left beside its original is
 seen rather than remembered.

@@ -174,3 +174,9 @@ finds the 6th gap.
 - Read EVERY comment, including a cell-by-cell diff against the original. A ruling is coded and tested the
   same day; a question to Claude is answered on its row. His words are never rewritten — the master build
   stops if any cell he typed changed. Report with a coverage line.
+- **A DECISION IS NOT RECORDED UNTIL IT IS IN EVERY FILE THAT CARRIES IT** (founder, 2026-09-26: *"the whole
+  purpose of executing PFS after every change or decision is to ensure all files are in sync"*): the rulings
+  ledger (his words + what it governs + a test or file check), a STANDARD if it is not about one screen, the
+  screen's own master rows, the working plan (every open row it answers is CLOSED), the design changelog, and
+  code + test. Gate: `check-rulings-sync.py`, step B4 of the build — it fails on an unanchored ruling and
+  prints every open row that re-asks something already ruled.
