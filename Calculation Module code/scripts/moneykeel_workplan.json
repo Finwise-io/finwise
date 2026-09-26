@@ -1602,6 +1602,18 @@
     "status": "DONE",
     "comments": "B-102 in the bug ledger. Founder ruling G7 (2026-09-12) bars a built-in default rate — whatever is chosen has to come from his own numbers."
    }
+  },
+  {
+   "task": "Cash flow · the design record never carried its approved mocks — four are filed in MoneyKeel/documents/cashflow (income end to end v07, This month + Spending v06, Look ahead v03, the four-tab surface v01) and the changelog approves income v4, v5 and v6, but the design-each-screen-was-built-from record lists only Net worth, Performance and Plan. On 2026-09-26 I read that one file and told him Cash flow had no approved design.",
+   "todo": "Claude: trace which build shipped which cash-flow mock (fingerprint method) and add the rows. Founder: one question — does income v07 supersede v06, or is it v06 with the canon words applied? Its file says v07; its eyebrow still says v6.",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/cashflow/ · design-each-screen-was-built-from_v01.md",
+   "date": "2026-09-26",
+   "comments": "Same class as the rulings miss: one file read as if it were the whole record.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "Same class as the rulings miss: one file read as if it were the whole record."
+   }
   }
  ]
 }
