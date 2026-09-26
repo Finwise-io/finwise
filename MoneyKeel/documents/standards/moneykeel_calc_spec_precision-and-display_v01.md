@@ -54,6 +54,28 @@ Where it applies: every window selector, summary and table that offers a window 
 
 `src/__tests__/precision_guard.test.ts` reads the calculation code and fails the build on any `round2(` call outside the formatter that defines it, and on the cents and four-decimal rounding idioms. A rounding that is the rule is written with a plain `Math.round` on a count, an index or a stated band, which the guard does not touch — and its row says so.
 
+## What a money figure means — before or after tax
+
+**His rulings, already made, in one place because they were not in any standard until now
+(2026-09-26).** They lived only on the master's `rulings` tab, so a screen task that read the
+standards and the workplan could not see them — and did not.
+
+- **G6, 2026-09-08:** *"no built-in tax rates on the draw-order comparison; the person's own rates,
+  or no number with the reason."*
+- **G7, 2026-09-12:** *"no flat 22% inside the odds; every caller passes its own effective rate."*
+
+What follows, and what a screen may therefore say:
+
+| | |
+|---|---|
+| Every figure in the plan | **Before tax**, unless the person's own rate has been applied and the screen says where it came from |
+| The one exception | The money the law forces out of pre-tax accounts from 73 — taxed at the person's own effective rate, clamped 10–60% (`rmd_tax_rate`) |
+| With no rate to pass | **No tax at all**, and the row says so — never an invented rate |
+| What a screen must never print | "after tax", "net of tax", or any figure implying a tax we did not compute from his own numbers |
+
+Widening this — taxing ordinary withdrawals, or using the retirement year's rate rather than today's
+— is a NEW question with numbers attached, not a re-asking of G6 or G7.
+
 ## Related standards
 
 - `moneykeel_calc_spec_objectives-and-verification_v01.md` — "right" means the same maths gives the same answer; the display rule is part of what "same" means.
