@@ -39030,7 +39030,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:292",
+   "site": "src/screens/PerformanceScreen.tsx:303",
    "routes": [
     "/invest"
    ],
@@ -39045,7 +39045,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:293",
+   "site": "src/screens/PerformanceScreen.tsx:304",
    "routes": [
     "/invest"
    ],
@@ -39060,7 +39060,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:308",
+   "site": "src/screens/PerformanceScreen.tsx:319",
    "routes": [
     "/invest"
    ],
@@ -39075,7 +39075,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:313",
+   "site": "src/screens/PerformanceScreen.tsx:324",
    "routes": [
     "/invest"
    ],
@@ -39090,7 +39090,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:345",
+   "site": "src/screens/PerformanceScreen.tsx:357",
    "routes": [
     "/invest"
    ],
@@ -39109,7 +39109,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:346",
+   "site": "src/screens/PerformanceScreen.tsx:358",
    "routes": [
     "/invest"
    ],
@@ -39126,7 +39126,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:373",
+   "site": "src/screens/PerformanceScreen.tsx:387",
    "routes": [
     "/invest"
    ],
@@ -39145,7 +39145,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:386",
+   "site": "src/screens/PerformanceScreen.tsx:400",
    "routes": [
     "/invest"
    ],
@@ -39165,7 +39165,7 @@
    "renders": 28
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:392",
+   "site": "src/screens/PerformanceScreen.tsx:406",
    "routes": [
     "/invest"
    ],
@@ -39184,7 +39184,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:449",
+   "site": "src/screens/PerformanceScreen.tsx:463",
    "routes": [
     "/invest"
    ],
@@ -39204,7 +39204,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:450",
+   "site": "src/screens/PerformanceScreen.tsx:464",
    "routes": [
     "/invest"
    ],
@@ -39224,7 +39224,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:457",
+   "site": "src/screens/PerformanceScreen.tsx:471",
    "routes": [
     "/invest"
    ],

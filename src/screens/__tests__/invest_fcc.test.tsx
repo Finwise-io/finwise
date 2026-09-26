@@ -85,11 +85,31 @@ describe('the window selector', () => {
     expect(screen.getByText('SUMMARY · THIS YEAR')).toBeOnTheScreen();
   });
 
-  test('2Y says it is a yearly rate — every other window is the window itself', () => {
+  test('a window longer than a year shows a yearly rate AND the total over the window', () => {
+    // founder ruling 2026-09-25, after the convention was checked against GIPS and the brokerages:
+    // show both and label them, so nobody needs to know a convention to read the screen.
+    const iso2 = (back: number) => isoLocalDate(new Date(Date.now() - back * 86400000));
+    useStore.setState({
+      assetAccounts: [{ asset_id: 'et', label: 'E*TRADE Account 1', institution: 'E*TRADE', kind: 'brokerage',
+        tax_bucket: 'TAXABLE', source: 'connected', balance: 12100, cash_balance: 0,
+        positions: [{ position_id: 'p1', ticker: 'VTI', kind: 'stocks_etf', last_price: 121,
+          lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 100, purchase_date: iso2(800) }] }] }],
+      transactions: [{ id: 't1', account_id: 'et', type: 'DEPOSIT', amount: 10000, date: iso2(760), created_at: '' }],
+      priceCache: { VTI: { ticker: 'VTI', points: [{ date: iso2(760), close: 100 }, { date: iso2(1), close: 121 }] } },
+      invDaily: { [iso2(740)]: 10000, [iso2(0)]: 12100 },
+    } as any);
+    (useStore.getState() as any).rebuildLinkedHistory();
     render(<PerformanceScreen />);
-    expect(screen.queryByText(/2Y is shown per year/)).toBeNull();
     fireEvent.press(screen.getAllByText('2Y')[0]);
-    expect(screen.getByText(/2Y is shown per year, so it sits fairly beside 1Y/)).toBeOnTheScreen();
+    // the segment says which kind of figure it is, and the summary states both
+    expect(screen.getAllByText('a year').length).toBeGreaterThan(0);
+    expect(screen.getByText(/% over the two years, which is .*% a year/)).toBeOnTheScreen();
+  });
+
+  test('a window of a year or less is the window itself, with no yearly wording', () => {
+    render(<PerformanceScreen />);
+    fireEvent.press(screen.getAllByText('1M')[0]);
+    expect(screen.queryByText(/a year, which is/)).toBeNull();
   });
 });
 

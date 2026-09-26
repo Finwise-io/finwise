@@ -62,6 +62,7 @@ the founder had approved all of it. Never again.
   founder's mark makes it VERIFIED.
 
 ## PRECISION — standing order (founder, master question Q49, 2026-09-09)
+- A return over a window LONGER THAN A YEAR is shown as a yearly rate with "a year" on it, and the window's own total stated beside it (founder, 2026-09-25, after the GIPS/brokerage convention was checked); a window of a year or less is never annualised. Standard: the precision-and-display spec, § A return over a window longer than one year.
 - Every calculation runs at FULL precision; nothing rounds inside a function. Rounding happens once, at display: whole dollars for totals/balances/projections, two decimals for prices/rates/expenses/per-share, eight for coin quantities, percents to two decimals; any other precision is stated on the figure's row. Standard: `MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md`. Guard: `src/__tests__/precision_guard.test.ts`.
 - A ruling's status (RULED → CODED → TESTED → VERIFIED) lives on the master's `rulings` tab, from `Calculation Module code/scripts/moneykeel_rulings.json`. Update it in the same commit as the change.
 
@@ -75,7 +76,10 @@ the founder had approved all of it. Never again.
   grayscale boxes. Show BOTH the rich state and the empty/first-day state.
 - Mocks show the FULL SCREEN, top to bottom (founder order, same day): status bar → header → hero →
   every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` (the current Net worth design),
+  `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v14.html` (the current Performance design, approved and built 2026-09-25),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-detail_v01.html`. Numbers inside mocks must ADD UP (accuracy rule applies).
+- WHICH DESIGN EACH SCREEN IS BUILT FROM, and which is current, lives in ONE record:
+  `MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md`. Read it at step 0 and update it the same day an approval changes it.
 - A mock is only satisfied when the built screen matches it in EVERY data state — including a
   fresh/empty account. Lesson: build 43 had the approved change+date elements in code but hid
   them behind has-data conditions; in the founder's new-account state the screen looked nothing

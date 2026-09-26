@@ -25,6 +25,25 @@ Every calculation runs at full precision and nothing is rounded inside a functio
 
 The three-decimal price formatter (`maskedPrice3`, for sub-$2 prices) was retired on 2026-09-09: it was my exception, not a stated one.
 
+## A return over a window longer than one year
+
+**Founder ruling, 2026-09-25.** A return for a window **longer than a year** is shown as a **yearly
+rate**, and the screen says so in words — "a year" under the figure, and the window's own total
+beside it: *"+15.10% over the two years, which is +7.30% a year."* A window of **a year or less** is
+the window's own return, never annualised.
+
+Why both, and why labelled:
+- The convention was checked before it was written. The **GIPS standards** forbid annualising a
+  period under one year and annualise periods above it; **brokerage statements** do the same;
+  **Fidelity's own help page** warns that annualised returns of different periods may be compared
+  but cumulative ones may not — a cumulative 2Y sitting beside a 1Y invites a false reading.
+- A person does not read conventions. Stating both, with the words on them, means nobody has to
+  know one: the yearly rate is comparable, and the total is what actually happened to their money.
+
+Where it applies: every window selector, summary and table that offers a window longer than a year
+(Performance today). A category table under such a window says its returns are yearly rates too.
+
+
 ## What this changes for the file
 
 - The functions tab no longer carries "rounds the answer to …" lines except where a rounding is the rule.

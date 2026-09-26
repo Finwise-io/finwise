@@ -187,11 +187,22 @@ export default function PerformanceScreen() {
     }) : null;
     // a rate needs something to stand on: either a beginning READ from the record, or movement we
     // can point at. Neither, and the window says "—" — never a confident +0.00%.
+    // A WINDOW LONGER THAN A YEAR IS SHOWN AS A YEARLY RATE, and says so (founder, 2026-09-25,
+    // after the convention was checked: GIPS forbids annualising under a year and annualises above
+    // it; brokerage statements do the same; Fidelity's own help warns that cumulative returns of
+    // different lengths must not be compared). His ruling: show BOTH, and label them, so nobody has
+    // to know a convention to read the screen — the segment carries "a year", the summary states
+    // the total over the window as well.
+    const years = bounds ? bounds.days / 365 : 0;
     const hasBasis = measured != null || walk.wealthGenerated !== 0;
     // A REFUSAL is an answer and says why (D4's timing band). Simply having no record yet is not a
     // refusal — the window shows "—" and the screen keeps its plain note about what a return means.
     const refused = verdict != null && verdict.rate == null;
-    return { windowStart, led, walk, measured, ret: hasBasis ? verdict?.rate ?? null : null,
+    const cumulative = hasBasis ? verdict?.rate ?? null : null;          // the total over the window
+    const perYear = cumulative != null && years > 1 ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
+    return { windowStart, led, walk, measured,
+      ret: perYear ?? cumulative,                                        // what a window shows
+      cumulative, perYear, years,
       sentence: refused ? verdict!.sentence : '', bounds };
   };
   const windowFigures = useMemo(() => {
@@ -335,7 +346,8 @@ export default function PerformanceScreen() {
               and the VALUE WALK. Both read the same rows/breakdown the hero below uses, so the two
               can never disagree; the walk's rows sum to the ending value by construction. */}
           {hasInvestments && (() => {
-            const { windowStart, walk, ret: shownReturn, sentence } = windowFigures[period] ?? figuresFor(period);
+            const { windowStart, walk, ret: shownReturn, sentence, cumulative, perYear, years } = windowFigures[period] ?? figuresFor(period);
+            const yearsWord = years >= 1.9 && years < 2.1 ? 'two years' : `${years.toFixed(1)} years`;
             const gaps = dataGaps(accounts, windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any);
             return (
               <>
@@ -358,8 +370,10 @@ export default function PerformanceScreen() {
                   )}
                   {/* founder ruling 2026-08-18 annualises the 2Y figure so it sits fairly beside 1Y.
                       Nothing said so until mock v14 mark 15 — a rate nobody can name is a trap. */}
-                  {period === ('2Y' as any) && (
-                    <Text style={styles.sumNote}>2Y is shown per year, so it sits fairly beside 1Y.</Text>
+                  {perYear != null && cumulative != null && (
+                    <Text style={styles.sumNote}>
+                      {pct(cumulative)} over the {yearsWord}, which is {pct(perYear)} a year — a yearly rate, so it sits fairly beside a one-year window.
+                    </Text>
                   )}
                   {/* the value graph lives INSIDE the summary card (approved performance-FINAL),
                       now with a Y axis (mock v14 mark 11) and drawn ONLY from days we have a record
@@ -535,7 +549,10 @@ export default function PerformanceScreen() {
                   <Text style={[styles.catV, { fontWeight: '800' }]}>{maskedMoney(Math.round(total))}</Text>
                   <Text style={styles.catR}> </Text>
                 </View>
-                <Text style={styles.sumNote}>Earned = dividends + interest received in this window. A category with no records shows —, never a false $0.</Text>
+                <Text style={styles.sumNote}>
+                  Earned = dividends + interest received in this window. A category with no records shows —, never a false $0.
+                  {windowFigures[period]?.perYear != null ? ' Over a window longer than a year, every return here is a yearly rate.' : ''}
+                </Text>
               </View>
             );
           })()}
@@ -775,7 +792,7 @@ const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2
 function WindowSelector({ windows, chosen, figures, onPick }: {
   windows: { key: string; label: string }[];
   chosen: string;
-  figures: Record<string, { ret: number | null }>;
+  figures: Record<string, { ret: number | null; perYear?: number | null }>;
   onPick: (key: string) => void;
 }) {
   return (
@@ -790,10 +807,13 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
             <TouchableOpacity
               style={[styles.seg, w.key === 'SINCE' && styles.segWide, on && styles.segOn]}
               accessibilityRole="button" accessibilityState={{ selected: on }}
-              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${pct(ret)}`}`}
+              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${pct(ret)}${figures[w.key]?.perYear != null ? ' a year' : ''}`}`}
               onPress={() => onPick(w.key)}>
               <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segRest]}>{w.label}</Text>
               <Text numberOfLines={1} style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>{ret == null ? '—' : pct(ret)}</Text>
+              {figures[w.key]?.perYear != null && (
+                <Text numberOfLines={1} style={[styles.segPer, on && styles.segOnT]}>a year</Text>
+              )}
             </TouchableOpacity>
           </React.Fragment>
         );
@@ -1154,6 +1174,7 @@ const styles = StyleSheet.create({
   segV: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   segOnT: { color: Colors.primaryDark },
   segRest: { color: Colors.textTertiary },
+  segPer: { fontSize: 11, fontWeight: '700', color: Colors.textSecondary, marginTop: -1 },
   axisDay: { fontSize: 11, color: Colors.textSecondary },
   walkChip: { paddingHorizontal: Spacing.base, paddingTop: 4 },
   // the add-an-account sheet — the same shape Net worth uses, so one question looks like one question

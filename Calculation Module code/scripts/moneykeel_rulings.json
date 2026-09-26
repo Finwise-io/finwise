@@ -2061,5 +2061,18 @@
   "coded": "2026-09-25",
   "verified": "",
   "notes": "Build 53 opened on the past year and back-solved beginnings (−$448,028 on his 2026-08-17 screenshot); it also gave his home its own walk."
+ },
+ {
+  "id": "A return over a window longer than a year is a yearly rate, and says so",
+  "date": "2026-09-25",
+  "source": "chat, 2026-09-25",
+  "ruling": "2Y - should not be annualized - it should be return over two years. I trust that's the standard. double check what financial insititutions do. → (after the check) Your recommendation approved. Add it to standards.",
+  "rows": "Performance window selector · summary · category earnings",
+  "status": "TESTED",
+  "code": "figuresFor() returns the window total AND the yearly rate (compound, over the window's own length). The segment shows the yearly rate with “a year” under it; the summary states both: “+15.10% over the two years, which is +7.30% a year”. A window of a year or less is never annualised.",
+  "proof": "src/screens/__tests__/invest_fcc.test.tsx",
+  "coded": "2026-09-25",
+  "verified": "",
+  "notes": "Checked first: GIPS forbids annualising under a year and annualises above it; brokerage statements match; Fidelity warns cumulative returns of different lengths must not be compared. Standard: moneykeel_calc_spec_precision-and-display_v01.md § A return over a window longer than one year."
  }
 ]

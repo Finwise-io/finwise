@@ -647,8 +647,8 @@
    }
   },
   {
-   "task": "Commit — 278 changed files on branch taxonomy-v1.0.7 since commit addbf53; nothing committed since 2026-09-01",
-   "todo": "Founder: say when to commit and push",
+   "task": "Commit — the branch was 278 files behind on 2026-09-14; committed since: 983805a (catch-up), f0e1d6d (Net worth v08), c4f2679 (the Since crash), 727e22a (Performance v14). Nothing is pushed — the branch taxonomy-v1.0.7 is local only.",
+   "todo": "Founder: say when to PUSH. (Note 2026-09-26: the Xcode licence has not been accepted on this Mac, so the normal git refuses to run — \"sudo xcodebuild -license accept\" once, then git works everywhere again.)",
    "status": "WAITING ON YOU",
    "ref": "git status · branch taxonomy-v1.0.7",
    "date": "2026-09-12",
@@ -1389,13 +1389,13 @@
   },
   {
    "task": "Performance step findings still to take to the founder: (1) the Since chip's OWN return is worked out from today, because startDateFor (MK-PF-F-…, src/domain/performance) has no Since case; (2) with a year's window and 16 days of record, each per-account walk reads $0 for accounts worth $301,610 and $52,704; (3) Build 53 still carries the older Invest sections below the approved design (Your return, Honest comparison, Look ahead / Look back, Your investments list, add/import/record buttons); (4) the account page has no per-account walk, no return per holding and no Total row that the approved design draws.",
-   "todo": "Claude: draw Performance as Build 53 shipped it for the founder to confirm, with each of these marked, before any change.",
-   "status": "TO DO",
+   "todo": "All of them went to him on mocks v10–v14 and are built (commit 727e22a): the Since window is measured from where the record starts, the walks read from the record (rebuilt for a linked account), the home gets no walk, and the account page has its own walk, per-holding returns and a Total row.",
+   "status": "DONE",
    "ref": "MoneyKeel/documents/networth-and-performance/archive/2026-08-10_moneykeel_pres_mock_performance_v01.html (approved final) · August 14th Design/design_handoff_net_worth/Performance.dc.html",
    "date": "2026-09-14",
    "comments": "",
    "_written": {
-    "status": "TO DO",
+    "status": "DONE",
     "comments": ""
    }
   },
@@ -1413,13 +1413,13 @@
   },
   {
    "task": "Performance · account header disagrees with its own walk — MK-PF-M: the header Return on AccountDetailScreen is worked out from cost since purchase ((balance − cost) ÷ cost), while the walk directly beneath it computes the window’s return (wealth generated ÷ beginning). Two different returns on one screen. Found 2026-09-25 answering the founder’s question about Market value · Return · Income.",
-   "todo": "Build with Performance v11 mark 12: one return, the window’s, and the header trio reads Market value · Wealth generated · Return like every other screen.",
-   "status": "TO DO",
+   "todo": "Built 2026-09-25 with Performance v14 (commit 727e22a): the trio reads Market value · Wealth generated · Return, all three from the window’s own walk.",
+   "status": "DONE",
    "ref": "src/screens/AccountDetailScreen.tsx (the trio) · mock v11 mark 12",
    "date": "2026-09-25",
    "comments": "Income $220 (dividends + interest) never reconciled with +0.57%, which comes from wealth generated $300.",
    "_written": {
-    "status": "TO DO",
+    "status": "DONE",
     "comments": "Income $220 (dividends + interest) never reconciled with +0.57%, which comes from wealth generated $300."
    }
   },
@@ -1473,14 +1473,14 @@
   },
   {
    "task": "Performance · the 2Y figure is a yearly rate and nothing says so — periodReturn annualises 2Y (founder ruling 2026-08-18) while every other window is a window rate. Found 2026-09-25.",
-   "todo": "Built 2026-09-25 (the screen says \"2Y is shown per year, so it sits fairly beside 1Y\"). FOUNDER QUESTION OPEN 2026-09-25: he asked for the 2Y to be the return over two years instead. Checked: GIPS forbids annualising under a year and annualises above it; brokerage statements annualise periods of a year or more; Fidelity warns that cumulative returns of different periods should not be compared. Recommendation sent: the segment says \"+7.30% a year\" and the summary says \"+15.10% over the two years, which is +7.30% a year\". Awaiting his word.",
-   "status": "WAITING ON YOU",
+   "todo": "Settled 2026-09-25: a window longer than a year shows the yearly rate with “a year” under it and the window total beside it in the summary. Written into the precision-and-display standard.",
+   "status": "DONE",
    "ref": "src/domain/performance/index.ts periodReturn · mock v12",
    "date": "2026-09-25",
-   "comments": "",
+   "comments": "His words: \"Your recommendation approved. Add it to standards.\"",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": ""
+    "status": "DONE",
+    "comments": "His words: \"Your recommendation approved. Add it to standards.\""
    }
   },
   {

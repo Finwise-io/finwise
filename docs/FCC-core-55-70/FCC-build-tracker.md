@@ -101,14 +101,14 @@ one build at the end.**
 | Net worth tab — main | ✅ rebuilt to the approved glance-that-expands (2026-07-14, in Build 42): glance + trend + OWN/OWE + math line + collapsed detail + one add-or-connect | |
 | Connect flow — institution + consent / accounts found + merge (F1) | ✅ ✅ (2026-07-15): /connect — institution search, APPROVED honest consent (through-the-servers wording, banned phrase pinned out), provider handoff behind the F1 seam, accounts-found picker, anti-duplicate merge (update-not-twin, settings kept), equal import/by-hand doors, honest no-provider state | |
 | Import from a file v2 | ✅ (institution required + provenance stamps, merge-not-duplicate w/ asset_id preserved, per-row class correction) | |
-| Account detail — any class | ✅ (/account-detail: source chip, per-class record-activity through recordTransaction, ledger history, value_as_of + 6-month nudge, Edit round-trip) | |
+| Account detail — any class | ✅ (/account-detail: source chip, per-class record-activity through recordTransaction, ledger history, value_as_of + 6-month nudge, Edit round-trip) · **rebuilt 2026-09-25 to mock v14 (commit `727e22a`)**: the MoneyKeel bar with "‹ Back", Market value · Wealth generated · Return in the words and order every screen uses, the account's own walk, a return beside each holding with a Total row, and the three "Add a …" doors in place of five buttons. | |
 | Bond editor / Alternative editor | ✅ ✅ | |
 | Add or edit an account by hand (dynamic by class) | ✅ (2026-07-15): /add-account — class-first dynamic fields (cash/stocks/bonds/alts/property/debt), wrapper + earmark chips, value-as-of stamped on every save, edit=manual-update mode, keyboard-safe Save | |
 
 ### Invest (8)
 | Screen | Status | 💬 Your comments |
 |---|---|---|
-| Invest — main (glance then drill) | ✅ rebuilt to the approved wireframe (2026-07-14, in Build 42): TOTAL RETURN glance + winners/laggards + concentration fact + look ahead/back + plan chip + ONE grouped list (bonds/alts/untracked folded in) | |
+| Performance — main (was Invest) | ✅ **REBUILT 2026-09-25 to the approved design (mock v14, commit `727e22a`)**: the window selector as ONE control (five windows, two lines each), the summary with a Y-axis value line, the all-accounts walk, one walk per investment account titled by account, and what each category earned. One meaning of return throughout — wealth generated ÷ the money working — and a window longer than a year shows its yearly rate with the window total beside it. Day one on a LINKED account is rebuilt from the broker's own records. The 2026-07-14 wireframe's sections (total-return glance, winners & laggards, concentration, look ahead/back, plan chip, the grouped list) are NOT in the approved design and were removed. | |
 | Holding detail — equity / bond / alternative | ✅ ✅ ✅ (equity per-ticker page /holding-detail shipped 2026-07-15 — 12-pin suite; bond + alt detail on /account-detail) | |
 | Look back — what if I'd moved money? | ✅ (/look-back; design's worked example pinned to the dollar) | |
 | What if I add more? (forward what-if) | ✅ (/what-if; before-chance = hub chance pinned; ?addMonthly= prefill from the 401(k)-room try-it) | |
