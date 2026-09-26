@@ -1581,7 +1581,7 @@
   },
   {
    "task": "Plan · present value vs future value — the screen subtracts today’s pot from a target stated in the retirement year’s dollars, and called the result “today’s money” (founder, 2026-09-26). The simulation is nominal: spending is inflated to retirement and the pot grows at the nominal return.",
-   "todo": "Founder: which money does the Plan tab speak in? (a) everything in TODAY’s money — deflate the target and the projection ($2,000,000 at 65 is $1,682,530 now), or (b) everything in the retirement year’s money, said once on the screen. Claude recommends (a): a person can only judge a number against the prices they know. Either way the subtraction stops mixing the two.",
+   "todo": "Founder: one decision, in one line — does “short $1,090,848” stay as a subtraction across two years’ money (as Build 53 shipped and v4 drew), or do the target and the projection move into today’s money? Claude recommends today’s money. NOTE: this is the SHIPPED behaviour (shortOfTarget = typed target − today’s balance), not something the mock introduced, and nothing about it goes on the screen as prose.",
    "status": "WAITING ON YOU",
    "ref": "mock v06, the PV mark · src/domain/retirement/index.ts simulate()",
    "date": "2026-09-26",
@@ -1592,14 +1592,14 @@
    }
   },
   {
-   "task": "Plan · tax on withdrawals — the plan charges tax ONLY on the required withdrawal from pre-tax accounts (from 73), at the person’s effective rate on TODAY’S gross income. Voluntary withdrawals, anything above the required amount, and gains in taxable accounts are untaxed (founder question, 2026-09-26).",
-   "todo": "Founder: should the plan tax ordinary withdrawals too — pre-tax at the ordinary rate, taxable at the gain share, Roth at nothing — and should the rate come from the RETIREMENT year’s income rather than today’s? Claude recommends yes to both: a retiree’s rate is usually lower than their working rate, so today’s rate is wrong in both directions. Engine work, sized before it starts.",
-   "status": "WAITING ON YOU",
+   "task": "Plan · tax — ALREADY RULED, and I asked him again. G6 (2026-09-08): “no built-in tax rates … the person’s own rates, or no number with the reason”. G7 (2026-09-12): “no flat 22% inside the odds; every caller passes its own effective rate.” So the plan’s figures are BEFORE tax except the required withdrawal, which uses his own rate. The defect was a line I added claiming “after tax” — removed 2026-09-26.",
+   "todo": "Nothing for him. If the tax treatment is ever widened (ordinary withdrawals, the retirement-year rate), it goes to him as a NEW question with the numbers — not as a re-ask of G6/G7.",
+   "status": "DONE",
    "ref": "src/domain/retirement/index.ts (the RMD branch) · willItLast.ts rmd_tax_rate · mock v06, the TAX mark",
    "date": "2026-09-26",
    "comments": "B-102 in the bug ledger. Founder ruling G7 (2026-09-12) bars a built-in default rate — whatever is chosen has to come from his own numbers.",
    "_written": {
-    "status": "WAITING ON YOU",
+    "status": "DONE",
     "comments": "B-102 in the bug ledger. Founder ruling G7 (2026-09-12) bars a built-in default rate — whatever is chosen has to come from his own numbers."
    }
   }
