@@ -18,11 +18,8 @@ approved design now has one home, and one file that stands on its own.
 
 ## Mocks
 
-- `moneykeel_pres_mock_plan_v05.html` — **THE ONE FILE FOR THIS SCREEN.** The approved v4 frames
-  exactly as handed over, plus: every change from v3 marked on the frame where it shows, the five
-  things still blocking a build marked in orange, the figures the exact-odds ruling has since moved,
-  and every question waiting on the founder, each marked on the frame it belongs to. It needs no
-  other file to be read.
+- `moneykeel_pres_mock_plan_v06.html` — **THE ONE FILE FOR THIS SCREEN** (2026-09-26): the founder's eight decisions applied, the five blockers fixed, every figure re-run at 1,000 futures, the words on the canon, and every placeholder filled with the figure the function gives — it needs no other file, and no tool, to be read.
+- `archive/2026-09-26_moneykeel_pres_mock_plan_v05.html` — the version that carried the questions.
 
 ## The papers behind it
 

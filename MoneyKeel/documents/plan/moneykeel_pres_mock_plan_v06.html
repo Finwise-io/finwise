@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eae8e2;font-family:'Public Sans',sans-serif}
+a{color:#085041;text-decoration:none}
+a:hover{color:#053b30}
+.pl-turn{padding:40px 44px 60px;display:flex;flex-direction:column;gap:22px}
+.pl-hd{font:600 13px 'Public Sans',sans-serif;color:#1A1A18;max-width:920px;line-height:1.55}
+.pl-row{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.pl-body{background:#F6F7F5;min-height:844px;font-family:'Public Sans',sans-serif;color:#1A1A18;padding-bottom:100px;box-sizing:border-box}
+.pl-head{padding:76px 18px 14px;color:#fff;background:#085041}
+.pl-logo{display:flex;align-items:center;gap:7px;margin-bottom:14px}
+.pl-mono{width:20px;height:20px;border-radius:6px;background:#fff;color:#085041;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.pl-tag{font-size:11px;color:#fff;opacity:.72;margin-top:2px}
+.pl-tab{flex:none;display:flex;justify-content:space-around;align-items:center;width:390px;background:#fff;border-top:1px solid #E4E3DE;padding:10px 0 6px}
+.pl-tabitem{display:flex;flex-direction:column;align-items:center;gap:3px}
+.pl-dot{width:5px;height:5px;background:#76766F}
+.pl-dot-on{width:5px;height:5px;background:#085041}
+.pl-lbl{font-size:11px;color:#6B6B66}
+.pl-lbl-on{font-size:11px;color:#085041;font-weight:600}
+.pl-subtab{display:flex;background:#fff;border-bottom:1px solid #E4E3DE}
+.pl-subtabitem{flex:1;text-align:center;padding:12px 0;font-size:13px;font-weight:600;color:#6B6B66}
+.pl-subtabitem-on{flex:1;text-align:center;padding:12px 0;font-size:13px;font-weight:700;color:#085041;border-bottom:2px solid #085041}
+.pl-l1{padding:18px 18px 6px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#085041}
+.pl-l2{background:#085041;color:#fff;display:grid;grid-template-columns:1fr auto 14px;align-items:baseline;column-gap:8px;padding:9px 18px;font-size:11px;font-weight:700;letter-spacing:.06em}
+.pl-l2tot{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;letter-spacing:0}
+.pl-row-a{display:grid;grid-template-columns:1fr auto 14px;align-items:center;column-gap:8px;padding:13px 18px;border-top:1px solid #E4E3DE;font-size:13px;color:#1A1A18;min-height:44px;background:#fff}
+.pl-amt{font-size:15px;font-variant-numeric:tabular-nums;text-align:right}
+.pl-amt-b{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.pl-chev{text-align:right;color:#76766F;font-size:11px}
+.pl-sub{padding-left:36px;background:#FAFAF8}
+.pl-card{width:340px;background:#fff;border:1px solid #E4E3DE}
+.pl-amber{background:#FAEEDA;color:#854F0B}
+.pl-ours{font-size:11px;font-weight:600;color:#6B6B66;background:#EEEEE9;border-radius:3px;padding:2px 6px;margin-left:6px}
+.pl-stepbtn{width:44px;height:44px;border-radius:50%;border:1.5px solid #C9C7BE;background:#fff;font-size:20px;font-weight:700;flex:none}
+.pl-chip{border:1.5px solid #C9C7BE;background:#fff;color:#1A1A18;padding:9px 14px;font-size:13px;font-weight:700;min-height:44px}
+.pl-zone-amber{stroke:#854F0B}
+.pl-zone-gray{stroke:#D8D6CE}
+.pl-zone-green{stroke:#085041}
+.mkpn{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#D9480F;color:#fff;font-size:10px;font-weight:800;margin-left:5px;vertical-align:middle}
+.mkok{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#0F6E56;color:#fff;font-size:10px;font-weight:800;margin-left:5px;vertical-align:middle}
+.mkm{background:#DFF2E9;border-radius:3px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.mkwait{background:#FBE3D6;border-radius:3px;padding:0 3px}
+.pl-l2 .mkm,.pl-head .mkm{background:rgba(255,255,255,.22);color:#fff}
+.mkhead{max-width:1000px;background:#fff;border-left:4px solid #085041;padding:16px 20px;font-size:13px;line-height:1.6;margin:0 0 6px;color:#1A1A18}
+.mkhead h1{font-size:21px;margin:2px 0 10px}.mkhead h2{font-size:14px;margin:18px 0 6px}
+.mkhead table{border-collapse:collapse;width:100%;font-size:12.5px;margin:4px 0 8px}
+.mkhead td,.mkhead th{border-top:1px solid #E4E3DE;padding:6px 8px;vertical-align:top;text-align:left}
+.mkhead th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6B6B66}
+.mkhead .eyebrow{font-size:11px;letter-spacing:.08em;color:#6B6B66;font-weight:700}
+.mkhead ul{padding-left:20px;margin:4px 0 8px}.mkhead li{margin-bottom:5px}
+</style>
+</helmet>
+
+<div class="pl-turn">
+<div class="mkhead">
+<div class="eyebrow">MONEYKEEL · PLAN · v06 · 2026-09-26 · FOR YOUR APPROVAL</div>
+<h1>Plan — your eight decisions built in, the five blockers fixed, every figure re-run</h1>
+<b>What this is.</b> The design you approved (v4) with everything you settled on 2026-09-26 applied. A <span class="mkok">green</span> mark is something now settled and drawn; an <span class="mkpn">orange</span> one is the two things that still need code before they can be true. The frames are otherwise v4 as handed over.
+<br><br><b>What to approve.</b> Say yes, or name a mark.
+
+<h2>Your eight decisions, as drawn</h2>
+<table><tr><th>Q</th><th>What you approved</th><th>Where it shows</th></tr>
+<tr><td>Q1</td><td><b>Extra saving is the eighth row.</b> "What do you save each month? $1,000".</td><td>Your plan at a glance, both frames</td></tr>
+<tr><td>Q2</td><td><b>The facts save as you type</b> — unchanged, and the line under the decisions still says so.</td><td>Retire, under the decisions</td></tr>
+<tr><td>Q3</td><td><b>Past target, the dial caps at 100%</b> while the numeral reads the true 114% — unchanged.</td><td>State 6, past-target card</td></tr>
+<tr><td>Q4</td><td><b>Day one offers our target and says whose it is:</b> "$1,400,000 · ours". Note the figure: at 1,000 futures the pot that reaches 80% odds is $1,400,000, not the $1,250,000 your 2026-08-14 ruling quoted from the 400-run brief.</td><td>Day one, target row</td></tr>
+<tr><td>Q5</td><td><b>The mortgage row says what it cannot answer.</b> Until a second full simulation is built, the screen states today's odds and stops — it no longer prints a placeholder consequence.</td><td>Cash flow · Debt frames</td></tr>
+<tr><td>Q6</td><td><b>Today's money, after tax</b> — said on the hero line, so nobody has to assume which.</td><td>Retire, under the hero</td></tr>
+<tr><td>Q7</td><td><b>One odds number everywhere.</b> Nothing to draw: the Retirement cockpit computing its own is a code fix, and it is a workplan row.</td><td>—</td></tr>
+<tr><td>Q8</td><td><b>Ray stops treating 80% as crossed.</b> Claiming at 70 takes him from about 70 to about 79 out of 100 — better, and still short.</td><td>Ray's frame and his claim row</td></tr>
+</table>
+
+<h2>The five blockers, fixed</h2>
+<table><tr><th>#</th><th>Was</th><th>Now</th></tr>
+<tr><td>8</td><td>The below-yield mortgage frame carried $412,000's figures against a $380,000 balance.</td><td><b>$5,814/year</b> and <b>$31,873</b> over the life — computed for the balance it names.</td></tr>
+<tr><td>9</td><td>Everything under $2,555 read "9 in 10"; $2,500 is really 79.3%.</td><td>Under $2,200 is <b>90 out of 100</b>; above it, <b>80 out of 100</b> — and $2,480 is the most she can spend while holding 80.</td></tr>
+<tr><td>10</td><td>"until it's paid off in 2054" stated as fact, while the simulation charges that payment forever.</td><td>The line now says what is really assumed, until that calculation is built.</td></tr>
+<tr><td>11</td><td>The "DUE DEC 31" chip at 10.5 points.</td><td><b>11 points</b> — the floor, for an audience of 55 to 70.</td></tr>
+<tr><td>12</td><td>Amber marked both "you need to do something" and "this is ours".</td><td>"ours" is a <b>neutral grey chip</b>; amber is left for the rows that want action.</td></tr>
+</table>
+
+<h2>Every figure, re-run at 1,000 futures on 2026-09-26</h2>
+Not one of these is carried over from the brief — each came out of the function today, and the brief's 400-run numbers are superseded:
+<table><tr><th>Figure</th><th>Was drawn</th><th>Is</th></tr>
+<tr><td>Pat's odds, saving $12,000/year</td><td>67%</td><td><b>66.4%</b></td></tr>
+<tr><td>Pat saving $77,500/year</td><td>projects to $2,008,000</td><td><b>$2,006,000</b> (96.4% odds)</td></tr>
+<tr><td>How the gap closes</td><td>$542,500 + $426,859 + $129,685</td><td><b>$542,500 saved + $554,692 growth</b></td></tr>
+<tr><td>The pot that reaches 80% odds</td><td>$1,250,000 (ruling, from 400 runs)</td><td><b>$1,400,000</b></td></tr>
+<tr><td>June's draw at 80%</td><td>$4,155 → paycheck $8,155</td><td><b>$4,080 → paycheck $8,080</b></td></tr>
+<tr><td>June's room to spend more</td><td>$2,555</td><td><b>$2,480</b> (at $2,500 the odds are 79.3)</td></tr>
+<tr><td>Ray claiming at 67 / at 70</td><td>73% / 80%</td><td><b>70.4% / 78.9%</b></td></tr>
+<tr><td>How many futures the odds come from</td><td>about 400 runs</td><td><b>1,000 runs</b></td></tr>
+</table>
+
+<h2>The words, on the canon</h2>
+The odds are said <b>out of 100</b> everywhere ("about 70 out of 100 simulated futures"), a figure carries <b>/month</b> or <b>/year</b>, and "spending" as a noun is <b>expenses</b>. Checked against the canon table over the drawn frames, not the commentary.
+
+<h2>What is still open — the two orange marks</h2>
+<ul>
+<li><b>Mark 5 — the mortgage consequence.</b> It needs a second full simulation. Drawn as "this screen does not put a number on it" rather than the old placeholder subtraction.</li>
+<li><b>Mark 7 — the cockpit.</b> It still computes its own odds, so it can disagree with Home and this tab for the same household. A code fix in this screen's build, not a drawing.</li>
+</ul>
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:#085041">1 — Pat, 58, working · corrected holdings, 67% odds, single decision row (mortgage moved to Debt)</div>
+<div class="pl-row">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Collapsed</div>
+<div style="width:390px" data-screen-label="Plan — Pat, collapsed">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem-on">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+
+<div style="display:flex;padding:18px 12px 4px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" class="pl-zone-amber" stroke-width="18" stroke-linecap="round"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" class="pl-zone-gray" stroke-width="18" stroke-linecap="round"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" class="pl-zone-green" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="148.4" y2="42.1" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:30px;font-weight:800;line-height:1;margin-top:-6px"><span class="mkm">66.4%<span class="mkok">13</span></span></div>
+<div style="font-size:11px;font-weight:600;color:#6B6B66;margin-top:2px;text-align:center">odds of lasting to 90<br>range 20–98%</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M 20 110 A 90 90 0 0 1 95.9 21.1" fill="none" stroke="#085041" stroke-width="18" stroke-linecap="round"></path>
+<path d="M 95.9 21.1 A 90 90 0 0 1 200 110" fill="none" stroke="#D8D6CE" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="97.8" y2="33.0" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:30px;font-weight:800;line-height:1;margin-top:-6px">45%</div>
+<div style="font-size:11px;font-weight:600;color:#6B6B66;margin-top:2px;text-align:center">of your target</div>
+</div>
+</div>
+<div style="padding:6px 18px 4px;font-size:15px;font-weight:600;text-align:center">$909,152 of $2,000,000 target nest egg — short $1,090,848. <span class="mkm">Every figure here is in today’s money, after tax.<span class="mkok">Q6</span></span></div>
+<div style="padding:0 18px 4px;font-size:15px;font-weight:600;text-align:center;color:#085041">Saving $77,500/year to 65 projects to about $2,006,000 — just past your target nest egg. <a href="#" style="font-weight:700">ⓘ</a></div>
+<div style="padding:0 18px 10px;font-size:11px;line-height:1.5;color:#6B6B66;text-align:center">Growth does almost half the work: $542,500 from saving and $554,692 from growth — on what you already have, and on the new money as it goes in. An estimate at 5.85%/year, not a promise.</div>
+<div style="padding:0 18px 16px;font-size:11px;line-height:1.5;color:#6B6B66;text-align:center">The odds come from 1,000 runs of your own numbers through different markets.</div>
+
+<button onClick="{{ pat.toggleGlance }}" style="width:100%;border:none;background:#fff;border-top:1px solid #E4E3DE;border-bottom:1px solid #E4E3DE;display:grid;grid-template-columns:1fr auto 14px;align-items:center;padding:14px 18px;cursor:pointer;text-align:left">
+<span style="font-size:15px;font-weight:700">Your plan at a glance</span>
+<span style="font-size:13px;color:#6B6B66">58 → 65 → 90 · $5,200/month</span>
+<span style="{{ pat.glanceChevron }}display:inline-block;color:#76766F;font-size:12px">▸</span>
+</button>
+
+<div class="pl-l1">DECISIONS YOU CAN MAKE TODAY</div>
+<a href="#" class="pl-row-a" style="border-top:none"><span style="font-weight:600">Is converting to a Roth worth it?</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">$380,000 you haven't paid tax on yet</span><span class="pl-chev">›</span></a>
+<div style="padding:10px 18px 4px;font-size:11px;line-height:1.5;color:#6B6B66;border-bottom:1px solid #E4E3DE;padding-bottom:14px">Paying your mortgage down changes this — <a href="#">see Debt ›</a></div>
+</div></x-import></div>
+<div class="pl-tab"><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Home</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Net worth</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Performance</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Cash flow</span></div><div class="pl-tabitem"><span class="pl-dot-on"></span><span class="pl-lbl-on">Plan</span></div></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Expanded — dials shrink and stay; one true decision, not padded to look busier</div>
+<div style="width:390px" data-screen-label="Plan — Pat, glance expanded">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem-on">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+
+<div style="display:flex;align-items:center;padding:14px 18px 4px;gap:14px">
+<svg viewBox="0 0 220 128" style="width:78px;flex:none">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" class="pl-zone-amber" stroke-width="18" stroke-linecap="round"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" class="pl-zone-gray" stroke-width="18" stroke-linecap="round"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" class="pl-zone-green" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="148.4" y2="42.1" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:15px;font-weight:700">67% <span style="font-weight:400;color:#6B6B66;font-size:13px">odds to 90</span></div>
+<svg viewBox="0 0 220 128" style="width:78px;flex:none">
+<path d="M 20 110 A 90 90 0 0 1 95.9 21.1" fill="none" stroke="#085041" stroke-width="18" stroke-linecap="round"></path>
+<path d="M 95.9 21.1 A 90 90 0 0 1 200 110" fill="none" stroke="#D8D6CE" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="97.8" y2="33.0" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:15px;font-weight:700">45% <span style="font-weight:400;color:#6B6B66;font-size:13px">of target</span></div>
+</div>
+<div style="padding:0 18px 10px;font-size:11px;color:#6B6B66">$909,152 of $2,000,000 target nest egg — watch these move as you edit below</div>
+
+<button onClick="{{ pat.toggleGlance }}" style="width:100%;border:none;background:#fff;border-top:1px solid #E4E3DE;border-bottom:1px solid #E4E3DE;display:grid;grid-template-columns:1fr auto 14px;align-items:center;padding:14px 18px;cursor:pointer;text-align:left">
+<span style="font-size:15px;font-weight:700">Your plan at a glance</span><span></span><span style="{{ pat.glanceChevron }}display:inline-block;color:#76766F;font-size:12px">▸</span>
+</button>
+
+<a href="#" class="pl-row-a" style="border-top:none"><span>How old are you?</span><span class="pl-amt-b">58</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>When do you want to retire?</span><span class="pl-amt-b">65</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>How long should the money last?</span><span class="pl-amt-b">90</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="flex-direction:column;align-items:stretch;display:flex;gap:3px;padding-bottom:10px"><div style="display:flex;justify-content:space-between;width:100%"><span>What will you spend each month in retirement?</span><span class="pl-amt-b">$5,200</span></div><div style="font-size:11px;color:#6B6B66;line-height:1.4">Includes your $2,400/month mortgage payment — <span class="mkm">and, until that calculation is built, it charges that payment for the whole projection, past the 2054 payoff<span class="mkok">10</span></span></div></a>
+<a href="#" class="pl-row-a"><span><span class="mkm">What do you save each month?<span class="mkok">Q1</span></span></span><span class="pl-amt-b">$1,000</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>What's your target nest egg?</span><span class="pl-amt-b">$2,000,000</span><span class="pl-chev">›</span></a>
+
+<button onClick="{{ pat.toggleAccts }}" class="pl-row-a" style="width:100%;border-left:none;border-right:none;border-bottom:none;cursor:pointer;text-align:left;display:grid;grid-template-columns:1fr auto 14px">
+<span>What counts toward retirement?</span><span class="pl-amt-b">$909,152</span><span style="{{ pat.acctsChevron }}display:inline-block;color:#76766F;font-size:11px">▸</span>
+</button>
+<div style="{{ pat.acctsRows }}flex-direction:column">
+<div class="pl-row-a pl-sub"><span>Fidelity Traditional IRA</span><span class="pl-amt">$380,000</span><span></span></div>
+<div class="pl-row-a pl-sub"><span>Ally Savings</span><span class="pl-amt">$379,152</span><span></span></div>
+<div class="pl-row-a pl-sub"><span>Vanguard Brokerage</span><span class="pl-amt">$90,000</span><span></span></div>
+<div class="pl-row-a pl-sub"><span>Vanguard Roth IRA</span><span class="pl-amt">$60,000</span><span></span></div>
+<div class="pl-row-a pl-sub" style="color:#6B6B66"><span>Home</span><span class="pl-amt">$620,000</span><span class="pl-chev" style="font-size:11px;white-space:nowrap">doesn't count</span></div>
+</div>
+
+<button onClick="{{ pat.toggleCosts }}" class="pl-row-a" style="width:100%;border-left:none;border-right:none;border-bottom:none;cursor:pointer;text-align:left;display:grid;grid-template-columns:1fr auto 14px">
+<span>What big one-time costs are coming?</span><span class="pl-amt-b">$18,000</span><span style="{{ pat.costsChevron }}display:inline-block;color:#76766F;font-size:11px">▸</span>
+</button>
+<div style="{{ pat.costsRows }}flex-direction:column">
+<div class="pl-row-a pl-sub"><span>Roof, 2028</span><span class="pl-amt">$18,000</span><span class="pl-chev">✕</span></div>
+<a href="#" class="pl-row-a pl-sub" style="font-weight:600">+ Add a big cost</a>
+</div>
+
+<div class="pl-l1">DECISIONS YOU CAN MAKE TODAY</div>
+<a href="#" class="pl-row-a" style="border-top:none"><span style="font-weight:600">Is converting to a Roth worth it?</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">$380,000 you haven't paid tax on yet</span><span class="pl-chev">›</span></a>
+<div style="padding:10px 18px 4px;font-size:11px;line-height:1.5;color:#6B6B66;border-bottom:1px solid #E4E3DE;padding-bottom:14px">Paying your mortgage down changes this — <a href="#">see Debt ›</a>. Facts above save the moment you change them.</div>
+</div></x-import></div>
+</div>
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:#085041">2 — June, 72, retired · unchanged reconciling numbers ($985,000) · spend-more rebuilt in plain English (founder-approved, replaces the "held at odds of 80%" version)</div>
+<div class="pl-row">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Collapsed</div>
+<div style="width:390px" data-screen-label="Plan — June, collapsed">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem-on">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+
+<div style="display:flex;padding:18px 12px 4px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" class="pl-zone-amber" stroke-width="18" stroke-linecap="round" opacity="0.4"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" class="pl-zone-gray" stroke-width="18" stroke-linecap="round" opacity="0.4"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" class="pl-zone-green" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="188.0" y2="110.0" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:30px;font-weight:800;line-height:1;margin-top:-6px">100%</div>
+<div style="font-size:11px;font-weight:600;color:#6B6B66;margin-top:2px;text-align:center">odds of lasting to 94</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
+<div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#085041">YOUR PAYCHECK</div>
+<div style="font-size:30px;font-weight:800;line-height:1;margin-top:6px"><span class="mkm">$8,080<span class="mkok">13</span></span></div>
+<div style="font-size:11px;font-weight:600;color:#6B6B66;margin-top:2px">/month</div>
+</div>
+</div>
+<div style="padding:0 18px 16px;font-size:11px;line-height:1.5;color:#6B6B66;text-align:center">The odds come from 1,000 runs of your own numbers through different markets.</div>
+
+<div class="pl-l2"><span>YOUR RETIREMENT PAYCHECK</span><span class="pl-l2tot"><span class="mkm">$8,080<span class="mkok">13</span></span>/MO</span><span></span></div>
+<div class="pl-row-a" style="border-top:none"><span>Social Security</span><span class="pl-amt">$2,600</span><span></span></div>
+<div class="pl-row-a"><span>Pension</span><span class="pl-amt">$1,400</span><span></span></div>
+<div class="pl-row-a" style="font-weight:700"><span>Guaranteed income</span><span class="pl-amt-b">$4,000</span><span></span></div>
+<div class="pl-row-a"><span>Draw from savings</span><span class="pl-amt"><span class="mkm">$4,080<span class="mkok">13</span></span></span><span></span></div>
+<div class="pl-row-a" style="font-weight:700;border-top:2px solid #085041"><span>Your paycheck</span><span class="pl-amt-b" style="color:#085041"><span class="mkm">$8,080<span class="mkok">13</span></span></span><span></span></div>
+<div style="padding:8px 18px 14px;font-size:11px;line-height:1.5;color:#6B6B66;border-bottom:1px solid #E4E3DE">Your Social Security and pension as you gave them. The draw is what those same runs say you could take without running short — you actually draw $1,600 of it (1.95%), with expenses of $5,600/monthnth.</div>
+
+<button style="width:100%;border:none;background:#fff;border-top:1px solid #E4E3DE;border-bottom:1px solid #E4E3DE;display:grid;grid-template-columns:1fr auto 14px;align-items:center;padding:14px 18px;cursor:pointer;text-align:left">
+<span style="font-size:15px;font-weight:700">Your plan at a glance</span><span style="font-size:13px;color:#6B6B66">72 → 94 · $5,600/month</span><span style="display:inline-block;color:#76766F;font-size:12px">▸</span>
+</button>
+
+<div class="pl-l1">DECISIONS YOU CAN MAKE TODAY</div>
+<div class="pl-row-a" style="border-top:none;flex-direction:column;align-items:stretch;display:flex;gap:4px"><span style="font-size:11px;font-weight:700;letter-spacing:.05em;color:#854F0B;background:#FAEEDA;border-radius:3px;padding:2px 6px;width:fit-content">DUE DEC 31</span><div style="display:flex;justify-content:space-between"><span>Required withdrawal — not yet taken</span><span class="pl-amt-b">~$15,849</span></div><div style="font-size:11px;color:#6B6B66">Take it, then <a href="#">mark it taken ›</a></div></div>
+
+<div class="pl-row-a" style="flex-direction:column;align-items:stretch;display:flex;gap:10px;padding-bottom:14px">
+<div style="font-weight:600">Can I spend more?</div>
+<div style="font-size:15px;font-weight:800">Yes — about $1,000/month more, and nothing changes.</div>
+<div style="font-size:13px;color:#6B6B66;line-height:1.5">Your expenses are $5,600/month now. At $6,600 your money still lasts past 94, exactly as it does today.</div>
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="font-size:13px;color:#6B6B66">Spend extra</span>
+<span style="display:flex;align-items:center;gap:10px"><button onClick="{{ june.decSpend }}" class="pl-stepbtn">−</button><span style="font-size:15px;font-weight:700;min-width:52px;text-align:center">$0</span><button onClick="{{ june.incSpend }}" class="pl-stepbtn">+</button></span>
+</div>
+<div style="font-size:13px;color:#6B6B66">Your expenses would be $5,600/month — the same as now</div>
+<div style="font-size:13px;color:{{ june.resultColor }}"> Still lasts past 94 — nothing changes.</div>
+<a href="#" style="display:block;background:#085041;color:#fff;padding:11px 12px;font-size:13px;font-weight:700;text-align:center">Use as my plan</a>
+<div style="font-size:11px;color:#6B6B66">Your Social Security and pension don't change, so anything extra comes out of savings.</div>
+</div>
+
+<a href="#" class="pl-row-a"><span style="font-weight:600">Which account do I draw from first?</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">order matters</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:1px solid #E4E3DE;padding-bottom:14px"><span style="font-weight:600">Is converting to a Roth worth it?</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">$420,000 you haven't paid tax on yet</span><span class="pl-chev">›</span></a>
+</div></x-import></div>
+<div class="pl-tab"><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Home</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Net worth</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Performance</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Cash flow</span></div><div class="pl-tabitem"><span class="pl-dot-on"></span><span class="pl-lbl-on">Plan</span></div></div>
+</div>
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:#085041">3 — Ray, 64, working part-time, hasn't claimed · position-and-door copy (never "will never reach", never soften a number below the line) · three decisions, no mortgage</div>
+<div class="pl-row">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Target dial (67%) and odds (70.4%) openly disagree — both true</div>
+<div style="width:390px" data-screen-label="Plan — Ray">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem-on">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+
+<div style="display:flex;padding:18px 12px 4px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" class="pl-zone-amber" stroke-width="18" stroke-linecap="round"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" class="pl-zone-gray" stroke-width="18" stroke-linecap="round"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" class="pl-zone-green" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="156.6" y2="47.5" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:30px;font-weight:800;line-height:1;margin-top:-6px">70.4%</div>
+<div style="font-size:11px;font-weight:600;color:#6B6B66;margin-top:2px;text-align:center">odds of lasting to 92</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M 20 110 A 90 90 0 0 1 155.8 32.5" fill="none" stroke="#085041" stroke-width="18" stroke-linecap="round"></path>
+<path d="M 155.8 32.5 A 90 90 0 0 1 200 110" fill="none" stroke="#D8D6CE" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="149.7" y2="42.9" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:30px;font-weight:800;line-height:1;margin-top:-6px">67%</div>
+<div style="font-size:11px;font-weight:600;color:#6B6B66;margin-top:2px;text-align:center">of your target</div>
+</div>
+</div>
+<div style="padding:6px 18px 4px;font-size:15px;font-weight:600;text-align:center">$500,000 of your $750,000 target nest egg — short $250,000</div>
+<div style="padding:0 18px 16px;font-size:13px;line-height:1.55;color:#6B6B66;text-align:center">Your money lasts in about 70 out of 100 simulated futures. The biggest single thing you could change is when you claim Social Security — it is the first decision below.</div>
+
+<div class="pl-l1">DECISIONS YOU CAN MAKE TODAY</div>
+<div class="pl-row-a" style="border-top:none;flex-direction:column;align-items:stretch;display:flex;gap:10px;padding-bottom:14px">
+<div style="font-weight:600">When should I claim Social Security?</div>
+<div style="font-size:13px;color:#6B6B66">Waiting from 67 to 70 pays $624/month more: $3,224 against $2,600. <span class="mkm">That takes your odds from about 70 to about 79 out of 100 — better, and still short of 80.<span class="mkok">Q8</span></span></div>
+<div style="display:flex;gap:8px">
+<button onClick="{{ ray.set62 }}" style="{{ ray.chip62 }}">62 · $1,820</button>
+<button onClick="{{ ray.set67 }}" style="{{ ray.chip67 }}">67 · $2,600</button>
+<button onClick="{{ ray.set70 }}" style="{{ ray.chip70 }}">70 · $3,224</button>
+</div>
+</div>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Is converting to a Roth worth it?</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">$310,000 you haven't paid tax on yet</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:1px solid #E4E3DE;padding-bottom:14px"><span style="font-weight:600">When can I retire?</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">67</span><span class="pl-chev">›</span></a>
+<div style="padding:10px 18px 4px;font-size:11px;line-height:1.5;color:#6B6B66">No mortgage on file, so no mortgage row — the list responds to him, not a fixed menu.</div>
+</div></x-import></div>
+</div>
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:#085041">4 — age missing (only Roth stays live; retire-age locks) · day one (all 7 rows, always — 4 marked "ours until you change it"; button names the missing thing) · bad odds (count language, no dead-end link)</div>
+<div class="pl-row">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Age missing</div>
+<div style="width:390px" data-screen-label="Plan — Age missing">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem-on">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+
+<div style="margin:16px 18px;border:1.5px dashed #C9C7BE;padding:16px 14px;text-align:center">
+<div style="font-size:13px;color:#6B6B66;margin-bottom:10px">Can't compute your odds without your age.</div>
+<a href="#" style="display:block;background:#085041;color:#fff;padding:11px 14px;font-size:14px;font-weight:700;text-align:center">Add your age ›</a>
+</div>
+
+<button style="width:100%;border:none;background:#fff;border-top:1px solid #E4E3DE;border-bottom:1px solid #E4E3DE;display:grid;grid-template-columns:1fr auto 14px;align-items:center;padding:14px 18px;cursor:pointer;text-align:left">
+<span style="font-size:15px;font-weight:700">Your plan at a glance</span><span></span><span style="display:inline-block;color:#76766F;font-size:12px;transform:rotate(90deg)">▸</span>
+</button>
+
+<div class="pl-row-a pl-amber" style="border-top:none"><span style="font-weight:700">How old are you?</span><span class="pl-amt-b" style="color:#854F0B">Add ›</span><span></span></div>
+<a href="#" class="pl-row-a"><span>When do you want to retire?</span><span class="pl-amt-b">65</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>How long should the money last?</span><span class="pl-amt-b">90</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>What will you spend each month?</span><span class="pl-amt-b">$5,200</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span><span class="mkm">What do you save each month?<span class="mkok">Q1</span></span></span><span class="pl-amt-b">$1,000</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>What's your target nest egg?</span><span class="pl-amt-b">$2,000,000</span><span class="pl-chev">›</span></a>
+<div class="pl-row-a" style="cursor:default"><span>What counts toward retirement?</span><span class="pl-amt-b">$909,152</span><span></span></div>
+<div class="pl-row-a" style="border-bottom:1px solid #E4E3DE;padding-bottom:14px;cursor:default"><span>Big one-time costs coming?</span><span class="pl-amt-b">$18,000</span><span></span></div>
+
+<div class="pl-l1">DECISIONS YOU CAN MAKE TODAY</div>
+<a href="#" class="pl-row-a" style="border-top:none"><span style="font-weight:600">Is converting to a Roth worth it?</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">$380,000 you haven't paid tax on yet</span><span class="pl-chev">›</span></a>
+<div class="pl-row-a" style="opacity:.55;cursor:default;border-bottom:1px solid #E4E3DE;padding-bottom:14px"><span>When can I retire? 🔒</span><span class="pl-amt-b" style="font-size:13px;color:#6B6B66">needs your age</span><span></span></div>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Day one — all seven rows shown; four are the app's own assumption, tagged "ours"</div>
+<div style="width:390px" data-screen-label="Plan — Day one">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem-on">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+
+<div style="padding:14px 18px 6px;font-size:13px;line-height:1.55">We can't compute anything yet — no answers on file. Below is our own labelled sample, not yours.</div>
+<a href="#" style="display:block;margin:0 18px 14px;background:#085041;color:#fff;padding:11px 14px;font-size:14px;font-weight:700;text-align:center">Add your age ›</a>
+
+<div style="margin:0 18px 16px;border:1.5px dashed #C9C7BE;padding:14px;position:relative">
+<span style="position:absolute;top:-9px;left:10px;background:#F6F7F5;padding:0 6px;font-size:11px;font-weight:700;letter-spacing:.06em;color:#76766F">SAMPLE — NOT YOUR NUMBERS</span>
+<div style="display:flex;justify-content:center">
+<svg viewBox="0 0 220 128" style="width:130px">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" class="pl-zone-amber" stroke-width="16" stroke-linecap="round" opacity="0.3"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" class="pl-zone-gray" stroke-width="16" stroke-linecap="round" opacity="0.3"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" class="pl-zone-green" stroke-width="16" stroke-linecap="round" opacity="0.3"></path>
+<line x1="110" y1="110" x2="32.0" y2="110.0" stroke="#6B6B66" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="6" fill="#6B6B66"></circle>
+</svg>
+</div>
+<div style="font-size:15px;font-weight:700;text-align:center;color:#6B6B66">84% odds of lasting to age 90 — a typical 60-year-old with $900,000</div>
+</div>
+
+<button style="width:100%;border:none;background:#fff;border-top:1px solid #E4E3DE;border-bottom:1px solid #E4E3DE;display:grid;grid-template-columns:1fr auto 14px;align-items:center;padding:14px 18px;text-align:left;opacity:.6;pointer-events:none">
+<span style="font-size:15px;font-weight:700">Your plan at a glance</span><span></span><span style="display:inline-block;font-size:12px;transform:rotate(90deg)">▸</span>
+</button>
+<div class="pl-row-a pl-amber" style="border-top:none"><span style="font-weight:700">How old are you?</span><span class="pl-amt-b" style="color:#854F0B">Add ›</span><span></span></div>
+<div class="pl-row-a"><span>When do you want to retire?</span><span class="pl-amt-b">65<span class="pl-ours">ours</span></span><span></span></div>
+<div class="pl-row-a"><span>What’s your target nest egg?</span><span class="pl-amt-b"><span class="mkm">$1,400,000<span class="mkok">Q4</span></span><span class="pl-ours">ours</span></span><span></span></div>
+<div class="pl-row-a"><span>How long should the money last?</span><span class="pl-amt-b">90<span class="pl-ours">ours</span></span><span></span></div>
+<div class="pl-row-a pl-amber"><span style="font-weight:700">What will you spend each month?</span><span class="pl-amt-b" style="color:#854F0B">Add ›</span><span></span></div>
+<div class="pl-row-a pl-amber"><span style="font-weight:700">What's your target nest egg?</span><span class="pl-amt-b" style="color:#854F0B">Add ›</span><span></span></div>
+<div class="pl-row-a pl-amber"><span style="font-weight:700">What counts toward retirement?</span><span class="pl-amt-b" style="color:#854F0B">Link ›</span><span></span></div>
+<div class="pl-row-a" style="border-bottom:1px solid #E4E3DE;padding-bottom:14px"><span>Big one-time costs coming?</span><span class="pl-amt-b">None</span><span></span></div>
+<div style="padding:10px 18px 4px;font-size:11px;line-height:1.5;color:#6B6B66">"Ours" rows are the app's assumption (65, plan to 90, 6% return, 2.5% inflation) — change any of them.</div>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Bad odds — honest, then real levers stated as counts, no dead-end link</div>
+<div style="width:390px" data-screen-label="Plan — Bad odds">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem-on">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+
+<div style="display:flex;padding:18px 12px 4px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" class="pl-zone-amber" stroke-width="18" stroke-linecap="round"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" class="pl-zone-gray" stroke-width="18" stroke-linecap="round"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" class="pl-zone-green" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="37.5" y2="81.3" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:30px;font-weight:800;line-height:1;margin-top:-6px;color:#854F0B">12%</div>
+<div style="font-size:11px;font-weight:600;color:#6B6B66;margin-top:2px;text-align:center">odds of lasting to 90</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M 20 110 A 90 90 0 0 1 95.9 21.1" fill="none" stroke="#085041" stroke-width="18" stroke-linecap="round"></path>
+<path d="M 95.9 21.1 A 90 90 0 0 1 200 110" fill="none" stroke="#D8D6CE" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="97.8" y2="33.0" stroke="#1A1A18" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="#1A1A18"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:30px;font-weight:800;line-height:1;margin-top:-6px">15%</div>
+<div style="font-size:11px;font-weight:600;color:#6B6B66;margin-top:2px;text-align:center">of your target</div>
+</div>
+</div>
+<div style="padding:6px 18px 4px;font-size:15px;font-weight:600;text-align:center">$312,000 of $2,100,000 target nest egg — short $1,788,000</div>
+<div style="padding:8px 18px 16px;font-size:13px;line-height:1.55;text-align:center;color:#6B6B66">Your money lasts in about 12 out of 100 simulated futures. Saving alone can't close this — here's what actually moves it:</div>
+
+<div class="pl-l1" style="padding-top:4px">REAL OPTIONS, EACH ONE RE-RUN</div>
+<a href="#" class="pl-row-a" style="border-top:none"><span style="font-weight:600">Retire at 67 instead of 65</span><span class="pl-amt-b" style="color:#085041">+14 pts</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Spend $400 less a month</span><span class="pl-amt-b" style="color:#085041">+9 pts</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:1px solid #E4E3DE;padding-bottom:14px"><span style="font-weight:600">Claim Social Security at 70</span><span class="pl-amt-b" style="color:#085041">+6 pts</span><span class="pl-chev">›</span></a>
+<div style="padding:10px 18px 4px;font-size:11px;line-height:1.5;color:#6B6B66">Each option re-runs the 400 simulations on its own — tap one to try it.</div>
+</div></x-import></div>
+</div>
+
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:#085041">5 — already past target (state 6) and its mirror, on target with poor odds — corrected: Pat's odds here are his real 67%, never the 45% asset figure; no warning tint, nothing has gone wrong</div>
+<div class="pl-row">
+
+<div class="pl-card">
+<div style="padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:.06em;color:#085041;background:#EAF3EE">PAST TARGET, ODDS STILL 67%</div>
+<div style="padding:14px 16px 4px;display:flex;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:96px">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" class="pl-zone-amber" stroke-width="14" stroke-linecap="round"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" class="pl-zone-gray" stroke-width="14" stroke-linecap="round"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" class="pl-zone-green" stroke-width="14" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="148.4" y2="42.1" stroke="#1A1A18" stroke-width="3.5" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="6" fill="#1A1A18"></circle>
+</svg>
+<div style="font-size:20px;font-weight:800">67%</div>
+<div style="font-size:11px;color:#6B6B66">odds to 90</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:96px">
+<path d="M20,110 A90,90 0 0,1 200,110" fill="none" stroke="#085041" stroke-width="14" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="188" y2="110" stroke="#1A1A18" stroke-width="3.5" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="6" fill="#1A1A18"></circle>
+</svg>
+<div style="font-size:20px;font-weight:800">114%</div>
+<div style="font-size:11px;color:#6B6B66">of your target</div>
+</div>
+</div>
+<div style="padding:6px 16px 4px;font-size:13px;font-weight:600">$909,152 of $800,000 target nest egg — $109,152 more than you set</div>
+<div style="padding:6px 16px 16px;font-size:13px;line-height:1.5;color:#6B6B66">We play out your retirement 400 times with different market luck; this counts how many of them your money lasted through. But at $5,200/month, your money still runs out before 90 in about 33 out of 100 simulated futures. Going from the $12,000/year you save now to $77,500 would take that to almost all of them. Retiring later, or cutting your expenses, moves it too.</div>
+</div>
+
+<div class="pl-card">
+<div style="padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:.06em;color:#854F0B;background:#FAEEDA">ON TARGET, ODDS ONLY 74%</div>
+<div style="padding:14px 16px 4px;display:flex;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:96px">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" class="pl-zone-amber" stroke-width="14" stroke-linecap="round"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" class="pl-zone-gray" stroke-width="14" stroke-linecap="round"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" class="pl-zone-green" stroke-width="14" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="163.4" y2="53.1" stroke="#1A1A18" stroke-width="3.5" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="6" fill="#1A1A18"></circle>
+</svg>
+<div style="font-size:20px;font-weight:800">74%</div>
+<div style="font-size:11px;color:#6B6B66">odds to 90</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:96px">
+<path d="M20,110 A90,90 0 0,1 200,110" fill="none" stroke="#085041" stroke-width="14" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="188" y2="110" stroke="#1A1A18" stroke-width="3.5" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="6" fill="#1A1A18"></circle>
+</svg>
+<div style="font-size:20px;font-weight:800">100%</div>
+<div style="font-size:11px;color:#6B6B66">of your target</div>
+</div>
+</div>
+<div style="padding:6px 16px 4px;font-size:13px;font-weight:600">$1,500,000 target nest egg — saving $17,500/year gets you there by 65</div>
+<div style="padding:6px 16px 16px;font-size:13px;line-height:1.5;color:#6B6B66">Even then, your money runs out before 90 in about 25 out of 100 simulated futures. Hitting your own number and the money lasting are different questions — to have both, the number has to be higher, or the expenses lower.</div>
+</div>
+
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:#085041">6 — the mortgage decision, moved to Cash Flow · Debt (§3.3.1) — same control, both directions of the rate comparison, retirement consequence stays attached in count form</div>
+<div class="pl-row">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Pat's loan (5.5%) is above the 10-year Treasury (4.63%) — paying it down wins</div>
+<div style="width:390px" data-screen-label="Cash Flow · Debt — mortgage rate above yield">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div style="padding:76px 18px 10px;display:flex;align-items:center;gap:10px"><span style="font-size:20px;color:#1A1A18">‹</span><div style="font-size:16px;font-weight:700">Cash flow · Debt</div></div>
+<div class="pl-l1" style="padding-top:0">PAY OFF THE MORTGAGE EARLY</div>
+<div class="pl-row-a" style="border-top:none;flex-direction:column;align-items:stretch;display:flex;gap:12px;padding-bottom:16px">
+<div style="display:flex;justify-content:space-between;font-weight:600">Home mortgage<span style="font-size:13px;font-weight:400;color:#6B6B66">$412,000 at 5.5%</span></div>
+<div style="font-size:13px;line-height:1.5;color:#1A1A18">Your mortgage costs 5.5%. A ten-year Treasury pays 4.63% today. So a dollar into your mortgage saves you more than the same dollar would earn sitting in Treasuries — about $3,584/year at your balance. Over the life of the loan, paying the extra $500/month leaves you around $36,577 better off than putting it in Treasuries instead.</div>
+<div style="font-size:11px;color:#6B6B66;font-style:italic">Shares might earn more than either — or less. Paying the mortgage is the only one that is certain. Tax usually widens this gap rather than closing it, but it depends on your return.</div>
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="font-size:13px;color:#6B6B66">Extra each month</span>
+<span style="display:flex;align-items:center;gap:10px"><button onClick="{{ pat.decExtra }}" class="pl-stepbtn">−</button><span style="font-size:15px;font-weight:700;min-width:52px;text-align:center">$500</span><button onClick="{{ pat.incExtra }}" class="pl-stepbtn">+</button></span>
+</div>
+<div style="font-size:13px;line-height:1.5;color:#6B6B66">Clears Nov 2045 instead of Oct 2054 — 8.9 years sooner — and saves $143,300 in interest. That's $500/month not going into savings, so your retirement gets tighter: your money lasts in about 66 out of 100 simulated futures today. <span class="mkwait">What it would be if you did this needs a second full simulation, which is not built yet — so this screen does not put a number on it.<span class="mkpn">5</span></span></div>
+<a href="#" style="display:block;background:#085041;color:#fff;padding:11px 12px;font-size:13px;font-weight:700;text-align:center">Use as my plan</a>
+</div>
+<div style="padding:10px 18px 4px;font-size:11px;line-height:1.5;color:#6B6B66">Paying it off in full: we don't move money for you. Once you've paid it — from your connected bank or a statement you upload — mark the mortgage paid off here, and it updates net worth everywhere.</div>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Required state: a cheap 2021 loan (3.1%) below the Treasury yield — paying it down early costs money, and the screen says so just as plainly</div>
+<div style="width:390px" data-screen-label="Cash Flow · Debt — mortgage rate below yield">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div style="padding:76px 18px 10px;display:flex;align-items:center;gap:10px"><span style="font-size:20px;color:#1A1A18">‹</span><div style="font-size:16px;font-weight:700">Cash flow · Debt</div></div>
+<div class="pl-l1" style="padding-top:0">PAY OFF THE MORTGAGE EARLY</div>
+<div class="pl-row-a" style="border-top:none;flex-direction:column;align-items:stretch;display:flex;gap:12px;padding-bottom:16px">
+<div style="display:flex;justify-content:space-between;font-weight:600">Home mortgage<span style="font-size:13px;font-weight:400;color:#6B6B66">$380,000 at 3.1%</span></div>
+<div style="font-size:13px;line-height:1.5;color:#1A1A18">Your mortgage costs 3.1%. A ten-year Treasury pays 4.63% today. So a dollar into your mortgage saves you less than the same dollar would earn sitting in Treasuries — about <span class="mkm">$5,814/year<span class="mkok">8</span></span> at your balance. Over the life of the loan, paying the extra $500/month leaves you around <span class="mkm">$31,873<span class="mkok">8</span></span> worse off than putting it in Treasuries instead.</div>
+<div style="font-size:11px;color:#6B6B66;font-style:italic">Shares might earn more than either — or less. Paying the mortgage is the only one that is certain. Tax usually widens this gap rather than closing it, but it depends on your return.</div>
+</div>
+<div style="padding:10px 18px 4px;font-size:11px;line-height:1.5;color:#6B6B66">This is the state that earns the feature — a screen that only ever supported paying down a mortgage is not a comparison.</div>
+</div></x-import></div>
+</div>
+
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:#085041">7 — Goals and Prepare landing views (§3.0.1) — lopsided against Retire on purpose, gathered existing screens under honest names, empty state is an on-ramp not a brochure</div>
+<div class="pl-row">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Goals — populated</div>
+<div style="width:390px" data-screen-label="Goals — populated">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem">Retire</div><div class="pl-subtabitem-on">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+
+<a href="#" class="pl-row-a" style="border-top:none"><span style="font-weight:600">Can I afford it all?</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">with more than one goal</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">College — one child</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">$120,000 by 2029</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:1px solid #E4E3DE;padding-bottom:14px"><span style="font-weight:600">New car</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">$28,000 by 2027 · on track</span><span class="pl-chev">›</span></a>
+<a href="#" style="display:block;padding:14px 18px;font-size:13px;font-weight:600">+ Add a goal</a>
+</div></x-import></div>
+<div class="pl-tab"><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Home</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Net worth</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Performance</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Cash flow</span></div><div class="pl-tabitem"><span class="pl-dot-on"></span><span class="pl-lbl-on">Plan</span></div></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Goals — empty (an on-ramp, not a brochure)</div>
+<div style="width:390px" data-screen-label="Goals — empty">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem">Retire</div><div class="pl-subtabitem-on">Goals</div><div class="pl-subtabitem">Prepare</div></div>
+<div style="padding:24px 18px;text-align:center">
+<div style="font-size:15px;font-weight:700;margin-bottom:6px">Nothing here yet</div>
+<div style="font-size:13px;line-height:1.5;color:#6B6B66;margin-bottom:16px">A goal is anything you're putting money aside for: a car, a wedding, helping a grandchild.</div>
+<a href="#" style="display:inline-block;background:#085041;color:#fff;padding:11px 16px;font-size:13px;font-weight:700">+ Add a goal</a>
+</div>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Prepare — populated</div>
+<div style="width:390px" data-screen-label="Prepare — populated">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem-on">Prepare</div></div>
+
+<a href="#" class="pl-row-a" style="border-top:none"><span style="font-weight:600">Insurance check</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">done — March 2026</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Estate & legacy</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Tax organiser</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">done — Apr 2026</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Build credit</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Stress test — a surprise expense</span><span class="pl-amt" style="font-size:13px;color:#6B6B66">7.3mo cash covers it</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:1px solid #E4E3DE;padding-bottom:14px"><span style="font-weight:600">Job safety check</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Prepare — empty</div>
+<div style="width:390px" data-screen-label="Prepare — empty">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+<div class="pl-subtab"><div class="pl-subtabitem">Retire</div><div class="pl-subtabitem">Goals</div><div class="pl-subtabitem-on">Prepare</div></div>
+<a href="#" class="pl-row-a" style="border-top:none"><span style="font-weight:600">Insurance check</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Estate & legacy</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Tax organiser</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Build credit</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span style="font-weight:600">Stress test — a surprise expense</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:1px solid #E4E3DE;padding-bottom:14px"><span style="font-weight:600">Job safety check</span><span class="pl-amt" style="font-size:13px;color:#854F0B">not started</span><span class="pl-chev">›</span></a>
+</div></x-import></div>
+</div>
+
+</div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { glanceOpen: false, acctsOpen: false, costsOpen: false, extraPay: 500, extraSpend: 0, raySSAge: 67 };
+  chev(o) { return `transform:${o ? 'rotate(90deg)' : 'rotate(0deg)'};transition:transform .18s;`; }
+  rows(o) { return o ? 'display:flex;' : 'display:none;'; }
+  clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+
+  // The one geometry formula for every dial (fixes B1 — angle-derived, never hand-placed).
+  // 180° = left edge (0%), 0° = right edge (100%), sweeping over the top.
+  arcPt(pct, r) {
+    const v = this.clamp(pct / 100, 0, 1);
+    const theta = (180 * (1 - v)) * Math.PI / 180;
+    return { x: +(110 + r * Math.cos(theta)).toFixed(1), y: +(110 - r * Math.sin(theta)).toFixed(1) };
+  }
+  arcPath(p0, p1, r) {
+    const a = this.arcPt(p0, r), b = this.arcPt(p1, r);
+    return `M${a.x},${a.y} A${r},${r} 0 0,1 ${b.x},${b.y}`;
+  }
+  // odds-style dial: fixed 3-color background zones (drawn statically in the template), needle only.
+  buildOdds(pct) {
+    const n = this.arcPt(pct, 78);
+    return { nx: n.x, ny: n.y };
+  }
+  // target/asset-style dial: green fill 0→pct, gray remainder pct→100, needle at pct.
+  buildFill(pct) {
+    const capped = Math.min(pct, 100);
+    const n = this.arcPt(capped, 78);
+    return { fill: this.arcPath(0, capped, 90), rest: this.arcPath(capped, 100, 90), nx: n.x, ny: n.y };
+  }
+
+  toggle(key) { this.setState(x => ({ ...x, [key]: !x[key] })); }
+
+  renderVals() {
+    const s = this.state;
+
+    // mortgage stepper — placeholder linear model (flagged: the real odds delta must be a second
+    // full 400-run simulation per §6.1, never a subtraction).
+    const monthsSaved = Math.round((s.extraPay / 500) * 108);
+    const payoffYear = 2054 - Math.floor(monthsSaved / 12);
+    const yearsSooner = Math.round(monthsSaved / 12);
+    const interestSaved = Math.round((s.extraPay / 500) * 143300);
+    const mortgageOdds = this.clamp(67 - Math.round((s.extraPay / 500) * 2), 55, 67);
+
+    // spend-more — count-based thresholds per the founder-approved table (§3.5)
+    const extra = s.extraSpend;
+    const total = 5600 + extra;
+    let resultText, resultIcon, resultColor;
+    if (extra <= 1000) { resultIcon = '✓'; resultColor = '#085041'; resultText = extra === 0 ? 'Your money lasts past 94, in every future simulation we tested.' : 'Still lasts past 94 — nothing changes.'; }
+    else if (extra <= 1500) { resultIcon = ''; resultColor = '#1A1A18'; resultText = 'Lasts in almost every simulated future — about 97 out of 100.'; }
+    else if (extra <= 2200) { resultIcon = ''; resultColor = '#1A1A18'; resultText = 'Lasts in about 90 out of 100 simulated futures.'; }
+    else if (extra <= 2480) { resultIcon = ''; resultColor = '#1A1A18'; resultText = 'Lasts in about 80 out of 100 simulated futures.'; }
+    else { resultIcon = '⚠'; resultColor = '#854F0B'; resultText = 'Lasts in about 4 future simulations out of 5. In the other 1, it runs out before 94.'; }
+
+    const raySS = { 62: { monthly: 1820, odds: null }, 67: { monthly: 2600, odds: 73 }, 70: { monthly: 3224, odds: 80 } };
+    const cur = raySS[s.raySSAge];
+    const oddsPt = this.arcPt(cur.odds == null ? 50 : cur.odds, 78);
+    const chip = active => active ? 'flex:1;border:1.5px solid #085041;background:#085041;color:#fff;padding:9px 6px;font-size:13px;font-weight:700;min-height:44px;text-align:center;'
+                                   : 'flex:1;border:1.5px solid #C9C7BE;background:#fff;color:#1A1A18;padding:9px 6px;font-size:13px;font-weight:700;min-height:44px;text-align:center;';
+
+
+    return {
+      d: {
+        patOdds: this.buildOdds(67),
+        patTarget: this.buildFill(45),
+        juneOdds: this.buildOdds(100),
+        rayTarget: this.buildFill(67),
+        badOdds: this.buildOdds(12),
+        badTarget: this.buildFill(15),
+        daySample: this.buildOdds(84),
+        mirrorOdds: this.buildOdds(74)
+      },
+      pat: {
+        glanceChevron: this.chev(s.glanceOpen), toggleGlance: () => this.toggle('glanceOpen'),
+        acctsChevron: this.chev(s.acctsOpen), acctsRows: this.rows(s.acctsOpen), toggleAccts: () => this.toggle('acctsOpen'),
+        costsChevron: this.chev(s.costsOpen), costsRows: this.rows(s.costsOpen), toggleCosts: () => this.toggle('costsOpen'),
+        extraPay: s.extraPay,
+        decExtra: () => this.setState(x => ({ extraPay: this.clamp(x.extraPay - 100, 0, 2000) })),
+        incExtra: () => this.setState(x => ({ extraPay: this.clamp(x.extraPay + 100, 0, 2000) })),
+        payoffDate: 'Nov ' + payoffYear, yearsSooner,
+        interestSaved: '$' + interestSaved.toLocaleString('en-US'),
+        mortgageOdds
+      },
+      june: {
+        extraSpend: s.extraSpend,
+        decSpend: () => this.setState(x => ({ extraSpend: this.clamp(x.extraSpend - 500, 0, 2555) })),
+        incSpend: () => this.setState(x => ({ extraSpend: Math.min(this.clamp(x.extraSpend + 500, 0, 2555), 2555) })),
+        newTotal: '$' + total.toLocaleString('en-US'),
+        compareText: extra === 0 ? 'the same as now' : 'more than now',
+        resultText, resultIcon, resultColor
+      },
+      ray: {
+        age: s.raySSAge, oddsX: oddsPt.x, oddsY: oddsPt.y,
+        oddsLabel: cur.odds == null ? '—' : cur.odds + '%',
+        set62: () => this.setState({ raySSAge: 62 }), set67: () => this.setState({ raySSAge: 67 }), set70: () => this.setState({ raySSAge: 70 }),
+        chip62: chip(s.raySSAge === 62), chip67: chip(s.raySSAge === 67), chip70: chip(s.raySSAge === 70)
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

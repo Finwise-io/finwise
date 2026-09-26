@@ -1497,25 +1497,25 @@
   },
   {
    "task": "Plan — the approved design filed into the MoneyKeel structure and made standalone (founder, 2026-09-26: “move it to moneykeel structure. I do not want to work on anything which is not is new file structure, and meets new standards.”)",
-   "todo": "Founder: read MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v05.html and answer the eight questions marked in it (Q1 extra-saving row, Q2 save-as-you-type, Q3 cap or overfill, Q4 where the suggested target sits, Q5 the mortgage odds placeholder, Q6 today’s money + tax on the retirement sentence, Q7 the cockpit disagreement, Q8 Ray at 79.5%). Then Claude fixes the five blockers, re-runs every figure at 1,000 futures, and draws v06 for approval before any code.",
-   "status": "WAITING ON YOU",
+   "todo": "Filed 2026-09-26; the questions in it are answered and v06 supersedes it.",
+   "status": "DONE",
    "ref": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v05.html · brief v03 + both design reviews beside it",
    "date": "2026-09-26",
    "comments": "Three copies of Plan.dc.html existed in August 14th Design/ and they differ; the v4 one is now filed as archive/2026-08-14_moneykeel_pres_mock_plan_v04.html. The design record warns the old copies off.",
    "_written": {
-    "status": "WAITING ON YOU",
+    "status": "DONE",
     "comments": "Three copies of Plan.dc.html existed in August 14th Design/ and they differ; the v4 one is now filed as archive/2026-08-14_moneykeel_pres_mock_plan_v04.html. The design record warns the old copies off."
    }
   },
   {
    "task": "Plan v06 — the five blockers fixed and every figure re-run at 1,000 futures: the below-yield mortgage frame ($6,304 → $5,814; $40,217 → $31,873), the spend-more bucket that says 9 in 10 where $2,500 is really 81%, the mortgage caption stated as fact, the 10.5-point chip, and amber meaning two things on day one",
-   "todo": "Blocked on the founder’s answers to Q1–Q8 in moneykeel_pres_mock_plan_v05.html. Then Claude draws v06 for approval. No code.",
-   "status": "TO DO",
-   "ref": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v05.html",
+   "todo": "Drawn 2026-09-26 in moneykeel_pres_mock_plan_v06.html: his eight decisions applied, the five blockers fixed, every figure re-run at 1,000 futures, the words on the canon, and every placeholder filled so the file reads on its own. Founder: approve it, or name a mark.",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
    "date": "2026-09-26",
    "comments": "The design step only — the Plan tab’s code is a separate row and waits on its doors.",
    "_written": {
-    "status": "TO DO",
+    "status": "WAITING ON YOU",
     "comments": "The design step only — the Plan tab’s code is a separate row and waits on its doors."
    }
   },
@@ -1557,25 +1557,25 @@
   },
   {
    "task": "Canon guard blind spot — a retired pattern that contains punctuation can never fire. one_term_per_concept scans the TypeScript AST (string literals, template text, JSX text, comments), so `/\\} ?a year\\b/` (row 14) cannot match: the “}” belongs to the expression, not to the JSX text node. Found 2026-09-26 by scanning the raw source of the two screens just built.",
-   "todo": "Claude: scan the RAW source as well as the AST for canon entries that are written as patterns with punctuation, so the table means what it says. Then re-run over src/.",
-   "status": "TO DO",
+   "todo": "Fixed 2026-09-26 (5d262d6): the guard reads copy as it renders; 26 real violations found and cleared.",
+   "status": "DONE",
    "ref": "src/__tests__/one_term_per_concept.test.ts · canon row 14",
    "date": "2026-09-26",
    "comments": "The guard reported the app clean while one line on Performance matched a canon pattern.",
    "_written": {
-    "status": "TO DO",
+    "status": "DONE",
     "comments": "The guard reported the app clean while one line on Performance matched a canon pattern."
    }
   },
   {
    "task": "Copy decision — “+7.30% a year” on Performance against canon row 14, which retires a figure followed by “a year” in visible copy (labels read “/year”). The founder approved that exact sentence on 2026-09-25 as the readable way to say it.",
-   "todo": "Founder: (a) the sentence becomes “+7.30%/year”, or (b) row 14 gains a stated exception — in a full sentence explaining a rate, “a year” is allowed; the LABEL form stays “/year”. Claude recommends (b): his approved wording reads better, and the canon already lets spoken labels say “a year”.",
-   "status": "WAITING ON YOU",
+   "todo": "Settled 2026-09-26: (a) — the sentence reads “+7.30%/year”. Built and tested (5d262d6).",
+   "status": "DONE",
    "ref": "src/screens/PerformanceScreen.tsx:375 · canon row 14",
    "date": "2026-09-26",
    "comments": "",
    "_written": {
-    "status": "WAITING ON YOU",
+    "status": "DONE",
     "comments": ""
    }
   }
