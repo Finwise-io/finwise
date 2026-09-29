@@ -7,7 +7,8 @@ import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { creditUtilization, creditScoreBand, type Debt } from '../domain/debt';
+import { creditScoreBand, type Debt } from '../domain/debt';
+import { theCreditLine } from '../../MoneyKeel/functions/cashflow/credit-line';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -29,7 +30,10 @@ export default function CreditScreen() {
   const [scoreStr, setScoreStr] = useState('');
   const bal = num(balStr), lim = num(limStr), score = num(scoreStr);
 
-  const util = useMemo(() => creditUtilization(bal, lim), [bal, lim]);
+  // ONE DOOR (MK-CF-O-006 theCreditLine, Q-CF-6) — and with no limit entered it refuses, rather
+  // than showing a 0% that would read as "you have used none of your credit".
+  const line = useMemo(() => theCreditLine({ balance: bal, limit: lim }), [bal, lim]);
+  const util = { ratio: line.used ?? 0, status: line.status ?? 'good' } as const;
   const band = score > 0 ? creditScoreBand(score) : null;
   const utilColor = util.status === 'good' ? Colors.primary : util.status === 'caution' ? Colors.amber : Colors.red;
 

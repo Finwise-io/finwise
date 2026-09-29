@@ -7,9 +7,9 @@ import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { emergencyTest, monthlyEssentials } from '../domain/budget';
-import { essentialsMonthly } from '../../MoneyKeel/functions/cashflow/essentials';
-import { cashTotal } from '../domain/assets';   // canonical cash, single source
+// ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5 ruled 2026-09-27: "Yes."). The emergency fund on Net
+// worth, Job safety and this screen ask one question under three names; they read one answer now.
+import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
 import { Disclaimer } from '../components/Disclaimer';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -24,16 +24,20 @@ export default function StressTestScreen() {
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const accounts = store.assetAccounts ?? [];
-  const cashGuess = cashTotal(accounts);
+  const cashGuess = theEmergencyFund({ accounts, expenses: store.expenses ?? [], profile: op, debts: store.liabilities ?? [] }).cash;
 
   const [cashStr, setCashStr] = useState(cashGuess > 0 ? String(Math.round(cashGuess)) : '');
   const [shockStr, setShockStr] = useState('3000');
   const cash = num(cashStr), shock = num(shockStr);
   // G21 / Q21 / Q47 (2026-09-08): ONE essentials figure (MK-CF-F-190) — logged average first, typed categories only when nothing is logged
-  const essentials = useMemo(() => essentialsMonthly(store.expenses ?? [], monthlyEssentials(op)), [store.expenses, op]);
-  const ess = essentials?.monthly ?? 0;
-  const essLabel = essentials?.label ?? '';
-  const r = useMemo(() => emergencyTest(op, cash, shock, ess), [op, cash, shock, ess]);
+  const answer = useMemo(() => theEmergencyFund({ accounts, expenses: store.expenses ?? [], profile: op, debts: store.liabilities ?? [], cashOverride: cash }),
+    [accounts, store.expenses, op, cash]);
+  const ess = answer.essentialsMonthly;
+  const essLabel = answer.essentialsBasis;
+  const hit = answer.afterAShock(shock);
+  const r = { cashAfter: hit.cashAfter, runwayAfter: hit.monthsAfter, coversIt: hit.coversIt,
+              monthlyEssentials: ess, jobLossRunway: answer.monthsCovered ?? 0,
+              recommendedFund: answer.targetFor(3).target, gapToFund: answer.targetFor(3).gap, shock };
 
   const tone = (months: number) => (months >= 6 ? Colors.primary : months >= 3 ? Colors.amber : Colors.red);
 

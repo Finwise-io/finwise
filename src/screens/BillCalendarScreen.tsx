@@ -11,7 +11,9 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { buildDatedGrid } from '../domain/grid';
-import { upcomingBills } from '../domain/cashflow';
+// ONE DOOR (MK-CF-O-008 whatsComing, Q-CF-3 ruled 2026-09-27: "yes") — this screen, the Cash flow
+// tab, Your paycheck month by month and Worth a look answer one question about what is coming.
+import { whatsComing } from '../../MoneyKeel/functions/cashflow/whats-coming';
 import { cashTotal } from '../domain/assets';   // canonical cash — equals Net worth's figure for the same accounts
 import { requiredPayment, paymentShape } from '../domain/debt';
 
@@ -42,7 +44,7 @@ export default function BillCalendarScreen() {
     return buildDatedGrid(op, { liabilities, oneOffs, startBalance: start });
   }, [op, liabilities, A.rothConversionTax, start]);
 
-  const bills = useMemo(() => upcomingBills(op, start).filter((b) => b.daysAway <= 150).slice(0, 3), [op, start]);
+  const bills = useMemo(() => whatsComing({ profile: op, startBalance: start }).bills.filter((b) => b.daysAway <= 150).slice(0, 3), [op, start]);
   const deferredDebts = useMemo(() => liabilities.filter((d: any) => {
     if (!d.first_payment_date) return false;
     const m = String(d.first_payment_date).match(/^(\d{4})-(\d{2})/);

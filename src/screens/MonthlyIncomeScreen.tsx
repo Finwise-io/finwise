@@ -97,7 +97,7 @@ export default function MonthlyIncomeScreen() {
       <Text style={styles.sub}>The money that arrives no matter what markets do. This builds your paycheck — no bank login needed.</Text>
 
       <View style={styles.card}>
-        <SectionBand title="Social Security" />
+        <SectionBand inCard title="Social Security" />
         <View style={styles.row}>
           <TouchableOpacity accessibilityRole="radio" accessibilityState={{ selected: ssReceiving }}
             style={[styles.chip, ssReceiving && styles.chipOn]} onPress={() => setSsReceiving(true)}>
@@ -125,7 +125,7 @@ export default function MonthlyIncomeScreen() {
       </View>
 
       <View style={styles.card}>
-        <SectionBand title="Pension" />
+        <SectionBand inCard title="Pension" />
         <Text style={styles.label}>Amount {pensionFreq === 'monthly' ? 'each month' : pensionFreq === 'quarterly' ? 'each quarter' : 'each year'}</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" value={pension} onChangeText={setPension}
           placeholder="1,600" accessibilityLabel="pension amount" />
@@ -133,14 +133,14 @@ export default function MonthlyIncomeScreen() {
       </View>
 
       <View style={styles.card}>
-        <SectionBand title="Annuity" />
+        <SectionBand inCard title="Annuity" />
         <TextInput style={styles.input} keyboardType="decimal-pad" value={annuity} onChangeText={setAnnuity}
           placeholder="0" accessibilityLabel="annuity amount" />
         {rhythmChips(annuityFreq, setAnnuityFreq, annuityMonth, setAnnuityMonth, 'annuity')}
       </View>
 
       <View style={styles.card}>
-        <SectionBand title="Other steady income" />
+        <SectionBand inCard title="Other steady income" />
         <Text style={styles.label}>Each month (rental, part-time, anything regular)</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" value={other} onChangeText={setOther}
           placeholder="0" accessibilityLabel="other steady income each month" />

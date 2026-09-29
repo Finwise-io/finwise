@@ -11,7 +11,7 @@ export interface RealizedResult {
   sellsWithoutBasis: number;    // sells we could not honestly price (no recorded buy)
 }
 
-/* ─ MK-PF-F-028 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-028 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * realizedFromLedger
  *
  * Answers ..... How much profit have I actually taken?
@@ -23,9 +23,12 @@ export interface RealizedResult {
  *     a sale with shares still uncovered is counted as a sale without basis — reported, never guessed
  *     the answer = { realized all time, realized this year, sells counted, sells without basis }
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-006 theHolding
  *
- * Serves ...... MK-NW-M-035
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-080 HOLD · MK-NW-O-006 theHolding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses

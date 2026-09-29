@@ -21,8 +21,9 @@ export type AltKind = typeof ALT_KINDS[number];
  *
  * Called by ... MK-NW-F-002 alternativesSummary
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-002 alternativesSummary
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-002 alternativesSummary
+ *               MK-NW-O-005 theAlternativesOutlook
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -47,7 +48,10 @@ export interface AltSummary { count: number; totalValue: number; blendedReturn: 
  *     total = Σ over alts of (balance (or 0 when missing or zero))
  *     weighted = Σ over total > 0 ? alts of ((balance or 0) × benchmark return(kind))÷ total : 0
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-005 theAlternativesOutlook
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-O-005 theAlternativesOutlook
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

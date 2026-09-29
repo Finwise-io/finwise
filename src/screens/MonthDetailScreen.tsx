@@ -58,35 +58,35 @@ export default function MonthDetailScreen() {
 
       {/* headline + reason (the same cell the bar and — for the current month — the hero show) */}
       <View style={styles.card}
-        accessible accessibilityLabel={`${retired ? 'Surplus' : 'Surplus'} in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
-        <SectionBand title={`${retired ? 'SURPLUS' : 'SURPLUS'}${isCurrent ? ' · AS OF TODAY' : ''}`} />
+        accessible accessibilityLabel={`Surplus in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
+        <SectionBand inCard title={`SURPLUS${isCurrent ? ' · AS OF TODAY' : ''}`} />
         <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${maskedMoney(Math.abs(headline))} short` : maskedMoney(headline)}</Text>
         {reason && <Text style={styles.reason}>⚑ {reason}</Text>}
       </View>
 
       {/* money in, with real dates — rows visibly sum */}
       <View style={styles.card}>
-        <SectionBand title="INFLOW" />
+        <SectionBand inCard title="INFLOW" />
         {retired ? (
           <>
             {pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={maskedMoney(g.amount)} />)}
             {pm.safeDraw > 0 && <Row label="Draw from savings" value={maskedMoney(pm.safeDraw)} />}
             <View style={styles.dividerLine} />
-            <Row label="= In" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />
+            <Row label="= Inflow" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />
           </>
         ) : (
           <>
             {cell.incomeItems.length === 0 && <Text style={styles.empty}>No income mapped for this month.</Text>}
             {cell.incomeItems.map((i: any, k: number) => <Row key={k} label={`${i.source}${day(i.day)}${i.approx ? ' (about)' : ''}`} value={maskedMoney(i.amount)} />)}
             {cell.incomeItems.length > 0 && <View style={styles.dividerLine} />}
-            {cell.incomeItems.length > 0 && <Row label="= In" value={maskedMoney(cell.inflow)} strong />}
+            {cell.incomeItems.length > 0 && <Row label="= Inflow" value={maskedMoney(cell.inflow)} strong />}
           </>
         )}
       </View>
 
       {/* big dated bills — absence is information, the section never silently disappears */}
       <View style={styles.card}>
-        <SectionBand title="BIG BILLS THIS MONTH" />
+        <SectionBand inCard title="BIG BILLS THIS MONTH" />
         {bigBills.length === 0 && <Text style={styles.empty}>No big bills this month.</Text>}
         {bigBills.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={`−${maskedMoney(b.amount)}`} />)}
         {retired && (
@@ -99,8 +99,8 @@ export default function MonthDetailScreen() {
 
       {/* regular bills the envelope pays for (never subtracted twice) */}
       <View style={styles.card}>
-        <SectionBand title="REGULAR BILLS" />
-        <Text style={styles.cardHdrSub}>{retired ? "These come out of what's surplus." : 'Including everyday expenses.'}</Text>
+        <SectionBand inCard title="REGULAR BILLS" />
+        <Text style={styles.cardHdrSub}>{retired ? 'These come out of the surplus.' : 'Including everyday expenses.'}</Text>
         {regulars.length === 0 && <Text style={styles.empty}>No regular bills recorded.</Text>}
         {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={maskedMoney(b.amount)} />)}
         {isCurrent && bva && (

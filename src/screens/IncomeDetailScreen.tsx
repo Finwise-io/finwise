@@ -67,7 +67,7 @@ export default function IncomeDetailScreen() {
         <Text style={styles.heroK}>TAKE-HOME / YEAR</Text>
         <Text style={styles.heroV}>{money(state.total_net_annual)}</Text>
         <Row label="Gross / year" value={money(state.total_gross_annual)} bold />
-        <Row label="Effective tax rate" value={`${(state.effective_tax_rate * 100).toFixed(1)}%`} />
+        <Row label="Effective tax rate" value={`${(state.effective_tax_rate * 100).toFixed(2)}%`} />
         <View style={styles.divider} />
         <Row label="Take-home / month" value={`${money(state.net_monthly_income)}/month`} />
         {state.employer_match_annual > 0 && <Row label="Employer 401(k) match" value={`${money(state.employer_match_annual)}/year`} />}
@@ -139,7 +139,7 @@ export default function IncomeDetailScreen() {
             )}
             <Text style={styles.fx}>
               {amount === 'net'
-                ? `Net of your ~${(state.effective_tax_rate * 100).toFixed(1)}% effective rate — equity is taxed as ordinary income at vesting.`
+                ? `Net of your ~${(state.effective_tax_rate * 100).toFixed(2)}% effective rate — equity is taxed as ordinary income at vesting.`
                 : 'Gross value as each grant vests. Toggle to Net for after-tax.'}
             </Text>
           </View>

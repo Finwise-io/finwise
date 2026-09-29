@@ -6,6 +6,11 @@ import * as path from 'path';
 
 const SCREENS = ['NetWorthScreen.tsx', 'PerformanceScreen.tsx', 'HoldingDetailScreen.tsx'];
 const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+// 2026-09-28: these two rules moved behind MK-NW-O-008 thePerformance (Q-PF-1). The pins are
+// unchanged in purpose — the beginning comes from the record, and a refused rate says why — they
+// just read the door now instead of the screen, which is where the rules actually live.
+const door = () => fs.readFileSync(
+  path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'functions', 'networth-and-performance', 'performance.ts'), 'utf8');
 
 describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
   for (const f of SCREENS) {
@@ -28,12 +33,15 @@ describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
 // ── Track 1 step 7: the beginning value is READ from the daily record, never back-solved,
 // wherever the record covers the window — pinned as source, and proven through the function. ──
 describe('BEGINNING VALUES COME FROM THE RECORD', () => {
-  test('PerformanceScreen reads valueOn/covers from the snapshot function for BOTH walks', () => {
-    const src = read('PerformanceScreen.tsx');
+  test('the beginning is READ from the record — for the portfolio walk AND each account walk', () => {
+    // 2026-09-28: both walks are the same door now (MK-NW-O-008 thePerformance, Q-PF-1), so the rule
+    // is pinned once, where it lives, instead of twice in a screen that could drift apart from itself.
+    const src = door();
     expect(src).toContain("engines/snapshots");
-    expect(src).toMatch(/snapshotCovers\(snapDays, bounds\.beginningAsOf\)/);    // the summary walk
-    expect(src).toMatch(/snapshotCovers\(snapDays2, bounds2\.beginningAsOf\)/);  // the per-account walk
+    expect(src).toMatch(/snapshotCovers\(days, bounds\.beginningAsOf\)/);
     expect(src).toMatch(/beginningAsOf/);   // D3: the close of the day BEFORE the start
+    // and the screen asks it twice — once for everything, once per account
+    expect((read('PerformanceScreen.tsx').match(/thePerformance\(/g) ?? []).length).toBeGreaterThanOrEqual(2);
   });
 
   test('a covered window resolves the beginning from the record (function truth)', () => {
@@ -49,12 +57,12 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
   });
 
   test('the D4 return refusals are wired: a refused rate shows its sentence in the summary note', () => {
-    const src = read('PerformanceScreen.tsx');
+    const src = door();
     expect(src).toContain("engines/window-return");
-    // the refusal is carried on the window's own figures now (one set of figures per window,
-    // 2026-09-25) and only a REAL refusal speaks: having no record yet is an em-dash, not a sentence
+    // the refusal is carried on the window's own figures (one set per window, 2026-09-25) and only a
+    // REAL refusal speaks: having no record yet is an em-dash, not a sentence
     expect(src).toMatch(/const refused = verdict != null && verdict\.rate == null;/);
     expect(src).toMatch(/sentence: refused \? verdict!\.sentence : ''/);
-    expect(src).toMatch(/\{sentence\s*\n?\s*\?\s*sentence/);
+    expect(read('PerformanceScreen.tsx')).toMatch(/\{sentence\s*\n?\s*\?\s*sentence/);
   });
 });

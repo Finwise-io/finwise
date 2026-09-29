@@ -9,7 +9,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { buildChangeWalk } from '../domain/history';
+import { thePerformance } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds, modifiedDietzOverWindow } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -155,55 +155,26 @@ export default function PerformanceScreen() {
   const investIds = useMemo(() => new Set<string>(resolvedNwAccounts
     .filter((a: any) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives' || c === 'mixed'; })
     .map((a: any) => String(a.asset_id))), [resolvedNwAccounts]);
+  // ONE DOOR (MK-NW-O-008 thePerformance, Q-PF-1 ruled 2026-09-27: "yes"). This screen worked the
+  // whole answer out for itself — the window's records, the flows, the beginning, the walk, the
+  // money-weighted return and the yearly-rate rule — while Home printed a return of its own. The
+  // four rulings it carries (one meaning of return · the beginning is READ, never back-filled · a
+  // rate needs something to stand on · over a year, show both) now live in the door, where a screen
+  // cannot lose them.
   const figuresFor = (p: string) => {
     const windowStart = periodStartKey(p);
     const todayKey = isoLocalDate(new Date());
-    const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
-    const flows = personalFlowTotals(led);
-    const contributions = flows.contributions.toNumber(2);
-    const withdrawals = flows.withdrawals.toNumber(2);
-    const dividends = flows.dividends.toNumber(2);
-    const interest = flows.interest.toNumber(2);
-    const ending = investTotalAll;
-    const bounds = windowStart ? windowBounds(windowStart, todayKey) : null;
-    const snapDays = (store as any).snapshotDays ?? [];
-    // the beginning is READ from the daily record — which now reaches back through a linked
-    // account's own transactions (store.rebuildLinkedHistory) — and only derived when it cannot be read
-    const measured = bounds && snapshotCovers(snapDays, bounds.beginningAsOf) ? valueOn(snapDays, investIds, bounds.beginningAsOf) : null;
-    const priced = p === period ? rows : buildPerformance(positions, priceOf, p as Period, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()] ?? null);
+    // what the priced holdings gained: used ONLY to derive a beginning the record cannot reach
+    const priced = p === period ? rows : buildPerformance(positions, priceOf, p as Period, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()]);
     const pricedDollar = priced.reduce((t: number, r: any) => t + rowGain(r), 0);
-    const beginning = measured ?? (ending - pricedDollar - contributions + withdrawals);
-    const walk = buildChangeWalk({
-      beginning, ending, fromLabel: phraseFor(p), toLabel: 'today',
-      contributions, withdrawals, dividends, interest,
+    const answer = thePerformance({
+      windowStart, windowLabel: phraseFor(p), today: todayKey,
+      ending: investTotalAll, pricedGain: pricedDollar,
+      transactions: (store.transactions ?? []) as any[],
+      snapshotDays: (store as any).snapshotDays ?? [],
+      investmentAccountIds: investIds,
     });
-    const verdict = bounds ? modifiedDietzOverWindow({
-      // money enters the decimal arithmetic at cents — a derived beginning is a float with a long tail
-      beginning: Dec.of(beginning.toFixed(2)), ending: Dec.of(ending.toFixed(2)),
-      flows: led.filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
-        .map((t: any) => ({ date: String(t.date ?? '').slice(0, 10) || null,
-          amount: (Dec.parse(t.amount) ?? Dec.ZERO).mul(t.type === 'WITHDRAWAL' ? Dec.of('-1') : Dec.of('1')) })),
-      start: windowStart!, end: todayKey,
-    }) : null;
-    // a rate needs something to stand on: either a beginning READ from the record, or movement we
-    // can point at. Neither, and the window says "—" — never a confident +0.00%.
-    // A WINDOW LONGER THAN A YEAR IS SHOWN AS A YEARLY RATE, and says so (founder, 2026-09-25,
-    // after the convention was checked: GIPS forbids annualising under a year and annualises above
-    // it; brokerage statements do the same; Fidelity's own help warns that cumulative returns of
-    // different lengths must not be compared). His ruling: show BOTH, and label them, so nobody has
-    // to know a convention to read the screen — the segment carries "a year", the summary states
-    // the total over the window as well.
-    const years = bounds ? bounds.days / 365 : 0;
-    const hasBasis = measured != null || walk.wealthGenerated !== 0;
-    // A REFUSAL is an answer and says why (D4's timing band). Simply having no record yet is not a
-    // refusal — the window shows "—" and the screen keeps its plain note about what a return means.
-    const refused = verdict != null && verdict.rate == null;
-    const cumulative = hasBasis ? verdict?.rate ?? null : null;          // the total over the window
-    const perYear = cumulative != null && years > 1 ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
-    return { windowStart, led, walk, measured,
-      ret: perYear ?? cumulative,                                        // what a window shows
-      cumulative, perYear, years,
-      sentence: refused ? verdict!.sentence : '', bounds };
+    return { ...answer, led: answer.ledger, bounds: windowStart ? windowBounds(windowStart, todayKey) : null };
   };
   const windowFigures = useMemo(() => {
     const out: Record<string, ReturnType<typeof figuresFor>> = {};
@@ -378,7 +349,7 @@ export default function PerformanceScreen() {
                   {/* the value graph lives INSIDE the summary card (approved performance-FINAL),
                       now with a Y axis (mock v14 mark 11) and drawn ONLY from days we have a record
                       for — never today's share count priced at old dates */}
-                  <ValueGraph points={graphPoints} />
+                  <ValueGraph points={graphPoints} dayOneNote={hasInvestments ? 'your line starts today' : 'your line starts with your first account'} />
                 </View>
 
                 <DataGapsBanner gaps={gaps} />
@@ -441,19 +412,16 @@ export default function PerformanceScreen() {
             }
             if (byAcct.size < 2) return null;                    // one account → the all-accounts walk already says it
             return [...byAcct.entries()].map(([id, a]) => {
-              const acctFlows = personalFlowTotals(led.filter((t) => t.account_id === id));
-              const contributions = acctFlows.contributions.toNumber(2), withdrawals = acctFlows.withdrawals.toNumber(2);
               // Track 1 step 7: read the account's beginning from the record when covered
-              const todayKey2 = isoLocalDate(new Date());
-              const bounds2 = windowStart ? windowBounds(windowStart, todayKey2) : null;
-              const snapDays2 = (store as any).snapshotDays ?? [];
-              const acctBeginning = bounds2 && snapshotCovers(snapDays2, bounds2.beginningAsOf)
-                ? valueOn(snapDays2, new Set([String(id)]), bounds2.beginningAsOf) : null;
-              const w = buildChangeWalk({
-                beginning: acctBeginning ?? (a.ending - a.gain - contributions + withdrawals), ending: a.ending,
-                fromLabel: phraseFor(period), toLabel: 'today',
-                contributions, withdrawals, dividends: acctFlows.dividends.toNumber(2), interest: acctFlows.interest.toNumber(2),
-              });
+              // the SAME door, over one account — so an account's walk and the all-accounts walk
+              // above it are the same arithmetic, one narrower, and cannot disagree (Q-PF-1)
+              const w = thePerformance({
+                windowStart, windowLabel: phraseFor(period), today: isoLocalDate(new Date()),
+                ending: a.ending, pricedGain: a.gain,
+                transactions: ((store.transactions ?? []) as any[]).filter((t) => String(t.account_id) === String(id)),
+                snapshotDays: (store as any).snapshotDays ?? [],
+                investmentAccountIds: new Set([String(id)]),
+              }).walk;
               const isOpen = !!openAcctWalk[id];
               const acctOf = accounts.find((x) => String(x.asset_id) === String(id));
               return (
@@ -461,7 +429,9 @@ export default function PerformanceScreen() {
                   <TouchableOpacity accessibilityRole="button" activeOpacity={0.85}
                     onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
                     accessibilityLabel={`${a.label}, ${spokenMoney(Math.round(a.ending))}. ${isOpen ? 'Collapses' : 'Expands'} its walk.`}>
-                    <SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))} />
+                    <SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))}
+                      onTitlePress={() => router.push(`/account-detail?id=${id}` as any)}
+                      titleHint={`Open ${a.label} — this account's own page`} />
                   </TouchableOpacity>
                   {/* the approved design carries ONE quiet line under each account band: where its
                       numbers come from and how fresh they are (mock v14, first phone) */}
@@ -492,6 +462,10 @@ export default function PerformanceScreen() {
                         <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value</Text>
                         <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{maskedMoney(Math.round(w.ending))}</Text>
                       </View>
+                      {/* the approved design's line under an open walk (mock v14, first phone). It is
+                          printed only now that both taps are real: the arrow collapses, the name opens
+                          the account. A line that promises a tap the screen does not have is a lie. */}
+                      <Text style={styles.sumNote}>Tap ▾ to collapse · tap the name to open this account’s portfolio ›</Text>
                     </>
                   )}
                 </View>
@@ -515,7 +489,7 @@ export default function PerformanceScreen() {
               { key: 'stocks_etf', label: 'Stocks / Funds', color: ClassMarkColors.stocks_etf, earned: 0,
                 ret: (() => { const r = portfolioPeriodReturn(rows.filter((x: any) => (x.position?.asset_class ?? 'stocks_etf') === 'stocks_etf')); return r == null ? '—' : pct(r); })() },
               { key: 'bonds', label: 'Bonds & CDs', color: ClassMarkColors.bonds, earned: 0, ret: '—' },
-              { key: 'cash', label: 'Sweep cash', color: ClassMarkColors.cash, earned: 0, ret: '—' },
+              { key: 'cash', label: 'Cash in this account', color: ClassMarkColors.cash, earned: 0, ret: '—' },   // founder 2026-08-11: "sweep cash" was declined by name
             ];
             for (const t of led) {
               if (t.type !== 'DIVIDEND' && t.type !== 'INTEREST') continue;
@@ -825,7 +799,7 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
 /** THE VALUE LINE with a Y AXIS (mock v14 mark 11). A rising line with no figures beside it can
  *  mean $20 or $20,000; four dollar gridlines say which. Every point comes from the daily record,
  *  so the line starts where the record starts and not a day earlier. */
-function ValueGraph({ points }: { points: { date: string; value: number }[] }) {
+function ValueGraph({ points, dayOneNote }: { points: { date: string; value: number }[]; dayOneNote?: string }) {
   const [w, setW] = useState(0);
   if (points.length < 2) return null;
   const H = 120, padTop = 10, padBot = 16, gutter = 52;
@@ -852,7 +826,9 @@ function ValueGraph({ points }: { points: { date: string; value: number }[] }) {
           </Svg>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginLeft: gutter }}>
             <Text style={styles.axisDay}>{day(points[0].date)}</Text>
-            <Text style={styles.axisDay}>{day(points[points.length - 1].date)}</Text>
+            {points.length > 1 ? (
+              <Text style={styles.axisDay}>{day(points[points.length - 1].date)}</Text>
+            ) : !!dayOneNote && <Text style={styles.axisDay}>{dayOneNote}</Text>}
           </View>
         </>
       )}

@@ -10,7 +10,7 @@ import { money } from '../domain/_shared/num';
 import { InfoDot, EmptyNote } from '../components/UI';
 import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
-import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary, accruedInterestCaveat } from '../domain/bonds';
+import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
 import { isoLocalDate } from '../domain/_shared/dates';
@@ -28,16 +28,12 @@ const ACCT_TYPES: { label: string; bucket: TaxBucket }[] = [
 export default function BondsScreen() {
   const store = useStore() as any;
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
-  const bonds = useMemo(() => {
-    // NW-14: show soonest-maturing first (matured / no-maturity sink to the bottom).
-    const sortKey = (a: AssetAccount) => {
-      const m = bondInfo(a).maturity;
-      const t = m ? parseISO(m).getTime() : NaN;
-      return isNaN(t) ? Infinity : t;
-    };
-    return accounts.filter(isBond).slice().sort((a, b) => sortKey(a) - sortKey(b));
-  }, [accounts]);
-  const summary = useMemo(() => bondSummary(bonds.map(bondInfo)), [bonds]);
+  // ONE DOOR (MK-NW-O-001 theBonds, Q-NW-4 ruled 2026-09-27). This screen used to filter, sort and
+  // summarise the bonds itself while the account page called the same functions its own way — which
+  // is how two screens come to show two answers for one bond. It asks the question once now.
+  const answer = useMemo(() => theBonds({ accounts }), [accounts]);
+  const summary = answer;
+  const bonds = answer.rows;
   const [edit, setEdit] = useState<AssetAccount | null>(null);
   const [addOpen, setAddOpen] = useState(false);
 
@@ -59,25 +55,29 @@ export default function BondsScreen() {
             <Text style={styles.sumVal}>{money(summary.totalValue)}</Text>
             <Text style={styles.sumLab}>{summary.count} bond{summary.count > 1 ? 's' : ''} · face {money(summary.totalFace)}</Text>
             <View style={styles.sumRow}>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON / YR</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{money(summary.annualCoupon)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{money(summary.couponPerYear)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{pct(summary.avgYield)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>NEXT MATURITY</Text><Text style={styles.sumCellV}>{summary.nextMaturity ? new Date(summary.nextMaturity).getFullYear() : '—'}</Text></View>
             </View>
           </View>
 
-          {bonds.map((a) => {
-            const bi = bondInfo(a);
-            const yrs = yearsToMaturity(bi.maturity) ?? 0;   // G11: no date → no years figure; the sub-line shows the date field instead
+          {bonds.map((r) => {
+            // every figure on this row comes off the door's answer; the account object is looked up
+            // only to open the editor, which is the one thing a figure cannot do
+            const acct = accounts.find((x) => String(x.asset_id) === r.accountId);
+            const yrs = r.yearsLeft ?? 0;   // G11: no date → no years figure; the sub-line shows the date field instead
             return (
-              <TouchableOpacity key={a.asset_id} accessibilityRole="button" accessibilityLabel={`${a.institution?.trim() || a.label}, ${money(a.balance || 0)}, matures ${humanDate(bi.maturity)}`} style={styles.card} onPress={() => setEdit(a)}>
-                <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text><Text style={styles.bondVal}>{money(a.balance || 0)}</Text></View>
-                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${money(bi.face)}`, `${(bi.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(bi.maturity)}${yrs > 0 ? ` (${yrs.toFixed(1)}y)` : ' (matured)'}`]} />
+              <TouchableOpacity key={r.accountId} accessibilityRole="button"
+                accessibilityLabel={`${r.institution}, ${money(r.value)}, matures ${humanDate(r.maturity)}. Opens the editor.`}
+                style={styles.card} onPress={() => acct && setEdit(acct)}>
+                <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.institution}</Text><Text style={styles.bondVal}>{money(r.value)}</Text></View>
+                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${money(r.face)}`, `${(r.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}`]} />
                 <View style={styles.bondMetrics}>
-                  <Text style={styles.metric}>{money(annualCoupon(bi))}/year coupon</Text>
-                  <Text style={styles.metric}>yield {pct(currentYield(bi))}{accruedInterestCaveat(bi) ? ' *' : ''}</Text>
-                  <Text style={styles.metric}>Yield to maturity: {pct(approxYTM(bi))}</Text>
+                  <Text style={styles.metric}>{money(r.couponPerYear)}/year coupon</Text>
+                  <Text style={styles.metric}>yield {pct(r.currentYield)}{r.accruedCaveat ? ' *' : ''}</Text>
+                  <Text style={styles.metric}>Yield to maturity: {pct(r.yieldToMaturity)}</Text>
                 </View>
-                {accruedInterestCaveat(bi) && <Text style={styles.bondSub}>* {accruedInterestCaveat(bi)}</Text>}
+                {!!r.accruedCaveat && <Text style={styles.bondSub}>* {r.accruedCaveat}</Text>}
               </TouchableOpacity>
             );
           })}
@@ -94,7 +94,8 @@ export default function BondsScreen() {
           const addIt = () => { store.addAsset({ kind: 'fixed_income', target_return: fields.coupon_rate ?? 0.04, ...fields }); setAddOpen(false); setEdit(null); };
           // double-count guard: a non-bond account at the same institution may already include this bond
           const inst = String(fields.institution ?? '').trim().toLowerCase();
-          const dup = inst ? accounts.find((a) => !isBond(a) && String(a.institution ?? '').trim().toLowerCase() === inst && (a.balance || 0) > 0) : null;
+          const isABond = new Set(answer.rows.map((r) => r.accountId));
+          const dup = inst ? accounts.find((a) => !isABond.has(String(a.asset_id)) && String(a.institution ?? '').trim().toLowerCase() === inst && (a.balance || 0) > 0) : null;
           if (dup) {
             // "Part of it" = nest the bond inside the existing balance (lower that account so the total holds)
             const addAsPartOf = () => { store.updateAsset(dup.asset_id, { balance: Math.max(0, (dup.balance || 0) - bondValue) }); addIt(); };

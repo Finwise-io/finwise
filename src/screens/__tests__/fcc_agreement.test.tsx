@@ -69,11 +69,14 @@ describe('pin 1 — investments: Home hero = Invest header, to the dollar', () =
     expect(screen.getAllByText(expected).length).toBeGreaterThan(0);   // the Invest header
   });
 
-  test('both screens use the ONE helper over the ONE row resolver (source pin)', () => {
+  test('both screens use the ONE answer over the ONE row resolver (source pin)', () => {
+    // 2026-09-27: the pin's purpose is unchanged — Home and Performance must take this figure from
+    // ONE place. That place is now the door (MK-NW-O-003 theNetWorth, Q-NW-1), which is what
+    // investmentsTotal was standing in for before the question had one.
     const fs = require('fs'); const path = require('path');
     for (const f of ['HomeScreen.tsx', 'PerformanceScreen.tsx']) {
       const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-      expect(src).toMatch(/investmentsTotal\(/);
+      expect(src).toMatch(/theNetWorth\(|investmentsTotal\(/);
       expect(src).toMatch(/resolveNetWorthRows\(/);
     }
   });

@@ -1,14 +1,11 @@
 {
- "_about": "GENERATED 2026-09-26. Percentages still printed to ONE decimal, per file. Q49 says two decimals unless the figure’s row states otherwise. A ratchet: a file may only print fewer; delete its line at zero.",
- "frozen": "2026-09-26",
- "baseline": {
-  "src/screens/InsightsScreen.tsx": 1,
-  "src/screens/WillItLastScreen.tsx": 2,
-  "src/screens/PlanHubScreen.tsx": 2,
-  "src/screens/IncomeDetailScreen.tsx": 2,
-  "src/screens/OtherInvestmentsScreen.tsx": 3,
-  "src/screens/AccountDetailScreen.tsx": 5,
-  "src/screens/RetirementCockpit.tsx": 26,
-  "src/onboarding/modules.tsx": 7
- }
+  "_about": "GENERATED 2026-09-26. Percentages still printed to ONE decimal, per file. Q49 says two decimals unless the figure’s row states otherwise. A ratchet: a file may only print fewer; delete its line at zero.",
+  "frozen": "2026-09-26",
+  "baseline": {
+    "src/screens/InsightsScreen.tsx": 1,
+    "src/screens/WillItLastScreen.tsx": 2,
+    "src/screens/PlanHubScreen.tsx": 2,
+    "src/screens/RetirementCockpit.tsx": 26
+  },
+  "note": ""
 }

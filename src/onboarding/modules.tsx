@@ -1129,7 +1129,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <MoneyRow ctx={ctx} k="debtPayment" label="Monthly payment" /></Card>
         {bal > 0 && pay > 0 && (interestOnly
           ? <Callout warn text="Your payment barely covers the interest" sub="At this rate the balance won't go down — worth paying more." />
-          : <Callout text={`Paid off in ~${payoff}`} sub={`At ${money(pay)}/month and ${(rate * 100).toFixed(1)}% interest.`} />)}
+          : <Callout text={`Paid off in ~${payoff}`} sub={`At ${money(pay)}/month and ${(rate * 100).toFixed(2)}% interest.`} />)}
       </>);
     }
 
@@ -1192,7 +1192,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Card>
           <RecapStat label={a.debtName || 'Debt'} value={money(bal)} />
           <RecapStat plain label="Monthly payment" value={`${money(pay)}/month`} />
-          <RecapStat plain label="Interest rate" value={`${(rate * 100).toFixed(1)}%`} />
+          <RecapStat plain label="Interest rate" value={`${(rate * 100).toFixed(2)}%`} />
           {months > 0 && (<>
             <View style={s.divider} />
             <RecapStat label="Debt-free" value={debtFree ? `${MONTHS[debtFree.getMonth()]} ${debtFree.getFullYear()}` : '—'} color={Colors.primary} />
@@ -1453,13 +1453,13 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
       {lines.map((l) => (
         <RecapStat key={l.label} plain label={l.label} value={`${money(l.value)}${l.once ? ' once' : '/year'}`} />
       ))}
-      <RecapBox label="Total income / yr" value={money(total)} />
+      <RecapBox label="Total income /year" value={money(total)} />
 
       <Text style={[s.sectionLabel, { marginTop: Spacing.md }]}>WHAT'S TAKEN OUT</Text>
       <RecapStat plain label={`Tax (~${Math.round(rate * 100)}% on taxable income)`} value={`-${money(tax)}`} color={Colors.amber} />
       {nonTaxable > 0 && <RecapStat plain label="Tax-free (benefits, support, gifts…)" value={money(nonTaxable)} color={Colors.textTertiary} />}
       {k401 > 0 && <RecapStat plain label="401(k), locked to retirement" value={`-${money(k401)}`} color={Colors.amber} />}
-      <RecapBox label="Available / yr" value={money(availableYr)} tone="green" />
+      <RecapBox label="Available /year" value={money(availableYr)} tone="green" />
     </Card>
 
     {/* monthly cash flow — lumpy, with mode + view toggles */}
@@ -1560,12 +1560,12 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
       <Card>
         <RecapStat label="Take-home" value={`${money(incMo)}/month`} />
         <RecapStat plain label="Expenses" value={`-${money(spendMo)}/month`} color={Colors.amber} />
-        <RecapBox label="Surplus / mo" value={money(left)} tone={left >= 0 ? 'green' : 'neutral'} />
+        <RecapBox label="Surplus /month" value={money(left)} tone={left >= 0 ? 'green' : 'neutral'} />
       </Card>
     </>);
   }
 
-  // #6: derive EVERY annual figure from the one grid-based roll-up, so "Free to save / yr" reconciles
+  // #6: derive EVERY annual figure from the one grid-based roll-up, so "Free to save /year" reconciles
   // exactly with the savings-plan screen's monthly average × 12 (they used to disagree — the recap
   // annualized income flatly while the savings plan summed month-by-month).
   const cf = annualCashflow(a);
@@ -1603,12 +1603,12 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
         <Text style={s.ringPctSub}>to savings</Text>
       </Donut>
       <View style={{ width: '100%', marginTop: Spacing.md }}>
-        <WfRow label="Gross income / yr" value={money(grossYr)} />
+        <WfRow label="Gross income /year" value={money(grossYr)} />
         <WfRow dot={Colors.amber} label={`Tax · ~${taxPct}% of gross`} value={`−${money(taxYr)}`} />
         {k401Yr > 0 && <WfRow dot={C401} label="401(k) · locked for retirement" value={`−${money(k401Yr)}`} />}
-        <WfRow label="Take-home / yr" value={money(availableYr)} strong color={Colors.primaryDark} topline />
+        <WfRow label="Take-home /year" value={money(availableYr)} strong color={Colors.primaryDark} topline />
         <WfRow dot={Colors.blue} label={`Expenses · ${spendPct}% of gross`} value={`−${money(spendYr)}`} />
-        <WfRow dot={saveYr >= 0 ? Colors.primary : Colors.red} label="Surplus / yr" value={money(saveYr)} strong
+        <WfRow dot={saveYr >= 0 ? Colors.primary : Colors.red} label="Surplus /year" value={money(saveYr)} strong
           color={saveYr >= 0 ? Colors.primary : Colors.red} topline />
       </View>
     </View>
@@ -1838,7 +1838,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
       <Text style={[s.hint, { marginTop: 8 }]}>
         Projected {money(projected)} = your {money(retireStart)} retirement savings
         {otherSavings > 0 ? ` + ${money(otherSavings)} investments` : ''}
-        {monthlyContrib > 0 ? ` + ${money(monthlyContrib)}/month you add` : ''}, growing ≈{(realAcc * 100).toFixed(1)}%/year
+        {monthlyContrib > 0 ? ` + ${money(monthlyContrib)}/month you add` : ''}, growing ≈{(realAcc * 100).toFixed(2)}%/year
         after inflation for {years} year{years > 1 ? 's' : ''}.
         {otherSavings <= 0 ? " It does NOT include other investments, property, or accounts not captured yet — add them in Net Worth and this updates." : ''}
       </Text>
@@ -1850,12 +1850,12 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
         value={guaranteedMo > 0 ? `−${money(guaranteedMo)}/month` : 'Set it'} />
       <WfRow label="To fund from savings" value={`${money(need.netAnnual)}/year`} topline />
       <WfRow label={`Funded years (${rAge} → ${horizon})`} value={`× ${need.years} yrs`} />
-      <WfRow label={`Savings keep earning ~${(realDraw * 100).toFixed(1)}%/year real`} value={`→ × ${need.annuityFactor}`} />
+      <WfRow label={`Savings keep earning ~${(realDraw * 100).toFixed(2)}%/year real`} value={`→ × ${need.annuityFactor}`} />
       {bequest > 0 && <WfRow label="Leave behind (your legacy goal)" value={`+${money(need.pvBequest)}`} />}
       <WfRow label="Capital needed" value={money(need.needed)} strong color={Colors.primaryDark} topline />
       <Text style={s.hint}>
-        Real returns = growth minus {infl.toFixed(1)}% inflation (live CPI): ~7% growth (≈{(realAcc * 100).toFixed(1)}% real) while saving,
-        a conservative ~5.5% (≈{(realDraw * 100).toFixed(1)}% real) while retired.
+        Real returns = growth minus {infl.toFixed(2)}% inflation (live CPI): ~7% growth (≈{(realAcc * 100).toFixed(2)}% real) while saving,
+        a conservative ~5.5% (≈{(realDraw * 100).toFixed(2)}% real) while retired.
         {bequest <= 0 ? ' Assumes the money is spent down to zero — add a "leave money to family" goal to plan a bequest.' : ''}
         {otherSavings <= 0 ? ' Counts only retirement savings + your investing plan; add other accounts in Net Worth to complete the picture.' : ''}
       </Text>
@@ -1948,7 +1948,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
       <Text style={s.sectionLabel}>HOW MUCH WILL YOU INVEST PER YEAR?</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
         <TextInput style={[s.input, { flex: 1 }]} keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary}
-          placeholder={unit === 'pct' ? 'e.g. 80' : `${currencySymbol()}0 / yr`} value={String(raw)} onChangeText={(t) => setVal(t, unit)} />
+          placeholder={unit === 'pct' ? 'e.g. 80' : `${currencySymbol()}0 /year`} value={String(raw)} onChangeText={(t) => setVal(t, unit)} />
         {base > 0 && [{ v: 'dollar', l: `${currencySymbol()}/year` }, { v: 'pct', l: '%' }].map((o) => {
           const on = unit === o.v;
           return (
@@ -2229,12 +2229,12 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
             than implying a fixed rent. Same data model (monthly), just an honest label + guidance. */}
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm }}>
           <View style={{ flex: 1 }}>
-            <Text style={s.label}>{(r.type ?? 'long') === 'short' ? 'Avg rent / mo' : 'Rent / mo'}</Text>
+            <Text style={s.label}>{(r.type ?? 'long') === 'short' ? 'Avg rent /month' : 'Rent /month'}</Text>
             <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
               value={r.income ?? ''} onChangeText={(t) => setProp(i, 'income', t)} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={s.label}>Operating expense / mo</Text>
+            <Text style={s.label}>Operating expense /month</Text>
             <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
               value={r.expenses ?? ''} onChangeText={(t) => setProp(i, 'expenses', t)} />
           </View>

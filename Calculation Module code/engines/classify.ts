@@ -101,17 +101,17 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-XS-F-104 mapAccountType · MK-XS-F-109 dedupeActivities
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 198 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 245 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-CF-F-205 COMING
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-CF-F-202 TAX
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
- *               MK-CF-F-005 actualMonthFlow · MK-NW-F-002 alternativesSummary
- *               MK-NW-F-019 alternativesTotal · MK-CF-F-012 annualCashflow
- *               MK-NW-F-029 assetAllocation · MK-XS-F-172 assetClassForSymbol
- *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
- *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               … and 180 more — the full list is on functions_from_code
+ *               … and 227 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

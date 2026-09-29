@@ -13,8 +13,10 @@ master file follows. The founder's own columns are his: before writing, this rea
 back out of the existing workbook by row key and carries them forward, so editing them in Excel still
 works. Claude adds rows in the source file, never in Excel.
 """
-import json, os, re, hashlib
+import json, os, re, hashlib, sys
 import openpyxl
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from xlsx_readable import readable   # one way to format a workbook (founder, 2026-09-27)
 from openpyxl.styles import Font, Alignment, PatternFill
 
 SC = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(SC, '..', '..'))
@@ -56,8 +58,11 @@ for x in sorted(d['rows'], key=lambda y: y['date']):
     for c in range(1, len(COLS) + 1): ws.cell(r, c).alignment = WRAP
     fill = COLOUR.get(str(x['status']).strip())
     if fill: ws.cell(r, 3).fill = PatternFill('solid', fgColor=fill)
-for i, w in enumerate([70, 70, 18, 50, 13, 40], 1): ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
-ws.freeze_panes = 'A2'
+# READABLE (founder, 2026-09-27). The task and what-to-do columns were 70 characters each — 140
+# before the status, so the one column that says who a row waits on was off the side of the screen.
+# Widths are measured now; STATUS and DATE are pinned because a narrow column of one word reads best
+# when it is exactly as wide as its longest word.
+readable(ws, widths={'A': 46, 'B': 52, 'C': 22, 'D': 40, 'E': 12, 'F': 40})
 wb.save(OUT)
 for x in d['rows']: x['_written'] = {'status': x['status'], 'comments': x.get('comments', '')}
 json.dump(d, open(SRC, 'w'), ensure_ascii=False, indent=1)

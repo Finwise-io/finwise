@@ -30,10 +30,11 @@ export const IRS_LIMITS = {
  *     nothing   when y is missing (or !number.is finite(y) (or y < 1900 when missing or zero) when missing or zero)
  *     the answer = now.get full year() − y
  *
- * Called by ... MK-PL-F-067 willItLastInputs
+ * Called by ... MK-CF-O-005 theContributionRoom · MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-PL-F-068 selectWillItLast
+ *               MK-CF-O-005 theContributionRoom · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
@@ -54,7 +55,7 @@ export function ageAttainedInYear(birthYear: number | null | undefined, now: Dat
 /** Months left in the year INCLUDING the current one — December counts as 1, never 0. G36 (founder,
  *  2026-09-12): the convention is stated here once; the Contribution-room screen used to divide on
  *  the screen itself. */
-/* ─ MK-CF-F-195 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-195 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * monthsLeftInYear
  *
  * Answers ..... Months left in the year INCLUDING the current one — December counts as 1, never 0.
@@ -62,10 +63,11 @@ export function ageAttainedInYear(birthYear: number | null | undefined, now: Dat
  * Formula .....
  *     max(1, 12 − now.get month())
  *
- * Called by ... MK-CF-F-196 perMonthToFill
+ * Called by ... MK-CF-F-196 perMonthToFill · MK-CF-O-005 theContributionRoom
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-196 perMonthToFill
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-196 perMonthToFill
+ *               MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029
  *
@@ -81,7 +83,7 @@ export function monthsLeftInYear(now: Date = new Date()): number {
 }
 
 /** What to put in each remaining month to use the room left this year, rounded to $100 for display. */
-/* ─ MK-CF-F-196 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-196 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * perMonthToFill
  *
  * Answers ..... What to put in each remaining month to use the room left this year, rounded to $100 for display.
@@ -89,7 +91,10 @@ export function monthsLeftInYear(now: Date = new Date()): number {
  * Formula .....
  *     round(room left ÷ months left in year(now) ÷ 100) × 100
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-005 theContributionRoom
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029
  *
@@ -116,8 +121,9 @@ export function perMonthToFill(roomLeft: number, now: Date = new Date()): number
  *
  * Called by ... MK-CF-F-056 k401Headroom
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-056 k401Headroom
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-056 k401Headroom
+ *               MK-CF-O-005 theContributionRoom
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -142,7 +148,10 @@ export function annual401kLimit(age: number | null): number {
  * Formula .....
  *     IRS_LIMITS.ira + (age ≠ nothing and age ≥ 50 ? IRS_LIMITS.ira catch up 50 : 0)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-005 theContributionRoom
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004
  *
@@ -156,7 +165,7 @@ export function annualIraLimit(age: number | null): number {
   return IRS_LIMITS.ira + (age != null && age >= 50 ? IRS_LIMITS.ira_catch_up_50 : 0);
 }
 /** How much can this person put into a health savings account this year? (Enrolled in Medicare → nothing; founder ruling 2026-09-08, G10.) */
-/* ─ MK-CF-F-055 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-055 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * annualHsaLimit
  *
  * Answers ..... How much can this person put into a health savings account this year?
@@ -165,7 +174,10 @@ export function annualIraLimit(age: number | null): number {
  *     0   when enrolled in Medicare (no contribution is allowed)
  *     (family ? family limit : self-only limit) + (age ≥ 55 ? the 55+ catch-up : 0)   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-005 theContributionRoom
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004
  * Reads ....... MK-XS-I-062 enrolled in Medicare (yes / no)
@@ -198,7 +210,10 @@ export interface Headroom { limit: number; used: number; remaining: number; catc
  *     remaining = max(0, limit − used)
  *     catch up = age ≠ nothing and age ≥ 50
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-005 theContributionRoom
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004
  *

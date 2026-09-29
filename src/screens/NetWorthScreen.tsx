@@ -5,6 +5,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
+import { fig, figPer } from '../components/figure';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
 import { onCourseSentence, shortfallAgeFromBand, planDoor, sampleAskLine, oddsLine, sampleOddsLine } from '../domain/planning/hub';
@@ -20,15 +21,21 @@ import { dataGaps } from '../domain/gaps';
 import { Colors, Spacing, Radii, ClassMarkColors, ChartPalette, DebtRamp } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { trendPoints, investableChangePct, buildChangeWalk } from '../domain/history';
+import { trendPoints, buildChangeWalk } from '../domain/history';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup, uberGroupOf } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup, uberGroupOf } from '../domain/assets';
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
-import { buildNetWorth } from '../domain/networth';
+// ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
+// their own net worth; they read one answer now.
+import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { plannedMonthlySpend } from '../domain/budget';
-import { essentialsMonthly } from '../../MoneyKeel/functions/cashflow/essentials';
+// ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5). FOUNDER 2026-09-28, settling the number change
+// I had stopped on: "give both numbers" — the screen shows the runway on essentials AND the runway
+// at the life you plan to live, so nothing is hidden behind one divisor. Both now carry the debt
+// minimums, which were in neither figure until he asked.
+import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
 import { willItLastInputs } from '../domain/retirement/willItLast';
 import { projectNestEgg } from '../domain/retirement';
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
@@ -180,16 +187,23 @@ export default function NetWorthScreen() {
   const liabilities: Debt[] = store.liabilities ?? [];
   // existing users (accounts already set up, e.g. seeded) skip the intro and go straight to the manager
   const choice = (store.nwSetupChoice as ('guided' | 'self' | null)) ?? ((assets.length || liabilities.length || store.nwSeeded) ? 'self' : null);
+  const worth = useMemo(() => theNetWorth({ uid, accounts: assets, debts: liabilities }),
+    [uid, assets, liabilities]);
   const aState = useMemo(() => buildAssetsState(uid, assets), [assets]);
   const dState = useMemo(() => buildDebtState(uid, liabilities), [liabilities]);
   // emergency-fund runway: cash ÷ monthly expenses
-  const cashOnHand = cashTotal(assets);   // canonical cash (asset class), single source
+  const cashOnHand = worth.cash;   // the ONE cash figure (Q-NW-1) — Insights shows this same one
   // G21 / Q21 / Q47 (2026-09-08): ONE essentials figure (MK-CF-F-190) — the average of logged expenses
   // over the months logged, labelled "N month average"; the typed plan only when nothing is logged.
-  const essentials = useMemo(() => essentialsMonthly(store.expenses ?? [], plannedMonthlySpend(op)), [store.expenses, op]);
-  const monthlySpend = essentials?.monthly ?? 0;
-  const runwayMonths = monthlySpend > 0 ? cashOnHand / monthlySpend : null;
-  const nw = buildNetWorth(uid, aState.total_asset_value, dState.total_debt_balance);
+  const emergencyFund = useMemo(() => theEmergencyFund({
+    accounts: assets, expenses: store.expenses ?? [], profile: op, debts: liabilities,
+  }), [assets, store.expenses, op, liabilities]);
+  const essentials = { monthly: emergencyFund.essentialsMonthly, label: emergencyFund.essentialsBasis };
+  const monthlySpend = emergencyFund.essentialsMonthly;
+  const runwayMonths = emergencyFund.monthsCovered;
+  const runwayAtPlannedSpend = emergencyFund.monthsCoveredAtPlannedSpend;
+
+  const nw = { gross_assets: worth.assets, gross_debt: worth.debts, net_worth: worth.netWorth };
 
   const [assetSheet, setAssetSheet] = useState<{ open: boolean; section?: string; edit?: AssetAccount }>({ open: false });
   const [debtSheet, setDebtSheet] = useState<{ open: boolean; edit?: Debt }>({ open: false });
@@ -252,7 +266,7 @@ export default function NetWorthScreen() {
   const totalAssets = aState.total_asset_value;
   // NW-9: the headline insight names the largest asset CLASS (matches the bar), not the account section.
   const topClass = [...classRows].sort((a, b) => b.total - a.total)[0];
-  const investable = investableAssets(assets);   // NW-12: cash + investments (excludes home & belongings)
+  const investable = worth.investable;   // NW-12: cash + investments (excludes home & belongings) — the ONE figure (Q-NW-1)
   const debtRatio = totalAssets > 0 ? dState.total_debt_balance / totalAssets : 0;
   const pctOf = (v: number) => (totalAssets > 0 ? Math.round((v / totalAssets) * 100) : 0);
 
@@ -641,7 +655,12 @@ export default function NetWorthScreen() {
     // founder rule 2026-08-04: the change PERCENT is measured on cash + investments only —
     // property moves only when retyped, so a total-NW percent is noise. Appears only once the
     // invDaily history exists (never back-guessed).
-    const invPct = janPoint ? investableChangePct(store.invDaily, investable, janPoint.month) : null;
+    // asked of the door, with the baseline day this screen has just calculated. The door hands a
+    // RATE (0…1); this line has always printed a percentage, so it multiplies once, here.
+    const invRate = janPoint
+      ? theNetWorth({ uid, accounts: assets, debts: liabilities, investableDaily: store.invDaily, since: janPoint.month }).investableChangePct
+      : null;
+    const invPct = invRate == null ? null : invRate * 100;
     // Founder wording 2026-08-10: the two halves are NAMED — the dollar move is the change in net
     // worth, the percent is a RETURN and it is measured on cash + investments only. Spelled out in
     // full on both sides (no "NW"), so the line never needs a decoder.
@@ -934,6 +953,16 @@ export default function NetWorthScreen() {
                 }]} />
               </View>
               <Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/month essentials — {essentials?.label}</Text>
+              {/* BOTH NUMBERS (founder, 2026-09-28). The figure above is what you could not stop paying;
+                  this one is the life you plan to live. Neither is the whole truth on its own. */}
+              {runwayAtPlannedSpend != null && (
+                <Text style={styles.cushionMath}>
+                  {fig('MK-NW-M-046', runwayAtPlannedSpend)} at your planned spend — {fig('MK-NW-M-005', cashOnHand)} cash ÷ {figPer('MK-NW-M-048', emergencyFund.plannedSpendMonthly)}
+                </Text>
+              )}
+              {emergencyFund.debtMinimums > 0 && (
+                <Text style={styles.cushionMath}>Both include {figPer('MK-NW-M-047', emergencyFund.debtMinimums)} of debt payments you cannot stop.</Text>
+              )}
               <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
             </View>
           </View>

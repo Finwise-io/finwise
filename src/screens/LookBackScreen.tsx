@@ -9,7 +9,8 @@ import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { lookBack } from '../domain/performance/lookBack';
+// ONE DOOR (MK-NW-O-007 theLookBack, Q-PF-2) — one screen, one question.
+import { theLookBack } from '../../MoneyKeel/functions/networth-and-performance/look-back';
 import { BENCHMARK_TICKER, type PriceSeries } from '../domain/performance';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 
@@ -37,7 +38,7 @@ export default function LookBackScreen() {
 
   const amt = parseFloat(String(amount).replace(/[^0-9.]/g, '')) || 0;
   const result = useMemo(
-    () => lookBack(amt, priceCache[from], priceCache[to], months),
+    () => theLookBack({ amount: amt, fromSeries: priceCache[from], toSeries: priceCache[to], months }),
     [amt, priceCache, from, to, months]);
 
   const Picker = ({ value, onPick, exclude, label }: { value: string; onPick: (t: string) => void; exclude: string; label: string }) => (

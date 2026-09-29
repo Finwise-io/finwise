@@ -8,7 +8,8 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'reac
 import { SectionBand } from '../components/SectionBand';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
-import { essentialsFromLoggedSpending } from '../../MoneyKeel/functions/cashflow/essentials';
+// ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5 ruled 2026-09-27: "Yes.").
+import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
 import { Disclaimer } from '../components/Disclaimer';
 import { money } from '../domain/_shared/num';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -29,8 +30,17 @@ export default function JobSafetyScreen() {
   const { jobRiskLevel, emergencyMonths, setJobRisk, setEmergencyMonths, savings, investments, goals, addGoal } = useStore() as any;
   // G21 / Q21 / Q47 (2026-09-08): the logged baseline is the average over the months logged (MK-CF-F-189),
   // not this month's spend alone; the label says how many months it stands on.
-  const logged = essentialsFromLoggedSpending(((useStore.getState() as any).expenses ?? []) as any[]);
-  const monthSpend = logged?.monthly ?? 0;
+  // THE DEFECT THIS CLOSES (measured 2026-09-27). This screen read the LOGGED average only, while the
+  // emergency fund on Net worth and Stress test read his ONE essentials figure — the logged average
+  // with the typed plan as the fallback (his ruling G21, 2026-09-08). For anyone who had logged
+  // nothing but typed a monthly spend, this screen showed essentials of $0, so the target it set for
+  // their emergency fund was $0 and the gap was $0: it told them they needed nothing. The other two
+  // screens showed $4,000 for the same person on the same day.
+  const store = useStore() as any;
+  const emergencyFund = theEmergencyFund({
+    accounts: store.assetAccounts ?? [], expenses: store.expenses ?? [], profile: store.onboardingProfile ?? {}, debts: store.liabilities ?? [],
+  });
+  const monthSpend = emergencyFund.essentialsMonthly;
 
   const [selected, setSelected] = useState<RiskLevel | null>(jobRiskLevel ?? null);
   const [months, setMonths] = useState<number>(MONTH_CHOICES.includes(emergencyMonths) ? emergencyMonths : 6);
@@ -65,7 +75,7 @@ export default function JobSafetyScreen() {
 
       {/* 1 · the stability question — calm word cards, selection = ✓ + weight, saved on tap */}
       <View style={s.card}>
-        <SectionBand title="HOW STEADY IS YOUR INCOME?" />
+        <SectionBand inCard title="HOW STEADY IS YOUR INCOME?" />
         <View style={{ gap: 8, marginTop: 8 }}>
           {RISK_OPTIONS.map((opt) => {
             const on = selected === opt.level;
@@ -82,7 +92,7 @@ export default function JobSafetyScreen() {
 
       {/* 2 · the emergency fund — the gap IS the hero; the math is one readable sentence */}
       <View style={s.card}>
-        <SectionBand title={covered ? 'YOUR EMERGENCY FUND' : 'STILL NEEDED FOR YOUR EMERGENCY FUND'} />
+        <SectionBand inCard title={covered ? 'YOUR EMERGENCY FUND' : 'STILL NEEDED FOR YOUR EMERGENCY FUND'} />
 
         {ess <= 0 ? (
           <>
@@ -97,7 +107,7 @@ export default function JobSafetyScreen() {
               {months} months of essentials is {money(target)} ({money(ess)}/month) — your {basisWord} cover {money(Math.min(available, target))} of it.
             </Text>
             {monthSpend > 0 && !customExpenses && (
-              <Text style={s.baselineNote}>Using {money(monthSpend)}/month — {logged?.label} of your logged expenses — type your own if a typical month differs.</Text>
+              <Text style={s.baselineNote}>Using {money(monthSpend)}/month — {emergencyFund.essentialsBasis} of your logged expenses — type your own if a typical month differs.</Text>
             )}
             {monthSpend > 0 && (
               <TextInput style={[s.input, { marginTop: 8 }]} keyboardType="decimal-pad" placeholder={`${Math.round(monthSpend)}`}
@@ -138,7 +148,7 @@ export default function JobSafetyScreen() {
       {/* 3 · what would close it — a labeled example pace + a real action */}
       {gap > 0 && ess > 0 && (
         <View style={s.card}>
-          <SectionBand title="WHAT WOULD CLOSE IT" />
+          <SectionBand inCard title="WHAT WOULD CLOSE IT" />
           <Text style={s.closeLine}>
             Setting aside <Text style={s.bold}>{money(EXAMPLE_PACE)}/month</Text> closes the gap in <Text style={s.bold}>{monthsToClose} months</Text> — an example pace, set your own.
           </Text>

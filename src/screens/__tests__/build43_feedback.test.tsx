@@ -136,7 +136,7 @@ test('APPROVED detail · a multi-type connected account is called "Mixed holding
   render(<AccountDetailScreen />);
   expect(screen.getByText(/Mixed holdings · taxable/)).toBeOnTheScreen();
   expect(screen.getByText(/CD 4\.30% due May 2027/)).toBeOnTheScreen();     // the readable name, not the CUSIP
-  expect(screen.getByText('Cash in the account')).toBeOnTheScreen();
+  expect(screen.getByText('Cash in this account')).toBeOnTheScreen();   // his words, ruled 2026-08-11
 });
 
 // ── R5→R6 FINAL: "What if I save more?" — sliders make the screen self-sufficient ───────────────

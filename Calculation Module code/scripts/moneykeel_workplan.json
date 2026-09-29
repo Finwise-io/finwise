@@ -1257,7 +1257,7 @@
   },
   {
    "task": "The Plan tab does not match the Plan design you approved (Claude Design Plan v4, brief v3-2026-08-14, built for Build 53). Built from it: the two dials, the typed target, Retire / Goals / Prepare, 'Can I spend more?' in plain English, the Social Security row. NOT built: 'Your plan at a glance' — seven equal question rows, collapsed, dials staying small while it is open. Today's app still shows the 08-12 layout you rejected (FACTS — SAVE AS YOU GO · WHAT COUNTS TOWARD RETIREMENT · BIG ONE-TIME COSTS · CHOICES — TRY THEM), rows as labels not questions, and the Roth row as 'Is a Roth move worth it?' instead of 'Is converting to a Roth worth it?'. The seven-row component (src/components/PlanGlanceRows.tsx) exists and no screen uses it. The 49-check audit of 08-15 never checked the glance.",
-   "todo": "Founder: say whether to (a) run a full mock-match audit of the Plan tab against the v4 design, then mock the tab as approved with today's rulings, then build — or say otherwise. Claude: mock v10 sections 4 and 5 were drawn from today's code, so they show the rejected layout; they are not to be approved as they stand",
+   "todo": "FOUNDER RULE 2026-09-27: \"If I approved mock up post build - that the latest approval.\" The newest approval wins. A mock he approved AFTER a build is the design; the build is behind it, and bringing the build up to it is MINE to do, not a question to put to him. — so this one is MINE too, once the Plan doors are settled. Founder: say whether to (a) run a full mock-match audit of the Plan tab against the v4 design, then mock the tab as approved with today's rulings, then build — or say otherwise. Claude: mock v10 sections 4 and 5 were drawn from today's code, so they show the rejected layout; they are not to be approved as they stand",
    "status": "WAITING ON YOU",
    "ref": "August 14th Design/design_handoff_net_worth/Plan.dc.html · August 14th Design/PLAN-REDESIGN-BRIEF-v3-2026-08-14.md §3.2 · src/screens/PlanHubScreen.tsx · src/components/PlanInputs.tsx · census /plan (4 of 4 states show FACTS and CHOICES, 0 show the glance)",
    "date": "2026-09-14",
@@ -1605,14 +1605,590 @@
   },
   {
    "task": "Cash flow · the design record never carried its approved mocks — four are filed in MoneyKeel/documents/cashflow (income end to end v07, This month + Spending v06, Look ahead v03, the four-tab surface v01) and the changelog approves income v4, v5 and v6, but the design-each-screen-was-built-from record lists only Net worth, Performance and Plan. On 2026-09-26 I read that one file and told him Cash flow had no approved design.",
-   "todo": "Claude: trace which build shipped which cash-flow mock (fingerprint method) and add the rows. Founder: one question — does income v07 supersede v06, or is it v06 with the canon words applied? Its file says v07; its eyebrow still says v6.",
-   "status": "WAITING ON YOU",
+   "todo": "Done 2026-09-27, the moment git would answer again: the four-tab surface shipped in Build 47, its banded version in Build 53, the income rebuild in Build 54. This month + Spending, income end to end and the Expenses rename are in NO build. The table is in the design record.",
+   "status": "DONE",
    "ref": "MoneyKeel/documents/cashflow/ · design-each-screen-was-built-from_v01.md",
    "date": "2026-09-26",
-   "comments": "Same class as the rulings miss: one file read as if it were the whole record.",
+   "comments": "Build 54 is the last build cut. Everything approved after 2026-09-01 is designed, not shipped.",
+   "_written": {
+    "status": "DONE",
+    "comments": "Build 54 is the last build cut. Everything approved after 2026-09-01 is designed, not shipped."
+   }
+  },
+  {
+   "task": "Cash flow · every screen brought onto the standards (words, bars, decimals)",
+   "todo": "Nothing for him beyond approving the four mocks. Done: 19 copy sites on the canon; every dark-green bar on the cash-flow screens runs edge to edge; every percentage two decimals; the four tabs, the Budget band and the month switcher match the approved design.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "src/screens/CashFlowScreen.tsx · BudgetScreen.tsx · MonthDetailScreen.tsx · PaycheckMonthsScreen.tsx · MonthlyIncomeScreen.tsx · IncomeDetailScreen.tsx · src/onboarding/modules.tsx",
+   "date": "2026-09-26",
+   "comments": "B-103 to B-106 in the bug ledger.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "B-103 to B-106 in the bug ledger."
+   }
+  },
+  {
+   "task": "Cash flow · the four mocks redrawn on the canon — NO new approval needed",
+   "todo": "Closed 2026-09-27 on his word: \"cash flows are all approved - which ones you referring to for approval?\" He is right. The four-tab surface and Look ahead were approved 2026-07-19, This month + Spending 2026-08-26, income end to end 2026-09-02. v07, v04, v02 and v03 are those same approved designs with retired words replaced under rulings he had already made — no design changed, so no new approval is owed. I should not have asked.",
+   "status": "DONE",
+   "ref": "MoneyKeel/documents/cashflow/ — this-month-and-expenses v07 · look-ahead v04 · money-four-tabs v02 · filing-status-question v03",
+   "date": "2026-09-26",
+   "comments": "Superseded copies dated in archive/. The folder README says what each of the five files settles.",
+   "_written": {
+    "status": "DONE",
+    "comments": "Superseded copies dated in archive/. The folder README says what each of the five files settles."
+   }
+  },
+  {
+   "task": "Cash flow · This month — build the tab to the approved mock (itemised rows)",
+   "todo": "Done 2026-09-28, under his rule that the newer approval is the design. The tab shows every row — the inflow, each debt by name, the budget — and the surplus they add up to, instead of three rows with the rest hidden on Month detail.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "src/screens/CashFlowScreen.tsx · mock this-month-and-expenses v07 §1 · src/screens/MonthDetailScreen.tsx",
+   "date": "2026-09-26",
+   "comments": "Two things the gates caught while building it: the rows briefly stopped summing to the surplus (the door was fed a different planned figure than the surplus used — $7,200 in, a $0 expenses row, a $2,700 surplus), and I wrote a UTC date where the app requires the local day, which after 5pm in California reads as next month.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Two things the gates caught while building it: the rows briefly stopped summing to the surplus (the door was fed a different planned figure than the surplus used — $7,200 in, a $0 expenses row, a $2,700 surplus), and I wrote a UTC date where the app requires the local day, which after 5pm in California reads as next month."
+   }
+  },
+  {
+   "task": "A dark-green bar that did not reach the edge — 44 of them, across 15 screens",
+   "todo": "Nothing for him — fixed and gated. His rule of 2026-08-11, restated 2026-09-14. Six bars on Cash flow bled to the card edge while ten beside them stopped 16 points short.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "src/__tests__/guard_bands_edge_to_edge.test.ts · 15 screen files",
+   "date": "2026-09-26",
+   "comments": "B-107. The guard reads each band's enclosing card and its padding.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "B-107. The guard reads each band's enclosing card and its padding."
+   }
+  },
+  {
+   "task": "Performance · four lines of the approved design (mock v14) were never built",
+   "todo": "Nothing for him — built, with tests. An empty category vanished from the account page instead of keeping its heading; the activity list never said which records can be edited; a linked account's walk never said where its lines come from; the value line had no day-one caption.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "src/screens/AccountDetailScreen.tsx · PerformanceScreen.tsx · src/screens/__tests__/performance_mock_v14_gaps.test.tsx",
+   "date": "2026-09-26",
+   "comments": "B-108 to B-110. Found by comparing every static string mock v14 draws against every string the app can render.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "B-108 to B-110. Found by comparing every static string mock v14 draws against every string the app can render."
+   }
+  },
+  {
+   "task": "Performance · the cash row said a phrase he had already declined",
+   "todo": "Nothing for him — I should never have asked. He ruled it on 2026-08-11: the cash row says \"cash in this account\" with the account's own name above it, and the shorter \"sweep cash\" was declined by name. Net worth has obeyed it since; Performance, Account detail and my own mock v14 never heard it. All three now say it.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "Changelog 2026-08-11 \"Net worth (hero + cash row)\" · canon row 19 · PerformanceScreen.tsx · AccountDetailScreen.tsx · mock v14",
+   "date": "2026-09-27",
+   "comments": "B-111. The ruling lived in a changelog row with nothing enforcing it — that is why it was lost.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "B-111. The ruling lived in a changelog row with nothing enforcing it — that is why it was lost."
+   }
+  },
+  {
+   "task": "Performance · \"tap the name to open this account's portfolio\" is drawn but not built",
+   "todo": "Built 2026-09-27 on his word (\"build it\"). The bar over each account walk now does two things: the account NAME opens that account's own page, and the rest of the bar collapses the walk. The line from mock v14 is printed only now that both taps are real. Two tests: one that the name opens the account WITHOUT also collapsing, one that a band with no door is unchanged.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "src/components/SectionBand.tsx (onTitlePress) · src/screens/PerformanceScreen.tsx · src/screens/__tests__/performance_mock_v14_gaps.test.tsx",
+   "date": "2026-09-26",
+   "comments": "Every other band in the app passes no door and is untouched.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Every other band in the app passes no door and is untouched."
+   }
+  },
+  {
+   "task": "Orchestrators for Net worth, Performance and Cash flow — ONE AT A TIME",
+   "todo": "11 of 12 DONE. Net worth 6 of 6, Performance 2 of 2, Cash flow 4 of 5 (Q-CF-3, Q-CF-4, Q-CF-5, Q-CF-6). Q-CF-1 needed nothing. ONE LEFT AND IT IS MINE: Q-CF-2, no longer blocked — he settled it on 2026-09-28 by pointing at the approved design, and C-2 is withdrawn.",
+   "status": "TO DO",
+   "ref": "Calculation Module code/scripts/moneykeel_undeclared_figures.json · moneykeel_calc_spec_orchestrator-map_v01.xlsx",
+   "date": "2026-09-27",
+   "comments": "Each one: his row (done — he ruled all 13), the photograph, the door beside the old code, callers moved one at a time, old doors closed with a guard.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Each one: his row (done — he ruled all 13), the photograph, the door beside the old code, callers moved one at a time, old doors closed with a guard."
+   }
+  },
+  {
+   "task": "The orchestrator map asked him a question he could not answer",
+   "todo": "Fixed 2026-09-27, no action for him. Every one of the 22 rows carried the same sentence — \"Is this one question, with these figures and these screens?\" — which cannot be answered without reading 189 figure rows and 46 screens. That inventory is mine. Each row now asks the one judgement it actually carries, in plain words, naming the screens the way a person says them; 9 rows carry no judgement at all and say MINE TO BUILD. 13 need him, not 22.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "Calculation Module code/scripts/build-orchestrator-map.py (ask()) · the Map tab, columns P and Q · the Read me tab",
+   "date": "2026-09-27",
+   "comments": "He caught it: \"I don't even understand these yes questions... Do you expect me to take inventory of everything?\" Also fixed: the question counted doors the screens merely import, so Q-CF-1 claimed 3 functions answer it when 2 do — a shared screen was lending its doors to both questions.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "He caught it: \"I don't even understand these yes questions... Do you expect me to take inventory of everything?\" Also fixed: the question counted doors the screens merely import, so Q-CF-1 claimed 3 functions answer it when 2 do — a shared screen was lending its doors to both questions."
+   }
+  },
+  {
+   "task": "Every workbook he opens is now formatted to be read",
+   "todo": "Nothing for him. One helper (xlsx_readable.py) formats every workbook: widths measured from the content and capped at 52, row heights from the tallest VISIBLE cell, header frozen and filtered, and my generated-inventory columns folded away so a sheet opens on the columns he reads and answers. Applied to the workplan, the orchestrator map and all 19 tabs of the master.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "Calculation Module code/scripts/xlsx_readable.py · build-workplan.py · build-orchestrator-map.py · build-moneykeel-master.py · moneykeel_naming_spec_file-and-folder-naming_v01.md § How a workbook is formatted",
+   "date": "2026-09-27",
+   "comments": "He asked for it: \"in future learn how to format excel file so it is readable in terms of column width.\" The real fault was row height — every cell wrapped and no row was ever given one, so long cells were clipped to a single line.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "He asked for it: \"in future learn how to format excel file so it is readable in terms of column width.\" The real fault was row height — every cell wrapped and no row was ever given one, so long cells were clipped to a single line."
+   }
+  },
+  {
+   "task": "The orchestrator map asked about a conflict the code had already settled",
+   "todo": "Nothing for him — withdrawn and the method fixed. He challenged it: \"base pay is one component of income summary and function should have reflected that.\" It is: incomeSummary calls basePay on its first line. The question was generated by COUNTING orchestrator identifiers under one question, never by reading what they do. A door INSIDE another door is a component and the right shape; only siblings — neither reaching the other — are two answers to one question. Q-CF-1 and conflict C-1 are withdrawn. Q-CF-2 / C-2 survive the same test: spending and thisMonth are genuine siblings, verified in the code.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "MoneyKeel/functions/cashflow/income-summary.ts (calls basePay) · build-orchestrator-map.py (ask(), conf()) · the Map tab rows 17-18 · the Conflicts tab C-1, C-2",
+   "date": "2026-09-27",
+   "comments": "Rows needing him: 13 → 12. This is the same class as the \"sweep cash\" miss: a claim made without reading the source it is about.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Rows needing him: 13 → 12. This is the same class as the \"sweep cash\" miss: a claim made without reading the source it is about."
+   }
+  },
+  {
+   "task": "The map never said the questions come from the code, not from his approved mockups",
+   "todo": "Nothing for him — the file says it now, on the Read me tab, and every Map row names the approved design each of its screens was drawn from and lists the screens that have NONE. He asked: \"are these questions generated from the latest finalized mockups as many questions felt irrelevant?\" They are not, and that is why some felt irrelevant: 5 screens in the questions (Insights, Tax organizer, Worth a look, Required withdrawals, Monthly income) have no approved design at all.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "the Map tab, \"The approved design each screen was drawn from\" and \"Screens here with NO approved design\" · the Read me tab",
+   "date": "2026-09-27",
+   "comments": "Also answered in the file: no question wording reaches a user — checked against every string in src/, none of the 22 appears in the app.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Also answered in the file: no question wording reaches a user — checked against every string in src/, none of the 22 appears in the app."
+   }
+  },
+  {
+   "task": "A CD was told its value falls when interest rates rise — it does not",
+   "todo": "ANSWERED 2026-09-28: \"CD - keep.\" The app does not ask whether a CD is a bank one or a brokered one; it says the true thing for a bank CD and names the difference. Built and in the code as his ruling.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "src/screens/AccountDetailScreen.tsx (BondDetail) · src/domain/bonds/index.ts MK-NW-F-064 bondRateSensitivity · src/screens/__tests__/performance_mock_v14_gaps.test.tsx",
+   "comments": "Found by his question on Q-NW-4: \"CD rates don't move and one can do nothing if CD rates move.\" He was right. A real bond still gets the estimate — pinned by a test.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Found by his question on Q-NW-4: \"CD rates don't move and one can do nothing if CD rates move.\" He was right. A real bond still gets the estimate — pinned by a test."
+   }
+  },
+  {
+   "task": "Q-NW-1 · what the Alternatives screen has to do with \"what am I worth\"",
+   "todo": "ANSWERED 2026-09-27: \"Alternative - ok.\" The Alternatives TOTAL stays in \"what am I worth\"; EST. GROWTH /year moved out to its own question, Q-NW-6, and has its own door (MK-NW-O-006).",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "src/screens/OtherInvestmentsScreen.tsx · Q-NW-1 on the Map tab · MK-MN-M-022 · MK-MN-M-023",
+   "comments": "His question on the answer sheet: \"Not sure where on alternatives screen is the question what am I worth - provide more context?\"",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "His question on the answer sheet: \"Not sure where on alternatives screen is the question what am I worth - provide more context?\""
+   }
+  },
+  {
+   "task": "The canon guard could not see a retired period label written in capitals",
+   "todo": "Nothing for him — fixed. Row 14 entries were case-sensitive, so \"COUPON / YR\" on Bonds and \"EST. GROWTH / YR\" on Alternatives matched nothing. They now carry the ignore-case flag, and both labels read /year.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "moneykeel_naming_spec_calculation-vocabulary_v01.md row 14 · src/screens/BondsScreen.tsx:62 · src/screens/OtherInvestmentsScreen.tsx:59",
+   "comments": "Third hole found in the same canon row this week: the spaced form, the curly quotes, now the capitals.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Third hole found in the same canon row this week: the spaced form, the curly quotes, now the capitals."
+   }
+  },
+  {
+   "task": "The map said PROPOSED beside 13 questions he had already answered",
+   "todo": "Nothing for him — fixed. A row he has answered now reads RULED with his own words beside it, and stops asking. 13 answered: 12 yes, 1 no (Q-CF-1, which was my error and is withdrawn).",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "Calculation Module code/scripts/build-orchestrator-map.py (answered()) · the Map tab, STATUS",
+   "comments": "His answers live in column R and survive every rebuild.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "His answers live in column R and survive every rebuild."
+   }
+  },
+  {
+   "task": "His answers on the orchestrator map now reach every other file",
+   "todo": "Nothing for him — built. He asked: \"since these are recorded in standards - how will PFS ensure that it flows through all files?\" Nothing did: his answers lived in one column of one spreadsheet, and the B4 gate reads the rulings ledger, not a spreadsheet. A new step (A2 of the build) reads the Map's YOUR ANSWER column and writes one ruling per answered question. B4 now governs all 13 — it fails if one governs nothing, if its proof is missing, or if an open plan row still asks what he has settled.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "Calculation Module code/scripts/map-answers-to-rulings.py · build-all.sh step A2 · check-rulings-sync.py (B4) · moneykeel_rulings.json",
+   "comments": "The 13 are RULED and UNPROVED until each orchestrator is built — which is the next job, and the proof each one is waiting for.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "The 13 are RULED and UNPROVED until each orchestrator is built — which is the next job, and the proof each one is waiting for."
+   }
+  },
+  {
+   "task": "Orchestrator 1 of 12 — MK-NW-O-001 theBonds (Q-NW-4)",
+   "todo": "Nothing for him. The door is built, both its screens are behind it, and the old doors are closed. The Bonds screen and an account's own page now read ONE answer — before this each called six bond functions and assembled its own, which is how they could disagree. His CD ruling is built INTO the door: a CD is refused the rates-move estimate and the door supplies the sentence the screen prints, so the reason cannot drift from the rule. The photograph is byte-identical: nothing a person sees changed. 11 figures moved out of the hand-typed lists and are PRINTED from the declaration.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "MoneyKeel/functions/networth-and-performance/bonds.ts · bonds.test.ts (8 laws) · src/__tests__/guard_one_door_bonds.test.ts · BondsScreen.tsx · AccountDetailScreen.tsx · build-moneykeel-master.py (11 rows removed from SECONDARY)",
+   "comments": "The build caught two things I would have missed: the 11 figures declared AND still hand-typed, and five of his open bond questions (Q01-Q05) left with no row to sit on when those rows moved. Both fixed — Q01-Q05 now ride the declared figures.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "The build caught two things I would have missed: the 11 figures declared AND still hand-typed, and five of his open bond questions (Q01-Q05) left with no row to sit on when those rows moved. Both fixed — Q01-Q05 now ride the declared figures."
+   }
+  },
+  {
+   "task": "Orchestrator 2 of 12 — MK-NW-O-002 theAccount (Q-NW-2)",
+   "todo": "Nothing for him. An account's own page and the itemise screen now read ONE answer. The page used to assemble this in five pieces of its own while itemise assembled its own. Two findings that were paid for once now live in the door instead of in a screen: an untickered record names NO holding (the 2026-08-11 finding where a CD showed dividends it cannot pay, and two CDs showed one figure twice), and a hand-entered lump has no inside to read. Photograph byte-identical. 8 more figures moved out of the hand-typed lists.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "MoneyKeel/functions/networth-and-performance/account.ts · account.test.ts (6 laws) · src/__tests__/guard_one_door_account.test.ts · AccountDetailScreen.tsx · ItemizeScreen.tsx",
+   "comments": "The build again caught a question with no row to sit on (Q15, the institution-word rule) and it was re-homed on MK-NW-M-019 Income.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "The build again caught a question with no row to sit on (Q15, the institution-word rule) and it was re-homed on MK-NW-M-019 Income."
+   }
+  },
+  {
+   "task": "Orchestrator 3 of 12 — MK-NW-O-003 theNetWorth (Q-NW-1)",
+   "todo": "Nothing for him. Home, the Net worth tab, Insights and Alternatives now read ONE answer for what he is worth. Four screens each assembled it before — Home built its own net worth from its own assets state, the Net worth tab built another, Insights took cash and investable its own way, Alternatives took investable a third. These are the figures a person compares first, so a disagreement would be seen immediately. The change on cash and investments now REFUSES when the record holds no baseline day, instead of printing a movement from a day nobody recorded. Photograph byte-identical. 13 figures moved out of the hand-typed lists.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "MoneyKeel/functions/networth-and-performance/net-worth.ts · net-worth.test.ts (6 laws) · src/__tests__/guard_one_door_net_worth.test.ts · HomeScreen · NetWorthScreen · InsightsScreen · OtherInvestmentsScreen",
+   "comments": "The build caught three things: the multi-screen tab never printed declared figures at all (a gap in the rule-11 machinery — fixed), five more of his questions lost their row (Q10-Q13, Q17 — re-homed), and his ruling G19 on the debt payment rule had to be carried into the declaration or the row would have lost it.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "The build caught three things: the multi-screen tab never printed declared figures at all (a gap in the rule-11 machinery — fixed), five more of his questions lost their row (Q10-Q13, Q17 — re-homed), and his ruling G19 on the debt payment rule had to be carried into the declaration or the row would have lost it."
+   }
+  },
+  {
+   "task": "Orchestrator 4 of 12 — MK-NW-O-004 theEmergencyFund (Q-NW-5)",
+   "todo": "Nothing for him on the door itself. Job safety and Stress test now read ONE answer. IT CLOSED A REAL DEFECT: Job safety read the LOGGED average only, while the other two read his ONE essentials figure — the logged average with the typed plan as the fallback (his ruling G21, 2026-09-08). For a person who had logged nothing but typed $4,000 a month, Job safety showed essentials of $0, so the emergency-fund target it set was $0 and the gap was $0: it told them they needed nothing. The other two screens showed $4,000 that same day.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts · emergency-fund.test.ts (6 laws) · src/__tests__/guard_one_door_emergency_fund.test.ts · JobSafetyScreen.tsx · StressTestScreen.tsx",
+   "comments": "My own file failed the canon guard — I had written \"cushion\", \"must-pay bills\" and \"you typed\". The door is named theEmergencyFund now.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "My own file failed the canon guard — I had written \"cushion\", \"must-pay bills\" and \"you typed\". The door is named theEmergencyFund now."
+   }
+  },
+  {
+   "task": "Net worth’s emergency fund — both numbers, and the debt payments in them",
+   "todo": "SETTLED by him 2026-09-28: \"give both numbers\" and \"What about credit card debt, HELOC, car loan?\" The screen now shows BOTH runways — on essentials, and at the planned spend — so neither is hidden behind one divisor. And BOTH now carry the debt minimums, which were in neither figure before he asked: a household with a $250 car loan, a $120 card and a $200 HELOC had $570/month missing, so its emergency fund read longer than it is. The mortgage is never counted twice — where a Rent / Mortgage budget carries it, its minimum is left out.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-27",
+   "ref": "src/screens/NetWorthScreen.tsx (the held-back line, with the reason in the code) · MK-NW-O-004 theEmergencyFund · MK-NW-M-013 · MK-NW-M-014",
+   "comments": "On the pinned test household the figure moved 2.0 → 2.4 months: essentials ($3,600) instead of planned spend ($4,500) makes it longer, the $150 Visa minimum makes it shorter, and the $2,400 mortgage is correctly excluded. Three new figures declared: MK-NW-M-046, MK-NW-M-047, MK-NW-M-048.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "On the pinned test household the figure moved 2.0 → 2.4 months: essentials ($3,600) instead of planned spend ($4,500) makes it longer, the $150 Visa minimum makes it shorter, and the $2,400 mortgage is correctly excluded. Three new figures declared: MK-NW-M-046, MK-NW-M-047, MK-NW-M-048."
+   }
+  },
+  {
+   "task": "A mortgage was about to be counted twice in the emergency fund",
+   "todo": "Nothing for him — caught and fixed the same hour. My guard against double-counting read `type === \"mortgage\"`, but the field is `debt_type` and its values are upper case (\"MORTGAGE\"), so it matched nothing: the test household's $2,400 mortgage was counted BOTH as its $2,300 Rent / Mortgage budget and again as a debt. The pinned figure caught it, not my reading.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts · emergency-fund.test.ts (\"a mortgage is never counted twice\")",
+   "comments": "Same class as the canon guard misses this week: a rule written against a shape the data does not have.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Same class as the canon guard misses this week: a rule written against a shape the data does not have."
+   }
+  },
+  {
+   "task": "Orchestrators 5 and 6 of 12 — MK-NW-O-005 theHolding (Q-NW-3) and MK-NW-O-006 theAlternativesOutlook (Q-NW-6)",
+   "todo": "Nothing for him — neither carried a decision: one screen, one question each. The holding page assembled its answer from six functions plus its own dividend filter; it asks once now. Two refusals moved into the door where a screen cannot forget them: with NO price a holding shows WHAT YOU PAID and states no gain at all (never a $0 position, which would quietly shrink the whole portfolio), and a dividend record belongs to a holding only when it NAMES that ticker. The alternatives forecast now refuses entirely when nothing is held, because a $0 forecast reads as a forecast. NET WORTH IS NOW COMPLETE: 6 of 6.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "MoneyKeel/functions/networth-and-performance/holding.ts (+ test, 6 laws) · alternatives-outlook.ts (+ test, 3 laws) · src/__tests__/guard_one_door_holding.test.ts · HoldingDetailScreen.tsx · OtherInvestmentsScreen.tsx",
+   "comments": "10 more figures moved out of the hand-typed lists; three of his questions (Q07, Q20, Q21) re-homed on the figures they ask about. 2,917 tests green.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "10 more figures moved out of the hand-typed lists; three of his questions (Q07, Q20, Q21) re-homed on the figures they ask about. 2,917 tests green."
+   }
+  },
+  {
+   "task": "Orchestrators 7 and 8 of 12 — MK-PF-O-001 thePerformance (Q-PF-1) and MK-PF-O-002 theLookBack (Q-PF-2)",
+   "todo": "Nothing for him. The Performance tab and Home now read ONE answer. The screen used to work the whole thing out for itself — the window's records, the flows, the beginning, the walk, the money-weighted return and the yearly-rate rule — while Home printed a return of its own. FOUR RULINGS now live in the door where a screen cannot lose them: one meaning of return (B-97) · the beginning is READ from the record, never back-filled (B-98) · a rate needs something to stand on, so no record and no movement means no figure, never a confident +0.00% · a window longer than a year shows a yearly rate AND the total, both labelled (his ruling, 2026-09-25). The per-account walks use the SAME door, so an account's walk and the all-accounts walk cannot disagree. Photograph byte-identical.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "MoneyKeel/functions/networth-and-performance/performance.ts (+ test, 6 laws) · look-back.ts (+ test, 3 laws) · src/__tests__/guard_one_door_performance.test.ts · PerformanceScreen.tsx · LookBackScreen.tsx · coverage_line.test.tsx",
+   "comments": "8 more figures printed from the code. Two old source-pins now read the door instead of the screen — same purpose, pinned where the rule actually lives.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "8 more figures printed from the code. Two old source-pins now read the door instead of the screen — same purpose, pinned where the rule actually lives."
+   }
+  },
+  {
+   "task": "Orchestrators 9-12 of 12 — the four cash-flow questions that were not blocked",
+   "todo": "Nothing for him. MK-CF-O-005 theContributionRoom (Q-CF-4) — Contribution room, the Tax organizer and Home read one answer, and his three rulings live in it: G1 the age ATTAINED IN THE YEAR (someone turning 50 in December gets the catch-up all year), G10 Medicare bars an HSA entirely rather than reducing it, G36 this month counts as remaining so the per-month figure is not overstated. MK-CF-O-006 theCreditLine (Q-CF-6) — with no limit entered there is NO ratio, because a 0% would read as \"you have used none of your credit\". MK-CF-O-007 theTaxOrganizer (Q-CF-5) — shares the ONE tax function with what sets the band on his pay, and counts what the records show rather than an estimate, because an estimate on a tax page reads as a figure to file. MK-CF-O-008 whatsComing (Q-CF-3) — a bill with no date is not on the calendar, and nothing is called unusual until there is a usual to compare it to.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "MoneyKeel/functions/cashflow/contribution-room.ts · credit-line.ts · tax-organizer.ts · whats-coming.ts (+ tests, 14 laws) · src/__tests__/guard_one_door_cashflow.test.ts · ContributionRoomScreen · CreditScreen · TaxOrganizerScreen · BillCalendarScreen",
+   "comments": "13 more figures printed from the code. 2,942 tests green, every gate passing.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "13 more figures printed from the code. 2,942 tests green, every gate passing."
+   }
+  },
+  {
+   "task": "Orchestrator 12 of 12 — MK-CF-O-009 theMonth (Q-CF-2)",
+   "todo": "Done. Built FROM THE APPROVED DESIGN this time (cash-flow_v01), not from the code: This month spells out every row twice — planned and actual — each ending in its surplus, and Expenses is the detail behind one row of that flow, not a second question. ALL TWELVE QUESTIONS ARE NOW BEHIND THEIR DOORS.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "the Conflicts tab of the orchestrator map, C-2, column G · MoneyKeel/functions/cashflow/spending.ts · this-month.ts · the Map tab, Q-CF-2",
+   "comments": "The conflict C-2 was withdrawn, not answered — the approved design had settled it.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "The conflict C-2 was withdrawn, not answered — the approved design had settled it."
+   }
+  },
+  {
+   "task": "The function MK-CF-O-002 is still named `spending`, a retired word",
+   "todo": "Done 2026-09-28. `spending` is `expenses` — the file, the function, the type and every header. The identifier MK-CF-O-002 is unchanged, as the identifier standard requires.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "MoneyKeel/functions/cashflow/spending.ts · MK-CF-O-002 · canon row 3",
+   "comments": "An identifier is not copy, so no guard catches it — but it is the word he reads on every row of the map.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "An identifier is not copy, so no guard catches it — but it is the word he reads on every row of the map."
+   }
+  },
+  {
+   "task": "WHY the \"work off the latest approved design\" rule failed a third time — found, widened, gated",
+   "todo": "Nothing for him — he asked me to go and check it, and there were two reasons, neither of them \"I forgot\". (1) THE RULE WAS SCOPED TO SCREENS AND MOCKS. The screen standard opens \"every rule a new or changed SCREEN must meet... walked before any MOCK OR SCREEN reaches the founder\", and step 0 says \"for every SCREEN the task touches\". Writing down WHAT A SCREEN ANSWERS draws no mock and changes no screen, so the rule never fired — and both misses came out of that gap. (2) NOTHING ENFORCED IT. Every rule here that holds is held by a test that fails the build; this one was held by my memory, which is what failed. The rule now covers any work that says what a screen shows or answers, and step B5 of the build fails when a question about a screen with an approved design does not record which design it was read from and when.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "Calculation Module code/scripts/check-read-from-approved.py · build-all.sh step B5 · moneykeel_pres_spec_screen-design-standard_v01.md step 0 · moneykeel_orchestrator_questions.json (read_from)",
+   "comments": "On its first run the gate found 11 questions describing screens WITH an approved design and not one citing it. It was never two mistakes. Nine are cited now; Q-PL-1 and Q-PL-2 are on a ratchet, owed and named.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "On its first run the gate found 11 questions describing screens WITH an approved design and not one citing it. It was never two mistakes. Nine are cited now; Q-PL-1 and Q-PL-2 are on a ratchet, owed and named."
+   }
+  },
+  {
+   "task": "The cash-flow mocks are one file",
+   "todo": "Founder approval of moneykeel_pres_mock_cash-flow_v01.html. On his instruction: \"let's discuss how to clean cashflow mockups and combine into one file.\" This month and Expenses come from this-month-and-expenses v07, Income and Debts from money-four-tabs v02, with v02's architecture note. Both are dated in archive/. Look ahead MOVED to documents/networth-and-performance — it opens from Performance, not from a cash-flow tab. Income end-to-end stays its own file: seventeen frames folded in would make one file nobody can read.",
+   "status": "WAITING ON YOU",
+   "date": "2026-09-28",
+   "ref": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_cash-flow_v01.html · the folder README · archive/2026-09-28_*",
+   "comments": "Three things fixed while combining: one month across every frame (the lifted ones said July), the duplicated tab headings, and the missing charset.",
    "_written": {
     "status": "WAITING ON YOU",
-    "comments": "Same class as the rulings miss: one file read as if it were the whole record."
+    "comments": "Three things fixed while combining: one month across every frame (the lifted ones said July), the duplicated tab headings, and the missing charset."
+   }
+  },
+  {
+   "task": "Ten live mocks had no <meta charset> — a browser had to guess",
+   "todo": "Nothing for him — fixed. Every mock is UTF-8 and every frame carries · and — and ’, but without the declaration the browser guesses the encoding, and when it guesses wrong the whole page renders as mojibake. Found by accident while rendering the combined file. Four mocks already declared it; the other ten now do.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "all ten live mocks under MoneyKeel/documents/**",
+   "comments": "Worth a guard in the mock-canon test — a mock without a charset is a mock that can render as nonsense on someone else's machine.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Worth a guard in the mock-canon test — a mock without a charset is a mock that can render as nonsense on someone else's machine."
+   }
+  },
+  {
+   "task": "ALL TWELVE ORCHESTRATORS ARE BUILT",
+   "todo": "Nothing for him. Net worth 6, Performance 2, Cash flow 4 — every question on the map that had one to build is behind its door, each with its own tests and a guard that stops a screen reaching past it. 60 figures moved out of the hand-typed lists and are PRINTED from the code. What is left of the orchestrator plan is its own phases 3-6: the pilot through the six steps, \"will my money last\" (16 files, 65 places — the big one), the rest by blast radius, and turning every ratchet into a wall.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "MoneyKeel/functions/networth-and-performance/ · MoneyKeel/functions/cashflow/ · the nine guard_one_door_* tests",
+   "comments": "2,947 tests green, every gate passing, nothing committed.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "2,947 tests green, every gate passing, nothing committed."
+   }
+  },
+  {
+   "task": "The twelve doors carried identifiers the register never issued",
+   "todo": "Nothing for him — found, analysed and fixed, with a guard so it cannot recur. Starting step 6 I compared each door against the register and 26 references across 20 files named numbers that had never been issued to those functions. TWO FAULTS UNDERNEATH: (1) I wrote the ORCHESTRATOR marker as a plain block comment, which the header generator OWNS and overwrites — so all twelve doors lost it on the first build and two were typed F instead of O; the marker is a doc comment now, which the generator cannot touch. (2) The register is keyed by NAME, so renaming a function minted a NEW number and stranded the old one on a dead name — `spending`→`expenses` left MK-CF-O-002 on the dead name, and `theCushion`→`theEmergencyFund` did the same. A rename is recorded in the register now and the number follows the FUNCTION, not the string; MK-CF-O-009 and MK-NW-F-074, minted by those renames, are retired with their reasons.",
+   "status": "CODED, NOT VERIFIED",
+   "date": "2026-09-28",
+   "ref": "Calculation Module code/scripts/moneykeel_functions.py (RENAMED, _record_rename, _retire) · moneykeel_function_register.json (renamed, retired) · src/__tests__/guard_identifiers_match_register.test.ts · 20 files",
+   "comments": "The new guard found a 27th on its first run, and that one predates me: FilingStatusScreen named MK-CF-F-099 taxOwedFor, but F-099 is deductionFor and taxOwedFor is F-101 — a comment sending the next reader to the wrong function. This is what step 6 is for: the file and the code have to agree, and until now nothing checked that they did.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "The new guard found a 27th on its first run, and that one predates me: FilingStatusScreen named MK-CF-F-099 taxOwedFor, but F-099 is deductionFor and taxOwedFor is F-101 — a comment sending the next reader to the wrong function. This is what step 6 is for: the file and the code have to agree, and until now nothing checked that they did."
+   }
+  },
+  {
+   "task": "STEP 6 OF THE SIX IS DONE — every figure on the twelve doors carries a worked example that RUNS",
+   "todo": "Nothing for him unless he wants to read one. 93 of the 102 declared figures now carry a concrete case in plain English — these inputs, this answer — and src/__tests__/worked_examples.test.ts builds that case, calls the REAL orchestrator and fails the build when the answer on the row and the answer the code gives differ by a character. The master file PRINTS the example in a new column, so it is a printout of something that executed rather than something I typed. The nine without one are figures the door hands back no value for (a sentence a screen composes itself); they sit on a ratchet that may only fall. Proved it bites: changing one answer from 5.3 to 5.4 months turned the build red.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "src/__tests__/worked_examples.test.ts · MoneyKeel/functions/_figure-spec.ts (the `worked` shape and writeFigure) · the master file, column 'Worked example' on networth / performance / cashflow / menu / multiple_screens",
+   "comments": "This is the step the objectives standard names: “the row's worked example runs through the real orchestrator, the identifier joins them, then: file and code are both updated and they match 100%.” It had never been done for any question. The writing of a figure also moved into ONE place (writeFigure) — an example formatted by a second copy of the rounding would prove nothing about what a person sees.",
+   "date": "2026-09-28",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "This is the step the objectives standard names: “the row's worked example runs through the real orchestrator, the identifier joins them, then: file and code are both updated and they match 100%.” It had never been done for any question. The writing of a figure also moved into ONE place (writeFigure) — an example formatted by a second copy of the rounding would prove nothing about what a person sees."
+   }
+  },
+  {
+   "task": "MK-CF-M-037 Take-home each month — the total disagreed with its own lines by the spouse's 401(k); HE HAD ALREADY RULED IT (2026-09-12), so it is fixed",
+   "todo": "Nothing for him — I was wrong to bring this as a question. He ruled it on 2026-09-12 on income-end-to-end v07: “one card disagreeing with itself; corrected to the take-home line.” I found the ruling in the design Changelog after he told me to go back and check. Root cause: MK-CF-F-060 salaryGrossByMonth sums EVERY earner's wage (his ruling 2026-08-27) but the 401(k) taken off that household gross was written as the first earner's alone, so a spouse's was never subtracted from the take-home OR the taxable base. Fixed by MK-CF-F-206 householdK401ByMonth at both sites, per earner, in the months that earner is paid. The Income screen's total now equals its two lines ($9,398). No other figure moved — 2,958 tests green.",
+   "status": "TESTED, NOT VERIFIED",
+   "ref": "src/domain/income/onboarding.ts MK-CF-F-206 householdK401ByMonth (two call sites) · src/__tests__/guard_total_agrees_with_its_lines.test.ts · the persona twoEarnersBoth401k · ruling G37 in moneykeel_rulings.json · MK-CF-M-037 on the master",
+   "comments": "THE LESSON IS ABOUT ME: the 2026-09-12 ruling lived in the design Changelog and the mock, and in NO ledger, NO standard and NO test — so nothing in the code held it and it was re-broken one screen over. Third appearance of one class (B05 2026-08-26; the 2026-08-27 row “a second implementation cannot be fixed by fixing the first”; this). It is now ruling G37 with a test. SECOND LESSON: all six personas passed the whole time because not one had a spouse with their own wage AND their own 401(k) — a shape missing from the personas is missing from every guard that walks them.",
+   "date": "2026-09-28",
+   "_written": {
+    "status": "TESTED, NOT VERIFIED",
+    "comments": "THE LESSON IS ABOUT ME: the 2026-09-12 ruling lived in the design Changelog and the mock, and in NO ledger, NO standard and NO test — so nothing in the code held it and it was re-broken one screen over. Third appearance of one class (B05 2026-08-26; the 2026-08-27 row “a second implementation cannot be fixed by fixing the first”; this). It is now ruling G37 with a test. SECOND LESSON: all six personas passed the whole time because not one had a spouse with their own wage AND their own 401(k) — a shape missing from the personas is missing from every guard that walks them."
+   }
+  },
+  {
+   "task": "NICE TO HAVE — the Income screen’s “=” row names money its lines do not: a server’s tips, a retiree’s pension",
+   "todo": "PARKED by the founder, 2026-09-28: “let’s not worry about it right now. Park it as a nice to have feature.” Nothing to do unless he picks it up. What it is: the total is RIGHT on both shapes; the list of lines above it is incomplete, because the lines are built from wages and rent only. hourlyServer has $600/month of tips inside the total with no tips line; retiree75 has $3,500/month of pension and Social Security with no line at all. If it is ever taken up it needs a mock first, because it adds rows to an approved screen.",
+   "status": "NICE TO HAVE — PARKED",
+   "ref": "MoneyKeel/functions/cashflow/income-summary.ts, the lands.lines list · MK-CF-M-038 each source of take-home · personas hourlyServer and retiree75 · ruling G37 (notes)",
+   "comments": "Found by the G37 guard. Parked, not closed — the guard asserts the rule only on twoEarnersBoth401k, so it holds the wage case without failing on the two parked shapes.",
+   "date": "2026-09-28",
+   "_written": {
+    "status": "NICE TO HAVE — PARKED",
+    "comments": "Found by the G37 guard. Parked, not closed — the guard asserts the rule only on twoEarnersBoth401k, so it holds the wage case without failing on the two parked shapes."
+   }
+  },
+  {
+   "task": "Every declared row on the master was shifted one column right, and its ROW VERIFIED text fell off the sheet",
+   "todo": "Nothing for him — fixed. declared_row wrote SIX blank values for the FIVE columns between 'Date last modified' and 'ROW VERIFIED', so from that point every declared figure's row was one column out and the last column was truncated away entirely. His founder-comment column, my answer column and the three inputs columns were all showing their neighbour's content.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "Calculation Module code/scripts/build-moneykeel-master.py, declared_row",
+   "comments": "Found by the worked-example column landing in the wrong place. It had been wrong since the declared rows were first printed; nothing caught it because a shifted row is still a row.",
+   "date": "2026-09-28",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "Found by the worked-example column landing in the wrong place. It had been wrong since the declared rows were first printed; nothing caught it because a shifted row is still a row."
+   }
+  },
+  {
+   "task": "I hand-edited the workbook instead of its source, and the next build wiped four rows",
+   "todo": "Nothing for him — the rows are in moneykeel_workplan.json now, which is where they survive. I appended straight to moneykeel_calc_plan_workplan_v01.xlsx; build-workplan.py regenerates that workbook from the JSON and reads back only his Status and Comments columns, so four of my rows disappeared on the next build-all. Caught by the row count falling from 163 to 161.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "Calculation Module code/scripts/moneykeel_workplan.json (the source) · build-workplan.py · the same class as 'the master is BUILT — hand edits die'",
+   "comments": "The rule already existed for the master file and I did not apply it to the tracker. Any generated workbook has a source; the workbook is never the place to write.",
+   "date": "2026-09-28",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "The rule already existed for the master file and I did not apply it to the tracker. Any generated workbook has a source; the workbook is never the place to write."
+   }
+  },
+  {
+   "task": "HOW HE CAN TRUST IT — the honest number: 195 of his 238 recorded decisions reach NO ruling, and I reported 'all 42 clean' an hour earlier because I built the gate from memory",
+   "todo": "HIS QUESTION, 2026-09-28: “How do I trust what you built actually aligns with my rulings and mockups - considering you missed it 4 times.” Then: “Do you not have a rule never to work off memory?” Yes — and I broke it inside the same hour I was explaining it. I built step B6 to read the Changelog's 'Approved by' column as .startswith('JJ') from memory of what that column looked like, instead of reading its values. It says “JJ” on 42 rows and “Founder (chat 2026-08-11)”, “Founder — DECIDED 2026-07-28”, “Approved mock is the spec” and a dozen other forms on 196 more. 238 of the 251 rows record a decision of HIS. So the gate printed ‘✓ all 42 reach the ledger’ while 196 of his decisions sat outside its net — a guard that reports clean without looking, which is the fault CLAUDE.md already warns about from the orphan-route guard being built too narrow three times. THE TRUE STATE, now that it reads the column: 43 of 238 anchored, 195 anchored to NOTHING. Nineteen months of his decisions — 21 from July, 154 from August — are held by a changelog row and nothing else. TO DO: work the 195 down. Each one becomes a ruling with the test that holds it, or is recorded as not a ruling with the reason. The ratchet is set to 195 and may only fall, and every build prints the number.",
+   "status": "TO DO",
+   "ref": "Calculation Module code/scripts/check-changelog-anchored.py (step B6) · moneykeel_changelog_anchors.json (42 entries, written by hand) · rulings G38–G48 in moneykeel_rulings.json · build-all.sh step B6",
+   "date": "2026-09-28",
+   "comments": "WHAT I SHOULD HAVE SAID FIRST TIME: there is no single place where all his decisions are logged. The rulings ledger is MEANT to be it — 167 rulings, readable on the master file's `rulings` tab in his own words with the proof beside each — but it starts in August 2026 and carries 43 of the 238 decisions his own Changelog records. Decisions also live in: the design Changelog (251 rows), the standards documents, CLAUDE.md's standing orders, the working plan, and his -jj feedback workbooks. Telling him to ‘check the rulings ledger’ was advice I had not verified.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "WHAT I SHOULD HAVE SAID FIRST TIME: there is no single place where all his decisions are logged. The rulings ledger is MEANT to be it — 167 rulings, readable on the master file's `rulings` tab in his own words with the proof beside each — but it starts in August 2026 and carries 43 of the 238 decisions his own Changelog records. Decisions also live in: the design Changelog (251 rows), the standards documents, CLAUDE.md's standing orders, the working plan, and his -jj feedback workbooks. Telling him to ‘check the rulings ledger’ was advice I had not verified."
+   }
+  },
+  {
+   "task": "My worked example for the emergency fund was incoherent — it budgeted $2,300 for a $2,400 mortgage",
+   "todo": "Nothing for him — fixed, and he found it: “when budget is $2,300 rent / mortgage, why is debt $2,400/month for mortgage?” Both are $2,400 now. It moved the answer, because the door uses the BUDGET figure and leaves the mortgage debt’s minimum out so the home is not counted twice: the emergency fund reads 5.2 months, not 5.3, and eight of the ten answers on that door changed. The worked-example guard caught every stale one the moment the fixture changed, which is what it is for.",
+   "status": "TESTED, NOT VERIFIED",
+   "ref": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts (the EXAMPLE fixture and all ten answers) · src/__tests__/worked_examples.test.ts",
+   "date": "2026-09-28",
+   "comments": "A worked example has to be a household that could exist, or it is not a case anyone can follow — the same rule as numbers inside a mock having to add up. I wrote one that could not.",
+   "_written": {
+    "status": "TESTED, NOT VERIFIED",
+    "comments": "A worked example has to be a household that could exist, or it is not a case anyone can follow — the same rule as numbers inside a mock having to add up. I wrote one that could not."
+   }
+  },
+  {
+   "task": "When the Rent / Mortgage budget and the mortgage debt disagree, the app is silent about it",
+   "todo": "YOUR CALL. Exposed by your question above. A mortgage can be entered twice — as the Rent / Mortgage budget line and as a Mortgage debt — and the emergency fund deliberately leaves the debt’s minimum out so the home is not counted twice. That means it takes the BUDGET figure: someone who budgets $2,300 for a mortgage that actually costs $2,400 is read $100/month light on both runways. Counting both would overstate the whole payment, which is far worse, so the choice stands. But the app does not TELL them the two disagree. Should the screen say so, and which figure should win?",
+   "status": "WAITING ON YOU",
+   "ref": "MK-NW-M-047 (the finding is on its master row) · MK-NW-O-004 theEmergencyFund, the housingBudgeted guard",
+   "date": "2026-09-28",
+   "comments": "Not a bug — a deliberate design choice whose edge is not surfaced to the person.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "Not a bug — a deliberate design choice whose edge is not surfaced to the person."
+   }
+  },
+  {
+   "task": "THE DECISION LOG IS BUILT AND COMPLETE — 591 decisions from all five sources, every one in plain English",
+   "todo": "Open MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx. Ten tabs: Read me, ALL DECISIONS (the authoritative list), then one per parent screen — multiple_screens 149, process-and-standards 128, plan 96, networth 92, cashflow 51, performance 39, home 35, menu 1. The per-screen tabs are VIEWS of the same rows, printed in one pass, so they cannot drift. 31 columns, each designed against a specific miss, with the miss named beside it on the Read me tab. His three required columns (date decided, source, EXCEPTIONS) are in the first screen, and WHAT IS THE DECISION? sits immediately after his own words. ALL FIVE SOURCES ARE SWEPT: the design Changelog (every version), the retired rulings ledger, his -jj feedback and audit workbooks, the standards and the mocks, and the requirements workbooks. Nothing is edited in the workbook — it is printed from moneykeel_decisions.json at step A3 of the build.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx · moneykeel_decisions.json (the source) · extract-decisions.py · build-decision-log.py · moneykeel_decision_schema.py · moneykeel_decision_tabs.py · check-rulings-in-file.py (re-pointed) · the naming standard, sub-folder 8 and type `log`",
+   "date": "2026-09-28",
+   "comments": "THREE FAULTS FOUND AND FIXED WHILE BUILDING IT, each recorded because each is a class: (1) the first key was the source FILE, which turned 251 decisions into 561 rows; (2) the feedback sweep read MY verdict column and added 285 rows whose whole content was ‘AGREE’ or ‘PARTLY’; (3) two rows took the wrong answer because a phrase appeared deep in their body — a row about creating a folder took the hide-balances answer. Matching now requires the phrase in the row’s HEADLINE and the longest match wins, never whichever I typed first. A dead-key guard fails the build on a written sentence that reaches no row — it caught 26 on its first run, whose sentences existed and reached nobody.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "THREE FAULTS FOUND AND FIXED WHILE BUILDING IT, each recorded because each is a class: (1) the first key was the source FILE, which turned 251 decisions into 561 rows; (2) the feedback sweep read MY verdict column and added 285 rows whose whole content was ‘AGREE’ or ‘PARTLY’; (3) two rows took the wrong answer because a phrase appeared deep in their body — a row about creating a folder took the hide-balances answer. Matching now requires the phrase in the row’s HEADLINE and the longest match wins, never whichever I typed first. A dead-key guard fails the build on a written sentence that reaches no row — it caught 26 on its first run, whose sentences existed and reached nobody."
+   }
+  },
+  {
+   "task": "THE DECISION LOG’S OWN GAPS — 41 rows still need his wording, 248 name no test",
+   "todo": "Two gaps remain, and both have their plan ON THE ROW. (1) 41 rows are CONFIDENCE LOW — the source recorded what I BUILT, not what he SAID. All four outstanding sources are now swept and none of them held his wording for these, so the next step is the short list that goes to him. (2) The proof column: rows naming no test are the number that matters most. THE FOUR SOURCES ARE NO LONGER OUTSTANDING — they are swept, and they added 184 decisions that were in no ledger plus a second source on 200 rows already there.",
+   "status": "TO DO",
+   "ref": "the confidence and proof columns of ALL DECISIONS · extract-decisions.py (sweep_changelog, sweep_rulings are written; four sweeps to add)",
+   "date": "2026-09-28",
+   "comments": "Said plainly so the file is not mistaken for complete: it holds every decision in the design Changelog and the rulings ledger, and none yet from the standards, requirements, audit or mock files. Decisions made only in chat and never written down are in none of these sources and remain the hole.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Said plainly so the file is not mistaken for complete: it holds every decision in the design Changelog and the rulings ledger, and none yet from the standards, requirements, audit or mock files. Decisions made only in chat and never written down are in none of these sources and remain the hole."
+   }
+  },
+  {
+   "task": "WHAT IS THE DECISION? — all 591 rows written in plain English, and the gate keeps it that way",
+   "todo": "DONE. Every one of the 591 rows is written in words a person can read, with several decisions in one row numbered 1. 2. 3. HIS OWN WORDS LEAD, VERBATIM — his instruction of 2026-09-29, ‘for these the text in \" \" is better to understand. leave that as is’ — and my explanation follows. The count is now a GATE, not a ratchet: a new row arriving unwritten fails the build.",
+   "status": "CODED, NOT VERIFIED",
+   "ref": "moneykeel_decision_plain.py (HAND_WRITTEN) · the WHAT IS THE DECISION? and 'Is the plain-English written?' columns of the decision log · moneykeel_decision_schema.py",
+   "date": "2026-09-28",
+   "comments": "I tried it mechanically first and threw it away: a glossary swapping each code word for plain ones turned his own example into ‘the rule for which figure an account’s balance comes from gains the adding up what the account holds instead’ — worse than the jargon. Swapping words is not writing a sentence. The numbering is mechanical; the sentences are written by hand, row by row.",
+   "_written": {
+    "status": "CODED, NOT VERIFIED",
+    "comments": "I tried it mechanically first and threw it away: a glossary swapping each code word for plain ones turned his own example into ‘the rule for which figure an account’s balance comes from gains the adding up what the account holds instead’ — worse than the jargon. Swapping words is not writing a sentence. The numbering is mechanical; the sentences are written by hand, row by row."
+   }
+  },
+  {
+   "task": "PLAN — the 41 low-confidence decisions get his own words back (three steps, in order)",
+   "todo": "His question, 2026-09-28: “what’s the plan to improve the confidence?” The plan is on every one of those rows now, in the column HOW THIS ROW GETS HIS WORDS, so it is not a promise in a message. ALL 41 came from the design Changelog alone, which is the reason they are LOW: that file records what I BUILT. STEP 1 — sweep the four sources still outstanding (his -jj feedback workbooks and the audit files, the standards, the requirements workbooks, and the mock files’ ‘what changed’ blocks). His actual wording is very likely in one of them, and a match lifts the row to HIGH with NO question to him. STEP 2 — for the 6 rows dated July, look in the build-43 and build-47 feedback workbooks and the July device-test sheets, which is where his wording from before the ledger existed lives; for the 35 from August and September, his column I of the second-verification assessment. STEP 3 — only the residue goes to him: a short list, each row showing what I believe he decided, for a yes or a correction. Never all 41 — asking him to re-decide what he already wrote down is the fault, not the fix.",
+   "status": "TO DO",
+   "ref": "the confidence and 'HOW THIS ROW GETS HIS WORDS' columns of the decision log · moneykeel_decision_plain.py confidence_plan",
+   "date": "2026-09-28",
+   "comments": "41 rows: 6 from July, 28 from August, 7 from September. The count is a ratchet and falls as sources are swept.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "41 rows: 6 from July, 28 from August, 7 from September. The count is a ratchet and falls as sources are swept."
+   }
+  },
+  {
+   "task": "PLAN — the 248 untested decisions get a test, worked BY KIND not one at a time",
+   "todo": "His question, 2026-09-28: “what’s the plan to test them?” On every untested row now, in the column HOW THIS GETS A TEST. Worked by kind, because one guard closes many rows at once:\n· 115 are DESIGN APPROVALS. Proof is not a unit test: it is a mock-match audit (every visible string, in order, diffed against the built screen) plus a row in the design record. Worked per SCREEN — one audit closes every design decision on that screen. Biggest batch, fewest passes.\n· 61 are COPY. Most of this class is ALREADY held by the one-term-per-concept guard, which reads the agreed word list rather than hard-coding it. The work is adding each row’s word to that list, in batches.\n· 30 are FIGURES. Proof is a WORKED EXAMPLE declared on the figure and run through the real door on every build — the machinery finished earlier today. DO THESE FIRST: a wrong number is the one thing that loses trust irrecoverably.\n· 24 are SCREENS. Held by a rendered-strings test or by guards that already exist (edge-to-edge bands, 20-point titles, the type floor). Several are already covered by a guard that does not name them; the work is naming it on the row.\n· 9 are FILES or PROCESS. An `expect` file-check — the mechanism already running for 38 decisions — or a gate script. One line each.\n· 9 NEED READING before anything can be claimed.\nORDER: figures, then files and process (cheapest), then copy in batches, then screens, then the design audits per screen.",
+   "status": "TO DO",
+   "ref": "the 'HOW THIS GETS A TEST' column of the decision log · moneykeel_decision_plain.py proof_plan · worked_examples.test.ts · one_term_per_concept.test.ts · check-rulings-in-file.py",
+   "date": "2026-09-28",
+   "comments": "The classification is read from each row’s own words, not assigned by hand, so it stays right as rows change. 159 of the 407 already name a test; that count is the one to watch and it may only rise.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "The classification is read from each row’s own words, not assigned by hand, so it stays right as rows change. 159 of the 407 already name a test; that count is the one to watch and it may only rise."
+   }
+  },
+  {
+   "task": "CONFIDENCE — 35 decisions need your wording; the list is ready and deliberately short",
+   "todo": "Open MoneyKeel/documents/decision-log/moneykeel_log_wording-asks_v01.xlsx. 35 rows, each showing WHAT I BELIEVE YOU DECIDED in plain English, with two columns for you: YOUR WORDING, and YES / NO / CHANGE. If my version is right, ‘as written’ is the whole answer — you are not being asked to re-decide anything. WHY IT IS ONLY 35: all five sources were swept first and none held your wording for these; and SIX more turned out not to be decisions of yours at all — my own engineering, recorded under an approval column that said JJ for everything that day. Those six are named one by one in the log and are NOT on your list. Anything you leave blank stays marked as my reconstruction, which is honest.",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/decision-log/moneykeel_log_wording-asks_v01.xlsx · build-wording-asks.py · the confidence column of the decision log",
+   "date": "2026-09-29",
+   "comments": "41 were LOW; 6 are mine, 35 are yours. Each answer folds back against its Decision ID, your words verbatim, and the row moves to HIGH.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "41 were LOW; 6 are mine, 35 are yours. Each answer folds back against its Decision ID, your words verbatim, and the row moves to HIGH."
+   }
+  },
+  {
+   "task": "TESTING — 169 of 591 decisions name a test; 422 do not, and each carries its own plan",
+   "todo": "His question, 2026-09-28: ‘what’s the plan to test them?’ STEP ONE IS DONE, and it was the honest one: before writing anything, the suite was read to find decisions ALREADY held by a guard that does not name them. 316 test files read; 10 found, and the link is now on the row. A match needed the test to name an identifier the decision names, or to contain 30+ characters of his own words — a shared ordinary word is not evidence, and a wrong link would report a decision as proved when nothing re-runs it.\nTHE REMAINING 422, by what would prove each (classified from the PLAIN sentence, because the raw changelog text named files and numbers and sent the plan at the wrong work):\n· 94 COPY — most already held by the one-term-per-concept guard; the work is adding each word to the list it reads. Closes in BATCHES.\n· 69 FIGURES — a worked example declared on the figure and run through the real orchestrator every build. DO THESE FIRST: a wrong number is the one thing that loses trust irrecoverably.\n· 65 are QUESTIONS HE ASKED, not decisions — nothing to test until each is answered and the answer is its own row.\n· 64 DESIGN APPROVALS — a mock-match audit per SCREEN, which closes every design decision on that screen at once.\n· 63 SCREENS — a rendered-strings test, or a guard that already exists.\n· 16 FILE or PROCESS — an `expect` file-check, one line each.\n· 15 THINGS HE FOUND — a test that fails if the defect returns, written against his own case.\n· 36 NEED READING before anything can be claimed.\nORDER: figures, then files and process, then copy in batches, then screens, then the design audits per screen.",
+   "status": "TO DO",
+   "ref": "find-tests-for-decisions.py · the proof and HOW THIS GETS A TEST columns of the decision log",
+   "date": "2026-09-29",
+   "comments": "Only 10 were found already covered, which is a small number and worth saying plainly: the matcher is narrow on purpose. 65 of the 422 are questions rather than decisions, so the real body of work is nearer 357.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Only 10 were found already covered, which is a small number and worth saying plainly: the matcher is narrow on purpose. 65 of the 422 are questions rather than decisions, so the real body of work is nearer 357."
    }
   }
  ]

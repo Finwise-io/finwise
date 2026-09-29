@@ -1,12 +1,17 @@
-"""Guard: a FILE-ONLY ruling is proved the same way a code ruling is — by a check that fails if it
-comes back. Each ruling on moneykeel_rulings.json may carry `expect`: a list of
+"""Guard: a FILE-ONLY decision is proved the same way a code decision is — by a check that fails if it
+comes back. Each decision in the DECISION LOG may carry `expect`: a list of
 {tab, key, col, contains | not_contains}, read against the master file on disk after every build.
 Founder question 2026-09-12 ("#6 — why not tested?"): a corrected row with no check was a claim.
+
+RE-POINTED 2026-09-28 from moneykeel_rulings.json to moneykeel_decisions.json, on his instruction that
+the decision log is the one master source for every decision and the `rulings` tab comes off the
+calculation master. The 38 checks came across with their decisions; the enforcement is unchanged, only
+the file it reads them from. A gate was re-pointed here, never dropped.
 """
 import json, os, sys, openpyxl
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 M = os.path.join(ROOT, 'MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx')
-L = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_rulings.json')
+L = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_decisions.json')
 KEYCOL = {'functions_from_code': 'Function ID', 'inputs': 'Input ID', 'Specification': 'No.', 'Reference': 'Item'}
 
 wb = openpyxl.load_workbook(M, read_only=True)
@@ -25,7 +30,7 @@ def cell(tab, key, col):
     return None
 
 failures = []; checked = 0
-for e in json.load(open(L)):
+for e in json.load(open(L))['rows']:
     for x in e.get('expect', []):
         checked += 1
         v = cell(x['tab'], x['key'], x['col'])

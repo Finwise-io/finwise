@@ -444,6 +444,27 @@ def _is_orchestrator(path, line):
     return mark is not None
 
 
+def _record_rename(was, now):
+    """The register remembers that a name was renamed, so the next save does not resurrect it."""
+    import json
+    old = json.load(open(REGISTER)) if os.path.exists(REGISTER) else {}
+    r = dict(old.get('renamed', {}))
+    r.setdefault(was, now)
+    old['renamed'] = r
+    json.dump(old, open(REGISTER, 'w'), indent=1, sort_keys=True)
+
+
+def _retire(number, why):
+    """A number issued by mistake is RETIRED, never reused — the register's own note says so, and the
+    reason is kept with it so the history reads."""
+    import json
+    old = json.load(open(REGISTER)) if os.path.exists(REGISTER) else {}
+    ret = dict(old.get('retired', {}))
+    ret.setdefault(number, why)
+    old['retired'] = ret
+    json.dump(old, open(REGISTER, 'w'), indent=1, sort_keys=True)
+
+
 def _save_register(ident, hi):
     """A number is never reused, so the highest ever issued is kept even if a function is deleted."""
     import json
@@ -456,7 +477,15 @@ def _save_register(ident, hi):
     # minutes after it was written. A save that quietly loses what it did not expect is the same
     # failure as a build that quietly loses an answer.
     out = dict(old)
-    out['issued'] = dict(sorted({**old.get('issued', {}), **ident}.items()))
+    merged = {**old.get('issued', {}), **ident}
+    # A RENAMED NAME IS GONE (2026-09-28). The merge above carries everything the register held, which
+    # is right for a deletion — a number is never reused — but wrong for a rename: it brought the old
+    # name back, so `spending` and `expenses` both held MK-CF-O-002 and two names claimed one number.
+    # A name the caller has dropped ON PURPOSE, because it was renamed, is dropped here too; the
+    # number is not freed, it simply moved with its function.
+    for gone in (old.get('renamed', {}) or {}):
+        merged.pop(gone, None)
+    out['issued'] = dict(sorted(merged.items()))
     out['highest'] = merged_hi
     json.dump(out, open(REGISTER, 'w'), indent=1, sort_keys=True)
 
@@ -472,7 +501,30 @@ def with_ids_and_chains(rows=None, funcs=None):
     # now read from a register on disk. A name already in it keeps its number wherever it moves;
     # only a genuinely new name is issued the next free number in its family.
     ident, hi = _register()
-    issued = False
+    # A RENAME IS THE SAME FUNCTION (2026-09-28). The register is keyed by NAME, so renaming a
+    # function looked like a brand-new one: `spending` → `expenses` kept MK-CF-O-002 on the dead name
+    # and issued MK-CF-O-009 to the live one, and `theCushion` → `theEmergencyFund` did the same. That
+    # breaks rule 1 in the direction that matters — the identifier is supposed to follow the FUNCTION,
+    # not the string. A rename is recorded here, once, and the number follows it; the old name is
+    # struck from `issued` so nothing carries two.
+    RENAMED = {
+        'spending': 'expenses',            # canon row 3: "spending" is retired everywhere (2026-09-12)
+        'theCushion': 'theEmergencyFund',  # same canon: the concept is the Emergency fund
+    }
+    renamed_any = False
+    for was, now in RENAMED.items():
+        if was in ident and now not in ident:
+            ident[now] = ident.pop(was); _record_rename(was, now); renamed_any = True
+        elif was in ident and now in ident:
+            # both exist: the new name was issued its own number before the rename was recorded.
+            # The OLD number wins (it is the one every document already cites) and the number the
+            # rename accidentally minted is retired, never reused.
+            stray = ident.pop(now)
+            ident[now] = ident.pop(was)
+            _retire(stray, f'issued to {now} before the rename from {was} was recorded; {was} already held {ident[now]}')
+            _record_rename(was, now)
+            renamed_any = True
+    issued = renamed_any
     for r in sorted(rows, key=lambda x: (family_of(x['file']), x['file'], x['line'])):
         if r['name'] in ident:
             continue

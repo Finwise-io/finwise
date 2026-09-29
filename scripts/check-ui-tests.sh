@@ -8,12 +8,27 @@
 set -uo pipefail
 BASE="${1:-origin/main}"
 
+# A GATE THAT CANNOT SEE MUST NOT SAY "ALL CLEAR" (2026-09-26). On this machine `git` refused to run
+# — macOS wants `sudo xcodebuild -license accept` — and every git call above failed silently, leaving
+# `changed` empty. The gate then printed "✓ no UI changes" over a day of UI changes. A gate that cannot
+# read the repository now FAILS, which is the only honest answer it can give.
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+  echo "✗ QUALITY GATE CANNOT RUN — git is not answering in $(pwd)."
+  echo "   On macOS this is usually the Xcode licence: run  sudo xcodebuild -license accept"
+  echo "   Until git answers, this gate cannot tell whether UI changed, and does not pretend to."
+  exit 1
+fi
+
 if git rev-parse --verify --quiet "$BASE" >/dev/null 2>&1; then
   MB="$(git merge-base "$BASE" HEAD 2>/dev/null || echo HEAD~1)"
 else
   MB="HEAD~1"   # base ref unavailable (e.g. shallow CI) — fall back to the previous commit
 fi
-changed="$(git diff --name-only "$MB" HEAD)"
+if ! changed="$(git diff --name-only "$MB" HEAD 2>&1)"; then
+  echo "✗ QUALITY GATE CANNOT RUN — git diff failed against $MB:"
+  echo "     $changed"
+  exit 1
+fi
 
 ui_changed="$(echo "$changed" | grep -E '^src/(screens|components)/.*\.[tj]sx?$' | grep -vE '(\.test\.|__tests__/)' || true)"
 test_changed="$(echo "$changed" | grep -E '(\.test\.[tj]sx?$|/__tests__/)' || true)"

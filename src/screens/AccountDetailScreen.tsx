@@ -13,7 +13,8 @@ import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 import { periodReturnSince } from '../domain/performance';
 import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
-import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
+import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
+import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
@@ -123,33 +124,21 @@ export default function AccountDetailScreen() {
 
   // APPROVED account-detail mock (2026-07-19): connected accounts show WHAT'S INSIDE · BY TYPE —
   // every holding with a readable name, class dot and value; the cash sleeve; each option row.
+  // ONE DOOR (MK-NW-O-002 theAccount, Q-NW-2 ruled 2026-09-27). The class breakdown, the account's
+  // income, each holding's income and the record count were assembled here, in five pieces, while
+  // the itemise screen assembled its own — which is how two screens come to disagree about what one
+  // account holds. The question is asked once now, and both findings it carries (an untickered
+  // record names no holding; a hand-entered lump has no inside) live in the door, not in a screen.
+  const answer = theAccount({ account, transactions: (store.transactions ?? []) as any[] });
   const breakdown = accountClassBreakdown(account);
   const breakdownClasses = breakdown ? (Object.keys(breakdown) as (keyof typeof breakdown)[]).filter((k) => breakdown[k] !== 0) : [];
-  // income for a holding = its own ledger rows (never estimated); blank when the broker shared none
   const ledger = ((store.transactions ?? []) as any[]).filter((t) => t.account_id === account.asset_id);
   const incomeOf = (rw: any): string => {
-    const tk = String(rw.name ?? '').split(' · ')[0].trim().toUpperCase();
-    // FOUNDER FINDING 2026-08-11: a ledger row with NO ticker used to match EVERY non-stock holding,
-    // so the whole account's untickered income was pinned onto each row — a CD showed "$16,907
-    // dividends", which a CD cannot pay, and two CDs showed the same figure twice. Income belongs to
-    // a holding only when the source actually says which holding it came from. Untickered income is
-    // real and is still counted — at the ACCOUNT level, in the Income figure above, where it belongs.
-    const rowsFor = !tk ? [] : ledger.filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST')
-      && !!t.ticker && String(t.ticker).toUpperCase() === tk);
-    // ONE flows function (Track 1 step 3) — abs-summing here made a reversal add, the $2,387 class
-    const tkFlows = personalFlowTotals(rowsFor);
-    const div = tkFlows.dividends.toNumber(2);
-    const int = tkFlows.interest.toNumber(2);
-    const parts: string[] = [];
-    if (div > 0) parts.push(`${maskedMoney(Math.round(div))} dividends`);
-    if (int > 0) parts.push(`${maskedMoney(Math.round(int))} interest`);
-    return parts.join(' · ');
+    const words = answer.incomeOfHolding(String(rw.name ?? '').split(' · ')[0].trim()).words;
+    return words.replace(/(\d+) dividends/, (_m, n) => `${maskedMoney(Number(n))} dividends`)
+                .replace(/(\d+) interest/, (_m, n) => `${maskedMoney(Number(n))} interest`);
   };
-  // the account's own income — no estimate ever fills a blank. It is NOT a headline figure any more
-  // (mock v14): it sits with the holding that earned it, and the account's total is said out loud in
-  // the note under BY CATEGORY & HOLDING, where the mock says it.
-  const acctFlows = personalFlowTotals(ledger.filter((t) => t.type === 'DIVIDEND' || t.type === 'INTEREST'));
-  const acctIncome = acctFlows.dividends.add(acctFlows.interest).toNumber(2);
+  const acctIncome = answer.income;
 
   // ── THE WINDOW ("THIS ACCOUNT · SINCE JUL 19" on the approved mock) ─────────────────────────
   // This page carries no window picker, so it answers ONE window: since the daily record began —
@@ -209,7 +198,7 @@ export default function AccountDetailScreen() {
         color: ClassMarkColors[cls2], value, cls: cls2, ticker: p.ticker,
       };
     }),
-    ...(((account as any).cash_balance ?? 0) !== 0 ? [{ key: '__cash', name: 'Cash in the account', sub: undefined as string | undefined, color: ClassMarkColors.cash, value: (account as any).cash_balance as number, cls: 'cash' }] : []),
+    ...(((account as any).cash_balance ?? 0) !== 0 ? [{ key: '__cash', name: 'Cash in this account', sub: undefined as string | undefined, color: ClassMarkColors.cash, value: (account as any).cash_balance as number, cls: 'cash' }] : []),
     ...(((account.option_holdings ?? []) as any[]).map((o) => ({
       key: o.label, name: o.label,
       sub: `option — ${Math.abs(o.contracts)} contract${Math.abs(o.contracts) === 1 ? '' : 's'}${o.contracts < 0 ? ', short' : ''}`,
@@ -299,7 +288,7 @@ export default function AccountDetailScreen() {
       {/* B47 finding 7 (APPROVED): the class-only view — the slice you tapped is the question */}
       {classView && breakdown ? (
         <View style={s.card}>
-          <SectionBand title={`${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT`} />
+          <SectionBand inCard title={`${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT`} />
           <Text style={s.balance}>{mny((breakdown as any)[classView] || 0)}</Text>
           {/* FOUNDER FINDING 2026-08-11: two bare figures ($224,190 above, $224,690 here) read as a
               mismatch. Say the arithmetic out loud — this slice PLUS everything else IS the total. */}
@@ -420,6 +409,14 @@ export default function AccountDetailScreen() {
             accessibilityLabel="Open the activity records behind this walk">
             <Text style={s.walkNote}>Every line opens the rows behind it ›</Text>
           </TouchableOpacity>
+          {/* the approved design's note under a LINKED account's walk (mock v14, the rebuilt-history
+              phone): where these lines come from, and why an account without a ledger has none. */}
+          {source === 'connected' && (
+            <Text style={s.txnNote}>
+              Every line here comes from {account.institution?.trim() || 'your broker'}’s own records. An account you
+              entered by hand, or a cash balance, has none — so it starts the day you enter it, and says so.
+            </Text>
+          )}
         </View>
       )}
 
@@ -437,7 +434,6 @@ export default function AccountDetailScreen() {
           </View>
           {(['stocks_etf', 'bonds', 'cash', 'alternatives'] as const).map((k) => {
             const inClass = insideRows.filter((rw: any) => rw.cls === k);
-            if (!inClass.length) return null;
             const total = inClass.reduce((t: number, rw: any) => t + (rw.value || 0), 0);
             return (
               <View key={k}>
@@ -450,6 +446,7 @@ export default function AccountDetailScreen() {
                   <Text style={[s.classBandV, s.colValW]}>{mny(total)}</Text>
                   <Text style={[s.classBandV, s.colRetW]}>{classReturnText(k, total, inClass)}</Text>
                 </View>
+                {inClass.length === 0 && <Text style={s.insideEmpty}>Nothing held in this account</Text>}
                 {inClass.map((rw: any) => (
                   <View key={rw.key}>
                     <TouchableOpacity style={s.insideRow} disabled={!rw.posId}
@@ -602,6 +599,16 @@ export default function AccountDetailScreen() {
             </View>
           );
         })}
+        {/* the one line the approved design puts under the list (mock v14, second phone). Each row
+            already says "from E*TRADE" or "you entered this"; this says what that means for what you
+            can do with it — the difference between a record you may fix and one that would be
+            overwritten by the next sync. */}
+        {txns.length > 0 && (
+          <Text style={s.txnNote}>
+            Records from {account.institution?.trim() || 'your broker'} can’t be edited — they are the broker’s own.
+            Anything you add is marked “you entered this” and stays editable.
+          </Text>
+        )}
         {/* THE THREE DOORS (approved mock v14, second phone) — they sit at the foot of the ACTIVITY
             card, in the mock's order and wording. Five separate buttons never read as one thing, and
             two kinds of record had no door at all; each door opens the SAME recorder as before, so
@@ -653,34 +660,43 @@ export default function AccountDetailScreen() {
 
 // ── bond facts, yields, and the rates-move estimate (all from the ONE bonds domain) ──────────
 function BondDetail({ account }: { account: AssetAccount }) {
-  const b = bondInfo(account);
-  if (!(b.face > 0 && b.couponRate > 0 && b.maturity)) return null;   // a bond FUND — no honest bond math
-  const years = yearsToMaturity(b.maturity) ?? 0;   // G11: no maturity date → 0 here only for the words; the yield itself refuses
-  const ytm = approxYTM(b);
-  const cy = currentYield(b);
-  const sens = bondRateSensitivity(b);
-  const matured = years <= 0;
+  // ONE DOOR (MK-NW-O-001 theBonds, Q-NW-4 ruled 2026-09-27). This screen used to call six bond
+  // functions and assemble the answer itself, which is how it and the Bonds screen could disagree.
+  // It now asks the question once and reads the figures off the answer.
+  const answer = theBonds({ accounts: [account], accountId: String(account.asset_id) });
+  const one = answer.one;
+  if (!one || !(one.face > 0 && one.couponRate > 0 && one.maturity)) return null;   // a bond FUND — no honest bond math
+  const { matured, isCD } = one;
+  const years = one.yearsLeft ?? 0;
   return (
     <>
       <View style={s.card}>
         <Text style={s.cardHdr2}>BOND FACTS</Text>
-        <FactRow label="Face value" value={maskedMoney(b.face)} />
-        <FactRow label="Interest payments" value={`${(b.couponRate * 100).toFixed(2)}%/year · ${maskedMoney(annualCoupon(b))}/year`} />
-        <FactRow label="Matures" value={matured ? `${b.maturity} (matured)` : `${b.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`} />
-        {!matured && ytm != null && <FactRow label="Yield if held to maturity" value={`about ${(ytm * 100).toFixed(1)}% · estimate`} />}
-        {cy != null && <FactRow label="Yield on today's value" value={`${(cy * 100).toFixed(1)}%`} />}
+        <FactRow label="Face value" value={maskedMoney(one.face)} />
+        <FactRow label="Interest payments" value={`${(one.couponRate * 100).toFixed(2)}%/year · ${maskedMoney(one.couponPerYear)}/year`} />
+        <FactRow label="Matures" value={matured ? `${one.maturity} (matured)` : `${one.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`} />
+        {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${(one.yieldToMaturity * 100).toFixed(2)}% · estimate`} />}
+        {one.currentYield != null && <FactRow label="Yield on today's value" value={`${(one.currentYield * 100).toFixed(2)}%`} />}
+        {!!one.accruedCaveat && <Text style={s.bondNote}>{one.accruedCaveat}</Text>}
       </View>
-      {sens && (
+
+      {isCD && !matured && (
+        <View style={s.card}>
+          <SectionBand inCard title="IF INTEREST RATES MOVE" />
+          <Text style={s.bondNote}>{one.ratesMoveRefusal}</Text>
+        </View>
+      )}
+      {one.ratesMove && !isCD && (
         <View style={s.card} accessible
-          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${spokenMoney(sens.ratesUp.low)} to ${spokenMoney(sens.ratesUp.high)}. If rates fall one percent, roughly ${spokenMoney(sens.ratesDown.low)} to ${spokenMoney(sens.ratesDown.high)}. Held to maturity, ${spokenMoney(b.face)} comes back if the issuer pays as promised.`}>
+          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${spokenMoney(one.ratesMove.ratesUp.low)} to ${spokenMoney(one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${spokenMoney(one.ratesMove.ratesDown.low)} to ${spokenMoney(one.ratesMove.ratesDown.high)}. Held to maturity, ${spokenMoney(one.face)} comes back if the issuer pays as promised.`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
             <InfoDot term="rateSensitivity" />
           </View>
           <EstimateTag />
-          <Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(sens.ratesUp.low)}–{maskedMoney(sens.ratesUp.high)} (down about {maskedMoney(Math.abs(sens.ratesUp.delta))})</Text>
-          <Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(sens.ratesDown.low)}–{maskedMoney(sens.ratesDown.high)}</Text>
-          <Text style={s.bondNote}>Held to maturity, {maskedMoney(b.face)} comes back — if the issuer pays as promised.</Text>
+          <Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(one.ratesMove.ratesUp.low)}–{maskedMoney(one.ratesMove.ratesUp.high)} (down about {maskedMoney(Math.abs(one.ratesMove.ratesUp.delta))})</Text>
+          <Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(one.ratesMove.ratesDown.low)}–{maskedMoney(one.ratesMove.ratesDown.high)}</Text>
+          <Text style={s.bondNote}>Held to maturity, {maskedMoney(one.face)} comes back — if the issuer pays as promised.</Text>
         </View>
       )}
     </>
@@ -700,7 +716,7 @@ function AltDetail({ account }: { account: AssetAccount }) {
           NOT for an option — a contract has no historical asset-class return. Say the truth instead. */}
       {account.kind === 'options'
         ? <Text style={s.optNote}>Options are contracts — no "typical yearly return" exists for them. Their value moves with the underlying price, time to expiry and volatility.</Text>
-        : <FactRow label="Typical yearly return for this type" value={`~${(ret * 100).toFixed(1)}% · estimate from history`} />}
+        : <FactRow label="Typical yearly return for this type" value={`~${(ret * 100).toFixed(2)}% · estimate from history`} />}
       <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/look-back')}
         accessibilityLabel="Look back: what if this had been in the stock market?">
         <Text style={s.linkTxt}>Look back: what if this had been in the stock market? ›</Text>
@@ -735,8 +751,8 @@ function ReportedReturnCard({ account }: { account: AssetAccount }) {
         </View>
       ) : (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-          <Text style={[s.bondLine, { flex: 1 }]}>{ttm != null ? `${(ttm * 100).toFixed(1)}%` : 'not set — projections use the typical return until you report your own'}</Text>
-          <TouchableOpacity accessibilityRole="button" onPress={() => { setVal(ttm != null ? String((ttm * 100).toFixed(1)) : ''); setEditing(true); }}
+          <Text style={[s.bondLine, { flex: 1 }]}>{ttm != null ? `${(ttm * 100).toFixed(2)}%` : 'not set — projections use the typical return until you report your own'}</Text>
+          <TouchableOpacity accessibilityRole="button" onPress={() => { setVal(ttm != null ? String((ttm * 100).toFixed(2)) : ''); setEditing(true); }}
             accessibilityLabel={ttm != null ? 'Edit reported return' : 'Add reported return'}>
             <Text style={s.linkTxt}>{ttm != null ? 'Edit' : 'Add'}</Text>
           </TouchableOpacity>
@@ -909,6 +925,8 @@ const s = StyleSheet.create({
   insideRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
   insideDot: { width: 9, height: 9, borderRadius: 5 },
   insideSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
+  txnNote: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, paddingHorizontal: Spacing.md, paddingTop: 8, paddingBottom: 4 },
+  insideEmpty: { fontSize: 13, color: Colors.textTertiary, paddingHorizontal: Spacing.md, paddingVertical: 10 },
   optHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginBottom: 4 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
   optLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },

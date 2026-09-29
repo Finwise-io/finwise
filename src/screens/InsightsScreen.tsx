@@ -8,7 +8,8 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { ageFromProfile } from '../utils/persona';
-import { investableAssets, cashTotal, assetClassOf, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding } from '../domain/assets';
+import { assetClassOf, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding } from '../domain/assets';
+import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
@@ -49,8 +50,12 @@ export function useInsights(limit?: number): Insight[] {
     const essentials = essentialsMonthly(store.expenses ?? [], plannedMonthlySpend(op));
     const monthlySpending = essentials?.monthly ?? 0;
     const essentialsLabel = essentials?.label ?? '';
-    const cash = cashTotal(accounts);
-    const investable = investableAssets(accounts);
+    // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27: "Yes - for home, NW tab, and
+    // insights"). Insights took these two its own way; they are the same two the Net worth tab shows,
+    // so they come from the same answer now and the screens cannot disagree about them.
+    const worth = theNetWorth({ uid: String(store.user?.uid ?? 'local'), accounts, debts: store.liabilities ?? [] });
+    const cash = worth.cash;
+    const investable = worth.investable;
     const investAccts = accounts.filter((a: any) => a.tax_bucket !== 'PROPERTY' && a.tax_bucket !== 'CASH');
     const topAccount = investAccts.length ? Math.max(...investAccts.map((a: any) => a.balance || 0)) : 0;
     // holding-level concentration: the SAME shared rule Invest main shows (one concept, one helper)

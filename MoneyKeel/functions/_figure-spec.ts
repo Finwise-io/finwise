@@ -16,6 +16,8 @@
  *  cannot disagree; the file is a printout of the code.
  */
 
+import { formatMoney, formatMoneyCents } from '../../src/domain/_shared/money';
+
 /** How a figure is written down. Drives the rounding, so the precision standard (Q49, 2026-09-09) is
  *  applied by the declaration rather than remembered at each of 242 places that print one. */
 export type FigureUnit =
@@ -28,6 +30,52 @@ export type FigureUnit =
   | 'age'           // a number of years of age
   | 'date'          // a date, already written out
   | 'words';        // a sentence the function composed
+
+
+/** WRITE A FIGURE THE WAY THE SCREEN WRITES IT — one writer, two callers (2026-09-28).
+ *
+ *  It lived inside `src/components/figure.ts`, which reads the store and so can only be called from a
+ *  render. A door's worked example needs the SAME writer — an example whose answer is formatted by a
+ *  second copy of the rounding proves nothing about what a person sees. So the writing moved here,
+ *  where it needs nothing but the declaration, and `fig()` now calls it too. The precision standard
+ *  (Q49) is applied in ONE place; masking stays at the component, which is where the store is.
+ */
+/* ─ MK-XS-F-183 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * writeFigure
+ *
+ * Answers ..... WRITE A FIGURE THE WAY THE SCREEN WRITES IT — one writer, two callers (2026-09-28).
+ *
+ * Formula .....
+ *     spec.refusal   when value = nothing (or !number.is finite(value) when missing or zero)
+ *     body + (opts.spoken ? ` a ${spec.per}` : ` ÷ ${spec.per}`)   when opts.with period and spec.per
+ *     body
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Decides .....
+ *     · Rounds the answer to 1 decimal place.
+ *     · Shows 2 decimal places.
+ *     · Shows 1 decimal place.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-183
+ * Changed ..... not in git yet (—)
+ */
+export function writeFigure(spec: FigureSpec, value: number | null, opts?: { spoken?: boolean; withPeriod?: boolean }): string {
+  if (value == null || !Number.isFinite(value)) return spec.refusal;
+  const body =
+    spec.unit === 'money' ? formatMoney(value)
+    : spec.unit === 'money-cents' ? formatMoneyCents(value)
+    : spec.unit === 'percent' ? `${Math.round(value * 100)}%`
+    : spec.unit === 'percent-2dp' ? `${(value * 100).toFixed(2)}%`
+    : spec.unit === 'months' ? `${(Math.round(value * 10) / 10).toFixed(1)} ${value === 1 ? 'month' : 'months'}`
+    : spec.unit === 'age' ? `${value}`
+    : `${value}`;
+  if (opts?.withPeriod && spec.per) return body + (opts.spoken ? ` a ${spec.per}` : `/${spec.per}`);
+  return body;
+}
 
 export interface FigureSpec {
   /** The words a person reads beside it, exactly as the screen says them. */
@@ -51,6 +99,29 @@ export interface FigureSpec {
   refusal: string;
   /** Anything a reader of the row would otherwise ask. */
   note?: string;
+  /** THE WORKED EXAMPLE (six steps, step 6 — 2026-09-28). One concrete case in plain English, with
+   *  the numbers, that a person can follow by hand: what goes in, and what this figure comes to.
+   *  It is not decoration and it is not a comment — `src/__tests__/worked_examples.test.ts` RUNS it
+   *  through the real orchestrator and fails when the answer here and the answer the code gives
+   *  differ. That is what earns the sentence the objectives standard asks for: *file and code are
+   *  both updated and they match 100%*. Before this, no figure on the master carried one. */
+  worked?: {
+    /** The case, in plain English with its numbers, as it is printed on the master file's row. */
+    given: string;
+    /** What this figure comes to — written EXACTLY as the screen writes it, down to the $ and the
+     *  decimal places. It is checked character for character against what `run` returns. */
+    answer: string;
+    /** THE SAME CASE, AS THE CODE SEES IT. It builds those inputs, calls the REAL orchestrator — not
+     *  a helper beside it, not a copy of the arithmetic — and hands back the raw figure. The test
+     *  writes it with THIS declaration's own unit, through `writeFigure`, which is the writer the
+     *  screen itself prints through, and asserts the result equals `answer` character for character.
+     *  So nothing here re-states the rounding, and the example a person reads on the master file
+     *  cannot drift from the answer the code gives without the build going red.
+     *
+     *  A `words` figure is a sentence the function composed, so there it returns the sentence. */
+    run: () => number | string | null;
+  };
+
   /** The date the founder ruled on this row. Absent means DRAFT: the figure is declared and printed,
    *  and its row on the master says it is still waiting for his verdict (rule 10 — the row before the
    *  code). Nothing about the screen changes when he rules; the row's status does. */
@@ -70,12 +141,26 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-171 earnerPay
+ * Called by ... MK-CF-F-199 ROOM · MK-CF-F-200 LINE
+ *               MK-CF-F-201 INCOME · MK-CF-F-202 TAX
+ *               MK-CF-F-204 line · MK-CF-F-205 COMING
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-O-015 workedLineAmount
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-078 ONE · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-NW-F-081 LB
+ *               MK-NW-F-082 NW · MK-NW-F-083 PERF
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-O-001 basePay
- *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-171 earnerPay
- *               MK-CF-O-004 incomeSummary · MK-CF-O-003 thisMonth
+ * Reaches ..... 42 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-081 LB · MK-CF-F-200 LINE
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-CF-F-199 ROOM · MK-CF-F-202 TAX
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-O-001 basePay
+ *               … and 24 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

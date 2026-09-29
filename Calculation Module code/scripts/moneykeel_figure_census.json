@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-26",
+ "generated": "2026-09-29",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 26"
+     "s": "Sep 29"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "26"
+     "s": "29"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -322,7 +322,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 14 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 17 days old"
     },
     {
      "k": "t",
@@ -482,7 +482,7 @@
     },
     {
      "k": "t",
-     "s": "26"
+     "s": "29"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -800,7 +800,7 @@
     },
     {
      "k": "t",
-     "s": "26"
+     "s": "29"
     },
     {
      "k": "t",
@@ -919,7 +919,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 26, 2026"
+     "s": "YOUR NET WORTH · SEP 29, 2026"
     },
     {
      "k": "a",
@@ -1195,7 +1195,7 @@
     },
     {
      "k": "t",
-     "s": "$180"
+     "s": "$600"
     },
     {
      "k": "t",
@@ -1204,6 +1204,38 @@
     {
      "k": "t",
      "s": "1 month average"
+    },
+    {
+     "k": "t",
+     "s": "0.0 months"
+    },
+    {
+     "k": "t",
+     "s": "at your planned spend —"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "cash ÷"
+    },
+    {
+     "k": "t",
+     "s": "$4,520/month"
+    },
+    {
+     "k": "t",
+     "s": "Both include"
+    },
+    {
+     "k": "t",
+     "s": "$420/month"
+    },
+    {
+     "k": "t",
+     "s": "of debt payments you cannot stop."
     },
     {
      "k": "t",
@@ -1233,7 +1265,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 26, 2026"
+     "s": "YOUR NET WORTH · SEP 29, 2026"
     },
     {
      "k": "a",
@@ -1493,7 +1525,7 @@
     },
     {
      "k": "t",
-     "s": "$180"
+     "s": "$600"
     },
     {
      "k": "t",
@@ -1502,6 +1534,38 @@
     {
      "k": "t",
      "s": "1 month average"
+    },
+    {
+     "k": "t",
+     "s": "0.0 months"
+    },
+    {
+     "k": "t",
+     "s": "at your planned spend —"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "cash ÷"
+    },
+    {
+     "k": "t",
+     "s": "$4,520/month"
+    },
+    {
+     "k": "t",
+     "s": "Both include"
+    },
+    {
+     "k": "t",
+     "s": "$420/month"
+    },
+    {
+     "k": "t",
+     "s": "of debt payments you cannot stop."
     },
     {
      "k": "t",
@@ -1531,7 +1595,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 26, 2026"
+     "s": "YOUR NET WORTH · SEP 29, 2026"
     },
     {
      "k": "a",
@@ -1911,7 +1975,7 @@
     },
     {
      "k": "t",
-     "s": "4.9"
+     "s": "5.7"
     },
     {
      "k": "t",
@@ -1935,7 +1999,7 @@
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "$3,500"
     },
     {
      "k": "t",
@@ -1944,6 +2008,38 @@
     {
      "k": "t",
      "s": "you entered"
+    },
+    {
+     "k": "t",
+     "s": "4.5 months"
+    },
+    {
+     "k": "t",
+     "s": "at your planned spend —"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "t",
+     "s": "cash ÷"
+    },
+    {
+     "k": "t",
+     "s": "$4,400/month"
+    },
+    {
+     "k": "t",
+     "s": "Both include"
+    },
+    {
+     "k": "t",
+     "s": "$300/month"
+    },
+    {
+     "k": "t",
+     "s": "of debt payments you cannot stop."
     },
     {
      "k": "t",
@@ -1973,7 +2069,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 26, 2026"
+     "s": "YOUR NET WORTH · SEP 29, 2026"
     },
     {
      "k": "a",
@@ -2217,7 +2313,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 14 days old"
+     "s": "Linked · 17 days old"
     },
     {
      "k": "t",
@@ -2401,7 +2497,7 @@
     },
     {
      "k": "t",
-     "s": "4.9"
+     "s": "5.7"
     },
     {
      "k": "t",
@@ -2425,7 +2521,7 @@
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "$3,500"
     },
     {
      "k": "t",
@@ -2434,6 +2530,38 @@
     {
      "k": "t",
      "s": "you entered"
+    },
+    {
+     "k": "t",
+     "s": "4.5 months"
+    },
+    {
+     "k": "t",
+     "s": "at your planned spend —"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "t",
+     "s": "cash ÷"
+    },
+    {
+     "k": "t",
+     "s": "$4,400/month"
+    },
+    {
+     "k": "t",
+     "s": "Both include"
+    },
+    {
+     "k": "t",
+     "s": "$300/month"
+    },
+    {
+     "k": "t",
+     "s": "of debt payments you cannot stop."
     },
     {
      "k": "t",
@@ -2463,7 +2591,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 26, 2026"
+     "s": "YOUR NET WORTH · SEP 29, 2026"
     },
     {
      "k": "a",
@@ -2703,7 +2831,7 @@
     },
     {
      "k": "t",
-     "s": "$3,800"
+     "s": "$3,100"
     },
     {
      "k": "t",
@@ -2712,6 +2840,26 @@
     {
      "k": "t",
      "s": "you entered"
+    },
+    {
+     "k": "t",
+     "s": "0.0 months"
+    },
+    {
+     "k": "t",
+     "s": "at your planned spend —"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "cash ÷"
+    },
+    {
+     "k": "t",
+     "s": "$3,800/month"
     },
     {
      "k": "t",
@@ -2741,7 +2889,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 26, 2026"
+     "s": "YOUR NET WORTH · SEP 29, 2026"
     },
     {
      "k": "a",
@@ -2945,7 +3093,7 @@
     },
     {
      "k": "t",
-     "s": "$3,800"
+     "s": "$3,100"
     },
     {
      "k": "t",
@@ -2954,6 +3102,26 @@
     {
      "k": "t",
      "s": "you entered"
+    },
+    {
+     "k": "t",
+     "s": "0.0 months"
+    },
+    {
+     "k": "t",
+     "s": "at your planned spend —"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "cash ÷"
+    },
+    {
+     "k": "t",
+     "s": "$3,800/month"
     },
     {
      "k": "t",
@@ -3386,7 +3554,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 26, 2026"
+     "s": "Sep 29, 2026"
     },
     {
      "k": "a",
@@ -3569,6 +3737,10 @@
      "s": "Retirement (Traditional), $120,000. Expands its walk."
     },
     {
+     "k": "a",
+     "s": "Open Retirement (Traditional) — this account's own page"
+    },
+    {
      "k": "t",
      "s": "▸ Retirement (Traditional)"
     },
@@ -3599,6 +3771,10 @@
     {
      "k": "a",
      "s": "Investments, $45,000. Expands its walk."
+    },
+    {
+     "k": "a",
+     "s": "Open Investments — this account's own page"
     },
     {
      "k": "t",
@@ -3636,7 +3812,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 26, 2026"
+     "s": "Sep 29, 2026"
     },
     {
      "k": "a",
@@ -3867,6 +4043,10 @@
      "s": "Vanguard Brokerage, $0. Expands its walk."
     },
     {
+     "k": "a",
+     "s": "Open Vanguard Brokerage — this account's own page"
+    },
+    {
      "k": "t",
      "s": "▸ Vanguard Brokerage"
     },
@@ -3880,7 +4060,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 14 days old"
+     "s": "Linked · 17 days old"
     },
     {
      "k": "t",
@@ -3897,6 +4077,10 @@
     {
      "k": "a",
      "s": "Fidelity Traditional IRA, $400,000. Expands its walk."
+    },
+    {
+     "k": "a",
+     "s": "Open Fidelity Traditional IRA — this account's own page"
     },
     {
      "k": "t",
@@ -3929,6 +4113,10 @@
     {
      "k": "a",
      "s": "TreasuryDirect Treasury note, $9,800. Expands its walk."
+    },
+    {
+     "k": "a",
+     "s": "Open TreasuryDirect Treasury note — this account's own page"
     },
     {
      "k": "t",
@@ -3966,7 +4154,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 26, 2026"
+     "s": "Sep 29, 2026"
     },
     {
      "k": "a",
@@ -4152,7 +4340,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 26, 2026"
+     "s": "Sep 29, 2026"
     },
     {
      "k": "a",
@@ -6384,11 +6572,19 @@
     },
     {
      "k": "t",
-     "s": "Outflow (expenses + debt)"
+     "s": "Car loan"
     },
     {
      "k": "t",
-     "s": "$4,220"
+     "s": "−$420"
+    },
+    {
+     "k": "t",
+     "s": "Expenses"
+    },
+    {
+     "k": "t",
+     "s": "−$3,800"
     },
     {
      "k": "t",
@@ -6400,7 +6596,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 97 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -6432,7 +6628,7 @@
     },
     {
      "k": "t",
-     "s": "87"
+     "s": "97"
     },
     {
      "k": "t",
@@ -6468,7 +6664,7 @@
     },
     {
      "k": "t",
-     "s": "/ mo"
+     "s": "/month"
     },
     {
      "k": "t",
@@ -6480,7 +6676,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR PLAN BY CATEGORY"
+     "s": "YOUR BUDGET"
     },
     {
      "k": "t",
@@ -6754,11 +6950,19 @@
     },
     {
      "k": "t",
-     "s": "Outflow (expenses + debt)"
+     "s": "Car loan"
     },
     {
      "k": "t",
-     "s": "$4,220"
+     "s": "−$420"
+    },
+    {
+     "k": "t",
+     "s": "Expenses"
+    },
+    {
+     "k": "t",
+     "s": "−$3,800"
     },
     {
      "k": "t",
@@ -6770,7 +6974,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 97 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -6802,7 +7006,7 @@
     },
     {
      "k": "t",
-     "s": "87"
+     "s": "97"
     },
     {
      "k": "t",
@@ -6838,7 +7042,7 @@
     },
     {
      "k": "t",
-     "s": "/ mo"
+     "s": "/month"
     },
     {
      "k": "t",
@@ -6850,7 +7054,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR PLAN BY CATEGORY"
+     "s": "YOUR BUDGET"
     },
     {
      "k": "t",
@@ -7642,11 +7846,27 @@
     },
     {
      "k": "t",
-     "s": "Outflow (expenses + debt)"
+     "s": "Chase Sapphire"
     },
     {
      "k": "t",
-     "s": "$6,000"
+     "s": "−$300"
+    },
+    {
+     "k": "t",
+     "s": "Mortgage"
+    },
+    {
+     "k": "t",
+     "s": "−$1,900"
+    },
+    {
+     "k": "t",
+     "s": "Expenses"
+    },
+    {
+     "k": "t",
+     "s": "−$3,800"
     },
     {
      "k": "t",
@@ -7658,7 +7878,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 97 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -7690,7 +7910,7 @@
     },
     {
      "k": "t",
-     "s": "87"
+     "s": "97"
     },
     {
      "k": "t",
@@ -7726,7 +7946,7 @@
     },
     {
      "k": "t",
-     "s": "/ mo"
+     "s": "/month"
     },
     {
      "k": "t",
@@ -7738,7 +7958,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR PLAN BY CATEGORY"
+     "s": "YOUR BUDGET"
     },
     {
      "k": "t",
@@ -8012,11 +8232,27 @@
     },
     {
      "k": "t",
-     "s": "Outflow (expenses + debt)"
+     "s": "Chase Sapphire"
     },
     {
      "k": "t",
-     "s": "$6,000"
+     "s": "−$300"
+    },
+    {
+     "k": "t",
+     "s": "Mortgage"
+    },
+    {
+     "k": "t",
+     "s": "−$1,900"
+    },
+    {
+     "k": "t",
+     "s": "Expenses"
+    },
+    {
+     "k": "t",
+     "s": "−$3,800"
     },
     {
      "k": "t",
@@ -8028,7 +8264,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 97 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -8060,7 +8296,7 @@
     },
     {
      "k": "t",
-     "s": "87"
+     "s": "97"
     },
     {
      "k": "t",
@@ -8096,7 +8332,7 @@
     },
     {
      "k": "t",
-     "s": "/ mo"
+     "s": "/month"
     },
     {
      "k": "t",
@@ -8108,7 +8344,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR PLAN BY CATEGORY"
+     "s": "YOUR BUDGET"
     },
     {
      "k": "t",
@@ -8564,7 +8800,7 @@
     },
     {
      "k": "t",
-     "s": "Add by hand"
+     "s": "Add an expense by hand"
     },
     {
      "k": "t",
@@ -8910,7 +9146,7 @@
     },
     {
      "k": "t",
-     "s": "payment due in 5 days"
+     "s": "payment due in 2 days"
     },
     {
      "k": "t",
@@ -9100,7 +9336,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 97 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9132,7 +9368,7 @@
     },
     {
      "k": "t",
-     "s": "87"
+     "s": "97"
     },
     {
      "k": "t",
@@ -9490,7 +9726,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 87 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 97 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9522,7 +9758,7 @@
     },
     {
      "k": "t",
-     "s": "87"
+     "s": "97"
     },
     {
      "k": "t",
@@ -9962,7 +10198,7 @@
     },
     {
      "k": "t",
-     "s": "Add by hand"
+     "s": "Add an expense by hand"
     },
     {
      "k": "t",
@@ -10616,7 +10852,7 @@
     },
     {
      "k": "t",
-     "s": "Add by hand"
+     "s": "Add an expense by hand"
     },
     {
      "k": "t",
@@ -16960,6 +17196,66 @@
     },
     {
      "k": "a",
+     "s": "Bonds & CDs, $0, return —"
+    },
+    {
+     "k": "t",
+     "s": "Bonds & CDs"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Nothing held in this account"
+    },
+    {
+     "k": "a",
+     "s": "Cash, $0, return —"
+    },
+    {
+     "k": "t",
+     "s": "Cash"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Nothing held in this account"
+    },
+    {
+     "k": "a",
+     "s": "Alternatives, $0, return —"
+    },
+    {
+     "k": "t",
+     "s": "Alternatives"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Nothing held in this account"
+    },
+    {
+     "k": "a",
      "s": "Total, $300,000, return —"
     },
     {
@@ -17179,6 +17475,66 @@
     {
      "k": "t",
      "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "Bonds & CDs, $0, return —"
+    },
+    {
+     "k": "t",
+     "s": "Bonds & CDs"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Nothing held in this account"
+    },
+    {
+     "k": "a",
+     "s": "Cash, $0, return —"
+    },
+    {
+     "k": "t",
+     "s": "Cash"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Nothing held in this account"
+    },
+    {
+     "k": "a",
+     "s": "Alternatives, $0, return —"
+    },
+    {
+     "k": "t",
+     "s": "Alternatives"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "Nothing held in this account"
     },
     {
      "k": "a",
@@ -17756,7 +18112,7 @@
     },
     {
      "k": "a",
-     "s": "Yield if held to maturity: about 4.5% · estimate"
+     "s": "Yield if held to maturity: about 4.48% · estimate"
     },
     {
      "k": "t",
@@ -17764,11 +18120,11 @@
     },
     {
      "k": "t",
-     "s": "about 4.5% · estimate"
+     "s": "about 4.48% · estimate"
     },
     {
      "k": "a",
-     "s": "Yield on today's value: 4.1%"
+     "s": "Yield on today's value: 4.08%"
     },
     {
      "k": "t",
@@ -17776,7 +18132,11 @@
     },
     {
      "k": "t",
-     "s": "4.1%"
+     "s": "4.08%"
+    },
+    {
+     "k": "t",
+     "s": "accrued interest not entered — the yield uses the price as you entered it"
     },
     {
      "k": "a",
@@ -19707,7 +20067,7 @@
     },
     {
      "k": "t",
-     "s": "COUPON / YR"
+     "s": "COUPON /year"
     },
     {
      "k": "t",
@@ -19731,7 +20091,7 @@
     },
     {
      "k": "a",
-     "s": "TreasuryDirect, $9,800, matures May 15, 2031"
+     "s": "TreasuryDirect, $9,800, matures May 15, 2031. Opens the editor."
     },
     {
      "k": "t",
@@ -19759,7 +20119,7 @@
     },
     {
      "k": "t",
-     "s": "matures May 15, 2031 (4.6y)"
+     "s": "matures May 15, 2031 · 5y"
     },
     {
      "k": "t",
@@ -22850,7 +23210,7 @@
     },
     {
      "k": "t",
-     "s": "20.0%"
+     "s": "20.00%"
     },
     {
      "k": "t",
@@ -22944,7 +23304,7 @@
     },
     {
      "k": "t",
-     "s": "20.0%"
+     "s": "20.00%"
     },
     {
      "k": "t",
@@ -23054,7 +23414,7 @@
     },
     {
      "k": "t",
-     "s": "0.0%"
+     "s": "0.00%"
     },
     {
      "k": "t",
@@ -25180,7 +25540,7 @@
     },
     {
      "k": "t",
-     "s": "$1,080"
+     "s": "$3,600"
     },
     {
      "k": "t",
@@ -25192,7 +25552,7 @@
     },
     {
      "k": "t",
-     "s": "$1,080"
+     "s": "$3,600"
     },
     {
      "k": "t",
@@ -25200,7 +25560,7 @@
     },
     {
      "k": "t",
-     "s": "$180"
+     "s": "$600"
     },
     {
      "k": "t",
@@ -25228,7 +25588,7 @@
     },
     {
      "k": "t",
-     "s": "$180"
+     "s": "$600"
     },
     {
      "k": "t",
@@ -25340,7 +25700,7 @@
     },
     {
      "k": "t",
-     "s": "4"
+     "s": "12"
     },
     {
      "k": "t",
@@ -25422,11 +25782,71 @@
     },
     {
      "k": "t",
-     "s": "What do your essential expenses come to in a typical month? (rent, food, utilities — the must-pays)"
+     "s": "$21,000"
+    },
+    {
+     "k": "t",
+     "s": "6"
+    },
+    {
+     "k": "t",
+     "s": "months of essentials is"
+    },
+    {
+     "k": "t",
+     "s": "$21,000"
+    },
+    {
+     "k": "t",
+     "s": "("
+    },
+    {
+     "k": "t",
+     "s": "$3,500"
+    },
+    {
+     "k": "t",
+     "s": "/month) — your"
+    },
+    {
+     "k": "t",
+     "s": "savings"
+    },
+    {
+     "k": "t",
+     "s": "cover"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "of it."
+    },
+    {
+     "k": "t",
+     "s": "Using"
+    },
+    {
+     "k": "t",
+     "s": "$3,500"
+    },
+    {
+     "k": "t",
+     "s": "/month —"
+    },
+    {
+     "k": "t",
+     "s": "you entered"
+    },
+    {
+     "k": "t",
+     "s": "of your logged expenses — type your own if a typical month differs."
     },
     {
      "k": "a",
-     "s": "Essential monthly expenses"
+     "s": "Essential monthly expenses, editable"
     },
     {
      "k": "a",
@@ -25499,6 +25919,46 @@
     {
      "k": "t",
      "s": "Savings + investments"
+    },
+    {
+     "k": "t",
+     "s": "WHAT WOULD CLOSE IT"
+    },
+    {
+     "k": "t",
+     "s": "Setting aside"
+    },
+    {
+     "k": "t",
+     "s": "$300"
+    },
+    {
+     "k": "t",
+     "s": "/month"
+    },
+    {
+     "k": "t",
+     "s": "closes the gap in"
+    },
+    {
+     "k": "t",
+     "s": "70"
+    },
+    {
+     "k": "t",
+     "s": "months"
+    },
+    {
+     "k": "t",
+     "s": "— an example pace, set your own."
+    },
+    {
+     "k": "a",
+     "s": "Save the emergency fund as a goal"
+    },
+    {
+     "k": "t",
+     "s": "Save it as a goal ›"
     },
     {
      "k": "t",
@@ -25564,11 +26024,71 @@
     },
     {
      "k": "t",
-     "s": "What do your essential expenses come to in a typical month? (rent, food, utilities — the must-pays)"
+     "s": "$18,600"
+    },
+    {
+     "k": "t",
+     "s": "6"
+    },
+    {
+     "k": "t",
+     "s": "months of essentials is"
+    },
+    {
+     "k": "t",
+     "s": "$18,600"
+    },
+    {
+     "k": "t",
+     "s": "("
+    },
+    {
+     "k": "t",
+     "s": "$3,100"
+    },
+    {
+     "k": "t",
+     "s": "/month) — your"
+    },
+    {
+     "k": "t",
+     "s": "savings"
+    },
+    {
+     "k": "t",
+     "s": "cover"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "of it."
+    },
+    {
+     "k": "t",
+     "s": "Using"
+    },
+    {
+     "k": "t",
+     "s": "$3,100"
+    },
+    {
+     "k": "t",
+     "s": "/month —"
+    },
+    {
+     "k": "t",
+     "s": "you entered"
+    },
+    {
+     "k": "t",
+     "s": "of your logged expenses — type your own if a typical month differs."
     },
     {
      "k": "a",
-     "s": "Essential monthly expenses"
+     "s": "Essential monthly expenses, editable"
     },
     {
      "k": "a",
@@ -25641,6 +26161,46 @@
     {
      "k": "t",
      "s": "Savings + investments"
+    },
+    {
+     "k": "t",
+     "s": "WHAT WOULD CLOSE IT"
+    },
+    {
+     "k": "t",
+     "s": "Setting aside"
+    },
+    {
+     "k": "t",
+     "s": "$300"
+    },
+    {
+     "k": "t",
+     "s": "/month"
+    },
+    {
+     "k": "t",
+     "s": "closes the gap in"
+    },
+    {
+     "k": "t",
+     "s": "62"
+    },
+    {
+     "k": "t",
+     "s": "months"
+    },
+    {
+     "k": "t",
+     "s": "— an example pace, set your own."
+    },
+    {
+     "k": "a",
+     "s": "Save the emergency fund as a goal"
+    },
+    {
+     "k": "t",
+     "s": "Save it as a goal ›"
     },
     {
      "k": "t",
@@ -26538,11 +27098,11 @@
     },
     {
      "k": "a",
-     "s": "= In: $7,200"
+     "s": "= Inflow: $7,200"
     },
     {
      "k": "t",
-     "s": "= In"
+     "s": "= Inflow"
     },
     {
      "k": "t",
@@ -26672,11 +27232,11 @@
     },
     {
      "k": "a",
-     "s": "= In: $7,200"
+     "s": "= Inflow: $7,200"
     },
     {
      "k": "t",
-     "s": "= In"
+     "s": "= Inflow"
     },
     {
      "k": "t",
@@ -26842,11 +27402,11 @@
     },
     {
      "k": "a",
-     "s": "= In: $4,795"
+     "s": "= Inflow: $4,795"
     },
     {
      "k": "t",
-     "s": "= In"
+     "s": "= Inflow"
     },
     {
      "k": "t",
@@ -26878,7 +27438,7 @@
     },
     {
      "k": "t",
-     "s": "These come out of what's surplus."
+     "s": "These come out of the surplus."
     },
     {
      "k": "a",
@@ -28274,7 +28834,7 @@
     },
     {
      "k": "t",
-     "s": "= In"
+     "s": "= Inflow"
     },
     {
      "k": "t",
@@ -28504,7 +29064,7 @@
     },
     {
      "k": "t",
-     "s": "= In"
+     "s": "= Inflow"
     },
     {
      "k": "t",
@@ -28754,7 +29314,7 @@
     },
     {
      "k": "t",
-     "s": "= In"
+     "s": "= Inflow"
     },
     {
      "k": "t",
@@ -28976,7 +29536,7 @@
     },
     {
      "k": "t",
-     "s": "= In"
+     "s": "= Inflow"
     },
     {
      "k": "t",
@@ -31785,7 +32345,7 @@
     },
     {
      "k": "t",
-     "s": "$180"
+     "s": "$600"
     },
     {
      "k": "t",
@@ -31809,7 +32369,7 @@
     },
     {
      "k": "t",
-     "s": "$540"
+     "s": "$1,800"
     },
     {
      "k": "t",
@@ -31817,7 +32377,7 @@
     },
     {
      "k": "t",
-     "s": "$540"
+     "s": "$1,800"
     },
     {
      "k": "t",
@@ -31871,7 +32431,7 @@
     },
     {
      "k": "t",
-     "s": "You'd have $17,000 left — about 5.3 months of essentials ($3,200/month — you entered)."
+     "s": "You'd have $17,000 left — about 4.9 months of essentials ($3,500/month — you entered)."
     },
     {
      "k": "t",
@@ -31879,7 +32439,7 @@
     },
     {
      "k": "t",
-     "s": "6.3"
+     "s": "5.7"
     },
     {
      "k": "t",
@@ -31891,7 +32451,7 @@
     },
     {
      "k": "t",
-     "s": "$3,200"
+     "s": "$3,500"
     },
     {
      "k": "t",
@@ -33637,7 +34197,7 @@
     },
     {
      "k": "t",
-     "s": "When an account is connected, we watch it for odd transactions — hand-typed entries are yours, we never question them."
+     "s": "When an account is connected, we watch it for odd activity — hand-typed entries are yours, we never question them."
     }
    ],
    "rich": [
@@ -33651,7 +34211,7 @@
     },
     {
      "k": "t",
-     "s": "When an account is connected, we watch it for odd transactions — hand-typed entries are yours, we never question them."
+     "s": "When an account is connected, we watch it for odd activity — hand-typed entries are yours, we never question them."
     }
    ],
    "retiree": [
@@ -33665,7 +34225,7 @@
     },
     {
      "k": "t",
-     "s": "When an account is connected, we watch it for odd transactions — hand-typed entries are yours, we never question them."
+     "s": "When an account is connected, we watch it for odd activity — hand-typed entries are yours, we never question them."
     }
    ],
    "new": [
@@ -33679,7 +34239,7 @@
     },
     {
      "k": "t",
-     "s": "When an account is connected, we watch it for odd transactions — hand-typed entries are yours, we never question them."
+     "s": "When an account is connected, we watch it for odd activity — hand-typed entries are yours, we never question them."
     }
    ]
   },
@@ -35275,6 +35835,25 @@
   }
  },
  "declared": {
+  "/analytics": {
+   "worker": [
+    "MK-NW-M-005",
+    "MK-NW-M-046",
+    "MK-NW-M-047",
+    "MK-NW-M-048"
+   ],
+   "rich": [
+    "MK-NW-M-005",
+    "MK-NW-M-046",
+    "MK-NW-M-047",
+    "MK-NW-M-048"
+   ],
+   "retiree": [
+    "MK-NW-M-005",
+    "MK-NW-M-046",
+    "MK-NW-M-048"
+   ]
+  },
   "/income-summary": {
    "worker": [
     "MK-CF-M-037",
@@ -35336,6 +35915,40 @@
   }
  },
  "callsites": [
+  {
+   "site": "MoneyKeel/functions/_figure-spec.ts:69",
+   "routes": [
+    "/analytics",
+    "/base-pay",
+    "/income-summary"
+   ],
+   "states": [
+    "/analytics|retiree",
+    "/analytics|rich",
+    "/analytics|worker",
+    "/base-pay|new",
+    "/base-pay|retiree",
+    "/base-pay|rich",
+    "/base-pay|worker",
+    "/income-summary|new",
+    "/income-summary|retiree",
+    "/income-summary|rich",
+    "/income-summary|worker"
+   ],
+   "inside": "writeFigure",
+   "line": "spec.unit === 'money' ? formatMoney(value)",
+   "values": [
+    "$0",
+    "$4,520",
+    "$420",
+    "$6,400",
+    "$108,000",
+    "$21,600",
+    "$1,800",
+    "$800"
+   ],
+   "renders": 78
+  },
   {
    "site": "src/components/DrawSteerSheet.tsx:136",
    "routes": [
@@ -35744,37 +36357,7 @@
    "renders": 12
   },
   {
-   "site": "src/components/figure.ts:37",
-   "routes": [
-    "/base-pay",
-    "/income-summary"
-   ],
-   "states": [
-    "/base-pay|new",
-    "/base-pay|retiree",
-    "/base-pay|rich",
-    "/base-pay|worker",
-    "/income-summary|new",
-    "/income-summary|retiree",
-    "/income-summary|rich",
-    "/income-summary|worker"
-   ],
-   "inside": "write",
-   "line": "spec.unit === 'money' ? money(value)",
-   "values": [
-    "$6,400",
-    "$108,000",
-    "$21,600",
-    "$1,800",
-    "$800",
-    "$3,500",
-    "$42,000",
-    "$0"
-   ],
-   "renders": 54
-  },
-  {
-   "site": "src/domain/income/from-accounts.ts:167",
+   "site": "src/domain/income/from-accounts.ts:172",
    "routes": [
     "/income-detail",
     "/income-manager",
@@ -35810,7 +36393,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:340",
+   "site": "src/screens/AccountDetailScreen.tsx:329",
    "routes": [
     "/account-detail"
    ],
@@ -35832,7 +36415,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:448",
+   "site": "src/screens/AccountDetailScreen.tsx:444",
    "routes": [
     "/account-detail"
    ],
@@ -35842,12 +36425,13 @@
    "inside": "AccountDetailScreen",
    "line": "accessibilityLabel={`${ASSET_CLASS_LABEL[k]}, ${spokenMoney(Math.round(total))}, return ${classReturnText(k, total, inClass)}`}>",
    "values": [
-    "$300,000"
+    "$300,000",
+    "$0"
    ],
-   "renders": 2
+   "renders": 8
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:458",
+   "site": "src/screens/AccountDetailScreen.tsx:455",
    "routes": [
     "/account-detail"
    ],
@@ -35862,7 +36446,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:476",
+   "site": "src/screens/AccountDetailScreen.tsx:473",
    "routes": [
     "/account-detail"
    ],
@@ -35877,7 +36461,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:54",
+   "site": "src/screens/AccountDetailScreen.tsx:55",
    "routes": [
     "/account-detail"
    ],
@@ -35891,42 +36475,13 @@
    "values": [
     "$120,000",
     "$300,000",
+    "$0",
     "$20,000",
     "$400,000",
     "$9,800",
     "$250,000"
    ],
-   "renders": 11
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:667",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "BondDetail",
-   "line": "<FactRow label=\"Face value\" value={maskedMoney(b.face)} />",
-   "values": [
-    "$10,000"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:668",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "BondDetail",
-   "line": "<FactRow label=\"Interest payments\" value={`${(b.couponRate * 100).toFixed(2)}%/year · ${maskedMoney(annualCoupon(b))}/year`} />",
-   "values": [
-    "$400"
-   ],
-   "renders": 1
+   "renders": 17
   },
   {
    "site": "src/screens/AccountDetailScreen.tsx:675",
@@ -35937,7 +36492,37 @@
     "/account-detail|rich"
    ],
    "inside": "BondDetail",
-   "line": "accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${spokenMoney(sens.ratesUp.low)} to ${spokenMoney(sens.ratesUp.high)}. If",
+   "line": "<FactRow label=\"Face value\" value={maskedMoney(one.face)} />",
+   "values": [
+    "$10,000"
+   ],
+   "renders": 1
+  },
+  {
+   "site": "src/screens/AccountDetailScreen.tsx:676",
+   "routes": [
+    "/account-detail"
+   ],
+   "states": [
+    "/account-detail|rich"
+   ],
+   "inside": "BondDetail",
+   "line": "<FactRow label=\"Interest payments\" value={`${(one.couponRate * 100).toFixed(2)}%/year · ${maskedMoney(one.couponPerYear)}/year`} />",
+   "values": [
+    "$400"
+   ],
+   "renders": 1
+  },
+  {
+   "site": "src/screens/AccountDetailScreen.tsx:691",
+   "routes": [
+    "/account-detail"
+   ],
+   "states": [
+    "/account-detail|rich"
+   ],
+   "inside": "BondDetail",
+   "line": "accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${spokenMoney(one.ratesMove.ratesUp.low)} to ${spokenMoney(one.ratesMove.",
    "values": [
     "$9,000",
     "$10,000"
@@ -35945,7 +36530,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:681",
+   "site": "src/screens/AccountDetailScreen.tsx:697",
    "routes": [
     "/account-detail"
    ],
@@ -35953,7 +36538,7 @@
     "/account-detail|rich"
    ],
    "inside": "BondDetail",
-   "line": "<Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(sens.ratesUp.low)}–{maskedMoney(sens.ratesUp.high)} (down about {maskedMoney(Math.abs(sens.ratesUp.delta))})</Text>",
+   "line": "<Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(one.ratesMove.ratesUp.low)}–{maskedMoney(one.ratesMove.ratesUp.high)} (down about {maskedMoney(Math.abs(one.ratesMove.ratesUp.delta)",
    "values": [
     "$9,000",
     "$0"
@@ -35961,7 +36546,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:682",
+   "site": "src/screens/AccountDetailScreen.tsx:698",
    "routes": [
     "/account-detail"
    ],
@@ -35969,14 +36554,14 @@
     "/account-detail|rich"
    ],
    "inside": "BondDetail",
-   "line": "<Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(sens.ratesDown.low)}–{maskedMoney(sens.ratesDown.high)}</Text>",
+   "line": "<Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(one.ratesMove.ratesDown.low)}–{maskedMoney(one.ratesMove.ratesDown.high)}</Text>",
    "values": [
     "$10,000"
    ],
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:683",
+   "site": "src/screens/AccountDetailScreen.tsx:699",
    "routes": [
     "/account-detail"
    ],
@@ -35984,7 +36569,7 @@
     "/account-detail|rich"
    ],
    "inside": "BondDetail",
-   "line": "<Text style={s.bondNote}>Held to maturity, {maskedMoney(b.face)} comes back — if the issuer pays as promised.</Text>",
+   "line": "<Text style={s.bondNote}>Held to maturity, {maskedMoney(one.face)} comes back — if the issuer pays as promised.</Text>",
    "values": [
     "$10,000"
    ],
@@ -36001,7 +36586,7 @@
     "/big-costs|worker"
    ],
    "inside": "BigCostsScreen",
-   "line": "<SectionBand title=\"YOUR BIG ONE-TIME COSTS\" value={costs.length === 0 ? money(0) : undefined} />",
+   "line": "<SectionBand inCard inset={20} title=\"YOUR BIG ONE-TIME COSTS\" value={costs.length === 0 ? money(0) : undefined} />",
    "values": [
     "$0"
    ],
@@ -36053,7 +36638,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/BillCalendarScreen.tsx:107",
+   "site": "src/screens/BillCalendarScreen.tsx:109",
    "routes": [
     "/bill-calendar"
    ],
@@ -36068,7 +36653,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/BillCalendarScreen.tsx:119",
+   "site": "src/screens/BillCalendarScreen.tsx:121",
    "routes": [
     "/bill-calendar"
    ],
@@ -36086,7 +36671,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/BillCalendarScreen.tsx:126",
+   "site": "src/screens/BillCalendarScreen.tsx:128",
    "routes": [
     "/bill-calendar"
    ],
@@ -36103,7 +36688,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/BillCalendarScreen.tsx:131",
+   "site": "src/screens/BillCalendarScreen.tsx:133",
    "routes": [
     "/bill-calendar"
    ],
@@ -36122,7 +36707,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/BillCalendarScreen.tsx:148",
+   "site": "src/screens/BillCalendarScreen.tsx:150",
    "routes": [
     "/bill-calendar"
    ],
@@ -36146,7 +36731,7 @@
    "renders": 108
   },
   {
-   "site": "src/screens/BillCalendarScreen.tsx:150",
+   "site": "src/screens/BillCalendarScreen.tsx:152",
    "routes": [
     "/bill-calendar"
    ],
@@ -36164,7 +36749,7 @@
    "renders": 36
   },
   {
-   "site": "src/screens/BillCalendarScreen.tsx:151",
+   "site": "src/screens/BillCalendarScreen.tsx:153",
    "routes": [
     "/bill-calendar"
    ],
@@ -36185,7 +36770,7 @@
    "renders": 36
   },
   {
-   "site": "src/screens/BillCalendarScreen.tsx:152",
+   "site": "src/screens/BillCalendarScreen.tsx:154",
    "routes": [
     "/bill-calendar"
    ],
@@ -36209,7 +36794,7 @@
    "renders": 36
   },
   {
-   "site": "src/screens/BondsScreen.tsx:51",
+   "site": "src/screens/BondsScreen.tsx:47",
    "routes": [
     "/bonds"
    ],
@@ -36226,7 +36811,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/BondsScreen.tsx:59",
+   "site": "src/screens/BondsScreen.tsx:55",
    "routes": [
     "/bonds"
    ],
@@ -36241,7 +36826,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/BondsScreen.tsx:60",
+   "site": "src/screens/BondsScreen.tsx:56",
    "routes": [
     "/bonds"
    ],
@@ -36256,7 +36841,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/BondsScreen.tsx:62",
+   "site": "src/screens/BondsScreen.tsx:58",
    "routes": [
     "/bonds"
    ],
@@ -36264,14 +36849,14 @@
     "/bonds|rich"
    ],
    "inside": "BondsScreen",
-   "line": "<View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON / YR</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{money(summary.annualCoupon)}</Text></View>",
+   "line": "<View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{money(summary.couponPerYear)}</Text></View>",
    "values": [
     "$400"
    ],
    "renders": 1
   },
   {
-   "site": "src/screens/BondsScreen.tsx:72",
+   "site": "src/screens/BondsScreen.tsx:71",
    "routes": [
     "/bonds"
    ],
@@ -36279,7 +36864,7 @@
     "/bonds|rich"
    ],
    "inside": "BondsScreen",
-   "line": "<TouchableOpacity key={a.asset_id} accessibilityRole=\"button\" accessibilityLabel={`${a.institution?.trim() || a.label}, ${money(a.balance || 0)}, matures ${humanDate(bi.maturity)}`} style={styles.card",
+   "line": "accessibilityLabel={`${r.institution}, ${money(r.value)}, matures ${humanDate(r.maturity)}. Opens the editor.`}",
    "values": [
     "$9,800"
    ],
@@ -36294,7 +36879,7 @@
     "/bonds|rich"
    ],
    "inside": "BondsScreen",
-   "line": "<View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text><Text style={styles.bondVal}>{money(a.balance || 0)}</Text></View>",
+   "line": "<View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.institution}</Text><Text style={styles.bondVal}>{money(r.value)}</Text></View>",
    "values": [
     "$9,800"
    ],
@@ -36309,7 +36894,7 @@
     "/bonds|rich"
    ],
    "inside": "BondsScreen",
-   "line": "<DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${money(bi.face)}`, `${(bi.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(bi.maturity)}${yrs > 0 ? ` (${yrs.toFixed(1)}y",
+   "line": "<DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${money(r.face)}`, `${(r.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y`",
    "values": [
     "$10,000"
    ],
@@ -36324,7 +36909,7 @@
     "/bonds|rich"
    ],
    "inside": "BondsScreen",
-   "line": "<Text style={styles.metric}>{money(annualCoupon(bi))}/year coupon</Text>",
+   "line": "<Text style={styles.metric}>{money(r.couponPerYear)}/year coupon</Text>",
    "values": [
     "$400"
    ],
@@ -36475,14 +37060,14 @@
     "/cashflow|worker"
    ],
    "inside": "BudgetScreen",
-   "line": "Records a “Debt payment” in Activity and lowers this balance.{'\\n'}New balance: {money(Math.max(0, Math.round((payDebt?.remaining_balance || 0) - num(payAmt))))}.",
+   "line": "Adds a “Debt payment” to your activity and lowers this balance.{'\\n'}New balance: {money(Math.max(0, Math.round((payDebt?.remaining_balance || 0) - num(payAmt))))}.",
    "values": [
     "$0"
    ],
    "renders": 8
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:224",
+   "site": "src/screens/CashFlowScreen.tsx:226",
    "routes": [
     "/cashflow"
    ],
@@ -36500,7 +37085,7 @@
    "renders": 30
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:311",
+   "site": "src/screens/CashFlowScreen.tsx:313",
    "routes": [
     "/cashflow"
    ],
@@ -36516,7 +37101,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:312",
+   "site": "src/screens/CashFlowScreen.tsx:314",
    "routes": [
     "/cashflow"
    ],
@@ -36532,7 +37117,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:324",
+   "site": "src/screens/CashFlowScreen.tsx:326",
    "routes": [
     "/cashflow"
    ],
@@ -36547,7 +37132,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:416",
+   "site": "src/screens/CashFlowScreen.tsx:421",
    "routes": [
     "/cashflow"
    ],
@@ -36555,14 +37140,14 @@
     "/cashflow|worker"
    ],
    "inside": "SpendingTab",
-   "line": "<SectionBand title={`${monthWord.toUpperCase()} · ${maskedMoney(Math.round(spent))} SPENT`} />",
+   "line": "<SectionBand inCard inset={16} title={`${monthWord.toUpperCase()} · ${maskedMoney(Math.round(spent))} SPENT`} />",
    "values": [
     "$0"
    ],
    "renders": 1
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:448",
+   "site": "src/screens/CashFlowScreen.tsx:453",
    "routes": [
     "/cashflow"
    ],
@@ -36585,7 +37170,7 @@
    "renders": 18
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:494",
+   "site": "src/screens/CashFlowScreen.tsx:499",
    "routes": [
     "/cashflow"
    ],
@@ -36593,14 +37178,14 @@
     "/cashflow|new"
    ],
    "inside": "BigTicketRadar",
-   "line": "<SectionBand title=\"BIG-TICKET RADAR\" value={maskedMoney(0)} />",
+   "line": "<SectionBand inCard inset={16} title=\"BIG-TICKET RADAR\" value={maskedMoney(0)} />",
    "values": [
     "$0"
    ],
    "renders": 1
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:503",
+   "site": "src/screens/CashFlowScreen.tsx:508",
    "routes": [
     "/cashflow"
    ],
@@ -36619,7 +37204,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:530",
+   "site": "src/screens/CashFlowScreen.tsx:535",
    "routes": [
     "/cashflow"
    ],
@@ -36635,7 +37220,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:536",
+   "site": "src/screens/CashFlowScreen.tsx:541",
    "routes": [
     "/cashflow"
    ],
@@ -36651,7 +37236,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:612",
+   "site": "src/screens/CashFlowScreen.tsx:638",
    "routes": [
     "/cashflow"
    ],
@@ -36668,7 +37253,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:613",
+   "site": "src/screens/CashFlowScreen.tsx:639",
    "routes": [
     "/cashflow"
    ],
@@ -36685,7 +37270,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:619",
+   "site": "src/screens/CashFlowScreen.tsx:648",
    "routes": [
     "/cashflow"
    ],
@@ -36694,31 +37279,18 @@
     "/cashflow|worker"
    ],
    "inside": "WorkingMain",
-   "line": "<Row label={inflowLabel('Inflow', (cell?.incomeItems ?? []).map((i: any) => i.source))} value={maskedMoney(Math.round(inflow))} />",
+   "line": "<Row key={`${l.label}-${i}`} label={l.label} value={`${l.amount < 0 ? '−' : ''}${maskedMoney(Math.abs(Math.round(l.amount)))}`}",
    "values": [
-    "$7,200"
+    "$7,200",
+    "$420",
+    "$3,800",
+    "$300",
+    "$1,900"
    ],
-   "renders": 10
+   "renders": 35
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:621",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "<Row label={debtMo > 0 ? 'Outflow (expenses + debt)' : 'Outflow (expenses)'} value={maskedMoney(Math.round(outflow))} dim />",
-   "values": [
-    "$4,220",
-    "$6,000"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:624",
+   "site": "src/screens/CashFlowScreen.tsx:654",
    "routes": [
     "/cashflow"
    ],
@@ -36735,7 +37307,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:635",
+   "site": "src/screens/CashFlowScreen.tsx:665",
    "routes": [
     "/cashflow"
    ],
@@ -36752,7 +37324,7 @@
    "renders": 20
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:640",
+   "site": "src/screens/CashFlowScreen.tsx:670",
    "routes": [
     "/cashflow"
    ],
@@ -36769,7 +37341,7 @@
    "renders": 20
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:649",
+   "site": "src/screens/CashFlowScreen.tsx:679",
    "routes": [
     "/cashflow"
    ],
@@ -36786,7 +37358,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:652",
+   "site": "src/screens/CashFlowScreen.tsx:682",
    "routes": [
     "/cashflow"
    ],
@@ -36795,7 +37367,7 @@
     "/cashflow|worker"
    ],
    "inside": "WorkingMain",
-   "line": "<Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)} / mo</Text>",
+   "line": "<Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)}/month</Text>",
    "values": [
     "$20,125",
     "$35,095"
@@ -36803,7 +37375,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:654",
+   "site": "src/screens/CashFlowScreen.tsx:684",
    "routes": [
     "/cashflow"
    ],
@@ -36820,7 +37392,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:670",
+   "site": "src/screens/CashFlowScreen.tsx:700",
    "routes": [
     "/cashflow"
    ],
@@ -36835,7 +37407,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:723",
+   "site": "src/screens/CashFlowScreen.tsx:753",
    "routes": [
     "/cashflow"
    ],
@@ -36857,7 +37429,7 @@
    "renders": 54
   },
   {
-   "site": "src/screens/ContributionRoomScreen.tsx:26",
+   "site": "src/screens/ContributionRoomScreen.tsx:30",
    "routes": [
     "/contribution-room"
    ],
@@ -36882,7 +37454,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/ContributionRoomScreen.tsx:30",
+   "site": "src/screens/ContributionRoomScreen.tsx:34",
    "routes": [
     "/contribution-room"
    ],
@@ -36907,7 +37479,7 @@
    "renders": 18
   },
   {
-   "site": "src/screens/ContributionRoomScreen.tsx:70",
+   "site": "src/screens/ContributionRoomScreen.tsx:74",
    "routes": [
     "/contribution-room"
    ],
@@ -36927,7 +37499,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/ContributionRoomScreen.tsx:71",
+   "site": "src/screens/ContributionRoomScreen.tsx:75",
    "routes": [
     "/contribution-room"
    ],
@@ -37232,7 +37804,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/HoldingDetailScreen.tsx:148",
+   "site": "src/screens/HoldingDetailScreen.tsx:151",
    "routes": [
     "/holding-detail"
    ],
@@ -37247,7 +37819,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HoldingDetailScreen.tsx:215",
+   "site": "src/screens/HoldingDetailScreen.tsx:218",
    "routes": [
     "/holding-detail"
    ],
@@ -37262,7 +37834,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HoldingDetailScreen.tsx:219",
+   "site": "src/screens/HoldingDetailScreen.tsx:222",
    "routes": [
     "/holding-detail"
    ],
@@ -37277,7 +37849,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HoldingDetailScreen.tsx:252",
+   "site": "src/screens/HoldingDetailScreen.tsx:255",
    "routes": [
     "/holding-detail"
    ],
@@ -37292,7 +37864,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HoldingDetailScreen.tsx:254",
+   "site": "src/screens/HoldingDetailScreen.tsx:257",
    "routes": [
     "/holding-detail"
    ],
@@ -37307,7 +37879,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HoldingDetailScreen.tsx:257",
+   "site": "src/screens/HoldingDetailScreen.tsx:260",
    "routes": [
     "/holding-detail"
    ],
@@ -37322,7 +37894,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HomeScreen.tsx:131",
+   "site": "src/screens/HomeScreen.tsx:134",
    "routes": [
     "/home"
    ],
@@ -37338,7 +37910,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/HomeScreen.tsx:272",
+   "site": "src/screens/HomeScreen.tsx:277",
    "routes": [
     "/home"
    ],
@@ -37355,7 +37927,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:277",
+   "site": "src/screens/HomeScreen.tsx:282",
    "routes": [
     "/home"
    ],
@@ -37372,7 +37944,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:374",
+   "site": "src/screens/HomeScreen.tsx:379",
    "routes": [
     "/home"
    ],
@@ -37391,7 +37963,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:377",
+   "site": "src/screens/HomeScreen.tsx:382",
    "routes": [
     "/home"
    ],
@@ -37410,7 +37982,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:459",
+   "site": "src/screens/HomeScreen.tsx:464",
    "routes": [
     "/home"
    ],
@@ -37429,7 +38001,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:472",
+   "site": "src/screens/HomeScreen.tsx:477",
    "routes": [
     "/home"
    ],
@@ -37447,7 +38019,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:473",
+   "site": "src/screens/HomeScreen.tsx:478",
    "routes": [
     "/home"
    ],
@@ -37464,7 +38036,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:476",
+   "site": "src/screens/HomeScreen.tsx:481",
    "routes": [
     "/home"
    ],
@@ -37668,7 +38240,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:144",
+   "site": "src/screens/InsightsScreen.tsx:149",
    "routes": [
     "/home",
     "/insights"
@@ -37691,7 +38263,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:148",
+   "site": "src/screens/InsightsScreen.tsx:153",
    "routes": [
     "/home",
     "/insights"
@@ -37712,7 +38284,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:151",
+   "site": "src/screens/InsightsScreen.tsx:156",
    "routes": [
     "/home",
     "/insights"
@@ -37733,7 +38305,7 @@
    "renders": 15
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:154",
+   "site": "src/screens/InsightsScreen.tsx:159",
    "routes": [
     "/home",
     "/insights"
@@ -37751,7 +38323,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:156",
+   "site": "src/screens/InsightsScreen.tsx:161",
    "routes": [
     "/home",
     "/insights"
@@ -37768,7 +38340,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:65",
+   "site": "src/screens/InsightsScreen.tsx:70",
    "routes": [
     "/home",
     "/insights"
@@ -37918,26 +38490,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/ItemizeScreen.tsx:90",
-   "routes": [
-    "/itemize"
-   ],
-   "states": [
-    "/itemize|retiree",
-    "/itemize|rich",
-    "/itemize|worker"
-   ],
-   "inside": "ItemizeScreen",
-   "line": "<Text style={styles.sub}>Add what's actually inside. We keep the total at {money(lump.balance)} — any leftover stays as cash in {inst}.</Text>",
-   "values": [
-    "$120,000",
-    "$300,000",
-    "$250,000"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/ItemizeScreen.tsx:96",
+   "site": "src/screens/ItemizeScreen.tsx:100",
    "routes": [
     "/itemize"
    ],
@@ -37956,7 +38509,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/ItemizeScreen.tsx:99",
+   "site": "src/screens/ItemizeScreen.tsx:103",
    "routes": [
     "/itemize"
    ],
@@ -37976,64 +38529,99 @@
    "renders": 6
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:100",
+   "site": "src/screens/ItemizeScreen.tsx:94",
+   "routes": [
+    "/itemize"
+   ],
+   "states": [
+    "/itemize|retiree",
+    "/itemize|rich",
+    "/itemize|worker"
+   ],
+   "inside": "ItemizeScreen",
+   "line": "<Text style={styles.sub}>Add what's actually inside. We keep the total at {money(lump.balance)} — any leftover stays as cash in {inst}.</Text>",
+   "values": [
+    "$120,000",
+    "$300,000",
+    "$250,000"
+   ],
+   "renders": 3
+  },
+  {
+   "site": "src/screens/JobSafetyScreen.tsx:105",
    "routes": [
     "/jobsafety"
    ],
    "states": [
+    "/jobsafety|retiree",
+    "/jobsafety|rich",
     "/jobsafety|worker"
    ],
    "inside": "JobSafetyScreen",
-   "line": "<Text style={s.baselineNote}>Using {money(monthSpend)}/month — {logged?.label} of your logged expenses — type your own if a typical month differs.</Text>",
+   "line": "<Text style={[s.hero, { color: covered ? Colors.gainText : Colors.amber }]}>{covered ? '✓ Covered' : money(gap)}</Text>",
    "values": [
-    "$180"
+    "$3,600",
+    "$21,000",
+    "$18,600"
    ],
-   "renders": 1
+   "renders": 3
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:143",
+   "site": "src/screens/JobSafetyScreen.tsx:107",
    "routes": [
     "/jobsafety"
    ],
    "states": [
+    "/jobsafety|retiree",
+    "/jobsafety|rich",
+    "/jobsafety|worker"
+   ],
+   "inside": "JobSafetyScreen",
+   "line": "{months} months of essentials is {money(target)} ({money(ess)}/month) — your {basisWord} cover {money(Math.min(available, target))} of it.",
+   "values": [
+    "$3,600",
+    "$600",
+    "$0",
+    "$21,000",
+    "$3,500",
+    "$18,600",
+    "$3,100"
+   ],
+   "renders": 9
+  },
+  {
+   "site": "src/screens/JobSafetyScreen.tsx:110",
+   "routes": [
+    "/jobsafety"
+   ],
+   "states": [
+    "/jobsafety|retiree",
+    "/jobsafety|rich",
+    "/jobsafety|worker"
+   ],
+   "inside": "JobSafetyScreen",
+   "line": "<Text style={s.baselineNote}>Using {money(monthSpend)}/month — {emergencyFund.essentialsBasis} of your logged expenses — type your own if a typical month differs.</Text>",
+   "values": [
+    "$600",
+    "$3,500",
+    "$3,100"
+   ],
+   "renders": 3
+  },
+  {
+   "site": "src/screens/JobSafetyScreen.tsx:153",
+   "routes": [
+    "/jobsafety"
+   ],
+   "states": [
+    "/jobsafety|retiree",
+    "/jobsafety|rich",
     "/jobsafety|worker"
    ],
    "inside": "JobSafetyScreen",
    "line": "Setting aside <Text style={s.bold}>{money(EXAMPLE_PACE)}/month</Text> closes the gap in <Text style={s.bold}>{monthsToClose} months</Text> — an example pace, set your own.",
    "values": [
     "$300"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/JobSafetyScreen.tsx:95",
-   "routes": [
-    "/jobsafety"
-   ],
-   "states": [
-    "/jobsafety|worker"
-   ],
-   "inside": "JobSafetyScreen",
-   "line": "<Text style={[s.hero, { color: covered ? Colors.gainText : Colors.amber }]}>{covered ? '✓ Covered' : money(gap)}</Text>",
-   "values": [
-    "$1,080"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/JobSafetyScreen.tsx:97",
-   "routes": [
-    "/jobsafety"
-   ],
-   "states": [
-    "/jobsafety|worker"
-   ],
-   "inside": "JobSafetyScreen",
-   "line": "{months} months of essentials is {money(target)} ({money(ess)}/month) — your {basisWord} cover {money(Math.min(available, target))} of it.",
-   "values": [
-    "$1,080",
-    "$180",
-    "$0"
    ],
    "renders": 3
   },
@@ -38090,7 +38678,7 @@
     "/month-detail|worker"
    ],
    "inside": "MonthDetailScreen",
-   "line": "accessible accessibilityLabel={`${retired ? 'Surplus' : 'Surplus'} in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>",
+   "line": "accessible accessibilityLabel={`Surplus in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>",
    "values": [
     "$2,980",
     "$1,200",
@@ -38160,7 +38748,7 @@
     "/month-detail|retiree"
    ],
    "inside": "MonthDetailScreen",
-   "line": "<Row label=\"= In\" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />",
+   "line": "<Row label=\"= Inflow\" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />",
    "values": [
     "$4,795"
    ],
@@ -38192,7 +38780,7 @@
     "/month-detail|worker"
    ],
    "inside": "MonthDetailScreen",
-   "line": "{cell.incomeItems.length > 0 && <Row label=\"= In\" value={maskedMoney(cell.inflow)} strong />}",
+   "line": "{cell.incomeItems.length > 0 && <Row label=\"= Inflow\" value={maskedMoney(cell.inflow)} strong />}",
    "values": [
     "$7,200"
    ],
@@ -38361,7 +38949,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:318",
+   "site": "src/screens/NetWorthScreen.tsx:332",
    "routes": [
     "/analytics"
    ],
@@ -38383,7 +38971,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:325",
+   "site": "src/screens/NetWorthScreen.tsx:339",
    "routes": [
     "/analytics"
    ],
@@ -38405,7 +38993,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:333",
+   "site": "src/screens/NetWorthScreen.tsx:347",
    "routes": [
     "/analytics"
    ],
@@ -38422,7 +39010,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:339",
+   "site": "src/screens/NetWorthScreen.tsx:353",
    "routes": [
     "/analytics"
    ],
@@ -38439,7 +39027,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:524",
+   "site": "src/screens/NetWorthScreen.tsx:538",
    "routes": [
     "/analytics"
    ],
@@ -38454,7 +39042,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:525",
+   "site": "src/screens/NetWorthScreen.tsx:539",
    "routes": [
     "/analytics"
    ],
@@ -38469,7 +39057,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:545",
+   "site": "src/screens/NetWorthScreen.tsx:559",
    "routes": [
     "/analytics"
    ],
@@ -38484,7 +39072,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:547",
+   "site": "src/screens/NetWorthScreen.tsx:561",
    "routes": [
     "/analytics"
    ],
@@ -38499,7 +39087,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:548",
+   "site": "src/screens/NetWorthScreen.tsx:562",
    "routes": [
     "/analytics"
    ],
@@ -38514,7 +39102,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:549",
+   "site": "src/screens/NetWorthScreen.tsx:563",
    "routes": [
     "/analytics"
    ],
@@ -38529,7 +39117,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:570",
+   "site": "src/screens/NetWorthScreen.tsx:584",
    "routes": [
     "/analytics"
    ],
@@ -38544,7 +39132,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:700",
+   "site": "src/screens/NetWorthScreen.tsx:719",
    "routes": [
     "/analytics"
    ],
@@ -38563,7 +39151,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:709",
+   "site": "src/screens/NetWorthScreen.tsx:728",
    "routes": [
     "/analytics"
    ],
@@ -38585,7 +39173,7 @@
    "renders": 18
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:713",
+   "site": "src/screens/NetWorthScreen.tsx:732",
    "routes": [
     "/analytics"
    ],
@@ -38604,7 +39192,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:798",
+   "site": "src/screens/NetWorthScreen.tsx:817",
    "routes": [
     "/analytics"
    ],
@@ -38623,7 +39211,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:825",
+   "site": "src/screens/NetWorthScreen.tsx:844",
    "routes": [
     "/analytics"
    ],
@@ -38645,7 +39233,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:827",
+   "site": "src/screens/NetWorthScreen.tsx:846",
    "routes": [
     "/analytics"
    ],
@@ -38667,7 +39255,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:832",
+   "site": "src/screens/NetWorthScreen.tsx:851",
    "routes": [
     "/analytics"
    ],
@@ -38690,7 +39278,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:837",
+   "site": "src/screens/NetWorthScreen.tsx:856",
    "routes": [
     "/analytics"
    ],
@@ -38713,7 +39301,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:861",
+   "site": "src/screens/NetWorthScreen.tsx:880",
    "routes": [
     "/analytics"
    ],
@@ -38733,7 +39321,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:863",
+   "site": "src/screens/NetWorthScreen.tsx:882",
    "routes": [
     "/analytics"
    ],
@@ -38753,7 +39341,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:879",
+   "site": "src/screens/NetWorthScreen.tsx:898",
    "routes": [
     "/analytics"
    ],
@@ -38769,7 +39357,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:887",
+   "site": "src/screens/NetWorthScreen.tsx:906",
    "routes": [
     "/analytics"
    ],
@@ -38786,7 +39374,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:898",
+   "site": "src/screens/NetWorthScreen.tsx:917",
    "routes": [
     "/analytics"
    ],
@@ -38804,7 +39392,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:905",
+   "site": "src/screens/NetWorthScreen.tsx:924",
    "routes": [
     "/analytics"
    ],
@@ -38822,7 +39410,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:936",
+   "site": "src/screens/NetWorthScreen.tsx:955",
    "routes": [
     "/analytics"
    ],
@@ -38835,15 +39423,15 @@
    "line": "<Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/month essentials — {essentials?.label}</Text>",
    "values": [
     "$0",
-    "$180",
+    "$600",
     "$20,000",
-    "$4,100",
-    "$3,800"
+    "$3,500",
+    "$3,100"
    ],
    "renders": 18
   },
   {
-   "site": "src/screens/OtherInvestmentsScreen.tsx:47",
+   "site": "src/screens/OtherInvestmentsScreen.tsx:54",
    "routes": [
     "/other-investments"
    ],
@@ -38978,7 +39566,7 @@
     "/paycheck-months|worker"
    ],
    "inside": "PaycheckMonthsScreen",
-   "line": "<Row label=\"= In\" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />",
+   "line": "<Row label=\"= Inflow\" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />",
    "values": [
     "$335",
     "$1,495",
@@ -39030,7 +39618,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:303",
+   "site": "src/screens/PerformanceScreen.tsx:274",
    "routes": [
     "/invest"
    ],
@@ -39045,7 +39633,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:304",
+   "site": "src/screens/PerformanceScreen.tsx:275",
    "routes": [
     "/invest"
    ],
@@ -39060,7 +39648,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:319",
+   "site": "src/screens/PerformanceScreen.tsx:290",
    "routes": [
     "/invest"
    ],
@@ -39075,7 +39663,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:324",
+   "site": "src/screens/PerformanceScreen.tsx:295",
    "routes": [
     "/invest"
    ],
@@ -39090,7 +39678,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:357",
+   "site": "src/screens/PerformanceScreen.tsx:328",
    "routes": [
     "/invest"
    ],
@@ -39109,7 +39697,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:358",
+   "site": "src/screens/PerformanceScreen.tsx:329",
    "routes": [
     "/invest"
    ],
@@ -39126,7 +39714,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:387",
+   "site": "src/screens/PerformanceScreen.tsx:358",
    "routes": [
     "/invest"
    ],
@@ -39145,7 +39733,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:400",
+   "site": "src/screens/PerformanceScreen.tsx:371",
    "routes": [
     "/invest"
    ],
@@ -39165,7 +39753,7 @@
    "renders": 28
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:406",
+   "site": "src/screens/PerformanceScreen.tsx:377",
    "routes": [
     "/invest"
    ],
@@ -39184,7 +39772,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:463",
+   "site": "src/screens/PerformanceScreen.tsx:431",
    "routes": [
     "/invest"
    ],
@@ -39204,7 +39792,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:464",
+   "site": "src/screens/PerformanceScreen.tsx:432",
    "routes": [
     "/invest"
    ],
@@ -39213,7 +39801,7 @@
     "/invest|worker"
    ],
    "inside": "PerformanceScreen",
-   "line": "<SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))} />",
+   "line": "<SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))}",
    "values": [
     "$120,000",
     "$45,000",
@@ -39224,7 +39812,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:471",
+   "site": "src/screens/PerformanceScreen.tsx:441",
    "routes": [
     "/invest"
    ],
@@ -39971,7 +40559,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:62",
+   "site": "src/screens/StressTestScreen.tsx:66",
    "routes": [
     "/stress-test"
    ],
@@ -39989,7 +40577,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:66",
+   "site": "src/screens/StressTestScreen.tsx:70",
    "routes": [
     "/stress-test"
    ],
@@ -40000,12 +40588,12 @@
    "line": "? `You'd have ${money(r.cashAfter)} left — about ${r.runwayAfter.toFixed(1)} months of essentials (${money(ess)}/month — ${essLabel}).`",
    "values": [
     "$17,000",
-    "$3,200"
+    "$3,500"
    ],
    "renders": 2
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:67",
+   "site": "src/screens/StressTestScreen.tsx:71",
    "routes": [
     "/stress-test"
    ],
@@ -40022,7 +40610,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:81",
+   "site": "src/screens/StressTestScreen.tsx:85",
    "routes": [
     "/stress-test"
    ],
@@ -40034,14 +40622,14 @@
    "inside": "StressTestScreen",
    "line": "<Text style={styles.note}>Covering your {money(ess)}/month of essentials ({essLabel}) with no paycheck coming in. 3–6 months of essentials is the range most planners use.</Text>",
    "values": [
-    "$180",
-    "$3,200",
+    "$600",
+    "$3,500",
     "$3,100"
    ],
    "renders": 3
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:85",
+   "site": "src/screens/StressTestScreen.tsx:89",
    "routes": [
     "/stress-test"
    ],
@@ -40056,7 +40644,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:95",
+   "site": "src/screens/StressTestScreen.tsx:99",
    "routes": [
     "/stress-test"
    ],
@@ -40067,13 +40655,13 @@
    "inside": "StressTestScreen",
    "line": "<Text style={styles.fundTxt}>3 months of essentials is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.bold, { color: Colors.amber }]}>{money(r.gapToFund)}</Te",
    "values": [
-    "$540",
+    "$1,800",
     "$9,300"
    ],
    "renders": 4
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:105",
+   "site": "src/screens/TaxOrganizerScreen.tsx:107",
    "routes": [
     "/tax-organizer"
    ],
@@ -40090,7 +40678,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:115",
+   "site": "src/screens/TaxOrganizerScreen.tsx:117",
    "routes": [
     "/tax-organizer"
    ],
@@ -40113,7 +40701,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:88",
+   "site": "src/screens/TaxOrganizerScreen.tsx:90",
    "routes": [
     "/tax-organizer"
    ],
@@ -40132,7 +40720,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:92",
+   "site": "src/screens/TaxOrganizerScreen.tsx:94",
    "routes": [
     "/tax-organizer"
    ],
@@ -40153,7 +40741,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:93",
+   "site": "src/screens/TaxOrganizerScreen.tsx:95",
    "routes": [
     "/tax-organizer"
    ],
@@ -40172,7 +40760,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:94",
+   "site": "src/screens/TaxOrganizerScreen.tsx:96",
    "routes": [
     "/tax-organizer"
    ],
@@ -40192,7 +40780,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:95",
+   "site": "src/screens/TaxOrganizerScreen.tsx:97",
    "routes": [
     "/tax-organizer"
    ],

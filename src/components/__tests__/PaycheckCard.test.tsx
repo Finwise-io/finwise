@@ -99,6 +99,6 @@ describe('PaycheckMonthsScreen', () => {
     fireEvent.press(screen.getByLabelText(/^Nov.*surplus/));
     expect(screen.getByText('Property tax · day 15')).toBeOnTheScreen();
     expect(screen.getByText('= Surplus')).toBeOnTheScreen();
-    expect(screen.getByText('= In')).toBeOnTheScreen();
+    expect(screen.getByText('= Inflow')).toBeOnTheScreen();   // canon row 5: one word for money arriving (2026-09-26)
   });
 });

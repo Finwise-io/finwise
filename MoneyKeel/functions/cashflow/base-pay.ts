@@ -59,12 +59,17 @@ export interface BasePayEntry {
  *
  * Called by ... MK-CF-F-141 perMonth
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-143 annualisedGross · MK-CF-O-001 basePay
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
- *               MK-CF-F-128 grossByMonth · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-041 getDebtState · MK-CF-F-128 grossByMonth
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
  *               MK-CF-F-146 payFiguresAgree · MK-CF-F-141 perMonth
- *               MK-CF-F-144 takeHomeAsEntered
+ *               … and 5 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -87,11 +92,17 @@ const periodsAYear = (e: BasePayEntry): number => PAY_PERIODS[String(e.freq)] ??
  * Called by ... MK-CF-F-128 grossByMonth · MK-CF-F-144 takeHomeAsEntered
  *               MK-CF-F-146 payFiguresAgree
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-143 annualisedGross · MK-CF-O-001 basePay
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
- *               MK-CF-F-128 grossByMonth · MK-CF-O-004 incomeSummary
- *               MK-CF-F-146 payFiguresAgree · MK-CF-F-144 takeHomeAsEntered
+ *               MK-CF-F-041 getDebtState · MK-CF-F-128 grossByMonth
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-CF-F-146 payFiguresAgree · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -117,11 +128,17 @@ function perMonth(amount: any, e: BasePayEntry): number {
  * Called by ... MK-CF-F-128 grossByMonth · MK-CF-F-144 takeHomeAsEntered
  *               MK-CF-F-146 payFiguresAgree
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-143 annualisedGross · MK-CF-O-001 basePay
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
- *               MK-CF-F-128 grossByMonth · MK-CF-O-004 incomeSummary
- *               MK-CF-F-146 payFiguresAgree · MK-CF-F-144 takeHomeAsEntered
+ *               MK-CF-F-041 getDebtState · MK-CF-F-128 grossByMonth
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-CF-F-146 payFiguresAgree · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -147,11 +164,17 @@ function monthsOf(table: Record<string, any> | undefined): [string, number][] {
  * Called by ... MK-CF-F-143 annualisedGross · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-171 earnerPay
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-143 annualisedGross · MK-CF-O-001 basePay
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
- *               MK-CF-O-004 incomeSummary · MK-CF-F-146 payFiguresAgree
- *               MK-CF-F-144 takeHomeAsEntered
+ *               MK-CF-F-041 getDebtState · MK-CF-O-004 incomeSummary
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-146 payFiguresAgree
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
+ *               … and 3 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -187,10 +210,17 @@ export function grossByMonth(e: BasePayEntry): [string, number][] {
  * Called by ... MK-CF-F-144 takeHomeAsEntered · MK-CF-F-145 deductionsFromPay
  *               MK-CF-F-171 earnerPay
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-CF-O-001 basePay · MK-CF-F-145 deductionsFromPay
- *               MK-CF-F-171 earnerPay · MK-CF-O-004 incomeSummary
- *               MK-CF-F-146 payFiguresAgree · MK-CF-F-144 takeHomeAsEntered
+ * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-O-001 basePay · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-145 deductionsFromPay
+ *               MK-CF-F-171 earnerPay · MK-CF-F-041 getDebtState
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-CF-F-146 payFiguresAgree · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-CF-F-144 takeHomeAsEntered
+ *               … and 2 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -234,10 +264,17 @@ export interface TakeHome { monthly: number; estimated: boolean; why: string; }
  * Called by ... MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-171 earnerPay
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-CF-O-001 basePay · MK-CF-F-145 deductionsFromPay
- *               MK-CF-F-171 earnerPay · MK-CF-O-004 incomeSummary
- *               MK-CF-F-146 payFiguresAgree
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-O-001 basePay · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-145 deductionsFromPay
+ *               MK-CF-F-171 earnerPay · MK-CF-F-041 getDebtState
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-CF-F-146 payFiguresAgree · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -306,9 +343,16 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
  *
  * Called by ... MK-CF-F-171 earnerPay
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-CF-O-001 basePay · MK-CF-F-171 earnerPay
- *               MK-CF-O-004 incomeSummary
+ * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-O-001 basePay · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-171 earnerPay
+ *               MK-CF-F-041 getDebtState · MK-CF-O-004 incomeSummary
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
+ *               MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -367,9 +411,16 @@ export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
  *
  * Called by ... MK-CF-F-171 earnerPay
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-CF-O-001 basePay · MK-CF-F-171 earnerPay
- *               MK-CF-O-004 incomeSummary
+ * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-O-001 basePay · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-171 earnerPay
+ *               MK-CF-F-041 getDebtState · MK-CF-O-004 incomeSummary
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
+ *               MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -451,12 +502,18 @@ export interface EarnerPay {
  *
  * Called by ... MK-CF-O-001 basePay
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-O-001 basePay · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
  *     · Treats a year as twelve equal months.
@@ -548,6 +605,98 @@ export interface BasePay {
  *  Declared beside the code that computes them. The master file's rows for the base-pay screen are
  *  PRINTED from this — there is no second copy to keep in agreement.
  */
+/** THE WORKED EXAMPLES — ONE HOUSEHOLD IN THREE STATES (six steps, step 6, 2026-09-28).
+ *
+ *  Two earners: one paid $4,200 every two weeks, one $5,000/month, putting $1,200 and $400/month
+ *  into their 401(k)s, filing jointly. $109,200 + $60,000 = $169,200 of wages a year, $14,100/month.
+ *  Every figure runs `basePay`, the real door.
+ *
+ *  THE CARD MUST ADD UP, and that is what these pin. With the rate typed at 22%: $14,100 gross −
+ *  $3,102 tax − $1,600 of 401(k)s = $9,398 of take-home, to the dollar. Build 54 shipped a card whose
+ *  own rows did not do that, because each earner ran the federal schedule alone and each was granted
+ *  the whole joint deduction. One rate, applied per earner, is what makes the identity exact.
+ *
+ *  Three states, because three of these figures only exist in one of them: a typed rate (the rows
+ *  above), nothing told to us at all (the warning about what is not being deducted), and a take-home
+ *  typed by each earner (the "everything else" row, which is only knowable once they tell us).
+ */
+const EXAMPLE_EARNERS = [
+  { name: 'Your pay', entry: { freq: 'biweekly', varies: false, grossTypical: 4200, monthly401k: 1200 } },
+  { name: 'Sam’s pay', entry: { freq: 'monthly', varies: false, grossTypical: 5000, monthly401k: 400 } },
+];
+const EXAMPLE_EARNERS_WITH_LANDS = [
+  { name: 'Your pay', entry: { freq: 'biweekly', varies: false, grossTypical: 4200, landsTypical: 2700, monthly401k: 1200 } },
+  { name: 'Sam’s pay', entry: { freq: 'monthly', varies: false, grossTypical: 5000, landsTypical: 3400, monthly401k: 400 } },
+];
+const WAGES =
+  'Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), '
+  + 'paying $1,200 and $400/month into their 401(k)s — $14,100/month of wages in all. ';
+const GIVEN = WAGES + 'They have typed their tax rate: 22%.';
+const GIVEN_NOTHING_TOLD = WAGES + 'They have told us no tax rate and no take-home, so the take-home shown is ours.';
+const GIVEN_LANDS_TYPED = WAGES + 'Each has typed what actually lands: $2,700 a period and $3,400/month.';
+const GIVEN_LAW =
+  'The payroll-tax figures Congress publishes for the 2026 tax year — not a calculation, and not '
+  + 'ours to choose; they are read back so the sentence on screen can be checked against the law.';
+/* ─ MK-CF-O-011 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * PAY
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-CF-O-013 PAY_LANDS_TYPED
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-O-013 PAY_LANDS_TYPED
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-O-011
+ * Changed ..... not in git yet (—)
+ */
+const PAY = () => basePay({ earners: EXAMPLE_EARNERS as any, filingStatus: 'married', over65: 0,
+  profile: { taxMode: 'manual', manualTaxRate: 22 } });
+/* ─ MK-CF-O-012 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * PAY_ESTIMATED
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-CF-O-013 PAY_LANDS_TYPED
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-O-013 PAY_LANDS_TYPED
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-O-012
+ * Changed ..... not in git yet (—)
+ */
+const PAY_ESTIMATED = () => basePay({ earners: EXAMPLE_EARNERS as any, filingStatus: 'married', over65: 0, profile: {} });
+/* ─ MK-CF-O-013 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * PAY_LANDS_TYPED
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-030 tax filing status and age
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-O-013
+ * Changed ..... not in git yet (—)
+ */
+const PAY_LANDS_TYPED = () => basePay({ earners: EXAMPLE_EARNERS_WITH_LANDS as any, filingStatus: 'married', over65: 0, profile: {} });
+
 export const FIGURES = declareFigures({
   'MK-CF-M-030': {
     label: 'Each person’s pay', unit: 'money', per: 'year', screens: ['/base-pay'],
@@ -557,6 +706,11 @@ export const FIGURES = declareFigures({
     decisions: ['A wage entered for a rhythm is annualised by that rhythm, never by a flat twelve.'],
     ruled: '2026-09-14',
     refusal: 'Shows $0 until a wage is entered; the screen offers the door to enter one.',
+    worked: {
+      given: GIVEN,
+      answer: '$109,200/year',
+      run: () => PAY().earners[0].pay.grossAnnualised,
+    },
   },
   'MK-CF-M-031': {
     label: 'Take-home', unit: 'money', per: 'month', screens: ['/base-pay', '/cashflow'],
@@ -567,6 +721,11 @@ export const FIGURES = declareFigures({
     ruled: '2026-09-14',
     refusal: 'Shows $0 until a wage is entered.',
     note: 'ONE figure over two sets: one earner, and the household — so a total and its parts cannot disagree (rule 2). It wears ≈ whenever the figure was calculated rather than entered.',
+    worked: {
+      given: GIVEN,
+      answer: '$9,398/month',
+      run: () => PAY().landsInBank,
+    },
   },
   'MK-CF-M-032': {
     label: 'Federal tax bracket', unit: 'percent', screens: ['/base-pay'],
@@ -576,6 +735,11 @@ export const FIGURES = declareFigures({
     decisions: ['Filing status is assumed to be jointly when two people earn and nobody has said (MK-CF-D-004).'],
     ruled: '2026-09-14',
     refusal: 'The row is not shown until a wage is entered.',
+    worked: {
+      given: GIVEN,
+      answer: '22%',
+      run: () => PAY().bandOnEveryWage,
+    },
   },
   'MK-CF-M-033': {
     label: 'Calculated federal tax', unit: 'money', per: 'month', screens: ['/base-pay'],
@@ -585,6 +749,11 @@ export const FIGURES = declareFigures({
     decisions: ['Assumes the standard deduction, never itemised (MK-CF-D-002).'],
     ruled: '2026-09-14',
     refusal: 'The row appears only when the figure is ours; an entered take-home already has tax inside it.',
+    worked: {
+      given: GIVEN,
+      answer: '$3,102/month',
+      run: () => PAY().tax.monthly,
+    },
   },
   'MK-CF-M-034': {
     label: 'Your 401(k)s', unit: 'money', per: 'month', screens: ['/base-pay'],
@@ -594,6 +763,11 @@ export const FIGURES = declareFigures({
     decisions: ['The employer’s match is not counted here — it is not taken out of take-home (MK-CF-D-003).'],
     ruled: '2026-09-14',
     refusal: 'The row is hidden when nobody contributes.',
+    worked: {
+      given: GIVEN,
+      answer: '$1,600/month',
+      run: () => PAY().monthly401k,
+    },
   },
   'MK-CF-M-035': {
     label: 'The take-home above is higher than it will really be', unit: 'money', per: 'month', screens: ['/base-pay'],
@@ -603,6 +777,11 @@ export const FIGURES = declareFigures({
     decisions: ['State tax is not in this figure, because we do not know their state (MK-CF-D-005).'],
     ruled: '2026-09-14',
     refusal: 'The warning appears only when the take-home is ours and estimated.',
+    worked: {
+      given: GIVEN_NOTHING_TOLD,
+      answer: '$1,079/month',
+      run: () => PAY_ESTIMATED().tax.shortBy,
+    },
   },
   'MK-CF-M-036': {
     label: 'Everything else taken out', unit: 'money', per: 'month', screens: ['/base-pay'],
@@ -613,6 +792,11 @@ export const FIGURES = declareFigures({
     ruled: '2026-09-14',
     refusal: 'The row is hidden for anyone whose take-home was calculated rather than entered; the household row is hidden unless every earner entered one.',
     note: 'ONE figure over two sets: one earner, and the household. Moved off the screen into this door on 2026-09-14 — the base-pay card used to do the subtraction itself (rule 5).',
+    worked: {
+      given: GIVEN_LANDS_TYPED,
+      answer: '$3,250/month',
+      run: () => PAY_LANDS_TYPED().otherTakenMonthly,
+    },
   },
   'MK-CF-M-045': {
     label: 'Social Security takes 6.2% of a wage up to', unit: 'money', per: 'year', screens: ['/base-pay'],
@@ -622,6 +806,11 @@ export const FIGURES = declareFigures({
     decisions: ['Published figure — the source and the year it applies to are on the master file’s Reference tab (guard D4).'],
     ruled: '2026-09-14',
     refusal: 'Never absent — it is a published figure, not a calculation.',
+    worked: {
+      given: GIVEN_LAW,
+      answer: '$184,500/year',
+      run: () => SS_WAGE_BASE,
+    },
   },
   'MK-CF-M-046': {
     label: 'Medicare 1.45% of everything, 0.9% more above', unit: 'money', per: 'year', screens: ['/base-pay'],
@@ -631,6 +820,11 @@ export const FIGURES = declareFigures({
     decisions: ['Published figure — the source and the year it applies to are on the master file’s Reference tab (guard D4).'],
     ruled: '2026-09-14',
     refusal: 'Never absent — it is a published figure, not a calculation.',
+    worked: {
+      given: GIVEN_LAW,
+      answer: '$200,000/year',
+      run: () => MEDICARE_ADDITIONAL_THRESHOLD,
+    },
   },
 } as const);
 
@@ -653,10 +847,18 @@ export const FIGURES = declareFigures({
  *     wrong = (gross annual × band on one wage) ÷ 12
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-O-004 incomeSummary
+ * Called by ... MK-CF-O-004 incomeSummary · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-O-004 incomeSummary
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-CF-O-004 incomeSummary
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
+ *               MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-032 · MK-CF-M-033
  *               MK-CF-M-034 · MK-CF-M-035 · MK-CF-M-036 · MK-CF-M-045
@@ -788,8 +990,15 @@ export const MEDICARE_ADDITIONAL_THRESHOLD = 200_000; // wages above this carry 
  *
  * Called by ... MK-CF-O-001 basePay
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-O-001 basePay · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -826,8 +1035,13 @@ export function payrollTaxWithheld(wageAnnual: number): number {
  *
  * Called by ... MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-O-004 incomeSummary
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives

@@ -44,8 +44,9 @@ export interface AccountIncome {
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-184 incomeFromAccounts
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-202 TAX · MK-CF-F-184 incomeFromAccounts
+ *               MK-CF-O-007 theTaxOrganizer
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -69,8 +70,9 @@ const asPercent = (r: number) => `${(r * 100)}%`;
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-184 incomeFromAccounts
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-202 TAX · MK-CF-F-184 incomeFromAccounts
+ *               MK-CF-O-007 theTaxOrganizer
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-008 transaction amount
@@ -118,7 +120,10 @@ function paidOutByAccount(txns: any[] | null | undefined, now: Date): Map<string
  *     actual = paid.get(string((a as any).asset id ?? ''))
  *     face = (a as any).face value (or 0 when missing or zero)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-007 theTaxOrganizer
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-202 TAX · MK-CF-O-007 theTaxOrganizer
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

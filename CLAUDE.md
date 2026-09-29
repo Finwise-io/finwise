@@ -100,6 +100,38 @@ the founder had approved all of it. Never again.
   A done-claim without a coverage line is invalid. "Suite green" is never evidence of completeness:
   tests verify what was built, they cannot see what was never built.
 
+## A GUARD MUST PROVE IT LOOKED — standing order (founder, 2026-09-28)
+Founder, after I broke the never-work-off-memory rule inside the same hour I was explaining it:
+*"How can you break your own rule? Isn't that the whole purpose of rule? How can I be sure you won't
+break rules in future as you have done it over and over again in the past?"*
+
+The answer is not a promise. Every rule here that has held was held by something that EXECUTES; every
+rule I have broken repeatedly was held by my attention. So the control is on the guards themselves,
+because they are what stands in for my attention.
+
+**Every guard that filters records asserts how many it saw.** The failure always takes one shape: a
+filter with a pattern I typed, records it does not recognise, and no assertion about coverage — so it
+reports clean while looking at a fraction. Three of mine did exactly this:
+- step **B6** read the design Changelog's "Approved by" column as `startsWith('JJ')` — written from my
+  memory of the column, not from its values. It saw **42 of 251** rows and printed "✓ all 42 reach the
+  ledger" while **196 of his decisions** sat outside its net.
+- step **B5**, built the day before to stop the approved-design rule failing a fourth time, exempted
+  any screen absent from a hand-typed list. It covered **15 of 38** screens; 23 were exempt because I
+  had not typed them, which is indistinguishable from their having no design.
+- the **orphan-route guard** was built too narrow three times (that lesson is above).
+
+**So, in every guard:**
+1. **Read the data, never your memory of it.** Before filtering a column, print its distinct values.
+2. **Count what you skipped, and explain it.** A record the guard does not classify fails the build.
+   Silence is not an answer a guard may accept.
+3. **Assert a floor on what it examined** (`expect(files.length).toBeGreaterThanOrEqual(n)`). A guard
+   whose pattern stops matching must go red, not quiet.
+4. **A ratchet carries the TRUE number, not zero.** B6 stands at 195 unanchored decisions of his and
+   prints it every build. A gate that hides its debt to stay green is worse than no gate.
+
+**What this does not fix, said plainly:** a decision made only in chat and never written down is still
+outside every gate. That is why the same-day changelog rule exists, and it is the remaining hole.
+
 ## SAME-DAY CHANGELOG — standing order (2026-07-28, founder-adopted after the July-24 audit)
 - EVERY founder approval (design change, copy, decision) gets a dated row in the Changelog tab of
   `docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-…xlsx` THE SAME DAY, alongside the mock.

@@ -1,0 +1,155 @@
+// Performance · What would this holding be worth had I moved it — the look-back.
+//
+// THE DOOR for Q-PF-2. One screen, one question, so it carried no decision for the founder.
+//
+// WHAT IT REFUSES, AND WHY IT MATTERS MORE HERE THAN ANYWHERE. This screen is about a road not
+// taken, so a figure that quietly fills a gap does not read as an estimate — it reads as what would
+// have happened. With no price history for either fund over the whole window, there is NO answer:
+// not a zero, not a partial window silently shortened. The screen's own title says it — "Facts about
+// the PAST only".
+import { declareFigures } from '../_figure-spec';
+import { formatMoney } from '../../../src/domain/_shared/money';
+import { lookBack, type LookBackResult } from '../../../src/domain/performance/lookBack';
+
+/* ─ MK-NW-O-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * theLookBack
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     look back(input.amount, input.from series, input.to series, input.months, input.now ?? new date())
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-O-007
+ * Changed ..... not in git yet (—)
+ */
+/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+ *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
+ *  header generator owns the plain block comment below and rewrites it on every build, which is how
+ *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
+/* ─ MK-NW-O-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * theLookBack
+ *
+ * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ *
+ * Formula .....
+ *     look back(input.amount, input.from series, input.to series, input.months, input.now ?? new date())
+ *
+ * Called by ... MK-NW-F-081 LB
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-081 LB
+ *
+ * Serves ...... MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-O-007
+ * Changed ..... not in git yet (—)
+ */
+export function theLookBack(input: {
+  amount: number;
+  /** The price history of the fund it is in, and of the one it might have moved to. */
+  fromSeries: any;
+  toSeries: any;
+  months: number;
+  now?: Date;
+}): LookBackResult | null {
+  // null is the honest answer: no history for either fund over the whole window means there is
+  // nothing to say, and saying nothing is not the same as saying zero
+  return lookBack(input.amount, input.fromSeries, input.toSeries, input.months, input.now ?? new Date());
+}
+
+/** THE WORKED EXAMPLE (six steps, step 6, 2026-09-28).
+ *
+ *  $10,000 that sat in BND for a year while VTI ran. BND went $72.00 → $73.80 (+2.5%), so the money
+ *  became $10,250; VTI went $250 → $290 (+16%), so moved it would have been $11,600. The difference
+ *  is $1,350. Every figure runs `theLookBack`, the real door, against those real closes.
+ *
+ *  It is a fact about the past and never a recommendation — which is why the example names both ends
+ *  of each price, so a person can do the division themselves.
+ */
+const TODAY = new Date('2026-09-28T12:00:00');
+const EXAMPLE = {
+  amount: 10000,
+  fromSeries: { ticker: 'BND', points: [{ date: '2025-09-01', close: 72.00 }, { date: '2026-09-25', close: 73.80 }] },
+  toSeries: { ticker: 'VTI', points: [{ date: '2025-09-01', close: 250.00 }, { date: '2026-09-25', close: 290.00 }] },
+  months: 12,
+  now: TODAY,
+};
+const GIVEN =
+  '$10,000 left in BND for 12 months, against moving it to VTI. BND closed $72.00 a year ago and '
+  + '$73.80 now; VTI closed $250.00 and $290.00.';
+/* ─ MK-NW-F-081 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * LB
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     the look back(EXAMPLE)!
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-081
+ * Changed ..... not in git yet (—)
+ */
+const LB = () => theLookBack(EXAMPLE)!;
+
+/** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
+export const LOOK_BACK_FIGURES = declareFigures({
+  'MK-PF-M-010': {
+    label: 'Left in <fund> it became $X (up/down $Y, Z%)', unit: 'words', screens: ['/look-back'],
+    answers: 'What your money actually did, where it actually was.',
+    formula: 'the amount × (the fund’s price today ÷ its price at the start of the window)',
+    inputs: ['MK-NW-I-005 the price feed'],
+    decisions: ['Price changes only — dividends are not in it, and the screen says so.'],
+    refusal: 'No price history over the whole window — the screen shows nothing rather than a shortened one.',
+    ruled: '2026-09-28',
+    worked: {
+      given: GIVEN,
+      answer: 'Left in BND it became $10,250 (up $250, 2.5%)',
+      run: () => `Left in BND it became ${formatMoney(LB().stayed.endValue)} (up ${formatMoney(LB().stayed.delta)}, ${LB().stayed.pct}%)`,
+    },
+  },
+  'MK-PF-M-011': {
+    label: 'Moved to <fund> it would be $X', unit: 'money', screens: ['/look-back'],
+    answers: 'What the same money would have become in the other fund.',
+    formula: 'the amount × (the other fund’s price today ÷ its price at the start of the window)',
+    inputs: ['MK-NW-I-005 the price feed'],
+    decisions: ['A road not taken, priced from real history — never a projection forward.'],
+    refusal: 'No price history for the other fund over the whole window.',
+    ruled: '2026-09-28',
+    worked: {
+      given: GIVEN,
+      answer: '$11,600',
+      run: () => LB().moved.endValue,
+    },
+  },
+  'MK-PF-M-012': {
+    label: 'Difference: $X more/less if you had moved', unit: 'money', screens: ['/look-back'],
+    answers: 'What the move would have been worth, in money.',
+    formula: 'what it would have become, less what it did become',
+    inputs: ['MK-NW-I-005 the price feed'],
+    refusal: 'Either fund missing its history means no difference is stated.',
+    ruled: '2026-09-28',
+    worked: {
+      given: GIVEN,
+      answer: '$1,350',
+      run: () => LB().difference,
+    },
+  },
+});

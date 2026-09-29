@@ -28,6 +28,22 @@ date** in its name is the live one, and the moment it is replaced it gains its d
 7. `audit` — verification records: per-build device-test sheets, audit findings and outcomes.
    Added by the founder 2026-09-01: checking the work is its own kind of paper, and filing test
    sheets under `standards` (or the old `docs/`) hid the record of what was verified.
+8. `decision-log` — **every decision he has made, wherever he made it.** ONE file, and it is the
+   master source: `moneykeel_log_decisions_v01.xlsx`, printed from `moneykeel_decisions.json`.
+   Added by the founder 2026-09-28: *"Rulings in master file needs to be one place to record all
+   decisions, no matter where they are made... After mistakes over and over, I no longer trust you."*
+
+   The `rulings` tab is REMOVED from the calculation master on the same day, by his instruction, so
+   there is one record and not two. A decision recorded in a changelog, a standard, an audit sheet or
+   a mock is recorded THERE TOO, and that file is where it is read from.
+
+   Why it exists, in one line each — these are the misses that earned it:
+   · his 2026-09-12 correction of income-end-to-end v07 lived in the design Changelog and the mock,
+     in no ledger and no test, so the same defect was live one screen over sixteen days later;
+   · the design Changelog itself lost ten rows between its 2026-08-12 and 2026-08-14 versions,
+     including three of his decisions, silently;
+   · the rulings ledger it replaces began in August 2026 and held 43 of the 238 decisions his own
+     Changelog records — so "check the rulings ledger" was advice that could not be relied on.
 
 ### Where the founder placed the shared machinery (2026-08-22)
 
@@ -55,7 +71,7 @@ and once it is superseded, the same name with its date in front:
 | Date | Only on superseded copies, in `archive/`. **The live file carries no date.** | `2026-08-22` |
 | Domain | The product | `moneykeel` (older files keep `finwise` until next touched) |
 | Layer | What kind of work it is | `naming` standards and dictionaries · `calc` maths and functions · `data` schemas and contracts · `pres` screens and mockups |
-| Type | What the artifact is | `spec`, `enum`, `formula`, `schema`, `master`, `audit`, `mock`, `mockup`, `component`, `plan` (the working plan — one tab, one row per task, added 2026-09-12) |
+| Type | What the artifact is | `spec`, `enum`, `formula`, `schema`, `master`, `audit`, `mock`, `mockup`, `component`, `plan` (the working plan — one tab, one row per task, added 2026-09-12), `log` (a record kept row by row as things happen — the decision log, added by the founder 2026-09-28) |
 | Descriptor | **The only part you invent** — see the rule below | `will-money-last`, `monte-carlo-simulator` |
 | Version | Lifecycle | `v01`, `v02`, `draft`, `final` |
 
@@ -235,3 +251,37 @@ not a question until it is a row. That is what stops the same thing being asked 
 
 The build prints how many feedback files are waiting for a PFS, so a copy left beside its original is
 seen rather than remembered.
+
+---
+
+## How a workbook is formatted
+
+**Founder, 2026-09-27:** *"in future learn how to format excel file so it is readable in terms of
+column width."*
+
+Every workbook this repository writes is formatted by one helper —
+`Calculation Module code/scripts/xlsx_readable.py` — and none of them sets widths by hand again.
+
+**What was wrong.** Three things, in every file:
+
+1. **Wrapped text with no row height.** Every cell was set to wrap and no row was ever given a height,
+   so a 300-character question rendered as a one-line sliver with the rest cut off.
+2. **Columns sized by guess.** The workplan's first two columns were 70 characters each — 140 characters
+   before the STATUS column, so the one column that says who a row waits on sat off the side of the
+   screen.
+3. **His columns behind mine.** The orchestrator map put the question he must answer in column Q, behind
+   thirteen columns of generated inventory that is mine to check and not his to read.
+
+**The rules.**
+
+| Rule | Why |
+|---|---|
+| A column is as wide as its longest line needs, between **9 and 52** characters. | Past about 52 the eye loses the start of the line on the way back. |
+| A row is as tall as its tallest visible cell needs, capped at **4 lines** — or more where the cell is a paragraph he must read in place (the Map's question uses 9). | Eight lines is 120 points: five rows to a screen, and a 189-row tab becomes forty screens. |
+| **A folded column never drives the row height.** | The Map's inventory columns hold hundred-line lists; letting them count made every row nine lines tall to fit text nobody can see. |
+| The header row is frozen and carries a filter. | He finds his rows by filtering STATUS, not by scrolling. |
+| Columns that are **mine** — generated inventory — are grouped and **folded away**, so the sheet opens on the columns he reads and answers. The `+` above the column letters opens them. | He was asked to validate 189 figure rows once. He was right to refuse. |
+
+**When a column is pinned by hand,** it is because its content is one word (a status, a date) and the
+measured width would make it wider than it reads — those widths are passed to the helper, which keeps
+them and caps them.

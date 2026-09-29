@@ -28,17 +28,17 @@ export type FccTab = 'home' | 'analytics' | 'invest' | 'cashflow' | 'plan';
  *
  * Called by ... MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -55,8 +55,10 @@ export function resolveLens(op: Record<string, any> | null | undefined, override
 
 /**
  * Bottom-bar order per lens (design pin: "Tab order is set once from stage; identical across sessions").
- * working: Home · Net worth · Invest · Cash flow · Plan
- * retired: Home · Cash flow · Net worth · Plan · Invest (the paycheck sits next to Home)
+ * working: Home · Net worth · Performance · Cash flow · Plan
+ * retired: Home · Cash flow · Net worth · Plan · Performance (the paycheck sits next to Home)
+ * The route key stays `invest`; the tab is TITLED Performance (founder, 2026-08-04) — routes are
+ * invisible to a person, the title is not.
  */
 /* ─ MK-XS-F-025 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * tabOrder

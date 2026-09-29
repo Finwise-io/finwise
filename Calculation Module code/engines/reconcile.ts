@@ -32,10 +32,11 @@ export interface Reconciliation {
  *     difference = computed.sub(stated)
  *
  * Called by ... MK-ST-F-022 reconcileAccountTotal · MK-ST-F-023 reconcileLedgerIdentity
+ *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-102 ingestSync · MK-ST-F-022 reconcileAccountTotal
- *               MK-ST-F-023 reconcileLedgerIdentity
+ *               MK-ST-F-023 reconcileLedgerIdentity · MK-XS-F-183 writeFigure
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer

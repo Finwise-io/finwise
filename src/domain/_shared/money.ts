@@ -36,17 +36,17 @@ let _locale = 'en-US';
  *
  * Called by ... MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -113,17 +113,17 @@ export function balancesHidden(): boolean { return _hide; }
  *
  * Called by ... MK-ST-F-048 currencySymbol
  *
- * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-PF-F-013 benchmarkTicker · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-CF-F-107 buildPaycheckYear · MK-PF-F-014 buildPerformance
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-ST-F-048 currencySymbol · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               … and 55 more — the full list is on functions_from_code
+ * Reaches ..... 91 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-081 LB · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-CF-F-202 TAX
+ *               MK-CF-F-026 actualDebtPayment · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-O-001 basePay · MK-PF-F-013 benchmarkTicker
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-XS-F-004 buildDatedGrid
+ *               … and 73 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -144,17 +144,17 @@ export function activeCurrency(): Currency {
  * Called by ... MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
  *               MK-ST-F-051 moneyCompact
  *
- * Reaches ..... 72 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-PF-F-013 benchmarkTicker · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-CF-F-107 buildPaycheckYear · MK-PF-F-014 buildPerformance
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-171 earnerPay
- *               … and 54 more — the full list is on functions_from_code
+ * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-081 LB · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-CF-F-202 TAX
+ *               MK-CF-F-026 actualDebtPayment · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-O-001 basePay · MK-PF-F-013 benchmarkTicker
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-XS-F-004 buildDatedGrid
+ *               … and 72 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -180,19 +180,22 @@ export function currencySymbol(): string {
  *     neg = '-'   if v < 0
  *     ''   otherwise
  *
- * Called by ... MK-ST-F-053 money
+ * Called by ... MK-NW-F-078 ONE · MK-NW-F-079 EF
+ *               MK-NW-F-081 LB · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-ST-F-053 money
+ *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-PF-F-013 benchmarkTicker · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-CF-F-107 buildPaycheckYear · MK-PF-F-014 buildPerformance
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-171 earnerPay
- *               … and 50 more — the full list is on functions_from_code
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-081 LB · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-CF-F-202 TAX
+ *               MK-CF-F-026 actualDebtPayment · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-O-001 basePay · MK-PF-F-013 benchmarkTicker
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-XS-F-004 buildDatedGrid
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -231,10 +234,10 @@ export function formatMoney(n: number): string {
  *     neg = '-'   if v < 0
  *     ''   otherwise
  *
- * Called by ... MK-ST-F-054 money2
+ * Called by ... MK-ST-F-054 money2 · MK-XS-F-183 writeFigure
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-ST-F-054 money2
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-ST-F-054 money2 · MK-XS-F-183 writeFigure
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

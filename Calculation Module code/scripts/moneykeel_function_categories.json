@@ -1,4 +1,99 @@
 {
+ "ACC": {
+  "id": "MK-NW-F-075",
+  "file": "MoneyKeel/functions/networth-and-performance/account.ts",
+  "category": "1 · ACTION"
+ },
+ "ALL": {
+  "id": "MK-NW-F-077",
+  "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
+  "category": "1 · ACTION"
+ },
+ "ALT": {
+  "id": "MK-NW-F-076",
+  "file": "MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts",
+  "category": "1 · ACTION"
+ },
+ "COMING": {
+  "id": "MK-CF-F-205",
+  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
+  "category": "1 · ACTION"
+ },
+ "EF": {
+  "id": "MK-NW-F-079",
+  "file": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts",
+  "category": "1 · ACTION"
+ },
+ "HOLD": {
+  "id": "MK-NW-F-080",
+  "file": "MoneyKeel/functions/networth-and-performance/holding.ts",
+  "category": "1 · ACTION"
+ },
+ "INCOME": {
+  "id": "MK-CF-F-201",
+  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
+  "category": "1 · ACTION"
+ },
+ "LB": {
+  "id": "MK-NW-F-081",
+  "file": "MoneyKeel/functions/networth-and-performance/look-back.ts",
+  "category": "1 · ACTION"
+ },
+ "LINE": {
+  "id": "MK-CF-F-200",
+  "file": "MoneyKeel/functions/cashflow/credit-line.ts",
+  "category": "1 · ACTION"
+ },
+ "M": {
+  "id": "MK-CF-O-014",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "1 · ACTION"
+ },
+ "MONTH": {
+  "id": "MK-CF-F-203",
+  "file": "MoneyKeel/functions/cashflow/the-month.ts",
+  "category": "1 · ACTION"
+ },
+ "NW": {
+  "id": "MK-NW-F-082",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "1 · ACTION"
+ },
+ "ONE": {
+  "id": "MK-NW-F-078",
+  "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "PAY": {
+  "id": "MK-CF-O-011",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "1 · ACTION"
+ },
+ "PAY_ESTIMATED": {
+  "id": "MK-CF-O-012",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "1 · ACTION"
+ },
+ "PAY_LANDS_TYPED": {
+  "id": "MK-CF-O-013",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "1 · ACTION"
+ },
+ "PERF": {
+  "id": "MK-NW-F-083",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "ROOM": {
+  "id": "MK-CF-F-199",
+  "file": "MoneyKeel/functions/cashflow/contribution-room.ts",
+  "category": "1 · ACTION"
+ },
+ "TAX": {
+  "id": "MK-CF-F-202",
+  "file": "MoneyKeel/functions/cashflow/tax-organizer.ts",
+  "category": "1 · ACTION"
+ },
  "accountAllowsTicker": {
   "id": "MK-NW-F-005",
   "file": "src/domain/assets/index.ts",
@@ -32,7 +127,7 @@
  "accruedInterestCaveat": {
   "id": "MK-NW-F-070",
   "file": "src/domain/bonds/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "activeCurrency": {
   "id": "MK-ST-F-047",
@@ -61,8 +156,8 @@
  },
  "actualSpending": {
   "id": "MK-CF-F-151",
-  "file": "MoneyKeel/functions/cashflow/spending.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "file": "MoneyKeel/functions/cashflow/expenses.ts",
+  "category": "3 · DEPENDENT"
  },
  "addDays": {
   "id": "MK-CF-F-122",
@@ -147,12 +242,12 @@
  "annualCoupon": {
   "id": "MK-NW-F-057",
   "file": "src/domain/bonds/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "annualHsaLimit": {
   "id": "MK-CF-F-055",
   "file": "src/domain/income/limits.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "annualIraLimit": {
   "id": "MK-CF-F-054",
@@ -182,7 +277,7 @@
  "approxYTM": {
   "id": "MK-NW-F-060",
   "file": "src/domain/bonds/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "asPercent": {
   "id": "MK-CF-F-182",
@@ -292,17 +387,17 @@
  "bondInfo": {
   "id": "MK-NW-F-056",
   "file": "src/domain/bonds/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "bondRateSensitivity": {
   "id": "MK-NW-F-064",
   "file": "src/domain/bonds/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "bondSummary": {
   "id": "MK-NW-F-061",
   "file": "src/domain/bonds/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "budgetFromOnboarding": {
   "id": "MK-CF-F-013",
@@ -367,7 +462,7 @@
  "buildNetWorth": {
   "id": "MK-NW-F-065",
   "file": "src/domain/networth/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "buildPaycheckYear": {
   "id": "MK-CF-F-107",
@@ -417,7 +512,7 @@
  "capGains": {
   "id": "MK-PF-F-006",
   "file": "src/domain/performance/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "capitalNeeded": {
   "id": "MK-PL-F-048",
@@ -582,7 +677,7 @@
  "creditUtilization": {
   "id": "MK-CF-F-031",
   "file": "src/domain/debt/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "currencySymbol": {
   "id": "MK-ST-F-048",
@@ -612,7 +707,7 @@
  "currentYield": {
   "id": "MK-NW-F-059",
   "file": "src/domain/bonds/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "dataGaps": {
   "id": "MK-XS-F-002",
@@ -651,8 +746,8 @@
  },
  "debtPaymentsCountedAsExpenses": {
   "id": "MK-CF-F-150",
-  "file": "MoneyKeel/functions/cashflow/spending.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "file": "MoneyKeel/functions/cashflow/expenses.ts",
+  "category": "3 · DEPENDENT"
  },
  "debtToIncome": {
   "id": "MK-CF-F-033",
@@ -807,7 +902,7 @@
  "emergencyTest": {
   "id": "MK-CF-F-010",
   "file": "src/domain/budget/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "emit": {
   "id": "MK-ST-F-040",
@@ -877,11 +972,16 @@
  "essentialsFromLoggedSpending": {
   "id": "MK-CF-F-189",
   "file": "MoneyKeel/functions/cashflow/essentials.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "essentialsMonthly": {
   "id": "MK-CF-F-190",
   "file": "MoneyKeel/functions/cashflow/essentials.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "expenses": {
+  "id": "MK-CF-O-002",
+  "file": "MoneyKeel/functions/cashflow/expenses.ts",
   "category": "2 · DISPLAYED"
  },
  "extraIncome": {
@@ -1129,6 +1229,11 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "1 · ACTION"
  },
+ "householdK401ByMonth": {
+  "id": "MK-CF-F-206",
+  "file": "src/domain/income/onboarding.ts",
+  "category": "3 · DEPENDENT"
+ },
  "householdPreTaxContributionsAnnual": {
   "id": "MK-CF-F-188",
   "file": "src/domain/income/earners.ts",
@@ -1232,7 +1337,7 @@
  "investableChangePct": {
   "id": "MK-XS-F-010",
   "file": "src/domain/history.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "investmentIncomeAnnual": {
   "id": "MK-CF-F-119",
@@ -1258,6 +1363,11 @@
   "id": "MK-NW-F-006",
   "file": "src/domain/assets/index.ts",
   "category": "1 · ACTION"
+ },
+ "isCertificateOfDeposit": {
+  "id": "MK-NW-F-071",
+  "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
+  "category": "3 · DEPENDENT"
  },
  "isDayKey": {
   "id": "MK-ST-F-066",
@@ -1306,8 +1416,8 @@
  },
  "isRadarItem": {
   "id": "MK-CF-F-152",
-  "file": "MoneyKeel/functions/cashflow/spending.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "file": "MoneyKeel/functions/cashflow/expenses.ts",
+  "category": "3 · DEPENDENT"
  },
  "isRealAsset": {
   "id": "MK-NW-F-014",
@@ -1332,6 +1442,11 @@
  "isoLocalDate": {
   "id": "MK-ST-F-065",
   "file": "src/domain/_shared/dates.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "itemising": {
+  "id": "MK-NW-F-073",
+  "file": "MoneyKeel/functions/networth-and-performance/account.ts",
   "category": "2 · DISPLAYED"
  },
  "itemizeRemainder": {
@@ -1378,6 +1493,11 @@
   "id": "MK-PL-F-034",
   "file": "src/domain/planning/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "line": {
+  "id": "MK-CF-F-204",
+  "file": "MoneyKeel/functions/cashflow/the-month.ts",
+  "category": "1 · ACTION"
  },
  "load": {
   "id": "MK-XS-F-132",
@@ -1447,7 +1567,7 @@
  "lookBack": {
   "id": "MK-PF-F-023",
   "file": "src/domain/performance/lookBack.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "looksFixedIncome": {
   "id": "MK-ST-F-001",
@@ -1627,7 +1747,7 @@
  "monthlyEssentials": {
   "id": "MK-CF-F-009",
   "file": "src/domain/budget/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "monthlyGrossOfSource": {
   "id": "MK-CF-F-161",
@@ -1647,7 +1767,7 @@
  "monthsLeftInYear": {
   "id": "MK-CF-F-195",
   "file": "src/domain/income/limits.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "monthsOf": {
   "id": "MK-CF-F-142",
@@ -1902,7 +2022,7 @@
  "perMonthToFill": {
   "id": "MK-CF-F-196",
   "file": "src/domain/income/limits.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "periodDollarDelta": {
   "id": "MK-PF-F-021",
@@ -1952,7 +2072,7 @@
  "plannedMonthFlow": {
   "id": "MK-CF-F-156",
   "file": "MoneyKeel/functions/cashflow/this-month.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "plannedMonthlySpend": {
   "id": "MK-CF-F-002",
@@ -2056,8 +2176,8 @@
  },
  "radar": {
   "id": "MK-CF-F-153",
-  "file": "MoneyKeel/functions/cashflow/spending.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "file": "MoneyKeel/functions/cashflow/expenses.ts",
+  "category": "3 · DEPENDENT"
  },
  "rateInForce": {
   "id": "MK-CF-F-181",
@@ -2092,7 +2212,7 @@
  "realizedFromLedger": {
   "id": "MK-PF-F-028",
   "file": "src/domain/performance/realized.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "rebuildDays": {
   "id": "MK-ST-F-073",
@@ -2141,8 +2261,8 @@
  },
  "recurringDebtPayments": {
   "id": "MK-CF-F-149",
-  "file": "MoneyKeel/functions/cashflow/spending.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "file": "MoneyKeel/functions/cashflow/expenses.ts",
+  "category": "3 · DEPENDENT"
  },
  "refreshEmailVerified": {
   "id": "MK-XS-F-062",
@@ -2343,6 +2463,11 @@
   "id": "MK-ST-F-059",
   "file": "Calculation Module code/engines/ledger.ts",
   "category": "1 · ACTION"
+ },
+ "rowOf": {
+  "id": "MK-NW-F-072",
+  "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
+  "category": "3 · DEPENDENT"
  },
  "rowVestYear": {
   "id": "MK-CF-F-063",
@@ -2624,11 +2749,6 @@
   "file": "src/domain/planning/spendMore.ts",
   "category": "2 · DISPLAYED"
  },
- "spending": {
-  "id": "MK-CF-O-002",
-  "file": "MoneyKeel/functions/cashflow/spending.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "ssBenefitAt": {
   "id": "MK-PL-F-060",
   "file": "src/domain/retirement/ssTiming.ts",
@@ -2747,7 +2867,7 @@
  "taxOrganizer": {
   "id": "MK-PL-F-031",
   "file": "src/domain/planning/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "taxOwedFor": {
   "id": "MK-CF-F-101",
@@ -2784,10 +2904,70 @@
   "file": "src/domain/planning/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "theAccount": {
+  "id": "MK-NW-O-002",
+  "file": "MoneyKeel/functions/networth-and-performance/account.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theAlternativesOutlook": {
+  "id": "MK-NW-O-005",
+  "file": "MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theBonds": {
+  "id": "MK-NW-O-001",
+  "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theContributionRoom": {
+  "id": "MK-CF-O-005",
+  "file": "MoneyKeel/functions/cashflow/contribution-room.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theCreditLine": {
+  "id": "MK-CF-O-006",
+  "file": "MoneyKeel/functions/cashflow/credit-line.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theEmergencyFund": {
+  "id": "MK-NW-O-004",
+  "file": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theHolding": {
+  "id": "MK-NW-O-006",
+  "file": "MoneyKeel/functions/networth-and-performance/holding.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theLookBack": {
+  "id": "MK-NW-O-007",
+  "file": "MoneyKeel/functions/networth-and-performance/look-back.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theMonth": {
+  "id": "MK-CF-O-010",
+  "file": "MoneyKeel/functions/cashflow/the-month.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theNetWorth": {
+  "id": "MK-NW-O-003",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "thePerformance": {
+  "id": "MK-NW-O-008",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theTaxOrganizer": {
+  "id": "MK-CF-O-007",
+  "file": "MoneyKeel/functions/cashflow/tax-organizer.ts",
+  "category": "2 · DISPLAYED"
+ },
  "thisMonth": {
   "id": "MK-CF-O-003",
   "file": "MoneyKeel/functions/cashflow/this-month.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "tipsAnnual": {
   "id": "MK-CF-F-074",
@@ -2947,7 +3127,7 @@
  "upcomingBills": {
   "id": "MK-CF-F-019",
   "file": "src/domain/cashflow/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "usdCash": {
   "id": "MK-XS-F-114",
@@ -3029,6 +3209,11 @@
   "file": "src/domain/planning/multiGoal.ts",
   "category": "2 · DISPLAYED"
  },
+ "whatsComing": {
+  "id": "MK-CF-O-008",
+  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
+  "category": "2 · DISPLAYED"
+ },
  "willItLastInputs": {
   "id": "MK-PL-F-067",
   "file": "src/domain/retirement/willItLast.ts",
@@ -3059,6 +3244,11 @@
   "file": "src/domain/decumulation/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "workedLineAmount": {
+  "id": "MK-CF-O-015",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "1 · ACTION"
+ },
  "wrapWithSecret": {
   "id": "MK-XS-F-139",
   "file": "src/services/dataCrypto.ts",
@@ -3074,6 +3264,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "1 · ACTION"
  },
+ "writeFigure": {
+  "id": "MK-XS-F-183",
+  "file": "MoneyKeel/functions/_figure-spec.ts",
+  "category": "2 · DISPLAYED"
+ },
  "yahooSymbol": {
   "id": "MK-XS-F-143",
   "file": "src/services/marketData.ts",
@@ -3082,7 +3277,7 @@
  "yearsToMaturity": {
   "id": "MK-NW-F-058",
   "file": "src/domain/bonds/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "yearsToRetirement": {
   "id": "MK-XS-F-018",

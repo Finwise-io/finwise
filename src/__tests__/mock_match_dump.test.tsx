@@ -299,7 +299,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     };
     walk(screen.toJSON());
     expect(fills.length).toBeGreaterThan(0);                       // 2.0 of 6 months → an amber part-bar
-    expect(fills[fills.length - 1].width).toBe('33.33333333333333%');
+    expect(fills[fills.length - 1].width).toBe('40%');   // 2.4 months of the 6-month guide (2026-09-28)
     expect(screen.getByText('Tight ⚠')).toBeOnTheScreen();         // the word carries it too
   });
 
@@ -335,6 +335,10 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const strings = dumpStrings();
     const math = strings.indexOf('of essentials covered by your cash —');
     expect(strings[math + 1]).toBe('$8,838');                                // and the emergency fund divides the same figure
-    expect(strings[strings.indexOf('months') - 1]).toBe('2.0');              // 8,838 ÷ 4,500 = 2.0, not 1.8
+    // 2026-09-28, on the founder's two instructions — "give both numbers" and "What about credit card
+    // debt, HELOC, car loan?":  8,838 ÷ (3,600 essentials + 150 Visa minimum) = 2.4.
+    // It was 8,838 ÷ 4,500 planned spend = 2.0, with no debt payment in it at all.
+    // The $2,400 mortgage is NOT added: the Rent / Mortgage category already carries it at $2,300.
+    expect(strings[strings.indexOf('months') - 1]).toBe('2.4');
   });
 });

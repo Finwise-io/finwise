@@ -199,7 +199,7 @@ export default function MultiGoalScreen() {
       {/* trim hints — each one IS a pre-run of the dials, never separate math */}
       {hints.length > 0 && weighed.chance != null && (
         <View style={s.card}>
-          <SectionBand title="WHAT IF YOU TRIM ONE?" />
+          <SectionBand inCard title="WHAT IF YOU TRIM ONE?" />
           {hints.map((h) => (
             <TouchableOpacity accessibilityRole="button" key={h.dialId} style={s.hintRow}
               onPress={() => {

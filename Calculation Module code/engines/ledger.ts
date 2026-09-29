@@ -210,7 +210,11 @@ export interface PersonalFlowTotals {
  *     d = dec.parse(amount)
  *     the answer = t
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-002 theAccount · MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-083 PERF
+ *               MK-NW-O-002 theAccount · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)

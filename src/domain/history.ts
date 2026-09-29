@@ -49,7 +49,10 @@ export interface TrendPoint { key: string; nw: number }   // key 'YYYY-MM' (mont
  *     nw = net worth
  *     the answer = pts.sort((a, b) => key.locale compare(key))
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-003 theNetWorth
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-O-003 theNetWorth
  *
  * Serves ...... MK-NW-M-001 · MK-NW-M-003
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -82,17 +85,17 @@ export function trendPoints(
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -116,8 +119,9 @@ export function pruneDaily(daily: Record<string, number>): Record<string, number
  *
  * Called by ... MK-XS-F-008 normalizeSnapshot
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-XS-F-008 normalizeSnapshot
+ *               MK-XS-F-009 readHistory · MK-NW-O-003 theNetWorth
  *               MK-XS-F-005 trendPoints
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -149,17 +153,17 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-131 toInt
  *               MK-XS-F-171 numOrNaN · MK-XS-F-175 uid
  *
- * Reaches ..... 251 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-151 actualSpending
- *               MK-PF-F-017 allocation · MK-NW-F-002 alternativesSummary
- *               MK-NW-F-019 alternativesTotal · MK-CF-F-012 annualCashflow
- *               MK-CF-F-143 annualisedGross · MK-CF-F-059 annualizedEnteredSalary
- *               MK-NW-F-060 approxYTM · MK-NW-F-029 assetAllocation
- *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               … and 233 more — the full list is on functions_from_code
+ * Reaches ..... 296 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-CF-F-205 COMING
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-CF-F-202 TAX
+ *               … and 278 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -215,8 +219,9 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
  *
  * Called by ... MK-XS-F-009 readHistory
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-009 readHistory · MK-XS-F-005 trendPoints
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-XS-F-009 readHistory
+ *               MK-NW-O-003 theNetWorth · MK-XS-F-005 trendPoints
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -263,7 +268,8 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
  *
  * Called by ... MK-XS-F-005 trendPoints
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-O-003 theNetWorth
  *               MK-XS-F-005 trendPoints
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -283,7 +289,7 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
  *  property values move only when someone retypes them, so a total-net-worth percent is noise.
  *  Baseline = the earliest invDaily point on/after the change line's own baseline date; the
  *  percent exists ONLY when that history exists (never back-guessed). Returns % (1dp) or null. */
-/* ─ MK-XS-F-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-XS-F-010 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * investableChangePct
  *
  * Answers ..... FOUNDER RULE 2026-08-04: the NW change PERCENT is measured on cash + investments only — property values move only when someone retypes them, so a total-net-worth percent is noise.
@@ -295,9 +301,12 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
  *     nothing   when base is not a number (or not (base > 0) when missing or zero)
  *     the answer = ((current investable − base) ÷ base) × 100
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-082 NW · MK-NW-O-003 theNetWorth
  *
- * Serves ...... MK-NW-M-002
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-O-003 theNetWorth
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-010
  * Changed ..... 2026-08-05 (db8f3c8)
@@ -345,9 +354,12 @@ export interface ChangeWalk {
  *     wealth generated = total − contributions + withdrawals − debt principal
  *     market change = wealth generated − dividends − interest
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-008 thePerformance
  *
- * Serves ...... MK-PF-M-002 · MK-PF-M-003
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-083 PERF · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
  *     · If contributions is missing it uses 0.

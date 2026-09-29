@@ -29,17 +29,17 @@ import { fetchPriceSeries } from '../services/marketData';
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -527,33 +527,33 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-079 incomeFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-042 loadAssets
  *               MK-NW-F-044 getAssetsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-011 buildGoalsState · MK-PL-F-013 goalsFromOnboarding
- *               MK-PL-F-014 loadGoals · MK-PL-F-053 buildRetirementState
- *               MK-ST-F-041 getUserDoc · MK-ST-F-042 setUserDoc
- *               MK-XS-F-021 loadProfile · MK-XS-F-023 getProfileReadModel
- *               MK-XS-F-026 profileFromOnboarding · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-033 resolveNetWorthRows
- *               MK-XS-F-046 makeEnvelope · MK-XS-F-047 unwrapWithPassword
- *               MK-XS-F-048 unwrapWithRecovery · MK-XS-F-049 rewrapPassword
- *               MK-XS-F-050 rewrapRecovery · MK-XS-F-060 registerUser
- *               MK-XS-F-066 loginUser · MK-XS-F-067 restoreWithRecoveryCode
- *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-072 deleteAccount
- *               MK-XS-F-073 saveUserData · MK-XS-F-074 loadUserData
- *               MK-XS-F-077 setUserHousehold · MK-XS-F-078 joinHouseholdMembership
- *               MK-XS-F-079 loadUserRoot · MK-XS-F-138 deriveKeyFromSecret
- *               MK-XS-F-139 wrapWithSecret
+ *               MK-NW-O-003 theNetWorth · MK-PL-F-011 buildGoalsState
+ *               MK-PL-F-013 goalsFromOnboarding · MK-PL-F-014 loadGoals
+ *               MK-PL-F-053 buildRetirementState · MK-ST-F-041 getUserDoc
+ *               MK-ST-F-042 setUserDoc · MK-XS-F-021 loadProfile
+ *               MK-XS-F-023 getProfileReadModel · MK-XS-F-026 profileFromOnboarding
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-033 resolveNetWorthRows · MK-XS-F-046 makeEnvelope
+ *               MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
+ *               MK-XS-F-049 rewrapPassword · MK-XS-F-050 rewrapRecovery
+ *               MK-XS-F-060 registerUser · MK-XS-F-066 loginUser
+ *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-068 regenerateRecoveryCode
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-073 saveUserData
+ *               MK-XS-F-074 loadUserData · MK-XS-F-077 setUserHousehold
+ *               MK-XS-F-078 joinHouseholdMembership · MK-XS-F-079 loadUserRoot
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -976,7 +976,7 @@ export const useStore = create<AppState>()(
           dateKey),
       })),
       // FOUNDER APPROVED 2026-09-25 ("Yes rebuild - day one history"): a LINKED account's past is
-      // not a blank. The broker hands over its whole transaction history on the first sync, and the
+      // not a blank. The broker hands over its whole activity history on the first sync, and the
       // price cache holds daily closes, so today's holdings walked backwards through those records
       // and priced at each day's close IS the account's real history — the same one the broker
       // shows. Hand-entered accounts and cash have no ledger: they keep their honest start date.

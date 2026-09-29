@@ -40,14 +40,14 @@ export default function PaycheckMonthsScreen() {
             </TouchableOpacity>
             {open && (
               <View style={styles.detail}>
-                <SectionBand title={inflowLabel('Inflow', m.guaranteed.map((g) => g.source))} />
+                <SectionBand inCard inset={14} title={inflowLabel('Inflow', m.guaranteed.map((g) => g.source))} />
                 {m.guaranteed.length === 0 && <Text style={styles.line}>No guaranteed income entered yet</Text>}
                 {m.guaranteed.map((g, i) => (
                   <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={maskedMoney(g.amount)} />
                 ))}
                 <Row label="Draw from savings" value={maskedMoney(m.safeDraw)} />
-                <Row label="= In" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />
-                <SectionBand title="Big bills this month" />
+                <Row label="= Inflow" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />
+                <SectionBand inCard inset={14} title="Big bills this month" />
                 {m.bills.length === 0 && <Text style={styles.line}>No big bills this month</Text>}
                 {m.bills.map((b, i) => (
                   <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={`−${maskedMoney(b.amount)}`} />
@@ -55,7 +55,7 @@ export default function PaycheckMonthsScreen() {
                 <Row label="= Surplus" value={maskedMoney(m.netSafeToSpend)} bold />
                 {regulars.length > 0 && (
                   <>
-                    <SectionBand title="Regular bills (this is what it pays for)" />
+                    <SectionBand inCard inset={14} title="Regular bills (this is what it pays for)" />
                     {regulars.map((b, i) => (
                       <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={maskedMoney(b.amount)} muted />
                     ))}

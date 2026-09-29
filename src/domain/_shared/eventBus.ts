@@ -14,21 +14,22 @@ const handlers: Record<string, Set<Handler>> = {};
  *     () => handlers[event type].delete(handler as handler)
  *
  * Called by ... MK-CF-F-071 extraIncome · MK-CF-F-091 userCapGainsRates
- *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-171 earnerPay
- *               MK-PL-F-004 withdrawalOrder · MK-PL-F-036 weighGoals
- *               MK-PL-F-082 taxableIncomeSteps · MK-ST-F-049 formatMoney
+ *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-202 TAX
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-036 weighGoals · MK-PL-F-082 taxableIncomeSteps
+ *               MK-ST-F-049 formatMoney · MK-XS-F-183 writeFigure
  *
- * Reaches ..... 106 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-PF-F-013 benchmarkTicker · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
- *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               … and 88 more — the full list is on functions_from_code
+ * Reaches ..... 142 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-CF-F-202 TAX
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-NW-F-040 assetsFromOnboarding
+ *               … and 124 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

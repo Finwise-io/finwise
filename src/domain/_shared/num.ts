@@ -26,36 +26,37 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-CF-F-076 guaranteedOutsideStreams · MK-CF-F-077 scholarshipByCalendarMonth
  *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-083 totalGrossAnnual
  *               MK-CF-F-084 taxableAnnual · MK-CF-F-086 stateRateOf
- *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-089 over65CountOf
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-105 guaranteedRows
- *               MK-CF-F-130 enteredMonthlyRaw · MK-CF-F-141 perMonth
- *               MK-CF-F-142 monthsOf · MK-CF-F-144 takeHomeAsEntered
- *               MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
- *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-151 actualSpending
- *               MK-CF-F-153 radar · MK-CF-F-157 debtPaymentsByDebt
- *               MK-CF-F-165 salaryMonths · MK-CF-F-169 withSalaryMonth
- *               MK-CF-F-170 salaryYearFromCells · MK-CF-F-171 earnerPay
- *               MK-CF-F-178 wageMatchMonthly · MK-CF-F-180 enteredLandsAnnual
- *               MK-CF-F-181 rateInForce · MK-CF-F-185 needsTakeHomeConversion
- *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-188 householdPreTaxContributionsAnnual
- *               MK-CF-F-189 essentialsFromLoggedSpending · MK-CF-O-004 incomeSummary
+ *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-088 taxableByCalendarMonth
+ *               MK-CF-F-089 over65CountOf · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-F-105 guaranteedRows · MK-CF-F-130 enteredMonthlyRaw
+ *               MK-CF-F-141 perMonth · MK-CF-F-142 monthsOf
+ *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-145 deductionsFromPay
+ *               MK-CF-F-146 payFiguresAgree · MK-CF-F-150 debtPaymentsCountedAsExpenses
+ *               MK-CF-F-151 actualSpending · MK-CF-F-153 radar
+ *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-165 salaryMonths
+ *               MK-CF-F-169 withSalaryMonth · MK-CF-F-170 salaryYearFromCells
+ *               MK-CF-F-171 earnerPay · MK-CF-F-178 wageMatchMonthly
+ *               MK-CF-F-180 enteredLandsAnnual · MK-CF-F-181 rateInForce
+ *               MK-CF-F-185 needsTakeHomeConversion · MK-CF-F-186 convertTakeHomeMode
+ *               MK-CF-F-188 householdPreTaxContributionsAnnual · MK-CF-F-189 essentialsFromLoggedSpending
+ *               MK-CF-F-206 householdK401ByMonth · MK-CF-O-004 incomeSummary
  *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-041 monthlyContributionsFromOnboarding
  *               MK-PL-F-013 goalsFromOnboarding · MK-PL-F-031 taxOrganizer
  *               MK-PL-F-049 retirementSpendMonthly · MK-XS-F-004 buildDatedGrid
  *               MK-XS-F-030 effectiveAnnualContribution · MK-XS-F-031 buildSnapshot
  *               MK-XS-F-058 parseReceipt
  *
- * Reaches ..... 153 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-151 actualSpending
- *               MK-CF-F-012 annualCashflow · MK-CF-F-143 annualisedGross
- *               MK-CF-F-059 annualizedEnteredSalary · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-070 benefitAnnual
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
- *               … and 135 more — the full list is on functions_from_code
+ *               MK-XS-F-057 analyzeExpenses · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-044 annualNet · MK-CF-F-143 annualisedGross
+ *               … and 185 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -82,17 +83,17 @@ export const toNum = (v: any): number => {
  *               MK-ST-F-044 setMoneyFormat · MK-ST-F-064 modifiedDietzOverWindow
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 67 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
  *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
  *               MK-PF-F-013 benchmarkTicker · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-CF-F-107 buildPaycheckYear · MK-PF-F-014 buildPerformance
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-171 earnerPay
- *               … and 49 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -135,17 +136,17 @@ export const money2 = (n: number): string => formatMoneyCents(n);
  *
  * Called by ... MK-CF-F-109 reviewTransactions · MK-PL-F-050 simulate
  *
- * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 58 more — the full list is on functions_from_code
+ * Reaches ..... 78 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 60 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

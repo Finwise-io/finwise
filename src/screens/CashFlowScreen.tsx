@@ -5,6 +5,8 @@
 //             future-paycheck PROJECTION card (same F5 function, projection mode, estimate-labeled)
 // Every by-month number is an F2/F5 cell — this screen computes NOTHING of its own.
 import { inflowLabel, monthOutflow } from '../../MoneyKeel/functions/cashflow/this-month';
+import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';
+import { isoLocalDate } from '../domain/_shared/dates';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -219,7 +221,7 @@ function PlanSummaryCard({ op, bva }: { op: any; bva: any }) {
   const rest = 0;
   return (
     <View style={styles.card}>
-      <SectionBand inCard inset={16} title="YOUR PLAN BY CATEGORY" />
+      <SectionBand inCard inset={16} title="YOUR BUDGET" />
       {top.length === 0 && <EmptyNote door="expenses" />}   {/* Q48 (MK-CF-M-015) */}
       {top.map((c) => <Row key={c.label} label={c.label} value={maskedMoney(c.amount)} />)}
 
@@ -325,7 +327,7 @@ function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any;
   return (
     <>
       <View style={styles.card}>
-        <SectionBand title="YOUR SOURCES" />
+        <SectionBand inCard inset={16} title="YOUR SOURCES" />
         {sources.length === 0 && <EmptyNote door="income" />}   {/* Q48 */}
         {sources.map((sc) => (
           <View key={sc.label} style={styles.row}>
@@ -351,14 +353,14 @@ function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any;
         </TouchableOpacity>
       </View>
       <View style={styles.card}>
-        <SectionBand title={`RECEIVED · ${ym}`} />
+        <SectionBand inCard inset={16} title={`RECEIVED · ${ym}`} />
         {received.length === 0 && <EmptyNote door="income" />}   {/* Q48 */}
         {received.slice(0, 6).map((i: any) => (
           <Row key={i.id} label={`${String(i.date).slice(5)} · ${i.source || i.type || 'Income'}`} value={`+${maskedMoney(Math.round(Number(i.amount) || 0))}`} color={Colors.gainText} />
         ))}
       </View>
       <View style={styles.card}>
-        <SectionBand title="COMING SOON" />
+        <SectionBand inCard inset={16} title="COMING SOON" />
         <View style={styles.door}>
           <View style={{ flex: 1 }}><Text style={styles.doorT}>Connect your bank</Text><Text style={styles.doorSub}>paychecks appear on their own</Text></View>
           <Text style={styles.soonPill}>SOON</Text>
@@ -396,7 +398,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
       {(expenses ?? []).length === 0 ? (
         /* day one — the three doors (approved §A), never an empty list */
         <View style={styles.card}>
-          <SectionBand title="GET YOUR EXPENSES IN" />
+          <SectionBand inCard inset={16} title="GET YOUR EXPENSES IN" />
           <View style={styles.door}>
             <View style={{ flex: 1 }}><Text style={styles.doorT}>Connect your bank or card</Text><Text style={styles.doorSub}>every transaction, automatically</Text></View>
             <Text style={styles.soonPill}>SOON</Text>
@@ -407,13 +409,16 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
             <Text style={styles.link}>›</Text>
           </TouchableOpacity>
           <View style={styles.door}>
-            <View style={{ flex: 1 }}><Text style={styles.doorT}>Add by hand</Text><Text style={styles.doorSub}>the ＋ Expense button, any time</Text></View>
+            {/* ONE DOOR, ONE TERM (founder, 2026-09-14). "Add by hand" is the account door — it adds an
+                ACCOUNT, from the one list in constants/doors.ts. This one adds an EXPENSE, so it says so:
+                the same words for two different doors is how Home and Net worth came to disagree. */}
+            <View style={{ flex: 1 }}><Text style={styles.doorT}>Add an expense by hand</Text><Text style={styles.doorSub}>the ＋ Expense button, any time</Text></View>
           </View>
           <Text style={styles.note}>Everything you add now stays — when your bank connects, nothing is doubled (each entry keeps its source).</Text>
         </View>
       ) : (
         <View style={styles.card}>
-          <SectionBand title={`${monthWord.toUpperCase()} · ${maskedMoney(Math.round(spent))} SPENT`} />
+          <SectionBand inCard inset={16} title={`${monthWord.toUpperCase()} · ${maskedMoney(Math.round(spent))} SPENT`} />
           {monthExp.length === 0 && <EmptyNote door="expenses" />}   {/* Q48: the band above reads $0 SPENT */}
           {monthExp.slice(0, 6).map((e: any) => (
             <View key={e.id} style={styles.row}>
@@ -442,7 +447,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
 
       {(bva?.buckets ?? []).some((b: any) => (b.planned || 0) > 0) && (
         <View style={styles.card}>
-          <SectionBand title="BY CATEGORY VS PLAN" />
+          <SectionBand inCard inset={16} title="BY CATEGORY VS PLAN" />
           {(bva.buckets as any[]).filter((b) => (b.planned || 0) > 0).map((b) => (
             <Row key={b.key} label={BUCKET_WORDS[b.key] ?? b.key}
               value={`${maskedMoney(Math.round(b.spent || 0))} of ${maskedMoney(Math.round(b.planned || 0))}`}
@@ -491,14 +496,14 @@ function BigTicketRadar({ grid, offset, expenses, ym }: { grid: any; offset: num
     // Q48 (MK-CF-M-028): the section stays, at $0, with the one line and the door — never vanishes
     return (
       <View style={styles.card}>
-        <SectionBand title="BIG-TICKET RADAR" value={maskedMoney(0)} />
+        <SectionBand inCard inset={16} title="BIG-TICKET RADAR" value={maskedMoney(0)} />
         <EmptyNote door="bills" />
       </View>
     );
   }
   return (
     <View style={styles.card}>
-      <SectionBand title="BIG-TICKET RADAR" />
+      <SectionBand inCard inset={16} title="BIG-TICKET RADAR" />
       {bills.map((b: any, i: number) => (
         <Row key={`b${i}`} label={`${b.label ?? 'Big bill'} · due ${cell.label}`} value={maskedMoney(Math.round(b.amount))} color={Colors.amber} />
       ))}
@@ -569,6 +574,27 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
   // printing it behind an equals sign made the app contradict itself on one card.
   const surplus = Math.round(inflow - outflow);
   const debtMo = Math.round(actualDebtPayment(liabilities));
+  // ONE DOOR (MK-CF-O-010 theMonth, Q-CF-2), and THE FLOW SPELLED OUT. Until 2026-09-28 this card
+  // showed three rows — Inflow, Outflow, = Planned surplus — and hid the rest on Month detail. The
+  // approved design (cash-flow_v01, approved 2026-08-26, AFTER the build that shipped the three
+  // rows) spells out every row, and his rule under that drawing is "every row shown is a row
+  // deducted — nothing appears without being in the sum". His ruling of 2026-09-27 settles which
+  // wins: the newer approval is the design.
+  const month = useMemo(() => theMonth({
+    ym: isoLocalDate(new Date()).slice(0, 7),   // the LOCAL day, never UTC (guard: local_day_not_utc)
+    takeHomeMonthly: inflow,
+    inflowSources: (cell?.incomeItems ?? []).map((i: any) => i.source),
+    debts: liabilities as any,
+    // THE SAME BASIS THE SURPLUS USES. Fed bva.planned_total instead, the rows stopped summing to
+    // the surplus on screen — $7,200 in, a $0 expenses row, and a $2,700 surplus, which is the one
+    // thing the approved design forbids ("every row shown is a row deducted"). The month cell's own
+    // bill items ARE the outflow by construction (grid.test: outflow === sum(billItems)), so the
+    // spelled-out rows and the total can never disagree.
+    plannedExpenses: (cell?.billItems ?? []).filter((b: any) => b.kind === 'bill').reduce((t: number, b: any) => t + (b.amount || 0), 0),
+    // the SAME per-category plan the budget card below shows — one budget, read once
+    plannedByCategory: (bva?.buckets ?? []).map((b: any) => ({ label: String(b.key), monthly: Math.round(b.planned || 0) })),
+    expenses: (store.expenses ?? []) as any,
+  }), [inflow, cell, liabilities, bva, store.expenses]);
   const A = store.retirementAssumptions ?? {};
 
   // Committed from your Plan (F11): adopted commitments visibly reduce free-to-spend
@@ -605,7 +631,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
   return (
     <>
       <View style={styles.card}>
-        <SectionBand title="THIS MONTH" />
+        <SectionBand inCard inset={16} title="THIS MONTH" />
         {(() => { const free = committed > 0 ? surplus - committed : surplus; return (
           <>
             <HeroAmount style={[styles.heroNum, { color: free >= 0 ? Colors.gainText : Colors.red }]} accessible
@@ -616,9 +642,13 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
           </>
         ); })()}
         <View style={styles.divider} />
-        <Row label={inflowLabel('Inflow', (cell?.incomeItems ?? []).map((i: any) => i.source))} value={maskedMoney(Math.round(inflow))} />
+        {/* EVERY ROW, as the approved design draws it: the inflow, each debt by name, the budget,
+            each big-ticket item — and then the surplus they actually add up to. */}
+        {month.planned.lines.map((l, i) => (
+          <Row key={`${l.label}-${i}`} label={l.label} value={`${l.amount < 0 ? '−' : ''}${maskedMoney(Math.abs(Math.round(l.amount)))}`}
+            dim={l.kind !== 'in'} />
+        ))}
         {(cell?.incomeItems ?? []).length === 0 && <EmptyNote door="income" />}   {/* Q48 (MK-CF-M-018) */}
-        <Row label={debtMo > 0 ? 'Outflow (expenses + debt)' : 'Outflow (expenses)'} value={maskedMoney(Math.round(outflow))} dim />
         {(cell?.billItems ?? []).filter((b: any) => b.kind === 'bill' && b.label !== 'Everyday expenses').length === 0 && debtMo === 0 && <EmptyNote door="bills" />}   {/* Q48 (MK-CF-M-019): no bill and no debt entered — the everyday-expenses line is the budget, not a bill */}
         <Row label={committed > 0 ? 'Surplus after your budget' : '= Planned surplus'}
           value={maskedMoney(committed > 0 ? surplus - committed : surplus)} strong
@@ -647,9 +677,9 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
       {projection && (
         <TouchableOpacity accessibilityRole="button" style={styles.projCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
           accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${spokenMoney(projection.monthly)} a month.`}>
-          <SectionBand title="YOUR FUTURE PAYCHECK" />
+          <SectionBand inCard inset={16} title="YOUR FUTURE PAYCHECK" />
           <Text style={styles.projTag}>PROJECTION — an estimate, not a promise</Text>
-          <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)} / mo</Text>
+          <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)}/month</Text>
           {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${maskedMoney(projection.guaranteed)}`} dim />}
           <Row label="Draw from savings" value={`~${maskedMoney(projection.draw)}`} dim />
           {wilChance != null && <Text style={styles.note}>Based on your plan's {wilChance}% odds of lasting · see Plan ›</Text>}

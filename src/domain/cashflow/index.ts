@@ -98,8 +98,9 @@ const DAY_MS = 86400000;
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-019 upcomingBills
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-019 upcomingBills
+ *               MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -120,8 +121,9 @@ function daysBetweenDates(a: Date, b: Date): number { return Math.round((b.getTi
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-019 upcomingBills
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-019 upcomingBills
+ *               MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -145,8 +147,9 @@ import { isoLocalDate } from '../_shared/dates';
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-019 upcomingBills
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-019 upcomingBills
+ *               MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -174,7 +177,7 @@ export interface UpcomingBill {
   daysAway: number;         // days from now until due
 }
 
-/* ─ MK-CF-F-019 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-019 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * upcomingBills
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -195,7 +198,10 @@ export interface UpcomingBill {
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-008 whatsComing
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

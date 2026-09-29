@@ -32,8 +32,9 @@ export interface LookBackResult {
  *
  * Called by ... MK-PF-F-023 lookBack
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-PF-F-023 lookBack
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-081 LB · MK-PF-F-023 lookBack
+ *               MK-NW-O-007 theLookBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -62,7 +63,7 @@ export function factorOverMonths(series: PriceSeries | null | undefined, months:
   return end.close / start.close;
 }
 
-/* ─ MK-PF-F-023 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-023 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * lookBack
  *
  * Answers ..... What if I had moved this money?
@@ -80,9 +81,12 @@ export function factorOverMonths(series: PriceSeries | null | undefined, months:
  *     difference = moved.end value − stayed.end value
  *     months = months
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-007 theLookBack
  *
- * Serves ...... MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-081 LB · MK-NW-O-007 theLookBack
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.

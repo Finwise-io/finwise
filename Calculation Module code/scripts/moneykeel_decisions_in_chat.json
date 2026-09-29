@@ -1,0 +1,33 @@
+{
+ "_about": "DECISIONS HE MADE IN CHAT — the one hole the five swept sources cannot reach. A decision said in conversation and never written into a changelog, a standard or a workbook is in no file, so no sweep can find it. It is recorded HERE the same day, in his words, and the extractor folds it into the decision log beside the rest. This file is hand-written on purpose: it is the only place in the log that is.",
+ "rows": [
+  {
+   "decided": "2026-09-28",
+   "his_words": "Approved",
+   "subject": "The cash-flow mocks combined into one file",
+   "means": "moneykeel_pres_mock_cash-flow_v01.html APPROVED — the cash-flow mocks are one file. It combines the four-tab architecture from v02 with the This month and Expenses screens revised in v07; v02 and v07 are dated and archived.",
+   "tab": "cashflow",
+   "type": "DESIGN",
+   "screens": "/cashflow · /expense · /month-detail",
+   "exceptions": "none recorded",
+   "status": "RULED, NOT CODED",
+   "proof": "NONE NAMED — the approval is recorded; what proves it is the mock-match audit of the built screens against this file",
+   "plain": "“Approved.” The cash-flow mocks become ONE file: moneykeel_pres_mock_cash-flow_v01.html. It carries the four-tab architecture from v02 together with the This month and Expenses screens as revised in v07, so there is no longer a choice between two half-current versions. v02 and v07 are dated and archived."
+  },
+  {
+   "decided": "2026-09-29",
+   "his_words": "Yes, ask User to correct, if not input from user, use the budget.",
+   "subject": "When the Rent / Mortgage budget and the mortgage debt disagree",
+   "means": "The app tells the person the two figures disagree and asks them to correct it. Until they answer, the BUDGET figure is used — which is what the emergency fund already does.",
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics · /jobsafety · /stress-test",
+   "governs": "MK-NW-M-047 · MK-NW-M-013 · MK-NW-M-046 · MK-NW-O-004 theEmergencyFund",
+   "exceptions": "none recorded",
+   "status": "TESTED, NOT VERIFIED",
+   "proof": "src/__tests__/decisions_are_held.test.ts — DEC-0471: both figures and the gap are reported where they disagree; the BUDGET figure still drives the arithmetic; nothing is reported when they agree or when one is missing",
+   "plain": "“Yes, ask User to correct, if not input from user, use the budget.” A mortgage can be entered twice — as the Rent / Mortgage budget line and as a Mortgage debt — and until now the app silently took the budget figure and said nothing. Two decisions:\n1. Where the two disagree, the app SAYS SO and asks the person to correct it.\n2. Until they answer, the BUDGET figure is the one used — so nothing changes in the arithmetic, only in what the person is told.",
+   "changed": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts — MK-NW-O-004 theEmergencyFund gains housingDisagreement {budgeted, owed, difference}"
+  }
+ ]
+}

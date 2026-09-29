@@ -43,8 +43,9 @@ export interface TaxOrganizer {
  *
  * Called by ... MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-PL-F-031 taxOrganizer
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-202 TAX · MK-PL-F-031 taxOrganizer
+ *               MK-CF-O-007 theTaxOrganizer
  *
  * Serves ...... MK-MN-M-027 · MK-MN-M-028
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -72,7 +73,7 @@ export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: nu
 }
 
 /** The year-end summary for the accountant: income lines, the four taxable-income steps, contributions, accounts, documents to gather. */
-/* ─ MK-PL-F-031 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PL-F-031 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * taxOrganizer
  *
  * Answers ..... The year-end summary for the accountant: income lines, the four taxable-income steps, contributions, accounts, documents to gather.
@@ -97,7 +98,10 @@ export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: nu
  *     balance = balance (or 0 when missing or zero)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-007 theTaxOrganizer
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-202 TAX · MK-CF-O-007 theTaxOrganizer
  *
  * Serves ...... MK-MN-M-027 · MK-MN-M-028
  * Reads ....... MK-XS-I-001 account balance

@@ -66,7 +66,7 @@ export default function WillItLastScreen() {
 
       {/* what the number means — plain English, grade-6 target */}
       <View style={s.card}>
-        <SectionBand title="WHAT THIS MEANS" />
+        <SectionBand inCard title="WHAT THIS MEANS" />
         <Text style={s.body}>
           We play out hundreds of possible market futures — some kind, some rough — using the numbers below.
           In {wil.chance} out of 100 simulated futures, your money lasts to {wil.horizonAge}. It's an honest estimate

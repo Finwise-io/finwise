@@ -18,13 +18,16 @@ import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
-import { investmentsTotal, buildAssetsState, investableAssets, assetClassOf } from '../domain/assets';
+import { assetClassOf } from '../domain/assets';
 import { DesktopInvestTable } from '../../desktop/platform/DesktopInvestTable';
 import { buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, periodDollarDelta, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
 import { connectionFreshness } from '../services/sync';
-import { buildDebtState, requiredPayment } from '../domain/debt';
-import { buildNetWorth } from '../domain/networth';
+import { requiredPayment } from '../domain/debt';   // the due-soon alert names ONE debt, not a total
+// ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27: "Yes - for home, NW tab, and
+// insights"). Home built its own net worth from its own assets state while the Net worth tab
+// built another — two assemblies of one question, on the two screens a person compares first.
+import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { resolveLens } from '../domain/profile/lens';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
@@ -136,7 +139,8 @@ export default function HomeScreen() {
     if (!op) return;
     // P0: freeze the SAME rows every screen displays (resolveNetWorthRows), not the raw store arrays.
     const { accounts: a, liabilities: l } = resolvedRows;
-    const nwv = buildNetWorth(uid, buildAssetsState(uid, a).total_asset_value, buildDebtState(uid, l).total_debt_balance);
+    const worth = theNetWorth({ uid, accounts: a, debts: l });
+    const nwv = { gross_assets: worth.assets, gross_debt: worth.debts, net_worth: worth.netWorth };
     const monthExp = (store.expenses ?? []).filter((e: any) => String(e.date).startsWith(ym));
     const dPaid = monthExp.filter((e: any) => e.category === 'Debt payment').reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
     const eSpent = bva.spent_total;
@@ -159,12 +163,13 @@ export default function HomeScreen() {
     // APPROVED 2026-07-19: one daily net-worth point per open day → the trend graph draws within
     // days of first use (monthly snapshots stay the deep record; this is just a chart point).
     // founder rule 2026-08-04: also capture cash+investments — the change-% denominator
-    store.captureDailyNw?.(isoLocalDate(new Date()), nwv.net_worth, investableAssets(resolvedRows.accounts));
+    store.captureDailyNw?.(isoLocalDate(new Date()), nwv.net_worth, worth.investable);
     store.runReclassifyOnce?.();   // founder gaps 1 & 2: fix accounts stored under the OLD rule
   }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──
-  const investTotal = investmentsTotal(resolvedRows.accounts);
+  // the same investments total the Net worth tab shows — one answer (Q-NW-1)
+  const investTotal = theNetWorth({ uid, accounts: resolvedRows.accounts, debts: resolvedRows.liabilities }).investments;
   const hasIncomeEntered = salaryAnnual(op) > 0 || (store.incomes ?? []).length > 0 || currentRetirementIncomeMonthly(op) > 0;   // Q48: a real $0 income is not "nothing entered"
   const positions: Position[] = useMemo(
     () => (store.assetAccounts ?? []).flatMap((a: any) => a.positions ?? []),

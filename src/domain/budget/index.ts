@@ -73,11 +73,13 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
  *     max(spend buckets(op).monthly total, op.monthly expenses read as a number (0 when it is not one))
  *
  * Called by ... MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-013 budgetFromOnboarding · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-032 snapshotFromOnboarding
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-013 budgetFromOnboarding
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... MK-CF-M-015 · MK-MN-M-007
  *
@@ -104,17 +106,17 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-008 spendByMonth
  *               MK-CF-F-009 monthlyEssentials
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-156 plannedMonthFlow
- *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-F-004 spendBuckets
- *               … and 5 more — the full list is on functions_from_code
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -145,17 +147,17 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
  *
  * Called by ... MK-CF-F-004 spendBuckets
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-156 plannedMonthFlow
- *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-F-004 spendBuckets
- *               … and 5 more — the full list is on functions_from_code
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -199,17 +201,17 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  *               MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
  *               MK-CF-F-014 budgetVsActual · MK-CF-F-019 upcomingBills
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-156 plannedMonthFlow
- *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-F-004 spendBuckets
- *               … and 5 more — the full list is on functions_from_code
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-013 · MK-CF-M-014 · MK-CF-M-019
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -318,17 +320,17 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
  * Called by ... MK-CF-F-011 savingsByMonth · MK-CF-F-012 annualCashflow
  *               MK-CF-F-020 cashflowYear · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-156 plannedMonthFlow
- *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-F-004 spendBuckets
- *               … and 5 more — the full list is on functions_from_code
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -371,7 +373,7 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
 
 /** Monthly money you MUST keep paying — the recurring (non-monthly excluded) Critical + Important
  *  bills. Falls back to total monthly spend if categories aren't itemized. */
-/* ─ MK-CF-F-009 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-009 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * monthlyEssentials
  *
  * Answers ..... Monthly money you MUST keep paying — the recurring (non-monthly excluded) Critical + Important bills.
@@ -387,10 +389,11 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *     uncategorized = max(0, to num(monthly expenses) − spend buckets(op).monthly total)
  *     the answer = ess + uncategorized
  *
- * Called by ... MK-CF-F-010 emergencyTest
+ * Called by ... MK-CF-F-010 emergencyTest · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-010 emergencyTest
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-010 emergencyTest
+ *               MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-025 typical monthly essentials
@@ -433,7 +436,7 @@ export interface ShockResult {
   gapToFund: number;          // how far your cash is from that
 }
 /** "What if a $X emergency hit right now?" — can your cash absorb it, and how long would you last. */
-/* ─ MK-CF-F-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-010 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * emergencyTest
  *
  * Answers ..... "What if a $X emergency hit right now?" — can your cash absorb it, and how long would you last.
@@ -444,7 +447,10 @@ export interface ShockResult {
  *     cash after = cash − shock
  *     recommended fund = ess × 3
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-004 theEmergencyFund
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... MK-MN-M-024 · MK-MN-M-025
  * Reads ....... MK-XS-I-025 typical monthly essentials
@@ -493,17 +499,17 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  * Called by ... MK-XS-F-027 takeHomeMonthly · MK-XS-F-028 surplusByMonth
  *               MK-XS-F-030 effectiveAnnualContribution
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
  *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-020 cashflowYear
- *               MK-CF-F-003 categoryMonthly · MK-XS-F-030 effectiveAnnualContribution
- *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
- *               MK-XS-F-029 monthlySavings · MK-CF-F-156 plannedMonthFlow
- *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-F-004 spendBuckets
- *               … and 5 more — the full list is on functions_from_code
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -518,7 +524,7 @@ export function savingsByMonth(op: OnboardingProfile | null): { label: string; a
 
 /** ONE annual cash-flow roll-up, derived entirely from the per-month income grid + spendByMonth — the
  *  SAME bases the savings-plan and budget already use. The recap must use this (not a separate flat
- *  grossAnnual − tax computation) so "Surplus / yr" reconciles exactly with the savings screen's
+ *  grossAnnual − tax computation) so "Surplus /year" reconciles exactly with the savings screen's
  *  monthly average × 12 (#6: they disagreed because the recap annualized flatly while the savings plan
  *  summed the month-by-month grid). saveYr === Σ savingsByMonth by construction. */
 /* ─ MK-CF-F-012 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED

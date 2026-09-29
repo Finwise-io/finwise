@@ -70,9 +70,17 @@ export interface MonthBlock { lines: Line[]; surplus: number; }
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
- *               MK-CF-O-003 thisMonth
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -105,9 +113,17 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *
  * Called by ... MK-CF-F-192 inflowLabel
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-192 inflowLabel
- *               MK-CF-F-156 plannedMonthFlow · MK-CF-O-003 thisMonth
+ * Reaches ..... 61 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 43 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -141,22 +157,25 @@ export function inflowSourceWord(source: string): string {
  *               MK-NW-F-007 assetKind · MK-NW-F-008 incomeBearingClassOf
  *               MK-NW-F-010 wrapperAccount · MK-NW-F-026 accountDisplayNames
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-035 blendedVolatility
- *               MK-NW-F-056 bondInfo · MK-PF-F-017 allocation
- *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-022 goalProgressPct
- *               MK-ST-F-031 valueOn · MK-ST-F-072 undo
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-107 mapActivityType
+ *               MK-NW-F-056 bondInfo · MK-NW-F-075 ACC
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-O-004 theEmergencyFund · MK-NW-O-008 thePerformance
+ *               MK-PF-F-017 allocation · MK-PL-F-010 drawOrderOutcome
+ *               MK-PL-F-022 goalProgressPct · MK-ST-F-031 valueOn
+ *               MK-ST-F-072 undo · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-107 mapActivityType
  *
- * Reaches ..... 115 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 174 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-CF-F-205 COMING
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-CF-F-202 TAX
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-CF-F-005 actualMonthFlow · MK-PF-F-017 allocation
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-029 assetAllocation · MK-NW-F-011 assetClassOf
- *               MK-NW-F-007 assetKind · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-NW-F-036 benchmarkInfo
- *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
- *               MK-NW-F-035 blendedVolatility · MK-NW-F-056 bondInfo
- *               … and 97 more — the full list is on functions_from_code
+ *               … and 156 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -170,7 +189,7 @@ const cash = (n: number): number => (n === 0 ? 0 : (n));
  *
  *  Each debt is its own line — never lumped into "bills + debt". A person chasing a wrong figure
  *  can see which debt it came from without opening another screen. */
-/* ─ MK-CF-F-156 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-156 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * plannedMonthFlow
  *
  * Answers ..... THE PLAN for this month: the take-home, less each debt, less planned expenses.
@@ -184,8 +203,17 @@ const cash = (n: number): number => (n === 0 ? 0 : (n));
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-O-003 thisMonth
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -229,8 +257,17 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-O-003 thisMonth
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -286,12 +323,24 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *
  * Called by ... MK-CF-F-005 actualMonthFlow
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-005 actualMonthFlow · MK-CF-O-003 thisMonth
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ * Reads ....... MK-XS-I-014 debt balance
+ *               MK-XS-I-015 debt interest rate
+ *               MK-XS-I-016 debt minimum payment
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-157
  * Changed ..... not in git yet (—)
@@ -315,6 +364,73 @@ export function debtPaymentsByDebt(m: MonthInput): Map<string, number> {
  *  without the other, and cannot build "planned" from a different source than the row beneath it. */
 export interface ThisMonth { planned: MonthBlock; actual: MonthBlock; }
 
+/** THE WORKED EXAMPLE — ONE MONTH, TWICE (six steps, step 6, 2026-09-28).
+ *
+ *  The same September 2026 as the Cash-flow door uses, because it is the same month: $7,200 of
+ *  take-home, a $2,400 mortgage and a $250 car loan due, a $3,400 budget, and $2,998 of expenses
+ *  logged with the car loan paid. Every figure runs `thisMonth`, the real door.
+ *
+ *  PLANNED AND ACTUAL ARE NEVER MIXED. Planned: 7,200 − 2,400 − 250 − 3,400 = $1,150 — what the month
+ *  holds if it goes to plan. Actual so far: 7,200 − 0 − 250 − 2,998 = $3,952 — which reads HIGHER
+ *  only because the mortgage has not gone out yet. Both are true; neither is the other, and that is
+ *  why the screen labels each one.
+ */
+const EXAMPLE: MonthInput = {
+  ym: '2026-09', takeHomeMonthly: 7200, inflowSources: ['income (take-home)'],
+  debts: [
+    { debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400, payment_type: 'installment' },
+    { debt_id: 'd2', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250, payment_type: 'installment' },
+  ] as any[],
+  plannedExpenses: 3400,
+  expenses: [
+    { amount: 2300, category: 'Rent / Mortgage', date: '2026-09-01' },
+    { amount: 512, category: 'Groceries', date: '2026-09-07' },
+    { amount: 186, category: 'Eating out', date: '2026-09-12' },
+    { amount: 250, category: 'Debt payment', store: 'Car loan', date: '2026-09-12' },
+  ],
+};
+const GIVEN =
+  'September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget. '
+  + 'Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.';
+/* ─ MK-CF-O-014 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * M
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     this month(EXAMPLE)
+ *
+ * Called by ... MK-CF-O-015 workedLineAmount
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-O-015 workedLineAmount
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-O-014
+ * Changed ..... not in git yet (—)
+ */
+const M = () => thisMonth(EXAMPLE);
+/* ─ MK-CF-O-015 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * workedLineAmount
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-O-015
+ * Changed ..... not in git yet (—)
+ */
+const workedLineAmount = (block: 'planned' | 'actual', startsWith: string) =>
+  M()[block].lines.find((l) => l.label.startsWith(startsWith))!.amount;
+
 /** ── THE FIGURES THIS DOOR HANDS OUT (founder rule 11) ───────────────────────────────────────────
  *  DRAFT, 2026-09-14 — declared and printed on the master file, waiting for the founder's verdict
  *  before the Cash flow screen moves behind this door (rule 10: the row before the code).
@@ -332,6 +448,11 @@ export const FIGURES = declareFigures({
     decisions: ['A month is a real calendar month, never a twelfth of a year (founder, 2026-08-28).'],
     grain: 'one figure per household per month',
     refusal: 'Shows $0 until income is entered, with the door to enter it.',
+    worked: {
+      given: GIVEN,
+      answer: '$7,200/month',
+      run: () => workedLineAmount('planned', 'Inflow'),
+    },
   },
   'MK-CF-M-048': {
     label: 'Planned outflow (expenses + debt)', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
@@ -341,6 +462,11 @@ export const FIGURES = declareFigures({
     decisions: ['A debt payment is counted as an outflow, not as saving (founder, 2026-06-21).', 'A bill that falls once a year is shown in its own month, never spread.'],
     grain: 'one figure per household per month',
     refusal: 'Shows $0 until expenses or debts are entered.',
+    worked: {
+      given: GIVEN,
+      answer: '-$6,050/month',
+      run: () => workedLineAmount('planned', 'Expenses') + workedLineAmount('planned', 'Mortgage') + workedLineAmount('planned', 'Car loan'),
+    },
   },
   'MK-CF-M-049': {
     label: '= Planned surplus', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
@@ -350,6 +476,11 @@ export const FIGURES = declareFigures({
     grain: 'one figure per household per month',
     refusal: 'Shows $0 until both sides are entered.',
     note: 'The Cash flow screen used to subtract this itself (rule 5). It is the door’s figure now.',
+    worked: {
+      given: GIVEN,
+      answer: '$1,150/month',
+      run: () => M().planned.surplus,
+    },
   },
   'MK-CF-M-050': {
     label: 'each planned line', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
@@ -358,6 +489,11 @@ export const FIGURES = declareFigures({
     inputs: ['MK-CF-M-047 expected inflow', 'MK-CF-M-048 planned outflow'],
     grain: 'one figure per line per month',
     refusal: 'The list is replaced by the door to enter income or expenses when nothing is entered.',
+    worked: {
+      given: GIVEN,
+      answer: '-$2,400/month',
+      run: () => workedLineAmount('planned', 'Mortgage'),
+    },
   },
   'MK-CF-M-051': {
     label: 'Inflow', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail', '/home'],
@@ -368,6 +504,11 @@ export const FIGURES = declareFigures({
     grain: 'one figure per household per month',
     refusal: 'Shows $0 until something is recorded as received.',
     note: 'The words beside it name what is inside it — "Inflow (income (take-home) + rent)" — his cluster 5 ruling of 2026-09-10.',
+    worked: {
+      given: GIVEN,
+      answer: '$7,200/month',
+      run: () => workedLineAmount('actual', 'Actual inflow'),
+    },
   },
   'MK-CF-M-052': {
     label: 'Outflow (expenses + debt)', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail', '/home'],
@@ -377,6 +518,11 @@ export const FIGURES = declareFigures({
     decisions: ['Debt payments are counted in full for the month, logged or not, because they are committed.'],
     grain: 'one figure per household per month',
     refusal: 'Shows $0 until an expense is logged or a debt is entered.',
+    worked: {
+      given: GIVEN,
+      answer: '-$3,248/month',
+      run: () => workedLineAmount('actual', 'Actual expenses') + workedLineAmount('actual', 'Mortgage') + workedLineAmount('actual', 'Car loan'),
+    },
   },
   'MK-CF-M-053': {
     label: '= Surplus', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail', '/home'],
@@ -386,6 +532,11 @@ export const FIGURES = declareFigures({
     grain: 'one figure per household per month',
     refusal: 'Shows $0 until something is recorded.',
     note: 'The Cash flow screen used to subtract this itself (rule 5). It is the door’s figure now.',
+    worked: {
+      given: GIVEN,
+      answer: '$3,952/month',
+      run: () => M().actual.surplus,
+    },
   },
   'MK-CF-M-054': {
     label: 'each received line', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
@@ -394,10 +545,15 @@ export const FIGURES = declareFigures({
     inputs: ['MK-CF-I-015 income recorded as received'],
     grain: 'one figure per payment',
     refusal: 'The list is replaced by the door to record income when nothing is recorded.',
+    worked: {
+      given: GIVEN,
+      answer: '-$250/month',
+      run: () => workedLineAmount('actual', 'Car loan'),
+    },
   },
 } as const);
 
-/* ─ MK-CF-O-003 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-O-003 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * thisMonth
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -406,7 +562,19 @@ export const FIGURES = declareFigures({
  *     planned = planned month flow(m)
  *     actual = actual month flow(m)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-010 theMonth · MK-CF-O-014 M
+ *
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-050
  *               MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-053 · MK-CF-M-054

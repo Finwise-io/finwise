@@ -33,17 +33,17 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 67 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 157 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-151 actualSpending
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-150 debtPaymentsCountedAsExpenses
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-189 essentialsFromLoggedSpending
- *               … and 49 more — the full list is on functions_from_code
+ *               MK-XS-F-057 analyzeExpenses · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-044 annualNet · MK-NW-F-040 assetsFromOnboarding
+ *               … and 139 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -53,7 +53,7 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
 const ym = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 
 /** What does a month actually cost, from what has been logged? (Founder rulings brief Q-21 (2026-08-20) and Q47.) */
-/* ─ MK-CF-F-189 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-189 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * essentialsFromLoggedSpending
  *
  * Answers ..... What does a month actually cost, from what has been logged?
@@ -68,8 +68,9 @@ const ym = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
  *
  * Called by ... MK-CF-F-190 essentialsMonthly
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-190 essentialsMonthly
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-190 essentialsMonthly
+ *               MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... MK-MN-M-020 · MK-MN-M-021
  * Reads ....... MK-XS-I-024 logged expenses
@@ -116,7 +117,10 @@ export function essentialsFromLoggedSpending(expenses: LoggedSpend[], now: Date 
  *     otherwise, typed > 0 → monthly = typed, basis 'entered', label 'you entered'
  *     otherwise nothing — the screen shows its door, never a made-up number
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-079 EF · MK-NW-O-004 theEmergencyFund
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... MK-MN-M-024 · MK-MN-M-025 · MK-MN-M-026 · MK-NW-M-013
  *               MK-NW-M-014

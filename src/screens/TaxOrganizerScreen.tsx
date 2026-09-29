@@ -7,11 +7,11 @@ import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { taxOrganizer, type TaxOrganizer } from '../domain/planning';
+import type { TaxOrganizer } from '../domain/planning';
 import { investmentIncomeAnnual } from '../domain/transactions';
 import { interestIncomeAnnual } from '../domain/bonds';
 import { useRouter } from 'expo-router';
-import { incomeFromAccounts } from '../domain/income/from-accounts';
+import { theTaxOrganizer } from '../../MoneyKeel/functions/cashflow/tax-organizer';
 
 export default function TaxOrganizerScreen() {
   const router = useRouter();
@@ -22,10 +22,12 @@ export default function TaxOrganizerScreen() {
   const year = new Date().getFullYear();
   const [busy, setBusy] = useState(false);
 
-  const org: TaxOrganizer = useMemo(() => {
-    const actualPassive = Math.round(incomeFromAccounts(accounts, store.transactions ?? []).annual);
-    return taxOrganizer(op, { accounts, liabilities, actualPassive, year });
-  }, [op, accounts, liabilities, year]);
+  // ONE DOOR (MK-CF-O-007 theTaxOrganizer, Q-CF-5). It shares the tax function with what sets the
+  // band on your pay (rule 2: ONE tax function), so it is asked through a door rather than assembled
+  // here beside a second copy of the same arithmetic.
+  const org: TaxOrganizer = useMemo(
+    () => theTaxOrganizer({ profile: op, accounts, debts: liabilities, transactions: store.transactions ?? [], year }),
+    [op, accounts, liabilities, store.transactions, year]);
 
   const sharePdf = async () => {
     setBusy(true);

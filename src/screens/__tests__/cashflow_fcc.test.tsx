@@ -81,7 +81,7 @@ describe('retired lens', () => {
     render(<MonthDetailScreen />);
     expect(screen.getByText(/Social Security · 3rd/)).toBeOnTheScreen();
     expect(screen.getByText(/Pension · 1st/)).toBeOnTheScreen();
-    expect(screen.getByText('= In')).toBeOnTheScreen();
+    expect(screen.getByText('= Inflow')).toBeOnTheScreen();   // canon row 5: one word for money arriving (2026-09-26)
     expect(screen.getByText('= Surplus')).toBeOnTheScreen();
     expect(screen.getByText(/Estimates — these move with your live account balances/)).toBeOnTheScreen();
   });
@@ -151,10 +151,16 @@ test('THIS MONTH: In − Out = Planned surplus, to the dollar, always', () => {
     return m ? Number(m[m.length - 1].replace(/[$,]/g, '')) : NaN;
   };
   const inn = num(/^Inflow \(/);   // cluster #5: the brackets name the sources
-  const out = num(/^Outflow \(expenses/);
+  // 2026-09-28: the card no longer summarises the outflow into ONE row. The approved design
+  // (cash-flow_v01) SPELLS OUT every row, and his rule under it is stronger than this pin was:
+  // "every row shown is a row deducted". So the test adds up what is actually drawn.
+  const outRows = screen.getAllByText(/^−\$[\d,]+$/).map((n: any) =>
+    Number(String(n.props.children).replace(/[−$,]/g, '')));
+  const out = outRows.reduce((t, v) => t + v, 0);
   const sur = num(/^= Planned surplus$|^Surplus after your budget$/);   // the ROW label (the hero sub duplicates the words)
-  expect(Number.isFinite(inn) && Number.isFinite(out) && Number.isFinite(sur)).toBe(true);
-  expect(sur).toBe(inn - out);   // the equals sign is earned
+  expect(Number.isFinite(inn) && Number.isFinite(sur)).toBe(true);
+  expect(outRows.length).toBeGreaterThan(0);        // the flow is spelled out, not summarised
+  expect(sur).toBe(inn - out);   // the equals sign is earned, by every row that is drawn
 });
 
 // B46 finding 8: the Income tab's Salary row must describe what is actually STORED and bridge to

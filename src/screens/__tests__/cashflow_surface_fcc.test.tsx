@@ -1,6 +1,6 @@
 // THE CASH FLOW SURFACE (v1.3, FINAL mock approved 2026-07-19 — MoneyKeel/documents/other/archive/2026-07-19_moneykeel_pres_mock_cashflow-4tabs_v01.html).
 // Pins: four tabs · first-open has doors not zeros · the income pop-up saves CANONICAL fields
-// (steady → baseSalary/takehome/monthly; varies → salaryByMonth) · Spending embeds the proven
+// (steady → baseSalary/takehome/monthly; varies → salaryByMonth) · Expenses embeds the proven
 // Activity body · Debts embeds the debt manager · the month switcher shows past actuals and
 // future "planned — an estimate" · the menu no longer lists Budget (the tab covers it).
 import React from 'react';
@@ -24,12 +24,12 @@ const WORKER = {
 
 beforeEach(() => { jest.clearAllMocks(); useStore.getState().resetAll(); });
 
-test('the four tabs render and switch (This month · Income · Spending · Debts)', () => {
+test('the four tabs render and switch (This month · Income · Expenses · Debts)', () => {
   useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
   render(<CashFlowScreen />);
   expect(screen.getByLabelText('This month tab, selected')).toBeOnTheScreen();
   expect(screen.getByText('THIS MONTH')).toBeOnTheScreen();          // the working hero
-  expect(screen.getByText('YOUR PLAN BY CATEGORY')).toBeOnTheScreen();   // budget absorbed
+  expect(screen.getByText('YOUR BUDGET')).toBeOnTheScreen();   // budget absorbed — canon row 7, one word for the per-category plan (2026-09-26)
   fireEvent.press(screen.getByLabelText('Income tab'));
   expect(screen.getByText('YOUR SOURCES')).toBeOnTheScreen();
   expect(screen.getByText(/Salary — steady/)).toBeOnTheScreen();
@@ -53,7 +53,7 @@ test('FIRST OPEN: no zeros — the two setup doors; door 1 opens the base-pay sc
   expect(mockPush).toHaveBeenCalledWith('/base-pay');
 });
 
-test('Spending tab (approved mock): month header, rows with source chips, categories vs plan, both door links', () => {
+test('Expenses tab (approved mock): month header, rows with source chips, categories vs plan, both door links', () => {
   // bucket plans come from the budget fields (spendCats / b_*) — give the fixture a real plan
   useStore.setState({ onboardingProfile: { ...WORKER, b_fixed: '1800', b_flexible: '900' }, onboardingComplete: true } as any);
   (useStore.getState() as any).addExpense({ amount: 86, category: 'Food', store: 'Whole Foods', date: isoLocalDate(new Date()), notes: '' });
@@ -72,7 +72,7 @@ test('Spending tab (approved mock): month header, rows with source chips, catego
   if (MENU_ITEMS) expect(JSON.stringify(MENU_ITEMS)).not.toMatch('/budget');
 });
 
-test('Spending tab day one: the three doors (connect SOON · import · by hand), never an empty list', () => {
+test('Expenses tab day one: the three doors (connect SOON · import · by hand), never an empty list', () => {
   useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByLabelText('Expenses tab'));
@@ -80,7 +80,9 @@ test('Spending tab day one: the three doors (connect SOON · import · by hand),
   expect(screen.getByText('Connect your bank or card')).toBeOnTheScreen();
   expect(screen.getByText('SOON')).toBeOnTheScreen();
   expect(screen.getByText('Import a statement')).toBeOnTheScreen();
-  expect(screen.getByText('Add by hand')).toBeOnTheScreen();
+  // one door, one term: "Add by hand" adds an ACCOUNT; this door adds an EXPENSE and says so
+  expect(screen.getByText('Add an expense by hand')).toBeOnTheScreen();
+  expect(screen.queryByText('Add by hand')).toBeNull();
 });
 
 test('month switcher: back = frozen actuals; forward = "planned — an estimate" from the dated grid', () => {

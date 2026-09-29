@@ -38,6 +38,58 @@ export interface IncomeSummary {
  *  Declared beside the code that computes them; the master file's rows for the income screen are
  *  printed from this. TWO TOTALS, NEVER ONE — each figure says which of the two it belongs to.
  */
+/** THE WORKED EXAMPLE — ONE HOUSEHOLD (six steps, step 6, 2026-09-28).
+ *
+ *  The same two earners the base-pay door uses, because it is the same household read one screen
+ *  further up: $4,200 every two weeks and $5,000/month, $1,200 and $400 into 401(k)s, filing
+ *  jointly, tax rate typed at 22%. Every figure runs `incomeSummary`, the real door.
+ *
+ *  TWO TOTALS, NEVER ONE — which is what this screen exists to say. $169,200 is what the year is
+ *  TAXED on; $9,398/month is what LANDS. They are different numbers about the same wages, and the
+ *  screen labels each rather than letting one stand for both.
+ *
+ *  WHAT THIS EXAMPLE FOUND, 2026-09-28: the two take-home lines add to $9,398, and the total beside
+ *  them reads $9,798 — $400 more, which is exactly the spouse's monthly 401(k). The lines come from
+ *  the base-pay door; the total comes from `incomeMonthlyGrid`, which reads `c_401k` from the profile
+ *  and so only ever sees the FIRST earner's contribution. Two definitions of take-home in one
+ *  function. The example below states the total the code gives today, so the row does not pretend
+ *  otherwise, and the finding is on the master file rather than in a comment. Not changed here: it
+ *  lowers a figure on a screen he reads, and that is his call (rule 10).
+ */
+const EXAMPLE = {
+  taxMode: 'manual', manualTaxRate: 22, filingStatus: 'married', whoEarns: 'both',
+  baseSalary: 4200, salaryFreq: 'biweekly', salaryMode: 'gross', c_401k: 1200,
+  partnerName: 'Sam',
+  partnerWage: { baseSalary: 5000, salaryFreq: 'monthly', salaryMode: 'gross', c_401k: 400 },
+};
+const GIVEN =
+  'Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), '
+  + 'paying $1,200 and $400/month into their 401(k)s, with the tax rate typed at 22%.';
+/* ─ MK-CF-F-201 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * INCOME
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     income summary(EXAMPLE)
+ *
+ * Called by ... MK-CF-F-024 totalDebtMonthly
+ *
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-201
+ * Changed ..... not in git yet (—)
+ */
+const INCOME = () => incomeSummary(EXAMPLE);
+
 export const FIGURES = declareFigures({
   'MK-CF-M-037': {
     label: 'Take-home each month', unit: 'money', per: 'month', screens: ['/income-summary'],
@@ -47,6 +99,12 @@ export const FIGURES = declareFigures({
     decisions: ['A once-a-year source keeps its own month and is shown separately, never averaged in.'],
     ruled: '2026-09-14',
     refusal: 'Shows $0 on a fresh account, with the door to enter income — never a dash.',
+    note: 'FOUND BY THE WORKED EXAMPLE AND FIXED THE SAME DAY, 2026-09-28. This total read $9,798/month while the two take-home lines beneath it (MK-CF-M-038) added to $9,398 — $400 apart, exactly the spouse\'s monthly 401(k). MK-CF-F-060 salaryGrossByMonth sums EVERY earner\'s wage (his ruling, 2026-08-27) but the 401(k) taken off that household gross was written as the first earner\'s alone, so a spouse\'s was never subtracted — the take-home read too high by their contribution, and the taxable base too. NOT A NEW QUESTION: he ruled this on 2026-09-12 on income-end-to-end v07 — "one card disagreeing with itself; corrected to the take-home line" — and the correction reached the mock and not the code. Now MK-CF-F-206 householdK401ByMonth counts every earner in the months that earner is paid, and src/__tests__/guard_total_agrees_with_its_lines.test.ts holds the ruling. The six personas all passed throughout because none had a spouse with their own wage AND their own 401(k); twoEarnersBoth401k now does.',
+    worked: {
+      given: GIVEN,
+      answer: '$9,398/month',
+      run: () => INCOME().lands.usualMonth,
+    },
   },
   'MK-CF-M-038': {
     label: 'each source of take-home', unit: 'money', per: 'month', screens: ['/income-summary'],
@@ -55,6 +113,11 @@ export const FIGURES = declareFigures({
     inputs: ['MK-CF-M-031 household take-home', 'MK-CF-I-006 other income', 'MK-CF-I-007 rental income'],
     ruled: '2026-09-14',
     refusal: 'The list is replaced by the door to enter income when nothing is entered.',
+    worked: {
+      given: GIVEN,
+      answer: '$5,898/month',
+      run: () => INCOME().lands.lines[0].amount,
+    },
   },
   'MK-CF-M-039': {
     label: 'its own month, never spread', unit: 'money', screens: ['/income-summary'],
@@ -80,6 +143,11 @@ export const FIGURES = declareFigures({
     inputs: ['MK-CF-M-030 gross a year', 'MK-CF-I-006 other income', 'MK-CF-I-007 rental income', 'MK-CF-I-011 interest and dividends'],
     ruled: '2026-09-14',
     refusal: 'Shows $0 on a fresh account, with the door to enter income.',
+    worked: {
+      given: GIVEN,
+      answer: '$169,200/year',
+      run: () => INCOME().taxed.grossAnnual,
+    },
   },
   'MK-CF-M-042': {
     label: 'each taxed source', unit: 'money', per: 'year', screens: ['/income-summary'],
@@ -88,6 +156,11 @@ export const FIGURES = declareFigures({
     inputs: ['MK-CF-M-041 gross a year'],
     ruled: '2026-09-14',
     refusal: 'The list is replaced by the door to enter income when nothing is entered.',
+    worked: {
+      given: GIVEN,
+      answer: '$109,200/year',
+      run: () => INCOME().taxed.lines[0].amount,
+    },
   },
   'MK-CF-M-043': {
     label: 'Federal tax bracket', unit: 'percent', screens: ['/income-summary'],
@@ -97,6 +170,11 @@ export const FIGURES = declareFigures({
     ruled: '2026-09-14',
     refusal: 'The row is not shown until income is entered.',
     note: 'The same concept as MK-CF-M-032 on the base-pay screen, over a wider base: that one counts wages, this one counts every source. Conflict C-5 on the orchestrator map asks whether they stay two figures.',
+    worked: {
+      given: GIVEN,
+      answer: '22%',
+      run: () => INCOME().taxed.bracket,
+    },
   },
   'MK-CF-M-044': {
     label: 'Calculated federal tax', unit: 'money', per: 'year', screens: ['/income-summary'],
@@ -106,6 +184,11 @@ export const FIGURES = declareFigures({
     decisions: ['When it is ours it assumes the standard deduction and is federal only (MK-CF-D-002).'],
     ruled: '2026-09-14',
     refusal: 'The row is not shown until income is entered.',
+    worked: {
+      given: GIVEN,
+      answer: '$37,224/year',
+      run: () => INCOME().taxed.tax,
+    },
   },
 } as const);
 
@@ -135,7 +218,15 @@ export const FIGURES = declareFigures({
  *     bonus = bonus annual read as a number (0 when it is not one)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-201 INCOME
+ *
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
+ *               MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-027
  *               MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-039 · MK-CF-M-040

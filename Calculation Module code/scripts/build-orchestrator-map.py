@@ -12,6 +12,9 @@ Tabs: Map (one row per proposed orchestrator) · Census (the three completeness 
 """
 import json, re, os, glob, sys
 import openpyxl
+import sys, os as _os
+sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from xlsx_readable import readable   # one way to format a workbook (founder, 2026-09-27)
 from openpyxl.styles import Font, Alignment, PatternFill
 from collections import defaultdict, Counter
 sys.path.insert(0, os.path.dirname(__file__))
@@ -178,7 +181,12 @@ for q in Q['questions']:
     closure = closure_of(set(producers))                       # attributable: what its own figures' functions call
     extra = sorted(f for f in closure_of(reach) if f not in closure)   # its screens import these, but no row of this question names them
     doors = sorted(f for f in closure | set(extra) if f.split('-')[2] == 'O')
-    q['_rows'] = rows; q['_producers'] = producers; q['_reach'] = sorted(reach); q['_closure'] = sorted(closure); q['_extra'] = extra; q['_doors'] = doors
+    # THE DOORS THIS QUESTION OWNS, as against the doors its screens merely import (2026-09-27). A
+    # shared screen — Cash flow carries three — put another question's door into this one's list, and
+    # the question then told him "3 functions answer THIS", which was not true. Only a door inside this
+    # question's own closure is answering this question.
+    own_doors = sorted(f for f in closure if f.split('-')[2] == 'O')
+    q['_rows'] = rows; q['_producers'] = producers; q['_reach'] = sorted(reach); q['_closure'] = sorted(closure); q['_extra'] = extra; q['_doors'] = doors; q['_own_doors'] = own_doors
     MAP.append(q)
 FN_IN_Q = defaultdict(set)
 for q in MAP:
@@ -276,8 +284,20 @@ CONF = []
 n = 0
 def conf(kind, ids, where, what, rec):
     global n; n += 1; CONF.append([f'C-{n}', kind, ids, where, what, rec])
-conf('two doors, one question?', 'MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary', 'Q-CF-1', 'basePay answers each earner\'s pay and tax band; incomeSummary answers every source over the year. Both are asked from the Cash flow tab and the income screens.', 'Recommend ONE orchestrator, MK-CF-O-004 incomeSummary, with basePay as a dependent function inside it — a person asks "what do I earn and take home", not two questions. Your ruling.')
-conf('two doors, one question?', 'MK-CF-O-002 spending · MK-CF-O-003 thisMonth', 'Q-CF-2', 'spending answers spent-so-far against the plan; thisMonth answers in, out and free-to-use. Both print on Home and the Cash flow tab.', 'Recommend ONE orchestrator, MK-CF-O-003 thisMonth, with the expenses functions as dependents — "how much have I spent and what is left" is one question. Your ruling.')
+# NOT A CONFLICT, and it never was (founder, 2026-09-27: "base pay is one component of income summary
+# and function should have reflected that"). incomeSummary CALLS basePay on its first line — the code
+# already has the shape the recommendation was about to propose. It was raised because two orchestrator
+# identifiers appeared under one question and nobody read what they do. A conflict is now raised only
+# where neither function reaches the other; this pair, and any like it, are printed as settled.
+if 'MK-CF-O-001' not in closure_of({'MK-CF-O-004'}):
+    conf('two doors, one question?', 'MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary', 'Q-CF-1', 'basePay answers each earner\'s pay and tax band; incomeSummary answers every source over the year. Both are asked from the Cash flow tab and the income screens.', 'Recommend ONE orchestrator, MK-CF-O-004 incomeSummary, with basePay as a dependent function inside it — a person asks "what do I earn and take home", not two questions. Your ruling.')
+else:
+    conf('read, and settled — no conflict', 'MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary', 'Q-CF-1',
+         'incomeSummary calls basePay on its first line: each earner\'s pay and tax band is a PART of "every source over the year", and the code already builds it that way.',
+         'Nothing to decide. Raised on 2026-09-26 by counting identifiers rather than reading the functions; withdrawn 2026-09-27 on the founder\'s challenge.')
+conf('read, and settled — no conflict', 'MK-CF-O-002 spending · MK-CF-O-003 thisMonth', 'Q-CF-2',
+     'THE APPROVED DESIGN (this-month-and-expenses v07, 2026-09-26) answers it: This month spells out every row of the flow twice, planned and actual, ending in the surplus. Expenses is the DETAIL BEHIND ONE ROW of that flow — recurring, planned by category, actual by source, and the radar. Part and whole, not two rival answers.',
+     'Nothing to decide. Raised on 2026-09-26 by reading the CODE instead of his approved screens; withdrawn 2026-09-28 on his challenge: "are you working of latest approved screens or older one?" The function named `spending` also still carries a retired word — renaming it is a workplan row.')
 conf('a question about the answers', 'Q-HM-1 insights', '/home · /insights', 'Insights need net worth, the odds, the cushion and the room left — figures other questions own. Rule 3 says an orchestrator may not call another orchestrator.', 'Recommend: insights read the shared dependent functions (rule 2 makes them the same numbers), never a door; the insight orchestrator lists every dependent it reads. Alternative: a stated exception for read-only composition. Your ruling.')
 # same label, different producer (two functions for one concept)
 bylabel = defaultdict(list)
@@ -323,39 +343,164 @@ if os.path.exists(OUT):
 # ---------- write
 wb = openpyxl.Workbook(); wb.remove(wb.active)
 HEAD = Font(bold=True, color='FFFFFF'); FILL = PatternFill('solid', fgColor='1F4E78'); WRAP = Alignment(wrap_text=True, vertical='top')
-def sheet(name, cols, rows, widths):
+def sheet(name, cols, rows, widths, mine=None, pin=None, max_lines=4):
+    """One sheet, formatted the one way (founder, 2026-09-27). `mine` names the columns that hold
+    generated inventory — they are folded away, so the sheet opens on the columns he reads and
+    answers, and the + above the column letters opens mine when he wants them."""
     ws = wb.create_sheet(name); ws.append(cols)
-    for c in ws[1]: c.font = HEAD; c.fill = FILL; c.alignment = WRAP
     for r in rows: ws.append([canon(x) if isinstance(x, str) else x for x in r])
-    for i, w in enumerate(widths, 1): ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
-    for row in ws.iter_rows(min_row=2):
-        for c in row: c.alignment = WRAP
-    ws.freeze_panes = 'B2'
+    readable(ws, widths=pin or {}, mine=mine, freeze='B2', max_lines=max_lines)
     return ws
 def fig(mid): r = ROWS[mid]; return f"{mid} {r['label']}"
 def fn(f): return f"{f} {FN[f]['name']}" if f in FN else f
-MAPCOLS = ['Question ID', 'The question (one orchestrator)', 'Family', 'Screens that ask it (route → file)', 'Figures it hands out (rows on the master)', 'How many figures', 'Producer functions the rows name today', 'Functions in its closure — everything its figures\' functions call (generated from the code)', 'How many in the closure', 'Reached by its screens but named by no row of this question (imports, incl. components and hooks) — figures without rows, or another question\'s work', 'Doors that exist today inside it', 'Inputs it must assemble (union of what the rows\' chains read)', 'Decisions it applies (union of the rows\' decisions and assumptions)', 'Rows not seen on their screen in the census', 'Note / recommendation', 'STATUS', 'QUESTION FOR YOU', 'YOUR ANSWER', 'ROW VERIFIED — founder, date and how']
+
+# ── WHAT TO ASK HIM, AND WHEN TO ASK NOTHING ──────────────────────────────────────────────────────
+# The founder, 2026-09-27: *"I don't even understand these yes questions... How you want me to validate
+# figures, screens? Do you expect me to take inventory of everything?"* He was right. Every row used to
+# carry the SAME sentence — "Is this one question, with these figures and these screens?" — which cannot
+# be answered without reading 189 figure rows and 46 screens. Taking that inventory is my job; it is
+# already in columns E to N and I check it with the gates.
+#
+# What is actually HIS is one judgement, and only some rows carry one:
+#   · one screen, one door   → nothing to decide. The row says so and waits for nobody.
+#   · several screens        → "should these screens be answered by ONE function?" — named in plain
+#                              words, with what goes wrong if they are not.
+#   · several doors today    → "there are N functions doing this now. One, or N?"
+# Each question names the screens the way a person would say them, never a route or a file.
+SCREEN_WORDS = {
+    '/home': 'Home', '/analytics': 'the Net worth tab', '/invest': 'the Performance tab',
+    '/cashflow': 'the Cash flow tab', '/plan': 'the Plan tab', '/insights': 'Insights',
+    '/account-detail': "an account's own page", '/itemize': 'Itemise an account',
+    '/holding-detail': 'one holding', '/bonds': 'Bonds & CDs', '/other-investments': 'Alternatives',
+    '/jobsafety': 'Job safety', '/stress-test': 'Stress test', '/look-back': 'Look back',
+    '/expense': 'My expenses', '/month-detail': 'Month detail', '/bill-calendar': 'Bill calendar',
+    '/paycheck-months': 'Your paycheck, month by month', '/worth-a-look': 'Worth a look',
+    '/contribution-room': 'Contribution room', '/tax-organizer': 'Tax organizer', '/credit': 'Build credit',
+    '/base-pay': 'Your base pay', '/income-detail': 'Income detail', '/income-manager': 'Your income',
+    '/income-summary': 'Your income, all of it', '/monthly-income': 'Your monthly income',
+    '/ss-timing': 'When to claim Social Security', '/required-withdrawals': 'Required withdrawals',
+    '/roth': 'Roth conversion', '/goals': 'Goals', '/multi-goal': 'Several goals together',
+    '/education': 'College planner', '/insurance': 'Life insurance check', '/will-it-last': 'Will my money last',
+    '/what-if': 'What if I save more?', '/retirement': 'the Retirement cockpit', '/sharpen': 'Sharpen your plan',
+    '/first-run': 'the first run', '/big-costs': 'Big one-time costs', '/estate': 'Estate & legacy',
+}
+def words(route): return SCREEN_WORDS.get(route, route)
+def and_list(xs):
+    xs = list(xs)
+    return xs[0] if len(xs) == 1 else ' and '.join([', '.join(xs[:-1]), xs[-1]])
+
+
+# ── WHICH SCREENS HAVE AN APPROVED DESIGN, AND WHICH DO NOT ───────────────────────────────────────
+# The founder, 2026-09-27: *"are these questions generated from the latest finalized mockups as many
+# questions felt irrelevant?"* They are not, and the map never said so. The question text and the
+# screen list in moneykeel_orchestrator_questions.json are written from the CODE and the master —
+# which is why a question can name a screen he has never seen a design for. This column says, per row,
+# which of its screens have no approved mock, so he can tell a question about settled ground from a
+# question about ground that is not settled yet.
+# THE APPROVED DESIGN FOR EACH SCREEN — hand-kept, and the same list the design record carries
+# (moneykeel_pres_spec_design-each-screen-was-built-from_v01.md). A screen missing from this table has
+# no approved mock: the question about it rests on code alone, and he should know that before he rules.
+DESIGNED = {
+    '/analytics': 'net-worth-quiet-instrument_v08',
+    '/invest': 'performance_v14',
+    '/account-detail': 'performance_v14 (2nd phone) · account-detail_v01',
+    '/cashflow': 'cash-flow_v01 · cash-flow_v01',
+    '/base-pay': 'income-end-to-end_v07',
+    '/income-manager': 'income-end-to-end_v07',
+    '/income-summary': 'income-end-to-end_v07',
+    '/income-detail': 'income-end-to-end_v07',
+    '/income': 'income-end-to-end_v07',
+    '/filing-status': 'filing-status-question_v03',
+    '/what-if': 'look-ahead_v04',
+    '/plan': 'plan_v06 (waiting for your approval)',
+    '/add-account': 'ways-to-add-an-account_v10 (waiting for your approval)',
+}
+def undesigned(q):
+    """The screens of this question with NO approved mock, named the way he says them."""
+    return [SCREEN_WORDS.get(r, r) for r in q['screens'] if r not in DESIGNED]
+def designed(q):
+    """The approved design each of its screens was drawn from, where one exists."""
+    return [f"{SCREEN_WORDS.get(r, r)} → {DESIGNED[r]}" for r in q['screens'] if r in DESIGNED]
+
+
+def answered(pair, ans):
+    """A row he has answered is RULED, and stops asking (2026-09-27 — he answered all 13 and the file
+    still said PROPOSED beside every one of them). His words stay in YOUR ANSWER; the status says so."""
+    status, question = pair
+    a = str(ans or '').strip()
+    if not a:
+        return status, question
+    verdict = 'RULED' if a.lower().startswith(('yes', 'one', 'two')) else 'RULED — and he said no'
+    return f'{verdict} — {a[:60]}' if len(a) > 60 else f'{verdict} — {a}', question
+
+def ask(q):
+    """(STATUS, QUESTION FOR YOU) for one row — shaped by what the row actually asks of him."""
+    screens = [words(s) for s in q['screens']]
+    doors = q.get('_own_doors') or []
+    if len(doors) > 1:
+        # A DOOR INSIDE ANOTHER DOOR IS A COMPONENT, NOT A CONFLICT (founder, 2026-09-27:
+        # "base pay is one component of income summary and function should have reflected that").
+        # The first version of this question counted orchestrators and asked "one, or two?" — which is
+        # the wrong question when one of them CALLS the other, as incomeSummary calls basePay. That is
+        # already the right shape. Only SIBLINGS — two doors where neither reaches the other — are two
+        # answers to one question, and only they are worth his time.
+        nests = [(a, b) for a in doors for b in doors if a != b and a in closure_of({b})]
+        sib = [d for d in doors if not any(d == a for a, _ in nests)]
+        if len(sib) < 2:
+            pairs = and_list([f"{FN[a]['name'] if a in FN else a} inside {FN[b]['name'] if b in FN else b}" for a, b in nests])
+            return ('MINE TO BUILD — nothing to decide',
+                    f"Nothing for you. {len(doors)} functions, and they nest: {pairs}. A function that is a part of "
+                    f"a bigger one is the right shape, not a disagreement — I read the code to be sure.")
+        names = and_list([f"{d} {FN[d]['name']}" if d in FN else d for d in sib])
+        return ('WAITING ON YOU — one question, or several?',
+                f"{len(sib)} functions answer this and NEITHER is inside the other: {names}. Two separate answers to "
+                f"one question is how two screens come to show two numbers for one thing. Should they become ONE, "
+                f"or stay {len(sib)}?  Write ONE or {len(sib)}.")
+    if len(screens) > 1:
+        return ('WAITING ON YOU — do these screens agree?',
+                f"{and_list(screens)} {'both' if len(screens) == 2 else 'all'} answer this same question: "
+                f"“{q['question']}”. I want ONE function to produce every figure on {'both' if len(screens) == 2 else f'all {len(screens)}'}, "
+                f"so they can never disagree with each other. Write YES — or name the screen that does not belong here, and why.")
+    return ('MINE TO BUILD — nothing to decide',
+            f"Nothing for you. One screen ({screens[0]}), one function, {q['_nfigs']} figure{'' if q['_nfigs'] == 1 else 's'}. "
+            f"You see it when it is built.")
+
+MAPCOLS = ['Question ID', 'The question (one orchestrator)', 'Family', 'Screens that ask it (route → file)', 'Figures it hands out (rows on the master)', 'How many figures', 'Producer functions the rows name today', 'Functions in its closure — everything its figures\' functions call (generated from the code)', 'How many in the closure', 'Reached by its screens but named by no row of this question (imports, incl. components and hooks) — figures without rows, or another question\'s work', 'Doors that exist today inside it', 'Inputs it must assemble (union of what the rows\' chains read)', 'Decisions it applies (union of the rows\' decisions and assumptions)', 'Rows not seen on their screen in the census', 'Note / recommendation', 'The approved design each screen was drawn from', 'Screens here with NO approved design', 'STATUS', 'QUESTION FOR YOU', 'YOUR ANSWER', 'ROW VERIFIED — founder, date and how']
 rows = []
 for q in MAP:
     strip = lambda ln: re.sub(r'^\d+\.\s*', '', ln.strip())
     inputs = sorted({strip(ln) for r in q['_rows'] for ln in ROWS[r]['inputs'].split('\n') if ln.strip() and not ln.startswith('NOT')})
     decs = sorted({strip(ln) for r in q['_rows'] for ln in (ROWS[r]['decisions'] + '\n' + ROWS[r]['assumptions']).split('\n') if ln.strip() and not ln.startswith('NOT')})
     unseen = [r for r in q['_rows'] if not ROW_SEEN[r][0] and not ROWS[r]['active'].startswith(('DECOMM', 'SUPERS'))]
+    q['_nfigs'] = len(q['_rows'])
     k = KEEP.get(('Map', q['id']), {})
     rows.append([q['id'], q['question'], q['family'], '\n'.join(f"{s} → {ROUTE_FILE.get(s, '(no census — not a routed screen)')}" for s in q['screens']), '\n'.join(fig(r) for r in q['_rows']), len(q['_rows']),
                  '\n'.join(fn(f) for f in q['_producers']), '\n'.join(fn(f) for f in q['_closure']), len(q['_closure']), '\n'.join(fn(f) for f in q['_extra']) or '—', '\n'.join(fn(f) for f in q['_doors']) or 'none — every figure reached through inner parts',
-                 '\n'.join(inputs)[:6000], '\n'.join(decs)[:6000], '\n'.join(fig(r) for r in unseen) or '—', q.get('note', ''), 'PROPOSED — needs your mark',
-                 'Is this one question, with these figures and these screens? Mark YES, or say what moves.', k.get('YOUR ANSWER', ''), k.get('ROW VERIFIED — founder, date and how', '')])
-sheet('Map', MAPCOLS, rows, [10, 44, 8, 40, 60, 8, 40, 40, 60, 8, 30, 60, 60, 40, 50, 18, 40, 30, 30])
+                 '\n'.join(inputs)[:6000], '\n'.join(decs)[:6000], '\n'.join(fig(r) for r in unseen) or '—', q.get('note', ''), '\n'.join(designed(q)) or 'none of them', '\n'.join(undesigned(q)) or 'none — every screen has one',
+                 *answered(ask(q), k.get('YOUR ANSWER', '')), k.get('YOUR ANSWER', ''), k.get('ROW VERIFIED — founder, date and how', '')])
+sheet('Map', MAPCOLS, rows, None,
+      mine=['E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'],   # the inventory — mine to check, not his to read
+      pin={'A': 11, 'B': 46, 'C': 8, 'D': 34, 'O': 40, 'P': 34, 'Q': 26, 'R': 26, 'S': 62, 'T': 30, 'U': 26},
+      max_lines=9)   # the question in column Q is read in place, so its row is as tall as it needs
 CENCOLS = ['Kind', 'Screen / route', 'File', 'What (text with digits as #, or the identifier)', 'Data states seen in / category', 'Visible or spoken / detail', 'Context (the lines before it) / words looked for', 'What it means', 'YOUR ANSWER']
-sheet('Census', CENCOLS, [r + [KEEP.get(('Census', r[0]), {}).get('YOUR ANSWER', '')] for r in CENSUS_ROWS], [26, 22, 34, 60, 22, 22, 60, 60, 30])
+sheet('Census', CENCOLS, [r + [KEEP.get(('Census', r[0]), {}).get('YOUR ANSWER', '')] for r in CENSUS_ROWS], None,
+      pin={'A': 22, 'B': 20, 'C': 30, 'D': 46, 'E': 18, 'F': 16, 'G': 44, 'H': 44, 'I': 30})
 CONCOLS = ['Conflict ID', 'Kind', 'Identifiers', 'Where', 'What', 'Recommendation', 'YOUR ANSWER']
-sheet('Conflicts', CONCOLS, [r + [KEEP.get(('Conflicts', r[0]), {}).get('YOUR ANSWER', '')] for r in CONF], [10, 30, 50, 30, 60, 70, 30])
+sheet('Conflicts', CONCOLS, [r + [KEEP.get(('Conflicts', r[0]), {}).get('YOUR ANSWER', '')] for r in CONF], None, pin={'F': 56, 'G': 30})
 # a front sheet: the counts
 front = wb.create_sheet('Read me', 0)
 unassigned = [m for m in ROWS if m not in QROWS]
 cc = Counter(r[0] for r in CENSUS_ROWS)
+asked = [q for q in MAP if ask(q)[0].startswith('WAITING')]
+mine = [q for q in MAP if not ask(q)[0].startswith('WAITING')]
 for line in [['The orchestrator map — phase 1 of the orchestrator plan (spec § The plan). Built by build-orchestrator-map.py from the master, the figure census and the code; hand edits die. Your columns (YOUR ANSWER, ROW VERIFIED) survive rebuilds.'],
+             ['HOW TO USE THIS FILE', 'Go to the Map tab. Read column Q. Answer in column R. That is the whole job.'],
+             ['What is NOT yours', 'Checking the figures and the screens. That inventory is columns E to N, it is mine, and the gates check it — you were asked to validate it once and you were right to refuse (2026-09-27).'],
+             ['WHERE THESE QUESTIONS COME FROM', 'The CODE and the master file, not your approved mockups. The question text and the screen list are hand-kept by me in moneykeel_orchestrator_questions.json; the figures, functions and screens are generated from what the app actually does today. That is why a question can name a screen you have never seen a design for — the Map tab now says which, per row, in "Screens here with NO approved design".'],
+             ['DOES ANY OF THIS WORDING REACH A USER?', 'No. Column B is an internal name for one orchestrator — checked against every string in src/ on 2026-09-27, and not one of the 22 appears in the app. Screen copy comes from the approved mockups and the one-term canon, never from here.'],
+             ['What IS yours', 'One judgement per row, and only on the rows that carry one: should these screens be answered by ONE function, so they can never disagree? Every row that carries no judgement says MINE TO BUILD and waits for nobody.'],
+             ['Rows that need you', len(asked), ' · '.join(q['id'] for q in asked)],
+             ['Rows that do not', len(mine), ' · '.join(q['id'] for q in mine)],
              ['Built from', os.path.basename(MASTER) + ' · census ' + CENSUS['generated']],
              ['Questions proposed', len(MAP)], ['Figure rows on the master', len(ROWS)], ['Rows assigned to a question', len(QROWS)], ['Rows assigned to no question', len(unassigned), ' · '.join(unassigned)],
              ['Screens in the census', len(CENSUS['screens'])], ['Renders in the census (screen × state × section)', sum(1 for v in CENSUS['screens'].values() for k in v if k != 'file')], ['Strings in the census', sum(len(v[k]) for v in CENSUS['screens'].values() for k in v if k != 'file')],
@@ -371,7 +516,7 @@ for line in [['The orchestrator map — phase 1 of the orchestrator plan (spec �
              ['How to read the Census', 'A finding is one gap between what the screens show and what the master file knows. The census rendered every screen and compared it with the file, both ways. "Figure no row claims" means the screen shows a number the file does not describe. "Row not seen on its screen" means the file describes a figure the census could not find on the screen. "Function inside no question" means a calculation exists that none of the 22 questions uses. "Plumbing categorised as calculation" means saving, syncing and sign-in code was labelled as if it produced figures. "Orchestrator orphan" means a door exists that no row names or no screen uses. The last column says in plain words what each one means and who acts on it.'],
              ['How to read Conflicts', 'A conflict is a place where the code does not yet follow one of the ten rules, and a decision is needed before the door is built. "Two doors, one question?" means two orchestrators exist for what may be one question (rule 1). "A question about the answers" means insights need figures other questions own, and a door may not call a door (rule 3). "One function, rows in two questions" means the same function prints figures under two questions, and one of them must own it (rule 6). "Two functions for one concept" means the same idea is computed in two or three places, so two screens can show two numbers (rule 2). "Same name stem, different files" means two functions may be the same concept under two names (rule 2). "A figure the screen computes" means the screen does arithmetic itself instead of asking a function (rule 5). Each row carries a recommendation; your answer goes in the last column.']]:
     front.append(line)
-front.column_dimensions['A'].width = 44; front.column_dimensions['B'].width = 110; front.column_dimensions['C'].width = 60
+readable(front, widths={'A': 30, 'B': 74, 'C': 44}, freeze='A1', filt=False, max_lines=6)
 for row in front.iter_rows():
     for c in row: c.alignment = WRAP
 wb.save(OUT)

@@ -11,8 +11,11 @@ import { money } from '../domain/_shared/num';
 import { currencySymbol } from '../domain/_shared/money';
 import type { AssetAccount } from '../domain/assets';
 import {
-  type ItemHolding, type ItemClass, itemizeRemainder, itemizedTotal, itemizedResultTotal, buildItemizedAccounts,
+  type ItemHolding, type ItemClass, itemizedResultTotal, buildItemizedAccounts,
 } from '../domain/assets/itemize';
+// ONE DOOR (MK-NW-O-002 theAccount, Q-NW-2 ruled 2026-09-27): what an account is worth and what is
+// inside it is ONE question, and this screen asks it through the same door the account page uses.
+import { itemising } from '../../MoneyKeel/functions/networth-and-performance/account';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -55,8 +58,9 @@ export default function ItemizeScreen() {
   }
 
   const inst = (lump.institution || lump.label || 'this account').trim();
-  const allocated = itemizedTotal(items);
-  const remainder = itemizeRemainder(lump.balance, items);
+  const placed = itemising(lump.balance, items);
+  const allocated = placed.itemised;
+  const remainder = placed.remainder;
   const resultTotal = itemizedResultTotal(lump, items);
   const overBy = remainder < 0 ? -remainder : 0;
   const pickDef = CLS_PICKS.find((p) => p.id === pick)!;

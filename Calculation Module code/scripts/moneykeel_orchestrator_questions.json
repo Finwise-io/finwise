@@ -49,10 +49,10 @@
     "MK-NW-M-016",
     "MK-NW-M-017",
     "MK-MN-M-016",
-    "MK-MN-M-022",
-    "MK-MN-M-023"
+    "MK-MN-M-022"
    ],
-   "note": "Home's card, the Net worth tab and Insights' totals are one question (rule 1). Other investments (MN-M-022/023) are a class inside it, not a question of their own — recommendation, for your ruling. Prices-updated (HM-M-001) rides with it as the freshness of the same balances."
+   "note": "Home's card, the Net worth tab and Insights' totals are one question (rule 1). Other investments (MN-M-022/023) are a class inside it, not a question of their own — recommendation, for your ruling. Prices-updated (HM-M-001) rides with it as the freshness of the same balances. FOUNDER 2026-09-27 (answering his own question on this row): the Alternatives screen belongs here only for its TOTAL VALUE (MK-MN-M-022), which is the Alternatives slice of net worth and must equal what the Net worth tab shows for that class. EST. GROWTH /year (MK-MN-M-023) is a projection, not a worth figure, and was moved OUT of this question on his \"ok\".",
+   "read_from": "net-worth-quiet-instrument_v08 — read 2026-09-26 (every string compared against the code)"
   },
   {
    "id": "Q-NW-2",
@@ -72,7 +72,8 @@
     "MK-NW-M-039",
     "MK-NW-M-040"
    ],
-   "note": "Same value function as Q-NW-1 over one account (rule 2); the activity list is the ledger read for one account."
+   "note": "Same value function as Q-NW-1 over one account (rule 2); the activity list is the ledger read for one account.",
+   "read_from": "performance_v14 (2nd phone, the account page) — read 2026-09-26"
   },
   {
    "id": "Q-NW-3",
@@ -114,7 +115,8 @@
     "MK-NW-M-043",
     "MK-NW-M-044",
     "MK-NW-M-045"
-   ]
+   ],
+   "read_from": "performance_v14 (the account page’s bond facts) — read 2026-09-26"
   },
   {
    "id": "Q-NW-5",
@@ -134,7 +136,8 @@
     "MK-MN-M-025",
     "MK-MN-M-026"
    ],
-   "note": "Three screens ask the same question today with three names (Emergency cushion · Job safety · Stress test) — one orchestrator (rule 1)."
+   "note": "Three screens ask the same question today with three names (Emergency cushion · Job safety · Stress test) — one orchestrator (rule 1).",
+   "read_from": "net-worth-quiet-instrument_v08 (the emergency-fund card) — read 2026-09-26"
   },
   {
    "id": "Q-PF-1",
@@ -155,7 +158,8 @@
     "MK-PF-M-007",
     "MK-PF-M-008",
     "MK-PF-M-009"
-   ]
+   ],
+   "read_from": "performance_v14 — read 2026-09-26, every static string against the app"
   },
   {
    "id": "Q-PF-2",
@@ -293,7 +297,8 @@
     "MK-MN-M-009",
     "MK-MN-M-010",
     "MK-CF-M-021"
-   ]
+   ],
+   "read_from": "cash-flow_v01 (then this-month-and-expenses_v07, combined into it 2026-09-28) — read 2026-09-28"
   },
   {
    "id": "Q-PL-7",
@@ -364,12 +369,13 @@
     "MK-CF-M-045",
     "MK-CF-M-046"
    ],
-   "note": "Two doors exist today — MK-CF-O-001 basePay (each earner's pay and tax) and MK-CF-O-004 incomeSummary (every source, the year). Conflict C-1 asks whether they are one question or two. The 17 figures MK-CF-M-030…046 are DECLARED IN THE CODE (rule 11, 2026-09-14) by MK-CF-O-001 basePay and MK-CF-O-004 incomeSummary; their rows on the master are printed from those declarations."
+   "note": "Two doors exist today — MK-CF-O-001 basePay (each earner's pay and tax) and MK-CF-O-004 incomeSummary (every source, the year). Conflict C-1 asks whether they are one question or two. The 17 figures MK-CF-M-030…046 are DECLARED IN THE CODE (rule 11, 2026-09-14) by MK-CF-O-001 basePay and MK-CF-O-004 incomeSummary; their rows on the master are printed from those declarations.",
+   "read_from": "income-end-to-end_v07 and cash-flow_v01 (then this-month-and-expenses_v07, combined into it 2026-09-28) — read 2026-09-28"
   },
   {
    "id": "Q-CF-2",
    "family": "CF",
-   "question": "How much have I spent this month, against the plan, and what is left",
+   "question": "What came in and what went out this month, and the surplus that leaves — planned and actual",
    "screens": [
     "/cashflow",
     "/home",
@@ -402,7 +408,8 @@
     "MK-CF-M-053",
     "MK-CF-M-054"
    ],
-   "note": "Two doors exist today — MK-CF-O-002 expenses and MK-CF-O-003 thisMonth. Conflict C-2 asks whether they are one question or two. MK-CF-M-047…054 are DRAFT declarations on MK-CF-O-003 thisMonth (rule 11) — printed on the master and waiting for the founder's verdict before the Cash flow screen moves behind the door."
+   "note": "READ FROM THE APPROVED DESIGN, 2026-09-28, after the founder corrected me: \"this month is actual - and as we decided it is not three number it is spelling out all flow to calculate surplus... Expense tab is listing transaction details. Are you working of latest approved screens or older one?\" I was not. The approved design is moneykeel_pres_mock_cash-flow-this-month-and-expenses_v07 (2026-09-26), and it says: THIS MONTH spells out EVERY row twice — Planned (Inflow · Mortgage · Car · Expenses/your budget · HELOC · the card payment · = Planned surplus) and Actual (Actual inflow · Mortgage paid · Car loan due · Expenses entered by hand · Expenses imported from your card · HELOC · the card payment · = Actual surplus so far). EXPENSES is not a second question: it is the DETAIL BEHIND ONE ROW of that flow — monthly recurring, planned by category, actual by source (by hand, imported, debt payments counted as expenses), and the big-ticket radar that says which debt payments are counted. Part and whole, like basePay inside incomeSummary — NOT two rival answers. C-2 is withdrawn.",
+   "read_from": "cash-flow_v01 (then this-month-and-expenses_v07, combined into it 2026-09-28) — read 2026-09-28, both tabs in full, after he asked whether I was"
   },
   {
    "id": "Q-CF-3",
@@ -421,7 +428,8 @@
     "MK-CF-M-026",
     "MK-CF-M-028",
     "MK-MN-M-030"
-   ]
+   ],
+   "read_from": "cash-flow_v01 (then this-month-and-expenses_v07, combined into it 2026-09-28) (the big-ticket radar) — read 2026-09-28"
   },
   {
    "id": "Q-CF-4",
@@ -476,6 +484,18 @@
     "MK-MN-M-015"
    ],
    "note": "A question ABOUT the other answers. Under rule 3 it may not call the other doors; conflict C-3 asks how it gets their figures."
+  },
+  {
+   "id": "Q-NW-6",
+   "family": "NW",
+   "question": "What might these investments earn in a year — the expected return, and the money it comes to",
+   "screens": [
+    "/other-investments"
+   ],
+   "rows": [
+    "MK-MN-M-023"
+   ],
+   "note": "Split out of Q-NW-1 on the founder's \"ok\" (2026-09-27), answering his own question on that row: the Alternatives screen belongs in the net-worth question only for its TOTAL VALUE, which must equal what the Net worth tab shows for that class. EST. GROWTH /year is a FORWARD ESTIMATE — value x the blended expected return of the kinds held — and a projection is not a worth figure. It shares no function with Q-NW-1 beyond the total it multiplies."
   }
  ],
  "conflicts_by_hand": [

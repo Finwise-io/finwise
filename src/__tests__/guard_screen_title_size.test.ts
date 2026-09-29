@@ -41,12 +41,22 @@ function styles(text: string): { name: string; size: number | null; bold: boolea
 
 test('every screen title is 20 points', () => {
   const offences: string[] = [];
-  for (const f of fs.readdirSync(ROOT).filter((x) => /\.tsx$/.test(x))) {
+  const screens = fs.readdirSync(ROOT).filter((x) => /\.tsx$/.test(x));
+  let titlesChecked = 0;
+  for (const f of screens) {
     for (const s of styles(fs.readFileSync(path.join(ROOT, f), 'utf8'))) {
       const named = s.name === 'h1' || (NAMED_TITLES[f] ?? []).includes(s.name);
       const looksLikeTitle = TITLE_LIKE.test(s.name) && s.bold && (s.size ?? 0) >= 22 && !FIGURES[`${f}:${s.name}`];
+      if (named || looksLikeTitle) titlesChecked++;
       if ((named || looksLikeTitle) && s.size !== 20) offences.push(`${f} · ${s.name} is ${s.size} points — every screen title is 20 (Typography.sizes.lg)`);
     }
   }
   expect(offences).toEqual([]);
+  // COVERAGE — this guard must have actually looked at something (2026-09-28). It filters screen files
+  // and style names with typed patterns and asserted nothing about how many it saw, so a pattern that
+  // stopped matching would have left a test that passes by looking at nothing. That is how step B6 came
+  // to read 42 of 251 rows and report itself clean, and how the orphan-route guard was built too narrow
+  // three times. A guard that cannot prove it looked is not a guard.
+  expect(screens.length).toBeGreaterThanOrEqual(20);
+  expect(titlesChecked).toBeGreaterThanOrEqual(15);
 });

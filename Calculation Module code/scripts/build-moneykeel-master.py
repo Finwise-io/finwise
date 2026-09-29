@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','rulings','capture-list','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric']
+TAB_ORDER = ['Reference','Specification','capture-list','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Function that produces it','Function ID',
@@ -40,7 +40,13 @@ COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen
         'Inputs the code reads (from the chain, this build)',
         'Inputs — as claimed before 2026-09-09 (old inventory)',
         'Inputs — approved list (founder, dated)',
-        'ROW VERIFIED — founder, date and how']
+        'ROW VERIFIED — founder, date and how',
+        # THE WORKED EXAMPLE (six steps, step 6 — 2026-09-28). One concrete case a person can follow
+        # by hand: these inputs, this answer. It is PRINTED from the door's declaration and RUN by
+        # src/__tests__/worked_examples.test.ts through the real orchestrator on every build, so the
+        # example on this row and the answer the code gives cannot drift apart. Step 6 of the six —
+        # "the row's worked example runs through the real orchestrator" — had never been done before.
+        'Worked example — these inputs give this answer (the code re-runs it on every build)']
 
 # formulas: the mathematical form is written here; the words come from the old master where the
 # engine has a row there, and are written here where it does not.
@@ -361,9 +367,7 @@ NM = 'NOT IN OLD MASTER'
 
 # figures shown on MORE THAN ONE parent screen — they live here once, with every label they wear
 MULTI = [
- ('Net worth · YOUR NET WORTH',                    'Home · Networth',            'nw.net_worth',      'NET_WORTH'),
  ('Will my money last / Is my money lasting (odds)','Home · Plan · Cashflow',     'wil.chance',        'WILL_IT_LAST_RESULT'),
- ('YOUR INVESTMENTS · 📈 INVESTMENTS',              'Home · Performance · Networth','investTotal',     'TOTAL_INVESTMENTS'),
  ('▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN','Home · Performance',   'youReturn / shownReturn','VALUE_WEIGHTED_RETURN'),
  ('Spent so far · Spent $X of $Y left to spend this month','Home · Cashflow',     'bva.spent_total',   NM + ' — budgetVsActual, src/domain/budget'),
  ('Income · In (received) · In (take-home)',        'Home · Cashflow',            'thisMonthNet',      NM + ' — incomeMonthlyGrid, src/domain/income'),
@@ -379,30 +383,14 @@ HOME = [
 
 NETWORTH = [
  ('Change in net worth +$X',                 'changeThisYear', 'TREND_SERIES'),
- ('Return on cash + investments ±X%',        'invPct',         'NW_CHANGE_PCT'),
  ('the trend line',                          'series',         'TREND_SERIES'),
- ('WHAT YOU OWN',                            'totalAssets',    'ACCOUNT_SHARE_OF_TOTAL'),
- ('💵 CASH',                                  'cashOnHand',     'TOTAL_CASH'),
  ('🏠 PERSONAL PROPERTY','sectionTotals','worked out on the screen: the sum of the accounts in the personal-property section'),
- ('class rows — by class, institution or type','classRows',     'ALLOCATION_BY_CLASS'),
  ('each account and its balance',            'a.balance',      'ACCOUNT_SPLIT'),
- ('DEBTS',                  'dState.total_debt_balance', 'DEBT_PICTURE'),
- ('each debt and what is left on it',        'd.remaining_balance', 'DEBT_PICTURE'),
- ('minimum monthly payment on a debt',       'd.minimum_monthly_payment', 'DEBT_REQUIRED_PAYMENT'),
- ('Monthly debt payments $X/mo',             'dState.total_monthly_debt_service', 'DEBT_PICTURE'),
- ('EMERGENCY FUND — X.X months',          'runwayMonths',   'worked out on the screen: cash ÷ a typical month of essentials'),
- ('of essentials covered by your cash — $X cash ÷ $Y/mo essentials','cashOnHand / monthlySpend','TOTAL_CASH · PLANNED_SPENDING'),
  ('YOUR RETIREMENT PLAN — on track for $X by age Y','pathAhead','POT_AT_RETIREMENT'),
  ('Net worth so far (setup)',                'nw.net_worth',   'NET_WORTH'),
- ('Assets $X − Debts $Y = Net worth $Z',     'totalAssets / dState.total_debt_balance', 'NET_WORTH · DEBT_PICTURE'),
 ]
 
 PERFORMANCE = [
- ('Ending value',                            'walk.ending',          'NW_CHANGE_WALK'),
- ('Wealth generated',                        'walk.wealthGenerated', 'NW_CHANGE_WALK'),
- ('HOW $X BECAME $Y · ALL ACCOUNTS',         'walk.beginning / walk.ending', 'NW_CHANGE_WALK'),
- ('Ending market value (per account)',       'w.ending',             'NW_CHANGE_WALK'),
- ('each account and its ending value',       'a.ending',             'PERFORMANCE_TABLE'),
  ('WHAT EACH CATEGORY EARNED — RETURN',      'b.earned / b.ret',     'PERFORMANCE_TABLE'),
  ('All categories',                          'total',                'PERFORMANCE_TABLE'),
  ('HONEST COMPARISON',                       'benchPort',            'BENCHMARK_RETURN_BLENDED'),
@@ -410,11 +398,6 @@ PERFORMANCE = [
 ]
 
 CASHFLOW = [
- ('Expected in',                             'cell.inflow',   NM + ' — the by-month grid, src/domain/cashflow'),
- ('Planned out · incl. <big bill>',          'cell.outflow',  NM + ' — the by-month grid, src/domain/cashflow'),
- ('= Planned surplus',                       'cell.net',      'worked out on the screen: expected in − planned out'),
- ('Out (spent + debt)',                      'out',           NM + ' — budgetVsActual, src/domain/budget'),
- ('= Surplus',                               'inn - out',     'worked out on the screen: in − out'),
  ('YOUR SOURCES — Base salary',              'op.baseSalary', 'TOTAL_INCOME'),
  # The band has driven 25 functions since the app existed and had NO identifier: 163 metric rows
  # were searched on 2026-08-27 and not one named it. It is one figure — everything the household
@@ -427,12 +410,9 @@ CASHFLOW = [
  ('YOUR SOURCES — Stock vesting (equity)',   'rsuTotal',      NM + ' — the equity schedule, src/domain/income'),
  ('YOUR SOURCES — Rental property',          'rentalTotal',   'RENTAL_INCOME_A_YEAR'),
  ('YOUR SOURCES — Social Security · pension','guaranteed',    'RETIREMENT_INCOME_NOW'),
- ('RECEIVED · <month> — each payment',       'i.amount',      NM + ' — the received list, src/domain/income'),
  ('<MONTH> · $X SPENT',                      'spent',         'SPENDING_BY_KIND'),
  ('each expense and its amount',             'e.amount',      'SPENDING_BY_KIND'),
  ('BY CATEGORY VS PLAN — $X of $Y',          'b.spent / b.planned', 'PLANNED_SPENDING'),
- ('BIG-TICKET RADAR — <bill> · due <month>', 'b.amount',      NM + ' — the big-bill radar, src/domain/cashflow'),
- ('well above your usual <category>',        'e.amount',      NM + ' — the unusual-spend check, src/domain/budget'),
  ('THIS MONTH — In (take-home)',             'inflow',        NM + ' — incomeMonthlyGrid, src/domain/income'),
  ('THIS MONTH — Out (bills + debt)',         'outflow',       'SPENDING_BY_KIND · DEBT_REQUIRED_PAYMENT'),
  ('THIS MONTH — free to use',                'free',          'worked out on the screen: in − out − what the Plan committed'),
@@ -453,36 +433,13 @@ PLAN = [
 
 
 # secondary screens: (route, label on screen, metric in code, engine)
+# THE ELEVEN BOND ROWS LEFT THIS LIST ON 2026-09-27, the day MK-NW-O-001 theBonds declared them
+# (rule 11: a figure moves out of the hand-typed lists the day its door declares it, and the count
+# only falls). Their rows are now PRINTED from the declaration in
+# MoneyKeel/functions/networth-and-performance/bonds.ts — file and code cannot disagree, because the
+# file is a printout of the code.
 SECONDARY = {
  'networth': [
-  ('/account-detail','Market value','account.balance','HAND_VALUE_AGE'),
-  ('/account-detail','Income','acctIncome','the ledger sum of interest and dividends for the account'),
-  ('/account-detail','each asset class inside the account','breakdown[k]','ACCOUNT_SPLIT'),
-  ('/account-detail','Income: <amount> on a holding row','incomeOf(rw)','the ledger sum for that holding'),
-  ('/account-detail','ACTIVITY — n records','txns.length','HISTORY_DEPTH'),
-  ('/account-detail','Face value','b.face','BOND_FACTS'),
-  ('/account-detail','Interest payments — X%/yr · $Y/yr','annualCoupon(b)','BOND_COUPON'),
-  ('/account-detail','Matures — <date> (n years away)','years','BOND_YEARS_LEFT'),
-  ('/account-detail','Yield if held to maturity','ytm','BOND_YIELD_TO_MATURITY'),
-  ("/account-detail","Yield on today's value",'cy','BOND_CURRENT_YIELD'),
-  ('/account-detail','Rates rise 1% → value roughly $X–$Y','sens.ratesUp','BOND_RATE_SENSITIVITY'),
-  ('/holding-detail','CURRENT PRICE · LIVE','price','the price feed, with its freshness'),
-  ('/holding-detail','Current value','value','HOLDING_MARKET_VALUE'),
-  ('/holding-detail','Quantity — n shares','shares','HOLDING_SHARES'),
-  ('/holding-detail','Price paid (average)','rawAvg','HOLDING_COST_BASIS'),
-  ('/holding-detail','Total paid','basis','HOLDING_COST_BASIS'),
-  ('/holding-detail','Dividends received (12 mo)','dividends.trailing12','the ledger sum of dividends over twelve months'),
-  ('/holding-detail','Realized gain from your buys and sells','realized','REALISED_GAIN'),
-  ('/holding-detail','Gain — long-term (held over 1 yr)','cg.longGain','HOLDING_CAP_GAINS'),
-  ('/holding-detail','Gain — short-term (under 1 yr)','cg.shortGain','HOLDING_CAP_GAINS'),
-  ('/itemize','We keep the total at $X','lump.balance','the account balance being itemised'),
-  ('/itemize','$X of $Y itemized · remainder','allocated / remainder','worked out on the screen: total − what has been itemised'),
-  ('/itemize','each holding and its value','h.value','HOLDING_MARKET_VALUE'),
-  ('/bonds','total value of your bonds','summary.totalValue','BOND_FACTS'),
-  ('/bonds','n bonds · face $X','summary.totalFace','BOND_FACTS'),
-  ('/bonds','COUPON / YR','summary.coupon','BOND_COUPON'),
-  ('/bonds','AVG YIELD','summary.yield','BOND_CURRENT_YIELD'),
-  ('/bonds','each bond — face, coupon, yield','bi','BOND_FACTS · BOND_COUPON'),
  ],
  'plan': [
   ('/will-it-last','What you have (nest egg)','inp.start_balance','WILL_IT_LAST_INPUTS'),
@@ -519,17 +476,11 @@ SECONDARY = {
  'cashflow': [
   ('/monthly-income','each source of guaranteed income','g.amount','RETIREMENT_INCOME_NOW'),
   ('/month-detail','what came in and went out that month','cell','the by-month grid'),
-  ('/paycheck-months','the months a paycheck lands','payYear','RETIREMENT_PAYCHECK'),
   ('/income-manager','each income source and its amount','sources','TOTAL_INCOME'),
-  ('/bill-calendar','each bill and the day it falls','bills','THE_BILL_CALENDAR'),
  ],
  'menu': [
   ('/big-costs','each big cost and its year','c.amount','BIG_COSTS'),
   ('/big-costs','the total of your big costs','total','BIG_COSTS'),
-  ('/contribution-room','$X left / up to $Y','room / limit','CONTRIBUTION_ROOM'),
-  ('/contribution-room','about $X of the $Y limit','used / limit','CONTRIBUTION_ROOM'),
-  ('/contribution-room','about $X/mo for the rest of the year','perMonth','worked out on the screen: room left ÷ months left'),
-  ('/credit','$X of $Y used — the line marks 30%','bal / lim','CREDIT_USE'),
   ('/expense','$X of $Y this month · over by $Z','catSpend / catBudget','PLANNED_SPENDING'),
   ('/goals','typical free cash to save $X/mo','capacity.avg','GOAL_CAPACITY'),
   ('/goals','each goal — $X of $Y · $Z to go','g.saved / g.target','GOAL_PROGRESS'),
@@ -539,26 +490,11 @@ SECONDARY = {
   ('/income-detail','Take-home / month','state.net_monthly_income','TOTAL_INCOME'),
   ('/income-detail','Employer 401(k) match','state.employer_match_annual','EMPLOYER_MATCH'),
   ('/insights','each insight and the dollars behind it','shareOf(v)','NOT IN OLD MASTER — useInsights, src/domain/insights'),
-  ('/insights','Total invested · Cash total · Investable total','investable / cash','TOTAL_INVESTABLE · TOTAL_CASH'),
   ('/insurance','the life-cover gap','need.gap','INSURANCE_NEED'),
   ('/insurance','Income replacement (N yrs)','need.incomeReplacement','INSURANCE_NEED'),
   ('/insurance','+ Debts, goals & final expenses · Total need','need.total','INSURANCE_NEED'),
-  ('/jobsafety','N months of essentials is $X ($Y/mo)','target / ess','JOB_SAFETY_RUNWAY'),
-  ('/jobsafety','Using $X/mo from your logged spending','monthSpend','SPENDING_BY_KIND'),
-  ('/other-investments','the total value of these investments','summary.totalValue','ALTERNATIVES_TOTAL'),
-  ('/other-investments','EST. GROWTH / YR','summary.growth','ALTERNATIVES_GROWTH'),
-  ('/stress-test','You could cover a $X hit','shock','STRESS_TEST'),
-  ("/stress-test","You'd have $X left — about N months of essentials",'r.cashAfter / r.runwayAfter','STRESS_TEST'),
-  ('/stress-test','your $X/mo of must-pay bills','ess','PLANNED_SPENDING'),
-  ('/tax-organizer','each taxable line and its amount','l.amount','TAXABLE_INCOME'),
-  ('/tax-organizer','Taxable income · Non-taxable','org.taxableTotal','TAXABLE_INCOME'),
-  ('/tax-organizer','each contribution and its amount','c.amount','CONTRIBUTION_ROOM'),
-  ('/worth-a-look','$X left <account> on <date>','f.amount','NOT IN OLD MASTER — the outflow watch, src/domain/insights'),
  ],
  'performance': [
-  ('/look-back','Left in <fund> it became $X (up/down $Y, Z%)','result.stayed','LOOK_BACK'),
-  ('/look-back','Moved to <fund> it would be $X','result.moved','LOOK_BACK'),
-  ('/look-back','Difference: $X more/less if you had moved','result.difference','LOOK_BACK'),
  ],
 }
 
@@ -748,9 +684,16 @@ def declared_row(mid, f, tab):
             '', '', ('DECLARED IN THE CODE (rule 11) — printed from the door, not typed. RULED ' + f['ruled'] if f.get('ruled')
                      else 'DRAFT — declared in the code and printed here, WAITING FOR YOUR VERDICT before the screens move behind the door (rule 10)'),
             '', '', '', '', '', 'ACTIVE', TODAY,
-            '', '', '', '', '', '',
+            # FIVE blanks, for the five columns between 'Date last modified' and 'ROW VERIFIED':
+            # the founder comment, my answer to it, and the three inputs columns. It was SIX until
+            # 2026-09-28, which is one more value than there are columns — so every declared row was
+            # shifted right by one from here on and its ROW VERIFIED text fell off the end of the
+            # sheet entirely. Found by the worked-example column landing in the wrong place.
+            '', '', '', '', '',
             (('TESTED, NOT VERIFIED — you ruled on this row ' + f['ruled'] + '; the figure, its formula, inputs and refusal live in ' + door)
-             if f.get('ruled') else ('RULED? NOT YET — read this row and say yes, or say what changes. Nothing moves behind ' + door + ' until you do.'))]
+             if f.get('ruled') else ('RULED? NOT YET — read this row and say yes, or say what changes. Nothing moves behind ' + door + ' until you do.')),
+            ((f['worked']['given'] + '\nGIVES: ' + f['worked']['answer'] + '\n(the test re-runs this through ' + door + ' on every build)')
+             if f.get('worked') else 'NONE YET — no worked example is declared for this figure, so nothing re-runs it (step 6)')]
 
 # ---- engine identifiers: one per engine, assigned once
 ENGINE_FAMILY = {}
@@ -774,6 +717,13 @@ for label, screens, metric, engine in MULTI:
                    _finding_states(_mid),
                    _HIST.state(_mid, _DUP_OF.get(_mid,('',''))[0]),
                    _HIST.stamp(_mid, (m, w, _FN_OF[1], sp))])
+# THE DECLARED FIGURES OF THIS FAMILY TOO (2026-09-27). Every other tab appended its doors'
+# declarations; this one was built from MULTI alone, so an XS figure a door declared landed on NO row
+# — and a figure with no row takes its founder questions down with it. Found by the build's own guard
+# the moment MK-NW-O-003 theNetWorth declared Net worth itself.
+for _mid, _fig in declared_for('multiple_screens'):
+    _row = declared_row(_mid, _fig, 'multiple_screens')
+    ws.append(_row + [''] * (len(COLS) - len(_row)) if len(_row) < len(COLS) else _row[:len(COLS)])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
@@ -983,29 +933,29 @@ for _t in ['multiple_screens','home','networth','performance','plan','cashflow',
         _sh.cell(_r, _iOld).value = '(the claim now stands in \'Inputs it needs\' until the row is approved)'
         for _c in (_iC, _iOld): _sh.cell(_r, _c).alignment = Alignment(wrap_text=True, vertical='top')
 
-# ---- RULINGS — every decision the founder has made, and where each stands (founder question,
-#      2026-09-09). RULED → CODED → TESTED → VERIFIED; only he moves a ruling to VERIFIED.
+# ---- RULINGS — THE TAB IS GONE (founder, 2026-09-28) ------------------------------------------
+#      "Rulings in master file needs to be one place to record all decisions, no matter where they are
+#      made... one file in decision log folder as master source for all decisions. delete ruling tab
+#      from master calculation file."
+#
+#      Every decision now lives in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx,
+#      printed from moneykeel_decisions.json, with one tab per parent screen the way this file has. The
+#      tab is removed rather than left as a copy, because two records of one decision that can disagree
+#      is the fault the decision log exists to end.
+#
+#      WHAT MOVED WITH IT, so nothing was dropped: the 38 machine-readable `expect` file-checks came
+#      across with their decisions, and step B3 (check-rulings-in-file.py) now reads them from the
+#      decision log. The ruling numbers (G37, A15 …) are kept on each row, because the workplan, this
+#      file and my own comments quote them.
+#
+#      The rulings still feed this file in two places that are NOT a second record — they are lookups:
+#      the Specification tab's S13 line and the per-figure "Where each finding stands" column. Both
+#      read the JSON, and are being re-pointed at the decision log as the sources retire.
 _RUL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_rulings.json')
 _RUL = json.load(open(_RUL_PATH)) if os.path.exists(_RUL_PATH) else []
-RUL_COLS = ['Ruling', 'Date ruled', 'Where he said it', 'His ruling, in his words', 'Rows and functions it touches',
-            'STATUS — RULED · CODED · TESTED · VERIFIED', 'What was changed (code and file)', 'Proof — the test that fails if it comes back',
-            'Date coded', 'Verified by the founder — date and how', 'Notes']
-ws = sheet('rulings', RUL_COLS)
-ws.append(['Four stages, never skipped: RULED — his words recorded, nothing built · CODED — code and file both carry it and agree (the last stage for a file-only ruling) · TESTED — a named test pins it · VERIFIED — he confirmed it, on the device or by approving the row. A ruling that is RULED but not CODED is a promise; CODED but not TESTED is a claim.'] + [''] * (len(RUL_COLS) - 1))
-ws.cell(ws.max_row, 1).font = Font(bold=True, color='1F3864')
-_STATUS_FILL = {'RULED': PatternFill('solid', fgColor='FCE4D6'), 'CODED': PatternFill('solid', fgColor='FFF2CC'), 'TESTED': PatternFill('solid', fgColor='E2EFDA'), 'VERIFIED': PatternFill('solid', fgColor='DDEBF7')}
-for _e in _RUL:
-    ws.append([_e['id'], _e['date'], _e['source'], _e['ruling'], _e['rows'], _e['status'], _e.get('code', ''), _e.get('proof', ''), _e.get('coded', ''), _e.get('verified', ''), _e.get('notes', '')])
-    _st = _e['status'].split(' ')[0]
-    if _st in _STATUS_FILL: ws.cell(ws.max_row, 6).fill = _STATUS_FILL[_st]
-for _i, _w in enumerate([18, 11, 30, 56, 40, 24, 50, 46, 11, 26, 44], start=1):
-    ws.column_dimensions[get_column_letter(_i)].width = _w
-for _r in range(2, ws.max_row + 1):
-    for _c in range(1, len(RUL_COLS) + 1): ws.cell(_r, _c).alignment = Alignment(wrap_text=True, vertical='top')
-ws.freeze_panes = 'B3'; ws.auto_filter.ref = 'A2:%s%d' % (get_column_letter(len(RUL_COLS)), ws.max_row)
 import collections as _co
 _rul_counts = _co.Counter(e['status'].split(' ')[0] for e in _RUL)
-print('rulings — %s' % ' · '.join('%s %d' % (k, v) for k, v in sorted(_rul_counts.items())))
+print('rulings — the tab is gone (his instruction 2026-09-28); %d decisions are in the decision log' % len(_RUL))
 
 # ---- CAPTURE LIST — his per-asset-class 'data to capture' (Calculations-jj.xlsx, 2026-08-26), every
 #      item mapped to an input, a function, or NOT CAPTURED with the question that decides it.
@@ -1516,6 +1466,9 @@ WIDTHS = {
  'Dependency — function ID → the output it uses': 36, 'The chain of functions behind it': 42,
  'Assumptions made anywhere in that chain': 50, 'Secondary calculations and decisions the engine makes': 36,
  'Errors or findings to address': 46, 'Decisions made': 42, 'Same figure as (S16)': 26,
+ # the worked example is a paragraph he reads in place — a case, then the answer — so it gets the
+ # widest the standard allows rather than the measured width, which clipped it to a sliver.
+ 'Worked example — these inputs give this answer (the code re-runs it on every build)': 52,
  'Questions for you (numbered)': 50, 'YOUR ANSWER — use the same number': 42,
  'Your name for it (72-metric file)': 18, 'Core screen?': 10, 'Row status': 12,
  'Audit finding — 2026-08-25 review': 46, 'Formula audit — metric vs the function it names (2026-08-26)': 46,
@@ -1780,6 +1733,19 @@ _rewritten = _his_words_unchanged()
 if _rewritten:
     raise SystemExit('STOP — the build changed words the founder typed (Post Feedback Sync rule): ' + '; '.join(_rewritten))
 print('his words: every cell he typed and every ruling reads exactly as he wrote it')
+# ── READABLE, EVERY TAB (founder, 2026-09-27: "learn how to format excel file so it is readable in
+# terms of column width"). Each tab already sets the widths its own content wants, and those are KEPT
+# — capped at 52, past which the eye loses the line start coming back. What was missing everywhere is
+# the row height: every cell wraps, no row was ever given a height, so a long cell rendered as a
+# one-line sliver. One pass gives every row the height its tallest cell needs.
+import sys as _sys, os as _os2
+_sys.path.insert(0, _os2.path.dirname(_os2.path.abspath(__file__)))
+from xlsx_readable import readable as _readable, MAX_W as _MAXW
+for _ws in wb.worksheets:
+    _keep = {k: min(v.width, _MAXW) for k, v in _ws.column_dimensions.items() if v.width}
+    _readable(_ws, widths=_keep, freeze=_ws.freeze_panes or 'A2',
+              filt=bool(_ws.auto_filter.ref) or _ws.max_row > 3)
+
 wb.save(OUT)
 _mreg_save()   # the identifiers this build issued, kept so they never move again
 print("wrote", OUT)

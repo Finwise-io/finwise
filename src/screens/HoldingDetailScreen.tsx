@@ -15,11 +15,11 @@ import { coverageFor } from '../../Calculation Module code/engines/coverage';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, maskedMoney2, maskedPrice, coinQuantity, spokenMoney } from '../components/useMoney';
-import { realizedFromLedger } from '../domain/performance/realized';
+import { theHolding } from '../../MoneyKeel/functions/networth-and-performance/holding';
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
 import {
-  buildPerformance, totalShares, costBasis, capGains, benchmarkTicker,
+  buildPerformance, benchmarkTicker,
   PERIODS, startDateFor, type Period, type Position, type PerformanceRow,
 } from '../domain/performance';
 import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScreen';
@@ -101,12 +101,20 @@ export default function HoldingDetailScreen() {
 
   const ticker = position.ticker;
   const name = position.label?.trim() || ticker;
-  const shares = totalShares(position);
-  const basis = costBasis(position);
-  const rawAvg = shares > 0 ? basis / shares : 0;   // unrounded — avgCost() clips $1.132 to $1.13
-  const hasPrice = row.price != null;
-  const closed = shares <= 0;
-  const value = hasPrice ? row.marketValue : basis;      // r30: no price → show what you paid
+  // ONE DOOR (MK-NW-O-006 theHolding, Q-NW-3). The screen assembled this from six functions and its
+  // own dividend filter; it asks the question once now, and the two refusals it must honour — no
+  // price means what you paid and no gain at all, and a dividend record belongs to this holding only
+  // when it names this ticker — live in the door rather than in the screen.
+  const answer = theHolding({
+    position, accountId: String(account.asset_id), price: row.price ?? null,
+    transactions: (store.transactions ?? []) as any[],
+  });
+  const shares = answer.shares;
+  const basis = answer.totalPaid;
+  const rawAvg = answer.avgPaidPerShare;   // unrounded — avgCost() clips $1.132 to $1.13
+  const hasPrice = answer.priced;
+  const closed = answer.closed;
+  const value = answer.value;      // r30: no price → show what you paid
   const gain = hasPrice ? row.gain : null;
   const roi = hasPrice ? row.totalROI : null;
   const fresh = priceFreshness(store.pricesFetchedAt, Date.now());
@@ -129,15 +137,10 @@ export default function HoldingDetailScreen() {
   // r26: per-lot long/short split; the two gains sum to the header gain by construction.
   // The estimated-tax line was CUT by the founder 2026-08-20 (brief §C, Q12): embedded tax on an
   // unrealised gain can't be calculated honestly — the three tax buckets in dollars replace it.
-  const cg = hasPrice ? capGains(position, row.price) : null;
+  const cg = answer.capitalGains;
 
   // r29: dividends received — this ticker's DIVIDEND rows in the ONE ledger
-  const dividends = useMemo(() => {
-    const rows = ((store.transactions ?? []) as any[]).filter((t) => t.type === 'DIVIDEND' && String(t.ticker).toUpperCase() === ticker.toUpperCase());
-    const cutoff = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString().slice(0, 10);
-    const sum = (list: any[]) => list.reduce((t, x) => t + (x.amount || 0), 0);
-    return { trailing12: sum(rows.filter((t) => String(t.date) >= cutoff)), allTime: sum(rows) };
-  }, [store.transactions, ticker]);
+  const dividends = answer.dividends;
 
   // r162: a bond FUND (ticker'd, bond benchmark) gets the general mechanism sentence — never a
   // live claim about what rates did this year
@@ -148,7 +151,7 @@ export default function HoldingDetailScreen() {
     : `${name}, worth ${maskedMoney(Math.round(value))}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}${roi != null ? `, ${Math.abs(Math.round(roi * 100))} percent since purchase` : ''}` : ''}`;
 
   const tickerTxns = ((store.transactions ?? []) as any[]).filter((t) => String(t.ticker ?? '').toUpperCase() === ticker.toUpperCase());
-  const realized = realizedFromLedger(store.transactions ?? [], { ticker, accountId: account.asset_id });
+  const realized = answer.realised;
 
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
@@ -173,7 +176,7 @@ export default function HoldingDetailScreen() {
           </>
         ) : hasPrice ? (
           <>
-            <SectionBand title={`CURRENT PRICE${fresh.stale ? '' : ' · LIVE'}`} />
+            <SectionBand inCard inset={20} title={`CURRENT PRICE${fresh.stale ? '' : ' · LIVE'}`} />
             <Text style={s.big}>{money(row.price as number)}</Text>
             {dayChange != null && (
               <Text style={[s.gainLine, { color: dayChange.d >= 0 ? Colors.gainText : Colors.red }]}>
@@ -239,14 +242,14 @@ export default function HoldingDetailScreen() {
         </View>
       ) : (
         <View style={s.card}>
-          <SectionBand title="VS THE STOCK MARKET" />
+          <SectionBand inCard inset={20} title="VS THE STOCK MARKET" />
           <Text style={s.note}>Not enough price history for a fair comparison — check back as prices fill in.</Text>
         </View>
       ))}
 
       {/* what you bought — r25: the lots ARE the cost basis */}
       <View style={s.card}>
-        <SectionBand title="WHAT YOU BOUGHT" />
+        <SectionBand inCard inset={20} title="WHAT YOU BOUGHT" />
         {position.lots.map((l) => (
           <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
             accessibilityLabel={`${l.shares} shares at ${spokenMoney(l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
@@ -261,7 +264,7 @@ export default function HoldingDetailScreen() {
       {/* dividends & realized — one card (mock v2); facts from the ledger, zeros said plainly */}
       {hasPrice && !closed && (
         <View style={s.card}>
-          <SectionBand title="DIVIDENDS & REALIZED" />
+          <SectionBand inCard inset={20} title="DIVIDENDS & REALIZED" />
           <View style={s.tRow}><Text style={s.tL}>Dividends received (12 mo)</Text><Text style={s.tV}>{maskedMoney2(dividends.trailing12)}</Text></View>
           <View style={s.tRow}><Text style={s.tL}>Realized from sales</Text>
             <Text style={s.tV}>{realized.sellsCounted > 0
@@ -276,7 +279,7 @@ export default function HoldingDetailScreen() {
       {/* if you sold today — r26, table grammar; the estimate labeled in real text */}
       {cg && !closed && (
         <View style={s.card}>
-          <SectionBand title="IF YOU SOLD TODAY" />
+          <SectionBand inCard inset={20} title="IF YOU SOLD TODAY" />
           <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.longGain))}</Text></View>
           {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (under 1 yr)</Text><Text style={s.tV}>{cg.shortGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.shortGain))}</Text></View>}
         </View>

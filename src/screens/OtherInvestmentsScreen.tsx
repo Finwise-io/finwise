@@ -9,7 +9,13 @@ import { DateField } from '../components/DateField';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { InfoDot, EmptyNote } from '../components/UI';
-import { assetKind, benchmarkReturn, investableAssets, type AssetAccount, type TaxBucket } from '../domain/assets';
+import { assetKind, benchmarkReturn, type AssetAccount, type TaxBucket } from '../domain/assets';
+// ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1). The share of investable this screen shows is the
+// same investable the Net worth tab shows — one answer, so the two cannot disagree.
+import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
+// ONE DOOR (MK-NW-O-005 theAlternativesOutlook, Q-NW-6) — the forward estimate, split out of
+// "what am I worth" on his "ok" (2026-09-27), because a projection is not a worth figure.
+import { theAlternativesOutlook } from '../../MoneyKeel/functions/networth-and-performance/alternatives-outlook';
 import { isAlternative, alternativesSummary, ALT_KINDS_CAPTURE } from '../domain/alternatives';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { isoLocalDate } from '../domain/_shared/dates';
@@ -32,7 +38,8 @@ export default function OtherInvestmentsScreen() {
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
   const alts = useMemo(() => accounts.filter(isAlternative), [accounts]);
   const summary = useMemo(() => alternativesSummary(accounts), [accounts]);
-  const investable = investableAssets(accounts);
+  const outlook = useMemo(() => theAlternativesOutlook({ accounts }), [accounts]);
+  const investable = theNetWorth({ uid: String(store.user?.uid ?? 'local'), accounts, debts: store.liabilities ?? [] }).investable;
   const sharePct = investable > 0 ? Math.round((summary.totalValue / investable) * 1000) / 10 : 0;
   const [edit, setEdit] = useState<AssetAccount | null>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -55,15 +62,15 @@ export default function OtherInvestmentsScreen() {
             <Text style={styles.sumVal}>{money(summary.totalValue)}</Text>
             <Text style={styles.sumLab}>{summary.count} holding{summary.count > 1 ? 's' : ''} · {sharePct}% of your investable assets</Text>
             <View style={styles.sumRow}>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>EXP. RETURN</Text><Text style={styles.sumCellV}>{(summary.blendedReturn * 100).toFixed(1)}%</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>EST. GROWTH / YR</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{money(summary.estAnnualGrowth)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>EXP. RETURN</Text><Text style={styles.sumCellV}>{(summary.blendedReturn * 100).toFixed(2)}%</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>EST. GROWTH /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{outlook.estimatedGrowthPerYear == null ? '—' : money(outlook.estimatedGrowthPerYear)}</Text></View>
             </View>
           </View>
 
           {alts.map((a) => (
             <TouchableOpacity key={a.asset_id} accessibilityRole="button" accessibilityLabel={`Edit ${a.label}, ${money(a.balance || 0)}`} style={styles.card} onPress={() => setEdit(a)}>
               <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{a.label}</Text><Text style={styles.val}>{money(a.balance || 0)}</Text></View>
-              <Text style={styles.sub}>{a.institution?.trim() ? `${a.institution.trim()} · ` : ''}{assetKind(a.kind)?.label ?? 'Other'} · ~{(benchmarkReturn(a.kind) * 100).toFixed(1)}%/year expected</Text>
+              <Text style={styles.sub}>{a.institution?.trim() ? `${a.institution.trim()} · ` : ''}{assetKind(a.kind)?.label ?? 'Other'} · ~{(benchmarkReturn(a.kind) * 100).toFixed(2)}%/year expected</Text>
             </TouchableOpacity>
           ))}
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add an investment" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add an investment</Text></TouchableOpacity>
@@ -132,7 +139,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           <View style={styles.chips}>{ALT_KINDS_CAPTURE.map((k) => (
             <TouchableOpacity key={k} style={[styles.chip, kind === k && styles.chipOn]} onPress={() => setKind(k)}><Text style={[styles.chipT, kind === k && styles.chipTOn]}>{assetKind(k)?.label ?? 'Other'}</Text></TouchableOpacity>
           ))}</View>
-          <Text style={styles.hint}>{ALT_HINT[kind]} ~{(benchmarkReturn(kind) * 100).toFixed(1)}%/year historical benchmark.</Text>
+          <Text style={styles.hint}>{ALT_HINT[kind]} ~{(benchmarkReturn(kind) * 100).toFixed(2)}%/year historical benchmark.</Text>
           <Text style={styles.fieldL}>Name</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Bitcoin, Fund III, Gold" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Where it's held (institution)</Text>

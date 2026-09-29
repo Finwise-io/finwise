@@ -1,5 +1,5 @@
-// Worth a look — transaction detail (F10, FCC detailed design v1.1). The calm close-up of a flagged
-// transaction: the plain facts, why it stood out (one honest comparison), and a two-button resolution.
+// Worth a look — one row of activity, up close (F10, FCC detailed design v1.1). The calm close-up of a
+// flagged expense: the plain facts, why it stood out (one honest comparison), and a two-button resolution.
 // Reassures more than it warns — the words scam/fraud/alert never appear in v1, nothing is ever red.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
@@ -43,7 +43,7 @@ export default function WorthALookScreen() {
         <Text style={styles.magnifier}>🔍</Text>
         <Text style={[styles.factHead, { textAlign: 'center' }]}>Nothing to look at</Text>
         <Text style={[styles.softener, { textAlign: 'center' }]}>
-          When an account is connected, we watch it for odd transactions — hand-typed entries are yours, we never question them.
+          When an account is connected, we watch it for odd activity — hand-typed entries are yours, we never question them.
         </Text>
       </View>
     );
@@ -60,7 +60,7 @@ export default function WorthALookScreen() {
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.magnifier} accessibilityElementsHidden importantForAccessibility="no">🔍</Text>
 
-      {/* fact block — pure facts from the transaction record, one sentence for screen readers */}
+      {/* fact block — pure facts from the activity record, one sentence for screen readers */}
       <Text style={styles.factHead}
         accessibilityLabel={`${spokenMoney(f.amount)} left ${accountName(f.account_id)} on ${weekdayDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
         {maskedMoney(f.amount)} left {accountName(f.account_id)} on {weekdayDate(f.date)}
@@ -101,12 +101,12 @@ export default function WorthALookScreen() {
       {ordered.length > 1 && (
         <View style={styles.navRow}>
           <TouchableOpacity accessibilityRole="button" disabled={idx === 0} onPress={() => { setIdx(idx - 1); setChecklist(false); setNoted(false); }}
-            accessibilityLabel="Previous flagged transaction">
+            accessibilityLabel="Previous flagged expense">
             <Text style={[styles.navTxt, idx === 0 && styles.navOff]}>‹ Previous</Text>
           </TouchableOpacity>
           <Text style={styles.navCount}>{Math.min(idx, ordered.length - 1) + 1} of {ordered.length}</Text>
           <TouchableOpacity accessibilityRole="button" disabled={idx >= ordered.length - 1} onPress={() => { setIdx(idx + 1); setChecklist(false); setNoted(false); }}
-            accessibilityLabel="Next flagged transaction">
+            accessibilityLabel="Next flagged expense">
             <Text style={[styles.navTxt, idx >= ordered.length - 1 && styles.navOff]}>Next ›</Text>
           </TouchableOpacity>
         </View>

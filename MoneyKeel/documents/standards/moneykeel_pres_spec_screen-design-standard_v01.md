@@ -16,6 +16,30 @@ This document holds every rule a new or changed screen must meet, and the order 
    - report every difference to the founder **before drawing anything**. A difference is a defect, never a "today" to design on top of.
 
    The "as it will be built" column starts from the approved design plus every ruling made after it. The "today" column shows the code.
+
+   **THIS RULE IS NOT ONLY ABOUT DRAWING (widened 2026-09-28).** The founder: *"go an check the rule
+   which requires you to work off latest approved design and files - as you said last two times in two
+   days that it is fixed and will not happen again and it happened again."* It did, and for two reasons
+   that are not "I forgot":
+
+   - **It was scoped to screens and mocks.** This document opens "every rule a new or changed SCREEN
+     must meet… walked before any MOCK OR SCREEN reaches the founder", and step 0 says "for every
+     SCREEN the task touches". Writing down WHAT A SCREEN ANSWERS — the orchestrator map's questions —
+     draws no mock and changes no screen, so the rule never fired. Both misses came out of that gap:
+     Q-CF-1 (base pay vs income summary) and Q-CF-2 (This month vs Expenses) were written from the
+     CODE, and both times the answer was already in a design he had approved.
+   - **Nothing enforced it.** Every rule here that holds is held by a test that fails the build. This
+     one was held by my memory, which is exactly what failed — twice in two days.
+
+   So it now covers **any work that says what a screen shows or answers**: a mock, a screen, a figure's
+   row, a question on the orchestrator map, a line in the working plan. And it is gated:
+   `Calculation Module code/scripts/check-read-from-approved.py`, step B5 of the build. A question
+   about a screen that HAS an approved design must record which design it was read from and when, in
+   `read_from`; the build fails otherwise. Two questions are on a ratchet, owed and named, and nothing
+   may join them.
+
+   **When the gate was first run it found 11 questions describing screens with an approved design, and
+   not one of them cited it.** That is the size of the thing, and it was never two mistakes.
 1. **Read before drawing.** For the screen and each of its data states, read:
    - the words the screen shows, from the screen census (`Calculation Module code/scripts/moneykeel_figure_census.json`, written by `src/__tests__/figure_census.test.tsx`);
    - the size, weight and colour of every text style, from the screen's own StyleSheet;

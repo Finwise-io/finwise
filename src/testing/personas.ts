@@ -91,11 +91,38 @@ export const simpleFlat: OnboardingProfile = {
 /** Everything-skipped onboarding — the all-defaults floor. */
 export const allSkip: OnboardingProfile = { status: 'employed' };
 
+/** TWO EARNING SPOUSES, BOTH PUTTING INTO A 401(k) — the shape no persona had (added 2026-09-28).
+ *
+ *  Every guard that compares take-home figures ran across six personas and all six passed while the
+ *  app was under-subtracting a spouse's 401(k), because not one of them had a spouse with their OWN
+ *  wage and their OWN contribution. `employedPartner` says `hasPartner: 'yes'` and carries no
+ *  `partnerWage`, so the second-earner path was never on any guard's road.
+ *
+ *  It is a persona, not a test: a shape missing from the personas is missing from every test that
+ *  walks them, which is a quieter hole than a missing assertion.
+ */
+export const twoEarnersBoth401k: OnboardingProfile = {
+  taxMode: 'manual', manualTaxRate: '22',
+  status: 'employed', name: 'Dana', birthYear: '1968',
+  hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both',
+  filingStatus: 'married',
+  incomeSources: ['employment'],
+  baseSalary: '4200', salaryMode: 'gross', salaryFreq: 'biweekly', c_401k: '1200',
+  partnerWage: { baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly', c_401k: '400' },
+  monthlySpending: '0',
+  spendCats: [
+    { id: 'rent', tier: 'critical', bucket: 'fixed', amount: '2300', unit: 'dollar' },
+    { id: 'food', tier: 'important', bucket: 'fixed', amount: '700', unit: 'dollar' },
+    { id: 'fun', tier: 'flex', bucket: 'flexible', amount: '400', unit: 'dollar' },
+  ],
+} as any;
+
 export const ALL_PERSONAS: { name: string; op: OnboardingProfile }[] = [
   { name: 'retiree75', op: retiree75 },
   { name: 'employedPartner', op: employedPartner },
   { name: 'studentAid', op: studentAid },
   { name: 'hourlyServer', op: hourlyServer },
   { name: 'simpleFlat', op: simpleFlat },
+  { name: 'twoEarnersBoth401k', op: twoEarnersBoth401k },
   { name: 'allSkip', op: allSkip },
 ];

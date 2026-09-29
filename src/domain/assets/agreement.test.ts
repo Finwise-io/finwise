@@ -40,10 +40,13 @@ describe('A-2 canonical money selectors (math)', () => {
 // ── static guards: each screen reads the one selector, not a bespoke inline reduce ──
 const screen = (f: string) => fs.readFileSync(path.join(__dirname, '..', '..', 'screens', f), 'utf8');
 
-test('A-2: cash sourced from canonical cashTotal on every screen that shows it', () => {
+test('A-2: cash sourced from ONE place on every screen that shows it', () => {
+  // 2026-09-27: the pin's purpose is unchanged — every screen showing cash takes it from one place.
+  // For the screens behind MK-NW-O-003 theNetWorth (Q-NW-1) that place is now the door, which is what
+  // cashTotal was standing in for before the question had one. The door calls cashTotal itself.
   for (const f of ['InsightsScreen.tsx', 'BillCalendarScreen.tsx', 'StressTestScreen.tsx', 'NetWorthScreen.tsx']) {
     const s = screen(f);
-    expect(s).toMatch(/cashTotal\(/);
+    expect(s).toMatch(/cashTotal\(|theNetWorth\(|theEmergencyFund\(/);
     expect(s).not.toMatch(/=== 'CASH'\)\.reduce/);   // the inline re-derive is gone
   }
 });

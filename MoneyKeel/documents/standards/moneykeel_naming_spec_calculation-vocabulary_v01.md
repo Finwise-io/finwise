@@ -141,8 +141,9 @@ The same applies to a note that follows a figure: it says which figure, never "i
 Founder standing order 2026-09-02 ("always use the same words to describe the same thing"), and the
 sixteen cluster rulings of 2026-09-10 (synonym workbook v02). One word for one concept in every place a
 person can read it: screen copy, spoken labels, notes, and the comments in the code — a comment is where
-a retired word creeps back. The guard `src/__tests__/one_term_per_concept.test.ts` reads THIS table and
-nothing else, and fails on any retired word. A row is added here the day its concept is ruled. Its
+a retired word creeps back. Two guards read THIS table and nothing else, and fail on any retired word:
+`src/__tests__/one_term_per_concept.test.ts` over the code, and — since 2026-09-26 —
+`src/__tests__/mock_copy_on_canon.test.ts` over every live mock. A row is added here the day its concept is ruled. Its
 status follows the one vocabulary (RULED, NOT CODED · CODED, NOT TESTED · TESTED, NOT VERIFIED ·
 VERIFIED); it becomes VERIFIED only on the founder's mark, and the synonym-workbook row closes then.
 
@@ -159,21 +160,66 @@ token in quotes is a code value, not copy.
 | 2 | The retirement success percentage | odds — "In 78 out of 100 simulated futures, your money lasts to age 90." | odds it lasts · odds of running short | chance it lasts · chance of lasting · chance of running short · % of scenarios · of every 100 futures · future simulation · future simulations · `/\bout of 10\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
 | 3 | The money going out in a month | Expenses — in prose too (founder, 2026-09-12): "spending" is retired everywhere; the verb "spend" stays | planned expenses · actual expenses · recurring expenses · Outflow (expenses + debt) — the brackets say what is inside | outgo · Spent so far · `/\b[Ss]pending\b/` · SPENDING · Actual spend · Planned out · `/\bOut \(/` · essential bills · must-pay bills | TESTED, NOT VERIFIED | 2026-09-10 |
 | 4 | A figure the person gave us | you entered | what you entered · the amounts you entered | you told us · you set it · set by you · you typed · captured amounts · income captured | TESTED, NOT VERIFIED | 2026-09-10 |
-| 5 | The money arriving in a month | Inflow (…) — the brackets name the sources: Inflow (income (take-home) + rent) | Planned inflow · Actual inflow (…) | MONEY IN · `/\bMoney [Ii]n\b(?! [a-z])/` · Expected in · In (take-home) · In (received) · A usual month | TESTED, NOT VERIFIED | 2026-09-10 |
+| 5 | The money arriving in a month | Inflow (…) — the brackets name the sources: Inflow (income (take-home) + rent) | Planned inflow · Actual inflow (…) | MONEY IN · `/\bMoney [Ii]n\b(?! [a-z])/` · Expected in · In (take-home) · In (received) · A usual month · `/= In\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
 | 6 | Cash saved for emergencies | Emergency fund | — | cushion · Cushion · CUSHION | TESTED, NOT VERIFIED | 2026-09-10 |
 | 7 | The per-category monthly plan | Budget | your expense budget · Set your budget | monthly plan · expense plan · spending plan · Set limits · category limits | TESTED, NOT VERIFIED | 2026-09-10 |
 | 8 | Pay before anything comes out | Gross (before any deductions) — income before tax is NOT gross (gross − 401(k) − premiums) | — | Gross (before tax) · `/before tax\)/` | TESTED, NOT VERIFIED | 2026-09-10 |
 | 9 | The investments tab, when other screens point to it | Performance, and Net worth | — | from Portfolio · Investments tab · Portfolio tab · open Net Worth or Investments | TESTED, NOT VERIFIED | 2026-09-10 |
 | 10 | Money owed | Debt — the types stay (mortgage, card, loan); the info dot says "Debt is the amount you owe" | Debt balance | WHAT YOU OWE · Amount you owe · Still owed on it | TESTED, NOT VERIFIED | 2026-09-10 |
 | 11 | One ticker inside an account | Holding — never a blind swap for "position"; the sale notice says "Holding liquidated — all shares sold"; the sale buttons say "Sell all" (everything) and "Sell" (part) (founder, 2026-09-12) | Stocks / Funds · Sell all · Sell | Position closed · Close position · Record sale · Record a sale · Stocks & funds · Shares and funds | TESTED, NOT VERIFIED | 2026-09-10 |
-| 12 | The logged ledger rows | activity | this month’s activity | `/month[’']s transactions/` · Check your transactions · your transactions · Records a Debt payment | TESTED, NOT VERIFIED | 2026-09-10 |
+| 12 | The logged ledger rows | activity | this month’s activity | `/month[’']s transactions/` · Check your transactions · your transactions · `/Records a [“"]?Debt payment[”"]?/` · View transactions · `/odd transactions\b/` · `/add a transaction\b/` · `/flagged transaction\b/` · `/\btransaction history\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
 | 13 | Money that arrives or leaves once | one-time — "lump sum" is NOT always one-time; a debt due at once says "the full balance is due on that date" (founder, 2026-09-12) | — | one-off · One-off · ONE-OFF · plan for the lump sum | TESTED, NOT VERIFIED | 2026-09-10 |
-| 14 | How a label says per month / per year | /month · /year · /quarter · /week · /2 weeks (founder, 2026-09-12) | $500/month · Gross /year | `/\/mo\b/` · `/\/yr\b/` · `/\/qtr\b/` · `/\/wk\b/` · `/\/2wk\b/` · Gross a year · take-home a year · `/\$[\d,]+ a month\b/` · `/\$[\d,]+ a year\b/` · `/\} ?a month\b/` · `/\} ?a year\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
+| 14 | How a label says per month / per year | /month · /year · /quarter · /week · /2 weeks (founder, 2026-09-12) | $500/month · Gross /year | `/\/ ?mo\b/i` · `/\/ ?yr\b/i` · `/\/ ?qtr\b/i` · `/\/ ?wk\b/i` · `/\/ ?2wk\b/i` · Gross a year · take-home a year · `/\$[\d,]+ a month\b/` · `/\$[\d,]+ a year\b/` · `/\} ?a month\b/` · `/\} ?a year\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
 | 15 | Naming the will-it-last question | Will my money last — one form for both lenses | WILL MY MONEY LAST? | IS MY MONEY LASTING · Is my money lasting · MONEY-LASTS | TESTED, NOT VERIFIED | 2026-09-10 |
 | 16 | The other adult in the household | spouse | Spouse’s name · your spouse | `/\b[Pp]artners?\b/` · `/\b[Pp]artner[’']s\b/` | TESTED, NOT VERIFIED | 2026-09-10 |
 | 17 | The door that links a bank or brokerage account | Connect your bank ›  (founder, 2026-09-14) | the door title on Home, Sharpen your plan and What counts toward retirement — one list, src/constants/doors.ts | `/\bconnect your first account\b/i` | TESTED, NOT VERIFIED (2026-09-14) — src/screens/__tests__/first_run_lens.test.tsx pins Home to the list | 2026-09-14 |
 | 18 | An account linked through the Link door, and repairing that link | Linked · Link again (founder, 2026-09-14: "connected / reconnected - change to linked / link again") | "🔗 Linked" on an account row, with its date only when stale · "Link again ›" on the fix sheet · "Linked accounts" in Settings | `/\bConnected ·/` · `/\bReconnect\b/` · Connection paused · Connected accounts · `/\bre-login\b/` · `/\bre-linking\b/` | TESTED, NOT VERIFIED (2026-09-14) — one_term_per_concept.test.ts reads this row | 2026-09-14 |
+| 19 | The uninvested money sitting in a brokerage | cash in this account — the account keeps its own name above it (founder, 2026-08-11: the mock's shorter wording was declined by name) | the Cash row on Net worth · the Cash category on Performance and Account detail | `/[Ss]weep cash/` · Cash in the account | CODED, NOT VERIFIED (2026-09-27) | 2026-08-11 |
 | 0c | what produces a figure | function (the one answering a whole question: orchestrator function) | Identifier standard 2026-08-22: `E` retired — "a word invented for something that does not exist in the code"; enforced in copy and comments 2026-09-13 | `/(?<!code\/)\bengines?\b(?!-old-tab)/i` | TESTED, NOT VERIFIED (2026-09-13) — the guard reads this row; the folder path `Calculation Module code/engines/` and the `engines-old-tab` sheet are spared until that folder empties into `MoneyKeel/functions/` | 2026-08-22, identifier standard (`E` retired); guard 2026-09-13 |
+
+**Row 19, and why it took six weeks to be enforced (2026-09-27).** The founder ruled the cash wording on
+2026-08-11 and the decision went into the Changelog tab — and nowhere else. Net worth obeyed it;
+Performance and Account detail never heard it, and mock v14 put the declined phrase back on screen,
+where he approved it because it was in front of him and his own earlier ruling was not. He caught it:
+*"Why ask again if I ruled it already?"* A ruling recorded in a changelog row is a ruling with nothing
+holding it. It is a canon row now, so the guard fails on it.
+
+**The mocks obey it too, from 2026-09-26.** A ruling used to reach the code and stop there. Three
+cash-flow mocks approved before the September rulings still drew "Spending", "In (take-home)",
+"Out (bills + debt)", "spending plan" and "/mo" — and a mock is what the next screen gets built from,
+so a retired word kept being taught back. `mock_copy_on_canon.test.ts` reads only what is DRAWN on a
+phone frame (the text inside `class="phone"`): a mock's notes and its "What changed" block quote retired
+words on purpose and are not scanned, and `archive/` is never scanned — it is the record of what was.
+On its first run it found **20 breaches across four mocks** that careful reading had missed, including
+two in files edited that same morning.
+
+**The rule this leaves behind:** when a word is ruled, every live mock that draws it is redrawn the same
+day. A mock is not on the canon because it was approved; it is on the canon because it says the words.
+
+**The ledger rows, 2026-09-26.** Row 12's entry `Records a Debt payment` was written with straight
+text while the code writes curly quotes — `Records a “Debt payment”` — so it never matched. It is now a
+regular expression that allows either. Five more phrases were living in the same gap and are now retired
+with it: `View transactions` (the Debts alert on the Budget screen), `odd transactions` and
+`flagged transaction` (Worth a look), `add a transaction` (the recurring empty state) and
+`transaction history` (one broker row, while every other row in the same file already said "activity
+history"). What the code CALLS its field — `store.transactions`, `domain/transactions` — is an
+identifier, not copy, and is untouched.
+
+**"= In" is retired too (2026-09-26).** Found while fixing the cash-flow screens: the total row under
+the INFLOW band said `= In` on Month detail (twice) and on Your retirement paycheck, while the Cash flow
+tab one tap away said `Inflow (income (take-home))` — the same concept, two words, which is the whole
+disease. They now all say `= Inflow`, and row 5 carries `/= In\b/` so it cannot come back. The entry
+cannot reach `= Inflow` itself: `In\b` stops at the "f".
+
+**And in capitals (2026-09-27).** The five entries were case-sensitive, so `EST. GROWTH / YR` on the
+Alternatives screen — a band label, in capitals, with a space — matched none of them. Found while
+answering the founder's question about that screen, not by the guard. They now carry `i`.
+
+**The spaced form counts too (2026-09-26).** Row 14's retired entries were written `/mo` and `/yr`
+and so could never match `/ mo` — a slash, a space, then the word. Eleven labels were living in that gap
+(the future-paycheck line on Cash flow said `~$5,200 / mo`, and the onboarding recap said `Total income
+/ yr`, `Surplus / mo`, `Rent / mo`). The entries now read `/\/ ?mo\b/` and its four siblings, which
+catch both, and cannot reach `/month` — `mo\b` stops at the "n".
 
 Two things the guard also holds that are not synonyms: a run-count on screen must say 1,000 (the
 simulation runs 1,000 paths — `~400` is retired), and the words in the code's own comments count.

@@ -43,7 +43,7 @@ export const BROKER_COVERAGE: BrokerCoverage[] = [
     caveat: 'Webull shares trades only — dividends and transfers will not appear.', txnDepth: 'about 2 years, trades only' },
   { slug: 'EMPOWER', name: 'Empower', tier: 'ga',
     shares: ['balances', 'mutual-fund holdings'],
-    cantShare: ['any transaction history', 'stocks, bonds, options detail'],
+    cantShare: ['any activity history', 'stocks, bonds, options detail'],
     caveat: 'Empower shares holdings only — no activity history comes through.', txnDepth: 'none' },
   { slug: 'WELLS_FARGO', name: 'Wells Fargo', tier: 'ga',
     shares: ['balances', 'stock holdings'],

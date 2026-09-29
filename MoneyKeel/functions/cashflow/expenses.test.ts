@@ -1,6 +1,6 @@
-/* Spending — the laws. */
+/* Expenses — the laws. */
 import { recurringDebtPayments, debtPaymentsCountedAsExpenses, actualSpending,
-         isRadarItem, radar, spending, SHOW_FIRST, type SpendingInput } from './spending';
+         isRadarItem, radar, expenses, SHOW_FIRST, type ExpensesInput } from './expenses';
 import type { Debt } from '../../../src/domain/debt';
 
 const debt = (id: string, label: string, min: number, type: any): Debt => ({
@@ -8,7 +8,7 @@ const debt = (id: string, label: string, min: number, type: any): Debt => ({
   interest_rate_apr: 0.06, minimum_monthly_payment: min,
 } as Debt);
 
-const base = (over: Partial<SpendingInput> = {}): SpendingInput => ({
+const base = (over: Partial<ExpensesInput> = {}): ExpensesInput => ({
   ym: '2026-08',
   debts: [debt('d1', 'Mortgage', 2000, 'MORTGAGE'), debt('d2', 'Car', 250, 'AUTO'),
           debt('d3', 'HELOC', 200, 'HELOC'), debt('d4', 'Credit card', 195, 'CREDIT_CARD')],
@@ -98,7 +98,7 @@ describe('actual spending', () => {
 
 describe('the orchestrator', () => {
   it('one call returns every section', () => {
-    const s = spending(base());
+    const s = expenses(base());
     expect(s.recurringDebtTotal).toBeCloseTo(2250, 2);       // 2000 + 250
     expect(s.plannedTotal).toBeCloseTo(2000, 2);             // 200+900+200+700
     expect(s.actual.total).toBeCloseTo(393, 2);              // 100+65+60+42+38+88
@@ -106,13 +106,13 @@ describe('the orchestrator', () => {
   });
 
   it('THE LAW: the sections add up to the total shown', () => {
-    const s = spending(base());
+    const s = expenses(base());
     expect(s.actual.total + s.debtCountedAsExpense.reduce((t, d) => t + d.amount, 0))
       .toBeCloseTo(s.actualTotal, 2);
   });
 
   it('THE LAW: recurring debt is never inside actual expenses', () => {
-    const s = spending(base());
+    const s = expenses(base());
     const names = s.debtCountedAsExpense.map((d) => d.label);
     expect(names).not.toContain('Mortgage');
     expect(names).not.toContain('Car');

@@ -1,0 +1,219 @@
+<title>MoneyKeel — ONE Cash flow surface, four tabs (v2, for approval)</title>
+<meta charset="utf-8">
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1700px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:860px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:26px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .col h2{font-size:15px; font-weight:800; margin:0 0 10px;}
+  .phone{width:360px; background:#0c0d0c; border-radius:50px; padding:8px; box-shadow:0 20px 44px rgba(10,25,18,.26);}
+  .screen{background:#F6F7F5; border-radius:43px; overflow:hidden; color:#1A1A18; position:relative;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:12px 26px 2px; font-size:13px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:4px; vertical-align:middle;}
+  .content{padding:6px 14px 0;}
+  .t{font-size:20px; font-weight:800; padding:4px 2px 6px; display:block;}   /* 20pt titles (founder, 2026-09-14) */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 12px 8px}
+  .tbtn{display:flex;align-items:center;gap:5px;height:30px;padding:0 11px;border:1px solid rgba(0,0,0,.1);border-radius:19px;background:#fff;font-size:12.5px;font-weight:700;color:#6B6B66}
+  .wordmark{font-size:14px;font-weight:800;letter-spacing:.2px}.wordmark b{color:#178F6B}.wordmark i{font-style:normal;color:#0B2545}
+  .tico{width:30px;height:30px;border:1px solid rgba(0,0,0,.1);border-radius:19px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#6B6B66}
+  .tright{display:flex;gap:7px;align-items:center}
+  .headRow{display:flex;align-items:baseline;justify-content:space-between;padding:0 2px}
+  .headDate{font-size:12px;font-weight:700;color:#76766F}
+  .switchRow{display:flex;align-items:center;gap:10px;padding:2px 2px 8px}
+  .switchArrow{font-size:17px;font-weight:800;color:#178F6B}
+  .switchLabel{font-size:13px;font-weight:800}
+  .subtabs{display:flex; gap:6px; padding-bottom:8px;}
+  .stab{font-size:12.5px; font-weight:700; color:#6B6B66; border:1.5px solid rgba(0,0,0,.10); border-radius:15px; padding:6px 11px;}
+  .stab.on{color:#0F6E56; border-color:#178F6B; background:#E1F5EE; font-weight:800;}
+  .card{background:#FFFFFF; border-radius:14px; padding:12px 14px; margin-bottom:7px; position:relative;}
+  .kicker{font-size:10.5px; font-weight:800; letter-spacing:.05em; color:#6B6B66;}
+  .heroNum{font-size:30px; font-weight:800; color:#006300; font-variant-numeric:tabular-nums; margin-top:2px;}
+  .heroSub{font-size:12px; color:#6B6B66; font-weight:700;}
+  .rrow{display:flex; justify-content:space-between; padding:6px 0; border-top:1px solid rgba(0,0,0,.09); font-size:14px; font-variant-numeric:tabular-nums;}
+  .rrow:first-of-type{border-top:none;}
+  .rrow .sub{display:block; font-size:11px; color:#76766F; font-weight:400;}
+  .pace{height:7px; border-radius:4px; background:#EEEEE9; margin-top:10px; position:relative; overflow:hidden;}
+  .paceF{position:absolute; left:0; top:0; bottom:0; width:38%; background:#178F6B;}
+  .paceT{font-size:11.5px; color:#6B6B66; margin-top:5px;}
+  .bars{display:flex; gap:5px; align-items:flex-end; height:52px; margin-top:8px;}
+  .bar{flex:1; background:#9FE1CB; border-radius:2.5px 2.5px 0 0;}
+  .link{font-size:14px; font-weight:700; color:#178F6B; margin-top:6px;}
+  .note{font-size:11.5px; color:#6B6B66; line-height:1.45; margin-top:6px;}
+  .gain{color:#006300; font-weight:700;}
+  .red{color:#A32D2D; font-weight:700;}
+  .amber{color:#854F0B; font-weight:700;}
+  .pill{font-size:10px; font-weight:800; color:#854F0B; background:#FAEEDA; border-radius:9px; padding:2px 7px;}
+  .fab{position:absolute; right:12px; bottom:56px; background:#178F6B; color:#fff; font-size:13px; font-weight:800;
+    border-radius:20px; padding:11px 14px; box-shadow:0 4px 10px rgba(0,0,0,.25);}
+  .tabbar{display:flex; justify-content:space-around; padding:10px 4px 22px; background:#FFFFFF; border-top:1px solid rgba(0,0,0,.10); margin-top:6px;}
+  .tab{font-size:10px; font-weight:700; color:#6B6B66; text-align:center;}
+  .tab.on{color:#0F6E56; border-bottom:2.5px solid #0F6E56; padding-bottom:2px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · ONE cash-flow surface, four tabs · v02 · 2026-09-26 · supersedes v01 (archived the same day)</div>
+<div style="max-width:940px;background:#fff;border-left:4px solid #085041;padding:14px 18px;font-size:13px;line-height:1.6;margin:10px 0 18px;color:#1A1A18">
+<b>What changed from v01, and why.</b> The founder, 2026-09-26: <i>"fix cashflow screens before moving forward."</i> v01 is the architecture decision of 2026-07-19 — four tabs on one surface, the separate Budget screen retired — and that decision stands and shipped. What had gone stale are the <b>names</b>: v01 was drawn fourteen months of rulings ago. Every frame, figure and card is v01; the words now match the app and the canon.
+<ul style="padding-left:20px;margin:6px 0 0">
+<li><b>The four tabs are This month · Income · Expenses · Debts.</b> v01 called the first one "Cash flow" (the same words as the screen it sits on) and the third "Spending" (retired, canon row 3). The code has read these four since the surface shipped — <span style="font-family:ui-monospace,monospace">src/screens/CashFlowScreen.tsx</span>.</li>
+<li><b>The screen is titled Cash flow, not Money.</b> The tab is <b>Cash flow</b> in <span style="font-family:ui-monospace,monospace">src/constants/tabs.ts</span>, and a screen carries its tab's name.</li>
+<li><b>The bottom bar's third tab is Performance</b>, renamed from Invest on 2026-08-04 (canon row 9). Its route key is still <span style="font-family:ui-monospace,monospace">invest</span>, which no person ever sees.</li>
+<li><b>The two flow rows name what is inside them</b> (canon row 5): <b>Inflow (income (take-home))</b> and <b>Outflow (expenses + debt)</b> — the exact strings the screen builds. "In (take-home)" and "Out (bills + debt)" are retired.</li>
+<li><b>The category plan is the Budget</b> (canon row 7): the card reads <b>YOUR BUDGET</b> and its link <b>Set your budget ›</b> — the words on the budget editor itself.</li>
+<li><b>The ledger rows are activity</b> (canon row 12): <b>All activity · search ›</b>, not "All transactions".</li>
+<li><b>The income door is the one door</b>: <b>Add your income ›</b> from <span style="font-family:ui-monospace,monospace">src/constants/doors.ts</span>, not this screen's own "＋ Add or set up income ›".</li>
+<li><b>Debt, payments and rates:</b> the card reads <b>YOUR DEBT</b> (canon row 10), payments are <b>$310/month</b> (row 14), and the two rates show two decimals — <b>22.90%</b> and <b>6.40%</b> — under the precision ruling Q49.</li>
+<li><b>The one month switcher is drawn</b> — ‹ July 2026 › under the title, with the month on the right of the title row. It steers all four tabs and v01 showed it on none of them.</li>
+<li><b>The MoneyKeel bar is on every frame</b> — ▦ Menu · the wordmark · the hide-balances eye and the gear. It is the navigator header on every tab screen and v01 drew none of it. Titles are 20pt.</li>
+<li><b>"Same functions underneath"</b>, not "same engines": <i>"a word invented for something that does not exist in the code"</i> (identifier standard, enforced in copy 2026-09-13).</li>
+</ul>
+<b>Nothing else moved.</b> Same four frames, same figures ($1,700 planned surplus, $6,200 in, $4,500 out, $13,000 of debt), same radar, same research note.
+<div style="margin-top:9px;border-top:1px solid #E8E8E2;padding-top:8px"><b>Where this sits now.</b> This file is the <b>architecture</b> of the surface — which tabs exist and what belongs on each. The <b>detail</b> of two of those tabs is drawn in <span style="font-family:ui-monospace,monospace">moneykeel_pres_mock_cash-flow-this-month-and-expenses_v07.html</span> (This month, Expenses) and of a third in <span style="font-family:ui-monospace,monospace">moneykeel_pres_mock_income-end-to-end_v07.html</span> (Income). Where they differ, the detail mock wins — it is newer and was approved on its own.</div>
+</div>
+  <h1>This month · Income · Expenses · Debts — one screen, no duplication</h1>
+  <p class="lede">Your four jobs, one surface. <b>Budget merges into Cash flow</b> (plan-vs-actual IS the cash-flow story —
+  the duplication you caught dies there); Activity becomes <b>Expenses</b> with a big-ticket radar; <b>Income</b> and
+  <b>Debts</b> get their own tabs. The separate Budget screen retires. Same functions underneath — this is consolidation,
+  not new math. Research (Simplifi, Copilot, Monarch, YNAB, Rocket Money) and rationale:
+  <b>docs/FCC-core-55-70/money-ia-redesign-v1-2026-07-19.md</b>.</p>
+
+  <div class="row">
+    <div class="col">
+      <h2>Tab 1 · This month (default — the budget folded in)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:15px;height:9px"></i><i style="width:13px;height:9px"></i><i style="width:21px;height:10px;border-radius:3px"></i></span></div>
+        <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+        <div class="content">
+          <div class="headRow"><span class="t">Cash flow</span><span class="headDate">July 2026</span></div>
+          <div class="switchRow"><span class="switchArrow">‹</span><span class="switchLabel">July 2026</span><span class="switchArrow">›</span></div>
+          <div class="subtabs"><span class="stab on">This month</span><span class="stab">Income</span><span class="stab">Expenses</span><span class="stab">Debts</span></div>
+          <div class="card">
+            <div class="kicker">THIS MONTH</div>
+            <div class="heroNum">$1,700</div>
+            <div class="heroSub">Planned surplus</div>
+            <div class="rrow"><span>Inflow (income (take-home))</span><span>$6,200</span></div>
+            <div class="rrow"><span>Outflow (expenses + debt)</span><span>$4,500</span></div>
+            <div class="rrow" style="font-weight:800"><span>= Planned surplus</span><span class="gain">$1,700</span></div>
+            <div class="pace"><div class="paceF"></div></div>
+            <div class="paceT">Spent $1,690 of $4,500 planned · 38% spent, 61% of the month gone ›</div>
+          </div>
+          <div class="card">
+            <div class="kicker">YOUR BUDGET</div>
+            <div class="rrow"><span>Housing</span><span>$1,800</span></div>
+            <div class="rrow"><span>Food</span><span>$900</span></div>
+            <div class="rrow"><span>Everything else (6)</span><span>$1,800</span></div>
+            <div class="link">Set your budget ›</div>
+          </div>
+          <div class="card">
+            <div class="kicker">YOUR MONTHS</div>
+            <div class="bars"><div class="bar" style="height:55%"></div><div class="bar" style="height:62%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:66%"></div><div class="bar" style="height:58%"></div><div class="bar" style="height:71%"></div></div>
+            <div class="note">tap a month for its full detail</div>
+          </div>
+          <div class="fab">＋ Expense</div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab">Net worth</span><span class="tab">Performance</span><span class="tab on">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>Tab 2 · Income (the pop-up lives here)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:15px;height:9px"></i><i style="width:13px;height:9px"></i><i style="width:21px;height:10px;border-radius:3px"></i></span></div>
+        <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+        <div class="content">
+          <div class="headRow"><span class="t">Cash flow</span><span class="headDate">July 2026</span></div>
+          <div class="switchRow"><span class="switchArrow">‹</span><span class="switchLabel">July 2026</span><span class="switchArrow">›</span></div>
+          <div class="subtabs"><span class="stab">This month</span><span class="stab on">Income</span><span class="stab">Expenses</span><span class="stab">Debts</span></div>
+          <div class="card">
+            <div class="kicker">THIS MONTH</div>
+            <div class="heroNum">$6,200</div>
+            <div class="heroSub">expected take-home</div>
+          </div>
+          <div class="card">
+            <div class="kicker">YOUR SOURCES</div>
+            <div class="rrow"><span>Salary — steady<span class="sub">take-home · monthly</span></span><span>$6,200 ›</span></div>
+            <div class="rrow"><span>Rental income<span class="sub">2 properties</span></span><span>$0 ›</span></div>
+            <div class="rrow"><span>Equity comp<span class="sub">RSU grants</span></span><span>— ›</span></div>
+            <div class="link">Add your income ›</div>
+            <div class="note">opens the steady-or-varies pop-up — variable earners fine-tune month by month</div>
+          </div>
+          <div class="card">
+            <div class="kicker">RECEIVED THIS MONTH</div>
+            <div class="rrow"><span>Jul 15 · Paycheck</span><span class="gain">+$3,100</span></div>
+            <div class="rrow"><span>Jul 1 · Paycheck</span><span class="gain">+$3,100</span></div>
+          </div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab">Net worth</span><span class="tab">Performance</span><span class="tab on">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>Tab 3 · Expenses (activity + big-ticket radar)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:15px;height:9px"></i><i style="width:13px;height:9px"></i><i style="width:21px;height:10px;border-radius:3px"></i></span></div>
+        <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+        <div class="content">
+          <div class="headRow"><span class="t">Cash flow</span><span class="headDate">July 2026</span></div>
+          <div class="switchRow"><span class="switchArrow">‹</span><span class="switchLabel">July 2026</span><span class="switchArrow">›</span></div>
+          <div class="subtabs"><span class="stab">This month</span><span class="stab">Income</span><span class="stab on">Expenses</span><span class="stab">Debts</span></div>
+          <div class="card">
+            <div class="kicker">BIG-TICKET RADAR</div>
+            <div class="rrow"><span>Property tax<span class="sub">due Nov 15 — from your bill calendar</span></span><span class="amber">$2,400</span></div>
+            <div class="rrow"><span>Jul 8 · Delta Airlines<span class="sub">3× your usual travel month</span></span><span>$1,240</span></div>
+          </div>
+          <div class="card">
+            <div class="kicker">JULY · $1,690 SPENT</div>
+            <div class="rrow"><span>Jul 18 · Whole Foods<span class="sub">Food</span></span><span>$86</span></div>
+            <div class="rrow"><span>Jul 16 · Shell<span class="sub">Transport</span></span><span>$52</span></div>
+            <div class="rrow"><span>Jul 12 · Netflix<span class="sub">Subscriptions · recurring</span></span><span>$16</span></div>
+            <div class="link">All activity · search ›</div>
+          </div>
+          <div class="card">
+            <div class="kicker">BY CATEGORY VS PLAN</div>
+            <div class="rrow"><span>Food</span><span>$410 of $900</span></div>
+            <div class="rrow"><span>Dining</span><span class="amber">$310 of $300</span></div>
+            <div class="link">Import a statement ›</div>
+          </div>
+          <div class="fab">＋ Expense</div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab">Net worth</span><span class="tab">Performance</span><span class="tab on">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>Tab 4 · Debts</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:15px;height:9px"></i><i style="width:13px;height:9px"></i><i style="width:21px;height:10px;border-radius:3px"></i></span></div>
+        <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+        <div class="content">
+          <div class="headRow"><span class="t">Cash flow</span><span class="headDate">July 2026</span></div>
+          <div class="switchRow"><span class="switchArrow">‹</span><span class="switchLabel">July 2026</span><span class="switchArrow">›</span></div>
+          <div class="subtabs"><span class="stab">This month</span><span class="stab">Income</span><span class="stab">Expenses</span><span class="stab on">Debts</span></div>
+          <div class="card">
+            <div class="kicker">YOUR DEBT</div>
+            <div class="heroNum" style="color:#A32D2D">$13,000</div>
+            <div class="heroSub">across 2 debts · $310/month in payments</div>
+          </div>
+          <div class="card">
+            <div class="kicker">YOUR DEBTS</div>
+            <div class="rrow"><span>Visa card <span class="pill">pay first</span><span class="sub">22.90% — the costliest</span></span><span class="red">−$3,200 ›</span></div>
+            <div class="rrow"><span>Car loan<span class="sub">6.40% · 3 years left</span></span><span class="red">−$9,800 ›</span></div>
+            <div class="link">Log a payment ›</div>
+          </div>
+          <div class="card">
+            <div class="kicker">PROGRESS</div>
+            <div class="pace"><div class="paceF" style="width:24%"></div></div>
+            <div class="paceT">$4,100 paid down since January — 24% of where you started</div>
+          </div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab">Net worth</span><span class="tab">Performance</span><span class="tab on">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>

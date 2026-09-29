@@ -93,7 +93,7 @@ export default function WhatIfScreen() {
       {/* the dial only renders when it can actually compute something (a dead control confuses) */}
       {result != null && !result.retired && (
         <View style={s.card}>
-          <SectionBand title="IF YOU SAVE MORE EACH MONTH" />
+          <SectionBand inCard title="IF YOU SAVE MORE EACH MONTH" />
           <View style={s.stepperRow}>
             <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setAddMonthly((n) => Math.max(0, n - STEP))}
               accessibilityLabel="Lower the extra monthly amount by $100">
@@ -111,7 +111,7 @@ export default function WhatIfScreen() {
       {/* ABOUT YOU — the two plan basics, asked where they're needed, saved to the ONE plan */}
       {hasAccounts && (
         <View style={s.card}>
-          <SectionBand title="ABOUT YOU — SAVED TO YOUR PLAN" />
+          <SectionBand inCard title="ABOUT YOU — SAVED TO YOUR PLAN" />
           <PlanSlider label="Your age" value={age} min={25} max={80}
             onChange={setAge} onSettle={saveAge} onDraggingChange={setSliding} />
           <PlanSlider label="Retire at" value={Math.max(retireAt, age + 1)} min={Math.max(50, age + 1)} max={75}

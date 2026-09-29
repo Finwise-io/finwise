@@ -16,6 +16,9 @@ step() { printf '\n── %s\n' "$1"; }
 step "A · the file holds together"
 python3 "Calculation Module code/scripts/build-moneykeel-master.py"
 
+step "A2 · his answers on the map become rulings, so the gates carry them"
+python3 "Calculation Module code/scripts/map-answers-to-rulings.py"
+
 step "B1 · every header is a printed view, not a source"
 python3 "Calculation Module code/scripts/write-headers.py"
 python3 "Calculation Module code/scripts/write-headers.py" --check
@@ -23,11 +26,29 @@ python3 "Calculation Module code/scripts/write-headers.py" --check
 step "B2 · the formula in the code and the formula in the file agree"
 python3 "Calculation Module code/scripts/check-formula-agreement.py"
 
+# THE DECISION LOG is printed before the gates read it — one file, every decision he has made,
+# wherever he made it (his instruction 2026-09-28). The `rulings` tab came off the calculation master
+# the same day, so this is the one record and B3 below reads its file-checks.
+step "A3 · the decision log is printed from its source (hand edits die)"
+python3 "Calculation Module code/scripts/extract-decisions.py"
+python3 "Calculation Module code/scripts/build-decision-log.py"
+
 step "B3 · every file-only ruling still reads as ruled"
 python3 "Calculation Module code/scripts/check-rulings-in-file.py"
 
+step "B5 · a question about a screen was read FROM the approved design"
+python3 "Calculation Module code/scripts/check-read-from-approved.py"
+
 step "B4 · the files agree with each other — a decision reached every file that carries it"
 python3 "Calculation Module code/scripts/check-rulings-sync.py"
+
+# B6 (2026-09-28). B4 checks that every ruling IN the ledger is anchored to a test. It cannot see a
+# decision that never became a ledger row — which is exactly what happened to his 2026-09-12
+# correction of income-end-to-end v07: it reached the design Changelog and the mock, no ledger, no
+# standard, no test, and the same defect was still live one screen over sixteen days later. This
+# reads his own Changelog and fails when a row he approved reaches no ruling.
+step "B6 · every decision he approved is in the rulings ledger"
+python3 "Calculation Module code/scripts/check-changelog-anchored.py"
 python3 "Calculation Module code/scripts/pfs-sweep.py"
 
 echo "── the working plan and the orchestrator map are printed from their sources (hand edits die)"
@@ -45,11 +66,21 @@ step "C2 · the suite"
 npx jest --silent
 
 step "C3 · a UI change carries a test"
-bash scripts/check-ui-tests.sh origin/main || echo "  (skipped — no origin/main to compare against)"
+# 2026-09-26: this line used to end `|| echo "(skipped …)"`, which swallowed a REAL failure and let the
+# closing line still say every guard passed. A guard that cannot run is not a guard that passed.
+C3_FAILED=0
+bash scripts/check-ui-tests.sh origin/main || C3_FAILED=1
 
 step "C6 · the screen map is current"
 node scripts/screen-map.mjs | tail -3
 
+if [ "$C3_FAILED" -ne 0 ]; then
+  printf '\n── NOT every guard passed: C3 above could not run or failed.\n'
+  printf '   Read what it printed. Do not cut a build on this run.\n'
+  exit 1
+fi
+
 printf '\n── every guard that exists has passed.\n'
+
 printf '   Every guard in the spec is built (2026-09-12): D1 is a ratchet with 18 owed imports, D3 covers two shared figures.\n'
 printf '   E · the founder has said yes — not a command. Nothing above substitutes for it.\n'

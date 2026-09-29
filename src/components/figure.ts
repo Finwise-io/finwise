@@ -16,9 +16,8 @@
  *  `MoneyKeel/functions` are pure and must not read React state.
  */
 import { useStore } from '../store/useStore';
-import { money, money2 } from '../domain/_shared/num';
 import { figureSpec } from '../../MoneyKeel/functions/figures';
-import type { FigureSpec } from '../../MoneyKeel/functions/_figure-spec';
+import { writeFigure, type FigureSpec } from '../../MoneyKeel/functions/_figure-spec';
 
 export const BALANCE_MASK = '••••';
 
@@ -30,18 +29,14 @@ export function resetFiguresPrinted(): void { PRINTED.length = 0; }
 
 const isMoney = (u: FigureSpec['unit']) => u === 'money' || u === 'money-cents';
 
+// ONE WRITER (2026-09-28). The rounding lives in `writeFigure` in the declaration module, where a
+// door's worked example can call it too; here it only decides whether balances are masked, because
+// that is the one part that needs the store. Two copies of the rounding would have let a worked
+// example agree with itself and still disagree with the screen.
 function write(spec: FigureSpec, value: number | null, hidden: boolean, spoken: boolean): string {
   if (value == null || !Number.isFinite(value)) return spec.refusal;
   if (isMoney(spec.unit) && hidden) return spoken ? 'hidden' : BALANCE_MASK;
-  const body =
-    spec.unit === 'money' ? money(value)
-    : spec.unit === 'money-cents' ? money2(value)
-    : spec.unit === 'percent' ? `${Math.round(value * 100)}%`
-    : spec.unit === 'percent-2dp' ? `${(value * 100).toFixed(2)}%`
-    : spec.unit === 'months' ? `${value} ${value === 1 ? 'month' : 'months'}`
-    : spec.unit === 'age' ? `${value}`
-    : `${value}`;
-  return body;
+  return writeFigure(spec, value);
 }
 
 function print(id: string, value: number | null, spoken: boolean, withPeriod: boolean): string {

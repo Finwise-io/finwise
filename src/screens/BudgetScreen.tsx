@@ -212,7 +212,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       Alert.alert(
         'Import complete! 📊',
         `${rows.length} rows imported successfully. Check your activity.`,
-        [{ text: 'View transactions', onPress: () => setTab('Activity') }]
+        [{ text: 'View activity', onPress: () => setTab('Activity') }]
       );
     } catch (err) {
       Alert.alert('Import failed', 'Could not read the file. Make sure it\'s a valid CSV with columns: amount, category, store, date.');
@@ -838,7 +838,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               </View>
             </View>
             <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, lineHeight: 18 }}>
-              Records a “Debt payment” in Activity and lowers this balance.{'\n'}New balance: {money(Math.max(0, Math.round((payDebt?.remaining_balance || 0) - num(payAmt))))}.
+              Adds a “Debt payment” to your activity and lowers this balance.{'\n'}New balance: {money(Math.max(0, Math.round((payDebt?.remaining_balance || 0) - num(payAmt))))}.
             </Text>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -911,7 +911,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
         <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
           <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>These auto-add each month. “Stop” keeps past entries but generates no more.</Text>
           {(recurringExpenses.length + recurringIncomes.length) === 0 ? (
-            <Text style={styles.emptySub}>Nothing recurring yet. Flip “Repeats monthly” when you add a transaction.</Text>
+            <Text style={styles.emptySub}>Nothing recurring yet. Flip “Repeats monthly” when you add an expense.</Text>
           ) : (
             <>
               {recurringExpenses.map((r: any) => (
@@ -945,7 +945,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
 // next month's same day as an ISO string (the recurring function reads new Date(nextDate))
 const nextMonthISO = (ymd: string) => { const [y, m, dd] = ymd.split('-').map(Number); return new Date(y, m, dd).toISOString(); };
 
-// ── Add / edit a transaction (income or expense) ──────────────────────────────
+// ── Add / edit one row of activity (income or expense) ────────────────────────
 function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editing?: any }; onClose: () => void; onDelete: (entry: any) => void }) {
   const store = useStore() as any;
   const editing = state.editing;

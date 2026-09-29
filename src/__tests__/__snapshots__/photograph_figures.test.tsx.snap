@@ -71,6 +71,9 @@ exports[`photograph — retiree NetWorthScreen 1`] = `
   "$400,000",
   "$20,000",
   "$4,000",
+  "5.0 months",
+  "$20,000",
+  "$4,000/month",
   "3–6 months is the usual guide",
 ]
 `;
@@ -161,7 +164,7 @@ exports[`photograph — worker CashFlowScreen 1`] = `
   "[spoken] $2,700 planned surplus this month",
   "$2,700",
   "$7,200",
-  "$4,500",
+  "−$4,500",
   "$2,700",
   "[spoken] Expense pace: $0 of $0 planned — 0 percent spent, 40 percent of the month gone. Opens this month's detail.",
   "$0",
@@ -230,6 +233,9 @@ exports[`photograph — worker NetWorthScreen 1`] = `
   "$300,000",
   "$20,000",
   "$4,500",
+  "4.4 months",
+  "$20,000",
+  "$4,500/month",
   "3–6 months is the usual guide",
 ]
 `;

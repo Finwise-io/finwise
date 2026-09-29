@@ -33,9 +33,11 @@ const KIND_FOR: Record<ItemClass, string> = {
  *     the answer = Σ over items of (value, or 0 when missing)
  *
  * Called by ... MK-NW-F-050 itemizeRemainder · MK-NW-F-051 itemizedResultTotal
+ *               MK-NW-F-073 itemising
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-050 itemizeRemainder
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-052 buildItemizedAccounts
+ *               MK-NW-F-073 itemising · MK-NW-F-050 itemizeRemainder
  *               MK-NW-F-051 itemizedResultTotal
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -59,9 +61,11 @@ export const itemizedTotal = (items: ItemHolding[]): number =>
  *     the answer = (lump balance, or 0) − itemized total(items)
  *
  * Called by ... MK-NW-F-051 itemizedResultTotal · MK-NW-F-052 buildItemizedAccounts
+ *               MK-NW-F-073 itemising
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-051 itemizedResultTotal
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-052 buildItemizedAccounts
+ *               MK-NW-F-073 itemising · MK-NW-F-051 itemizedResultTotal
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

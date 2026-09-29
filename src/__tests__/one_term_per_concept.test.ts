@@ -72,7 +72,7 @@ export function copySegments(file: string, text: string): Segment[] {
   const seen = new Set<number>();
   // inside a comment a quoted lowercase token ('partner', the track id) is a code value, not copy
   // … and so is a function's own name when it follows its identifier in a generated header line
-  // ("Called by ... MK-CF-O-002 spending") — the identifier names the code, not the copy.
+  // ("Called by ... MK-CF-O-002 expenses") — the identifier names the code, not the copy.
   const codeValues = (s: string) => s.replace(/'[a-z_][a-z0-9_]*'/g, "''").replace(/\bMK-[A-Z]{2}-[A-Z]-\d{3} [A-Za-z_][A-Za-z0-9_]*/g, 'MK-ID');
   const comment = (r: ts.CommentRange) => {
     if (seen.has(r.pos)) return;

@@ -21,8 +21,9 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
 
 export default function TabLayout() {
   const store = useStore() as any;
-  // Lens sets the tab ORDER (approved design): working = Home · Net worth · Invest · Cash flow · Plan;
-  // retired = Home · Cash flow · Net worth · Plan · Invest (the paycheck sits next to Home).
+  // Lens sets the tab ORDER (approved design): working = Home · Net worth · Performance · Cash flow ·
+  // Plan; retired = Home · Cash flow · Net worth · Plan · Performance (the paycheck sits next to Home).
+  // The route key is `invest`; the TITLE is Performance (founder, 2026-08-04).
   const lens = resolveLens(store.onboardingProfile, store.lensOverride);
   const order = tabOrder(lens);
 

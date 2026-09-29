@@ -90,7 +90,7 @@ export default function RequiredWithdrawalsScreen() {
 
   const explainer = (
     <View style={s.card}>
-      <SectionBand title="WHAT THIS IS" />
+      <SectionBand inCard inset={20} title="WHAT THIS IS" />
       <Text style={s.line}>From age {rmdStartAgeFor(age)}, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA). <InfoDot term="rmd" /></Text>
       {preTax > 0 && age != null && !applies && (
         <>
@@ -164,7 +164,7 @@ export default function RequiredWithdrawalsScreen() {
       {/* getting-ready checklist leads for the under-73 visitor (r49/r51) */}
       {preTax > 0 && (
         <View style={s.card}>
-          <SectionBand title={`GETTING READY${applies ? '' : ' FOR ' + rmdStartAgeFor(age)}`} />
+          <SectionBand inCard inset={20} title={`GETTING READY${applies ? '' : ' FOR ' + rmdStartAgeFor(age)}`} />
           {checks.map((c) => (
             <TouchableOpacity accessibilityRole="button" key={c.key} style={s.checkRow} onPress={() => openCheck(c)}
               accessibilityLabel={`${c.label}: ${c.done ? 'done' : 'not yet'}${c.key === 'health' ? '. Opens a short note.' : '. Opens its screen.'}`}>
@@ -180,7 +180,7 @@ export default function RequiredWithdrawalsScreen() {
       {/* year-by-year schedule (r47) — estimates, moving with balances and the divisor table */}
       {schedule.length > 0 && (
         <View style={s.card}>
-          <SectionBand title="YEAR BY YEAR (ESTIMATES)" />
+          <SectionBand inCard inset={20} title="YEAR BY YEAR (ESTIMATES)" />
           {schedule.slice(0, 8).map((r) => (
             <View key={r.year} style={s.schedRow} accessible
               accessibilityLabel={`${r.year}, age ${r.age}: about ${spokenMoney(Math.round(r.amount))}${r.isCurrent ? ', this year' : ''}`}>
@@ -195,7 +195,7 @@ export default function RequiredWithdrawalsScreen() {
       {/* which accounts (r50): the visible inputs, with the road to fix a wrong tax chip */}
       {preTaxAccts.length > 0 && (
         <View style={s.card}>
-          <SectionBand title="BASED ON THESE ACCOUNTS" />
+          <SectionBand inCard inset={20} title="BASED ON THESE ACCOUNTS" />
           {preTaxAccts.map((a: any) => (
             <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={s.acctRow}
               onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}

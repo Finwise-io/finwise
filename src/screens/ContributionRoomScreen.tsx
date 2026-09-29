@@ -9,7 +9,11 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { ProgressBar, InfoDot } from '../components/UI';
 import { Disclaimer } from '../components/Disclaimer';
-import { k401Headroom, annualIraLimit, annualHsaLimit, IRS_LIMITS, monthsLeftInYear, perMonthToFill, ageAttainedInYear } from '../domain/income/limits';
+import { IRS_LIMITS } from '../domain/income/limits';
+// ONE DOOR (MK-CF-O-005 theContributionRoom, Q-CF-4 ruled 2026-09-27: "yes"). This screen, the
+// Tax organizer and Home answer one question; the three rulings it carries (G1 the age attained
+// in the year · G10 Medicare bars an HSA entirely · G36 this month counts) live in the door.
+import { theContributionRoom } from '../../MoneyKeel/functions/cashflow/contribution-room';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -40,16 +44,16 @@ function RoomCard({ icon, title, limit, used, knownUsed, catchUp, how, note, ext
 export default function ContributionRoomScreen() {
   const router = useRouter();
   const op = (useStore((st: any) => st.onboardingProfile) ?? {}) as any;
-  const age = ageAttainedInYear(num(op.birthYear) || null);   // G1: the year-attained age, the IRS test for every catch-up
-
-  const k401 = k401Headroom(age, num(op.c_401k) * 12);
-  const iraLimit = annualIraLimit(age);
-  const iraUsed = Math.min(num(op.c_roth) * 12, iraLimit);   // best-effort from the Roth contribution you entered
+  const answer = theContributionRoom({ profile: op });
+  const age = answer.age;   // G1: the year-attained age, the IRS test for every catch-up
+  const k401 = answer.k401;
+  const iraLimit = answer.ira.limit;
+  const iraUsed = answer.ira.used;   // best-effort from the Roth contribution you entered
   // G10 (founder ruling 2026-09-08): enrolled in Medicare → no HSA contribution is allowed. The
   // question lives on this card because no other page captures it yet (MK-XS-I-062).
   const setProfile = useStore((st: any) => st.setOnboardingProfile);
   const medicare: boolean | null = op.medicareEnrolled === 'yes' ? true : op.medicareEnrolled === 'no' ? false : null;
-  const hsaLimit = annualHsaLimit(age, false, medicare);
+  const hsaLimit = answer.hsa.limit;
   const seniorHsa = age != null && age >= 65;
 
   return (
@@ -62,8 +66,8 @@ export default function ContributionRoomScreen() {
 
       {/* FCC: the designed try-it landing — the room ÷ months left, pre-filled into the forward what-if */}
       {k401.remaining > 0 && (() => {
-        const monthsLeft = monthsLeftInYear();                // G36: the current month counts as remaining
-        const perMonth = perMonthToFill(k401.remaining);
+        const monthsLeft = answer.monthsLeft;                // G36: the current month counts as remaining
+        const perMonth = answer.perMonthToFill401k;
         return (
           <TouchableOpacity accessibilityRole="button" style={s.tryBtn}
             onPress={() => router.push(`/what-if?addMonthly=${perMonth}` as any)}

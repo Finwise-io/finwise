@@ -43,7 +43,7 @@ export default function BigCostsScreen() {
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.tagline}>We lay it out. You decide.</Text>
       <View style={s.card}>
-        <SectionBand title="YOUR BIG ONE-TIME COSTS" value={costs.length === 0 ? money(0) : undefined} />
+        <SectionBand inCard inset={20} title="YOUR BIG ONE-TIME COSTS" value={costs.length === 0 ? money(0) : undefined} />
         {costs.length === 0 ? (
           <>
             <Text style={s.emptyBody}>A new roof, replacing the car, a family wedding — money that leaves once, in a year you can name. Add it and the odds account for it; leave it out and the plan quietly assumes it never happens.</Text>

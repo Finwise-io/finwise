@@ -17,10 +17,11 @@ export interface BondInfo { face: number; couponRate: number; maturity: string; 
  * Formula .....
  *     asset class of(a) = 'bonds'
  *
- * Called by ... MK-NW-F-062 couponIncomeAnnual
+ * Called by ... MK-NW-F-062 couponIncomeAnnual · MK-NW-O-001 theBonds
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-062 couponIncomeAnnual
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ *               MK-NW-F-062 couponIncomeAnnual · MK-NW-O-001 theBonds
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -30,7 +31,7 @@ export interface BondInfo { face: number; couponRate: number; maturity: string; 
 export function isBond(a: AssetAccount): boolean {
   return assetClassOf(a) === 'bonds';
 }
-/* ─ MK-NW-F-056 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-056 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * bondInfo
  *
  * Answers ..... What are this holding's bond facts?
@@ -42,12 +43,15 @@ export function isBond(a: AssetAccount): boolean {
  *     value = balance or 0
  *     accrued interest = the entered figure, or nothing when not entered
  *
- * Called by ... MK-NW-F-062 couponIncomeAnnual
+ * Called by ... MK-NW-F-062 couponIncomeAnnual · MK-NW-F-072 rowOf
+ *               MK-NW-O-001 theBonds
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-062 couponIncomeAnnual
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ *               MK-NW-F-062 couponIncomeAnnual · MK-NW-F-072 rowOf
+ *               MK-NW-O-001 theBonds
  *
- * Serves ...... MK-NW-M-023 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-045
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
@@ -69,7 +73,7 @@ export function bondInfo(a: AssetAccount): BondInfo {
 }
 
 /** Annual coupon income = face value × coupon rate (paid as cash). */
-/* ─ MK-NW-F-057 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-057 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * annualCoupon
  *
  * Answers ..... Annual coupon income = face value × coupon rate (paid as cash).
@@ -79,14 +83,17 @@ export function bondInfo(a: AssetAccount): BondInfo {
  *
  * Called by ... MK-NW-F-059 currentYield · MK-NW-F-060 approxYTM
  *               MK-NW-F-061 bondSummary · MK-NW-F-062 couponIncomeAnnual
- *               MK-NW-F-069 priceAtYield
+ *               MK-NW-F-069 priceAtYield · MK-NW-F-072 rowOf
+ *               MK-NW-O-001 theBonds
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *               MK-NW-F-060 approxYTM · MK-NW-F-064 bondRateSensitivity
  *               MK-NW-F-061 bondSummary · MK-NW-F-062 couponIncomeAnnual
  *               MK-NW-F-059 currentYield · MK-NW-F-069 priceAtYield
+ *               MK-NW-F-072 rowOf · MK-NW-O-001 theBonds
  *
- * Serves ...... MK-NW-M-024 · MK-NW-M-043 · MK-NW-M-045
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-049 bond price — what the bond is worth today
@@ -97,7 +104,7 @@ export function bondInfo(a: AssetAccount): BondInfo {
 export function annualCoupon(b: BondInfo): number {
   return (b.face * b.couponRate);
 }
-/* ─ MK-NW-F-058 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-058 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * yearsToMaturity
  *
  * Answers ..... How long until this bond pays back?
@@ -106,12 +113,15 @@ export function annualCoupon(b: BondInfo): number {
  *     years to maturity = max(0, (maturity date − today) ÷ 365.25 days)
  *
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-069 priceAtYield
+ *               MK-NW-F-072 rowOf
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *               MK-NW-F-060 approxYTM · MK-NW-F-064 bondRateSensitivity
- *               MK-NW-F-069 priceAtYield
+ *               MK-NW-F-069 priceAtYield · MK-NW-F-072 rowOf
+ *               MK-NW-O-001 theBonds
  *
- * Serves ...... MK-NW-M-025
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
  *
  * Decides .....
@@ -128,7 +138,7 @@ export function yearsToMaturity(maturity: string, now: Date = new Date()): numbe
   return Math.max(0, (new Date(maturity).getTime() - now.getTime()) / (365.25 * 86400000));
 }
 /** Current yield = annual coupon ÷ current price/value. */
-/* ─ MK-NW-F-059 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-059 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * currentYield
  *
  * Answers ..... Current yield = annual coupon ÷ current price/value.
@@ -136,9 +146,13 @@ export function yearsToMaturity(maturity: string, now: Date = new Date()): numbe
  * Formula .....
  *     current yield = annual coupon ÷ current value
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-072 rowOf · MK-NW-F-078 ONE
  *
- * Serves ...... MK-NW-M-027 · MK-NW-M-044
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ *               MK-NW-F-072 rowOf · MK-NW-O-001 theBonds
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
  *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
  *
@@ -154,7 +168,7 @@ export function currentYield(b: BondInfo): number | null {
 }
 
 /** A47 (founder, 2026-08-26): subtract accrued interest when known; say so when not. */
-/* ─ MK-NW-F-070 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-070 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * accruedInterestCaveat
  *
  * Answers ..... A47 (founder, 2026-08-26): subtract accrued interest when known; say so when not.
@@ -163,7 +177,11 @@ export function currentYield(b: BondInfo): number | null {
  *     'accrued interest not entered — the yield uses the price as you entered it'   if accrued interest = nothing
  *     nothing   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-072 rowOf
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ *               MK-NW-F-072 rowOf · MK-NW-O-001 theBonds
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
@@ -176,7 +194,7 @@ export function accruedInterestCaveat(b: BondInfo): string | null {
   return b.accruedInterest == null ? 'accrued interest not entered — the yield uses the price as you entered it' : null;
 }
 /** Approximate yield to maturity (standard approximation), decimal. null if matured / no value. */
-/* ─ MK-NW-F-060 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-060 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * approxYTM
  *
  * Answers ..... Approximate yield to maturity (standard approximation), decimal.
@@ -185,12 +203,14 @@ export function accruedInterestCaveat(b: BondInfo): string | null {
  *     yield to maturity ≈ round( (annual coupon + (face − value) ÷ years left)
  *                                ÷ ((face + value) ÷ 2), 4 dp )
  *
- * Called by ... MK-NW-F-064 bondRateSensitivity
+ * Called by ... MK-NW-F-064 bondRateSensitivity · MK-NW-F-072 rowOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-064 bondRateSensitivity
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ *               MK-NW-F-064 bondRateSensitivity · MK-NW-F-072 rowOf
+ *               MK-NW-O-001 theBonds
  *
- * Serves ...... MK-NW-M-026
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-049 bond price — what the bond is worth today
@@ -211,7 +231,7 @@ export function approxYTM(b: BondInfo, now: Date = new Date()): number | null {
 }
 
 export interface BondSummary { count: number; totalValue: number; totalFace: number; annualCoupon: number; avgYield: number | null; nextMaturity: string | null; }
-/* ─ MK-NW-F-061 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-061 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * bondSummary
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -232,7 +252,11 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *     avg yield = avg yield
  *     next maturity = the first of future (or nothing when missing)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-001 theBonds
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ *               MK-NW-O-001 theBonds
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -345,8 +369,9 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
  *
  * Called by ... MK-NW-F-064 bondRateSensitivity
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-064 bondRateSensitivity
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ *               MK-NW-F-064 bondRateSensitivity · MK-NW-O-001 theBonds
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -371,7 +396,7 @@ function priceAtYield(b: BondInfo, y: number, now: Date): number {
   return pv;
 }
 
-/* ─ MK-NW-F-064 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-064 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * bondRateSensitivity
  *
  * Answers ..... What happens to this bond if interest rates move?
@@ -384,7 +409,11 @@ function priceAtYield(b: BondInfo, y: number, now: Date): number {
  *     rates up = move(0.01)
  *     rates down = move(-0.01)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-001 theBonds
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ *               MK-NW-O-001 theBonds
  *
  * Serves ...... MK-NW-M-028
  * Reads ....... MK-XS-I-011 bond face value

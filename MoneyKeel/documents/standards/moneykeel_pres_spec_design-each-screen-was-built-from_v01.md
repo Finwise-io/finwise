@@ -4,6 +4,20 @@
 
 **Why this exists.** The founder asked on 2026-09-14: *"Do you not keep track of mock you use to build 53."* Nothing recorded it. The Build 54 commit (2026-09-01) moved the `mockups/` folder into `MoneyKeel/documents/` under the file-naming standard. It filed the Build 53 finals under `archive/` with a date, and a dated file in `archive/` means "replaced". They were not replaced. The next mock therefore started from the wrong files and cost six hours.
 
+**The newest approval wins — and closing the gap is mine (founder, 2026-09-27).**
+
+> *"If I approved mock up post build - that the latest approval. Why you keep asking me same thing
+> over and over."*
+
+When a mock he approved is NEWER than the build that ships that screen, the mock is the design and the
+build is behind it. That is not a question. It is a defect with a known answer, and bringing the build
+up to the mock is mine to do. I asked him to choose between his own approved design and the code twice
+— on the Plan tab and on Cash flow's This month — and both times the answer was already on the file:
+the later date.
+
+Asking again costs him twice: once to read a question he has answered by approving, and once more
+because the gap stays open while he does.
+
 **The rules.**
 - The day a build is cut, it adds its rows here.
 - A design file named in the latest build's rows is never moved to `archive/`.
@@ -27,7 +41,7 @@ Rulings made after Build 53 that change these screens are in the Changelog tab o
 
 ## Screens not yet recorded
 
-Home and every screen opened from another screen still need their Build 53 design traced by the same method. (Cash flow's designs ARE approved and filed — see the table below; what it lacks is the traced link from a build to a mock.) Until then, a task that touches one of them starts by tracing it.
+Home and every screen opened from another screen still need their Build 53 design traced by the same method. (Cash flow's designs ARE approved, filed and — since 2026-09-26 — on the canon; see the table below. What it still lacks is the traced link from a build to a mock, which needs git.) Until then, a task that touches one of them starts by tracing it.
 
 ## The current approved design, by screen
 
@@ -38,4 +52,95 @@ The file each next task on that screen starts from. It is updated the same day a
 | Net worth | `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` (approved 2026-09-14; built the same day) | — |
 | Performance | `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v14.html` — **APPROVED 2026-09-25** (*"approved. save and built it"*) and **BUILT the same day** (commit `727e22a`). It carries Performance FINAL of 2026-08-04 plus every ruling since: the window selector as one control with two lines per segment, one meaning of return, a Y axis on the value line, day one rebuilt from a linked account's own records, the account page's Market value · Wealth generated · Return with its own walk and a return per holding, and the older Invest sections removed. v10 to v13 are dated in `archive/`. | — |
 | Plan | `MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html` — v05 with the founder's eight decisions applied (2026-09-26: *"Plan - Q1 - 8 - your recommendation approved"*), the five blockers fixed, every figure re-run at 1,000 futures, the words brought onto the canon, and every template placeholder filled so the file reads on its own. v04 and v05 are dated in `archive/`. **Not built:** the tab still shows the 2026-08-12 layout he rejected, and its code waits on the Q-PL-1 and Q-PL-2 doors. | Approval of v06 |
-| Cash flow | **Approved, and filed all along — I reported it as "not recorded" on 2026-09-26 by reading only this file.** `MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html` (income end to end; v4, v5 and v6 each approved in the changelog — v6 on 2026-09-02, "Mock v6 approved and live" — and v07 is that mock with the canon words applied on 2026-09-12: "a one-time payment", "/year", "/month"), `…_cash-flow-this-month-and-spending_v06.html` (This month + Spending, 2026-08-26), `…_look-ahead_v03.html`, `…_money-four-tabs_v01.html`. **What is genuinely missing is the traceability**: which build shipped which of these, by the fingerprint method. | The v07 file still carries a v6 eyebrow — does it supersede v06, or is it v06 with the words fixed? |
+| Cash flow | **Five files, one folder, all on the canon since 2026-09-26** — `cash-flow_v01` (the architecture), `cash-flow_v01`, `income-end-to-end_v07`, `look-ahead_v04`, `filing-status-question_v03`. Each carries a "What changed from vNN, and why" block. Where the architecture file and a detail file disagree, the detail file wins. Superseded copies dated in `archive/`. | **Traced 2026-09-27** (the table below). |
+
+---
+
+## Cash flow, 2026-09-26 — the day the words were fixed
+
+The founder: *"fix cashflow screens before moving forward."* Three of the four cash-flow mocks were
+approved **before** the one-term-per-concept rulings (2026-09-10, 2026-09-12) and the one-door list
+(2026-09-14), so they drew words the app no longer says. They were redrawn as v07, v04 and v02 — the
+words only; no figure, frame or design decision moved — and the code was brought with them:
+
+- **The canon guard could not see two whole shapes of the offence.** Row 14 was written `/mo` and `/yr`,
+  which can never match `/ mo` with a space — eleven labels were living in that gap. Row 12's
+  `Records a Debt payment` was written with straight text while the code writes curly quotes, so it never
+  matched either, and five more ledger phrases sat beside it. Both rows were widened, and every site
+  they exposed was fixed.
+- **Two screens disagreed with a third about the same figure**: the total under the INFLOW band said
+  `= In` on Month detail and on Your retirement paycheck, while Cash flow one tap away said
+  `Inflow (income (take-home))`. All three now say Inflow, and `/= In\b/` is retired.
+- **The mocks now have a guard of their own.** `src/__tests__/mock_copy_on_canon.test.ts` reads the
+  canon table and every live mock's phone frames. On its first run it found **20 more breaches across
+  four mocks** — including in two files edited that same morning: "A usual month", "Gross a year",
+  eleven money figures written "$3,300 a month", "work this out", "you told us", "lands in your bank",
+  "Connected ·" and "WHAT YOU OWE". All fixed.
+- **The tab bar in the mocks was not the tab bar in the app.** Every cash-flow frame drew a Menu tab
+  that does not exist (Menu is the top-bar button), and the third tab as "Invest", renamed to
+  **Performance** on 2026-08-04. Two code comments still said Invest too.
+
+**The rule this leaves behind:** a mock approved before a ruling is not on the canon because it was
+approved. When a word is ruled, every live mock that draws it is redrawn the same day, or the ruling
+only reached the code.
+
+---
+
+## Net worth and Performance, audited 2026-09-26
+
+The founder: *"go back and audit NW and Performance screens to make sure all is per standards, and
+rulings."* Every rule in the screen standard that a machine can check was run over both screens, and
+every static string the approved mocks draw was compared with every string the app can render.
+
+**What holds.** The canon words (both screens, code and mocks) · the one-door list · screen titles at 20
+points · the type scale and the 10.5-point floor · the colour tokens · hide-balances over every money
+figure · the spoken-label count · Net worth against mock v08 — of its strings, the only ones the app
+never renders are account names and a ticker, which are data, not design.
+
+**What was wrong, and is now fixed.**
+- **44 dark-green bars did not reach the edge of the card they head** (B-107), across 15 screens —
+  including six on Cash flow that bled while ten beside them did not. `src/__tests__/guard_bands_edge_to_edge.test.ts`
+  now reads each band's enclosing card and its padding, so the next one cannot slip past.
+- **Four lines of approved mock v14 were never built** (B-108 to B-110): an empty category vanished from
+  the account page instead of keeping its heading; the activity list never explained which records can be
+  edited; a linked account's walk never said where its lines come from; the value line had no day-one
+  caption. All four built, each with a test.
+- **Every percentage on both screens now shows two decimals** (ruling Q49). The one-decimal ratchet is
+  down from 48 sites to 31, and none of the 31 is on Net worth or Performance.
+
+**What needs the founder.**
+1. **"Sweep cash" or "Cash in the account"** — the same money, two of his own approvals (B-111).
+2. **"tap the name to open this account's portfolio"** — drawn in mock v14, not built: it needs the band
+   split into two tap targets, which is behaviour, not copy. Left unbuilt rather than printed and
+   dishonoured.
+3. **Rule 11** — 51 figures on Net worth and 24 on Performance print with no identifier. That is the
+   orchestrator work, and every row of the map is still PROPOSED.
+
+Mock v14's category legend and the built one also differ in wording: the mock says *"a /year figure is
+that category's yearly pace"*, the build says *"A category with no records shows —, never a false $0"*
+and adds the yearly-rate sentence only when the window is longer than a year. The build says more, and
+says it only when it is true; the mock is the approved words. **Not changed either way — his call.**
+
+---
+
+## Cash flow, traced to its builds — 2026-09-27
+
+Traced by the fingerprint method the moment `git` would answer again. **Build 54 (2026-09-01) is the
+last build cut**, so anything approved after that date is designed and not shipped.
+
+| Design | Built | Shipped in |
+|---|---|---|
+| **The four-tab surface** — one screen, four tabs, the separate Budget screen retired (now `cash-flow_v01`, drawn 2026-07-19) | `cd1e6c7`, 2026-07-21, *"THE CASH FLOW SURFACE BUILT (v1.3 FINAL, founder-approved): four tabs, income pop-up, month switcher, first-open doors; Budget screen retired"* | **Build 47** (cut `58ca55d`, 2026-07-31) |
+| **The banded version of that surface** — deep-green section bands across all five tab screens | `9dea34a`, 2026-08-04, then the band sweep `b6340a5`, 2026-08-10 | **Build 53** (cut `4fcde07`, 2026-08-15) |
+| **The income rebuild** — two earners, one tax engine, one rate, the base-pay screen and the filing-status question (`filing-status-question_v02`, `base-pay_v07`) | `6e360fb`, 2026-09-01 | **Build 54** (`6e360fb`, 2026-09-01) — on TestFlight |
+| **This month + Spending, in detail** (`…_v06`, 2026-08-26 — now v07) | never built as drawn: the build shows three rows and puts the itemised rows on Month detail | **no build** — it is a workplan row |
+| **Income end to end v06** (approved 2026-09-02, `addbf53`) and **v07** | after Build 54 | **no build** |
+| **The tabs renamed to This month · Income · Expenses · Debts** | `983805a`, 2026-09-14 | **no build** |
+| **Everything from 2026-09-26/27** — the canon words, the 44 bars, the two-decimal percentages, the four Performance lines | this session | **no build** |
+
+**Look ahead** (`…_v04`) belongs to the What-if screen, which is opened from Performance, not a cash-flow
+tab; it is traced with that screen when its turn comes.
+
+**What this table says plainly:** the app on TestFlight is Build 54. Three of the five cash-flow designs
+in the folder, and every correction made since 2026-09-14, exist only in the code and in these files.
+Nothing reaches a phone until the founder says "cut the build".

@@ -15,7 +15,7 @@ import { requiredPayment, paymentShape, type Debt } from '../../../src/domain/de
 
 import { inMonth, DEBT_CATEGORY, type LoggedExpense } from './logged-expenses';
 
-export interface SpendingInput {
+export interface ExpensesInput {
   ym: string;
   debts: Debt[];
   plannedByCategory: { label: string; monthly: number }[];
@@ -29,7 +29,7 @@ export const BIG_BILL_FLOOR = 500;
 
 /** RECURRING DEBT PAYMENTS — the installment debts, one row each.
  *  The same every month, which is exactly why they are here and never in the radar. */
-/* ─ MK-CF-F-149 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-149 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * recurringDebtPayments
  *
  * Answers ..... RECURRING DEBT PAYMENTS — the installment debts, one row each.
@@ -37,11 +37,19 @@ export const BIG_BILL_FLOOR = 500;
  * Formula .....
  *     for each debt whose payment shape is 'installment' and whose required payment > 0: { label, monthly = required payment(debt) }
  *
- * Called by ... MK-CF-O-002 spending
+ * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
- *               MK-CF-O-002 spending · MK-XS-F-005 trendPoints
+ * Reaches ..... 104 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-XS-F-057 analyzeExpenses
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-044 annualNet
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               … and 86 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -49,7 +57,7 @@ export const BIG_BILL_FLOOR = 500;
  * Formula also on the master file · functions_from_code · MK-CF-F-149
  * Changed ..... not in git yet (—)
  */
-export function recurringDebtPayments(s: SpendingInput): { label: string; monthly: number }[] {
+export function recurringDebtPayments(s: ExpensesInput): { label: string; monthly: number }[] {
   return (s.debts ?? [])
     .filter((d) => paymentShape(d) === 'installment')
     .map((d) => ({ label: d.label, monthly: (requiredPayment(d)) }))
@@ -62,7 +70,7 @@ export function recurringDebtPayments(s: SpendingInput): { label: string; monthl
  *  card is connected and its purchases arrive on their own, the payment stops being an expense and
  *  becomes a transfer — otherwise the same money is counted twice. `purchasesCaptured` carries
  *  which cards those are; until a card provider exists it is always empty. */
-/* ─ MK-CF-F-150 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-150 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * debtPaymentsCountedAsExpenses
  *
  * Answers ..... DEBT PAYMENTS THAT ARE COUNTED AS EXPENSES — revolving and due-in-full.
@@ -71,11 +79,19 @@ export function recurringDebtPayments(s: SpendingInput): { label: string; monthl
  *     out = []
  *     the answer = out
  *
- * Called by ... MK-CF-O-002 spending
+ * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
- *               MK-CF-O-002 spending · MK-XS-F-005 trendPoints
+ * Reaches ..... 104 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-XS-F-057 analyzeExpenses
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-044 annualNet
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               … and 86 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -88,7 +104,7 @@ export function recurringDebtPayments(s: SpendingInput): { label: string; monthl
  * Changed ..... not in git yet (—)
  */
 export function debtPaymentsCountedAsExpenses(
-  s: SpendingInput, purchasesCaptured: Set<string> = new Set(),
+  s: ExpensesInput, purchasesCaptured: Set<string> = new Set(),
 ): { label: string; amount: number }[] {
   const out: { label: string; amount: number }[] = [];
   for (const d of s.debts ?? []) {
@@ -109,7 +125,7 @@ export interface SpentList { items: LoggedExpense[]; shown: LoggedExpense[]; hid
                              hiddenTotal: number; total: number; }
 export const SHOW_FIRST = 5;
 
-/* ─ MK-CF-F-151 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-151 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * actualSpending
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -119,11 +135,19 @@ export const SHOW_FIRST = 5;
  *     total = Σ over items of (amount read as a number (0 when it is not one))
  *     shown total = Σ over shown of (amount read as a number (0 when it is not one))
  *
- * Called by ... MK-CF-O-002 spending
+ * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
- *               MK-CF-O-002 spending · MK-XS-F-005 trendPoints
+ * Reaches ..... 104 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-XS-F-057 analyzeExpenses
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-044 annualNet
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               … and 86 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -131,7 +155,7 @@ export const SHOW_FIRST = 5;
  * Formula also on the master file · functions_from_code · MK-CF-F-151
  * Changed ..... not in git yet (—)
  */
-export function actualSpending(s: SpendingInput): SpentList {
+export function actualSpending(s: ExpensesInput): SpentList {
   const items = (s.expenses ?? [])
     .filter((e) => inMonth(e, s.ym) && e.category !== DEBT_CATEGORY)
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -150,7 +174,7 @@ export type RadarReason = 'revolving-debt' | 'lump-debt' | 'big-bill';
 export interface RadarItem { label: string; amount: number; reason: RadarReason;
                              countedAsExpense: boolean; note: string; }
 
-/* ─ MK-CF-F-152 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-152 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * isRadarItem
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -164,10 +188,17 @@ export interface RadarItem { label: string; amount: number; reason: RadarReason;
  *
  * Called by ... MK-CF-F-153 radar
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-008 normalizeSnapshot · MK-CF-F-153 radar
- *               MK-XS-F-009 readHistory · MK-CF-O-002 spending
- *               MK-XS-F-005 trendPoints
+ * Reaches ..... 105 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-XS-F-057 analyzeExpenses
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-044 annualNet
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               … and 87 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -181,7 +212,7 @@ export function isRadarItem(d: Debt): RadarReason | null {
   return shape === 'due_in_full' ? 'lump-debt' : 'revolving-debt';
 }
 
-/* ─ MK-CF-F-153 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-153 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * radar
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -194,11 +225,19 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *     counted = !purchases captured.has(string(debt id))
  *     the answer = out
  *
- * Called by ... MK-CF-O-002 spending
+ * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
- *               MK-CF-O-002 spending · MK-XS-F-005 trendPoints
+ * Reaches ..... 104 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-XS-F-057 analyzeExpenses
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-044 annualNet
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               … and 86 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -206,7 +245,7 @@ export function isRadarItem(d: Debt): RadarReason | null {
  * Formula also on the master file · functions_from_code · MK-CF-F-153
  * Changed ..... not in git yet (—)
  */
-export function radar(s: SpendingInput, purchasesCaptured: Set<string> = new Set()): RadarItem[] {
+export function radar(s: ExpensesInput, purchasesCaptured: Set<string> = new Set()): RadarItem[] {
   const out: RadarItem[] = [];
   for (const d of s.debts ?? []) {
     const reason = isRadarItem(d);
@@ -233,7 +272,7 @@ export function radar(s: SpendingInput, purchasesCaptured: Set<string> = new Set
 
 /** ── ORCHESTRATOR ────────────────────────────────────────────────────────────────────────────
  *  WHAT DOES THIS PERSON SPEND? The Expenses tab calls THIS and nothing else. */
-export interface Spending {
+export interface Expenses {
   recurringDebt: { label: string; monthly: number }[];
   recurringDebtTotal: number;
   planned: { label: string; monthly: number }[];
@@ -244,7 +283,7 @@ export interface Spending {
   radar: RadarItem[];
 }
 
-/* ─ MK-CF-O-002 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-O-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * expenses
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -254,18 +293,34 @@ export interface Spending {
  *     act = actual expenses(s)
  *     debt exp = debt payments counted as expenses(s, purchases captured)
  *
- * Called by ... MK-XS-F-008 normalizeSnapshot
+ * Called by ... MK-CF-F-044 annualNet · MK-CF-F-067 rentalList
+ *               MK-CF-F-068 rentalNetAnnual · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-190 essentialsMonthly · MK-CF-O-010 theMonth
+ *               MK-PL-F-040 targetAtRetirement · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-050 simulate · MK-PL-F-065 volOf
+ *               MK-PL-F-067 willItLastInputs · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-057 analyzeExpenses · MK-XS-F-176 useMonthlyStats
+ *               MK-XS-F-177 useCategorySpend
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
- *               MK-XS-F-005 trendPoints
+ * Reaches ..... 103 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-XS-F-057 analyzeExpenses
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-044 annualNet
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               … and 85 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-002
  * Changed ..... not in git yet (—)
  */
-export function spending(s: SpendingInput, purchasesCaptured: Set<string> = new Set()): Spending {
+export function expenses(s: ExpensesInput, purchasesCaptured: Set<string> = new Set()): Expenses {
   const rec = recurringDebtPayments(s);
   const act = actualSpending(s);
   const debtExp = debtPaymentsCountedAsExpenses(s, purchasesCaptured);

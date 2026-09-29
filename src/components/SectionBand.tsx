@@ -4,12 +4,19 @@
 // the 4.5:1 small-text floor — the deep green is the accessible band color, never primary.
 // `inCard` bleeds the band to the card's edges (cards app-wide use Spacing.md padding).
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors, Spacing } from '../utils/theme';
 import { InfoDot } from './UI';
 
-export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet }: {
+export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet, onTitlePress, titleHint }: {
   title: string; value?: string; light?: boolean; inCard?: boolean; inset?: number; infoTerm?: string;
+  /** THE NAME IS ITS OWN DOOR (founder, 2026-09-27: "build it" — approved mock v14, first phone,
+   *  "Tap ▾ to collapse · tap the name to open this account's portfolio ›"). One bar, two jobs: the
+   *  title opens the thing it names, everywhere else on the bar does whatever the bar already did.
+   *  Given without `onTitlePress`, nothing changes — every existing band is untouched. */
+  onTitlePress?: () => void;
+  /** What a screen reader says for that door, e.g. "Open E*TRADE Account 1". */
+  titleHint?: string;
   /** width of the row's trailing arrow column, so a band total lands on the SAME right edge as a row
    *  value that is followed by a `›` (Net worth's flat ledger). 0 = no arrow column on the rows. */
   trailing?: number;
@@ -46,7 +53,16 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
     <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }]}>
       {/* the dot hugs the title text (founder 2026-08-10): plain siblings + a spacer — no nested
           row, because the nested flex collapsed the title to nothing on web. */}
-      <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={1}>{title}</Text>
+      {onTitlePress ? (
+        // hitSlop, not a taller bar: the bar is 11-point caps on 8 points of padding, and stretching
+        // it to 44 would change every band on every screen. The finger target is 44; the bar is not.
+        <TouchableOpacity onPress={onTitlePress} hitSlop={{ top: 10, bottom: 10, left: 8, right: 8 }}
+          style={{ flex: 0, flexShrink: 1 }} accessibilityRole="button" accessibilityLabel={titleHint ?? title}>
+          <Text style={[s.title, { flex: 0, flexShrink: 1, textDecorationLine: 'underline' }, light && s.textLight]} numberOfLines={1}>{title}</Text>
+        </TouchableOpacity>
+      ) : (
+        <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={1}>{title}</Text>
+      )}
       {/* the band title is 11pt — the dot matches it rather than looming over it */}
       {!!infoTerm && <InfoDot size={11} term={infoTerm as any} color={light ? Colors.primaryDeep : Colors.white} />}
       <View style={{ flex: 1 }} />

@@ -15,17 +15,17 @@ import type { StAccount, StActivity, StOptionHolding, StPosition } from './snapt
  *
  * Called by ... MK-XS-F-113 snaptradeConfigured · MK-XS-F-147 call
  *
- * Reaches ..... 105 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-029 assetAllocation · MK-XS-F-172 assetClassForSymbol
- *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-036 benchmarkInfo
- *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
- *               MK-NW-F-035 blendedVolatility · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 87 more — the full list is on functions_from_code
+ * Reaches ..... 118 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-079 EF
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-F-202 TAX · MK-NW-F-005 accountAllowsTicker
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
+ *               MK-XS-F-172 assetClassForSymbol · MK-NW-F-011 assetClassOf
+ *               MK-NW-F-007 assetKind · MK-NW-F-040 assetsFromOnboarding
+ *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
+ *               … and 100 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -73,17 +73,17 @@ export const snaptradeConfigured = () => !!relayUrl();
  * Called by ... MK-PL-F-043 howTheGapCloses · MK-ST-F-010 nameEvidence
  *               MK-XS-F-014 classifyHolding
  *
- * Reaches ..... 102 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-029 assetAllocation · MK-XS-F-172 assetClassForSymbol
- *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-036 benchmarkInfo
- *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
- *               MK-NW-F-035 blendedVolatility · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 84 more — the full list is on functions_from_code
+ * Reaches ..... 115 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-079 EF
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-F-202 TAX · MK-NW-F-005 accountAllowsTicker
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
+ *               MK-XS-F-172 assetClassForSymbol · MK-NW-F-011 assetClassOf
+ *               MK-NW-F-007 assetKind · MK-NW-F-040 assetsFromOnboarding
+ *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
+ *               … and 97 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

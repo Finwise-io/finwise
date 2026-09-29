@@ -11,12 +11,38 @@ import type { FigureSpec } from './_figure-spec';
 import { FIGURES as basePayFigures } from './cashflow/base-pay';
 import { FIGURES as incomeSummaryFigures } from './cashflow/income-summary';
 import { FIGURES as thisMonthFigures } from './cashflow/this-month';
+import { BOND_FIGURES } from './networth-and-performance/bonds';
+import { ACCOUNT_FIGURES } from './networth-and-performance/account';
+import { NET_WORTH_FIGURES } from './networth-and-performance/net-worth';
+import { EMERGENCY_FUND_FIGURES } from './networth-and-performance/emergency-fund';
+import { HOLDING_FIGURES } from './networth-and-performance/holding';
+import { ALTERNATIVES_OUTLOOK_FIGURES } from './networth-and-performance/alternatives-outlook';
+import { PERFORMANCE_FIGURES } from './networth-and-performance/performance';
+import { LOOK_BACK_FIGURES } from './networth-and-performance/look-back';
+import { CONTRIBUTION_ROOM_FIGURES } from './cashflow/contribution-room';
+import { CREDIT_LINE_FIGURES } from './cashflow/credit-line';
+import { TAX_ORGANIZER_FIGURES } from './cashflow/tax-organizer';
+import { WHATS_COMING_FIGURES } from './cashflow/whats-coming';
+import { THE_MONTH_FIGURES } from './cashflow/the-month';
 
 /** identifier → who declared it, so a clash names both doors. */
 const DOORS: [string, Record<string, FigureSpec>][] = [
   ['MK-CF-O-001 basePay', basePayFigures],
   ['MK-CF-O-004 incomeSummary', incomeSummaryFigures],
   ['MK-CF-O-003 thisMonth', thisMonthFigures],
+  ['MK-NW-O-001 theBonds', BOND_FIGURES],   // Q-NW-4, ruled 2026-09-27
+  ['MK-NW-O-002 theAccount', ACCOUNT_FIGURES],   // Q-NW-2, ruled 2026-09-27
+  ['MK-NW-O-003 theNetWorth', NET_WORTH_FIGURES],   // Q-NW-1, ruled 2026-09-27
+  ['MK-NW-O-004 theEmergencyFund', EMERGENCY_FUND_FIGURES],   // Q-NW-5, ruled 2026-09-27
+  ['MK-NW-O-006 theHolding', HOLDING_FIGURES],   // Q-NW-3 — one screen, no decision
+  ['MK-NW-O-005 theAlternativesOutlook', ALTERNATIVES_OUTLOOK_FIGURES],   // Q-NW-6, split out 2026-09-27
+  ['MK-NW-O-008 thePerformance', PERFORMANCE_FIGURES],   // Q-PF-1, ruled 2026-09-27
+  ['MK-NW-O-007 theLookBack', LOOK_BACK_FIGURES],   // Q-PF-2 — one screen, no decision
+  ['MK-CF-O-005 theContributionRoom', CONTRIBUTION_ROOM_FIGURES],   // Q-CF-4, ruled 2026-09-27
+  ['MK-CF-O-006 theCreditLine', CREDIT_LINE_FIGURES],   // Q-CF-6 — one screen, no decision
+  ['MK-CF-O-007 theTaxOrganizer', TAX_ORGANIZER_FIGURES],   // Q-CF-5 — one screen, no decision
+  ['MK-CF-O-008 whatsComing', WHATS_COMING_FIGURES],   // Q-CF-3, ruled 2026-09-27
+  ['MK-CF-O-010 theMonth', THE_MONTH_FIGURES],   // Q-CF-2 — the last of the twelve
 ];
 
 /* ─ MK-XS-F-181 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)

@@ -192,42 +192,11 @@ DECISIONS = {
 # Questions for the founder, attached to the engine they concern. NUMBERS ARE FIXED FOREVER —
 # he answers by number, so a number is never reused, renumbered or reordered.
 QUESTIONS = {
-'BOND_FACTS':[
- 'Q01 — Is Quantity for a bond the FACE amount (e.g. 227,000) with the price quoted per $100 of face, or the number of bonds? It decides how value and gain are worked out.',
- 'Q02 — How should a bond be NAMED on screen? Draft: "US Treasury 4.25% Nov 2029", with the identifying number shown as a detail rather than the headline. Approve or rewrite.',
- 'Q03 — Certificates of deposit: under Fixed Income, or their own class? They carry a term, a rate and an early-withdrawal penalty that a bond does not.',
-],
-'BOND_COUPON':[
- 'Q04 — "Annual income" on a bond: the last twelve months actually received, or the forward estimate from today\'s coupon? Both are defensible and they differ.',
-],
-'BOND_YIELD_TO_MATURITY':[
- 'Q05 — Accrued interest: do we work it out ourselves — which needs a day-count rule per bond type — or only show what the institution gives us?',
-],
-'HOLDING_MARKET_VALUE':[
- 'Q06 — Options: is quantity held in CONTRACTS with the price per share (so value = contracts x 100 x price), or is the price already per contract? Today neither is applied and the value may be a hundredth of the truth.',
- 'Q07 — Crypto: how many decimal places should a quantity keep? Some coins are held in very small fractions.',
- 'Q08 — Foreign currency: is this cash held at an institution, or currency trading? And should that tab\'s "Dividend" row be "Interest"?',
-],
 'HOLDING_SHARES':[
  'Q09 — Should the app store the UNIT beside every quantity — shares, contracts, coins, units of face, currency units — so nothing can be multiplied by the wrong price? Today one field holds all of them with nothing marking which.',
 ],
-'ALLOCATION_BY_CLASS':[
- 'Q10 — What order of evidence decides an asset\'s class? Draft: the institution\'s own class field, then the shape of the identifier (option symbols, nine-character bond numbers, currency codes), then words in the name, then ask you.',
- 'Q11 — When nothing matches: refuse the line and ask, or park it as unclassified? Parking keeps the totals right and hides a gap; refusing is honest and stops the import.',
- 'Q12 — Does the person\'s own answer always win and stick, even when the next sync disagrees? That is today\'s rule for holdings — confirm it holds for every class.',
- 'Q13 — Commodities: is a fund that tracks gold (GLD) simply a fund with a "commodity" label for allocation, and do you want PHYSICAL metal — weight, unit, purity, storage, spot price — supported at launch?',
-],
 'ACCOUNT_SPLIT':[
  'Q14 — What should a MIXED account be called on screen, when it holds several classes at once?',
-],
-'the ledger sum of interest and dividends for the account':[
- 'Q15 — An institution word we do not recognise: refuse the line and ask you, or book it as unclassified with no direction? The old sign-guess is what minted the $1.4 million.',
-],
-'TOTAL_CASH':[
- 'Q16 — Does foreign-currency cash count towards Cash, or sit apart until it is converted?',
-],
-'NW_CHANGE_PCT':[
- 'Q17 — "Return on cash + investments" counts money you paid in as a gain. Is the LABEL wrong, or the FORMULA? Fixing the formula means removing deposits and withdrawals before measuring.',
 ],
 'POT_AT_RETIREMENT':[
  'Q18 — Net worth projects the pot WITHOUT your big costs; Cash flow, Budget, Goals and Social Security timing all include them. Which is right for the Net worth screen?',
@@ -235,20 +204,11 @@ QUESTIONS = {
 'WILL_IT_LAST_RESULT':[
  'Q19 — The odds are rounded to the nearest 5 on screen but shown exact in the compare tables. Round everywhere, or show exact everywhere?',
 ],
-'HOLDING_CAP_GAINS':[
- 'Q20 — A lot with no recorded purchase price is skipped, so its gain is simply absent. Should the screen SAY so — "gain not counted for N shares, no purchase price on record" — rather than quietly reporting less?',
-],
-'REALISED_GAIN':[
- 'Q21 — On a second device the ledger is absent, so this reads nothing. Until history syncs, should it refuse in words rather than show a figure that looks like zero?',
-],
 'PRICE_FRESHNESS':[
  'Q22 — How old is too old for a price before the screen warns? Today it is a fixed limit in the code; you have never set it.',
 ],
 'HAND_VALUE_AGE':[
  'Q23 — Same question for a value you typed by hand: after how long should the app ask you to check it?',
-],
-'TAXABLE_INCOME':[
- 'Q24 — State tax is applied to taxable accounts only. Do you want a state rate captured per person, or to keep the single blended figure we use now?',
 ],
 'INSURANCE_NEED':[
  'Q25 — How many years of income should the default life-cover estimate replace, and does it assume the mortgage is cleared?',
@@ -258,15 +218,6 @@ QUESTIONS = {
 ],
 'GOAL_CAPACITY':[
  'Q27 — "Typical free cash to save" uses the middle of recent months. How many months should it look back, and should a one-off windfall be excluded?',
-],
-'JOB_SAFETY_RUNWAY':[
- 'Q28 — How many months of essentials should the app treat as safe by default — and is that number yours to set per person, or one figure for everyone?',
-],
-'STRESS_TEST':[
- 'Q29 — What size of shock should the test use by default, and should it be a fixed dollar figure or a share of the person\'s spending?',
-],
-'RETIREMENT_PAYCHECK':[
- 'Q30 — The draw from savings is shown as one figure a month. Should it hold steady in today\'s dollars, or rise with inflation each year?',
 ],
 'REQUIRED_WITHDRAWAL':[
  'Q31 — Required withdrawals are estimated from balances we hold. When an institution states its own required figure, does theirs win?',
@@ -532,14 +483,30 @@ NEW_INPUTS = [
 # ── questions keyed by the FIGURE'S identifier (2026-09-08) — identifiers never move, so a question
 # lands on the same row on every build; the engine-keyed dictionary above still serves the old ones.
 QUESTIONS_BY_METRIC = {
+ 'MK-NW-M-026': ['Q05 — Accrued interest: do we work it out ourselves — which needs a day-count rule per bond type — or only show what the institution gives us?'],
+ 'MK-NW-M-024': ['Q04 — "Annual income" on a bond: the last twelve months actually received, or the forward estimate from today\\\'s coupon? Both are defensible and they differ.'],
+ 'MK-NW-M-023': ['Q01 — Is Quantity for a bond the FACE amount (e.g. 227,000) with the price quoted per $100 of face, or the number of bonds? It decides how value and gain are worked out.'],
+ 'MK-NW-M-019': ['Q15 — An institution word we do not recognise: refuse the line and ask you, or book it as unclassified with no direction? The old sign-guess is what minted the $1.4 million.'],
+ 'MK-NW-M-007': ['Q10 — What order of evidence decides an asset\'s class? Draft: the institution\'s own class field, then the shape of the identifier (option symbols, nine-character bond numbers, currency codes), then words in the name, then ask you.', 'Q11 — When nothing matches: refuse the line and ask, or park it as unclassified? Parking keeps the totals right and hides a gap; refusing is honest and stops the import.', 'Q12 — Does the person\'s own answer always win and stick, even when the next sync disagrees? That is today\'s rule for holdings — confirm it holds for every class.', 'Q13 — Commodities: is a fund that tracks gold (GLD) simply a fund with a "commodity" label for allocation, and do you want PHYSICAL metal — weight, unit, purity, storage, spot price — supported at launch?'],
+ 'MK-NW-M-002': ['Q17 — "Return on cash + investments" counts money you paid in as a gain. Is the LABEL wrong, or the FORMULA? Fixing the formula means removing deposits and withdrawals before measuring.'],
+ 'MK-NW-M-013': ['Q16 — Does foreign-currency cash count towards Cash, or sit apart until it is converted?'],
+ 'MK-MN-M-020': ['Q28 — How many months of essentials should the app treat as safe by default — and is that number yours to set per person, or one figure for everyone?'],
+ 'MK-MN-M-024': ['Q29 — What size of shock should the test use by default, and should it be a fixed dollar figure or a share of the person\'s spending?'],
+ 'MK-NW-M-030': ['Q06 — Options: is quantity held in CONTRACTS with the price per share (so value = contracts x 100 x price), or is the price already per contract? Today neither is applied and the value may be a hundredth of the truth.', 'Q07 — Crypto: how many decimal places should a quantity keep? Some coins are held in very small fractions.', 'Q08 — Foreign currency: is this cash held at an institution, or currency trading? And should that tab\'s "Dividend" row be "Interest"?'],
+ 'MK-NW-M-036': ['Q20 — A lot with no recorded purchase price is skipped, so its gain is simply absent. Should the screen SAY so — "gain not counted for N shares, no purchase price on record" — rather than quietly reporting less?'],
+ 'MK-NW-M-035': ['Q21 — On a second device the ledger is absent, so this reads nothing. Until history syncs, should it refuse in words rather than show a figure that looks like zero?'],
+ 'MK-MN-M-028': ['Q24 — State tax is applied to taxable accounts only. Do you want a state rate captured per person, or to keep the single blended figure we use now?'],
+ 'MK-CF-M-026': ['Q30 — The draw from savings is shown as one figure a month. Should it hold steady in today\'s dollars, or rise with inflation each year?'],
  'MK-NW-M-032': ["Q34 — Approve the exact wording for the average-price rule (info dot + column Q): 'Shares with no recorded purchase price are left out of the average. N of your shares are in that position.' — and the refusal: 'Average not available — none of these shares has a recorded price.'"],
  'MK-NW-M-034': ["Q35 — Approve the exact label and the canon phrase for the twelve-month window. Proposed: 'Dividends received (trailing twelve months)' here, and 'trailing twelve months' in the other four places (spelled out — no initialism).",
                  "Q36 — Dividends on this card: THIS account only, matching 'Realized from sales' beside it? Recommended: yes."],
  'MK-NW-M-035': ["Q37 — For a connected account: log an 'Opening holding' row per broker lot at first sync (dated the lot's purchase date, at the broker's cost) so every later sale is covered — recommended — or keep 'not counted + say so' for pre-history purchases?"],
- 'MK-NW-M-041': ["Q38 — Your bond display rule, three specifics before the mock: (1) 'quantity' for a bond = the number of bonds (each of face $1,000), or the total face amount? (2) 'earned interest' = the INTEREST rows recorded in the ledger for this bond — the only source we have — yes? (3) 'current price' = price per $100 of face as brokers quote it, or the dollar value of the position? Then I mock the bond card and screen before any code."],
+ 'MK-NW-M-041': ['Q03 — Certificates of deposit: under Fixed Income, or their own class? They carry a term, a rate and an early-withdrawal penalty that a bond does not.',
+                 "Q38 — Your bond display rule, three specifics before the mock: (1) 'quantity' for a bond = the number of bonds (each of face $1,000), or the total face amount? (2) 'earned interest' = the INTEREST rows recorded in the ledger for this bond — the only source we have — yes? (3) 'current price' = price per $100 of face as brokers quote it, or the dollar value of the position? Then I mock the bond card and screen before any code."],
  'MK-NW-M-043': ["Q39 — On a matured bond: show '$0/yr · matured' on the coupon line (recommended), or hide the line?",
                  "Q40 — Approve the one label for face × coupon rate (replaces 'COUPON / YR', '$X/yr coupon', 'Interest payments'). Your wording: 'Calculated annual interest'. Alternative in the pay-card pattern ('Base salary (take-home)'): 'Annual interest (calculated)'. Which?"],
- 'MK-NW-M-045': ["Q41 — One date format for maturity everywhere: 'Jan 15, 2030' (recommended) or '2030-01-15'? And NEXT MATURITY on the summary: full date, or year only as today?"],
+ 'MK-NW-M-045': ['Q02 — How should a bond be NAMED on screen? Draft: "US Treasury 4.25% Nov 2029", with the identifying number shown as a detail rather than the headline. Approve or rewrite.',
+                 "Q41 — One date format for maturity everywhere: 'Jan 15, 2030' (recommended) or '2030-01-15'? And NEXT MATURITY on the summary: full date, or year only as today?"],
  'MK-NW-M-030': ["Q42 — Options (your Q06): 'stated otherwise' = a multiplier field on the position, default 100, filled by the broker's feed and editable by you — confirm?",
                  "Q43 — Foreign currency (your Q08/Q09): show in US dollars converted at the rate fetched with the prices, with the rate and date stated ('converted at 1 CHF = $1.12 on Sep 8') — recommended — or in the native currency with a label?",
                  "Q44 — Your A46 (coupon rate missing → 0) covers MK-NW-F-063 and the paycheck income lines. Two separate cases, NOT covered unless you say so: (c) the 4.2% EXPECTED RETURN on the fixed-income / high-yield-savings / CD kinds used in projections — keep or 0? (d) the 4% target-return fallback when a bond is added without a coupon — keep, or use the coupon only?"],
