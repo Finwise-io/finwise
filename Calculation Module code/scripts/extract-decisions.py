@@ -41,13 +41,26 @@ doc = json.load(open(OUT)) if os.path.exists(OUT) else {
 by_key = {r['key']: r for r in doc['rows']}
 
 def key_of(f):
-    """THE DECISION, not the file it was found in. Keyed first on the date and the decision's own
-    words, because the same decision appears in six versions of the design workbook — keying on the
-    source file turned 251 decisions into 561 rows on the first run. Where it is found in more than
-    one file, every one of those files is listed in the source column, which is worth knowing: it
-    shows where a decision already lives and where it is missing."""
-    words = (f.get('his_words') or '') + '||' + (f.get('means') or '')
-    return hashlib.sha1((f.get('decided', '') + '||' + re.sub(r'\s+', ' ', words).strip()[:400]).encode('utf8')).hexdigest()[:12]
+    """THE DECISION, not the file it was found in and not the day it was recorded.
+
+    Keyed on HIS WORDS where the row has them, because his words ARE the decision — the same ruling
+    written into two versions of a workbook, or summarised by me two different ways, is one decision.
+
+    THREE KEYS TRIED, and the first two produced a log that lied about its own size:
+      1. source + words → 251 decisions became 561 rows, one per workbook version.
+      2. date + words → better, but the SAME ruling carried on two dates (the v1.0 workbook of
+         2026-07-01 and the v1.1 of 2026-07-06) still became two rows, and so did every ruling I had
+         summarised in slightly different words in two places. 38 of 593 rows were one decision twice.
+      3. HIS WORDS ALONE, normalised — this. Where he left no words, the date and my summary are the
+         only thing to key on, and those rows fall back to the old key.
+
+    Found by his question about DEC-0004: chasing why a dead decision read as live surfaced the pairs.
+    """
+    words = PLAIN._norm(f.get('his_words') or '')
+    if len(words) >= 15:
+        return hashlib.sha1(('W|' + words[:400]).encode('utf8')).hexdigest()[:12]
+    rest = (f.get('plain') or '') + '||' + (f.get('means') or '')
+    return hashlib.sha1((f.get('decided', '') + '||' + re.sub(r'\s+', ' ', rest).strip()[:400]).encode('utf8')).hexdigest()[:12]
 
 def add(**f):
     """one decision. Returns 'new' or 'kept'."""
@@ -375,6 +388,17 @@ def sweep_requirements():
         for tab in wb.sheetnames:
             if tab.strip().lower() == 'changelog':
                 continue                            # its own sweep reads this one in full
+            # A REVIEW TAB IS A RESTATEMENT, NOT A NEW DECISION (2026-09-30). The v1.1 workbook carries
+            # a tab "v1.0 review → v1.1" holding every comment he made on v1.0 — restated in MY words
+            # beside my answer. The comment itself is already swept, verbatim, from the v1.0 workbook
+            # it was typed into. Reading both put 17 of his questions in the log twice, once in his
+            # words and once in mine, and the pair looked like a decision superseding another.
+            #
+            # He found the class: DEC-0004 read as live when his approved mock had replaced it. Chasing
+            # that surfaced 38 duplicate rows, of which these were the last and least obvious — the two
+            # copies do not even share wording, so nothing but the source tells you they are one.
+            if re.match(r'v\d+\.\d+\s*(review)?\s*(→|->)\s*v\d+\.\d+', tab.strip(), re.I):
+                continue
             rows = list(wb[tab].iter_rows(values_only=True))
             if len(rows) < 2:
                 continue
@@ -448,6 +472,47 @@ def sweep_in_chat():
     return new, kept, len(rows)
 
 
+
+# ── ONE MORE PASS: THE SAME WORDS, REWORDED BY ME (2026-09-30) ───────────────────────────────────
+# Keying on his words caught the exact repeats. It cannot catch the pairs where my own transcription
+# differs by a hyphen or a capital — "how about one time income?" and "How about one-time income?"
+# are one question of his, recorded from two workbook versions.
+#
+# So a second pass compares what is left and MERGES the pairs that are the same words. It prints
+# every merge: a merge that nobody can see is a row quietly disappearing from his record, and this
+# file exists because things disappeared quietly.
+def merge_reworded(rows):
+    import difflib
+    def flat(t):
+        return re.sub(r'[^a-z0-9 ]', '', PLAIN._norm(t).replace('-', ' '))
+    keep, merged = [], []
+    for r in rows:
+        w = flat(r.get('his_words'))
+        if len(w) < 15:
+            keep.append(r); continue
+        hit = None
+        for k in keep:
+            kw = flat(k.get('his_words'))
+            if len(kw) < 15 or abs(len(kw) - len(w)) > 40:
+                continue
+            if difflib.SequenceMatcher(None, kw[:220], w[:220]).ratio() > 0.90:
+                hit = k; break
+        if hit is None:
+            keep.append(r); continue
+        merged.append((r['id'], hit['id'], str(r.get('his_words'))[:70]))
+        # the EARLIEST date wins, and every source of both is kept
+        if r.get('decided') and (not hit.get('decided') or str(r['decided']) < str(hit['decided'])):
+            hit['decided'] = r['decided']
+        srcs = [t.strip() for t in (str(hit.get('source', '')) + ' ||| ' + str(r.get('source', ''))).split(' ||| ') if t.strip()]
+        hit['source'] = ' ||| '.join(dict.fromkeys(srcs))
+        for kk, vv in r.items():
+            if kk in ('id', 'key', 'source', 'decided'):
+                continue
+            if vv and not hit.get(kk):
+                hit[kk] = vv
+    return keep, merged
+
+
 if __name__ == '__main__':
     print('── sweeping every decision into one log')
     n1, k1, seen1, un1 = sweep_changelog()
@@ -470,6 +535,12 @@ if __name__ == '__main__':
     print(f'   what he said IN CHAT             : {seen6} recorded · {n6} added · {k6} already there')
     n5, k5, seen5, quiet5 = sweep_requirements()
     print(f'   the requirements workbooks       : {seen5} comments of his read · {n5} added · {k5} already there (source added)')
+    doc['rows'], _merged = merge_reworded(doc['rows'])
+    if _merged:
+        print(f'   merged {len(_merged)} row(s) that were the same words reworded by me:')
+        for gone, into, w in _merged[:12]:
+            print(f'     {gone} → {into}   “{w}”')
+
     # OLD DECISIONS ARE MARKED (his instruction, 2026-09-29). Two passes: find the row that replaced
     # each superseded one, then write the link BOTH ways so either row opens the other.
     by_phrase = {}

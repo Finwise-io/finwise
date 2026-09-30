@@ -1002,7 +1002,7 @@ HAND_WRITTEN = {
   "Two naming rules, binding on the whole surface. CALL IT THE TARGET NEST EGG — not “the number you "
   "set”, not “your target”, not “your number”. One name, so it reads as one thing wherever it appears."),
 
- "'good with your recommendation.' BUILT": (
+ 'good with recommendation': (
   "“good with your recommendation.” The dated “next decision” card is REMOVED. It sat above the "
   "decisions list while that list deliberately left the same item out — so one obligation appeared "
   "twice, in two shapes. The obligation now leads the decisions list itself."),
@@ -1835,7 +1835,7 @@ HAND_WRITTEN = {
  'This document was written before the vocabulary was settled': (
   "A document written before the vocabulary was settled says so on its face, rather than being quietly "
   "left to read as current."),
- 'I like your recommendations': (
+ 'i like your recommendation': (
   "“I like your recommendations.” Approved as put to him."),
  'go ahead and execute on step 1, 2, 3': (
   "“go ahead and execute on step 1, 2, 3.” Approved, in that order."),
@@ -1993,36 +1993,13 @@ HAND_WRITTEN = {
  'same comment as #13': (
   "“same comment as #13.” He points at his own earlier comment rather than repeating it — the row it "
   "refers to carries the substance."),
- 'Does import work for options': (
-  "HIS FINDING: “Net worth missed the ability to edit bonds, cash and alternatives, and to manually add "
-  "transactions (only stocks/ETFs). Does import work for options?” Three gaps and one question — you "
-  "could not edit a bond, cash or another investment, and adding a transaction worked only for shares."),
- 'How would a user see cash flow from July 2026 to June 2027?': (
-  "HIS QUESTION: “The display never shows the year. How would a user see cash flow from July 2026 to "
-  "June 2027?” A month with no year cannot be read across a year boundary — which is the window most "
-  "people actually want."),
- 'A $100,000 bond at 4.5% marked at $95,000 could be worth $85,000': (
-  "HIS FINDING: “Grow & Track assumes only stocks/ETFs change in value. A $100,000 bond at 4.5% marked "
-  "at $95,000 could be worth $85,000 if yields rise to 6%.” A bond’s value moves with yields, so "
-  "treating it as fixed hides a real loss."),
- "can they select 'Use this' and have it": (
-  "HIS QUESTION: “If a user plans something in Plan — Social Security start age, required withdrawals, "
-  "other scenarios — can they select ‘Use this’ and have it feed the rest?” A scenario you are happy "
-  "with should be adoptable in one action rather than staying a what-if."),
- 'How about one-time income?': (
+ 'how about one time income': (
   "HIS QUESTION: “How about one-time income?” Income arriving once lands in its own month rather than "
   "being spread across twelve."),
- 'Which kind will T-bills be? And what is HYSA?': (
-  "HIS QUESTIONS: “Which kind will T-bills be? And what is HYSA?” Two things the labels should never "
-  "have raised — which class a Treasury bill falls into, and what an abbreviation stands for. Terms "
-  "are spelled out in full."),
- 'Does cash mean cash + cash equivalents?': (
-  "HIS QUESTION: “Does cash mean cash + cash equivalents?” The question that produced the rule: cash "
-  "means CASH ONLY. A money-market fund is Stocks and funds; a CD or Treasury bill is Bonds and CDs."),
- 'Why is the value "any" versus float?': (
+ 'why is value any versus float': (
   "HIS QUESTION: “Why is the value ‘any’ versus float?” A field whose type is ‘anything’ cannot be "
   "checked, so nothing can guarantee what is in it."),
- 'We should capture that some debt might not be due for many years': (
+ 'we should capture as some debt might not be due': (
   "“We should capture that some debt might not be due for many years.” A debt’s due date is captured "
   "even when it is years away, because a lump due in 2031 still belongs in the plan."),
  'Triangle (green color) up $11,200 this month': (
@@ -2135,114 +2112,21 @@ HAND_WRITTEN = {
  'Is this a formula used by social security administration?': (
   "HIS QUESTION: “How is the amount calculated by age? Is this a formula used by the Social Security "
   "Administration?” Asking whether a figure follows the actual rules or our approximation of them."),
- 'No mockups for onboarding or manual-add screens': (
-  "HIS FINDING: “No mockups for onboarding or manual-add screens.” Two whole journeys were undrawn."),
- 'Continue buttons must never hide behind the keyboard': (
-  "“Continue buttons must never hide behind the keyboard.” A button you cannot reach is a button that "
-  "is not there."),
- 'No flow to add day-to-day expenses': (
-  "HIS FINDING: “No flow to add day-to-day expenses.”"),
- 'NW is on Home — switch the top chip to Add expense': (
-  "HIS SUGGESTION: “Net worth is on Home — switch the top chip to Add expense or something else?” A "
-  "shortcut to something already on the screen wastes the one shortcut you have."),
- "Triangle should be '(green) up $11,200'": (
-  "HIS CORRECTIONS, three in one note: the direction comes before the amount — “(green) up $11,200”; "
-  "“Will it last?” is unclear as to what and until when; and the investments, market and net worth "
-  "figures each need a tappable explanation."),
- 'Investment = stocks + funds + bonds + alternatives?': (
-  "HIS QUESTION: “Investment = stocks + funds + bonds + alternatives? Excludes cash — right?” "
-  "Confirming exactly what the Investments total holds."),
- 'Benchmark is S&P 500? Add info dot': (
-  "HIS INSTRUCTION: “Benchmark is S&P 500? Add info dot.” The screen names which benchmark it compares "
-  "against, behind a tappable explanation."),
- 'source first, amount after, like a paycheck': (
-  "HIS INSTRUCTION: “Norm is ‘Social Security + Pension $4,200 (guaranteed)’ — source first, amount "
-  "after, like a paycheck. Do your research.” The order a payslip uses, because that is the order "
-  "people read money in."),
- 'What if safe draw is less than the big bill?': (
-  "HIS QUESTION: “What if safe draw is less than the big bill? Where is that information?” The case "
-  "where what you can afford to draw does not cover a known cost."),
- 'How are responses formulated — LLM or pre-crafted?': (
-  "HIS QUESTION: “How are responses formulated — LLM or pre-crafted?” A fair thing to ask of anything "
-  "that reads like advice."),
- 'Should be multi-select (a retired person may also want growth)': (
-  "HIS INSTRUCTION: “Should be multi-select — a retired person may also want growth. And should we "
-  "first tell the user what FinWise can do?” More than one answer allowed, and say what the app does "
-  "before asking what they want from it."),
- "If user selects 'just explore' — what are the next few screens?": (
-  "HIS QUESTION: “If user selects ‘just explore’ — what are the next few screens?” Every path out of "
-  "a choice has to be drawn, including the one that commits to nothing."),
- "'Your whole picture' unclear": (
-  "HIS CORRECTION: “‘Your whole picture’ unclear — maybe ‘your entire finance picture’? ‘The few "
-  "things need you, in dollars’ — what does ‘in dollars’ mean here?” Two vague phrases replaced with "
-  "ones that name what they mean."),
- 'No refresh date and time on this variant': (
-  "HIS FINDING: “No refresh date and time on this variant.” One drawn state was missing the line saying "
-  "when the figures were last true."),
- "Mockups disagree — is the date/time after 'your investments' or after 'net worth'?": (
-  "HIS FINDING: “Mockups disagree — is the date/time after ‘your investments’ or after ‘net worth’?” "
-  "Two mocks placing the same element differently, caught between versions."),
- 'Where does comparative data come from?': (
-  "HIS QUESTION: “Where does comparative data come from? Do we have an analytical engine analyzing "
-  "imported data?” Asking what is actually behind a comparison before it is shown as a fact."),
- "'Plain line' means line graph?": (
+ 'Plain line - means line graph': (
   "HIS QUESTION: “‘Plain line’ means line graph?” A description that could mean two things has not "
   "specified anything."),
- 'What does the screen look like for a manual update?': (
+ 'what does screen look like for manual update': (
   "HIS QUESTION: “What does the screen look like for a manual update?” Every state has to be drawn, "
   "including updating a value by hand."),
- 'Separate or dynamic screen per asset class': (
-  "HIS INSTRUCTION: “Separate or dynamic screen per asset class, collecting the right required info?” A "
-  "bond and a house need different questions; one form for both collects the wrong fields for each."),
- 'Cash = cash + cash equivalents?': (
+ 'Cash = cash + cash equivalent': (
   "HIS QUESTION: “Cash = cash + cash equivalents?” Answered: cash means cash only."),
- 'Is the display a graph, table, or numbers?': (
+ 'is the display graph, table, or just numbers': (
   "HIS QUESTION: “Is the display a graph, table, or numbers?” A specification that does not say what "
   "form a figure takes has not specified it."),
- 'Do we need a specific file format?': (
-  "HIS INSTRUCTION: “Do we need a specific file format? Add info dot with file type and must-have "
-  "columns.” An import that does not say what file it accepts fails silently in the person’s hands."),
- 'Only balance, or individual holdings (AMZN 100 shares…)?': (
-  "HIS QUESTION: “Only balance, or individual holdings — AMZN 100 shares?” A balance alone cannot "
-  "produce a return, a gain or a dividend."),
- 'Is a dividend added to income or cash?': (
-  "HIS QUESTIONS: “Is a dividend added to income or cash? Is capital gain captured and displayed "
-  "anywhere?” The question behind the later rule that dividends are taxed but not spendable unless "
-  "they reach the bank."),
- 'Imported directly via Plaid? Does it capture bond interest payments?': (
-  "HIS QUESTIONS: “Imported directly via Plaid? Does it capture bond interest payments?” What arrives "
-  "automatically and what does not."),
- 'Is this manual, imported, or connected?': (
-  "HIS QUESTION: “Is this manual, imported, or connected?” The question behind the rule that every "
-  "figure says where it came from."),
- 'Does total return capture realized and unrealized?': (
-  "HIS QUESTIONS: “Does total return capture realized and unrealized? Where do realized profit and "
-  "loss, unrealized profit and loss, dividends and interest show separately?” The figures an investor "
-  "expects to be able to see apart from one another."),
 
- 'Expandable/collapsible? People can have 20-30+ holdings': (
-  "HIS QUESTION: “Expandable/collapsible? People can have 20-30+ holdings.” A list that cannot collapse "
-  "is unusable once it is long."),
- 'Is NW = retire, or retire = assets − home − car?': (
-  "HIS QUESTION: “How do we evaluate if something is saved toward retirement vs other goals? Is net "
-  "worth = retire, or retire = assets − home − car?” His own later rule answers it: everything counts "
-  "EXCEPT the home you live in and the car you drive."),
- 'Stocks with dividends — will it show dividends received?': (
+ 'stocks with dividends - will it also show dividends received': (
   "HIS QUESTION: “Stocks with dividends — will it show dividends received?” What a holding paid you is "
   "part of how it did."),
- 'How does reconciliation with Plaid data work?': (
-  "HIS QUESTION: “If an account is connected but someone adds a transaction manually — allowed? How "
-  "does reconciliation with Plaid data work?” Answered later: both versions are shown side by side and "
-  "the person chooses; nothing is merged for them and nothing is dropped."),
- "What's the flow to add day-to-day expenses (grocery, gas)?": (
-  "HIS QUESTION: “What’s the flow to add day-to-day expenses (grocery, gas)? And to add income?” Two "
-  "everyday journeys with no drawn flow."),
- "Should specify it's about retirement — what will last, till when?": (
-  "HIS CORRECTION: “Should specify it’s about retirement — what will last, till when?” A question "
-  "with no subject and no horizon cannot be answered by the person reading it."),
- "Is this the Social Security Administration's formula?": (
-  "HIS QUESTION: “How is the amount calculated by age? Is this the Social Security Administration’s "
-  "formula?” Asking whether a figure follows the real rules or our approximation of them."),
  'Foundation layer only shows income, spending, and connected accounts as true picture': (
   "HIS THREE QUESTIONS on the foundation layer: are the connected accounts checking, savings and cards; "
   "how is the rest captured; and what counts as the true picture? A layer that claims to show "

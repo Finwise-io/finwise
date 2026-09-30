@@ -1,0 +1,451 @@
+[
+ {
+  "older": "DEC-0179",
+  "older_date": "2026-08-27",
+  "newer": "DEC-0386",
+  "newer_date": "2026-08-28",
+  "tab": "cashflow",
+  "overlap": 1.0,
+  "shared": [
+   "accounts",
+   "arrive",
+   "dividends",
+   "earned",
+   "interest",
+   "money",
+   "reach",
+   "reinvested",
+   "spend",
+   "spendable"
+  ],
+  "older_plain": "Interest and dividends are taxed but are not money you can spend, unless you tell us they reach your bank. Two decisions:\n1. In most accounts they are reinvested where they are earned and ne",
+  "newer_plain": "Interest and dividends are taxed but are not money you can spend, unless you tell us they reach your bank. Two decisions:\n1. In most accounts they are reinvested where they are earned and ne"
+ },
+ {
+  "older": "DEC-0390",
+  "older_date": "2026-09-10",
+  "newer": "DEC-0398",
+  "newer_date": "2026-09-12",
+  "tab": "process-and-standards",
+  "overlap": 1.0,
+  "shared": [
+   "confused",
+   "entered",
+   "phrase",
+   "typed",
+   "worked"
+  ],
+  "older_plain": "“a figure the person gave us → ‘you entered’.” One phrase for a number you typed, so it is never confused with one the app worked out.",
+  "newer_plain": "“a figure the person gave us → ‘you entered’.” One phrase for a number you typed, so it is never confused with one the app worked out."
+ },
+ {
+  "older": "DEC-0392",
+  "older_date": "2026-09-10",
+  "newer": "DEC-0399",
+  "newer_date": "2026-09-12",
+  "tab": "process-and-standards",
+  "overlap": 1.0,
+  "shared": [
+   "emergencies",
+   "emergency",
+   "everywhere",
+   "saved"
+  ],
+  "older_plain": "“cash saved for emergencies → Emergency fund.” One name for it, everywhere.",
+  "newer_plain": "“cash saved for emergencies → Emergency fund.” One name for it, everywhere."
+ },
+ {
+  "older": "DEC-0395",
+  "older_date": "2026-09-10",
+  "newer": "DEC-0400",
+  "newer_date": "2026-09-12",
+  "tab": "process-and-standards",
+  "overlap": 1.0,
+  "shared": [
+   "asked",
+   "everywhere",
+   "month",
+   "period",
+   "quarter",
+   "retired",
+   "weeks",
+   "writing"
+  ],
+  "older_plain": "“/month, /year.” One way of writing a period, everywhere — and, asked about the rest, “/quarter, /week, /2 weeks”. “a month” and “/mo” are retired.",
+  "newer_plain": "“/month, /year.” One way of writing a period, everywhere — and, asked about the rest, “/quarter, /week, /2 weeks”. “a month” and “/mo” are retired."
+ },
+ {
+  "older": "DEC-0505",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0541",
+  "newer_date": "2026-07-06",
+  "tab": "plan",
+  "overlap": 0.85,
+  "shared": [
+   "administration",
+   "amount",
+   "approximation",
+   "asking",
+   "calculated",
+   "follows",
+   "formula",
+   "rules",
+   "security",
+   "social"
+  ],
+  "older_plain": "HIS QUESTION: “How is the amount calculated by age? Is this a formula used by the Social Security Administration?” Asking whether a figure follows the actual rules or our approximation of th",
+  "newer_plain": "HIS QUESTION: “How is the amount calculated by age? Is this the Social Security Administration’s formula?” Asking whether a figure follows the real rules or our approximation of them."
+ },
+ {
+  "older": "DEC-0482",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0518",
+  "newer_date": "2026-07-06",
+  "tab": "home",
+  "overlap": 0.71,
+  "shared": [
+   "correction",
+   "dollars",
+   "entire",
+   "finance",
+   "maybe",
+   "phrases",
+   "picture",
+   "replaced",
+   "vague",
+   "whole"
+  ],
+  "older_plain": "HIS CORRECTION: “‘your whole picture in one place’ — ‘your whole picture’ not clear — maybe ‘your entire finance picture’ or something? Same for ‘the few things’.” Vague phrases are replaced",
+  "newer_plain": "HIS CORRECTION: “‘Your whole picture’ unclear — maybe ‘your entire finance picture’? ‘The few things need you, in dollars’ — what does ‘in dollars’ mean here?” Two vague phrases replaced wit"
+ },
+ {
+  "older": "DEC-0500",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0536",
+  "newer_date": "2026-07-06",
+  "tab": "multiple_screens",
+  "overlap": 0.68,
+  "shared": [
+   "answers",
+   "assets",
+   "counts",
+   "evaluate",
+   "everything",
+   "goals",
+   "later",
+   "other",
+   "retire",
+   "retirement"
+  ],
+  "older_plain": "HIS QUESTION: “How do we evaluate if something is saved towards retirement or some other goals? In other words is net worth = Retire, or Retire = Assets minus primary home?” This is the ques",
+  "newer_plain": "HIS QUESTION: “How do we evaluate if something is saved toward retirement vs other goals? Is net worth = retire, or retire = assets − home − car?” His own later rule answers it: everything c"
+ },
+ {
+  "older": "DEC-0478",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0514",
+  "newer_date": "2026-07-06",
+  "tab": "multiple_screens",
+  "overlap": 0.67,
+  "shared": [
+   "afford",
+   "cover",
+   "information",
+   "known"
+  ],
+  "older_plain": "HIS QUESTION: “What if safe draw is less than the big bill? Where will that information be available?” The case where what you can afford to draw does not cover a known upcoming cost — and w",
+  "newer_plain": "HIS QUESTION: “What if safe draw is less than the big bill? Where is that information?” The case where what you can afford to draw does not cover a known cost."
+ },
+ {
+  "older": "DEC-0481",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0517",
+  "newer_date": "2026-07-06",
+  "tab": "home",
+  "overlap": 0.67,
+  "shared": [
+   "choice",
+   "commits",
+   "drawn",
+   "explore",
+   "including",
+   "selects"
+  ],
+  "older_plain": "HIS QUESTION: “If user selects ‘just explore’ — what are the next few screens they will see?” Every path out of a choice has to be drawn, including the one that commits to nothing.",
+  "newer_plain": "HIS QUESTION: “If user selects ‘just explore’ — what are the next few screens?” Every path out of a choice has to be drawn, including the one that commits to nothing."
+ },
+ {
+  "older": "DEC-0496",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0532",
+  "newer_date": "2026-07-06",
+  "tab": "networth",
+  "overlap": 0.67,
+  "shared": [
+   "behind",
+   "connected",
+   "imported",
+   "manual"
+  ],
+  "older_plain": "HIS QUESTION: “Is this manual, imported or connected and captured via Plaid?” Which is the question behind the rule that every figure says where it came from.",
+  "newer_plain": "HIS QUESTION: “Is this manual, imported, or connected?” The question behind the rule that every figure says where it came from."
+ },
+ {
+  "older": "DEC-0485",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0521",
+  "newer_date": "2026-07-06",
+  "tab": "home",
+  "overlap": 0.64,
+  "shared": [
+   "actually",
+   "analytical",
+   "asking",
+   "behind",
+   "comparative",
+   "comparison",
+   "engine",
+   "imported",
+   "shown"
+  ],
+  "older_plain": "HIS QUESTION: “From where is comparative data coming? Do we have an analytical engine built to analyse all imported data and come up with these insights?” Asking what is actually behind a co",
+  "newer_plain": "HIS QUESTION: “Where does comparative data come from? Do we have an analytical engine analyzing imported data?” Asking what is actually behind a comparison before it is shown as a fact."
+ },
+ {
+  "older": "DEC-0449",
+  "older_date": "2026-06-30",
+  "newer": "DEC-0463",
+  "newer_date": "2026-07-01",
+  "tab": "networth",
+  "overlap": 0.63,
+  "shared": [
+   "ability",
+   "alternatives",
+   "another",
+   "bonds",
+   "commodities",
+   "crypto",
+   "currency",
+   "different",
+   "formats",
+   "import"
+  ],
+  "older_plain": "“The networth module missed an ability to edit bonds, cash and alternatives, also manually add transactions. Ability to add transactions was only for stocks and ETFs.” Three gaps he found: y",
+  "newer_plain": "HIS FINDING: “Net worth missed the ability to edit bonds, cash and alternatives, and to manually add transactions (only stocks/ETFs). Does import work for options?” Three gaps and one questi"
+ },
+ {
+  "older": "DEC-0489",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0525",
+  "newer_date": "2026-07-06",
+  "tab": "networth",
+  "overlap": 0.61,
+  "shared": [
+   "asset",
+   "class",
+   "collecting",
+   "collects",
+   "different",
+   "dynamic",
+   "house",
+   "questions",
+   "required",
+   "right"
+  ],
+  "older_plain": "HIS INSTRUCTION: “Review the Add account screen to make sure we have a separate screen or a dynamic screen adjusting by asset class, ensuring we are collecting the right things.” A bond and ",
+  "newer_plain": "HIS INSTRUCTION: “Separate or dynamic screen per asset class, collecting the right required info?” A bond and a house need different questions; one form for both collects the wrong fields fo"
+ },
+ {
+  "older": "DEC-0504",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0540",
+  "newer_date": "2026-07-06",
+  "tab": "plan",
+  "overlap": 0.6,
+  "shared": [
+   "cannot",
+   "correction",
+   "horizon",
+   "retirement",
+   "specify",
+   "subject"
+  ],
+  "older_plain": "HIS CORRECTION: “‘will it last’ — should it specify that this is about retirement? Right now it is not clear — what will last, and till when?” A question with no subject and no horizon canno",
+  "newer_plain": "HIS CORRECTION: “Should specify it’s about retirement — what will last, till when?” A question with no subject and no horizon cannot be answered by the person reading it."
+ },
+ {
+  "older": "DEC-0497",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0533",
+  "newer_date": "2026-07-06",
+  "tab": "performance",
+  "overlap": 0.53,
+  "shared": [
+   "expects",
+   "interest",
+   "investor",
+   "profit",
+   "questions",
+   "realized",
+   "return",
+   "separately",
+   "total",
+   "unrealized"
+  ],
+  "older_plain": "HIS QUESTIONS: “Total return captures both realized and unrealized gains? Is there any place we display realized profit and loss, unrealized profit and loss, total dividend, and total return",
+  "newer_plain": "HIS QUESTIONS: “Does total return capture realized and unrealized? Where do realized profit and loss, unrealized profit and loss, dividends and interest show separately?” The figures an inve"
+ },
+ {
+  "older": "DEC-0502",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0538",
+  "newer_date": "2026-07-06",
+  "tab": "multiple_screens",
+  "overlap": 0.52,
+  "shared": [
+   "account",
+   "allowed",
+   "connected",
+   "later",
+   "manually",
+   "plaid",
+   "reconciliation",
+   "shown",
+   "someone",
+   "transaction"
+  ],
+  "older_plain": "HIS QUESTION: “If an account is connected but someone adds a transaction manually — is that allowed, and how will the reconciliation between captured information work?” The question behind t",
+  "newer_plain": "HIS QUESTION: “If an account is connected but someone adds a transaction manually — allowed? How does reconciliation with Plaid data work?” Answered later: both versions are shown side by si"
+ },
+ {
+  "older": "DEC-0450",
+  "older_date": "2026-06-30",
+  "newer": "DEC-0464",
+  "newer_date": "2026-07-01",
+  "tab": "cashflow",
+  "overlap": 0.46,
+  "shared": [
+   "across",
+   "boundary",
+   "cannot",
+   "display",
+   "month",
+   "window"
+  ],
+  "older_plain": "“The display never showcased year. So, user want to see cashflow from July 2026 to June 2027 how would they do that?” A month shown without its year cannot be read across a year boundary — w",
+  "newer_plain": "HIS QUESTION: “The display never shows the year. How would a user see cash flow from July 2026 to June 2027?” A month with no year cannot be read across a year boundary — which is the window"
+ },
+ {
+  "older": "DEC-0189",
+  "older_date": "2026-08-27",
+  "newer": "DEC-0282",
+  "newer_date": "2026-09-08",
+  "tab": "process-and-standards",
+  "overlap": 0.43,
+  "shared": [
+   "calendar",
+   "device",
+   "india",
+   "local",
+   "look-back",
+   "universal"
+  ],
+  "older_plain": "Every “today” in the app is the person’s OWN calendar day, not the day in universal time. Converting local midnight to universal time moves the date back a day anywhere east of Greenwich — w",
+  "newer_plain": "“the look-back window must be a local calendar date.” The window is measured in YOUR calendar days, not in universal time — which had made every look-back answer “nothing” on a device set to"
+ },
+ {
+  "older": "DEC-0474",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0510",
+  "newer_date": "2026-07-06",
+  "tab": "home",
+  "overlap": 0.41,
+  "shared": [
+   "amount",
+   "comes",
+   "direction",
+   "green",
+   "investments",
+   "market",
+   "retirement",
+   "triangle",
+   "worth"
+  ],
+  "older_plain": "HIS CORRECTION: “‘up $11,200 this month Triangle up’ should be ‘Triangle (green color) up $11,200 this month’.” And: “Will it Last?” is not clear as to what it refers to. Word order matters ",
+  "newer_plain": "HIS CORRECTIONS, three in one note: the direction comes before the amount — “(green) up $11,200”; “Will it last?” is unclear as to what and until when; and the investments, market and net wo"
+ },
+ {
+  "older": "DEC-0484",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0520",
+  "newer_date": "2026-07-06",
+  "tab": "home",
+  "overlap": 0.39,
+  "shared": [
+   "between",
+   "caught",
+   "differently",
+   "investments",
+   "mocks",
+   "versions",
+   "worth"
+  ],
+  "older_plain": "HIS QUESTION: “In mock-up 1 the date and time was after ‘your investments’ and before ‘Net Worth’; here it is after ‘net worth’. Which is the right place?” Two mocks placed the same thing di",
+  "newer_plain": "HIS FINDING: “Mockups disagree — is the date/time after ‘your investments’ or after ‘net worth’?” Two mocks placing the same element differently, caught between versions."
+ },
+ {
+  "older": "DEC-0492",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0528",
+  "newer_date": "2026-07-06",
+  "tab": "networth",
+  "overlap": 0.36,
+  "shared": [
+   "columns",
+   "format",
+   "import",
+   "specific"
+  ],
+  "older_plain": "“yes.” Approved as put to him.",
+  "newer_plain": "HIS INSTRUCTION: “Do we need a specific file format? Add info dot with file type and must-have columns.” An import that does not say what file it accepts fails silently in the person’s hands"
+ },
+ {
+  "older": "DEC-0477",
+  "older_date": "2026-07-01",
+  "newer": "DEC-0513",
+  "newer_date": "2026-07-06",
+  "tab": "home",
+  "overlap": 0.32,
+  "shared": [
+   "amount",
+   "guaranteed",
+   "order",
+   "pension",
+   "research",
+   "security",
+   "social"
+  ],
+  "older_plain": "HIS CORRECTION: “Re-evaluate the order of wordings — e.g. ‘Guaranteed $4200 Social Security + Pension’. Norm is ‘Social Security + Pension $4200 (Guaranteed)’.” The thing comes first, then t",
+  "newer_plain": "HIS INSTRUCTION: “Norm is ‘Social Security + Pension $4,200 (guaranteed)’ — source first, amount after, like a paycheck. Do your research.” The order a payslip uses, because that is the orde"
+ },
+ {
+  "older": "DEC-0452",
+  "older_date": "2026-06-30",
+  "newer": "DEC-0466",
+  "newer_date": "2026-07-01",
+  "tab": "multiple_screens",
+  "overlap": 0.31,
+  "shared": [
+   "action",
+   "adoptable",
+   "happy",
+   "invest",
+   "other",
+   "scenario",
+   "scenarios",
+   "select"
+  ],
+  "older_plain": "“If user is in plan section and plan something such SS starting age, or RMDs or other scenarios, can they select Use this once satisfied and would that feed into the rest?” A scenario you ar",
+  "newer_plain": "HIS QUESTION: “If a user plans something in Plan — Social Security start age, required withdrawals, other scenarios — can they select ‘Use this’ and have it feed the rest?” A scenario you ar"
+ }
+]

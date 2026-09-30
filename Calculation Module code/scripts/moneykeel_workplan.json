@@ -1965,13 +1965,13 @@
   },
   {
    "task": "The cash-flow mocks are one file",
-   "todo": "Founder approval of moneykeel_pres_mock_cash-flow_v01.html. On his instruction: \"let's discuss how to clean cashflow mockups and combine into one file.\" This month and Expenses come from this-month-and-expenses v07, Income and Debts from money-four-tabs v02, with v02's architecture note. Both are dated in archive/. Look ahead MOVED to documents/networth-and-performance — it opens from Performance, not from a cash-flow tab. Income end-to-end stays its own file: seventeen frames folded in would make one file nobody can read.",
-   "status": "WAITING ON YOU",
+   "todo": "APPROVED by him 2026-09-28: \"Approved.\" moneykeel_pres_mock_cash-flow_v01.html is the cash-flow design. Recorded in the decision log. What remains is building the screens to it, and the mock-match audit that proves they match.",
+   "status": "RULED, NOT CODED",
    "date": "2026-09-28",
    "ref": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_cash-flow_v01.html · the folder README · archive/2026-09-28_*",
    "comments": "Three things fixed while combining: one month across every frame (the lifted ones said July), the duplicated tab headings, and the missing charset.",
    "_written": {
-    "status": "WAITING ON YOU",
+    "status": "RULED, NOT CODED",
     "comments": "Three things fixed while combining: one month across every frame (the lifted ones said July), the duplicated tab headings, and the missing charset."
    }
   },
@@ -2097,14 +2097,14 @@
   },
   {
    "task": "When the Rent / Mortgage budget and the mortgage debt disagree, the app is silent about it",
-   "todo": "YOUR CALL. Exposed by your question above. A mortgage can be entered twice — as the Rent / Mortgage budget line and as a Mortgage debt — and the emergency fund deliberately leaves the debt’s minimum out so the home is not counted twice. That means it takes the BUDGET figure: someone who budgets $2,300 for a mortgage that actually costs $2,400 is read $100/month light on both runways. Counting both would overstate the whole payment, which is far worse, so the choice stands. But the app does not TELL them the two disagree. Should the screen say so, and which figure should win?",
-   "status": "WAITING ON YOU",
+   "todo": "ANSWERED by him 2026-09-29: \"Yes, ask User to correct, if not input from user, use the budget.\" CODED THE SAME DAY: MK-NW-O-004 theEmergencyFund returns housingDisagreement {budgeted, owed, difference} where the two differ, and null where they agree or where one is missing — asking somebody to reconcile a figure they never entered is a worse question than no question. The BUDGET figure still drives the arithmetic, so no number moved; only what the person is told. DEC-0471, held by a test. STILL TO DO, mine: the screen has to actually ASK — the door reports it, no screen shows it yet.",
+   "status": "TESTED, NOT VERIFIED",
    "ref": "MK-NW-M-047 (the finding is on its master row) · MK-NW-O-004 theEmergencyFund, the housingBudgeted guard",
    "date": "2026-09-28",
-   "comments": "Not a bug — a deliberate design choice whose edge is not surfaced to the person.",
+   "comments": "The in-chat decision hole is closed with it: moneykeel_decisions_in_chat.json is the sixth source, and the log now carries what he says in conversation the same day.",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": "Not a bug — a deliberate design choice whose edge is not surfaced to the person."
+    "status": "TESTED, NOT VERIFIED",
+    "comments": "The in-chat decision hole is closed with it: moneykeel_decisions_in_chat.json is the sixth source, and the log now carries what he says in conversation the same day."
    }
   },
   {
@@ -2189,6 +2189,30 @@
    "_written": {
     "status": "TO DO",
     "comments": "Only 10 were found already covered, which is a small number and worth saying plainly: the matcher is narrow on purpose. 65 of the 422 are questions rather than decisions, so the real body of work is nearer 357."
+   }
+  },
+  {
+   "task": "LAUNCH ANSWER LIST — 61 things need you for Net worth, Cash flow and Performance to be launch-ready",
+   "todo": "His ask, 2026-09-29: ‘Give me a list of files, tabs, and rows I need to answer for NW, CF, Performance sections of the app to be complete.’ Open MoneyKeel/documents/other/moneykeel_calc_plan_launch-answer-list_v01.xlsx. Five tabs: Read me, EVERYTHING, and one per module. Every line names its FILE, its TAB and its ROW, the column to type in, and what it blocks. 61 items: 33 Net worth, 18 Cash flow, 10 Performance. It is REBUILT from the master file, the decision log and this plan as they are on disk, never hand-maintained — re-run the script and it is current. THE ORDER I would take it in: the unanswered questions first (they block figures moving behind their doors), then the questions HE asked that nobody answered (not decisions until answered), then the decisions recorded in my words (‘as written’ clears one), then the VERIFIED marks — the longest, and the only part nobody can do for him.",
+   "status": "WAITING ON YOU",
+   "ref": "MoneyKeel/documents/other/moneykeel_calc_plan_launch-answer-list_v01.xlsx · build-launch-answer-list.py",
+   "date": "2026-09-29",
+   "comments": "The big number underneath is the VERIFIED marks: 48 Net worth rows, 53 Cash flow, 12 Performance are TESTED but not VERIFIED. A test proves a figure is what the code gives; it can never prove it is the figure he wanted, which is why his ladder has that rung and why launch-ready cannot be claimed without it.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "The big number underneath is the VERIFIED marks: 48 Net worth rows, 53 Cash flow, 12 Performance are TESTED but not VERIFIED. A test proves a figure is what the code gives; it can never prove it is the figure he wanted, which is why his ladder has that rung and why launch-ready cannot be claimed without it."
+   }
+  },
+  {
+   "task": "BEFORE THE NEXT BUILD — review and correct every underlying calculation for Net worth, Cash flow and Performance",
+   "todo": "His instruction, 2026-09-29: ‘before next build let’s review and correct all underlying calculations for NW, CF and Performance modules.’ NOT STARTED. What it means concretely: walk every figure on those three modules against its formula, its inputs and its worked example, and correct what disagrees — the file-and-code rule, both or neither. 93 Net worth decisions, 52 Cash flow, 39 Performance are in the log; 123 of those have no test. This is mine, not his — his half is the answer list above.",
+   "status": "TO DO",
+   "ref": "the master file's networth / cashflow / performance tabs · the decision log · MoneyKeel/functions/",
+   "date": "2026-09-29",
+   "comments": "Gates the next build. No build is cut without his explicit ‘cut the build’ to a presented checklist.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Gates the next build. No build is cut without his explicit ‘cut the build’ to a presented checklist."
    }
   }
  ]
