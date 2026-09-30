@@ -29,6 +29,16 @@
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "1 · ACTION"
  },
+ "CLASS_KEY_OF": {
+  "id": "MK-NW-F-096",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "1 · ACTION"
+ },
+ "CLASS_LABEL_OF": {
+  "id": "MK-NW-F-095",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "1 · ACTION"
+ },
  "COMING": {
   "id": "MK-CF-F-205",
   "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
@@ -52,6 +62,16 @@
  "LB": {
   "id": "MK-NW-F-081",
   "file": "MoneyKeel/functions/networth-and-performance/look-back.ts",
+  "category": "1 · ACTION"
+ },
+ "LEDGER": {
+  "id": "MK-NW-F-097",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "1 · ACTION"
+ },
+ "LEDGER_BAND": {
+  "id": "MK-NW-F-098",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "1 · ACTION"
  },
  "LINE": {
@@ -104,6 +124,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "1 · ACTION"
  },
+ "PLAN": {
+  "id": "MK-NW-F-101",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "2 · DISPLAYED"
+ },
  "QUIET_PERF": {
   "id": "MK-NW-F-093",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
@@ -114,9 +139,19 @@
   "file": "MoneyKeel/functions/cashflow/contribution-room.ts",
   "category": "1 · ACTION"
  },
+ "SNAP": {
+  "id": "MK-NW-F-099",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "1 · ACTION"
+ },
  "TAX": {
   "id": "MK-CF-F-202",
   "file": "MoneyKeel/functions/cashflow/tax-organizer.ts",
+  "category": "1 · ACTION"
+ },
+ "TREND": {
+  "id": "MK-NW-F-100",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "1 · ACTION"
  },
  "accountAllowsTicker": {
@@ -1517,6 +1552,11 @@
  "latestClose": {
   "id": "MK-PF-F-009",
   "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "ledgerGroups": {
+  "id": "MK-NW-F-094",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "2 · DISPLAYED"
  },
  "leverDeltas": {

@@ -75,9 +75,15 @@ the founder had approved all of it. Never again.
 - Mocks are FULL-COLOR, HIGH-FIDELITY (founder order, 2026-07-19): styled HTML phone frames using
   the app's REAL tokens from `src/utils/theme.ts` (colors, type sizes, radii) — never ASCII, never
   grayscale boxes. Show BOTH the rich state and the empty/first-day state.
+- ONE PHONE PER SCREEN, IN ITS FINAL STATE (founder, 2026-09-30). A mock never draws the old version of
+  a screen beside the new one, and never two candidates for the same screen: *"between phone 1 and 6 and
+  2 and 7 — which is final version and how would one know in future?"* Performance v15 asked him to
+  compare seven phones of which two were the previous versions of two others. Earlier versions live in
+  `archive/` and nowhere else. A state that changes (a refusal, a first day) is drawn ON that screen's
+  own phone, because a data state is not a second design.
 - Mocks show the FULL SCREEN, top to bottom (founder order, same day): status bar → header → hero →
   every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` (the current Net worth design),
-  `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v15.html` (the current Performance
+  `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v16.html` (the current Performance
   design document, WAITING ON HIM since 2026-09-30 — every colour on the app's own tokens, and the rate where the
   Return refuses. What is BUILT is v14, approved 2026-09-25, now dated in `archive/`),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-detail_v01.html`. Numbers inside mocks must ADD UP (accuracy rule applies).

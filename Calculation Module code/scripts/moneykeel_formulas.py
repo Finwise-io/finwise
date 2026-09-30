@@ -196,7 +196,6 @@ QUESTIONS = {
  'Q09 — Should the app store the UNIT beside every quantity — shares, contracts, coins, units of face, currency units — so nothing can be multiplied by the wrong price? Today one field holds all of them with nothing marking which.',
 ],
 'ACCOUNT_SPLIT':[
- 'Q14 — What should a MIXED account be called on screen, when it holds several classes at once?',
 ],
 'POT_AT_RETIREMENT':[
  'Q18 — Net worth projects the pot WITHOUT your big costs; Cash flow, Budget, Goals and Social Security timing all include them. Which is right for the Net worth screen?',
@@ -223,7 +222,6 @@ QUESTIONS = {
  'Q31 — Required withdrawals are estimated from balances we hold. When an institution states its own required figure, does theirs win?',
 ],
 'TREND_SERIES':[
- 'Q32 — The trend survives on a new device but the walk behind it does not. Should the trend say so, or show quietly?',
 ],
 }
 
@@ -484,6 +482,18 @@ QUESTIONS_BY_METRIC = {
  # A question keyed to an ENGINE loses its row the moment its figure moves behind a door; keyed to the
  # FIGURE it rides with the row wherever the row goes. The build's own guard caught it — "these
  # questions landed on no row" — which is the eleventh time that guard has caught this exact class.
+ # Q14 and Q32 moved here 2026-09-30, when the last six hand-typed Net worth rows were declared in
+ # code (pass 1). Both were keyed to an ENGINE, so each lost its row the moment its figure moved
+ # behind a door — keyed to the FIGURE they ride with the row wherever it goes. The build's own guard
+ # caught it again: "these questions landed on no row". That is now the twelfth time.
+ 'MK-NW-M-012': ['Q53 — "Monthly debt payments" on the Net worth screen: the MINIMUM each debt obliges, '
+  'or what ACTUALLY leaves your account? They part whenever someone pays more than a minimum. On one card — '
+  '$200 minimum, paid $600 — the minimum reads $200 and the actual reads $600. Both are real figures: the '
+  'minimum is the obligation a lender can demand (it is what debt-to-income is measured on), the actual is the '
+  'money that leaves. The screen shows the MINIMUM today, and the label reads like the actual. Which belongs '
+  'under those words — or should the line say which it is, or show both?'],
+ 'MK-NW-M-008': ['Q14 — What should a MIXED account be called on screen, when it holds several classes at once?'],
+ 'MK-NW-M-003': ['Q32 — The trend survives on a new device but the walk behind it does not. Should the trend say so, or show quietly?'],
  'MK-PF-M-008': ['Q33 — Which index should each asset class be compared against, and should the person be able to change it?',
   'Q51 — Home reads "you +3.69% \u00b7 market +2.83% \u00b7 ahead by 0.85%". The two sides are not measured the same way: '
   'YOUR figure counts the dividends and interest you received (your ruling of 2026-09-25, one meaning of return), '

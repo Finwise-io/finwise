@@ -4,7 +4,7 @@
  *  The law this door exists for: Home, the Net worth tab, Insights and Alternatives get ONE answer,
  *  so they cannot show two numbers for the same money.
  */
-import { theNetWorth } from './net-worth';
+import { theNetWorth, ledgerGroups } from './net-worth';
 
 const acct = (over: any) => ({ tax_bucket: 'TAXABLE', balance: 0, ...over } as any);
 const ACCOUNTS = [
@@ -61,4 +61,121 @@ test('nothing entered → zero, and no invented movement', () => {
   expect(a.netWorth).toBe(0);
   expect(a.debtLines).toEqual([]);
   expect(a.investableChangePct).toBeNull();
+});
+
+/* ── NET WORTH PASS 1 · THE GROUPED LEDGER, WHICH USED TO BE WORKED OUT ON THE SCREEN ─────────────
+ *
+ *  MK-NW-M-006's own row on the master said it: "this section total is computed on the screen itself",
+ *  written by hand 2026-09-08, and the row named NO function. NetWorthScreen grouped the accounts and
+ *  totalled each band with an inline reduce over balances — the one thing his CLAUDE.md forbids
+ *  outright. Nothing could re-run it and no other screen could ask the same question.
+ *
+ *  These are the two things that were never checkable: that the bands add to what you own, and that
+ *  the SAME accounts grouped the other way add to the same number. A person switches By class /
+ *  By institution with one tap, and the two views must not disagree about what they hold.
+ */
+describe('MK-NW-M-006 and MK-NW-M-008 — the grouped ledger', () => {
+  const ACCOUNTS = [
+    { asset_id: 'a1', institution: 'Chase', balance: 18000, asset_class: 'cash', tax_bucket: 'CASH', target_return: 0 },
+    { asset_id: 'a2', institution: 'Fidelity', balance: 142000, asset_class: 'stocks_etf', tax_bucket: 'TAXABLE', target_return: 0.07 },
+    { asset_id: 'a3', institution: 'Fidelity', balance: 24200, asset_class: 'bonds', tax_bucket: 'TAXABLE', target_return: 0.045 },
+    { asset_id: 'a4', balance: 310000, asset_class: 'real_estate', tax_bucket: 'TAXABLE', target_return: 0.03 },
+    { asset_id: 'a5', institution: 'Vault', balance: 9000, asset_class: 'alternatives', tax_bucket: 'TAXABLE', target_return: 0 },
+    { asset_id: 'a6', balance: 21000, asset_class: 'personal_property', tax_bucket: 'PROPERTY', target_return: 0 },
+  ] as any[];
+  const LABELS: Record<string, string> = {
+    cash: 'Cash', stocks_etf: 'Stocks / Funds', bonds: 'Bonds & CDs',
+    alternatives: 'Alternatives', real_estate: 'Real estate', personal_property: 'Personal property',
+  };
+  const labelOf = (a: any) => LABELS[String(a.asset_class)] ?? 'Unclassified';
+  const keyOf = (a: any) => String(a.asset_class);
+  const sum = (gs: { total: number }[]) => gs.reduce((t, g) => t + g.total, 0);
+
+  test('both groupings add to the same total — switching the view cannot change what you own', () => {
+    const byClass = ledgerGroups(ACCOUNTS, 'class', labelOf, keyOf);
+    const byInst = ledgerGroups(ACCOUNTS, 'institution', labelOf, keyOf);
+    expect(byClass.length).toBe(6);
+    expect(byInst.length).toBe(4);              // Chase · Fidelity · No institution set · Vault
+    expect(sum(byClass)).toBe(524200);
+    expect(sum(byInst)).toBe(sum(byClass));
+  });
+
+  test('the bands add to what the door says you own — the ledger and the hero cannot disagree', () => {
+    const answer = theNetWorth({ uid: 'x', accounts: ACCOUNTS, debts: [] });
+    expect(sum(ledgerGroups(ACCOUNTS, 'class', labelOf, keyOf))).toBe(answer.assets);
+  });
+
+  test('MK-NW-M-006 — personal property is its own band, and real estate is not in it', () => {
+    const byClass = ledgerGroups(ACCOUNTS, 'class', labelOf, keyOf);
+    expect(byClass.find((g) => g.label === 'Personal property')!.total).toBe(21000);
+    expect(byClass.find((g) => g.label === 'Real estate')!.total).toBe(310000);
+  });
+
+  test('MK-NW-M-008 — an institution names the class mix inside it, biggest first', () => {
+    const fidelity = ledgerGroups(ACCOUNTS, 'institution', labelOf, keyOf).find((g) => g.label === 'Fidelity')!;
+    expect(fidelity.total).toBe(166200);
+    expect(fidelity.accountIds).toEqual(['a2', 'a3']);
+    expect(fidelity.mix).toEqual([{ key: 'stocks_etf', total: 142000 }, { key: 'bonds', total: 24200 }]);
+  });
+
+  test('an account with no institution is grouped, never dropped', () => {
+    const byInst = ledgerGroups(ACCOUNTS, 'institution', labelOf, keyOf);
+    const none = byInst.find((g) => g.label === 'No institution set')!;
+    expect(none.total).toBe(331000);            // the rental and the car
+    expect(sum(byInst)).toBe(524200);           // so nothing is lost
+  });
+
+  test('no screen groups or totals the ledger itself any more', () => {
+    const screen = require('fs').readFileSync(
+      require('path').join(__dirname, '..', '..', '..', 'src', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+    expect(screen).toMatch(/ledgerGroups\(/);
+    expect(screen).not.toMatch(/items\.reduce\(\(t, a\) => t \+ a\.balance, 0\)/);
+    expect(screen).not.toMatch(/m\[c\]\.t \+= a\.balance/);
+  });
+});
+
+/* ── NET WORTH PASS 3 · MK-NW-M-012, WHERE A SCREEN AND ITS DOOR GAVE TWO ANSWERS ────────────────
+ *
+ *  The Net worth screen printed `dState.total_monthly_debt_service` under the words "Monthly debt
+ *  payments" while MK-NW-O-003 answered the same question with `requiredPayment`, which counts a
+ *  payment the person has set ABOVE the minimum. On one card — $200 minimum, paid $600 — the screen
+ *  said $200 and the door said $600. The screen was not reading the door at all.
+ *
+ *  Both figures are legitimate and the domain says so outright: the minimum is the OBLIGATION (what
+ *  debt-to-income is measured on), the actual is what LEAVES THE ACCOUNT (what cash flow is measured
+ *  on). So the door hands out both, named, and the screen names which one it prints. Which one belongs
+ *  under those words is HIS decision (Q53) — so the figure on screen is deliberately unchanged.
+ */
+describe('MK-NW-M-012 — the two monthly debt figures, both named', () => {
+  const card = (over: any = {}) => ({
+    debt_id: 'c', label: 'Card', debt_type: 'CREDIT_CARD', remaining_balance: 9000,
+    interest_rate_apr: 0.24, minimum_monthly_payment: 200, ...over,
+  }) as any;
+
+  test('they are the same where nothing is paid above the minimum', () => {
+    const a = theNetWorth({ uid: 'x', accounts: [], debts: [card()] });
+    expect(a.monthlyDebtMinimum).toBe(200);
+    expect(a.monthlyDebtPayments).toBe(200);
+  });
+
+  test('and they PART where a payment is set above it — which is the whole point of naming both', () => {
+    const a = theNetWorth({ uid: 'x', accounts: [], debts: [card({ monthly_payment: 600 })] });
+    expect(a.monthlyDebtMinimum).toBe(200);       // the obligation
+    expect(a.monthlyDebtPayments).toBe(600);      // what actually leaves the account
+  });
+
+  test('a DUE-IN-FULL debt obliges no monthly payment, on either figure', () => {
+    // the flag is payment_type, which paymentShape reads — my first draft of this test invented
+    // "pays_in_full" and the assertion failed, which is the test doing its job on me
+    const a = theNetWorth({ uid: 'x', accounts: [], debts: [card({ minimum_monthly_payment: 1800, payment_type: 'due_in_full' })] });
+    expect(a.monthlyDebtMinimum).toBe(0);
+    expect(a.monthlyDebtPayments).toBe(0);       // a dated lump is not a monthly outflow
+  });
+
+  test('the Net worth screen reads the DOOR, and prints the minimum until he rules otherwise', () => {
+    const screen = require('fs').readFileSync(
+      require('path').join(__dirname, '..', '..', '..', 'src', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+    expect(screen).toMatch(/Monthly debt payments[\s\S]{0,220}worth\.monthlyDebtMinimum/);
+    expect(screen).not.toMatch(/Monthly debt payments[\s\S]{0,220}dState\.total_monthly_debt_service/);
+  });
 });

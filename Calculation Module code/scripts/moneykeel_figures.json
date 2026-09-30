@@ -980,12 +980,23 @@
    ],
    "grain": "one holding",
    "answers": "One line per thing you have said is inside this account, and what it is worth.",
-   "formula": "the value entered for each item",
+   "formula": "the value of each thing inside the account, listed under the class it belongs to",
    "inputs": [
-    "MK-NW-I-001 your accounts"
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-004 holding quantity (shares)",
+    "MK-XS-I-005 holding price"
+   ],
+   "decisions": [
+    "A CLASS HOLDING NOTHING IS NOT LISTED — a $0 line reads as \"we checked and it is empty\", which is a different claim from \"there is none\".",
+    "Uninvested money in the account is one of the lines, under the words he ruled on 2026-08-11: cash in this account."
    ],
    "refusal": "Nothing entered yet.",
    "ruled": "2026-09-27",
+   "worked": {
+    "given": "A linked Fidelity brokerage worth $46,600: $6,000 in cash and 140 shares of VTI marked at $290 ($40,600). Its records: dividends of $420 and $405, a buy of 20 shares at $200, a sell of 20 at $285.",
+    "answer": "$40,600"
+   },
+   "note": "THE LAST NET WORTH FIGURE WITHOUT A WORKED EXAMPLE, given one 2026-09-30. Its two lines add to the account’s own total — $6,000 of cash plus $40,600 of fund is the $46,600 the header shows — which is what makes the itemising checkable rather than asserted.",
    "door": "MK-NW-O-002 theAccount"
   },
   "MK-XS-M-001": {
@@ -1028,6 +1039,151 @@
     "given": "$18,000 checking, $142,000 brokerage, a $24,200 Treasury, a $310,000 rental and $9,000 of gold; against a $228,000 mortgage at $2,400/month and a $14,000 car loan at $250/month. Cash + investments stood at $180,000 on 2 Jan 2026.",
     "answer": "$175,200"
    },
+   "door": "MK-NW-O-003 theNetWorth"
+  },
+  "MK-NW-M-001": {
+   "label": "Change in net worth +$X",
+   "unit": "money",
+   "screens": [
+    "/networth"
+   ],
+   "answers": "How much your net worth has moved since the day the line starts.",
+   "formula": "the last point on the trend line less its first point",
+   "inputs": [
+    "MK-XS-I-031 the recorded history"
+   ],
+   "decisions": [
+    "IT IS READ FROM THE RECORD, never back-solved: the months we actually saved and the daily points after them.",
+    "A month and its own days live in one series, sorted by their date text — \"2026-04\" sorts before \"2026-04-30\", which is what makes plain text sorting safe."
+   ],
+   "refusal": "A line needs at least two points; with one, the point is shown and no change is stated.",
+   "worked": {
+    "given": "Net worth recorded at the end of each month — $240,000 in January, $246,000 in February, $252,000 in March, $258,000 in April — and one daily point of $261,200 on 30 April.",
+    "answer": "$21,200"
+   },
+   "note": "DECLARED 2026-09-30. It was hand-typed on the master until then, so the row and the code could drift with nothing to notice.",
+   "door": "MK-NW-O-003 theNetWorth"
+  },
+  "MK-NW-M-003": {
+   "label": "the trend line",
+   "unit": "count",
+   "screens": [
+    "/networth"
+   ],
+   "answers": "How many points the line is drawn from — the months on record plus the days after them.",
+   "formula": "every recorded month, plus every daily point, merged and sorted by date text",
+   "inputs": [
+    "MK-XS-I-031 the recorded history"
+   ],
+   "decisions": [
+    "A DAY THAT IS NOT A REAL DATE IS DROPPED, and a month whose figures do not add up is dropped — never drawn as a guess.",
+    "The line is drawn only from days we hold a record for; today’s balances are never priced at past dates."
+   ],
+   "refusal": "With one point the point is shown and the line is not drawn.",
+   "worked": {
+    "given": "Net worth recorded at the end of each month — $240,000 in January, $246,000 in February, $252,000 in March, $258,000 in April — and one daily point of $261,200 on 30 April.",
+    "answer": "5"
+   },
+   "note": "DECLARED 2026-09-30, and it is a COUNT, not money — the master row inherited dollars from the function it shares with MK-NW-M-001.",
+   "door": "MK-NW-O-003 theNetWorth"
+  },
+  "MK-NW-M-006": {
+   "label": "🏠 PERSONAL PROPERTY",
+   "unit": "money",
+   "screens": [
+    "/networth"
+   ],
+   "answers": "What one band under WHAT YOU OWN holds — here the vehicles and valuables.",
+   "formula": "the balances of every account in that band, added up",
+   "inputs": [
+    "MK-NW-I-001 your accounts"
+   ],
+   "grain": "one figure per band",
+   "decisions": [
+    "REAL ESTATE IS ITS OWN BAND: a house is not a vehicle, and mixing them hides both.",
+    "THE SAME ACCOUNTS GROUP TWO WAYS — by class and by institution — and both ways add to the same total, so switching the view can never change what you own.",
+    "An account with no institution recorded groups under \"No institution set\" rather than being dropped."
+   ],
+   "refusal": "The band shows $0 and, on a fresh account, the one line \"Nothing entered yet. Add your accounts ›\".",
+   "worked": {
+    "given": "The five accounts above plus a $21,000 car: $18,000 checking, $142,000 brokerage, a $24,200 Treasury at Fidelity, a $310,000 rental with no institution recorded, $9,000 of gold in a vault and the car.",
+    "answer": "$21,000"
+   },
+   "note": "MOVED OFF THE SCREEN 2026-09-30. Its row said so in as many words — \"this section total is computed on the screen itself\", written by hand 2026-09-08 — and it named NO function. NetWorthScreen grouped the accounts and totalled each band with an inline reduce over balances, which is the rule against re-deriving money on a screen. It is MK-NW-F ledgerGroups now, and both groupings are pinned to agree.",
+   "door": "MK-NW-O-003 theNetWorth"
+  },
+  "MK-NW-M-008": {
+   "label": "each account and its balance",
+   "unit": "money",
+   "screens": [
+    "/networth"
+   ],
+   "answers": "One line per account inside a band, with what that account holds.",
+   "formula": "the account’s own balance, listed under the band it belongs to",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-003 institution name"
+   ],
+   "grain": "one figure per account",
+   "decisions": [
+    "UNDER AN INSTITUTION’S NAME, the class mix inside it is named too — a Fidelity holding a fund and a Treasury reads as a roll-up, not a flat lump.",
+    "The mix is ordered biggest first, so the largest thing inside an institution is the first thing read."
+   ],
+   "refusal": "$0, and on a fresh account the one line \"Nothing entered yet. Add your accounts ›\". A real entered zero shows a plain $0 with no line.",
+   "worked": {
+    "given": "The five accounts above plus a $21,000 car: $18,000 checking, $142,000 brokerage, a $24,200 Treasury at Fidelity, a $310,000 rental with no institution recorded, $9,000 of gold in a vault and the car.",
+    "answer": "$166,200"
+   },
+   "note": "DECLARED 2026-09-30 with MK-NW-M-006 — the same function answers both, which is why the band and the rows beneath it cannot disagree. The worked example is Fidelity: $142,000 of fund plus a $24,200 Treasury.",
+   "door": "MK-NW-O-003 theNetWorth"
+  },
+  "MK-NW-M-015": {
+   "label": "YOUR RETIREMENT PLAN — on track for $X by age Y",
+   "unit": "money",
+   "screens": [
+    "/networth"
+   ],
+   "answers": "What your pot is on course to be worth at the age you said you would retire.",
+   "formula": "today’s cash and investments grown at your expected return for the years until you retire, plus each year’s saving grown for the years it has left",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-PL-I-001 your plan answers"
+   ],
+   "decisions": [
+    "NO RANDOM RUNS ANYWHERE IN THIS ONE — it is the straight-line check that sits beside the 1,000-run odds, and the two answer different questions.",
+    "The recommended pot is 25× the yearly expenses NOT covered by guaranteed income, counted from the start of the retirement year — which is why it differs from an outside calculator (his ruling).",
+    "Guaranteed income starts at the age it was said to start, not at the retirement age."
+   ],
+   "refusal": "No figure when there is nothing to grow, or when retirement is not ahead of the person.",
+   "worked": {
+    "given": "A 50-year-old with $184,200 of cash and investments, saving $24,000/year, retiring at 65 and planning to 92, expecting 6% a year with 2.5% inflation, with expenses of $5,500/month in retirement and $2,400/month of guaranteed income from 67.",
+    "answer": "$1,000,069"
+   },
+   "note": "DECLARED 2026-09-30. Its function lives in the plan family (MK-PL-F-055 projectNestEgg) and the figure is read on the Net worth tab, which is why the row is here and the function is there.",
+   "door": "MK-NW-O-003 theNetWorth"
+  },
+  "MK-NW-M-016": {
+   "label": "Net worth so far (setup)",
+   "unit": "money",
+   "screens": [
+    "/networth"
+   ],
+   "answers": "What you are worth as the setup answers stand, before anything else is entered.",
+   "formula": "everything owned less everything owed",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-014 what you owe"
+   ],
+   "decisions": [
+    "IT IS COMPUTED EACH TIME AND NEVER STORED as a third number that could disagree with its own two halves (his ruling).",
+    "A GENUINE NEGATIVE IS SHOWN, never floored at zero — someone early in a mortgage really does owe more than they own."
+   ],
+   "refusal": "Adds to $0 when there is nothing to add. Zero and \"nothing recorded yet\" read alike on screen — worth a decision.",
+   "worked": {
+    "given": "$18,000 checking, $142,000 brokerage, a $24,200 Treasury, a $310,000 rental and $9,000 of gold; against a $228,000 mortgage at $2,400/month and a $14,000 car loan at $250/month. Cash + investments stood at $180,000 on 2 Jan 2026.",
+    "answer": "$261,200"
+   },
+   "note": "DECLARED 2026-09-30. It is the SAME arithmetic as MK-NW-M-017 net worth, read during setup rather than on the finished tab — and because both now print from this one declaration, the setup figure and the tab figure cannot differ.",
    "door": "MK-NW-O-003 theNetWorth"
   },
   "MK-NW-M-002": {

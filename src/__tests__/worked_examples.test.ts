@@ -23,8 +23,11 @@ import { writeFigure } from '../../MoneyKeel/functions/_figure-spec';
 
 /** Figures with no worked example yet. It may only ever get shorter — a new figure brings its own
  *  example, and one that is on this list leaves it and never comes back. */
-const NOT_YET_WORKED = 7;   // 9 → 8 on 2026-09-30 (Performance pass 1); 8 → 7 the same day, when
-                            // MK-PF-M-009 left the register — no screen shows it (Performance pass 2)
+const NOT_YET_WORKED = 6;   // 9 → 8 on 2026-09-30 (Performance pass 1); 8 → 7 the same day, when
+                            // MK-PF-M-009 left the register — no screen shows it (Performance pass 2);
+                            // 7 → 6 the same day, MK-NW-M-040 each holding and its value (Net worth
+                            // pass 1) — the last Net worth figure without one. Every figure on Net
+                            // worth and on Performance now carries an example a test RUNS.
 
 const worked = Object.entries(FIGURE_REGISTER).filter(([, f]) => f.worked);
 
@@ -32,7 +35,7 @@ test('every worked example gives the answer its row states — run through the r
   // A GUARD MUST PROVE IT LOOKED (standing order, 2026-09-28). This loop passes on an empty list,
   // so it states how many examples it actually ran. If the register stops loading, or a door stops
   // exporting, the count collapses and the build goes red instead of reporting a clean sweep.
-  expect(worked.length).toBeGreaterThanOrEqual(94);
+  expect(worked.length).toBeGreaterThanOrEqual(100);
   const wrong: string[] = [];
   for (const [id, f] of worked) {
     const w = f.worked!;

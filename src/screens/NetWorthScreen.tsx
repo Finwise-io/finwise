@@ -29,7 +29,7 @@ import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf,
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
 // their own net worth; they read one answer now.
-import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
+import { theNetWorth, ledgerGroups } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { plannedMonthlySpend } from '../domain/budget';
 // ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5). FOUNDER 2026-09-28, settling the number change
 // I had stopped on: "give both numbers" — the screen shows the runway on essentials AND the runway
@@ -415,8 +415,20 @@ export default function NetWorthScreen() {
         const shown = t.slice(0, 4).join(' · ') + (t.length > 4 ? ` +${t.length - 4}` : '');
         return base ? `${base} · ${shown}` : shown;
       };
+      // THE DOOR GROUPS AND ADDS UP, NOT THIS SCREEN (Net worth pass 1, 2026-09-30). This built the
+      // groups itself and totalled each with an inline reduce over balances; MK-NW-M-006's own row on
+      // the master said so — "this section total is computed on the screen itself". A money figure is
+      // never re-derived on a screen, so both figures come from ledgerGroups now.
+      const byId = new Map(rows.map((a) => [String(a.asset_id), a]));
+      const ledger = ledgerGroups(rows, invGroup === 'type' ? 'class' : 'institution', classLabel, assetClassOf);
       const groups: Record<string, AssetAccount[]> = {};
-      rows.forEach((a) => { (groups[keyOf(a)] ||= []).push(a); });
+      const totalOf: Record<string, number> = {};
+      const mixOf: Record<string, { key: string; total: number }[]> = {};
+      for (const g of ledger) {
+        groups[g.label] = g.accountIds.map((id) => byId.get(id)!).filter(Boolean);
+        totalOf[g.label] = g.total;
+        mixOf[g.label] = g.mix;
+      }
       return (
         <View key={sec}>
           {head}
@@ -434,15 +446,13 @@ export default function NetWorthScreen() {
                   <Text style={styles.groupName}>{g}</Text>
                   {invGroup === 'type' && CLASS_TO_TERM[assetClassOf(items[0])] && <InfoDot term={CLASS_TO_TERM[assetClassOf(items[0])]!} />}
                 </View>
-                <Text style={styles.groupVal}>{maskedMoney(items.reduce((t, a) => t + a.balance, 0))}</Text>
+                <Text style={styles.groupVal}>{maskedMoney(totalOf[g])}</Text>
               </View>
               {/* Mock A: under each institution, an at-a-glance class mix (so a "Chase" with mixed holdings
                   reads as a roll-up, not just a flat list). */}
               {invGroup === 'account' && (() => {
-                const mix = Object.values(items.reduce((m: Record<string, { c: AssetClass; t: number }>, a) => {
-                  const c = assetClassOf(a); (m[c] ||= { c, t: 0 }); m[c].t += a.balance; return m;
-                }, {})).sort((x, y) => y.t - x.t);
-                return mix.length > 1 ? <Text style={styles.classMix}>{mix.map((x) => `${CLASS_ICON[x.c]} ${shortMoney(x.t)}`).join('   ·   ')}</Text> : null;
+                const mix = mixOf[g] ?? [];      // the door's own mix, so the line and the band agree
+                return mix.length > 1 ? <Text style={styles.classMix}>{mix.map((x) => `${CLASS_ICON[x.key as AssetClass]} ${shortMoney(x.total)}`).join('   ·   ')}</Text> : null;
               })()}
               <View style={styles.card}>
                 {items.map((a, i) => {
@@ -497,7 +507,13 @@ export default function NetWorthScreen() {
                 </TouchableOpacity>
               );
             })}
-            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{maskedMoney(dState.total_monthly_debt_service)}/month</Text></View>
+            {/* MK-NW-M-012 comes from the DOOR now (Net worth pass 3, 2026-09-30). This read
+                dState.total_monthly_debt_service directly while MK-NW-O-003 answered the same question
+                with a different rule: on a card with a $200 minimum the person pays $600 on, this said
+                $200 and the door said $600. The figure ON SCREEN IS UNCHANGED — it is still the minimum
+                each debt obliges — because which of the two belongs under these words is his decision,
+                not mine to make by wiring. See Q53. */}
+            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{maskedMoney(worth.monthlyDebtMinimum)}/month</Text></View>
           </>)}
       </View>
     </View>

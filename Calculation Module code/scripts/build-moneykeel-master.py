@@ -392,14 +392,19 @@ HOME = [
  ('<n>% spent · day n of m',         'pctSpent',    'worked out on the screen: spent so far ÷ money in'),
 ]
 
-NETWORTH = [
- ('Change in net worth +$X',                 'changeThisYear', 'TREND_SERIES'),
- ('the trend line',                          'series',         'TREND_SERIES'),
- ('🏠 PERSONAL PROPERTY','sectionTotals','worked out on the screen: the sum of the accounts in the personal-property section'),
- ('each account and its balance',            'a.balance',      'ACCOUNT_SPLIT'),
- ('YOUR RETIREMENT PLAN — on track for $X by age Y','pathAhead','POT_AT_RETIREMENT'),
- ('Net worth so far (setup)',                'nw.net_worth',   'NET_WORTH'),
-]
+# NETWORTH IS EMPTY (2026-09-30, Net worth pass 1). Its last six rows were the only hand-typed ones
+# left on the tab — 48 rows, 42 printed from the code — so the file and the code could drift with
+# nothing to notice. They are declared by MK-NW-O-003 theNetWorth now and PRINTED from those
+# declarations (rule 11), each with a worked example a test runs:
+#   MK-NW-M-001 Change in net worth        MK-NW-M-003 the trend line
+#   MK-NW-M-006 a band and its total       MK-NW-M-008 each account and its balance
+#   MK-NW-M-015 on track for $X by age Y   MK-NW-M-016 Net worth so far (setup)
+# MK-NW-M-006 is the one that mattered most: its own row said "this section total is computed on the
+# screen itself" and it named NO function. It is MK-NW-F ledgerGroups now.
+# Leaving a row in BOTH places puts one identifier on two rows, which the build's own reconciliation
+# refuses — "DUPLICATE IDENTIFIER". nid() keys on (family, kind, label, metric) and remembers, so
+# nothing was renumbered.
+NETWORTH = []
 
 # PERFORMANCE IS EMPTY (2026-09-30) — the last four rows moved behind MK-NW-O-008 thePerformance.
 #

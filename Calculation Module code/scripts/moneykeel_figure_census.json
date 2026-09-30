@@ -39027,7 +39027,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:538",
+   "site": "src/screens/NetWorthScreen.tsx:554",
    "routes": [
     "/analytics"
    ],
@@ -39042,7 +39042,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:539",
+   "site": "src/screens/NetWorthScreen.tsx:555",
    "routes": [
     "/analytics"
    ],
@@ -39057,7 +39057,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:559",
+   "site": "src/screens/NetWorthScreen.tsx:575",
    "routes": [
     "/analytics"
    ],
@@ -39072,7 +39072,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:561",
+   "site": "src/screens/NetWorthScreen.tsx:577",
    "routes": [
     "/analytics"
    ],
@@ -39087,7 +39087,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:562",
+   "site": "src/screens/NetWorthScreen.tsx:578",
    "routes": [
     "/analytics"
    ],
@@ -39102,7 +39102,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:563",
+   "site": "src/screens/NetWorthScreen.tsx:579",
    "routes": [
     "/analytics"
    ],
@@ -39117,7 +39117,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:584",
+   "site": "src/screens/NetWorthScreen.tsx:600",
    "routes": [
     "/analytics"
    ],
@@ -39132,7 +39132,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:719",
+   "site": "src/screens/NetWorthScreen.tsx:735",
    "routes": [
     "/analytics"
    ],
@@ -39151,7 +39151,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:728",
+   "site": "src/screens/NetWorthScreen.tsx:744",
    "routes": [
     "/analytics"
    ],
@@ -39173,7 +39173,7 @@
    "renders": 18
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:732",
+   "site": "src/screens/NetWorthScreen.tsx:748",
    "routes": [
     "/analytics"
    ],
@@ -39192,7 +39192,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:817",
+   "site": "src/screens/NetWorthScreen.tsx:833",
    "routes": [
     "/analytics"
    ],
@@ -39211,7 +39211,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:844",
+   "site": "src/screens/NetWorthScreen.tsx:860",
    "routes": [
     "/analytics"
    ],
@@ -39233,7 +39233,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:846",
+   "site": "src/screens/NetWorthScreen.tsx:862",
    "routes": [
     "/analytics"
    ],
@@ -39255,7 +39255,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:851",
+   "site": "src/screens/NetWorthScreen.tsx:867",
    "routes": [
     "/analytics"
    ],
@@ -39278,7 +39278,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:856",
+   "site": "src/screens/NetWorthScreen.tsx:872",
    "routes": [
     "/analytics"
    ],
@@ -39301,7 +39301,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:880",
+   "site": "src/screens/NetWorthScreen.tsx:896",
    "routes": [
     "/analytics"
    ],
@@ -39321,7 +39321,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:882",
+   "site": "src/screens/NetWorthScreen.tsx:898",
    "routes": [
     "/analytics"
    ],
@@ -39341,7 +39341,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:898",
+   "site": "src/screens/NetWorthScreen.tsx:914",
    "routes": [
     "/analytics"
    ],
@@ -39357,7 +39357,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:906",
+   "site": "src/screens/NetWorthScreen.tsx:922",
    "routes": [
     "/analytics"
    ],
@@ -39374,7 +39374,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:917",
+   "site": "src/screens/NetWorthScreen.tsx:933",
    "routes": [
     "/analytics"
    ],
@@ -39392,7 +39392,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:924",
+   "site": "src/screens/NetWorthScreen.tsx:940",
    "routes": [
     "/analytics"
    ],
@@ -39410,7 +39410,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:955",
+   "site": "src/screens/NetWorthScreen.tsx:971",
    "routes": [
     "/analytics"
    ],

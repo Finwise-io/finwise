@@ -343,9 +343,19 @@ export const ACCOUNT_FIGURES = declareFigures({
   'MK-NW-M-040': {
     label: 'each holding and its value', unit: 'money', screens: ['/itemize'], grain: 'one holding',
     answers: 'One line per thing you have said is inside this account, and what it is worth.',
-    formula: 'the value entered for each item',
-    inputs: ['MK-NW-I-001 your accounts'],
+    formula: 'the value of each thing inside the account, listed under the class it belongs to',
+    inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-004 holding quantity (shares)', 'MK-XS-I-005 holding price'],
+    decisions: [
+      'A CLASS HOLDING NOTHING IS NOT LISTED \u2014 a $0 line reads as "we checked and it is empty", which is a different claim from "there is none".',
+      'Uninvested money in the account is one of the lines, under the words he ruled on 2026-08-11: cash in this account.',
+    ],
     refusal: 'Nothing entered yet.',
     ruled: '2026-09-27',
+    worked: {
+      given: GIVEN,
+      answer: '$40,600',
+      run: () => ACC().inside?.find((x) => x.key === 'stocks_etf')?.value ?? null,
+    },
+    note: 'THE LAST NET WORTH FIGURE WITHOUT A WORKED EXAMPLE, given one 2026-09-30. Its two lines add to the account\u2019s own total \u2014 $6,000 of cash plus $40,600 of fund is the $46,600 the header shows \u2014 which is what makes the itemising checkable rather than asserted.',
   },
 });

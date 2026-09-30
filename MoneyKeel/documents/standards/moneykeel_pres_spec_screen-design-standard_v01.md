@@ -96,6 +96,7 @@ This document holds every rule a new or changed screen must meet, and the order 
 
 | Rule | Where it lives | Checked by |
 |---|---|---|
+| **ONE PHONE PER SCREEN, in its final state.** A mock never draws the old version of a screen beside the new one, and never draws two candidate designs for the same screen. Earlier versions live in `archive/` and nowhere else. | founder, 2026-09-30 | the checklist |
 | Sizes come from the scale only: 11 · 13 · 15 · 17 · 20 · 24 · 30 · 38. | `src/utils/theme.ts` `Typography.sizes` | the checklist |
 | No text is smaller than 10.5 points. Only the tab-bar labels use 10.5. | UX design v1.2, "Type & readability 65+" | `src/__tests__/type_floor_guard.test.ts` |
 | A money figure is at least 17 points. Reference tables may use 12 to 15 points (founder amendment, 2026-07-15). | UX design v1.2 | the checklist |

@@ -108,27 +108,6 @@
   "plain": "When a broker’s stated total is more than the holdings it listed, the difference is treated as CASH — not added to the largest holding. On a CD-heavy account the old rule silently inflated the CDs by money that was reall"
  },
  {
-  "id": "DEC-0106",
-  "tab": "performance",
-  "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.42105263157894735,
-  "missing": [
-   "against",
-   "filed",
-   "forming",
-   "handoff",
-   "impression",
-   "listing",
-   "looking",
-   "matching",
-   "rendering",
-   "string",
-   "visible"
-  ],
-  "plain": "The Performance design handoff was received, filed, and checked against the built screen by rendering the screen and listing every visible string — rather than by looking at both and forming an impression. What already m"
- },
- {
   "id": "DEC-0098",
   "tab": "networth",
   "decided": "2026-08-11",
@@ -303,6 +282,25 @@
   "plain": "The “Sync now” button now syncs. It used to NAVIGATE to the account page, which has no sync control on it — so a button labelled Sync now synced nothing and left you on a page that could not help. It runs the sync where "
  },
  {
+  "id": "DEC-0106",
+  "tab": "performance",
+  "decided": "2026-08-11",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.5263157894736842,
+  "missing": [
+   "filed",
+   "forming",
+   "handoff",
+   "impression",
+   "listing",
+   "looking",
+   "matching",
+   "rendering",
+   "string"
+  ],
+  "plain": "The Performance design handoff was received, filed, and checked against the built screen by rendering the screen and listing every visible string — rather than by looking at both and forming an impression. What already m"
+ },
+ {
   "id": "DEC-0060",
   "tab": "networth",
   "decided": "2026-08-04",
@@ -340,6 +338,28 @@
    "verdict"
   ],
   "plain": "A verdict word must carry its number. Net worth was the only screen showing the word alone — Home said “78% odds of lasting to age 90” and the Plan screen said “84 in 100 paths”, while Net worth said just “Uncertain”, wh"
+ },
+ {
+  "id": "DEC-0316",
+  "tab": "performance",
+  "decided": "2026-08-20",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.5384615384615384,
+  "missing": [
+   "band",
+   "denominator",
+   "divide",
+   "drives",
+   "enough",
+   "gate",
+   "module",
+   "printing",
+   "refuse",
+   "thresholds",
+   "timing-sensitivity",
+   "went"
+  ],
+  "plain": "“return stays money-weighted; thresholds in one module; timing-sensitivity band replaces the 10% gate; refuse when the denominator ≤ 0.” The return accounts for WHEN money went in and out. Where the amounts are big enoug"
  },
  {
   "id": "DEC-0471",
@@ -380,10 +400,30 @@
   "plain": "“deferred, not dropped: forward income, budget rollover, non-USD holdings — store the currency field now.” Three things put off rather than abandoned, and the currency field is stored TODAY so the data exists when they a"
  },
  {
+  "id": "DEC-0041",
+  "tab": "performance",
+  "decided": "2026-08-03",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.5652173913043478,
+  "missing": [
+   "actually",
+   "come",
+   "estimated",
+   "filling",
+   "gains",
+   "gaps",
+   "made",
+   "movements",
+   "parts",
+   "took"
+  ],
+  "plain": "Under the total return for a period, the app shows what made it up: price change, gains you took, dividends and interest. Two decisions:\n1. It shows only the parts it actually has records for, rather than filling gaps.\n2"
+ },
+ {
   "id": "DEC-0444",
   "tab": "performance",
   "decided": "2026-06-30",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.5652173913043478,
   "missing": [
    "assumes",
@@ -473,45 +513,6 @@
   "plain": "A deposit only moves money into an account’s cash if that account HAS a cash figure to move it into. His Vanguard account lists its holdings individually and had no cash figure, so a $500 deposit vanished from the balanc"
  },
  {
-  "id": "DEC-0041",
-  "tab": "performance",
-  "decided": "2026-08-03",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.6086956521739131,
-  "missing": [
-   "come",
-   "estimated",
-   "filling",
-   "gains",
-   "gaps",
-   "made",
-   "movements",
-   "parts",
-   "took"
-  ],
-  "plain": "Under the total return for a period, the app shows what made it up: price change, gains you took, dividends and interest. Two decisions:\n1. It shows only the parts it actually has records for, rather than filling gaps.\n2"
- },
- {
-  "id": "DEC-0316",
-  "tab": "performance",
-  "decided": "2026-08-20",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.6153846153846154,
-  "missing": [
-   "denominator",
-   "divide",
-   "drives",
-   "enough",
-   "gate",
-   "module",
-   "printing",
-   "thresholds",
-   "timing-sensitivity",
-   "went"
-  ],
-  "plain": "“return stays money-weighted; thresholds in one module; timing-sensitivity band replaces the 10% gate; refuse when the denominator ≤ 0.” The return accounts for WHEN money went in and out. Where the amounts are big enoug"
- },
- {
   "id": "DEC-0250",
   "tab": "networth",
   "decided": "2026-09-08",
@@ -538,6 +539,24 @@
    "snapshot"
   ],
   "plain": "“a tax figure requires a YEAR — net worth shows no tax.” Tax only means something inside a tax year, so a net-worth screen, which is a snapshot of today, shows none."
+ },
+ {
+  "id": "DEC-0064",
+  "tab": "performance",
+  "decided": "2026-08-04",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.6363636363636364,
+  "missing": [
+   "appear",
+   "button",
+   "dash",
+   "data",
+   "showing",
+   "squeezing",
+   "wraps",
+   "zeros"
+  ],
+  "plain": "Three decisions on Performance:\n1. Each period button carries its OWN return for that period.\n2. Where a period has no data it shows a dash rather than a zero, and the row wraps to two lines rather than squeezing.\n3. A t"
  },
  {
   "id": "DEC-0252",
@@ -590,6 +609,27 @@
   "plain": "What you own and what you owe leave their separate floating cards and become one continuous table. Three decisions:\n1. The green bands run edge to edge.\n2. Every row sits at the same inset, so the numbers line up down th"
  },
  {
+  "id": "DEC-0022",
+  "tab": "performance",
+  "decided": "2026-08-01",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.65625,
+  "missing": [
+   "average",
+   "compares",
+   "decimal",
+   "gains",
+   "laid",
+   "leads",
+   "lots",
+   "made-up",
+   "paid",
+   "position",
+   "single"
+  ],
+  "plain": "The page for a single holding was rebuilt. Three decisions:\n1. The price leads, with a graph under it and buttons to change the period shown.\n2. Everything else — the position, how it compares, the lots you bought, divid"
+ },
+ {
   "id": "DEC-0335",
   "tab": "networth",
   "decided": "2026-09-12",
@@ -608,7 +648,7 @@
   "id": "DEC-0337",
   "tab": "performance",
   "decided": "2026-09-12",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.6666666666666666,
   "missing": [
    "described",
@@ -655,7 +695,7 @@
   "id": "DEC-0030",
   "tab": "performance",
   "decided": "2026-08-02",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.7,
   "missing": [
    "drawing",
@@ -719,28 +759,10 @@
   "plain": "“ok — one payment rule in both columns.” What counts as a required payment is defined once and read by both places that show it."
  },
  {
-  "id": "DEC-0022",
-  "tab": "performance",
-  "decided": "2026-08-01",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.75,
-  "missing": [
-   "average",
-   "compares",
-   "decimal",
-   "gains",
-   "laid",
-   "leads",
-   "lots",
-   "made-up"
-  ],
-  "plain": "The page for a single holding was rebuilt. Three decisions:\n1. The price leads, with a graph under it and buttons to change the period shown.\n2. Everything else — the position, how it compares, the lots you bought, divid"
- },
- {
   "id": "DEC-0437",
   "tab": "performance",
   "decided": "",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.75,
   "missing": [
    "current",
@@ -764,6 +786,23 @@
    "settles"
   ],
   "plain": "Three decisions about the Net worth screen:\n1. The By type view is REMOVED, which settles the open question about it.\n2. What you own is restructured into three big groups — Cash, Investments, Personal property — with th"
+ },
+ {
+  "id": "DEC-0001",
+  "tab": "performance",
+  "decided": "2026-07-19",
+  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.7586206896551724,
+  "missing": [
+   "carry",
+   "fill",
+   "itself",
+   "longer",
+   "redrawn",
+   "rest",
+   "tappable"
+  ],
+  "plain": "The Look ahead screen — “What if I save more?” — was redrawn. Three decisions:\n1. Your age and the age you plan to retire are set with sliders on the screen itself, not on a separate page, and they save to the same two a"
  },
  {
   "id": "DEC-0384",
@@ -912,20 +951,6 @@
   "plain": "“we should change ETFs to just Funds to include Mutual funds.” An ETF is one kind of fund, so someone holding a Vanguard mutual fund was reading a label that did not name what they owned. The class is renamed Stocks / Fu"
  },
  {
-  "id": "DEC-0064",
-  "tab": "performance",
-  "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.8181818181818182,
-  "missing": [
-   "appear",
-   "dash",
-   "squeezing",
-   "wraps"
-  ],
-  "plain": "Three decisions on Performance:\n1. Each period button carries its OWN return for that period.\n2. Where a period has no data it shows a dash rather than a zero, and the row wraps to two lines rather than squeezing.\n3. A t"
- },
- {
   "id": "DEC-0197",
   "tab": "cashflow",
   "decided": "2026-08-28",
@@ -1000,20 +1025,6 @@
    "path"
   ],
   "plain": "The Net worth section “Your path ahead (from your Plan)” is renamed “Your retirement plan” — his wording."
- },
- {
-  "id": "DEC-0001",
-  "tab": "performance",
-  "decided": "2026-07-19",
-  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.8620689655172413,
-  "missing": [
-   "itself",
-   "longer",
-   "redrawn",
-   "rest"
-  ],
-  "plain": "The Look ahead screen — “What if I save more?” — was redrawn. Three decisions:\n1. Your age and the age you plan to retire are set with sliders on the screen itself, not on a separate page, and they save to the same two a"
  },
  {
   "id": "DEC-0201",
