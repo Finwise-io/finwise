@@ -311,9 +311,12 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
       run: () => EF().monthsCoveredAtPlannedSpend,
     },
   },
+  // /insights ADDED 2026-09-30 (B-117). Insights divided cash by expenses alone and never named the
+  // debt at all; now it reads the door and prints these two beside the months, so a person can follow
+  // the figure by hand. A figure gains a screen the day a screen starts printing it.
   'MK-NW-M-047': {
     label: 'Both include $X/month of debt payments you cannot stop', unit: 'money', per: 'month',
-    screens: ['/analytics'],
+    screens: ['/analytics', '/insights'],
     answers: 'What your debts require of you each month, which neither runway can leave out.',
     formula: 'the required payment on every debt — except a mortgage, when a Rent / Mortgage budget already carries it',
     inputs: ['MK-NW-I-002 your debts'],
@@ -333,7 +336,7 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
   },
   'MK-NW-M-048': {
     label: 'your planned spend, with the debt payments in it', unit: 'money', per: 'month',
-    screens: ['/analytics'],
+    screens: ['/analytics', '/insights'],
     answers: 'What a month costs at the life you plan to live, including what your debts require.',
     formula: 'everything you budget for a month + the debt payments you cannot stop',
     inputs: ['MK-NW-I-002 your debts', 'MK-CF-I-001 your logged expenses'],

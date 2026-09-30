@@ -1472,7 +1472,8 @@
    "unit": "money",
    "per": "month",
    "screens": [
-    "/analytics"
+    "/analytics",
+    "/insights"
    ],
    "answers": "What your debts require of you each month, which neither runway can leave out.",
    "formula": "the required payment on every debt — except a mortgage, when a Rent / Mortgage budget already carries it",
@@ -1497,7 +1498,8 @@
    "unit": "money",
    "per": "month",
    "screens": [
-    "/analytics"
+    "/analytics",
+    "/insights"
    ],
    "answers": "What a month costs at the life you plan to live, including what your debts require.",
    "formula": "everything you budget for a month + the debt payments you cannot stop",

@@ -13,8 +13,8 @@ import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/
 import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
-import { plannedMonthlySpend } from '../domain/budget';
-import { essentialsMonthly } from '../../MoneyKeel/functions/cashflow/essentials';
+import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
+import { fig } from '../components/figure';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
 import { maskDollars, spokenDollars } from '../components/useMoney';
 import { buildPerformance, topHoldingConcentration } from '../domain/performance';
@@ -46,10 +46,16 @@ export function useInsights(limit?: number): Insight[] {
     const accounts = store.assetAccounts ?? [];
     const liabilities = store.liabilities ?? [];
     const age = ageFromProfile(op) ?? 45;
-    // G21 / Q21 / Q47 (2026-09-08): the runway divides by the ONE essentials figure (MK-CF-F-190)
-    const essentials = essentialsMonthly(store.expenses ?? [], plannedMonthlySpend(op));
-    const monthlySpending = essentials?.monthly ?? 0;
-    const essentialsLabel = essentials?.label ?? '';
+    // ONE DOOR FOR THE RUNWAY TOO (MK-NW-O-004 theEmergencyFund, Q-NW-5 ruled 2026-09-27: "Yes.").
+    // THE DEFECT THIS FIXES (B-117, found 2026-09-30 by Net worth pass 3): this screen divided cash by
+    // ESSENTIALS ALONE while the door — which Net worth, Job safety and Stress test all read — divides
+    // by essentials PLUS the debt minimums, on his ruling of 2026-09-28 ("What about credit card debt,
+    // HELOC, car..."). On one household that is 8.9 months here against 5.6 there: a 59% overstatement
+    // of someone's safety net, on the screen whose whole job is to say what needs attention. The
+    // ruling reached the door and the three screens that read it, and never reached this one.
+    const ef = theEmergencyFund({ accounts, expenses: store.expenses ?? [], profile: op, debts: liabilities });
+    const monthlySpending = ef.essentialsMonthly;
+    const essentialsLabel = ef.essentialsBasis;
     // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27: "Yes - for home, NW tab, and
     // insights"). Insights took these two its own way; they are the same two the Net worth tab shows,
     // so they come from the same answer now and the screens cannot disagree about them.
@@ -128,7 +134,7 @@ export function useInsights(limit?: number): Insight[] {
       ssWindow,
       goalsGap,
       goalOffTrack,
-      cashMonths: monthlySpending > 0 ? cash / monthlySpending : null,
+      cashMonths: ef.monthsCovered,                    // the door's figure, not a second division
       toxicDebt: toxic && toxic.interest_rate_apr > TOXIC_APR ? { label: toxic.label, apr: toxic.interest_rate_apr } : null,
       k401Remaining: k401Headroom(age, num(op.c_401k) * 12).remaining,
       hasEarnedIncome: salaryAnnual(op) > 0,
@@ -150,8 +156,15 @@ export function useInsights(limit?: number): Insight[] {
       'cash-drag': () => accounts.filter((a: any) => assetClassOf(a) === 'cash').map((a: any) => ({ label: nm(a), value: money(a.balance || 0) }))
         .concat([{ label: 'Cash total', value: money(cash) }, { label: 'Investable total', value: money(investable) },
                  { label: 'Cash share', value: investable > 0 ? `${Math.round((cash / investable) * 100)}%` : '—' }]),
-      runway: () => [{ label: 'Cash on hand', value: money(cash) }, { label: `Essentials a month (${essentialsLabel})`, value: money(monthlySpending) },
-                     { label: 'Months covered', value: monthlySpending > 0 ? (cash / monthlySpending).toFixed(1) : '—' }],
+      // the drill-down names the DEBT LINE too, so the figure can be followed by hand: his ruling of
+      // 2026-09-28 counts debt minimums, and a person who cannot see them cannot check the months
+      runway: () => [{ label: 'Cash on hand', value: money(ef.cash) },
+                     { label: `Expenses/month (${essentialsLabel})`, value: money(ef.plannedSpendMonthly) },
+                     // printed through fig() so the identifier travels with the number (rule 11) —
+                     // these two are MK-NW-M-047 and MK-NW-M-048, already declared on the door
+                     { label: 'Debt minimums/month', value: fig('MK-NW-M-047', ef.debtMinimums) },
+                     { label: 'Needed each month', value: fig('MK-NW-M-048', monthlySpending) },
+                     { label: 'Months covered', value: ef.monthsCovered != null ? ef.monthsCovered.toFixed(1) : '—' }],
       'k401-room': () => { const h = k401Headroom(age, num(op.c_401k) * 12); return [
         { label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: "You've contributed", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },
       'behind-bench': () => [{ label: 'Your 12-mo return', value: actual != null ? pct(actual) : '—' }, { label: 'Benchmark', value: pct(bench) },

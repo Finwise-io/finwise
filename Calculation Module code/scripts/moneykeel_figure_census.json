@@ -35835,6 +35835,16 @@
   }
  },
  "declared": {
+  "/home": {
+   "worker": [
+    "MK-NW-M-047",
+    "MK-NW-M-048"
+   ],
+   "retiree": [
+    "MK-NW-M-047",
+    "MK-NW-M-048"
+   ]
+  },
   "/analytics": {
    "worker": [
     "MK-NW-M-005",
@@ -35851,6 +35861,16 @@
    "retiree": [
     "MK-NW-M-005",
     "MK-NW-M-046",
+    "MK-NW-M-048"
+   ]
+  },
+  "/insights": {
+   "worker": [
+    "MK-NW-M-047",
+    "MK-NW-M-048"
+   ],
+   "retiree": [
+    "MK-NW-M-047",
     "MK-NW-M-048"
    ]
   },
@@ -35920,7 +35940,9 @@
    "routes": [
     "/analytics",
     "/base-pay",
-    "/income-summary"
+    "/home",
+    "/income-summary",
+    "/insights"
    ],
    "states": [
     "/analytics|retiree",
@@ -35930,24 +35952,28 @@
     "/base-pay|retiree",
     "/base-pay|rich",
     "/base-pay|worker",
+    "/home|retiree",
+    "/home|worker",
     "/income-summary|new",
     "/income-summary|retiree",
     "/income-summary|rich",
-    "/income-summary|worker"
+    "/income-summary|worker",
+    "/insights|retiree",
+    "/insights|worker"
    ],
    "inside": "writeFigure",
    "line": "spec.unit === 'money' ? formatMoney(value)",
    "values": [
+    "$420",
+    "$600",
     "$0",
     "$4,520",
-    "$420",
     "$6,400",
     "$108,000",
     "$21,600",
-    "$1,800",
-    "$800"
+    "$1,800"
    ],
-   "renders": 78
+   "renders": 90
   },
   {
    "site": "src/components/DrawSteerSheet.tsx:136",
@@ -38240,7 +38266,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:149",
+   "site": "src/screens/InsightsScreen.tsx:155",
    "routes": [
     "/home",
     "/insights"
@@ -38263,7 +38289,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:153",
+   "site": "src/screens/InsightsScreen.tsx:161",
    "routes": [
     "/home",
     "/insights"
@@ -38275,16 +38301,34 @@
     "/insights|worker"
    ],
    "inside": "useInsights",
-   "line": "runway: () => [{ label: 'Cash on hand', value: money(cash) }, { label: `Essentials a month (${essentialsLabel})`, value: money(monthlySpending) },",
+   "line": "runway: () => [{ label: 'Cash on hand', value: money(ef.cash) },",
    "values": [
-    "$0",
-    "$180",
-    "$3,800"
+    "$0"
    ],
-   "renders": 12
+   "renders": 6
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:156",
+   "site": "src/screens/InsightsScreen.tsx:162",
+   "routes": [
+    "/home",
+    "/insights"
+   ],
+   "states": [
+    "/home|retiree",
+    "/home|worker",
+    "/insights|retiree",
+    "/insights|worker"
+   ],
+   "inside": "useInsights",
+   "line": "{ label: `Expenses/month (${essentialsLabel})`, value: money(ef.plannedSpendMonthly) },",
+   "values": [
+    "$4,520",
+    "$3,800"
+   ],
+   "renders": 6
+  },
+  {
+   "site": "src/screens/InsightsScreen.tsx:169",
    "routes": [
     "/home",
     "/insights"
@@ -38305,7 +38349,7 @@
    "renders": 15
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:159",
+   "site": "src/screens/InsightsScreen.tsx:172",
    "routes": [
     "/home",
     "/insights"
@@ -38323,7 +38367,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:161",
+   "site": "src/screens/InsightsScreen.tsx:174",
    "routes": [
     "/home",
     "/insights"
@@ -38340,7 +38384,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:70",
+   "site": "src/screens/InsightsScreen.tsx:76",
    "routes": [
     "/home",
     "/insights"

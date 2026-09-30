@@ -10,6 +10,7 @@
  *    MK-NW-M-017 net worth        — Home glance card · Net worth tab
  *    MK-XS-M-002 will-it-last odds — Home · Plan hub
  *    MK-XS-M-004 the month's return — Home glance card · Performance's 1M window
+ *    MK-NW-M-013 months of emergency fund — Net worth tab · Insights · Job safety
  *  A figure added to a third screen is added here the same day.
  *
  *  The return needed a SECOND person (INVESTOR, below). Pat holds one fund with no price history
@@ -168,4 +169,57 @@ test('MK-PF-M-008 — Home says WHICH figure counts dividends and interest, so t
   // the market side is NOT claimed to include them, because it does not
   expect(lines.find((s) => /^market [+-]/.test(s))).toBe('market +2.83%');
   expect(lines.some((s) => /^ahead by /.test(s))).toBe(true);
+});
+
+
+/** MK-NW-M-013 — THE MONTHS OF EMERGENCY FUND, ON EVERY SCREEN THAT SHOWS IT.
+ *
+ *  B-117, found by Net worth pass 3 on 2026-09-30. Insights divided cash by ESSENTIALS ALONE while the
+ *  door — read by the Net worth tab, Job safety and Stress test — divides by essentials PLUS the debt
+ *  minimums, on his ruling of 2026-09-28: *"What about credit card debt, HELOC, car..."*. The ruling
+ *  reached the door and the three screens that read it, and never reached this one.
+ *
+ *  IT DID NOT MERELY SHOW A WRONG NUMBER — IT SUPPRESSED THE WARNING. The "Build your emergency fund"
+ *  card fires below three months. Pat below has $18,000 of cash against $4,500 of expenses and $2,650
+ *  of debt minimums, so honestly she has 18,000 ÷ 7,150 = 2.5 months and the card belongs on her
+ *  screen. Dividing by expenses alone gives 4.0 months, which is above the line, so the card never
+ *  appeared for exactly the person who needed it.
+ *
+ *  This pin reads the rendered screens, and it is RED on the old code twice over: the number and the
+ *  card's very existence.
+ */
+const SHORT_OF_CASH = {
+  onboardingProfile: { ...WORKER, monthlySpending: '4500' },
+  assetAccounts: [
+    { asset_id: 'chk', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 18000, target_return: 0 },
+    { asset_id: 'van', label: 'Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 300000, target_return: 0.07 },
+  ],
+  liabilities: [
+    { debt_id: 'm', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400 },
+    { debt_id: 'c', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250 },
+  ],
+};
+
+test('MK-NW-M-013 — months of emergency fund reads the same on the Net worth tab and on Insights', () => {
+  useStore.setState(SHORT_OF_CASH as any);
+
+  renderScreen('NetWorthScreen');
+  const nw = firstMatch(/(\d+\.\d) months/);
+  screen.unmount();
+
+  renderScreen('InsightsScreen');
+  const lines = readable();
+  const ins = (() => { for (const l of lines) { const m = l.match(/covers about (\d+\.\d) months/); if (m) return m[1]; } return null; })();
+
+  expect(nw).not.toBeNull();        // a pin that reads nothing proves nothing
+  expect(ins).not.toBeNull();
+  expect(ins).toBe(nw);
+  expect(nw).toBe('2.5');           // 18,000 ÷ (4,500 expenses + 2,650 debt minimums)
+});
+
+test('MK-NW-M-013 — and the warning FIRES for someone under three months, which it did not before', () => {
+  useStore.setState(SHORT_OF_CASH as any);
+  renderScreen('InsightsScreen');
+  // dividing by expenses alone gives 4.0 months, above the three-month line, so this card was absent
+  expect(readable().some((l) => /Build your emergency fund/.test(l))).toBe(true);
 });
