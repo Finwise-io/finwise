@@ -390,12 +390,19 @@ NETWORTH = [
  ('Net worth so far (setup)',                'nw.net_worth',   'NET_WORTH'),
 ]
 
-PERFORMANCE = [
- ('WHAT EACH CATEGORY EARNED — RETURN',      'b.earned / b.ret',     'PERFORMANCE_TABLE'),
- ('All categories',                          'total',                'PERFORMANCE_TABLE'),
- ('HONEST COMPARISON',                       'benchPort',            'BENCHMARK_RETURN_BLENDED'),
- ('Return (money-weighted, when the record covers it)','mw.rate',    'MODIFIED_DIETZ (Calculation Module code/engines/window-return.ts)'),
-]
+# PERFORMANCE IS EMPTY (2026-09-30) — the last four rows moved behind MK-NW-O-008 thePerformance.
+#
+# Its figures are now PRINTED from the door's own declarations, beside the code that computes them,
+# and every one of them carries a worked example that runs through the real function on every build.
+# Performance is the first module with no hand-typed figure left, which is what pass 1 of the
+# calculation review means: while a figure is typed here it can drift from the code and nothing
+# notices, because there is nothing to compare.
+#
+# WHAT MOVING THEM FOUND: the category table was computed INSIDE PerformanceScreen — thirty lines
+# filtering the records, classing each ticker and working out a return per class. His rule is that a
+# screen computes nothing, and four figures' worth of arithmetic there had no row, no example and
+# nothing able to check it. It is categoryEarnings in the door now.
+PERFORMANCE = []
 
 CASHFLOW = [
  ('YOUR SOURCES — Base salary',              'op.baseSalary', 'TOTAL_INCOME'),

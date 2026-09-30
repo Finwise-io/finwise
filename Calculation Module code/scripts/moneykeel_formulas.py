@@ -225,9 +225,6 @@ QUESTIONS = {
 'TREND_SERIES':[
  'Q32 — The trend survives on a new device but the walk behind it does not. Should the trend say so, or show quietly?',
 ],
-'BENCHMARK_RETURN_BLENDED':[
- 'Q33 — Which index should each asset class be compared against, and should the person be able to change it?',
-],
 }
 
 # ── S04 / S05 / S06 / S07 ────────────────────────────────────────────────────────────────────
@@ -483,6 +480,11 @@ NEW_INPUTS = [
 # ── questions keyed by the FIGURE'S identifier (2026-09-08) — identifiers never move, so a question
 # lands on the same row on every build; the engine-keyed dictionary above still serves the old ones.
 QUESTIONS_BY_METRIC = {
+ # Q33 moved here 2026-09-30, when MK-PF-M-008 stopped being hand-typed and was declared in the code.
+ # A question keyed to an ENGINE loses its row the moment its figure moves behind a door; keyed to the
+ # FIGURE it rides with the row wherever the row goes. The build's own guard caught it — "these
+ # questions landed on no row" — which is the eleventh time that guard has caught this exact class.
+ 'MK-PF-M-008': ['Q33 — Which index should each asset class be compared against, and should the person be able to change it?'],
  'MK-NW-M-026': ['Q05 — Accrued interest: do we work it out ourselves — which needs a day-count rule per bond type — or only show what the institution gives us?'],
  'MK-NW-M-024': ['Q04 — "Annual income" on a bond: the last twelve months actually received, or the forward estimate from today\\\'s coupon? Both are defensible and they differ.'],
  'MK-NW-M-023': ['Q01 — Is Quantity for a bond the FACE amount (e.g. 227,000) with the price quoted per $100 of face, or the number of bonds? It decides how value and gain are worked out.'],

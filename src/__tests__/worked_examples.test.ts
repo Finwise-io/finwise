@@ -23,7 +23,7 @@ import { writeFigure } from '../../MoneyKeel/functions/_figure-spec';
 
 /** Figures with no worked example yet. It may only ever get shorter — a new figure brings its own
  *  example, and one that is on this list leaves it and never comes back. */
-const NOT_YET_WORKED = 9;
+const NOT_YET_WORKED = 8;   // fell from 9 on 2026-09-30, Performance pass 1
 
 const worked = Object.entries(FIGURE_REGISTER).filter(([, f]) => f.worked);
 

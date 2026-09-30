@@ -1,0 +1,30 @@
+{
+ "_about": "ONE SOURCE ROW THAT HOLDS TWO DECISIONS — split, so one can die while the other lives. Founder, 2026-09-30: 'split DEC - 0002.' A changelog row is written to record a day's work, not to hold one decision, so a single row can carry a structure that is still in force AND a name that was later replaced. Marking the whole row OLD buries the live decision; leaving it IN USE leaves a dead name reading as current. Each split names the source row it comes from, so nothing is invented — the text below is his source row divided, never rewritten.",
+ "rows": [
+  {
+   "match": "THE CASH FLOW SURFACE",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-07-19",
+     "subject": "The four-tab cash-flow surface, and the Budget screen retiring",
+     "plain": "Cash flow becomes ONE screen with four tabs, replacing the two separate Cash flow and Budget screens. Four decisions:\n1. The Budget screen is RETIRED; its job moves onto the cash-flow surface.\n2. Income is entered through a pop-up that asks whether your pay is steady or varies.\n3. You can move between past and future months.\n4. Big one-off bills get their own list, so a bill that lands once a year is not lost inside a monthly average.\nSTILL IN FORCE: his approval of the combined cash-flow mock (2026-09-28) carries this architecture forward by name — 'the four-tab architecture from v02'. Only the NAME of the third tab changed; see the row beside this one.",
+     "type": "DESIGN",
+     "screens": "/cashflow",
+     "status": "TESTED, NOT VERIFIED",
+     "in_use": "IN USE"
+    },
+    {
+     "keep": false,
+     "decided": "2026-07-19",
+     "subject": "The four tabs were named This month · Income · SPENDING · Debts",
+     "plain": "The four tabs were named This month, Income, SPENDING and Debts.\nTHE THIRD NAME IS DEAD. His synonym ruling of 2026-09-03 — 'money going out in a month → Expenses' — renamed it, and the cash-flow mock he approved on 2026-09-28 shows the tabs as This month · Income · EXPENSES · Debts. The architecture this name sat on is still in force; see the row beside this one.",
+     "type": "VALUE",
+     "screens": "/cashflow",
+     "status": "SUPERSEDED",
+     "superseded_by_phrase": "money going out in a month"
+    }
+   ]
+  }
+ ]
+}

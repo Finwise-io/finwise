@@ -535,6 +535,50 @@ def merge_reworded(rows):
     return keep, merged
 
 
+
+# ── A SOURCE ROW THAT HOLDS TWO DECISIONS (founder, 2026-09-30: "split DEC - 0002") ──────────────
+# A changelog row records a day's work, not one decision. DEC-0002 carried the four-tab cash-flow
+# architecture AND the name of its third tab. The architecture is in force — his mock approval names
+# it — while the name was replaced by his Expenses ruling. Marking the row OLD buries the live
+# decision; leaving it IN USE leaves a dead name reading as current. So it becomes two rows.
+#
+# The split text is HIS source row divided, never rewritten, and each part says which half it is and
+# points at the other. A split is declared by hand in moneykeel_decisions_splits.json because only
+# reading tells you a row holds two things.
+def apply_splits(rows):
+    path = os.path.join(HERE, 'moneykeel_decisions_splits.json')
+    if not os.path.exists(path):
+        return rows, []
+    spec = json.load(open(path))['rows']
+    out, done = [], []
+    for r in rows:
+        hay = str(r.get('raw') or r.get('means') or '')
+        rule = next((x for x in spec if x['match'].lower() in hay.lower()), None)
+        if rule is None:
+            out.append(r); continue
+        for i, part in enumerate(rule['parts']):
+            new = dict(r)
+            new.pop('key', None)
+            new['id'] = r['id'] if i == 0 else r['id'] + chr(ord('a') + i)
+            new['plain'] = part['plain']
+            new['plain_written'] = 'yes'
+            new['screens'] = part.get('screens', new.get('screens'))
+            new['type'] = part.get('type', new.get('type'))
+            new['status'] = part.get('status', new.get('status'))
+            new['means'] = part['subject']
+            new['raw'] = ('SPLIT FROM ' + r['id'] + ', one source row holding two decisions.\n\nTHIS HALF: '
+                          + part['subject'] + '\n\nTHE SOURCE ROW, WORD FOR WORD:\n' + hay)
+            if part.get('keep'):
+                new['in_use'] = 'IN USE'
+                new['_split_keep'] = True
+            else:
+                new['in_use'] = part.get('status', 'OLD, NOT IN USE')
+                new['_supersede_phrase'] = part.get('superseded_by_phrase')
+            out.append(new)
+            done.append((new['id'], part['subject'][:70]))
+    return out, done
+
+
 if __name__ == '__main__':
     print('── sweeping every decision into one log')
     n1, k1, seen1, un1 = sweep_changelog()
@@ -563,6 +607,12 @@ if __name__ == '__main__':
         for gone, into, w in _merged[:12]:
             print(f'     {gone} → {into}   “{w}”')
 
+    doc['rows'], _split = apply_splits(doc['rows'])
+    if _split:
+        print(f'   split {len(_split)} row(s) that held more than one decision:')
+        for sid, what in _split:
+            print(f'     {sid}  {what}')
+
     # OLD DECISIONS ARE MARKED (his instruction, 2026-09-29). Two passes: find the row that replaced
     # each superseded one, then write the link BOTH ways so either row opens the other.
     by_phrase = {}
@@ -570,7 +620,10 @@ if __name__ == '__main__':
         by_phrase[str(r.get('raw') or r.get('means') or '')] = r
     for r in doc['rows']:
         src_text = str(r.get('raw') or r.get('means') or '')
-        repl_phrase = PLAIN.superseded_by_phrase(src_text)
+        if r.pop('_split_keep', False):
+            r['in_use'] = 'IN USE'
+            continue          # the live half of a split — its source row still holds the dead words
+        repl_phrase = r.pop('_supersede_phrase', None) or PLAIN.superseded_by_phrase(src_text)
         if not repl_phrase:
             r['in_use'] = r.get('in_use') or 'IN USE'
             continue

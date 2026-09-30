@@ -9,7 +9,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds, modifiedDietzOverWindow } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -477,28 +477,15 @@ export default function PerformanceScreen() {
               rate WITH ITS NAME. Income is ledger-only — a category with no records shows an
               em-dash, never a false $0. Rows sum to the walk's income lines by construction. */}
           {hasInvestments && (() => {
-            const windowStart = periodStartKey(period);
-            const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
-            const classOfTicker = (tk: string) => {
-              const r = rows.find((x: any) => String(x.position?.ticker ?? '').toUpperCase() === String(tk ?? '').toUpperCase());
-              return (r?.position?.kind ?? r?.position?.asset_class ?? 'stocks_etf') as string;
-            };
-            const buckets: { key: string; label: string; color: string; earned: number; ret: string }[] = [
-              // each category's OWN price return over the window — the whole portfolio's figure
-              // used to stand in for the stocks row, which made it disagree with its own holdings
-              { key: 'stocks_etf', label: 'Stocks / Funds', color: ClassMarkColors.stocks_etf, earned: 0,
-                ret: (() => { const r = portfolioPeriodReturn(rows.filter((x: any) => (x.position?.asset_class ?? 'stocks_etf') === 'stocks_etf')); return r == null ? '—' : pct(r); })() },
-              { key: 'bonds', label: 'Bonds & CDs', color: ClassMarkColors.bonds, earned: 0, ret: '—' },
-              { key: 'cash', label: 'Cash in this account', color: ClassMarkColors.cash, earned: 0, ret: '—' },   // founder 2026-08-11: "sweep cash" was declined by name
-            ];
-            for (const t of led) {
-              if (t.type !== 'DIVIDEND' && t.type !== 'INTEREST') continue;
-              const amt = Math.abs(Number(t.amount) || 0);
-              const cls = t.ticker ? classOfTicker(t.ticker) : (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds');
-              const b = buckets.find((x) => x.key === cls) ?? buckets.find((x) => x.key === (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds'))!;
-              b.earned += amt;
-            }
-            const shown = buckets.filter((b) => b.earned > 0);
+            // THE SCREEN COMPUTES NOTHING (his rule). This block used to filter the records, class
+            // each ticker, bucket the dividends and interest and calculate a return per class — four
+            // figures' worth of arithmetic with no row, no worked example and nothing able to check
+            // it. It is MK-NW-O-008's categoryEarnings now; the screen asks and prints.
+            const shown = categoryEarnings({
+              transactions: (store.transactions ?? []) as any[],
+              windowStart: periodStartKey(period),
+              rows: rows as any,
+            });
             const total = shown.reduce((n, b) => n + b.earned, 0);
             if (!shown.length) return null;                       // nothing received → no table at all
             return (
@@ -511,11 +498,11 @@ export default function PerformanceScreen() {
                 </View>
                 {shown.map((b) => (
                   <View key={b.key} style={styles.catRow} accessible
-                    accessibilityLabel={`${b.label}, earned ${spokenMoney(Math.round(b.earned))}, return ${b.ret}`}>
-                    <View style={[styles.catDot, { backgroundColor: b.color }]} />
+                    accessibilityLabel={`${b.label}, earned ${spokenMoney(Math.round(b.earned))}, return ${b.ret == null ? 'not known' : pct(b.ret)}`}>
+                    <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
                     <Text style={styles.catL}>{b.label}</Text>
                     <Text style={[styles.catV, { color: Colors.gainText }]}>{maskedMoney(Math.round(b.earned))}</Text>
-                    <Text style={styles.catR}>{b.ret}</Text>
+                    <Text style={styles.catR}>{b.ret == null ? '\u2014' : pct(b.ret)}</Text>
                   </View>
                 ))}
                 <View style={[styles.catRow, styles.walkTotal]}>

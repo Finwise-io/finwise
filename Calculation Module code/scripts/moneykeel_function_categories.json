@@ -14,6 +14,21 @@
   "file": "MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts",
   "category": "1 · ACTION"
  },
+ "BENCH": {
+  "id": "MK-NW-F-088",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "1 · ACTION"
+ },
+ "CAT": {
+  "id": "MK-NW-F-087",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "1 · ACTION"
+ },
+ "CATS": {
+  "id": "MK-NW-F-086",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "1 · ACTION"
+ },
  "COMING": {
   "id": "MK-CF-F-205",
   "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
@@ -54,6 +69,11 @@
   "file": "MoneyKeel/functions/cashflow/the-month.ts",
   "category": "1 · ACTION"
  },
+ "MW": {
+  "id": "MK-NW-F-089",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "USED NOWHERE FOUND"
+ },
  "NW": {
   "id": "MK-NW-F-082",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
@@ -82,7 +102,12 @@
  "PERF": {
   "id": "MK-NW-F-083",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "1 · ACTION"
+ },
+ "PERF_ONE": {
+  "id": "MK-NW-F-085",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "1 · ACTION"
  },
  "ROOM": {
   "id": "MK-CF-F-199",
@@ -548,6 +573,11 @@
   "id": "MK-CF-F-020",
   "file": "src/domain/cashflow/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "categoryEarnings": {
+  "id": "MK-NW-F-084",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "2 · DISPLAYED"
  },
  "categoryMonthly": {
   "id": "MK-CF-F-003",

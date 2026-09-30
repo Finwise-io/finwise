@@ -1696,6 +1696,98 @@
    },
    "door": "MK-NW-O-005 theAlternativesOutlook"
   },
+  "MK-PF-M-006": {
+   "label": "WHAT EACH CATEGORY EARNED — RETURN",
+   "unit": "percent-2dp",
+   "screens": [
+    "/invest"
+   ],
+   "answers": "What each kind of holding returned over the window you picked.",
+   "formula": "each class's own return, weighted by what each holding in it is worth",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-006 the price fetched at"
+   ],
+   "decisions": [
+    "A class with no holding we can price shows an em-dash, never a 0% — a zero reads as \"it returned nothing\", which is a different claim.",
+    "MOVED OFF THE SCREEN 2026-09-30: this was calculated inside PerformanceScreen, so it had no row, no example and nothing able to check it (his rule: a screen computes nothing)."
+   ],
+   "refusal": "An em-dash — no holding in that class can be priced over this window.",
+   "worked": {
+    "given": "Since 1 Jan 2026: dividends of $420 and $405 on VTI, $505 of interest on an Ally CD, and one dividend of $40 with no ticker on it. A $900 dividend from Nov 2025 is outside the window. Holdings: $40,600 of VTI up 12%, $10,000 of CD up 5%.",
+    "answer": "12.00%"
+   },
+   "ruled": "2026-09-03",
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-007": {
+   "label": "All categories",
+   "unit": "money",
+   "screens": [
+    "/invest"
+   ],
+   "answers": "What you actually received, in dividends and interest, over the window — by kind.",
+   "formula": "every dividend and interest record inside the window, added up by the class of the holding that paid it",
+   "inputs": [
+    "MK-XS-I-020 the records of money movements"
+   ],
+   "decisions": [
+    "LEDGER ONLY: what was actually RECEIVED, never a rate applied to a balance.",
+    "A record with no ticker is classed by what it IS — a dividend comes from a fund, interest from a bond.",
+    "A class that received nothing is not shown at all; where nothing was received the table does not appear."
+   ],
+   "refusal": "The table does not appear — nothing was received in this window.",
+   "worked": {
+    "given": "Since 1 Jan 2026: dividends of $420 and $405 on VTI, $505 of interest on an Ally CD, and one dividend of $40 with no ticker on it. A $900 dividend from Nov 2025 is outside the window. Holdings: $40,600 of VTI up 12%, $10,000 of CD up 5%.",
+    "answer": "$865"
+   },
+   "ruled": "2026-09-03",
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-008": {
+   "label": "HONEST COMPARISON",
+   "unit": "percent-2dp",
+   "screens": [
+    "/invest"
+   ],
+   "answers": "What the market did over the SAME days, matched to what you actually hold.",
+   "formula": "each holding's own benchmark return over the same dates, weighted by what that holding is worth",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-006 the price fetched at"
+   ],
+   "decisions": [
+    "The benchmark runs over the SAME DATES as your return — including where your window is cut short at your own purchase date. Comparing your three months against the market's twelve is not a comparison.",
+    "Weighted by what each holding is worth, so the blend answers \"the market, matched to my mix\" rather than a plain average of indices."
+   ],
+   "refusal": "No benchmark can be priced over this window, so none is shown.",
+   "worked": {
+    "given": "$40,000 of shares against a benchmark up 10% over the window, and $10,000 of bonds against one up 4% over the same days.",
+    "answer": "8.80%"
+   },
+   "note": "Declared 2026-09-30. It was hand-typed on the master file until then, so nothing compared the row with the code.",
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-009": {
+   "label": "Return (money-weighted, when the record covers it)",
+   "unit": "percent-2dp",
+   "screens": [
+    "/invest"
+   ],
+   "answers": "Your return, counting WHEN money went in and out — not just what the prices did.",
+   "formula": "the rate that makes what you put in, when you put it in, equal what it is worth today",
+   "inputs": [
+    "MK-XS-I-020 the records of money movements",
+    "MK-NW-I-001 your accounts"
+   ],
+   "decisions": [
+    "It REFUSES rather than estimates: with no complete record of money in and out there is no honest answer, and with under 30 days there is not enough of a window to annualise.",
+    "It is a different figure from the window return beside it, and both are kept (his ruling: they answer different questions)."
+   ],
+   "refusal": "Not shown — the record of money in and out does not reach back far enough to calculate it.",
+   "note": "Declared 2026-09-30 and given its function, MK-PF-F-026 moneyWeightedReturn. The master row named NO function at all until then, so nothing could check the row against any code.",
+   "door": "MK-NW-O-008 thePerformance"
+  },
   "MK-PF-M-001": {
    "label": "Ending value",
    "unit": "money",
@@ -1777,6 +1869,10 @@
     "MK-NW-I-005 the price feed"
    ],
    "refusal": "Nothing in it.",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, with $6,000 paid in on 1 Apr and $825 of dividends received. Asked of that one account.",
+    "answer": "$46,600"
+   },
    "ruled": "2026-09-27",
    "door": "MK-NW-O-008 thePerformance"
   },
@@ -1797,6 +1893,10 @@
    ],
    "refusal": "One account only — the whole walk above already says it.",
    "ruled": "2026-09-27",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, with $6,000 paid in on 1 Apr and $825 of dividends received. Each account is asked separately, from the same door as the total.",
+    "answer": "$46,600"
+   },
    "door": "MK-NW-O-008 thePerformance"
   },
   "MK-PF-M-010": {
