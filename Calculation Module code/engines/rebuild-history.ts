@@ -50,8 +50,9 @@ const DAY = 86_400_000;
  *
  * Called by ... MK-ST-F-071 rebuildableFrom · MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -59,8 +60,7 @@ const DAY = 86_400_000;
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 39 more — the full list is on functions_from_code
+ *               … and 41 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -78,8 +78,9 @@ const isDayKey = (d: unknown): d is string => typeof d === 'string' && /^\d{4}-\
  *
  * Called by ... MK-ST-F-068 stepDay
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -87,8 +88,7 @@ const isDayKey = (d: unknown): d is string => typeof d === 'string' && /^\d{4}-\
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 39 more — the full list is on functions_from_code
+ *               … and 41 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -106,8 +106,9 @@ const utcOfDay = (d: string) => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.
  *
  * Called by ... MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -115,8 +116,7 @@ const utcOfDay = (d: string) => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 38 more — the full list is on functions_from_code
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -135,8 +135,9 @@ const stepDay = (d: string, days: number) => new Date(utcOfDay(d) + days * DAY).
  *
  * Called by ... MK-ST-F-072 undo · MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -144,8 +145,7 @@ const stepDay = (d: string, days: number) => new Date(utcOfDay(d) + days * DAY).
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 39 more — the full list is on functions_from_code
+ *               … and 41 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -166,8 +166,9 @@ const amountOf = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? 
  *
  * Called by ... MK-ST-F-071 rebuildableFrom · MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -175,8 +176,7 @@ const amountOf = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? 
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 39 more — the full list is on functions_from_code
+ *               … and 41 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -205,8 +205,9 @@ const isOpening = (t: RebuildTxn) => t.type === 'OPENING_POSITION' || t.type ===
  *
  * Called by ... MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -214,8 +215,7 @@ const isOpening = (t: RebuildTxn) => t.type === 'OPENING_POSITION' || t.type ===
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 38 more — the full list is on functions_from_code
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-009 transaction date
@@ -251,8 +251,9 @@ export function rebuildableFrom(txns: RebuildTxn[], accountId: string): string |
  *
  * Called by ... MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -260,8 +261,7 @@ export function rebuildableFrom(txns: RebuildTxn[], accountId: string): string |
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 38 more — the full list is on functions_from_code
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -377,8 +377,9 @@ export interface RebuildResult {
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -386,8 +387,7 @@ export interface RebuildResult {
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 37 more — the full list is on functions_from_code
+ *               … and 39 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

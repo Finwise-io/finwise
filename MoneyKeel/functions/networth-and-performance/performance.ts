@@ -19,6 +19,9 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { declareFigures } from '../_figure-spec';
 import { portfolioBenchReturn } from '../../../src/domain/performance';
+// MK-PF-F-026 is on a screen again (his Q52 ruling, 2026-09-30): it answers where the window return
+// refuses. It had been reached by nothing since mock v14 removed its own card on 2026-09-25.
+import { moneyWeightedReturn } from '../../../src/domain/performance/moneyWeighted';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
@@ -43,6 +46,12 @@ export interface WindowFigures {
   years: number;
   /** Why a refusal, in words. Empty when nothing is refused. */
   sentence: string;
+  /** THE EXACT RATE PER YEAR, and ONLY where the window return refused (his ruling on Q52, 2026-09-30:
+   *  "use option B"). It is the rate that makes this window's own beginning and its own dated flows
+   *  grow into the ending — the window's rate, never the whole record's, because the label above it
+   *  names the window. Null where the window return answered (one return is visible at a time), and
+   *  null where even this refuses: under 30 days there is not enough window to state a yearly rate. */
+  refusedRate: number | null;
 }
 
 /** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
@@ -67,6 +76,36 @@ export interface WindowFigures {
  *  where there is a real value to read — which is his ruling: THE BEGINNING IS READ, NEVER
  *  BACK-FILLED. The account page has always done it this way; the Performance tab did not, and the
  *  Performance tab opens on this window. */
+/* ─ MK-NW-F-090 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * windowStartKey
+ *
+ * Answers ..... MK-NW-F-090 · The first day of a window.
+ *
+ * Formula .....
+ *     first = record dates where ÷ ^\d{4}-\d{2}-\d{2}$ ÷ .test(each)the first of , in order
+ *     today   when first is missing
+ *     after = the first 10 of the date date.parse(`${first}T00:00:00Z`) + 86400000).to isostring(
+ *     the answer:
+ *     after   if after ≤ today
+ *     today   otherwise
+ *     d = the date today + 'T12:00:00Z'
+ *     months = '1 m': 1 = '1 m': 1
+ *     '3 m': 3 = '3 m': 3
+ *     '6 m': 6 = '6 m': 6
+ *     '1 y': 12 = '1 y': 12
+ *     '2 y': 24 = '2 y': 24
+ *     `${today.slice(0, 4)}-01 − 01`   when period = 'YTD'
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If months[period] is missing it uses 12.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-090
+ * Changed ..... 2026-09-30 (08d5d52)
+ */
 export function windowStartKey(period: string, recordDates: string[], today: string): string {
   if (period === 'SINCE') {
     const first = recordDates.filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0];
@@ -84,6 +123,28 @@ export function windowStartKey(period: string, recordDates: string[], today: str
 /** MK-NW-F-091 · What the PRICED holdings gained over the window. It is used ONLY to derive a
  *  beginning the daily record cannot reach — it never becomes the return. A holding bought inside the
  *  window counts its true gain (value − cost); any other counts what the window's price move gave it. */
+/* ─ MK-NW-F-091 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * pricedGainOf
+ *
+ * Answers ..... MK-NW-F-091 · What the PRICED holdings gained over the window.
+ *
+ * Formula .....
+ *     t + (gain ?? 0)   when capped since
+ *     mv = market value (or 0 when missing)
+ *     pr = period return
+ *     the answer = t + (pr ≠ nothing and mv > 0 ? mv × (1 − 1 ÷ (1 + pr)) : 0)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If gain is missing it uses 0.
+ *     · If market value is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-091
+ * Changed ..... 2026-09-30 (08d5d52)
+ */
 export function pricedGainOf(
   rows: { cappedSince?: string | null; gain?: number; periodReturn?: number | null; marketValue?: number }[],
 ): number {
@@ -95,8 +156,100 @@ export function pricedGainOf(
   }, 0);
 }
 
+/** THE EXACT RATE PER YEAR, FOR ONE WINDOW — what stands in where the window return refuses.
+ *
+ *  His ruling on Q52 (2026-09-30, "use option B"), drawn as mock v17 mark 16 and approved. The window
+ *  return divides the gain once by a straight-line average of the money at work and refuses the moment
+ *  that shortcut could be off by more than a percentage point. This does not divide at all: it compounds
+ *  each amount over the days it was actually there and solves for the rate.
+ *
+ *  IT IS THE WINDOW'S RATE, NEVER THE WHOLE RECORD'S. MK-PF-F-026 solves from the first flow it is
+ *  given, so it is given THIS window: the beginning as an opening amount on the day before the window
+ *  opens, then the window's own money in and out. Handed the whole record it would answer about a
+ *  different period than the label above it names, which is the class of error this review exists to
+ *  remove.
+ *
+ *  It lives here and not on a screen because BOTH the Performance tab and an account's own page show
+ *  it, and two copies of one rule is how two screens come to disagree. The D1 guard said so the moment
+ *  the account page tried to calculate it for itself.
+ *
+ *  Null where there is nothing honest to say: no beginning to stand on, or under 30 days, where there
+ *  is not enough window to state a yearly rate at all.
+ */
+/* ─ MK-NW-F-102 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * rateWhereItRefuses
+ *
+ * Answers ..... THE EXACT RATE PER YEAR, FOR ONE WINDOW — what stands in where the window return refuses.
+ *
+ * Formula .....
+ *     nothing   when not (input.beginning > 0)
+ *     one = 'the − window'
+ *     the answer:
+ *     rate per year   if 'ratePerYear' in r
+ *     nothing   otherwise
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-008 transaction amount
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-024 logged expenses
+ *
+ * Decides .....
+ *     · Never lets ending fall below 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-102
+ * Changed ..... not in git yet (—)
+ */
+export function rateWhereItRefuses(input: {
+  beginning: number;
+  /** The window's own records, already filtered to it. */
+  windowLedger: any[];
+  ending: number;
+  /** The day the beginning is read at — the day before the window opens. */
+  beginningAsOf: string;
+  today: string;
+}): number | null {
+  if (!(input.beginning > 0)) return null;
+  const ONE = 'the-window';
+  const txns: any[] = [
+    { txn_id: 'open', account_id: ONE, type: 'OPENING_CASH', amount: input.beginning, date: input.beginningAsOf },
+    ...(input.windowLedger ?? [])
+      .filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
+      .map((t: any, i: number) => ({
+        txn_id: `f${i}`, account_id: ONE, type: t.type,
+        amount: Math.abs(Number(t.amount) || 0), date: String(t.date ?? '').slice(0, 10),
+      })),
+  ];
+  const r = moneyWeightedReturn(
+    txns, [{ asset_id: ONE }] as any, new Set([ONE]),
+    Math.max(0, input.ending), Date.parse(`${input.today}T12:00:00Z`));
+  return 'ratePerYear' in r ? r.ratePerYear : null;
+}
+
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
  *  investments, and an account left out here is an account whose dividends never reach the return. */
+/* ─ MK-NW-F-092 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * investmentAccountIdsOf
+ *
+ * Answers ..... MK-NW-F-092 · Which accounts this door measures: the invested ones.
+ *
+ * Formula .....
+ *     invested = a list with no repeats of ['stocks_etf', 'bonds', 'alternatives', 'mixed']
+ *     the answer = a list with no repeats of accounts (or none when missing) where invested.has(class of(each))for each of : string(asset id)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-092
+ * Changed ..... 2026-09-30 (08d5d52)
+ */
 export function investmentAccountIdsOf(
   accounts: { asset_id?: string | number }[],
   classOf: (a: any) => string,
@@ -167,12 +320,15 @@ export function investmentAccountIdsOf(
  *     refused = verdict ≠ nothing and verdict.rate = nothing
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-083 PERF
+ * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-083 PERF
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
  *
- * Serves ...... MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-005
+ * Serves ...... MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-005 · MK-PF-M-006
+ *               MK-PF-M-007 · MK-PF-M-008 · MK-XS-M-004
  * Reads ....... MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
@@ -238,11 +394,27 @@ export function thePerformance(input: {
   const cumulative = hasBasis ? verdict?.rate ?? null : null;
   const perYear = cumulative != null && years > 1 ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
 
+  // WHERE THE WINDOW RETURN REFUSES, THE EXACT RATE STANDS IN ITS PLACE (his ruling on Q52, 2026-09-30,
+  // drawn as mock v17 mark 16 and approved). The window return divides the gain once by a straight-line
+  // average of the money at work, and refuses the moment that shortcut could be off by more than a
+  // percentage point. This does not divide at all: it compounds each amount over the days it was
+  // actually there and solves for the rate. Measured, the two agree to 0.018 of a point wherever the
+  // window return answers — so this fills the gap the refusal leaves and never contradicts it.
+  //
+  // IT IS THE WINDOW'S RATE. MK-PF-F-026 solves from the first flow it is given, so it is given THIS
+  // window: the beginning as an opening amount on the day before the window opens, then the window's
+  // own money in and out. Handing it the whole record would answer about a different period than the
+  // label above it names, which is the class of error this whole review exists to remove.
+  const refusedRate = !refused || !bounds ? null : rateWhereItRefuses({
+    beginning, windowLedger: ledger, ending, beginningAsOf: bounds.beginningAsOf, today,
+  });
+
   return {
     windowStart, ledger, walk, measured,
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
     sentence: refused ? verdict!.sentence : '',
+    refusedRate,
   };
 }
 
@@ -273,6 +445,45 @@ export interface CategoryEarned {
   ret: number | null;
 }
 
+/* ─ MK-NW-F-084 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * categoryEarnings
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     rows = input.rows (or none when missing)
+ *     r = rows.find((x) => string(position.ticker ?? '').to upper case() = string(tk ?? '').to upper case())
+ *     string(position.kind ?? position.asset class ?? 'stocks_etf')   when r
+ *     the answer:
+ *     'stocks_etf'   if type = 'DIVIDEND'
+ *     'bonds'   otherwise
+ *     in class = rows where string(position.asset class ?? 'stocks_etf') = cls
+ *     usable = in class where period return ≠ nothing and (market value ?? 0) > 0
+ *     total = Σ over usable of (market value (or 0 when missing))
+ *     nothing   when total ≤ 0
+ *     amt = size of(amount read as a number (or 0 when missing or zero))
+ *     cls = class of ticker(ticker, type)   if ticker
+ *     'stocks_etf'   if type = 'DIVIDEND'
+ *     'bonds'   otherwise   otherwise
+ *
+ * Called by ... MK-NW-F-086 CATS
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-008 transaction amount
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If market value is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-084
+ * Changed ..... 2026-09-30 (4476da5)
+ */
 export function categoryEarnings(input: {
   /** every record, unfiltered — this takes the window’s own */
   transactions: any[];
@@ -371,8 +582,26 @@ const QUIET = {
 const QUIET_GIVEN =
   'An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $32,000 on 28 Sep 2026, '
   + 'with nothing paid in or taken out and $825 of it arriving as dividends.';
+/* ─ MK-NW-F-093 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * QUIET_PERF
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     the performance(QUIET)
+ *
+ * Called by ... MK-NW-F-088 BENCH
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-093
+ * Changed ..... not in git yet (—)
+ */
 const QUIET_PERF = () => thePerformance(QUIET);
-/* ─ MK-NW-F-083 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-083 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * PERF
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -380,11 +609,12 @@ const QUIET_PERF = () => thePerformance(QUIET);
  * Formula .....
  *     the performance(EXAMPLE)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-088 BENCH
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-003 institution name
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-083
  * Changed ..... not in git yet (—)
@@ -396,6 +626,26 @@ const PERF = () => thePerformance(EXAMPLE);
  *  all-accounts total come from ONE calculation, so a per-account walk and the total beneath it
  *  cannot tell different stories. Asking it of a second account with no records gives $0 without
  *  invention. */
+/* ─ MK-NW-F-085 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * PERF_ONE
+ *
+ * Answers ..... PER ACCOUNT (Performance pass 1, 2026-09-30).
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-088 BENCH
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-085
+ * Changed ..... not in git yet (—)
+ */
 const PERF_ONE = (ids: string[]) => thePerformance({ ...EXAMPLE, investmentAccountIds: new Set(ids) });
 
 
@@ -424,7 +674,44 @@ const CAT_GIVEN =
   'Since 1 Jan 2026: dividends of $420 and $405 on VTI, $505 of interest on an Ally CD, and one '
   + 'dividend of $40 with no ticker on it. A $900 dividend from Nov 2025 is outside the window. '
   + 'Holdings: $40,600 of VTI up 12%, $10,000 of CD up 5%.';
+/* ─ MK-NW-F-086 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * CATS
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     category earnings(CAT_EXAMPLE)
+ *
+ * Called by ... MK-NW-F-087 CAT
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-086
+ * Changed ..... not in git yet (—)
+ */
 const CATS = () => categoryEarnings(CAT_EXAMPLE);
+/* ─ MK-NW-F-087 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * CAT
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     CATS().find((c) => key = key)
+ *
+ * Called by ... MK-NW-F-088 BENCH
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-087
+ * Changed ..... not in git yet (—)
+ */
 const CAT = (key: string) => CATS().find((c) => c.key === key);
 
 /** THE HONEST COMPARISON, worked. $40,000 of shares whose benchmark rose 10% and $10,000 of bonds
@@ -433,6 +720,25 @@ const CAT = (key: string) => CATS().find((c) => c.key === key);
 const BENCH_GIVEN =
   '$40,000 of shares against a benchmark up 10% over the window, and $10,000 of bonds against one up '
   + '4% over the same days.';
+/* ─ MK-NW-F-088 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * BENCH
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     portfolio bench return([
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-088
+ * Changed ..... not in git yet (—)
+ */
 const BENCH = () => portfolioBenchReturn([
   { benchReturn: 0.10, marketValue: 40000 },
   { benchReturn: 0.04, marketValue: 10000 },

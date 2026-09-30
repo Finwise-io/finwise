@@ -6,7 +6,10 @@
  *  together, so eventually one does and the other does not. One definition, imported.
  */
 /** One expense the person logged: what it cost, what it was for, and when. */
-export interface LoggedExpense { amount: any; category: string; store?: string; date: string; }
+export interface LoggedExpense { amount: any; category: string; store?: string; date: string;
+                                 /** absent = the person typed it; 'imported' = it came from a card
+                                  *  or a file. The approved mock draws the two apart. */
+                                 origin?: 'imported'; }
 
 /** The category a logged expense carries when it IS a debt payment rather than expenses.
  *  It must match what the debt screens write, or a payment is counted twice — once as a debt
@@ -27,17 +30,17 @@ export const DEBT_CATEGORY = 'Debt payment';
  *               MK-CF-F-151 actualSpending · MK-CF-F-153 radar
  *               MK-CF-F-157 debtPaymentsByDebt
  *
- * Reaches ..... 107 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-CF-F-202 TAX · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-151 actualSpending
- *               MK-XS-F-057 analyzeExpenses · MK-CF-F-012 annualCashflow
- *               MK-CF-F-044 annualNet · MK-CF-O-001 basePay
- *               … and 89 more — the full list is on functions_from_code
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-151 actualSpending · MK-XS-F-057 analyzeExpenses
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

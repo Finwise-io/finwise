@@ -40,10 +40,11 @@ const dayMs = 86_400_000;
  * Called by ... MK-ST-F-038 windowBounds · MK-ST-F-063 shiftDay
  *               MK-ST-F-064 modifiedDietzOverWindow
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-083 PERF · MK-ST-F-064 modifiedDietzOverWindow
- *               MK-ST-F-063 shiftDay · MK-NW-O-008 thePerformance
- *               MK-ST-F-038 windowBounds
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-ST-F-064 modifiedDietzOverWindow · MK-ST-F-063 shiftDay
+ *               MK-NW-O-008 thePerformance · MK-ST-F-038 windowBounds
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -61,9 +62,11 @@ const toUtc = (d: string) => Date.parse(`${d}T00:00:00Z`);
  *
  * Called by ... MK-ST-F-038 windowBounds
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-083 PERF · MK-ST-F-064 modifiedDietzOverWindow
- *               MK-NW-O-008 thePerformance · MK-ST-F-038 windowBounds
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-ST-F-064 modifiedDietzOverWindow · MK-NW-O-008 thePerformance
+ *               MK-ST-F-038 windowBounds
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -90,9 +93,10 @@ export interface WindowBounds {
  *
  * Called by ... MK-NW-O-008 thePerformance · MK-ST-F-064 modifiedDietzOverWindow
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-083 PERF · MK-ST-F-064 modifiedDietzOverWindow
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-ST-F-064 modifiedDietzOverWindow · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -150,8 +154,10 @@ export interface ReturnVerdict {
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-083 PERF · MK-NW-O-008 thePerformance
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

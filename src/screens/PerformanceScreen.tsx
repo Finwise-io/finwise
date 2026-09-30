@@ -311,7 +311,7 @@ export default function PerformanceScreen() {
               and the VALUE WALK. Both read the same rows/breakdown the hero below uses, so the two
               can never disagree; the walk's rows sum to the ending value by construction. */}
           {hasInvestments && (() => {
-            const { windowStart, walk, ret: shownReturn, sentence, cumulative, perYear, years } = windowFigures[period] ?? figuresFor(period);
+            const { windowStart, walk, ret: shownReturn, sentence, cumulative, perYear, years, refusedRate } = windowFigures[period] ?? figuresFor(period);
             const yearsWord = years >= 1.9 && years < 2.1 ? 'two years' : `${years.toFixed(1)} years`;
             const gaps = dataGaps(accounts, windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any);
             return (
@@ -321,12 +321,23 @@ export default function PerformanceScreen() {
                   <View style={styles.trioRow}>
                     <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(walk.ending))}</Text></View>
                     <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(walk.wealthGenerated)))}</Text></View>
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (shownReturn ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn == null ? '—' : pct(shownReturn)}</Text></View>
+                    {/* MARKS 16 AND 18, approved as mock v17 (2026-09-30). 16: where the window return
+                        refuses, the EXACT rate per year stands in its place instead of an em-dash — the
+                        person actively adding money is the one who most needs a rate and used to get
+                        none. 18: this cell prints the plain percent and NOT "/year"; the yearly rate
+                        with its words sits under the chosen window above. Measured at the app's type
+                        sizes: the three cells need 270 of the card's 334 points that way, against 328
+                        with "/year" in here — six points of headroom, which is why it wrapped. */}
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (shownReturn ?? refusedRate ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn != null ? pct(shownReturn) : refusedRate != null ? pct(refusedRate) : '—'}</Text></View>
                   </View>
                   <Text style={styles.sumNote}>
-                    {sentence
-                      ? sentence
-                      : `Return is for the window you picked (${phraseFor(period)}) — not a yearly rate. Money you added never counts as return.`}
+                    {sentence && refusedRate != null
+                      /* mark 16: the refusal sentence is replaced by what the figure IS. A person reading
+                         a rate has to be told it is a yearly one, counted from when the money went in. */
+                      ? `Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money.`
+                      : sentence
+                        ? sentence
+                        : `Return is for the window you picked (${phraseFor(period)}) — not a yearly rate. Money you added never counts as return.`}
                   </Text>
                   {rebuilt && (
                     <Text style={styles.sumNote}>
@@ -747,14 +758,21 @@ const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2
 function WindowSelector({ windows, chosen, figures, onPick }: {
   windows: { key: string; label: string }[];
   chosen: string;
-  figures: Record<string, { ret: number | null; perYear?: number | null }>;
+  figures: Record<string, { ret: number | null; perYear?: number | null; refusedRate?: number | null }>;
   onPick: (key: string) => void;
 }) {
   return (
     <View style={styles.segBar}>
       {windows.map((w, i) => {
         const on = w.key === chosen;
-        const ret = figures[w.key]?.ret ?? null;
+        // MARK 16 + 18 (mock v17, approved 2026-09-30). Where the window return refused, the segment
+        // carries the EXACT rate per year in its place — and it is always a yearly rate, so "/year"
+        // rides under it exactly as it does for a window longer than a year. This is where the yearly
+        // rate lives; the summary trio above prints the plain percent so its three cells fit one row.
+        const windowRet = figures[w.key]?.ret ?? null;
+        const stoodIn = figures[w.key]?.refusedRate ?? null;
+        const ret = windowRet ?? stoodIn;
+        const perYear = figures[w.key]?.perYear != null || (windowRet == null && stoodIn != null);
         const divider = i > 0 && !on && chosen !== windows[i - 1].key;
         return (
           <React.Fragment key={w.key}>
@@ -762,11 +780,11 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
             <TouchableOpacity
               style={[styles.seg, w.key === 'SINCE' && styles.segWide, on && styles.segOn]}
               accessibilityRole="button" accessibilityState={{ selected: on }}
-              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${pct(ret)}${figures[w.key]?.perYear != null ? ' a year' : ''}`}`}
+              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${pct(ret)}${perYear ? ' a year' : ''}${windowRet == null ? ', counting when you added money' : ''}`}`}
               onPress={() => onPick(w.key)}>
               <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segRest]}>{w.label}</Text>
               <Text numberOfLines={1} style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>{ret == null ? '—' : pct(ret)}</Text>
-              {figures[w.key]?.perYear != null && (
+              {perYear && (
                 <Text numberOfLines={1} style={[styles.segPer, on && styles.segOnT]}>/year</Text>
               )}
             </TouchableOpacity>

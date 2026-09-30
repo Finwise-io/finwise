@@ -45,17 +45,17 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *
  * Called by ... MK-PF-F-002 costBasis · MK-PF-F-004 marketValue
  *
- * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-080 HOLD
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-PF-F-016 attribution · MK-PF-F-003 avgCost
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-PF-F-002 costBasis
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               … and 51 more — the full list is on functions_from_code
+ * Reaches ..... 72 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-080 HOLD · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-016 attribution
+ *               MK-PF-F-003 avgCost · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               … and 54 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -150,17 +150,17 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  *               MK-PF-F-003 avgCost · MK-PF-F-004 marketValue
  *               MK-PF-F-018 portfolioTrend
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-080 HOLD
- *               MK-NW-F-082 NW · MK-CF-F-111 applyTransaction
- *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-016 attribution
- *               MK-PF-F-003 avgCost · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               … and 52 more — the full list is on functions_from_code
+ * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-080 HOLD · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
+ *               MK-PF-F-016 attribution · MK-PF-F-003 avgCost
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
+ *               … and 55 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -187,8 +187,9 @@ export function totalShares(p: Position): number {
  *               MK-PF-F-014 buildPerformance · MK-PL-F-081 taxableGainShare
  *               MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 62 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 64 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-080 HOLD · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
  *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-003 avgCost
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
@@ -196,8 +197,7 @@ export function totalShares(p: Position): number {
  *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 44 more — the full list is on functions_from_code
+ *               … and 46 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -253,17 +253,17 @@ export function avgCost(p: Position): number {
  *               MK-PF-F-019 portfolioPeriodReturn · MK-PF-F-020 portfolioBenchReturn
  *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 66 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-080 HOLD
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-PF-F-016 attribution · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               … and 48 more — the full list is on functions_from_code
+ * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-080 HOLD · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-016 attribution
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               … and 51 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -474,8 +474,9 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -483,8 +484,7 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 37 more — the full list is on functions_from_code
+ *               … and 39 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -511,8 +511,9 @@ export function closeOnOrBefore(series: PriceSeries | null | undefined, isoDate:
  * Called by ... MK-PF-F-010 periodReturn · MK-PF-F-011 periodReturnSince
  *               MK-PF-F-014 buildPerformance · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 61 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -520,8 +521,7 @@ export function closeOnOrBefore(series: PriceSeries | null | undefined, isoDate:
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
  *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               … and 41 more — the full list is on functions_from_code
+ *               … and 43 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -665,8 +665,9 @@ export const BENCHMARK_TICKER: Record<string, string> = {
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-XS-F-175 uid
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -674,8 +675,7 @@ export const BENCHMARK_TICKER: Record<string, string> = {
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
  *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               … and 38 more — the full list is on functions_from_code
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -725,7 +725,7 @@ export interface PerformanceRow {
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... MK-PF-M-006 · MK-PF-M-007
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -927,7 +927,7 @@ export function portfolioTrend(
 }
 
 /** Value-weighted portfolio period return across holdings that have one (decimal), or null. */
-/* ─ MK-PF-F-019 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-019 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * portfolioPeriodReturn
  *
  * Answers ..... Value-weighted portfolio period return across holdings that have one (decimal), or null.
@@ -940,7 +940,7 @@ export function portfolioTrend(
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... MK-XS-M-004
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
  *     · Second verification G18, 2026-09-08: this is the value-weighted average of holding returns, not a Dietz return.
@@ -969,9 +969,12 @@ export function portfolioPeriodReturn(rows: PerformanceRow[]): number | null {
  *     nothing   when total ≤ 0
  *     the answer = Σ over usable of ((bench return as number) × market value)÷ total
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-088 BENCH
  *
- * Serves ...... MK-PF-M-008
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-020
  * Changed ..... 2026-07-29 (13c9be6)
@@ -987,7 +990,7 @@ export function portfolioBenchReturn(rows: PerformanceRow[]): number | null {
  *  "up $11,200 (1.4%) this month": dollars AND percent from the SAME measured return, so the two
  *  figures can never disagree (one concept, one source). currentTotal / (1+ret) is the period-start
  *  value; the delta is what that grew (or shrank) by. */
-/* ─ MK-PF-F-021 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-021 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * periodDollarDelta
  *
  * Answers ..... The DOLLAR change implied by a period return on today's total — the approved Home hero shows "up $11,200 (1.4%) this month": dollars AND percent from the SAME measured return, so the two figures can never disagree (one concept, one source).

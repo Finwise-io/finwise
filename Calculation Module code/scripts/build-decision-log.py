@@ -18,6 +18,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 os.chdir(ROOT)
 OUT = 'MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx'
+# never write over a workbook he has open (2026-09-30)
+refuse_if_open(OUT)
 TODAY = datetime.date.today().isoformat()
 
 def _load(n):
@@ -26,6 +28,7 @@ def _load(n):
 S = _load('moneykeel_decision_schema')
 sys.path.insert(0, HERE)
 from xlsx_readable import readable
+from moneykeel_open_workbook import refuse_if_open
 
 doc = json.load(open(os.path.join(HERE, 'moneykeel_decisions.json')))
 rows = doc['rows']

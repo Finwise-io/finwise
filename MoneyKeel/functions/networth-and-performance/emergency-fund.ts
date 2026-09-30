@@ -108,7 +108,7 @@ export interface EmergencyFund {
  *     ess = essentials monthly(input.expenses ?? [], monthly essentials(input.profile))
  *     monthly = (ess.monthly ?? 0) + debt minimums
  *     planned = planned monthly spend(input.profile) + debt minimums
- *     target = monthly × months
+ *     kind = string(debt type ?? type ?? '').to upper case()
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-079 EF

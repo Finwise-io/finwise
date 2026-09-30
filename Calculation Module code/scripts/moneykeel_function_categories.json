@@ -1287,7 +1287,7 @@
  "historyIsComplete": {
   "id": "MK-PF-F-025",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "holdingId": {
   "id": "MK-ST-F-026",
@@ -1792,7 +1792,7 @@
  "moneyWeightedReturn": {
   "id": "MK-PF-F-026",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "monthKey": {
   "id": "MK-CF-F-163",
@@ -1947,7 +1947,7 @@
  "npv": {
   "id": "MK-PF-F-030",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "numOrNaN": {
   "id": "MK-XS-F-171",
@@ -2263,6 +2263,11 @@
   "id": "MK-CF-F-181",
   "file": "src/domain/income/tax-rate.ts",
   "category": "3 · DEPENDENT"
+ },
+ "rateWhereItRefuses": {
+  "id": "MK-NW-F-102",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "2 · DISPLAYED"
  },
  "readFileString": {
   "id": "MK-XS-F-059",
@@ -3237,7 +3242,7 @@
  "userFlows": {
   "id": "MK-PF-F-024",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "usesSleeve": {
   "id": "MK-CF-F-134",

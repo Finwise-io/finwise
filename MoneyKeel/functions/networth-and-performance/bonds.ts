@@ -32,9 +32,14 @@ const CD_RE = /\b(cd|certificate of deposit)\b/i;
  *
  * Called by ... MK-NW-F-072 rowOf
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-100 TREND · MK-NW-F-102 rateWhereItRefuses
  *               MK-NW-F-072 rowOf · MK-NW-O-001 theBonds
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -105,9 +110,14 @@ export interface BondsInput {
  *
  * Called by ... MK-NW-O-001 theBonds
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
- *               MK-NW-O-001 theBonds
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-100 TREND · MK-NW-F-102 rateWhereItRefuses
+ *               MK-NW-O-001 theBonds · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -190,8 +200,13 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-077 ALL · MK-NW-F-078 ONE
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-100 TREND · MK-NW-F-102 rateWhereItRefuses
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
@@ -290,8 +305,13 @@ const GIVEN =
  *
  * Called by ... MK-NW-F-078 ONE
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-078 ONE
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-100 TREND
+ *               MK-NW-F-102 rateWhereItRefuses · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -307,7 +327,14 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-102 rateWhereItRefuses · MK-NW-O-003 theNetWorth
+ *
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-100 TREND · MK-NW-F-102 rateWhereItRefuses
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

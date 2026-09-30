@@ -1094,7 +1094,7 @@
     "/networth"
    ],
    "answers": "What one band under WHAT YOU OWN holds — here the vehicles and valuables.",
-   "formula": "the balances of every account in that band, added up",
+   "formula": "the balances of every account in that band, added up — for this band, every account whose class is personal property: vehicles and valuables. Real estate is its own band.",
    "inputs": [
     "MK-NW-I-001 your accounts"
    ],

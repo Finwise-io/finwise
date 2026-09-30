@@ -111,22 +111,19 @@ export interface TheNetWorth {
  *     nothing   if as percent = nothing
  *     as percent ÷ 100   otherwise
  *
- * Called by ... MK-NW-F-082 NW
+ * Called by ... MK-NW-F-082 NW · MK-NW-F-100 TREND
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND
  *
- * Serves ...... MK-MN-M-016 · MK-MN-M-022 · MK-NW-M-002 · MK-NW-M-004
- *               MK-NW-M-005 · MK-NW-M-007 · MK-NW-M-009 · MK-NW-M-011
- *               MK-NW-M-017 · MK-XS-M-001 · MK-XS-M-003
+ * Serves ...... MK-MN-M-016 · MK-MN-M-022 · MK-NW-M-001 · MK-NW-M-002
+ *               MK-NW-M-003 · MK-NW-M-004 · MK-NW-M-005 · MK-NW-M-006
+ *               MK-NW-M-007 · MK-NW-M-008 · MK-NW-M-009 · MK-NW-M-011
+ *               MK-NW-M-015 · MK-NW-M-016 · MK-NW-M-017 · MK-XS-M-001
+ *               MK-XS-M-003
  * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-003 institution name
  *               MK-XS-I-014 debt balance
- *               MK-XS-I-015 debt interest rate
- *               MK-XS-I-016 debt minimum payment
- *               MK-XS-I-028 assumed return
- *               MK-XS-I-048 the person’s own asset-class answer
  *
  * Decides .....
  *     · If alternatives is missing it uses 0.
@@ -217,6 +214,46 @@ export interface LedgerGroup {
   mix: { key: string; total: number }[];
 }
 
+/* ─ MK-NW-F-094 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * ledgerGroups
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     out = new map<string, ledger group>()
+ *     label = class label of(a)   if by = 'class'
+ *     string((a as any).institution ?? '').trim() (or 'no institution set' when missing or zero)   otherwise
+ *     g = out.get(label) (or label = label
+ *     total = 0
+ *     account ids = []
+ *     mix = [] when missing)
+ *     k = class key of(a)
+ *     m = mix.find((x) => key = k) (or key = k
+ *     total = 0 when missing)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-NW-F-097 LEDGER
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-014 debt balance
+ *               MK-XS-I-015 debt interest rate
+ *               MK-XS-I-016 debt minimum payment
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-094
+ * Changed ..... 2026-09-30 (d31209e)
+ */
 export function ledgerGroups(
   accounts: AssetAccount[],
   by: 'class' | 'institution',
@@ -279,14 +316,18 @@ const GIVEN =
  * Formula .....
  *     the net worth(EXAMPLE)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-101 PLAN
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-003 institution name
+ *               MK-XS-I-028 assumed return
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-082
  * Changed ..... not in git yet (—)
@@ -311,12 +352,91 @@ const LEDGER_ACCOUNTS = [
 const LEDGER_GIVEN =
   'The five accounts above plus a $21,000 car: $18,000 checking, $142,000 brokerage, a $24,200 Treasury '
   + 'at Fidelity, a $310,000 rental with no institution recorded, $9,000 of gold in a vault and the car.';
+/* ─ MK-NW-F-095 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * CLASS_LABEL_OF
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-097 LEDGER
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-095
+ * Changed ..... not in git yet (—)
+ */
 const CLASS_LABEL_OF = (a: any) => ({
   cash: 'Cash', stocks_etf: 'Stocks / Funds', bonds: 'Bonds & CDs', alternatives: 'Alternatives',
   real_estate: 'Real estate', personal_property: 'Personal property', mixed: 'Mixed',
 } as Record<string, string>)[String(a.asset_class)] ?? 'Unclassified';
+/* ─ MK-NW-F-096 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * CLASS_KEY_OF
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     string(asset class)
+ *
+ * Called by ... MK-NW-F-097 LEDGER
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-096
+ * Changed ..... not in git yet (—)
+ */
 const CLASS_KEY_OF = (a: any) => String(a.asset_class);
+/* ─ MK-NW-F-097 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * LEDGER
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     ledger groups(LEDGER_ACCOUNTS, by, CLASS_LABEL_OF, CLASS_KEY_OF)
+ *
+ * Called by ... MK-NW-F-082 NW · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-101 PLAN
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-003 institution name
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-097
+ * Changed ..... not in git yet (—)
+ */
 const LEDGER = (by: 'class' | 'institution') => ledgerGroups(LEDGER_ACCOUNTS, by, CLASS_LABEL_OF, CLASS_KEY_OF);
+/* ─ MK-NW-F-098 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * LEDGER_BAND
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     LEDGER('class').find((g) => label = label).total (or nothing when missing)
+ *
+ * Called by ... MK-NW-F-101 PLAN
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-098
+ * Changed ..... not in git yet (—)
+ */
 const LEDGER_BAND = (label: string) => LEDGER('class').find((g) => g.label === label)?.total ?? null;
 
 /** THE TREND LINE, worked. Four months of recorded net worth and one daily point after them. The
@@ -325,7 +445,45 @@ const LEDGER_BAND = (label: string) => LEDGER('class').find((g) => g.label === l
 const TREND_GIVEN =
   'Net worth recorded at the end of each month — $240,000 in January, $246,000 in February, $252,000 in '
   + 'March, $258,000 in April — and one daily point of $261,200 on 30 April.';
+/* ─ MK-NW-F-099 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * SNAP
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-100 TREND
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-099
+ * Changed ..... not in git yet (—)
+ */
 const SNAP = (month: string, net: number) => ({ month, net_worth: net, gross_assets: net + 242000, gross_debt: 242000 });
+/* ─ MK-NW-F-100 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * TREND
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-101 PLAN
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-029 inflation rate
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-100
+ * Changed ..... not in git yet (—)
+ */
 const TREND = () => theNetWorth({
   ...EXAMPLE,
   // A MONTH IS A SNAPSHOT, NOT A NUMBER — which is what normalizeSnapshot enforces, and what my first
@@ -345,6 +503,29 @@ const PLAN_GIVEN =
   'A 50-year-old with $184,200 of cash and investments, saving $24,000/year, retiring at 65 and '
   + 'planning to 92, expecting 6% a year with 2.5% inflation, with expenses of $5,500/month in retirement '
   + 'and $2,400/month of guaranteed income from 67.';
+/* ─ MK-NW-F-101 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * PLAN
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-018 retirement age
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-101
+ * Changed ..... not in git yet (—)
+ */
 const PLAN = () => projectNestEgg({
   current_age: 50, retire_age: 65, horizon_age: 92,
   start_balance: 184200, annual_contribution: 24000,
@@ -412,7 +593,8 @@ export const NET_WORTH_FIGURES = declareFigures({
   'MK-NW-M-006': {
     label: '\ud83c\udfe0 PERSONAL PROPERTY', unit: 'money', screens: ['/networth'],
     answers: 'What one band under WHAT YOU OWN holds \u2014 here the vehicles and valuables.',
-    formula: 'the balances of every account in that band, added up',
+    formula: 'the balances of every account in that band, added up \u2014 for this band, every account whose '
+      + 'class is personal property: vehicles and valuables. Real estate is its own band.',
     inputs: ['MK-NW-I-001 your accounts'],
     grain: 'one figure per band',
     decisions: [

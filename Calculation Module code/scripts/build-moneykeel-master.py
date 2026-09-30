@@ -11,6 +11,9 @@ from openpyxl.utils import get_column_letter
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.chdir(ROOT)
 OUT = 'MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx'
+# never write over a workbook he has open (2026-09-30) — it leaves his screen showing the OLD copy
+from moneykeel_open_workbook import refuse_if_open
+refuse_if_open(OUT)
 TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
@@ -714,7 +717,14 @@ def declared_row(mid, f, tab):
             f.get('grain') or 'one figure per household', ('a ' + f['per']) if f.get('per') else 'as of today',
             'Declared by ' + door, 'Declared by ' + door, decisions, decisions,
             '', decisions, f.get('note', ''),
-            ('' if f.get('ruled') else '1. Is this row right — the words on screen, the formula, the inputs, the decisions and what it says when it cannot be computed? Say yes, or say what changes.'), '',
+            # THIS COLUMN NO LONGER CARRIES "IS THIS ROW RIGHT?" (founder, 2026-09-30: "what kind of
+            # question is this?"). It is not a question — it asked him to re-read a whole row without
+            # naming what was at issue, and it is the VERIFIED step duplicated into the questions
+            # column. 13 rows on his answer list carried nothing else, which made his list look a third
+            # longer than the real work. A DRAFT row's STATUS already says it waits for his verdict, and
+            # column AM is where he gives it. A question goes here only when it names the thing to
+            # decide, the way Q53 does.
+            '', '',
             '', '', ('DECLARED IN THE CODE (rule 11) — printed from the door, not typed. RULED ' + f['ruled'] if f.get('ruled')
                      else 'DRAFT — declared in the code and printed here, WAITING FOR YOUR VERDICT before the screens move behind the door (rule 10)'),
             '', '', '', '', '', 'ACTIVE', TODAY,
@@ -834,6 +844,14 @@ for _o in _OV:
     for _r in range(2, _sh.max_row + 1):
         if str(_sh.cell(_r, 1).value or '').strip() == _o['key']:
             _sh.cell(_r, _ci).value = _o['text']; break
+# HIS ANSWERS TO THE NUMBERED QUESTIONS (2026-09-30). The questions column existed and the answers
+# column was never filled by anything, so a question he had answered in chat stayed open in the file
+# for ever — Q51, Q52 and Q53 were ruled, built, tested and still printed as open. His words:
+# "why is Q53 still unanswered in file - what ever guard you have created million time is still not
+# working." It was not a guard failing; there was no home for an answer at all. There is one now, and
+# check-questions-answered.py fails the build when an answer here does not reach the file.
+_QANS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_question_answers.json')))['rows']
+
 _QBM = getattr(_f, 'QUESTIONS_BY_METRIC', {})
 for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
     _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
@@ -847,6 +865,17 @@ for _t in ['multiple_screens','home','networth','performance','plan','cashflow',
         if _mid in _QBM:
             _cur = str(_sh.cell(_r, _iV).value or '').strip()
             _sh.cell(_r, _iV).value = (_cur + '\n\n' if _cur else '') + '\n\n'.join(_QBM[_mid])
+        # and his answer, beside the question, on every row that carries it
+        _iA = _hd.index('YOUR ANSWER \u2014 use the same number') + 1
+        _qtext = str(_sh.cell(_r, _iV).value or '')
+        _mine = [(_qn, _a) for _qn, _a in _QANS.items() if re.search(r'\b' + _qn + r'\b', _qtext)]
+        if _mine:
+            _have = str(_sh.cell(_r, _iA).value or '').strip()
+            _add = '\n\n'.join(
+                f"{_qn} \u2014 ANSWERED {_a['answered']}: {_a['his_words']}\n\nBUILT: {_a['what_was_built']}"
+                for _qn, _a in _mine if _qn not in _have)
+            if _add:
+                _sh.cell(_r, _iA).value = (_have + '\n\n' if _have else '') + _add
         for _c in range(1, len(_hd) + 1):
             _v = _sh.cell(_r, _c).value
             if isinstance(_v, str): _sh.cell(_r, _c).value = canon(_v)

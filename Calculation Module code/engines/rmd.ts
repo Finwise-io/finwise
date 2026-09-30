@@ -31,17 +31,17 @@ export const RMD_RULE_ASOF = '2026-08-20';
  *
  * Called by ... MK-PL-F-006 rmdDivisor · MK-ST-F-025 rmdStartAgeFromAge
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-PL-F-003 depletionAge
- *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-043 howTheGapCloses
- *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
- *               MK-PL-F-027 nextDecision · MK-PL-F-069 oddsAt
- *               MK-PL-F-071 oddsOf · MK-PL-F-044 planTarget
- *               MK-PL-F-055 projectNestEgg · MK-PL-F-041 requiredAnnualSaving
- *               MK-PL-F-035 retireAgeWithContribution · MK-PL-F-006 rmdDivisor
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-005 rmdStartAgeFor
- *               … and 15 more — the full list is on functions_from_code
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
+ *               MK-PL-F-043 howTheGapCloses · MK-PL-F-046 leverDeltas
+ *               MK-CF-F-042 mortgageOddsEffect · MK-PL-F-027 nextDecision
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
+ *               MK-PL-F-006 rmdDivisor · MK-PL-F-008 rmdSchedule
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
@@ -74,17 +74,17 @@ export function rmdStartAge(birthYear?: number | null): number {
  *
  * Called by ... MK-PL-F-005 rmdStartAgeFor · MK-PL-F-050 simulate
  *
- * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-PL-F-003 depletionAge
- *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-043 howTheGapCloses
- *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
- *               MK-PL-F-027 nextDecision · MK-PL-F-069 oddsAt
- *               MK-PL-F-071 oddsOf · MK-PL-F-044 planTarget
- *               MK-PL-F-055 projectNestEgg · MK-PL-F-041 requiredAnnualSaving
- *               MK-PL-F-035 retireAgeWithContribution · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-005 rmdStartAgeFor · MK-PL-F-042 savingToReachTarget
- *               … and 13 more — the full list is on functions_from_code
+ * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
+ *               MK-PL-F-043 howTheGapCloses · MK-PL-F-046 leverDeltas
+ *               MK-CF-F-042 mortgageOddsEffect · MK-PL-F-027 nextDecision
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-005 rmdStartAgeFor
+ *               … and 14 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

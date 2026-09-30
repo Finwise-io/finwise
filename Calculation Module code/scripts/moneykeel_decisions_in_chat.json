@@ -1,5 +1,5 @@
 {
- "_about": "DECISIONS HE MADE IN CHAT — the one hole the five swept sources cannot reach. A decision said in conversation and never written into a changelog, a standard or a workbook is in no file, so no sweep can find it. It is recorded HERE the same day, in his words, and the extractor folds it into the decision log beside the rest. This file is hand-written on purpose: it is the only place in the log that is.",
+ "_about": "DECISIONS HE MADE IN CHAT — the one hole the five swept sources cannot reach. A decision said in conversation and never written into a changelog, a standard or a workbook is in no file, so no sweep can find it. It is recorded HERE the same day, in his words, and the extractor folds it into the decision log beside the rest. This file is hand-written on purpose: it is the only place in the log that is.\n\nAND WHICH NUMBERED QUESTION EACH ONE ANSWERS (2026-09-30). Founder: “when I asked you to create one decision log and other files recording all decision no matter where I make that decision - how does not include updating with questions I am answering - they are not decision in your mind or what?” His answers to Q51, Q52 and Q53 WERE in the decision log from the moment he gave them — what I never did was carry them into the other file that holds the same decision, the master's own answer column, which is his PFS rule. Then I fixed it by inventing a SECOND home for answers, which is how two files come to disagree. So an answer names its question HERE, in the one log, and the master's answer column is printed from this file. One decision, one place, every destination fed from it.",
  "rows": [
   {
    "decided": "2026-09-28",
@@ -42,7 +42,10 @@
    "status": "TESTED, NOT VERIFIED",
    "proof": "src/__tests__/guard_d3_screens_agree.test.tsx — MK-PF-M-008: Home says WHICH figure counts dividends and interest",
    "plain": "The Home card compares your return with the market's, and the two were NOT measured the same way: yours counts the dividends and interest you actually received (his one-meaning-of-return ruling, 2026-09-25), while the market figure is the index's PRICE only, because no price feed we hold gives an index's dividends. Without saying so, the gap read as skill when part of it is simply income the market side cannot see.\nThe line now reads: you +3.69% (including dividends and interest) · market +2.83% · ahead by 0.85%.\nHIS WORDING, AND THE ONE WORD I CHANGED: he wrote “including dividend and interest”. It is built as “dividends and interest” — the plural is the word the change walk, the category table and the glossary already use for these two, and one term per concept is his standing order. Say the word if you want the singular.",
-   "changed": "src/screens/HomeScreen.tsx — the hero comparison line; styles.heroVs gains flexShrink so the longer line wraps inside the card instead of running off its edge"
+   "changed": "src/screens/HomeScreen.tsx — the hero comparison line; styles.heroVs gains flexShrink so the longer line wraps inside the card instead of running off its edge",
+   "answers": [
+    "Q51"
+   ]
   },
   {
    "decided": "2026-09-30",
@@ -57,7 +60,10 @@
    "status": "RULED, NOT CODED",
    "proof": "NOT YET BUILT — a mock comes first (mock-first standing order). Nothing is coded until he approves it.",
    "plain": "TODAY, when money moved in or out in amounts large enough that WHEN it moved would decide the percentage, the Return states nothing and the screen shows the dollar walk alone. That person — someone actively adding money — is the one who most needs a rate and currently never sees one.\nHIS RULING: show the exact rate there instead. Where the walk now says there is no percentage, it will read that counting when you added money, the rate was X% a year.\nWHY THIS IS SAFE, measured: the two methods are not different answers. The window Return divides the gain once by a straight-line average of the money at work; the money-weighted rate compounds each amount over its own days and solves for the rate. On $100,000 with $10,000 added on 1 July and $118,000 at the end, they give 7.6161% and 7.6341% — 0.018 of a percentage point apart. They can never be far apart, because the window Return REFUSES the moment its straight-line shortcut could be off by more than a percentage point. So this fills the gap it leaves and never contradicts it: one return is visible at a time.\nWHERE IT CAME FROM: the figure was built 2026-07-14 as its own card on the old Invest screen, and the Performance design he approved on 2026-09-25 (mock v14) removed that card. The function has been correct and reached by no screen since.",
-   "changed": "NOTHING YET — the mock first, then MK-NW-O-008 thePerformance returns the rate alongside its refusal, and PerformanceScreen prints it in place of the refusal sentence"
+   "changed": "NOTHING YET — the mock first, then MK-NW-O-008 thePerformance returns the rate alongside its refusal, and PerformanceScreen prints it in place of the refusal sentence",
+   "answers": [
+    "Q52"
+   ]
   },
   {
    "decided": "2026-09-30",
@@ -87,7 +93,61 @@
    "status": "TESTED, NOT VERIFIED",
    "proof": "src/__tests__/guard_d3_screens_agree.test.tsx — MK-PF-M-008: Home says WHICH figure counts dividends and interest",
    "plain": "APPROVED 2026-09-30 in one word: “Q51 -approved.” The line is built and pinned. ONE WORD DIFFERS FROM HIS TYPING and he approved it knowing so: he wrote “including dividend and interest” and the screen reads “dividends”, the plural the change walk, the category table and the glossary already use for these two — one term per concept.",
-   "changed": "src/screens/HomeScreen.tsx — the hero comparison line; styles.heroVs gains flexShrink so the longer line wraps inside the card"
+   "changed": "src/screens/HomeScreen.tsx — the hero comparison line; styles.heroVs gains flexShrink so the longer line wraps inside the card",
+   "answers": [
+    "Q51"
+   ]
+  },
+  {
+   "decided": "2026-09-30",
+   "his_words": "Q53 - what actually leaves.",
+   "subject": "Monthly debt payments shows the money that leaves, not the minimum owed",
+   "means": "MK-NW-M-012 on the Net worth screen shows what actually leaves the account each month, counting a payment set above the minimum.",
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics",
+   "governs": "MK-NW-M-012 Monthly debt payments · MK-NW-O-003 theNetWorth",
+   "exceptions": "The MINIMUM is still carried by the door as monthlyDebtMinimum, because debt-to-income is measured on the obligation and not on what someone chooses to pay.",
+   "status": "TESTED, NOT VERIFIED",
+   "proof": "MoneyKeel/functions/networth-and-performance/net-worth.test.ts — MK-NW-M-012, four tests including the screen reading the door",
+   "plain": "The line reads “Monthly debt payments” and two amounts could go there: the minimum each debt obliges, or the money that actually goes. On a card with a  minimum paid at , it read  and now reads . HIS WORDS: “what actually leaves.” The words say payments, and what a person pays is what they pay. The minimum stays on the door for debt-to-income.",
+   "changed": "src/screens/NetWorthScreen.tsx — the DEBTS card line now reads worth.monthlyDebtPayments",
+   "answers": [
+    "Q53"
+   ]
+  },
+  {
+   "decided": "2026-09-30",
+   "his_words": "Dec-0030 - remove it.",
+   "subject": "The look-back door comes off the holding page",
+   "means": "The “what if I had moved this money” entry is removed from Holding detail. /look-back itself stays, reached from Account detail and Contribution room.",
+   "tab": "performance",
+   "type": "DESIGN",
+   "screens": "/holding-detail",
+   "governs": "MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012 · DEC-0030",
+   "exceptions": "The look-back PAGE is not removed — only this door to it.",
+   "status": "TESTED, NOT VERIFIED",
+   "proof": "src/screens/__tests__/holding_detail_fcc.test.tsx — DEC-0030: the door must stay gone (the old pin, inverted rather than deleted)",
+   "plain": "He parked the decision, then said remove it. The button read “LOOK BACK: what if I’d sold a year ago?” and opened the look-back page pre-filled with this holding and its value. NOTHING IS STRANDED: the page is still reached from Account detail and from Contribution room, and the three look-back figures keep their door and their worked examples. The test that used to prove the door works now proves it is gone, so nobody re-adds it by accident.",
+   "changed": "src/screens/HoldingDetailScreen.tsx — the entry card removed"
+  },
+  {
+   "decided": "2026-09-30",
+   "his_words": "v17 approved.",
+   "subject": "Performance v17 APPROVED — the exact rate where the Return refuses, and the summary trio on one row",
+   "means": "Marks 16, 17 and 18 of moneykeel_pres_mock_performance_v17.html are approved and built.",
+   "tab": "performance",
+   "type": "DESIGN",
+   "screens": "/invest · /account-detail",
+   "governs": "MK-NW-O-008 thePerformance · MK-PF-F-026 moneyWeightedReturn · MK-XS-M-004 · MK-PF-M-004",
+   "exceptions": "The rate stands in ONLY where the window return refused — one return is visible at a time. It keeps its own honesty rules: under 30 days, or with no beginning to stand on, nothing is shown.",
+   "status": "TESTED, NOT VERIFIED",
+   "proof": "MoneyKeel/functions/networth-and-performance/performance.test.ts — mark 16 (four tests) · src/screens/__tests__/perf_v17_marks.test.tsx — what a person sees on both screens (three tests)",
+   "plain": "APPROVED in two words. THREE THINGS BUILT. (16) Where the window Return declines to state a percentage, the exact rate per year stands in its place instead of an em-dash, and the note beneath says what the figure IS rather than why there is none — on the Performance tab and on an account’s own page. IT IS THE WINDOW’S RATE, never the whole record’s: the solver is given this window’s beginning as an opening amount and this window’s own money in and out, so the figure answers the period the label names. (18) The summary trio prints the PLAIN percent so its three cells fit one row — measured, they need 270 of the card’s 334 points that way against 328 with “/year” in the cell — and the yearly rate with its words rides under the chosen window in the control above. (17) The colours were a mock-only correction; the app already used its own tokens.",
+   "changed": "MoneyKeel/functions/networth-and-performance/performance.ts (thePerformance gains refusedRate) · src/screens/PerformanceScreen.tsx (the trio, the note, the window selector) · src/screens/AccountDetailScreen.tsx (the trio and its note)",
+   "answers": [
+    "Q52"
+   ]
   }
  ]
 }

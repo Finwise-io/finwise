@@ -129,3 +129,62 @@ describe('B-115 — the Since window opens where the record can answer', () => {
     expect(windowStartKey('SINCE', [], TODAY)).toBe(TODAY);   // no record: it opens today, not a year ago
   });
 });
+
+/* ── HIS Q52 RULING, BUILT (mock v17 marks 16 and 18, approved 2026-09-30) ────────────────────────
+ *
+ *  Where the window return refuses, the EXACT rate per year stands in its place instead of an em-dash.
+ *  His words: "use option B", then "v17 approved".
+ *
+ *  THE RATE IS THE WINDOW'S, NEVER THE WHOLE RECORD'S. MK-PF-F-026 solves from the first flow it is
+ *  given, so it is given this window: the beginning as an opening amount on the day before the window
+ *  opens, then the window's own money in and out. Handing it the whole record would answer about a
+ *  different period than the label above it names, which is the class of error this review exists to
+ *  remove.
+ */
+describe('mark 16 — the exact rate where the window return refuses', () => {
+  const day = (d: string, v: number) => ({
+    date: d, origin: 'observed', writtenAt: 'x',
+    holdings: [{ accountId: 'a1', securityKey: 'X', units: 1, price: v, value: v }],
+    accounts: [{ date: d, accountId: 'a1', cash: 0, statedTotal: v, currency: 'USD' }],
+  });
+  const dep = (amount: number, date: string) => [{ txn_id: 'c', account_id: 'a1', type: 'DEPOSIT', amount, date }];
+  const ask = (beg: number, end: number, txns: any[] = []) => thePerformance({
+    windowStart: '2025-10-02', windowLabel: 'since Oct 1', today: '2026-09-30',
+    ending: end, pricedGain: 0, transactions: txns,
+    snapshotDays: [day('2025-10-01', beg)] as any, investmentAccountIds: new Set(['a1']),
+  });
+
+  test("it stands in ONLY where the window return refused — one return is visible at a time", () => {
+    const refuses = ask(100_000, 123_000, dep(15_000, '2026-04-01'));
+    expect(refuses.ret).toBeNull();                    // $15,000 into $100,000: timing would decide it
+    expect(refuses.refusedRate).toBeCloseTo(0.0746, 4);
+
+    const answers = ask(20_000, 22_000);               // nothing added, so nothing is in doubt
+    expect(answers.ret).toBeCloseTo(0.10, 6);
+    expect(answers.refusedRate).toBeNull();            // and the rate does NOT also appear
+  });
+
+  test('it is the WINDOW\'s rate — the same figures the approved mock prints', () => {
+    expect(ask(100_000, 123_000, dep(15_000, '2026-04-01')).refusedRate!).toBeCloseTo(0.0746, 4);
+    expect(ask(80_000, 101_000, dep(15_000, '2026-04-01')).refusedRate!).toBeCloseTo(0.0688, 4);
+  });
+
+  test('and it keeps its own honesty rule: under 30 days there is no yearly rate to state', () => {
+    const short = thePerformance({
+      windowStart: '2026-09-20', windowLabel: 'since', today: '2026-09-30',
+      ending: 123_000, pricedGain: 0, transactions: dep(15_000, '2026-09-25'),
+      snapshotDays: [day('2026-09-19', 100_000)] as any, investmentAccountIds: new Set(['a1']),
+    });
+    expect(short.ret).toBeNull();
+    expect(short.refusedRate).toBeNull();              // nothing invented to fill the gap
+  });
+
+  test('with no beginning to stand on, there is no rate either', () => {
+    const noRecord = thePerformance({
+      windowStart: '2025-10-02', windowLabel: 'since', today: '2026-09-30',
+      ending: 0, pricedGain: 0, transactions: [], snapshotDays: [],
+      investmentAccountIds: new Set(['a1']),
+    });
+    expect(noRecord.refusedRate).toBeNull();
+  });
+});

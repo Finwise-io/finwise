@@ -56,13 +56,22 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     expect(covers(days, '2026-06-29')).toBe(false);          // and June's is honestly not
   });
 
-  test('the D4 return refusals are wired: a refused rate shows its sentence in the summary note', () => {
+  test('the D4 return refusals are wired — and since v17 a refusal shows the EXACT RATE, not its sentence', () => {
     const src = door();
     expect(src).toContain("engines/window-return");
     // the refusal is carried on the window's own figures (one set per window, 2026-09-25) and only a
     // REAL refusal speaks: having no record yet is an em-dash, not a sentence
     expect(src).toMatch(/const refused = verdict != null && verdict\.rate == null;/);
     expect(src).toMatch(/sentence: refused \? verdict!\.sentence : ''/);
-    expect(read('PerformanceScreen.tsx')).toMatch(/\{sentence\s*\n?\s*\?\s*sentence/);
+    // HIS RULING ON Q52, built as mock v17 mark 16 and approved 2026-09-30: where the window return
+    // refuses, the exact rate per year stands in its place and the note says WHAT THE FIGURE IS. So the
+    // screen no longer prints the refusal sentence when a rate could be stated — it prints it only when
+    // even the rate refuses. This assertion is inverted rather than deleted, so the old behaviour
+    // cannot creep back.
+    const screen = read('PerformanceScreen.tsx');
+    expect(src).toMatch(/refusedRate/);                                  // the door hands it out
+    expect(screen).toMatch(/sentence && refusedRate != null/);           // the screen prefers the rate
+    expect(screen).toMatch(/this is your rate per year, counting when you added money/);
+    expect(screen).not.toMatch(/\{sentence\s*\n?\s*\?\s*sentence/);     // the old unconditional branch is gone
   });
 });

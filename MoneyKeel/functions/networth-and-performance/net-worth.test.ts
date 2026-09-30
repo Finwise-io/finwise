@@ -172,10 +172,14 @@ describe('MK-NW-M-012 — the two monthly debt figures, both named', () => {
     expect(a.monthlyDebtPayments).toBe(0);       // a dated lump is not a monthly outflow
   });
 
-  test('the Net worth screen reads the DOOR, and prints the minimum until he rules otherwise', () => {
+  test('HIS RULING ON Q53 — the screen shows WHAT ACTUALLY LEAVES, read from the door', () => {
+    // 2026-09-30, in two words: "what actually leaves". The line showed the MINIMUM each debt obliges;
+    // it now shows the money that goes, which counts a payment set above the minimum. The minimum is
+    // still on the door for debt-to-income, where the obligation is the right figure.
     const screen = require('fs').readFileSync(
       require('path').join(__dirname, '..', '..', '..', 'src', 'screens', 'NetWorthScreen.tsx'), 'utf8');
-    expect(screen).toMatch(/Monthly debt payments[\s\S]{0,220}worth\.monthlyDebtMinimum/);
+    expect(screen).toMatch(/Monthly debt payments[\s\S]{0,220}worth\.monthlyDebtPayments/);
     expect(screen).not.toMatch(/Monthly debt payments[\s\S]{0,220}dState\.total_monthly_debt_service/);
+    expect(screen).not.toMatch(/Monthly debt payments[\s\S]{0,220}worth\.monthlyDebtMinimum/);
   });
 });

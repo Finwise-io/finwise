@@ -100,10 +100,15 @@ test('lots list: date leads, shares-at-price follows — the approved table gram
   expect(screen.getByText('Jan 12, 2024')).toBeOnTheScreen();
 });
 
-test('look back opens PRE-FILLED with this holding (ticker + current value)', () => {
+test('DEC-0030 — the look-back door is GONE from this page, on his word "remove it"', () => {
+  // It used to read "LOOK BACK: what if I'd sold a year ago?" and open /look-back pre-filled with this
+  // holding and its value. He parked the decision on 2026-09-30 and then said remove it, so this pin
+  // is inverted rather than deleted: the door must stay gone, and nothing is stranded because
+  // /look-back is still reached from Account detail and from Contribution room.
   render(<HoldingDetailScreen />);
-  fireEvent.press(screen.getByLabelText(/Look back: what if I'd sold NVDA/));
-  expect(mockPushes.find((r) => r.startsWith('/look-back?from=NVDA&amount='))).toBeTruthy();
+  expect(screen.queryByLabelText(/Look back/i)).toBeNull();
+  expect(screen.queryByText(/LOOK BACK/)).toBeNull();
+  expect(mockPushes.find((r) => r.startsWith('/look-back'))).toBeFalsy();
 });
 
 test('dividends & realized: one card — trailing 12 months from the one ledger, zeros said plainly', () => {

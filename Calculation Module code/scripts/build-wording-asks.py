@@ -19,8 +19,11 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 os.chdir(ROOT)
 sys.path.insert(0, HERE)
 from xlsx_readable import readable
+from moneykeel_open_workbook import refuse_if_open
 
 OUT = 'MoneyKeel/documents/decision-log/moneykeel_log_wording-asks_v01.xlsx'
+# never write over a workbook he has open (2026-09-30)
+refuse_if_open(OUT)
 rows = json.load(open(os.path.join(HERE, 'moneykeel_decisions.json')))['rows']
 # NEVER ASK HIM TO CONFIRM A DEAD DECISION (founder, 2026-09-30: *"decision log-ask-v01 still has
 # DEC004. Have you update the file?"*). This selected on CONFIDENCE alone, so a decision marked OLD in

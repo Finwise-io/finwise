@@ -29,8 +29,9 @@ import { fetchPriceSeries } from '../services/marketData';
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -38,8 +39,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 37 more — the full list is on functions_from_code
+ *               … and 39 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -105,6 +105,11 @@ export type ExpenseEntry = {
   notes?: string;
   receiptUri?: string;
   createdAt: string;
+  /** WHERE IT CAME FROM. Absent means the person typed it; 'imported' means it arrived from a card or
+   *  a file. The approved cash-flow mock draws these as two separate rows under Actual — "Expenses
+   *  entered by hand" and "Expenses imported from your card" — and without this they cannot be told
+   *  apart, which is why the screen showed one merged row (2026-09-30). */
+  origin?: 'imported';
 };
 
 export type SavingsEntry = {
@@ -543,8 +548,9 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-078 joinHouseholdMembership · MK-XS-F-079 loadUserRoot
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *
- * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
@@ -552,8 +558,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 37 more — the full list is on functions_from_code
+ *               … and 39 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -1151,6 +1156,11 @@ export const useStore = create<AppState>()(
             date: r.date || new Date().toISOString(),
             notes: r.notes || '',
             createdAt: new Date().toISOString(),
+            // IMPORTED SAYS SO (2026-09-30). The approved cash-flow mock draws TWO rows under
+            // Actual — "Expenses entered by hand" and "Expenses imported from your card" — and the
+            // app could not draw them, because an imported row was written in the same shape as a
+            // typed one. Nothing recorded where it came from, so the screen showed one merged row.
+            origin: 'imported' as const,
           }));
         set((s) => ({ expenses: [...newExpenses, ...s.expenses] }));
         get().addXP(newExpenses.length * 5);

@@ -36419,7 +36419,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:332",
+   "site": "src/screens/AccountDetailScreen.tsx:341",
    "routes": [
     "/account-detail"
    ],
@@ -36441,7 +36441,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:447",
+   "site": "src/screens/AccountDetailScreen.tsx:459",
    "routes": [
     "/account-detail"
    ],
@@ -36457,7 +36457,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:458",
+   "site": "src/screens/AccountDetailScreen.tsx:470",
    "routes": [
     "/account-detail"
    ],
@@ -36472,7 +36472,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:476",
+   "site": "src/screens/AccountDetailScreen.tsx:488",
    "routes": [
     "/account-detail"
    ],
@@ -36510,7 +36510,7 @@
    "renders": 17
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:678",
+   "site": "src/screens/AccountDetailScreen.tsx:690",
    "routes": [
     "/account-detail"
    ],
@@ -36525,7 +36525,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:679",
+   "site": "src/screens/AccountDetailScreen.tsx:691",
    "routes": [
     "/account-detail"
    ],
@@ -36540,7 +36540,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:694",
+   "site": "src/screens/AccountDetailScreen.tsx:706",
    "routes": [
     "/account-detail"
    ],
@@ -36556,7 +36556,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:700",
+   "site": "src/screens/AccountDetailScreen.tsx:712",
    "routes": [
     "/account-detail"
    ],
@@ -36572,7 +36572,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:701",
+   "site": "src/screens/AccountDetailScreen.tsx:713",
    "routes": [
     "/account-detail"
    ],
@@ -36587,7 +36587,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:702",
+   "site": "src/screens/AccountDetailScreen.tsx:714",
    "routes": [
     "/account-detail"
    ],
@@ -39758,7 +39758,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:352",
+   "site": "src/screens/PerformanceScreen.tsx:363",
    "routes": [
     "/invest"
    ],
@@ -39777,7 +39777,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:365",
+   "site": "src/screens/PerformanceScreen.tsx:376",
    "routes": [
     "/invest"
    ],
@@ -39797,7 +39797,7 @@
    "renders": 28
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:371",
+   "site": "src/screens/PerformanceScreen.tsx:382",
    "routes": [
     "/invest"
    ],
@@ -39816,7 +39816,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:425",
+   "site": "src/screens/PerformanceScreen.tsx:436",
    "routes": [
     "/invest"
    ],
@@ -39836,7 +39836,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:426",
+   "site": "src/screens/PerformanceScreen.tsx:437",
    "routes": [
     "/invest"
    ],
@@ -39856,7 +39856,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:435",
+   "site": "src/screens/PerformanceScreen.tsx:446",
    "routes": [
     "/invest"
    ],

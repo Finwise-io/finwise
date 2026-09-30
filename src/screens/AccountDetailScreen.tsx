@@ -15,7 +15,7 @@ import { periodReturnSince } from '../domain/performance';
 import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
-import { windowStartKey } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, rateWhereItRefuses } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
@@ -184,7 +184,16 @@ export default function AccountDetailScreen() {
       })),
     start: bounds.start, end: bounds.end,
   });
-  const acctReturnText = pct2(acctReturn?.rate ?? null);
+  // MARK 16, approved as mock v17 (2026-09-30): where this account's window return refuses, the EXACT
+  // rate per year stands in its place. Same rule and same function as the Performance tab — it is asked
+  // of THIS account's own window, so the figure answers the period the band above it names.
+  const acctRefusedRate = acctReturn?.rate != null || beginning == null || !bounds ? null
+    : rateWhereItRefuses({ beginning, windowLedger, ending: account.balance || 0,
+                           beginningAsOf: bounds.beginningAsOf, today: todayKey });
+  // mark 18: the trio prints the plain percent; the yearly rate's words live in the note beneath it,
+  // because this page has no window control to carry them
+  const acctReturnText = acctReturn?.rate != null ? pct2(acctReturn.rate)
+    : acctRefusedRate != null ? pct2(acctRefusedRate) : pct2(null);
   // ONE string for this account's market value: the band, the trio and the Total row all print it,
   // so three places on one screen can never show three different roundings of the same figure.
   const marketValueText = mny(account.balance || 0);
@@ -355,7 +364,10 @@ export default function AccountDetailScreen() {
           <Text style={s.trioNote}>
             {walk == null
               ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
-              : acctReturn?.sentence}
+              : acctRefusedRate != null
+                /* mark 16: the rate stands in, so the note says WHAT IT IS rather than why there is none */
+                ? 'Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money.'
+                : acctReturn?.sentence}
           </Text>
         )}
         {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called

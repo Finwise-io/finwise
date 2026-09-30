@@ -1,0 +1,21 @@
+{
+ "_about": "GENERATED — do not hand-edit, it dies on the next build. Printed from moneykeel_decisions_in_chat.json by build-question-answers.py: every decision there whose `answers` field names a numbered question appears here, and build-moneykeel-master.py writes it into 'YOUR ANSWER — use the same number'. An answer to a question IS a decision, so it lives in the decision log and nowhere else; this file is a printout, which is why it cannot drift from the log.",
+ "generated_from": "moneykeel_decisions_in_chat.json",
+ "rows": {
+  "Q51": {
+   "answered": "2026-09-30",
+   "his_words": "Q51 - make it “you +3.69% (including dividend), market + 2.83%, ahead by 0.85%.” ... Q51 - including dividend and interest. … Q51 -approved.",
+   "what_was_built": "The Home card compares your return with the market's, and the two were NOT measured the same way: yours counts the dividends and interest you actually received (his one-meaning-of-return ruling, 2026-09-25), while the market figure is the index's PRICE only, because no price feed we hold gives an index's dividends. Without saying so, the gap read as skill when part of it is simply income the market side cannot see.\nThe line now reads: you +3.69% (including dividends and interest) · market +2.83% · ahead by 0.85%.\nHIS WORDING, AND THE ONE WORD I CHANGED: he wrote “including dividend and interest”. It is built as “dividends and interest” — the plural is the word the change walk, the category table and the glossary already use for these two, and one term per concept is his standing order. Say the word if you want the singular. APPROVED 2026-09-30 in one word: “Q51 -approved.” The line is bu"
+  },
+  "Q52": {
+   "answered": "2026-09-30",
+   "his_words": "Q52 - use option B … v17 approved.",
+   "what_was_built": "TODAY, when money moved in or out in amounts large enough that WHEN it moved would decide the percentage, the Return states nothing and the screen shows the dollar walk alone. That person — someone actively adding money — is the one who most needs a rate and currently never sees one.\nHIS RULING: show the exact rate there instead. Where the walk now says there is no percentage, it will read that counting when you added money, the rate was X% a year.\nWHY THIS IS SAFE, measured: the two methods are not different answers. The window Return divides the gain once by a straight-line average of the money at work; the money-weighted rate compounds each amount over its own days and solves for the rate. On $100,000 with $10,000 added on 1 July and $118,000 at the end, they give 7.6161% and 7.6341% — 0.018 of a percentage point apart. They can never be far apart, because the window Return REFUSES th"
+  },
+  "Q53": {
+   "answered": "2026-09-30",
+   "his_words": "Q53 - what actually leaves.",
+   "what_was_built": "The line reads “Monthly debt payments” and two amounts could go there: the minimum each debt obliges, or the money that actually goes. On a card with a  minimum paid at , it read  and now reads . HIS WORDS: “what actually leaves.” The words say payments, and what a person pays is what they pay. The minimum stays on the door for debt-to-income."
+  }
+ }
+}

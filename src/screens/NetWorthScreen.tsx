@@ -507,13 +507,13 @@ export default function NetWorthScreen() {
                 </TouchableOpacity>
               );
             })}
-            {/* MK-NW-M-012 comes from the DOOR now (Net worth pass 3, 2026-09-30). This read
-                dState.total_monthly_debt_service directly while MK-NW-O-003 answered the same question
-                with a different rule: on a card with a $200 minimum the person pays $600 on, this said
-                $200 and the door said $600. The figure ON SCREEN IS UNCHANGED — it is still the minimum
-                each debt obliges — because which of the two belongs under these words is his decision,
-                not mine to make by wiring. See Q53. */}
-            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{maskedMoney(worth.monthlyDebtMinimum)}/month</Text></View>
+            {/* MK-NW-M-012 — HIS RULING ON Q53 (2026-09-30): "what actually leaves". This line showed
+                the MINIMUM each debt obliges; it now shows what leaves the account, which counts a
+                payment set above the minimum. On a card with a $200 minimum paid at $600 it read $200
+                and now reads $600 — the words say "payments", and what a person pays is what they pay.
+                The minimum is still on the door (monthlyDebtMinimum) for debt-to-income, where the
+                obligation is the right figure. */}
+            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{maskedMoney(worth.monthlyDebtPayments)}/month</Text></View>
           </>)}
       </View>
     </View>

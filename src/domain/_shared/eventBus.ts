@@ -15,21 +15,22 @@ const handlers: Record<string, Set<Handler>> = {};
  *
  * Called by ... MK-CF-F-071 extraIncome · MK-CF-F-091 userCapGainsRates
  *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-202 TAX
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-PL-F-004 withdrawalOrder
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-003 theNetWorth · MK-PL-F-004 withdrawalOrder
  *               MK-PL-F-036 weighGoals · MK-PL-F-082 taxableIncomeSteps
  *               MK-ST-F-049 formatMoney · MK-XS-F-183 writeFigure
  *
- * Reaches ..... 142 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
+ * Reaches ..... 150 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-081 LB · MK-NW-F-098 LEDGER_BAND
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-083 PERF · MK-CF-F-202 TAX
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-NW-F-040 assetsFromOnboarding
- *               … and 124 more — the full list is on functions_from_code
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               … and 132 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

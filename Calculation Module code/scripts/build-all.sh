@@ -31,6 +31,9 @@ python3 "Calculation Module code/scripts/check-formula-agreement.py"
 # the same day, so this is the one record and B3 below reads its file-checks.
 step "A3 · the decision log is printed from its source (hand edits die)"
 python3 "Calculation Module code/scripts/extract-decisions.py"
+# an answer to a numbered question IS a decision: it lives in the decision log, and this PRINTS it
+# into the file the master reads, so the two cannot disagree (2026-09-30)
+python3 "Calculation Module code/scripts/build-question-answers.py"
 python3 "Calculation Module code/scripts/build-decision-log.py"
 
 step "B3 · every file-only ruling still reads as ruled"
@@ -41,6 +44,7 @@ python3 "Calculation Module code/scripts/check-read-from-approved.py"
 
 step "B4 · the files agree with each other — a decision reached every file that carries it"
 python3 "Calculation Module code/scripts/check-rulings-sync.py"
+python3 "Calculation Module code/scripts/check-questions-answered.py"
 
 # B6 (2026-09-28). B4 checks that every ruling IN the ledger is anchored to a test. It cannot see a
 # decision that never became a ledger row — which is exactly what happened to his 2026-09-12

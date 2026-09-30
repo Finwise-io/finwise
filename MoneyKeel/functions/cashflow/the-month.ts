@@ -22,7 +22,7 @@
 //   expenses), and the big-ticket radar that says of each item whether it is counted. Part and whole
 //   — which is why conflict C-2 was withdrawn rather than answered.
 import { declareFigures } from '../_figure-spec';
-import { thisMonth, type ThisMonth, type MonthInput } from './this-month';
+import { thisMonth, cash, type ThisMonth, type MonthInput } from './this-month';
 import { expenses, type Expenses, type ExpensesInput } from './expenses';
 
 export interface TheMonth {
@@ -31,6 +31,10 @@ export interface TheMonth {
   actual: ThisMonth['actual'];
   /** The detail behind the Expenses row of that flow. */
   expenses: Expenses;
+  /** MK-CF-M-021 — what the Plan has already promised to goals this month, added up. */
+  committed: number;
+  /** MK-CF-M-020 — the hero figure: the planned surplus, less anything already promised to a goal. */
+  free: number;
 }
 
 /* ─ MK-CF-O-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -72,17 +76,17 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 63 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
- *               … and 42 more — the full list is on functions_from_code
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               … and 45 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003
  * Reads ....... MK-XS-I-014 debt balance
@@ -96,7 +100,22 @@ export interface TheMonth {
  */
 export function theMonth(input: MonthInput & ExpensesInput): TheMonth {
   const flow = thisMonth(input);
-  return { planned: flow.planned, actual: flow.actual, expenses: expenses(input) };
+  // MK-CF-M-021 AND MK-CF-M-020, MOVED OFF THE SCREEN (Cash flow pass 1, 2026-09-30). Both were
+  // derived on CashFlowScreen: `committed = commitments.reduce(...)` and
+  // `free = committed > 0 ? surplus - committed : surplus`. The second is the HERO NUMBER of the This
+  // month tab — the largest figure on the screen — and the master file's own row said it outright:
+  // "Worked out on the screen itself, with no function behind it — a place a second definition can
+  // appear." His rule is that a screen computes nothing, and a money figure is never re-derived on one.
+  //
+  // WHY FREE IS NOT THE SAME AS THE SURPLUS: money the Plan has already promised to a goal is not free
+  // to use. Where nothing is committed the two are the same figure, and the label says which is which
+  // ("Planned surplus" against "Surplus after your budget").
+  const committed = cash((input.commitments ?? []).reduce((t, c) => t + (c.monthlyAmount || 0), 0));
+  return {
+    planned: flow.planned, actual: flow.actual, expenses: expenses(input),
+    committed,
+    free: cash(committed > 0 ? flow.planned.surplus - committed : flow.planned.surplus),
+  };
 }
 
 /** THE WORKED EXAMPLE — ONE MONTH, SPELLED OUT (six steps, step 6, 2026-09-28).
@@ -145,17 +164,17 @@ const GIVEN =
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-157 debtPaymentsByDebt
  *               MK-CF-F-204 line · MK-CF-O-010 theMonth
  *
- * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 63 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
- *               … and 42 more — the full list is on functions_from_code
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
+ *               … and 45 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -172,22 +191,22 @@ const MONTH = () => theMonth(EXAMPLE);
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
  * Called by ... MK-CF-O-001 basePay · MK-CF-O-006 theCreditLine
- *               MK-NW-F-028 classPortionLabel · MK-NW-F-082 NW
+ *               MK-NW-F-028 classPortionLabel · MK-NW-F-101 PLAN
  *               MK-PF-F-005 unrealizedGain · MK-XS-F-002 dataGaps
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
  *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-201 INCOME · MK-CF-F-200 LINE
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-CF-F-026 actualDebtPayment · MK-CF-O-001 basePay
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-036 buildDebtState
- *               MK-CF-F-107 buildPaycheckYear · MK-PF-F-014 buildPerformance
- *               MK-XS-F-031 buildSnapshot · MK-NW-F-028 classPortionLabel
- *               MK-XS-F-002 dataGaps · MK-CF-F-041 getDebtState
- *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
- *               … and 12 more — the full list is on functions_from_code
+ * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-O-001 basePay · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-036 buildDebtState · MK-CF-F-107 buildPaycheckYear
+ *               MK-PF-F-014 buildPerformance · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
+ *               … and 15 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses

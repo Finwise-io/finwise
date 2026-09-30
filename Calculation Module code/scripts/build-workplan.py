@@ -16,12 +16,15 @@ works. Claude adds rows in the source file, never in Excel.
 import json, os, re, hashlib, sys
 import openpyxl
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from xlsx_readable import readable   # one way to format a workbook (founder, 2026-09-27)
+from xlsx_readable import readable
+from moneykeel_open_workbook import refuse_if_open   # one way to format a workbook (founder, 2026-09-27)
 from openpyxl.styles import Font, Alignment, PatternFill
 
 SC = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(SC, '..', '..'))
 SRC = os.path.join(SC, 'moneykeel_workplan.json')
 OUT = os.path.join(ROOT, 'MoneyKeel/documents/other/moneykeel_calc_plan_workplan_v01.xlsx')
+# never write over a workbook he has open (2026-09-30)
+refuse_if_open(OUT)
 d = json.load(open(SRC))
 COLS = d['columns']
 rowkey = lambda t: hashlib.sha1(re.sub(r'\W+', '', str(t).lower())[:70].encode()).hexdigest()[:10]

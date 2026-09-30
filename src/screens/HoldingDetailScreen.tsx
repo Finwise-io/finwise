@@ -285,15 +285,11 @@ export default function HoldingDetailScreen() {
         </View>
       )}
 
-      {/* look back entry — r27; hides with no price (no honest counterfactual) */}
-      {hasPrice && !closed && (
-        <TouchableOpacity accessibilityRole="button" style={s.entryCard}
-          onPress={() => router.push(`/look-back?from=${encodeURIComponent(ticker)}&amount=${Math.round(value)}` as any)}
-          accessibilityLabel={`Look back: what if I'd sold ${ticker} a year ago? Opens the look-back page pre-filled.`}>
-          <Text style={s.entryTitle}>LOOK BACK: what if I'd sold a year ago? ›</Text>
-          <Text style={s.note}>Real past prices — a fact about the past, not a suggestion.</Text>
-        </TouchableOpacity>
-      )}
+      {/* THE LOOK-BACK DOOR IS REMOVED (DEC-0030, his word 2026-09-30: "As of now park this", then
+          "remove it"). It read "LOOK BACK: what if I'd sold a year ago?" and opened /look-back
+          pre-filled with this holding and its value. NOTHING IS STRANDED: /look-back is still reached
+          from Account detail and from Contribution room, and the orphan-route guard holds that.
+          MK-PF-M-010, MK-PF-M-011 and MK-PF-M-012 keep their door and their worked examples. */}
 
       <View style={s.btnRow}>
         <TouchableOpacity accessibilityRole="button" style={s.btn} onPress={() => setTxnOpen(true)} accessibilityLabel={`Record a buy or sell for ${ticker}`}>

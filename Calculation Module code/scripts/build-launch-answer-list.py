@@ -21,9 +21,12 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 os.chdir(ROOT)
 sys.path.insert(0, HERE)
 from xlsx_readable import readable
+from moneykeel_open_workbook import refuse_if_open
 
 MASTER = 'MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx'
 OUT = 'MoneyKeel/documents/other/moneykeel_calc_plan_launch-answer-list_v01.xlsx'
+# never write over a workbook he has open (2026-09-30)
+refuse_if_open(OUT)
 MODULES = {'networth': 'Net worth', 'performance': 'Performance', 'cashflow': 'Cash flow'}
 
 dec = json.load(open(os.path.join(HERE, 'moneykeel_decisions.json')))['rows']

@@ -70,17 +70,17 @@ const COUPON_MATURITY_RE = /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/i;
  *
  * Called by ... MK-NW-F-008 incomeBearingClassOf · MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 112 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 120 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
- *               MK-NW-F-076 ALT · MK-NW-F-079 EF
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-F-202 TAX · MK-NW-F-005 accountAllowsTicker
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
+ *               MK-NW-F-100 TREND · MK-NW-F-005 accountAllowsTicker
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-002 alternativesSummary
  *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
- *               MK-XS-F-172 assetClassForSymbol · MK-NW-F-011 assetClassOf
- *               MK-NW-F-007 assetKind · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
- *               … and 94 more — the full list is on functions_from_code
+ *               … and 102 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
