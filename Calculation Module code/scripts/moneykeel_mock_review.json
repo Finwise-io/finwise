@@ -42,24 +42,7 @@
   "plain": "Two findings from his walk of build 47:\n1. The company-share editor gains a field for the ticker symbol, which fetches the live price to start you off and stays editable.\n2. It gains a real Done button at the bottom. The"
  },
  {
-  "id": "DEC-0570",
-  "tab": "performance",
-  "decided": "2026-06-30",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.3,
-  "missing": [
-   "attention",
-   "brackets",
-   "chief",
-   "headed",
-   "items",
-   "section",
-   "staff"
-  ],
-  "plain": "The Home section that lists what needs your attention is headed “CHIEF OF STAFF — WHAT NEEDS YOU”, with the number of items in brackets."
- },
- {
-  "id": "DEC-0479",
+  "id": "DEC-0449",
   "tab": "networth",
   "decided": "2026-06-30",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -125,6 +108,27 @@
   "plain": "When a broker’s stated total is more than the holdings it listed, the difference is treated as CASH — not added to the largest holding. On a CD-heavy account the old rule silently inflated the CDs by money that was reall"
  },
  {
+  "id": "DEC-0106",
+  "tab": "performance",
+  "decided": "2026-08-11",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.42105263157894735,
+  "missing": [
+   "against",
+   "filed",
+   "forming",
+   "handoff",
+   "impression",
+   "listing",
+   "looking",
+   "matching",
+   "rendering",
+   "string",
+   "visible"
+  ],
+  "plain": "The Performance design handoff was received, filed, and checked against the built screen by rendering the screen and listing every visible string — rather than by looking at both and forming an impression. What already m"
+ },
+ {
   "id": "DEC-0098",
   "tab": "networth",
   "decided": "2026-08-11",
@@ -163,7 +167,7 @@
   "plain": "Every row in the activity list says where it came from. The list mixed the broker’s own records with rows you typed and showed them identically — so a $500 deposit mistyped as $5,000 was indistinguishable from the broker"
  },
  {
-  "id": "DEC-0289",
+  "id": "DEC-0280",
   "tab": "networth",
   "decided": "2026-08-26",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -178,44 +182,6 @@
    "told"
   ],
   "plain": "“subtract accrued interest when known; say so when not.” Interest earned since the last payment is taken off the value where you have told us, and where you have not, the screen says so rather than quietly leaving it in."
- },
- {
-  "id": "DEC-0552",
-  "tab": "networth",
-  "decided": "2026-07-06",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
-  "share": 0.4666666666666667,
-  "missing": [
-   "accepts",
-   "fails",
-   "format",
-   "hands",
-   "instruction",
-   "must-have",
-   "silently",
-   "specific"
-  ],
-  "plain": "HIS INSTRUCTION: “Do we need a specific file format? Add info dot with file type and must-have columns.” An import that does not say what file it accepts fails silently in the person’s hands."
- },
- {
-  "id": "DEC-0106",
-  "tab": "performance",
-  "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.47368421052631576,
-  "missing": [
-   "filed",
-   "forming",
-   "handoff",
-   "impression",
-   "listing",
-   "looking",
-   "matching",
-   "rendering",
-   "string",
-   "visible"
-  ],
-  "plain": "The Performance design handoff was received, filed, and checked against the built screen by rendering the screen and listing every visible string — rather than by looking at both and forming an impression. What already m"
  },
  {
   "id": "DEC-0068",
@@ -239,7 +205,7 @@
   "plain": "Each slice of the doughnut big enough to name carries its name, its percentage and its colour swatch beside the ring, placed at that slice’s own angle. A slice too small to label without overlapping is named on a line un"
  },
  {
-  "id": "DEC-0260",
+  "id": "DEC-0251",
   "tab": "networth",
   "decided": "2026-09-08",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -261,7 +227,7 @@
   "plain": "“ok — one producer for essentials per brief Q-21; fewer than 12 months logged → the average for the logged months, labelled ‘N month average’.” ONE essentials figure across every screen, taken from what you have actually"
  },
  {
-  "id": "DEC-0326",
+  "id": "DEC-0317",
   "tab": "networth",
   "decided": "2026-08-20",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -284,7 +250,7 @@
   "plain": "“the Plaid overlap — both versions side by side, the person chooses per transaction; stable pair identity; unmatched rows kept and flagged.” Where an imported transaction and one you entered look like the same thing, BOT"
  },
  {
-  "id": "DEC-0311",
+  "id": "DEC-0302",
   "tab": "cashflow",
   "decided": "2026-08-20",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -337,29 +303,6 @@
   "plain": "The “Sync now” button now syncs. It used to NAVIGATE to the account page, which has no sync control on it — so a button labelled Sync now synced nothing and left you on a page that could not help. It runs the sync where "
  },
  {
-  "id": "DEC-0325",
-  "tab": "performance",
-  "decided": "2026-08-20",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.5,
-  "missing": [
-   "denominator",
-   "divide",
-   "drives",
-   "gate",
-   "module",
-   "percentage",
-   "printing",
-   "refuse",
-   "refuses",
-   "thresholds",
-   "timing",
-   "timing-sensitivity",
-   "went"
-  ],
-  "plain": "“return stays money-weighted; thresholds in one module; timing-sensitivity band replaces the 10% gate; refuse when the denominator ≤ 0.” The return accounts for WHEN money went in and out. Where the amounts are big enoug"
- },
- {
   "id": "DEC-0060",
   "tab": "networth",
   "decided": "2026-08-04",
@@ -399,7 +342,7 @@
   "plain": "A verdict word must carry its number. Net worth was the only screen showing the word alone — Home said “78% odds of lasting to age 90” and the Plan screen said “84 in 100 paths”, while Net worth said just “Uncertain”, wh"
  },
  {
-  "id": "DEC-0513",
+  "id": "DEC-0471",
   "tab": "networth",
   "decided": "2026-07-01",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -419,7 +362,7 @@
   "plain": "HIS INSTRUCTION: “Review the Add account screen to make sure we have a separate screen or a dynamic screen adjusting by asset class, ensuring we are collecting the right things.” A bond and a house need different questio"
  },
  {
-  "id": "DEC-0321",
+  "id": "DEC-0312",
   "tab": "cashflow",
   "decided": "2026-08-20",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -437,28 +380,10 @@
   "plain": "“deferred, not dropped: forward income, budget rollover, non-USD holdings — store the currency field now.” Three things put off rather than abandoned, and the currency field is stored TODAY so the data exists when they a"
  },
  {
-  "id": "DEC-0488",
-  "tab": "networth",
-  "decided": "2026-07-01",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
-  "share": 0.5555555555555556,
-  "missing": [
-   "assumes",
-   "finding",
-   "grow",
-   "hides",
-   "loss",
-   "rise",
-   "treating",
-   "yields"
-  ],
-  "plain": "HIS FINDING: “Grow & Track assumes only stocks/ETFs change in value. A $100,000 bond at 4.5% marked at $95,000 could be worth $85,000 if yields rise to 6%.” A bond’s value moves with yields, so treating it as fixed hides"
- },
- {
-  "id": "DEC-0474",
+  "id": "DEC-0444",
   "tab": "performance",
   "decided": "2026-06-30",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.5652173913043478,
   "missing": [
    "assumes",
@@ -496,7 +421,7 @@
   "plain": "Six defects found while auditing the rebuild, and fixed. Among them: two buttons pointed at screens that do not exist — “Connect a brokerage” on the first-day screen and “Update the value” in the fix-it sheet — so both q"
  },
  {
-  "id": "DEC-0216",
+  "id": "DEC-0207",
   "tab": "cashflow",
   "decided": "2026-09-02",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -548,24 +473,46 @@
   "plain": "A deposit only moves money into an account’s cash if that account HAS a cash figure to move it into. His Vanguard account lists its holdings individually and had no cash figure, so a $500 deposit vanished from the balanc"
  },
  {
-  "id": "DEC-0549",
-  "tab": "networth",
-  "decided": "2026-07-06",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
-  "share": 0.6111111111111112,
+  "id": "DEC-0041",
+  "tab": "performance",
+  "decided": "2026-08-03",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.6086956521739131,
   "missing": [
-   "asset",
-   "collecting",
-   "collects",
-   "dynamic",
-   "house",
-   "instruction",
-   "required"
+   "come",
+   "estimated",
+   "filling",
+   "gains",
+   "gaps",
+   "made",
+   "movements",
+   "parts",
+   "took"
   ],
-  "plain": "HIS INSTRUCTION: “Separate or dynamic screen per asset class, collecting the right required info?” A bond and a house need different questions; one form for both collects the wrong fields for each."
+  "plain": "Under the total return for a period, the app shows what made it up: price change, gains you took, dividends and interest. Two decisions:\n1. It shows only the parts it actually has records for, rather than filling gaps.\n2"
  },
  {
-  "id": "DEC-0259",
+  "id": "DEC-0316",
+  "tab": "performance",
+  "decided": "2026-08-20",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.6153846153846154,
+  "missing": [
+   "denominator",
+   "divide",
+   "drives",
+   "enough",
+   "gate",
+   "module",
+   "printing",
+   "thresholds",
+   "timing-sensitivity",
+   "went"
+  ],
+  "plain": "“return stays money-weighted; thresholds in one module; timing-sensitivity band replaces the 10% gate; refuse when the denominator ≤ 0.” The return accounts for WHEN money went in and out. Where the amounts are big enoug"
+ },
+ {
+  "id": "DEC-0250",
   "tab": "networth",
   "decided": "2026-09-08",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -579,7 +526,7 @@
   "plain": "“question answered: ‘value’ = the bond’s current value as entered; the approximation stated in both columns.” A bond’s value is what you entered, and where the yield is an approximation the file says so in both places."
  },
  {
-  "id": "DEC-0307",
+  "id": "DEC-0298",
   "tab": "networth",
   "decided": "2026-08-20",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -593,7 +540,7 @@
   "plain": "“a tax figure requires a YEAR — net worth shows no tax.” Tax only means something inside a tax year, so a net-worth screen, which is a snapshot of today, shows none."
  },
  {
-  "id": "DEC-0261",
+  "id": "DEC-0252",
   "tab": "cashflow",
   "decided": "2026-09-08",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -643,25 +590,7 @@
   "plain": "What you own and what you owe leave their separate floating cards and become one continuous table. Three decisions:\n1. The green bands run edge to edge.\n2. Every row sits at the same inset, so the numbers line up down th"
  },
  {
-  "id": "DEC-0041",
-  "tab": "performance",
-  "decided": "2026-08-03",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.6521739130434783,
-  "missing": [
-   "come",
-   "estimated",
-   "gains",
-   "gaps",
-   "made",
-   "movements",
-   "parts",
-   "took"
-  ],
-  "plain": "Under the total return for a period, the app shows what made it up: price change, gains you took, dividends and interest. Two decisions:\n1. It shows only the parts it actually has records for, rather than filling gaps.\n2"
- },
- {
-  "id": "DEC-0344",
+  "id": "DEC-0335",
   "tab": "networth",
   "decided": "2026-09-12",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -676,10 +605,10 @@
   "plain": "“ok — the per-class benchmark table (value, source, period) on the Reference tab.” Every assumed rate of return is listed with where it came from and over what period — an assumption you cannot see the source of cannot b"
  },
  {
-  "id": "DEC-0346",
+  "id": "DEC-0337",
   "tab": "performance",
   "decided": "2026-09-12",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.6666666666666666,
   "missing": [
    "described",
@@ -707,7 +636,7 @@
   "plain": "At his request every section of Net worth is titled the same way: the headline and the retirement plan leave their floating cards and wear the same full-width deep-green banner as What you own, What you owe and the emerg"
  },
  {
-  "id": "DEC-0301",
+  "id": "DEC-0292",
   "tab": "cashflow",
   "decided": "2026-08-27",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -721,6 +650,19 @@
    "worked"
   ],
   "plain": "A worked example of the This-month screen in his own numbers: take-home 5,000, mortgage 2,000, car 250, expenses 2,000, a HELOC payment of 200 from the big-ticket list and a 200 card payment entered by hand, leaving a su"
+ },
+ {
+  "id": "DEC-0030",
+  "tab": "performance",
+  "decided": "2026-08-02",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "share": 0.7,
+  "missing": [
+   "drawing",
+   "missing",
+   "remove"
+  ],
+  "plain": "The “what if I had moved this money” card stays on the holding page. It was missing from the mock, and that was a gap in the drawing rather than a decision to remove it."
  },
  {
   "id": "DEC-0052",
@@ -738,7 +680,7 @@
   "plain": "Three refinements to the Net worth screen: a collapsed group shows its count on a quieter second line; there is at least 16 pixels of space before a column of numbers; and every label on the doughnut is the same weight."
  },
  {
-  "id": "DEC-0330",
+  "id": "DEC-0321",
   "tab": "networth",
   "decided": "2026-08-20",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -751,7 +693,7 @@
   "plain": "“state tax in the capital-gains figure — one tab said missing, one said included.” Two tabs of the same file disagreed about whether state tax was in the number. Settled in one place."
  },
  {
-  "id": "DEC-0218",
+  "id": "DEC-0209",
   "tab": "cashflow",
   "decided": "2026-09-02",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -765,7 +707,7 @@
   "plain": "One word per concept across the income screens: “take-home” replaces “lands in your bank” and “takes home”; “calculated” replaces “worked out”, “Estimated federal tax” and “our estimate”. A test enforces it."
  },
  {
-  "id": "DEC-0258",
+  "id": "DEC-0249",
   "tab": "networth",
   "decided": "2026-09-08",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -780,7 +722,7 @@
   "id": "DEC-0022",
   "tab": "performance",
   "decided": "2026-08-01",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.75,
   "missing": [
    "average",
@@ -795,10 +737,10 @@
   "plain": "The page for a single holding was rebuilt. Three decisions:\n1. The price leads, with a graph under it and buttons to change the period shown.\n2. Everything else — the position, how it compares, the lots you bought, divid"
  },
  {
-  "id": "DEC-0467",
+  "id": "DEC-0437",
   "tab": "performance",
   "decided": "",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.75,
   "missing": [
    "current",
@@ -824,7 +766,7 @@
   "plain": "Three decisions about the Net worth screen:\n1. The By type view is REMOVED, which settles the open question about it.\n2. What you own is restructured into three big groups — Cash, Investments, Personal property — with th"
  },
  {
-  "id": "DEC-0404",
+  "id": "DEC-0384",
   "tab": "cashflow",
   "decided": "2026-08-28",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -840,7 +782,7 @@
   "plain": "Our tax estimate covers federal income tax only, and says so on the screen. Three decisions:\n1. We do not add payroll tax to it. Payroll tax applies to wages, and our gross figure also holds rent, dividends and bonuses —"
  },
  {
-  "id": "DEC-0400",
+  "id": "DEC-0380",
   "tab": "cashflow",
   "decided": "2026-09-02",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -886,7 +828,7 @@
   "plain": "The By institution view is rebuilt to work the same way as By category. Four decisions:\n1. Institution groups collapse and expand.\n2. Each remembers its own open or closed state — closing Vanguard in one view does not cl"
  },
  {
-  "id": "DEC-0450",
+  "id": "DEC-0420",
   "tab": "cashflow",
   "decided": "2026-09-27",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -938,19 +880,26 @@
   "plain": "Two things confirmed as already right, with nothing to change:\n1. The headline keeps its white card with the deep-green band and the green number — the solid-green version from the design handoff was declined.\n2. The cas"
  },
  {
-  "id": "DEC-0030",
-  "tab": "performance",
-  "decided": "2026-08-02",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
-  "share": 0.8,
+  "id": "DEC-0002",
+  "tab": "cashflow",
+  "decided": "2026-07-19",
+  "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
+  "share": 0.8043478260869565,
   "missing": [
-   "missing",
-   "remove"
+   "bills",
+   "combined",
+   "force",
+   "four-tab",
+   "future",
+   "onto",
+   "past",
+   "replacing",
+   "third"
   ],
-  "plain": "The “what if I had moved this money” card stays on the holding page. It was missing from the mock, and that was a gap in the drawing rather than a decision to remove it."
+  "plain": "Cash flow becomes ONE screen with four tabs, replacing the two separate Cash flow and Budget screens. Four decisions:\n1. The Budget screen is RETIRED; its job moves onto the cash-flow surface.\n2. Income is entered throug"
  },
  {
-  "id": "DEC-0184",
+  "id": "DEC-0175",
   "tab": "networth",
   "decided": "2026-08-17",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -966,7 +915,7 @@
   "id": "DEC-0064",
   "tab": "performance",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.8181818181818182,
   "missing": [
    "appear",
@@ -977,7 +926,7 @@
   "plain": "Three decisions on Performance:\n1. Each period button carries its OWN return for that period.\n2. Where a period has no data it shows a dash rather than a zero, and the row wraps to two lines rather than squeezing.\n3. A t"
  },
  {
-  "id": "DEC-0206",
+  "id": "DEC-0197",
   "tab": "cashflow",
   "decided": "2026-08-28",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -990,21 +939,7 @@
   "plain": "Where your tax rate comes from, in order: TYPED off your payslip, IMPLIED by what you said lands in your bank, or OUR estimate — and each one says whose it is on the screen. A person could tell base pay exactly what land"
  },
  {
-  "id": "DEC-0004",
-  "tab": "cashflow",
-  "decided": "2026-07-19",
-  "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
-  "share": 0.8260869565217391,
-  "missing": [
-   "category",
-   "compares",
-   "doors",
-   "spending"
-  ],
-  "plain": "The Spending tab shows the month’s total at the top, then each recent expense with a small label saying where it came from — entered by hand, or imported. Two decisions:\n1. A card compares each category against what you "
- },
- {
-  "id": "DEC-0186",
+  "id": "DEC-0177",
   "tab": "cashflow",
   "decided": "2026-08-27",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -1031,7 +966,7 @@
   "plain": "Tapping the change figure on Net worth opens a list showing exactly how it moved: beginning net worth, what you paid in, what you took out, wealth generated (dividends, interest, change in investment value), the debt pri"
  },
  {
-  "id": "DEC-0205",
+  "id": "DEC-0196",
   "tab": "cashflow",
   "decided": "2026-08-28",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -1067,25 +1002,10 @@
   "plain": "The Net worth section “Your path ahead (from your Plan)” is renamed “Your retirement plan” — his wording."
  },
  {
-  "id": "DEC-0002",
-  "tab": "cashflow",
-  "decided": "2026-07-19",
-  "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
-  "share": 0.8611111111111112,
-  "missing": [
-   "bills",
-   "future",
-   "past",
-   "replacing",
-   "spending"
-  ],
-  "plain": "Cash flow becomes ONE screen with four tabs — This month, Income, Spending, Debts — replacing the two separate Cash flow and Budget screens. Four decisions:\n1. The Budget screen is retired; its job is now the Spending ta"
- },
- {
   "id": "DEC-0001",
   "tab": "performance",
   "decided": "2026-07-19",
-  "mock": "moneykeel_pres_mock_performance_v14.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v15.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.8620689655172413,
   "missing": [
    "itself",
@@ -1096,7 +1016,7 @@
   "plain": "The Look ahead screen — “What if I save more?” — was redrawn. Three decisions:\n1. Your age and the age you plan to retire are set with sliders on the screen itself, not on a separate page, and they save to the same two a"
  },
  {
-  "id": "DEC-0210",
+  "id": "DEC-0201",
   "tab": "cashflow",
   "decided": "2026-08-28",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -1108,7 +1028,7 @@
   "plain": "A new screen showing all your income: two totals, labelled — what lands in your bank each month, and what the year is taxed on. A fresh account keeps both headings and shows no invented $0."
  },
  {
-  "id": "DEC-0401",
+  "id": "DEC-0381",
   "tab": "cashflow",
   "decided": "2026-09-02",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -1132,7 +1052,7 @@
   "plain": "In the By type view of Net worth, everything that is effectively cash sits under ONE heading: “Cash and cash equivalents”. Before, a CD, a money-market fund and plain cash each had their own heading, which made three sma"
  },
  {
-  "id": "DEC-0267",
+  "id": "DEC-0258",
   "tab": "networth",
   "decided": "2026-09-08",
   "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
@@ -1155,7 +1075,7 @@
   "plain": "His decision: “Keep add or connect an account. Delete cashflow.” The “this month’s cash flow” row comes off Net worth, and the code behind it goes with it. The one add-or-connect button stays — it is this screen’s only w"
  },
  {
-  "id": "DEC-0200",
+  "id": "DEC-0191",
   "tab": "cashflow",
   "decided": "2026-08-28",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -1166,7 +1086,7 @@
   "plain": "Your tax band is named as being on EVERYTHING you are taxed on — not just your wage. The band reads every source, so rent and dividends count toward which band you are in."
  },
  {
-  "id": "DEC-0262",
+  "id": "DEC-0253",
   "tab": "cashflow",
   "decided": "2026-09-08",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -1177,7 +1097,7 @@
   "plain": "“ok — the bracket loops written by hand; the statutory tables in the file.” The tax tables are typed in from the law and kept in the file; only the arithmetic over them is code."
  },
  {
-  "id": "DEC-0187",
+  "id": "DEC-0178",
   "tab": "cashflow",
   "decided": "2026-08-27",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -1188,7 +1108,7 @@
   "plain": "Your tax band is worked out ONCE, from your total income, and every screen reads that one figure. The base-pay screen does not work out a band of its own — a band is set by everything you are taxed on together, so a scre"
  },
  {
-  "id": "DEC-0204",
+  "id": "DEC-0195",
   "tab": "cashflow",
   "decided": "2026-08-28",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
@@ -1199,7 +1119,7 @@
   "plain": "The base-pay card names the federal tax bracket, shows the estimated tax in MONEY rather than as a percentage, and says it assumes the standard deduction. A payslip has dollars on it, not a rate."
  },
  {
-  "id": "DEC-0407",
+  "id": "DEC-0387",
   "tab": "cashflow",
   "decided": "2026-08-28",
   "mock": "moneykeel_pres_mock_cash-flow_v01.html · moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",

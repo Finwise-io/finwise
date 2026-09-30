@@ -1,5 +1,7 @@
 /** THE ACCOUNT PAGE, v14 (founder-approved 2026-09-25 — the SECOND phone of
- *  MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v14.html).
+ *  MoneyKeel/documents/networth-and-performance/archive/2026-09-30_moneykeel_pres_mock_performance_v14.html —
+ *  dated into archive/ on 2026-09-30 when v15 went to him. These pins hold what v14 APPROVED AND BUILT, which
+ *  is still what ships; v15 changes only the state where the Return refuses.)
  *
  *  Five things this pins, each one a thing the founder asked for by name:
  *   1. the header trio reads Market value · Wealth generated · Return, in that order — Income is no

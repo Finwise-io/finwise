@@ -45,7 +45,9 @@ IN_FORCE = {
                   NW + 'moneykeel_pres_mock_empty-state-pattern_v01.html',
                   NW + 'moneykeel_pres_mock_investments_v07.html',
                   HS + 'moneykeel_pres_mock_ways-to-add-an-account_v10.html'], '2026-09-14'),
-    'performance': ([NW + 'moneykeel_pres_mock_performance_v14.html',
+    # v14 was archived with its date on 2026-09-30 when v15 went to him; the review reads the
+    # CURRENT design document, which is v15 until he rules on it.
+    'performance': ([NW + 'moneykeel_pres_mock_performance_v15.html',
                      NW + 'moneykeel_pres_mock_account-detail_v01.html',
                      NW + 'moneykeel_pres_mock_look-ahead_v04.html',
                      NW + 'moneykeel_pres_mock_investments_v07.html'], '2026-09-25'),

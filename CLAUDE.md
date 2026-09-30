@@ -77,7 +77,9 @@ the founder had approved all of it. Never again.
   grayscale boxes. Show BOTH the rich state and the empty/first-day state.
 - Mocks show the FULL SCREEN, top to bottom (founder order, same day): status bar → header → hero →
   every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` (the current Net worth design),
-  `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v14.html` (the current Performance design, approved and built 2026-09-25),
+  `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v15.html` (the current Performance
+  design document, WAITING ON HIM since 2026-09-30 — every colour on the app's own tokens, and the rate where the
+  Return refuses. What is BUILT is v14, approved 2026-09-25, now dated in `archive/`),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-detail_v01.html`. Numbers inside mocks must ADD UP (accuracy rule applies).
 - WHICH DESIGN EACH SCREEN IS BUILT FROM, and which is current, lives in ONE record:
   `MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md`. Read it at step 0 and update it the same day an approval changes it.
