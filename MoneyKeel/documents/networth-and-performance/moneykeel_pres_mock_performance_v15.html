@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Performance v15 — the rate where the Return refuses</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,'SF Pro Text',Segoe UI,Roboto,sans-serif;background:#ECEBE4;padding:24px;color:#1A1A18}
+h1{font-size:20px;margin-bottom:4px}.eyebrow{font-size:11px;letter-spacing:.6px;color:#66655f;font-weight:800;margin-bottom:6px}
+.lede{font-size:13px;color:#4a4a45;max-width:860px;margin-bottom:18px}
+.row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.phone{width:375px;background:#000;border-radius:44px;padding:10px;box-shadow:0 18px 40px rgba(0,0,0,.25)}
+.screen{background:#F4F3EC;border-radius:36px;overflow:hidden}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:12px 22px 4px;font-size:13px;font-weight:700}
+.sb{display:flex;gap:4px;align-items:center}.sb i{display:block;width:15px;height:10px;background:#1A1A18;border-radius:2px}
+.c{padding:10px 14px 0}
+.card{background:#fff;border-radius:16px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05);overflow:visible}
+.band{background:#085041;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.5px;padding:8px 14px;display:flex;align-items:center;gap:6px}
+.bandv{margin-left:auto;text-align:right;font-variant-numeric:tabular-nums;font-weight:800;font-size:12px}
+.sub{background:#DFF2E9;color:#085041;font-size:11.5px;font-weight:800;letter-spacing:.4px;padding:7px 14px;display:flex;align-items:center;gap:6px;border-top:1px solid rgba(8,80,65,.15)}
+.subv{margin-left:auto;text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
+.sub2{display:block;font-weight:400;font-size:9.5px;letter-spacing:.2px;opacity:.75}
+.body{padding:10px 14px}
+.hero{font-size:34px;font-weight:800;color:#0F6E56;line-height:1.1;margin:2px 0}
+.up{font-size:14px;font-weight:700;color:#178F6B}
+.mut{font-size:12px;color:#66655f}
+.rw{display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:13.5px;min-width:0}
+.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;padding-right:16px;flex:1;display:flex;align-items:center;gap:4px}
+.val{margin-left:auto;text-align:right;min-width:92px;font-variant-numeric:tabular-nums;font-weight:600;flex:none}
+.chev{width:12px;flex:none;text-align:right;color:#9a9891;font-size:12px}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
+.red{color:#C2483A}.grn{color:#178F6B}.amber{color:#B97F10}
+.pills{display:flex;gap:8px;margin:2px 0 10px}
+.phone{width:410px}   /* a real 390-point screen inside the frame — earlier versions drew 355, which made every row look tighter than it is */
+.axlab{font-size:8.5px;fill:#8a8a84;font-family:-apple-system}
+.segwrap{position:relative;margin:2px 0 10px}
+/* the window selector: a quiet tray, the chosen window lifted onto a white card (iOS segmented
+   control idiom), hairline dividers only between the resting windows */
+.segbar{display:flex;background:#EEEEE9;border-radius:12px;padding:3px}
+.seg{flex:1;min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  text-align:center;padding:4px 3px;border-radius:9px;position:relative;white-space:nowrap}
+.seg+.seg::before{content:"";position:absolute;left:-0.5px;top:12px;bottom:12px;width:1px;background:rgba(0,0,0,.10)}
+.segOn+.seg::before,.segOn::before{display:none}
+.segWide{flex:1.55}                                      /* the "Since" window carries a date, so it gets the room */
+.segK{font-size:11px;font-weight:700;color:#77776F;letter-spacing:.1px}
+.segV{font-size:13px;font-weight:800;color:#1A1A18;font-variant-numeric:tabular-nums}
+.segOn{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.segOn .segK{color:#0F6E56}.segOn .segV{color:#0F6E56}
+.segNo .segK{color:#A8A8A2}.segNo .segV{color:#C2C2BB}   /* no records in this window yet */
+.pill{font-size:12px;font-weight:700;color:#66655f;background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:12px;padding:5px 12px;white-space:nowrap;min-height:42px;display:inline-flex;align-items:center;justify-content:center}   /* 12 = Radii.md, the radius the radio buttons use app-wide */
+.pillOn{background:#085041;color:#fff;border-color:#085041}
+.chip{font-size:10px;font-weight:800;border-radius:9px;padding:2px 7px}
+.chipA{background:#FDF1DC;color:#B97F10}
+.tabs{display:flex;justify-content:space-around;background:#fff;border-top:1px solid rgba(0,0,0,.08);padding:8px 0 22px;margin-top:4px}
+.tab{font-size:9.5px;color:#9a9891;text-align:center;font-weight:600}.tab s{display:block;font-size:17px;text-decoration:none}
+.tab.on{color:#085041;font-weight:800}
+.cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:10px;line-height:1.5}
+.warnb{background:#FFF7E8;border:1px solid #EDA100;border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:12.5px}
+.frow{display:flex;justify-content:space-between;padding:6px 14px;font-size:13px}
+.fv{font-variant-numeric:tabular-nums;font-weight:700}
+.band{border-radius:0}   /* square, edge to edge across the card (founder 2026-08-11, 2026-09-14) */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 10px}
+.tbtn{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid rgba(0,0,0,.1);border-radius:19px;background:#fff;font-size:13px;font-weight:700;color:#6B6B66}
+.wordmark{font-size:15px;font-weight:800;letter-spacing:.2px}.wordmark b{color:#178F6B;font-weight:800}.wordmark i{font-style:normal;color:#0B2545}
+.tico{width:32px;height:32px;border:1px solid rgba(0,0,0,.1);border-radius:19px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;color:#6B6B66}
+.tright{display:flex;gap:8px;align-items:center}
+.pn{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#D9480F;color:#fff;font-size:10px;font-weight:800;margin-left:5px;vertical-align:middle;letter-spacing:0;text-transform:none;flex:none;font-style:normal}
+.changed{outline:2px dashed #D9480F;outline-offset:-3px}
+span.changed,b.changed{outline:none;background:#FBE3D6;border-radius:3px;padding:0 2px;color:inherit}
+.band span.changed,.pillOn span.changed{background:rgba(255,255,255,.22);color:#fff}
+.emptynote.changed{padding:5px 8px}
+.rw span[style*="min-width:84px"]{min-width:74px!important}
+.emptynote{font-size:13px;color:#6B6B66;margin-top:6px;width:100%}.emptynote a{color:#178F6B;font-weight:700}
+.v10{max-width:900px;background:#fff;border-left:4px solid #085041;padding:14px 18px;font-size:13px;line-height:1.6;margin:0 0 22px}
+.v10 table{border-collapse:collapse;width:100%;font-size:12.5px;margin:6px 0}.v10 td,.v10 th{border-top:1px solid #e5e5e0;padding:6px 8px;vertical-align:top;text-align:left}
+.v10 ol{padding-left:22px;margin:4px 0 8px}
+.v10 th{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:#555}
+
+.newmark{outline:2px dashed #D9480F;outline-offset:-3px}
+span.newmark{outline:none;background:#FBE3D6;border-radius:3px;padding:0 2px}
+.alt{background:#F6F7F5;border:1px dashed #9a9891;border-radius:12px;padding:10px 12px;font-size:12px;margin-top:10px;max-width:410px;line-height:1.55}
+.finding{max-width:900px;background:#FFF7E8;border-left:4px solid #EDA100;padding:12px 16px;font-size:13px;line-height:1.6;margin:0 0 18px}
+</style></head><body>
+<div class="eyebrow">MONEYKEEL · PERFORMANCE · v15 · 2026-09-30 · FOR YOUR APPROVAL</div>
+<h1>Performance — a rate where the Return refuses</h1>
+
+<div class="v10">
+<b>What this is.</b> Your ruling on Q52, drawn. <b>v14 is unchanged in every other respect</b> — the first
+phone below IS v14, so you can see that nothing else moved. The second phone is the ONE state that changes:
+a household where the Return declines to state a percentage.
+<br><br><b>What to approve.</b> Say yes, or name mark 16 or 16a.
+<br><br><b>Where this came from.</b> You asked how the money-weighted figure differs from the Return on the
+screen. The answer, measured: they are the same answer, one computed exactly and one approximately —
+7.6161% against 7.6341% on a year with $10,000 added mid-way, eighteen thousandths of a point apart. They
+can never be far apart, because the Return REFUSES the moment its straight-line shortcut could be off by
+more than a percentage point. So the exact rate does not compete with it; it fills the gap the refusal leaves.
+
+<table>
+<tr><th>#</th><th>Change</th><th>Why, and what I measured</th></tr>
+<tr><td>16</td><td><b>Where the Return refuses, it shows the exact rate per year instead of an em-dash.</b>
+Second phone: the Return cell reads <b>7.46%/year</b>, and the note beneath the trio reads
+“Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your
+rate per year, counting when you added money.” The refusal sentence it replaces is gone.</td>
+<td>Today that person sees an em-dash and a paragraph explaining why there is no percentage — and they are
+exactly the person who most needs a rate, because they are actively adding money. The rate shown is
+MK-PF-F-026, built 2026-07-14 and reached by no screen since mock v14 removed its card. Every figure on
+the second phone is computed by the real function, not typed: the walk closes
+(100,000 + 15,000 − 0 + 8,000 = 123,000), the income closes (1,800 + 400 + 5,800 = 8,000), and the rate is
+what the solver returns for those dated amounts over 364 days.</td></tr>
+<tr><td>16a</td><td><b>The alternative, if you prefer it.</b> Leave the Return cell as an em-dash and put the
+rate in the note alone. Drawn as the dashed box under the second phone.</td>
+<td>16 keeps the trio complete, so a person always reads three figures and the note says which kind of rate
+it is. 16a never shows two kinds of percentage in the same cell position across windows. I recommend 16.</td></tr>
+</table>
+
+<b>Checked before sending.</b> Every word on both phones was run against the one-term canon (0 retired words).
+Every dark-green bar is square and edge to edge. The first phone is v14's own markup with its change marks
+removed — no figure, word or frame on it differs. Both phones show the full screen, status bar to tab bar.
+</div>
+
+<div class="finding">
+<b>ONE THING THAT IS NOT PART OF THIS APPROVAL, and needs your word separately.</b> While drawing this I
+checked v14's colours against the app's own tokens (<span class="mono">src/utils/theme.ts</span>) and three
+do not match: a gain reads <b>#178F6B</b> in the mock and <b>#006300</b> in the app, a fall reads
+<b>#C2483A</b> against <b>#A32D2D</b>, and an amber caution <b>#B97F10</b> against <b>#854F0B</b>. The app's
+are the darker, higher-contrast ones. I have drawn v15 in v14's colours ON PURPOSE, so the only visible
+change here is the one you ruled — changing both at once would muddy what you are approving. Say the word
+and I will bring every mock onto the app's tokens as its own change.
+</div>
+
+<div class="row">
+<div>
+<div><div class="phone"><div class="screen"><div class="sbar"><span>9:41</span><span class="sb"><i></i><i style="width:22px;border-radius:3px"></i></span></div><div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div><div class="c"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:20px;font-weight:800">Performance</span><span class="mut">Aug 4, 2026</span></div><div class="segwrap"><div class="segbar"><span class="seg segWide segOn"><span class="segK">Since Jul 19</span><span class="segV">+0.54%</span></span><span class="seg"><span class="segK">1M</span><span class="segV">+0.30%</span></span><span class="seg segNo"><span class="segK">This year</span><span class="segV">—</span></span><span class="seg segNo"><span class="segK">1Y</span><span class="segV">—</span></span><span class="seg segNo"><span class="segK">2Y</span><span class="segV">—</span></span></div></div><div class="card"><div class="band">SUMMARY · SINCE JUL 19, 2026 ⓘ</div><div class="body" style="display:flex;gap:16px;flex-wrap:wrap;padding-bottom:2px"><div><div class="mut">Ending value</div><div style="font-size:20px;font-weight:800;color:#0F6E56">$354,314</div></div><div><div class="mut">Wealth generated</div><div style="font-size:20px;font-weight:800" class="grn">$1,910</div></div><div><div class="mut">Return</div><div style="font-size:20px;font-weight:800" class="grn">+0.54%</div></div><div class="mut" style="font-size:11px;width:100%">Return is for the window you picked (Jul 19 → Aug 4) — not a yearly rate ⓘ · money-weighted, so money you added never counts as return ⓘ</div></div><div style="padding:6px 14px 10px"><svg class="changed" viewBox="0 0 320 78" style="width:100%;height:78px"><line x1="46" y1="12.0" x2="320" y2="12.0" stroke="rgba(0,0,0,.07)"/><text x="2" y="15.0" class="axlab">$355,000</text><line x1="46" y1="28.7" x2="320" y2="28.7" stroke="rgba(0,0,0,.07)"/><text x="2" y="31.7" class="axlab">$354,000</text><line x1="46" y1="45.3" x2="320" y2="45.3" stroke="rgba(0,0,0,.07)"/><text x="2" y="48.3" class="axlab">$353,000</text><line x1="46" y1="62.0" x2="320" y2="62.0" stroke="rgba(0,0,0,.07)"/><text x="2" y="65.0" class="axlab">$352,000</text><polyline points="46.0,55.3 79.8,53.3 113.5,55.7 147.2,46.2 181.0,48.2 214.8,38.7 248.5,41.0 282.2,30.3 316.0,23.4" fill="none" stroke="#178F6B" stroke-width="2.5" stroke-linejoin="round"/><circle cx="316" cy="23.4" r="3.5" fill="#0F6E56"/></svg><div style="display:flex;justify-content:space-between;font-size:10px;color:#66655f"><span style="margin-left:46px">Jul 19</span><span>Aug 4</span></div></div></div><div class="warnb"><b>⚠ 2 numbers need more information ›</b><div style="margin-top:4px">· LCTX has no price today — showing what you paid</div><div>· E*TRADE hasn&#39;t shared dividend records — its return shows price change only</div></div><div class="card" style="margin-bottom:6px"><div class="band">HOW $352,404 BECAME $354,314 · ALL ACCOUNTS</div><div class="frow"><span>Beginning market value (Jul 19)</span><span class="fv ">$352,404</span></div><div class="frow"><span>Contributions</span><span class="fv ">$0</span></div><div class="frow"><span>Withdrawals</span><span class="fv ">$0</span></div><div class="frow"><span><b>Wealth generated</b></span><span class="fv "><b>$1,910</b></span></div><div class="frow" style="padding-left:32px"><span><span class="mut">Dividends</span></span><span class="fv grn">$1,220</span></div><div class="frow" style="padding-left:32px"><span><span class="mut">Interest</span></span><span class="fv grn">$430</span></div><div class="frow" style="padding-left:32px"><span><span class="mut">Change in investment value</span></span><span class="fv grn">$260</span></div><div class="frow" style="border-top:1px solid rgba(0,0,0,.12)"><span><b>Ending market value (Aug 4)</b></span><span class="fv" style="color:#0F6E56"><b>$354,314</b></span></div></div><div class="card"><div class="band">▾ VANGUARD BROKERAGE<span class="bandv">$301,610</span><span class="chev" style="color:#fff">›</span></div><div class="mut" style="font-size:11px;padding:6px 14px 0"><span class="changed">Linked</span></div><div class="frow"><span>Beginning market value (Jul 19)</span><span class="fv ">$300,000</span></div><div class="frow"><span>Contributions</span><span class="fv ">$0</span></div><div class="frow"><span>Withdrawals</span><span class="fv ">$0</span></div><div class="frow"><span><b>Wealth generated</b></span><span class="fv "><b>$1,610</b></span></div><div class="frow" style="padding-left:32px"><span><span class="mut">Dividends</span></span><span class="fv grn">$1,100</span></div><div class="frow" style="padding-left:32px"><span><span class="mut">Interest</span></span><span class="fv grn">$330</span></div><div class="frow" style="padding-left:32px"><span><span class="mut">Change in investment value</span></span><span class="fv grn">$180</span></div><div class="frow" style="border-top:1px solid rgba(0,0,0,.12)"><span><b>Ending market value (Aug 4)</b></span><span class="fv" style="color:#0F6E56"><b>$301,610</b></span></div><div class="mut" style="font-size:11px;padding:0 14px 10px">Tap ▾ to collapse · tap the name to open this account&#39;s portfolio ›</div></div><div class="card"><div class="band">▸ E*TRADE ACCOUNT 1<span class="bandv">$52,704</span><span class="chev" style="color:#fff">›</span></div><div class="mut" style="font-size:11px;padding:7px 14px 9px">Linked · 7 days old · wealth generated $300</div></div><div class="card"><div class="band">WHAT EACH CATEGORY EARNED<span class="bandv">SINCE JUL 19</span><span class="chev" style="color:#fff"> </span></div><div class="rw" style="padding:6px 14px 2px;font-size:10.5px;letter-spacing:.4px;color:#66655f;font-weight:800"><span class="nm">CATEGORY</span><span style="margin-left:auto;text-align:right;min-width:84px;font-variant-numeric:tabular-nums;font-weight:700;flex:none;color:#66655f">EARNED</span><span style="text-align:right;min-width:64px;font-variant-numeric:tabular-nums;font-weight:700;flex:none;color:#66655f">RETURN</span><span class="chev"> </span></div><div class="rw" style="border-top:1px solid rgba(0,0,0,.08)"><span class="nm"><span class="dot" style="background:#2a78d6"></span><span class="changed">Stocks / Funds</span></span><span style="margin-left:auto;text-align:right;min-width:84px;font-variant-numeric:tabular-nums;font-weight:700;flex:none" class="grn">$1,220</span><span style="text-align:right;min-width:64px;font-variant-numeric:tabular-nums;font-weight:700;flex:none" class="grn">+2.10%</span><span class="chev">›</span></div><div class="rw" style=""><span class="nm"><span class="dot" style="background:#4a3aa7"></span>Bonds &amp; CDs</span><span style="margin-left:auto;text-align:right;min-width:84px;font-variant-numeric:tabular-nums;font-weight:700;flex:none" class="grn">$210</span><span style="text-align:right;min-width:64px;font-variant-numeric:tabular-nums;font-weight:700;flex:none" class=""><span class="changed">4.20%/year</span></span><span class="chev">›</span></div><div class="rw" style=""><span class="nm"><span class="dot" style="background:#1baf7a"></span>Cash in this account ⓘ</span><span style="margin-left:auto;text-align:right;min-width:84px;font-variant-numeric:tabular-nums;font-weight:700;flex:none" class="grn">$220</span><span style="text-align:right;min-width:64px;font-variant-numeric:tabular-nums;font-weight:700;flex:none" class="">2.50%/year</span><span class="chev">›</span></div><div class="rw" style="border-top:1px solid rgba(0,0,0,.12)"><span class="nm"><b>All categories</b></span><span style="margin-left:auto;text-align:right;min-width:84px;font-variant-numeric:tabular-nums;font-weight:700;flex:none"><b>$1,650</b></span><span style="text-align:right;min-width:64px;font-variant-numeric:tabular-nums;font-weight:700;flex:none"> </span><span class="chev"> </span></div><div class="mut" style="font-size:11px;padding:0 14px 10px">Earned = dividends + interest received in this window ⓘ · a <span class="changed">/year</span> figure is that category&#39;s yearly pace ⓘ</div></div></div><div class="tabs"><div class="tab"><s>🏠</s>Home</div><div class="tab"><s>💎</s>Net worth</div><div class="tab on"><s>📈</s>Performance</div><div class="tab"><s>💵</s>Cash flow</div><div class="tab"><s>🧭</s>Plan</div></div>
+</div></div></div>
+<div class="cap"><b>PHONE 1 — v14, UNCHANGED.</b> The Return answers (+0.54%), so nothing on this screen
+differs from the design you approved on 2026-09-25. It is here as the control.</div></div>
+<div><div class="phone"><div class="screen">
+<div class="sbar"><span>9:41</span><span class="sb"><i></i><i style="width:22px;border-radius:3px"></i></span></div>
+<div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+<div class="c">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:20px;font-weight:800">Performance</span><span class="mut">Sep 30, 2026</span></div>
+<div class="segwrap"><div class="segbar">
+<span class="seg segWide segOn"><span class="segK">Since Oct 1</span><span class="segV newmark">7.46%</span></span>
+<span class="seg"><span class="segK">1M</span><span class="segV">+0.41%</span></span>
+<span class="seg"><span class="segK">This year</span><span class="segV">+4.90%</span></span>
+<span class="seg segNo"><span class="segK">1Y</span><span class="segV">—</span></span>
+<span class="seg segNo"><span class="segK">2Y</span><span class="segV">—</span></span>
+</div></div>
+<div class="card"><div class="band">SUMMARY · SINCE OCT 1, 2025 ⓘ</div>
+<div class="body" style="display:flex;gap:16px;flex-wrap:wrap;padding-bottom:2px">
+<div><div class="mut">Ending value</div><div style="font-size:20px;font-weight:800;color:#0F6E56">$123,000</div></div>
+<div><div class="mut">Wealth generated</div><div style="font-size:20px;font-weight:800" class="grn">$8,000</div></div>
+<div><div class="mut">Return</div><div style="font-size:20px;font-weight:800" class="grn newmark">7.46%/year<span class="pn">16</span></div></div>
+<div class="mut" style="font-size:11px;width:100%"><span class="newmark">Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money ⓘ</span></div>
+</div>
+<div style="padding:6px 14px 10px"><svg viewBox="0 0 320 78" style="width:100%;height:78px">
+<line x1="52" y1="12" x2="320" y2="12" stroke="rgba(0,0,0,.07)"/><text x="2" y="15" class="axlab">$125,000</text>
+<line x1="52" y1="34" x2="320" y2="34" stroke="rgba(0,0,0,.07)"/><text x="2" y="37" class="axlab">$115,000</text>
+<line x1="52" y1="56" x2="320" y2="56" stroke="rgba(0,0,0,.07)"/><text x="2" y="59" class="axlab">$105,000</text>
+<polyline points="56,62 110,58 150,55 168,34 220,28 270,20 316,16" fill="none" stroke="#0F6E56" stroke-width="2"/>
+<text x="56" y="74" class="axlab">Oct 1</text><text x="286" y="74" class="axlab">Sep 30</text></svg></div>
+</div>
+<div class="card"><div class="band">HOW $100,000 BECAME $123,000 · ALL ACCOUNTS</div>
+<div class="frow"><span>Beginning market value (Oct 1)</span><span class="fv">$100,000</span></div>
+<div class="frow"><span>Contributions</span><span class="fv">$15,000</span></div>
+<div class="frow"><span>Withdrawals</span><span class="fv">$0</span></div>
+<div class="sub">Wealth generated<span class="subv grn">$8,000</span></div>
+<div class="frow"><span>Dividends</span><span class="fv">$1,800</span></div>
+<div class="frow"><span>Interest</span><span class="fv">$400</span></div>
+<div class="frow"><span>Change in investment value</span><span class="fv">$5,800</span></div>
+<div class="frow" style="border-top:1px solid #e5e5e0;font-weight:800"><span>Ending market value (Sep 30)</span><span class="fv">$123,000</span></div>
+</div>
+<div class="card"><div class="band">WHAT EACH CATEGORY EARNED<span class="bandv">SINCE OCT 1</span></div>
+<div class="rw" style="font-size:10.5px;font-weight:800;color:#66655f;letter-spacing:.4px"><span class="nm">CATEGORY</span><span class="val">EARNED</span><span class="val">RETURN</span><span class="chev"></span></div>
+<div class="rw"><span class="nm">Stocks / Funds</span><span class="val grn">$1,800</span><span class="val">+6.10%</span><span class="chev">›</span></div>
+<div class="rw"><span class="nm">Cash in this account ⓘ</span><span class="val grn">$400</span><span class="val">2.50%/year</span><span class="chev">›</span></div>
+<div class="rw" style="border-top:1px solid #e5e5e0;font-weight:800"><span class="nm">All categories</span><span class="val grn">$2,200</span><span class="val"></span><span class="chev"></span></div>
+<div class="mut" style="font-size:11px;padding:0 14px 10px">Earned = dividends + interest received in this window ⓘ · a <b>/year</b> figure is that category’s yearly pace ⓘ</div>
+</div>
+</div>
+<div class="tabs"><span class="tab"><s>🏠</s>Home</span><span class="tab"><s>💎</s>Net worth</span><span class="tab on"><s>📈</s>Performance</span><span class="tab"><s>💵</s>Cash flow</span><span class="tab"><s>🧭</s>Plan</span></div>
+</div></div>
+<div class="cap"><b>PHONE 2 — THE ONE STATE THAT CHANGES (mark 16).</b> $100,000 on 1 Oct 2025, $15,000 added
+on 1 Apr 2026, $123,000 today. The window Return refuses here: $15,000 into $100,000 means the answer swings
+from 6.96% to 8.00% depending only on WHEN the money landed, which is more than a percentage point, so it
+will not state one. The rate shown instead is exact — it compounds each amount over the days it was actually
+there. Everything below the summary is unchanged from v14.</div>
+<div class="alt"><b>16a — the alternative.</b> The Return cell stays <b>—</b> and the note alone carries the
+rate: “No window return: money moved in amounts where timing would decide it. Counting when you added
+money, your rate was <b>7.46% a year</b> ⓘ”. Same information, one fewer figure in the trio.</div>
+</div>
+</div>
+<div class="cap" style="max-width:900px;margin-top:18px"><b>What happens on a yes.</b> MK-NW-O-008 thePerformance
+returns the rate alongside its refusal, PerformanceScreen prints it where the refusal sentence is, and a test
+pins both states — the Return answering, and the Return refusing with the rate in its place. v14 is archived
+with its date on the day you approve this, per the naming standard; until then v14 remains the current design.
+</div>
+</body></html>
