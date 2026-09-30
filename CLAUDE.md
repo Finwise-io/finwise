@@ -206,6 +206,17 @@ The only accepted method — full procedure in `docs/MOCK-MATCH-AUDIT-STANDING-O
 Find every instance of a defect's CLASS before reporting. The founder must never be the one who
 finds the 6th gap.
 
+## THE DECISION LOG IS THE ONE CONSOLIDATED MASTER (founder, 2026-09-30 — DEC-0011)
+His wording: *"Every Approval is logged in decision log with date in addition to change log, standards,
+Audit, Master and other files. Decision-log is one consolidated master."* My summary of this had it
+backwards — it said an approval gets a dated row in the Changelog. The Changelog is one of the places a
+decision ALSO appears. **The decision log is where every decision lives, whatever file it was made in**,
+and the order of work on any approval is: the decision log first, then the changelog, the standard it
+belongs to, the master file's rows, the working plan, and the code with its test. A decision that
+reaches a changelog and not the decision log is not recorded.
+Source: `MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx`, built from
+`moneykeel_decisions.json` — hand edits die.
+
 ## POST FEEDBACK SYNC — "PFS" (founder, 2026-09-14)
 - When the founder says **PFS**: fold every unarchived feedback file of his (`-jj`, or a `jj/` folder) —
   master and audit unless he names one — into its original, then archive it as

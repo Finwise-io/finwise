@@ -1,0 +1,139 @@
+{
+ "_about": "HIS ANSWERS ON THE WORDING ASKS, VERBATIM. He returned moneykeel_log_wording-asks_v01-jj.xlsx on 2026-09-30 with all 33 rows answered: \"Decision-log-ask-v01-jj - all questions answered. Record them in decision log, any other file needed to be updated (PFS).\" Each row here carries what HE typed, never my rewording. A plain \"yes\" confirms my plain-English summary as written, which lifts the row from LOW to HIGH confidence — the summary is now his, because he read it and said so. Where he typed his own wording it REPLACES mine, and nine of them correct my paraphrase materially. extract-decisions.py applies this file.",
+ "answered_on": "2026-09-30",
+ "source_file": "MoneyKeel/documents/decision-log/moneykeel_log_wording-asks_v01-jj.xlsx",
+ "rows": {
+  "DEC-0008": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0009": {
+   "verdict": null,
+   "his_wording": "Insurance Check, Estate & Legacy, Tax Organizer, Build Credit, Stress Test - a surprise expense, job safety check are all part of Plan - >Prepare"
+  },
+  "DEC-0010": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0011": {
+   "verdict": null,
+   "his_wording": "Every Approval is logged in decision log with date in addition to change log, standards, Audit, Master and other files. Decision-log is one consolidated master"
+  },
+  "DEC-0019": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0024": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0027": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0028": {
+   "verdict": null,
+   "his_wording": "Plan screens to be finalized next."
+  },
+  "DEC-0030": {
+   "verdict": null,
+   "his_wording": "As of now park this."
+  },
+  "DEC-0033": {
+   "verdict": null,
+   "his_wording": "Menu to be re-designed once all sectioned are launch ready"
+  },
+  "DEC-0035": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0038": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0039": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0045": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0046": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0047": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0051": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0052": {
+   "verdict": null,
+   "his_wording": "Three refinements to the Net worth screen: a collapsed group shows its count on a quieter second line; there is at least 16 pixels of space before a column of numbers. No more donut on NW screen. It is replaced by bar under \"what you own\" and what you owe sections."
+  },
+  "DEC-0053": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0061": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0069": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0177": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0178": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0179": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0193": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0197": {
+   "verdict": null,
+   "his_wording": "Where your tax rate comes from, in order: TYPED off your payslip, IMPLIED by what you said lands in your bank, or OUR estimate — and each one says whose it is on the screen."
+  },
+  "DEC-0201": {
+   "verdict": null,
+   "his_wording": "Use latest mockup version of income screen"
+  },
+  "DEC-0205": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0206": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0211": {
+   "verdict": null,
+   "his_wording": "Run 1000 scenarios and update screen to say so"
+  },
+  "DEC-0212": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0218": {
+   "verdict": "yes",
+   "his_wording": null
+  },
+  "DEC-0229": {
+   "verdict": "Yes",
+   "his_wording": null
+  }
+ }
+}

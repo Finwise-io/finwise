@@ -1042,7 +1042,7 @@
  "essentialsMonthly": {
   "id": "MK-CF-F-190",
   "file": "MoneyKeel/functions/cashflow/essentials.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "expenses": {
   "id": "MK-CF-O-002",

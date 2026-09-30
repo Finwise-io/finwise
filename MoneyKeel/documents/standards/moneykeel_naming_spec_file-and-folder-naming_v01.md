@@ -175,6 +175,26 @@ is folded into `documents/` during the move, and only `documents/` survives.
 - When every comment in a feedback file has been read and written into the original file (the master, the decisions workbook, the assessment), the feedback file moves to that folder's `JJ-feedback-archive/` with the date it was folded in as a prefix: `2026-09-10_folded-in_<his filename>`.
 - Why: he always starts his next review from the latest original, and the original and his feedback copy can never drift apart. A feedback file still sitting beside the original is one not yet folded in.
 
+## THE DECISION LOG IS THE ONE CONSOLIDATED MASTER (founder, 2026-09-30 — DEC-0011)
+
+His wording, typed onto the wording asks and replacing mine:
+
+> *"Every Approval is logged in decision log with date in addition to change log, standards, Audit,
+> Master and other files. Decision-log is one consolidated master"*
+
+Two things follow, and the second is the one that changed:
+
+1. **Every approval he gives is logged with its date** — that part my summary already had, and it is
+   the same-day rule.
+2. **The decision log is THE consolidated master, and the other files are IN ADDITION to it.** My
+   summary said an approval gets a dated row in the design Changelog. That has it backwards: the
+   Changelog is one of the places a decision also appears. The decision log is where every decision
+   lives, whatever file it was made in.
+
+So the order of work on any approval is: **the decision log first**, then the changelog, the standard
+it belongs to, the master file's own rows, the working plan, and the code and its test. A decision that
+reaches a changelog and not the decision log is not recorded.
+
 ## Post Feedback Sync — PFS (founder, 2026-09-14)
 
 The founder named the fold-and-archive process so he can ask for it in three letters: **PFS**. When he

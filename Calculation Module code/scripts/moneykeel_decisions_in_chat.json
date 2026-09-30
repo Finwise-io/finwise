@@ -73,6 +73,21 @@
    "proof": "Calculation Module code/scripts/moneykeel_decisions_anchors.json — the link is declared and printed into the row; the extractor fails if an anchor names a decision that does not exist",
    "plain": "He read DEC-0008 and had to ask whether it was a new exception to the font standard. It was not: it is his OWN amendment of 2026-07-15 — a money figure is at least 17 points, and a reference table may use 12 to 15 — applied thirteen days later to two named tables. He had to ask because the row stated a rule and named nothing behind it.\nSO: a decision that restates a standard now names it on its own row, and its EXCEPTIONS cell says plainly what it does NOT touch. DEC-0008 does not touch the 20-point heading rule, which governs titles rather than money, and it is not an exception to the type scale either — 12 to 15 spans two of its own steps, 13 and 15.\nTWO THINGS THE QUESTION ALSO FOUND: the row cited “the winners and laggards list” as a live example, and that list was removed by the Performance design he approved on 2026-09-25; the code still computed winners, laggards and a list selector that nothing drew.",
    "changed": "Calculation Module code/scripts/moneykeel_decision_plain.py (DEC-0008 rewritten) · moneykeel_decisions_anchors.json (new) · extract-decisions.py (apply_anchors) · src/screens/PerformanceScreen.tsx (dead winners/laggards/listMode removed)"
+  },
+  {
+   "decided": "2026-09-30",
+   "his_words": "Q51 -approved.",
+   "subject": "Q51 approved — Home says which return counts dividends and interest",
+   "means": "The Home glance line reads: you +3.69% (including dividends and interest) · market +2.83% · ahead by 0.85%.",
+   "tab": "multiple_screens",
+   "type": "COPY",
+   "screens": "/home",
+   "governs": "MK-PF-M-008 market +X% · MK-XS-M-004 ▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN",
+   "exceptions": "none recorded",
+   "status": "TESTED, NOT VERIFIED",
+   "proof": "src/__tests__/guard_d3_screens_agree.test.tsx — MK-PF-M-008: Home says WHICH figure counts dividends and interest",
+   "plain": "APPROVED 2026-09-30 in one word: “Q51 -approved.” The line is built and pinned. ONE WORD DIFFERS FROM HIS TYPING and he approved it knowing so: he wrote “including dividend and interest” and the screen reads “dividends”, the plural the change walk, the category table and the glossary already use for these two — one term per concept.",
+   "changed": "src/screens/HomeScreen.tsx — the hero comparison line; styles.heroVs gains flexShrink so the longer line wraps inside the card"
   }
  ]
 }

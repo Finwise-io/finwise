@@ -594,6 +594,42 @@ def merge_reworded(rows):
 # font standard. It was not: it is his own 2026-07-15 amendment applied to two named tables. A
 # changelog row carries no standard reference, so the link is declared by hand in
 # moneykeel_decisions_anchors.json and printed into the row's own columns.
+# HIS ANSWERS ON THE WORDING ASKS (2026-09-30). He returned the file with all 33 rows answered and
+# said: "Record them in decision log, any other file needed to be updated (PFS)." A plain "yes"
+# confirms my plain-English summary AS WRITTEN — so the row stops being my reconstruction and becomes
+# his, which is what lifts it from LOW to HIGH confidence. Where he typed his own wording it REPLACES
+# mine word for word and nothing of mine survives in that cell.
+def apply_answers(rows):
+    path = os.path.join(HERE, 'moneykeel_decisions_answers.json')
+    if not os.path.exists(path):
+        return rows, []
+    spec = json.load(open(path))
+    answers, when = spec['rows'], spec['answered_on']
+    done = []
+    by_id = {r.get('id'): r for r in rows}
+    for ident, a in answers.items():
+        r = by_id.get(ident)
+        if r is None:
+            raise SystemExit(f'his answer names {ident}, which is not a decision in the log')
+        verdict = (a.get('verdict') or '').strip()
+        wording = (a.get('his_wording') or '').strip()
+        if wording:
+            r['his_words'] = wording
+            r['plain'] = wording
+            r['plain_written'] = 'yes'
+            r['confidence'] = f'HIGH — his own wording, typed on the wording asks he returned {when}'
+            done.append((ident, 'HIS OWN WORDING replaces mine'))
+        elif verdict.lower() in ('yes', 'y'):
+            # the summary was mine and he read it and said yes, so it is his now — and it says so
+            r['his_words'] = f'"{verdict}" — confirming, word for word, the summary on this row'
+            r['confidence'] = f'HIGH — he read this row and confirmed it as written, {when}'
+            done.append((ident, 'confirmed as written'))
+        else:
+            raise SystemExit(f'{ident} carries neither a verdict nor wording — read the file again')
+        r['verified'] = f'ANSWERED BY HIM {when} on moneykeel_log_wording-asks_v01-jj.xlsx'
+    return rows, done
+
+
 def apply_anchors(rows):
     path = os.path.join(HERE, 'moneykeel_decisions_anchors.json')
     if not os.path.exists(path):
@@ -684,6 +720,12 @@ if __name__ == '__main__':
         print(f'   merged {len(_merged)} row(s) that were the same words reworded by me:')
         for gone, into, w in _merged[:12]:
             print(f'     {gone} → {into}   “{w}”')
+
+    doc['rows'], _answered = apply_answers(doc['rows'])
+    if _answered:
+        print(f'   his answers folded onto {len(_answered)} row(s) — the wording asks he returned:')
+        for aid, how in _answered:
+            print(f'     {aid}  {how}')
 
     doc['rows'], _anchored = apply_anchors(doc['rows'])
     if _anchored:
