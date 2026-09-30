@@ -38,7 +38,13 @@ doc = json.load(open(OUT)) if os.path.exists(OUT) else {
                're-pointed. A row is never deleted — a reversed decision is SUPERSEDED and says by what.'),
     'highest': 0, 'rows': [],
 }
+_keyless = [r.get('id') for r in doc['rows'] if not r.get('key')]
+if _keyless:
+    raise SystemExit(
+        'These rows carry no key, so the sweeps cannot tell they are already recorded and would add '
+        'them again as new decisions: ' + ' '.join(str(x) for x in _keyless))
 by_key = {r['key']: r for r in doc['rows']}
+by_source = {}      # filled once key_of and _source_id exist, just below
 
 def key_of(f):
     """THE DECISION, not the file it was found in and not the day it was recorded.
@@ -62,9 +68,35 @@ def key_of(f):
     rest = (f.get('plain') or '') + '||' + (f.get('means') or '')
     return hashlib.sha1((f.get('decided', '') + '||' + re.sub(r'\s+', ' ', rest).strip()[:400]).encode('utf8')).hexdigest()[:12]
 
+def _source_id(f):
+    """THE SOURCE'S OWN WORDS, which are not mine to change — a second way to recognise a row.
+
+    THE FAULT THIS FIXES (2026-09-30). For a row with no quoted words of his, `key_of` falls back to
+    hashing the date plus MY plain-English summary. So the moment I rewrote a summary, the key moved,
+    the sweep stopped recognising the decision and added it AGAIN under a fresh identifier. It cost two
+    rows in one afternoon: DEC-0008 came back as DEC-0517 when I rewrote it on his question about the
+    font standard, and DEC-0002 was re-minted when I deleted its hand-written entry. His rule is that
+    an identifier is issued once and never re-pointed — and my own editing was re-pointing them.
+
+    `means` is the SOURCE's summary, copied from the changelog and never rewritten by me, so it is
+    stable across any rewording of mine. It is checked when the key misses.
+    """
+    m = PLAIN._norm(str(f.get('means') or ''))
+    return (str(f.get('decided') or '') + '|' + m[:200]) if len(m) >= 15 else None
+
+
 def add(**f):
     """one decision. Returns 'new' or 'kept'."""
     k = key_of(f)
+    if k not in by_key:
+        sid = _source_id(f)
+        if sid and sid in by_source:
+            row = by_source[sid]
+            # the row is the same decision, recognised by the source's own words. Move it onto the
+            # new key so the two agree from here on; the identifier never changes.
+            by_key.pop(row.get('key'), None)
+            row['key'] = k
+            by_key[k] = row
     if k in by_key:
         row = by_key[k]
         for kk, vv in f.items():                 # fill blanks only; never overwrite what is there
@@ -86,6 +118,12 @@ def add(**f):
     row['tab'] = row.get('tab') or 'process-and-standards'
     doc['rows'].append(row); by_key[k] = row
     return 'new'
+
+# the second index: the source's own words → the row, so a row I have reworded is still recognised
+for _r in doc['rows']:
+    _sid = _source_id(_r)
+    if _sid:
+        by_source.setdefault(_sid, _r)
 
 HIS = re.compile(r'\b(jj|founder|approved mock|decided|adopted|approved|directed)\b', re.I)
 # the words that mark a sentence as HIS, quoted — used to lift his verbatim words out of a Why cell
@@ -499,6 +537,12 @@ def merge_reworded(rows):
         return re.sub(r'[^a-z0-9 ]', '', PLAIN._norm(t).replace('-', ' '))
     keep, merged = [], []
     for r in rows:
+        # A SPLIT ROW IS NEVER MERGED BACK (2026-09-30). The halves of a split inherit the parent's
+        # `his_words` word for word — DEC-0002 and DEC-0002b both carry "cashflow. Approve." — so this
+        # matched them at a ratio of 1.0 and folded them into one on every re-run, silently undoing the
+        # split he asked for. They are two rows BY DECLARATION, in moneykeel_decisions_splits.json.
+        if str(r.get('raw') or '').startswith('SPLIT FROM '):
+            keep.append(r); continue
         w = flat(r.get('his_words'))
         if len(w) < 15:
             keep.append(r); continue
@@ -545,6 +589,30 @@ def merge_reworded(rows):
 # The split text is HIS source row divided, never rewritten, and each part says which half it is and
 # points at the other. A split is declared by hand in moneykeel_decisions_splits.json because only
 # reading tells you a row holds two things.
+# A DECISION THAT RESTATES A STANDARD SAYS SO ON ITS ROW (founder, 2026-09-30). DEC-0008 stated the
+# money-size rule and named nothing behind it, so he had to ask whether it was a new exception to the
+# font standard. It was not: it is his own 2026-07-15 amendment applied to two named tables. A
+# changelog row carries no standard reference, so the link is declared by hand in
+# moneykeel_decisions_anchors.json and printed into the row's own columns.
+def apply_anchors(rows):
+    path = os.path.join(HERE, 'moneykeel_decisions_anchors.json')
+    if not os.path.exists(path):
+        return rows, []
+    spec = json.load(open(path))['rows']
+    done = []
+    for r in rows:
+        a = spec.get(r.get('id'))
+        if not a:
+            continue
+        r['standard_carrier'] = a['standard_carrier']
+        r['exceptions'] = a['exceptions']
+        done.append((r['id'], a['standard_carrier'].split(' \u2014 ')[0]))
+    unknown = sorted(set(spec) - {r.get('id') for r in rows})
+    if unknown:
+        raise SystemExit('anchors name decisions that do not exist: ' + ' '.join(unknown))
+    return rows, done
+
+
 def apply_splits(rows):
     path = os.path.join(HERE, 'moneykeel_decisions_splits.json')
     if not os.path.exists(path):
@@ -553,12 +621,22 @@ def apply_splits(rows):
     out, done = [], []
     for r in rows:
         hay = str(r.get('raw') or r.get('means') or '')
+        # A ROW THAT IS ALREADY SPLIT IS NOT SPLIT AGAIN (2026-09-30). Each part's `raw` quotes the
+        # source row word for word, so the match phrase is still in it — without this the parts would
+        # be split again on every run and collide on their identifiers.
+        if hay.startswith('SPLIT FROM '):
+            out.append(r); continue
         rule = next((x for x in spec if x['match'].lower() in hay.lower()), None)
         if rule is None:
             out.append(r); continue
         for i, part in enumerate(rule['parts']):
             new = dict(r)
-            new.pop('key', None)
+            # KEEP A KEY ON EVERY PART (fixed 2026-09-30). This popped the key, so on the NEXT run
+            # `by_key` threw KeyError and the whole pipeline — build-all.sh included — stopped. Worse,
+            # had it not thrown, the parent's key would have been missing and the changelog sweep would
+            # have re-added the original row as a brand-new decision. Part 0 keeps the parent's key;
+            # the others take it with a suffix, so both are found next time and neither is re-added.
+            new['key'] = r['key'] if i == 0 else f"{r['key']}#{i}"
             new['id'] = r['id'] if i == 0 else r['id'] + chr(ord('a') + i)
             new['plain'] = part['plain']
             new['plain_written'] = 'yes'
@@ -606,6 +684,12 @@ if __name__ == '__main__':
         print(f'   merged {len(_merged)} row(s) that were the same words reworded by me:')
         for gone, into, w in _merged[:12]:
             print(f'     {gone} → {into}   “{w}”')
+
+    doc['rows'], _anchored = apply_anchors(doc['rows'])
+    if _anchored:
+        print(f'   anchored {len(_anchored)} row(s) to the standard that carries the rule:')
+        for aid, where in _anchored:
+            print(f'     {aid}  →  {where}')
 
     doc['rows'], _split = apply_splits(doc['rows'])
     if _split:
@@ -662,7 +746,14 @@ if __name__ == '__main__':
     # stop matches NO row — so the sentence is written, the count says 171, and thirteen rows still
     # read as jargon. Exactly the shape CLAUDE.md warns about: a filter typed by hand, matching less
     # than it appears to, reporting clean. Now it fails.
+    # A SPLIT ROW STILL COUNTS AS REACHED (2026-09-30). When a row is split, each half takes its
+    # wording from the splits file, so the hand-written entry no longer shows up in `means` — but the
+    # entry is still the row's IDENTITY, because the key is computed from it. Deleting it as "dead"
+    # changed the key, the changelog sweep stopped recognising the row, re-added it as a new decision
+    # and DEC-0002b was lost. The split parts quote the source word for word in `raw`, so `raw` is
+    # read here too: the phrase IS in the log, just not where it used to be.
     hay = [str(r.get('screens') or '') + ' ' + str(r.get('means') or '') + ' ' + str(r.get('his_words') or '')
+           + (' ' + str(r.get('raw') or '') if str(r.get('raw') or '').startswith('SPLIT FROM ') else '')
            for r in doc['rows']]
     dead = [k for k in PLAIN.HAND_WRITTEN if not any(PLAIN._norm(k) in PLAIN._norm(h) for h in hay)]
     if dead:

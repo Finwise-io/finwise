@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -37944,7 +37944,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:397",
+   "site": "src/screens/HomeScreen.tsx:409",
    "routes": [
     "/home"
    ],
@@ -37963,7 +37963,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:400",
+   "site": "src/screens/HomeScreen.tsx:412",
    "routes": [
     "/home"
    ],
@@ -37982,7 +37982,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:482",
+   "site": "src/screens/HomeScreen.tsx:494",
    "routes": [
     "/home"
    ],
@@ -38001,7 +38001,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:495",
+   "site": "src/screens/HomeScreen.tsx:507",
    "routes": [
     "/home"
    ],
@@ -38019,7 +38019,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:496",
+   "site": "src/screens/HomeScreen.tsx:508",
    "routes": [
     "/home"
    ],
@@ -38036,7 +38036,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:499",
+   "site": "src/screens/HomeScreen.tsx:511",
    "routes": [
     "/home"
    ],
@@ -39618,7 +39618,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:271",
+   "site": "src/screens/PerformanceScreen.tsx:268",
    "routes": [
     "/invest"
    ],
@@ -39633,7 +39633,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:272",
+   "site": "src/screens/PerformanceScreen.tsx:269",
    "routes": [
     "/invest"
    ],
@@ -39648,7 +39648,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:287",
+   "site": "src/screens/PerformanceScreen.tsx:284",
    "routes": [
     "/invest"
    ],
@@ -39663,7 +39663,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:292",
+   "site": "src/screens/PerformanceScreen.tsx:289",
    "routes": [
     "/invest"
    ],
@@ -39678,7 +39678,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:325",
+   "site": "src/screens/PerformanceScreen.tsx:322",
    "routes": [
     "/invest"
    ],
@@ -39697,7 +39697,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:326",
+   "site": "src/screens/PerformanceScreen.tsx:323",
    "routes": [
     "/invest"
    ],
@@ -39714,7 +39714,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:355",
+   "site": "src/screens/PerformanceScreen.tsx:352",
    "routes": [
     "/invest"
    ],
@@ -39733,7 +39733,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:368",
+   "site": "src/screens/PerformanceScreen.tsx:365",
    "routes": [
     "/invest"
    ],
@@ -39753,7 +39753,7 @@
    "renders": 28
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:374",
+   "site": "src/screens/PerformanceScreen.tsx:371",
    "routes": [
     "/invest"
    ],
@@ -39772,7 +39772,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:428",
+   "site": "src/screens/PerformanceScreen.tsx:425",
    "routes": [
     "/invest"
    ],
@@ -39792,7 +39792,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:429",
+   "site": "src/screens/PerformanceScreen.tsx:426",
    "routes": [
     "/invest"
    ],
@@ -39812,7 +39812,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:438",
+   "site": "src/screens/PerformanceScreen.tsx:435",
    "routes": [
     "/invest"
    ],

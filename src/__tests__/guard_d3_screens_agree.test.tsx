@@ -132,7 +132,8 @@ test("MK-XS-M-004 — the month's return reads the same on Home and on Performan
   } as any);
 
   renderScreen('HomeScreen');
-  const home = firstMatch(/^you ([+-]\d+\.\d{2}%)$/);
+  // the line carries his Q51 clarifier after the figure now, so read the figure and ignore the rest
+  const home = firstMatch(/^you ([+-]\d+\.\d{2}%)/);
   screen.unmount();
 
   renderScreen('PerformanceScreen');
@@ -143,4 +144,28 @@ test("MK-XS-M-004 — the month's return reads the same on Home and on Performan
   expect(home).toBe(perf);
   // and it is the figure that COUNTS THE DIVIDEND: price change alone gives +3.57%
   expect(home).toBe('+3.69%');
+});
+
+/** HIS RULING ON Q51 (2026-09-30): the Home line says which of the two figures counts income.
+ *
+ *  He asked why "ahead by" could be trusted when the two sides are measured differently, and ruled
+ *  the line reads "you +3.69% (including dividend and interest), market +2.83%, ahead by 0.85%".
+ *  Written "dividends and interest" — the words the walk, the category table and the glossary use.
+ *
+ *  Why it needs a pin: without the clarifier the gap reads as skill, when part of it is simply income
+ *  the market side cannot see — no price feed we hold gives an index's dividends.
+ */
+test('MK-PF-M-008 — Home says WHICH figure counts dividends and interest, so the gap is not read as skill', () => {
+  useStore.setState({
+    assetAccounts: [INVESTOR_ACCOUNT], transactions: INVESTOR_TXNS, snapshotDays: INVESTOR_DAYS,
+    priceCache: { VTI: closes('VTI', 95, 100), SPY: closes('SPY', 96, 100) },
+    pricesFetchedAt: TODAY_D.toISOString(),
+  } as any);
+  renderScreen('HomeScreen');
+  const lines = readable();
+  const you = lines.find((s) => /^you [+-]/.test(s));
+  expect(you).toBe('you +3.69% (including dividends and interest)');
+  // the market side is NOT claimed to include them, because it does not
+  expect(lines.find((s) => /^market [+-]/.test(s))).toBe('market +2.83%');
+  expect(lines.some((s) => /^ahead by /.test(s))).toBe(true);
 });

@@ -113,16 +113,13 @@ export default function PerformanceScreen() {
   const investTotalAll = investmentsTotal(resolvedNwAccounts);
   const investedValue = rows.reduce((t, r) => t + r.marketValue, 0);
   const totalValue = investedValue + cashTotal;
-  // FCC glance-then-drill: the period's DOLLAR gain (same rows as the %), winners & laggards,
-  // the holding-concentration fact, and the grouped all-investments list (bonds + alts folded in)
+  // WINNERS, LAGGARDS AND THE LIST MODE ARE GONE (2026-09-30). The approved mock v14 removed those
+  // sections on 2026-09-25, but the arithmetic behind them stayed: `ranked`, `winners`, `laggards` and
+  // a `listMode` selector were still computed on every render and drawn by nothing. Found through his
+  // question on DEC-0008 — the decision's own wording cited "the winners and laggards list" as a live
+  // example of a dense table, and the list had not existed for five days.
   // capped rows: the dollar is YOUR true gain (value − cost) — same math as unrealized everywhere
   const rowGain = (r: any) => pricedGainOf([r]);                    // the door's own rule, one row at a time
-  const periodDollar = pricedGainOf(rows as any);
-  const ranked = rows.filter((r) => r.periodReturn != null && r.marketValue > 0)
-    .map((r) => ({ r, gain: rowGain(r) })).sort((a, b) => b.gain - a.gain);
-  const laggards = ranked.filter((x) => x.gain < 0).slice(-2);
-  const winners = ranked.filter((x) => x.gain >= 0).slice(0, 3);
-  const [listMode, setListMode] = useState<'top' | 'all' | 'account'>('top');
   // ONE definition of a period's start — the walk, the ledger filter and the gap checks all use it.
   // It lives in the door now (MK-NW-F-090), so Home asks the same question of the same window.
   const periodStartKey = (p: string): string =>

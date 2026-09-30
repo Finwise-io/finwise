@@ -318,7 +318,19 @@ export default function HomeScreen() {
             )}
             {youReturn != null && marketReturn != null && (
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                <DotJoined style={styles.heroVs} parts={[`you ${signedPct(youReturn)}`, `market ${signedPct(marketReturn)}`, `${youReturn >= marketReturn ? 'ahead' : 'behind'} by ${pctTwoDp(Math.abs(youReturn - marketReturn))}`]} />
+                {/* HIS RULING ON Q51 (2026-09-30): "you +3.69% (including dividend and interest),
+                    market +2.83%, ahead by 0.85%". The two sides are NOT measured the same way and
+                    the line now says so. YOURS counts the dividends and interest you received (his
+                    one-meaning-of-return ruling, 2026-09-25); the MARKET figure is the index's price
+                    only, because no price feed we hold gives an index's dividends. Without the
+                    clarifier the gap read as skill when part of it is simply income the index side
+                    cannot see. Written "dividends and interest" — the words the walk, the category
+                    table and the glossary already use for these two. */}
+                <DotJoined style={styles.heroVs} parts={[
+                  `you ${signedPct(youReturn)} (including dividends and interest)`,
+                  `market ${signedPct(marketReturn)}`,
+                  `${youReturn >= marketReturn ? 'ahead' : 'behind'} by ${pctTwoDp(Math.abs(youReturn - marketReturn))}`,
+                ]} />
                 <InfoDot term="benchmark" />
               </View>
             )}
@@ -630,7 +642,10 @@ const styles = StyleSheet.create({
   heroKicker: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7 },
   heroBig: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, marginTop: 2, fontVariant: ['tabular-nums'] },
   heroLine: { fontSize: 15, color: Colors.textPrimary, marginTop: 4 },
-  heroVs: { fontSize: 13, color: Colors.textSecondary, marginTop: 3, fontVariant: ['tabular-nums'] },
+  // flexShrink lets this WRAP inside its row (2026-09-30). React Native defaults flexShrink to 0,
+  // so before his Q51 clarifier made the line longer it happened to fit and nothing wrapped; a
+  // longer string would have run off the card edge instead of onto a second line.
+  heroVs: { fontSize: 13, color: Colors.textSecondary, marginTop: 3, fontVariant: ['tabular-nums'], flexShrink: 1 },
   freshness: { fontSize: 13, color: Colors.textTertiary, marginTop: 4 },
   heroLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 32, textAlignVertical: 'center' },
 

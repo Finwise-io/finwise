@@ -28,6 +28,51 @@
    "proof": "src/__tests__/decisions_are_held.test.ts — DEC-0471: both figures and the gap are reported where they disagree; the BUDGET figure still drives the arithmetic; nothing is reported when they agree or when one is missing",
    "plain": "“Yes, ask User to correct, if not input from user, use the budget.” A mortgage can be entered twice — as the Rent / Mortgage budget line and as a Mortgage debt — and until now the app silently took the budget figure and said nothing. Two decisions:\n1. Where the two disagree, the app SAYS SO and asks the person to correct it.\n2. Until they answer, the BUDGET figure is the one used — so nothing changes in the arithmetic, only in what the person is told.",
    "changed": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts — MK-NW-O-004 theEmergencyFund gains housingDisagreement {budgeted, owed, difference}"
+  },
+  {
+   "decided": "2026-09-30",
+   "his_words": "Q51 - make it “you +3.69% (including dividend), market + 2.83%, ahead by 0.85%.” ... Q51 - including dividend and interest.",
+   "subject": "Home says WHICH of the two returns counts the income you received",
+   "means": "The Home glance line states that YOUR return includes dividends and interest, and the market figure beside it does not.",
+   "tab": "multiple_screens",
+   "type": "COPY",
+   "screens": "/home",
+   "governs": "MK-PF-M-008 market +X% · MK-XS-M-004 ▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN",
+   "exceptions": "none recorded",
+   "status": "TESTED, NOT VERIFIED",
+   "proof": "src/__tests__/guard_d3_screens_agree.test.tsx — MK-PF-M-008: Home says WHICH figure counts dividends and interest",
+   "plain": "The Home card compares your return with the market's, and the two were NOT measured the same way: yours counts the dividends and interest you actually received (his one-meaning-of-return ruling, 2026-09-25), while the market figure is the index's PRICE only, because no price feed we hold gives an index's dividends. Without saying so, the gap read as skill when part of it is simply income the market side cannot see.\nThe line now reads: you +3.69% (including dividends and interest) · market +2.83% · ahead by 0.85%.\nHIS WORDING, AND THE ONE WORD I CHANGED: he wrote “including dividend and interest”. It is built as “dividends and interest” — the plural is the word the change walk, the category table and the glossary already use for these two, and one term per concept is his standing order. Say the word if you want the singular.",
+   "changed": "src/screens/HomeScreen.tsx — the hero comparison line; styles.heroVs gains flexShrink so the longer line wraps inside the card instead of running off its edge"
+  },
+  {
+   "decided": "2026-09-30",
+   "his_words": "Q52 - use option B",
+   "subject": "When the Return refuses, the exact rate is shown in its place",
+   "means": "Where the window Return declines to state a percentage, the money-weighted rate (MK-PF-F-026) is shown there instead — one return visible at a time.",
+   "tab": "performance",
+   "type": "DESIGN",
+   "screens": "/invest",
+   "governs": "MK-XS-M-004 · MK-PF-F-026 moneyWeightedReturn · MK-NW-O-008 thePerformance",
+   "exceptions": "Only where the window Return REFUSES. Where it answers, it is the only return shown — the two agree to about 0.01 of a percentage point, so showing both would be noise, and two returns on one screen is the disagreement he caught on 2026-09-25.",
+   "status": "RULED, NOT CODED",
+   "proof": "NOT YET BUILT — a mock comes first (mock-first standing order). Nothing is coded until he approves it.",
+   "plain": "TODAY, when money moved in or out in amounts large enough that WHEN it moved would decide the percentage, the Return states nothing and the screen shows the dollar walk alone. That person — someone actively adding money — is the one who most needs a rate and currently never sees one.\nHIS RULING: show the exact rate there instead. Where the walk now says there is no percentage, it will read that counting when you added money, the rate was X% a year.\nWHY THIS IS SAFE, measured: the two methods are not different answers. The window Return divides the gain once by a straight-line average of the money at work; the money-weighted rate compounds each amount over its own days and solves for the rate. On $100,000 with $10,000 added on 1 July and $118,000 at the end, they give 7.6161% and 7.6341% — 0.018 of a percentage point apart. They can never be far apart, because the window Return REFUSES the moment its straight-line shortcut could be off by more than a percentage point. So this fills the gap it leaves and never contradicts it: one return is visible at a time.\nWHERE IT CAME FROM: the figure was built 2026-07-14 as its own card on the old Invest screen, and the Performance design he approved on 2026-09-25 (mock v14) removed that card. The function has been correct and reached by no screen since.",
+   "changed": "NOTHING YET — the mock first, then MK-NW-O-008 thePerformance returns the rate alongside its refusal, and PerformanceScreen prints it in place of the refusal sentence"
+  },
+  {
+   "decided": "2026-09-30",
+   "his_words": "DEC 008 - Two type sizes ... is this an exception? As we already have approved standards for fonts - 20 for heading, and so forth. ... YEs, fix the file.",
+   "subject": "A decision that restates a standard must say which standard on its own row",
+   "means": "Every decision row that applies an existing standard names that standard, and says in its EXCEPTIONS column that it is not a new exception.",
+   "tab": "process-and-standards",
+   "type": "PROCESS",
+   "screens": "All screens",
+   "governs": "DEC-0008 · the decision log's 'The standard that carries it' and 'EXCEPTIONS' columns",
+   "exceptions": "none recorded",
+   "status": "CODED, NOT VERIFIED",
+   "proof": "Calculation Module code/scripts/moneykeel_decisions_anchors.json — the link is declared and printed into the row; the extractor fails if an anchor names a decision that does not exist",
+   "plain": "He read DEC-0008 and had to ask whether it was a new exception to the font standard. It was not: it is his OWN amendment of 2026-07-15 — a money figure is at least 17 points, and a reference table may use 12 to 15 — applied thirteen days later to two named tables. He had to ask because the row stated a rule and named nothing behind it.\nSO: a decision that restates a standard now names it on its own row, and its EXCEPTIONS cell says plainly what it does NOT touch. DEC-0008 does not touch the 20-point heading rule, which governs titles rather than money, and it is not an exception to the type scale either — 12 to 15 spans two of its own steps, 13 and 15.\nTWO THINGS THE QUESTION ALSO FOUND: the row cited “the winners and laggards list” as a live example, and that list was removed by the Performance design he approved on 2026-09-25; the code still computed winners, laggards and a list selector that nothing drew.",
+   "changed": "Calculation Module code/scripts/moneykeel_decision_plain.py (DEC-0008 rewritten) · moneykeel_decisions_anchors.json (new) · extract-decisions.py (apply_anchors) · src/screens/PerformanceScreen.tsx (dead winners/laggards/listMode removed)"
   }
  ]
 }

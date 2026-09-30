@@ -123,6 +123,15 @@ HAND_WRITTEN = {
   "that explains where the figure comes from.\n"
   "3. The screen no longer asks you to fill in your plan first before it will show you anything."),
 
+ # THIS ROW IS SPLIT IN TWO, and the text below is NOT what either half shows. DEC-0002 held the
+ # four-tab architecture (in force) AND the third tab's name "Spending" (replaced by his Expenses
+ # ruling of 2026-09-03). On his instruction — "split DEC - 0002" — each half's wording now comes
+ # from moneykeel_decisions_splits.json and overwrites what is here.
+ #
+ # SO WHY IS IT STILL HERE? Because the decision's KEY is computed from this text, and a key is what
+ # tells the next sweep the row is already recorded. Deleting it on 2026-09-30 changed the key, the
+ # changelog sweep stopped recognising the row, re-added it as a new decision (DEC-0517) and DEC-0002b
+ # was lost. Nothing reads this as copy; it is the row's identity. Leave it.
  'THE CASH FLOW SURFACE': (
   "Cash flow becomes ONE screen with four tabs — This month, Income, Spending, Debts — replacing the "
   "two separate Cash flow and Budget screens. Four decisions:\n"
@@ -163,10 +172,22 @@ HAND_WRITTEN = {
   "The emergency fund card — “X months of essentials” — comes back into scope on the Net worth "
   "screen, below the main figures. It is drawn as a mock and approved before any code is written."),
 
+ # REWRITTEN 2026-09-30, on his question: "is this an exception? As we already have approved standards
+ # for fonts - 20 for heading, and so forth." It read as a new exception and it is not one — it is his
+ # OWN amendment of 2026-07-15, already on the screen-design standard, applied to two named tables
+ # thirteen days later. My wording never said so, and it named a list the app no longer has.
  'Type-size question CLOSED': (
-  "Two type sizes, decided: a dense table — the winners and laggards list, the holdings list — keeps "
-  "its smaller approved size, because a table of twenty rows at hero size is unreadable. The 17-point "
-  "minimum for money applies to the big headline figures and to money standing on its own."),
+  "NOT A NEW EXCEPTION — this applies the money-size rule already on the standard. That rule is his own "
+  "amendment of 2026-07-15: a money figure is at least 17 points, and a REFERENCE TABLE may use 12 to "
+  "15 points. On 2026-07-28 he closed the question of which tables count: a dense table of holdings "
+  "keeps its smaller size, because twenty rows at hero size cannot be read. The 17-point floor applies "
+  "to the big headline figures and to money standing on its own.\n"
+  "IT DOES NOT TOUCH THE 20-POINT HEADING RULE, which is a different decision about titles, and it is "
+  "not an exception to the type scale either: 13 and 15 are both steps on the scale "
+  "(11 · 13 · 15 · 17 · 20 · 24 · 30 · 38).\n"
+  "ONE LIST IT NAMED IS GONE: the original row cited \"the winners and laggards list\", which the "
+  "Performance design he approved on 2026-09-25 (mock v14) removed. The holdings table on an account's "
+  "page is the live example."),
 
  'Legacy modules (Estate, Insurance': (
   "Estate, Insurance, Tax organizer, Job safety and Credit STAY in the first launch. They are not cut: "
