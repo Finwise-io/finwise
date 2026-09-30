@@ -3,7 +3,7 @@
  *
  *  Four rulings live in this door, and each was paid for once. These are their laws.
  */
-import { thePerformance } from './performance';
+import { thePerformance, windowStartKey } from './performance';
 
 const day = (date: string, value: number) => ({
   date, origin: 'observed' as const, writtenAt: `${date}T12:00:00.000Z`,
@@ -83,4 +83,49 @@ test('a window under a year shows the total, and no yearly rate at all', () => {
   });
   expect(f.perYear).toBeNull();
   expect(f.ret).toBe(f.cumulative);
+});
+
+/* ── B-115 · THE "SINCE" WINDOW ASKED THE RECORD FOR A DAY IT DOES NOT HAVE ───────────────────────
+ *
+ *  Performance opens on "Since", and "Since" used to start ON the record's first day. A window's
+ *  beginning is read at the day BEFORE it opens, so that asked for the day before the record began,
+ *  got nothing, and back-solved the beginning from the ending instead — which is the one thing his
+ *  ruling forbids (B-98: THE BEGINNING IS READ, NEVER BACK-FILLED).
+ *
+ *  On a household whose investments went from $100,000 to $130,000 over a month of daily records,
+ *  the Performance tab showed a walk from $130,000 to $130,000 and NO return at all, while the
+ *  account page — which had always opened the day after — showed $100,000 → $130,000, +30.00%.
+ */
+describe('B-115 — the Since window opens where the record can answer', () => {
+  const day = (n: number) => {
+    const d = new Date('2026-09-30T12:00:00Z'); d.setUTCDate(d.getUTCDate() - n);
+    return d.toISOString().slice(0, 10);
+  };
+  const RECORD = Array.from({ length: 31 }, (_, i) => {
+    const v = 100_000 + 1_000 * i;
+    return {
+      date: day(30 - i), origin: 'observed', writtenAt: '2026-09-30T00:00:00Z',
+      holdings: [{ accountId: 'a1', securityKey: 'VTI', symbol: 'VTI', units: 1000, price: v / 1000, value: v }],
+      accounts: [{ date: day(30 - i), accountId: 'a1', cash: 0, statedTotal: v, currency: 'USD' }],
+    };
+  });
+  const DATES = RECORD.map((d) => d.date);
+  const TODAY = '2026-09-30';
+
+  test('the beginning is READ from the record, never back-solved from the ending', () => {
+    const start = windowStartKey('SINCE', DATES, TODAY);
+    const answer = thePerformance({
+      windowStart: start, windowLabel: 'since', today: TODAY,
+      ending: 130_000, pricedGain: 0, transactions: [],
+      snapshotDays: RECORD as any, investmentAccountIds: new Set(['a1']),
+    });
+    expect(answer.measured).toBe(100_000);          // read — it was null before the fix
+    expect(answer.walk.beginning).toBe(100_000);    // back-solved to 130,000 before the fix
+    expect(answer.ret).toBeCloseTo(0.3, 6);         // nothing was shown at all before the fix
+  });
+
+  test('it opens the day AFTER the first recorded day, so the beginning lands ON that day', () => {
+    expect(windowStartKey('SINCE', DATES, TODAY)).toBe(day(29));
+    expect(windowStartKey('SINCE', [], TODAY)).toBe(TODAY);   // no record: it opens today, not a year ago
+  });
 });

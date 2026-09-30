@@ -1745,10 +1745,10 @@
    "door": "MK-NW-O-008 thePerformance"
   },
   "MK-PF-M-008": {
-   "label": "HONEST COMPARISON",
+   "label": "market +X%",
    "unit": "percent-2dp",
    "screens": [
-    "/invest"
+    "/home"
    ],
    "answers": "What the market did over the SAME days, matched to what you actually hold.",
    "formula": "each holding's own benchmark return over the same dates, weighted by what that holding is worth",
@@ -1765,27 +1765,35 @@
     "given": "$40,000 of shares against a benchmark up 10% over the window, and $10,000 of bonds against one up 4% over the same days.",
     "answer": "8.80%"
    },
-   "note": "Declared 2026-09-30. It was hand-typed on the master file until then, so nothing compared the row with the code.",
+   "note": "ITS SCREEN WAS WRONG UNTIL 2026-09-30. The row said /invest and called it HONEST COMPARISON — the name of a card the approved mock v14 removed on 2026-09-25 (\"not in this design, so they go\"). The figure itself is alive, on HOME, inside the glance line \"you +3.69% · market +2.83% · ahead by 0.85%\". Nothing showed it on Performance. Declared 2026-09-30; hand-typed before that, so nothing compared the row with the code. STILL OPEN FOR HIM: the market side counts PRICE CHANGE ONLY (we hold no dividend record for an index), while the \"you\" side beside it counts dividends and interest — so the \"ahead by\" is not a like-for-like gap.",
    "door": "MK-NW-O-008 thePerformance"
   },
-  "MK-PF-M-009": {
-   "label": "Return (money-weighted, when the record covers it)",
+  "MK-XS-M-004": {
+   "label": "▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN",
    "unit": "percent-2dp",
    "screens": [
-    "/invest"
+    "/invest",
+    "/home"
    ],
-   "answers": "Your return, counting WHEN money went in and out — not just what the prices did.",
-   "formula": "the rate that makes what you put in, when you put it in, equal what it is worth today",
+   "answers": "What your investments earned over the window you picked — dividends and interest included.",
+   "formula": "wealth generated ÷ the money that was working in the window, counting each contribution for the part of the window it was there; over a window longer than a year it is shown as a yearly rate",
    "inputs": [
     "MK-XS-I-020 the records of money movements",
-    "MK-NW-I-001 your accounts"
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-006 the price fetched at"
    ],
    "decisions": [
-    "It REFUSES rather than estimates: with no complete record of money in and out there is no honest answer, and with under 30 days there is not enough of a window to annualise.",
-    "It is a different figure from the window return beside it, and both are kept (his ruling: they answer different questions)."
+    "ONE MEANING OF RETURN (B-97, 2026-09-25): dividends and interest are in it, because \"Wealth generated\" beside it counts them.",
+    "A RATE NEEDS SOMETHING TO STAND ON: with no beginning read from the record and no movement to point at, it shows nothing rather than a confident +0.00%.",
+    "IT REFUSES WHEN TIMING WOULD DRIVE IT: where money moved in or out in amounts large enough that WHEN it moved decides the percentage, the screen shows the dollar walk instead.",
+    "OVER A YEAR IT IS A YEARLY RATE and the screen says so (his ruling, 2026-08-18, restated 2026-09-25)."
    ],
-   "refusal": "Not shown — the record of money in and out does not reach back far enough to calculate it.",
-   "note": "Declared 2026-09-30 and given its function, MK-PF-F-026 moneyWeightedReturn. The master row named NO function at all until then, so nothing could check the row against any code.",
+   "refusal": "Nothing is shown, and the walk beneath says in words why — either the record cannot reach the beginning, or money moved in amounts that would decide the percentage.",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $32,000 on 28 Sep 2026, with nothing paid in or taken out and $825 of it arriving as dividends.",
+    "answer": "6.67%"
+   },
+   "note": "DECLARED 2026-09-30. It is the screen’s headline figure — the number in the summary band, on every window chip, and on Home’s glance card — and NO DOOR DECLARED IT. The old metric register has carried the identifier since the start (\"▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN\"), but the code declared the ending value, the wealth generated and the walk and not the percentage a person actually reads. That is why Home could print a return of its own and no gate noticed (B-112): there was no figure for the two screens to disagree about. It is an MK-XS identifier because it is on more than one screen.",
    "door": "MK-NW-O-008 thePerformance"
   },
   "MK-PF-M-001": {

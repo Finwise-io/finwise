@@ -36393,7 +36393,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:329",
+   "site": "src/screens/AccountDetailScreen.tsx:332",
    "routes": [
     "/account-detail"
    ],
@@ -36415,7 +36415,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:444",
+   "site": "src/screens/AccountDetailScreen.tsx:447",
    "routes": [
     "/account-detail"
    ],
@@ -36431,7 +36431,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:455",
+   "site": "src/screens/AccountDetailScreen.tsx:458",
    "routes": [
     "/account-detail"
    ],
@@ -36446,7 +36446,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:473",
+   "site": "src/screens/AccountDetailScreen.tsx:476",
    "routes": [
     "/account-detail"
    ],
@@ -36461,7 +36461,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:55",
+   "site": "src/screens/AccountDetailScreen.tsx:56",
    "routes": [
     "/account-detail"
    ],
@@ -36484,7 +36484,7 @@
    "renders": 17
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:675",
+   "site": "src/screens/AccountDetailScreen.tsx:678",
    "routes": [
     "/account-detail"
    ],
@@ -36499,7 +36499,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:676",
+   "site": "src/screens/AccountDetailScreen.tsx:679",
    "routes": [
     "/account-detail"
    ],
@@ -36514,7 +36514,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:691",
+   "site": "src/screens/AccountDetailScreen.tsx:694",
    "routes": [
     "/account-detail"
    ],
@@ -36530,7 +36530,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:697",
+   "site": "src/screens/AccountDetailScreen.tsx:700",
    "routes": [
     "/account-detail"
    ],
@@ -36546,7 +36546,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:698",
+   "site": "src/screens/AccountDetailScreen.tsx:701",
    "routes": [
     "/account-detail"
    ],
@@ -36561,7 +36561,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:699",
+   "site": "src/screens/AccountDetailScreen.tsx:702",
    "routes": [
     "/account-detail"
    ],
@@ -37894,7 +37894,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HomeScreen.tsx:134",
+   "site": "src/screens/HomeScreen.tsx:135",
    "routes": [
     "/home"
    ],
@@ -37910,7 +37910,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/HomeScreen.tsx:277",
+   "site": "src/screens/HomeScreen.tsx:295",
    "routes": [
     "/home"
    ],
@@ -37927,7 +37927,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:282",
+   "site": "src/screens/HomeScreen.tsx:300",
    "routes": [
     "/home"
    ],
@@ -37944,7 +37944,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:379",
+   "site": "src/screens/HomeScreen.tsx:397",
    "routes": [
     "/home"
    ],
@@ -37963,7 +37963,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:382",
+   "site": "src/screens/HomeScreen.tsx:400",
    "routes": [
     "/home"
    ],
@@ -37982,7 +37982,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:464",
+   "site": "src/screens/HomeScreen.tsx:482",
    "routes": [
     "/home"
    ],
@@ -38001,7 +38001,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:477",
+   "site": "src/screens/HomeScreen.tsx:495",
    "routes": [
     "/home"
    ],
@@ -38019,7 +38019,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:478",
+   "site": "src/screens/HomeScreen.tsx:496",
    "routes": [
     "/home"
    ],
@@ -38036,7 +38036,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:481",
+   "site": "src/screens/HomeScreen.tsx:499",
    "routes": [
     "/home"
    ],
@@ -39618,7 +39618,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:274",
+   "site": "src/screens/PerformanceScreen.tsx:271",
    "routes": [
     "/invest"
    ],
@@ -39633,7 +39633,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:275",
+   "site": "src/screens/PerformanceScreen.tsx:272",
    "routes": [
     "/invest"
    ],
@@ -39648,7 +39648,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:290",
+   "site": "src/screens/PerformanceScreen.tsx:287",
    "routes": [
     "/invest"
    ],
@@ -39663,7 +39663,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:295",
+   "site": "src/screens/PerformanceScreen.tsx:292",
    "routes": [
     "/invest"
    ],
@@ -39678,7 +39678,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:328",
+   "site": "src/screens/PerformanceScreen.tsx:325",
    "routes": [
     "/invest"
    ],
@@ -39697,7 +39697,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:329",
+   "site": "src/screens/PerformanceScreen.tsx:326",
    "routes": [
     "/invest"
    ],
@@ -39714,7 +39714,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:358",
+   "site": "src/screens/PerformanceScreen.tsx:355",
    "routes": [
     "/invest"
    ],
@@ -39733,7 +39733,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:371",
+   "site": "src/screens/PerformanceScreen.tsx:368",
    "routes": [
     "/invest"
    ],
@@ -39753,7 +39753,7 @@
    "renders": 28
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:377",
+   "site": "src/screens/PerformanceScreen.tsx:374",
    "routes": [
     "/invest"
    ],
@@ -39772,7 +39772,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:431",
+   "site": "src/screens/PerformanceScreen.tsx:428",
    "routes": [
     "/invest"
    ],
@@ -39792,7 +39792,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:432",
+   "site": "src/screens/PerformanceScreen.tsx:429",
    "routes": [
     "/invest"
    ],
@@ -39812,7 +39812,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PerformanceScreen.tsx:441",
+   "site": "src/screens/PerformanceScreen.tsx:438",
    "routes": [
     "/invest"
    ],

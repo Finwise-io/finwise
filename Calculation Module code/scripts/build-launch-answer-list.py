@@ -57,6 +57,37 @@ for tab, name in MODULES.items():
                 'YOUR ANSWER — use the same number',
                 'The figure stays DRAFT: it is declared and printed, and nothing moves behind its door until you rule.')
 
+# ── 1b · THE CROSS-SCREEN FIGURES, which have no tab of their own ─────────────────────────
+# A figure shown on more than one screen lives on `multiple_screens`, not on its module's tab. This
+# list read the three module tabs only, so a question on a cross-screen figure appeared NOWHERE —
+# MK-XS-M-004 (the return Home and Performance both show) carried an unanswered question and this
+# list did not know. A row is claimed by every module whose screen it names.
+# The master prints SCREEN NAMES in that column, not routes (2026-09-30), so match on the names.
+ROUTE_MODULE = {
+    'Performance': 'Performance', 'Networth': 'Net worth', 'Cashflow': 'Cash flow',
+}
+ws = wb_m['multiple_screens']
+rows = list(ws.iter_rows(values_only=True))
+hdr = [str(c) for c in rows[0]]
+iq, ia = hdr.index('Questions for you (numbered)'), hdr.index('YOUR ANSWER — use the same number')
+im, ins, ip = hdr.index('Metric ID'), hdr.index('Name on Screen'), hdr.index('Parent Screen Name')
+for r in rows[1:]:
+    if not r or not r[im]:
+        continue
+    q = str(r[iq] or '').strip()
+    a = str(r[ia] or '').strip() if ia < len(r) else ''
+    if not q or a:
+        continue
+    where = str(r[ip] or '')
+    parts = [x.strip() for x in where.split('·')]
+    mods = sorted({ROUTE_MODULE[x] for x in parts if x in ROUTE_MODULE})
+    for name in mods:
+        add(name, q[:600], os.path.basename(MASTER), 'multiple_screens',
+            f'{r[im]} — {str(r[ins] or "")[:60]}',
+            'YOUR ANSWER — use the same number',
+            'The figure stays DRAFT, and it is on MORE THAN ONE screen — so the answer settles what '
+            'every screen showing it says.')
+
 # ── 2 · every row of these modules still needs his VERIFIED mark ────────────────────────────────
 for tab, name in MODULES.items():
     ws = wb_m[tab]

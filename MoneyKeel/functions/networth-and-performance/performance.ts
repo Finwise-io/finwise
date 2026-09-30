@@ -19,7 +19,6 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { declareFigures } from '../_figure-spec';
 import { portfolioBenchReturn } from '../../../src/domain/performance';
-import { moneyWeightedReturn } from '../../../src/domain/performance/moneyWeighted';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
@@ -44,6 +43,66 @@ export interface WindowFigures {
   years: number;
   /** Why a refusal, in words. Empty when nothing is refused. */
   sentence: string;
+}
+
+/** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
+ *
+ *  The door's own header has said since 2026-09-27 that "the return on Home's card and the return on
+ *  Performance can never disagree". They did. Performance called this door; Home kept a return of its
+ *  own, from price change only, and the two screens showed 3.57% and 3.69% for the same month on the
+ *  same household. The reason Home was never wired is that the three inputs the door needs lived
+ *  inside PerformanceScreen as local helpers, so there was nothing Home could call. They live here
+ *  now, and both screens call them.
+ */
+
+/** MK-NW-F-090 · The first day of a window. "Since" starts the day AFTER the record's first day —
+ *  it must never fall through to a year ago, which is what made the Since walk disagree with the
+ *  Since return.
+ *
+ *  WHY THE DAY AFTER, and it is not a detail (B-115, found 2026-09-30). The beginning of a window is
+ *  read at the day BEFORE it opens. Open "Since" ON the record's first day and the beginning is asked
+ *  for a day the record does not have: it comes back empty, the beginning is back-solved from the
+ *  ending, and the walk reads "$130,000 became $130,000" with no return, for a household whose
+ *  investments actually rose 30%. Opening the day after puts the beginning ON the first recorded day,
+ *  where there is a real value to read — which is his ruling: THE BEGINNING IS READ, NEVER
+ *  BACK-FILLED. The account page has always done it this way; the Performance tab did not, and the
+ *  Performance tab opens on this window. */
+export function windowStartKey(period: string, recordDates: string[], today: string): string {
+  if (period === 'SINCE') {
+    const first = recordDates.filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0];
+    if (!first) return today;
+    const after = new Date(Date.parse(`${first}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+    return after <= today ? after : today;
+  }
+  const d = new Date(today + 'T12:00:00Z');
+  const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
+  if (period === 'YTD') return `${today.slice(0, 4)}-01-01`;
+  d.setUTCMonth(d.getUTCMonth() - (months[period] ?? 12));
+  return d.toISOString().slice(0, 10);
+}
+
+/** MK-NW-F-091 · What the PRICED holdings gained over the window. It is used ONLY to derive a
+ *  beginning the daily record cannot reach — it never becomes the return. A holding bought inside the
+ *  window counts its true gain (value − cost); any other counts what the window's price move gave it. */
+export function pricedGainOf(
+  rows: { cappedSince?: string | null; gain?: number; periodReturn?: number | null; marketValue?: number }[],
+): number {
+  return (rows ?? []).reduce((t, r) => {
+    if (r.cappedSince) return t + (r.gain ?? 0);
+    const mv = r.marketValue ?? 0;
+    const pr = r.periodReturn;
+    return t + (pr != null && mv > 0 ? mv * (1 - 1 / (1 + pr)) : 0);
+  }, 0);
+}
+
+/** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
+ *  investments, and an account left out here is an account whose dividends never reach the return. */
+export function investmentAccountIdsOf(
+  accounts: { asset_id?: string | number }[],
+  classOf: (a: any) => string,
+): Set<string> {
+  const invested = new Set(['stocks_etf', 'bonds', 'alternatives', 'mixed']);
+  return new Set((accounts ?? []).filter((a) => invested.has(classOf(a))).map((a) => String(a.asset_id)));
 }
 
 /* ─ MK-NW-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -227,9 +286,17 @@ export function categoryEarnings(input: {
     (t) => !windowStart || String(t?.date ?? '').slice(0, 10) >= windowStart);
   const rows = input.rows ?? [];
 
-  const classOfTicker = (tk: string): string => {
+  // A TICKER WE HOLD NO PRICED ROW FOR IS NOT A FUND (B-116, found 2026-09-30 writing the pass-4
+  // test for this figure's own decision). This returned 'stocks_etf' for ANY ticker with no matching
+  // row, so $300 of interest on a hand-entered CD ("KeyBank CD 4.00%") was booked to Stocks / Funds.
+  // Balance-only accounts are exactly the cohort that has no priced rows (B-100), so this was not a
+  // corner: it is a bond's income shown under the wrong heading on the approved category table. The
+  // rule his decision already states covers it — class the record by WHAT IT IS when we cannot class
+  // it by what it is attached to: a dividend comes from a fund, interest from a bond.
+  const classOfTicker = (tk: string, type: string): string => {
     const r = rows.find((x) => String(x.position?.ticker ?? '').toUpperCase() === String(tk ?? '').toUpperCase());
-    return String(r?.position?.kind ?? r?.position?.asset_class ?? 'stocks_etf');
+    if (r) return String(r.position?.kind ?? r.position?.asset_class ?? 'stocks_etf');
+    return type === 'DIVIDEND' ? 'stocks_etf' : 'bonds';
   };
   // the value-weighted return of the holdings in one class — the same rule the whole portfolio uses
   const retOf = (cls: string): number | null => {
@@ -250,7 +317,7 @@ export function categoryEarnings(input: {
     if (t?.type !== 'DIVIDEND' && t?.type !== 'INTEREST') continue;
     const amt = Math.abs(Number(t.amount) || 0);
     // an untickered row is classed by WHAT IT IS: a dividend comes from a fund, interest from a bond
-    const cls = t.ticker ? classOfTicker(t.ticker) : (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds');
+    const cls = t.ticker ? classOfTicker(t.ticker, t.type) : (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds');
     const b = buckets.find((x) => x.key === cls)
            ?? buckets.find((x) => x.key === (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds'))!;
     b.earned += amt;
@@ -287,6 +354,24 @@ const EXAMPLE = {
 const GIVEN =
   'An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, '
   + 'with $6,000 paid in on 1 Apr and $825 of dividends received.';
+
+/** THE SAME ACCOUNT WITH NOTHING PAID IN (Performance pass 2, 2026-09-30). The canonical example
+ *  above REFUSES to show a percentage — $6,000 into a $30,000 account is a fifth of it, so when the
+ *  money arrived would drive the figure more than the investing did, and the door says so rather
+ *  than print a number. That refusal is the ruling working, which is why it is kept. But it leaves
+ *  the screen's headline figure — Return — with no example that produces one, so here is the same
+ *  account with no money paid in: $30,000 became $32,000, of which $825 arrived as dividends. */
+const QUIET = {
+  ...EXAMPLE,
+  ending: 32000,
+  transactions: [
+    { txn_id: 'd1', account_id: 'a2', ticker: 'VTI', type: 'DIVIDEND', amount: 825, date: '2026-06-20' },
+  ] as any[],
+};
+const QUIET_GIVEN =
+  'An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $32,000 on 28 Sep 2026, '
+  + 'with nothing paid in or taken out and $825 of it arriving as dividends.';
+const QUIET_PERF = () => thePerformance(QUIET);
 /* ─ MK-NW-F-083 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * PERF
  *
@@ -353,18 +438,18 @@ const BENCH = () => portfolioBenchReturn([
   { benchReturn: 0.04, marketValue: 10000 },
 ] as any);
 
-/** THE MONEY-WEIGHTED RETURN, worked. $10,000 put in on 1 January, worth $11,000 on 31 December:
- *  a shade over 10% a year. The figure counts WHEN the money went in, which is why it is not simply
- *  11,000 ÷ 10,000 — 364 days is not quite a year. */
-const MW_GIVEN =
-  '$10,000 paid into a brokerage on 1 Jan 2026 and nothing since; it is worth $11,000 on 31 Dec 2026.';
-const MW = () => {
-  const r = moneyWeightedReturn(
-    [{ txn_id: 't1', account_id: 'a1', type: 'OPENING_CASH', amount: 10000, date: '2026-01-01' }] as any,
-    [{ asset_id: 'a1', label: 'Brokerage', tax_bucket: 'TAXABLE', balance: 11000, target_return: 0 }] as any,
-    new Set(['a1']), 11000, Date.parse('2026-12-31T12:00:00Z'));
-  return 'ratePerYear' in r ? r.ratePerYear : null;
-};
+/** THE MONEY-WEIGHTED RETURN IS NOT A FIGURE ANY MORE (Performance pass 2, 2026-09-30).
+ *
+ *  MK-PF-M-009 "Return (money-weighted, when the record covers it)" was declared here and said it
+ *  was shown on /invest. It is shown nowhere: approved mock v14 removed that card on 2026-09-25
+ *  ("not in this design, so they go"), and MK-PF-F-026 moneyWeightedReturn \u2014 a true XIRR, solved by
+ *  bisection \u2014 is now reached by no screen at all, only by tests. A row for a figure nobody reads is
+ *  a wrong row, so the row is gone and the function is left where it is, correct and unused.
+ *
+ *  ONE WORD, TWO FUNCTIONS (finding A13), worth saying plainly: the Return the screen DOES show
+ *  calls itself money-weighted too, and is a different calculation \u2014 Modified Dietz. FOR HIM:
+ *  delete the XIRR, or give it a screen.
+ */
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const PERFORMANCE_FIGURES = declareFigures({
@@ -404,7 +489,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     ruled: '2026-09-03',
   },
   'MK-PF-M-008': {
-    label: 'HONEST COMPARISON', unit: 'percent-2dp', screens: ['/invest'],
+    label: 'market +X%', unit: 'percent-2dp', screens: ['/home'],
     answers: 'What the market did over the SAME days, matched to what you actually hold.',
     formula: "each holding's own benchmark return over the same dates, weighted by what that holding is worth",
     inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-006 the price fetched at'],
@@ -418,19 +503,38 @@ export const PERFORMANCE_FIGURES = declareFigures({
       answer: '8.80%',
       run: () => BENCH(),
     },
-    note: 'Declared 2026-09-30. It was hand-typed on the master file until then, so nothing compared the row with the code.',
+    note: 'ITS SCREEN WAS WRONG UNTIL 2026-09-30. The row said /invest and called it HONEST COMPARISON — '
+      + 'the name of a card the approved mock v14 removed on 2026-09-25 ("not in this design, so they go"). '
+      + 'The figure itself is alive, on HOME, inside the glance line "you +3.69% \u00b7 market +2.83% \u00b7 ahead by 0.85%". '
+      + 'Nothing showed it on Performance. Declared 2026-09-30; hand-typed before that, so nothing compared the row with the code. '
+      + 'STILL OPEN FOR HIM: the market side counts PRICE CHANGE ONLY (we hold no dividend record for an index), '
+      + 'while the "you" side beside it counts dividends and interest \u2014 so the "ahead by" is not a like-for-like gap.',
   },
-  'MK-PF-M-009': {
-    label: 'Return (money-weighted, when the record covers it)', unit: 'percent-2dp', screens: ['/invest'],
-    answers: 'Your return, counting WHEN money went in and out — not just what the prices did.',
-    formula: 'the rate that makes what you put in, when you put it in, equal what it is worth today',
-    inputs: ['MK-XS-I-020 the records of money movements', 'MK-NW-I-001 your accounts'],
+  'MK-XS-M-004': {
+    label: '\u25b2 up/\u25bc down $X (Y%) this month \u00b7 Return \u00b7 YOUR RETURN', unit: 'percent-2dp', screens: ['/invest', '/home'],
+    answers: 'What your investments earned over the window you picked \u2014 dividends and interest included.',
+    formula:
+      'wealth generated \u00f7 the money that was working in the window, counting each contribution for the part '
+      + 'of the window it was there; over a window longer than a year it is shown as a yearly rate',
+    inputs: ['MK-XS-I-020 the records of money movements', 'MK-NW-I-001 your accounts', 'MK-XS-I-006 the price fetched at'],
     decisions: [
-      'It REFUSES rather than estimates: with no complete record of money in and out there is no honest answer, and with under 30 days there is not enough of a window to annualise.',
-      'It is a different figure from the window return beside it, and both are kept (his ruling: they answer different questions).',
+      'ONE MEANING OF RETURN (B-97, 2026-09-25): dividends and interest are in it, because "Wealth generated" beside it counts them.',
+      'A RATE NEEDS SOMETHING TO STAND ON: with no beginning read from the record and no movement to point at, it shows nothing rather than a confident +0.00%.',
+      'IT REFUSES WHEN TIMING WOULD DRIVE IT: where money moved in or out in amounts large enough that WHEN it moved decides the percentage, the screen shows the dollar walk instead.',
+      'OVER A YEAR IT IS A YEARLY RATE and the screen says so (his ruling, 2026-08-18, restated 2026-09-25).',
     ],
-    refusal: 'Not shown — the record of money in and out does not reach back far enough to calculate it.',
-    note: 'Declared 2026-09-30 and given its function, MK-PF-F-026 moneyWeightedReturn. The master row named NO function at all until then, so nothing could check the row against any code.',
+    refusal: 'Nothing is shown, and the walk beneath says in words why \u2014 either the record cannot reach the beginning, or money moved in amounts that would decide the percentage.',
+    worked: {
+      given: QUIET_GIVEN,
+      answer: '6.67%',
+      run: () => QUIET_PERF().ret,
+    },
+    note: 'DECLARED 2026-09-30. It is the screen\u2019s headline figure \u2014 the number in the summary band, on every '
+      + 'window chip, and on Home\u2019s glance card \u2014 and NO DOOR DECLARED IT. The old metric register has carried '
+      + 'the identifier since the start ("\u25b2 up/\u25bc down $X (Y%) this month \u00b7 Return \u00b7 YOUR RETURN"), but the code '
+      + 'declared the ending value, the wealth generated and the walk and not the percentage a person actually '
+      + 'reads. That is why Home could print a return of its own and no gate noticed (B-112): there was no figure '
+      + 'for the two screens to disagree about. It is an MK-XS identifier because it is on more than one screen.',
   },
   'MK-PF-M-001': {
     label: 'Ending value', unit: 'money', screens: ['/invest'],

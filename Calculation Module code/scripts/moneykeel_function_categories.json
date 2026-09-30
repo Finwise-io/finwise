@@ -17,7 +17,7 @@
  "BENCH": {
   "id": "MK-NW-F-088",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
-  "category": "1 · ACTION"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "CAT": {
   "id": "MK-NW-F-087",
@@ -69,11 +69,6 @@
   "file": "MoneyKeel/functions/cashflow/the-month.ts",
   "category": "1 · ACTION"
  },
- "MW": {
-  "id": "MK-NW-F-089",
-  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
-  "category": "USED NOWHERE FOUND"
- },
  "NW": {
   "id": "MK-NW-F-082",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
@@ -106,6 +101,11 @@
  },
  "PERF_ONE": {
   "id": "MK-NW-F-085",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "1 · ACTION"
+ },
+ "QUIET_PERF": {
+  "id": "MK-NW-F-093",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "1 · ACTION"
  },
@@ -1369,6 +1369,11 @@
   "file": "src/domain/history.ts",
   "category": "3 · DEPENDENT"
  },
+ "investmentAccountIdsOf": {
+  "id": "MK-NW-F-092",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "2 · DISPLAYED"
+ },
  "investmentIncomeAnnual": {
   "id": "MK-CF-F-119",
   "file": "src/domain/transactions/index.ts",
@@ -2057,7 +2062,7 @@
  "periodDollarDelta": {
   "id": "MK-PF-F-021",
   "file": "src/domain/performance/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "periodReturn": {
   "id": "MK-PF-F-010",
@@ -2127,7 +2132,7 @@
  "portfolioPeriodReturn": {
   "id": "MK-PF-F-019",
   "file": "src/domain/performance/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "portfolioTrend": {
   "id": "MK-PF-F-018",
@@ -2157,6 +2162,11 @@
  "priceFreshness": {
   "id": "MK-XS-F-082",
   "file": "src/services/marketData.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "pricedGainOf": {
+  "id": "MK-NW-F-091",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "2 · DISPLAYED"
  },
  "primaryCarIdOf": {
@@ -3252,6 +3262,11 @@
  "windowBounds": {
   "id": "MK-ST-F-038",
   "file": "Calculation Module code/engines/window-return.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "windowStartKey": {
+  "id": "MK-NW-F-090",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "2 · DISPLAYED"
  },
  "withSalaryMonth": {

@@ -9,7 +9,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds, modifiedDietzOverWindow } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -25,7 +25,11 @@ import { valueFreshness } from '../domain/assets';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { searchTickers } from '../constants/tickers';
 import {
-  buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
+  // portfolioPeriodReturn is GONE from this screen (2026-09-30). It was imported and never called:
+  // the screen's return has come from the door since B-97 was fixed. It only showed up now because
+  // Home stopped calling it too, so the build recategorised it from DISPLAYED to DEPENDENT and the
+  // D1 ratchet saw a screen reaching past a door for a figure it does not even use.
+  buildPerformance, benchmarkTicker, totalShares, costBasis,
   type Period, type Position, type Lot,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
@@ -112,23 +116,17 @@ export default function PerformanceScreen() {
   // FCC glance-then-drill: the period's DOLLAR gain (same rows as the %), winners & laggards,
   // the holding-concentration fact, and the grouped all-investments list (bonds + alts folded in)
   // capped rows: the dollar is YOUR true gain (value − cost) — same math as unrealized everywhere
-  const rowGain = (r: any) => (r.cappedSince ? r.gain : r.periodReturn != null && r.marketValue > 0 ? r.marketValue * (1 - 1 / (1 + r.periodReturn)) : 0);
-  const periodDollar = rows.reduce((t, r) => t + rowGain(r), 0);
+  const rowGain = (r: any) => pricedGainOf([r]);                    // the door's own rule, one row at a time
+  const periodDollar = pricedGainOf(rows as any);
   const ranked = rows.filter((r) => r.periodReturn != null && r.marketValue > 0)
     .map((r) => ({ r, gain: rowGain(r) })).sort((a, b) => b.gain - a.gain);
   const laggards = ranked.filter((x) => x.gain < 0).slice(-2);
   const winners = ranked.filter((x) => x.gain >= 0).slice(0, 3);
   const [listMode, setListMode] = useState<'top' | 'all' | 'account'>('top');
-  // ONE definition of a period's start — the walk, the ledger filter and the gap checks all use it
-  const periodStartKey = (p: string): string => {
-    // the "Since <date>" chip starts where the record starts — it used to fall through to a year ago
-    if (p === 'SINCE') return Object.keys((store.invDaily ?? {}) as Record<string, number>).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0] ?? isoLocalDate(new Date());
-    const d = new Date();
-    const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
-    if (p === 'YTD') return `${d.getFullYear()}-01-01`;
-    d.setMonth(d.getMonth() - (months[p] ?? 12));
-    return d.toISOString().slice(0, 10);
-  };
+  // ONE definition of a period's start — the walk, the ledger filter and the gap checks all use it.
+  // It lives in the door now (MK-NW-F-090), so Home asks the same question of the same window.
+  const periodStartKey = (p: string): string =>
+    windowStartKey(p, Object.keys((store.invDaily ?? {}) as Record<string, number>), isoLocalDate(new Date()));
   // How far back our record actually reaches, against the window the chosen chip asks for.
   const coverage = useMemo(() => {
     const dates = Object.keys((store.invDaily ?? {}) as Record<string, number>)
@@ -152,9 +150,8 @@ export default function PerformanceScreen() {
   // from PRICE CHANGE only, weighted by holding, so it silently disagreed with "Wealth generated"
   // standing beside it, which counts dividends and interest. Same function for the window selector,
   // the summary and the walk, so no two figures on this screen can tell different stories.
-  const investIds = useMemo(() => new Set<string>(resolvedNwAccounts
-    .filter((a: any) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives' || c === 'mixed'; })
-    .map((a: any) => String(a.asset_id))), [resolvedNwAccounts]);
+  const investIds = useMemo(
+    () => investmentAccountIdsOf(resolvedNwAccounts as any, assetClassOf), [resolvedNwAccounts]);
   // ONE DOOR (MK-NW-O-008 thePerformance, Q-PF-1 ruled 2026-09-27: "yes"). This screen worked the
   // whole answer out for itself — the window's records, the flows, the beginning, the walk, the
   // money-weighted return and the yearly-rate rule — while Home printed a return of its own. The
@@ -166,7 +163,7 @@ export default function PerformanceScreen() {
     const todayKey = isoLocalDate(new Date());
     // what the priced holdings gained: used ONLY to derive a beginning the record cannot reach
     const priced = p === period ? rows : buildPerformance(positions, priceOf, p as Period, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()]);
-    const pricedDollar = priced.reduce((t: number, r: any) => t + rowGain(r), 0);
+    const pricedDollar = pricedGainOf(priced as any);
     const answer = thePerformance({
       windowStart, windowLabel: phraseFor(p), today: todayKey,
       ending: investTotalAll, pricedGain: pricedDollar,

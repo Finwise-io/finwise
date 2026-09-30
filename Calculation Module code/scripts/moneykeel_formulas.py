@@ -484,7 +484,18 @@ QUESTIONS_BY_METRIC = {
  # A question keyed to an ENGINE loses its row the moment its figure moves behind a door; keyed to the
  # FIGURE it rides with the row wherever the row goes. The build's own guard caught it — "these
  # questions landed on no row" — which is the eleventh time that guard has caught this exact class.
- 'MK-PF-M-008': ['Q33 — Which index should each asset class be compared against, and should the person be able to change it?'],
+ 'MK-PF-M-008': ['Q33 — Which index should each asset class be compared against, and should the person be able to change it?',
+  'Q51 — Home reads "you +3.69% \u00b7 market +2.83% \u00b7 ahead by 0.85%". The two sides are not measured the same way: '
+  'YOUR figure counts the dividends and interest you received (your ruling of 2026-09-25, one meaning of return), '
+  'while the MARKET figure is the index\'s PRICE only, because no price feed we have gives an index\'s dividends. '
+  'So "ahead by" flatters you by roughly the dividend yield. Three ways out: (a) leave it and say underneath that '
+  'the market figure is price only; (b) compare price against price, which means Home shows a return that disagrees '
+  'with Performance again; (c) buy a total-return index feed. Which?'],
+ 'MK-XS-M-004': ['Q52 — MK-PF-F-026 moneyWeightedReturn is a true personal return \u2014 it solves for the rate that makes '
+  'what you paid in, on the days you paid it in, equal what you have now. It is built, correct and reached by NO SCREEN: '
+  'the card that showed it was removed by the Performance design you approved on 2026-09-25. The Return the screen does '
+  'show is a different calculation (Modified Dietz) that also calls itself money-weighted. Do we delete the unused one, '
+  'or does it get a screen?'],
  'MK-NW-M-026': ['Q05 — Accrued interest: do we work it out ourselves — which needs a day-count rule per bond type — or only show what the institution gives us?'],
  'MK-NW-M-024': ['Q04 — "Annual income" on a bond: the last twelve months actually received, or the forward estimate from today\\\'s coupon? Both are defensible and they differ.'],
  'MK-NW-M-023': ['Q01 — Is Quantity for a bond the FACE amount (e.g. 227,000) with the price quoted per $100 of face, or the number of bonds? It decides how value and gain are worked out.'],

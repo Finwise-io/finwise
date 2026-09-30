@@ -20,7 +20,7 @@ import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { assetClassOf } from '../domain/assets';
 import { DesktopInvestTable } from '../../desktop/platform/DesktopInvestTable';
-import { buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, periodDollarDelta, type Position } from '../domain/performance';
+import { buildPerformance, portfolioBenchReturn, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
 import { connectionFreshness } from '../services/sync';
 import { requiredPayment } from '../domain/debt';   // the due-soon alert names ONE debt, not a total
@@ -28,6 +28,7 @@ import { requiredPayment } from '../domain/debt';   // the due-soon alert names 
 // insights"). Home built its own net worth from its own assets state while the Net worth tab
 // built another — two assemblies of one question, on the two screens a person compares first.
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
+import { thePerformance, windowStartKey, pricedGainOf, investmentAccountIdsOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { resolveLens } from '../domain/profile/lens';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
@@ -177,7 +178,24 @@ export default function HomeScreen() {
   const priceCache = store.priceCache ?? {};
   const priceOf = (t: string) => priceCache[t.trim().toUpperCase()];
   const perfRows = useMemo(() => buildPerformance(positions, priceOf, '1M'), [positions, priceCache]);
-  const youReturn = portfolioPeriodReturn(perfRows);            // 1-month, matches Invest's 1M figure
+  // ONE DOOR (MK-NW-O-008 thePerformance, Q-PF-1 ruled 2026-09-27: "yes"). The door's header has
+  // said since that day that Home's return and Performance's can never disagree. They did: Home
+  // called portfolioPeriodReturn, which counts PRICE CHANGE ONLY, while Performance's 1M chip counts
+  // wealth generated — dividends and interest included. On one test household the same month read
+  // +3.57% here and +3.69% there, a tap apart. Home now asks the door the same question (B-112).
+  const oneMonth = useMemo(() => {
+    const today = isoLocalDate(new Date());
+    return thePerformance({
+      windowStart: windowStartKey('1M', Object.keys((store.invDaily ?? {}) as Record<string, number>), today),
+      windowLabel: 'past month', today,
+      ending: investTotal, pricedGain: pricedGainOf(perfRows as any),
+      transactions: (store.transactions ?? []) as any[],
+      snapshotDays: (store as any).snapshotDays ?? [],
+      investmentAccountIds: investmentAccountIdsOf(resolvedRows.accounts as any, assetClassOf),
+    });
+  }, [store.transactions, store.snapshotDays, store.invDaily, investTotal, perfRows, resolvedRows.accounts]);
+  const youReturn = oneMonth.ret;                               // the door's 1M figure, the one Performance prints
+  const youDollar = oneMonth.walk.wealthGenerated;              // and the dollars behind it — never re-derived from the %
   const marketReturn = useMemo(() => portfolioBenchReturn(perfRows), [perfRows]);   // the ONE shared formula (walk row 5)
   const freshness = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
 
@@ -289,7 +307,7 @@ export default function HomeScreen() {
                  two can never disagree (accuracy rule: one source per concept). */
               <Text style={styles.heroLine}>
                 <Text style={{ color: youReturn >= 0 ? Colors.gainText : Colors.red, fontWeight: '800' }}>
-                  {youReturn >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.abs(periodDollarDelta(investTotal, youReturn)))} ({pctTwoDp(Math.abs(youReturn))})
+                  {youReturn >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.abs(youDollar))} ({pctTwoDp(Math.abs(youReturn))})
                 </Text>
                 <Text> this month</Text>
               </Text>

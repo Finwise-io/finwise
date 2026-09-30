@@ -15,6 +15,7 @@ import { periodReturnSince } from '../domain/performance';
 import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
+import { windowStartKey } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
@@ -59,7 +60,6 @@ const dayShort = (d: string): string => new Date(`${d}T12:00:00`).toLocaleDateSt
 /** The day after a date. D3 (MK-ST-F-038 windowBounds): a window's beginning value is the close of the
  *  day BEFORE its start — so a window whose beginning IS the daily record's first day opens the day
  *  after it, and the beginning is READ from the record instead of being back-solved. */
-const dayAfter = (d: string): string => new Date(Date.parse(`${d}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
 
 export default function AccountDetailScreen() {
   const router = useRouter();
@@ -144,11 +144,14 @@ export default function AccountDetailScreen() {
   // This page carries no window picker, so it answers ONE window: since the daily record began —
   // the same window the Performance screen opens on, read from the same daily record, so the two
   // screens can never name different windows. The record's first day IS the beginning value, so the
-  // window opens the day after it (see dayAfter).
+  // window opens the day after it (MK-NW-F-090 windowStartKey).
   const todayKey = iso(new Date());
   const recordFrom = Object.keys((store.invDaily ?? {}) as Record<string, number>)
     .filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0] ?? null;
-  const windowStart = recordFrom ? dayAfter(recordFrom) : null;
+  // THE DOOR'S OWN RULE (MK-NW-F-090), not this screen's copy of it. This page had it right and the
+  // Performance tab had it wrong — opening ON the record's first day rather than the day after, which
+  // asks the record for a day it does not have (B-115). One function now, so they cannot differ again.
+  const windowStart = recordFrom ? windowStartKey('SINCE', [recordFrom], todayKey) : null;
   const bounds = windowStart && windowStart <= todayKey ? windowBounds(windowStart, todayKey) : null;
   // The beginning is READ from the daily record, never back-solved: MK-ST-F-031 valueOn answers
   // nothing when the record does not reach that far back, and nothing means this page says "—".

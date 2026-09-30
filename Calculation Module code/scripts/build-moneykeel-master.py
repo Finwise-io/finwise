@@ -15,6 +15,13 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
+# The route the code uses → the screen name the master file prints. Used for cross-screen figures,
+# whose parent is a LIST of screens rather than one tab's own.
+SCREEN_OF_ROUTE = {'/home': 'Home', '/invest': 'Performance', '/look-back': 'Performance',
+                   '/networth': 'Networth', '/net-worth': 'Networth', '/analytics': 'Networth',
+                   '/cashflow': 'Cashflow', '/plan': 'Plan', '/menu': 'Menu',
+                   '/insights': 'Home', '/jobsafety': 'Plan', '/bill-calendar': 'Cashflow',
+                   '/contribution-room': 'Cashflow'}
 TAB_ORDER = ['Reference','Specification','capture-list','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
@@ -368,7 +375,11 @@ NM = 'NOT IN OLD MASTER'
 # figures shown on MORE THAN ONE parent screen — they live here once, with every label they wear
 MULTI = [
  ('Will my money last / Is my money lasting (odds)','Home · Plan · Cashflow',     'wil.chance',        'WILL_IT_LAST_RESULT'),
- ('▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN','Home · Performance',   'youReturn / shownReturn','VALUE_WEIGHTED_RETURN'),
+ # MK-XS-M-004 (▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN) LEFT THIS LIST 2026-09-30.
+ # It is declared in the code now, by MK-NW-O-008 thePerformance, so its row is PRINTED from that
+ # declaration below (rule 11) rather than typed here. Leaving both put the identifier on two rows,
+ # which the build's own reconciliation refused — "DUPLICATE IDENTIFIER". The identifier is unchanged:
+ # nid() keys on (family, kind, label, metric) and remembers, so nothing was renumbered.
  ('Spent so far · Spent $X of $Y left to spend this month','Home · Cashflow',     'bva.spent_total',   NM + ' — budgetVsActual, src/domain/budget'),
  ('Income · In (received) · In (take-home)',        'Home · Cashflow',            'thisMonthNet',      NM + ' — incomeMonthlyGrid, src/domain/income'),
  ('Left / Over · left to spend this month',         'Home · Cashflow',            'left',              'worked out on the screen: money in − spent so far'),
@@ -680,7 +691,18 @@ def declared_row(mid, f, tab):
     unit = UNIT_WORDS.get(f.get('unit', ''), f.get('unit', ''))
     decisions = '\n'.join(f.get('decisions') or []) or 'NONE RECORDED — the declaration names none.'
     name = re.sub(r'[^a-z0-9 ]', '', f['label'].lower()).strip().replace(' ', '_')[:40]
-    return [mid, PARENTS.get(tab, ''), ' · '.join(routes) if routes else 'NA', f['label'], name,
+    # THE PARENT SCREEN OF A CROSS-SCREEN FIGURE IS ITS SCREENS (2026-09-30). Every other tab has one
+    # parent screen, so the routes belong in the secondary column. multiple_screens has no single
+    # parent, and PARENTS held no entry for it — so a declared XS figure printed a BLANK parent screen
+    # and its screens sat only in the secondary column. The master file then said MK-XS-M-004 is on no
+    # screen, which is the opposite of true, and the launch answer list (which reads by screen) could
+    # not see its questions at all.
+    # ONE FORM, not two: the hand-typed cross-screen rows say "Home · Cashflow", so the declared ones
+    # say the same rather than "/invest · /home". A route is what the code calls a screen; the column
+    # is for him, and he reads screen names.
+    parent = (' · '.join(SCREEN_OF_ROUTE.get(r, r) for r in routes) if routes else 'NA') \
+        if tab == 'multiple_screens' else PARENTS.get(tab, '')
+    return [mid, parent, ' · '.join(routes) if routes else 'NA', f['label'], name,
             door.split(' ', 1)[1] if ' ' in door else '', fid,
             f['formula'], f['formula'],
             '\n'.join(f.get('inputs') or []), unit + per, f['refusal'],
