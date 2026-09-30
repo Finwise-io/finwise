@@ -22,8 +22,25 @@ from xlsx_readable import readable
 
 OUT = 'MoneyKeel/documents/decision-log/moneykeel_log_wording-asks_v01.xlsx'
 rows = json.load(open(os.path.join(HERE, 'moneykeel_decisions.json')))['rows']
-ask = [r for r in rows if str(r.get('confidence', '')).startswith('LOW')]
+# NEVER ASK HIM TO CONFIRM A DEAD DECISION (founder, 2026-09-30: *"decision log-ask-v01 still has
+# DEC004. Have you update the file?"*). This selected on CONFIDENCE alone, so a decision marked OLD in
+# the decision log kept its row here and kept asking for his wording. Two were on the file: DEC-0004,
+# which he spotted himself — the Spending tab, superseded by the Expenses tab of DEC-0440 — and
+# DEC-0037, SnapTrade, superseded by DEC-0038 for Plaid. It is worse than wasted time: an answer from
+# him would have ruled a superseded row back into life.
+#
+# It is the same failure the PFS rule exists to stop — the ruling reached the decision log and not the
+# file built beside it. So the filter now reads BOTH fields, and the count below is asserted.
+def in_force(r):
+    return 'OLD' not in str(r.get('in_use', '')) and str(r.get('status', '')) != 'SUPERSEDED'
+
+low = [r for r in rows if str(r.get('confidence', '')).startswith('LOW')]
+ask = [r for r in low if in_force(r)]
+dropped = [r['id'] for r in low if not in_force(r)]
 ask.sort(key=lambda r: (str(r.get('decided') or ''), r['id']))
+print(f'{len(low)} decisions are in my words; {len(ask)} are still in force and asked about.')
+if dropped:
+    print('  NOT asked — superseded, so his answer could not apply: ' + ' · '.join(dropped))
 
 COLS = ['Decision ID', 'Date you decided it', 'Screen or subject',
         'WHAT I BELIEVE YOU DECIDED — in plain English',

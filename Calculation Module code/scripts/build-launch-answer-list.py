@@ -27,6 +27,12 @@ OUT = 'MoneyKeel/documents/other/moneykeel_calc_plan_launch-answer-list_v01.xlsx
 MODULES = {'networth': 'Net worth', 'performance': 'Performance', 'cashflow': 'Cash flow'}
 
 dec = json.load(open(os.path.join(HERE, 'moneykeel_decisions.json')))['rows']
+
+def in_force(r):
+    """A decision he has superseded is never put in front of him again — an answer to it could not
+    apply, and could rule a dead row back into life."""
+    return 'OLD' not in str(r.get('in_use', '')) and str(r.get('status', '')) != 'SUPERSEDED'
+
 plan = json.load(open(os.path.join(HERE, 'moneykeel_workplan.json')))['rows']
 wb_m = openpyxl.load_workbook(MASTER, read_only=True)
 
@@ -106,7 +112,11 @@ for tab, name in MODULES.items():
 
 # ── 3 · the decisions whose wording is mine, per module ─────────────────────────────────────────
 for tab, name in MODULES.items():
-    low = [r for r in dec if r.get('tab') == tab and str(r.get('confidence', '')).startswith('LOW')]
+    # SUPERSEDED DECISIONS ARE NOT ASKED ABOUT (founder, 2026-09-30, on the wording-asks file: "still
+    # has DEC004"). The same fault was here: DEC-0037 sat under Net worth and DEC-0004 under Cash flow,
+    # both marked OLD in the decision log. His answer could not apply to a row that is out of force.
+    low = [r for r in dec if r.get('tab') == tab
+           and str(r.get('confidence', '')).startswith('LOW') and in_force(r)]
     if low:
         add(name, f'{len(low)} decisions on this module are recorded in MY words, not yours — confirm or correct: '
                   + ', '.join(r['id'] for r in low),
@@ -117,7 +127,8 @@ for tab, name in MODULES.items():
 
 # ── 4 · the questions HE asked that were never answered ─────────────────────────────────────────
 for tab, name in MODULES.items():
-    qs = [r for r in dec if r.get('tab') == tab and str(r.get('plain', '')).startswith(('HIS QUESTION', 'A QUESTION'))]
+    qs = [r for r in dec if r.get('tab') == tab
+          and str(r.get('plain', '')).startswith(('HIS QUESTION', 'A QUESTION')) and in_force(r)]
     for r in qs:
         add(name, 'A QUESTION YOU ASKED AND NOBODY ANSWERED: ' + str(r.get('his_words') or '')[:400],
             'moneykeel_log_decisions_v01.xlsx', tab, r['id'],
