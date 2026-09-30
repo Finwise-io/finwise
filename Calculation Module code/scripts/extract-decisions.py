@@ -228,8 +228,20 @@ def _same_words(a, b):
 
 
 def sweep_feedback():
-    files = sorted(glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/*/JJ-feedback-archive/*.xlsx'))
-                   + glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/audit/*.xlsx')))
+    # ONLY THE NEWEST VERSION OF EACH OF HIS FEEDBACK FILES (2026-09-30). His synonym-cluster
+    # workbook exists as v01 (2026-09-10) and v02 (2026-09-12) — the same rulings, carried forward.
+    # Sweeping both put "/month, /year", "Emergency fund" and "you entered" in the log twice each,
+    # and they slipped the merge because his words there are shorter than the floor it needs.
+    # The same class as the "v1.0 review → v1.1" tab: an earlier version is not a second decision.
+    _all = sorted(glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/*/JJ-feedback-archive/*.xlsx'))
+                  + glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/audit/*.xlsx')))
+    _newest = {}
+    for _f in _all:
+        _stem = re.sub(r'_v\d+(-jj)?\.xlsx$', '', os.path.basename(_f))
+        _stem = re.sub(r'^\d{4}-\d{2}-\d{2}_folded-in_', '', _stem)
+        if _stem not in _newest or os.path.basename(_f) > os.path.basename(_newest[_stem]):
+            _newest[_stem] = _f
+    files = sorted(_newest.values())
     new = kept = rows_read = 0
     no_column = []
     for path in files:
@@ -493,10 +505,20 @@ def merge_reworded(rows):
         hit = None
         for k in keep:
             kw = flat(k.get('his_words'))
-            if len(kw) < 15 or abs(len(kw) - len(w)) > 40:
-                continue
-            if difflib.SequenceMatcher(None, kw[:220], w[:220]).ratio() > 0.90:
+            if len(kw) >= 15 and abs(len(kw) - len(w)) <= 40 \
+               and difflib.SequenceMatcher(None, kw[:220], w[:220]).ratio() > 0.90:
                 hit = k; break
+        if hit is None:
+            # THE GENERAL CATCH: the same decision written into the log twice, where his words are
+            # missing from one copy (a changelog row that quoted nothing) or too short to compare
+            # ("/month, /year"). The PLAIN sentence is what the decision IS, so two rows that say
+            # the same thing in the same words are one decision whatever their sources.
+            pw = flat(r.get('plain'))
+            if len(pw) >= 60:
+                for k in keep:
+                    kp = flat(k.get('plain'))
+                    if len(kp) >= 60 and difflib.SequenceMatcher(None, kp[:400], pw[:400]).ratio() > 0.93:
+                        hit = k; break
         if hit is None:
             keep.append(r); continue
         merged.append((r['id'], hit['id'], str(r.get('his_words'))[:70]))

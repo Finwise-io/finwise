@@ -1442,7 +1442,7 @@ HAND_WRITTEN = {
  'debt and keep debt types': (
   "“debt and keep debt types. Explain in info dot Debt is amount you owe.” One word — debt — with the "
   "kinds kept underneath, and an explanation saying plainly that a debt is what you owe."),
- 'Stock/fund. Holding but do not just replace position with holding': (
+ 'Holding but do not just replace position': (
   "“Stock/fund. Holding but do not just replace position with holding. Notification, alert message "
   "should say — holding liquidated — all shares sold.” The word is “holding”, but not as a blind "
   "find-and-replace: where the sentence is about selling everything, it says so in those words."),
@@ -1809,7 +1809,7 @@ HAND_WRITTEN = {
   "“Again context is important. Term to represent Net amount person get should be ‘take-home’. In "
   "context of take home base salary use ‘Base salary (take-home)’.” One word for the concept, with the "
   "context named in brackets — not a different word per screen."),
- 'Stock/fund. Holding but dod not just replace position with holding': (
+ 'Holding but do': (
   "“Stock/fund. Holding but do not just replace position with holding. Notification, alert message "
   "should say — holding liquidated — all shares sold.” The word is “holding”, but not as a blind "
   "find-and-replace: where a sentence is about selling everything, it says so in those words."),
@@ -2305,6 +2305,22 @@ SUPERSEDED_BY = {
  "the odds row's words: no band, 1,000 futures, nearest 5":
      'per the latest ruling use exact everywhere no rounding for odds',
  'we cannot have screen without title': 'I take back title not need for every screen',
+
+ # ── FOUND BY HIM, 2026-09-29, reading the launch answer list ────────────────────────────────────
+ # "DEC-0004 - still talk about spending tab, and month's total - new mockup - has expense tab and
+ #  three sections recurring, planned and actual expenses."
+ #
+ # He is right. The Spending tab does not exist: his approved cash-flow_v01 has an EXPENSES tab with
+ # Monthly recurring expenses, Planned expenses and Actual expenses. The row described a screen that
+ # was redrawn twice after it — renamed by his synonym ruling, then redrawn in the mock he approved —
+ # and it was still marked IN USE, which is why it reached a list asking him to confirm its wording.
+ #
+ # WHAT SURVIVED IT, and why the row is superseded rather than deleted: its source labels are still
+ # in the design ("Entered by hand", "receipt"). A decision is never deleted — an old build has to
+ # stay readable — so it is marked OLD and points at the design in force.
+ # keyed on the SOURCE text of each row, not on my plain sentence — the lookup reads the source,
+ # so a key taken from my own writing matches nothing and the mark silently does not take.
+ 'Spending tab conformance': 'cash-flow mocks combined into one file',
 }
 
 
