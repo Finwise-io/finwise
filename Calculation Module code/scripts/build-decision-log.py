@@ -33,6 +33,28 @@ from xlsx_readable import readable
 doc = json.load(open(os.path.join(HERE, 'moneykeel_decisions.json')))
 rows = doc['rows']
 
+# ── ONE MAPPING, NOT TWO. Where a decision applies is authored in moneykeel_decisions_anchors.json;
+#    each decision row also carried its own copy of `governs`, and nothing kept the two in step. On
+#    2026-10-01 they had drifted: six anchors were corrected by hand after reading the code, and the
+#    decision log went on printing the old, word-matched answer — DEC-0036 still pointing at the Net
+#    worth screen, where the heads-up it governs has never been written. He has said what the decision
+#    log is: *"Decision-log is one consolidated master."* A master that prints a second, staler copy of
+#    a mapping is not one. So the row's `governs` is PRINTED from the anchors here, every build.
+_ap = os.path.join(HERE, 'moneykeel_decisions_anchors.json')
+_anchors = json.load(open(_ap, encoding='utf8'))['rows']
+_synced = 0
+for _r in rows:
+    _a = _anchors.get(_r.get('id'), {})
+    if _a.get('governs') and _a['governs'] != _r.get('governs'):
+        _r['governs'] = _a['governs']
+        _synced += 1
+    if _a.get('verified_by_reading'):
+        _r['anchor_read_on'] = _a['verified_by_reading']
+if _synced:
+    json.dump(doc, open(os.path.join(HERE, 'moneykeel_decisions.json'), 'w', encoding='utf8'),
+              indent=1, ensure_ascii=False)
+    print(f'   governs synced from the anchors on {_synced} row(s) \u2014 one mapping, not two')
+
 H = Font(bold=True, color='FFFFFF')
 HFILL = PatternFill('solid', fgColor='14532D')       # the dark green, edge to edge
 

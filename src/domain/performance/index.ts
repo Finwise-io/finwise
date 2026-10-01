@@ -230,6 +230,9 @@ export function costBasis(p: Position): number {
  * Serves ...... MK-NW-M-032
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
+ * Ruled by .... DEC-0264 · DEC-0310
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-003
  * Changed ..... 2026-06-05 (d925b9e)

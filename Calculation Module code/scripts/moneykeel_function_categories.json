@@ -244,10 +244,20 @@
   "file": "src/domain/income/limits.ts",
   "category": "2 · DISPLAYED"
  },
+ "ageLabel": {
+  "id": "MK-ST-F-076",
+  "file": "src/domain/_shared/freshness.ts",
+  "category": "3 · DEPENDENT"
+ },
  "ageToday": {
   "id": "MK-XS-F-179",
   "file": "src/domain/profile/calc.ts",
   "category": "2 · DISPLAYED"
+ },
+ "agoLabel": {
+  "id": "MK-ST-F-075",
+  "file": "src/domain/_shared/freshness.ts",
+  "category": "3 · DEPENDENT"
  },
  "allActivities": {
   "id": "MK-XS-F-149",
@@ -796,7 +806,7 @@
  },
  "daysSince": {
   "id": "MK-XS-F-170",
-  "file": "src/domain/gaps/index.ts",
+  "file": "src/domain/_shared/freshness.ts",
   "category": "3 · DEPENDENT"
  },
  "debtKind": {
@@ -1344,6 +1354,11 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "2 · DISPLAYED"
  },
+ "incomeSources": {
+  "id": "MK-CF-O-016",
+  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "incomeSummary": {
   "id": "MK-CF-O-004",
   "file": "MoneyKeel/functions/cashflow/income-summary.ts",
@@ -1503,6 +1518,11 @@
   "id": "MK-CF-F-127",
   "file": "src/domain/income/calc.ts",
   "category": "1 · ACTION"
+ },
+ "isStale": {
+  "id": "MK-ST-F-077",
+  "file": "src/domain/_shared/freshness.ts",
+  "category": "3 · DEPENDENT"
  },
  "isYm": {
   "id": "MK-XS-F-121",
@@ -1989,6 +2009,11 @@
   "file": "src/domain/planning/target.ts",
   "category": "1 · ACTION"
  },
+ "oddsTail": {
+  "id": "MK-PL-F-085",
+  "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
  "on": {
   "id": "MK-ST-F-039",
   "file": "src/domain/_shared/eventBus.ts",
@@ -2258,6 +2283,11 @@
   "id": "MK-CF-F-153",
   "file": "MoneyKeel/functions/cashflow/expenses.ts",
   "category": "3 · DEPENDENT"
+ },
+ "rateBandWords": {
+  "id": "MK-PL-F-084",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "2 · DISPLAYED"
  },
  "rateInForce": {
   "id": "MK-CF-F-181",

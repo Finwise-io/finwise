@@ -11,7 +11,7 @@ import { money } from '../domain/_shared/num';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveLens } from '../domain/profile/lens';
-import { rmdStartAgeFor, withdrawalPlan } from '../domain/decumulation';
+import { rmdStartAgeFor, withdrawalPlan, rateBandWords, type RateBand } from '../domain/decumulation';
 import { retirementIncomeMonthly } from '../domain/income';
 import { k401Headroom } from '../domain/income/limits';
 import { ageFromProfile } from '../utils/persona';
@@ -36,13 +36,9 @@ import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { salaryAnnual } from '../domain/income';
 
-/** How a withdrawal rate reads in words. Never "safe" — we do not know that, and saying it is a
- *  promise we cannot make (founder 2026-08-13). The 4% figure is a published guideline, which is a
- *  fact about the world rather than a claim about this person's money. */
-const rateWords = (band: string | null | undefined) =>
-  band === 'safe' ? 'within the ~4% guideline'
-    : band === 'moderate' ? 'a bit above the 4% guideline — worth watching'
-    : 'above 5% — a high odds of running short';
+/** How a withdrawal rate reads in words — ONE home for it, in the module that owns the band
+ *  (DEC-0036 reworded it to his own-math framing, DEC-0215 says it changes on every screen). */
+const rateWords = (band: string | null | undefined) => rateBandWords(band as RateBand);
 
 // saved-scenario dates read like the rest of the app — never raw ISO (audit PH-3)
 const prettySavedDate = (v: any) => { const d = new Date(String(v ?? '')); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
@@ -322,10 +318,10 @@ export default function PlanHubScreen() {
             <View style={[styles.payRow, styles.payTotal]}><Text style={[styles.payL, styles.payStrong]}>Your paycheck</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(paycheckTotal))}/month</Text></View>
             {/* THE RATE BELONGS TO THE DRAW, not to what is left over (founder 2026-08-13). It is
                 (expenses − guaranteed income) ÷ savings, so it is printed beside the very figure it
-                divides. NOTE: the two "safe" words on this line are replaced with the founder's own
-                approved wording because the line is being rewritten anyway — re-typing a banned word
-                into new code is not defensible. The remaining occurrences across the app still await
-                the sweep he approved. */}
+                divides. The sweep this note used to defer is done: every wording of the band now
+                comes from rateBandWords in src/domain/decumulation, so the banned word and the
+                published-guideline framing are both gone from all three places that had their own
+                copy of them (DEC-0036, DEC-0215). */}
             {planSpend > 0 && (paycheckTotal >= planSpend ? (
               <Text style={styles.payOk}>
                 ✓ covers your {maskedMoney(planSpend)}/month expenses. You're drawing {maskedMoney(Math.round(drawUsed))}/month

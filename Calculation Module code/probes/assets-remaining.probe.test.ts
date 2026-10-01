@@ -128,10 +128,18 @@ describe('THE SMALL RULES', () => {
   });
 
   test('the screen says where a value came from, and when', () => {
-    expect(sourceWording(A({ source: 'connected', last_synced: '2026-08-18T09:00:00Z' })))
-      .toBe('Linked · 2026-08-18');   // founder 2026-09-14: linked / link again
-    expect(sourceWording(A({ source: 'imported' }))).toMatch(/^Imported/);
-    expect(sourceWording(A({}))).toBe('By hand · you update it');   // absent means hand-entered
+    // SOURCE ALWAYS, DATE ONLY WHEN STALE (DEC-0301, and change row 12 of the approved Net worth
+    // mock v08). This used to pin the opposite — a raw ISO day printed on every linked account,
+    // fresh or not — and it read the real clock, so the figure it asserted drifted by the day.
+    const noon = Date.parse('2026-10-01T12:00:00Z');
+    const linked = (iso: string) => sourceWording(A({ source: 'connected', last_synced: iso }), noon);
+    expect(linked('2026-10-01T09:00:00Z')).toBe('Linked');            // hours old: the source, no date
+    expect(linked('2026-09-29T09:00:00Z')).toBe('Linked');            // two days: still fresh
+    expect(linked('2026-08-18T09:00:00Z')).toBe('Linked · 44 days old');   // stale: say how old
+    expect(sourceWording(A({ source: 'connected' }), noon)).toBe('Linked · not updated yet');
+    expect(sourceWording(A({ source: 'imported' }), noon)).toBe('Imported · not updated yet');
+    expect(sourceWording(A({ source: 'imported', last_synced: '2026-09-30T09:00:00Z' }), noon)).toBe('Imported');
+    expect(sourceWording(A({}), noon)).toBe('By hand · you update it');   // absent means hand-entered
   });
 
   test('grouping on Net worth drops empty groups rather than showing a zero', () => {

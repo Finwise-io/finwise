@@ -48,6 +48,9 @@ export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'sp
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... MK-CF-M-004
+ * Ruled by .... DEC-0002 · DEC-0260
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If expenses is missing it uses 0.
@@ -153,7 +156,7 @@ export function inflowSourceWord(source: string): string {
 /* ─ MK-CF-F-155 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * cash
  *
- * Answers ..... exported 2026-09-30 so the-month.ts shares it rather than keeping a second copy: it exists only to turn a negative zero into a plain zero, and a person should never read “-$0”
+ * Answers ..... Negating zero in JavaScript gives NEGATIVE zero, which formats as "−$0" — and a person looking at "−$0" beside an unpaid car loan reasonably wonders what it means.
  *
  * Formula .....
  *     0   if n = 0
@@ -621,6 +624,9 @@ export const FIGURES = declareFigures({
  *
  * Serves ...... MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-050
  *               MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-053 · MK-CF-M-054
+ * Ruled by .... DEC-0002 · DEC-0199 · DEC-0512
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-003
  * Changed ..... not in git yet (—)

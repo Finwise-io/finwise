@@ -7,6 +7,7 @@ import { toNum } from '../_shared/num';
 import { getUserDoc, setUserDoc } from '../_shared/firestore';
 import { emit } from '../_shared/eventBus';
 import { employerMatchMonthly } from '../income/onboarding';
+import { ageLabel, isStale } from '../_shared/freshness';
 
 export type TaxBucket = 'CASH' | 'PRE_TAX' | 'ROTH' | 'TAXABLE' | 'PROPERTY';
 
@@ -1834,11 +1835,12 @@ export async function getAssetsState(uid: UserId) {
  * Answers ..... THE source wording (Build-47 walk row 8, audit Strategy #9): one sentence per source, used by every screen that names where an account's numbers come from.
  *
  * Formula .....
- *     day = the first 10 of string(last synced)   if last synced
- *     ''   otherwise
- *     `linked · ${day}`   if day
+ *     stale = is stale(last synced, now)
+ *     ago = age label(last synced, now)
+ *     `linked · ${ago ?? 'not updated yet'}`   if stale
  *     'Linked'   otherwise   when source = 'connected'
- *     `imported · ${day or '—'}`   when source = 'imported'
+ *     `imported · ${ago ?? 'not updated yet'}`   if stale
+ *     'Imported'   otherwise   when source = 'imported'
  *     the answer = 'by hand · you update it'
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -1847,13 +1849,23 @@ export async function getAssetsState(uid: UserId) {
  * Reads ....... MK-XS-I-006 price fetched at
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
  * Formula also on the master file · functions_from_code · MK-NW-F-045
  * Changed ..... 2026-08-07 (0482964)
  */
-export function sourceWording(a: AssetAccount): string {
-  const day = a.last_synced ? String(a.last_synced).slice(0, 10) : '';
-  if (a.source === 'connected') return day ? `Linked · ${day}` : 'Linked';   // founder 2026-09-14: linked / link again
-  if (a.source === 'imported') return `Imported · ${day || '—'}`;
+export function sourceWording(a: AssetAccount, now: number = Date.now()): string {
+  // SOURCE ALWAYS, DATE ONLY WHEN STALE — DEC-0301, and his approved design says it on its own face:
+  // change row 12 of the Net worth mock (v08, approved 2026-09-14) reads *"The source chip reads
+  // Linked; a date appears only when the numbers are stale"*, with his words *"connected only unless
+  // stale"*. The code applied half of that ruling — it renamed Connected to Linked — and kept printing
+  // the day every time, in raw ISO, so a date on screen meant nothing in particular. A date that is
+  // always there cannot be a warning.
+  const stale = isStale(a.last_synced, now);
+  const ago = ageLabel(a.last_synced, now);
+  if (a.source === 'connected') return stale ? `Linked · ${ago ?? 'not updated yet'}` : 'Linked';
+  if (a.source === 'imported') return stale ? `Imported · ${ago ?? 'not updated yet'}` : 'Imported';
   return 'By hand · you update it';
 }
 

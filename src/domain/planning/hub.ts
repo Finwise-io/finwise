@@ -32,7 +32,7 @@ export const SS_DECISION_TO = 70;
  * Answers ..... How do we state the odds in words?
  *
  * Formula .....
- *     `${chance}% odds of lasting to age ${horizon age}`
+ *     `${chance}% ${odds tail(horizon age)}`
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -42,7 +42,31 @@ export const SS_DECISION_TO = 70;
  * Changed ..... 2026-08-12 (bb56c4d)
  */
 export function oddsLine(_lens: 'retired' | string, chance: number, horizonAge: number): string {
-  return `${chance}% odds of lasting to age ${horizonAge}`;
+  return `${chance}% ${oddsTail(horizonAge)}`;
+}
+/** THE WORDS WITHOUT THE NUMBER — for the gauge, which prints the number large and the words beneath
+ *  it. The gauge used to hand-type that half of the sentence, so his one wording (DEC-0104, DEC-0109)
+ *  lived in two places and a change to `oddsLine` could not reach the screen he actually looks at. */
+/* ─ MK-PL-F-085 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * oddsTail
+ *
+ * Answers ..... THE WORDS WITHOUT THE NUMBER — for the gauge, which prints the number large and the words beneath it.
+ *
+ * Formula .....
+ *     `odds of lasting to age ${horizon age}`
+ *
+ * Called by ... MK-PL-F-024 oddsLine
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-024 oddsLine
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-085
+ * Changed ..... not in git yet (—)
+ */
+export function oddsTail(horizonAge: number): string {
+  return `odds of lasting to age ${horizonAge}`;
 }
 /** The same sentence for the app-wide SAMPLE, always labelled as one. */
 /* ─ MK-PL-F-025 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED

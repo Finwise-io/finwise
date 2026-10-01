@@ -33,7 +33,7 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 160 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 161 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
@@ -43,7 +43,7 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
  *               MK-CF-F-151 actualSpending · MK-XS-F-057 analyzeExpenses
- *               … and 142 more — the full list is on functions_from_code
+ *               … and 143 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -125,6 +125,9 @@ export function essentialsFromLoggedSpending(expenses: LoggedSpend[], now: Date 
  * Serves ...... MK-MN-M-024 · MK-MN-M-025 · MK-MN-M-026 · MK-NW-M-013
  *               MK-NW-M-014
  * Reads ....... MK-XS-I-024 logged expenses
+ * Ruled by .... DEC-0007 · DEC-0260
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.

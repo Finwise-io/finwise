@@ -1381,7 +1381,7 @@
    "type": "RULE",
    "scope": "cashflow",
    "screens": "Paycheck card",
-   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
+   "governs": "src/domain/decumulation/index.ts rateBandWords · src/screens/PlanHubScreen.tsx · src/screens/RetirementCockpit.tsx (both the verdict sentence and the rate box) · src/components/PaycheckCard.tsx",
    "exceptions": "none recorded",
    "edges": "its own words appear in these files: src/screens/NetWorthScreen.tsx (drawing, warning, framing); MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (support, long-term, framing)",
    "search": "card paycheck",
@@ -1406,7 +1406,8 @@
    "raw": "4%-guideline heads-up REWORDED to own-math framing (\"above what your own numbers support long-term\")\n\nWHY (from the source): Pre-48 decision round",
    "source": "FCC-core-detailed-design-v1.3-2026-07-19.xlsx · Changelog · 2026-08-02 · Paycheck card ||| FCC-core-detailed-design-v1.3-2026-08-12.xlsx · Changelog · 2026-08-02 · Paycheck card ||| FCC-core-detailed-design-v1.3-2026-08-14.xlsx · Changelog · 2026-08-02 · Paycheck card",
    "tab": "cashflow",
-   "key": "0d82a3d2759a"
+   "key": "0d82a3d2759a",
+   "anchor_read_on": "2026-10-01"
   },
   {
    "id": "DEC-0037",
@@ -3433,7 +3434,7 @@
    "type": "RULE",
    "scope": "networth",
    "screens": "Net worth (account sub-line)",
-   "governs": "MK-NW-M-021 · MK-NW-M-008 · MK-NW-M-005 · MK-NW-M-029",
+   "governs": "src/domain/assets/index.ts classPortionLabel (the bonds branch) · src/screens/AccountDetailScreen.tsx · MK-NW-M-021 · MK-NW-M-008",
    "exceptions": "none recorded",
    "edges": "its own words appear in these figures: MK-NW-M-021 (split, counted, ticker); MK-NW-M-008 (listed, beneath, treasury); MK-NW-M-005 (money-market, funds); MK-NW-M-029 (ticker, share)",
    "search": "account sub-line worth",
@@ -3458,7 +3459,8 @@
    "raw": "THE SUB-LINE COUNTS INSTEAD OF REPEATING. Under an account it read \"CDs & Treasuries in this account\" — directly beneath a row already titled Bonds & CDs. It now counts what is actually held: \"3 CDs & 1 Treasury in this account\", singular/plural correct. Cash says plainly \"cash in this account\" (one account, one cash line) unless a money-market fund is present, which is named and counted. Shares and funds are counted as \"N holdings in this account\" — a bare ticker cannot tell a share from an ETF, and inventing that split would be a guess.\n\nWHY (from the source): Founder finding 2026-08-11: the line \"seems repetitive as it is already listed under CDs and Bonds asset class... can we add the number and say 3 CD & 1 treasury bond in this account?\"",
    "source": "FCC-core-detailed-design-v1.3-2026-07-19.xlsx · Changelog · 2026-08-11 · Net worth (account sub-line) ||| FCC-core-detailed-design-v1.3-2026-08-12.xlsx · Changelog · 2026-08-11 · Net worth (account sub-line) ||| FCC-core-detailed-design-v1.3-2026-08-14.xlsx · Changelog · 2026-08-11 · Net worth (account sub-line)",
    "tab": "networth",
-   "key": "17f4bfe51d21"
+   "key": "17f4bfe51d21",
+   "anchor_read_on": "2026-10-01"
   },
   {
    "id": "DEC-0091",
@@ -3965,7 +3967,7 @@
    "type": "RULE",
    "scope": "app-wide",
    "screens": "Home + Net worth + Plan — ONE wording for the odds",
-   "governs": "src/domain/planning/hub.ts · src/screens/NetWorthScreen.tsx",
+   "governs": "src/domain/planning/hub.ts oddsLine + oddsTail · src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx · src/screens/CashFlowScreen.tsx · src/components/PlanOutcome.tsx · src/domain/glossary.ts",
    "exceptions": "none recorded",
    "edges": "its own words appear in these files: src/domain/planning/hub.ts (app-wide, paths, produced, helper, uncertain, lasting, bare, language, likely, appear, sample, fourth); src/screens/NetWorthScreen.tsx (app-wide, paths, builds, helper, uncertain, bare, sure, sample)",
    "search": "home odds plan wording worth",
@@ -3990,7 +3992,8 @@
    "raw": "THREE SCREENS SAID ONE NUMBER THREE WAYS: Home \"Uncertain — 78% odds of lasting to age 90\", the Plan hub \"78 in 100 paths last to 90\", Net worth a bare \"Uncertain\". The founder's wording is now the only one: \"<word> — xx% odds of lasting to age abc\", produced by ONE helper (oddsLine) that all three screens call; the app-wide sample likewise comes from sampleOddsLine (\"Sample: 84% odds of lasting to age 90\"), replacing the hub's \"Sample: Likely — 84 in 100 paths\". A test asserts all three screens call the helpers and that no screen builds the sentence by hand or says \"in 100 paths\", so a fourth phrasing cannot appear.\n\nWHY (from the source): Founder rule 2026-08-11: \"make sure when we are using same language everywhere to convey same message. We should have the same language on home, NW and Plan for retirement — xx% odds of lasting to age abc.\"",
    "source": "FCC-core-detailed-design-v1.3-2026-07-19.xlsx · Changelog · 2026-08-11 · Home + Net worth + Plan — ONE wording for the odds ||| FCC-core-detailed-design-v1.3-2026-08-12.xlsx · Changelog · 2026-08-11 · Home + Net worth + Plan — ONE wording for the odds ||| FCC-core-detailed-design-v1.3-2026-08-14.xlsx · Changelog · 2026-08-11 · Home + Net worth + Plan — ONE wording for the odds",
    "tab": "multiple_screens",
-   "key": "8b7c2c07abb9"
+   "key": "8b7c2c07abb9",
+   "anchor_read_on": "2026-10-01"
   },
   {
    "id": "DEC-0105",
@@ -4155,7 +4158,7 @@
    "type": "RULE",
    "scope": "app-wide",
    "screens": "Plan answers — the verdict speaks the ONE app-wide wording",
-   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
+   "governs": "src/domain/planning/hub.ts oddsLine + oddsTail · src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx · src/screens/CashFlowScreen.tsx · src/components/PlanOutcome.tsx · src/domain/glossary.ts",
    "exceptions": "none recorded",
    "edges": "its own words appear in these files: src/domain/assets/index.ts (renders, shared, pinned, helper, land, identical, worse, call, alone); src/screens/NetWorthScreen.tsx (renders, shared, helper, land, identical, sure, worse, sample, alone)",
    "search": "answers app-wide plan speaks verdict wording",
@@ -4180,7 +4183,8 @@
    "raw": "FOUND BY THE END-TO-END WALK. Home, Net worth and the Plan hub all say \"<word> — xx% odds of lasting to age abc\", but the answers screen — the very screen a person lands on to fix their odds — said \"<word> — 0 in 100\" instead, with no age in it. Worse, the same screen switched wording between its own two states: its SAMPLE line already read \"Sample: 84% odds of lasting to age 90\". It now calls the same shared oddsLine() helper the other three screens call, so there is one sentence in one place. Pinned by test C6, which renders all three surfaces for one person and fails unless the sentences are identical.\n\nWHY (from the source): Founder rule 2026-08-11: \"Let's make sure we are using same language everywhere to convey same message — xx% odds of lasting to age abc\" — the walk found the one screen that was not.",
    "source": "FCC-core-detailed-design-v1.3-2026-07-19.xlsx · Changelog · 2026-08-11 · Plan answers — the verdict speaks the ONE app-wide wording ||| FCC-core-detailed-design-v1.3-2026-08-12.xlsx · Changelog · 2026-08-11 · Plan answers — the verdict speaks the ONE app-wide wording ||| FCC-core-detailed-design-v1.3-2026-08-14.xlsx · Changelog · 2026-08-11 · Plan answers — the verdict speaks the ONE app-wide wording",
    "tab": "multiple_screens",
-   "key": "67c28af08da3"
+   "key": "67c28af08da3",
+   "anchor_read_on": "2026-10-01"
   },
   {
    "id": "DEC-0110",
@@ -11628,7 +11632,7 @@
    "type": "RULE",
    "scope": "process-and-standards",
    "screens": "every published figure",
-   "governs": "MK-NW-M-003 · MK-NW-M-029",
+   "governs": "src/domain/_shared/freshness.ts (STALE_AFTER_DAYS, daysSince, ageLabel, agoLabel, isStale) · src/domain/assets/index.ts sourceWording · src/services/sync/index.ts connectionFreshness · src/services/marketData.ts priceFreshness · MK-NW-M-003 · MK-NW-M-029",
    "exceptions": "none recorded",
    "edges": "its own words appear in these figures: MK-NW-M-003 (dates, balances); MK-NW-M-029 (gone, stale)",
    "search": "always date only source stale when",
@@ -11653,7 +11657,8 @@
    "raw": "RULING: source always, date only when stale\n\nWHAT WAS CHANGED: valueFreshness dates on balances; inflation default carries source + checked date",
    "source": "the rulings ledger being retired (moneykeel_rulings.json · Brief R7) — originally: Brief — decisions on the 56 open questions (2026-08-20), tallied against the code 2026-09-12",
    "tab": "process-and-standards",
-   "key": "82b22b447aa7"
+   "key": "82b22b447aa7",
+   "anchor_read_on": "2026-10-01"
   },
   {
    "id": "DEC-0302",
@@ -16246,7 +16251,7 @@
    "type": "RULE",
    "scope": "performance",
    "screens": "moneykeel_pres_mock_performance_v14.html",
-   "governs": "src/domain/assets/index.ts · src/screens/AccountDetailScreen.tsx",
+   "governs": "src/domain/assets/index.ts sourceWording · src/screens/AccountDetailScreen.tsx · src/screens/NetWorthScreen.tsx",
    "exceptions": "none recorded",
    "edges": "its own words appear in these files: src/domain/assets/index.ts (here, current, hand-entered, whose); src/screens/AccountDetailScreen.tsx (here, current, hand-entered, whose)",
    "search": "hand update",
@@ -16271,7 +16276,8 @@
    "raw": "QUOTED IN: moneykeel_pres_mock_performance_v14.html\n\nAROUND IT: ...a HAND-ENTERED account, which has no records to rebuild from — so every account here wears the app’s hand-entered chip,\n\nHIS WORDS: ✍️ By hand · you update it",
    "source": "moneykeel_pres_mock_performance_v14.html · quoted in the text",
    "tab": "performance",
-   "key": "5a0473ff799b"
+   "key": "5a0473ff799b",
+   "anchor_read_on": "2026-10-01"
   },
   {
    "id": "DEC-0438",
@@ -18678,7 +18684,7 @@
    "type": "RULE",
    "scope": "process-and-standards",
    "screens": "",
-   "governs": "src/services/sync/ · the connect flow · MK-NW-I-001",
+   "governs": "src/services/sync/index.ts (activeSyncProvider, connectionFreshness, CONSENT_COPY) · src/domain/assets/index.ts sourceWording · MK-XS-I-006 · src/domain/_shared/freshness.ts",
    "exceptions": "none recorded",
    "edges": "HIS QUESTIONS, ANSWERED BY ME 2026-09-30: connection is USER-INITIATED then refreshed daily, which is what the code does. A hesitant person can use the app fully hand-entered — every figure has a typed path and two of the three empty-state doors need no connection. Nothing to change.",
    "search": "connect daily first hesitant one-time user user-initiated what",
@@ -18703,7 +18709,8 @@
    "raw": "SUBJECT: \n\nHIS WORDS: Connect: one-time / daily / user-initiated? What if a user is hesitant to connect at first?",
    "source": "FCC-core-highlevel-design-v1.1-2026-06-30.xlsx · What changed v1.0→v1.1 · the column he typed in (\"Your comment / decision (v1.0 review)\")",
    "tab": "process-and-standards",
-   "key": "c7bca26177b4"
+   "key": "c7bca26177b4",
+   "anchor_read_on": "2026-10-01"
   },
   {
    "id": "DEC-0503",

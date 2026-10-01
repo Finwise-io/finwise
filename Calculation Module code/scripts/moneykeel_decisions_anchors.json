@@ -249,9 +249,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0036": {
-   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (drawing, warning, framing); MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (support, long-term, framing)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/decumulation/index.ts rateBandWords · src/screens/PlanHubScreen.tsx · src/screens/RetirementCockpit.tsx (both the verdict sentence and the rate box) · src/components/PaycheckCard.tsx",
+   "why_it_governs_those": "READ, not word-matched. The heads-up he reworded is the withdrawal-rate verdict, and it is written in four places, none of them the Net worth screen the old anchor named — that anchor came from the words \"drawing\", \"warning\" and \"framing\" happening to appear there. His wording was live in ONE of the four (PaycheckCard) and the other three still cited the published guideline. They now all read rateBandWords.",
+   "evidence": "src/__tests__/own_math_not_a_rule_of_thumb.test.ts — asserts his three band sentences, that no screen cites the guideline as a verdict, that only one file writes the words, and the count of files it read (floor 120).",
+   "verified_by_reading": "2026-10-01"
   },
   "DEC-0040": {
    "governs": "src/screens/HomeScreen.tsx · src/domain/insights/index.ts",
@@ -439,9 +440,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0090": {
-   "governs": "MK-NW-M-021 · MK-NW-M-008 · MK-NW-M-005 · MK-NW-M-029",
-   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-021 (split, counted, ticker); MK-NW-M-008 (listed, beneath, treasury); MK-NW-M-005 (money-market, funds); MK-NW-M-029 (ticker, share)",
-   "evidence": "searched the figure register"
+   "governs": "src/domain/assets/index.ts classPortionLabel (the bonds branch) · src/screens/AccountDetailScreen.tsx · MK-NW-M-021 · MK-NW-M-008",
+   "why_it_governs_those": "READ. His ask was to stop repeating the heading and count what is in the account instead. classPortionLabel counts CDs, Treasuries and other bonds separately and builds \"3 CDs & 1 Treasury in this account\" — his own form, with the ampersand he typed.",
+   "evidence": "the bonds branch of classPortionLabel in src/domain/assets/index.ts; it already COMPLIED when this validation read it, and the old anchor named only figures, not the function.",
+   "verified_by_reading": "2026-10-01"
   },
   "DEC-0091": {
    "governs": "MK-NW-M-017",
@@ -509,9 +511,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0104": {
-   "governs": "src/domain/planning/hub.ts · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/planning/hub.ts (app-wide, paths, produced, helper, uncertain, lasting, bare, language, likely, appear, sample, fourth); src/screens/NetWorthScreen.tsx (app-wide, paths, builds, helper, uncertain, bare, sure, sample)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/planning/hub.ts oddsLine + oddsTail · src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx · src/screens/CashFlowScreen.tsx · src/components/PlanOutcome.tsx · src/domain/glossary.ts",
+   "why_it_governs_those": "READ. Every screen that states the odds, which is the surface his ruling is about. The Cash flow screen said \"{chance}% odds of lasting\" with no age on it, and the gauge under the Plan outcome hand-typed its half of the sentence, so a change to the helper could not reach the screen he looks at.",
+   "evidence": "src/__tests__/one_wording_for_the_odds.test.ts — reads all of src (floor 120 files), allows only oddsLine/oddsTail and the spoken form, and pins the glossary illustration to the helper character for character.",
+   "verified_by_reading": "2026-10-01"
   },
   "DEC-0105": {
    "governs": "src/components/UI.tsx · src/screens/AccountDetailScreen.tsx",
@@ -534,9 +537,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0109": {
-   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (renders, shared, pinned, helper, land, identical, worse, call, alone); src/screens/NetWorthScreen.tsx (renders, shared, helper, land, identical, sure, worse, sample, alone)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/planning/hub.ts oddsLine + oddsTail · src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx · src/screens/CashFlowScreen.tsx · src/components/PlanOutcome.tsx · src/domain/glossary.ts",
+   "why_it_governs_those": "READ. Same surface as DEC-0104, which he had to rule on twice three weeks apart because the first fix reached three screens and missed the fourth. That is the whole reason the guard counts files rather than checking the screens someone remembered.",
+   "evidence": "src/__tests__/one_wording_for_the_odds.test.ts — reads all of src (floor 120 files), allows only oddsLine/oddsTail and the spoken form, and pins the glossary illustration to the helper character for character.",
+   "verified_by_reading": "2026-10-01"
   },
   "DEC-0110": {
    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
@@ -1221,9 +1225,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0301": {
-   "governs": "MK-NW-M-003 · MK-NW-M-029",
-   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-003 (dates, balances); MK-NW-M-029 (gone, stale)",
-   "evidence": "searched the figure register"
+   "governs": "src/domain/_shared/freshness.ts (STALE_AFTER_DAYS, daysSince, ageLabel, agoLabel, isStale) · src/domain/assets/index.ts sourceWording · src/services/sync/index.ts connectionFreshness · src/services/marketData.ts priceFreshness · MK-NW-M-003 · MK-NW-M-029",
+   "why_it_governs_those": "READ. \"Date only when stale\" needs a definition of stale, and there were three: the price cache at four days, a connection at \"more than three\", and the source chip at none — it printed the day every time, in raw ISO. The thresholds agreed by luck; the words did not, so one age read \"44 days ago\" in one place and \"44 days old\" in another.",
+   "evidence": "src/__tests__/source_always_date_only_when_stale.test.ts — walks days 0..10 and asserts the chip, the connection and the price cache call the same age stale, that a fresh account shows no date, that a stale one shows words not a date, and that no other file defines the threshold.",
+   "verified_by_reading": "2026-10-01"
   },
   "DEC-0302": {
    "governs": "src/screens/RetirementCockpit.tsx · src/domain/retirement/index.ts",
@@ -1646,9 +1651,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0437": {
-   "governs": "src/domain/assets/index.ts · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (here, current, hand-entered, whose); src/screens/AccountDetailScreen.tsx (here, current, hand-entered, whose)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/assets/index.ts sourceWording · src/screens/AccountDetailScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "READ. The chip is composed in sourceWording and printed on the Net worth row and the account detail header. A hand-entered account returns \"By hand · you update it\" and can never fall through to the linked wording, because the linked branch requires source === 'connected'.",
+   "evidence": "src/__tests__/source_always_date_only_when_stale.test.ts — \"a hand-entered account says whose job it is to keep it current\", for both an absent source and an explicit manual one.",
+   "verified_by_reading": "2026-10-01"
   },
   "DEC-0438": {
    "governs": "src/domain/planning/multiGoal.ts · src/screens/MultiGoalScreen.tsx",
@@ -2022,8 +2028,11 @@
    "why_it_governs_those": "HIS ADDITION, ANSWERED BY ME 2026-09-30 rather than returned to him: \"surfacing the right things at the right time — what needs you\" IS the Insights engine, which ranks what needs attention and fires a card only when a threshold is crossed. B-117 was exactly this failing."
   },
   "DEC-0502": {
-   "governs": "src/services/sync/ · the connect flow · MK-NW-I-001",
-   "why_it_governs_those": "HIS QUESTIONS, ANSWERED BY ME 2026-09-30: connection is USER-INITIATED then refreshed daily, which is what the code does. A hesitant person can use the app fully hand-entered — every figure has a typed path and two of the three empty-state doors need no connection. Nothing to change."
+   "governs": "src/services/sync/index.ts (activeSyncProvider, connectionFreshness, CONSENT_COPY) · src/domain/assets/index.ts sourceWording · MK-XS-I-006 · src/domain/_shared/freshness.ts",
+   "why_it_governs_those": "READ. His questions were \"Connect: one-time / daily / user-initiated?\" and \"What if a user is hesitant to connect at first?\" The old anchor named MK-NW-I-001, which has never been issued — no NW-I identifier exists at all. The input he means is the moment a connection last succeeded, and that is already on the register as MK-XS-I-006, shared with the price cache.",
+   "answer_decided": "ANSWERED FROM THE CODE, not handed back (his standing order of 2026-09-30). (1) CADENCE: user-initiated, and nothing else — there is no scheduler, no background fetch and no screen that calls the sync; activeSyncProvider() returns the sandbox in dev and null in production, so the connect flow is a seam awaiting SnapTrade, not a live feature. When a provider goes live the cadence is daily, because the freshness rule flags a connection at four days (STALE_AFTER_DAYS) and that threshold only means anything against a daily expectation. Either way the chip tells the truth rather than implying a refresh that did not happen — which is what DEC-0301 is for, and that is now built. (2) A HESITANT PERSON needs no connection: a hand-entered account is a first-class path, not a lesser one. Every figure in the app computes from entered values, and the chip says \"By hand · you update it\" — naming whose job it is rather than marking the account as incomplete. TO REVERSE EITHER: say so and it changes in one place.",
+   "evidence": "src/__tests__/source_always_date_only_when_stale.test.ts for the freshness half; activeSyncProvider() in src/services/sync/index.ts for the seam; no setInterval, BackgroundFetch or sync caller exists anywhere in src (searched 2026-10-01).",
+   "verified_by_reading": "2026-10-01"
   },
   "DEC-0505": {
    "governs": "src/screens/CashFlowScreen.tsx · MK-XS-M-002",

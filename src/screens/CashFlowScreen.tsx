@@ -21,6 +21,8 @@ import { rsuAnnual, rentalNetAnnual } from '../domain/income/onboarding';   // p
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
 import { simulate } from '../domain/retirement';
 import { selectWillItLast, willItLastInputs } from '../domain/retirement/willItLast';
+import { oddsLine } from '../domain/planning/hub';
+import { resolveLens } from '../domain/profile/lens';
 import { DrawSteerSheet } from '../components/DrawSteerSheet';
 import { buildPaycheckYear } from '../domain/paycheck';
 import { resolveNetWorthRows } from '../domain/snapshot';
@@ -601,10 +603,16 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
   const commitments = (A.commitments ?? []) as { label: string; monthlyAmount: number }[];
   const committed = commitments.reduce((t, c) => t + (c.monthlyAmount || 0), 0);
 
-  const wilChance = React.useMemo(() => selectWillItLast({
+  // HIS ONE WORDING FOR THE ODDS (DEC-0104, DEC-0109): *"make sure we are using same language
+  // everywhere to convey same message — xx% odds of lasting to age abc."* This screen said
+  // "{chance}% odds of lasting" and stopped there, so the one number a person meets on Home, Net
+  // worth and Plan as "78% odds of lasting to age 90" read here as a different, shorter claim. The
+  // horizon travels with the chance now, and the sentence comes from the one helper.
+  const wil = React.useMemo(() => selectWillItLast({
     op, accounts: store.assetAccounts ?? [], assumptions: A,
     inflationRate: store.inflationRate, employmentStatus: store.employmentStatus,
-  }).chance, [op, store.assetAccounts, A, store.inflationRate, store.employmentStatus]);
+  }), [op, store.assetAccounts, A, store.inflationRate, store.employmentStatus]);
+  const wilChance = wil.chance;
 
   // Future paycheck — PROJECTION (same F5 function, projection mode; estimate label is mandatory copy)
   const projection = React.useMemo(() => {
@@ -682,7 +690,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
           <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)}/month</Text>
           {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${maskedMoney(projection.guaranteed)}`} dim />}
           <Row label="Draw from savings" value={`~${maskedMoney(projection.draw)}`} dim />
-          {wilChance != null && <Text style={styles.note}>Based on your plan's {wilChance}% odds of lasting · see Plan ›</Text>}
+          {wilChance != null && <Text style={styles.note}>Based on your plan's {oddsLine(resolveLens(op ?? {}, store.lensOverride), wilChance, wil.horizonAge)} · see Plan ›</Text>}
         </TouchableOpacity>
       )}
     </>

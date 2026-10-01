@@ -97,6 +97,7 @@ exports[`photograph — retiree PerformanceScreen 1`] = `
 exports[`photograph — retiree PlanHubScreen 1`] = `
 [
   "[spoken] Will my money last: 93.2% odds of lasting to age 92, an estimate.",
+  "odds of lasting to age 92",
   "$4,000",
   "— on course to last past 92, ~$685,000 to spare",
   "$350,000",
@@ -113,7 +114,7 @@ exports[`photograph — retiree PlanHubScreen 1`] = `
   "$4,010",
   "$4,000",
   "$1,600",
-  "— 4.6% of your savings a year, a bit above the 4% guideline — worth watching",
+  "— 4.6% of your savings a year, near the edge of what your own numbers support long-term",
   "$1,610",
   "[spoken] $0 more in expenses each month",
   "$0",
@@ -172,6 +173,7 @@ exports[`photograph — worker CashFlowScreen 1`] = `
   "[spoken] Your future paycheck — a projection, an estimate, not a promise. At 65: about $2,455 a month.",
   "$2,455",
   "~$2,455",
+  "13.9% odds of lasting to age 92",
   "[spoken] Will my money last: 13.9 percent, an estimate. Lives in your Plan.",
 ]
 `;
@@ -259,6 +261,7 @@ exports[`photograph — worker PerformanceScreen 1`] = `
 exports[`photograph — worker PlanHubScreen 1`] = `
 [
   "[spoken] Will my money last: 13.9% odds of lasting to age 92, an estimate.",
+  "odds of lasting to age 92",
   "$1,150,000",
   "$1,150,000",
   "$320,000",

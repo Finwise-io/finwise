@@ -636,7 +636,15 @@
     },
     {
      "k": "t",
-     "s": "Heads-up: this draw is above what your own numbers support long-term — the pace itself is the risk."
+     "s": "Heads-up: this draw is"
+    },
+    {
+     "k": "t",
+     "s": "above what your own numbers support long-term"
+    },
+    {
+     "k": "t",
+     "s": "— the pace itself is the risk."
     },
     {
      "k": "t",
@@ -5573,11 +5581,7 @@
     },
     {
      "k": "t",
-     "s": "odds of lasting to age"
-    },
-    {
-     "k": "t",
-     "s": "95"
+     "s": "odds of lasting to age 95"
     },
     {
      "k": "a",
@@ -5933,7 +5937,7 @@
     },
     {
      "k": "t",
-     "s": "— 1.4% of your savings a year, within the ~4% guideline"
+     "s": "— 1.4% of your savings a year, within what your own numbers support long-term"
     },
     {
      "k": "t",
@@ -9320,7 +9324,15 @@
     },
     {
      "k": "t",
-     "s": "Heads-up: this draw is above what your own numbers support long-term — the pace itself is the risk."
+     "s": "Heads-up: this draw is"
+    },
+    {
+     "k": "t",
+     "s": "above what your own numbers support long-term"
+    },
+    {
+     "k": "t",
+     "s": "— the pace itself is the risk."
     },
     {
      "k": "t",
@@ -9710,7 +9722,15 @@
     },
     {
      "k": "t",
-     "s": "Heads-up: this draw is above what your own numbers support long-term — the pace itself is the risk."
+     "s": "Heads-up: this draw is"
+    },
+    {
+     "k": "t",
+     "s": "above what your own numbers support long-term"
+    },
+    {
+     "k": "t",
+     "s": "— the pace itself is the risk."
     },
     {
      "k": "t",
@@ -13474,7 +13494,7 @@
     },
     {
      "k": "t",
-     "s": "a high pace"
+     "s": "above what your own numbers support"
     },
     {
      "k": "t",
@@ -36070,7 +36090,7 @@
    "renders": 2
   },
   {
-   "site": "src/components/PaycheckCard.tsx:25",
+   "site": "src/components/PaycheckCard.tsx:26",
    "routes": [
     "/cashflow",
     "/home"
@@ -36087,7 +36107,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PaycheckCard.tsx:36",
+   "site": "src/components/PaycheckCard.tsx:37",
    "routes": [
     "/cashflow",
     "/home"
@@ -36104,7 +36124,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PaycheckCard.tsx:48",
+   "site": "src/components/PaycheckCard.tsx:49",
    "routes": [
     "/cashflow",
     "/home"
@@ -36122,7 +36142,7 @@
    "renders": 14
   },
   {
-   "site": "src/components/PaycheckCard.tsx:53",
+   "site": "src/components/PaycheckCard.tsx:54",
    "routes": [
     "/cashflow",
     "/home"
@@ -36139,7 +36159,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PaycheckCard.tsx:58",
+   "site": "src/components/PaycheckCard.tsx:59",
    "routes": [
     "/cashflow",
     "/home"
@@ -36156,7 +36176,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PaycheckCard.tsx:64",
+   "site": "src/components/PaycheckCard.tsx:65",
    "routes": [
     "/cashflow",
     "/home"
@@ -36402,7 +36422,7 @@
    "renders": 3
   },
   {
-   "site": "src/domain/planning/hub.ts:330",
+   "site": "src/domain/planning/hub.ts:354",
    "routes": [
     "/analytics",
     "/plan"
@@ -37093,7 +37113,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:226",
+   "site": "src/screens/CashFlowScreen.tsx:228",
    "routes": [
     "/cashflow"
    ],
@@ -37111,7 +37131,7 @@
    "renders": 30
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:313",
+   "site": "src/screens/CashFlowScreen.tsx:315",
    "routes": [
     "/cashflow"
    ],
@@ -37127,7 +37147,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:314",
+   "site": "src/screens/CashFlowScreen.tsx:316",
    "routes": [
     "/cashflow"
    ],
@@ -37143,7 +37163,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:326",
+   "site": "src/screens/CashFlowScreen.tsx:328",
    "routes": [
     "/cashflow"
    ],
@@ -37158,7 +37178,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:421",
+   "site": "src/screens/CashFlowScreen.tsx:423",
    "routes": [
     "/cashflow"
    ],
@@ -37173,7 +37193,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:453",
+   "site": "src/screens/CashFlowScreen.tsx:455",
    "routes": [
     "/cashflow"
    ],
@@ -37196,7 +37216,7 @@
    "renders": 18
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:499",
+   "site": "src/screens/CashFlowScreen.tsx:501",
    "routes": [
     "/cashflow"
    ],
@@ -37211,7 +37231,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:508",
+   "site": "src/screens/CashFlowScreen.tsx:510",
    "routes": [
     "/cashflow"
    ],
@@ -37230,7 +37250,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:535",
+   "site": "src/screens/CashFlowScreen.tsx:537",
    "routes": [
     "/cashflow"
    ],
@@ -37246,7 +37266,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:541",
+   "site": "src/screens/CashFlowScreen.tsx:543",
    "routes": [
     "/cashflow"
    ],
@@ -37262,7 +37282,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:638",
+   "site": "src/screens/CashFlowScreen.tsx:646",
    "routes": [
     "/cashflow"
    ],
@@ -37279,7 +37299,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:639",
+   "site": "src/screens/CashFlowScreen.tsx:647",
    "routes": [
     "/cashflow"
    ],
@@ -37296,7 +37316,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:648",
+   "site": "src/screens/CashFlowScreen.tsx:656",
    "routes": [
     "/cashflow"
    ],
@@ -37316,7 +37336,7 @@
    "renders": 35
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:654",
+   "site": "src/screens/CashFlowScreen.tsx:662",
    "routes": [
     "/cashflow"
    ],
@@ -37333,7 +37353,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:665",
+   "site": "src/screens/CashFlowScreen.tsx:673",
    "routes": [
     "/cashflow"
    ],
@@ -37350,7 +37370,7 @@
    "renders": 20
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:670",
+   "site": "src/screens/CashFlowScreen.tsx:678",
    "routes": [
     "/cashflow"
    ],
@@ -37367,7 +37387,7 @@
    "renders": 20
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:679",
+   "site": "src/screens/CashFlowScreen.tsx:687",
    "routes": [
     "/cashflow"
    ],
@@ -37384,7 +37404,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:682",
+   "site": "src/screens/CashFlowScreen.tsx:690",
    "routes": [
     "/cashflow"
    ],
@@ -37401,7 +37421,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:684",
+   "site": "src/screens/CashFlowScreen.tsx:692",
    "routes": [
     "/cashflow"
    ],
@@ -37418,7 +37438,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:700",
+   "site": "src/screens/CashFlowScreen.tsx:708",
    "routes": [
     "/cashflow"
    ],
@@ -37433,7 +37453,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/CashFlowScreen.tsx:753",
+   "site": "src/screens/CashFlowScreen.tsx:761",
    "routes": [
     "/cashflow"
    ],
@@ -39871,7 +39891,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:237",
+   "site": "src/screens/PlanHubScreen.tsx:233",
    "routes": [
     "/plan"
    ],
@@ -39886,7 +39906,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:277",
+   "site": "src/screens/PlanHubScreen.tsx:273",
    "routes": [
     "/plan"
    ],
@@ -39903,7 +39923,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:312",
+   "site": "src/screens/PlanHubScreen.tsx:308",
    "routes": [
     "/plan"
    ],
@@ -39920,7 +39940,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:318",
+   "site": "src/screens/PlanHubScreen.tsx:314",
    "routes": [
     "/plan"
    ],
@@ -39936,7 +39956,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:320",
+   "site": "src/screens/PlanHubScreen.tsx:316",
    "routes": [
     "/plan"
    ],
@@ -39951,7 +39971,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:321",
+   "site": "src/screens/PlanHubScreen.tsx:317",
    "routes": [
     "/plan"
    ],
@@ -39966,7 +39986,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:322",
+   "site": "src/screens/PlanHubScreen.tsx:318",
    "routes": [
     "/plan"
    ],
@@ -39981,7 +40001,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:331",
+   "site": "src/screens/PlanHubScreen.tsx:327",
    "routes": [
     "/plan"
    ],
@@ -39997,7 +40017,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:332",
+   "site": "src/screens/PlanHubScreen.tsx:328",
    "routes": [
     "/plan"
    ],

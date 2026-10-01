@@ -112,6 +112,10 @@ export interface HoldingAnswer {
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ * Ruled by .... DEC-0092 · DEC-0108 · DEC-0152 · DEC-0165 · DEC-0301 · DEC-0475
+ *               DEC-0476
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.

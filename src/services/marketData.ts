@@ -3,6 +3,7 @@
 // Same "free public API" approach as economicData.ts. The PriceProvider interface means we can swap
 // to a keyed real-time provider later WITHOUT touching the domain or UI.
 import type { PriceSeries } from '../domain/performance';
+import { agoLabel, isStale } from '../domain/_shared/freshness';
 
 export interface PriceProvider {
   /** Daily close series (oldest→newest) for a ticker, or null if unavailable. */
@@ -117,13 +118,11 @@ export interface PriceFreshness { label: string; stale: boolean; }
  * Changed ..... 2026-06-13 (c42d16b)
  */
 export function priceFreshness(fetchedAt: string | null | undefined, now: number): PriceFreshness {
-  if (!fetchedAt) return { label: 'not updated yet', stale: true };
-  const ms = now - Date.parse(fetchedAt);
-  if (!Number.isFinite(ms) || ms < 0) return { label: 'not updated yet', stale: true };
-  const days = Math.floor(ms / 86_400_000);
-  const hours = Math.floor(ms / 3_600_000);
-  const label = days >= 1 ? `${days} day${days > 1 ? 's' : ''} ago` : hours >= 1 ? `${hours}h ago` : 'just now';
-  return { label, stale: days >= 4 };
+  // the threshold and the words both come from the ONE freshness rule (DEC-0301), so the price cache
+  // and an account's source chip can never disagree about what "old" means
+  const label = agoLabel(fetchedAt, now);
+  if (label == null) return { label: 'not updated yet', stale: true };
+  return { label, stale: isStale(fetchedAt, now) };
 }
 
 /** Fetch many tickers in parallel; returns only the ones that resolved. */

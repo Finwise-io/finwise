@@ -41,7 +41,7 @@ export interface EarnerWage {
  *
  * Called by ... MK-CF-F-173 earnerWages
  *
- * Reaches ..... 91 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
@@ -51,7 +51,7 @@ export interface EarnerWage {
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
  *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               … and 73 more — the full list is on functions_from_code
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -83,8 +83,9 @@ const hasWage = (w: any): boolean =>
  * Called by ... MK-CF-F-174 hasTwoEarners · MK-CF-F-175 sumOverEarners
  *               MK-CF-F-176 sumMonthsOverEarners · MK-CF-F-180 enteredLandsAnnual
  *               MK-CF-F-181 rateInForce · MK-CF-O-004 incomeSummary
+ *               MK-CF-O-016 incomeSources
  *
- * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 91 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
@@ -94,7 +95,7 @@ const hasWage = (w: any): boolean =>
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
  *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               … and 72 more — the full list is on functions_from_code
+ *               … and 73 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

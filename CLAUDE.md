@@ -228,6 +228,38 @@ first before moving forward. I am not going to answer any further questions in t
   it governs, and `check-rulings-sync.py` counts the ones that still name nothing (418 on 2026-09-30,
   a ratchet that may only fall).
 
+## AN ANCHOR IS NOT COMPLIANCE — VALIDATE THE ARTEFACT (2026-10-01)
+His instruction: *"First go and validate does existing screen mock ups, metrics, functions, code —
+comply with these decisions or not. Go module by module."*
+
+Mapping a decision to where it applies says WHERE to look. It is not evidence that anything looks.
+Run `python3 "Calculation Module code/scripts/validate-module-complies.py" <module>` — it opens the
+screens, the doors, the figures and the approved mocks a module's decisions govern and classifies each
+one, saying which check it ran. **It reports what it cannot settle as unsettled**, because a validator
+that calls its own blind spots compliant is worse than none.
+
+What the first Net worth run cost me, and the rules that come out of it:
+- **All 418 anchors were built by WORD OVERLAP** — every one's reason reads *"its own words appear in
+  these files"*. So an anchor can point at a file that merely shares vocabulary. DEC-0036 was anchored
+  to the Net worth screen because "drawing", "warning" and "framing" appear there; the heads-up it
+  governs is written in four other files, three of which were ignoring it outright. `0 unanchored` was
+  never the same claim as `mapped correctly`. The gate now prints **how many anchors someone has
+  actually READ** (7 of 418) and that number may only rise.
+- **I typed the screen list from memory and it was short by two.** Home and Insights both print Net
+  worth figures. The list is now DERIVED — each figure declares its routes, each route file in `app/`
+  names its screen — and the validator stops if a route resolves to no file. Seventeen more decisions
+  came into scope the moment it stopped trusting me.
+- **Three of my own checks were unsound and had to be rebuilt before any finding was believable**: the
+  file regex matched `.ts` inside `.tsx` (112 false "broken records"), the copy search read my own code
+  comments, which quote his decisions verbatim (compliance is what a PERSON reads, so it searches
+  string literals and visible mock text only), and a ban anywhere in a sentence poisoned a REQUIRED
+  phrase in the same sentence. **Fix the instrument before reporting what it found.**
+- **A deferral written in a code comment is invisible to every gate.** `PlanHubScreen` carried a note
+  saying the sweep he approved still awaited doing; it sat there while three screens stayed wrong.
+- **The code now names his decisions back.** Every generated header carries a `Ruled by ....` line of
+  DEC ids, printed from the anchors — 126 in the code, up from 3 — so a wrong number traces to his
+  ruling, not just to its formula. That is objective 4, and it had been one-directional.
+
 ## THE DECISION LOG IS THE ONE CONSOLIDATED MASTER (founder, 2026-09-30 — DEC-0011)
 His wording: *"Every Approval is logged in decision log with date in addition to change log, standards,
 Audit, Master and other files. Decision-log is one consolidated master."* My summary of this had it

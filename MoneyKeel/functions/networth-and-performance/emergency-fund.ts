@@ -125,6 +125,9 @@ export interface EmergencyFund {
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-025 typical monthly essentials
  *               MK-XS-I-028 assumed return
+ * Ruled by .... DEC-0103 · DEC-0158 · DEC-0175 · DEC-0260
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If monthly is missing it uses 0.

@@ -332,6 +332,16 @@ export function investmentAccountIdsOf(
  * Reads ....... MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
+ * Ruled by .... DEC-0008 · DEC-0015 · DEC-0046 · DEC-0056 · DEC-0063 · DEC-0064
+ *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
+ *               DEC-0126 · DEC-0133 · DEC-0134 · DEC-0135 · DEC-0136 · DEC-0142
+ *               DEC-0143 · DEC-0149 · DEC-0160 · DEC-0165 · DEC-0173 · DEC-0182
+ *               DEC-0185 · DEC-0192 · DEC-0204 · DEC-0229 · DEC-0230 · DEC-0236
+ *               DEC-0255 · DEC-0257 · DEC-0322 · DEC-0323 · DEC-0357 · DEC-0368
+ *               DEC-0382 · DEC-0399 · DEC-0402 · DEC-0445 · DEC-0479 · DEC-0482
+ *               DEC-0490 · DEC-0498
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · Treats a year as 365 days.

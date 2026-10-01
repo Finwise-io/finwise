@@ -454,6 +454,9 @@ export interface ShockResult {
  *
  * Serves ...... MK-MN-M-024 · MK-MN-M-025
  * Reads ....... MK-XS-I-025 typical monthly essentials
+ * Ruled by .... DEC-0260
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · Never lets cash after fall below 0.

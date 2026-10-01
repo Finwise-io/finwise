@@ -492,6 +492,9 @@ function priceAtYield(b: BondInfo, y: number, now: Date): number {
  * Reads ....... MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-049 bond price — what the bond is worth today
+ * Ruled by .... DEC-0071
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · Applies a built-in rate of 99% to v.

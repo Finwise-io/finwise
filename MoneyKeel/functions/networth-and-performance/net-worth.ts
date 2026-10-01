@@ -124,6 +124,17 @@ export interface TheNetWorth {
  *               MK-XS-M-003
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-014 debt balance
+ * Ruled by .... DEC-0008 · DEC-0010 · DEC-0023 · DEC-0047 · DEC-0048 · DEC-0051
+ *               DEC-0052 · DEC-0054 · DEC-0060 · DEC-0061 · DEC-0066 · DEC-0069
+ *               DEC-0070 · DEC-0072 · DEC-0074 · DEC-0089 · DEC-0090 · DEC-0091
+ *               DEC-0092 · DEC-0095 · DEC-0096 · DEC-0098 · DEC-0149 · DEC-0152
+ *               DEC-0158 · DEC-0165 · DEC-0166 · DEC-0175 · DEC-0184 · DEC-0192
+ *               DEC-0204 · DEC-0264 · DEC-0301 · DEC-0309 · DEC-0311 · DEC-0322
+ *               DEC-0343 · DEC-0345 · DEC-0347 · DEC-0397 · DEC-0403 · DEC-0442
+ *               DEC-0446 · DEC-0449 · DEC-0451 · DEC-0452 · DEC-0455 · DEC-0501
+ *               DEC-0509
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If alternatives is missing it uses 0.

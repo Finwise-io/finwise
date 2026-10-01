@@ -10,6 +10,7 @@
 // and the button that lands on the exact cure (fixLabel + route) — never a generic settings page.
 import type { AssetAccount } from '../assets';
 import { historyCoverage, accountDisplayNames } from '../assets';
+import { daysSince } from '../_shared/freshness';
 
 export type GapKind = 'no-price' | 'stale-account' | 'unreachable-account' | 'no-activity' | 'stale-value' | 'history-depth';
 
@@ -31,37 +32,11 @@ export interface DataGap {
 
 const STALE_SYNC_DAYS = 3;
 const STALE_VALUE_DAYS = 365;
-/* ─ MK-XS-F-170 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
- * daysSince
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     nothing   when iso is missing
- *     t = date.parse(string(iso))
- *     the answer:
- *     nothing   if number.is na n(t)
- *     max(0, round down((now − t) ÷ 86400000))   otherwise
- *
- * Called by ... MK-XS-F-002 dataGaps
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-002 dataGaps
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-XS-F-170
- * Changed ..... not in git yet (—)
- */
-const daysSince = (iso: string | null | undefined, now: number): number | null => {
-  if (!iso) return null;
-  const t = Date.parse(String(iso));
-  return Number.isNaN(t) ? null : Math.max(0, Math.floor((now - t) / 86400000));
-};
+// daysSince now comes from the ONE freshness rule in src/domain/_shared/freshness.ts (DEC-0301).
 /* ─ MK-XS-F-118 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * prettyDate
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... daysSince now comes from the ONE freshness rule in src/domain/_shared/freshness.ts (DEC-0301).
  *
  * Formula .....
  *     d = the date `${iso}-15T12:00:00`   if iso.length = 7

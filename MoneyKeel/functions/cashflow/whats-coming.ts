@@ -66,6 +66,9 @@ export interface WhatsComing {
  * Serves ...... MK-CF-M-012 · MK-CF-M-016 · MK-CF-M-017 · MK-CF-M-026
  *               MK-CF-M-028 · MK-MN-M-030
  * Reads ....... MK-XS-I-032 expenses categories the person set up
+ * Ruled by .... DEC-0002 · DEC-0078 · DEC-0187 · DEC-0443
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If start balance is missing it uses 0.

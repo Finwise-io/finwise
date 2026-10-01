@@ -709,5 +709,12 @@
 "MoneyKeel/functions/networth-and-performance/performance.ts::investmentAccountIdsOf": "2026-09-30|08d5d52",
 "MoneyKeel/functions/networth-and-performance/performance.ts::rateWhereItRefuses": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/performance.ts::pricedGainOf": "2026-09-30|08d5d52",
-"MoneyKeel/functions/networth-and-performance/performance.ts::windowStartKey": "2026-09-30|08d5d52"
+"MoneyKeel/functions/networth-and-performance/performance.ts::windowStartKey": "2026-09-30|08d5d52",
+"MoneyKeel/functions/cashflow/income-summary.ts::incomeSources": "2026-10-01|23d5415",
+"src/domain/_shared/freshness.ts::isStale": "not in git yet|\u2014",
+"src/domain/_shared/freshness.ts::ageLabel": "not in git yet|\u2014",
+"src/domain/_shared/freshness.ts::agoLabel": "not in git yet|\u2014",
+"src/domain/_shared/freshness.ts::daysSince": "not in git yet|\u2014",
+"src/domain/decumulation/index.ts::rateBandWords": "not in git yet|\u2014",
+"src/domain/planning/hub.ts::oddsTail": "not in git yet|\u2014"
 }

@@ -6,6 +6,8 @@
 // Until then `activeSyncProvider()` returns the sandbox in dev/test and null in production —
 // and the UI says so honestly instead of pretending.
 
+import { ageLabel, daysSince, isStale } from '../../domain/_shared/freshness';
+
 export interface FoundAccount {
   external_id: string;            // the provider's stable id for the account
   name: string;                   // 'Chase Premier Checking'
@@ -100,19 +102,12 @@ export interface ConnectionFreshness { label: string; stale: boolean; daysOld: n
  * Answers ..... How old a connected account's last successful sync is.
  *
  * Formula .....
- *     nothing   when last synced is missing
- *     t = date.parse(last synced)
- *     nothing   when number.is na n(t)
- *     days = max(0, round down((now − t) ÷ 86400000))
- *     label = 'today'
- *     stale = false
- *     days old = 0   when days = 0
- *     label = 'yesterday'
- *     stale = false
- *     days old = 1   when days = 1
+ *     days = days since(last synced, now)
+ *     label = age label(last synced, now)
+ *     nothing   when days = nothing (or label = nothing when missing or zero)
  *     the answer:
- *     label = `${days} days old`
- *     stale = days > 3
+ *     label = label
+ *     stale = is stale(last synced, now)
  *     days old = days
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -127,16 +122,13 @@ export interface ConnectionFreshness { label: string; stale: boolean; daysOld: n
  * Changed ..... 2026-08-10 (e37d50e)
  */
 export function connectionFreshness(lastSynced: string | null | undefined, now: number = Date.now()): ConnectionFreshness | null {
-  if (!lastSynced) return null;
-  const t = Date.parse(lastSynced);
-  if (Number.isNaN(t)) return null;
-  const days = Math.max(0, Math.floor((now - t) / 86400000));
-  // 2026-08-10: the label carries the TIME only, never the verb — it used to say "updated today"
-  // while every caller also wrote "updated", printing "updated updated today" on each
-  // connected account row (and in the spoken labels on Home and Performance).
-  if (days === 0) return { label: 'today', stale: false, daysOld: 0 };
-  if (days === 1) return { label: 'yesterday', stale: false, daysOld: 1 };
-  return { label: `${days} days old`, stale: days > 3, daysOld: days };
+  // the threshold and the words come from the ONE freshness rule in src/domain/_shared/freshness.ts
+  // (DEC-0301), so a connection, an account's source chip and the price cache cannot disagree about
+  // what "old" means or say the same age two different ways
+  const days = daysSince(lastSynced, now);
+  const label = ageLabel(lastSynced, now);
+  if (days == null || label == null) return null;
+  return { label, stale: isStale(lastSynced, now), daysOld: days };
 }
 
 /** The approved consent copy — honest about where the data goes. We DO NOT say 'never leaves

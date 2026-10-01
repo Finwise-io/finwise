@@ -100,7 +100,7 @@ export interface Transaction {
  *               MK-XS-F-175 uid · MK-XS-F-177 useCategorySpend
  *               MK-XS-F-181 merge
  *
- * Reaches ..... 280 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 281 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF
@@ -110,7 +110,7 @@ export interface Transaction {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 262 more — the full list is on functions_from_code
+ *               … and 263 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

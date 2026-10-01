@@ -303,6 +303,9 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
  *
  * Serves ...... MK-PL-M-034 · MK-XS-M-002
  * Reads ....... MK-XS-I-044 the person’s own plan overrides
+ * Ruled by .... DEC-0211 · DEC-0366 · DEC-0505
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-068
  * Changed ..... 2026-08-20 (16a56f7)

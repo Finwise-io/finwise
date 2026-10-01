@@ -353,6 +353,9 @@ export function record(days: SnapshotDay[], day: SnapshotDay): SnapshotDay[] {
  *
  * Serves ...... MK-PF-M-001 · MK-PF-M-004
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
+ * Ruled by .... DEC-0046 · DEC-0063 · DEC-0229
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If typed value is missing it uses 0.

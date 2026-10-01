@@ -23,7 +23,7 @@ import { colFactor } from '../domain/retirement/col';
 import { ssBenefitAt } from '../domain/retirement/ssTiming';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
-import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisorAtAge, rmdStartAgeFor } from '../domain/decumulation';
+import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisorAtAge, rmdStartAgeFor, rateBandWords } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
 import { marginalBracketFor } from '../domain/income/tax';
 import { filingStatusOf, over65CountOf } from '../domain/income';
@@ -510,7 +510,7 @@ export default function RetirementCockpit() {
             const bg = band === 'risk' ? Colors.redLight : band === 'watch' ? Colors.amberLight : Colors.primaryLight;
             const head = band === 'risk' ? '⚠️  Might fall short' : band === 'watch' ? '⚠️  Close — worth tightening' : '✅  Looking good';
             const lasts = dDeplete == null ? `past age ${horizon}` : `to about age ${dDeplete}`;
-            const pace = dPlan.rateBand === 'safe' ? 'within the ~4% guideline' : dPlan.rateBand === 'moderate' ? 'a bit high — watch it' : 'a high pace';
+            const pace = rateBandWords(dPlan.rateBand, { short: true });   // DEC-0036 · DEC-0215
             return (
               <>
                 <Text style={styles.divider}>WILL YOUR MONEY LAST?</Text>
@@ -569,7 +569,7 @@ export default function RetirementCockpit() {
             {dPlan.withdrawalRate != null && dPlan.netWithdrawal > 0 && (
               <View style={[styles.rateBox, { backgroundColor: dPlan.rateBand === 'safe' ? Colors.primaryLight : dPlan.rateBand === 'moderate' ? Colors.amberLight : Colors.redLight }]}>
                 <Text style={[styles.ratePct, { color: rateColor }]}>{(dPlan.withdrawalRate * 100).toFixed(1)}%</Text>
-                <Text style={styles.rateTxt}>withdrawal rate · {dPlan.rateBand === 'safe' ? 'within the ~4% guideline' : dPlan.rateBand === 'moderate' ? 'a bit above 4% — watch it' : 'above 5% — high risk of running short'}</Text>
+                <Text style={styles.rateTxt}>withdrawal rate · {rateBandWords(dPlan.rateBand)}</Text>
               </View>
             )}
             {dPlan.netWithdrawal === 0 && <Text style={styles.note}>Your guaranteed income covers your expenses — your portfolio can keep growing.</Text>}

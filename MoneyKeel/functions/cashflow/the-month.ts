@@ -91,6 +91,9 @@ export interface TheMonth {
  *               MK-XS-I-016 debt minimum payment
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
+ * Ruled by .... DEC-0260
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If monthly amount is missing it counts as zero, so nothing recorded and a real zero look the same.

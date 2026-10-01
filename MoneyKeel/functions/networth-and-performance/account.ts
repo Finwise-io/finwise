@@ -107,6 +107,11 @@ export interface Itemising {
  *               MK-NW-M-039 · MK-NW-M-040
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-024 logged expenses
+ * Ruled by .... DEC-0008 · DEC-0010 · DEC-0019 · DEC-0045 · DEC-0051 · DEC-0070
+ *               DEC-0090 · DEC-0092 · DEC-0095 · DEC-0096 · DEC-0108 · DEC-0149
+ *               DEC-0166 · DEC-0192 · DEC-0406 · DEC-0451
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.

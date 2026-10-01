@@ -155,6 +155,34 @@ for f in failures:
     print(f'   BROKEN: {f}')
 print(f'   {len(failures)} unanchored · {len(warnings)} unproved · {len(seen)} to review')
 
+# ── HOW AN ANCHOR WAS ARRIVED AT, which is not the same question as whether one exists.
+#
+# Every decision names rows now, and that was worth doing. But the mapping was built by WORD OVERLAP
+# — each anchor's own reason says "its own words appear in these files" — so an anchor can point at a
+# file that merely shares vocabulary with his sentence. DEC-0036 was anchored to the Net worth screen
+# because the words "drawing", "warning" and "framing" happen to appear there; the heads-up it governs
+# is written in four other places, three of which were ignoring the ruling outright.
+#
+# So the count below is the one that matters for trust: how many anchors someone has actually READ and
+# confirmed. It prints the true number every build and may only rise (standing order, 2026-09-28 — a
+# ratchet carries the TRUE number, never zero).
+READ_VERIFIED = 7     # 2026-10-01, the Net worth compliance validation: DEC-0036, DEC-0090, DEC-0104,
+                      # DEC-0109, DEC-0301, DEC-0437, DEC-0502. Raise it as more are read, never lower it.
+ANCHORS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                      'moneykeel_decisions_anchors.json'), encoding='utf8'))['rows']
+_read = sum(1 for r in ANCHORS.values() if r.get('verified_by_reading'))
+print(f'   anchors verified by READING {_read} of {len(ANCHORS)} · the other '
+      f'{len(ANCHORS) - _read} were matched on shared words and may point at the wrong file')
+if _read < READ_VERIFIED:
+    print('\nBUILD STOPPED — %d anchors are read-verified; the ratchet stands at %d. An anchor that '
+          'loses its verified_by_reading mark has lost the only evidence that it is the right one.'
+          % (_read, READ_VERIFIED))
+    sys.exit(1)
+if _read > READ_VERIFIED:
+    print('\nTHE DEBT FELL — %d anchors are now read-verified, up from %d. Raise READ_VERIFIED in this '
+          'file, in the same commit.' % (_read, READ_VERIFIED))
+    sys.exit(1)
+
 # A RATCHET CARRYING THE TRUE NUMBER (his standing order, 2026-09-28: "a ratchet carries the TRUE
 # number, not zero. A gate that hides its debt to stay green is worse than no gate.").
 #

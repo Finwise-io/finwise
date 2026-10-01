@@ -343,6 +343,9 @@ function pctOfSorted(sorted: number[], p: number): number {
  *               MK-XS-I-029 inflation rate
  *               MK-XS-I-036 other guaranteed income
  *               MK-XS-I-043 their own retirement contribution
+ * Ruled by .... DEC-0211 · DEC-0366 · DEC-0505
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If paths is missing it uses 1000.

@@ -10,6 +10,7 @@ import { useCashflowModel } from '../hooks/useCashflowModel';
 import { EstimateTag, InfoDot } from './UI';
 import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
 import { HeroAmount } from './HeroAmount';
+import { rateBandWords } from '../domain/decumulation';   // his one wording for the band (DEC-0036 · DEC-0215)
 
 export function PaycheckCard() {
   const router = useRouter();
@@ -63,7 +64,7 @@ export function PaycheckCard() {
 
       <Text style={styles.year}>This year ~{maskedMoney(year.thisYear)} <EstimateTag /> <Text style={styles.yearNote}>— varies month to month</Text></Text>
       {year.drawRateFlag === 'high' && (
-        <Text style={styles.flag}>Heads-up: this draw is above what your own numbers support long-term — the pace itself is the risk.</Text>
+        <Text style={styles.flag}>Heads-up: this draw is {rateBandWords('high')} — the pace itself is the risk.</Text>
       )}
 
       <TouchableOpacity accessibilityRole="link" onPress={() => router.push('/paycheck-months')}>

@@ -49,6 +49,9 @@ export interface TaxOrganizer {
  *
  * Serves ...... MK-MN-M-027 · MK-MN-M-028
  * Reads ....... MK-XS-I-030 tax filing status and age
+ * Ruled by .... DEC-0184
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · Never lets over65 fall below 0.
@@ -112,6 +115,9 @@ export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: nu
  *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-043 their own retirement contribution
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ * Ruled by .... DEC-0184
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.

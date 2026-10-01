@@ -76,6 +76,32 @@ def _wrap(items, indent, per_line=2):
     return ('\n' + indent).join(out)
 
 
+def rulings_index():
+    """WHICH OF HIS DECISIONS GOVERN THIS FUNCTION — the master key, read the other way.
+
+    Every declaration carries a `decisions` list, and every line of it is prose I wrote. So a wrong
+    number on a screen traces to its door, its formula and its inputs, and then stops: nothing in the
+    code names the ruling of HIS that the formula obeys. The anchors file knows — it maps each
+    decision to the figures it governs — but only in that direction, and nobody debugging a number
+    starts from a decision id.
+
+    This turns it around once, at build time, so the header above the arithmetic names the decisions
+    the arithmetic answers to, and the link cannot drift from the decision log because it is printed
+    from it. Objective 4: screen metric → engine/code → formula → inputs → DECISIONS.
+    """
+    import collections
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_decisions_anchors.json')
+    try:
+        rows = json.load(open(path, encoding='utf8'))['rows']
+    except (OSError, KeyError, ValueError):
+        return {}
+    idx = collections.defaultdict(set)
+    for did, row in rows.items():
+        for ident in re.findall(r'MK-[A-Z]{2}-[MFOI]-\d{3}', str(row.get('governs', ''))):
+            idx[ident].add(did)
+    return {k: sorted(v) for k, v in idx.items()}
+
+
 def _safe(t):
     """No value may close the comment it is written into. This is the general guard: one author's
     single-line /** … */ ended up inside a header on 2026-08-26 and broke the file it was in."""
@@ -112,6 +138,10 @@ def block(f, data):
     L.append(f' * Serves ...... {_wrap(data["metrics"], ind + " " * 14, 4) if data["metrics"] else "NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody."}')
     if data['inputs']:
         L.append(f' * Reads ....... {_wrap(data["inputs"], ind + " " * 14, 1)}')
+    if data.get('rulings'):
+        L.append(f' * Ruled by .... {_wrap(data["rulings"], ind + " " * 14, 6)}')
+        L.append(' *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.')
+        L.append(' *               Change the arithmetic and one of those stops being obeyed — read them first.')
     if data.get('decides'):
         L.append(' *')
         L.append(' * Decides .....')
@@ -215,6 +245,7 @@ def gather(fn_rows, wb, readers, fid_of, old_words=None, sites=None):
                 inputs_of[n].append(f'{iid} {iname[iid]}')
 
     lbl = lambda n: f'{by_name[n]["id"]} {n}'
+    RULED_BY = rulings_index()
     out = {}
     for r in fn_rows:
         n = r['name']
@@ -228,6 +259,9 @@ def gather(fn_rows, wb, readers, fid_of, old_words=None, sites=None):
             'inputs':  sorted(inputs_of.get(n, []))[:8],
             'decides': '' if assum.startswith('None found') else assum,
             'sites': sites.get(n, []),
+            'rulings': sorted({d for key in [r['id']] + sorted(met_by_fn.get(r['id'], ()))
+                               for ident in re.findall(r'MK-[A-Z]{2}-[MFOI]-\d{3}', key)
+                               for d in RULED_BY.get(ident, ())}),
         }
     return out
 

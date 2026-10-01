@@ -229,6 +229,9 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-028 assumed return
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ * Ruled by .... DEC-0108
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If years left is missing it uses 0.

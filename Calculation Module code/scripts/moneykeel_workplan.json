@@ -2214,6 +2214,18 @@
     "status": "TO DO",
     "comments": "Gates the next build. No build is cut without his explicit ‘cut the build’ to a presented checklist."
    }
+  },
+  {
+   "task": "Net worth module — compliance validation against every decision that touches it",
+   "todo": "His instruction, 2026-10-01: \"validate does existing screen mock ups, metrics, functions, code comply with these decisions or not — go module by module, first Net worth (all screens, all metrics, all functions, every line of code).\" DONE for Net worth: 205 decisions checked against 10 screens, 8 doors, 69 figures and 7 approved mocks by validate-module-complies.py. FOUR BREACHES FOUND AND FIXED, each with a guard that counts what it read: DEC-0104/DEC-0109 (the odds sentence had split again — Cash flow said \"{chance}% odds of lasting\" with no age, and the gauge hand-typed its half); DEC-0036 (his own-math reword was live in 1 of 4 places, the other three still cited the ~4% guideline); DEC-0301 (the source chip printed a raw ISO date on every linked account, fresh or stale, and \"stale\" was defined three times over). Also built the missing back-link: every code header now names the decisions its arithmetic answers to — 126 decision ids in the code, up from 3 — so a wrong number traces to his ruling (objective 4).",
+   "status": "DONE — Net worth. Performance and Cash flow next, same validator.",
+   "ref": "Calculation Module code/scripts/validate-module-complies.py · moneykeel_validation_networth.json · src/__tests__/one_wording_for_the_odds.test.ts · own_math_not_a_rule_of_thumb.test.ts · source_always_date_only_when_stale.test.ts",
+   "date": "2026-10-01",
+   "comments": "FINDING WORTH HIS ATTENTION: all 418 anchors were built by WORD OVERLAP (\"its own words appear in these files\"), so an anchor can point at a file that merely shares vocabulary — DEC-0036 was anchored to the Net worth screen because \"drawing\", \"warning\" and \"framing\" appear there, while the heads-up it governs lives in four other files. 6 of 418 are now verified by reading; check-rulings-sync.py prints that true number every build as a ratchet.",
+   "_written": {
+    "status": "DONE — Net worth. Performance and Cash flow next, same validator.",
+    "comments": "FINDING WORTH HIS ATTENTION: all 418 anchors were built by WORD OVERLAP (\"its own words appear in these files\"), so an anchor can point at a file that merely shares vocabulary — DEC-0036 was anchored to the Net worth screen because \"drawing\", \"warning\" and \"framing\" appear there, while the heads-up it governs lives in four other files. 6 of 418 are now verified by reading; check-rulings-sync.py prints that true number every build as a ratchet."
+   }
   }
  ]
 }

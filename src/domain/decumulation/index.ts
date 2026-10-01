@@ -53,6 +53,46 @@ export function taxBucketSplit(accounts: AssetAccount[]): BucketSplit {
 
 // ---- net withdrawal & rate ----
 export type RateBand = 'safe' | 'moderate' | 'high' | 'none';
+
+/** HOW A WITHDRAWAL RATE READS, IN HIS OWN-MATH FRAMING — DEC-0036, and ONE place for it (DEC-0215).
+ *
+ *  His reword: the heads-up about drawing more than about 4% a year stops citing a published rule of
+ *  thumb and speaks about THIS person's money instead — *"above what your own numbers support
+ *  long-term"*. A guideline is a fact about the world; what he wants on screen is a statement about
+ *  him, which is also the only one the app can stand behind.
+ *
+ *  It lived in three hand-typed copies — the Plan hub and the retirement cockpit twice — all still
+ *  saying "within the ~4% guideline", with a comment in the Plan hub admitting the sweep was left for
+ *  later. His one-door-one-term rule (DEC-0215) is explicit that a wording change lands on every
+ *  screen that offers it, so the words now have a single home and the screens ask for them.
+ *
+ *  `short` is for the form that sits inside a sentence, in brackets after the figures it describes.
+ */
+/* ─ MK-PL-F-084 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * rateBandWords
+ *
+ * Answers ..... HOW A WITHDRAWAL RATE READS, IN HIS OWN-MATH FRAMING — DEC-0036, and ONE place for it (DEC-0215).
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-084
+ * Changed ..... not in git yet (—)
+ */
+export function rateBandWords(band: RateBand | null | undefined, opts?: { short?: boolean }): string {
+  if (opts?.short) {
+    return band === 'safe' ? 'within what your own numbers support'
+      : band === 'moderate' ? 'near the edge of what your own numbers support'
+      : 'above what your own numbers support';
+  }
+  return band === 'safe' ? 'within what your own numbers support long-term'
+    : band === 'moderate' ? 'near the edge of what your own numbers support long-term'
+    : 'above what your own numbers support long-term';
+}
 export interface WithdrawalPlan {
   spendAnnual: number; guaranteedAnnual: number; netWithdrawal: number;
   withdrawalRate: number | null;   // net withdrawal ÷ nest egg (decimal)

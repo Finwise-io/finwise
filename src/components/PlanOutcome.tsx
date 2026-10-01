@@ -16,7 +16,7 @@ import { SectionBand } from './SectionBand';
 import { InfoDot } from './UI';
 import { maskedMoney, maskedPct, spokenMoney } from './useMoney';
 import { planTarget, howTheGapCloses, leverDeltas, TARGET_ODDS } from '../domain/planning/target';
-import { oddsLine } from '../domain/planning/hub';
+import { oddsLine, oddsTail } from '../domain/planning/hub';
 import type { RetirementInputs } from '../domain/retirement';
 
 export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annualIncome, roomAnnual, roomFromMonthly, typedTarget, lens }: {
@@ -66,7 +66,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         <GaugeArc pct={chance} />
         <View style={s.gaugeText}>
           <Text style={s.pct}>{chance}%</Text>
-          <Text style={s.pctSub}>odds of lasting to age {horizonAge}</Text>
+          <Text style={s.pctSub}>{oddsTail(horizonAge)}</Text>
           {band && <Text style={s.band}>range {band.low}–{band.high}% across bad-to-good markets</Text>}
         </View>
         <InfoDot term="nestEggMath" />

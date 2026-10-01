@@ -86,7 +86,8 @@ const GIVEN =
  *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-201
  * Changed ..... not in git yet (—)
@@ -271,6 +272,39 @@ export interface IncomeSource {
   kind: 'salary' | 'self-employment' | 'bonus' | 'equity' | 'rental' | 'guaranteed';
 }
 
+/* ─ MK-CF-O-016 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * incomeSources
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     o = (op ?? {}) as any
+ *     out = []
+ *     wages = earner wages(o)
+ *     varies = string((w as any).salary mode) = 'varies' (or !!(w as any).salary by month when missing or zero)
+ *     whose = 'You'   if w = o
+ *     spouse name (or 'Spouse' when missing or zero)   otherwise   if wages.length > 1
+ *     nothing   otherwise
+ *     m = bonus month read as a number
+ *     vesting = rsu annual(o)
+ *     rent = rental net annual(o)
+ *     guaranteed = retirement income monthly(o)
+ *     the answer = out
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-022 pension monthly amount
+ *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-040 whether a stream is already being received
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-059 the month a bonus lands
+ *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-O-016
+ * Changed ..... 2026-10-01 (23d5415)
+ */
 export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
   const o = (op ?? {}) as any;
   const out: IncomeSource[] = [];
@@ -325,6 +359,53 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
   return out;
 }
 
+/* ─ MK-CF-O-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * incomeSummary
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     wages = earner wages(op as any)
+ *     rent = rental net annual(op as any) ÷ 12
+ *     grid = income monthly grid(op as any, 'available')
+ *     months = for each of grid: amount
+ *     usual = months.slice().sort((x, y) => x − y)[math.floor(months.length ÷ 2)]   if count of months
+ *     0   otherwise
+ *     biggest = months.reduce((best, v, i) => (v > months[best] ? i : best), 0)
+ *     taxed lines = []
+ *     rent annual = rental net annual(op as any)
+ *     inv = inv annual read as a number (0 when it is not one)
+ *     bonus = bonus annual read as a number (0 when it is not one)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-201 INCOME
+ *
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
+ *               MK-CF-F-024 totalDebtMonthly
+ *
+ * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-027
+ *               MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-039 · MK-CF-M-040
+ *               MK-CF-M-041 · MK-CF-M-042 · MK-CF-M-043 · MK-CF-M-044
+ *               MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013
+ * Reads ....... MK-XS-I-023 salary and other income
+ *               MK-XS-I-030 tax filing status and age
+ * Ruled by .... DEC-0078 · DEC-0108 · DEC-0149 · DEC-0152 · DEC-0165 · DEC-0166
+ *               DEC-0178 · DEC-0181 · DEC-0182 · DEC-0184 · DEC-0187 · DEC-0188
+ *               DEC-0189 · DEC-0191 · DEC-0194 · DEC-0195 · DEC-0197 · DEC-0207
+ *               DEC-0208 · DEC-0209 · DEC-0347 · DEC-0389 · DEC-0431
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-O-004
+ * Changed ..... not in git yet (—)
+ */
 export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   const a: any = op ?? {};
   const wages = earnerWages(op as any);
