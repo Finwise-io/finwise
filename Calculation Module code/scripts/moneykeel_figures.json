@@ -1270,6 +1270,31 @@
    "note": "MOVED OFF THE SCREEN 2026-09-30. Its row said so in as many words — \"this section total is computed on the screen itself\", written by hand 2026-09-08 — and it named NO function. NetWorthScreen grouped the accounts and totalled each band with an inline reduce over balances, which is the rule against re-deriving money on a screen. It is MK-NW-F ledgerGroups now, and both groupings are pinned to agree.",
    "door": "MK-NW-O-003 theNetWorth"
   },
+  "MK-NW-M-063": {
+   "label": "what is inside this institution",
+   "unit": "money-compact",
+   "screens": [
+    "/analytics"
+   ],
+   "grain": "one class in one institution",
+   "answers": "What this one institution holds, broken down by kind, so a roll-up can be read rather than taken on trust.",
+   "formula": "the accounts at this institution, added up within each kind",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "decisions": [
+    "BIGGEST FIRST, so the largest thing inside an institution is the first thing read.",
+    "SHORTENED, because several of these share one line. It is the only place the app shortens a figure, and it is shortened only to fit — never to round a figure a person is checking.",
+    "THE PARTS ADD TO THE INSTITUTION’S OWN TOTAL above them, which is the point of showing them."
+   ],
+   "refusal": "One kind only — the line is left out, because a roll-up of one thing is just the thing.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "$18,000 checking, $142,000 brokerage, a $24,200 Treasury, a $310,000 rental and $9,000 of gold; against a $228,000 mortgage at $2,400/month and a $14,000 car loan at $250/month. Cash + investments stood at $180,000 on 2 Jan 2026.",
+    "answer": "$18K"
+   },
+   "door": "MK-NW-O-003 theNetWorth"
+  },
   "MK-NW-M-008": {
    "label": "each account and its balance",
    "unit": "money",

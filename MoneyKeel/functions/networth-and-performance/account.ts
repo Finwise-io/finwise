@@ -110,7 +110,7 @@ export interface Itemising {
  *               MK-NW-F-075 ACC
  *
  * Serves ...... MK-NW-M-019 · MK-NW-M-020 · MK-NW-M-021 · MK-NW-M-038
- *               MK-NW-M-039 · MK-NW-M-040
+ *               MK-NW-M-039 · MK-NW-M-040 · MK-NW-M-062
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date

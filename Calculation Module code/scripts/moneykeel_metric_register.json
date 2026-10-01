@@ -3,7 +3,7 @@
   "CF-M": 46,
   "HM-M": 4,
   "MN-M": 30,
-  "NW-M": 62,
+  "NW-M": 63,
   "PF-M": 15,
   "PL-M": 37,
   "XS-I": 48,
@@ -259,7 +259,8 @@
   "PF|M|/account-detail|Beginning market value|013": "MK-PF-M-013",
   "PF|M|/account-detail|Wealth generated|014": "MK-PF-M-014",
   "PF|M|/account-detail|one line of the walk|015": "MK-PF-M-015",
-  "NW|M|/account-detail|what one record moved|activity": "MK-NW-M-062"
+  "NW|M|/account-detail|what one record moved|activity": "MK-NW-M-062",
+  "NW|M|/analytics|what is inside this institution|classMix": "MK-NW-M-063"
  },
  "note": "A metric identifier is issued once against its key and never re-pointed. A number here is never handed to a different figure, even if the figure it was issued to is deleted — the retired block keeps it with the reason. | 2026-09-14: identifiers whose key begins \"declared\" are DECLARED IN THE CODE (founder rule 11) — the door owns them; they are listed here only so no other row is issued the same number.",
  "retired": {

@@ -112,6 +112,7 @@ export interface TheNetWorth {
  *     as percent ÷ 100   otherwise
  *
  * Called by ... MK-NW-F-082 NW · MK-NW-F-100 TREND
+ *               MK-NW-F-101 PLAN
  *
  * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
@@ -616,6 +617,28 @@ export const NET_WORTH_FIGURES = declareFigures({
     refusal: 'The band shows $0 and, on a fresh account, the one line "Nothing entered yet. Add your accounts \u203a".',
     worked: { given: LEDGER_GIVEN, answer: '$21,000', run: () => LEDGER_BAND('Personal property') },
     note: 'MOVED OFF THE SCREEN 2026-09-30. Its row said so in as many words \u2014 "this section total is computed on the screen itself", written by hand 2026-09-08 \u2014 and it named NO function. NetWorthScreen grouped the accounts and totalled each band with an inline reduce over balances, which is the rule against re-deriving money on a screen. It is MK-NW-F ledgerGroups now, and both groupings are pinned to agree.',
+  },
+  // ISSUED AND DECLARED 2026-10-01. Under an institution's name the screen lists what is inside it —
+  // "💵 $182K · 📈 $2.43MM" — several figures on one line, which is why they are shortened. The
+  // line had no tag, and shortening was a formatter the screen kept for itself. The shortened form is
+  // part of the contract now, so the tag carries it instead of the screen.
+  'MK-NW-M-063': {
+    label: 'what is inside this institution', unit: 'money-compact',
+    screens: ['/analytics'], grain: 'one class in one institution',
+    answers: 'What this one institution holds, broken down by kind, so a roll-up can be read rather '
+      + 'than taken on trust.',
+    formula: 'the accounts at this institution, added up within each kind',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: [
+      'BIGGEST FIRST, so the largest thing inside an institution is the first thing read.',
+      'SHORTENED, because several of these share one line. It is the only place the app shortens a '
+      + 'figure, and it is shortened only to fit — never to round a figure a person is checking.',
+      'THE PARTS ADD TO THE INSTITUTION\u2019S OWN TOTAL above them, which is the point of showing them.',
+    ],
+    refusal: 'One kind only — the line is left out, because a roll-up of one thing is just the thing.',
+    ruled: '2026-10-01',
+    // $18,000 of checking, shortened to $18K because it shares its line with the other kinds
+    worked: { given: GIVEN, answer: '$18K', run: () => theNetWorth(EXAMPLE).byClass.cash },
   },
   'MK-NW-M-008': {
     label: 'each account and its balance', unit: 'money', screens: ['/networth'],

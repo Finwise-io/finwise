@@ -273,7 +273,10 @@ export function formatMoneyCents(n: number): string {
  *     `${neg}${s}${math.round(a ÷ 1e3)}K`   when a ≥ 1e3
  *     the answer = `${neg}${s}${math.round(a)}`
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-183 writeFigure
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-183 writeFigure
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

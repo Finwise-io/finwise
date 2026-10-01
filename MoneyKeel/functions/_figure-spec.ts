@@ -16,12 +16,13 @@
  *  cannot disagree; the file is a printout of the code.
  */
 
-import { formatMoney, formatMoneyCents } from '../../src/domain/_shared/money';
+import { formatMoney, formatMoneyCents, moneyCompact } from '../../src/domain/_shared/money';
 
 /** How a figure is written down. Drives the rounding, so the precision standard (Q49, 2026-09-09) is
  *  applied by the declaration rather than remembered at each of 242 places that print one. */
 export type FigureUnit =
   | 'money'         // whole dollars — totals, balances, projections
+  | 'money-compact' // $2.43MM / $182K — only where a figure shares a line with several others
   | 'money-cents'   // two decimals — prices, per-share figures, a logged expense
   | 'percent'       // a rate held as 0…1, shown as whole percent
   | 'percent-2dp'   // a rate shown to two decimals — returns and yields
@@ -67,6 +68,7 @@ export function writeFigure(spec: FigureSpec, value: number | null, opts?: { spo
   if (value == null || !Number.isFinite(value)) return spec.refusal;
   const body =
     spec.unit === 'money' ? formatMoney(value)
+    : spec.unit === 'money-compact' ? moneyCompact(value, 'MM')
     : spec.unit === 'money-cents' ? formatMoneyCents(value)
     : spec.unit === 'percent' ? `${Math.round(value * 100)}%`
     : spec.unit === 'percent-2dp' ? `${(value * 100).toFixed(2)}%`

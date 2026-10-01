@@ -1203,11 +1203,11 @@
     },
     {
      "k": "t",
-     "s": "$600"
+     "s": "$600/month"
     },
     {
      "k": "t",
-     "s": "/month essentials —"
+     "s": "essentials —"
     },
     {
      "k": "t",
@@ -1533,11 +1533,11 @@
     },
     {
      "k": "t",
-     "s": "$600"
+     "s": "$600/month"
     },
     {
      "k": "t",
-     "s": "/month essentials —"
+     "s": "essentials —"
     },
     {
      "k": "t",
@@ -2007,11 +2007,11 @@
     },
     {
      "k": "t",
-     "s": "$3,500"
+     "s": "$3,500/month"
     },
     {
      "k": "t",
-     "s": "/month essentials —"
+     "s": "essentials —"
     },
     {
      "k": "t",
@@ -2529,11 +2529,11 @@
     },
     {
      "k": "t",
-     "s": "$3,500"
+     "s": "$3,500/month"
     },
     {
      "k": "t",
-     "s": "/month essentials —"
+     "s": "essentials —"
     },
     {
      "k": "t",
@@ -2839,11 +2839,11 @@
     },
     {
      "k": "t",
-     "s": "$3,100"
+     "s": "$3,100/month"
     },
     {
      "k": "t",
-     "s": "/month essentials —"
+     "s": "essentials —"
     },
     {
      "k": "t",
@@ -3101,11 +3101,11 @@
     },
     {
      "k": "t",
-     "s": "$3,100"
+     "s": "$3,100/month"
     },
     {
      "k": "t",
-     "s": "/month essentials —"
+     "s": "essentials —"
     },
     {
      "k": "t",
@@ -35967,21 +35967,47 @@
   },
   "/analytics": {
    "worker": [
+    "MK-NW-M-004",
     "MK-NW-M-005",
+    "MK-NW-M-006",
+    "MK-NW-M-007",
+    "MK-NW-M-009",
+    "MK-NW-M-010",
     "MK-NW-M-046",
     "MK-NW-M-047",
-    "MK-NW-M-048"
+    "MK-NW-M-048",
+    "MK-XS-M-001"
    ],
    "rich": [
+    "MK-NW-M-004",
     "MK-NW-M-005",
+    "MK-NW-M-007",
+    "MK-NW-M-008",
+    "MK-NW-M-009",
+    "MK-NW-M-010",
     "MK-NW-M-046",
     "MK-NW-M-047",
-    "MK-NW-M-048"
+    "MK-NW-M-048",
+    "MK-XS-M-001"
    ],
    "retiree": [
+    "MK-NW-M-004",
     "MK-NW-M-005",
+    "MK-NW-M-006",
+    "MK-NW-M-007",
+    "MK-NW-M-008",
+    "MK-NW-M-009",
     "MK-NW-M-046",
-    "MK-NW-M-048"
+    "MK-NW-M-048",
+    "MK-XS-M-001"
+   ],
+   "new": [
+    "MK-NW-M-004",
+    "MK-NW-M-005",
+    "MK-NW-M-006",
+    "MK-NW-M-009",
+    "MK-XS-M-001",
+    "MK-XS-M-003"
    ]
   },
   "/account-detail": {
@@ -36127,7 +36153,7 @@
  },
  "callsites": [
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:69",
+   "site": "MoneyKeel/functions/_figure-spec.ts:70",
    "routes": [
     "/account-detail",
     "/analytics",
@@ -36144,6 +36170,7 @@
     "/account-detail|retiree",
     "/account-detail|rich",
     "/account-detail|worker",
+    "/analytics|new",
     "/analytics|retiree",
     "/analytics|rich",
     "/analytics|worker",
@@ -36177,17 +36204,17 @@
    "values": [
     "$420",
     "$600",
-    "$0",
-    "$4,520",
+    "$151,000",
+    "$165,000",
+    "$14,000",
     "$120,000",
-    "$6,400",
-    "$108,000",
-    "$21,600"
+    "$45,000",
+    "$0"
    ],
-   "renders": 173
+   "renders": 359
   },
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:70",
+   "site": "MoneyKeel/functions/_figure-spec.ts:72",
    "routes": [
     "/holding-detail"
    ],
@@ -38763,488 +38790,6 @@
     "$500"
    ],
    "renders": 8
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:332",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "accessibilityLabel={`${r.label}, ${spokenMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an",
-   "values": [
-    "$120,000",
-    "$45,000",
-    "$400,000",
-    "$300,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 12
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:339",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>",
-   "values": [
-    "$120,000",
-    "$45,000",
-    "$400,000",
-    "$300,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 12
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:347",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${spokenMoney(Math.round(portion))}. Opens its page.`}>",
-   "values": [
-    "$20,000",
-    "$250,000"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:353",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<Text style={styles.acctRowVal}>{maskedMoney(Math.round(portion))}</Text>",
-   "values": [
-    "$20,000",
-    "$250,000"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:554",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|new"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>",
-   "values": [
-    "$0"
-   ],
-   "renders": 6
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:555",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|new"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>",
-   "values": [
-    "$0"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:575",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|new"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<SectionBand title=\"WHAT YOU OWN\" value={maskedMoney(0)} trailing={RIGHT_SLOT} />",
-   "values": [
-    "$0"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:577",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|new"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<SectionBand light title=\"💵 CASH\" value={maskedMoney(0)} trailing={RIGHT_SLOT} />",
-   "values": [
-    "$0"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:578",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|new"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<SectionBand light title=\"📈 INVESTMENTS\" value={maskedMoney(0)} trailing={RIGHT_SLOT} />",
-   "values": [
-    "$0"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:579",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|new"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<SectionBand light title=\"🏠 PERSONAL PROPERTY\" value={maskedMoney(0)} trailing={RIGHT_SLOT} />",
-   "values": [
-    "$0"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:600",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|new"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<SectionBand title=\"DEBTS\" infoTerm=\"debt\" value={maskedMoney(0)} trailing={RIGHT_SLOT} />",
-   "values": [
-    "$0"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:735",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": ": `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} p",
-   "values": [
-    "$151,000",
-    "$445,600",
-    "$250,000"
-   ],
-   "renders": 9
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:744",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "Own {maskedMoney(Math.round(totalAssets))} − Owe {maskedMoney(Math.round(dState.total_debt_balance))}",
-   "values": [
-    "$165,000",
-    "$14,000",
-    "$729,800",
-    "$284,200",
-    "$250,000",
-    "$0"
-   ],
-   "renders": 18
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:748",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "{store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}",
-   "values": [
-    "$151,000",
-    "$445,600",
-    "$250,000"
-   ],
-   "renders": 9
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:833",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<SectionBand title=\"WHAT YOU OWN\" value={maskedMoney(Math.round(totalAssets))} trailing={RIGHT_SLOT} />",
-   "values": [
-    "$165,000",
-    "$729,800",
-    "$250,000"
-   ],
-   "renders": 9
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:860",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "accessibilityLabel={`${label}, ${spokenMoney(Math.round(g.total))}, ${count}. ${open ? 'Collapses' : 'Expands'} them.`}>",
-   "values": [
-    "$165,000",
-    "$400,000",
-    "$300,000",
-    "$20,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 6
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:862",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "value={maskedMoney(Math.round(g.total))} />",
-   "values": [
-    "$165,000",
-    "$400,000",
-    "$300,000",
-    "$20,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 6
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:867",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "accessibilityLabel={`${displayNames.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance || 0))}. Opens its page.`}>",
-   "values": [
-    "$120,000",
-    "$45,000",
-    "$400,000",
-    "$300,000",
-    "$20,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:872",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>",
-   "values": [
-    "$120,000",
-    "$45,000",
-    "$400,000",
-    "$300,000",
-    "$20,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:896",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "accessibilityLabel={`${g.label}, ${spokenMoney(Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>",
-   "values": [
-    "$165,000",
-    "$20,000",
-    "$709,800",
-    "$250,000"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:898",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "value={maskedMoney(Math.round(g.total))} />",
-   "values": [
-    "$165,000",
-    "$20,000",
-    "$709,800",
-    "$250,000"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:914",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<SectionBand light trailing={RIGHT_SLOT} title={`${e.icon} ${e.label}`} value={maskedMoney(0)} />",
-   "values": [
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:922",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "value={dState.total_debt_balance > 0 ? `−${maskedMoney(Math.round(dState.total_debt_balance))}` : undefined} />",
-   "values": [
-    "$14,000",
-    "$284,200"
-   ],
-   "renders": 6
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:933",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "accessibilityLabel={`${d.label}, you owe ${spokenMoney(Math.round(d.remaining_balance))}. Opens the editor.`}",
-   "values": [
-    "$14,000",
-    "$4,200",
-    "$280,000"
-   ],
-   "renders": 9
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:940",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<Text style={[styles.rowVal, { color: Colors.red }]}>−{maskedMoney(Math.round(d.remaining_balance))}</Text>",
-   "values": [
-    "$14,000",
-    "$4,200",
-    "$280,000"
-   ],
-   "renders": 9
-  },
-  {
-   "site": "src/screens/NetWorthScreen.tsx:971",
-   "routes": [
-    "/analytics"
-   ],
-   "states": [
-    "/analytics|retiree",
-    "/analytics|rich",
-    "/analytics|worker"
-   ],
-   "inside": "NetWorthScreen",
-   "line": "<Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/month essentials — {essentials?.label}</Text>",
-   "values": [
-    "$0",
-    "$600",
-    "$20,000",
-    "$3,500",
-    "$3,100"
-   ],
-   "renders": 18
   },
   {
    "site": "src/screens/PaycheckMonthsScreen.tsx:25",

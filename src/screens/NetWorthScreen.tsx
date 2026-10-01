@@ -5,7 +5,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
-import { fig, figPer } from '../components/figure';
+import { fig, figPer, figSaid } from '../components/figure';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
 import { onCourseSentence, shortfallAgeFromBand, planDoor, sampleAskLine, oddsLine, sampleOddsLine } from '../domain/planning/hub';
@@ -20,7 +20,7 @@ import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
 import { dataGaps } from '../domain/gaps';
 import { Colors, Spacing, Radii, ClassMarkColors, ChartPalette, DebtRamp } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { maskedMoney, spokenMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
 import { trendPoints, buildChangeWalk } from '../domain/history';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { connectionFreshness } from '../services/sync';
@@ -80,10 +80,9 @@ const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/
 // B-21: an asset can be saved at $0 (placeholder), but the amount field must be filled in — a typed
 // "0" is allowed, a blank field is not (prevents accidental empty adds). A kind must also be picked.
 export const assetSheetReady = (kind: string, bal: string) => !!kind && bal.trim() !== '' && num(bal) >= 0;
-const shortMoney = (n: number) => {
-  if (Math.abs(n) >= 1000) return moneyCompact(n, 'MM');   // $2.43MM / $182K (currency-aware)
-  return maskedMoney(n);
-};
+// `shortMoney` is gone (2026-10-01). Shortening a figure is part of the tag contract now —
+// MK-NW-M-063 is declared as money-compact — so the screen no longer keeps a formatter of its own
+// for the one line that needs it.
 // THE ONE trailing arrow column. Every ledger row reserves it — a row that navigates fills it with
 // "›", a row that doesn't leaves it empty, and a section band adds it to its total's right margin.
 // That is what puts every number on the screen on ONE right edge (founder gap 4, 2026-08-10).
@@ -329,14 +328,14 @@ export default function NetWorthScreen() {
             already said it. A single same-named class renders its accounts directly. */}
         {!hideHeader && <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button"
           onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
-          accessibilityLabel={`${r.label}, ${spokenMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
+          accessibilityLabel={`${r.label}, ${figSaid('MK-NW-M-007', Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
           <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
           <View style={[styles.dot, { backgroundColor: r.color }]} />
           <View style={{ flex: 1 }}>
             <Text style={styles.rowTitle}>{r.label}</Text>
             {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
           </View>
-          <Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>
+          <Text style={styles.rowVal}>{fig('MK-NW-M-007', Math.round(r.total))}</Text>
           {/* the empty arrow column: a row that doesn't navigate still holds the slot open, so its
               number lands on the same right edge as one that does (founder gap 4) */}
           <View style={styles.arrowGap} />
@@ -344,13 +343,13 @@ export default function NetWorthScreen() {
         {shownMembers.map(({ a, portion, split }) => (
           <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={[styles.ledgerRow, styles.ledgerChild]}
             onPress={() => router.push((split ? `/account-detail?id=${a.asset_id}&class=${r.key}` : `/account-detail?id=${a.asset_id}`) as any)}
-            accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${spokenMoney(Math.round(portion))}. Opens its page.`}>
+            accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${figSaid('MK-NW-M-008', Math.round(portion))}. Opens its page.`}>
             <View style={{ flex: 1 }}>
               <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
               {split && <Text style={styles.acctRowSub}>{classPortionLabel(a, r.key)}</Text>}
               <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
             </View>
-            <Text style={styles.acctRowVal}>{maskedMoney(Math.round(portion))}</Text>
+            <Text style={styles.acctRowVal}>{fig('MK-NW-M-008', Math.round(portion))}</Text>
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
         ))}
@@ -374,7 +373,7 @@ export default function NetWorthScreen() {
     sub = sub ? `${sub} · ${stamp}` : stamp;
     // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
-      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${spokenMoney(a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
+      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${figSaid('MK-NW-M-008', a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
         <Text style={styles.rowIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -383,9 +382,9 @@ export default function NetWorthScreen() {
         <View style={{ alignItems: 'flex-end' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
             {ch !== 0 && <Text style={[styles.chArrow, { color: up ? Colors.gainText : Colors.red }]}>{up ? '▲' : '▼'}</Text>}
-            <Text style={styles.rowVal}>{maskedMoney(a.balance)}</Text>
+            <Text style={styles.rowVal}>{fig('MK-NW-M-008', a.balance)}</Text>
           </View>
-          {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.gainText : Colors.red }]}>{up ? '+' : '−'}{maskedMoney(Math.abs(ch))} this mo</Text>}
+          {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.gainText : Colors.red }]}>{up ? '+' : '−'}{fig('MK-NW-M-001', Math.abs(ch))} this mo</Text>}
         </View>
       </TouchableOpacity>
     );
@@ -396,7 +395,7 @@ export default function NetWorthScreen() {
     const total = rows.reduce((t, a) => t + a.balance, 0);
     const head = (
       <View style={styles.secHead}>
-        <SectionBand light title={`${SECTION_ICON[sec]}  ${secLabel(sec).toUpperCase()}`} value={total > 0 ? maskedMoney(total) : undefined} />
+        <SectionBand light title={`${SECTION_ICON[sec]}  ${secLabel(sec).toUpperCase()}`} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} />
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add to ${secLabel(sec)}`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
     );
@@ -446,13 +445,13 @@ export default function NetWorthScreen() {
                   <Text style={styles.groupName}>{g}</Text>
                   {invGroup === 'type' && CLASS_TO_TERM[assetClassOf(items[0])] && <InfoDot term={CLASS_TO_TERM[assetClassOf(items[0])]!} />}
                 </View>
-                <Text style={styles.groupVal}>{maskedMoney(totalOf[g])}</Text>
+                <Text style={styles.groupVal}>{fig('MK-NW-M-007', totalOf[g])}</Text>
               </View>
               {/* Mock A: under each institution, an at-a-glance class mix (so a "Chase" with mixed holdings
                   reads as a roll-up, not just a flat list). */}
               {invGroup === 'account' && (() => {
                 const mix = mixOf[g] ?? [];      // the door's own mix, so the line and the band agree
-                return mix.length > 1 ? <Text style={styles.classMix}>{mix.map((x) => `${CLASS_ICON[x.key as AssetClass]} ${shortMoney(x.total)}`).join('   ·   ')}</Text> : null;
+                return mix.length > 1 ? <Text style={styles.classMix}>{mix.map((x) => `${CLASS_ICON[x.key as AssetClass]} ${fig('MK-NW-M-063', x.total)}`).join('   ·   ')}</Text> : null;
               })()}
               <View style={styles.card}>
                 {items.map((a, i) => {
@@ -484,7 +483,7 @@ export default function NetWorthScreen() {
   const renderDebtSection = () => (
     <View>
       <View style={styles.secHead}>
-        <SectionBand light title="💳  DEBTS" value={dState.total_debt_balance > 0 ? maskedMoney(dState.total_debt_balance) : undefined} />
+        <SectionBand light title="💳  DEBTS" value={dState.total_debt_balance > 0 ? fig('MK-NW-M-009', dState.total_debt_balance) : undefined} />
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a debt" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setDebtSheet({ open: true })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
       <View style={styles.card}>
@@ -494,16 +493,16 @@ export default function NetWorthScreen() {
             {liabilities.map((d, i) => {
               const hot = d.interest_rate_apr > TOXIC_APR;
               return (
-                <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${d.label}, ${spokenMoney(d.remaining_balance)}`} onPress={() => setDebtSheet({ open: true, edit: d })}>
+                <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${d.label}, ${figSaid('MK-NW-M-010', d.remaining_balance)}`} onPress={() => setDebtSheet({ open: true, edit: d })}>
                   <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={styles.rowTitle}>{d.label}</Text>
                       {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
                     </View>
-                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(2)}% APR · {maskedMoney(d.minimum_monthly_payment)}/month</Text>
+                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(2)}% APR · {figPer('MK-NW-M-011', d.minimum_monthly_payment)}</Text>
                   </View>
-                  <Text style={styles.rowVal}>{maskedMoney(d.remaining_balance)}</Text>
+                  <Text style={styles.rowVal}>{fig('MK-NW-M-010', d.remaining_balance)}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -513,7 +512,7 @@ export default function NetWorthScreen() {
                 and now reads $600 — the words say "payments", and what a person pays is what they pay.
                 The minimum is still on the door (monthlyDebtMinimum) for debt-to-income, where the
                 obligation is the right figure. */}
-            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{maskedMoney(worth.monthlyDebtPayments)}/month</Text></View>
+            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{figPer('MK-NW-M-012', worth.monthlyDebtPayments)}</Text></View>
           </>)}
       </View>
     </View>
@@ -551,8 +550,8 @@ export default function NetWorthScreen() {
         <View style={styles.heroBlock}>
           <SectionBand infoTerm="netWorth" title="YOUR NET WORTH" />
           <View style={styles.blockBody}>
-            <Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>
-            <HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>
+            <Text style={styles.ownOweLine}>Own {fig('MK-NW-M-004', 0)} − Owe {fig('MK-NW-M-009', 0)}</Text>
+            <HeroAmount style={styles.glanceVal}>{fig('MK-XS-M-001', 0)}</HeroAmount>
             <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />   {/* Q48; Net worth v08: opens the add sheet */}
           </View>
         </View>
@@ -572,11 +571,11 @@ export default function NetWorthScreen() {
             than drawing three $0 banks that don't exist. */}
         {groupingPills}
         <View style={styles.ledger}>
-          <SectionBand title="WHAT YOU OWN" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+          <SectionBand title="WHAT YOU OWN" value={fig('MK-NW-M-004', 0)} trailing={RIGHT_SLOT} />
           {nwGrouping === 'class' ? (<>
-            <SectionBand light title="💵 CASH" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
-            <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
-            <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+            <SectionBand light title="💵 CASH" value={fig('MK-NW-M-005', 0)} trailing={RIGHT_SLOT} />
+            <SectionBand light title="📈 INVESTMENTS" value={fig('MK-XS-M-003', 0)} trailing={RIGHT_SLOT} />
+            <SectionBand light title="🏠 PERSONAL PROPERTY" value={fig('MK-NW-M-006', 0)} trailing={RIGHT_SLOT} />
           </>) : (
             <Text style={[styles.empty, styles.ledgerPad]}>Your banks and brokerages will be listed here, each with what it holds.</Text>
           )}
@@ -597,7 +596,7 @@ export default function NetWorthScreen() {
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
 
-          <SectionBand title="DEBTS" infoTerm="debt" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+          <SectionBand title="DEBTS" infoTerm="debt" value={fig('MK-NW-M-009', 0)} trailing={RIGHT_SLOT} />
           {/* the same one line: the door is the row right below it, so it is not repeated (v08) */}
           <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.</Text>
           <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Add a mortgage, card, or loan"
@@ -628,10 +627,10 @@ export default function NetWorthScreen() {
           {cur === 'Debts' ? renderDebtSection() : renderAssetSection(cur)}
           {/* #9: never show the aggregate without its components — the running total carries the
               Assets − Debts identity so it's clear WHY it differs from what's on this one step. */}
-          <View style={styles.wizTotal}><Text style={styles.wizTotalL}>Net worth so far</Text><Text style={styles.wizTotalV}>{maskedMoney(nw.net_worth)}</Text></View>
+          <View style={styles.wizTotal}><Text style={styles.wizTotalL}>Net worth so far</Text><Text style={styles.wizTotalV}>{fig('MK-NW-M-016', nw.net_worth)}</Text></View>
           <Text style={styles.nwIdentity}>
-            Assets {maskedMoney(Math.round(totalAssets))} − Debts {maskedMoney(Math.round(dState.total_debt_balance))} ={' '}
-            <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {maskedMoney(Math.round(nw.net_worth))}</Text>
+            Assets {fig('MK-NW-M-004', Math.round(totalAssets))} − Debts {fig('MK-NW-M-009', Math.round(dState.total_debt_balance))} ={' '}
+            <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {fig('MK-XS-M-001', Math.round(nw.net_worth))}</Text>
           </Text>
         </ScrollView>
         <View style={styles.footer}>
@@ -692,7 +691,7 @@ export default function NetWorthScreen() {
     // motion (a $500 contribution offset by $500 of expenses), and the walk sheet shows exactly that.
     // Founder wording 2026-08-10: "Change in net worth <signed $> · Return on cash + investments <signed %>".
     const deltaText = deltaRounded == null ? null
-      : `Change in net worth ${deltaZero ? maskedMoney(0) : `${deltaRounded > 0 ? '+' : '−'}${maskedMoney(Math.abs(deltaRounded))}`}${pctText}`;
+      : `Change in net worth ${deltaZero ? figSaid('MK-NW-M-001', 0) : `${deltaRounded > 0 ? '+' : '−'}${figSaid('MK-NW-M-001', Math.abs(deltaRounded))}`}${pctText}`;
     // Founder colour rule 2026-08-10: zero and up are GREEN; only a fall is amber (never red — amber
     // is this app's one warning hue, and red/green alone can't be read by everyone).
     const deltaDown = deltaRounded != null && deltaRounded < 0;
@@ -732,7 +731,7 @@ export default function NetWorthScreen() {
         <View style={styles.heroBlock} accessible
           accessibilityLabel={store.hideBalances
             ? 'Net worth hidden'
-            : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
+            : `Net worth ${figSaid('MK-XS-M-001', Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
           {/* Founder 2026-08-11: TODAY's date rides the title bar — it stamps when these numbers were
               true. It is a different fact from the "since" line beneath the change, which names the
               day the change is measured FROM; both dates earn their place. */}
@@ -741,11 +740,11 @@ export default function NetWorthScreen() {
             {/* FINAL mock: the arithmetic sits small ABOVE the hero, so the one number leads */}
             {(totalAssets > 0 || dState.total_debt_balance > 0) && (
               <Text style={styles.ownOweTop}>
-                Own {maskedMoney(Math.round(totalAssets))} − Owe {maskedMoney(Math.round(dState.total_debt_balance))}
+                Own {fig('MK-NW-M-004', Math.round(totalAssets))} − Owe {fig('MK-NW-M-009', Math.round(dState.total_debt_balance))}
               </Text>
             )}
             <HeroAmount style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-              {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
+              {store.hideBalances ? '••••' : fig('MK-XS-M-001', Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
             </HeroAmount>
             {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
                 honest first-day line instead of a bare number when history hasn't built yet */}
@@ -830,7 +829,7 @@ export default function NetWorthScreen() {
             every number on the screen — band totals included — resolves to ONE right edge, each row
             reserving the same trailing arrow column. */}
         <View style={styles.ledger}>
-        <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} trailing={RIGHT_SLOT} />
+        <SectionBand title="WHAT YOU OWN" value={fig('MK-NW-M-004', Math.round(totalAssets))} trailing={RIGHT_SLOT} />
           {/* Q48: nothing entered is said row by row below (the one line and the door), not here */}
           {/* Founder finding 2026-08-11: the bar used to stay by category even on the institution
               tab, so the picture and the list underneath answered different questions. It follows
@@ -857,19 +856,19 @@ export default function NetWorthScreen() {
                 <View key={label}>
                   <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
                     onPress={() => setOpenInst((m) => ({ ...m, [label]: !open }))}
-                    accessibilityLabel={`${label}, ${spokenMoney(Math.round(g.total))}, ${count}. ${open ? 'Collapses' : 'Expands'} them.`}>
+                    accessibilityLabel={`${label}, ${figSaid('MK-NW-M-007', Math.round(g.total))}, ${count}. ${open ? 'Collapses' : 'Expands'} them.`}>
                     <SectionBand light trailing={RIGHT_SLOT} title={`${open ? '▾' : '▸'} ${label}${open ? '' : ` · ${count}`}`}
-                      value={maskedMoney(Math.round(g.total))} />
+                      value={fig('MK-NW-M-007', Math.round(g.total))} />
                   </TouchableOpacity>
                   {open && g.members.map((a) => (
                     <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={[styles.ledgerRow, styles.ledgerChild]}
                       onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-                      accessibilityLabel={`${displayNames.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance || 0))}. Opens its page.`}>
+                      accessibilityLabel={`${displayNames.get(a.asset_id)}, ${figSaid('MK-NW-M-008', Math.round(a.balance || 0))}. Opens its page.`}>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
                         <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
                       </View>
-                      <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
+                      <Text style={styles.acctRowVal}>{fig('MK-NW-M-008', Math.round(a.balance || 0))}</Text>
                       <Text style={styles.arrowSlot}>›</Text>
                     </TouchableOpacity>
                   ))}
@@ -893,9 +892,9 @@ export default function NetWorthScreen() {
               <View key={g.group}>
                 <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
                   onPress={() => setOpenUber((m) => ({ ...m, [g.group]: !gOpen }))}
-                  accessibilityLabel={`${g.label}, ${spokenMoney(Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
+                  accessibilityLabel={`${g.label}, ${figSaid('MK-NW-M-007', Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
                   <SectionBand light trailing={RIGHT_SLOT} title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${count}`}`}
-                    value={maskedMoney(Math.round(g.total))} />
+                    value={fig('MK-NW-M-007', Math.round(g.total))} />
                 </TouchableOpacity>
                 {gOpen && g.classes.map((r, i) => renderClassRow(
                   r, i, g.classes.length === 1 && r.label.trim().toLowerCase() === g.label.trim().toLowerCase(),
@@ -911,7 +910,7 @@ export default function NetWorthScreen() {
               const entered = assets.some((a) => uberGroupOf(assetClassOf(a)) === e.group);
               return (
                 <View key={`empty-${e.group}`}>
-                  <SectionBand light trailing={RIGHT_SLOT} title={`${e.icon} ${e.label}`} value={maskedMoney(0)} />
+                  <SectionBand light trailing={RIGHT_SLOT} title={`${e.icon} ${e.label}`} value={fig('MK-NW-M-006', 0)} />
                   {!entered && <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => setAddChooser(true)} /></View>}
                 </View>
               );
@@ -919,7 +918,7 @@ export default function NetWorthScreen() {
 
         {/* DEBTS — minus numbers, the word carries the meaning */}
         <SectionBand title="DEBTS" infoTerm="debt" trailing={RIGHT_SLOT}
-          value={dState.total_debt_balance > 0 ? `−${maskedMoney(Math.round(dState.total_debt_balance))}` : undefined} />
+          value={dState.total_debt_balance > 0 ? `−${fig('MK-NW-M-009', Math.round(dState.total_debt_balance))}` : undefined} />
           {liabilities.length === 0 && <View style={styles.ledgerPad}><EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} /></View>}   {/* Q48: nothing entered — a "no debts" answer does not exist yet, so an entered none cannot be told apart (question for the founder) */}
           {/* the debts' own composition bar (founder Q6, 2026-08-11) — the same shape as the assets
               bar above, in the warning family so the two sections can never be misread for each other */}
@@ -930,14 +929,14 @@ export default function NetWorthScreen() {
           )}
           {liabilities.map((d) => (
             <TouchableOpacity key={d.debt_id} style={styles.ledgerRow} accessibilityRole="button"
-              accessibilityLabel={`${d.label}, you owe ${spokenMoney(Math.round(d.remaining_balance))}. Opens the editor.`}
+              accessibilityLabel={`${d.label}, you owe ${figSaid('MK-NW-M-010', Math.round(d.remaining_balance))}. Opens the editor.`}
               onPress={() => setDebtSheet({ open: true, edit: d })}>
               <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={styles.rowTitle}>{d.label}</Text>
                 {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
               </View>
-              <Text style={[styles.rowVal, { color: Colors.red }]}>−{maskedMoney(Math.round(d.remaining_balance))}</Text>
+              <Text style={[styles.rowVal, { color: Colors.red }]}>−{fig('MK-NW-M-010', Math.round(d.remaining_balance))}</Text>
               <Text style={styles.arrowSlot}>›</Text>
             </TouchableOpacity>
           ))}
@@ -968,7 +967,7 @@ export default function NetWorthScreen() {
                   backgroundColor: shownMonths < 3 ? Colors.amber : Colors.gainText,
                 }]} />
               </View>
-              <Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/month essentials — {essentials?.label}</Text>
+              <Text style={styles.cushionMath}>of essentials covered by your cash — {fig('MK-NW-M-005', Math.round(cashOnHand))} cash ÷ {figPer('MK-NW-M-048', Math.round(monthlySpend))} essentials — {essentials?.label}</Text>
               {/* BOTH NUMBERS (founder, 2026-09-28). The figure above is what you could not stop paying;
                   this one is the life you plan to live. Neither is the whole truth on its own. */}
               {runwayAtPlannedSpend != null && (
@@ -985,10 +984,10 @@ export default function NetWorthScreen() {
           );
         })() : cashOnHand > 0 ? (
           <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/cashflow')}
-            accessibilityLabel={`Emergency fund: your cash is ${spokenMoney(Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
+            accessibilityLabel={`Emergency fund: your cash is ${figSaid('MK-NW-M-005', Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
             <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
             <View style={styles.ledgerPad}>
-              <Text style={styles.cushionMath}>Your cash is {maskedMoney(Math.round(cashOnHand))} — tell us your typical monthly expenses and this becomes a real number.</Text>
+              <Text style={styles.cushionMath}>Your cash is {fig('MK-NW-M-005', Math.round(cashOnHand))} — tell us your typical monthly expenses and this becomes a real number.</Text>
               <Text style={styles.link}>Answer one question in Cash flow ›</Text>
             </View>
           </TouchableOpacity>
@@ -1138,7 +1137,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
     if (!editing) { onClose(); return; }
     Alert.alert(
       `Remove ${editing.label}?`,
-      `Its ${money(Math.round(editing.balance || 0))} leaves your net worth. This can't be undone.`,
+      `Its ${fig('MK-NW-M-008', Math.round(editing.balance || 0))} leaves your net worth. This can't be undone.`,
       [
         { text: 'Keep it', style: 'cancel' },
         { text: 'Remove', style: 'destructive', onPress: () => { store.deleteAsset?.(editing.asset_id); onClose(); } },
@@ -1214,7 +1213,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           </>)}
           <TextInput style={sh.input} placeholder={step === 'quick' ? 'Name (e.g. My Robinhood)' : 'Institution / name (e.g. Chase)'} placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
           <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
-          <TouchableOpacity style={sh.save} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? maskedMoney(v) : ''}</Text></TouchableOpacity>
+          <TouchableOpacity style={sh.save} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? typedAmount(v) : ''}</Text></TouchableOpacity>
           {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove account" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
         </>
       )}
