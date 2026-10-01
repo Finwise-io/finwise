@@ -21,6 +21,20 @@ export function useMoney() {
  *  pattern every FCC screen uses — a hideBalances flip re-renders them, so reading getState() here
  *  is reactive in practice). The fcc_agreement mask walk enforces zero '$' under hide. */
 export const maskedMoney = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money(n));
+
+/** AN AMOUNT THE PERSON IS TYPING — not a figure on record (rule 11, 2026-10-01).
+ *
+ *  Rule 11 says a figure a person reads is DECLARED, and prints through `fig(identifier, value)` so
+ *  the master file's row and the screen cannot drift. The rule is about figures the app COMPUTES.
+ *  An amount still being typed into a form is not one: nothing computes it, no door hands it out, and
+ *  the master file should carry no row for a number that exists only while a finger is on the keyboard.
+ *
+ *  It was printing through `maskedMoney`, which made it indistinguishable from an undeclared figure —
+ *  so the rule-11 guard counted it as debt that could never be paid off. This names it instead. It
+ *  masks under hide-balances exactly as before; the only thing that changes is that the guard can
+ *  tell a typed amount from a figure somebody forgot to declare.
+ */
+export const typedAmount = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money(n));
 // cents-precise sibling (B44 founder finding: holding-detail showed integers where cents matter)
 export const maskedMoney2 = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money2(n));
 /** A price — two decimals (founder ruling Q49, 2026-09-09: display uses two decimals unless a row states

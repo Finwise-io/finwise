@@ -16,6 +16,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, maskedMoney2, maskedPrice, coinQuantity, spokenMoney } from '../components/useMoney';
 import { theHolding } from '../../MoneyKeel/functions/networth-and-performance/holding';
+import { fig, figSpoken } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
 import {
@@ -127,12 +128,17 @@ export default function HoldingDetailScreen() {
     const inWindow = pts.filter((x: any) => String(x.date) >= startIso);
     return inWindow.length >= 2 ? inWindow : pts.slice(-2);      // thin history: show what exists
   }, [series, period]);
-  const dayChange = useMemo(() => {
-    const pts = series?.points ?? [];
-    if (pts.length < 2) return null;
-    const last = pts[pts.length - 1].close, prev = pts[pts.length - 2].close;
-    return prev > 0 ? { d: last - prev, p: (last - prev) / prev } : null;
-  }, [series]);
+  // THE DAY'S CHANGE COMES FROM THE DOOR (2026-10-01). It was calculated here, from the price series
+  // — a money figure derived inline on a screen, which is the one thing the one-door rule forbids.
+  // MK-NW-O-006 theHolding computes it from the same closes; the screen only hands it the closes,
+  // which it cannot do in the call above because the series depends on that call's own answer.
+  const withCloses = useMemo(() => theHolding({
+    position, accountId: String(account.asset_id), price: row?.price ?? null,
+    transactions: (store.transactions ?? []) as any[],
+    recentCloses: (series?.points ?? []).map((pt: any) => pt.close),
+  }), [position, account.asset_id, row?.price, store.transactions, series]);
+  const dayChange = withCloses.dayChange
+    ? { d: withCloses.dayChange.amount, p: withCloses.dayChange.share } : null;
 
   // r26: per-lot long/short split; the two gains sum to the header gain by construction.
   // The estimated-tax line was CUT by the founder 2026-08-20 (brief §C, Q12): embedded tax on an
@@ -148,7 +154,7 @@ export default function HoldingDetailScreen() {
 
   const headerA11y = closed
     ? `${name}, position closed, all shares sold`
-    : `${name}, worth ${maskedMoney(Math.round(value))}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}${roi != null ? `, ${Math.abs(Math.round(roi * 100))} percent since purchase` : ''}` : ''}`;
+    : `${name}, worth ${figSpoken('MK-NW-M-030', Math.round(value))}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${figSpoken('MK-NW-M-059', Math.abs(Math.round(gain)))}${roi != null ? `, ${Math.abs(Math.round(roi * 100))} percent since purchase` : ''}` : ''}`;
 
   const tickerTxns = ((store.transactions ?? []) as any[]).filter((t) => String(t.ticker ?? '').toUpperCase() === ticker.toUpperCase());
   const realized = answer.realised;
@@ -170,17 +176,17 @@ export default function HoldingDetailScreen() {
       <View style={s.card} accessible accessibilityLabel={headerA11y}>
         {closed ? (
           <>
-            <Text style={s.big}>{maskedMoney(0)}</Text>
+            <Text style={s.big}>{fig('MK-NW-M-030', 0)}</Text>
             {/* Q48 does not apply here: a holding page exists only once a holding was entered, so $0 means sold */}
             <Text style={s.gainLine}>Holding liquidated — all shares sold. Its history is kept below.</Text>
           </>
         ) : hasPrice ? (
           <>
             <SectionBand inCard inset={20} title={`CURRENT PRICE${fresh.stale ? '' : ' · LIVE'}`} />
-            <Text style={s.big}>{money(row.price as number)}</Text>
+            <Text style={s.big}>{fig('MK-NW-M-029', row.price as number)}</Text>
             {dayChange != null && (
               <Text style={[s.gainLine, { color: dayChange.d >= 0 ? Colors.gainText : Colors.red }]}>
-                {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{maskedMoney2(Math.abs(dayChange.d))} ({Math.abs(Math.round(dayChange.p * 1000) / 10)}%) {fresh.stale ? 'last market day' : 'today'}
+                {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{fig('MK-NW-M-060', Math.abs(dayChange.d))} ({Math.abs(Math.round(dayChange.p * 1000) / 10)}%) {fresh.stale ? 'last market day' : 'today'}
               </Text>
             )}
             {fresh.stale && <Text style={[s.metaLine, s.warn]}>prices may be out of date ({fresh.label})</Text>}
@@ -203,23 +209,23 @@ export default function HoldingDetailScreen() {
               </>
             )}
             <View style={s.tblTop}>
-              <View style={s.tRow}><Text style={s.tL}>Current value</Text><Text style={s.tV}>{maskedMoney2(value)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Current value</Text><Text style={s.tV}>{fig('MK-NW-M-030', value)}</Text></View>
               {gain != null && (
                 <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text>
-                  <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{maskedMoney2(Math.abs(gain))}{roi != null ? ` (${pct(roi)})` : ''}</Text></View>
+                  <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{fig('MK-NW-M-059', Math.abs(gain))}{roi != null ? ` (${pct(roi)})` : ''}</Text></View>
               )}
               <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String)}</Text></View>
-              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{maskedPrice(rawAvg)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
             </View>
           </>
         ) : (
           <>
             <Text style={[s.kicker, s.warn]}>NO LIVE PRICE — SHOWING WHAT YOU PAID</Text>
-            <Text style={s.big}>{maskedMoney2(value)}</Text>
+            <Text style={s.big}>{fig('MK-NW-M-030', value)}</Text>
             <Text style={s.metaLine}>⏱ live pricing arrives with the price provider</Text>
             <View style={s.tblTop}>
               <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String)}</Text></View>
-              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{maskedPrice(rawAvg)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
             </View>
             <Text style={s.note}>No market compare, dividends or tax estimate without a live price — sections appear when pricing does. Nothing invented.</Text>
           </>
@@ -252,12 +258,12 @@ export default function HoldingDetailScreen() {
         <SectionBand inCard inset={20} title="WHAT YOU BOUGHT" />
         {position.lots.map((l) => (
           <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
-            accessibilityLabel={`${l.shares} shares at ${spokenMoney(l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
+            accessibilityLabel={`${l.shares} shares at ${figSpoken('MK-NW-M-061', l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
             <Text style={s.lotDate}>{dateWords(l.purchase_date)}</Text>
-            <Text style={s.lotShares}>{l.shares} sh @ {maskedMoney2(l.cost_per_share)}</Text>
+            <Text style={s.lotShares}>{l.shares} sh @ {fig('MK-NW-M-061', l.cost_per_share)}</Text>
           </TouchableOpacity>
         ))}
-        <View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><Text style={s.tV}>{maskedMoney2(basis)}</Text></View>
+        <View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><Text style={s.tV}>{fig('MK-NW-M-033', basis)}</Text></View>
         <Text style={s.note}>These purchases are the cost basis — they explain the average cost above.</Text>
       </View>
 
@@ -265,11 +271,11 @@ export default function HoldingDetailScreen() {
       {hasPrice && !closed && (
         <View style={s.card}>
           <SectionBand inCard inset={20} title="DIVIDENDS & REALIZED" />
-          <View style={s.tRow}><Text style={s.tL}>Dividends received (12 mo)</Text><Text style={s.tV}>{maskedMoney2(dividends.trailing12)}</Text></View>
+          <View style={s.tRow}><Text style={s.tL}>Dividends received (12 mo)</Text><Text style={s.tV}>{fig('MK-NW-M-034', dividends.trailing12)}</Text></View>
           <View style={s.tRow}><Text style={s.tL}>Realized from sales</Text>
             <Text style={s.tV}>{realized.sellsCounted > 0
-              ? `${realized.realizedAllTime >= 0 ? '+' : '−'}${maskedMoney2(Math.abs(realized.realizedAllTime))} all time`
-              : `${maskedMoney2(0)} — nothing sold`}</Text></View>
+              ? `${realized.realizedAllTime >= 0 ? '+' : '−'}${fig('MK-NW-M-035', Math.abs(realized.realizedAllTime))} all time`
+              : `${fig('MK-NW-M-035', 0)} — nothing sold`}</Text></View>
           {realized.sellsCounted > 0 && (
             <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).{realized.sellsWithoutBasis > 0 ? ` ${realized.sellsWithoutBasis} sale${realized.sellsWithoutBasis === 1 ? '' : 's'} had no recorded purchase, so its gain isn't counted.` : ''}</Text>
           )}
@@ -280,8 +286,8 @@ export default function HoldingDetailScreen() {
       {cg && !closed && (
         <View style={s.card}>
           <SectionBand inCard inset={20} title="IF YOU SOLD TODAY" />
-          <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.longGain))}</Text></View>
-          {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (under 1 yr)</Text><Text style={s.tV}>{cg.shortGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.shortGain))}</Text></View>}
+          <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain >= 0 ? '+' : '−'}{fig('MK-NW-M-036', Math.abs(cg.longGain))}</Text></View>
+          {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (under 1 yr)</Text><Text style={s.tV}>{cg.shortGain >= 0 ? '+' : '−'}{fig('MK-NW-M-037', Math.abs(cg.shortGain))}</Text></View>}
         </View>
       )}
 

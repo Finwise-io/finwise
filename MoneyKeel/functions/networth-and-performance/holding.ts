@@ -30,7 +30,16 @@ export interface HoldingAnswer {
   priced: boolean;
   /** Only when priced: what it has gained, and the return on what was paid. */
   gain: number | null;
+  /** WHAT IT MOVED SINCE THE PREVIOUS CLOSE, in money and as a share of that close.
+   *  Null when fewer than two closes are known: one price is a price, not a change.
+   *  It was calculated on HoldingDetailScreen from the price series — a money figure derived inline on
+   *  a screen, which is the one thing the one-door rule forbids (2026-10-01). */
+  dayChange: { amount: number; share: number } | null;
   returnOnCost: number | null;
+  /** EACH PURCHASE, oldest first — what the average cost is made of, so it can be checked rather
+   *  than trusted. The screen read `position.lots` directly, which is the position's own shape
+   *  leaking onto a screen; the door names the three things a person reads and nothing else. */
+  purchases: { lotId: string; date: string; shares: number; costPerShare: number }[];
   /** Only when priced: the gain split by how long it has been held. */
   capitalGains: CapGains | null;
   /** Dividends whose record NAMES this ticker. */
@@ -98,6 +107,8 @@ export interface HoldingAnswer {
  *     a year ago = the first 10 of the date now.get time() − 365 × 24 × 3600 × 1000).to isostring(
  *     div rows = named where type = 'DIVIDEND'
  *     sum = Σ over (list: any[]) => list of (amount (or 0 when missing or zero))
+ *     c = input.recent closes (or none when missing)
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-080 HOLD
  *
@@ -119,6 +130,8 @@ export interface HoldingAnswer {
  *
  * Decides .....
  *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If cost per share is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-006
@@ -130,6 +143,8 @@ export function theHolding(input: {
   price: number | null;
   transactions: any[];
   now?: Date;
+  /** The recent daily closes, oldest first. Two are enough for the day's change. */
+  recentCloses?: number[];
 }): HoldingAnswer {
   const now = input.now ?? new Date();
   const p = input.position;
@@ -158,6 +173,19 @@ export function theHolding(input: {
     value,
     priced,
     gain: priced ? value - paid : null,
+    purchases: ((p as any).lots ?? []).map((l: any) => ({
+      lotId: String(l.lot_id ?? ''),
+      date: String(l.purchase_date ?? ''),
+      shares: l.shares || 0,
+      costPerShare: l.cost_per_share || 0,
+    })),
+    dayChange: (() => {
+      const c = input.recentCloses ?? [];
+      if (c.length < 2) return null;
+      const last = c[c.length - 1], prev = c[c.length - 2];
+      // a previous close of zero cannot be divided by, and a share of nothing is not a move
+      return prev > 0 ? { amount: last - prev, share: (last - prev) / prev } : null;
+    })(),
     returnOnCost: priced && paid > 0 ? (value - paid) / paid : null,
     capitalGains: priced ? capGains(p, input.price as number, now) : null,
     dividends: {
@@ -202,7 +230,8 @@ const GIVEN =
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-004 holding quantity (shares)
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-048 the person’s own asset-class answer
@@ -212,10 +241,60 @@ const GIVEN =
  * Changed ..... not in git yet (—)
  */
 const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', price: 290,
-  transactions: EXAMPLE_LEDGER, now: new Date('2026-09-28T12:00:00') });
+  transactions: EXAMPLE_LEDGER, now: new Date('2026-09-28T12:00:00'),
+  // the two closes before today, so the day's change has something to compare against
+  recentCloses: [287.69, 290] });
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const HOLDING_FIGURES = declareFigures({
+  // ISSUED AND DECLARED 2026-10-01, working rule 11 across this screen. Three figures a person reads
+  // here had no identifier — and finding the first of them turned up a one-door breach: the day's
+  // change was computed on the screen from the price series, which is a money figure derived inline.
+  'MK-NW-M-059': {
+    label: 'Change since purchase', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
+    answers: 'What this holding has gained or lost against what was paid for it.',
+    formula: 'what it is worth today \u2212 what was paid for it',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: [
+      'IT IS AGAINST WHAT WAS PAID, not against any starting price: the figure answers "am I ahead on '
+      + 'this holding", which only the cost basis can answer.',
+      'WITHOUT A PRICE THERE IS NO FIGURE at all, rather than a zero \u2014 a gain of zero reads as '
+      + 'break-even when the truth is that nothing is known.',
+    ],
+    refusal: 'No price \u2014 the row is left out, and the screen says what was paid instead.',
+    ruled: '2026-10-01',
+    // $40,600 worth against $31,600 paid (100 at $210 plus 40 at $265)
+    worked: { given: GIVEN, answer: '$9,000', run: () => HOLD().gain },
+  },
+  'MK-NW-M-060': {
+    label: 'up', unit: 'money-cents', screens: ['/holding-detail'], grain: 'one holding',
+    answers: 'What this holding moved since the previous close, in money.',
+    formula: 'the last close \u2212 the close before it',
+    inputs: ['MK-XS-I-006 price fetched at'],
+    decisions: [
+      'TWO CLOSES ARE NEEDED. One price is a price, not a change, so with a single point there is no '
+      + 'figure rather than a change of zero.',
+      'IT CAME OFF THE SCREEN (2026-10-01). It was calculated inside HoldingDetailScreen from the '
+      + 'price series \u2014 a money figure derived inline on a screen, which is what one door exists to '
+      + 'prevent. The door computes it now and the screen prints what the door says.',
+    ],
+    refusal: 'Fewer than two closes known, or a previous close of zero \u2014 the line is not drawn.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '$2.31', run: () => HOLD().dayChange?.amount ?? null },
+  },
+  'MK-NW-M-061': {
+    label: 'sh @', unit: 'money-cents', screens: ['/holding-detail'], grain: 'one purchase',
+    answers: 'What one purchase cost per share, on the day it was bought.',
+    formula: 'the cost per share as recorded on that purchase',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: [
+      'EACH PURCHASE KEEPS ITS OWN PRICE. They are what the average above them is made of, so a '
+      + 'person can check the average rather than having to trust it.',
+    ],
+    refusal: 'No purchases recorded \u2014 the section is not drawn.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '$210.00', run: () => HOLD().purchases[0].costPerShare },
+  },
   'MK-NW-M-029': {
     label: 'CURRENT PRICE · LIVE', unit: 'money-cents', screens: ['/holding-detail'], grain: 'one holding',
     answers: 'What one share is worth right now, and how fresh that price is.',

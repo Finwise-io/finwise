@@ -61,9 +61,15 @@ test('hero: current price on top, then the position table — the SAME numbers a
   expect(screen.getByText('in Fidelity')).toBeOnTheScreen();
   const { money, money2 } = require('../../domain/_shared/num');
   expect(screen.getByText(/CURRENT PRICE/)).toBeOnTheScreen();
-  expect(screen.getByText(money(row.price))).toBeOnTheScreen();          // the price IS the hero
+  // PRECISION COMES FROM THE DECLARATION NOW (rule 11, 2026-10-01). These assertions were written
+  // against what the screen used to print, and the screen was wrong: it formatted six figures with
+  // cents while their declarations say whole dollars. Routing each print through fig(identifier)
+  // surfaced the disagreement, and the precision standard (Q49) settles it — whole dollars for
+  // totals, balances and projections; two decimals for prices and per-share figures. So a price is
+  // $310.00 and a gain is $2,000.
+  expect(screen.getByText(money2(row.price))).toBeOnTheScreen();         // a PRICE: two decimals
   expect(screen.getByText('Current value')).toBeOnTheScreen();
-  expect(screen.getByText(money2(row.marketValue))).toBeOnTheScreen();   // B44: cents-precise
+  expect(screen.getByText(money(row.marketValue))).toBeOnTheScreen();    // a BALANCE: whole dollars
   expect(screen.getByText('Change since purchase')).toBeOnTheScreen();
   expect(screen.getByText(/▲ \+\$/)).toBeOnTheScreen();                  // the word/arrow, never color alone
   expect(screen.getByText('Quantity')).toBeOnTheScreen();
@@ -124,8 +130,8 @@ test('dividends & realized: one card — trailing 12 months from the one ledger,
   render(<HoldingDetailScreen />);
   expect(screen.getByText('DIVIDENDS & REALIZED')).toBeOnTheScreen();
   expect(screen.getByText('Dividends received (12 mo)')).toBeOnTheScreen();
-  expect(screen.getByText('$310.00')).toBeOnTheScreen();
-  expect(screen.getByText(/\$0\.00 — nothing sold/)).toBeOnTheScreen();   // the zero is a sentence, not a hidden card
+  expect(screen.getByText('$310')).toBeOnTheScreen();                    // a TOTAL: whole dollars
+  expect(screen.getByText(/\$0 — nothing sold/)).toBeOnTheScreen();       // the zero is a sentence, not a hidden card
 });
 
 test('no price for the ticker: honest basis hero, comparison/tax/look-back all absent — nothing invented', () => {
@@ -213,6 +219,6 @@ test('realized gains from sales show honestly, with the FIFO note', () => {
   } as any);
   render(<HoldingDetailScreen />);
   expect(screen.getByText('Realized from sales')).toBeOnTheScreen();
-  expect(screen.getByText(/\+\$2,000\.00 all time/)).toBeOnTheScreen();   // 40 × (200 − 150), cents-precise
+  expect(screen.getByText(/\+\$2,000 all time/)).toBeOnTheScreen();       // 40 × (200 − 150), a total
   expect(screen.getByText(/oldest shares sold first/)).toBeOnTheScreen();
 });

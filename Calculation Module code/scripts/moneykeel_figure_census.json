@@ -20211,7 +20211,7 @@
     },
     {
      "k": "a",
-     "s": "TreasuryDirect, $9,800, matures May 15, 2031. Opens the editor."
+     "s": "TreasuryDirect, one bond’s value: $9,800, matures May 15, 2031. Opens the editor."
     },
     {
      "k": "t",
@@ -20243,11 +20243,11 @@
     },
     {
      "k": "t",
-     "s": "$400"
+     "s": "$400/year"
     },
     {
      "k": "t",
-     "s": "/year coupon"
+     "s": "coupon"
     },
     {
      "k": "t",
@@ -22862,7 +22862,7 @@
     },
     {
      "k": "a",
-     "s": "VTI, worth $270,000"
+     "s": "VTI, worth Current value: $270,000"
     },
     {
      "k": "t",
@@ -22870,7 +22870,7 @@
     },
     {
      "k": "t",
-     "s": "$270,000.00"
+     "s": "$270,000"
     },
     {
      "k": "t",
@@ -22902,7 +22902,7 @@
     },
     {
      "k": "a",
-     "s": "3000 shares at $90 on Jan 2, 2024. Opens the editor."
+     "s": "3000 shares at sh @: $90.00 on Jan 2, 2024. Opens the editor."
     },
     {
      "k": "t",
@@ -22926,7 +22926,7 @@
     },
     {
      "k": "t",
-     "s": "$270,000.00"
+     "s": "$270,000"
     },
     {
      "k": "t",
@@ -35984,6 +35984,28 @@
     "MK-NW-M-048"
    ]
   },
+  "/bonds": {
+   "worker": [
+    "MK-NW-M-041"
+   ],
+   "rich": [
+    "MK-NW-M-041",
+    "MK-NW-M-043",
+    "MK-NW-M-044",
+    "MK-NW-M-053",
+    "MK-NW-M-054",
+    "MK-NW-M-055",
+    "MK-NW-M-056",
+    "MK-NW-M-057",
+    "MK-NW-M-058"
+   ],
+   "retiree": [
+    "MK-NW-M-041"
+   ],
+   "new": [
+    "MK-NW-M-041"
+   ]
+  },
   "/insights": {
    "worker": [
     "MK-NW-M-047",
@@ -35992,6 +36014,34 @@
    "retiree": [
     "MK-NW-M-047",
     "MK-NW-M-048"
+   ]
+  },
+  "/itemize": {
+   "worker": [
+    "MK-NW-M-038",
+    "MK-NW-M-039"
+   ],
+   "rich": [
+    "MK-NW-M-038",
+    "MK-NW-M-039"
+   ],
+   "retiree": [
+    "MK-NW-M-038",
+    "MK-NW-M-039"
+   ]
+  },
+  "/other-investments": {
+   "worker": [
+    "MK-NW-M-049"
+   ],
+   "rich": [
+    "MK-NW-M-049"
+   ],
+   "retiree": [
+    "MK-NW-M-049"
+   ],
+   "new": [
+    "MK-NW-M-049"
    ]
   },
   "/income-summary": {
@@ -36052,6 +36102,14 @@
     "MK-CF-M-045",
     "MK-CF-M-046"
    ]
+  },
+  "/holding-detail": {
+   "rich": [
+    "MK-NW-M-030",
+    "MK-NW-M-032",
+    "MK-NW-M-033",
+    "MK-NW-M-061"
+   ]
   }
  },
  "callsites": [
@@ -36060,9 +36118,13 @@
    "routes": [
     "/analytics",
     "/base-pay",
+    "/bonds",
+    "/holding-detail",
     "/home",
     "/income-summary",
-    "/insights"
+    "/insights",
+    "/itemize",
+    "/other-investments"
    ],
    "states": [
     "/analytics|retiree",
@@ -36072,6 +36134,11 @@
     "/base-pay|retiree",
     "/base-pay|rich",
     "/base-pay|worker",
+    "/bonds|new",
+    "/bonds|retiree",
+    "/bonds|rich",
+    "/bonds|worker",
+    "/holding-detail|rich",
     "/home|retiree",
     "/home|worker",
     "/income-summary|new",
@@ -36079,7 +36146,14 @@
     "/income-summary|rich",
     "/income-summary|worker",
     "/insights|retiree",
-    "/insights|worker"
+    "/insights|worker",
+    "/itemize|retiree",
+    "/itemize|rich",
+    "/itemize|worker",
+    "/other-investments|new",
+    "/other-investments|retiree",
+    "/other-investments|rich",
+    "/other-investments|worker"
    ],
    "inside": "writeFigure",
    "line": "spec.unit === 'money' ? formatMoney(value)",
@@ -36088,12 +36162,27 @@
     "$600",
     "$0",
     "$4,520",
+    "$120,000",
     "$6,400",
     "$108,000",
-    "$21,600",
-    "$1,800"
+    "$21,600"
    ],
-   "renders": 90
+   "renders": 119
+  },
+  {
+   "site": "MoneyKeel/functions/_figure-spec.ts:70",
+   "routes": [
+    "/holding-detail"
+   ],
+   "states": [
+    "/holding-detail|rich"
+   ],
+   "inside": "writeFigure",
+   "line": ": spec.unit === 'money-cents' ? formatMoneyCents(value)",
+   "values": [
+    "$90.00"
+   ],
+   "renders": 3
   },
   {
    "site": "src/components/DrawSteerSheet.tsx:136",
@@ -36938,128 +37027,6 @@
     "$20,240"
    ],
    "renders": 36
-  },
-  {
-   "site": "src/screens/BondsScreen.tsx:47",
-   "routes": [
-    "/bonds"
-   ],
-   "states": [
-    "/bonds|new",
-    "/bonds|retiree",
-    "/bonds|worker"
-   ],
-   "inside": "BondsScreen",
-   "line": "<Text style={styles.metric}>Total value {money(0)}</Text>",
-   "values": [
-    "$0"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/BondsScreen.tsx:55",
-   "routes": [
-    "/bonds"
-   ],
-   "states": [
-    "/bonds|rich"
-   ],
-   "inside": "BondsScreen",
-   "line": "<Text style={styles.sumVal}>{money(summary.totalValue)}</Text>",
-   "values": [
-    "$9,800"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/BondsScreen.tsx:56",
-   "routes": [
-    "/bonds"
-   ],
-   "states": [
-    "/bonds|rich"
-   ],
-   "inside": "BondsScreen",
-   "line": "<Text style={styles.sumLab}>{summary.count} bond{summary.count > 1 ? 's' : ''} · face {money(summary.totalFace)}</Text>",
-   "values": [
-    "$10,000"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/BondsScreen.tsx:58",
-   "routes": [
-    "/bonds"
-   ],
-   "states": [
-    "/bonds|rich"
-   ],
-   "inside": "BondsScreen",
-   "line": "<View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{money(summary.couponPerYear)}</Text></View>",
-   "values": [
-    "$400"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/BondsScreen.tsx:71",
-   "routes": [
-    "/bonds"
-   ],
-   "states": [
-    "/bonds|rich"
-   ],
-   "inside": "BondsScreen",
-   "line": "accessibilityLabel={`${r.institution}, ${money(r.value)}, matures ${humanDate(r.maturity)}. Opens the editor.`}",
-   "values": [
-    "$9,800"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/BondsScreen.tsx:73",
-   "routes": [
-    "/bonds"
-   ],
-   "states": [
-    "/bonds|rich"
-   ],
-   "inside": "BondsScreen",
-   "line": "<View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.institution}</Text><Text style={styles.bondVal}>{money(r.value)}</Text></View>",
-   "values": [
-    "$9,800"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/BondsScreen.tsx:74",
-   "routes": [
-    "/bonds"
-   ],
-   "states": [
-    "/bonds|rich"
-   ],
-   "inside": "BondsScreen",
-   "line": "<DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${money(r.face)}`, `${(r.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y`",
-   "values": [
-    "$10,000"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/BondsScreen.tsx:76",
-   "routes": [
-    "/bonds"
-   ],
-   "states": [
-    "/bonds|rich"
-   ],
-   "inside": "BondsScreen",
-   "line": "<Text style={styles.metric}>{money(r.couponPerYear)}/year coupon</Text>",
-   "values": [
-    "$400"
-   ],
-   "renders": 1
   },
   {
    "site": "src/screens/BudgetScreen.tsx:668",
@@ -37950,96 +37917,6 @@
    "renders": 8
   },
   {
-   "site": "src/screens/HoldingDetailScreen.tsx:151",
-   "routes": [
-    "/holding-detail"
-   ],
-   "states": [
-    "/holding-detail|rich"
-   ],
-   "inside": "HoldingDetailScreen",
-   "line": ": `${name}, worth ${maskedMoney(Math.round(value))}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}${roi != null ? `, ${Math.abs(Math.round(roi * 100))} perc",
-   "values": [
-    "$270,000"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/HoldingDetailScreen.tsx:218",
-   "routes": [
-    "/holding-detail"
-   ],
-   "states": [
-    "/holding-detail|rich"
-   ],
-   "inside": "HoldingDetailScreen",
-   "line": "<Text style={s.big}>{maskedMoney2(value)}</Text>",
-   "values": [
-    "$270,000.00"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/HoldingDetailScreen.tsx:222",
-   "routes": [
-    "/holding-detail"
-   ],
-   "states": [
-    "/holding-detail|rich"
-   ],
-   "inside": "HoldingDetailScreen",
-   "line": "<View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{maskedPrice(rawAvg)}</Text></View>",
-   "values": [
-    "$90.00"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/HoldingDetailScreen.tsx:255",
-   "routes": [
-    "/holding-detail"
-   ],
-   "states": [
-    "/holding-detail|rich"
-   ],
-   "inside": "HoldingDetailScreen",
-   "line": "accessibilityLabel={`${l.shares} shares at ${spokenMoney(l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>",
-   "values": [
-    "$90"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/HoldingDetailScreen.tsx:257",
-   "routes": [
-    "/holding-detail"
-   ],
-   "states": [
-    "/holding-detail|rich"
-   ],
-   "inside": "HoldingDetailScreen",
-   "line": "<Text style={s.lotShares}>{l.shares} sh @ {maskedMoney2(l.cost_per_share)}</Text>",
-   "values": [
-    "$90.00"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/HoldingDetailScreen.tsx:260",
-   "routes": [
-    "/holding-detail"
-   ],
-   "states": [
-    "/holding-detail|rich"
-   ],
-   "inside": "HoldingDetailScreen",
-   "line": "<View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><Text style={s.tV}>{maskedMoney2(basis)}</Text></View>",
-   "values": [
-    "$270,000.00"
-   ],
-   "renders": 1
-  },
-  {
    "site": "src/screens/HomeScreen.tsx:135",
    "routes": [
     "/home"
@@ -38651,64 +38528,6 @@
     "$15,000"
    ],
    "renders": 4
-  },
-  {
-   "site": "src/screens/ItemizeScreen.tsx:100",
-   "routes": [
-    "/itemize"
-   ],
-   "states": [
-    "/itemize|retiree",
-    "/itemize|rich",
-    "/itemize|worker"
-   ],
-   "inside": "ItemizeScreen",
-   "line": "<Text style={[styles.meterV, remainder < 0 && { color: Colors.red }]}>{remainder < 0 ? `${money(overBy)} over` : money(remainder)}</Text>",
-   "values": [
-    "$120,000",
-    "$300,000",
-    "$250,000"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/ItemizeScreen.tsx:103",
-   "routes": [
-    "/itemize"
-   ],
-   "states": [
-    "/itemize|retiree",
-    "/itemize|rich",
-    "/itemize|worker"
-   ],
-   "inside": "ItemizeScreen",
-   "line": "<Text style={styles.meterSub}>{money(allocated)} of {money(lump.balance)} itemized</Text>",
-   "values": [
-    "$0",
-    "$120,000",
-    "$300,000",
-    "$250,000"
-   ],
-   "renders": 6
-  },
-  {
-   "site": "src/screens/ItemizeScreen.tsx:94",
-   "routes": [
-    "/itemize"
-   ],
-   "states": [
-    "/itemize|retiree",
-    "/itemize|rich",
-    "/itemize|worker"
-   ],
-   "inside": "ItemizeScreen",
-   "line": "<Text style={styles.sub}>Add what's actually inside. We keep the total at {money(lump.balance)} — any leftover stays as cash in {inst}.</Text>",
-   "values": [
-    "$120,000",
-    "$300,000",
-    "$250,000"
-   ],
-   "renders": 3
   },
   {
    "site": "src/screens/JobSafetyScreen.tsx:105",
@@ -39592,24 +39411,6 @@
     "$3,100"
    ],
    "renders": 18
-  },
-  {
-   "site": "src/screens/OtherInvestmentsScreen.tsx:56",
-   "routes": [
-    "/other-investments"
-   ],
-   "states": [
-    "/other-investments|new",
-    "/other-investments|retiree",
-    "/other-investments|rich",
-    "/other-investments|worker"
-   ],
-   "inside": "OtherInvestmentsScreen",
-   "line": "<View style={styles.summary}><Text style={styles.sumLab}>Total value</Text><Text style={styles.sumVal}>{money(0)}</Text></View>",
-   "values": [
-    "$0"
-   ],
-   "renders": 4
   },
   {
    "site": "src/screens/PaycheckMonthsScreen.tsx:25",

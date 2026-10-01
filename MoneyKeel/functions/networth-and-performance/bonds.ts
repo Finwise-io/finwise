@@ -379,6 +379,79 @@ const ONE = () => theBonds({ accounts: EXAMPLE, accountId: 'b1', today: TODAY })
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const BOND_FIGURES = declareFigures({
+  // ISSUED AND DECLARED 2026-10-01, working rule 11 across this screen. Six figures a person reads
+  // on the Bonds screen had no identifier: the face total under the hero, and the five that make up
+  // a bond's own row. They were printing through money() and pct(), which is a figure in front of a
+  // person that the master file knows nothing about — the defect rule 11 exists to stop.
+  'MK-NW-M-053': {
+    label: 'face', unit: 'money', screens: ['/bonds'], grain: 'the household',
+    answers: 'The face value of every bond and CD added up \u2014 what they pay back at maturity, which is '
+      + 'not what they are worth today.',
+    formula: 'the sum of each bond\u2019s face value',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: [
+      'FACE AND VALUE ARE SHOWN SIDE BY SIDE because they differ, and the difference is the whole '
+      + 'point: a bond bought below face pays back more than it is worth today.',
+    ],
+    refusal: 'No bonds entered yet, so no face total either.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '$35,000', run: () => ALL().totalFace },
+  },
+  'MK-NW-M-054': {
+    label: 'one bond\u2019s value', unit: 'money', screens: ['/bonds'], grain: 'one bond',
+    answers: 'What this one bond or CD is worth today.',
+    formula: 'the bond account\u2019s own balance',
+    inputs: ['MK-XS-I-001 account balance'],
+    refusal: '\u2014 the row is not drawn at all when there is no bond.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '$10,000', run: () => ALL().rows[0].value },
+  },
+  'MK-NW-M-055': {
+    label: 'one bond\u2019s face', unit: 'money', screens: ['/bonds'], grain: 'one bond',
+    answers: 'What this one bond pays back at maturity.',
+    formula: 'the face value as entered, or the balance when no face was given',
+    inputs: ['MK-XS-I-001 account balance'],
+    refusal: 'Falls back to the value entered, and the row says face with that figure.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '$10,000', run: () => ALL().rows[0].face },
+  },
+  'MK-NW-M-056': {
+    label: 'coupon', unit: 'money', per: 'year', screens: ['/bonds'], grain: 'one bond',
+    answers: 'What this one bond pays in a year, in cash.',
+    formula: 'its face value \u00d7 its coupon rate',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: [
+      'IT IS PAID ON FACE, NOT ON VALUE. A $25,000 bond worth $24,200 still pays 4.5% of $25,000 \u2014 '
+      + 'computing it on the market value understates the income.',
+    ],
+    refusal: 'No coupon rate entered \u2014 the figure is left out rather than shown as $0.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '$505/year', run: () => ALL().rows[0].couponPerYear },
+  },
+  'MK-NW-M-057': {
+    label: 'yield', unit: 'percent-2dp', screens: ['/bonds'], grain: 'one bond',
+    answers: 'What this bond pays in a year as a share of what it is worth today.',
+    formula: 'its coupon a year \u00f7 its value today, less accrued interest where that was entered',
+    inputs: ['MK-XS-I-001 account balance', 'MK-XS-I-065 accrued interest'],
+    decisions: [
+      'WHERE ACCRUED INTEREST WAS NOT ENTERED the row says so beneath the figures rather than quietly '
+      + 'leaving it in the price (his ruling, DEC-0280).',
+    ],
+    refusal: '\u2014 when there is no coupon rate or no value to divide by.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows[0].currentYield },
+  },
+  'MK-NW-M-058': {
+    label: 'Yield to maturity', unit: 'percent-2dp', screens: ['/bonds'], grain: 'one bond',
+    answers: 'What this bond would earn a year if held to maturity, counting the gain or loss between '
+      + 'what it is worth now and what it pays back.',
+    formula: 'the coupon a year plus (face \u2212 value) spread over the years left, \u00f7 the value today',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: ['AN ESTIMATE, and the foot of the screen says so in those words.'],
+    refusal: '\u2014 with no maturity date there are no years to spread the difference over.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows[0].yieldToMaturity },
+  },
   'MK-NW-M-041': {
     label: 'total value of your bonds', unit: 'money', screens: ['/bonds'],
     answers: 'What every bond and CD you hold is worth today, added up.',

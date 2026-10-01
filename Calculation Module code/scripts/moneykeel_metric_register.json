@@ -3,7 +3,7 @@
   "CF-M": 46,
   "HM-M": 4,
   "MN-M": 30,
-  "NW-M": 52,
+  "NW-M": 61,
   "PF-M": 12,
   "PL-M": 37,
   "XS-I": 48,
@@ -246,7 +246,16 @@
   "NW|M|/other-investments|the total value of these investments|summary.totalValue": "MK-NW-M-049",
   "NW|M|/other-investments|EST. GROWTH /year|outlook.estimatedGrowthPerYear": "MK-NW-M-050",
   "NW|M|/other-investments|EXP. RETURN|summary.blendedReturn": "MK-NW-M-051",
-  "NW|M|/other-investments|each alternative and what it is worth|rows": "MK-NW-M-052"
+  "NW|M|/other-investments|each alternative and what it is worth|rows": "MK-NW-M-052",
+  "NW|M|/bonds|face|053": "MK-NW-M-053",
+  "NW|M|/bonds|one bond’s value|054": "MK-NW-M-054",
+  "NW|M|/bonds|one bond’s face|055": "MK-NW-M-055",
+  "NW|M|/bonds|coupon|056": "MK-NW-M-056",
+  "NW|M|/bonds|yield|057": "MK-NW-M-057",
+  "NW|M|/bonds|Yield to maturity|058": "MK-NW-M-058",
+  "NW|M|/holding-detail|Change since purchase|059": "MK-NW-M-059",
+  "NW|M|/holding-detail|up|060": "MK-NW-M-060",
+  "NW|M|/holding-detail|sh @|061": "MK-NW-M-061"
  },
  "note": "A metric identifier is issued once against its key and never re-pointed. A number here is never handed to a different figure, even if the figure it was issued to is deleted — the retired block keeps it with the reason. | 2026-09-14: identifiers whose key begins \"declared\" are DECLARED IN THE CODE (founder rule 11) — the door owns them; they are listed here only so no other row is issued the same number.",
  "retired": {

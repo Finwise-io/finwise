@@ -593,6 +593,140 @@
    },
    "door": "MK-CF-O-003 thisMonth"
   },
+  "MK-NW-M-053": {
+   "label": "face",
+   "unit": "money",
+   "screens": [
+    "/bonds"
+   ],
+   "grain": "the household",
+   "answers": "The face value of every bond and CD added up — what they pay back at maturity, which is not what they are worth today.",
+   "formula": "the sum of each bond’s face value",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "decisions": [
+    "FACE AND VALUE ARE SHOWN SIDE BY SIDE because they differ, and the difference is the whole point: a bond bought below face pays back more than it is worth today."
+   ],
+   "refusal": "No bonds entered yet, so no face total either.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today; and a $10,000 Ally CD paying 5.05%, maturing 15 Mar 2027, worth its $10,000.",
+    "answer": "$35,000"
+   },
+   "door": "MK-NW-O-001 theBonds"
+  },
+  "MK-NW-M-054": {
+   "label": "one bond’s value",
+   "unit": "money",
+   "screens": [
+    "/bonds"
+   ],
+   "grain": "one bond",
+   "answers": "What this one bond or CD is worth today.",
+   "formula": "the bond account’s own balance",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "refusal": "— the row is not drawn at all when there is no bond.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today; and a $10,000 Ally CD paying 5.05%, maturing 15 Mar 2027, worth its $10,000.",
+    "answer": "$10,000"
+   },
+   "door": "MK-NW-O-001 theBonds"
+  },
+  "MK-NW-M-055": {
+   "label": "one bond’s face",
+   "unit": "money",
+   "screens": [
+    "/bonds"
+   ],
+   "grain": "one bond",
+   "answers": "What this one bond pays back at maturity.",
+   "formula": "the face value as entered, or the balance when no face was given",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "refusal": "Falls back to the value entered, and the row says face with that figure.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today; and a $10,000 Ally CD paying 5.05%, maturing 15 Mar 2027, worth its $10,000.",
+    "answer": "$10,000"
+   },
+   "door": "MK-NW-O-001 theBonds"
+  },
+  "MK-NW-M-056": {
+   "label": "coupon",
+   "unit": "money",
+   "per": "year",
+   "screens": [
+    "/bonds"
+   ],
+   "grain": "one bond",
+   "answers": "What this one bond pays in a year, in cash.",
+   "formula": "its face value × its coupon rate",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "decisions": [
+    "IT IS PAID ON FACE, NOT ON VALUE. A $25,000 bond worth $24,200 still pays 4.5% of $25,000 — computing it on the market value understates the income."
+   ],
+   "refusal": "No coupon rate entered — the figure is left out rather than shown as $0.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today; and a $10,000 Ally CD paying 5.05%, maturing 15 Mar 2027, worth its $10,000.",
+    "answer": "$505/year"
+   },
+   "door": "MK-NW-O-001 theBonds"
+  },
+  "MK-NW-M-057": {
+   "label": "yield",
+   "unit": "percent-2dp",
+   "screens": [
+    "/bonds"
+   ],
+   "grain": "one bond",
+   "answers": "What this bond pays in a year as a share of what it is worth today.",
+   "formula": "its coupon a year ÷ its value today, less accrued interest where that was entered",
+   "inputs": [
+    "MK-XS-I-001 account balance",
+    "MK-XS-I-065 accrued interest"
+   ],
+   "decisions": [
+    "WHERE ACCRUED INTEREST WAS NOT ENTERED the row says so beneath the figures rather than quietly leaving it in the price (his ruling, DEC-0280)."
+   ],
+   "refusal": "— when there is no coupon rate or no value to divide by.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today; and a $10,000 Ally CD paying 5.05%, maturing 15 Mar 2027, worth its $10,000.",
+    "answer": "5.05%"
+   },
+   "door": "MK-NW-O-001 theBonds"
+  },
+  "MK-NW-M-058": {
+   "label": "Yield to maturity",
+   "unit": "percent-2dp",
+   "screens": [
+    "/bonds"
+   ],
+   "grain": "one bond",
+   "answers": "What this bond would earn a year if held to maturity, counting the gain or loss between what it is worth now and what it pays back.",
+   "formula": "the coupon a year plus (face − value) spread over the years left, ÷ the value today",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "decisions": [
+    "AN ESTIMATE, and the foot of the screen says so in those words."
+   ],
+   "refusal": "— with no maturity date there are no years to spread the difference over.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today; and a $10,000 Ally CD paying 5.05%, maturing 15 Mar 2027, worth its $10,000.",
+    "answer": "5.05%"
+   },
+   "door": "MK-NW-O-001 theBonds"
+  },
   "MK-NW-M-041": {
    "label": "total value of your bonds",
    "unit": "money",
@@ -1636,6 +1770,77 @@
     "answer": "$3,470/month"
    },
    "door": "MK-NW-O-004 theEmergencyFund"
+  },
+  "MK-NW-M-059": {
+   "label": "Change since purchase",
+   "unit": "money",
+   "screens": [
+    "/holding-detail"
+   ],
+   "grain": "one holding",
+   "answers": "What this holding has gained or lost against what was paid for it.",
+   "formula": "what it is worth today − what was paid for it",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "decisions": [
+    "IT IS AGAINST WHAT WAS PAID, not against any starting price: the figure answers \"am I ahead on this holding\", which only the cost basis can answer.",
+    "WITHOUT A PRICE THERE IS NO FIGURE at all, rather than a zero — a gain of zero reads as break-even when the truth is that nothing is known."
+   ],
+   "refusal": "No price — the row is left out, and the screen says what was paid instead.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "140 shares of VTI on 28 Sep 2026, priced at $290: 100 bought at $210 in Mar 2023 and 40 at $265 in Jun 2026. Dividends of $420 and $405 this year; 20 shares bought at $200 were sold at $285.",
+    "answer": "$9,000"
+   },
+   "door": "MK-NW-O-006 theHolding"
+  },
+  "MK-NW-M-060": {
+   "label": "up",
+   "unit": "money-cents",
+   "screens": [
+    "/holding-detail"
+   ],
+   "grain": "one holding",
+   "answers": "What this holding moved since the previous close, in money.",
+   "formula": "the last close − the close before it",
+   "inputs": [
+    "MK-XS-I-006 price fetched at"
+   ],
+   "decisions": [
+    "TWO CLOSES ARE NEEDED. One price is a price, not a change, so with a single point there is no figure rather than a change of zero.",
+    "IT CAME OFF THE SCREEN (2026-10-01). It was calculated inside HoldingDetailScreen from the price series — a money figure derived inline on a screen, which is what one door exists to prevent. The door computes it now and the screen prints what the door says."
+   ],
+   "refusal": "Fewer than two closes known, or a previous close of zero — the line is not drawn.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "140 shares of VTI on 28 Sep 2026, priced at $290: 100 bought at $210 in Mar 2023 and 40 at $265 in Jun 2026. Dividends of $420 and $405 this year; 20 shares bought at $200 were sold at $285.",
+    "answer": "$2.31"
+   },
+   "door": "MK-NW-O-006 theHolding"
+  },
+  "MK-NW-M-061": {
+   "label": "sh @",
+   "unit": "money-cents",
+   "screens": [
+    "/holding-detail"
+   ],
+   "grain": "one purchase",
+   "answers": "What one purchase cost per share, on the day it was bought.",
+   "formula": "the cost per share as recorded on that purchase",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "decisions": [
+    "EACH PURCHASE KEEPS ITS OWN PRICE. They are what the average above them is made of, so a person can check the average rather than having to trust it."
+   ],
+   "refusal": "No purchases recorded — the section is not drawn.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "140 shares of VTI on 28 Sep 2026, priced at $290: 100 bought at $210 in Mar 2023 and 40 at $265 in Jun 2026. Dividends of $420 and $405 this year; 20 shares bought at $200 were sold at $285.",
+    "answer": "$210.00"
+   },
+   "door": "MK-NW-O-006 theHolding"
   },
   "MK-NW-M-029": {
    "label": "CURRENT PRICE · LIVE",

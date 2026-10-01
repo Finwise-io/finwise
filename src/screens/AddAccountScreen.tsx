@@ -10,7 +10,7 @@ import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { maskedMoney } from '../components/useMoney';
+import { typedAmount } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 import { isoLocalDate } from '../domain/_shared/dates';
 
@@ -211,7 +211,12 @@ export default function AddAccountScreen() {
 
       <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}
         accessibilityLabel={editMode ? 'Save the update' : 'Save this account'}>
-        <Text style={s.primaryTxt}>Save{editMode ? '' : balance.trim() !== '' ? ` ${maskedMoney(num(balance))}` : ''}</Text>
+        {/* THE AMOUNT BEING TYPED, not a figure on record (rule 11, 2026-10-01). Nothing computes it
+            and no door hands it out — it exists only while the person is typing, so it carries no
+            identifier and the master file holds no row for it. It still masks under hide-balances,
+            which is what `maskedMoney` is for; `typedAmount` names it so the guard can tell the two
+            apart instead of counting this as an undeclared figure. */}
+        <Text style={s.primaryTxt}>Save{editMode ? '' : balance.trim() !== '' ? ` ${typedAmount(num(balance))}` : ''}</Text>
       </TouchableOpacity>
       {editMode && (
         <TouchableOpacity accessibilityRole="button" style={s.deleteBtn} onPress={remove} accessibilityLabel={`Delete ${existing.label}`}>

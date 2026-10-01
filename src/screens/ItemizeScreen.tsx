@@ -7,7 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { money } from '../domain/_shared/num';
+import { fig } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { currencySymbol } from '../domain/_shared/money';
 import type { AssetAccount } from '../domain/assets';
 import {
@@ -91,16 +91,16 @@ export default function ItemizeScreen() {
         <Text style={styles.h1}>Itemize {inst}</Text>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => router.back()}><Text style={styles.close}>✕</Text></TouchableOpacity>
       </View>
-      <Text style={styles.sub}>Add what's actually inside. We keep the total at {money(lump.balance)} — any leftover stays as cash in {inst}.</Text>
+      <Text style={styles.sub}>Add what's actually inside. We keep the total at {fig('MK-NW-M-038', lump.balance)} — any leftover stays as cash in {inst}.</Text>
 
       {/* the meter — counts down as you allocate */}
       <View style={styles.meter}>
         <View style={styles.meterRow}>
           <Text style={styles.meterL}>Unallocated</Text>
-          <Text style={[styles.meterV, remainder < 0 && { color: Colors.red }]}>{remainder < 0 ? `${money(overBy)} over` : money(remainder)}</Text>
+          <Text style={[styles.meterV, remainder < 0 && { color: Colors.red }]}>{remainder < 0 ? `${fig('MK-NW-M-039', overBy)} over` : fig('MK-NW-M-039', remainder)}</Text>
         </View>
         <View style={styles.bar}><View style={[styles.barFill, { width: `${pctFilled * 100}%` }, remainder < 0 && { backgroundColor: Colors.red }]} /></View>
-        <Text style={styles.meterSub}>{money(allocated)} of {money(lump.balance)} itemized</Text>
+        <Text style={styles.meterSub}>{fig('MK-NW-M-039', allocated)} of {fig('MK-NW-M-038', lump.balance)} itemized</Text>
       </View>
 
       {items.length > 0 && (
@@ -112,7 +112,7 @@ export default function ItemizeScreen() {
                 <Text style={styles.itemName} numberOfLines={1}>{h.label}</Text>
                 <Text style={styles.itemSub}>{holdingSub(h)}</Text>
               </View>
-              <Text style={styles.itemVal}>{money(h.value)}</Text>
+              <Text style={styles.itemVal}>{fig('MK-NW-M-040', h.value)}</Text>
               <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Remove ${h.label}`} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => removeAt(i)}><Text style={styles.remove}>✕</Text></TouchableOpacity>
             </View>
           ))}
@@ -138,8 +138,8 @@ export default function ItemizeScreen() {
       <TouchableOpacity style={[styles.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} accessibilityRole="button" accessibilityLabel="Add this holding" onPress={addHolding}><Text style={styles.addBtnT}>＋ Add holding</Text></TouchableOpacity>
 
       <View style={styles.footerNote}>
-        {remainder > 0 && items.length > 0 && <Text style={styles.note}>{money(remainder)} still unallocated — it'll be kept as cash in {inst}, so your total stays {money(lump.balance)}.</Text>}
-        {remainder < 0 && <Text style={[styles.note, { color: Colors.red }]}>These holdings are {money(overBy)} more than the {money(lump.balance)} you entered — the account total will update to {money(resultTotal)}.</Text>}
+        {remainder > 0 && items.length > 0 && <Text style={styles.note}>{fig('MK-NW-M-039', remainder)} still unallocated — it'll be kept as cash in {inst}, so your total stays {fig('MK-NW-M-038', lump.balance)}.</Text>}
+        {remainder < 0 && <Text style={[styles.note, { color: Colors.red }]}>These holdings are {fig('MK-NW-M-039', overBy)} more than the {fig('MK-NW-M-038', lump.balance)} you entered — the account total will update to {fig('MK-NW-M-038', resultTotal)}.</Text>}
       </View>
       <TouchableOpacity style={[styles.done, items.length === 0 && { opacity: 0.4 }]} disabled={items.length === 0} accessibilityRole="button" accessibilityLabel="Done — replace the account with these holdings" onPress={done}>
         <Text style={styles.doneT}>Done — replace with {items.length} holding{items.length === 1 ? '' : 's'}</Text>

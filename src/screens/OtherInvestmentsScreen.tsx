@@ -7,7 +7,7 @@ import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
 import { DateField } from '../components/DateField';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { money } from '../domain/_shared/num';
+import { fig, figSpoken } from '../components/figure';
 import { InfoDot, EmptyNote } from '../components/UI';
 import { assetKind, benchmarkReturn, type AssetAccount, type TaxBucket } from '../domain/assets';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1). The share of investable this screen shows is the
@@ -53,7 +53,7 @@ export default function OtherInvestmentsScreen() {
 
       {outlook.rows.length === 0 ? (
         <View style={styles.card}>
-          <View style={styles.summary}><Text style={styles.sumLab}>Total value</Text><Text style={styles.sumVal}>{money(0)}</Text></View>
+          <View style={styles.summary}><Text style={styles.sumLab}>Total value</Text><Text style={styles.sumVal}>{fig('MK-NW-M-049', 0)}</Text></View>
           <EmptyNote door="investment" onPress={() => setAddOpen(true)} />   {/* Q48 (MK-NW-M-049/050 — re-filed from the menu family 2026-10-01) */}
           <Text style={styles.empty}>Track alternatives — crypto, private equity, hedge funds, commodities, annuities — at a value you set. They count toward your net worth and retirement nest egg.</Text>
           <TouchableOpacity style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add an investment</Text></TouchableOpacity>
@@ -61,11 +61,11 @@ export default function OtherInvestmentsScreen() {
       ) : (
         <>
           <View style={styles.summary}>
-            <Text style={styles.sumVal}>{money(outlook.totalValue)}</Text>
+            <Text style={styles.sumVal}>{fig('MK-NW-M-049', outlook.totalValue)}</Text>
             <Text style={styles.sumLab}>{outlook.count} holding{outlook.count > 1 ? 's' : ''} · {sharePct}% of your investable assets</Text>
             <View style={styles.sumRow}>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>EXP. RETURN</Text><Text style={styles.sumCellV}>{(outlook.expectedReturn * 100).toFixed(2)}%</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>EST. GROWTH /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{outlook.estimatedGrowthPerYear == null ? '—' : money(outlook.estimatedGrowthPerYear)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>EXP. RETURN</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-051', outlook.expectedReturn)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>EST. GROWTH /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{fig('MK-NW-M-050', outlook.estimatedGrowthPerYear)}</Text></View>
             </View>
           </View>
 
@@ -73,8 +73,8 @@ export default function OtherInvestmentsScreen() {
             // the account is found only to open the editor; every figure on the row is the door's
             const a = accounts.find((x) => String(x.asset_id) === r.accountId);
             return (
-            <TouchableOpacity key={r.accountId} accessibilityRole="button" accessibilityLabel={`Edit ${r.label}, ${money(r.value)}`} style={styles.card} onPress={() => a && setEdit(a)}>
-              <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{r.label}</Text><Text style={styles.val}>{money(r.value)}</Text></View>
+            <TouchableOpacity key={r.accountId} accessibilityRole="button" accessibilityLabel={`Edit ${r.label}, ${figSpoken('MK-NW-M-052', r.value)}`} style={styles.card} onPress={() => a && setEdit(a)}>
+              <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{r.label}</Text><Text style={styles.val}>{fig('MK-NW-M-052', r.value)}</Text></View>
               <Text style={styles.sub}>{r.institution ? `${r.institution} · ` : ''}{assetKind(a?.kind)?.label ?? 'Other'} · ~{(r.benchmark * 100).toFixed(2)}%/year expected</Text>
             </TouchableOpacity>
             );
@@ -121,8 +121,8 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
     const full = sold >= cur - 0.005;
     Alert.alert(
       full ? 'Sell all of this investment?' : 'Sell part of this investment?',
-      full ? `Marks all ${money(cur)} as sold and removes it from your holdings.`
-           : `Lowers ${label.trim() || 'this investment'} from ${money(cur)} to ${money(cur - sold)} — the sale shows in this account's activity.`,
+      full ? `Marks all ${fig('MK-NW-M-052', cur)} as sold and removes it from your holdings.`
+           : `Lowers ${label.trim() || 'this investment'} from ${fig('MK-NW-M-052', cur)} to ${fig('MK-NW-M-052', cur - sold)} — the sale shows in this account's activity.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: full ? 'Sell all' : 'Sell', onPress: () => {
@@ -164,7 +164,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
               <Text style={styles.hint}>Sold this (or part of it) — e.g. an option before expiration, or some crypto? Enter the proceeds to lower or close the position. To re-mark its price, edit “Current value” above.</Text>
               <View style={styles.sellRow}>
                 <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
-                  placeholder={`amount sold (up to ${money(num(value))})`} placeholderTextColor={Colors.textTertiary} />
+                  placeholder={`amount sold (up to ${fig('MK-NW-M-052', num(value))})`} placeholderTextColor={Colors.textTertiary} />
                 <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sell" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
                   <Text style={styles.sellBtnT}>Record</Text>
                 </TouchableOpacity>

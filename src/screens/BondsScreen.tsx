@@ -6,7 +6,7 @@ import { SectionBand } from '../components/SectionBand';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { money } from '../domain/_shared/num';
+import { fig, figPer, figSpoken } from '../components/figure';   // rule 11
 import { InfoDot, EmptyNote } from '../components/UI';
 import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
@@ -44,7 +44,7 @@ export default function BondsScreen() {
 
       {bonds.length === 0 ? (
         <View style={styles.card}>
-          <Text style={styles.metric}>Total value {money(0)}</Text>
+          <Text style={styles.metric}>Total value {fig('MK-NW-M-041', 0)}</Text>
           <EmptyNote door="bond" onPress={() => setAddOpen(true)} />   {/* Q48 (MK-NW-M-041/042/023) */}
           <Text style={styles.empty}>Track individual bonds — Treasuries, muni or corporate bonds, bond funds/ETFs — with their coupon income, maturity, and yield. They count toward your net worth and retirement nest egg.</Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a bond" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a bond</Text></TouchableOpacity>
@@ -52,11 +52,11 @@ export default function BondsScreen() {
       ) : (
         <>
           <View style={styles.summary}>
-            <Text style={styles.sumVal}>{money(summary.totalValue)}</Text>
-            <Text style={styles.sumLab}>{summary.count} bond{summary.count > 1 ? 's' : ''} · face {money(summary.totalFace)}</Text>
+            <Text style={styles.sumVal}>{fig('MK-NW-M-041', summary.totalValue)}</Text>
+            <Text style={styles.sumLab}>{summary.count} bond{summary.count > 1 ? 's' : ''} · face {fig('MK-NW-M-053', summary.totalFace)}</Text>
             <View style={styles.sumRow}>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{money(summary.couponPerYear)}</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{pct(summary.avgYield)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{fig('MK-NW-M-043', summary.couponPerYear)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-044', summary.avgYield)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>NEXT MATURITY</Text><Text style={styles.sumCellV}>{summary.nextMaturity ? new Date(summary.nextMaturity).getFullYear() : '—'}</Text></View>
             </View>
           </View>
@@ -68,14 +68,14 @@ export default function BondsScreen() {
             const yrs = r.yearsLeft ?? 0;   // G11: no date → no years figure; the sub-line shows the date field instead
             return (
               <TouchableOpacity key={r.accountId} accessibilityRole="button"
-                accessibilityLabel={`${r.institution}, ${money(r.value)}, matures ${humanDate(r.maturity)}. Opens the editor.`}
+                accessibilityLabel={`${r.institution}, ${figSpoken('MK-NW-M-054', r.value)}, matures ${humanDate(r.maturity)}. Opens the editor.`}
                 style={styles.card} onPress={() => acct && setEdit(acct)}>
-                <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.institution}</Text><Text style={styles.bondVal}>{money(r.value)}</Text></View>
-                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${money(r.face)}`, `${(r.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}`]} />
+                <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.institution}</Text><Text style={styles.bondVal}>{fig('MK-NW-M-054', r.value)}</Text></View>
+                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${fig('MK-NW-M-055', r.face)}`, `${(r.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}`]} />
                 <View style={styles.bondMetrics}>
-                  <Text style={styles.metric}>{money(r.couponPerYear)}/year coupon</Text>
-                  <Text style={styles.metric}>yield {pct(r.currentYield)}{r.accruedCaveat ? ' *' : ''}</Text>
-                  <Text style={styles.metric}>Yield to maturity: {pct(r.yieldToMaturity)}</Text>
+                  <Text style={styles.metric}>{figPer('MK-NW-M-056', r.couponPerYear)} coupon</Text>
+                  <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}{r.accruedCaveat ? ' *' : ''}</Text>
+                  <Text style={styles.metric}>Yield to maturity: {fig('MK-NW-M-058', r.yieldToMaturity)}</Text>
                 </View>
                 {!!r.accruedCaveat && <Text style={styles.bondSub}>* {r.accruedCaveat}</Text>}
               </TouchableOpacity>
@@ -101,7 +101,7 @@ export default function BondsScreen() {
             const addAsPartOf = () => { store.updateAsset(dup.asset_id, { balance: Math.max(0, (dup.balance || 0) - bondValue) }); addIt(); };
             Alert.alert(
               'Part of an existing account?',
-              `${dup.institution}'s “${dup.label}” is worth ${money(dup.balance || 0)}. Is this ${money(bondValue)} bond part of that, or additional money?\n\n“Part of it” lowers ${dup.label} by ${money(bondValue)} so nothing is double-counted (total stays ${money(dup.balance || 0)}).`,
+              `${dup.institution}'s “${dup.label}” is worth ${fig('MK-NW-M-054', dup.balance || 0)}. Is this ${fig('MK-NW-M-054', bondValue)} bond part of that, or additional money?\n\n“Part of it” lowers ${dup.label} by ${fig('MK-NW-M-054', bondValue)} so nothing is double-counted (total stays ${fig('MK-NW-M-054', dup.balance || 0)}).`,
               [
                 { text: 'Cancel', style: 'cancel' },
                 { text: 'Additional money', onPress: addIt },
@@ -150,8 +150,8 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     Alert.alert(
       full ? 'Sell all of this bond?' : 'Sell part of this bond?',
       full
-        ? `Marks the whole position (${money(cur)}) as sold and removes it from your holdings.`
-        : `Lowers ${label.trim() || 'this bond'} from ${money(cur)} to ${money(cur - sold)} (face value adjusts proportionally). Coupons are paid on the remaining face — and the sale shows in this account's activity.`,
+        ? `Marks the whole position (${fig('MK-NW-M-054', cur)}) as sold and removes it from your holdings.`
+        : `Lowers ${label.trim() || 'this bond'} from ${fig('MK-NW-M-054', cur)} to ${fig('MK-NW-M-054', cur - sold)} (face value adjusts proportionally). Coupons are paid on the remaining face — and the sale shows in this account's activity.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: full ? 'Sell all' : 'Sell', onPress: () => {
@@ -226,7 +226,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="what it's worth now" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
-          {valid && num(face) > 0 && <Text style={styles.note}>~{money(num(face) * (num(coupon) / 100))}/year in coupon income.</Text>}
+          {valid && num(face) > 0 && <Text style={styles.note}>~{figPer('MK-NW-M-056', num(face) * (num(coupon) / 100))} in coupon income.</Text>}
           <Text style={styles.fieldL}>Account</Text>
           <View style={styles.chips}>{ACCT_TYPES.map((t) => (
             <TouchableOpacity key={t.bucket} accessibilityRole="button" accessibilityLabel={`Account type ${t.label}`} accessibilityState={{ selected: bucket === t.bucket }} style={[styles.chip, bucket === t.bucket && styles.chipOn]} onPress={() => setBucket(t.bucket)}><Text style={[styles.chipT, bucket === t.bucket && styles.chipTOn]}>{t.label}</Text></TouchableOpacity>
@@ -237,7 +237,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
               <Text style={styles.fieldHint}>Sold this bond (or part of it) on the secondary market before maturity? Enter the proceeds to lower or close the position. To just re-mark its price, edit “Current value” above.</Text>
               <View style={styles.sellRow}>
                 <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
-                  placeholder={`amount sold (up to ${money(num(value) > 0 ? num(value) : num(face))})`} placeholderTextColor={Colors.textTertiary} />
+                  placeholder={`amount sold (up to ${fig('MK-NW-M-054', num(value) > 0 ? num(value) : num(face))})`} placeholderTextColor={Colors.textTertiary} />
                 <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sell" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
                   <Text style={styles.sellBtnT}>Record</Text>
                 </TouchableOpacity>
