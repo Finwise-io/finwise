@@ -35984,6 +35984,19 @@
     "MK-NW-M-048"
    ]
   },
+  "/account-detail": {
+   "worker": [
+    "MK-NW-M-018"
+   ],
+   "rich": [
+    "MK-NW-M-018",
+    "MK-NW-M-020",
+    "MK-NW-M-030"
+   ],
+   "retiree": [
+    "MK-NW-M-018"
+   ]
+  },
   "/bonds": {
    "worker": [
     "MK-NW-M-041"
@@ -36116,6 +36129,7 @@
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:69",
    "routes": [
+    "/account-detail",
     "/analytics",
     "/base-pay",
     "/bonds",
@@ -36127,6 +36141,9 @@
     "/other-investments"
    ],
    "states": [
+    "/account-detail|retiree",
+    "/account-detail|rich",
+    "/account-detail|worker",
     "/analytics|retiree",
     "/analytics|rich",
     "/analytics|worker",
@@ -36167,7 +36184,7 @@
     "$108,000",
     "$21,600"
    ],
-   "renders": 119
+   "renders": 173
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:70",
@@ -36626,189 +36643,6 @@
     "$1,031,000"
    ],
    "renders": 10
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:341",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|retiree",
-    "/account-detail|rich",
-    "/account-detail|worker"
-   ],
-   "inside": "AccountDetailScreen",
-   "line": "accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${insideRows.l",
-   "values": [
-    "$120,000",
-    "$300,000",
-    "$20,000",
-    "$400,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:480",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "AccountDetailScreen",
-   "line": "accessibilityLabel={`${ASSET_CLASS_LABEL[k]}, ${spokenMoney(Math.round(total))}, return ${classReturnText(k, total, inClass)}`}>",
-   "values": [
-    "$300,000",
-    "$0"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:491",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "AccountDetailScreen",
-   "line": "accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}, return ${returnTextFor(rw.cls, rw.value, rw.ticker)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.po",
-   "values": [
-    "$300,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:509",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "AccountDetailScreen",
-   "line": "accessibilityLabel={`Total, ${spokenMoney(Math.round(account.balance || 0))}, return ${acctReturnText}`}>",
-   "values": [
-    "$300,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:56",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|retiree",
-    "/account-detail|rich",
-    "/account-detail|worker"
-   ],
-   "inside": "mny",
-   "line": "const mny = (v: number): string => maskedMoney(Math.round(v));",
-   "values": [
-    "$120,000",
-    "$300,000",
-    "$0",
-    "$20,000",
-    "$400,000",
-    "$9,800",
-    "$250,000"
-   ],
-   "renders": 22
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:711",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "BondDetail",
-   "line": "<FactRow label=\"Face value\" value={maskedMoney(one.face)} />",
-   "values": [
-    "$10,000"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:712",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "BondDetail",
-   "line": "<FactRow label=\"Interest payments\" value={`${(one.couponRate * 100).toFixed(2)}%/year · ${maskedMoney(one.couponPerYear)}/year`} />",
-   "values": [
-    "$400"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:727",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "BondDetail",
-   "line": "accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${spokenMoney(one.ratesMove.ratesUp.low)} to ${spokenMoney(one.ratesMove.",
-   "values": [
-    "$9,000",
-    "$10,000"
-   ],
-   "renders": 5
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:733",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "BondDetail",
-   "line": "<Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(one.ratesMove.ratesUp.low)}–{maskedMoney(one.ratesMove.ratesUp.high)} (down about {maskedMoney(Math.abs(one.ratesMove.ratesUp.delta)",
-   "values": [
-    "$9,000",
-    "$0"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:734",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "BondDetail",
-   "line": "<Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(one.ratesMove.ratesDown.low)}–{maskedMoney(one.ratesMove.ratesDown.high)}</Text>",
-   "values": [
-    "$10,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/AccountDetailScreen.tsx:735",
-   "routes": [
-    "/account-detail"
-   ],
-   "states": [
-    "/account-detail|rich"
-   ],
-   "inside": "BondDetail",
-   "line": "<Text style={s.bondNote}>Held to maturity, {maskedMoney(one.face)} comes back — if the issuer pays as promised.</Text>",
-   "values": [
-    "$10,000"
-   ],
-   "renders": 1
   },
   {
    "site": "src/screens/BigCostsScreen.tsx:46",

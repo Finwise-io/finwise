@@ -1043,6 +1043,30 @@
    },
    "door": "MK-NW-O-002 theAccount"
   },
+  "MK-NW-M-062": {
+   "label": "what one record moved",
+   "unit": "money",
+   "screens": [
+    "/account-detail"
+   ],
+   "grain": "one record",
+   "answers": "What this one record added to the account or took out of it.",
+   "formula": "the amount on the record, positive where it came in and negative where it went out",
+   "inputs": [
+    "MK-NW-I-004 the activity records"
+   ],
+   "decisions": [
+    "THE SIGN IS SHOWN AS A WORD OR A MARK, never by colour alone — a plus or a minus in front of the figure, so it reads the same to someone who cannot tell the two colours apart.",
+    "A RECORD YOU TYPED AND ONE THE BROKER SENT BOTH APPEAR, each saying which it is (DEC-0107). A $500 deposit mistyped as $5,000 is only findable if the row says where it came from."
+   ],
+   "refusal": "No records yet — the section keeps its heading and says so.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "A linked Fidelity brokerage worth $46,600: $6,000 in cash and 140 shares of VTI marked at $290 ($40,600). Its records: dividends of $420 and $405, a buy of 20 shares at $200, a sell of 20 at $285.",
+    "answer": "$420"
+   },
+   "door": "MK-NW-O-002 theAccount"
+  },
   "MK-NW-M-022": {
    "label": "ACTIVITY — n records",
    "unit": "count",
@@ -2108,6 +2132,80 @@
    },
    "door": "MK-NW-O-005 theAlternativesOutlook"
   },
+  "MK-PF-M-013": {
+   "label": "Beginning market value",
+   "unit": "money",
+   "screens": [
+    "/account-detail",
+    "/invest"
+   ],
+   "grain": "one account",
+   "answers": "What this one account was worth on the day the window opens, READ from the record — never back-solved from today.",
+   "formula": "the account’s value on the day before the window opens, as recorded",
+   "inputs": [
+    "MK-NW-I-003 the recorded history"
+   ],
+   "decisions": [
+    "IT IS READ, NOT BACK-SOLVED. Working it out from today’s value less the flows would make the walk add up by construction and prove nothing (his ruling behind MK-NW-F-090).",
+    "THE DAY BEFORE THE WINDOW OPENS, not the day it opens — B-115, found 2026-09-30."
+   ],
+   "refusal": "The record does not reach back that far, so the walk is not drawn at all rather than started from a guess.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, with $6,000 paid in on 1 Apr and $825 of dividends received.",
+    "answer": "$30,000"
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-014": {
+   "label": "Wealth generated",
+   "unit": "money",
+   "screens": [
+    "/account-detail"
+   ],
+   "grain": "one account",
+   "answers": "What this one account earned over the window — what is left after the money you put in and took out is accounted for.",
+   "formula": "ending − beginning − contributions + withdrawals",
+   "inputs": [
+    "MK-NW-I-003 the recorded history",
+    "MK-NW-I-004 the activity records"
+   ],
+   "decisions": [
+    "MONEY YOU ADDED IS NOT WEALTH YOU GENERATED. That is the whole distinction this figure exists to draw, and it is why a balance going up is not the same as having earned anything.",
+    "A DIVIDEND IS INSIDE IT, because it was earned by the holding rather than added by you."
+   ],
+   "refusal": "No beginning to measure from — the line shows nothing rather than a change.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, with $6,000 paid in on 1 Apr and $825 of dividends received.",
+    "answer": "$10,600"
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-015": {
+   "label": "one line of the walk",
+   "unit": "money",
+   "screens": [
+    "/account-detail",
+    "/invest"
+   ],
+   "grain": "one line of one account’s walk",
+   "answers": "One step that took this account from its beginning to its ending — money in, money out, or the change in what the holdings are worth.",
+   "formula": "each recorded flow over the window, and the remainder as the change in value",
+   "inputs": [
+    "MK-NW-I-004 the activity records"
+   ],
+   "decisions": [
+    "THE LINES ALWAYS SUM TO THE ENDING, by construction. Whatever the records cannot explain lands in the change-in-value line rather than being silently dropped — a walk that does not add up is worse than no walk."
+   ],
+   "refusal": "No flows recorded — the line is not drawn.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, with $6,000 paid in on 1 Apr and $825 of dividends received.",
+    "answer": "$6,000"
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
   "MK-PF-M-006": {
    "label": "WHAT EACH CATEGORY EARNED — RETURN",
    "unit": "percent-2dp",
@@ -2279,7 +2377,8 @@
    "label": "Ending market value (per account)",
    "unit": "money",
    "screens": [
-    "/invest"
+    "/invest",
+    "/account-detail"
    ],
    "grain": "one account",
    "answers": "What one account is worth at the end of the window.",

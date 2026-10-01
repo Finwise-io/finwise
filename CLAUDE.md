@@ -230,6 +230,32 @@ first before moving forward. I am not going to answer any further questions in t
   it governs, and `check-rulings-sync.py` counts the ones that still name nothing (418 on 2026-09-30,
   a ratchet that may only fall).
 
+## UNDER 60 WORDS, OR DO NOT WRITE IT (founder, 2026-10-01)
+His words, after a paragraph of mine about "grain None", "borrowing the portfolio rows" and "rule 1":
+
+> *"no one but you can read this cryptic language. Anyone who cannot explain thing in less than 60
+> words in a way that 10 year old can understand - basically does not understand the concept and is
+> trying to sound smart without being smart... if you cannot explain in plain english do not bother
+> writing in future."*
+
+**He is right, and the reason matters: jargon is how I hide incomplete understanding from myself.**
+"Grain None means every account together" was always sayable as "this number is for all your accounts
+added up, not one of them". If the plain sentence will not come, that is the signal I have not
+understood the thing — and more words never fix that.
+
+- **Write the plain sentence first.** Then count the words. Over 60, cut; cannot write it, STOP.
+- **Nothing internal in anything he reads.** Not grain, orchestrator, door, ratchet, anchor, figure
+  declaration, one-door, a rule number as shorthand, or an identifier used as a noun. They are for the
+  code and the master file, not for him.
+- **The test:** could a ten-year-old repeat it back? *"Every number on screen needs a name tag so we
+  can check it"* passes. *"Rule 11 declares figures through fig()"* does not.
+
+Worked example of the fix, same content both times. Before: *"the walk on one account shows four
+figures that had no identifier; they are not the portfolio figures above them, those are grain None."*
+After: *"An account page shows how its balance changed: where it started, what you put in, what you
+took out, what it earned, where it ended. Those five numbers had no ID tag. Without a tag, nothing can
+check them."*
+
 ## AN ANCHOR IS NOT COMPLIANCE — VALIDATE THE ARTEFACT (2026-10-01)
 His instruction: *"First go and validate does existing screen mock ups, metrics, functions, code —
 comply with these decisions or not. Go module by module."*

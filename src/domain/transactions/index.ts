@@ -748,7 +748,10 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  *     BUY → −(shares × price)
  *     anything else → 0
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-002 theAccount
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-O-002 theAccount
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

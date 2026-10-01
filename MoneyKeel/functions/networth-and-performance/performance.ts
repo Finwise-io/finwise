@@ -769,6 +769,60 @@ const BENCH = () => portfolioBenchReturn([
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const PERFORMANCE_FIGURES = declareFigures({
+  // ISSUED AND DECLARED 2026-10-01, working rule 11 across the account page. The walk on ONE account
+  // showed four figures with no identifier. They are not the portfolio figures above them: those are
+  // grain None — every account together — and these are one account's own, which is why they need
+  // their own rows rather than borrowing MK-PF-M-001 to 003.
+  'MK-PF-M-013': {
+    label: 'Beginning market value', unit: 'money', screens: ['/account-detail', '/invest'],
+    grain: 'one account',
+    answers: 'What this one account was worth on the day the window opens, READ from the record \u2014 '
+      + 'never back-solved from today.',
+    formula: 'the account\u2019s value on the day before the window opens, as recorded',
+    inputs: ['MK-NW-I-003 the recorded history'],
+    decisions: [
+      'IT IS READ, NOT BACK-SOLVED. Working it out from today\u2019s value less the flows would make the '
+      + 'walk add up by construction and prove nothing (his ruling behind MK-NW-F-090).',
+      'THE DAY BEFORE THE WINDOW OPENS, not the day it opens \u2014 B-115, found 2026-09-30.',
+    ],
+    refusal: 'The record does not reach back that far, so the walk is not drawn at all rather than '
+      + 'started from a guess.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '$30,000', run: () => PERF().walk.beginning },
+  },
+  'MK-PF-M-014': {
+    label: 'Wealth generated', unit: 'money', screens: ['/account-detail'], grain: 'one account',
+    answers: 'What this one account earned over the window \u2014 what is left after the money you put in '
+      + 'and took out is accounted for.',
+    formula: 'ending \u2212 beginning \u2212 contributions + withdrawals',
+    inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
+    decisions: [
+      'MONEY YOU ADDED IS NOT WEALTH YOU GENERATED. That is the whole distinction this figure exists '
+      + 'to draw, and it is why a balance going up is not the same as having earned anything.',
+      'A DIVIDEND IS INSIDE IT, because it was earned by the holding rather than added by you.',
+    ],
+    refusal: 'No beginning to measure from \u2014 the line shows nothing rather than a change.',
+    ruled: '2026-10-01',
+    // $46,600 today, $30,000 at the start, $6,000 paid in: $46,600 − $30,000 − $6,000 = $10,600
+    worked: { given: GIVEN, answer: '$10,600', run: () => PERF().walk.wealthGenerated },
+  },
+  'MK-PF-M-015': {
+    label: 'one line of the walk', unit: 'money', screens: ['/account-detail', '/invest'],
+    grain: 'one line of one account\u2019s walk',
+    answers: 'One step that took this account from its beginning to its ending \u2014 money in, money out, '
+      + 'or the change in what the holdings are worth.',
+    formula: 'each recorded flow over the window, and the remainder as the change in value',
+    inputs: ['MK-NW-I-004 the activity records'],
+    decisions: [
+      'THE LINES ALWAYS SUM TO THE ENDING, by construction. Whatever the records cannot explain lands '
+      + 'in the change-in-value line rather than being silently dropped \u2014 a walk that does not add up '
+      + 'is worse than no walk.',
+    ],
+    refusal: 'No flows recorded \u2014 the line is not drawn.',
+    ruled: '2026-10-01',
+    // money paid in over the window — $6,000 on 1 April
+    worked: { given: GIVEN, answer: '$6,000', run: () => PERF().walk.contributions },
+  },
   'MK-PF-M-006': {
     label: 'WHAT EACH CATEGORY EARNED — RETURN', unit: 'percent-2dp', screens: ['/invest'],
     answers: 'What each kind of holding returned over the window you picked.',
@@ -894,7 +948,10 @@ export const PERFORMANCE_FIGURES = declareFigures({
     },
   },
   'MK-PF-M-004': {
-    label: 'Ending market value (per account)', unit: 'money', screens: ['/invest'], grain: 'one account',
+    // ONE FIGURE ON TWO SCREENS (rule 1): the account page shows the very same ending value, so it
+    // is listed here rather than issued a second identifier.
+    label: 'Ending market value (per account)', unit: 'money', screens: ['/invest', '/account-detail'],
+    grain: 'one account',
     answers: 'What one account is worth at the end of the window.',
     formula: 'the sum of that account’s holdings, at today’s prices, plus its cash',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],

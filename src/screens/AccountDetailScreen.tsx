@@ -9,6 +9,7 @@ import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
+import { fig, figSaid } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 import { periodReturnSince } from '../domain/performance';
@@ -17,7 +18,7 @@ import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bon
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
 import { windowStartKey, rateWhereItRefuses } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
-import { maskedMoney, spokenMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
 import TopBar from '../components/TopBar';
@@ -53,7 +54,8 @@ const pct2 = (v: number | null): string => (v == null ? '—' : `${v >= 0 ? '+' 
 const rateWords = (rate: number): string => `${(rate * 100).toFixed(2)}%/year`;
 /** Money as a person reads it — whole dollars, rounded HERE and nowhere earlier, in one place, so two
  *  rows showing the same figure can never round differently. */
-const mny = (v: number): string => maskedMoney(Math.round(v));
+// `mny` is gone (2026-10-01): every figure on this screen prints through its own identifier,
+// so the screen no longer has a money formatter of its own to reach for.
 /** 'Jul 19' — the short day the approved walk prints in its first and its last row. It carries its own
  *  name because MK-ST-F-003 dayWords already words a date the long way ('19 Jul 2026'). */
 const dayShort = (d: string): string => new Date(`${d}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -135,8 +137,8 @@ export default function AccountDetailScreen() {
   const ledger = ((store.transactions ?? []) as any[]).filter((t) => t.account_id === account.asset_id);
   const incomeOf = (rw: any): string => {
     const words = answer.incomeOfHolding(String(rw.name ?? '').split(' · ')[0].trim()).words;
-    return words.replace(/(\d+) dividends/, (_m, n) => `${maskedMoney(Number(n))} dividends`)
-                .replace(/(\d+) interest/, (_m, n) => `${maskedMoney(Number(n))} interest`);
+    return words.replace(/(\d+) dividends/, (_m, n) => `${fig('MK-NW-M-019', Number(n))} dividends`)
+                .replace(/(\d+) interest/, (_m, n) => `${fig('MK-NW-M-019', Number(n))} interest`);
   };
   const acctIncome = answer.income;
 
@@ -196,7 +198,7 @@ export default function AccountDetailScreen() {
     : acctRefusedRate != null ? pct2(acctRefusedRate) : pct2(null);
   // ONE string for this account's market value: the band, the trio and the Total row all print it,
   // so three places on one screen can never show three different roundings of the same figure.
-  const marketValueText = mny(account.balance || 0);
+  const marketValueText = fig('MK-NW-M-018', account.balance || 0);
   const insideRows = !breakdown ? [] : [
     ...((account.positions ?? []) as any[]).map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
@@ -301,13 +303,13 @@ export default function AccountDetailScreen() {
       {classView && breakdown ? (
         <View style={s.card}>
           <SectionBand inCard title={`${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT`} />
-          <Text style={s.balance}>{mny((breakdown as any)[classView] || 0)}</Text>
+          <Text style={s.balance}>{fig('MK-NW-M-020', (breakdown as any)[classView] || 0)}</Text>
           {/* FOUNDER FINDING 2026-08-11: two bare figures ($224,190 above, $224,690 here) read as a
               mismatch. Say the arithmetic out loud — this slice PLUS everything else IS the total. */}
           <Text style={s.classLine}>
-            {mny((breakdown as any)[classView] || 0)} of {mny(account.balance || 0)} in {accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}
+            {fig('MK-NW-M-020', (breakdown as any)[classView] || 0)} of {fig('MK-NW-M-018', account.balance || 0)} in {accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}
             {Math.round((account.balance || 0) - ((breakdown as any)[classView] || 0)) > 0
-              ? ` — the other ${mny((account.balance || 0) - ((breakdown as any)[classView] || 0))} is ${breakdownClasses.filter((k) => k !== classView).map((k) => ASSET_CLASS_LABEL[k as keyof typeof ASSET_CLASS_LABEL]).join(' + ') || 'other types'}`
+              ? ` — the other ${fig('MK-NW-M-020', (account.balance || 0) - ((breakdown as any)[classView] || 0))} is ${breakdownClasses.filter((k) => k !== classView).map((k) => ASSET_CLASS_LABEL[k as keyof typeof ASSET_CLASS_LABEL]).join(' + ') || 'other types'}`
               : ''}
           </Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="See the whole account"
@@ -320,16 +322,16 @@ export default function AccountDetailScreen() {
               <TouchableOpacity key={rw.key} style={s.insideRow} disabled={!(rw as any).posId}
                 accessibilityRole={(rw as any).posId ? 'button' : undefined} accessible
                 onPress={() => (rw as any).posId && router.push(`/holding-detail?account=${account.asset_id}&position=${(rw as any).posId}` as any)}
-                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}${(rw as any).posId ? '. Opens its page.' : ''}`}>
+                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${figSaid('MK-NW-M-030', Math.abs(rw.value))}${(rw as any).posId ? '. Opens its page.' : ''}`}>
                 <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                 <View style={{ flex: 1 }}>
                   <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
                   {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
                 </View>
-                <Text style={s.optVal}>{mny(rw.value)}</Text>
+                <Text style={s.optVal}>{fig('MK-NW-M-030', rw.value)}</Text>
               </TouchableOpacity>
             ))}
-            <Text style={s.optNote}>{insideRows.filter((rw: any) => rw.cls === classView).map((rw: any) => mny(rw.value)).join(' + ')} = {mny((breakdown as any)[classView] || 0)}. Everything else lives on the whole-account page — one tap away above.</Text>
+            <Text style={s.optNote}>{insideRows.filter((rw: any) => rw.cls === classView).map((rw: any) => fig('MK-NW-M-030', rw.value)).join(' + ')} = {fig('MK-NW-M-020', (breakdown as any)[classView] || 0)}. Everything else lives on the whole-account page — one tap away above.</Text>
           </View>
         </View>
       ) : (
@@ -338,7 +340,7 @@ export default function AccountDetailScreen() {
          list that is right there made the card the first thing a screen reader, and a test looking
          for a holding, landed on. */
       <View style={s.card} accessible
-        accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${insideRows.length === 0 && tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
+        accessibilityLabel={`Balance ${figSaid('MK-NW-M-018', account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${insideRows.length === 0 && tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
         <SectionBand inCard value={marketValueText}
           title={`THIS ACCOUNT${bounds ? ` · SINCE ${dayShort(bounds.beginningAsOf).toUpperCase()}` : ''}`} />
         <Text style={s.balance}>{marketValueText}</Text>
@@ -350,7 +352,7 @@ export default function AccountDetailScreen() {
           <View style={s.trioCell}><Text style={s.trioLbl}>Market value</Text><Text style={s.trioVal}>{marketValueText}</Text></View>
           <View style={s.trioCell}><Text style={s.trioLbl}>Wealth generated</Text>
             <Text style={[s.trioVal, walk != null && walk.wealthGenerated < 0 && { color: Colors.red }]}>
-              {walk == null ? '—' : `${walk.wealthGenerated < 0 ? '−' : ''}${mny(Math.abs(walk.wealthGenerated))}`}
+              {walk == null ? '—' : `${walk.wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(walk.wealthGenerated))}`}
             </Text>
           </View>
           <View style={s.trioCell}><Text style={s.trioLbl}>Return</Text>
@@ -399,7 +401,7 @@ export default function AccountDetailScreen() {
             onPress={() => router.push(`/itemize?accountId=${account.asset_id}` as any)}>
             <Text style={s.itemizeDoorT}>🧩  Itemize into holdings →</Text>
             <Text style={s.itemizeDoorS}>Nothing is recorded inside this account yet. Break it into
-              what it actually holds and the total stays {mny(account.balance || 0)}.</Text>
+              what it actually holds and the total stays {fig('MK-NW-M-018', account.balance || 0)}.</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -411,7 +413,7 @@ export default function AccountDetailScreen() {
           Performance screen uses makes the residual the change in investment value. */}
       {!classView && walk != null && bounds != null && (
         <View style={s.card}>
-          <SectionBand inCard title={`HOW ${mny(walk.beginning)} BECAME ${mny(walk.ending)} · THIS ACCOUNT`} />
+          <SectionBand inCard title={`HOW ${fig('MK-PF-M-013', walk.beginning)} BECAME ${fig('MK-PF-M-004', walk.ending)} · THIS ACCOUNT`} />
           {[
             { l: `Beginning market value (${dayShort(bounds.beginningAsOf)})`, v: walk.beginning },
             { l: 'Contributions', v: walk.contributions },
@@ -429,17 +431,17 @@ export default function AccountDetailScreen() {
               // back to the 44 points a finger needs without stretching the card to twice its height
               hitSlop={{ top: 7, bottom: 7, left: 8, right: 8 }}
               accessibilityRole="button" onPress={() => setShowAll(true)}
-              accessibilityLabel={`${r.l}, ${r.v < 0 ? 'minus ' : ''}${spokenMoney(Math.abs(Math.round(r.v)))}. Opens the activity records behind this walk.`}>
+              accessibilityLabel={`${r.l}, ${r.v < 0 ? 'minus ' : ''}${figSaid('MK-PF-M-015', Math.abs(Math.round(r.v)))}. Opens the activity records behind this walk.`}>
               <Text style={[s.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
               <Text style={[s.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
-                {r.v < 0 ? '−' : ''}{mny(Math.abs(r.v))}
+                {r.v < 0 ? '−' : ''}{fig('MK-PF-M-015', Math.abs(r.v))}
               </Text>
             </TouchableOpacity>
           ))}
           <View style={[s.walkRow, s.walkTotal]} accessible
-            accessibilityLabel={`Ending market value today, ${spokenMoney(Math.round(walk.ending))}`}>
+            accessibilityLabel={`Ending market value today, ${figSaid('MK-PF-M-004', Math.round(walk.ending))}`}>
             <Text style={[s.walkL, { fontWeight: '800' }]}>Ending market value ({dayShort(todayKey)})</Text>
-            <Text style={[s.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{mny(walk.ending)}</Text>
+            <Text style={[s.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig('MK-PF-M-004', walk.ending)}</Text>
           </View>
           <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)}
             accessibilityLabel="Open the activity records behind this walk">
@@ -477,9 +479,9 @@ export default function AccountDetailScreen() {
                     trailing figure and this row carries two (market value AND return). Same band
                     colour, same 11-point caps, same square edge-to-edge bar as every other band. */}
                 <View style={s.classBand} accessible
-                  accessibilityLabel={`${ASSET_CLASS_LABEL[k]}, ${spokenMoney(Math.round(total))}, return ${classReturnText(k, total, inClass)}`}>
+                  accessibilityLabel={`${ASSET_CLASS_LABEL[k]}, ${figSaid('MK-NW-M-020', Math.round(total))}, return ${classReturnText(k, total, inClass)}`}>
                   <Text style={s.classBandT} numberOfLines={1}>{ASSET_CLASS_LABEL[k]}</Text>
-                  <Text style={[s.classBandV, s.colValW]}>{mny(total)}</Text>
+                  <Text style={[s.classBandV, s.colValW]}>{fig('MK-NW-M-020', total)}</Text>
                   <Text style={[s.classBandV, s.colRetW]}>{classReturnText(k, total, inClass)}</Text>
                 </View>
                 {inClass.length === 0 && <Text style={s.insideEmpty}>Nothing held in this account</Text>}
@@ -488,13 +490,13 @@ export default function AccountDetailScreen() {
                     <TouchableOpacity style={s.insideRow} disabled={!rw.posId}
                       accessibilityRole={rw.posId ? 'button' : undefined} accessible
                       onPress={() => rw.posId && router.push(`/holding-detail?account=${account.asset_id}&position=${rw.posId}` as any)}
-                      accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}, return ${returnTextFor(rw.cls, rw.value, rw.ticker)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
+                      accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${figSaid('MK-NW-M-030', Math.abs(rw.value))}, return ${returnTextFor(rw.cls, rw.value, rw.ticker)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
                       <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                       <View style={{ flex: 1 }}>
                         <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
                         {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
                       </View>
-                      <Text style={[s.optVal, s.colValW]}>{mny(rw.value)}</Text>
+                      <Text style={[s.optVal, s.colValW]}>{fig('MK-NW-M-030', rw.value)}</Text>
                       <Text style={[s.optRet, s.colRetW]}>{returnTextFor(rw.cls, rw.value, rw.ticker)}</Text>
                     </TouchableOpacity>
                     {!!incomeOf(rw) && <Text style={s.incomeLine}>Income: {incomeOf(rw)}</Text>}
@@ -506,7 +508,7 @@ export default function AccountDetailScreen() {
           {/* the Total row (mock v14): the account's market value and the account's return — the SAME
               string the header trio printed, so the two places can never say different things. */}
           <View style={[s.insideRow, s.totalRow]} accessible
-            accessibilityLabel={`Total, ${spokenMoney(Math.round(account.balance || 0))}, return ${acctReturnText}`}>
+            accessibilityLabel={`Total, ${figSaid('MK-NW-M-018', Math.round(account.balance || 0))}, return ${acctReturnText}`}>
             <Text style={[s.optLabel, { fontWeight: '800' }]}>Total</Text>
             <Text style={[s.optVal, s.colValW]}>{marketValueText}</Text>
             <Text style={[s.optRet, s.colRetW, { fontWeight: '800' }]}>{acctReturnText}</Text>
@@ -515,7 +517,7 @@ export default function AccountDetailScreen() {
             Counted inside this account's total — listed here so nothing is hidden. A holding's return is
             what its own price did in this window; the income it paid sits on the line beneath it. Income sits with the
             holding that earned it{acctIncome > 0
-              ? <Text> — <Text style={s.optNoteFig}>{mny(acctIncome)}</Text> for this account</Text>
+              ? <Text> — <Text style={s.optNoteFig}>{fig('MK-NW-M-019', acctIncome)}</Text> for this account</Text>
               : null}.
           </Text>
         </View>
@@ -607,7 +609,11 @@ export default function AccountDetailScreen() {
         {txns.length === 0 && <Text style={s.empty}>Log a deposit or a buy — your history starts here.</Text>}
         {shown.map((t) => {
           const incoming = String(t.counter_account_id) === String(id) && t.type === 'TRANSFER';
-          const eff = incoming ? (t.amount || 0) : cashEffect(t);
+          // THE AMOUNT COMES FROM THE DOOR (2026-10-01). It was calculated here — a transfer coming
+          // in counts as its own amount, anything else as its cash effect — which is a money figure
+          // calculated on a screen. MK-NW-O-002 theAccount answers it, and the screen prints it.
+          const eff = answer.activity.find((a) => a.recordId === String(t.id))?.amount
+            ?? (incoming ? (t.amount || 0) : cashEffect(t));
             // HANDOFF 2026-08-11: a row is either the BROKER'S fact or YOURS, and the list has to say
             // which. A broker row cannot be edited — the next sync would overwrite it — so it says
             // where it came from and offers nothing. A row you entered is yours to correct, so it wears
@@ -617,20 +623,20 @@ export default function AccountDetailScreen() {
             const from = mine ? 'you entered this' : `from ${account.institution?.trim() || 'your broker'}`;
             return (
             <View key={String(t.id)} style={s.txnRow} accessible
-              accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${spokenMoney(Math.abs(eff))}. ${mine ? 'You entered this — editable.' : `${from}, read-only.`}`}>
+              accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${figSaid('MK-NW-M-062', Math.abs(eff))}. ${mine ? 'You entered this — editable.' : `${from}, read-only.`}`}>
               <Text style={s.txnDate}>{String(t.date).slice(5)}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={s.txnLabel} numberOfLines={1}>
-                  {txnLabel(t.type)}{t.ticker ? ` ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${maskedMoney(t.price)}` : ''}` : ''}
+                  {txnLabel(t.type)}{t.ticker ? ` ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${fig('MK-NW-M-061', t.price)}` : ''}` : ''}
                 </Text>
                 <Text style={mine ? s.txnMine : s.txnFrom}>{from}</Text>
               </View>
               <Text style={[s.txnAmt, { color: eff >= 0 ? Colors.gainText : Colors.textPrimary }]}>
-                {eff >= 0 ? '+' : '−'}{maskedMoney(Math.abs(eff))}
+                {eff >= 0 ? '+' : '−'}{fig('MK-NW-M-062', Math.abs(eff))}
               </Text>
               {mine ? (
                 <Text style={s.txnEdit} onPress={() => setEditRow(t)} suppressHighlighting
-                  accessibilityRole="button" accessibilityLabel={`Edit or delete your ${txnLabel(t.type).toLowerCase()} of ${spokenMoney(Math.abs(eff))}`}>✎</Text>
+                  accessibilityRole="button" accessibilityLabel={`Edit or delete your ${txnLabel(t.type).toLowerCase()} of ${figSaid('MK-NW-M-062', Math.abs(eff))}`}>✎</Text>
               ) : <Text style={s.txnEditGap} />}
             </View>
           );
@@ -708,8 +714,8 @@ function BondDetail({ account }: { account: AssetAccount }) {
     <>
       <View style={s.card}>
         <Text style={s.cardHdr2}>BOND FACTS</Text>
-        <FactRow label="Face value" value={maskedMoney(one.face)} />
-        <FactRow label="Interest payments" value={`${(one.couponRate * 100).toFixed(2)}%/year · ${maskedMoney(one.couponPerYear)}/year`} />
+        <FactRow label="Face value" value={fig('MK-NW-M-023', one.face)} />
+        <FactRow label="Interest payments" value={`${(one.couponRate * 100).toFixed(2)}%/year · ${fig('MK-NW-M-056', one.couponPerYear)}/year`} />
         <FactRow label="Matures" value={matured ? `${one.maturity} (matured)` : `${one.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`} />
         {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${(one.yieldToMaturity * 100).toFixed(2)}% · estimate`} />}
         {one.currentYield != null && <FactRow label="Yield on today's value" value={`${(one.currentYield * 100).toFixed(2)}%`} />}
@@ -724,15 +730,15 @@ function BondDetail({ account }: { account: AssetAccount }) {
       )}
       {one.ratesMove && !isCD && (
         <View style={s.card} accessible
-          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${spokenMoney(one.ratesMove.ratesUp.low)} to ${spokenMoney(one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${spokenMoney(one.ratesMove.ratesDown.low)} to ${spokenMoney(one.ratesMove.ratesDown.high)}. Held to maturity, ${spokenMoney(one.face)} comes back if the issuer pays as promised.`}>
+          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${figSaid('MK-NW-M-023', one.ratesMove.ratesUp.low)} to ${figSaid('MK-NW-M-023', one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${figSaid('MK-NW-M-023', one.ratesMove.ratesDown.low)} to ${figSaid('MK-NW-M-023', one.ratesMove.ratesDown.high)}. Held to maturity, ${figSaid('MK-NW-M-023', one.face)} comes back if the issuer pays as promised.`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
             <InfoDot term="rateSensitivity" />
           </View>
           <EstimateTag />
-          <Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(one.ratesMove.ratesUp.low)}–{maskedMoney(one.ratesMove.ratesUp.high)} (down about {maskedMoney(Math.abs(one.ratesMove.ratesUp.delta))})</Text>
-          <Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(one.ratesMove.ratesDown.low)}–{maskedMoney(one.ratesMove.ratesDown.high)}</Text>
-          <Text style={s.bondNote}>Held to maturity, {maskedMoney(one.face)} comes back — if the issuer pays as promised.</Text>
+          <Text style={s.bondLine}>Rates rise 1% → value roughly {fig('MK-NW-M-023', one.ratesMove.ratesUp.low)}–{fig('MK-NW-M-023', one.ratesMove.ratesUp.high)} (down about {fig('MK-NW-M-023', Math.abs(one.ratesMove.ratesUp.delta))})</Text>
+          <Text style={s.bondLine}>Rates fall 1% → value roughly {fig('MK-NW-M-023', one.ratesMove.ratesDown.low)}–{fig('MK-NW-M-023', one.ratesMove.ratesDown.high)}</Text>
+          <Text style={s.bondNote}>Held to maturity, {fig('MK-NW-M-023', one.face)} comes back — if the issuer pays as promised.</Text>
         </View>
       )}
     </>
@@ -836,9 +842,9 @@ function RecordActivitySheet({ account, kinds, onClose }: { account: AssetAccoun
   };
 
   const preview = !ready ? null
-    : action === 'TRANSFER' ? `−${maskedMoney(amt)} from ${account.label} → +${maskedMoney(amt)} into ${dest?.label}`
-    : action === 'WITHDRAWAL' ? `−${maskedMoney(amt)} from ${account.label}`
-    : `+${maskedMoney(amt)} into ${account.label}`;
+    : action === 'TRANSFER' ? `−${typedAmount(amt)} from ${account.label} → +${typedAmount(amt)} into ${dest?.label}`
+    : action === 'WITHDRAWAL' ? `−${typedAmount(amt)} from ${account.label}`
+    : `+${typedAmount(amt)} into ${account.label}`;
 
   return (
     <Modal visible={kinds != null} transparent animationType={modalAnimation()} onRequestClose={onClose}>

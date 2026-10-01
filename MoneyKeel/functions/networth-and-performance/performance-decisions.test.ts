@@ -9,7 +9,7 @@
  *  green, and nobody looking at MK-PF-M-007 could find what holds it. Before this file, one test in
  *  the whole repository named a Performance figure by its identifier.
  *
- *  Twelve figures carry sixteen decisions. Each one gets a test named for the figure it belongs to,
+ *  Fifteen figures carry nineteen decisions. Each one gets a test named for the figure it belongs to,
  *  and the test re-runs the decision against the real function — never a copy of the arithmetic.
  */
 import { thePerformance, categoryEarnings, windowStartKey } from './performance';
@@ -148,6 +148,49 @@ describe('MK-PF-M-001 Ending value and MK-PF-M-004 Ending market value (per acco
     const one = ask({ ending: 33_000, snapshotDays: days, investmentAccountIds: new Set(['a1']) });
     const two = ask({ ending: 22_000, snapshotDays: days, investmentAccountIds: new Set(['a2']) });
     expect(one.walk.ending + two.walk.ending).toBe(both.walk.ending);
+  });
+});
+
+// ── MK-PF-M-013 / 014 / 015 · the walk on ONE account (the account page) ────────────────────────
+// Three figures the account page shows that had no identifier until 2026-10-01: where the account
+// started, what it earned, and each step in between. They are not the whole-portfolio figures above
+// them — those add every account together — so they carry their own identifiers.
+describe('MK-PF-M-013 Beginning market value', () => {
+  test('it is READ from the record, never worked back from today', () => {
+    // the same ending with a DIFFERENT recorded start must give a different beginning. If the
+    // beginning were back-solved from today's value less the flows, both would come out the same and
+    // the walk would add up by construction while proving nothing.
+    const a = ask({ ending: 50_000, snapshotDays: [recordDay('2026-01-01', 30_000, 'a1')] as any,
+                    investmentAccountIds: new Set(['a1']) });
+    const b = ask({ ending: 50_000, snapshotDays: [recordDay('2026-01-01', 40_000, 'a1')] as any,
+                    investmentAccountIds: new Set(['a1']) });
+    expect(a.walk.beginning).not.toBe(b.walk.beginning);
+    expect(a.walk.beginning).toBe(30_000);
+    expect(b.walk.beginning).toBe(40_000);
+  });
+});
+
+describe('MK-PF-M-014 Wealth generated', () => {
+  test('money you paid in is NOT counted as wealth you generated', () => {
+    // same start, same end — but one of them got there with $5,000 of your own money paid in, so it
+    // earned $5,000 less. That difference is the whole reason this figure exists.
+    const days = [recordDay('2026-01-01', 30_000, 'a1')] as any;
+    const alone = ask({ ending: 40_000, snapshotDays: days, investmentAccountIds: new Set(['a1']) });
+    const withPayIn = ask({ ending: 40_000, snapshotDays: days, investmentAccountIds: new Set(['a1']),
+      transactions: [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1',
+                       amount: 5_000, created_at: 'x' }] as any });
+    expect(alone.walk.wealthGenerated - withPayIn.walk.wealthGenerated).toBe(5_000);
+  });
+});
+
+describe('MK-PF-M-015 one line of the walk', () => {
+  test('the lines always add up to the ending — a walk that does not is worse than no walk', () => {
+    const a = ask({ ending: 46_600, snapshotDays: [recordDay('2026-01-01', 30_000, 'a1')] as any,
+      investmentAccountIds: new Set(['a1']),
+      transactions: [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1',
+                       amount: 6_000, created_at: 'x' }] as any });
+    const w = a.walk;
+    expect(w.beginning + w.contributions - w.withdrawals + w.wealthGenerated).toBeCloseTo(w.ending, 2);
   });
 });
 

@@ -57,5 +57,13 @@ export const fig = (id: string, value: number | null): string => print(id, value
 export const figPer = (id: string, value: number | null): string => print(id, value, false, true);
 /** The figure as a screen reader says it — with the label, so it is a sentence and not a bare number. */
 export const figSpoken = (id: string, value: number | null): string => `${figureSpec(id).label}: ${print(id, value, true, true)}`;
+/** THE FIGURE AS A SCREEN READER SAYS IT, WITHOUT ITS LABEL — for the middle of a sentence.
+ *
+ *  `figSpoken` puts the label in front, which is right when the figure stands alone: "Market value:
+ *  $46,600". Used inside a sentence the label lands in the middle of it, and on 2026-10-01 that is
+ *  exactly what happened — an activity row came out as "Withdrawal, minus what one record moved:
+ *  $300" instead of "Withdrawal, minus $300". The sentence around the figure already names it, so
+ *  here the number is said on its own: spoken wording, masked under hide-balances, no label. */
+export const figSaid = (id: string, value: number | null): string => print(id, value, true, true);
 /** The words beside it, from the declaration — so the screen and the master file cannot say different things. */
 export const figLabel = (id: string): string => figureSpec(id).label;

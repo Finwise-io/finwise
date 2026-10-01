@@ -117,6 +117,7 @@ export interface HoldingAnswer {
  *
  * Serves ...... MK-NW-M-029 · MK-NW-M-030 · MK-NW-M-031 · MK-NW-M-033
  *               MK-NW-M-034 · MK-NW-M-035 · MK-NW-M-036 · MK-NW-M-037
+ *               MK-NW-M-059 · MK-NW-M-060 · MK-NW-M-061
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)

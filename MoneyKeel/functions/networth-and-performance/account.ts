@@ -12,6 +12,7 @@
 //   · a class breakdown exists only for a linked account. A hand-entered lump has no inside until
 //     someone itemises it, and inventing one would be a number nobody entered.
 import { declareFigures } from '../_figure-spec';
+import { cashEffect } from '../../../src/domain/transactions';
 import type { AssetAccount } from '../../../src/domain/assets';
 import { accountClassBreakdown, ASSET_CLASS_LABEL } from '../../../src/domain/assets';
 import { itemizedTotal, itemizeRemainder, type ItemHolding } from '../../../src/domain/assets/itemize';
@@ -31,6 +32,11 @@ export interface TheAccount {
   inside: ClassSlice[] | null;
   /** How many records the ledger holds for it. */
   activityCount: number;
+  /** EACH RECORD, and what it moved. The screen worked the amount out itself from the ledger — a
+   *  transfer coming IN counts as its own amount, anything else as its cash effect — which is a money
+   *  figure calculated on a screen. The door answers it now (2026-10-01). */
+  activity: { recordId: string; date: string; type: string; ticker: string | null;
+              amount: number; mine: boolean }[];
   /** The income of one holding, by ticker — blank when the record does not say which holding paid. */
   incomeOfHolding: (ticker: string | null | undefined) => HoldingIncome;
 }
@@ -106,6 +112,8 @@ export interface Itemising {
  * Serves ...... MK-NW-M-019 · MK-NW-M-020 · MK-NW-M-021 · MK-NW-M-038
  *               MK-NW-M-039 · MK-NW-M-040
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-008 transaction amount
+ *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  * Ruled by .... DEC-0008 · DEC-0010 · DEC-0019 · DEC-0045 · DEC-0051 · DEC-0070
  *               DEC-0090 · DEC-0092 · DEC-0095 · DEC-0096 · DEC-0108 · DEC-0149
@@ -115,6 +123,7 @@ export interface Itemising {
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-002
@@ -155,6 +164,16 @@ export function theAccount(input: {
     marketValue: account.balance || 0,
     income: income.dividends.add(income.interest).toNumber(2),
     inside,
+    activity: ledger.map((t: any) => ({
+      recordId: String(t.id ?? ''),
+      date: String(t.date ?? ''),
+      type: String(t.type ?? ''),
+      ticker: t.ticker ?? null,
+      // a transfer INTO this account is its own amount; everything else is its effect on cash
+      amount: (String(t.counter_account_id) === String(account.asset_id) && t.type === 'TRANSFER')
+        ? (t.amount || 0) : cashEffect(t),
+      mine: t.source !== 'connected',
+    })),
     activityCount: ledger.length,
     incomeOfHolding,
   };
@@ -304,6 +323,25 @@ export const ACCOUNT_FIGURES = declareFigures({
       answer: '825 dividends',
       run: () => ACC().incomeOfHolding('VTI').words,
     },
+  },
+  // ISSUED AND DECLARED 2026-10-01. The activity list said HOW MANY records there were and showed
+  // each one's amount — but only the count had a name. The amounts are what a person actually reads
+  // down the list, and they are what a mistyped deposit hides in.
+  'MK-NW-M-062': {
+    label: 'what one record moved', unit: 'money', screens: ['/account-detail'], grain: 'one record',
+    answers: 'What this one record added to the account or took out of it.',
+    formula: 'the amount on the record, positive where it came in and negative where it went out',
+    inputs: ['MK-NW-I-004 the activity records'],
+    decisions: [
+      'THE SIGN IS SHOWN AS A WORD OR A MARK, never by colour alone \u2014 a plus or a minus in front of '
+      + 'the figure, so it reads the same to someone who cannot tell the two colours apart.',
+      'A RECORD YOU TYPED AND ONE THE BROKER SENT BOTH APPEAR, each saying which it is (DEC-0107). A '
+      + '$500 deposit mistyped as $5,000 is only findable if the row says where it came from.',
+    ],
+    refusal: 'No records yet \u2014 the section keeps its heading and says so.',
+    ruled: '2026-10-01',
+    // the first record in this example is a $420 dividend
+    worked: { given: GIVEN, answer: '$420', run: () => ACC().activity[0].amount },
   },
   'MK-NW-M-022': {
     label: 'ACTIVITY — n records', unit: 'count', screens: ['/account-detail'], grain: 'one account',
