@@ -3,7 +3,7 @@
   "id": "DEC-0071",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.2727272727272727,
   "missing": [
    "donut",
@@ -45,7 +45,7 @@
   "id": "DEC-0449",
   "tab": "networth",
   "decided": "2026-06-30",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.3125,
   "missing": [
    "abbreviation",
@@ -66,7 +66,7 @@
   "id": "DEC-0091",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.391304347826087,
   "missing": [
    "alternated",
@@ -90,7 +90,7 @@
   "id": "DEC-0095",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.42105263157894735,
   "missing": [
    "broker",
@@ -111,7 +111,7 @@
   "id": "DEC-0098",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.45,
   "missing": [
    "actually",
@@ -132,7 +132,7 @@
   "id": "DEC-0107",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.46153846153846156,
   "missing": [
    "broker",
@@ -149,7 +149,7 @@
   "id": "DEC-0280",
   "tab": "networth",
   "decided": "2026-08-26",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.46153846153846156,
   "missing": [
    "accrued",
@@ -166,7 +166,7 @@
   "id": "DEC-0068",
   "tab": "networth",
   "decided": "2026-08-10",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.47619047619047616,
   "missing": [
    "angle",
@@ -187,7 +187,7 @@
   "id": "DEC-0251",
   "tab": "networth",
   "decided": "2026-09-08",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.4782608695652174,
   "missing": [
    "across",
@@ -209,7 +209,7 @@
   "id": "DEC-0317",
   "tab": "networth",
   "decided": "2026-08-20",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.48,
   "missing": [
    "chooses",
@@ -250,7 +250,7 @@
   "id": "DEC-0074",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.5,
   "missing": [
    "apart",
@@ -268,7 +268,7 @@
   "id": "DEC-0081",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.5,
   "missing": [
    "control",
@@ -285,7 +285,7 @@
   "id": "DEC-0106",
   "tab": "performance",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.5263157894736842,
   "missing": [
    "filed",
@@ -304,7 +304,7 @@
   "id": "DEC-0060",
   "tab": "networth",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.5357142857142857,
   "missing": [
    "area",
@@ -327,7 +327,7 @@
   "id": "DEC-0103",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.5384615384615384,
   "missing": [
    "alone",
@@ -343,7 +343,7 @@
   "id": "DEC-0316",
   "tab": "performance",
   "decided": "2026-08-20",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.5384615384615384,
   "missing": [
    "band",
@@ -365,7 +365,7 @@
   "id": "DEC-0471",
   "tab": "networth",
   "decided": "2026-07-01",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.5454545454545454,
   "missing": [
    "adjusting",
@@ -403,7 +403,7 @@
   "id": "DEC-0041",
   "tab": "performance",
   "decided": "2026-08-03",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.5652173913043478,
   "missing": [
    "actually",
@@ -423,7 +423,7 @@
   "id": "DEC-0444",
   "tab": "performance",
   "decided": "2026-06-30",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.5652173913043478,
   "missing": [
    "assumes",
@@ -443,7 +443,7 @@
   "id": "DEC-0070",
   "tab": "networth",
   "decided": "2026-08-10",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.5769230769230769,
   "missing": [
    "among",
@@ -484,7 +484,7 @@
   "id": "DEC-0089",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.6,
   "missing": [
    "grouping",
@@ -500,7 +500,7 @@
   "id": "DEC-0096",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.6,
   "missing": [
    "deposit",
@@ -516,7 +516,7 @@
   "id": "DEC-0250",
   "tab": "networth",
   "decided": "2026-09-08",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.6363636363636364,
   "missing": [
    "approximation",
@@ -530,7 +530,7 @@
   "id": "DEC-0298",
   "tab": "networth",
   "decided": "2026-08-20",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.6363636363636364,
   "missing": [
    "means",
@@ -544,7 +544,7 @@
   "id": "DEC-0064",
   "tab": "performance",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.6363636363636364,
   "missing": [
    "appear",
@@ -577,7 +577,7 @@
   "id": "DEC-0045",
   "tab": "networth",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.65,
   "missing": [
    "come",
@@ -594,7 +594,7 @@
   "id": "DEC-0067",
   "tab": "networth",
   "decided": "2026-08-10",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.6521739130434783,
   "missing": [
    "become",
@@ -612,7 +612,7 @@
   "id": "DEC-0022",
   "tab": "performance",
   "decided": "2026-08-01",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.65625,
   "missing": [
    "average",
@@ -633,7 +633,7 @@
   "id": "DEC-0335",
   "tab": "networth",
   "decided": "2026-09-12",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.6666666666666666,
   "missing": [
    "assumed",
@@ -648,7 +648,7 @@
   "id": "DEC-0337",
   "tab": "performance",
   "decided": "2026-09-12",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.6666666666666666,
   "missing": [
    "described",
@@ -662,7 +662,7 @@
   "id": "DEC-0077",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.6818181818181818,
   "missing": [
    "edges",
@@ -695,7 +695,7 @@
   "id": "DEC-0030",
   "tab": "performance",
   "decided": "2026-08-02",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.7,
   "missing": [
    "drawing",
@@ -708,7 +708,7 @@
   "id": "DEC-0052",
   "tab": "networth",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.7058823529411765,
   "missing": [
    "doughnut",
@@ -723,7 +723,7 @@
   "id": "DEC-0321",
   "tab": "networth",
   "decided": "2026-08-20",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.7272727272727273,
   "missing": [
    "capital-gains",
@@ -750,7 +750,7 @@
   "id": "DEC-0249",
   "tab": "networth",
   "decided": "2026-09-08",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.75,
   "missing": [
    "defined",
@@ -762,7 +762,7 @@
   "id": "DEC-0437",
   "tab": "performance",
   "decided": "",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.75,
   "missing": [
    "current",
@@ -774,7 +774,7 @@
   "id": "DEC-0047",
   "tab": "networth",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.7586206896551724,
   "missing": [
    "classes",
@@ -791,7 +791,7 @@
   "id": "DEC-0001",
   "tab": "performance",
   "decided": "2026-07-19",
-  "mock": "moneykeel_pres_mock_performance_v16.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
+  "mock": "moneykeel_pres_mock_performance_v16.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_look-ahead_v04.html · moneykeel_pres_mock_investments_v07.html",
   "share": 0.7586206896551724,
   "missing": [
    "carry",
@@ -838,7 +838,7 @@
   "id": "DEC-0061",
   "tab": "networth",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.7692307692307693,
   "missing": [
    "hand-entered",
@@ -854,7 +854,7 @@
   "id": "DEC-0069",
   "tab": "networth",
   "decided": "2026-08-10",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.7692307692307693,
   "missing": [
    "closing",
@@ -882,7 +882,7 @@
   "id": "DEC-0090",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.7777777777777778,
   "missing": [
    "actually",
@@ -894,7 +894,7 @@
   "id": "DEC-0072",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.7894736842105263,
   "missing": [
    "beneath",
@@ -908,7 +908,7 @@
   "id": "DEC-0075",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.8,
   "missing": [
    "beneath",
@@ -941,7 +941,7 @@
   "id": "DEC-0175",
   "tab": "networth",
   "decided": "2026-08-17",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.8125,
   "missing": [
    "include",
@@ -979,7 +979,7 @@
   "id": "DEC-0062",
   "tab": "networth",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.8333333333333334,
   "missing": [
    "dropped",
@@ -1007,7 +1007,7 @@
   "id": "DEC-0007",
   "tab": "networth",
   "decided": "2026-07-28",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.8571428571428571,
   "missing": [
    "main",
@@ -1019,7 +1019,7 @@
   "id": "DEC-0048",
   "tab": "networth",
   "decided": "2026-08-04",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.8571428571428571,
   "missing": [
    "path"
@@ -1054,7 +1054,7 @@
   "id": "DEC-0023",
   "tab": "networth",
   "decided": "2026-08-01",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.8666666666666667,
   "missing": [
    "effectively",
@@ -1066,7 +1066,7 @@
   "id": "DEC-0258",
   "tab": "networth",
   "decided": "2026-09-08",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.875,
   "missing": [
    "specification"
@@ -1077,7 +1077,7 @@
   "id": "DEC-0073",
   "tab": "networth",
   "decided": "2026-08-11",
-  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-as-built_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+  "mock": "moneykeel_pres_mock_net-worth-quiet-instrument_v08.html · archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html · moneykeel_pres_mock_add-account-by-hand_v01.html · moneykeel_pres_mock_empty-state-pattern_v01.html · moneykeel_pres_mock_investments_v07.html · moneykeel_pres_mock_ways-to-add-an-account_v10.html",
   "share": 0.8823529411764706,
   "missing": [
    "add-or-connect",

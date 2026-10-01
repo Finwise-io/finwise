@@ -40,15 +40,15 @@ IN_FORCE = {
                   CF + 'moneykeel_pres_mock_income-end-to-end_v07.html',
                   CF + 'moneykeel_pres_mock_filing-status-question_v03.html'], '2026-09-28'),
     'networth': ([NW + 'moneykeel_pres_mock_net-worth-quiet-instrument_v08.html',
-                  NW + 'moneykeel_pres_mock_account-detail_v01.html',
-                  NW + 'moneykeel_pres_mock_add-account-as-built_v01.html',
+                  NW + 'archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html',
+                  NW + 'moneykeel_pres_mock_add-account-by-hand_v01.html',
                   NW + 'moneykeel_pres_mock_empty-state-pattern_v01.html',
                   NW + 'moneykeel_pres_mock_investments_v07.html',
                   HS + 'moneykeel_pres_mock_ways-to-add-an-account_v10.html'], '2026-09-14'),
     # v14 was archived with its date on 2026-09-30 when v15 went to him; the review reads the
     # CURRENT design document, which is v15 until he rules on it.
     'performance': ([NW + 'moneykeel_pres_mock_performance_v17.html',
-                     NW + 'moneykeel_pres_mock_account-detail_v01.html',
+                     NW + 'archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html',
                      NW + 'moneykeel_pres_mock_look-ahead_v04.html',
                      NW + 'moneykeel_pres_mock_investments_v07.html'], '2026-09-25'),
 }

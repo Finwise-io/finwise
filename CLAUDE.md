@@ -86,7 +86,7 @@ the founder had approved all of it. Never again.
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html` (the current Performance
   design document, WAITING ON HIM since 2026-09-30 — every colour on the app's own tokens, and the rate where the
   Return refuses. What is BUILT is v14, approved 2026-09-25, now dated in `archive/`),
-  `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-detail_v01.html`. Numbers inside mocks must ADD UP (accuracy rule applies).
+  `MoneyKeel/documents/networth-and-performance/archive/2026-10-01_moneykeel_pres_mock_account-detail_v01.html`. Numbers inside mocks must ADD UP (accuracy rule applies).
 - WHICH DESIGN EACH SCREEN IS BUILT FROM, and which is current, lives in ONE record:
   `MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md`. Read it at step 0 and update it the same day an approval changes it.
 - A mock is only satisfied when the built screen matches it in EVERY data state — including a

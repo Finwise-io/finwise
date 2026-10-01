@@ -39,6 +39,26 @@ Rulings made after Build 53 that change these screens are in the Changelog tab o
 
 **Plan, 2026-09-26.** Three copies of `Plan.dc.html` exist in `August 14th Design/` and they DIFFER (`design_handoff_net_worth/` is the v4 one the design notes sit beside; `Claude-Design-handoff-received-2026-08-13/` and `A-instructions for claude/Plan screen/` are older). The one that counts now lives at `MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v05.html`; the raw v4 is in that folder's `archive/`. Do not read the `August 14th Design/` copies for design truth again.
 
+## Net worth module, 2026-10-01 — what still has no approved design
+
+His seven-step process, step 1.a, counts a screen as done only when it is designed, approved AND coded.
+All twelve screens of the Net worth module are coded. After his approvals of 2026-10-01 three of the
+twelve have an approved design: Net worth itself, Account detail and Add an account by hand.
+
+| Screen | Design today | What it needs |
+|---|---|---|
+| Bonds · Other investments · Holding detail | `moneykeel_pres_mock_investments_v07.html` draws all three — bonds, alternatives and a holding | **His evaluation.** The file exists and carries no approval of his. |
+| Itemize | nothing current. Build-53-era `08-itemize` is dated in `archive/`, which means replaced | **A mock, drawn first.** |
+| Import holdings | nothing current; `09-import-holdings` is dated in `archive/`. `ways-to-add-an-account_v10` frame 9 shows the door into it, not the screen | **A mock, drawn first.** |
+| Stress test | nothing. `look-ahead_v04` is the Cash flow look-ahead screen, not this one | **A mock, drawn first.** |
+| Job safety | nothing | **A mock, drawn first.** |
+| Home | nothing for the whole screen; `ways-to-add-an-account_v10` frame 1 draws only its first day | **A mock, drawn first.** |
+| Insights | nothing | **A mock, drawn first.** |
+
+Drawing those six is mine, not a question for him (mock-first standing order). They are drawn from the
+census strings, the screen's own StyleSheet and the navigator header — never from an older mock's CSS.
+
+
 ## Screens not yet recorded
 
 Home and every screen opened from another screen still need their Build 53 design traced by the same method. (Cash flow's designs ARE approved, filed and — since 2026-09-26 — on the canon; see the table below. What it still lacks is the traced link from a build to a mock, which needs git.) Until then, a task that touches one of them starts by tracing it.
@@ -49,7 +69,9 @@ The file each next task on that screen starts from. It is updated the same day a
 
 | Screen | Current approved design | Waiting for approval |
 |---|---|---|
-| Net worth | `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` (approved 2026-09-14; built the same day) | — |
+| Net worth | `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` — **ALL SEVEN FRAMES, A TO G, APPROVED 2026-10-01** (*"Quite Instrument v08 - approved all screens from A to G"*, DEC-0644). A with data by category · B all collapsed and the down case · C the first day · D the missing-data banner · E the change walk · F the fix sheet · G the add sheet. The screen itself was approved 2026-09-14 and built the same day; the four sheets had no approval on record until now, and none of them has been mock-matched. | — |
+| Account detail (Account portfolio) | `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html` **frame 2, ACCOUNT PORTFOLIO — approved 2026-10-01** (*"Account detail screen should be same as Account Portfolio screen - use approved screen - Perf v17 #2"*, DEC-0646). It is ONE screen with one design: `account-detail_v01` drew the same surface differently and is **rejected**, dated into `archive/` on 2026-10-01. **Frames 1, 3, 4 and 5 of v17 are NOT covered by this approval** and still wait on him. | — |
+| Add an account, by hand | `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_add-account-by-hand_v01.html` — **approved 2026-10-01** (*"Add Account by hand v01 - approved"*, DEC-0645). It was drawn from the code as a reference and named "as built"; his approval makes it the design, so it carries the name of the thing rather than the stage it was drawn at. | — |
 | Performance | `MoneyKeel/documents/networth-and-performance/archive/2026-09-30_moneykeel_pres_mock_performance_v14.html` — **APPROVED 2026-09-25** (*"approved. save and built it"*) and **BUILT the same day** (commit `727e22a`). It carries Performance FINAL of 2026-08-04 plus every ruling since: the window selector as one control with two lines per segment, one meaning of return, a Y axis on the value line, day one rebuilt from a linked account's own records, the account page's Market value · Wealth generated · Return with its own walk and a return per holding, and the older Invest sections removed. v10 to v13 are dated in `archive/`, and v14 joined them on 2026-09-30 when v15 went to him. **The current design DOCUMENT is `…/moneykeel_pres_mock_performance_v17.html`, WAITING ON HIM** (v15 is dated in `archive/` — it drew two versions of two screens, which he refused: one phone per screen) — it recreates all five of v14's screens with every colour on the app's own tokens (`src/utils/theme.ts`), and adds the two states where the Return refuses and shows the exact rate per year instead (his Q52 ruling, 2026-09-30). **What is BUILT is still v14** until he approves v15. | — |
 | Plan | `MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html` — v05 with the founder's eight decisions applied (2026-09-26: *"Plan - Q1 - 8 - your recommendation approved"*), the five blockers fixed, every figure re-run at 1,000 futures, the words brought onto the canon, and every template placeholder filled so the file reads on its own. v04 and v05 are dated in `archive/`. **Not built:** the tab still shows the 2026-08-12 layout he rejected, and its code waits on the Q-PL-1 and Q-PL-2 doors. | Approval of v06 |
 | Cash flow | **Five files, one folder, all on the canon since 2026-09-26** — `cash-flow_v01` (the architecture), `cash-flow_v01`, `income-end-to-end_v07`, `look-ahead_v04`, `filing-status-question_v03`. Each carries a "What changed from vNN, and why" block. Where the architecture file and a detail file disagree, the detail file wins. Superseded copies dated in `archive/`. | **Traced 2026-09-27** (the table below). |
