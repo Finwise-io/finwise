@@ -12,7 +12,7 @@
  "ALT": {
   "id": "MK-NW-F-076",
   "file": "MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts",
-  "category": "1 · ACTION"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "BENCH": {
   "id": "MK-NW-F-088",
@@ -277,7 +277,7 @@
  "alternativesSummary": {
   "id": "MK-NW-F-002",
   "file": "src/domain/alternatives/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "alternativesTotal": {
   "id": "MK-NW-F-019",

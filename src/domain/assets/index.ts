@@ -440,6 +440,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-029 assetAllocation
  *               MK-NW-F-030 earmarkDefault · MK-NW-F-031 primaryCarIdOf
  *               MK-NW-F-055 isBond · MK-NW-F-063 interestIncomeAnnual
+ *               MK-NW-O-005 theAlternativesOutlook
  *
  * Reaches ..... 114 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
@@ -1410,7 +1411,7 @@ export function retirementEarmarkedValue(accounts: AssetAccount[]): number {
  *     asset kind(kind).ret (or 0.06 when missing)
  *
  * Called by ... MK-NW-F-002 alternativesSummary · MK-NW-F-036 benchmarkInfo
- *               MK-NW-F-037 blendedReturn
+ *               MK-NW-F-037 blendedReturn · MK-NW-O-005 theAlternativesOutlook
  *
  * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-002 alternativesSummary

@@ -1204,11 +1204,13 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
             <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
               <TouchableOpacity key={o.key} accessibilityRole="button" accessibilityLabel={o.label} style={[sh.chip, inside === o.key && sh.chipOn]} onPress={() => setInside(o.key)}><Text style={sh.chipTxt}>{o.label}</Text></TouchableOpacity>
             ))}</View>
-            {/* Mock B: break a lump into its real holdings (the donut then splits it accurately) */}
-            <TouchableOpacity style={sh.itemize} accessibilityRole="button" accessibilityLabel="Itemize this account into holdings" onPress={() => { onClose(); router.push(`/itemize?accountId=${editing!.asset_id}`); }}>
-              <Text style={sh.itemizeT}>🧩  Itemize into holdings →</Text>
-              <Text style={sh.itemizeSub}>Break this into specific stocks, bonds, options…</Text>
-            </TouchableOpacity>
+            {/* THE ITEMIZE DOOR MOVED TO THE ACCOUNT PORTFOLIO (2026-10-01).
+                It used to sit here, in the edit sheet, which could only be reached by tapping an
+                account row, opening Account detail and pressing an Edit button that exists in no
+                approved design — and that button forks by class, so a bonds or alternatives account
+                could never arrive. The door now sits on the screen that answers what is inside an
+                account, where the question actually arises. One door, pinned by
+                src/__tests__/itemize_has_one_door.test.tsx. */}
           </>)}
           <TextInput style={sh.input} placeholder={step === 'quick' ? 'Name (e.g. My Robinhood)' : 'Institution / name (e.g. Chase)'} placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
           <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>

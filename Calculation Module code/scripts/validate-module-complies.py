@@ -161,6 +161,14 @@ if os.path.isdir(DOORS):
         if f.endswith('.ts') and '.test.' not in f:
             ART[os.path.join(DOORS, f)] = read(os.path.join(DOORS, f)) or ''
 VIS = {p: visible(t) for p, t in ART.items()}
+TESTS = {}
+for _d in ('src/__tests__', 'MoneyKeel/functions', 'Calculation Module code'):
+    for _dp, _dn, _fn in os.walk(_d):
+        if 'node_modules' in _dp:
+            continue
+        for _f in _fn:
+            if '.test.' in _f and _f.endswith(('.ts', '.tsx')):
+                TESTS[os.path.join(_dp, _f)] = read(os.path.join(_dp, _f)) or ''
 MOCK_TEXT = {}
 if MOCKS and os.path.isdir(MOCKS):
     for f in sorted(os.listdir(MOCKS)):
@@ -187,12 +195,24 @@ for _dp, _dn, _fn in os.walk('src'):
 
 
 def touches(x):
-    if x.get('tab') == MODULE:
-        return True
+    """Does this decision GOVERN this module, or merely share a word with it?
+
+    The first version counted any decision whose tab is this module's, which pulled in 35 decisions
+    that govern nothing here — DEC-0005 governs the Plan hub and Home and touches no Net worth figure
+    at all. Counting those made the module fail on other modules' work: of 118 unconfirmed decisions,
+    only 23 came from this module's own tab.
+
+    So the test is what it GOVERNS: a figure, function or orchestrator of this family, or one of the
+    module's own screens, or one of its doors. A decision filed on this tab that governs nothing here
+    is not this module's to answer for.
+    """
     g = str(x.get('governs', ''))
-    if re.search(r'MK-' + FAMILY + r'-', g):
+    if re.search(r'MK-' + FAMILY + r'-[MFOI]-', g):
         return True
-    return any(s in g for s in SCREENS) or (DOORS.split('/')[-1] in g)
+    if any(s in g for s in SCREENS):
+        return True
+    door = DOORS.split('/')[-1]
+    return bool(door) and door in g
 
 TODO = [x for x in DEC if 'OLD' not in str(x.get('in_use', '')) and touches(x)]
 
@@ -344,10 +364,17 @@ for x in TODO:
                 notes.append(f'none of {len(want)} of his words appear anywhere that implements it: '
                              + ' '.join(sorted(want)[:7]))
 
-    # and whether the code now names the decision back
+    # CITATION BEATS WORD OVERLAP. A decision whose identifier appears in the code that implements
+    # its figures, or in a test, is confirmed by that citation — the arithmetic says out loud which
+    # ruling it answers to. Word overlap was only ever a way of guessing at that, and it guessed
+    # "faint" for 99 decisions whose wording simply differs from mine.
     cited = [os.path.basename(pp) for pp, t in ART.items() if x['id'] in t]
-    if cited:
-        notes.append(f'cited in {cited[0]}')
+    in_test = [os.path.basename(pp) for pp, t in TESTS.items() if x['id'] in t]
+    if cited or in_test:
+        where = (cited + in_test)[0]
+        if verdict in ('FAINT TRACE', 'NO TRACE', 'LEAVES A TRACE'):
+            verdict, check = 'CONFIRMED BY CITATION', 'CITED'
+        notes.append(f'cited by identifier in {where}')
 
     verdicts.append((x['id'], verdict, check, g[:54], '; '.join(notes)[:150]))
 

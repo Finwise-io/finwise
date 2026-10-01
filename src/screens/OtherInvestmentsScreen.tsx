@@ -16,7 +16,7 @@ import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/
 // ONE DOOR (MK-NW-O-005 theAlternativesOutlook, Q-NW-6) — the forward estimate, split out of
 // "what am I worth" on his "ok" (2026-09-27), because a projection is not a worth figure.
 import { theAlternativesOutlook } from '../../MoneyKeel/functions/networth-and-performance/alternatives-outlook';
-import { isAlternative, alternativesSummary, ALT_KINDS_CAPTURE } from '../domain/alternatives';
+import { ALT_KINDS_CAPTURE } from '../domain/alternatives';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { isoLocalDate } from '../domain/_shared/dates';
 
@@ -36,11 +36,13 @@ const BUCKETS: { label: string; bucket: TaxBucket }[] = [
 export default function OtherInvestmentsScreen() {
   const store = useStore() as any;
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
-  const alts = useMemo(() => accounts.filter(isAlternative), [accounts]);
-  const summary = useMemo(() => alternativesSummary(accounts), [accounts]);
+  // ONE DOOR (MK-NW-O-005 theAlternativesOutlook). This screen used to filter and sum the accounts
+  // itself while asking the door only for the rate — the same shape of split that let two screens
+  // show two answers for one account. Every figure here now comes off the door's answer, and the
+  // account object is looked up only to open the editor, which is the one thing a figure cannot do.
   const outlook = useMemo(() => theAlternativesOutlook({ accounts }), [accounts]);
   const investable = theNetWorth({ uid: String(store.user?.uid ?? 'local'), accounts, debts: store.liabilities ?? [] }).investable;
-  const sharePct = investable > 0 ? Math.round((summary.totalValue / investable) * 1000) / 10 : 0;
+  const sharePct = investable > 0 ? Math.round((outlook.totalValue / investable) * 1000) / 10 : 0;
   const [edit, setEdit] = useState<AssetAccount | null>(null);
   const [addOpen, setAddOpen] = useState(false);
 
@@ -49,30 +51,34 @@ export default function OtherInvestmentsScreen() {
       <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Alternatives</Text>
       <SectionBand title="ALTERNATIVES" /><InfoDot term="alternatives" /></View>
 
-      {alts.length === 0 ? (
+      {outlook.rows.length === 0 ? (
         <View style={styles.card}>
           <View style={styles.summary}><Text style={styles.sumLab}>Total value</Text><Text style={styles.sumVal}>{money(0)}</Text></View>
-          <EmptyNote door="investment" onPress={() => setAddOpen(true)} />   {/* Q48 (MK-MN-M-022/023) */}
+          <EmptyNote door="investment" onPress={() => setAddOpen(true)} />   {/* Q48 (MK-NW-M-049/050 — re-filed from the menu family 2026-10-01) */}
           <Text style={styles.empty}>Track alternatives — crypto, private equity, hedge funds, commodities, annuities — at a value you set. They count toward your net worth and retirement nest egg.</Text>
           <TouchableOpacity style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add an investment</Text></TouchableOpacity>
         </View>
       ) : (
         <>
           <View style={styles.summary}>
-            <Text style={styles.sumVal}>{money(summary.totalValue)}</Text>
-            <Text style={styles.sumLab}>{summary.count} holding{summary.count > 1 ? 's' : ''} · {sharePct}% of your investable assets</Text>
+            <Text style={styles.sumVal}>{money(outlook.totalValue)}</Text>
+            <Text style={styles.sumLab}>{outlook.count} holding{outlook.count > 1 ? 's' : ''} · {sharePct}% of your investable assets</Text>
             <View style={styles.sumRow}>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>EXP. RETURN</Text><Text style={styles.sumCellV}>{(summary.blendedReturn * 100).toFixed(2)}%</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>EXP. RETURN</Text><Text style={styles.sumCellV}>{(outlook.expectedReturn * 100).toFixed(2)}%</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>EST. GROWTH /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{outlook.estimatedGrowthPerYear == null ? '—' : money(outlook.estimatedGrowthPerYear)}</Text></View>
             </View>
           </View>
 
-          {alts.map((a) => (
-            <TouchableOpacity key={a.asset_id} accessibilityRole="button" accessibilityLabel={`Edit ${a.label}, ${money(a.balance || 0)}`} style={styles.card} onPress={() => setEdit(a)}>
-              <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{a.label}</Text><Text style={styles.val}>{money(a.balance || 0)}</Text></View>
-              <Text style={styles.sub}>{a.institution?.trim() ? `${a.institution.trim()} · ` : ''}{assetKind(a.kind)?.label ?? 'Other'} · ~{(benchmarkReturn(a.kind) * 100).toFixed(2)}%/year expected</Text>
+          {outlook.rows.map((r) => {
+            // the account is found only to open the editor; every figure on the row is the door's
+            const a = accounts.find((x) => String(x.asset_id) === r.accountId);
+            return (
+            <TouchableOpacity key={r.accountId} accessibilityRole="button" accessibilityLabel={`Edit ${r.label}, ${money(r.value)}`} style={styles.card} onPress={() => a && setEdit(a)}>
+              <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{r.label}</Text><Text style={styles.val}>{money(r.value)}</Text></View>
+              <Text style={styles.sub}>{r.institution ? `${r.institution} · ` : ''}{assetKind(a?.kind)?.label ?? 'Other'} · ~{(r.benchmark * 100).toFixed(2)}%/year expected</Text>
             </TouchableOpacity>
-          ))}
+            );
+          })}
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add an investment" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add an investment</Text></TouchableOpacity>
           <Text style={styles.foot}>Values are what you enter (no live pricing for alternatives). Expected returns are historical class benchmarks, not guarantees.</Text>
         </>

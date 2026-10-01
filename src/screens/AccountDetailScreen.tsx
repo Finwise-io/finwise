@@ -381,6 +381,27 @@ export default function AccountDetailScreen() {
         {insideRows.length === 0 && tickers.length > 0 && (
           <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>
         )}
+        {/* THE WAY INTO ITEMIZE, and the only one (2026-10-01).
+            The Itemize screen had no door in any approved design: the Net worth mock v08 does not draw
+            one, and the approved Account portfolio (Performance v17 frame 2) has no Edit button — so
+            the only path in the code ran through a control that exists solely in the account-detail
+            drawing he REJECTED, and only for cash, stocks and mixed accounts. For a bonds or
+            alternatives account it was unreachable altogether.
+            It belongs here. This is the screen that answers what is inside an account, so breaking a
+            lump into its real holdings is the same question continued — not a detour through an edit
+            sheet two screens away. It shows only when the account holds money and nothing is recorded
+            inside it, which is exactly when the screen has nothing to show and the person has
+            something to say. */}
+        {insideRows.length === 0 && tickers.length === 0 && (account.balance || 0) > 0
+          && source !== 'connected' && (
+          <TouchableOpacity accessibilityRole="button" style={s.itemizeDoor}
+            accessibilityLabel={`Itemize ${account.label} into holdings`}
+            onPress={() => router.push(`/itemize?accountId=${account.asset_id}` as any)}>
+            <Text style={s.itemizeDoorT}>🧩  Itemize into holdings →</Text>
+            <Text style={s.itemizeDoorS}>Nothing is recorded inside this account yet. Break it into
+              what it actually holds and the total stays {mny(account.balance || 0)}.</Text>
+          </TouchableOpacity>
+        )}
       </View>
       )}
 
@@ -942,6 +963,9 @@ const s = StyleSheet.create({
   insideSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   txnNote: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, paddingHorizontal: Spacing.md, paddingTop: 8, paddingBottom: 4 },
   insideEmpty: { fontSize: 13, color: Colors.textTertiary, paddingHorizontal: Spacing.md, paddingVertical: 10 },
+  itemizeDoor: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md },
+  itemizeDoorT: { fontSize: 15, fontWeight: '800', color: Colors.primaryDark },
+  itemizeDoorS: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
   optHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginBottom: 4 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
   optLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },

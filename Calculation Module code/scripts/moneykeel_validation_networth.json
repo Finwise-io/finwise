@@ -22,17 +22,17 @@
  },
  {
   "id": "DEC-0008",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-008 · MK-NW-M-040 · MK-PF-M-005",
-  "notes": "only 12 of 28 appear — present: approved closed floor headline holdings · absent: applies compact confirmed decided dense; cited in account.ts"
+  "notes": "only 12 of 28 appear — present: approved closed floor headline holdings · absent: applies compact confirmed decided dense; cited by identifier in acco"
  },
  {
   "id": "DEC-0010",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "ClassMarkColors in src/utils/theme.ts · MK-NW-M-007 · ",
-  "notes": "only 6 of 28 appear — present: approved checked founder moves picture · absent: adopted affected app-wide appears approves; cited in account.ts"
+  "notes": "only 6 of 28 appear — present: approved checked founder moves picture · absent: adopted affected app-wide appears approves; cited by identifier in acc"
  },
  {
   "id": "DEC-0012",
@@ -50,10 +50,10 @@
  },
  {
   "id": "DEC-0014",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 11 of 51 appear — present: alternatives asset bonds class estate · absent: adopted adopts amber chart chart-palettes-v"
+  "notes": "only 11 of 51 appear — present: alternatives asset bonds class estate · absent: adopted adopts amber chart chart-palettes-v; cited by identifier in de"
  },
  {
   "id": "DEC-0016",
@@ -71,17 +71,17 @@
  },
  {
   "id": "DEC-0019",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-018 Market value · MK-NW-M-038 · MK-NW-M-039",
-  "notes": "41 of 55 of his words appear in what implements it: account account's accounts adding balance bonds; cited in account.ts"
+  "notes": "41 of 55 of his words appear in what implements it: account account's accounts adding balance bonds; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0020",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/components/DebtEditorSheet.tsx · src/screens/NetWo",
-  "notes": "only 5 of 27 appear — present: amount cards credit editor fixed · absent: according actually apart appears approved"
+  "notes": "only 5 of 27 appear — present: amount cards credit editor fixed · absent: according actually apart appears approved; cited by identifier in decisions_"
  },
  {
   "id": "DEC-0022",
@@ -95,14 +95,14 @@
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-NW-M-006 · MK-NW-M-005",
-  "notes": "2 quoted phrase(s) present; cited in net-worth.ts"
+  "notes": "2 quoted phrase(s) present; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0030",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/HoldingDetailScreen.tsx · MK-PF-M-010 · MK",
-  "notes": "only 1 of 4 appear — present: holding · absent: drawing look-back omission; cited in HoldingDetailScreen.tsx"
+  "notes": "only 1 of 4 appear — present: holding · absent: drawing look-back omission; cited by identifier in HoldingDetailScreen.tsx"
  },
  {
   "id": "DEC-0034",
@@ -112,25 +112,18 @@
   "notes": "only 6 of 15 appear — present: breakdown build builds invest investment · absent: batch built drawn fallen goal-offtrack"
  },
  {
-  "id": "DEC-0038",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/services/sync/ — the linking provider",
-  "notes": "only 5 of 17 appear — present: built choice founder snaptrade written · absent: confirmed dependency directly evaluates evaluating"
- },
- {
   "id": "DEC-0039",
   "verdict": "NOT FOUND",
   "check": "REQUIRES",
   "governs": "src/screens/HomeScreen.tsx · src/screens/CashFlowScree",
-  "notes": "quoted copy nowhere a person reads: \"+Expense\""
+  "notes": "quoted copy nowhere a person reads: \"+Expense\"; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0040",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "src/screens/HomeScreen.tsx · src/domain/insights/index",
-  "notes": "1 quoted phrase(s) present"
+  "notes": "1 quoted phrase(s) present; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0041",
@@ -141,52 +134,52 @@
  },
  {
   "id": "DEC-0044",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/FirstRunS",
-  "notes": "12 of 19 of his words appear in what implements it: accounts assets cards checking counts debts"
+  "notes": "12 of 19 of his words appear in what implements it: accounts assets cards checking counts debts; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0045",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-020 · ASSET_KINDS in src/domain/assets",
-  "notes": "14 of 25 of his words appear in what implements it: adding editors equity founder funds hedge; cited in account.ts"
+  "notes": "14 of 25 of his words appear in what implements it: adding editors equity founder funds hedge; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0047",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006 · MK-NW-M-007 · MK-NW-M-008",
-  "notes": "16 of 28 of his words appear in what implements it: category classes disagree founder grouping groups; cited in net-worth.ts"
+  "notes": "16 of 28 of his words appear in what implements it: category classes disagree founder grouping groups; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0048",
   "verdict": "COMPLIES",
   "check": "FORBIDS",
   "governs": "MK-NW-M-015 YOUR RETIREMENT PLAN — on track for $X by ",
-  "notes": "1 forbidden phrase(s) absent; 2 quoted phrase(s) present; cited in net-worth.ts"
+  "notes": "1 forbidden phrase(s) absent; 2 quoted phrase(s) present; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0051",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-005 CASH · MK-NW-M-020 · assetClassOf in src/d",
-  "notes": "21 of 32 of his words appear in what implements it: balance bonds built classed dividends earlier; cited in account.ts"
+  "notes": "21 of 32 of his words appear in what implements it: balance bonds built classed dividends earlier; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0052",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-007 · MK-NW-M-008 · CompositionBar in src/scre",
-  "notes": "only 5 of 19 appear — present: count counts group space worth · absent: collapsed column columns donut labels; cited in net-worth.ts"
+  "notes": "only 5 of 19 appear — present: count counts group space worth · absent: collapsed column columns donut labels; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0054",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006",
-  "notes": "22 of 37 of his words appear in what implements it: beside daily dollar exists guessed history; cited in net-worth.ts"
+  "notes": "22 of 37 of his words appear in what implements it: beside daily dollar exists guessed history; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0055",
@@ -211,31 +204,17 @@
  },
  {
   "id": "DEC-0060",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006",
-  "notes": "only 20 of 45 appear — present: approved asset build built category · absent: bottom carrying cash-merge collapsible colours; cited in net-worth.ts"
- },
- {
-  "id": "DEC-0061",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "MK-XS-M-003 · dataGaps in src/screens/PerformanceScree",
-  "notes": "26 of 44 of his words appear in what implements it: banner built button count counts datagaps; cited in net-worth.ts"
- },
- {
-  "id": "DEC-0062",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "src/components/ChangeWalkSheet.tsx · src/domain/histor",
-  "notes": "30 of 38 of his words appear in what implements it: approved beginning built change-in-value construction contributions"
+  "notes": "only 20 of 45 appear — present: approved asset build built category · absent: bottom carrying cash-merge collapsible colours; cited by identifier in n"
  },
  {
   "id": "DEC-0066",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-016",
-  "notes": "16 of 29 of his words appear in what implements it: built carries deleted halves headline investments; cited in net-worth.ts"
+  "notes": "16 of 29 of his words appear in what implements it: built carries deleted halves headline investments; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0067",
@@ -253,17 +232,17 @@
  },
  {
   "id": "DEC-0069",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-007 · MK-NW-M-008",
-  "notes": "21 of 30 of his words appear in what implements it: account accounts biggest category chase close; cited in net-worth.ts"
+  "notes": "21 of 30 of his words appear in what implements it: account accounts biggest category chase close; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0070",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-021 · MK-NW-M-006 · MK-NW-M-015 · MK-NW-M-016",
-  "notes": "33 of 60 of his words appear in what implements it: account added brokerage build button class; cited in account.ts"
+  "notes": "33 of 60 of his words appear in what implements it: account added brokerage build button class; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0071",
@@ -274,10 +253,10 @@
  },
  {
   "id": "DEC-0072",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006 · MK-NW-M-008",
-  "notes": "15 of 24 of his words appear in what implements it: beneath biggest bonds categories classes fixed; cited in net-worth.ts"
+  "notes": "15 of 24 of his words appear in what implements it: beneath biggest bonds categories classes fixed; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0073",
@@ -288,10 +267,10 @@
  },
  {
   "id": "DEC-0074",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006 · MK-NW-M-008",
-  "notes": "12 of 22 of his words appear in what implements it: account apart appear drift exist founder; cited in net-worth.ts"
+  "notes": "12 of 22 of his words appear in what implements it: account apart appear drift exist founder; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0075",
@@ -316,10 +295,10 @@
  },
  {
   "id": "DEC-0079",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/s",
-  "notes": "only 5 of 21 appear — present: component section sectionband shared title · absent: banded corners curved edge-to-edge founder"
+  "notes": "only 5 of 21 appear — present: component section sectionband shared title · absent: banded corners curved edge-to-edge founder; cited by identifier in"
  },
  {
   "id": "DEC-0081",
@@ -333,7 +312,7 @@
   "verdict": "COMPLIES",
   "check": "FORBIDS",
   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScree",
-  "notes": "1 forbidden phrase(s) absent; "
+  "notes": "1 forbidden phrase(s) absent; ; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0086",
@@ -344,31 +323,31 @@
  },
  {
   "id": "DEC-0089",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-008 · MK-NW-M-006",
-  "notes": "17 of 28 of his words appear in what implements it: beneath biggest category chase grouped grouping; cited in net-worth.ts"
+  "notes": "17 of 28 of his words appear in what implements it: beneath biggest category chase grouped grouping; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0090",
   "verdict": "NOT FOUND",
   "check": "REQUIRES",
   "governs": "src/domain/assets/index.ts classPortionLabel (the bond",
-  "notes": "quoted copy nowhere a person reads: \"CDs & Treasuries in this account\"; cited in account.ts"
+  "notes": "quoted copy nowhere a person reads: \"CDs & Treasuries in this account\"; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0091",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-017",
-  "notes": "only 9 of 46 appear — present: apart assets collapses debts exact · absent: adjacent alternated amber asserts bands; cited in net-worth.ts"
+  "notes": "only 9 of 46 appear — present: apart assets collapses debts exact · absent: adjacent alternated amber asserts bands; cited by identifier in net-worth."
  },
  {
   "id": "DEC-0092",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-NW-M-008 · MK-NW-M-029 · MK-NW-M-021 · MK-NW-M-005",
-  "notes": "1 quoted phrase(s) present; cited in account.ts"
+  "notes": "1 quoted phrase(s) present; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0094",
@@ -379,31 +358,31 @@
  },
  {
   "id": "DEC-0095",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-008 · MK-NW-M-021 · MK-NW-M-019 · MK-NW-M-040",
-  "notes": "26 of 48 of his words appear in what implements it: account added balance biggest bonds broker; cited in account.ts"
+  "notes": "26 of 48 of his words appear in what implements it: account added balance biggest bonds broker; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0096",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-038 · MK-NW-M-015",
-  "notes": "34 of 57 of his words appear in what implements it: account account's added amount arriving asked; cited in account.ts"
+  "notes": "34 of 57 of his words appear in what implements it: account account's added amount arriving asked; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0097",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-022 · MK-XS-M-004",
-  "notes": "only 16 of 68 appear — present: activity build closed finished fresh · absent: account-naming adversarial app-wide arrives audits; cited in performanc"
+  "notes": "only 16 of 68 appear — present: activity build closed finished fresh · absent: account-naming adversarial app-wide arrives audits; cited by identifier"
  },
  {
   "id": "DEC-0098",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-NW-M-006 · MK-NW-M-008",
-  "notes": "2 quoted phrase(s) present; cited in net-worth.ts"
+  "notes": "2 quoted phrase(s) present; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0099",
@@ -431,14 +410,14 @@
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-NW-M-046",
-  "notes": "3 quoted phrase(s) present; cited in emergency-fund.ts"
+  "notes": "3 quoted phrase(s) present; cited by identifier in emergency-fund.ts"
  },
  {
   "id": "DEC-0105",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "src/components/UI.tsx · src/screens/AccountDetailScree",
-  "notes": "1 quoted phrase(s) present"
+  "notes": "1 quoted phrase(s) present; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0107",
@@ -449,8 +428,8 @@
  },
  {
   "id": "DEC-0108",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-037 · MK-NW-M-027 · MK-NW-M-020 · MK-NW-M-034",
   "notes": "only 22 of 45 appear — present: account built calculation carries detail · absent: amendments build-analysis-july category-detail chain classification"
  },
@@ -459,7 +438,7 @@
   "verdict": "NOT FOUND",
   "check": "REQUIRES",
   "governs": "src/domain/planning/hub.ts oddsLine + oddsTail · src/s",
-  "notes": "quoted copy nowhere a person reads: \"[word] — xx% odds of lasting to age nn\"; \"<word> — xx% odds of lasting to age abc\""
+  "notes": "quoted copy nowhere a person reads: \"[word] — xx% odds of lasting to age nn\"; \"<word> — xx% odds of lasting to age abc\"; cited by identifier in one_wo"
  },
  {
   "id": "DEC-0115",
@@ -561,17 +540,17 @@
  },
  {
   "id": "DEC-0149",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-008 · MK-CF-M-037 · MK-NW-M-021 · MK-NW-M-008",
-  "notes": "only 23 of 62 appear — present: beneath carries comparison correct decimal · absent: accumulated byte-for-byte character claude clean; cited in accoun"
+  "notes": "only 23 of 62 appear — present: beneath carries comparison correct decimal · absent: accumulated byte-for-byte character claude clean; cited by identi"
  },
  {
   "id": "DEC-0150",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/insights/index.ts · src/screens/NetWorthScr",
-  "notes": "only 9 of 55 appear — present: check constants costs credit fixed · absent: apart applied assumed belongs claim"
+  "notes": "only 9 of 55 appear — present: check constants costs credit fixed · absent: apart applied assumed belongs claim; cited by identifier in decisions_are_"
  },
  {
   "id": "DEC-0151",
@@ -582,10 +561,10 @@
  },
  {
   "id": "DEC-0152",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-037 · MK-NW-M-006 · MK-NW-M-029",
-  "notes": "only 16 of 65 appear — present: august carries checked coverage current · absent: a-instructions absent accurately assumed brief; cited in holding.ts"
+  "notes": "only 16 of 65 appear — present: august carries checked coverage current · absent: a-instructions absent accurately assumed brief; cited by identifier "
  },
  {
   "id": "DEC-0154",
@@ -596,24 +575,24 @@
  },
  {
   "id": "DEC-0158",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-015 · MK-NW-M-001 · MK-NW-M-008 · MK-NW-M-047",
-  "notes": "only 33 of 75 appear — present: actually added beside biggest claim · absent: accusation ambiguous analysis anyway anyway'; cited in emergency-fund.ts"
+  "notes": "only 33 of 75 appear — present: actually added beside biggest claim · absent: accusation ambiguous analysis anyway anyway'; cited by identifier in eme"
  },
  {
   "id": "DEC-0165",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-037 · MK-NW-M-029 · MK-PF-M-008 · MK-NW-M-006",
-  "notes": "only 41 of 106 appear — present: accounts added blend build built · absent: accept app's appears asserts avoid; cited in holding.ts"
+  "notes": "only 41 of 106 appear — present: accounts added blend build built · absent: accept app's appears asserts avoid; cited by identifier in holding.ts"
  },
  {
   "id": "DEC-0166",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-037 · MK-NW-M-006 · MK-NW-M-021 · MK-NW-M-015",
-  "notes": "only 42 of 85 appear — present: account breakdown brokerage built calculation · absent: adjusted alongside app's assertions assumption; cited in accou"
+  "notes": "only 42 of 85 appear — present: account breakdown brokerage built calculation · absent: adjusted alongside app's assertions assumption; cited by ident"
  },
  {
   "id": "DEC-0167",
@@ -631,17 +610,17 @@
  },
  {
   "id": "DEC-0175",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-001 · MK-NW-M-003 · MK-NW-M-006 · MK-NW-M-046",
-  "notes": "only 35 of 73 appear — present: add-account alone approved build calculation · absent: accurately benefit broker-coverage bundle canonical; cited in e"
+  "notes": "only 35 of 73 appear — present: add-account alone approved build calculation · absent: accurately benefit broker-coverage bundle canonical; cited by i"
  },
  {
   "id": "DEC-0184",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-MN-M-028 · MK-CF-M-032 · MK-CF-M-043 · MK-NW-M-016",
-  "notes": "only 19 of 48 appear — present: arithmetic caller carried correct deduction · absent: alias becomes complete converted couples; cited in net-worth.ts"
+  "notes": "only 19 of 48 appear — present: arithmetic caller carried correct deduction · absent: alias becomes complete converted couples; cited by identifier in"
  },
  {
   "id": "DEC-0190",
@@ -652,10 +631,10 @@
  },
  {
   "id": "DEC-0192",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-M-004 · MK-CF-M-036 · MK-NW-M-021 · MK-NW-M-015",
-  "notes": "18 of 32 of his words appear in what implements it: build counted current family finding founder; cited in account.ts"
+  "notes": "18 of 32 of his words appear in what implements it: build counted current family finding founder; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0202",
@@ -666,10 +645,10 @@
  },
  {
   "id": "DEC-0204",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006 · MK-PF-M-008",
-  "notes": "11 of 20 of his words appear in what implements it: approved asserted bond's dates fresh invest; cited in net-worth.ts"
+  "notes": "11 of 20 of his words appear in what implements it: approved asserted bond's dates fresh invest; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0214",
@@ -683,7 +662,7 @@
   "verdict": "NOT FOUND",
   "check": "REQUIRES",
   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_scre",
-  "notes": "quoted copy nowhere a person reads: \"one door one term rule — so change on all.\""
+  "notes": "quoted copy nowhere a person reads: \"one door one term rule — so change on all.\"; cited by identifier in own_math_not_a_rule_of_thumb.test.ts"
  },
  {
   "id": "DEC-0216",
@@ -691,13 +670,6 @@
   "check": "TRACE",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/Accoun",
   "notes": "only 1 of 4 appear — present: moved · absent: heading standard title"
- },
- {
-  "id": "DEC-0219",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_scre",
-  "notes": "only 12 of 25 appear — present: account approved beside build design · absent: chips confirmed dark-green documents edge-to-edge"
  },
  {
   "id": "DEC-0221",
@@ -728,25 +700,11 @@
   "notes": "2 quoted phrase(s) present"
  },
  {
-  "id": "DEC-0225",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_scre",
-  "notes": "only 6 of 14 appear — present: heading light quiet running section · absent: green headings labels levels light-green"
- },
- {
   "id": "DEC-0226",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_ca",
   "notes": "5 of 10 of his words appear in what implements it: debts doors section state worth"
- },
- {
-  "id": "DEC-0227",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_scre",
-  "notes": "15 of 24 of his words appear in what implements it: account account' accounts appear approved built"
  },
  {
   "id": "DEC-0231",
@@ -778,10 +736,10 @@
  },
  {
   "id": "DEC-0249",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-011",
-  "notes": "5 of 5 of his words appear in what implements it: columns counts defined payment required"
+  "notes": "5 of 5 of his words appear in what implements it: columns counts defined payment required; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0250",
@@ -806,10 +764,10 @@
  },
  {
   "id": "DEC-0260",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-048 · MK-MN-M-025 · MK-CF-M-002 · MK-CF-M-004",
-  "notes": "39 of 53 of his words appear in what implements it: account approved big-ticket blank bonds budget; cited in emergency-fund.ts"
+  "notes": "39 of 53 of his words appear in what implements it: account approved big-ticket blank bonds budget; cited by identifier in emergency-fund.ts"
  },
  {
   "id": "DEC-0261",
@@ -820,10 +778,10 @@
  },
  {
   "id": "DEC-0264",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-032 · MK-NW-M-003",
-  "notes": "14 of 25 of his words appear in what implements it: balances calculation display dollars early eight; cited in net-worth.ts"
+  "notes": "14 of 25 of his words appear in what implements it: balances calculation display dollars early eight; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0267",
@@ -949,14 +907,14 @@
   "verdict": "NOT FOUND",
   "check": "REQUIRES",
   "governs": "src/domain/_shared/freshness.ts (STALE_AFTER_DAYS, day",
-  "notes": "quoted copy nowhere a person reads: \"source always, date only when stale.\"; cited in holding.ts"
+  "notes": "quoted copy nowhere a person reads: \"source always, date only when stale.\"; cited by identifier in holding.ts"
  },
  {
   "id": "DEC-0309",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-005",
-  "notes": "12 of 20 of his words appear in what implements it: applied broker class decides flagged funds; cited in net-worth.ts"
+  "notes": "12 of 20 of his words appear in what implements it: applied broker class decides flagged funds; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0310",
@@ -967,10 +925,10 @@
  },
  {
   "id": "DEC-0311",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-001",
-  "notes": "only 11 of 28 appear — present: budget dated drift function inflation · absent: among buffer carry comment embedded; cited in net-worth.ts"
+  "notes": "only 11 of 28 appear — present: budget dated drift function inflation · absent: among buffer carry comment embedded; cited by identifier in net-worth."
  },
  {
   "id": "DEC-0312",
@@ -1023,10 +981,10 @@
  },
  {
   "id": "DEC-0322",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006 · MK-XS-M-004",
-  "notes": "only 10 of 21 appear — present: built counts engine formula generated · absent: agreement deliverable disagreements generation headers; cited in net-w"
+  "notes": "only 10 of 21 appear — present: built counts engine formula generated · absent: agreement deliverable disagreements generation headers; cited by ident"
  },
  {
   "id": "DEC-0324",
@@ -1065,24 +1023,24 @@
  },
  {
   "id": "DEC-0338",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-M-003 · MK-NW-F-021",
-  "notes": "13 of 17 of his words appear in what implements it: alternatives bonds class classes classified counts"
+  "notes": "13 of 17 of his words appear in what implements it: alternatives bonds class classes classified counts; cited by identifier in decisions_are_held.test"
  },
  {
   "id": "DEC-0343",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006",
-  "notes": "10 of 17 of his words appear in what implements it: accounts asked assets calculation computed disagree; cited in net-worth.ts"
+  "notes": "10 of 17 of his words appear in what implements it: accounts asked assets calculation computed disagree; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0345",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-015",
-  "notes": "7 of 12 of his words appear in what implements it: builds family function group reads start; cited in net-worth.ts"
+  "notes": "7 of 12 of his words appear in what implements it: builds family function group reads start; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0346",
@@ -1093,17 +1051,17 @@
  },
  {
   "id": "DEC-0347",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-037 · MK-NW-M-006",
-  "notes": "10 of 15 of his words appear in what implements it: calculation functions generated holds question reaches; cited in net-worth.ts"
+  "notes": "10 of 15 of his words appear in what implements it: calculation functions generated holds question reaches; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0348",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-",
-  "notes": "only 3 of 10 appear — present: doors function question · absent: cash-flow family glance hands identifiable"
+  "notes": "only 3 of 10 appear — present: doors function question · absent: cash-flow family glance hands identifiable; cited by identifier in decisions_are_held"
  },
  {
   "id": "DEC-0354",
@@ -1170,17 +1128,17 @@
  },
  {
   "id": "DEC-0397",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006",
-  "notes": "only 3 of 13 appear — present: build exists holds · absent: document enforce fails founder's gates; cited in net-worth.ts"
+  "notes": "only 3 of 13 appear — present: build exists holds · absent: document enforce fails founder's gates; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0403",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-003",
-  "notes": "10 of 16 of his words appear in what implements it: balances dollars founder master prices question; cited in net-worth.ts"
+  "notes": "10 of 16 of his words appear in what implements it: balances dollars founder master prices question; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0404",
@@ -1194,7 +1152,7 @@
   "verdict": "NOT FOUND",
   "check": "REQUIRES",
   "governs": "MK-NW-M-021",
-  "notes": "quoted copy nowhere a person reads: \"the take-home above is higher…\"; cited in account.ts"
+  "notes": "quoted copy nowhere a person reads: \"the take-home above is higher…\"; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0412",
@@ -1257,7 +1215,7 @@
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "src/domain/assets/index.ts sourceWording · src/screens",
-  "notes": "1 quoted phrase(s) present"
+  "notes": "1 quoted phrase(s) present; cited by identifier in source_always_date_only_when_stale.test.ts"
  },
  {
   "id": "DEC-0441",
@@ -1268,24 +1226,24 @@
  },
  {
   "id": "DEC-0442",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-008",
-  "notes": "27 of 39 of his words appear in what implements it: accounts actual alternatives assets balance bonds; cited in net-worth.ts"
+  "notes": "27 of 39 of his words appear in what implements it: accounts actual alternatives assets balance bonds; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0446",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006",
-  "notes": "12 of 21 of his words appear in what implements it: account accounts brokerage comes grouped holdings; cited in net-worth.ts"
+  "notes": "12 of 21 of his words appear in what implements it: account accounts brokerage comes grouped holdings; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0449",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-005",
-  "notes": "25 of 33 of his words appear in what implements it: accounts asset assets brokerage checking class; cited in net-worth.ts"
+  "notes": "25 of 33 of his words appear in what implements it: accounts asset assets brokerage checking class; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0450",
@@ -1296,17 +1254,17 @@
  },
  {
   "id": "DEC-0451",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006 · MK-NW-M-020 · MK-NW-M-005",
-  "notes": "15 of 21 of his words appear in what implements it: alternatives asset bonds class estate funds; cited in account.ts"
+  "notes": "15 of 21 of his words appear in what implements it: alternatives asset bonds class estate funds; cited by identifier in account.ts"
  },
  {
   "id": "DEC-0452",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-008",
-  "notes": "13 of 20 of his words appear in what implements it: asset balance checked currency field glossary; cited in net-worth.ts"
+  "notes": "13 of 20 of his words appear in what implements it: asset balance checked currency field glossary; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0453",
@@ -1324,10 +1282,10 @@
  },
  {
   "id": "DEC-0455",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-008",
-  "notes": "only 11 of 24 appear — present: costs coverage institution largest linked · absent: assets' balance' brand differential offered; cited in net-worth.ts"
+  "notes": "only 11 of 24 appear — present: costs coverage institution largest linked · absent: assets' balance' brand differential offered; cited by identifier i"
  },
  {
   "id": "DEC-0456",
@@ -1359,10 +1317,10 @@
  },
  {
   "id": "DEC-0461",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/transactions/flags.ts · MoneyKeel/functions",
-  "notes": "only 5 of 23 appear — present: account comparison large reads withdrawal · absent: advice first-time formulated payee plain-english"
+  "notes": "only 5 of 23 appear — present: account comparison large reads withdrawal · absent: advice first-time formulated payee plain-english; cited by identifi"
  },
  {
   "id": "DEC-0463",
@@ -1386,13 +1344,6 @@
   "notes": "only 5 of 16 appear — present: chase investments morning question worth · absent: caught connection differently drift hasn't"
  },
  {
-  "id": "DEC-0468",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "src/domain/assets/index.ts · src/domain/glossary.ts",
-  "notes": "12 of 17 of his words appear in what implements it: account accounts approved asset check classes"
- },
- {
   "id": "DEC-0469",
   "verdict": "FAINT TRACE",
   "check": "TRACE",
@@ -1400,18 +1351,11 @@
   "notes": "only 5 of 13 appear — present: minus month question trend worth · absent: ambiguous calendar description graph headline"
  },
  {
-  "id": "DEC-0470",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "src/domain/glossary.ts · src/domain/assets/index.ts",
-  "notes": "14 of 17 of his words appear in what implements it: account comes connected drawn fresh including"
- },
- {
   "id": "DEC-0471",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 5 of 29 appear — present: account asset button class questions · absent: adjusting collecting collects connect dynamic"
+  "notes": "only 5 of 29 appear — present: account asset button class questions · absent: adjusting collecting collects connect dynamic; cited by identifier in de"
  },
  {
   "id": "DEC-0472",
@@ -1428,32 +1372,18 @@
   "notes": "quoted copy nowhere a person reads: \"is the display graph, table, or just numbers?\""
  },
  {
-  "id": "DEC-0474",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/BudgetScreen.tsx · src/screens/FirstRunScr",
-  "notes": "8 of 11 of his words appear in what implements it: account approved columns connect explain format"
- },
- {
   "id": "DEC-0475",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-030",
-  "notes": "16 of 28 of his words appear in what implements it: account accounts added alone balance current; cited in holding.ts"
+  "notes": "16 of 28 of his words appear in what implements it: account accounts added alone balance current; cited by identifier in holding.ts"
  },
  {
   "id": "DEC-0476",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-036 · MK-NW-M-037",
-  "notes": "17 of 27 of his words appear in what implements it: added brokerage capital connected dividend dividends; cited in holding.ts"
- },
- {
-  "id": "DEC-0478",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "src/domain/assets/index.ts · src/screens/PerformanceSc",
-  "notes": "9 of 13 of his words appear in what implements it: annuity connected crypto hedge investment manual"
+  "notes": "17 of 27 of his words appear in what implements it: added brokerage capital connected dividend dividends; cited by identifier in holding.ts"
  },
  {
   "id": "DEC-0480",
@@ -1499,10 +1429,10 @@
  },
  {
   "id": "DEC-0509",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/HomeScreen.tsx · the onboarding · MK-XS-M-",
-  "notes": "only 1 of 3 appear — present: question · absent: capture information; cited in net-worth.ts"
+  "notes": "only 1 of 3 appear — present: question · absent: capture information; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0510",
@@ -1569,9 +1499,23 @@
  },
  {
   "id": "DEC-0649",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "Calculation Module code/scripts/module-launch-steps.py",
-  "notes": "23 of 32 of his words appear in what implements it: account agree approved belong bonds connect"
+  "notes": "23 of 32 of his words appear in what implements it: account agree approved belong bonds connect; cited by identifier in alternatives-outlook.ts"
+ },
+ {
+  "id": "DEC-0650",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "moneykeel_pres_mock_bonds_v01.html · moneykeel_pres_mo",
+  "notes": "only 4 of 20 appear — present: alternatives bonds holding record · absent: approval approved build confirmed design"
+ },
+ {
+  "id": "DEC-0651",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/AccountDetailScreen.tsx · src/screens/NetW",
+  "notes": "only 19 of 47 appear — present: account account-detail accounts alternatives asked · absent: applied approve approved asking breaking"
  }
 ]

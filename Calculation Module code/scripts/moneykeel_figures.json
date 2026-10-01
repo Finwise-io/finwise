@@ -1397,8 +1397,8 @@
    },
    "door": "MK-NW-O-003 theNetWorth"
   },
-  "MK-MN-M-022": {
-   "label": "the total value of these investments",
+  "MK-NW-M-049": {
+   "label": "Total value",
    "unit": "money",
    "screens": [
     "/other-investments"
@@ -1444,11 +1444,12 @@
    "door": "MK-NW-O-004 theEmergencyFund"
   },
   "MK-NW-M-046": {
-   "label": "N months at your planned spend",
+   "label": "at your planned spend",
    "unit": "months",
    "screens": [
     "/analytics"
    ],
+   "grain": "the household",
    "answers": "How many months your cash would cover if you carried on living exactly as you plan to.",
    "formula": "your cash ÷ (everything you budget for a month + the debt payments you cannot stop)",
    "inputs": [
@@ -1494,13 +1495,14 @@
    "door": "MK-NW-O-004 theEmergencyFund"
   },
   "MK-NW-M-048": {
-   "label": "your planned spend, with the debt payments in it",
+   "label": "cash ÷ planned spend",
    "unit": "money",
    "per": "month",
    "screens": [
     "/analytics",
     "/insights"
    ],
+   "grain": "the household",
    "answers": "What a month costs at the life you plan to live, including what your debts require.",
    "formula": "everything you budget for a month + the debt payments you cannot stop",
    "inputs": [
@@ -1830,8 +1832,55 @@
    },
    "door": "MK-NW-O-006 theHolding"
   },
-  "MK-MN-M-023": {
-   "label": "EST. GROWTH",
+  "MK-NW-M-051": {
+   "label": "EXP. RETURN",
+   "unit": "percent-2dp",
+   "screens": [
+    "/other-investments"
+   ],
+   "grain": "the household",
+   "answers": "The one yearly rate your alternatives are expected to earn, taking each holding's own benchmark and weighting it by what that holding is worth.",
+   "formula": "each holding's value × the benchmark for its kind, added up, ÷ the total value",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "decisions": [
+    "IT IS WEIGHTED BY VALUE, not an average of the rates: $28,000 of crypto and $500 of gold is almost entirely a crypto outlook, and averaging the two rates would say otherwise.",
+    "TWO DECIMALS, because it is a rate (the precision standard, Q49) — it read to one until 2026-09."
+   ],
+   "refusal": "Nothing held — no figure at all, because a 0.00% expected return reads as a forecast of nothing rather than an absence of holdings.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "$9,000 of gold and $6,000 of bitcoin — $15,000 of other investments, at their kinds' own benchmark rates.",
+    "answer": "8.12%"
+   },
+   "door": "MK-NW-O-005 theAlternativesOutlook"
+  },
+  "MK-NW-M-052": {
+   "label": "each alternative and what it is worth",
+   "unit": "money",
+   "screens": [
+    "/other-investments"
+   ],
+   "grain": "one alternative holding",
+   "answers": "Every alternative you hold, with its value, where it is held and the benchmark for its kind — so the total above can be read line by line.",
+   "formula": "one row per account whose class is alternatives, its own balance beside it",
+   "inputs": [
+    "MK-XS-I-001 account balance"
+   ],
+   "decisions": [
+    "THE ROWS MUST ADD TO THE TOTAL ABOVE THEM. That is the whole reason the rows exist: a total nobody can take apart is a number you have to trust rather than check."
+   ],
+   "refusal": "No rows, and the screen shows the sentence that says what belongs here instead.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "$9,000 of gold and $6,000 of bitcoin — $15,000 of other investments, at their kinds' own benchmark rates.",
+    "answer": "$9,000"
+   },
+   "door": "MK-NW-O-005 theAlternativesOutlook"
+  },
+  "MK-NW-M-050": {
+   "label": "EST. GROWTH /year",
    "unit": "money",
    "per": "year",
    "screens": [

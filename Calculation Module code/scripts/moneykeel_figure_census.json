@@ -16989,6 +16989,26 @@
      "s": "pre-tax — taxed when it comes out"
     },
     {
+     "k": "a",
+     "s": "Itemize Retirement (Traditional) into holdings"
+    },
+    {
+     "k": "t",
+     "s": "🧩 Itemize into holdings →"
+    },
+    {
+     "k": "t",
+     "s": "Nothing is recorded inside this account yet. Break it into what it actually holds and the total stays"
+    },
+    {
+     "k": "t",
+     "s": "$120,000"
+    },
+    {
+     "k": "t",
+     "s": "."
+    },
+    {
      "k": "t",
      "s": "⏱ Value date unknown — confirm it once and we can tell you when it goes stale."
     },
@@ -17723,6 +17743,26 @@
      "s": "taxable"
     },
     {
+     "k": "a",
+     "s": "Itemize Ally Savings into holdings"
+    },
+    {
+     "k": "t",
+     "s": "🧩 Itemize into holdings →"
+    },
+    {
+     "k": "t",
+     "s": "Nothing is recorded inside this account yet. Break it into what it actually holds and the total stays"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "t",
+     "s": "."
+    },
+    {
      "k": "t",
      "s": "⏱ Value date unknown — confirm it once and we can tell you when it goes stale."
     },
@@ -17883,6 +17923,26 @@
     {
      "k": "t",
      "s": "pre-tax — taxed when it comes out"
+    },
+    {
+     "k": "a",
+     "s": "Itemize Traditional IRA into holdings"
+    },
+    {
+     "k": "t",
+     "s": "🧩 Itemize into holdings →"
+    },
+    {
+     "k": "t",
+     "s": "Nothing is recorded inside this account yet. Break it into what it actually holds and the total stays"
+    },
+    {
+     "k": "t",
+     "s": "$400,000"
+    },
+    {
+     "k": "t",
+     "s": "."
     },
     {
      "k": "t",
@@ -18053,6 +18113,26 @@
     {
      "k": "t",
      "s": "taxable"
+    },
+    {
+     "k": "a",
+     "s": "Itemize Treasury note into holdings"
+    },
+    {
+     "k": "t",
+     "s": "🧩 Itemize into holdings →"
+    },
+    {
+     "k": "t",
+     "s": "Nothing is recorded inside this account yet. Break it into what it actually holds and the total stays"
+    },
+    {
+     "k": "t",
+     "s": "$9,800"
+    },
+    {
+     "k": "t",
+     "s": "."
     },
     {
      "k": "t",
@@ -18383,6 +18463,26 @@
     {
      "k": "t",
      "s": "taxable"
+    },
+    {
+     "k": "a",
+     "s": "Itemize Savings / portfolio into holdings"
+    },
+    {
+     "k": "t",
+     "s": "🧩 Itemize into holdings →"
+    },
+    {
+     "k": "t",
+     "s": "Nothing is recorded inside this account yet. Break it into what it actually holds and the total stays"
+    },
+    {
+     "k": "t",
+     "s": "$250,000"
+    },
+    {
+     "k": "t",
+     "s": "."
     },
     {
      "k": "t",
@@ -36461,7 +36561,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:459",
+   "site": "src/screens/AccountDetailScreen.tsx:480",
    "routes": [
     "/account-detail"
    ],
@@ -36477,7 +36577,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:470",
+   "site": "src/screens/AccountDetailScreen.tsx:491",
    "routes": [
     "/account-detail"
    ],
@@ -36492,7 +36592,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:488",
+   "site": "src/screens/AccountDetailScreen.tsx:509",
    "routes": [
     "/account-detail"
    ],
@@ -36527,10 +36627,10 @@
     "$9,800",
     "$250,000"
    ],
-   "renders": 17
+   "renders": 22
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:690",
+   "site": "src/screens/AccountDetailScreen.tsx:711",
    "routes": [
     "/account-detail"
    ],
@@ -36545,7 +36645,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:691",
+   "site": "src/screens/AccountDetailScreen.tsx:712",
    "routes": [
     "/account-detail"
    ],
@@ -36560,7 +36660,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:706",
+   "site": "src/screens/AccountDetailScreen.tsx:727",
    "routes": [
     "/account-detail"
    ],
@@ -36576,7 +36676,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:712",
+   "site": "src/screens/AccountDetailScreen.tsx:733",
    "routes": [
     "/account-detail"
    ],
@@ -36592,7 +36692,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:713",
+   "site": "src/screens/AccountDetailScreen.tsx:734",
    "routes": [
     "/account-detail"
    ],
@@ -36607,7 +36707,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/AccountDetailScreen.tsx:714",
+   "site": "src/screens/AccountDetailScreen.tsx:735",
    "routes": [
     "/account-detail"
    ],
@@ -39494,7 +39594,7 @@
    "renders": 18
   },
   {
-   "site": "src/screens/OtherInvestmentsScreen.tsx:54",
+   "site": "src/screens/OtherInvestmentsScreen.tsx:56",
    "routes": [
     "/other-investments"
    ],

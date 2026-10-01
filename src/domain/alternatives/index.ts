@@ -38,7 +38,7 @@ export function isAlternative(a: AssetAccount): boolean {
 }
 
 export interface AltSummary { count: number; totalValue: number; blendedReturn: number; estAnnualGrowth: number; }
-/* ─ MK-NW-F-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-002 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * alternativesSummary
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.

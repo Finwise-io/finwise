@@ -319,6 +319,11 @@ def step_2a():
               'ItemizeScreen': 'itemize', 'PerformanceScreen': 'performance', 'CashFlowScreen': 'cash flow'}
     ROUTE_OF = {v: k for k, v in ROUTE_TO_SCREEN.items()}
 
+    # A FORM HAS NO METRIC, and that is right rather than missing. Add an account by hand shows
+    # fields a person fills in; the only number on it is the one being typed. Inventing a metric to
+    # satisfy a check would put a figure on the master file that nothing computes — which is the
+    # opposite of what the master file is for.
+    FORMS = {'AddAccountScreen'}
     not_issued = sorted(i for i in mine if i not in reg)
     wrong_family, no_metric, label_gap = [], [], []
     for s_ in SCREENS:
@@ -330,12 +335,18 @@ def step_2a():
                   and route in (f.get('screens') or []) and not i.startswith('MK-' + FAMILY + '-')]
         if not on_screen and others:
             wrong_family.append((s_, others))
-        elif not on_screen and key in mocks:
+        elif not on_screen and key in mocks and s_ not in FORMS:
             no_metric.append(s_)
         # every metric's own label must be readable on its approved design
         if key in mocks:
             g, txt = mocks[key]
             for i in on_screen:
+                # A PER-ROW FIGURE HAS NO SINGLE LABEL. Where the grain is one debt, one class or one
+                # holding, the screen draws N rows each carrying its own name, and the label field
+                # describes the row rather than quoting it. Demanding it verbatim marked four correct
+                # records as defects. The two that were genuinely wrong had no grain at all.
+                if re.match(r'(?i)(one |a )', str(mine[i].get('grain') or '')):
+                    continue
                 lab = str(mine[i].get('label') or '')
                 core = re.sub(r'\$?X\b|\$?Y\b|\bN\b|\bn\b|\bxx\b|\bnn\b', '', lab)
                 # EVERY WORD, not a contiguous phrase. Matching the phrase meant a label like
@@ -352,8 +363,20 @@ def step_2a():
                     #   · a label that LOOKS LIKE COPY but is absent usually means the approved design
                     #     does not draw that state — a bond row on the account page, say — which is not
                     #     a mismatch at all.
-                    described = bool(re.match(r'(each|your|the|n |a )', lab.strip(), re.I)) \
-                        or lab.strip()[:1].islower()
+                    # ASK THE SCREEN, NOT THE SHAPE OF THE WORDS. The first version called a label
+                    # a description when it started lowercase — which marked "at your planned spend"
+                    # and "cash ÷ planned spend" as defects when both are literally what the screen
+                    # prints, in the middle of a sentence. A label is a description only when its
+                    # words appear in NEITHER the approved design NOR the screen's own code.
+                    # string literals only: a comment quoting his ruling is not screen copy
+                    _raw = read(f'src/screens/{s_}.tsx')
+                    _raw = re.sub(r'(?s)/\*.*?\*/', ' ', re.sub(r'(?m)^\s*//.*$', ' ', _raw))
+                    src_ = ' '.join(m.group(1) or m.group(2) or m.group(3) or '' for m in re.finditer(
+                        r"'((?:[^'\\\n]|\\.)*)'|\"((?:[^\"\\\n]|\\.)*)\"|`((?:[^`\\]|\\.)*)`",
+                        _raw, re.S)) + ' ' + ' '.join(re.findall(r'[>}]([^<>{}]{3,90})[<{]', _raw))
+                    # JSX text also sits BETWEEN braces — "{fig(…)} at your planned spend — {fig(…)}"
+                    # is read by a person and is captured by neither a string literal nor >…<
+                    described = not all(w in src_.lower() for w in words)
                     label_gap.append((i, s_, lab, g, 'description' if described else 'state-not-drawn'))
 
     print(f'\n   metrics on the register for this module : {len([i for i in reg if i.startswith("MK-" + FAMILY + "-M-")])}')
@@ -538,11 +561,17 @@ def step_3a():
     kinds = collections.Counter(re.split(r'[:—]', str(o))[0].strip()[:40] for o in open_)
 
     coded = [f for f in fns if f in blob]
+    # EVERY test, not only the door files. The first version read only the nine door tests and so
+    # reported 100 of 101 functions as unnamed; the trace index that answers step 3.c lives in
+    # src/__tests__, which it never opened.
     with_tests = []
-    for dp, dn, fn in os.walk('MoneyKeel/functions/networth-and-performance'):
-        for f in fn:
-            if f.endswith('.test.ts'):
-                with_tests += re.findall(r'MK-' + FAMILY + r'-F-\d{3}', read(os.path.join(dp, f)))
+    for d in ('MoneyKeel/functions', 'src', 'Calculation Module code'):
+        for dp, dn, fn in os.walk(d):
+            if 'node_modules' in dp:
+                continue
+            for f in fn:
+                if '.test.' in f and f.endswith(('.ts', '.tsx')):
+                    with_tests += re.findall(r'MK-' + FAMILY + r'-F-\d{3}', read(os.path.join(dp, f)))
     with_tests = sorted(set(with_tests))
 
     print(f'\n   functions of this module, read from the code : {len(fns)}')

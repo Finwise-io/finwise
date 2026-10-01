@@ -117,10 +117,10 @@ export interface TheNetWorth {
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND
  *
- * Serves ...... MK-MN-M-016 · MK-MN-M-022 · MK-NW-M-001 · MK-NW-M-002
- *               MK-NW-M-003 · MK-NW-M-004 · MK-NW-M-005 · MK-NW-M-006
- *               MK-NW-M-007 · MK-NW-M-008 · MK-NW-M-009 · MK-NW-M-011
- *               MK-NW-M-015 · MK-NW-M-016 · MK-NW-M-017 · MK-XS-M-001
+ * Serves ...... MK-MN-M-016 · MK-NW-M-001 · MK-NW-M-002 · MK-NW-M-003
+ *               MK-NW-M-004 · MK-NW-M-005 · MK-NW-M-006 · MK-NW-M-007
+ *               MK-NW-M-008 · MK-NW-M-009 · MK-NW-M-011 · MK-NW-M-015
+ *               MK-NW-M-016 · MK-NW-M-017 · MK-NW-M-049 · MK-XS-M-001
  *               MK-XS-M-003
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-014 debt balance
@@ -796,8 +796,13 @@ export const NET_WORTH_FIGURES = declareFigures({
       run: () => NW().investable,
     },
   },
-  'MK-MN-M-022': {
-    label: 'the total value of these investments', unit: 'money', screens: ['/other-investments'],
+  // RE-FILED FROM THE MENU FAMILY TO NET WORTH, 2026-10-01 (was MK-MN-M-022). See the note on
+  // MK-NW-M-050 in alternatives-outlook.ts: both were issued under the menu family for figures that
+  // live only on the Alternatives screen, which is a Net worth screen.
+  'MK-NW-M-049': {
+    // the screen prints the words "Total value" above it (OtherInvestmentsScreen:54 and 62); the old
+    // label described the figure instead of quoting it, which the label field is not for
+    label: 'Total value', unit: 'money', screens: ['/other-investments'],
     answers: 'What your alternatives are worth — crypto, private equity, commodities and the rest.',
     formula: 'the sum of every account whose class is alternatives',
     inputs: ['MK-NW-I-001 your accounts'],

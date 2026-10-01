@@ -298,7 +298,9 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     },
   },
   'MK-NW-M-046': {
-    label: 'N months at your planned spend', unit: 'months', screens: ['/analytics'],
+    // the screen says "<n> at your planned spend" with the figure in front of it (NetWorthScreen:976)
+    label: 'at your planned spend', unit: 'months', screens: ['/analytics'],
+    grain: 'the household',
     answers: 'How many months your cash would cover if you carried on living exactly as you plan to.',
     formula: 'your cash ÷ (everything you budget for a month + the debt payments you cannot stop)',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-002 your debts', 'MK-CF-I-001 your logged expenses'],
@@ -338,8 +340,10 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     },
   },
   'MK-NW-M-048': {
-    label: 'your planned spend, with the debt payments in it', unit: 'money', per: 'month',
-    screens: ['/analytics', '/insights'],
+    // it is printed as the divisor in "<cash> cash ÷ <this>" (NetWorthScreen:976); the sentence
+    // around it names it, so the figure itself carries no words of its own
+    label: 'cash ÷ planned spend', unit: 'money', per: 'month',
+    screens: ['/analytics', '/insights'], grain: 'the household',
     answers: 'What a month costs at the life you plan to live, including what your debts require.',
     formula: 'everything you budget for a month + the debt payments you cannot stop',
     inputs: ['MK-NW-I-002 your debts', 'MK-CF-I-001 your logged expenses'],
