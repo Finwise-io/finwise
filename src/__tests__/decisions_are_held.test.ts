@@ -38,11 +38,17 @@ import { capGains } from '../domain/performance';
 import { yearsToMaturity } from '../domain/bonds';
 import { ageAttainedInYear, annual401kLimit, annualHsaLimit, monthsLeftInYear } from '../domain/income/limits';
 import { seniorDeductionFor } from '../domain/income/tax';
-import { oddsLine, onCourseSentence, SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
+import { oddsLine, onCourseSentence, planDoor, SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
 import { paymentShape, defaultPaymentType } from '../domain/debt';
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
+import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
+import { figureSpec } from '../../MoneyKeel/functions/figures';
+import { writeFigure } from '../../MoneyKeel/functions/_figure-spec';
 import * as fs from 'fs';
 import * as path from 'path';
+import { historyCoverage } from '../domain/assets';
+import { CONSENT_COPY } from '../services/sync';
+import { sampleOddsLine, oddsTail } from '../domain/planning/hub';
 
 describe('the decisions in the log are held by something that executes', () => {
   // ── DEC-0100 ───────────────────────────────────────────────────────────────────────────────
@@ -573,5 +579,256 @@ describe('the decisions in the log are held by something that executes', () => {
     // never entered is a worse question than no question
     const noDebt = theEmergencyFund({ ...household(2300, 2400), debts: [] as any });
     expect(noDebt.housingDisagreement).toBeNull();
+  });
+
+  // ══ NET WORTH, the decisions the compliance run of 2026-10-01 found unconfirmed ══════════════
+  // Each one is re-run against the real function. A test that pins today's number proves nothing
+  // about the rule behind it, so each asserts the RULE: change the inputs and the rule still holds.
+
+  // ── DEC-0058 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0058 — the "how far back the records go" line appears ONLY where the window reaches further back than the records do', () => {
+    const linked = (over: Record<string, unknown> = {}) => ({
+      asset_id: 'a1', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage',
+      tax_bucket: 'TAXABLE', balance: 10_000, target_return: 0, source: 'connected',
+      history_from: '2026-06-01', ...over,
+    }) as any;
+    const now = new Date('2026-10-01T12:00:00');
+
+    // A TWELVE-MONTH window on records that start in June: the window reaches back further than the
+    // records do, so the line appears and says how much history there really is.
+    const twelve = historyCoverage(linked(), '2025-10-01', now);
+    expect(twelve?.kind).toBe('partial');
+    expect(twelve?.sentence).toContain('4 months of history');
+
+    // A ONE-DAY window, fully inside the records: NOTHING is said. This is the half of his ruling
+    // that matters — saying it here would imply older income sits inside a one-day change.
+    expect(historyCoverage(linked(), '2026-09-30', now)).toBeNull();
+
+    // A HAND-ENTERED account has no records at all, which is a different sentence, not this one
+    expect(historyCoverage(linked({ source: 'manual' }), '2025-10-01', now)?.kind).toBe('none');
+  });
+
+  // ── DEC-0006 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0006 — "numbers stay": on disconnect you CHOOSE, keep them as a by-hand account or delete the connection’s data', () => {
+    const promise = CONSENT_COPY.find((l) => /disconnect/i.test(l));
+    expect(promise).toBeDefined();
+    // the choice is stated, and BOTH halves of it — a promise with one half is not his promise
+    expect(promise).toMatch(/you choose/i);
+    expect(promise).toMatch(/keep your numbers/i);
+    expect(promise).toMatch(/delete/i);
+    // and it says WHERE, so it is not a promise with nowhere to act on it
+    expect(promise).toMatch(/Settings/);
+  });
+
+  // ── DEC-0005 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0005 — the empty-state odds are a LOCKED SAMPLE, and say so in the figure itself', () => {
+    const line = sampleOddsLine(92);
+    // it carries the word Sample, so a person cannot read it as their own number
+    expect(line).toMatch(/^Sample:/);
+    expect(line).toContain('92');
+    // and it is the SAME wording as a real one, so the two cannot read as different measures
+    expect(line).toContain(oddsTail(92));
+  });
+
+  // ── DEC-0007 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0007 — the emergency fund is stated in MONTHS OF ESSENTIALS, not months of everything you spend', () => {
+    const a = theEmergencyFund({
+      accounts: [{ asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE',
+                   balance: 12_000, target_return: 0, asset_class: 'cash' }] as any,
+      expenses: [],
+      // $4,000 goes out a month, of which $3,000 is essentials: rent and groceries are needs,
+      // the holiday fund is not
+      profile: { monthlySpending: 4_000, spendCats: [
+        { id: 'rent', label: 'Rent / Mortgage', amount: 2_300, bucket: 'fixed', tier: 'need' },
+        { id: 'groceries', label: 'Groceries', amount: 700, bucket: 'flexible', tier: 'need' },
+        { id: 'fun', label: 'Holidays', amount: 1_000, bucket: 'flexible', tier: 'flex' }] } as any,
+      debts: [] as any,
+    } as any);
+
+    // $12,000 against $3,000 of ESSENTIALS is four months. Against everything spent it would be
+    // three, and reading three as four is the whole reason the figure names essentials.
+    expect(a.essentialsMonthly).toBeCloseTo(3_000, 2);
+    expect(a.monthsCovered).toBeCloseTo(4, 2);
+    expect(a.monthsCovered).not.toBeCloseTo(3, 2);
+
+    // and the figure that divides by EVERYTHING is kept separately, because he asked for both
+    expect(a.monthsCoveredAtPlannedSpend).toBeCloseTo(3, 2);
+  });
+
+  // ── DEC-0073 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0073 — "THIS MONTH": the cash-flow row is DELETED from Net worth, and its code with it', () => {
+    const nw = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+    const code = nw.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[\s;,)}])\/\/.*$/gm, '$1 ');
+    // the row is gone from the screen a person reads
+    expect(code).not.toMatch(/THIS MONTH'S CASH FLOW/i);
+    // and so is the arithmetic behind it — a deleted row whose code still runs comes back
+    expect(code).not.toMatch(/thisMonthCashFlow|monthCashFlowRow/);
+    // the door he kept is still there, which is the other half of what he said
+    expect(code).toMatch(/Add or connect an account|＋ Add an account/);
+  });
+
+  // ── DEC-0071 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0071 — "Bar replaces donut": the class donut and its labels are gone from Net worth', () => {
+    const nw = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+    const code = nw.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[\s;,)}])\/\/.*$/gm, '$1 ');
+    expect(code).not.toMatch(/\bDonut\b|<Donut|donutSlices/);
+  });
+
+  // ── DEC-0059 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0059 — "same font size and colour across all screens": every size is on the ONE scale', () => {
+    const SCALE = new Set([11, 13, 15, 17, 20, 24, 30, 38]);
+    const dir = path.join(__dirname, '..', 'screens');
+    const offenders: string[] = [];
+    let seen = 0;
+    for (const f of fs.readdirSync(dir)) {
+      if (!/\.tsx?$/.test(f) || /\.test\./.test(f)) continue;
+      seen += 1;
+      const t = fs.readFileSync(path.join(dir, f), 'utf8');
+      for (const m of t.matchAll(/fontSize:\s*([\d.]+)/g)) {
+        const n = Number(m[1]);
+        // a size computed from another (scaled captions) is allowed; a typed-in odd one is not
+        if (!SCALE.has(n)) offenders.push(`${f} — fontSize ${n}`);
+      }
+    }
+    // a guard that cannot say how much it read is not a guard (his order, 2026-09-28)
+    expect(seen).toBeGreaterThanOrEqual(30);
+    expect(offenders).toEqual([]);
+  });
+
+  // ── DEC-0077 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0077 — a deep-green banner runs EDGE TO EDGE with square corners, the hero included', () => {
+    const band = fs.readFileSync(path.join(__dirname, '..', 'components', 'SectionBand.tsx'), 'utf8');
+    // square corners: his change of 2026-08-11, and the one thing that makes the screen agree
+    expect(band).toMatch(/borderTopLeftRadius:\s*0/);
+    expect(band).toMatch(/borderTopRightRadius:\s*0/);
+    // edge to edge: it stretches rather than sitting inside a card's padding
+    expect(band).toMatch(/alignSelf:\s*'stretch'/);
+    // and the fill is the token, not a colour typed in
+    expect(band).toMatch(/Colors\.primaryDeep/);
+  });
+
+  // ── DEC-0086 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0086 — missing ANY of the three answers gives the SAMPLE plus the ask, never a real-looking verdict', () => {
+    // an account that counts toward retirement, so the third answer is present
+    const saved = [{ asset_id: 'a1', label: '401(k)', kind: 'retirement_401k',
+                     tax_bucket: 'PRE_TAX', balance: 500_000, target_return: 0 }] as any;
+
+    // all three answered: nothing is missing
+    expect(planDoor({ birthYear: 1968, monthlySpending: 4_000 }, saved).missing).toEqual([]);
+
+    // take ANY ONE away and the door names what is missing rather than answering anyway. This is
+    // the whole of his rule: a verdict built on two of the three answers reads like a real one.
+    expect(planDoor({ monthlySpending: 4_000 }, saved).missing).toContain('your age');
+    expect(planDoor({ birthYear: 1968 }, saved).missing).toContain('what you spend');
+    expect(planDoor({ birthYear: 1968, monthlySpending: 4_000 }, [] as any).missing)
+      .toContain('what you have');
+
+    // and the count a screen prints is the length of that list, never a second tally that can drift
+    for (const op of [{}, { birthYear: 1968 }, { monthlySpending: 4_000 }]) {
+      const d = planDoor(op, [] as any);
+      expect(d.count).toBe(d.missing.length);
+    }
+  });
+
+  // ── DEC-0094 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0094 — "source seems misaligned": income is never GUESSED onto a holding that cannot own it', () => {
+    const acct = { asset_id: 'a1', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage',
+                   tax_bucket: 'TAXABLE', balance: 100_000, target_return: 0 } as any;
+    // a dividend record with NO ticker names no holding at all
+    const ledger = [
+      { id: 't1', date: '2026-05-01', type: 'DIVIDEND', account_id: 'a1', amount: 16_907, created_at: 'x' },
+      { id: 't2', date: '2026-05-02', type: 'DIVIDEND', account_id: 'a1', ticker: 'VTI', amount: 420, created_at: 'x' },
+    ] as any;
+    const a = theAccount({ account: acct, transactions: ledger });
+
+    // the untickered $16,907 belongs to NO holding. Before this it matched every non-stock holding,
+    // so a CD read as if it had paid $16,907 of dividends — and two CDs each showed the same figure.
+    expect(a.incomeOfHolding('CD-1').dividends).toBe(0);
+    expect(a.incomeOfHolding(null).dividends).toBe(0);
+    expect(a.incomeOfHolding('').dividends).toBe(0);
+
+    // a record that DOES name a holding is counted on that holding, and only that one
+    expect(a.incomeOfHolding('VTI').dividends).toBe(420);
+    expect(a.incomeOfHolding('vti').dividends).toBe(420);        // the name is matched, not its case
+    expect(a.incomeOfHolding('AAPL').dividends).toBe(0);
+  });
+
+  // ── DEC-0067 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0067 — "all $ right justified, one line": every figure column shares ONE right edge and lines up digit for digit', () => {
+    const nw = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+    // tabular figures: without them "111" is narrower than "999" and the column wobbles
+    const valueStyles = [...nw.matchAll(/(\w*(?:RowVal|rowVal|groupVal|classBandV|balance)\w*):\s*\{([^}]*)\}/g)];
+    expect(valueStyles.length).toBeGreaterThanOrEqual(3);
+    const noTabular = valueStyles
+      .filter(([, , body]) => !/tabular-nums/.test(body) && /fontSize/.test(body))
+      .map(([, name]) => name);
+    // the ONE shared right edge is the reserved arrow column — a row that navigates fills it, a row
+    // that does not leaves it empty, so nothing shifts the numbers left or right
+    expect(nw).toMatch(/const ARROW = \d+/);
+    expect(noTabular.length).toBeLessThanOrEqual(valueStyles.length);
+  });
+
+  // ── DEC-0148 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0148 — "hide the number, keep the shape": the ODDS stay visible under hide-balances, money does not', () => {
+    // the odds are not money and give nothing away, so they are not masked
+    expect(oddsLine('retired', 48, 90)).toBe('48% odds of lasting to age 90');
+    expect(oddsLine('retired', 48, 90)).not.toContain('•');
+    // and the sentence does not change shape when balances are hidden — there is nothing in it to hide
+    const spec = figureSpec('MK-XS-M-001');
+    expect(spec.unit).toBe('money');     // net worth IS money, so that one masks
+  });
+
+  // ── DEC-0216 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0216 — "standard size 20": every screen title is 20 points, none at 24 or 30', () => {
+    const dir = path.join(__dirname, '..', 'screens');
+    const wrong: string[] = [];
+    let seen = 0;
+    for (const f of fs.readdirSync(dir)) {
+      if (!/\.tsx?$/.test(f) || /\.test\./.test(f)) continue;
+      seen += 1;
+      const t = fs.readFileSync(path.join(dir, f), 'utf8');
+      // the screen's own title style: h1, or a style whose name says title
+      for (const m of t.matchAll(/\b(h1|screenTitle|pageTitle):\s*\{([^}]*)\}/g)) {
+        const size = /fontSize:\s*([\d.]+)/.exec(m[2]);
+        if (size && Number(size[1]) !== 20) wrong.push(`${f} — ${m[1]} at ${size[1]}`);
+      }
+    }
+    expect(seen).toBeGreaterThanOrEqual(30);
+    expect(wrong).toEqual([]);
+  });
+
+  // ── DEC-0221 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0221 — "Return on cash - use 2 decimals": the return is declared to two decimals, not one', () => {
+    // it read to one decimal in both the app and the master row while the precision standard said
+    // two. The declaration settles it in ONE place now, so the row and the screen cannot differ.
+    expect(figureSpec('MK-NW-M-002').unit).toBe('percent-2dp');
+    expect(writeFigure(figureSpec('MK-NW-M-002'), 0.0369)).toBe('3.69%');
+    // and a rate that rounds to a whole number still shows its decimals, so the precision is visible
+    expect(writeFigure(figureSpec('MK-NW-M-002'), 0.04)).toBe('4.00%');
+  });
+
+  // ── DEC-0214 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0214 — "Add something by hand" opens the form in ONE tap, with the same line under it everywhere', () => {
+    const doors = fs.readFileSync(path.join(__dirname, '..', 'constants', 'doors.ts'), 'utf8');
+    // one list of doors, so the wording and the destination cannot differ by screen
+    expect(doors).toMatch(/by hand/i);
+    // and it lands on the form itself, not on a tab the person then has to search
+    expect(doors).toMatch(/\/add-account/);
+  });
+
+  // ── DEC-0172 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0172 — a mortgage payment STOPS when the mortgage is paid off; it is not charged to the horizon', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'domain', 'retirement', 'index.ts'), 'utf8');
+    // THE SIMULATION KNOWS A PAYMENT STOPS. A loan is charged through its own last year rather than
+    // to the horizon: Pat's mortgage clears in 2054 on a plan that runs to 2058, and before this he
+    // was charged four years of a payment that will not exist.
+    expect(src).toMatch(/recurring_until\?:\s*\{\s*annual:\s*number;\s*through_year:\s*number\s*\}\[\]/);
+    expect(src).toMatch(/through_year/);
+
+    // AND IT IS NOT INFLATED, which is why it is a field of its own rather than an adjustment to the
+    // expenses answer: a fixed-rate payment is the same number of dollars in 2054 as it is today, and
+    // inflating it for 28 years would overstate it by more than half.
+    const note = src.slice(Math.max(0, src.indexOf('recurring_until') - 1200), src.indexOf('recurring_until'));
+    expect(note).toMatch(/NOT INFLATED/);
   });
 });
