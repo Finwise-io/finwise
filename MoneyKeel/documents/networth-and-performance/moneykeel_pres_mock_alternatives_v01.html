@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoneyKeel — Alternatives, v01</title>
+<style>
+/* READ FROM src/screens/OtherInvestmentsScreen.tsx AND src/utils/theme.ts. Nothing picked by eye.
+   bgSecondary #F6F7F5 · cardBg #FFFFFF · border rgba(0,0,0,.10) · bgTertiary #EEEEE9
+   primary #178F6B · primaryDark #0F6E56 · primaryLight #E1F5EE · primaryDeep #085041
+   textPrimary #1A1A18 · textSecondary #6B6B66 · textTertiary #76766F
+   Spacing xs 4 · sm 8 · md 12 · base 16 · lg 20      Radii md 12 · lg 16 · pill 100 */
+:root{--bg:#F6F7F5;--card:#FFFFFF;--line:rgba(0,0,0,.10);--bg3:#EEEEE9;
+  --green:#178F6B;--greenD:#0F6E56;--greenLt:#E1F5EE;--greenDeep:#085041;
+  --t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;--white:#FFFFFF;--ink:#0B2545}
+*{box-sizing:border-box}
+body{margin:0;background:#E9EBE6;color:var(--t1);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:28px 16px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+.wordmark{font-size:19px;font-weight:800;color:var(--green);letter-spacing:-.2px}
+.wordmark i{font-style:normal;color:var(--ink)}
+h1{font-size:24px;margin:10px 0 4px;letter-spacing:-.3px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--t2);text-transform:uppercase}
+.lede{font-size:14px;color:#3C3C38;line-height:1.6;max-width:880px;margin:8px 0 0}
+.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+  font-size:13px;line-height:1.65;margin:18px 0 0;max-width:880px}
+.note b{color:var(--ink)} .note code{background:var(--bg3);border-radius:4px;padding:1px 5px;font-size:12px}
+.row{display:flex;flex-wrap:wrap;gap:34px;margin-top:30px;align-items:flex-start}
+.frame{width:375px}
+.cap{font-size:12.5px;font-weight:800;color:var(--ink);margin:0 0 3px}
+.capsub{font-size:12px;color:var(--t2);line-height:1.55;margin:0 0 10px;min-height:50px}
+.phone{width:375px;background:var(--bg);border-radius:38px;overflow:hidden;
+  box-shadow:0 18px 44px rgba(0,0,0,.16);border:1px solid rgba(0,0,0,.08)}
+.status{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+  font-size:11.5px;font-weight:700;background:var(--bg)}
+.navhdr{height:44px;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--bg)}
+.navback{font-size:17px;font-weight:600;color:var(--green)}
+.navtitle{font-size:17px;font-weight:600;color:var(--t1)}
+.flag{margin-left:auto;font-size:9.5px;font-weight:800;color:#8A5A00;background:#FFF2D6;
+  border:1px solid #F0D9A0;border-radius:4px;padding:2px 5px;letter-spacing:.3px}
+.content{padding:20px}
+.h1s{font-size:20px;font-weight:800;color:var(--t1);margin:8px 0 8px}
+.band{background:var(--greenDeep);padding:8px 12px;margin:0 -20px 4px;display:flex;align-items:center;gap:6px}
+.bandT{color:var(--white);font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;flex:1}
+.dot{width:15px;height:15px;border-radius:50%;border:1.3px solid rgba(255,255,255,.75);color:#fff;
+  font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.card{background:var(--card);border-radius:16px;padding:12px;margin-bottom:10px}
+.summary{background:var(--card);border-radius:16px;padding:16px;margin-bottom:10px;text-align:center}
+.sumVal{font-size:30px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums}
+.sumLab{font-size:13px;color:var(--t3);margin-top:1px;text-align:center}
+.sumRow{display:flex;margin-top:14px}
+.sumCell{flex:1;text-align:center}
+.sumCellL{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:.3px}
+.sumCellV{font-size:15px;font-weight:800;color:var(--t1);margin-top:3px;font-variant-numeric:tabular-nums}
+.sumCellV.g{color:var(--green)}
+.irow{display:flex;justify-content:space-between;align-items:center}
+.name{flex:1;font-size:15px;font-weight:800;color:var(--t1);padding-right:8px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.val{font-size:15px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums}
+.sub{font-size:11px;color:var(--t2);margin-top:3px}
+.empty{font-size:13px;color:var(--t2);line-height:20px}
+.addBtn{background:var(--green);border-radius:12px;padding:13px 0;text-align:center;color:var(--white);
+  font-size:15px;font-weight:800;margin-top:14px}
+.addLink{font-size:15px;font-weight:800;color:var(--greenD);margin-top:10px;border:1.5px solid var(--green);
+  border-radius:16px;padding:12px 0;text-align:center;background:var(--greenLt)}
+.foot{font-size:11px;color:var(--t3);line-height:14.5px;margin-top:12px}
+.tail{height:36px}
+.chg{outline:2px dashed #C2410C;outline-offset:3px;border-radius:4px}
+.key{font-size:12px;color:var(--t2);margin-top:22px}
+.key s{display:inline-block;width:12px;height:12px;border:2px dashed #C2410C;border-radius:3px;
+  vertical-align:-2px;margin-right:5px}
+table{border-collapse:collapse;margin-top:10px;font-size:12.5px;width:100%;max-width:880px}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--bg3);font-weight:800;font-size:11.5px}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="wordmark">Money<i>Keel</i></div>
+  <div class="eyebrow">Net worth module · screen design</div>
+  <h1>Alternatives — v01</h1>
+  <p class="lede">
+    Everything that is neither a listed share nor a bond: crypto, private equity, hedge funds,
+    commodities, annuities, options. Each is held at a value you set, because none of them has a price
+    feed — and the screen says so rather than implying one.
+  </p>
+
+  <div class="note">
+    <b>The screen is titled “Alternatives”, and its route is <code>/other-investments</code>.</b> The
+    heading and the dark-green bar both read ALTERNATIVES; only the address differs. Worth knowing when
+    you are looking for it.
+    <br><br>
+    <b>What “from Build 53” means.</b> Build 53 shipped this at <code>263f741</code> and 38 lines have
+    changed since. The visible ones are your rulings: <b>“EST. GROWTH / YR” became “EST. GROWTH /year”</b>
+    and <b>“%/yr expected” became “%/year expected”</b> (the <code>/month · /year</code> canon), and
+    <b>returns moved from one decimal to two</b> (the precision standard, Q49). Plus a refusal that did
+    not exist before: where the growth cannot be worked out it now shows <b>—</b> rather than a zero.
+  </div>
+
+  <div class="row">
+
+    <!-- ═══════════════════════════ A ═══════════════════════════ -->
+    <div class="frame">
+      <p class="cap">A · WITH HOLDINGS — the screen as it normally reads</p>
+      <p class="capsub">The total, then what share of your investable assets it is, then the blended
+        expected return and what that comes to in a year. One card per holding.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle"></span></div>
+        <div class="content">
+          <p class="h1s">Alternatives</p>
+          <div class="band"><span class="bandT">Alternatives</span><span class="dot">i</span></div>
+
+          <div class="summary">
+            <div class="sumVal">$61,500</div>
+            <div class="sumLab">3 holdings · 12% of your investable assets</div>
+            <div class="sumRow">
+              <div class="sumCell"><div class="sumCellL">EXP. RETURN</div><div class="sumCellV">7.32%</div></div>
+              <div class="sumCell"><div class="sumCellL">EST. GROWTH /year</div><div class="sumCellV g">$4,502</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="irow"><span class="name">Bitcoin</span><span class="val">$28,000</span></div>
+            <div class="sub">Coinbase · Crypto · ~9.00%/year expected</div>
+          </div>
+          <div class="card">
+            <div class="irow"><span class="name">Fund III</span><span class="val">$25,000</span></div>
+            <div class="sub">Private equity · ~7.00%/year expected</div>
+          </div>
+          <div class="card">
+            <div class="irow"><span class="name">Gold</span><span class="val">$8,500</span></div>
+            <div class="sub">Commodities · ~3.50%/year expected</div>
+          </div>
+
+          <div class="addLink">＋ Add an investment</div>
+          <p class="foot">Values are what you enter (no live pricing for alternatives). Expected returns
+            are historical class benchmarks, not guarantees.</p>
+          <div class="tail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════ B ═══════════════════════════ -->
+    <div class="frame">
+      <p class="cap">B · NOTHING ENTERED YET — the first day</p>
+      <p class="capsub">A real $0 under the words “Total value”, the sentence that says what belongs
+        here, and one filled button. No expected return is shown, because there is nothing to apply one
+        to.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle"></span></div>
+        <div class="content">
+          <p class="h1s">Alternatives</p>
+          <div class="band"><span class="bandT">Alternatives</span><span class="dot">i</span></div>
+          <div class="summary"><div class="sumLab">Total value</div><div class="sumVal">$0</div></div>
+          <div class="card">
+            <p class="empty">Track alternatives — crypto, private equity, hedge funds, commodities,
+              annuities — at a value you set. They count toward your net worth and retirement nest egg.</p>
+            <div class="addBtn">＋ Add an investment</div>
+          </div>
+          <div class="tail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════ C ═══════════════════════════ -->
+    <div class="frame">
+      <p class="cap">C · THE EDITOR — opened by tapping a holding</p>
+      <p class="capsub">Type first, because the type decides the benchmark the hint quotes. Then name,
+        where it is held, value, and the account it sits in. Sell records proceeds rather than
+        re-marking a price.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle"></span></div>
+        <div style="background:rgba(0,0,0,.3);padding-top:40px">
+          <div style="background:var(--white);border-radius:22px 22px 0 0;padding:18px 18px 28px">
+            <div style="width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px"></div>
+            <div style="font-size:17px;font-weight:800;margin-bottom:4px">Edit investment</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Type</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="border:1.5px solid var(--green);background:var(--greenLt);border-radius:100px;
+                padding:8px 12px;font-size:13px;font-weight:700;color:var(--greenD)">Crypto</span>
+              <span style="border:1.5px solid var(--line);border-radius:100px;padding:8px 12px;
+                font-size:13px;font-weight:700;color:var(--t2)">Private equity</span>
+              <span style="border:1.5px solid var(--line);border-radius:100px;padding:8px 12px;
+                font-size:13px;font-weight:700;color:var(--t2)">Commodities</span>
+              <span style="border:1.5px solid var(--line);border-radius:100px;padding:8px 12px;
+                font-size:13px;font-weight:700;color:var(--t2)">Annuity</span>
+            </div>
+            <div style="font-size:11px;color:var(--t3);line-height:15px;margin-top:4px">Bitcoin, Ether
+              and the rest — held at the value you set. ~9.00%/year historical benchmark.</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Name</div>
+            <div style="border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:17px">Bitcoin</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Where it's held (institution)</div>
+            <div style="border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:17px">Coinbase</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Current value</div>
+            <div style="border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:17px">28000</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Account</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="border:1.5px solid var(--green);background:var(--greenLt);border-radius:100px;
+                padding:8px 12px;font-size:13px;font-weight:700;color:var(--greenD)">Taxable</span>
+              <span style="border:1.5px solid var(--line);border-radius:100px;padding:8px 12px;
+                font-size:13px;font-weight:700;color:var(--t2)">Trad IRA / 401k</span>
+              <span style="border:1.5px solid var(--line);border-radius:100px;padding:8px 12px;
+                font-size:13px;font-weight:700;color:var(--t2)">Roth</span>
+            </div>
+
+            <div style="margin-top:18px;padding:12px;border-radius:12px;background:var(--bg);
+              border:1px solid var(--line)">
+              <div style="font-size:13px;font-weight:800">🔻 Sell</div>
+              <div style="font-size:11px;color:var(--t3);line-height:15px;margin-top:4px">Sold this (or
+                part of it) — e.g. an option before expiration, or some crypto? Enter the proceeds to
+                lower or close the position. To re-mark its price, edit “Current value” above.</div>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+                <div style="flex:1;border:1.5px solid var(--line);border-radius:12px;padding:12px;
+                  font-size:17px;color:var(--t3)">amount sold (up to $28,000)</div>
+                <div style="background:var(--t1);color:#fff;border-radius:12px;padding:12px 16px;
+                  font-size:15px;font-weight:800">Record</div>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:var(--green);margin-top:8px">Sold all of it →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="key"><s></s>A dashed mark shows what differs from Build 53, or what is worth your eye.</p>
+
+  <div class="note">
+    <b>The numbers add up.</b> $28,000 + $25,000 + $8,500 = <b>$61,500</b>. The blended expected return
+    is each holding's benchmark weighted by its value: (28,000 × 9.00% + 25,000 × 7.00% + 8,500 × 3.50%)
+    ÷ 61,500 = <b>7.32%</b>, and 7.32% of $61,500 is <b>$4,502</b> a year — the figure shown.
+    <table>
+      <tr><th>Holding</th><th>Type</th><th class="n">Value</th><th class="n">Benchmark</th><th class="n">Its share of growth</th></tr>
+      <tr><td>Bitcoin</td><td>Crypto · Coinbase</td><td class="n">$28,000</td><td class="n">9.00%</td><td class="n">$2,520</td></tr>
+      <tr><td>Fund III</td><td>Private equity</td><td class="n">$25,000</td><td class="n">7.00%</td><td class="n">$1,750</td></tr>
+      <tr><td>Gold</td><td>Commodities</td><td class="n">$8,500</td><td class="n">3.50%</td><td class="n">$298</td></tr>
+      <tr><td><b>Total</b></td><td></td><td class="n"><b>$61,500</b></td><td class="n"><b>7.32%</b></td><td class="n"><b>$4,502</b></td></tr>
+    </table>
+    The expected return is a historical class benchmark, not a forecast, and the foot of the screen says
+    so in those words.
+  </div>
+
+  <div class="note">
+    <b>The header is a back arrow and nothing else</b>, which is correct and deliberate. This route IS
+    declared in <code>app/_layout.tsx</code> with <code>title: ''</code>, under a note of 2026-07-16:
+    the screen carries its own headline, so the header must never duplicate it or show a raw route
+    name. <b>Itemize and Holding detail are missing from that list</b> and so do show a raw route name
+    — that is the defect, and it is not on this screen.
+  </div>
+
+</div>
+</body>
+</html>

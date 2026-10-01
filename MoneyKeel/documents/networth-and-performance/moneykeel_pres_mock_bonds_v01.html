@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoneyKeel — Bonds, v01</title>
+<style>
+/* ─────────────────────────────────────────────────────────────────────────────────────────────
+   READ FROM src/screens/BondsScreen.tsx AND src/utils/theme.ts. Nothing picked by eye, nothing
+   carried over from another mock's CSS (his order of 2026-09-14).
+     bgSecondary #F6F7F5 · cardBg #FFFFFF · border rgba(0,0,0,.10) · bgTertiary #EEEEE9
+     primary #178F6B · primaryDark #0F6E56 · primaryLight #E1F5EE · primaryDeep #085041
+     textPrimary #1A1A18 · textSecondary #6B6B66 · textTertiary #76766F · amber #854F0B
+     Spacing xs 4 · sm 8 · md 12 · base 16 · lg 20      Radii md 12 · lg 16 · pill 100
+   ───────────────────────────────────────────────────────────────────────────────────────────── */
+:root{--bg:#F6F7F5;--card:#FFFFFF;--line:rgba(0,0,0,.10);--bg3:#EEEEE9;
+  --green:#178F6B;--greenD:#0F6E56;--greenLt:#E1F5EE;--greenDeep:#085041;
+  --t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;--white:#FFFFFF;--ink:#0B2545}
+*{box-sizing:border-box}
+body{margin:0;background:#E9EBE6;color:var(--t1);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:28px 16px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+.wordmark{font-size:19px;font-weight:800;color:var(--green);letter-spacing:-.2px}
+.wordmark i{font-style:normal;color:var(--ink)}
+h1{font-size:24px;margin:10px 0 4px;letter-spacing:-.3px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--t2);text-transform:uppercase}
+.lede{font-size:14px;color:#3C3C38;line-height:1.6;max-width:880px;margin:8px 0 0}
+.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+  font-size:13px;line-height:1.65;margin:18px 0 0;max-width:880px}
+.note b{color:var(--ink)} .note code{background:var(--bg3);border-radius:4px;padding:1px 5px;font-size:12px}
+.row{display:flex;flex-wrap:wrap;gap:34px;margin-top:30px;align-items:flex-start}
+.frame{width:375px}
+.cap{font-size:12.5px;font-weight:800;color:var(--ink);margin:0 0 3px}
+.capsub{font-size:12px;color:var(--t2);line-height:1.55;margin:0 0 10px;min-height:50px}
+.phone{width:375px;background:var(--bg);border-radius:38px;overflow:hidden;
+  box-shadow:0 18px 44px rgba(0,0,0,.16);border:1px solid rgba(0,0,0,.08)}
+.status{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+  font-size:11.5px;font-weight:700;background:var(--bg)}
+.navhdr{height:44px;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--bg)}
+.navback{font-size:17px;font-weight:600;color:var(--green)}
+.navtitle{font-size:17px;font-weight:600;color:var(--t1)}
+.flag{margin-left:auto;font-size:9.5px;font-weight:800;color:#8A5A00;background:#FFF2D6;
+  border:1px solid #F0D9A0;border-radius:4px;padding:2px 5px;letter-spacing:.3px}
+.content{padding:20px}
+.h1s{font-size:20px;font-weight:800;color:var(--t1);margin:8px 0 8px}
+/* the dark-green bar: square corners, edge to edge, 11pt caps on 8pt padding (his standard) */
+.band{background:var(--greenDeep);padding:8px 12px;margin:0 -20px 4px;display:flex;align-items:center;gap:6px}
+.bandT{color:var(--white);font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;flex:1}
+.dot{width:15px;height:15px;border-radius:50%;border:1.3px solid rgba(255,255,255,.75);color:#fff;
+  font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.dot.dark{border-color:var(--t3);color:var(--t3)}
+.card{background:var(--card);border-radius:16px;padding:12px;margin-bottom:10px}
+.summary{background:var(--card);border-radius:16px;padding:16px;margin-bottom:10px;text-align:center}
+.sumVal{font-size:30px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums}
+.sumLab{font-size:13px;color:var(--t3);margin-top:1px}
+.sumRow{display:flex;margin-top:14px}
+.sumCell{flex:1;text-align:center}
+.sumCellL{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:.3px}
+.sumCellV{font-size:15px;font-weight:800;color:var(--t1);margin-top:3px;font-variant-numeric:tabular-nums}
+.sumCellV.g{color:var(--green)}
+.bondHead{display:flex;justify-content:space-between;align-items:center}
+.bondName{flex:1;font-size:15px;font-weight:800;color:var(--t1);padding-right:8px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bondVal{font-size:15px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums}
+.bondSub{font-size:11px;color:var(--t2);margin-top:3px}
+.bondMetrics{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.metric{font-size:13px;font-weight:700;color:var(--green)}
+.empty{font-size:13px;color:var(--t2);line-height:20px}
+.addBtn{background:var(--green);border-radius:12px;padding:13px 0;text-align:center;color:var(--white);
+  font-size:15px;font-weight:800;margin-top:14px}
+.addLink{font-size:15px;font-weight:800;color:var(--greenD);margin-top:10px;border:1.5px solid var(--green);
+  border-radius:16px;padding:12px 0;text-align:center;background:var(--greenLt)}
+.foot{font-size:11px;color:var(--t3);line-height:14.5px;margin-top:12px}
+.tail{height:36px}
+.chg{outline:2px dashed #C2410C;outline-offset:3px;border-radius:4px}
+.key{font-size:12px;color:var(--t2);margin-top:22px}
+.key s{display:inline-block;width:12px;height:12px;border:2px dashed #C2410C;border-radius:3px;
+  vertical-align:-2px;margin-right:5px}
+table{border-collapse:collapse;margin-top:10px;font-size:12.5px;width:100%;max-width:880px}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--bg3);font-weight:800;font-size:11.5px}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="wordmark">Money<i>Keel</i></div>
+  <div class="eyebrow">Net worth module · screen design</div>
+  <h1>Bonds — v01</h1>
+  <p class="lede">
+    Individual bonds and certificates of deposit: what each is worth, what it pays, when it matures and
+    what it yields. Every figure on this screen comes from one door, <code>MK-NW-O-001 theBonds</code>,
+    which is the same door the account page asks — so a bond cannot read one way here and another there.
+  </p>
+
+  <div class="note">
+    <b>Drawn from the code.</b> Every string, size and colour is read from
+    <code>src/screens/BondsScreen.tsx</code> and <code>src/utils/theme.ts</code>.
+    <br><br>
+    <b>What “from Build 53” means.</b> Build 53 shipped this at <code>263f741</code>; 74 lines have
+    changed since, and the visible ones are all rulings of yours — <b>“COUPON / YR” became
+    “COUPON /year”</b> and <b>“/yr coupon” became “/year coupon”</b> (the <code>/month · /year</code>
+    canon), <b>yields moved to two decimals</b> (the precision standard, Q49), and the arithmetic moved
+    behind the one door (Q-NW-4, 2026-09-27). So this is Build 53 plus those. Drawing it literally would
+    put retired wording and a retired precision back on the page.
+  </div>
+
+  <div class="row">
+
+    <!-- ═══════════════════════════ A ═══════════════════════════ -->
+    <div class="frame">
+      <p class="cap">A · WITH BONDS — the screen as it normally reads</p>
+      <p class="capsub">A total above, three figures across the middle, then one card per bond. The
+        green figures on each card are what it pays and what it yields.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle"></span></div>
+        <div class="content">
+          <p class="h1s">Bonds</p>
+          <div class="band"><span class="bandT">Bonds &amp; CDs</span><span class="dot">i</span></div>
+
+          <div class="summary">
+            <div class="sumVal">$74,180</div>
+            <div class="sumLab">3 bonds · face $75,000</div>
+            <div class="sumRow">
+              <div class="sumCell"><div class="sumCellL">COUPON /year</div><div class="sumCellV g">$3,163</div></div>
+              <div class="sumCell"><div class="sumCellL">AVG YIELD</div><div class="sumCellV">4.26%</div></div>
+              <div class="sumCell"><div class="sumCellL">NEXT MATURITY</div><div class="sumCellV">2027</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="bondHead"><span class="bondName">US Treasury 2027</span><span class="bondVal">$24,650</span></div>
+            <div class="bondSub">face $25,000 · 4.25% coupon · matures Jun 30, 2027 · 2y</div>
+            <div class="bondMetrics"><span class="metric">$1,063/year coupon</span>
+              <span class="metric">yield 4.31%</span><span class="metric">Yield to maturity: 4.95%</span></div>
+          </div>
+
+          <div class="card">
+            <div class="bondHead"><span class="bondName">Apple Corp 4.5%</span><span class="bondVal">$19,530</span></div>
+            <div class="bondSub">face $20,000 · 4.50% coupon · matures Mar 15, 2030 · 4y</div>
+            <div class="bondMetrics"><span class="metric">$900/year coupon</span>
+              <span class="metric">yield 4.61% *</span><span class="metric">Yield to maturity: 5.12%</span></div>
+            <div class="bondSub">* accrued interest not entered — the yield uses the price as you entered it</div>
+          </div>
+
+          <div class="card">
+            <div class="bondHead"><span class="bondName">Chase 12-month CD</span><span class="bondVal">$30,000</span></div>
+            <div class="bondSub">face $30,000 · 4.00% coupon · matures Feb 1, 2027 · 1y</div>
+            <div class="bondMetrics"><span class="metric">$1,200/year coupon</span>
+              <span class="metric">yield 4.00%</span><span class="metric">Yield to maturity: 4.00%</span></div>
+          </div>
+
+          <div class="addLink">＋ Add a bond</div>
+          <p class="foot">Coupons are paid as cash and counted as investment income. Value is what you
+            enter (held at cost/quote — no live bond pricing). Yield to maturity is an estimate.</p>
+          <div class="tail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════ B ═══════════════════════════ -->
+    <div class="frame">
+      <p class="cap">B · NOTHING ENTERED YET — the first day</p>
+      <p class="capsub">A real $0 rather than a blank, the sentence that says what this screen is for,
+        and one filled button. Nothing is invented and no figure is implied.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle"></span></div>
+        <div class="content">
+          <p class="h1s">Bonds</p>
+          <div class="band"><span class="bandT">Bonds &amp; CDs</span><span class="dot">i</span></div>
+          <div class="card">
+            <div class="metric" style="font-size:13px">Total value $0</div>
+            <p class="empty" style="margin-top:8px">Track individual bonds — Treasuries, muni or
+              corporate bonds, bond funds/ETFs — with their coupon income, maturity, and yield. They
+              count toward your net worth and retirement nest egg.</p>
+            <div class="addBtn">＋ Add a bond</div>
+          </div>
+          <div class="tail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════ C ═══════════════════════════ -->
+    <div class="frame">
+      <p class="cap">C · THE EDITOR — opened by tapping a bond</p>
+      <p class="capsub">A sheet over the list. Accrued interest is optional and the hint says what
+        happens either way — the yield is calculated on the price without it, or the screen says it
+        could not be.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle"></span></div>
+        <div style="background:rgba(0,0,0,.3);padding-top:52px">
+          <div style="background:var(--white);border-radius:22px 22px 0 0;padding:18px 18px 28px">
+            <div style="width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px"></div>
+            <div style="font-size:17px;font-weight:800;margin-bottom:4px">Edit bond</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Name / issuer</div>
+            <div style="border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:17px">US Treasury 2027</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Face (par) value</div>
+            <div style="border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:17px">25000</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Coupon rate (% per year)</div>
+            <div style="border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:17px">4.25</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Accrued interest (optional)</div>
+            <div style="border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:17px;color:var(--t3)">interest earned since the last coupon, if you know it</div>
+            <div style="font-size:11px;color:var(--t3);line-height:15px;margin-top:4px">When you enter
+              it, the yield is calculated on the price without it. Left blank, the yield uses the price
+              as you entered it — and says so.</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Maturity date</div>
+            <div style="border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:17px">Jun 30, 2027</div>
+
+            <div style="font-size:13px;color:var(--t2);margin-top:8px">~$1,063/year in coupon income.</div>
+
+            <div style="font-size:13px;font-weight:700;color:var(--t2);margin:14px 0 5px">Account</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="border:1.5px solid var(--green);background:var(--greenLt);border-radius:100px;
+                padding:8px 12px;font-size:13px;font-weight:700;color:var(--greenD)">Taxable</span>
+              <span style="border:1.5px solid var(--line);border-radius:100px;padding:8px 12px;
+                font-size:13px;font-weight:700;color:var(--t2)">Trad IRA / 401k</span>
+              <span style="border:1.5px solid var(--line);border-radius:100px;padding:8px 12px;
+                font-size:13px;font-weight:700;color:var(--t2)">Roth</span>
+            </div>
+
+            <div style="margin-top:18px;padding:12px;border-radius:12px;background:var(--bg);
+              border:1px solid var(--line)">
+              <div style="font-size:13px;font-weight:800">🔻 Sell</div>
+              <div style="font-size:11px;color:var(--t3);line-height:15px;margin-top:4px">Sold this bond
+                (or part of it) on the secondary market before maturity? Enter the proceeds to lower or
+                close the position. To just re-mark its price, edit “Current value” above.</div>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+                <div style="flex:1;border:1.5px solid var(--line);border-radius:12px;padding:12px;
+                  font-size:17px;color:var(--t3)">amount sold (up to $24,650)</div>
+                <div style="background:var(--t1);color:#fff;border-radius:12px;padding:12px 16px;
+                  font-size:15px;font-weight:800">Record</div>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:var(--green);margin-top:8px">Sold the whole position →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="key"><s></s>A dashed mark shows what differs from Build 53, or what is worth your eye.</p>
+
+  <div class="note">
+    <b>The numbers add up.</b> Three bonds, $24,650 + $19,530 + $30,000 = <b>$74,180</b>, against face
+    of $25,000 + $20,000 + $30,000 = <b>$75,000</b>. The coupons are $1,063 + $900 + $1,200 =
+    <b>$3,163 a year</b>, which on $74,180 of value is <b>4.26%</b> — the average yield shown. The next
+    maturity of the three is the Chase CD in <b>2027</b>.
+    <table>
+      <tr><th>Bond</th><th class="n">Value</th><th class="n">Face</th><th class="n">Coupon /year</th><th class="n">Yield</th><th>Matures</th></tr>
+      <tr><td>US Treasury 2027</td><td class="n">$24,650</td><td class="n">$25,000</td><td class="n">$1,063</td><td class="n">4.31%</td><td>Jun 30, 2027</td></tr>
+      <tr><td>Apple Corp 4.5%</td><td class="n">$19,530</td><td class="n">$20,000</td><td class="n">$900</td><td class="n">4.61% *</td><td>Mar 15, 2030</td></tr>
+      <tr><td>Chase 12-month CD</td><td class="n">$30,000</td><td class="n">$30,000</td><td class="n">$1,200</td><td class="n">4.00%</td><td>Feb 1, 2027</td></tr>
+      <tr><td><b>Total</b></td><td class="n"><b>$74,180</b></td><td class="n"><b>$75,000</b></td><td class="n"><b>$3,163</b></td><td class="n"><b>4.26%</b></td><td><b>2027</b></td></tr>
+    </table>
+    * the Apple bond has no accrued interest entered, so its yield uses the price as entered and the
+    card says so under the figures rather than quietly leaving it in (his ruling, DEC-0280).
+  </div>
+
+  <div class="note">
+    <b>The header is a back arrow and nothing else</b>, which is correct and deliberate. This route IS
+    declared in <code>app/_layout.tsx</code> with <code>title: ''</code>, under a note of 2026-07-16:
+    the screen carries its own headline, so the header must never duplicate it or show a raw route
+    name. <b>Itemize and Holding detail are missing from that list</b> and so do show a raw route name
+    — that is the defect, and it is not on this screen.
+  </div>
+
+</div>
+</body>
+</html>

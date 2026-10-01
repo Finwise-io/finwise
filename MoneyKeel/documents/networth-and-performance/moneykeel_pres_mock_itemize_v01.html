@@ -144,9 +144,12 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
     <b>Two things the code does that you should see before approving.</b> Both are drawn above exactly
     as they happen; neither is a suggestion.
     <br><br>
-    <b>1 · The header says “itemize”, in lower case.</b> The route is not declared in
-    <code>app/_layout.tsx</code>, so it takes the navigator's defaults — including a title that falls
-    back to the route name. Every other pushed screen in the app has its title set there.
+    <b>1 · The header says “itemize”, in lower case.</b> A note in <code>app/_layout.tsx</code> dated
+    2026-07-16 says a pushed screen that carries its own headline must show
+    <i>"never a duplicated or raw route-name title"</i>, and lists sixteen routes given
+    <code>title: ''</code> to achieve it — Bonds and Alternatives among them.
+    <b>Itemize is missing from that list</b>, so it falls back to the raw route name. Holding detail
+    is missing from it too. Those two are the only screens in the module where this shows.
     <br>
     <b>2 · There are two ways out, side by side.</b> The navigator draws a back arrow and the screen
     draws its own <b>✕</b> on the same line as the heading.

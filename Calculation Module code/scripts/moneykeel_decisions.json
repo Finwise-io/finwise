@@ -19650,6 +19650,28 @@
    "status": "RULED",
    "proof": "module-launch-steps.py step 1.a prints 7 screens for the networth module and names the five it set aside, so the scope is visible in the run rather than buried in a list.",
    "search": "net worth module scope seven screens forget home insights import holdings job safety stress"
+  },
+  {
+   "id": "DEC-0650",
+   "decided": "2026-10-01",
+   "recorded": "2026-10-01",
+   "tab": "networth",
+   "in_use": "IN USE",
+   "type": "DESIGN",
+   "scope": "module",
+   "confidence": "HIGH",
+   "his_words": "Mark these three as approved as of now. Will need to review them in test flight.",
+   "plain": "Bonds v01, Alternatives v01 and Holding detail v01 are approved as of 2026-10-01, subject to his review on a TestFlight build.",
+   "means": "The three screens that had no design of record now have an approved one. The approval is given on the drawing and is to be confirmed on a device — so a TestFlight finding on any of these three is expected and is not a reopened question.",
+   "screens": "BondsScreen · OtherInvestmentsScreen · HoldingDetailScreen",
+   "governs": "moneykeel_pres_mock_bonds_v01.html · moneykeel_pres_mock_alternatives_v01.html · moneykeel_pres_mock_holding-detail_v01.html · src/screens/BondsScreen.tsx · src/screens/OtherInvestmentsScreen.tsx · src/screens/HoldingDetailScreen.tsx · MK-NW-M-044 · MK-NW-M-030 · MK-NW-M-031",
+   "apply_steps": "1. Record all three as the approved design in the one design record, with the TestFlight review noted on the row. 2. Re-run step 1.a. 3. Mock-match each built screen against its drawing in every state the drawing shows, including the first day. 4. Carry the two header defects the drawings exposed into step 1.c: Itemize and Holding detail are missing from the list of sixteen routes given an empty title, so they show a raw route name.",
+   "approved_on": "moneykeel_pres_mock_bonds_v01 · moneykeel_pres_mock_alternatives_v01 · moneykeel_pres_mock_holding-detail_v01",
+   "exceptions": "Itemize v01 is NOT among the three he named, so it stays drawn-but-unapproved.",
+   "status": "RULED",
+   "verified": "PENDING — on a TestFlight build, his words: \"Will need to review them in test flight.\"",
+   "proof": "module-launch-steps.py step 1.a reports the three as approved and coded.",
+   "search": "bonds alternatives holding detail approved 2026-10-01 testflight review"
   }
  ]
 }
