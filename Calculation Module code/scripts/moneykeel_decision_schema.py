@@ -68,6 +68,14 @@ COLUMNS = [
      'income-end-to-end_v07, not "the mock". Two of the four approved-design misses came from treating "the mock" as a single thing.'),
     ('in_use',      'STILL IN USE? — IN USE · OLD, NOT IN USE',
      'His instruction, 2026-09-29: *"just make decision mark old and not in use, see row for latest decision."* A replaced decision is a STATE, not a story — it was being written into the prose, where it cannot be sorted or filtered and where it is buried under the one thing that decides whether to act on the row at all. An OLD row names the decision that replaced it. The row is never deleted: an old build has to stay readable.'),
+    ('not_a_repeat_of', 'NOT a repeat of — the decision ID it was raised against, and why',
+     'The other way out of his repeat control (2026-10-01). The control raises a pair when two '
+     'decisions govern some of the same rows AND share the same distinctive words, which catches a '
+     'real restatement and also catches decisions that merely sit on one screen: DEC-0648 (archive the '
+     'old Invest mock) was raised against DEC-0030 (keep the look-back card on the holding page). With '
+     'only the supersedes column, a false pair could never be cleared — the only ways to a green build '
+     'were to mark a live decision superseded, which puts a lie in the record, or to loosen the '
+     'detector, which is how a gate stops working. This column says it is not a repeat, and why.'),
     ('supersedes',  'Replaces · Replaced by — the decision ID',
      'The newest approval wins (his standing order). This column is the link between the two rows, so the current decision can be opened from the old one and the other way round.'),
 

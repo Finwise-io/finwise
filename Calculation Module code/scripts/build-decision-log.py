@@ -65,8 +65,7 @@ if _refused:
 
 _pairs = [(n, p_, w, rr) for n, p_, w, rr in GATE.prior_decisions(rows) if GATE.is_new(n)]
 _pairs = [(n, p_, w, rr) for n, p_, w, rr in _pairs
-          if p_['id'] not in str(n.get('supersedes') or '')
-          and n['id'] not in str(p_.get('supersedes') or '')]
+          if not GATE.resolved(n, p_)]
 if _pairs:
     print('\nPROCESS FAILED — a new decision repeats one already recorded.')
     for _n, _p, _w, _rr in _pairs:

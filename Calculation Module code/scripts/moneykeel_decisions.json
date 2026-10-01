@@ -19608,6 +19608,28 @@
    "status": "RULED",
    "proof": "module-launch-steps.py step 1.a for the performance module reports PerformanceScreen as approved and coded, reading the design record.",
    "search": "performance v17 approved full module five frames v14 superseded build gap"
+  },
+  {
+   "id": "DEC-0648",
+   "decided": "2026-10-01",
+   "recorded": "2026-10-01",
+   "tab": "performance",
+   "in_use": "IN USE",
+   "type": "DESIGN",
+   "scope": "screen",
+   "confidence": "HIGH",
+   "his_words": "Investment v07 - archive it as it is old version of performance.",
+   "plain": "investments_v07 is archived. It is an old version of the Performance screen, not a design for the Bonds, Other investments or Holding detail screens.",
+   "means": "I had recorded v07 as the design drawn for three screens — Bonds, Other investments and Holding detail — because it mentions bonds, alternatives and a holding. It is the old Invest page, superseded by Performance v14 and then v17. Those three screens therefore have NO design of record, and drawing them is mine.",
+   "screens": "BondsScreen · OtherInvestmentsScreen · HoldingDetailScreen · PerformanceScreen",
+   "governs": "MoneyKeel/documents/networth-and-performance/archive/2026-10-01_moneykeel_pres_mock_investments_v07.html · src/screens/BondsScreen.tsx · src/screens/OtherInvestmentsScreen.tsx · src/screens/HoldingDetailScreen.tsx",
+   "apply_steps": "1. Date investments_v07 into archive/. 2. Remove it from the design record’s gap table as the design for those three screens, and record that they have none. 3. Re-run step 1.a for Net worth and Performance. 4. Draw a mock for Bonds, Other investments and Holding detail, each from the screen’s own code and tokens.",
+   "approved_on": "n/a — a rejection",
+   "exceptions": "none recorded",
+   "status": "RULED",
+   "proof": "module-launch-steps.py step 1.a reports those three screens as having no design of record, and the file is in archive/ with its date.",
+   "search": "investments v07 archive old performance bonds other investments holding detail no design",
+   "not_a_repeat_of": "DEC-0030 — raised by the gate because both touch the holding screen and share the words invest, page, detail and drawing. They are different decisions: DEC-0030 KEEPS the look-back card on the holding page (a drawing gap in a mock, 2026-08-02); this one ARCHIVES the old Invest mock and records that three screens have no design at all. Neither replaces the other and both stand."
   }
  ]
 }

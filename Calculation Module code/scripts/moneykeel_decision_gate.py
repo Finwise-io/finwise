@@ -153,6 +153,23 @@ def prior_decisions(rows, min_words=MIN_SHARE, min_rows=1):
     return pairs
 
 
+def resolved(new, prior):
+    """Has this pair already been settled? Two ways, and the gate honours both.
+
+    A pair is settled when the newer decision REPLACES the older one — `supersedes` names it — or when
+    it is NOT a repeat at all and says why on `not_a_repeat_of`. The first version of this control had
+    only the first way, so a false pair could never be cleared: DEC-0648 (archive the old Invest mock)
+    was raised against DEC-0030 (keep the look-back card on the holding page) because both touch the
+    holding screen and share the words invest, page, detail and drawing. They are different decisions.
+    With no way to say so, the only ways to a green build were to mark a live decision superseded,
+    which is a lie in the record, or to loosen the detector, which is how a gate stops working.
+    """
+    for key in ('supersedes', 'not_a_repeat_of'):
+        if prior['id'] in str(new.get(key) or '') or new['id'] in str(prior.get(key) or ''):
+            return True
+    return False
+
+
 def supersede_question(new, prior):
     """His wording for the question the gate asks, with the two decisions and their dates in it."""
     def short(r):

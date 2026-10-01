@@ -47,8 +47,7 @@ else:
 # ── 2 · does a NEW decision repeat an older one? ─────────────────────────────────────────────────
 pairs = [(n, p, w, rr) for n, p, w, rr in GATE.prior_decisions(ROWS) if GATE.is_new(n)]
 pairs = [(n, p, w, rr) for n, p, w, rr in pairs
-         if p['id'] not in str(n.get('supersedes') or '')
-         and n['id'] not in str(p.get('supersedes') or '')]
+         if not GATE.resolved(n, p)]
 if pairs:
     print(f'\n   PROCESS FAILED — a new decision repeats one already recorded.')
     for n, p, w, rr in pairs:
@@ -59,8 +58,7 @@ else:
 
 # ── THE DEBT, true numbers, printed every build ──────────────────────────────────────────────────
 no_path = [r for r in LIVE if GATE.three_questions(r)]
-all_pairs = [(n, p) for n, p, _, _ in GATE.prior_decisions(ROWS)
-             if p['id'] not in str(n.get('supersedes') or '')]
+all_pairs = [(n, p) for n, p, _, _ in GATE.prior_decisions(ROWS) if not GATE.resolved(n, p)]
 print(f'\n   DEBT · no path to apply      {len(no_path)} of {len(LIVE)} '
       f'(the ratchet stands at {GATE.NO_PATH})')
 print(f'   DEBT · looks like a repeat   {len(all_pairs)} pair(s) '
@@ -152,6 +150,22 @@ if [1 for n, q, _, _ in GATE.prior_decisions(linked)
 else:
     print('      ✓ a pair already linked is not raised again')
 # …and must not pair two decisions with nothing in common
+
+# …and the same for a pair declared NOT a repeat, which is the other way out. It has to be tested as
+# hard as the gate itself: an untested escape hatch is a way to silence a control by accident.
+checks += 1
+not_rep = [dict(restated[0]), dict(restated[1], not_a_repeat_of='DEC-9980 — different subjects')]
+if [1 for n, q, _, _ in GATE.prior_decisions(not_rep) if not GATE.resolved(n, q)]:
+    bad.append('control 2 raises a pair already declared not a repeat — a false pair could never be '
+               'cleared, and the only ways to a green build would be to mark a live decision '
+               'superseded, which is a lie in the record, or to loosen the detector')
+else:
+    print('      ✓ a pair declared NOT a repeat, with a reason, is not raised again')
+checks += 1
+if GATE.resolved({'id': 'DEC-9981'}, {'id': 'DEC-9980'}):
+    bad.append('control 2 treats an unrelated pair as resolved — it would clear every pair')
+else:
+    print('      ✓ a pair naming neither of the two ways out is still raised')
 apart = [{'id': 'DEC-9990', 'decided': '2026-01-01', 'in_use': 'IN USE', 'governs': 'MK-NW-M-001',
           'his_words': 'colour the mortgage band amber when the balance climbs above the valuation'},
          {'id': 'DEC-9991', 'decided': '2026-02-01', 'in_use': 'IN USE', 'governs': 'MK-CF-M-044',

@@ -47,8 +47,8 @@ twelve have an approved design: Net worth itself, Account detail and Add an acco
 
 | Screen | Design today | What it needs |
 |---|---|---|
-| Bonds · Other investments · Holding detail | `moneykeel_pres_mock_investments_v07.html` draws all three — bonds, alternatives and a holding | **His evaluation.** The file exists and carries no approval of his. |
-| Itemize | nothing current. Build-53-era `08-itemize` is dated in `archive/`, which means replaced | **A mock, drawn first.** |
+| Bonds · Other investments · Holding detail | **nothing.** `investments_v07` was dated into `archive/` on 2026-10-01 on his instruction (*"Investment v07 - archive it as it is old version of performance"*, DEC-0648) — it is the old Invest page, superseded by Performance v14 and then v17, and I had wrongly recorded it as the design for these three screens because it mentions bonds, alternatives and a holding. | **A mock each, drawn first.** |
+| Itemize | `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_itemize_v01.html` — drawn 2026-10-01 from the screen’s own code and tokens, three states on three phones (nothing placed · money left over · more placed than the account holds). Build 53 plus the only three visible changes since, all his rulings. | **His evaluation.** |
 | Import holdings | nothing current; `09-import-holdings` is dated in `archive/`. `ways-to-add-an-account_v10` frame 9 shows the door into it, not the screen | **A mock, drawn first.** |
 | Stress test | nothing. `look-ahead_v04` is the Cash flow look-ahead screen, not this one | **A mock, drawn first.** |
 | Job safety | nothing | **A mock, drawn first.** |

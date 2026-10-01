@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoneyKeel — Itemize an account, v01</title>
+<style>
+/* ─────────────────────────────────────────────────────────────────────────────────────────────
+   EVERY COLOUR, SIZE AND RADIUS BELOW IS READ FROM src/utils/theme.ts AND ItemizeScreen.tsx.
+   Nothing here is picked by eye and nothing is carried over from another mock's CSS
+   (his standing order of 2026-09-14, after nine versions drawn over the wrong stylesheet).
+     Colors.bgSecondary #F6F7F5 · bgTertiary #EEEEE9 · cardBg #FFFFFF · border rgba(0,0,0,.10)
+     Colors.primary #178F6B · primaryLight #E1F5EE · red #A32D2D · white #FFFFFF
+     Colors.textPrimary #1A1A18 · textSecondary #6B6B66 · textTertiary #76766F
+     Spacing xs 4 · sm 8 · md 12 · base 16 · lg 20 · xl 24      Radii sm 8 · md 12 · lg 16
+   ───────────────────────────────────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#F6F7F5; --bg3:#EEEEE9; --card:#FFFFFF; --line:rgba(0,0,0,.10);
+  --green:#178F6B; --greenLt:#E1F5EE; --red:#A32D2D; --white:#FFFFFF;
+  --t1:#1A1A18; --t2:#6B6B66; --t3:#76766F; --ink:#0B2545;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#E9EBE6;color:var(--t1);
+     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     padding:28px 16px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+.wordmark{font-size:19px;font-weight:800;color:var(--green);letter-spacing:-.2px}
+.wordmark i{font-style:normal;color:var(--ink)}
+h1{font-size:24px;margin:10px 0 4px;letter-spacing:-.3px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--t2);text-transform:uppercase}
+.lede{font-size:14px;color:#3C3C38;line-height:1.6;max-width:860px;margin:8px 0 0}
+.note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+      font-size:13px;line-height:1.65;margin:18px 0 0;max-width:860px}
+.note b{color:var(--ink)}
+.note code{background:var(--bg3);border-radius:4px;padding:1px 5px;font-size:12px}
+.row{display:flex;flex-wrap:wrap;gap:34px;margin-top:30px;align-items:flex-start}
+.frame{width:375px}
+.cap{font-size:12.5px;font-weight:800;color:var(--ink);margin:0 0 3px;letter-spacing:.2px}
+.capsub{font-size:12px;color:var(--t2);line-height:1.55;margin:0 0 10px;min-height:52px}
+
+/* the phone */
+.phone{width:375px;background:var(--bg);border-radius:38px;overflow:hidden;
+       box-shadow:0 18px 44px rgba(0,0,0,.16);border:1px solid rgba(0,0,0,.08)}
+.status{height:30px;display:flex;align-items:center;justify-content:space-between;
+        padding:0 20px;font-size:11.5px;font-weight:700;color:var(--t1);background:var(--bg)}
+
+/* THE NAVIGATOR HEADER — app/_layout.tsx screenOptions. `itemize` is NOT declared there, so it
+   takes the defaults: bgSecondary, no shadow, primary tint, a back button, and a title that falls
+   back to the ROUTE NAME. That is why it reads "itemize" in lower case. Drawn as it really is. */
+.navhdr{height:44px;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--bg)}
+.navback{font-size:17px;font-weight:600;color:var(--green)}
+.navtitle{font-size:17px;font-weight:600;color:var(--t1)}
+.flag{margin-left:auto;font-size:9.5px;font-weight:800;color:#8A5A00;background:#FFF2D6;
+      border:1px solid #F0D9A0;border-radius:4px;padding:2px 5px;letter-spacing:.3px}
+
+.content{padding:20px}                                    /* Spacing.lg */
+.head{display:flex;align-items:center;justify-content:space-between}
+.h1s{font-size:20px;font-weight:800;color:var(--t1);flex:1;margin:0}   /* h1 20/800 */
+.close{font-size:20px;font-weight:700;color:var(--t2);padding-left:8px}
+.sub{font-size:13px;color:var(--t2);margin:4px 0 12px;line-height:19px}
+
+.meter{background:var(--card);border-radius:16px;padding:12px;border:1px solid var(--line)}
+.meterRow{display:flex;justify-content:space-between;align-items:baseline}
+.meterL{font-size:13px;font-weight:700;color:var(--t2)}
+.meterV{font-size:20px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums}
+.meterV.over{color:var(--red)}
+.bar{height:10px;border-radius:5px;background:var(--bg3);overflow:hidden;margin-top:8px}
+.barFill{height:10px;border-radius:5px;background:var(--green)}
+.barFill.over{background:var(--red)}
+.meterSub{font-size:11px;color:var(--t2);margin-top:6px}
+
+.card{background:var(--card);border-radius:16px;padding:12px;margin-top:8px}
+.itemRow{display:flex;align-items:center;gap:8px;padding:9px 0}
+.itemRow+.itemRow{border-top:1px solid var(--line)}
+.itemIcon{font-size:17px;width:24px;text-align:center}
+.itemMid{flex:1;min-width:0}
+.itemName{font-size:15px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.itemSub{font-size:11px;color:var(--t2);margin-top:1px;font-weight:600}
+.itemVal{font-size:15px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums}
+.remove{font-size:15px;color:var(--t3);padding:0 4px}
+
+.formHdr{font-size:11px;font-weight:800;color:var(--t2);letter-spacing:.5px;margin:20px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:10px 12px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);
+      font-size:13px;font-weight:600;color:var(--t1)}
+.chip.on{border-color:var(--green);background:var(--greenLt)}
+.input{background:var(--card);border-radius:12px;padding:12px;font-size:15px;color:var(--t3);
+       border:1px solid var(--line);margin-top:8px}
+.amtRow{display:flex;align-items:center;justify-content:center;margin-top:12px}
+.amtPre{font-size:24px;font-weight:800;color:var(--t2)}
+.amtIn{font-size:30px;font-weight:800;color:var(--t3);min-width:90px;text-align:center;
+       padding:0 8px 2px;border-bottom:2px solid var(--green)}
+.amtIn.filled{color:var(--t1)}
+.addBtn{background:var(--greenLt);border-radius:16px;padding:12px 0;text-align:center;
+        color:var(--green);font-size:15px;font-weight:800;margin-top:12px}
+.addBtn.off{opacity:.4}
+.footerNote{margin-top:12px}
+.fnote{font-size:13px;color:var(--t2);line-height:17px;margin:0}
+.fnote.red{color:var(--red)}
+.done{background:var(--green);border-radius:16px;padding:12px 0;text-align:center;color:var(--white);
+      font-size:17px;font-weight:800;margin-top:8px}
+.done.off{opacity:.4}
+.tail{height:40px}
+.chg{outline:2px dashed #C2410C;outline-offset:3px;border-radius:4px}
+.key{font-size:12px;color:var(--t2);margin-top:22px}
+.key s{display:inline-block;width:12px;height:12px;border:2px dashed #C2410C;border-radius:3px;
+       vertical-align:-2px;margin-right:5px}
+table{border-collapse:collapse;margin-top:10px;font-size:12.5px;max-width:860px;width:100%}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--bg3);font-weight:800;font-size:11.5px;letter-spacing:.3px}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="wordmark">Money<i>Keel</i></div>
+  <div class="eyebrow">Net worth module · screen design</div>
+  <h1>Itemize an account — v01</h1>
+  <p class="lede">
+    The screen that opens from the Net worth account sheet, from
+    <b>“Itemize this account into holdings”</b>. It breaks a single lump-sum balance into the real
+    holdings inside it while a meter counts down what is still unplaced, and it keeps the account
+    total from moving.
+  </p>
+
+  <div class="note">
+    <b>Drawn from the code, not from another mock.</b> Every string, size, colour and radius here is
+    read from <code>src/screens/ItemizeScreen.tsx</code> and <code>src/utils/theme.ts</code>.
+    <br><br>
+    <b>What “from Build 53” means here.</b> Build 53 shipped this screen at commit
+    <code>263f741</code>. It has changed by 58 lines since, in three commits, and <b>only three of
+    those changes are visible</b> — all three are rulings of yours:
+    <br>• <b>“Stock / ETF” became “Stock / Fund”</b> (the Stocks / Funds sweep).
+    <br>• <b>the title went from 24 points to 20</b> (screen titles at 20 points, 2026-09-14).
+    <br>• the arithmetic moved behind the one door, <code>MK-NW-O-002 theAccount</code> — same numbers,
+    asked once (Q-NW-2, 2026-09-27).
+    <br>
+    So this is drawn as Build 53 <b>plus those three rulings</b>. Drawing it literally would put
+    retired wording and a retired type size back on the page, and the canon guard would refuse it.
+  </div>
+
+  <div class="note">
+    <b>Two things the code does that you should see before approving.</b> Both are drawn above exactly
+    as they happen; neither is a suggestion.
+    <br><br>
+    <b>1 · The header says “itemize”, in lower case.</b> The route is not declared in
+    <code>app/_layout.tsx</code>, so it takes the navigator's defaults — including a title that falls
+    back to the route name. Every other pushed screen in the app has its title set there.
+    <br>
+    <b>2 · There are two ways out, side by side.</b> The navigator draws a back arrow and the screen
+    draws its own <b>✕</b> on the same line as the heading.
+  </div>
+
+  <div class="row">
+
+    <!-- ══════════════════════════════════════ A ══════════════════════════════════════ -->
+    <div class="frame">
+      <p class="cap">A · NOTHING PLACED YET — the state you land in</p>
+      <p class="capsub">The whole balance sits unallocated, the bar is empty, and <b>Done</b> is
+        disabled because no holding has been added. No leftover note yet: the code shows it only once
+        at least one holding exists.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle chg">itemize</span>
+             <span class="flag">ROUTE NAME</span></div>
+        <div class="content">
+          <div class="head">
+            <p class="h1s chg">Itemize Chase</p><span class="close chg">✕</span>
+          </div>
+          <p class="sub">Add what's actually inside. We keep the total at $48,000 — any leftover stays
+            as cash in Chase.</p>
+
+          <div class="meter">
+            <div class="meterRow"><span class="meterL">Unallocated</span><span class="meterV">$48,000</span></div>
+            <div class="bar"><div class="barFill" style="width:0%"></div></div>
+            <p class="meterSub">$0 of $48,000 itemized</p>
+          </div>
+
+          <p class="formHdr">ADD A HOLDING</p>
+          <div class="chips">
+            <span class="chip on">📈&nbsp; Stock / Fund</span><span class="chip">📜&nbsp; Bond</span>
+            <span class="chip">⚖️&nbsp; Option</span><span class="chip">🪙&nbsp; Crypto</span>
+            <span class="chip">💵&nbsp; Cash</span>
+          </div>
+          <div class="input">Ticker or name (e.g. AAPL)</div>
+          <div class="amtRow"><span class="amtPre">$</span><span class="amtIn">0</span></div>
+          <div class="addBtn off">＋ Add holding</div>
+
+          <div class="footerNote"></div>
+          <div class="done off">Done — replace with 0 holdings</div>
+          <div class="tail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════ B ══════════════════════════════════════ -->
+    <div class="frame">
+      <p class="cap">B · THREE HOLDINGS PLACED, MONEY LEFT OVER</p>
+      <p class="capsub">$36,400 of $48,000 placed, so $11,600 is still unallocated and the note says
+        where it will go. The account total does not move: the leftover is kept as cash in the same
+        account.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle">itemize</span></div>
+        <div class="content">
+          <div class="head"><p class="h1s">Itemize Chase</p><span class="close">✕</span></div>
+          <p class="sub">Add what's actually inside. We keep the total at $48,000 — any leftover stays
+            as cash in Chase.</p>
+
+          <div class="meter">
+            <div class="meterRow"><span class="meterL">Unallocated</span><span class="meterV">$11,600</span></div>
+            <div class="bar"><div class="barFill" style="width:75.83%"></div></div>
+            <p class="meterSub">$36,400 of $48,000 itemized</p>
+          </div>
+
+          <div class="card">
+            <div class="itemRow"><span class="itemIcon">📈</span>
+              <span class="itemMid"><span class="itemName">AAPL</span>
+                <span class="itemSub chg" style="display:block">Stock / Fund</span></span>
+              <span class="itemVal">$18,400</span><span class="remove">✕</span></div>
+            <div class="itemRow"><span class="itemIcon">📜</span>
+              <span class="itemMid"><span class="itemName">US Treasury 2032</span>
+                <span class="itemSub" style="display:block">Bond · matures 2032-05-15</span></span>
+              <span class="itemVal">$12,000</span><span class="remove">✕</span></div>
+            <div class="itemRow"><span class="itemIcon">💵</span>
+              <span class="itemMid"><span class="itemName">Chase sweep</span>
+                <span class="itemSub" style="display:block">Cash</span></span>
+              <span class="itemVal">$6,000</span><span class="remove">✕</span></div>
+          </div>
+
+          <p class="formHdr">ADD A HOLDING</p>
+          <div class="chips">
+            <span class="chip on">📈&nbsp; Stock / Fund</span><span class="chip">📜&nbsp; Bond</span>
+            <span class="chip">⚖️&nbsp; Option</span><span class="chip">🪙&nbsp; Crypto</span>
+            <span class="chip">💵&nbsp; Cash</span>
+          </div>
+          <div class="input">Ticker or name (e.g. AAPL)</div>
+          <div class="amtRow"><span class="amtPre">$</span><span class="amtIn">0</span></div>
+          <div class="addBtn off">＋ Add holding</div>
+
+          <div class="footerNote">
+            <p class="fnote">$11,600 still unallocated — it'll be kept as cash in Chase, so your total
+              stays $48,000.</p>
+          </div>
+          <div class="done">Done — replace with 3 holdings</div>
+          <div class="tail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════ C ══════════════════════════════════════ -->
+    <div class="frame">
+      <p class="cap">C · MORE PLACED THAN THE ACCOUNT HOLDS</p>
+      <p class="capsub">A fourth holding takes the total past the balance. The figure turns red and
+        reads <b>over</b>, the bar turns red, and the note states the new account total rather than
+        silently correcting you.</p>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+        <div class="navhdr"><span class="navback">‹</span><span class="navtitle">itemize</span></div>
+        <div class="content">
+          <div class="head"><p class="h1s">Itemize Chase</p><span class="close">✕</span></div>
+          <p class="sub">Add what's actually inside. We keep the total at $48,000 — any leftover stays
+            as cash in Chase.</p>
+
+          <div class="meter">
+            <div class="meterRow"><span class="meterL">Unallocated</span>
+              <span class="meterV over">$2,600 over</span></div>
+            <div class="bar"><div class="barFill over" style="width:100%"></div></div>
+            <p class="meterSub">$50,600 of $48,000 itemized</p>
+          </div>
+
+          <div class="card">
+            <div class="itemRow"><span class="itemIcon">📈</span>
+              <span class="itemMid"><span class="itemName">AAPL</span>
+                <span class="itemSub" style="display:block">Stock / Fund</span></span>
+              <span class="itemVal">$18,400</span><span class="remove">✕</span></div>
+            <div class="itemRow"><span class="itemIcon">📜</span>
+              <span class="itemMid"><span class="itemName">US Treasury 2032</span>
+                <span class="itemSub" style="display:block">Bond · matures 2032-05-15</span></span>
+              <span class="itemVal">$12,000</span><span class="remove">✕</span></div>
+            <div class="itemRow"><span class="itemIcon">💵</span>
+              <span class="itemMid"><span class="itemName">Chase sweep</span>
+                <span class="itemSub" style="display:block">Cash</span></span>
+              <span class="itemVal">$6,000</span><span class="remove">✕</span></div>
+            <div class="itemRow"><span class="itemIcon">📈</span>
+              <span class="itemMid"><span class="itemName">NVDA</span>
+                <span class="itemSub" style="display:block">Stock / Fund</span></span>
+              <span class="itemVal">$14,200</span><span class="remove">✕</span></div>
+          </div>
+
+          <p class="formHdr">ADD A HOLDING</p>
+          <div class="chips">
+            <span class="chip">📈&nbsp; Stock / Fund</span><span class="chip on">📜&nbsp; Bond</span>
+            <span class="chip">⚖️&nbsp; Option</span><span class="chip">🪙&nbsp; Crypto</span>
+            <span class="chip">💵&nbsp; Cash</span>
+          </div>
+          <div class="input">Bond name (e.g. US Treasury 2032)</div>
+          <div style="display:flex;gap:8px">
+            <div class="input" style="flex:1">Coupon % (optional)</div>
+            <div class="input" style="flex:1">maturity date</div>
+          </div>
+          <div class="amtRow"><span class="amtPre">$</span><span class="amtIn">0</span></div>
+          <div class="addBtn off">＋ Add holding</div>
+
+          <div class="footerNote">
+            <p class="fnote red">These holdings are $2,600 more than the $48,000 you entered — the
+              account total will update to $50,600.</p>
+          </div>
+          <div class="done">Done — replace with 4 holdings</div>
+          <div class="tail"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="key"><s></s>A dashed mark shows what differs from Build 53, or what is worth your eye
+    before approving.</p>
+
+  <div class="note">
+    <b>The numbers above are the code's, not mine.</b> Each state was computed through the real
+    functions — <code>itemising</code> behind the one door, and <code>itemizedResultTotal</code> —
+    rather than written out by hand, so the file and the code agree.
+    <table>
+      <tr><th>State</th><th>Holdings placed</th><th class="n">Placed</th><th class="n">Account balance</th>
+          <th class="n">Unallocated</th><th class="n">Total after Done</th></tr>
+      <tr><td>A</td><td>none</td><td class="n">$0</td><td class="n">$48,000</td>
+          <td class="n">$48,000</td><td class="n">— (Done disabled)</td></tr>
+      <tr><td>B</td><td>AAPL 18,400 · Treasury 12,000 · Chase sweep 6,000</td><td class="n">$36,400</td>
+          <td class="n">$48,000</td><td class="n">$11,600</td><td class="n">$48,000</td></tr>
+      <tr><td>C</td><td>the three above, plus NVDA 14,200</td><td class="n">$50,600</td>
+          <td class="n">$48,000</td><td class="n">$2,600 over</td><td class="n">$50,600</td></tr>
+    </table>
+    In <b>B</b> the leftover $11,600 is created as a cash sleeve, which is why the total after Done is
+    still $48,000: $36,400 placed + $11,600 kept as cash. In <b>C</b> there is nothing left over, so
+    the account total moves to what the holdings actually come to.
+  </div>
+
+  <div class="note">
+    <b>Which figures this screen shows.</b> Three, and all three belong to Net worth — which is what
+    makes this a Net worth screen rather than one that merely borrows from it:
+    <code>MK-NW-M-038</code>, <code>MK-NW-M-039</code>, <code>MK-NW-M-040</code>.
+  </div>
+
+</div>
+</body>
+</html>
