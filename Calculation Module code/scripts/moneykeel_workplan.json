@@ -2262,6 +2262,18 @@
     "status": "TO DO — 1.c is mechanical and goes first; then confirm the 113 in 1.b.",
     "comments": "The existing ratchet guard on unidentified figures PASSES, which only means the count has not risen since 2026-09-14. It was never going to reach zero on its own."
    }
+  },
+  {
+   "task": "Performance — v17 is approved and the build is behind it: close the gap",
+   "todo": "His correction, 2026-10-01: *\"these are screens for performance and not NW - and I have already approved Perf v17 for perf module.\"* v17 is APPROVED IN FULL, all five frames. What is BUILT is v14 (2026-09-25, commit 727e22a). By his standing order a mock approved after the build IS the design and closing the gap is mine, never a question to him. TO DO: mock-match the built Performance screen against all five frames of v17, report every difference, then close each in code. The two states v17 adds over v14 are where the Return refuses and shows the exact yearly rate instead (his Q52 ruling).",
+   "status": "TO DO — mine, not waiting on him.",
+   "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html · DEC-0647 · the design record’s Performance row",
+   "date": "2026-10-01",
+   "comments": "MY ERROR, corrected: I recorded that frames 1, 3, 4 and 5 of v17 were still waiting on him. Both halves were wrong — those frames are Performance screens rather than Net worth ones, and he had already approved v17 for the Performance module. The design record and CLAUDE.md both still said \"WAITING ON HIM\"; both corrected. Performance step 1.a now reads 2 of 5 screens approved: Holding detail is drawn in investments_v07 awaiting his look, and Home and Look back have no design of record at all (mine to draw).",
+   "_written": {
+    "status": "TO DO — mine, not waiting on him.",
+    "comments": "MY ERROR, corrected: I recorded that frames 1, 3, 4 and 5 of v17 were still waiting on him. Both halves were wrong — those frames are Performance screens rather than Net worth ones, and he had already approved v17 for the Performance module. The design record and CLAUDE.md both still said \"WAITING ON HIM\"; both corrected. Performance step 1.a now reads 2 of 5 screens approved: Holding detail is drawn in investments_v07 awaiting his look, and Home and Look back have no design of record at all (mine to draw)."
+   }
   }
  ]
 }
