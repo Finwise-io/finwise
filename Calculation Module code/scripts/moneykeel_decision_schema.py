@@ -52,6 +52,14 @@ COLUMNS = [
     # BUILD IT
     ('changed',     'What was changed to apply it (code and file)',
      'By name, so it can be opened.'),
+    ('apply_steps', 'HOW TO APPLY IT — the numbered steps',
+     'His control, 2026-10-01: *"what are the steps to apply it. If these questions are not answered '
+     'in the file or source of decision - guard should return failed process."* `changed` is past '
+     'tense — what was already done — and a decision recorded before anything is built has nothing to '
+     'put there. This column is the path FORWARD, written when the decision is recorded and before any '
+     'code exists. DEC-0036 is why: his reword was recorded, mapped and counted as handled, with no '
+     'statement anywhere of what to change, so it reached one of the four places that carry that '
+     'sentence and sat unapplied in the other three. The gate refuses a new row without it.'),
     ('moved',       'Which figures moved, and from what to what',
      'A VALUE decision changes numbers a person sees (the emergency fund from 2.0 to 2.5 months). Without before and after, nobody can tell whether it was ever really applied.'),
     ('carriers',    'Every file that must carry it',

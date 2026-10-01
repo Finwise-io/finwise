@@ -40,6 +40,44 @@ rows = doc['rows']
 #    worth screen, where the heads-up it governs has never been written. He has said what the decision
 #    log is: *"Decision-log is one consolidated master."* A master that prints a second, staler copy of
 #    a mapping is not one. So the row's `governs` is PRINTED from the anchors here, every build.
+# ── HIS TWO CONTROLS ON WHAT MAY ENTER THE LOG (2026-10-01) ──────────────────────────────────────
+#
+# Control 1: a new decision must answer what is impacted, what changes, and the steps to apply it.
+# Control 2: a new decision that repeats one he already made stops, and names the pair.
+#
+# Both bind NEW rows only and refuse the WRITE, not merely warn — his words: *"guard should return
+# failed process."* What is already in the log predates them and is carried as a measured debt that
+# prints every build. Full reasoning, and the two design calls, in moneykeel_decision_gate.py.
+import moneykeel_decision_gate as GATE
+
+_new = [r for r in rows if GATE.is_new(r)]
+_refused = [(r, GATE.three_questions(r)) for r in _new]
+_refused = [(r, m) for r, m in _refused if m]
+if _refused:
+    print('\nPROCESS FAILED — ' + GATE.REFUSAL)
+    for _r, _m in _refused:
+        print(f'\n   {_r["id"]}  {str(_r.get("his_words") or _r.get("plain") or "")[:90]}')
+        for _q in _m:
+            print(f'      unanswered: {_q}')
+    print(f'\n   {len(_refused)} new decision(s) held back. Answer the three questions on the row '
+          '— what it impacts, what changes, and the numbered steps to apply it — then build again.')
+    sys.exit(1)
+
+_pairs = [(n, p_, w, rr) for n, p_, w, rr in GATE.prior_decisions(rows) if GATE.is_new(n)]
+_pairs = [(n, p_, w, rr) for n, p_, w, rr in _pairs
+          if p_['id'] not in str(n.get('supersedes') or '')
+          and n['id'] not in str(p_.get('supersedes') or '')]
+if _pairs:
+    print('\nPROCESS FAILED — a new decision repeats one already recorded.')
+    for _n, _p, _w, _rr in _pairs:
+        print('\n   ' + GATE.supersede_question(_n, _p))
+        print(f'      both govern: {" ".join(sorted(_rr)[:4])}')
+        print(f'      same subject: {" ".join(sorted(_w)[:8])}')
+    print('\n   Resolve each: if the new one replaces the old, mark the older row OLD, NOT IN USE and '
+          'name the newer in its Replaces / Replaced by column; if they are genuinely different, record '
+          'what is different on the new row. Then build again.')
+    sys.exit(1)
+
 _ap = os.path.join(HERE, 'moneykeel_decisions_anchors.json')
 _anchors = json.load(open(_ap, encoding='utf8'))['rows']
 _synced = 0

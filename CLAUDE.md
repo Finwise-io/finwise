@@ -271,6 +271,31 @@ reaches a changelog and not the decision log is not recorded.
 Source: `MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx`, built from
 `moneykeel_decisions.json` — hand edits die.
 
+**NOTHING ENTERS THE LOG WITHOUT A PATH TO APPLY IT — his two controls, 2026-10-01.** Both refuse the
+WRITE inside `build-decision-log.py` (*"guard should return failed process"*, not warn), and
+`check-decision-gate.py` runs them on their own:
+1. **Three questions, answered on the row or the decision is held back**: (a) what's impacted —
+   screens, figures, functions, orchestrators; (b) what changes with this decision; (c) the numbered
+   steps to apply it (the new `apply_steps` column — `changed` is past tense and a decision recorded
+   before anything is built has nothing to put there). The refusal is his wording: *"not added to
+   decision log as not clear path defined to apply it to the app."* **These are not questions for
+   him** — they are the work I must have done before claiming a decision is recorded.
+2. **A repeat stops the write** and prints the pair with both dates in his format: *"prior decision
+   … taken on … , current decision … . Should new decision replace old?"* A pair is raised only when
+   the two govern some of the same rows AND share the same distinctive words — words alone paired 59,
+   rows alone would pair every decision about one screen. Resolve by marking the older row OLD, NOT IN
+   USE with the newer named in its Replaces column, or by recording what is genuinely different.
+Why both: DEC-0036 was recorded, mapped and counted as handled with no statement of what to change,
+and reached 1 of the 4 places that carry its sentence. DEC-0104 and DEC-0109 are one decision ruled
+three weeks apart because the first sweep missed a screen, and nothing linked them — so the second
+looked like new work instead of evidence the first had failed.
+**Debts carried, true numbers, printed every build**: 343 of 491 decisions in force answer none of the
+three questions; 25 pairs look like repeats. Both ratchets may only fall.
+**The gate proves it still fires.** Both controls pass today only because no new decision is pending,
+and an empty subject is indistinguishable from a broken guard — so 10 self-checks feed the detectors
+deliberate failures on synthetic rows. One of them first read the live log for DEC-0109/DEC-0104, then
+went red when that pair was correctly resolved: a self-test must never depend on the data it checks.
+
 ## POST FEEDBACK SYNC — "PFS" (founder, 2026-09-14)
 - When the founder says **PFS**: fold every unarchived feedback file of his (`-jj`, or a `jj/` folder) —
   master and audit unless he names one — into its original, then archive it as

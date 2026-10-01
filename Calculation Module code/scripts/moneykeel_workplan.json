@@ -2226,6 +2226,18 @@
     "status": "DONE — Net worth. Performance and Cash flow next, same validator.",
     "comments": "FINDING WORTH HIS ATTENTION: all 418 anchors were built by WORD OVERLAP (\"its own words appear in these files\"), so an anchor can point at a file that merely shares vocabulary — DEC-0036 was anchored to the Net worth screen because \"drawing\", \"warning\" and \"framing\" appear there, while the heads-up it governs lives in four other files. 6 of 418 are now verified by reading; check-rulings-sync.py prints that true number every build as a ratchet."
    }
+  },
+  {
+   "task": "Decision log — two entry controls on every new decision (his, 2026-10-01)",
+   "todo": "BUILT AND ARMED. His words: a new decision must answer *\"(a) what’s impacted - screens, metrics, functions, orchestrators. (b) what changes with this decision. (c) what are the steps to apply it\"* or the write fails with *\"not added to decision log as not clear path defined to apply it to the app\"*; and a new decision repeating an earlier one must fail and ask *\"prior decision … taken on <date>, current decision … <date>. Should new decision replace old?\"* Both refuse the WRITE inside build-decision-log.py, not merely warn. New `apply_steps` column added to the schema (changed is past tense — a decision recorded before anything is built has nothing to put there). Proven by hand on two synthetic decisions: control 1 printed his refusal verbatim, control 2 found BOTH prior decisions on the subject (DEC-0301 and DEC-0223) and exited 1.",
+   "status": "DONE — armed, with 10 self-checks. The two debts below are mine to work off.",
+   "ref": "Calculation Module code/scripts/moneykeel_decision_gate.py · check-decision-gate.py · build-decision-log.py · moneykeel_decision_schema.py (apply_steps)",
+   "date": "2026-10-01",
+   "comments": "TWO DEBTS, true numbers, printed every build and falling only: (1) 343 of the 491 decisions in force answer NONE of the three questions — each one is a decision nobody can act on without going back to the conversation it came from, which is the hole DEC-0036 fell through; (2) 25 pairs look like one decision said twice. DEC-0104 is now marked restated as DEC-0109 (the pair that let the odds wording split for seven weeks), which is what took the first debt from 344 to 343 and the second from 26 to 25. NOTHING HERE IS A QUESTION FOR HIM — the three answers are my work before a decision counts as recorded.",
+   "_written": {
+    "status": "DONE — armed, with 10 self-checks. The two debts below are mine to work off.",
+    "comments": "TWO DEBTS, true numbers, printed every build and falling only: (1) 343 of the 491 decisions in force answer NONE of the three questions — each one is a decision nobody can act on without going back to the conversation it came from, which is the hole DEC-0036 fell through; (2) 25 pairs look like one decision said twice. DEC-0104 is now marked restated as DEC-0109 (the pair that let the odds wording split for seven weeks), which is what took the first debt from 344 to 343 and the second from 26 to 25. NOTHING HERE IS A QUESTION FOR HIM — the three answers are my work before a decision counts as recorded."
+   }
   }
  ]
 }
