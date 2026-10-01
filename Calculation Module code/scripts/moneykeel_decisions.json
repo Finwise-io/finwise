@@ -19630,6 +19630,26 @@
    "proof": "module-launch-steps.py step 1.a reports those three screens as having no design of record, and the file is in archive/ with its date.",
    "search": "investments v07 archive old performance bonds other investments holding detail no design",
    "not_a_repeat_of": "DEC-0030 — raised by the gate because both touch the holding screen and share the words invest, page, detail and drawing. They are different decisions: DEC-0030 KEEPS the look-back card on the holding page (a drawing gap in a mock, 2026-08-02); this one ARCHIVES the old Invest mock and records that three screens have no design at all. Neither replaces the other and both stand."
+  },
+  {
+   "id": "DEC-0649",
+   "decided": "2026-10-01",
+   "recorded": "2026-10-01",
+   "tab": "networth",
+   "in_use": "IN USE",
+   "type": "SCOPE",
+   "scope": "module",
+   "confidence": "HIGH",
+   "his_words": "Again we are only working on NW module. Forget about these screens - Home, Insights, Import holdings, Job safety, Stress test",
+   "plain": "The Net worth module is SEVEN screens: Net worth, Account detail, Add account by hand, Itemize, Bonds, Other investments, Holding detail. Home, Insights, Import holdings, Job safety and Stress test are not part of it.",
+   "means": "I had put twelve screens in Net worth’s step 1.a by merging two different questions: which screens must OBEY the module’s decisions, and which screens NEED AN APPROVED DESIGN from it. Step 1.a asks the second. Home prints one Net worth figure of its ten (MK-NW-M-012), Insights three of its four (MK-NW-M-005, MK-NW-M-047, MK-NW-M-048) and Job safety one (MK-NW-M-013) — so those screens must still agree with Net worth’s figures, but their designs belong to their own modules. Stress test and Job safety are Plan → Prepare by his own DEC-0009. Import holdings declares no figure at all and is reached from the Connect flow and Home, not from Net worth.",
+   "screens": "NetWorthScreen · AccountDetailScreen · AddAccountScreen · ItemizeScreen · BondsScreen · OtherInvestmentsScreen · HoldingDetailScreen",
+   "governs": "Calculation Module code/scripts/module-launch-steps.py · MK-NW-M-012 · MK-NW-M-005 · MK-NW-M-047 · MK-NW-M-048 · MK-NW-M-013",
+   "apply_steps": "1. Set the module’s OWNED screens to the seven in step 1.a. 2. SUBTRACT the five by name rather than dropping the derivation, so a NEW screen printing a Net worth figure is still noticed — subtracting by name is the difference between a scope he set and a scope I forgot to look at. 3. Keep the three that print Net worth figures listed under step 1.b, where they must obey the module’s decisions. 4. Drop the five from the design record’s gap table. 5. Re-run step 1 for Net worth.",
+   "exceptions": "The three screens owned elsewhere that print a Net worth figure — Home, Insights and Job safety — are still bound by Net worth’s DECISIONS. What they are released from is needing an approved Net worth design.",
+   "status": "RULED",
+   "proof": "module-launch-steps.py step 1.a prints 7 screens for the networth module and names the five it set aside, so the scope is visible in the run rather than buried in a list.",
+   "search": "net worth module scope seven screens forget home insights import holdings job safety stress"
   }
  ]
 }

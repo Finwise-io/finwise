@@ -76,9 +76,12 @@ for _i, _f in json.load(open(os.path.join(HERE, 'moneykeel_figures.json'),
 SCREENS = sorted({ROUTE_TO_SCREEN[r] for r in _routes})
 # plus the screens the module owns outright, which a figure may not have reached yet
 SCREENS = sorted(set(SCREENS) | {
+ # the SEVEN the module owns (his scope, 2026-10-01, DEC-0649). Compliance also reads the screens
+ # owned elsewhere that print one of its figures — Home, Insights and Job safety — because they are
+ # still bound by its decisions; they come in through the register below, not through this list.
+ # Import holdings and Stress test print no Net worth figure at all and so drop out of both.
  'networth': {'NetWorthScreen', 'AccountDetailScreen', 'ItemizeScreen', 'HoldingDetailScreen',
-              'BondsScreen', 'OtherInvestmentsScreen', 'ImportHoldingsScreen', 'AddAccountScreen',
-              'StressTestScreen', 'JobSafetyScreen'},
+              'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'},
  'cashflow': {'CashFlowScreen', 'BudgetScreen', 'MonthDetailScreen', 'IncomeManagerScreen',
               'IncomeDetailScreen', 'IncomeScreen', 'MonthlyIncomeScreen', 'PaycheckMonthsScreen',
               'BillCalendarScreen', 'WorthALookScreen', 'ContributionRoomScreen', 'TaxOrganizerScreen'},
@@ -350,7 +353,13 @@ for x in TODO:
 
 print(f'── does the {MODULE.upper()} module obey his decisions?')
 print(f'   decisions touching it : {len(TODO)}')
-print(f'   screens read          : {len([p for p in ART if "/screens/" in p])}')
+_owned = {
+ 'networth': {'NetWorthScreen', 'AccountDetailScreen', 'ItemizeScreen', 'HoldingDetailScreen',
+              'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'}}.get(MODULE, set(SCREENS))
+print(f'   screens read          : {len([p for p in ART if "/screens/" in p])} '
+      f'— {len([s_ for s_ in SCREENS if s_ in _owned])} the module owns, '
+      f'{len([s_ for s_ in SCREENS if s_ not in _owned])} owned elsewhere that print its figures '
+      f'and so must obey its decisions')
 print(f'   doors read            : {len([p for p in ART if "/functions/" in p])}')
 print(f'   mocks read            : {len(MOCK_TEXT)}')
 print(f'   screens from the register: {len(_routes)} route(s) → ' + ' '.join(sorted(ROUTE_TO_SCREEN[r] for r in _routes)))

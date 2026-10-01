@@ -49,18 +49,35 @@ for dp, dn, fn in os.walk('app'):
                 ROUTE_TO_SCREEN['/' + os.path.splitext(f)[0]] = m.group(1)
 ROUTE_TO_SCREEN.setdefault('/analytics', 'NetWorthScreen')
 
+# WHAT A MODULE OWNS — his scope, 2026-10-01: *"we are only working on NW module. Forget about these
+# screens - Home, Insights, Import holdings, Job safety, Stress test."*
+#
+# Two different questions had been merged, and that is what put twelve screens in Net worth's step 1.a:
+#   · which screens must OBEY this module's decisions — any screen that prints one of its figures, which
+#     is Home (MK-NW-M-012), Insights (MK-NW-M-005, 047, 048) and Job safety (MK-NW-M-013);
+#   · which screens NEED AN APPROVED DESIGN from this module — only the ones it owns.
+# Step 1.a asks the second. Stress test and Job safety are Plan → Prepare by his own DEC-0009; Import
+# holdings declares no figure at all and is reached from the Connect flow and Home, not from Net worth.
 OWNED = {'networth': {'NetWorthScreen', 'AccountDetailScreen', 'ItemizeScreen', 'HoldingDetailScreen',
-                      'BondsScreen', 'OtherInvestmentsScreen', 'ImportHoldingsScreen',
-                      'AddAccountScreen', 'StressTestScreen', 'JobSafetyScreen'},
+                      'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'},
          'cashflow': {'CashFlowScreen', 'BudgetScreen', 'MonthDetailScreen', 'IncomeManagerScreen',
                       'IncomeDetailScreen', 'IncomeScreen', 'MonthlyIncomeScreen',
                       'PaycheckMonthsScreen', 'BillCalendarScreen', 'WorthALookScreen',
                       'ContributionRoomScreen', 'TaxOrganizerScreen'},
          'performance': {'PerformanceScreen', 'AccountDetailScreen', 'HoldingDetailScreen',
                          'LookBackScreen'}}.get(MODULE, set())
+# A screen is still DERIVED from the figures that declare it, so a new one printing this module's
+# figures cannot slip past unnoticed — but a screen another module owns is then subtracted by name,
+# with his instruction on the line. Subtracting by name rather than dropping the derivation is the
+# difference between a scope he set and a scope I forgot to look at.
+NOT_OURS = {'networth': {'HomeScreen', 'InsightsScreen', 'ImportHoldingsScreen', 'JobSafetyScreen',
+                         'StressTestScreen'},     # his words, 2026-10-01: "forget about these screens"
+            'performance': {'HomeScreen'},
+            'cashflow': {'HomeScreen'}}.get(MODULE, set())
 declared = {ROUTE_TO_SCREEN[r] for i, f in FIGS.items() if i.startswith('MK-' + FAMILY + '-')
             and isinstance(f, dict) for r in (f.get('screens') or []) if r in ROUTE_TO_SCREEN}
-SCREENS = sorted(OWNED | declared)
+OBEYS = sorted(declared - OWNED)          # owned elsewhere, but must obey this module's decisions
+SCREENS = sorted((OWNED | declared) - NOT_OURS)
 
 results = {}
 
@@ -153,8 +170,13 @@ def step_1a():
     print(f'\n   {"screen":28s} {"state":26s} design file of record')
     for s_, state, f_ in rows:
         print(f'   {s_:28s} {state:42s} {f_[:44]}')
-    print(f'\n   coverage: {len(SCREENS)} screens examined, derived from the figures that declare them'
-          f' — {len(SCREENS) - len(missing)} approved and coded, {len(missing)} not')
+    print(f'\n   coverage: {len(SCREENS)} screens of the {MODULE} module examined '
+          f'— {len(SCREENS) - len(missing)} approved and coded, {len(missing)} not')
+    if NOT_OURS:
+        print(f'   not this module\'s, so not asked for a design here: ' + ' '.join(sorted(NOT_OURS)))
+    if [s_ for s_ in OBEYS if s_ not in NOT_OURS]:
+        print(f'   owned elsewhere but printing this module\'s figures, so they must OBEY its '
+              f'decisions (step 1.b): ' + ' '.join(s_ for s_ in OBEYS if s_ not in NOT_OURS))
     # THE REASON IS GENERATED, never typed. The first version of this step carried a sentence I had
     # written by hand naming which files were and were not approved; his approvals of 2026-10-01 made
     # three of them wrong within the hour, and the step went on printing the old explanation. A step

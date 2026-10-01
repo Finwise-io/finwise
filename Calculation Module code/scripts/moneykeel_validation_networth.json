@@ -214,7 +214,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-006",
-  "notes": "only 21 of 45 appear — present: approved asset build built category · absent: bottom carrying cash-merge collapsible colours; cited in net-worth.ts"
+  "notes": "only 20 of 45 appear — present: approved asset build built category · absent: bottom carrying cash-merge collapsible colours; cited in net-worth.ts"
  },
  {
   "id": "DEC-0061",
@@ -361,7 +361,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-017",
-  "notes": "only 10 of 46 appear — present: apart assets collapses debts exact · absent: adjacent alternated amber asserts bands; cited in net-worth.ts"
+  "notes": "only 9 of 46 appear — present: apart assets collapses debts exact · absent: adjacent alternated amber asserts bands; cited in net-worth.ts"
  },
  {
   "id": "DEC-0092",
@@ -434,13 +434,6 @@
   "notes": "3 quoted phrase(s) present; cited in emergency-fund.ts"
  },
  {
-  "id": "DEC-0104",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
-  "governs": "src/domain/planning/hub.ts oddsLine + oddsTail · src/s",
-  "notes": "quoted copy nowhere a person reads: \"<word> — xx% odds of lasting to age abc\""
- },
- {
   "id": "DEC-0105",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
@@ -456,10 +449,10 @@
  },
  {
   "id": "DEC-0108",
-  "verdict": "LEAVES A TRACE",
+  "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-CF-M-037 · MK-NW-M-027 · MK-NW-M-020 · MK-NW-M-034",
-  "notes": "23 of 45 of his words appear in what implements it: account built calculation carries detail document; cited in account.ts"
+  "notes": "only 22 of 45 appear — present: account built calculation carries detail · absent: amendments build-analysis-july category-detail chain classification"
  },
  {
   "id": "DEC-0109",
@@ -571,7 +564,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-PF-M-008 · MK-CF-M-037 · MK-NW-M-021 · MK-NW-M-008",
-  "notes": "only 25 of 62 appear — present: beneath carries comparison correct decimal · absent: accumulated byte-for-byte character claude clean; cited in accoun"
+  "notes": "only 23 of 62 appear — present: beneath carries comparison correct decimal · absent: accumulated byte-for-byte character claude clean; cited in accoun"
  },
  {
   "id": "DEC-0150",
@@ -592,7 +585,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-CF-M-037 · MK-NW-M-006 · MK-NW-M-029",
-  "notes": "only 19 of 65 appear — present: august carries checked coverage current · absent: a-instructions absent accurately assumed brief; cited in holding.ts"
+  "notes": "only 16 of 65 appear — present: august carries checked coverage current · absent: a-instructions absent accurately assumed brief; cited in holding.ts"
  },
  {
   "id": "DEC-0154",
@@ -613,7 +606,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-CF-M-037 · MK-NW-M-029 · MK-PF-M-008 · MK-NW-M-006",
-  "notes": "only 43 of 106 appear — present: accounts added blend build built · absent: accept app's appears asserts avoid; cited in holding.ts"
+  "notes": "only 41 of 106 appear — present: accounts added blend build built · absent: accept app's appears asserts avoid; cited in holding.ts"
  },
  {
   "id": "DEC-0166",
@@ -648,7 +641,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-MN-M-028 · MK-CF-M-032 · MK-CF-M-043 · MK-NW-M-016",
-  "notes": "only 20 of 48 appear — present: arithmetic caller carried correct deduction · absent: alias becomes complete converted couples; cited in net-worth.ts"
+  "notes": "only 19 of 48 appear — present: arithmetic caller carried correct deduction · absent: alias becomes complete converted couples; cited in net-worth.ts"
  },
  {
   "id": "DEC-0190",
@@ -830,7 +823,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-032 · MK-NW-M-003",
-  "notes": "15 of 25 of his words appear in what implements it: balances calculation display dollars early eight; cited in net-worth.ts"
+  "notes": "14 of 25 of his words appear in what implements it: balances calculation display dollars early eight; cited in net-worth.ts"
  },
  {
   "id": "DEC-0267",
@@ -907,7 +900,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-XS-M-001 · MK-NW-M-004 · MK-NW-M-005 · MK-NW-M-007 ",
-  "notes": "34 of 51 of his words appear in what implements it: account accounts assets brokerage built calculated"
+  "notes": "33 of 51 of his words appear in what implements it: account accounts assets brokerage built calculated"
  },
  {
   "id": "DEC-0294",
@@ -1180,7 +1173,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-006",
-  "notes": "only 4 of 13 appear — present: build document exists holds · absent: enforce fails founder's gates intentions; cited in net-worth.ts"
+  "notes": "only 3 of 13 appear — present: build exists holds · absent: document enforce fails founder's gates; cited in net-worth.ts"
  },
  {
   "id": "DEC-0403",
@@ -1285,7 +1278,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-006",
-  "notes": "13 of 21 of his words appear in what implements it: account accounts brokerage comes grouped holdings; cited in net-worth.ts"
+  "notes": "12 of 21 of his words appear in what implements it: account accounts brokerage comes grouped holdings; cited in net-worth.ts"
  },
  {
   "id": "DEC-0449",
@@ -1397,7 +1390,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/domain/assets/index.ts · src/domain/glossary.ts",
-  "notes": "13 of 17 of his words appear in what implements it: account accounts approved asset check classes"
+  "notes": "12 of 17 of his words appear in what implements it: account accounts approved asset check classes"
  },
  {
   "id": "DEC-0469",
@@ -1411,7 +1404,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/domain/glossary.ts · src/domain/assets/index.ts",
-  "notes": "15 of 17 of his words appear in what implements it: account comes connected drawn fresh imported"
+  "notes": "14 of 17 of his words appear in what implements it: account comes connected drawn fresh including"
  },
  {
   "id": "DEC-0471",
@@ -1460,7 +1453,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/domain/assets/index.ts · src/screens/PerformanceSc",
-  "notes": "10 of 13 of his words appear in what implements it: annuity connected crypto hedge imported investment"
+  "notes": "9 of 13 of his words appear in what implements it: annuity connected crypto hedge investment manual"
  },
  {
   "id": "DEC-0480",
@@ -1538,5 +1531,47 @@
   "check": "TRACE",
   "governs": "MK-NW-O-008 thePerformance · MK-PF-F-026 moneyWeighted",
   "notes": "28 of 37 of his words appear in what implements it: account amount approved beginning beneath built"
+ },
+ {
+  "id": "DEC-0644",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/NetWorthScreen.tsx · src/components/Change",
+  "notes": "only 5 of 18 appear — present: banner category record sheet worth · absent: approval approved collapsed counted design"
+ },
+ {
+  "id": "DEC-0645",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "src/screens/AddAccountScreen.tsx · MK-XS-I-001",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-0646",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/AccountDetailScreen.tsx · MK-NW-M-021 · MK",
+  "notes": "only 5 of 19 appear — present: account dated detail module performance · absent: account-detail approved archive design drawing"
+ },
+ {
+  "id": "DEC-0647",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MoneyKeel/documents/networth-and-performance/moneykeel",
+  "notes": "only 7 of 22 appear — present: build comes module performance record · absent: approved built closing colour design"
+ },
+ {
+  "id": "DEC-0648",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MoneyKeel/documents/networth-and-performance/archive/2",
+  "notes": "only 8 of 18 appear — present: alternatives bonds holding invest investment · absent: archive archived design detail drawing"
+ },
+ {
+  "id": "DEC-0649",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "Calculation Module code/scripts/module-launch-steps.py",
+  "notes": "23 of 32 of his words appear in what implements it: account agree approved belong bonds connect"
  }
 ]

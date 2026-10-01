@@ -42,18 +42,13 @@ Rulings made after Build 53 that change these screens are in the Changelog tab o
 ## Net worth module, 2026-10-01 — what still has no approved design
 
 His seven-step process, step 1.a, counts a screen as done only when it is designed, approved AND coded.
-All twelve screens of the Net worth module are coded. After his approvals of 2026-10-01 three of the
-twelve have an approved design: Net worth itself, Account detail and Add an account by hand.
+The Net worth module is SEVEN screens (his scope, 2026-10-01, DEC-0649: *"we are only working on NW module. Forget about these screens - Home, Insights, Import holdings, Job safety, Stress test"*). All seven are coded. After his approvals of 2026-10-01 three of the
+seven have an approved design: Net worth itself, Account detail and Add an account by hand.
 
 | Screen | Design today | What it needs |
 |---|---|---|
 | Bonds · Other investments · Holding detail | **nothing.** `investments_v07` was dated into `archive/` on 2026-10-01 on his instruction (*"Investment v07 - archive it as it is old version of performance"*, DEC-0648) — it is the old Invest page, superseded by Performance v14 and then v17, and I had wrongly recorded it as the design for these three screens because it mentions bonds, alternatives and a holding. | **A mock each, drawn first.** |
 | Itemize | `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_itemize_v01.html` — drawn 2026-10-01 from the screen’s own code and tokens, three states on three phones (nothing placed · money left over · more placed than the account holds). Build 53 plus the only three visible changes since, all his rulings. | **His evaluation.** |
-| Import holdings | nothing current; `09-import-holdings` is dated in `archive/`. `ways-to-add-an-account_v10` frame 9 shows the door into it, not the screen | **A mock, drawn first.** |
-| Stress test | nothing. `look-ahead_v04` is the Cash flow look-ahead screen, not this one | **A mock, drawn first.** |
-| Job safety | nothing | **A mock, drawn first.** |
-| Home | nothing for the whole screen; `ways-to-add-an-account_v10` frame 1 draws only its first day | **A mock, drawn first.** |
-| Insights | nothing | **A mock, drawn first.** |
 
 Drawing those six is mine, not a question for him (mock-first standing order). They are drawn from the
 census strings, the screen's own StyleSheet and the navigator header — never from an older mock's CSS.
