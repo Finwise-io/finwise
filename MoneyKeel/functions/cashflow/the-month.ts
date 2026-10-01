@@ -69,10 +69,7 @@ export interface TheMonth {
  *
  * Formula .....
  *     flow = this month(input)
- *     the answer:
- *     planned = flow.planned
- *     actual = flow.actual
- *     expenses = expenses(input)
+ *     committed = cash((input.commitments ?? []).reduce((t, c) => t + (monthly amount or 0), 0))
  *
  * Called by ... MK-CF-F-203 MONTH
  *
@@ -94,6 +91,9 @@ export interface TheMonth {
  *               MK-XS-I-016 debt minimum payment
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
+ *
+ * Decides .....
+ *     · If monthly amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-010
  * Changed ..... not in git yet (—)

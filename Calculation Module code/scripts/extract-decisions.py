@@ -365,6 +365,16 @@ def _strip_tags(t):
     t = re.sub(r'<script.*?</script>|<style.*?</style>', ' ', t, flags=re.S | re.I)
     return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', t))
 
+# MY OWN PROPOSALS, IN QUOTES, INVITING HIM TO SAY THEM. Any of these before or around a quoted phrase
+# means I wrote it, not him: "Say X and I will…", "name mark 16", "say the word", "if you prefer".
+OFFERED_NOT_SAID = re.compile(
+    "\\b(say\\s+(?:the\\s+word|yes|which|whether)"
+    "|say\\s+[\u201c\"\u2018']"
+    "|name\\s+(?:a\\s+)?mark"
+    "|if\\s+you\\s+(?:prefer|want|would\\s+rather)"
+    "|and\\s+it\\s+becomes\\s+v\\d+"
+    "|on\\s+your\\s+word|needs?\\s+your\\s+word|waiting\\s+on\\s+you)\\b", re.I)
+
 def sweep_prose():
     paths = (sorted(glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/standards/*.md')))
              + sorted(glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/standards/*.html')))
@@ -384,6 +394,12 @@ def sweep_prose():
             around = text[max(0, m.start() - 220):m.start()]
             if not MARKS_A_DECISION.search(around):
                 continue                       # a quote with nothing marking it as his is just a quote
+            # NOR IS A QUOTE I WROTE OFFERING HIM WORDS TO SAY (2026-09-30). In mock v17 I wrote
+            # 'Say "only the whole duration" and it becomes v18' — my own proposed wording, in quotes,
+            # inside a sentence inviting him to use it. The sweep recorded it as HIS ruling. A decision
+            # is what he said, never what I offered him to say.
+            if OFFERED_NOT_SAID.search(around):
+                continue
             if len(words) < 20:
                 continue
             found += 1; here += 1
@@ -543,6 +559,11 @@ def merge_reworded(rows):
         # split he asked for. They are two rows BY DECLARATION, in moneykeel_decisions_splits.json.
         if str(r.get('raw') or '').startswith('SPLIT FROM '):
             keep.append(r); continue
+        # A CONFIRMATION IS NOT A REWORDING (2026-09-30). When he answers "yes" to twenty-four
+        # different rows, those are twenty-four decisions confirmed — not one decision written
+        # twenty-four ways. Folding them cost 41 rows the first time this ran.
+        if str(r.get('verified') or '').startswith('ANSWERED BY HIM'):
+            keep.append(r); continue
         w = flat(r.get('his_words'))
         if len(w) < 15:
             keep.append(r); continue
@@ -621,7 +642,11 @@ def apply_answers(rows):
             done.append((ident, 'HIS OWN WORDING replaces mine'))
         elif verdict.lower() in ('yes', 'y'):
             # the summary was mine and he read it and said yes, so it is his now — and it says so
-            r['his_words'] = f'"{verdict}" — confirming, word for word, the summary on this row'
+            # HIS CONFIRMATION, TIED TO THE ROW IT CONFIRMS (2026-09-30). This wrote the SAME sentence
+            # onto all 24 "yes" rows, and merge_reworded then folded 41 decisions into DEC-0008 — the
+            # identical fault that re-merged the DEC-0002 split this morning. A confirmation names what
+            # it confirms, so no two are the same words.
+            r['his_words'] = f'"{verdict}" — {ident}, confirmed as written: {str(r.get("means") or r.get("plain") or "")[:120]}'
             r['confidence'] = f'HIGH — he read this row and confirmed it as written, {when}'
             done.append((ident, 'confirmed as written'))
         else:
@@ -640,12 +665,24 @@ def apply_anchors(rows):
         a = spec.get(r.get('id'))
         if not a:
             continue
-        r['standard_carrier'] = a['standard_carrier']
-        r['exceptions'] = a['exceptions']
-        done.append((r['id'], a['standard_carrier'].split(' \u2014 ')[0]))
+        # WHERE THE DECISION APPLIES (2026-09-30, his instruction: "match those decisions to where it
+        # should be applied"). A decision that names no rows cannot be checked against anything, which
+        # is why 32 of the 33 he answered bought a record and not a guard.
+        if a.get('governs'):
+            r['governs'] = a['governs']
+            r['edges'] = a.get('why_it_governs_those', r.get('edges', ''))
+        if a.get('proof'):
+            r['proof'] = a['proof']
+        if a.get('standard_carrier'):
+            r['standard_carrier'] = a['standard_carrier']
+        if a.get('exceptions'):
+            r['exceptions'] = a['exceptions']
+        done.append((r['id'], (a.get('governs') or a.get('standard_carrier', ''))[:66]))
     unknown = sorted(set(spec) - {r.get('id') for r in rows})
     if unknown:
-        raise SystemExit('anchors name decisions that do not exist: ' + ' '.join(unknown))
+        raise SystemExit('anchors name decisions that are not in the log: ' + ' '.join(unknown)
+                         + '\n  Either the identifier is wrong, or a merge absorbed that row — check the '
+                           'merge list printed above before changing the anchor.')
     return rows, done
 
 

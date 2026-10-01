@@ -143,8 +143,25 @@ test("MK-XS-M-004 — the month's return reads the same on Home and on Performan
   expect(home).not.toBeNull();     // a pin that reads nothing proves nothing
   expect(perf).not.toBeNull();
   expect(home).toBe(perf);
-  // and it is the figure that COUNTS THE DIVIDEND: price change alone gives +3.57%
-  expect(home).toBe('+3.69%');
+
+  // AND IT IS THE DOOR'S FIGURE, NOT THE PRICE-ONLY ONE — asserted as a property, not a percentage.
+  //
+  // This said `toBe('+3.69%')` until 2026-10-01, when it broke for a reason worth keeping: the
+  // household's dates are relative to today (the screens read the real clock, so they must be), so the
+  // beginning sits at a different point on the record's ramp each day and the honest answer moves with
+  // it. +3.69% was true on 30 September, +3.57% on 1 October. A pin on the number was pinning the
+  // calendar.
+  //
+  // Nor can the dividend be removed to prove it counts: a dividend is INSIDE wealth generated, not
+  // added to it, so taking the row away leaves the total unchanged. What B-112 was about is the
+  // METHOD — Home used portfolioPeriodReturn, price change weighted by holding. So the pin is that
+  // Home's figure is the door's and NOT that one, which holds on any day.
+  const { buildPerformance, portfolioPeriodReturn } = require('../domain/performance');
+  const positions = (INVESTOR_ACCOUNT.positions ?? []) as any[];
+  const priceOnly = portfolioPeriodReturn(
+    buildPerformance(positions, (t: string) => ({ VTI: closes('VTI', 95, 100) } as any)[t.toUpperCase()], '1M'));
+  expect(priceOnly).not.toBeNull();
+  expect(Number(home!.replace(/[+%]/g, ''))).not.toBeCloseTo(priceOnly! * 100, 2);
 });
 
 /** HIS RULING ON Q51 (2026-09-30): the Home line says which of the two figures counts income.
@@ -165,9 +182,11 @@ test('MK-PF-M-008 — Home says WHICH figure counts dividends and interest, so t
   renderScreen('HomeScreen');
   const lines = readable();
   const you = lines.find((s) => /^you [+-]/.test(s));
-  expect(you).toBe('you +3.69% (including dividends and interest)');
+  // the WORDS are the pin, not the percentage — the figure moves with the calendar (see above)
+  expect(you).toMatch(/^you [+-]\d+\.\d{2}% \(including dividends and interest\)$/);
   // the market side is NOT claimed to include them, because it does not
-  expect(lines.find((s) => /^market [+-]/.test(s))).toBe('market +2.83%');
+  expect(lines.find((s) => /^market [+-]/.test(s))).toMatch(/^market [+-]\d+\.\d{2}%$/);
+  expect(lines.find((s) => /^market [+-]/.test(s))).not.toMatch(/including/);
   expect(lines.some((s) => /^ahead by /.test(s))).toBe(true);
 });
 

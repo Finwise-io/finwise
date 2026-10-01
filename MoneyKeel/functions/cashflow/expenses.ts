@@ -186,7 +186,8 @@ export interface RadarItem { label: string; amount: number; reason: RadarReason;
  *     'lump − debt'   if shape = 'due_in_full'
  *     'revolving − debt'   otherwise
  *
- * Called by ... MK-CF-F-153 radar
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-153 radar
+ *               MK-CF-F-156 plannedMonthFlow
  *
  * Reaches ..... 108 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF

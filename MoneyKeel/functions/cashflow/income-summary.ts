@@ -10,6 +10,8 @@ import { declareFigures } from '../_figure-spec';
 import { toNum } from '../../../src/domain/_shared/num';
 import { salaryAnnual, taxableAnnual, rentalNetAnnual, extraIncome, filingStatusOf,
          over65CountOf, incomeMonthlyGrid } from '../../../src/domain/income';
+// the two sources the YOUR SOURCES list needs, from the one place each is calculated
+import { rsuAnnual, retirementIncomeMonthly } from '../../../src/domain/income/onboarding';
 import { earnerWages } from '../../../src/domain/income/earners';
 import { rateInForce } from '../../../src/domain/income/tax-rate';
 import { marginalBracketFor } from '../../../src/domain/income/tax';
@@ -240,6 +242,89 @@ export const FIGURES = declareFigures({
  * Formula also on the master file · functions_from_code · MK-CF-O-004
  * Changed ..... not in git yet (—)
  */
+/** YOUR SOURCES — every source of income you have entered, named, with what it brings in.
+ *
+ *  MOVED OFF THE SCREEN (Cash flow pass 1, 2026-10-01). CashFlowScreen built this list itself: six
+ *  `sources.push(...)` calls, each reaching for a different field and formatting its own money. Six
+ *  rows stood on the master file for it — MK-CF-M-006 base salary, 007 self-employment, 008 bonus,
+ *  009 stock vesting, 010 rental, 011 Social Security and pension — as if they were six figures. They
+ *  are ONE: a list with one line per source, exactly as MK-NW-M-008 is one figure though every account
+ *  differs. His rule is one figure, one identifier.
+ *
+ *  WHY IT MATTERS BEYOND TIDINESS: the list is how a person checks that nothing they entered is
+ *  missing, and on the screen it had no row, no worked example and nothing able to run it. Three of
+ *  those six rows said "NOT ON RECORD — no function" on the master, which was true.
+ *
+ *  EVERY SOURCE SHOWS ITS OWN PERIOD, because they genuinely differ: a salary is what you entered at
+ *  the frequency you entered it at, a bonus and vesting land in the year, rent and guaranteed income
+ *  monthly. Saying "per month" over a yearly figure would be a wrong number.
+ */
+export interface IncomeSource {
+  /** The words the screen prints, exactly. */
+  label: string;
+  /** The quieter second line — what makes this source what it is. */
+  note: string;
+  /** The amount, and the period it is stated in. Never converted silently. */
+  amount: number;
+  per: 'month' | 'year' | 'as entered';
+  /** Which kind it is, for the row that opens its editor. */
+  kind: 'salary' | 'self-employment' | 'bonus' | 'equity' | 'rental' | 'guaranteed';
+}
+
+export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
+  const o = (op ?? {}) as any;
+  const out: IncomeSource[] = [];
+  const wages = earnerWages(o);
+  for (const w of wages) {
+    // NOTHING ENTERED IS NOT A SOURCE (his Q48 rule, 2026-09-09). My first draft pushed a row for every
+    // earner whether or not they had typed a figure, so a fresh account showed "Salary — steady $0" —
+    // an invented row. The screen shows $0 with a sentence and the door to enter income; it never
+    // lists a source nobody has.
+    if (toNum((w as any).baseSalary) <= 0 && !(w as any).salaryByMonth) continue;
+    const varies = String((w as any).salaryMode) === 'varies' || !!(w as any).salaryByMonth;
+    const whose = wages.length > 1 ? (w === o ? 'You' : (o.partnerName || 'Spouse')) : null;
+    out.push({
+      label: `${whose ? whose + ' · ' : ''}${varies ? 'Salary — varies' : 'Salary — steady'}`,
+      note: varies ? 'by-month table' : (String((w as any).salaryMode) === 'takehome' ? 'take-home' : 'before tax'),
+      amount: toNum((w as any).baseSalary), per: 'as entered', kind: 'salary',
+    });
+  }
+  if (toNum(o.seAmount) > 0) {
+    out.push({ label: 'Self-employment', note: o.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly',
+               amount: toNum(o.seAmount), per: o.seFreq === 'monthly' ? 'month' : 'year', kind: 'self-employment' });
+  }
+  if (toNum(o.bonusAnnual) > 0) {
+    // a bonus lands in ONE month, and the note says which — never divided by twelve (his ruling)
+    const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+                'September', 'October', 'November', 'December'];
+    const m = Number(o.bonusMonth);
+    out.push({ label: 'Bonus',
+               note: m ? `lands in ${MO[(m - 1 + 12) % 12]}` : 'month not set',
+               amount: toNum(o.bonusAnnual), per: 'year', kind: 'bonus' });
+  }
+  const vesting = rsuAnnual(o);
+  if (vesting > 0) {
+    out.push({ label: 'Stock vesting (equity)', note: 'vests through the year',
+               amount: vesting, per: 'year', kind: 'equity' });
+  }
+  const rent = rentalNetAnnual(o);
+  if (rent > 0) {
+    out.push({ label: 'Rental property', note: 'net, after running costs',
+               amount: rent / 12, per: 'month', kind: 'rental' });
+  }
+  // THE FIGURE THE SCREEN SHOWS, not a second one (found 2026-10-01 building this). The master's row
+  // for this line named currentRetirementIncomeMonthly, which returns 0 unless the person has said
+  // they have retirement income; CashFlowScreen has always used retirementIncomeMonthly, with no such
+  // gate. Two figures under one row. The screen is the one a person reads, so the door reads it too,
+  // and the row on the master now names it.
+  const guaranteed = retirementIncomeMonthly(o);
+  if (guaranteed > 0) {
+    out.push({ label: 'Social Security · pension', note: 'guaranteed income',
+               amount: guaranteed, per: 'month', kind: 'guaranteed' });
+  }
+  return out;
+}
+
 export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   const a: any = op ?? {};
   const wages = earnerWages(op as any);

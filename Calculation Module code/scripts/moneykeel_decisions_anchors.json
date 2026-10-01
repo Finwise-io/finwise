@@ -1,9 +1,2061 @@
 {
- "_about": "A DECISION THAT RESTATES A STANDARD MUST SAY SO ON ITS OWN ROW. Founder, 2026-09-30, reading DEC-0008: 'is this an exception? As we already have approved standards for fonts - 20 for heading, and so forth.' He had to ask because the row stated a rule and named nothing behind it, so it read as a new exception when it is his OWN amendment applied to two named tables. A changelog row carries no standard reference — only reading tells you which standard a row belongs to — so the link is declared here, by hand, and printed into the row's 'The standard that carries it' and 'EXCEPTIONS' columns. Keyed by decision identifier.",
+ "_about": "A DECISION THAT RESTATES A STANDARD MUST SAY SO ON ITS OWN ROW. Founder, 2026-09-30, reading DEC-0008: 'is this an exception? As we already have approved standards for fonts - 20 for heading, and so forth.' He had to ask because the row stated a rule and named nothing behind it, so it read as a new exception when it is his OWN amendment applied to two named tables. A changelog row carries no standard reference — only reading tells you which standard a row belongs to — so the link is declared here, by hand, and printed into the row's 'The standard that carries it' and 'EXCEPTIONS' columns. Keyed by decision identifier.\n\nAND WHAT EACH DECISION GOVERNS (2026-09-30). Founder: “you have been [asking] me million questions wasting my time and energy without knowing what to do with it.” Measured, he was right: of the 33 decisions he answered on the wording-asks file, ONE named the figures it governs. The other 32 were recorded in his words, in plain English, and connected to nothing — so nothing could check that the app still obeyed them, and his time answering bought a record rather than a guard. Each entry below names the rows the decision governs, so a test can be written against it and the sync gate can see it. Where a decision is about HOW WE WORK rather than a figure, it names the standard that carries it and says so.",
  "rows": {
   "DEC-0008": {
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md — the money-size row (\"A money figure is at least 17 points. Reference tables may use 12 to 15 points\", his amendment of 2026-07-15) and checklist item 5. The type scale it works within is theme.ts Typography.sizes: 11 · 13 · 15 · 17 · 20 · 24 · 30 · 38.",
-   "exceptions": "IT IS NOT AN EXCEPTION TO ANYTHING — it applies the reference-table clause his 2026-07-15 amendment already put on the standard, and names which tables count. It does NOT touch the 20-point heading rule (2026-09-14), which governs titles, not money. It is not an exception to the type scale either: 12 to 15 spans two scale steps, 13 and 15. Where the floor DOES bind: any money figure outside a table — a hero, a header trio, a figure standing on its own — is at least 17 points."
+   "exceptions": "IT IS NOT AN EXCEPTION TO ANYTHING — it applies the reference-table clause his 2026-07-15 amendment already put on the standard, and names which tables count. It does NOT touch the 20-point heading rule (2026-09-14), which governs titles, not money. It is not an exception to the type scale either: 12 to 15 spans two scale steps, 13 and 15. Where the floor DOES bind: any money figure outside a table — a hero, a header trio, a figure standing on its own — is at least 17 points.",
+   "governs": "MK-NW-M-008 · MK-NW-M-040 · MK-PF-M-005",
+   "why_it_governs_those": "the dense tables his type-size amendment covers: the account rows on Net worth, the holdings on the itemise screen, and the per-account rows on Performance"
+  },
+  "DEC-0009": {
+   "governs": "PREPARE_ROWS in src/components/PlanPrepare.tsx — insurance · estate · tax · credit · stress · jobsafety",
+   "why_it_governs_those": "he named the six rows and where they live: all part of Plan → Prepare. It governs that list, not a figure."
+  },
+  "DEC-0010": {
+   "governs": "ClassMarkColors in src/utils/theme.ts · MK-NW-M-007 · MK-NW-M-020",
+   "why_it_governs_those": "one colourblind-safe set, so a class is the same colour wherever it appears — the class rows and the per-class breakdown"
+  },
+  "DEC-0019": {
+   "governs": "MK-NW-M-018 Market value · MK-NW-M-038 · MK-NW-M-039",
+   "why_it_governs_those": "the balance-authority rule: the broker's stated total, and the derive-from-holdings fallback when it sends none"
+  },
+  "DEC-0024": {
+   "governs": "the Plan hub rows — src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "every row a complete question in his own voice; it governs the screen’s row copy, not one figure"
+  },
+  "DEC-0027": {
+   "governs": "src/__tests__/orphan_route_guard.test.ts · scripts/screen-map.mjs",
+   "why_it_governs_those": "screens kept but unlinked — the rule lives in the orphan-route guard and the screen map, which is what proves nothing is stranded"
+  },
+  "DEC-0028": {
+   "governs": "the Plan screens — design not yet drawn",
+   "why_it_governs_those": "a sequencing decision: Plan screens are finalised next. It governs the order of work, and the workplan row carries it."
+  },
+  "DEC-0030": {
+   "governs": "src/screens/HoldingDetailScreen.tsx · MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012",
+   "why_it_governs_those": "the look-back door he removed, and the three figures it used to reach",
+   "proof": "src/screens/__tests__/holding_detail_fcc.test.tsx — DEC-0030: the door must stay gone"
+  },
+  "DEC-0033": {
+   "governs": "src/components/TopBar.tsx — the menu",
+   "why_it_governs_those": "a sequencing decision: the menu is redesigned once every section is launch-ready. Nothing comes off it now."
+  },
+  "DEC-0035": {
+   "governs": "the steppers on the Plan screens — src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "plus-and-minus steppers stay rather than sliders, so someone can land on an exact figure"
+  },
+  "DEC-0038": {
+   "governs": "src/services/sync/ — the linking provider",
+   "why_it_governs_those": "the provider change is on hold while he evaluates; it governs that nothing changes, which is checkable by the absence of a new dependency"
+  },
+  "DEC-0039": {
+   "governs": "src/screens/HomeScreen.tsx · src/screens/CashFlowScreen.tsx",
+   "why_it_governs_those": "the +Expense button has ONE home, on Cash flow"
+  },
+  "DEC-0045": {
+   "governs": "MK-NW-M-020 · ASSET_KINDS in src/domain/assets",
+   "why_it_governs_those": "private equity and hedge funds out of the first phase — the options you can pick, and the per-class breakdown"
+  },
+  "DEC-0046": {
+   "governs": "MK-PF-M-001 · MK-PF-M-002 · MK-PF-M-003 · the bottom bar",
+   "why_it_governs_those": "the Invest tab renamed PERFORMANCE, so the pair reads Net worth and Performance"
+  },
+  "DEC-0047": {
+   "governs": "MK-NW-M-006 · MK-NW-M-007 · MK-NW-M-008",
+   "why_it_governs_those": "By type removed and What you own restructured — the bands, the class rows and the account rows",
+   "proof": "MoneyKeel/functions/networth-and-performance/net-worth.test.ts — the grouped ledger"
+  },
+  "DEC-0051": {
+   "governs": "MK-NW-M-005 CASH · MK-NW-M-020 · assetClassOf in src/domain/assets",
+   "why_it_governs_those": "cash means cash only: a money-market fund is Stocks and funds, a CD or T-bill is not cash"
+  },
+  "DEC-0052": {
+   "governs": "MK-NW-M-007 · MK-NW-M-008 · CompositionBar in src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "the collapsed count, the 16-point gutter, and NO DONUT — replaced by a bar under what you own and what you owe"
+  },
+  "DEC-0053": {
+   "governs": "SectionBand in src/components · src/__tests__/guard_bands_edge_to_edge.test.ts",
+   "why_it_governs_those": "ONE shared band on all five screens, which is what the edge-to-edge guard checks",
+   "proof": "src/__tests__/guard_bands_edge_to_edge.test.ts"
+  },
+  "DEC-0061": {
+   "governs": "MK-XS-M-003 · dataGaps in src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "a missing figure is said in a line inside the page, never a pop-up — the five things that count as a gap"
+  },
+  "DEC-0069": {
+   "governs": "MK-NW-M-007 · MK-NW-M-008",
+   "why_it_governs_those": "By institution rebuilt to work like By category: collapse, remember, and the class mix inside each",
+   "proof": "MoneyKeel/functions/networth-and-performance/net-worth.test.ts — an institution names the class mix inside it"
+  },
+  "DEC-0177": {
+   "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html",
+   "why_it_governs_those": "the income mock approved as ONE live file, the 13 earlier ones archived"
+  },
+  "DEC-0178": {
+   "governs": "MK-CF-M-032 · MK-CF-M-043",
+   "why_it_governs_those": "the tax band is worked out ONCE from total income and every screen reads that one figure — the two bracket figures"
+  },
+  "DEC-0193": {
+   "governs": "moneykeel_naming_spec_file-and-folder-naming_v01.md · the onboarding question count",
+   "why_it_governs_those": "`master` permitted as a type, and 37 → 38 questions for the filing-status question"
+  },
+  "DEC-0197": {
+   "governs": "MK-CF-M-029 · MK-CF-M-032 · MK-CF-M-043 · MK-CF-M-044",
+   "why_it_governs_those": "where the tax rate comes from, in order, and each one says whose it is — the band and the calculated tax on both income screens"
+  },
+  "DEC-0201": {
+   "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html · the income screens",
+   "why_it_governs_those": "build to the latest income mock. NOT YET COMPARED — that comparison is the first step of Cash flow’s passes."
+  },
+  "DEC-0205": {
+   "governs": "IRS_LIMITS in src/domain · MK-CF-M-045 · MK-CF-M-046",
+   "why_it_governs_those": "every figure set by law typed in from the published source — the Social Security and Medicare rows, and the contribution limits"
+  },
+  "DEC-0206": {
+   "governs": "moneykeel_naming_spec_file-and-folder-naming_v01.md — the verification folder",
+   "why_it_governs_those": "records of checking the work get their own folder; it governs where a file goes, not a figure"
+  },
+  "DEC-0211": {
+   "governs": "MK-XS-M-002 · simulate() in src/domain/retirement",
+   "why_it_governs_those": "run 1,000 and say so — the odds figure and the simulation behind it",
+   "proof": "src/__tests__/one_term_per_concept.test.ts — the count on screen is the count the simulation runs"
+  },
+  "DEC-0212": {
+   "governs": "moneykeel_naming_spec_calculation-vocabulary_v01.md — the canon table",
+   "why_it_governs_those": "five new retired patterns added so the same synonyms cannot come back",
+   "proof": "src/__tests__/one_term_per_concept.test.ts"
+  },
+  "DEC-0218": {
+   "governs": "src/components/TopBar.tsx · every screen",
+   "why_it_governs_those": "the app name at the top of EVERY screen, not only the main tabs"
+  },
+  "DEC-0229": {
+   "governs": "MK-XS-M-004 · MK-PF-M-001 · MK-PF-M-002 · MK-PF-M-003",
+   "why_it_governs_those": "the Performance mock redrawn with his four changes — the window row, the Y axis, the account header trio and day-one history"
+  },
+  "DEC-0001": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (ahead, rest, projected, title, saved, what-if, estimate, fill, nest, save, saving, sliders); src/screens/PlanHubScreen.tsx (separate, rest, projected, title, saved, what-if, estimate, longer, nest, save, saving)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0002": {
+   "governs": "MK-CF-M-048 · MK-CF-M-016 · MK-CF-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-048 (bill, bills, budget); MK-CF-M-016 (bill, bills, monthly); MK-CF-M-004 (cash-flow, budget)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0003": {
+   "governs": "src/domain/income/onboarding.ts · src/screens/CashFlowScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (slots, yearly, editor, frames, note, twelve, pattern, boundary, calendar); src/screens/CashFlowScreen.tsx (spent, yearly, editor, mean, however, note, calendar, totals, pop-up)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0005": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/HomeScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (locked, example, gauge, sample); src/screens/HomeScreen.tsx (locked, empty, gauge, sample)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0006": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (build-, item, offered, exact, rides, stay, worded, choose, connection, choice, delete, history, promise); src/domain/assets/index.ts (build-, item, exact, stay, future, connection, choice, history, loses)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0007": {
+   "governs": "MK-NW-M-013",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-013 (emergency, essentials)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0011": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (addition, gets, approval, standards, audit, changelog, dated, logged, files, consolidated, decision-log); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (approval, claude, standards, audit, changelog, standing, dated, files)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0012": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (spelled, labels, land, guard, surface, estimate, fixes, ledger, build-, writes, institution, items, final, promise, shared, view, insight, hidden, market, insights, pop-up); src/domain/assets/index.ts (labels, land, guard, unpriced, equity, surface, estimate, fixes, ledger, build-, institution, items, final, shared, view, formula, sell, market, insights)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0013": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (dated, findings, honest, note, balances, fixes, naming, headline, roth, save, manual, checks, build-, flag, snapshot, editors, step, contributions, shared, through, derived, hidden); src/screens/NetWorthScreen.tsx (dated, honest, note, balances, fixes, tappable, headline, roth, save, manual, build-, snapshot, editors, items, step, contributions, shared, sync, through, derived, hidden, banner)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0014": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (estate, palette, property, exact, unchanged, colour, layout, asset, moved, amber, blue, step, colors, final, validated, personal, color, chart, colours, colourblind, alternatives, mixed); src/screens/PerformanceScreen.tsx (estate, marks, property, chosen, exact, layout, asset, moved, amber, step, colors, final, personal, color, alternatives)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0015": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (part, headline)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0016": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (carry, form, open, picked, chips, payment, ledger, round, writes, editors, colors, stamps, pick, editor, stay, doors, banner); src/screens/AccountDetailScreen.tsx (matured, carry, findings, open, facts, chips, call, ledger, round, colors, stamps, separate, stay, doors, banner)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0017": {
+   "governs": "src/screens/AccountDetailScreen.tsx · src/screens/HomeScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (separate, honestly, decided, hold, honest, root, empty, store, start, ready, stops, draws, banner, until, takes); src/screens/HomeScreen.tsx (as-of, renders, honestly, hold, t-refresh, honest, root, empty, store, start, draws, banner, until, takes, refresh)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0018": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/IncomeManagerScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (field, stock, findings, equity, ticker, note, form, start, symbol, bottom); src/screens/IncomeManagerScreen.tsx (stock, editable, editor, equity, note, form, long, invisible, bottom)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0020": {
+   "governs": "src/components/DebtEditorSheet.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/components/DebtEditorSheet.tsx (lump, bill, minimum, forms, drifted, editor, shapes, repaid, payments, credit, payment, dated, shape, loan, cards, calendar, big-ticket); src/screens/NetWorthScreen.tsx (lump, apart, minimum, forms, editor, works, payments, credit, payment, dated, shape, loan, cards)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0021": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (today's, doesn't, gets, copy, growth, stand, assumed, growing, alone); src/domain/assets/index.ts (today's, doesn't, terms, growth, assumed, alone)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0022": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/HoldingDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (decimal, buttons, position, hero, honest, rebuilt, bought, chips, edit, else, headline, lots, graph, header); src/screens/HoldingDetailScreen.tsx (position, hero, grammar, basis, bought, compares, chips, gains, edit, else, lots, graph, header)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0023": {
+   "governs": "MK-NW-M-006 · MK-NW-M-005",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (view, groups); MK-NW-M-005 (money-market, market)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0025": {
+   "governs": "src/domain/planning/hub.ts · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/planning/hub.ts (honest, outranks, counting, required, verdicts, dynamic, withdrawal, dated, credits, first-day); src/screens/PlanHubScreen.tsx (honest, required, dynamic, withdrawal, dated, sandbox, gauge, paycheck)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0026": {
+   "governs": "MoneyKeel/functions/cashflow/income-summary.ts · src/domain/insights/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/cashflow/income-summary.ts (costs, coming, arrives); src/domain/insights/index.ts (costs, coming, arrives)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0031": {
+   "governs": "src/screens/SsTimingScreen.tsx · src/domain/import/holdingsImport.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/SsTimingScreen.tsx (reminder, remind, claiming, option); src/domain/import/holdingsImport.ts (builds, existing, option)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0032": {
+   "governs": "src/domain/performance/index.ts · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/performance/index.ts (lets, advice, fact, offering, insights); src/screens/PlanHubScreen.tsx (decide, advice, goal, fact, insights)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0034": {
+   "governs": "src/screens/AccountDetailScreen.tsx · src/domain/insights/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (breakdown, builds, tells, else, invest); src/domain/insights/index.ts (goal, invest, insight)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0036": {
+   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (drawing, warning, framing); MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (support, long-term, framing)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0040": {
+   "governs": "src/screens/HomeScreen.tsx · src/domain/insights/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (chief, round, staff, attention, items); src/domain/insights/index.ts (chief, round, staff, attention)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0041": {
+   "governs": "MoneyKeel/functions/networth-and-performance/account.ts · MoneyKeel/functions/networth-and-performance/performance.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/networth-and-performance/account.ts (breakdown, estimated, parts); MoneyKeel/functions/networth-and-performance/performance.ts (took, movements, parts)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0044": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/FirstRunScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (view, closed, property, setup, debts, checking, assets, cards, loans); src/screens/FirstRunScreen.tsx (view, property, setup, debts, checking, assets, cards, loans)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0050": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (dark-green, groups, capitals, light-green, title, headings, white, deep-green, tokens, bands, sections, pattern); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (applied, dark-green, light-green, pair, deep-green, tokens, bands, banded, sections, pattern)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0054": {
+   "governs": "MK-NW-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (pinned, property, house)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0055": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (app-wide, view, layout, final, blank, sample); src/screens/PlanHubScreen.tsx (view, blank, gauge, sample)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0056": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (wealth, generated, moved, ending, beginning)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0057": {
+   "governs": "src/domain/assets/index.ts · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (counted, depth, feed, back-fill, shortfall, reaches, activity, themselves, history, fully, dated, connected, covered, shared); src/screens/PerformanceScreen.tsx (existing, counted, silent, dates, further, back-fill, reaches, activity, example, history, dated, connected, covered, shared)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0058": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (included, imply, sits, covers, since-date, depth, reaches, edge, hidden, older, history, sheet, shared); src/screens/AccountDetailScreen.tsx (wealth, sits, generated, reaches, edge, hidden, older, right-hand, history, sheet, share, matters, shared)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0059": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (theme, scale, readability, text, white, sizes, color, colours, size, tests, tokens, files, guard); src/screens/NetWorthScreen.tsx (theme, scale, rounded, text, white, sure, color, colours, drift, replaced, guard)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0060": {
+   "governs": "MK-NW-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (view, groups, property, institution, moved, personal)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0062": {
+   "governs": "src/components/ChangeWalkSheet.tsx · src/domain/history.ts",
+   "why_it_governs_those": "its own words appear in these files: src/components/ChangeWalkSheet.tsx (principal, wealth, generated, tapping, final, contributions, net-worth, ending, structure, beginning, sheet, withdrawals); src/domain/history.ts (principal, wealth, generated, explain, final, contributions, net-worth, ending, structure, beginning, withdrawals)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0063": {
+   "governs": "MK-PF-M-003 · MK-PF-M-002 · MK-PF-M-001 · MK-PF-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-003 (wealth, generated, contributions, ending, beginning, withdrawals); MK-PF-M-002 (wealth, part, generated, ending, beginning); MK-PF-M-001 (picked, ending); MK-PF-M-004 (ending, market)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0064": {
+   "governs": "MK-PF-M-006 · MK-PF-M-007",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-006 (dash, zero, em-dash, category, earned); MK-PF-M-007 (received, appear)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0065": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (wealth, generated, summary)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0066": {
+   "governs": "MK-NW-M-016",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-016 (zero, halves)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0067": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (included, lists, space, handoff, buttons, sits, open, trailing, carry, grouping, moved, inset, edge, flat, cards, bands, floating, justified, resolves, totals, ledger, close, sections, quiet, reserves); src/screens/PerformanceScreen.tsx (separate, amounts, included, space, handoff, buttons, sits, open, became, carry, moved, inset, ledger, close, sections, quiet)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0068": {
+   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (palette, beneath, unchanged, colour, ring, labels, underneath, validated, chart, colours, donut, slice); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (palette, colour, labels, validated, colours)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0070": {
+   "governs": "MK-NW-M-021 · MK-NW-M-006 · MK-NW-M-015 · MK-NW-M-016",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-021 (counted, finding); MK-NW-M-006 (networth, computed); MK-NW-M-015 (networth, counted); MK-NW-M-016 (networth, computed)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0071": {
+   "governs": "MK-NW-M-028",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-028 (gets, percent)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0072": {
+   "governs": "MK-NW-M-006 · MK-NW-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (property, personal); MK-NW-M-008 (beneath, biggest)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0073": {
+   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/functions/networth-and-performance/performance.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (emergency, connect, deleted, add-or-connect, audit, gone, delete, computed); MoneyKeel/functions/networth-and-performance/performance.ts (case, gone, delete, computed)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0074": {
+   "governs": "MK-NW-M-006 · MK-NW-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (here, view, institution, holds); MK-NW-M-008 (listed, institution, holds)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0075": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (round, handoff, hero, beneath, white, audit, headline, vanguard); src/screens/PlanHubScreen.tsx (round, hero, beneath, white, audit, sweep)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0076": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (today's, print, imply, replace, hero, helper, title, dates, bare, fact, zeros, stamps, alone, first-day); src/screens/PerformanceScreen.tsx (today's, replace, hero, helper, title, dates, zeros, alone, returns)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0077": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (rendered, emergency, full-width, hero, carry, title, running, titled, text, inset, white, headline, cards, floating, banner, edges, sections, first-day); src/screens/RetirementCockpit.tsx (applied, hero, title, leave, running, text, inset, side, white, headline, cards, sections)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0078": {
+   "governs": "MK-CF-M-037 · MK-CF-M-028",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (tests, correction, none); MK-CF-M-028 (running, dated)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0079": {
+   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (title, titles, running, rounded, gone, edge, straight, banded, shared); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (corners, square, titles, rounded, edge, bars, straight, banded)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0081": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (reports, apart, control, sync, carry, detail, navigate, gaps, explicit, drift, sheet); src/domain/assets/index.ts (apart, synced, syncs, action, carry, detail, updated, explicit, drift, sheet)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0082": {
+   "governs": "src/domain/gaps/index.ts · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/gaps/index.ts (sync, called, updated, unreachable, ones, stale, identical, store, guess, connection, meanwhile, connected, failures, vanguard); src/screens/PerformanceScreen.tsx (actual, honest, called, surface, updated, stale, identical, store, guess, prints, connected, caught, vanguard, quiet)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0083": {
+   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (options, crypto, etfs, helper, saved, institution, taxable, holds, checking, tax-advantaged, naming, fidelity, chase, digits, roth, brokerage, available, vanguard); src/screens/NetWorthScreen.tsx (options, crypto, etfs, helper, saved, institution, taxable, holds, checking, chase, digits, roth, brokerage, vanguard)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0084": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (longer, gate, ending)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0085": {
+   "governs": "src/domain/assets/index.ts · src/domain/glossary.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (swing, meta, called, flagged, parts, hedge, sits, slightly, together, scenario, differently, assumes, t-bills, crypto, thumb, asset, side, types, overstates, portfolio, difference, returns, hold, property, guessed, annual, long-run, risk); src/domain/glossary.ts (swing, assumptions, hedge, sits, carlo, slightly, together, crypto, asset, types, difference, returns, hold, property, monte, long-run, risk)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0086": {
+   "governs": "src/domain/planning/hub.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/planning/hub.ts (app-wide, chance, constant, lasting, bare, horizon, earmarked, sample, yours, drift, first-day); src/screens/NetWorthScreen.tsx (app-wide, chance, showed, bare, partial, sample, yours, drift, first-day)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0087": {
+   "governs": "src/domain/glossary.ts · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (hold, lasts, swing, honest, follow, moving, growth, counting, hide, english, method, explain, finance, required, monte, costs, though, carlo, often, limits, spread, play, risk, together, inflation, assumption, withdrawals); src/screens/RetirementCockpit.tsx (lasts, honest, technical, growth, hide, required, monte, carlo, often, horizon, limits, risk, inflation, withdrawals)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0088": {
+   "governs": "src/domain/glossary.ts · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (yearly, unless, assumptions, limits, draws, brokerage, honest, equity, saved, dates, save, crypto, checking, inflation, actual, costs, private, long-run, assumption, default); src/screens/PerformanceScreen.tsx (yearly, longer, categories, draws, brokerage, honest, equity, owns, dates, save, crypto, checking, input, actual, private, default)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0089": {
+   "governs": "MK-NW-M-008 · MK-NW-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-008 (beneath, institution, biggest); MK-NW-M-006 (institution, grouped)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0090": {
+   "governs": "MK-NW-M-021 · MK-NW-M-008 · MK-NW-M-005 · MK-NW-M-029",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-021 (split, counted, ticker); MK-NW-M-008 (listed, beneath, treasury); MK-NW-M-005 (money-market, funds); MK-NW-M-029 (ticker, share)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0091": {
+   "governs": "MK-NW-M-017",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-017 (debts, assets)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0092": {
+   "governs": "MK-NW-M-008 · MK-NW-M-029 · MK-NW-M-021 · MK-NW-M-005",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-008 (holds, fidelity, balance); MK-NW-M-029 (ticker, holds, stale); MK-NW-M-021 (stock, ticker); MK-NW-M-005 (funds, money-market)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0093": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (included, dollar)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0094": {
+   "governs": "src/screens/AccountDetailScreen.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (honestly, counted, arithmetic, untickered, ticker, mismatch, bare, eight, newest, none, activity, belongs, account's, history, share, slice, ledger, onto); src/domain/assets/index.ts (honestly, counted, arithmetic, pinned, ticker, guessed, bare, none, activity, belongs, account's, claims, history, share, slice, ledger, vanguard)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0095": {
+   "governs": "MK-NW-M-008 · MK-NW-M-021 · MK-NW-M-019 · MK-NW-M-040",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-008 (listed, largest, balance, biggest); MK-NW-M-021 (dividend, counted, writing); MK-NW-M-019 (dividend, received); MK-NW-M-040 (uninvested, listed)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0096": {
+   "governs": "MK-NW-M-038 · MK-NW-M-015",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-038 (unchanged, balance); MK-NW-M-015 (counted, until)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0097": {
+   "governs": "MK-NW-M-022 · MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-022 (ledger, activity); MK-XS-M-004 (longer, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0098": {
+   "governs": "MK-NW-M-006 · MK-NW-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (here, holds); MK-NW-M-008 (listed, holds)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0099": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (connect, guard, here, whose, sample, field, route, find, moved, else, import, straight, yours, shared, covers, worse, completeness); src/screens/AccountDetailScreen.tsx (went, takes, here, whose, stops, differently, field, opening, nowhere, route, find, moved, else, import, yours, saving, shared)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0100": {
+   "governs": "src/domain/assets/index.ts · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (honestly, toward, pinned, includes, lower, term, default, property, except, selling, primary, growth, drive, household, updated, asset, sell, assumed, choice, blend, assets, legally, rental, really, excluded); src/screens/RetirementCockpit.tsx (person's, toward, pinned, includes, lower, term, default, property, except, primary, growth, asset, assumed, want, assets, minus, grow, excluded)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0101": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (lists, include, hold, exist, open, give, find, hiding, enter, running, doors, shape, save); src/screens/PlanHubScreen.tsx (separate, include, exist, open, complete, sharpen, running, ones, re-run, shape, save)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0102": {
+   "governs": "src/domain/planning/hub.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/planning/hub.ts (landing, toward, counted, nowhere, mean, produced, complete, balance, asset, uncertain, lasting, bare, choose, none, else, whose, gate, spare, earmarked, looked, sample, fallback, credits); src/screens/NetWorthScreen.tsx (exist, mean, tapping, balance, asset, uncertain, given, bare, profile, choose, none, else, whose, sample, fallback)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0103": {
+   "governs": "MK-NW-M-046",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-046 (many, alone)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0104": {
+   "governs": "src/domain/planning/hub.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/planning/hub.ts (app-wide, paths, produced, helper, uncertain, lasting, bare, language, likely, appear, sample, fourth); src/screens/NetWorthScreen.tsx (app-wide, paths, builds, helper, uncertain, bare, sure, sample)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0105": {
+   "governs": "src/components/UI.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/components/UI.tsx (area, scrolling, visible, several, definition, explanation, text, simply, long, away, scrolls, bottom, component, shared); src/screens/AccountDetailScreen.tsx (honest, visible, several, definition, method, text, long, away, bottom, shared)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0106": {
+   "governs": "MK-PF-M-006 · MK-PF-M-007 · MK-PF-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-006 (category, dash); MK-PF-M-007 (received, balance); MK-PF-M-008 (matched, open)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0107": {
+   "governs": "MK-NW-M-022",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-022 (activity, ledger)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0108": {
+   "governs": "MK-CF-M-037 · MK-NW-M-027 · MK-NW-M-020 · MK-NW-M-034",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (none, summary); MK-NW-M-027 (today's, detail); MK-NW-M-020 (detail, none); MK-NW-M-034 (detail, naming)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0109": {
+   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (renders, shared, pinned, helper, land, identical, worse, call, alone); src/screens/NetWorthScreen.tsx (renders, shared, helper, land, identical, sure, worse, sample, alone)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0110": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (known, square, claude, edge, brief, redesign, engine, surface, facts, points, flat, ledger, mockups, empty, designs, hide-balances); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (claude, flagged, machinery, redesign, engine, give, carrying, points, ledger, runs, claiming, empty, inflation, entry, english)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0112": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (longer, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0113": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (shipped, required, moves, labels, brief, summary, honest, open, saved, estimate, chips, points, fact, runs, simulation, safe, hero, goals, blended, else, portfolio, saving, lower, pick, pinned, growth, higher, annual, derived, assumed, raise, draw, markets, risk); src/screens/PlanHubScreen.tsx (arithmetic, exist, required, moves, labels, inputs, brief, away, draft, room, honest, open, saved, estimate, points, fact, decides, gauge, sample, simulation, safe, hero, goals, outcome, saving, beneath, derived, assumed, draw, paycheck)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0114": {
+   "governs": "src/components/PlanOutcome.tsx · src/domain/planning/target.ts",
+   "why_it_governs_those": "its own words appear in these files: src/components/PlanOutcome.tsx (arithmetic, solves, score, room, building, dollar, many, nest, shape, gauge, progress, simulation, path, claiming, dial, short, text, side, subtract, spread, outcome, futures, compares, future, shortfall, reaches, through, threshold, hide-balances); src/domain/planning/target.ts (arithmetic, yearly, fits, solves, raises, honest, naming, dials, stops, nest, gauge, returned, extra, simulation, claiming, dial, short, backwards, tax-advantaged, track, futures, reading, compares, re-run, reaches)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0115": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (claimed, moves, pair, lives, inputs, confusing, sandbox, monthly, score, draft, became, copies, facts, whenever, block, nest, save, short, track, outcome, saving, what-ifs, printed, steppers, choices, repeated, derived, gate, sitting); src/screens/NetWorthScreen.tsx (clear, moves, lives, inputs, monthly, projection, planned, save, alone, writes, short, track, printed, choices, repeated, deleted, costs, derived, adding, layer)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0116": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (stand, gone, clean, existed, drew, handoff, marks, route, moved, empty, amber, import, caught, entry, onto, shared, separate, doors); src/screens/NetWorthScreen.tsx (connect, stand, labels, choice, gone, guard, sample, handoff, route, moved, empty, amber, import, shared, deleted, doors)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0117": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (coverage, definition, rounded, string, sits, visible, identical, fixes, audit, drawing, rendered, short, colour, rounding, step, seven, lists, printed, gaps, render); src/screens/AccountDetailScreen.tsx (definition, rounded, string, sits, visible, rebuilt, identical, fixes, audit, drawing, call, looking, differ, short, colour, rounding, printed, method, size)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0118": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (current, chance, labels, brief, assets, based, drives, honest, fact, headline, nest, save, field, short, simple, track, yours, saving, toward, stay, derived, want, long); src/screens/PlanHubScreen.tsx (current, understand, chance, labels, land, brief, assets, drives, honest, fact, block, nest, save, field, offered, short, blank, track, yours, saving, separate, derived)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0119": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (current, very, exist, waiting, pays, create, longer, brief, assets, confusing, dated, monthly, draft, open, credit, nest, roth, short, seven, saving, promise, beneath, paycheck, default); src/screens/NetWorthScreen.tsx (current, collapsed, exist, applies, pays, create, assets, dated, monthly, open, credit, roth, logged, short, seven, promise, beneath, costs, default)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0120": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/domain/retirement/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (today's, exist, zero, moves, close, monthly, ends, paying, leads, saved, store, payment, whose, fact, flat, roth, logged, alone, included, builds, debts, checking, text, contributions, existing, control, costs, know); src/domain/retirement/index.ts (today's, exist, zero, required, brief, charged, close, monthly, ends, paying, early, payment, whose, flat, extra, runs, simulation, included, schedule, contributions, inflation, clears, house, annual, costs, assumed)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0121": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (editable, unless, capture, required, moves, commit, loan, minus, monthly, saved, updates, payment, flat, stops, headline, roth, explicit, until, person's, simulation, safe, position, marks, statement, converting, withdrawal, draw, estimated, pre-tax, default); src/screens/PlanHubScreen.tsx (required, moves, commit, inputs, loan, connected, minus, away, spend', monthly, saved, payment, sweep, roth, explicit, until, person's, simulation, safe, somewhere, position, statement, know, let's, reason, withdrawal, draw, paycheck, default)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0122": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (whatever, required, brief, dated, sits, points, simply, ordering, drawing, roth, until, principle, position, short, mind, columns, anywhere, sort, reason, withdrawal, draw, hard-coded); src/screens/AccountDetailScreen.tsx (mine, dated, takes, sits, happened, holds, balances, points, drawing, roth, until, position, short, types, else, columns, sort, existing, reason, withdrawal, size)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0123": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (applied, doesn't, buttons, theme, moves, gone, assets, dated, summary, sits, open, carrying, dollar, note, glance, points, fixes, zeros, structure, roth, until, save, quiet, included, placeholder, handoff, hero, short, portfolio, exact, stale, rulings, hidden, computed, older, filled); src/screens/NetWorthScreen.tsx (collapsed, doesn't, buttons, theme, moves, gone, colourblind, assets, dated, sits, open, dollar, note, glance, points, fixes, zeros, roth, until, save, quiet, included, placeholder, handoff, hero, frame, short, seven, exact, stale, notes, hidden, computed, older, expanded, filled)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0124": {
+   "governs": "src/domain/planning/target.ts · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/planning/target.ts (nearest, required, land, nearly, miss, holds, simply, gives, field, round, rounding, step, blank, smallest, saving, promise, lower, exact, math, high, suggestion); src/domain/assets/index.ts (required, land, choice, nearly, clean, holds, original, gives, field, round, rounding, alternative, blank, defect, lower, exact, math, shortfall, high)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0125": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (today's, carry, required, pass, honest, note, vanished, glance, half, shape, gives, handoff, hero, short, step, stating, reaches, reached, agreement); src/screens/NetWorthScreen.tsx (today's, carry, pass, ends, honest, note, glance, half, shape, recommendation, handoff, hero, short, step, straight, stating, reaches)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0126": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (amounts, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0127": {
+   "governs": "src/domain/assets/index.ts · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (counted, zero, helper, option, bare, flagged, specific, honest, open, saved, leave, original, audit, nest, gives, empty, anywhere, finding, shared, printed, actual, chosen); src/screens/PlanHubScreen.tsx (counted, zero, helper, honest, open, saved, routes, audit, nest, safe, anywhere, finding, shared, printed, advice, guaranteed, example)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0128": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (shipped, memory, form, action, open, drawing, sheet, pattern, nowhere, handoff, find, phone, checklist, html, take, verified); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (carry, form, action, open, belong, call, sheet, nowhere, purpose, phone, caught, links, told, take, verified)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0129": {
+   "governs": "src/screens/AccountDetailScreen.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (mine, earns, carry, reverse, reachable, reported, looks, draws, summary, listed, open, call, menu, field, nowhere, foot, route, moved, entry, remove, gets, reason, root, none, landed, invest); src/domain/assets/index.ts (onboarding, claimed, earns, carry, reported, clean, guard, open, naming, call, one-time, field, seven, entry, returns, groups, future, none, landed, invest, worse, verified, fully, insights)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0130": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (carry, part, stand, away, lasts, whose, block, tests, files, looking, claiming, saving, including, stay, told, paycheck); src/screens/PlanHubScreen.tsx (deliberately, away, simply, drawing, whose, sweep, block, nest, safe, track, saving, including, withdrawal, gate, paycheck)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0131": {
+   "governs": "src/screens/PlanHubScreen.tsx · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (very, chance, helper, running, going, matters, here, draft, drawing, sweep, belongs, rewritten, safe, moved, divides, printed, covers, including, guaranteed, withdrawal, draw, gate, high, paycheck, computes); MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (helper, summary, here, draft, sweep, belongs, stops, reader, passed, moved, comment, printed, pinned, covers, including, withdrawal, gate)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0132": {
+   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (caps, exist, carry, flagged, clean, here, open, holds, note, audit, sweep, naming, wider, call, totals, defaults, quiet, side, fill, else, seven, defect, pinned, regardless, stale, derived, older); src/screens/NetWorthScreen.tsx (exist, theme, carry, lives, edge, here, open, holds, note, audit, remaining, totals, quiet, full-width, handoff, text, fill, else, seven, title, deleted, stale, derived, older, bands, filled, quieter)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0133": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (generated, summary, moved, invest, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0134": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (longer, gate, invest)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0135": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (declared, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0136": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (print, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0137": {
+   "governs": "src/domain/assets/index.ts · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (reported, support, brief, duplicate, monthly, clean, guard, space, saved, estimate, belongs, alone, empty, fill, blank, entry, actual, view, including, around, future, invest, claims, insights, loses, genuinely); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (memory, reported, brief, monthly, guard, saved, estimate, standards, tests, menu, alone, runs, safe, hero, empty, fill, decided, including, draw, reached, gate, rulings, cards, insights)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0138": {
+   "governs": "src/domain/assets/index.ts · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (carry, labels, nearly, clean, sits, falls, surface, until, quiet, updated, side, drift, finding, pinned, outside, adds, stale, directly); src/screens/PlanHubScreen.tsx (labels, gone, going, nearly, matters, sits, headings, fact, until, quiet, moved, drift, finding, adds, gate, directly, bars)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0139": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/components/PlanInputs.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (apart, alike, moves, lives, guard, primary, saved, note, glance, inset, chips, whose, fact, quiet, stop, colour, text, comment, blank, palette, choices, light, default); src/components/PlanInputs.tsx (tells, wear, matters, draft, trying, primary, saved, note, facts, glance, chips, fact, quiet, colour, text, neutral, blank, choices, light, tint, default)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0140": {
+   "governs": "src/screens/PlanHubScreen.tsx · MoneyKeel/functions/cashflow/base-pay.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (required, fits, gone, going, connected, minus, monthly, room, estimate, stopped, fact, somewhere, statement, tax-advantaged, saving, contribution-room, reason, including, contribution, gate, insight, hard-coded, know, computes); MoneyKeel/functions/cashflow/base-pay.ts (case, required, going, minus, monthly, bonus, estimate, fact, assumes, employer, somewhere, empty, given, subtract, ruled, reason, payroll, twelve, contribution, told, know, render, computes)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0141": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (exist, required, drives, findings, open, sits, layout, points, edit, audit, naming, folded, tall, raised, height, rendered, passed, text, device, subject, outside, gate, verified, component); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (buttons, reported, declared, trying, open, sits, layout, points, edit, audit, naming, meaning, folded, quiet, text, device, subject, mock-match, outside, gate, verified, walked)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0142": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (print, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0143": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (carried, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0144": {
+   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (collapsed, inputs, gone, open, note, drawing, handoff, frame, find, text, view, ruled, stay, worse, expanded); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (claude, brief, open, happened, drawing, handoff, frame, smaller, find, text, ruled, settles, stay, rulings, verified)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0145": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (nowhere, handoff, sits, frame, defect, drawing, broken, brief, rulings, verified, folded, recommendation); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (nowhere, ends, claiming, sits, frame, agreed, option, broken, rulings, verified, phrase)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0147": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (today's, closed, leaves, ends, honest, paying, visible, hiding, points, half, roth, until, recommendation, handoff, frame, empty, remove, hidden, computed, render); src/screens/PerformanceScreen.tsx (today's, required, honest, visible, hiding, points, belong, half, roth, until, handoff, empty, remove, withdrawal, rulings, hidden, dollars, computed, render)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0148": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (visible, dollar, hiding, fills, balances, half, closes, shape, gives, hero, offered, replaced, reading, worse, rulings, dollars); src/screens/NetWorthScreen.tsx (hide, choice, visible, dollar, hiding, fills, balances, half, shape, recommendation, hero, works, offered, replaced, worse)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0149": {
+   "governs": "MK-PF-M-008 · MK-CF-M-037 · MK-NW-M-021 · MK-NW-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-008 (showed, hold, comparison); MK-CF-M-037 (holds, beneath); MK-NW-M-021 (showed, finding); MK-NW-M-008 (holds, beneath)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0150": {
+   "governs": "src/domain/insights/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/insights/index.ts (existing, ends, around, waiting, wait, credit, costs, assumed, flagged, belongs, raises, planned, under-, stops, insights, gates, coming); src/screens/NetWorthScreen.tsx (apart, existing, ruled, ends, exact, unchanged, credit, fault, costs, planned, constants, insights, drift, stop)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0151": {
+   "governs": "src/screens/HomeScreen.tsx · src/domain/income/onboarding.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (went, carry, takes, honest, open, leads, dollar, percent, gauge, coming, unchanged, text, items, defect, printed, formula, send); src/domain/income/onboarding.ts (correct, brief, takes, surface, arrives, call, percent, coming, logged, frame, ours, unchanged, placed, defect, formula, you')",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0152": {
+   "governs": "MK-CF-M-037 · MK-NW-M-006 · MK-NW-M-029",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (holds, passed); MK-NW-M-006 (holds, moved); MK-NW-M-029 (current, holds)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0153": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (guard, saved, detail, tests, files, rendered, purpose, straight, entry, caught, failed, returns, reading, title, warning, paycheck, identifiers); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (string, brief, guard, visible, saved, detail, tests, files, safe, hero, import, failed, reading, title, draw, gate, walked)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0154": {
+   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (zero, moves, running, broken, print, default, holds, dollar, identical, logged, handoff, find, moved, calculated, rest, control, beneath, largest, costs, directly); MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (applied, zero, moves, running, brief, requires, engine, holds, dollar, identical, naming, find, moved, calculated, defect, rest, reading, costs, directly, meant)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0155": {
+   "governs": "src/domain/planning/spendMore.ts · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/planning/spendMore.ts (understand, case, land, background, lasts, differs, leaving, finance, consequence, extra, runs, offered, dial, june, futures, draw, complex, particularly, happens); src/screens/PlanHubScreen.tsx (understand, land, brief, background, spend-more, finance, fact, until, pension, rewritten, offered, unchanged, phone, rest, english, draw, complex, particularly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0156": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (applied, case, buried, flagged, brief, explicitly, lasts, engine, holds, passes, closes, consequence, alone, runs, approval, spot, wherever, assumed, plain-english); src/screens/RetirementCockpit.tsx (applied, chance, brief, lasts, fact, roth, alone, runs, round, works, suggested, futures, benchmark, assumed, draw, estimated)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0157": {
+   "governs": "src/components/MortgageRateCompare.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/components/MortgageRateCompare.tsx (leaves, brief, going, blind, decide, lasts, paying, biggest, consequence, looking, started, effect, futures, view, control, reading, balance, worse, risk); src/screens/PlanHubScreen.tsx (moves, choose, brief, going, decide, biggest, block, decides, quiet, track, let's, view, reason, beneath, balance, draw, know)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0158": {
+   "governs": "MK-NW-M-015 · MK-NW-M-001 · MK-NW-M-008 · MK-NW-M-047",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-015 (sits, until, saving); MK-NW-M-001 (until, text); MK-NW-M-008 (holds, biggest); MK-NW-M-047 (waiting, takes)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0159": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (presented, daily, silent, stopped, coupon, field, path, backwards, filter, moved, weighted, returns, silently, actual, reading, through, market, comparison, fetch); src/domain/assets/index.ts (feed, pays, coupon, field, filter, weighted, returns, silently, yield, actual, including, reading, outside, treasury, through, fetched, long, market)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0160": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (longer, dollar)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0161": {
+   "governs": "src/components/MortgageRateCompare.tsx · src/domain/debt/mortgageVsTreasury.ts",
+   "why_it_governs_those": "its own words appear in these files: src/components/MortgageRateCompare.tsx (ten-year, whichever, pays, leaves, brief, loan, saves, paying, falls, dollar, layout, shape, extra, better, text, precision, clearly, yield, around, balance, advice, treasury, costs, treasuries, worse, comparison, getting, sitting); src/domain/debt/mortgageVsTreasury.ts (ten-year, pays, audience, leaves, loan, paying, early, dollar, extra, better, given, precision, clearly, yield, balance, repeated, advice, treasury, costs, treasuries, worse, comparison, getting)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0162": {
+   "governs": "src/components/PlanGlanceRows.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/components/PlanGlanceRows.tsx (went, assumptions, parts, sees, hiding, glance, press, nest, shape, gauge, sample, until, assumes, quiet, frame, ours, else, seven, standing, blank, inflation, ones, assumed, hides, filled, computed); src/screens/PerformanceScreen.tsx (went, parts, here, findings, sees, hiding, glance, naming, shape, until, quiet, ahead, handoff, find, backwards, step, else, standing, item, hides, filled, computed)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0163": {
+   "governs": "src/domain/glossary.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (typing, case, stopping, here, sits, many, matter, whose, play, save, glossary, knows, mean, through, market); MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (longer, here, sentences, sits, write, many, matter, purpose, else, saving, mean, through, reached, verified)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0164": {
+   "governs": "src/domain/assets/index.ts · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (pass, land, brief, here, split, open, college, audit, goals, empty, side, anywhere, themselves, honestly, estate, reading, created); src/screens/PlanHubScreen.tsx (goal, land, brief, matters, here, open, college, credit, audit, front, somewhere, goals, anywhere, afford, prepare)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0165": {
+   "governs": "MK-CF-M-037 · MK-NW-M-029 · MK-PF-M-008 · MK-NW-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (guard, holds, tests); MK-NW-M-029 (current, feed, holds); MK-PF-M-008 (honest, blend, comparison); MK-NW-M-006 (holds, computed)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0166": {
+   "governs": "MK-CF-M-037 · MK-NW-M-006 · MK-NW-M-021 · MK-NW-M-015",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (guard, holds, tests, correction, spread); MK-NW-M-006 (here, holds, whose, computed); MK-NW-M-021 (here, whose, step); MK-NW-M-015 (here, sits, saving)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0167": {
+   "governs": "src/screens/AccountDetailScreen.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (waiting, option, looks, dated, open, facts, biggest, belongs, headline, gives, short, drop, effect, defect, separate, printed, gets, decided, doors, dollars, sitting); src/screens/PlanHubScreen.tsx (become, exist, waiting, audience, dated, open, facts, biggest, belongs, decides, principle, hero, short, defect, separate, printed, dollars, sitting)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0168": {
+   "governs": "src/domain/assets/index.ts · src/domain/glossary.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (applied, bare, flagged, brief, guard, surface, naming, call, nest, checking, wherever, start, plainly, returns, pinned, exact, future); src/domain/glossary.ts (bare, naming, nest, runs, checking, wherever, start, plainly, returns, futures, exact, future, though)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0170": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (touch, changing, moves, inputs, brief, guard, open, engine, note, dollar, closes, whose, nest, until, starting, empty, moment, blank, input, promise, silently, well, reading, reaches, verified, assumption, genuinely); src/domain/assets/index.ts (brief, guard, sits, open, picked, note, enter, whose, call, nest, until, empty, fill, anywhere, blank, shared, silently, pinned, reading, reaches, worse, verified, loses, genuinely)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0171": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (required, brief, dated, store, audit, nest, withdrawals, rendered, field, position, hero, offered, ours, goals, start, seven, blank, defect, printed, english, sub-tabs, re-run, withdrawal, prepare, component, comparison); src/screens/PerformanceScreen.tsx (correct, part, required, pass, dated, sees, store, identical, half, flows, withdrawals, rendered, field, checks, position, hero, offered, find, showed, start, promises, printed, withdrawal, told, comparison)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0172": {
+   "governs": "src/domain/retirement/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/retirement/index.ts (include, exist, brief, going, dated, loan, minus, charged, paying, payments, surface, payment, half, whose, projection, flat, stops, stop, person's, field, included, runs, simulation, extra, starting, round, contributions, horizon, inflated, separate, clears, formula, house, contribution, forever, long, inflating, dollars); src/screens/NetWorthScreen.tsx (include, exist, rounded, dated, loan, minus, print, paying, payments, surface, halves, payment, half, whose, projection, flat, remaining, stop, field, included, placeholder, round, moved, text, contributions, control, contribution, forever)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0173": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (counting, ending, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0174": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (moves, assumptions, going, loan, payment, drawing, whose, nest, until, simulation, position, ours, differ, goals, seven, english, sub-tabs, ones, re-run, derived, gate, prepare, comparison); src/screens/RetirementCockpit.tsx (shipped, moves, assumptions, raises, loan, release, sees, payment, nest, until, runs, simulation, position, dial, differ, goals, device, growth, ones, re-run, derived, comparison)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0175": {
+   "governs": "MK-NW-M-001 · MK-NW-M-003 · MK-NW-M-006 · MK-NW-M-046",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-001 (saved, text); MK-NW-M-003 (many, text); MK-NW-M-006 (many, institution); MK-NW-M-046 (many, alone)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0176": {
+   "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/cashflow/base-pay.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (couple, stock, typical, taxed, earners, taxable, surface, treated, household, bonus, spendable, base, earner, calculated, dated, employer, pattern); MoneyKeel/functions/cashflow/base-pay.ts (varies, typical, taxed, earners, taxable, treated, household, bonus, base, earner, filer, calculated, filing-status, employer)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0180": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (exist, mockups, archive, several, superseded, moved, folded, component, otherwise, archived); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (exist, mockups, frames, frame, archive, superseded, moved, html, opened)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0181": {
+   "governs": "MK-CF-M-037",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (mk-cf-f-, none, guard, tests)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0182": {
+   "governs": "MK-CF-M-037 · MK-CF-M-040 · MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (apart, mk-cf-f-); MK-CF-M-040 (apart, told); MK-XS-M-004 (glance, identifier)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0183": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (cash-flow, traced, spec, earners, base-pay, html, calculations, seven, status, moneykeel, orchestrator); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (cash-flow, spec, earners, base-pay, seven, status, moneykeel, orchestrator, promise)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0184": {
+   "governs": "MK-MN-M-028 · MK-CF-M-032 · MK-CF-M-043 · MK-NW-M-016",
+   "why_it_governs_those": "its own words appear in these figures: MK-MN-M-028 (taxed, deduction, filing, status); MK-CF-M-032 (filing, status); MK-CF-M-043 (filing, status); MK-NW-M-016 (arithmetic, zero)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0185": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (contribution, longer)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0186": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_build_spec_guards-before-a-build_v01.md · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_build_spec_guards-before-a-build_v01.md (widened, identical, looks, none, worse, trusted, clean, shared); src/domain/assets/index.ts (onboarding, looking, identical, none, worse, clean, shared)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0187": {
+   "governs": "MK-CF-M-037 · MK-CF-M-016 · MK-CF-M-028",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (mk-cf-f-, twelve, tests); MK-CF-M-016 (falls, calendar); MK-CF-M-028 (falls, calendar)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0188": {
+   "governs": "MK-CF-M-037 · MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-036",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (mk-cf-f-, household, spouse, sums, earner, tests, wage, summary); MK-CF-M-030 (earns, household, earner, wage); MK-CF-M-031 (earners, household, earner); MK-CF-M-036 (earners, household, earner)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0189": {
+   "governs": "MK-CF-M-037",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (tests, guard)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0190": {
+   "governs": "src/screens/BasePayScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/BasePayScreen.tsx (onboarding, corrected, unreachable, import, block, guided); src/screens/NetWorthScreen.tsx (renders, connect, setup, import, guided, guard)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0191": {
+   "governs": "MK-CF-M-037",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (mk-cf-f-, tests, wage)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0192": {
+   "governs": "MK-XS-M-004 · MK-CF-M-036 · MK-NW-M-021 · MK-NW-M-015",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (metric, moved, identifier); MK-CF-M-036 (moved, takes); MK-NW-M-021 (counted, finding); MK-NW-M-015 (counted, family)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0194": {
+   "governs": "MK-CF-M-035 · MK-CF-M-037 · MK-CF-M-031 · MK-CF-M-046",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-035 (base-pay, medicare, wage, federal); MK-CF-M-037 (corrected, tests, wage, monthly); MK-CF-M-031 (base-pay, medicare, federal); MK-CF-M-046 (base-pay, medicare, wage)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0195": {
+   "governs": "MK-CF-M-044 · MK-CF-M-032 · MK-CF-M-033 · MK-CF-M-043",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-044 (deduction, whichever, force, federal, summary, assumes); MK-CF-M-032 (base-pay, base, assumed, bracket, federal); MK-CF-M-033 (deduction, base-pay, base, federal, assumes); MK-CF-M-043 (base-pay, base, bracket, federal, summary)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0198": {
+   "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/cashflow/income-summary.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (onboarding, profile, spendable, gains, reinvested, earned, default); MoneyKeel/functions/cashflow/income-summary.ts (profile, spendable, reinvested, earned)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0199": {
+   "governs": "MK-CF-M-051",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-051 (received, assumed)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0200": {
+   "governs": "src/domain/income/take-home-mode-migration.ts · src/domain/income/onboarding.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/take-home-mode-migration.ts (takehome, mk-cf-f-, conversion, find, estimate, caller, schedule, guess, converted, produce, mode, laid, stored); src/domain/income/onboarding.ts (mk-cf-f-, find, estimate, schedule, store, guess, converted, produce, mode, laid)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0202": {
+   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (apart, renders, frame, writes, setup, step, guided, drift, save, steps, progress); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (renders, writes, setup, remain, base-pay, piece, step, longer, drift, steps, component)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0204": {
+   "governs": "MK-NW-M-006 · MK-PF-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (here, pinned); MK-PF-M-008 (dates, invest)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0207": {
+   "governs": "MK-CF-M-037 · MK-CF-M-032 · MK-CF-M-043 · MK-CF-M-030",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (monthly, separately, household, earner, tests); MK-CF-M-032 (dollar, household, jointly, bracket); MK-CF-M-043 (dollar, orchestrator, bracket); MK-CF-M-030 (household, earner)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0208": {
+   "governs": "MK-CF-M-031 · MK-CF-M-033 · MK-CF-M-035 · MK-CF-M-044",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-031 (federal, calculated); MK-CF-M-033 (federal, calculated); MK-CF-M-035 (federal, calculated); MK-CF-M-044 (federal, calculated)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0209": {
+   "governs": "MK-CF-M-037 · MK-CF-M-043 · MK-CF-M-032 · MK-CF-M-031",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (income-end-to-end, contribution, base, summary, guard); MK-CF-M-043 (base, filing, federal, status, summary); MK-CF-M-032 (base, filing, federal, status); MK-CF-M-031 (base, calculated, federal)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0210": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (onboarding, term, spec, title, estimate, standing, calculated, functions, vocabulary, moneykeel, caught, canon, guard); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (widened, term, spec, title, claude, estimate, standing, functions, vocabulary, moneykeel, canon, guard)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0213": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/CashFlowScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (onboarding, spec, connect, doors, takes); src/screens/CashFlowScreen.tsx (onboarding, connect, doors, takes)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0214": {
+   "governs": "src/screens/HomeScreen.tsx · src/screens/SettingsScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (onboarding, add-account, open, login, setup, saved, form, love, taps); src/screens/SettingsScreen.tsx (onboarding, open, login, setup, saved, form)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0215": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (term, pres, html, import, want, ways-to-add-an-account, moneykeel); src/screens/NetWorthScreen.tsx (connect, term, import, first-day, brokerage, moneykeel)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0216": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (title, moved, size, points); src/screens/AccountDetailScreen.tsx (title, moved, size, points)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0219": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (dark-green, square, shipped, sync, light-green, institution, pres, html, bars, documents, moneykeel); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (dark-green, square, shipped, light-green, pres, html, bars, documents, moneykeel)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0223": {
+   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (connected, applies, brief, stale); src/screens/NetWorthScreen.tsx (connected, gone, applies, stale)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0224": {
+   "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/functions/_figure-spec.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (term, went, read-only, through, canon); MoneyKeel/functions/_figure-spec.ts (went, through, canon, carried)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0225": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (open, width, light-green, headings, quiet, labels, sub-headings, light, bars, dark); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (open, width, light-green, quiet, labels, light, bars, dark)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0226": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (applied, doors, debts, applies, repeated); src/screens/NetWorthScreen.tsx (doors, debts, applies, repeated)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0227": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (hero, titled, stale, pres, html, want, documents, moneykeel, sheet); src/screens/PerformanceScreen.tsx (separate, hero, exact, titled, stale, decimals, moneykeel, sheet)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0228": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (handoff, archive, claude, final, pres, start, html, older, documents, opened, moneykeel, sections); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (handoff, archive, claude, final, pres, html, invest, older, documents, opened, moneykeel, sections)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0230": {
+   "governs": "MK-PF-M-002 · MK-PF-M-003",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-002 (wealth, generated, beginning); MK-PF-M-003 (wealth, generated, beginning)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0231": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (radio, corners, counted, buttons, chips, selector, semicircle, shape, radius); src/screens/NetWorthScreen.tsx (app-wide, connect, ends, buttons, rounded, chips, remaining, shape, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0232": {
+   "governs": "MK-PF-M-011",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-011 (priced, start, history)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0233": {
+   "governs": "MK-PF-M-011",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-011 (become, start)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0234": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (rebuild, hand-entered, gets, rebuilt, showed, history, phone); src/screens/AccountDetailScreen.tsx (hand-entered, gets, rebuilt, history, phone)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0235": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (onto, sits, chosen, width, quiet, inset, white, selector, points, dividers, hidden, tall, segment, radius); src/screens/NetWorthScreen.tsx (sits, width, beneath, holds, quiet, inset, white, points, light, hidden, segment, edges)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0236": {
+   "governs": "MK-PF-M-008 · MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-008 (ahead, honest, including, comparison); MK-PF-M-002 (wealth, generated, meaning); MK-PF-M-003 (wealth, became, generated); MK-PF-M-006 (category, earned)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0237": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md (yearly, annualised, spec, standards, longer, rulings, fidelity, compared, brokerage, convention, summary, help, moneykeel, returns); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (yearly, spec, standards, longer, rulings, documents, compared, ledger, segment, moneykeel)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0238": {
+   "governs": "src/screens/AccountDetailScreen.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (caps, offers, honest, open, reading, facts, balance, amber, given, eight, whose, stops, save, until, saving); src/screens/PlanHubScreen.tsx (spend-more, simulation, honest, open, ours, facts, balance, amber, whose, save, until, saving)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0239": {
+   "governs": "src/screens/PerformanceScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "it is app-wide and it changed two rules at once: the canon guard reads copy AS IT RENDERS rather than the code’s structure, and the Net worth decimals follow the precision spec. Both are standards, which is why this row needed one named — it is not about a single screen.",
+   "evidence": "searched every calculation file",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md § One term per concept — the canon (the word-check) · MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md (the decimals on the Net worth screens)",
+   "proof": "src/__tests__/one_term_per_concept.test.ts · src/__tests__/precision_guard.test.ts"
+  },
+  "DEC-0255": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (longer, identifier)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0257": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (identifier, gate)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0260": {
+   "governs": "MK-NW-M-048 · MK-MN-M-025 · MK-CF-M-002 · MK-CF-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-048 (debts, costs, budget, planned); MK-MN-M-025 (stress, zero, costs, essentials); MK-CF-M-002 (inflow, budget, planned, big-ticket); MK-CF-M-004 (inflow, costs, budget, big-ticket)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0261": {
+   "governs": "MoneyKeel/functions/networth-and-performance/performance.ts · MoneyKeel/functions/networth-and-performance/look-back.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/networth-and-performance/performance.ts (given, derived, unit, units); MoneyKeel/functions/networth-and-performance/look-back.ts (given, partial, unit, units)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0262": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (moneykeel, canon, labels, guard, master's); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (moneykeel, canon, labels, guard)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0264": {
+   "governs": "MK-NW-M-032 · MK-NW-M-003",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-032 (early, rounding, display); MK-NW-M-003 (balances, dollars)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0267": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/HomeScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (spent, applied, cash-flow, budget, surplus, available, functions, summary, moneykeel); src/screens/HomeScreen.tsx (spent, budget, surplus, remaining, nest, available, functions, moneykeel)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0268": {
+   "governs": "src/domain/retirement/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/retirement/index.ts (applied, success, runs, simulation, lasts, future, audit, tests, simulated, futures); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (applied, success, runs, simulation, lasts, future, will-it-last, tests, simulated, futures)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0269": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/BudgetScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (spent, onboarding, context, applied, cash-flow, actual, open, outflow, bills, recap, stay, running, budget, going, planned, expenses, recurring, logged, prose, monthly); src/screens/BudgetScreen.tsx (spent, onboarding, cash-flow, actual, replace, open, leaving, running, budget, planned, expenses', expenses, recurring, logged, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0270": {
+   "governs": "MoneyKeel/functions/cashflow/base-pay.ts · src/domain/income/tax-rate.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/cashflow/base-pay.ts (applied, entered', filing, told, status); src/domain/income/tax-rate.ts (entered', filing, told, roth, status)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0272": {
+   "governs": "src/domain/assets/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (emergency, applied, saved, net-worth, including); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (emergency, applied, saved, emergencies, including)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0273": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/BudgetScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (context, applied, expense, per-category, budget, category, surplus, else, monthly); src/screens/BudgetScreen.tsx (expense, per-category, edit, budget, category, surplus, else, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0283": {
+   "governs": "MoneyKeel/functions/cashflow/base-pay.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/cashflow/base-pay.ts (applied, deductions, medical, example, toggle); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (onboarding, applied, cash-flow, such, deductions)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0284": {
+   "governs": "src/domain/assets/index.ts · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (applied, pair, open); MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (applied, pair, open)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0285": {
+   "governs": "src/domain/glossary.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (explain, debts, balance, payment, types, plainly, loan, monthly); src/screens/NetWorthScreen.tsx (debts, balance, underneath, payment, kinds, plainly, loan, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0286": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (liquidated, applied, stock, position, closed, copy, open, sold, sale, sell, alert, close, blind); src/screens/PerformanceScreen.tsx (applied, stock, position, replace, open, layout, sale, sell, alert, partial, close)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0287": {
+   "governs": "src/screens/CashFlowScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/CashFlowScreen.tsx (transactions, happened, adds, activity, import, expenses, sheet); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (applied, adds, payment, activity, import, expenses, sheet)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0288": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/screens/CashFlowScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (lump, applied, aside, mean, note, balance, payment, lump-sum, want, roth, monthly); src/screens/CashFlowScreen.tsx (one-time, bill, mean, note, base-pay, balance, stopped, meaning, calendar, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0289": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (applied, others, open, copy, carry, week, labels, weeks, quarter); src/screens/AccountDetailScreen.tsx (applied, others, open, copy, carry, visible, week)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0290": {
+   "governs": "src/domain/assets/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (roth, applied, wherever); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (applied, wherever, lasting)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0291": {
+   "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/cashflow/base-pay.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (applied, cash-flow, unchanged, spouse, filing, earner, status, partner); MoneyKeel/functions/cashflow/base-pay.ts (field, applied, copy, spouse, filing, earner, status)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0294": {
+   "governs": "src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (onboarding, pick, center, connect, primary, setup, note, doors, import, center', brokerage, constants, guided, let's); src/screens/NetWorthScreen.tsx (pick, center, connect, primary, setup, note, notes, doors, import, center', brokerage, constants, guided)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0295": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (safe, projection, promise, guard); src/screens/CashFlowScreen.tsx (withdrawal, projection, promise, guard)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0296": {
+   "governs": "src/domain/income/onboarding.ts · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (known, unknown, empty, filling, input, defaults, default); src/screens/AccountDetailScreen.tsx (reason, unknown, deleted, empty, looks, coupon, default)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0297": {
+   "governs": "src/screens/HomeScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (lets, fact, good)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0299": {
+   "governs": "src/domain/retirement/index.ts · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/retirement/index.ts (separate, house, share, field, brief, fields); src/screens/AccountDetailScreen.tsx (separate, house, share, field, differ, facts)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0300": {
+   "governs": "Calculation Module code/engines/decimal.ts · MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md",
+   "why_it_governs_those": "its own words appear in these files: Calculation Module code/engines/decimal.ts (rounds, display, precision, round, happens); MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md (rounds, display, precision, round, happens)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0301": {
+   "governs": "MK-NW-M-003 · MK-NW-M-029",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-003 (dates, balances); MK-NW-M-029 (gone, stale)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0302": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/domain/retirement/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (premiums, growth, start, brief, stream); src/domain/retirement/index.ts (growth, start, brief, stream)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0303": {
+   "governs": "src/domain/retirement/index.ts · src/domain/income/onboarding.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/retirement/index.ts (carry, annuities, rises, inflates, flat, inflating, pensions, inflated, stream, inflation, pension); src/domain/income/onboarding.ts (flag, annuities, inflates, flat, overstates, inflating, pensions, inflated, stream, pension)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0304": {
+   "governs": "src/domain/retirement/ssTiming.ts · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/retirement/ssTiming.ts (full-retirement-age, statement, birth, born, anchored); src/screens/RetirementCockpit.tsx (statement, enter, birth, anchored, input)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0305": {
+   "governs": "src/domain/retirement/index.ts · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/retirement/index.ts (leave, legacy, start, otherwise); src/domain/assets/index.ts (leave, legacy, start, otherwise)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0306": {
+   "governs": "src/domain/decumulation/index.ts · Calculation Module code/engines/rmd.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/decumulation/index.ts (roth, birth-year, dated, start, exempt, birth, withdrawals); Calculation Module code/engines/rmd.ts (roth, dated, literal, start, exempt, birth, withdrawals)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0307": {
+   "governs": "src/domain/income/onboarding.ts · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (lists, counting, outside, guaranteed, withdrawal, draw, rmds, input, paycheck, pension, withdrawals); src/screens/RetirementCockpit.tsx (safe, separately, outside, guaranteed, withdrawal, draw, rmds, input, pension, withdrawals)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0309": {
+   "governs": "MK-NW-M-005",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-005 (money-market, funds)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0310": {
+   "governs": "MK-NW-M-032",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-032 (rounding, display)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0311": {
+   "governs": "MK-NW-M-001",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-001 (safe, drift)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0312": {
+   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (currency, field, deferred, picked, dollars, stored, foreign); src/screens/NetWorthScreen.tsx (currency, field, picked, store, budget, foreign)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0314": {
+   "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/functions/networth-and-performance/performance.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (hand-entered, house, happened, edit, market, yours, marked); MoneyKeel/functions/networth-and-performance/performance.ts (hand-entered, happened, movement, market, booked)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0315": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (counted, includes, engines, start, none, beginning, module, close, dietz); src/screens/AccountDetailScreen.tsx (counted, includes, engines, start, none, beginning, boundary, module, close)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0316": {
+   "governs": "Calculation Module code/engines/window-return.ts · MoneyKeel/functions/networth-and-performance/performance.ts",
+   "why_it_governs_those": "its own words appear in these files: Calculation Module code/engines/window-return.ts (drives, amounts, denominator, enough, timing-sensitivity, dollar, refusal, threshold, gate, thresholds, timing, money-weighted, share, module, refuse); MoneyKeel/functions/networth-and-performance/performance.ts (amounts, enough, dollar, refusal, gate, printing, timing, money-weighted, share, module, divide, refuses)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0317": {
+   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (silently, pair, side, stable, flagged, choice, transaction, snaptrade); src/screens/NetWorthScreen.tsx (silently, sync, choose, stable, choice, identity)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0318": {
+   "governs": "Calculation Module code/engines/events.ts · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: Calculation Module code/engines/events.ts (safe, purchase, cover, general, specific); src/domain/assets/index.ts (calling, cover, assets, specific)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0320": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (sorted, item, debt-to-income, property, trailing, carry, pre-, unclassified, labels, amber, step, inputs, expenses, assets, yours, steps); src/screens/CashFlowScreen.tsx (item, property, carry, pre-, labels, spouse, amber, step, inputs, expenses, ratio, steps)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0322": {
+   "governs": "MK-NW-M-006 · MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (pinned, moved); MK-XS-M-004 (generated, moved)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0323": {
+   "governs": "MK-PF-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-008 (blend, weighted)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0326": {
+   "governs": "MK-CF-M-035",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-035 (earners, higher, threshold, overstates)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0327": {
+   "governs": "MoneyKeel/functions/cashflow/base-pay.ts · src/domain/income/onboarding.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/cashflow/base-pay.ts (taxable, applies, deduction, overstates, applying); src/domain/income/onboarding.ts (taxable, applies, deduction, overstates, applying)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0328": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (checks, hold, stable, reconciliation, ledger); src/screens/NetWorthScreen.tsx (hold, sync, stable, identity, ledger)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0343": {
+   "governs": "MK-NW-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (pinned, computed)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0344": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (underneath, dependent, calling, calls, call); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (dependent, orchestrators, calls, call)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0345": {
+   "governs": "MK-NW-M-015",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-015 (start, family)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0346": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (however, derived, share, waiting, others, arithmetic, compute, difference); src/screens/AccountDetailScreen.tsx (derived, share, waiting, others, arithmetic, definition, difference)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0347": {
+   "governs": "MK-CF-M-037 · MK-NW-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (holds, reaches); MK-NW-M-006 (holds, whose)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0348": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (verb-noun, cash-flow, doors, hands, family, o-nnn, form); src/screens/NetWorthScreen.tsx (cash-flow, doors, hands, family, glance, form)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0349": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (closure, such, bring-data-in, outside, functions, orchestrator, action, listed, unexplained); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (such, outside, functions, fetch, calculations, orchestrator, action)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0350": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (rendered, census, displayed, closed, claimed, listed, reading, proven, looks, orchestrator's, dependent, closure, completeness, orchestrator); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (rendered, displayed, closed, reading, running, looks, dependent, orchestrator)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0351": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (conflicts, identifier, orchestrator, grouping, recommendation); MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (identifier, orchestrator, recommendation)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0354": {
+   "governs": "src/screens/HoldingDetailScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HoldingDetailScreen.tsx (main, import, moneykeel, belongs); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (main, import, moneykeel, belongs)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0355": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/domain/gaps/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (settings, notes, connection, reconnected, connected, canon, sheet); src/domain/gaps/index.ts (settings, missing-data, connection, gaps, connected, sheet)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0357": {
+   "governs": "MK-PF-M-002 · MK-PF-M-003",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-002 (wealth, generated); MK-PF-M-003 (wealth, generated)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0360": {
+   "governs": "src/components/PlanInputs.tsx · src/domain/planning/multiGoal.ts",
+   "why_it_governs_those": "its own words appear in these files: src/components/PlanInputs.tsx (extra, save, saving, glance); src/domain/planning/multiGoal.ts (extra, save, saving)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0361": {
+   "governs": "src/screens/SsTimingScreen.tsx · src/screens/SettingsScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/SsTimingScreen.tsx (save, unchanged, confirm); src/screens/SettingsScreen.tsx (forget, save, confirm)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0362": {
+   "governs": "src/screens/AccountDetailScreen.tsx · src/components/PlanInputs.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (visible, tells, truth, stops); src/components/PlanInputs.tsx (visible, tells, truth, stops)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0363": {
+   "governs": "src/components/PlanOutcome.tsx · src/domain/planning/target.ts",
+   "why_it_governs_those": "its own words appear in these files: src/components/PlanOutcome.tsx (reaches, ours, runs, suggestion, futures); src/domain/planning/target.ts (reaches, ours, suggestion, futures)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0364": {
+   "governs": "src/domain/income/onboarding.ts · src/domain/debt/mortgageOdds.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (simulation, frames, subtraction, gone, stops, until); src/domain/debt/mortgageOdds.ts (simulation, placeholder, subtraction, stops, until)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0365": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/screens/CashFlowScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (shipped, hero, open, except, short, required, future, withdrawal, nest, dollars, pre-tax); src/screens/CashFlowScreen.tsx (printed, shipped, hero, open, explanation, short, required, future, withdrawal, dollars)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0367": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (short, failed, sits, better, copy, futures, stops); src/screens/RetirementCockpit.tsx (short, hero, sits, copy, futures, stops)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0369": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/documents/standards/moneykeel_build_spec_guards-before-a-build_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (copy, reading, agreed, labels, files, identifiers, canon, entry, guard); MoneyKeel/documents/standards/moneykeel_build_spec_guards-before-a-build_v01.md (renders, reading, agreed, files, identifiers, clean, entry, guard)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0370": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (decimal, hero, ratchet, moved, decimals); src/screens/NetWorthScreen.tsx (decimal, hero, moved, decimals, remaining)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0378": {
+   "governs": "src/domain/income/limits.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/limits.ts (catch-up, constant, checking, published, entirely, limits, ages, statutory, super); src/screens/NetWorthScreen.tsx (find, checking, deleted, stale, many, given, constants, fallback, stop)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0382": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (contribution, summary)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0388": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (takes, arriving, standing)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0389": {
+   "governs": "MK-CF-M-031 · MK-CF-M-033 · MK-CF-M-035 · MK-CF-M-044",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-031 (federal, calculated); MK-CF-M-033 (federal, calculated); MK-CF-M-035 (federal, calculated); MK-CF-M-044 (federal, calculated)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0393": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/functions/cashflow/this-month.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (context, brackets, term, outflow, salary, base, rent, describe, arriving, take, inflow); MoneyKeel/functions/cashflow/this-month.ts (brackets, outflow, salary, base, rent, arriving, take, inflow)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0394": {
+   "governs": "src/domain/insights/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/insights/index.ts (emergency, saved, emergencies); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (emergency, saved, emergencies)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0396": {
+   "governs": "MoneyKeel/functions/cashflow/base-pay.ts · src/screens/IncomeDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/cashflow/base-pay.ts (weeks, rest, week); src/screens/IncomeDetailScreen.tsx (weeks, quarter, week)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0397": {
+   "governs": "MK-NW-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (here, holds)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0398": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (coverage, today's, approval, documented, engine, wrote, agreed, lives, reaches, consequence, plainly); src/screens/PerformanceScreen.tsx (coverage, today's, definition, lives, reaches, plainly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0399": {
+   "governs": "MK-PF-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-008 (honest, until)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0400": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md · src/domain/planning/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (clear, decided, engine, note, document, fully, vocabulary); src/domain/planning/index.ts (clear, current, note, document)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0402": {
+   "governs": "MK-PF-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-008 (ahead, declared)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0403": {
+   "governs": "MK-NW-M-003",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-003 (balances, dollars)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0404": {
+   "governs": "MoneyKeel/functions/networth-and-performance/performance.ts · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/networth-and-performance/performance.ts (longer, window's, yearly); src/screens/PerformanceScreen.tsx (longer, window's, yearly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0406": {
+   "governs": "MK-NW-M-021",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-021 (step, finding)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0407": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (entries, agreed, closes, copied, guard, verified, separated); MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (agreed, closes, guard, verified)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0410": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (front, ruled, rulings, caught); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (front, ruled, rulings, caught)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0411": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (gets, copy, bills, frame, text, taught, rulings, phone, september, canon, drew); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (copy, frame, text, rulings, phone, canon, drew)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0412": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · src/screens/HomeScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (printed, mistakes, wherever, matter, longer, rulings, moneykeel, trust); src/screens/HomeScreen.tsx (printed, wherever, longer, moneykeel, trust)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0413": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/functions/networth-and-performance/performance.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (august, changelog, began, ledger, rulings, relied, advice); MoneyKeel/functions/networth-and-performance/performance.ts (gave, began, ledger, rulings)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0414": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (folder, dated, spec, rest, know, block, archived); src/domain/assets/index.ts (dated, spec, rest, know, archived)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0415": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (sync, covers, wasted, purpose, ensure, broken, executing, hours, until, files, archived); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (sync, covers, wasted, broken, hours, until, files, archived)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0416": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (runs, sync, agreed, coded, mismatch, step, considering, marked); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (runs, such, agreed, coded, step, marked)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0417": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (learn, excel, inventory, terms, wrapped, workbook, widths, width, readable, original, future, filter, text, through, format, columns, header, folded, away, frozen, sliver); src/screens/AccountDetailScreen.tsx (width, readable, filter, text, through, columns, header, folded, away)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0418": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (archive, track, latest, moved); MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (archive, latest, moved)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0419": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (exception, corners, mock-first); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (corners, direction, rounded)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0420": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (standards, onto, cash-flow, brought, forward, moving, traced); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (cash-flow, brought, forward, moving)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0421": {
+   "governs": "src/domain/assets/index.ts · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (portfolio, sweep, open, account's); src/screens/PerformanceScreen.tsx (portfolio, tapping, open, account's)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0422": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (spent, draft, shipped, trying, waiting, task, older, gaps, hours, moneykeel); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (shipped, waiting, task, redrawn, older, hours, moneykeel)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0423": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/functions/cashflow/this-month.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (spent, consistently, trying, waiting, reaches, doing, hours, relying, versus); MoneyKeel/functions/cashflow/this-month.ts (spent, waiting, reaches, doing, finding)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0424": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (today's, shouldn't, started, shipped, wasted, re-inventing, task, start, wheel, hours, shouldn); src/screens/RetirementCockpit.tsx (reports, today's, shipped, start)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0425": {
+   "governs": "src/domain/assets/index.ts · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (assumed, defect, difference); src/screens/PlanHubScreen.tsx (assumed, drawing, defect)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0426": {
+   "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (gets, drawing, columns, defect, difference); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (drawing, columns, defect, difference)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0427": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (widened, covers, such, writing, drawing, gate, draws, scoped); src/screens/NetWorthScreen.tsx (covers, slipped, drawing, draws)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0428": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (memory, happen, forgot, happened, scoped, fired, enforced, files, failed, reasons); MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (happen, happened, files)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0429": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (happen, happened, forgot, scoped, drawing, reasons, document); MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (happen, happened, document)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0430": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (title, none, size, points); src/screens/AccountDetailScreen.tsx (title, none, size, points)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0431": {
+   "governs": "MK-CF-M-037",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (beneath, guard)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0432": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (open, approval, reading, titles, coded, doors, size, ways-to-add-an-account, files, sheet); MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (open, approval, reading, coded, files, sheet)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0433": {
+   "governs": "MoneyKeel/functions/networth-and-performance/performance.ts · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/networth-and-performance/performance.ts (called, identifier, rulings, engines); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (called, identifier, rulings, engines)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0434": {
+   "governs": "src/domain/assets/index.ts · src/screens/BudgetScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (surface, final, clean, archived); src/screens/BudgetScreen.tsx (cash-flow, expense, surface, currently)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0436": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (step, through, doors, import, summary, offered); src/screens/NetWorthScreen.tsx (step, through, choice, doors, import, offered)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0437": {
+   "governs": "src/domain/assets/index.ts · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (here, current, hand-entered, whose); src/screens/AccountDetailScreen.tsx (here, current, hand-entered, whose)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0438": {
+   "governs": "src/domain/planning/multiGoal.ts · src/screens/MultiGoalScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/planning/multiGoal.ts (extra, save, saving, monthly); src/screens/MultiGoalScreen.tsx (extra, save, saving, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0439": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md · src/domain/decumulation/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md (person's, built-in, draw, reason, rates, rulings, standing, depends); src/domain/decumulation/index.ts (person's, built-in, draw, reason, rates)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0440": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (cash-flow, architecture, pres, longer, html, expenses, dated, four-tab, moneykeel); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (become, cash-flow, architecture, longer, choice, expenses, moneykeel)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0442": {
+   "governs": "MK-NW-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-008 (networth, balance)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0443": {
+   "governs": "MK-CF-M-016",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-016 (bills, monthly)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0444": {
+   "governs": "src/screens/RetirementCockpit.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/RetirementCockpit.tsx (current, assuming, what-if, required, moves, partial, rise, fully, track, grow, assumes, returns); src/domain/assets/index.ts (current, yield, understates, etfs, required, partial, fully, alternatives, assumes, returns)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0445": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (start, invest, timing)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0446": {
+   "governs": "MK-NW-M-006",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (institution, grouped)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0447": {
+   "governs": "src/domain/income/onboarding.ts · src/domain/cashflow/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (onboarding, one-time, periods, twelve, annual, spread, arrives, monthly); src/domain/cashflow/index.ts (onboarding, one-time, twelve, annual, spread, arrives, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0448": {
+   "governs": "src/domain/assets/index.ts · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (actual, decimal, surface, asset, reported, assets); src/screens/PerformanceScreen.tsx (actual, decimal, surface, asset, reported, assets)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0449": {
+   "governs": "MK-NW-M-005",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-005 (market, funds)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0450": {
+   "governs": "src/screens/FirstRunScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/FirstRunScreen.tsx (field, connect, assets, default); src/screens/NetWorthScreen.tsx (field, connect, assets, default)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0451": {
+   "governs": "MK-NW-M-006 · MK-NW-M-020 · MK-NW-M-005",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (estate, property, personal); MK-NW-M-020 (asset, alternatives); MK-NW-M-005 (money-market, funds)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0452": {
+   "governs": "MK-NW-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-008 (holds, balance)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0453": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (crypto, checking, asset, store, comment, points, hysa, glossary, kinds, market, brokerage); src/screens/PerformanceScreen.tsx (crypto, checking, asset, store, comment, points, kinds, market, brokerage)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0454": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (lump, capture, liabilities, store, many, budget); src/screens/CashFlowScreen.tsx (liabilities, store, many, budget, stored)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0455": {
+   "governs": "MK-NW-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-008 (institution, largest)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0456": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (clear, direction, color, market); src/screens/AccountDetailScreen.tsx (correction, color, market, matters)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0457": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (include, equivalents, existing, hero, etfs, assets, brokerage, alternatives); src/domain/assets/index.ts (equivalents, stock, etfs, assets, brokerage, alternatives)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0458": {
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (existing, ahead, hero, benchmark, matching, market); src/screens/NetWorthScreen.tsx (existing, ahead, hero, matching, tappable, market)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0459": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/HomeScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (safe, july, estimate, guaranteed, particularly, pension); src/screens/HomeScreen.tsx (july, estimate, good, that's, june, pension)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0460": {
+   "governs": "src/domain/performance/index.ts · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/performance/index.ts (bill, hero, case, draw, long, available); src/domain/assets/index.ts (bill, case, cover, long, risk, available)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0461": {
+   "governs": "src/domain/transactions/flags.ts · MoneyKeel/functions/networth-and-performance/performance.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/transactions/flags.ts (reason, withdrawal, large, plain-english, comparison); MoneyKeel/functions/networth-and-performance/performance.ts (reason, withdrawal, large, comparison)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0462": {
+   "governs": "src/domain/glossary.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (options, finwise, growing, paycheck); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (download, allows, paycheck, multiple)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0463": {
+   "governs": "src/screens/HomeScreen.tsx · src/domain/planning/hub.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (path, honest, including, empty, dead, defaults); src/domain/planning/hub.ts (path, honest, including, dead, choice)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0464": {
+   "governs": "src/domain/glossary.ts · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (mean, finance, ones, sure, dollars); src/screens/PlanHubScreen.tsx (finance, ones, dollars, replaced, let's)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0465": {
+   "governs": "src/screens/HomeScreen.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (finding, good, hidden, balances, refresh); src/screens/PerformanceScreen.tsx (finding, hidden, balances, refresh)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0466": {
+   "governs": "src/domain/assets/index.ts · src/screens/HomeScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (here, updated, connection, chase, drift, differently); src/screens/HomeScreen.tsx (here, updated, connection, good, differently)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0467": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md · src/domain/insights/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (analyse, asking, engine, comparison); src/domain/insights/index.ts (fact, insights, coming)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0468": {
+   "governs": "src/domain/assets/index.ts · src/domain/glossary.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (terms, asset, trend, classes, strategy); src/domain/glossary.ts (terms, asset, classes)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0469": {
+   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/functions/networth-and-performance/net-worth.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (minus, trend, mean, headline); MoneyKeel/functions/networth-and-performance/net-worth.ts (minus, trend, mean)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0470": {
+   "governs": "src/domain/glossary.ts · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (fresh, including, connected); src/domain/assets/index.ts (including, connected, manual)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0471": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (existing, connect, honest, paths, stay, asset, form, sure, forever, import, manual); src/screens/PerformanceScreen.tsx (separate, existing, honest, fields, required, stay, asset, form, import, manual)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0472": {
+   "governs": "src/domain/glossary.ts · src/screens/JobSafetyScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (emergency, existing, aside, honest, math, many, monthly); src/screens/JobSafetyScreen.tsx (emergency, aside, honest, math, cover, many, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0473": {
+   "governs": "src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (here, ahead, path, assumptions, form, trend, graph, takes); src/screens/NetWorthScreen.tsx (here, ahead, path, assumptions, form, trend, display)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0474": {
+   "governs": "src/screens/BudgetScreen.tsx · src/screens/FirstRunScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/BudgetScreen.tsx (format, columns, import); src/screens/FirstRunScreen.tsx (connect, import, specific)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0475": {
+   "governs": "MK-NW-M-030",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-030 (current, portfolio)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0476": {
+   "governs": "MK-NW-M-036 · MK-NW-M-037",
+   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-036 (taxed, gain); MK-NW-M-037 (taxed, gain)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0477": {
+   "governs": "src/domain/assets/index.ts · src/screens/BudgetScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (bill, capture, treasury, edit, directly); src/screens/BudgetScreen.tsx (automatically, treasury, edit, payment)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0478": {
+   "governs": "src/domain/assets/index.ts · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (options, manual, crypto, private, edit, connected, hedge); src/screens/PerformanceScreen.tsx (options, manual, crypto, private, edit, connected, hedge)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0479": {
+   "governs": "MK-PF-M-007 · MK-PF-M-008",
+   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-007 (dividend, invest); MK-PF-M-008 (dividend, invest)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0480": {
+   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (current, etfs, many, priced, grouped, long, alternatives); src/screens/NetWorthScreen.tsx (current, collapse, etfs, many, grouped, alternatives)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0481": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (forward, engines, naming, objective, entry); MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (forward, engines, naming, objective, entry)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0482": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (drive, contribution)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0483": {
+   "governs": "src/domain/assets/index.ts · src/screens/PerformanceScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (separate, received, brokerage, part, fidelity); src/screens/PerformanceScreen.tsx (separate, received, brokerage, part)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0484": {
+   "governs": "src/domain/assets/index.ts · src/domain/transactions/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (dividend, deposit, adds, sell, side, transaction, connected, entry, manual); src/domain/transactions/index.ts (dividend, manually, deposit, sell, transaction, connected, entry, manual)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0485": {
+   "governs": "src/screens/CashFlowScreen.tsx · src/screens/HomeScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/CashFlowScreen.tsx (everyday, actual, bills, july, expenses); src/screens/HomeScreen.tsx (actual, bills, capture, july, expenses)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0486": {
+   "governs": "src/domain/planning/hub.ts · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/planning/hub.ts (decide, likely, horizon, till); src/screens/RetirementCockpit.tsx (clear, decide, likely, horizon)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0487": {
+   "governs": "src/domain/decumulation/index.ts · src/domain/income/onboarding.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/decumulation/index.ts (today's, formula, smaller, note, follows, calculated, dollars, lifetime, monthly); src/domain/income/onboarding.ts (today's, actual, formula, note, follows, calculated, dollars, monthly)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0488": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/domain/glossary.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (rest, pull, honest, open, daily, choices, checking, credit, truth, cards, connected, layer, explore, shared); src/domain/glossary.ts (rest, foundation, honest, open, daily, checking, finwise, truth, connected, growing, financial, matters)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0489": {
+   "governs": "src/screens/HomeScreen.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (chief, path, part, assumptions, attention, moment, staff); src/screens/PlanHubScreen.tsx (chief, decide, principle, path, assumptions, staff)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0490": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (dollar, beginning)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0491": {
+   "governs": "src/domain/income/onboarding.ts · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (captures, equity, annuities, bonus, salary, pension, frequency, dated, rental, withdrawals); src/domain/assets/index.ts (including, equity, bills, annuities, enter, connection, dated, rental, parts, withdrawals)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0493": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/domain/budget/index.ts",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (lasts, belong, through, will-it-last, underneath); src/domain/budget/index.ts (lasts, through, placed)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0494": {
+   "governs": "src/domain/assets/index.ts · MoneyKeel/functions/cashflow/expenses.ts",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (dated, connected, including, bills); MoneyKeel/functions/cashflow/expenses.ts (dated, connected, bills)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0495": {
+   "governs": "src/domain/paycheck/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "its own words appear in these files: src/domain/paycheck/index.ts (will-it-last, paycheck, safe-to-spend); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (lasts, will-it-last, paycheck)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0496": {
+   "governs": "src/screens/HomeScreen.tsx · src/domain/debt/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (capture, dashboard, good, shared); src/domain/debt/index.ts (capture, good, shared)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0497": {
+   "governs": "src/domain/insights/index.ts · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/insights/index.ts (level, stock, invest, grow, displayed, details); src/screens/RetirementCockpit.tsx (level, track, what-if, grow, details)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0498": {
+   "governs": "MK-XS-M-004",
+   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (enough, invest)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0499": {
+   "governs": "src/screens/CashFlowScreen.tsx · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/CashFlowScreen.tsx (outflow, guaranteed, draw, bars, chart, june, inflow); src/screens/RetirementCockpit.tsx (safe, sees, guaranteed, draw, bars, chart)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0500": {
+   "governs": "src/domain/assets/index.ts · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (growth, doesn, doesn't, finding, net-worth); src/screens/RetirementCockpit.tsx (growth, doesn, doesn't, finding, net-worth)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0503": {
+   "governs": "MK-CF-M-031",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-031 (reaches, parts)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0504": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/domain/planning/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (parents, track, help, college); src/domain/planning/index.ts (kids', kids, college)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0510": {
+   "governs": "src/screens/InsightsScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/InsightsScreen.tsx (level, invest, detail)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0511": {
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/MultiGoalScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (parents, together, scenario, paycheck, saving, college); src/screens/MultiGoalScreen.tsx (together, commitments, several, effect, scenario, saving)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0512": {
+   "governs": "MK-CF-M-049 · MK-CF-M-053",
+   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-049 (outflow, inflow); MK-CF-M-053 (outflow, inflow)",
+   "evidence": "searched the figure register"
+  },
+  "DEC-0627": {
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md · src/screens/RetirementCockpit.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (copy, engine, corrected, updated, tested, market, precision, guard); src/screens/RetirementCockpit.tsx (paths, copy, simulations, market, precision, futures)",
+   "evidence": "searched every calculation file"
+  },
+  "DEC-0029": {
+   "governs": "src/screens/PlanHubScreen.tsx · RothScreen · MultiGoalScreen · RetirementCockpit · the canon table",
+   "why_it_governs_those": "searched: \"Use as my plan\" appears on those four screens. The canon carries the phrase so no screen can say it differently.",
+   "proof": "src/__tests__/one_term_per_concept.test.ts"
+  },
+  "DEC-0048": {
+   "governs": "MK-NW-M-015 YOUR RETIREMENT PLAN — on track for $X by age Y · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "searched: the renamed section IS that figure’s own label, and the words appear on the Net worth screen and in the insights"
+  },
+  "DEC-0256": {
+   "governs": "the master file's functions_from_code tab, column 'Figures that name it' · build-moneykeel-master.py",
+   "why_it_governs_those": "it governs how a column is FILLED — read from the file rather than maintained by hand — not a figure"
+  },
+  "DEC-0313": {
+   "governs": "NOT BUILT — liquidity tiers (Liquid / Sellable / Locked / Not spendable) exist nowhere in the code",
+   "why_it_governs_those": "SEARCHED AND FOUND NOTHING: no tier field, no liquid-net-worth figure. The only \"Locked\" in the app is a Plan row and a rewards badge, unrelated. This decision of his is UNBUILT, and saying so is the honest mapping — it is a workplan row, not a guarded rule."
+  },
+  "DEC-0366": {
+   "governs": "MK-XS-M-002 will-it-last odds · selectWillItLast in src/domain/retirement",
+   "why_it_governs_those": "his Q7: one number computed once and read everywhere. That figure is the one three screens show; the selector is the one calculation.",
+   "proof": "src/__tests__/guard_d3_screens_agree.test.tsx"
+  },
+  "DEC-0368": {
+   "governs": "MK-XS-M-004 · canon row 14 in moneykeel_naming_spec_calculation-vocabulary_v01.md",
+   "why_it_governs_those": "the sentence reads \"+7.30%/year\" — the return figure, and the canon row that retires the spaced forms",
+   "proof": "src/__tests__/one_term_per_concept.test.ts"
+  },
+  "DEC-0392": {
+   "governs": "the canon table · BasePayScreen · ItemizeScreen · WillItLastScreen · ContributionRoomScreen",
+   "why_it_governs_those": "searched: \"you entered\" appears on those four screens; the canon holds the one phrase for a figure the person gave us",
+   "proof": "src/__tests__/one_term_per_concept.test.ts"
+  },
+  "DEC-0501": {
+   "governs": "src/domain/insights · MK-XS-M-003 · the Insights screen",
+   "why_it_governs_those": "HIS ADDITION, ANSWERED BY ME 2026-09-30 rather than returned to him: \"surfacing the right things at the right time — what needs you\" IS the Insights engine, which ranks what needs attention and fires a card only when a threshold is crossed. B-117 was exactly this failing."
+  },
+  "DEC-0502": {
+   "governs": "src/services/sync/ · the connect flow · MK-NW-I-001",
+   "why_it_governs_those": "HIS QUESTIONS, ANSWERED BY ME 2026-09-30: connection is USER-INITIATED then refreshed daily, which is what the code does. A hesitant person can use the app fully hand-entered — every figure has a typed path and two of the three empty-state doors need no connection. Nothing to change."
+  },
+  "DEC-0505": {
+   "governs": "src/screens/CashFlowScreen.tsx · MK-XS-M-002",
+   "why_it_governs_those": "HIS QUESTION, ANSWERED BY ME 2026-09-30: it no longer lives in a Spend tab. Cash flow shows the odds as a strip reading \"Lives in your Plan\" and links there; the figure belongs to Plan."
+  },
+  "DEC-0506": {
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx · the tab bar",
+   "why_it_governs_those": "HIS QUESTION, ANSWERED BY ME 2026-09-30: they are NOT on one tab. Net worth is its own tab; Cash flow is another with four sub-tabs — his four-tab decision of 2026-07-19 resolved the crowding he was asking about."
+  },
+  "DEC-0507": {
+   "governs": "the tab bar — Home · Net worth · Performance · Cash flow · Plan",
+   "why_it_governs_those": "HIS REJECTION, ALREADY HONOURED: searched, and there is no \"Spend\" tab anywhere in the code. The tab is Cash flow."
+  },
+  "DEC-0508": {
+   "governs": "the tab bar — Home · Net worth · Performance · Cash flow · Plan",
+   "why_it_governs_those": "HIS REJECTION, ALREADY HONOURED: searched, and there is no \"Guide\" tab. The fifth tab is Plan."
+  },
+  "DEC-0509": {
+   "governs": "src/screens/HomeScreen.tsx · the onboarding · MK-XS-M-001 · MK-XS-M-003",
+   "why_it_governs_those": "HIS QUESTION, ANSWERED BY ME 2026-09-30: Home captures nothing itself — it READS. Everything comes from onboarding, the add-an-account doors, or a linked account, and Home shows net worth, investments and the month. That is why Home has no +Expense button (his DEC-0039)."
+  },
+  "DEC-0513": {
+   "governs": "the tab bar — Home · Net worth · Performance · Cash flow · Plan · src/app/(tabs)/_layout.tsx",
+   "why_it_governs_those": "his DECISION on the tab names and the five-tab spine: it governs the bottom bar and the route layout that defines it"
+  },
+  "DEC-0514": {
+   "governs": "the tab bar order — src/app/(tabs)/_layout.tsx",
+   "why_it_governs_those": "his DECISION to order tabs by what each group cares about: it governs the order in the layout"
+  },
+  "DEC-0515": {
+   "governs": "the tab bar — src/app/(tabs)/_layout.tsx · Settings",
+   "why_it_governs_those": "his DECISION about whether a person can choose which modules sit in the bottom bar. SEARCHED: no such setting exists, so this is UNBUILT — the bar is fixed at five. Saying so is the honest mapping."
   }
  }
 }

@@ -206,6 +206,28 @@ The only accepted method — full procedure in `docs/MOCK-MATCH-AUDIT-STANDING-O
 Find every instance of a defect's CLASS before reporting. The founder must never be the one who
 finds the 6th gap.
 
+## NEVER ASK HIM A QUESTION — DECIDE, SAY WHERE IT APPLIES, APPLY IT (founder, 2026-09-30)
+His words, after measuring that of the 33 decisions he sat and answered, ONE named the figures it
+governs: *"do not fucking ask me any question - without telling where you plan to apply and apply it
+first before moving forward. I am not going to answer any further questions in the file."*
+
+**So the order is: decide it, say where it applies, apply it — then tell him.** Not the reverse.
+
+- **A question is a last resort, not a default.** Before writing one, read the approved mock, the
+  standards, the decision log (`rulings-for.py <words>`) and the code. Nearly every question I have
+  asked him was already answered in one of those — the cash-flow mock even says on its own face
+  *"That is a workplan row, not a question."*
+- **If it is genuinely undecidable, decide it anyway on the best evidence, apply it, and say plainly
+  what I decided, why, and how to reverse it.** He can overrule a built thing in one word; he cannot
+  get back the hour he spent answering a question I could have answered myself.
+- **Never put a question in a document he opens.** No "say the word", no "name a mark", no
+  "waiting on you" in a mock, a plan or a workbook. The prose sweep now refuses to read my own
+  offered wording as a ruling of his, because it recorded one as a decision.
+- **An answer of his is worthless until it is applied somewhere.** A recorded answer that names no
+  figure bought a record, not a guard: `moneykeel_decisions_anchors.json` gives each decision the rows
+  it governs, and `check-rulings-sync.py` counts the ones that still name nothing (418 on 2026-09-30,
+  a ratchet that may only fall).
+
 ## THE DECISION LOG IS THE ONE CONSOLIDATED MASTER (founder, 2026-09-30 — DEC-0011)
 His wording: *"Every Approval is logged in decision log with date in addition to change log, standards,
 Audit, Master and other files. Decision-log is one consolidated master."* My summary of this had it

@@ -103,7 +103,14 @@ export interface ContributionRoom {
  * Formula also on the master file · functions_from_code · MK-CF-O-005
  * Changed ..... not in git yet (—)
  */
-export function theContributionRoom(input: { profile: any }): ContributionRoom {
+export function theContributionRoom(input: {
+  profile: any;
+  /** THE DAY IT IS READ ON. Absent means today, which is what the app passes. A worked example passes
+   *  a fixed day, because "how much is left to put in this year" depends on the month — and an example
+   *  whose answer changes when the calendar turns is an example that cannot be checked. This one broke
+   *  on 2026-10-01 for exactly that reason: it said $5,300/month in September and $7,100 in October. */
+  today?: Date;
+}): ContributionRoom {
   const op = input.profile ?? {};
   const num = (v: any) => (Number.isFinite(Number(v)) ? Number(v) : 0);
   const age = ageAttainedInYear(num(op.birthYear) || null);
@@ -122,8 +129,8 @@ export function theContributionRoom(input: { profile: any }): ContributionRoom {
     k401: { limit: k401.limit, used: k401.used, remaining: k401.remaining, catchUp: k401.catchUp },
     ira: { limit: iraLimit, used: iraUsed, remaining: Math.max(0, iraLimit - iraUsed), catchUp: age != null && age >= 50 },
     hsa: { limit: hsaLimit, used: hsaUsed, remaining: Math.max(0, hsaLimit - hsaUsed), catchUp: age != null && age >= 55 },
-    monthsLeft: monthsLeftInYear(),
-    perMonthToFill401k: perMonthToFill(k401.remaining),
+    monthsLeft: monthsLeftInYear(input.today),
+    perMonthToFill401k: perMonthToFill(k401.remaining, input.today),
     hsaBarredByMedicare: medicare === true,
   };
 }
@@ -138,10 +145,16 @@ export function theContributionRoom(input: { profile: any }): ContributionRoom {
  *  $32,500. That band is the heart of this audience and was missing from the code entirely until it
  *  was found. His ruling G1: the age is the one ATTAINED in the year, never today's.
  */
-const EXAMPLE = { profile: { birthYear: 1965, c_401k: 1200, c_roth: 300, c_hsa: 150, medicareEnrolled: 'no' } };
+const EXAMPLE = {
+  profile: { birthYear: 1965, c_401k: 1200, c_roth: 300, c_hsa: 150, medicareEnrolled: 'no' },
+  // PINNED to 29 September 2026. Without it this example read the real clock and its answer changed
+  // with the month — $5,300/month in September, $7,100 in October. An example a person cannot check
+  // twice is not an example.
+  today: new Date(2026, 8, 29),
+};
 const GIVEN =
   'Born 1965 — so 61 during 2026. Paying in $1,200/month to a 401(k), $300 to a Roth IRA and $150 '
-  + 'to an HSA; not on Medicare. Read in September, so four months of the year are left.';
+  + 'to an HSA; not on Medicare. Read on 29 September 2026, so four months of the year are left.';
 /* ─ MK-CF-F-199 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * ROOM
  *

@@ -148,28 +148,30 @@ export function inflowSourceWord(source: string): string {
 
 /** Negating zero in JavaScript gives NEGATIVE zero, which formats as "−$0" — and a person looking
  *  at "−$0" beside an unpaid car loan reasonably wonders what it means. Zero has no sign. */
+// exported 2026-09-30 so the-month.ts shares it rather than keeping a second copy: it exists only to
+// turn a negative zero into a plain zero, and a person should never read “-$0”
 /* ─ MK-CF-F-155 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * cash
  *
- * Answers ..... Negating zero in JavaScript gives NEGATIVE zero, which formats as "−$0" — and a person looking at "−$0" beside an unpaid car loan reasonably wonders what it means.
+ * Answers ..... exported 2026-09-30 so the-month.ts shares it rather than keeping a second copy: it exists only to turn a negative zero into a plain zero, and a person should never read “-$0”
  *
  * Formula .....
  *     0   if n = 0
  *     n   otherwise
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-010 emergencyTest
- *               MK-CF-F-156 plannedMonthFlow · MK-HM-F-006 money0
- *               MK-NW-F-004 portfolioActualReturn · MK-NW-F-005 accountAllowsTicker
- *               MK-NW-F-007 assetKind · MK-NW-F-008 incomeBearingClassOf
- *               MK-NW-F-010 wrapperAccount · MK-NW-F-026 accountDisplayNames
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-035 blendedVolatility
- *               MK-NW-F-056 bondInfo · MK-NW-F-075 ACC
- *               MK-NW-F-079 EF · MK-NW-F-084 categoryEarnings
- *               MK-NW-F-101 PLAN · MK-NW-O-004 theEmergencyFund
- *               MK-PF-F-017 allocation · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-022 goalProgressPct · MK-ST-F-031 valueOn
- *               MK-ST-F-072 undo · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-107 mapActivityType
+ *               MK-CF-F-156 plannedMonthFlow · MK-CF-O-010 theMonth
+ *               MK-HM-F-006 money0 · MK-NW-F-004 portfolioActualReturn
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-007 assetKind
+ *               MK-NW-F-008 incomeBearingClassOf · MK-NW-F-010 wrapperAccount
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-035 blendedVolatility · MK-NW-F-056 bondInfo
+ *               MK-NW-F-075 ACC · MK-NW-F-079 EF
+ *               MK-NW-F-084 categoryEarnings · MK-NW-F-101 PLAN
+ *               MK-NW-O-004 theEmergencyFund · MK-PF-F-017 allocation
+ *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-022 goalProgressPct
+ *               MK-ST-F-031 valueOn · MK-ST-F-072 undo
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-107 mapActivityType
  *
  * Reaches ..... 184 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
@@ -188,8 +190,6 @@ export function inflowSourceWord(source: string): string {
  * Formula also on the master file · functions_from_code · MK-CF-F-155
  * Changed ..... not in git yet (—)
  */
-// exported 2026-09-30 so the-month.ts shares it rather than keeping a second copy: it exists only to
-// turn a negative zero into a plain zero, and a person should never read “-$0”
 export const cash = (n: number): number => (n === 0 ? 0 : (n));
 
 
@@ -205,6 +205,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  * Formula .....
  *     lines = [{ label: inflow label('Inflow', inflow sources), amount: (take home monthly), kind: 'in' }]
  *     due = required payment(d)
+ *     radar kind = is radar item(d)
  *     the answer:
  *     lines = lines
  *     surplus = cash(lines.reduce((t, l) => t + amount, 0))
@@ -262,13 +263,14 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *     paid for = debt payments by debt(m)
  *     lines = [{ label: inflow label('actual inflow', inflow sources), amount: (take home monthly), kind: 'in' }]
  *     paid = paid for.get(debt id) (or 0 when missing)
+ *     due = (d as any).due day
+ *     radar kind = is radar item(d)
  *     matched = Σ over [...paid for.values()] of (each)
  *     unmatched = all debt paid − matched
  *     expenses = logged where category ! = DEBT_CATEGORY
- *     spent = Σ over expenses of (amount read as a number (0 when it is not one))
- *     the answer:
- *     lines = lines
- *     surplus = cash(lines.reduce((t, l) => t + amount, 0))
+ *     by hand = expenses where origin ! = 'imported'
+ *     brought = expenses where origin = 'imported'
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
@@ -286,6 +288,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-052 the day of the month a debt payment is due
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-005

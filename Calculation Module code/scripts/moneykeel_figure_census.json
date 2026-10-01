@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-30",
+ "generated": "2026-10-01",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 30"
+     "s": "Oct 1"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "30"
+     "s": "1"
     },
     {
      "k": "t",
@@ -240,7 +240,7 @@
     },
     {
      "k": "t",
-     "s": "30"
+     "s": "31"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -322,7 +322,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 18 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 19 days old"
     },
     {
      "k": "t",
@@ -482,7 +482,7 @@
     },
     {
      "k": "t",
-     "s": "30"
+     "s": "1"
     },
     {
      "k": "t",
@@ -490,7 +490,7 @@
     },
     {
      "k": "t",
-     "s": "30"
+     "s": "31"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -548,7 +548,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in Sep: an estimate. $4,795"
+     "s": "Surplus in Oct: an estimate. $4,795"
     },
     {
      "k": "t",
@@ -556,7 +556,7 @@
     },
     {
      "k": "t",
-     "s": "SEP"
+     "s": "OCT"
     },
     {
      "k": "t",
@@ -644,7 +644,7 @@
     },
     {
      "k": "t",
-     "s": "September"
+     "s": "October"
     },
     {
      "k": "t",
@@ -800,7 +800,7 @@
     },
     {
      "k": "t",
-     "s": "30"
+     "s": "1"
     },
     {
      "k": "t",
@@ -808,7 +808,7 @@
     },
     {
      "k": "t",
-     "s": "30"
+     "s": "31"
     },
     {
      "k": "t",
@@ -919,7 +919,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 30, 2026"
+     "s": "YOUR NET WORTH · OCT 1, 2026"
     },
     {
      "k": "a",
@@ -1265,7 +1265,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 30, 2026"
+     "s": "YOUR NET WORTH · OCT 1, 2026"
     },
     {
      "k": "a",
@@ -1595,7 +1595,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 30, 2026"
+     "s": "YOUR NET WORTH · OCT 1, 2026"
     },
     {
      "k": "a",
@@ -2069,7 +2069,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 30, 2026"
+     "s": "YOUR NET WORTH · OCT 1, 2026"
     },
     {
      "k": "a",
@@ -2313,7 +2313,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 18 days old"
+     "s": "Linked · 19 days old"
     },
     {
      "k": "t",
@@ -2591,7 +2591,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 30, 2026"
+     "s": "YOUR NET WORTH · OCT 1, 2026"
     },
     {
      "k": "a",
@@ -2889,7 +2889,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · SEP 30, 2026"
+     "s": "YOUR NET WORTH · OCT 1, 2026"
     },
     {
      "k": "a",
@@ -3554,7 +3554,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 30, 2026"
+     "s": "Oct 1, 2026"
     },
     {
      "k": "a",
@@ -3812,7 +3812,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 30, 2026"
+     "s": "Oct 1, 2026"
     },
     {
      "k": "a",
@@ -4060,7 +4060,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 18 days old"
+     "s": "Linked · 19 days old"
     },
     {
      "k": "t",
@@ -4154,7 +4154,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 30, 2026"
+     "s": "Oct 1, 2026"
     },
     {
      "k": "a",
@@ -4340,7 +4340,7 @@
     },
     {
      "k": "t",
-     "s": "Sep 30, 2026"
+     "s": "Oct 1, 2026"
     },
     {
      "k": "a",
@@ -6488,7 +6488,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -6500,7 +6500,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -6596,7 +6596,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 100 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 3 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -6628,7 +6628,7 @@
     },
     {
      "k": "t",
-     "s": "100"
+     "s": "3"
     },
     {
      "k": "t",
@@ -6712,15 +6712,7 @@
     },
     {
      "k": "t",
-     "s": "BY MONTH · Sep – Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep"
+     "s": "BY MONTH · Oct – Sep ’27"
     },
     {
      "k": "a",
@@ -6813,6 +6805,14 @@
     {
      "k": "t",
      "s": "Aug ’27"
+    },
+    {
+     "k": "a",
+     "s": "Sep ’27: 7200 dollars in, 4220 out"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -6866,7 +6866,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -6878,7 +6878,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -6974,7 +6974,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 100 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 3 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -7006,7 +7006,7 @@
     },
     {
      "k": "t",
-     "s": "100"
+     "s": "3"
     },
     {
      "k": "t",
@@ -7090,15 +7090,7 @@
     },
     {
      "k": "t",
-     "s": "BY MONTH · Sep – Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep"
+     "s": "BY MONTH · Oct – Sep ’27"
     },
     {
      "k": "a",
@@ -7193,6 +7185,14 @@
      "s": "Aug ’27"
     },
     {
+     "k": "a",
+     "s": "Sep ’27: 7200 dollars in, 4220 out"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
+    },
+    {
      "k": "t",
      "s": "in"
     },
@@ -7244,7 +7244,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -7256,7 +7256,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -7340,7 +7340,7 @@
     },
     {
      "k": "t",
-     "s": "RECEIVED · 2026-09"
+     "s": "RECEIVED · 2026-10"
     },
     {
      "k": "a",
@@ -7402,7 +7402,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -7414,7 +7414,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -7462,7 +7462,7 @@
     },
     {
      "k": "t",
-     "s": "Everyday expenses · due Sep"
+     "s": "Everyday expenses · due Oct"
     },
     {
      "k": "t",
@@ -7470,7 +7470,7 @@
     },
     {
      "k": "t",
-     "s": "SEPTEMBER · $0 SPENT"
+     "s": "OCTOBER · $0 SPENT"
     },
     {
      "k": "a",
@@ -7544,7 +7544,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -7556,7 +7556,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -7668,7 +7668,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 2029"
+     "s": "Nov 2029"
     },
     {
      "k": "t",
@@ -7762,7 +7762,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -7774,7 +7774,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -7878,7 +7878,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 100 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 3 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -7910,7 +7910,7 @@
     },
     {
      "k": "t",
-     "s": "100"
+     "s": "3"
     },
     {
      "k": "t",
@@ -7994,15 +7994,7 @@
     },
     {
      "k": "t",
-     "s": "BY MONTH · Sep – Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep"
+     "s": "BY MONTH · Oct – Sep ’27"
     },
     {
      "k": "a",
@@ -8095,6 +8087,14 @@
     {
      "k": "t",
      "s": "Aug ’27"
+    },
+    {
+     "k": "a",
+     "s": "Sep ’27: 7200 dollars in, 6000 out"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -8148,7 +8148,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -8160,7 +8160,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -8264,7 +8264,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 100 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 3 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -8296,7 +8296,7 @@
     },
     {
      "k": "t",
-     "s": "100"
+     "s": "3"
     },
     {
      "k": "t",
@@ -8380,15 +8380,7 @@
     },
     {
      "k": "t",
-     "s": "BY MONTH · Sep – Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep"
+     "s": "BY MONTH · Oct – Sep ’27"
     },
     {
      "k": "a",
@@ -8483,6 +8475,14 @@
      "s": "Aug ’27"
     },
     {
+     "k": "a",
+     "s": "Sep ’27: 7200 dollars in, 6000 out"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
+    },
+    {
      "k": "t",
      "s": "in"
     },
@@ -8534,7 +8534,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -8546,7 +8546,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -8630,7 +8630,7 @@
     },
     {
      "k": "t",
-     "s": "RECEIVED · 2026-09"
+     "s": "RECEIVED · 2026-10"
     },
     {
      "k": "a",
@@ -8692,7 +8692,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -8704,7 +8704,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -8752,7 +8752,7 @@
     },
     {
      "k": "t",
-     "s": "Everyday expenses · due Sep"
+     "s": "Everyday expenses · due Oct"
     },
     {
      "k": "t",
@@ -8760,7 +8760,7 @@
     },
     {
      "k": "t",
-     "s": "Mortgage · due Sep"
+     "s": "Mortgage · due Oct"
     },
     {
      "k": "t",
@@ -8854,7 +8854,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -8866,7 +8866,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -8982,7 +8982,7 @@
     },
     {
      "k": "t",
-     "s": "Mar 2048"
+     "s": "Apr 2048"
     },
     {
      "k": "t",
@@ -9146,7 +9146,7 @@
     },
     {
      "k": "t",
-     "s": "payment due in 1 day"
+     "s": "payment due today"
     },
     {
      "k": "t",
@@ -9176,7 +9176,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -9188,7 +9188,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -9232,7 +9232,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in Sep: an estimate. $4,795"
+     "s": "Surplus in Oct: an estimate. $4,795"
     },
     {
      "k": "t",
@@ -9240,7 +9240,7 @@
     },
     {
      "k": "t",
-     "s": "SEP"
+     "s": "OCT"
     },
     {
      "k": "t",
@@ -9328,7 +9328,7 @@
     },
     {
      "k": "t",
-     "s": "September"
+     "s": "October"
     },
     {
      "k": "t",
@@ -9336,7 +9336,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 100 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 3 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9368,7 +9368,7 @@
     },
     {
      "k": "t",
-     "s": "100"
+     "s": "3"
     },
     {
      "k": "t",
@@ -9404,15 +9404,7 @@
     },
     {
      "k": "t",
-     "s": "BY MONTH · Sep – Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep: 4795 dollars in, 0 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep"
+     "s": "BY MONTH · Oct – Sep ’27"
     },
     {
      "k": "a",
@@ -9505,6 +9497,14 @@
     {
      "k": "t",
      "s": "Aug ’27"
+    },
+    {
+     "k": "a",
+     "s": "Sep ’27: 4795 dollars in, 0 out"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -9566,7 +9566,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -9578,7 +9578,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -9622,7 +9622,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in Sep: an estimate. $4,795"
+     "s": "Surplus in Oct: an estimate. $4,795"
     },
     {
      "k": "t",
@@ -9630,7 +9630,7 @@
     },
     {
      "k": "t",
-     "s": "SEP"
+     "s": "OCT"
     },
     {
      "k": "t",
@@ -9718,7 +9718,7 @@
     },
     {
      "k": "t",
-     "s": "September"
+     "s": "October"
     },
     {
      "k": "t",
@@ -9726,7 +9726,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 100 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 3 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9758,7 +9758,7 @@
     },
     {
      "k": "t",
-     "s": "100"
+     "s": "3"
     },
     {
      "k": "t",
@@ -9794,15 +9794,7 @@
     },
     {
      "k": "t",
-     "s": "BY MONTH · Sep – Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep: 4795 dollars in, 0 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep"
+     "s": "BY MONTH · Oct – Sep ’27"
     },
     {
      "k": "a",
@@ -9897,6 +9889,14 @@
      "s": "Aug ’27"
     },
     {
+     "k": "a",
+     "s": "Sep ’27: 4795 dollars in, 0 out"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
+    },
+    {
      "k": "t",
      "s": "in"
     },
@@ -9956,7 +9956,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -9968,7 +9968,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10036,7 +10036,7 @@
     },
     {
      "k": "t",
-     "s": "RECEIVED · 2026-09"
+     "s": "RECEIVED · 2026-10"
     },
     {
      "k": "a",
@@ -10098,7 +10098,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10110,7 +10110,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10158,7 +10158,7 @@
     },
     {
      "k": "t",
-     "s": "Everyday expenses · due Sep"
+     "s": "Everyday expenses · due Oct"
     },
     {
      "k": "t",
@@ -10252,7 +10252,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10264,7 +10264,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10382,7 +10382,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10394,7 +10394,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10492,7 +10492,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10504,7 +10504,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10602,7 +10602,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10614,7 +10614,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10682,7 +10682,7 @@
     },
     {
      "k": "t",
-     "s": "RECEIVED · 2026-09"
+     "s": "RECEIVED · 2026-10"
     },
     {
      "k": "a",
@@ -10744,7 +10744,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10756,7 +10756,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10878,7 +10878,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -10890,7 +10890,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -11107,7 +11107,7 @@
     },
     {
      "k": "t",
-     "s": "· need ~$1,500/month"
+     "s": "· need ~$1,538/month"
     },
     {
      "k": "t",
@@ -11123,7 +11123,7 @@
     },
     {
      "k": "t",
-     "s": "$1,500"
+     "s": "$1,538"
     },
     {
      "k": "t",
@@ -11199,7 +11199,7 @@
     },
     {
      "k": "t",
-     "s": "· need ~$1,250/month"
+     "s": "· need ~$1,333/month"
     },
     {
      "k": "t",
@@ -11215,7 +11215,7 @@
     },
     {
      "k": "t",
-     "s": "$1,250"
+     "s": "$1,333"
     },
     {
      "k": "t",
@@ -11375,7 +11375,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 2029"
+     "s": "Nov 2029"
     },
     {
      "k": "t",
@@ -11423,7 +11423,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 2029"
+     "s": "Nov 2029"
     },
     {
      "k": "t",
@@ -11597,7 +11597,7 @@
     },
     {
      "k": "t",
-     "s": "· need ~$1,500/month"
+     "s": "· need ~$1,538/month"
     },
     {
      "k": "t",
@@ -11613,7 +11613,7 @@
     },
     {
      "k": "t",
-     "s": "$1,500"
+     "s": "$1,538"
     },
     {
      "k": "t",
@@ -11689,7 +11689,7 @@
     },
     {
      "k": "t",
-     "s": "· need ~$1,250/month"
+     "s": "· need ~$1,333/month"
     },
     {
      "k": "t",
@@ -11705,7 +11705,7 @@
     },
     {
      "k": "t",
-     "s": "$1,250"
+     "s": "$1,333"
     },
     {
      "k": "t",
@@ -11865,7 +11865,7 @@
     },
     {
      "k": "t",
-     "s": "Mar 2048"
+     "s": "Apr 2048"
     },
     {
      "k": "t",
@@ -11917,7 +11917,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 2031"
+     "s": "Nov 2031"
     },
     {
      "k": "t",
@@ -11933,7 +11933,7 @@
     },
     {
      "k": "t",
-     "s": "Mar 2048"
+     "s": "Apr 2048"
     },
     {
      "k": "t",
@@ -18710,7 +18710,7 @@
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -18722,7 +18722,7 @@
     },
     {
      "k": "t",
-     "s": "Aug ’27"
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -18754,7 +18754,7 @@
     },
     {
      "k": "a",
-     "s": "OK — you stay above zero in all 12 months. Lowest point $2,980 in Sep."
+     "s": "OK — you stay above zero in all 12 months. Lowest point $2,980 in Oct."
     },
     {
      "k": "t",
@@ -18762,7 +18762,7 @@
     },
     {
      "k": "t",
-     "s": "Lowest point $2,980 — Sep."
+     "s": "Lowest point $2,980 — Oct."
     },
     {
      "k": "t",
@@ -18782,11 +18782,11 @@
     },
     {
      "k": "a",
-     "s": "Sep 2026: in $7,200, out $4,220, ending balance $2,980. Opens the month's detail."
+     "s": "Oct 2026: in $7,200, out $4,220, ending balance $2,980. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -18806,11 +18806,11 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $7,200, out $4,220, ending balance $5,960. Opens the month's detail."
+     "s": "Nov 2026: in $7,200, out $4,220, ending balance $5,960. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Oct"
+     "s": "Nov"
     },
     {
      "k": "t",
@@ -18830,11 +18830,11 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $7,200, out $4,220, ending balance $8,940. Opens the month's detail."
+     "s": "Dec 2026: in $7,200, out $4,220, ending balance $8,940. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Nov"
+     "s": "Dec"
     },
     {
      "k": "t",
@@ -18854,11 +18854,11 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $7,200, out $4,220, ending balance $11,920. Opens the month's detail."
+     "s": "Jan ’27 2027: in $7,200, out $4,220, ending balance $11,920. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Dec"
+     "s": "Jan ’27"
     },
     {
      "k": "t",
@@ -18878,11 +18878,11 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $7,200, out $4,220, ending balance $14,900. Opens the month's detail."
+     "s": "Feb ’27 2027: in $7,200, out $4,220, ending balance $14,900. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Jan ’27"
+     "s": "Feb ’27"
     },
     {
      "k": "t",
@@ -18902,11 +18902,11 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27 2027: in $7,200, out $4,220, ending balance $17,880. Opens the month's detail."
+     "s": "Mar ’27 2027: in $7,200, out $4,220, ending balance $17,880. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Feb ’27"
+     "s": "Mar ’27"
     },
     {
      "k": "t",
@@ -18926,31 +18926,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $7,200, out $4,220, ending balance $20,860. Opens the month's detail."
-    },
-    {
-     "k": "t",
-     "s": "Mar ’27"
-    },
-    {
-     "k": "t",
-     "s": "+$7,200"
-    },
-    {
-     "k": "t",
-     "s": "−$4,220"
-    },
-    {
-     "k": "t",
-     "s": "$20,860"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Apr ’27 2027: in $7,200, out $7,820, ending balance $20,240. Opens the month's detail."
+     "s": "Apr ’27 2027: in $7,200, out $7,820, ending balance $17,260. Opens the month's detail."
     },
     {
      "k": "t",
@@ -18966,6 +18942,30 @@
     },
     {
      "k": "t",
+     "s": "$17,260"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "a",
+     "s": "May ’27 2027: in $7,200, out $4,220, ending balance $20,240. Opens the month's detail."
+    },
+    {
+     "k": "t",
+     "s": "May ’27"
+    },
+    {
+     "k": "t",
+     "s": "+$7,200"
+    },
+    {
+     "k": "t",
+     "s": "−$4,220"
+    },
+    {
+     "k": "t",
      "s": "$20,240"
     },
     {
@@ -18974,11 +18974,11 @@
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $7,200, out $4,220, ending balance $23,220. Opens the month's detail."
+     "s": "Jun ’27 2027: in $7,200, out $4,220, ending balance $23,220. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "May ’27"
+     "s": "Jun ’27"
     },
     {
      "k": "t",
@@ -18998,11 +18998,11 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $7,200, out $4,220, ending balance $26,200. Opens the month's detail."
+     "s": "Jul ’27 2027: in $7,200, out $4,220, ending balance $26,200. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Jun ’27"
+     "s": "Jul ’27"
     },
     {
      "k": "t",
@@ -19022,11 +19022,11 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $7,200, out $4,220, ending balance $29,180. Opens the month's detail."
+     "s": "Aug ’27 2027: in $7,200, out $4,220, ending balance $29,180. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Jul ’27"
+     "s": "Aug ’27"
     },
     {
      "k": "t",
@@ -19046,11 +19046,11 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $7,200, out $4,220, ending balance $32,160. Opens the month's detail."
+     "s": "Sep ’27 2027: in $7,200, out $4,220, ending balance $32,160. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Aug ’27"
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -19088,7 +19088,7 @@
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -19100,7 +19100,7 @@
     },
     {
      "k": "t",
-     "s": "Aug ’27"
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -19132,7 +19132,7 @@
     },
     {
      "k": "a",
-     "s": "OK — you stay above zero in all 12 months. Lowest point $21,200 in Sep."
+     "s": "OK — you stay above zero in all 12 months. Lowest point $21,200 in Oct."
     },
     {
      "k": "t",
@@ -19140,7 +19140,7 @@
     },
     {
      "k": "t",
-     "s": "Lowest point $21,200 — Sep."
+     "s": "Lowest point $21,200 — Oct."
     },
     {
      "k": "t",
@@ -19160,11 +19160,11 @@
     },
     {
      "k": "a",
-     "s": "Sep 2026: in $7,200, out $6,000, ending balance $21,200. Opens the month's detail."
+     "s": "Oct 2026: in $7,200, out $6,000, ending balance $21,200. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -19184,11 +19184,11 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $7,200, out $6,000, ending balance $22,400. Opens the month's detail."
+     "s": "Nov 2026: in $7,200, out $6,000, ending balance $22,400. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Oct"
+     "s": "Nov"
     },
     {
      "k": "t",
@@ -19208,11 +19208,11 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $7,200, out $6,000, ending balance $23,600. Opens the month's detail."
+     "s": "Dec 2026: in $7,200, out $6,000, ending balance $23,600. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Nov"
+     "s": "Dec"
     },
     {
      "k": "t",
@@ -19232,11 +19232,11 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $7,200, out $6,000, ending balance $24,800. Opens the month's detail."
+     "s": "Jan ’27 2027: in $7,200, out $6,000, ending balance $24,800. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Dec"
+     "s": "Jan ’27"
     },
     {
      "k": "t",
@@ -19256,31 +19256,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $7,200, out $6,000, ending balance $26,000. Opens the month's detail."
-    },
-    {
-     "k": "t",
-     "s": "Jan ’27"
-    },
-    {
-     "k": "t",
-     "s": "+$7,200"
-    },
-    {
-     "k": "t",
-     "s": "−$6,000"
-    },
-    {
-     "k": "t",
-     "s": "$26,000"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Feb ’27 2027: in $7,200, out $6,000, ending balance $27,200. Opens the month's detail."
+     "s": "Feb ’27 2027: in $7,200, out $6,000, ending balance $26,000. Opens the month's detail."
     },
     {
      "k": "t",
@@ -19296,7 +19272,7 @@
     },
     {
      "k": "t",
-     "s": "$27,200"
+     "s": "$26,000"
     },
     {
      "k": "t",
@@ -19304,7 +19280,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $7,200, out $6,000, ending balance $28,400. Opens the month's detail."
+     "s": "Mar ’27 2027: in $7,200, out $6,000, ending balance $27,200. Opens the month's detail."
     },
     {
      "k": "t",
@@ -19320,7 +19296,7 @@
     },
     {
      "k": "t",
-     "s": "$28,400"
+     "s": "$27,200"
     },
     {
      "k": "t",
@@ -19328,7 +19304,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27 2027: in $7,200, out $9,600, ending balance $26,000. Opens the month's detail."
+     "s": "Apr ’27 2027: in $7,200, out $9,600, ending balance $24,800. Opens the month's detail."
     },
     {
      "k": "t",
@@ -19344,6 +19320,30 @@
     },
     {
      "k": "t",
+     "s": "$24,800"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "a",
+     "s": "May ’27 2027: in $7,200, out $6,000, ending balance $26,000. Opens the month's detail."
+    },
+    {
+     "k": "t",
+     "s": "May ’27"
+    },
+    {
+     "k": "t",
+     "s": "+$7,200"
+    },
+    {
+     "k": "t",
+     "s": "−$6,000"
+    },
+    {
+     "k": "t",
      "s": "$26,000"
     },
     {
@@ -19352,11 +19352,11 @@
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $7,200, out $6,000, ending balance $27,200. Opens the month's detail."
+     "s": "Jun ’27 2027: in $7,200, out $6,000, ending balance $27,200. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "May ’27"
+     "s": "Jun ’27"
     },
     {
      "k": "t",
@@ -19376,11 +19376,11 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $7,200, out $6,000, ending balance $28,400. Opens the month's detail."
+     "s": "Jul ’27 2027: in $7,200, out $6,000, ending balance $28,400. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Jun ’27"
+     "s": "Jul ’27"
     },
     {
      "k": "t",
@@ -19400,11 +19400,11 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $7,200, out $6,000, ending balance $29,600. Opens the month's detail."
+     "s": "Aug ’27 2027: in $7,200, out $6,000, ending balance $29,600. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Jul ’27"
+     "s": "Aug ’27"
     },
     {
      "k": "t",
@@ -19424,11 +19424,11 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $7,200, out $6,000, ending balance $30,800. Opens the month's detail."
+     "s": "Sep ’27 2027: in $7,200, out $6,000, ending balance $30,800. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Aug ’27"
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -19466,7 +19466,7 @@
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -19478,7 +19478,7 @@
     },
     {
      "k": "t",
-     "s": "Aug ’27"
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -19510,15 +19510,15 @@
     },
     {
      "k": "a",
-     "s": "Careful — short in Sep and Oct and Nov and Dec and Jan ’27 and Feb ’27 and Mar ’27 and Apr ’27 and May ’27 and Jun ’27 and Jul ’27 and Aug ’27. The biggest cause: Everyday expenses ($3,600) in Sep."
+     "s": "Careful — short in Oct and Nov and Dec and Jan ’27 and Feb ’27 and Mar ’27 and Apr ’27 and May ’27 and Jun ’27 and Jul ’27 and Aug ’27 and Sep ’27. The biggest cause: Everyday expenses ($3,600) in Oct."
     },
     {
      "k": "t",
-     "s": "Careful — short in Sep, Oct, Nov, Dec, Jan ’27, Feb ’27, Mar ’27, Apr ’27, May ’27, Jun ’27, Jul ’27, Aug ’27"
+     "s": "Careful — short in Oct, Nov, Dec, Jan ’27, Feb ’27, Mar ’27, Apr ’27, May ’27, Jun ’27, Jul ’27, Aug ’27, Sep ’27"
     },
     {
      "k": "t",
-     "s": "Lowest point -$3,600 (Aug ’27). The biggest cause: Everyday expenses ($3,600) in Sep."
+     "s": "Lowest point -$3,600 (Sep ’27). The biggest cause: Everyday expenses ($3,600) in Oct."
     },
     {
      "k": "t",
@@ -19538,11 +19538,11 @@
     },
     {
      "k": "a",
-     "s": "Sep 2026: in $3,500, out $3,600, ending balance -$100 — short. Opens the month's detail."
+     "s": "Oct 2026: in $3,500, out $3,600, ending balance -$100 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -19570,11 +19570,11 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $3,500, out $3,600, ending balance -$200 — short. Opens the month's detail."
+     "s": "Nov 2026: in $3,500, out $3,600, ending balance -$200 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Oct"
+     "s": "Nov"
     },
     {
      "k": "t",
@@ -19602,11 +19602,11 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $3,500, out $3,600, ending balance -$300 — short. Opens the month's detail."
+     "s": "Dec 2026: in $3,500, out $3,600, ending balance -$300 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Nov"
+     "s": "Dec"
     },
     {
      "k": "t",
@@ -19634,11 +19634,11 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $3,500, out $3,600, ending balance -$400 — short. Opens the month's detail."
+     "s": "Jan ’27 2027: in $3,500, out $3,600, ending balance -$400 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Dec"
+     "s": "Jan ’27"
     },
     {
      "k": "t",
@@ -19666,11 +19666,11 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $3,500, out $3,600, ending balance -$500 — short. Opens the month's detail."
+     "s": "Feb ’27 2027: in $3,500, out $3,600, ending balance -$500 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Jan ’27"
+     "s": "Feb ’27"
     },
     {
      "k": "t",
@@ -19698,11 +19698,11 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27 2027: in $3,500, out $3,600, ending balance -$600 — short. Opens the month's detail."
+     "s": "Mar ’27 2027: in $3,500, out $3,600, ending balance -$600 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Feb ’27"
+     "s": "Mar ’27"
     },
     {
      "k": "t",
@@ -19730,11 +19730,11 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $3,500, out $3,600, ending balance -$700 — short. Opens the month's detail."
+     "s": "Apr ’27 2027: in $3,500, out $3,600, ending balance -$700 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Mar ’27"
+     "s": "Apr ’27"
     },
     {
      "k": "t",
@@ -19762,11 +19762,11 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27 2027: in $3,500, out $3,600, ending balance -$800 — short. Opens the month's detail."
+     "s": "May ’27 2027: in $3,500, out $3,600, ending balance -$800 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Apr ’27"
+     "s": "May ’27"
     },
     {
      "k": "t",
@@ -19794,39 +19794,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $3,500, out $3,600, ending balance -$900 — short. Opens the month's detail."
-    },
-    {
-     "k": "t",
-     "s": "May ’27"
-    },
-    {
-     "k": "t",
-     "s": "!"
-    },
-    {
-     "k": "t",
-     "s": "+$3,500"
-    },
-    {
-     "k": "t",
-     "s": "−$3,600"
-    },
-    {
-     "k": "t",
-     "s": "-$900"
-    },
-    {
-     "k": "t",
-     "s": "short"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "a",
-     "s": "Jun ’27 2027: in $3,500, out $6,000, ending balance -$3,400 — short. Opens the month's detail."
+     "s": "Jun ’27 2027: in $3,500, out $6,000, ending balance -$3,300 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -19846,6 +19814,38 @@
     },
     {
      "k": "t",
+     "s": "-$3,300"
+    },
+    {
+     "k": "t",
+     "s": "short"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "a",
+     "s": "Jul ’27 2027: in $3,500, out $3,600, ending balance -$3,400 — short. Opens the month's detail."
+    },
+    {
+     "k": "t",
+     "s": "Jul ’27"
+    },
+    {
+     "k": "t",
+     "s": "!"
+    },
+    {
+     "k": "t",
+     "s": "+$3,500"
+    },
+    {
+     "k": "t",
+     "s": "−$3,600"
+    },
+    {
+     "k": "t",
      "s": "-$3,400"
     },
     {
@@ -19858,11 +19858,11 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $3,500, out $3,600, ending balance -$3,500 — short. Opens the month's detail."
+     "s": "Aug ’27 2027: in $3,500, out $3,600, ending balance -$3,500 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Jul ’27"
+     "s": "Aug ’27"
     },
     {
      "k": "t",
@@ -19890,11 +19890,11 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $3,500, out $3,600, ending balance -$3,600 — short. Opens the month's detail."
+     "s": "Sep ’27 2027: in $3,500, out $3,600, ending balance -$3,600 — short. Opens the month's detail."
     },
     {
      "k": "t",
-     "s": "Aug ’27"
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -20328,7 +20328,7 @@
     },
     {
      "k": "a",
-     "s": "Try it in a what-if: about $3,700 a month for the rest of the year"
+     "s": "Try it in a what-if: about $5,000 a month for the rest of the year"
     },
     {
      "k": "t",
@@ -20336,7 +20336,7 @@
     },
     {
      "k": "t",
-     "s": "$3,700"
+     "s": "$5,000"
     },
     {
      "k": "t",
@@ -20458,7 +20458,7 @@
     },
     {
      "k": "a",
-     "s": "Try it in a what-if: about $3,700 a month for the rest of the year"
+     "s": "Try it in a what-if: about $5,000 a month for the rest of the year"
     },
     {
      "k": "t",
@@ -20466,7 +20466,7 @@
     },
     {
      "k": "t",
-     "s": "$3,700"
+     "s": "$5,000"
     },
     {
      "k": "t",
@@ -20592,7 +20592,7 @@
     },
     {
      "k": "a",
-     "s": "Try it in a what-if: about $8,100 a month for the rest of the year"
+     "s": "Try it in a what-if: about $10,800 a month for the rest of the year"
     },
     {
      "k": "t",
@@ -20600,7 +20600,7 @@
     },
     {
      "k": "t",
-     "s": "$8,100"
+     "s": "$10,800"
     },
     {
      "k": "t",
@@ -20754,7 +20754,7 @@
     },
     {
      "k": "a",
-     "s": "Try it in a what-if: about $6,100 a month for the rest of the year"
+     "s": "Try it in a what-if: about $8,200 a month for the rest of the year"
     },
     {
      "k": "t",
@@ -20762,7 +20762,7 @@
     },
     {
      "k": "t",
-     "s": "$6,100"
+     "s": "$8,200"
     },
     {
      "k": "t",
@@ -27054,7 +27054,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -27062,7 +27062,7 @@
     },
     {
      "k": "t",
-     "s": "Oct"
+     "s": "Nov"
     },
     {
      "k": "t",
@@ -27070,7 +27070,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in September 2026: $2,980. As of today."
+     "s": "Surplus in October 2026: $2,980. As of today."
     },
     {
      "k": "t",
@@ -27188,7 +27188,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -27196,7 +27196,7 @@
     },
     {
      "k": "t",
-     "s": "Oct"
+     "s": "Nov"
     },
     {
      "k": "t",
@@ -27204,7 +27204,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in September 2026: $1,200. As of today."
+     "s": "Surplus in October 2026: $1,200. As of today."
     },
     {
      "k": "t",
@@ -27334,7 +27334,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -27342,7 +27342,7 @@
     },
     {
      "k": "t",
-     "s": "Oct"
+     "s": "Nov"
     },
     {
      "k": "t",
@@ -27350,7 +27350,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in September 2026: $4,795. As of today."
+     "s": "Surplus in October 2026: $4,795. As of today."
     },
     {
      "k": "t",
@@ -27492,7 +27492,7 @@
     },
     {
      "k": "t",
-     "s": "September 2026"
+     "s": "October 2026"
     },
     {
      "k": "a",
@@ -27500,7 +27500,7 @@
     },
     {
      "k": "t",
-     "s": "Oct"
+     "s": "Nov"
     },
     {
      "k": "t",
@@ -27508,7 +27508,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in September 2026: $0. As of today."
+     "s": "Surplus in October 2026: $0. As of today."
     },
     {
      "k": "t",
@@ -28806,11 +28806,11 @@
     },
     {
      "k": "a",
-     "s": "Sep: surplus $335"
+     "s": "Oct: surplus $335"
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -28875,18 +28875,6 @@
     {
      "k": "t",
      "s": "$420"
-    },
-    {
-     "k": "a",
-     "s": "Oct: surplus $335"
-    },
-    {
-     "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "t",
-     "s": "$335"
     },
     {
      "k": "a",
@@ -29013,6 +29001,18 @@
      "s": "$335"
     },
     {
+     "k": "a",
+     "s": "Sep ’27: surplus $335"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
+    },
+    {
+     "k": "t",
+     "s": "$335"
+    },
+    {
      "k": "t",
      "s": "Estimates — these move with your live account balances."
     }
@@ -29036,11 +29036,11 @@
     },
     {
      "k": "a",
-     "s": "Sep: surplus $1,495"
+     "s": "Oct: surplus $1,495"
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -29113,18 +29113,6 @@
     {
      "k": "t",
      "s": "$1,900"
-    },
-    {
-     "k": "a",
-     "s": "Oct: surplus $1,495"
-    },
-    {
-     "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "t",
-     "s": "$1,495"
     },
     {
      "k": "a",
@@ -29251,6 +29239,18 @@
      "s": "$1,495"
     },
     {
+     "k": "a",
+     "s": "Sep ’27: surplus $1,495"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
+    },
+    {
+     "k": "t",
+     "s": "$1,495"
+    },
+    {
      "k": "t",
      "s": "Estimates — these move with your live account balances."
     }
@@ -29274,11 +29274,11 @@
     },
     {
      "k": "a",
-     "s": "Sep: surplus $4,795"
+     "s": "Oct: surplus $4,795"
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -29347,18 +29347,6 @@
     {
      "k": "t",
      "s": "$3,600"
-    },
-    {
-     "k": "a",
-     "s": "Oct: surplus $4,795"
-    },
-    {
-     "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "t",
-     "s": "$4,795"
     },
     {
      "k": "a",
@@ -29485,6 +29473,18 @@
      "s": "$4,795"
     },
     {
+     "k": "a",
+     "s": "Sep ’27: surplus $4,795"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
+    },
+    {
+     "k": "t",
+     "s": "$4,795"
+    },
+    {
      "k": "t",
      "s": "Estimates — these move with your live account balances."
     }
@@ -29508,11 +29508,11 @@
     },
     {
      "k": "a",
-     "s": "Sep: surplus $0"
+     "s": "Oct: surplus $0"
     },
     {
      "k": "t",
-     "s": "Sep"
+     "s": "Oct"
     },
     {
      "k": "t",
@@ -29553,18 +29553,6 @@
     {
      "k": "t",
      "s": "= Surplus"
-    },
-    {
-     "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "a",
-     "s": "Oct: surplus $0"
-    },
-    {
-     "k": "t",
-     "s": "Oct"
     },
     {
      "k": "t",
@@ -29685,6 +29673,18 @@
     {
      "k": "t",
      "s": "Aug ’27"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Sep ’27: surplus $0"
+    },
+    {
+     "k": "t",
+     "s": "Sep ’27"
     },
     {
      "k": "t",
@@ -36814,7 +36814,7 @@
     "$11,920",
     "$14,900",
     "$17,880",
-    "$20,860",
+    "$17,260",
     "$20,240"
    ],
    "renders": 36
@@ -37518,9 +37518,9 @@
    "inside": "ContributionRoomScreen",
    "line": "accessibilityLabel={`Try it in a what-if: about ${money(perMonth)} a month for the rest of the year`}>",
    "values": [
-    "$3,700",
-    "$8,100",
-    "$6,100"
+    "$5,000",
+    "$10,800",
+    "$8,200"
    ],
    "renders": 4
   },
@@ -37538,9 +37538,9 @@
    "inside": "ContributionRoomScreen",
    "line": "<Text style={s.tryTxt}>Try it in a what-if — about {money(perMonth)}/month ›</Text>",
    "values": [
-    "$3,700",
-    "$8,100",
-    "$6,100"
+    "$5,000",
+    "$10,800",
+    "$8,200"
    ],
    "renders": 4
   },
@@ -37663,9 +37663,9 @@
    "values": [
     "$0",
     "$60,000",
-    "$1,500",
+    "$1,538",
     "$20,000",
-    "$1,250"
+    "$1,333"
    ],
    "renders": 16
   },
@@ -37682,8 +37682,8 @@
    "line": "This month: funded {money(fundedMo)} of {money(perMonth)}/month{behind ? ' — allocate more to catch up.' : ' ✓'}",
    "values": [
     "$0",
-    "$1,500",
-    "$1,250"
+    "$1,538",
+    "$1,333"
    ],
    "renders": 8
   },
@@ -37930,10 +37930,9 @@
    "inside": "HomeScreen",
    "line": "if (due.length) Alert.alert('Debt due soon', due.map((d: any) => `${d.label} — ${maskedMoney(requiredPayment(d))} due day ${d.due_day}`).join('\\n'), [{ text: 'OK' }]);",
    "values": [
-    "$300",
     "$1,900"
    ],
-   "renders": 2
+   "renders": 1
   },
   {
    "site": "src/screens/HomeScreen.tsx:295",

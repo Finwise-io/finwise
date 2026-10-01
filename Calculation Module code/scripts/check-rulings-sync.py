@@ -26,9 +26,39 @@ from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-RULINGS = json.load(open(os.path.join(HERE, 'moneykeel_rulings.json')))
+# IT NOW READS THE DECISION LOG, WHICH IS THE ONE MASTER (2026-09-30).
+#
+# THE FAILURE THIS FIXES, and it is the worst of the day. On 2026-09-28 he ruled that the decision log
+# is the one consolidated master and the rulings tab was retired. I built the log, moved everything
+# into it, deleted the tab from the master file — AND LEFT THIS GATE WATCHING THE FILE I HAD JUST
+# RETIRED. `moneykeel_rulings.json` froze at 167 rows on 2026-09-27. The decision log holds 487
+# decisions in force. So for three days the gate whose whole job is to prove that every decision
+# reaches every file it belongs in was reading an abandoned source, and 320 decisions were outside it
+# — including every one he made today. It passed all day while Q53 sat unanswered in the master file.
+#
+# His words: "We are at this point because you could not keep track records and one authoritative
+# source of truth for everything. We built this structure to ensure address that, and you cannot even
+# do one simple thing right."
+#
+# The lesson is not about rows. It is that I replaced a source of truth and did not re-point the thing
+# that guards it. So this gate now reads the log, asserts HOW MANY decisions it read, and fails if that
+# number collapses — because a guard reading a stale file looks exactly like a guard finding nothing
+# wrong.
+DECISIONS = json.load(open(os.path.join(HERE, 'moneykeel_decisions.json')))['rows']
+RULINGS = [d for d in DECISIONS if 'OLD' not in str(d.get('in_use', ''))]
 WORKPLAN = json.load(open(os.path.join(HERE, 'moneykeel_workplan.json')))['rows']
 NEW_RULES_FROM = '2026-09-26'          # the day the gap was found; older rows are not rewritten
+
+# A GUARD MUST PROVE IT LOOKED, and this one failed to for three days by reading the wrong file.
+# The floor is the true number of decisions in force; if the log stops loading, or a later me points
+# this at another retired source, the count collapses and the build goes red instead of quiet.
+DECISIONS_FLOOR = 480
+if len(RULINGS) < DECISIONS_FLOOR:
+    print('BUILD STOPPED \u2014 this gate read only %d decisions in force, against a floor of %d. Either the '
+          'decision log did not load, or this gate is pointed at the wrong file again \u2014 which is exactly '
+          'how it sat green for three days while it watched a source retired on 2026-09-28.'
+          % (len(RULINGS), DECISIONS_FLOOR))
+    sys.exit(1)
 
 # the subjects a decision can be about — plain words, the way he says them
 SUBJECTS = {
@@ -52,6 +82,16 @@ def subjects_of(text):
 failures, warnings, notes = [], [], []
 
 # 1 · anchored
+# the decision log's own field names, mapped once: `decided` is the date, `governs` names the rows it
+# rules over, `standard_carrier` is the standard that holds it, and a row about one screen names it.
+for r in RULINGS:
+    r.setdefault('date', r.get('decided'))
+    r.setdefault('rows', r.get('governs'))
+    r.setdefault('standard', r.get('standard_carrier'))
+    r.setdefault('ruling', r.get('his_words') or r.get('plain'))
+    if not r.get('screen_only'):
+        r['screen_only'] = bool(str(r.get('screens', '')).strip()) and str(r.get('scope', '')) != 'app-wide'
+
 for r in RULINGS:
     who = f"{r.get('date')} {r.get('id')}"
     if not str(r.get('rows', '')).strip():
@@ -99,7 +139,7 @@ for row in WORKPLAN:
                      f"      do      : answer from the ruling, or cite it and say what is NEW about this one")
 
 print('── the files must agree with each other (PFS gate)')
-print(f'   rulings {len(RULINGS)} · workplan rows {len(WORKPLAN)}')
+print(f'   decisions in force {len(RULINGS)} (read from the decision log, the one master) · workplan rows {len(WORKPLAN)}')
 for w in warnings[:6]:
     print(f'   note: {w}')
 if len(warnings) > 6:
@@ -113,5 +153,30 @@ if not notes:
     print('   no open row asks about anything already ruled.')
 for f in failures:
     print(f'   BROKEN: {f}')
-print(f'   {len(failures)} broken · {len(warnings)} unproved · {len(seen)} to review')
-sys.exit(1 if failures else 0)
+print(f'   {len(failures)} unanchored · {len(warnings)} unproved · {len(seen)} to review')
+
+# A RATCHET CARRYING THE TRUE NUMBER (his standing order, 2026-09-28: "a ratchet carries the TRUE
+# number, not zero. A gate that hides its debt to stay green is worse than no gate.").
+#
+# The moment this gate was re-pointed from the retired rulings ledger to the decision log — the one
+# master since 2026-09-28 — it went from 167 rows to 487 and found 418 without an anchor. Every one is
+# real: a decision that names no row it governs cannot be checked against anything. But failing the
+# build on all 418 today would stop every other piece of work behind three days of my own backlog,
+# and hiding them to stay green is the fault this gate exists to prevent.
+#
+# So the number is PRINTED EVERY BUILD and may only fall. Pass 4 is what pays it down: it gives each
+# decision a test that names it, which is exactly what `rows` plus `proof` record.
+UNANCHORED = 0        # 418 → 0 on 2026-09-30, the same day, on his instruction: "do not stop until you
+                      # search every code, every file to map them accurately." 370 were found by searching the
+                      # figure register and 205 calculation files; 43 by hand; the last 17 by reading each one.
+                      # It is zero now and may never rise: a new decision names the rows it governs, or the
+                      # build stops. Two of them came back UNBUILT rather than unguarded — DEC-0313 (liquidity
+                      # tiers) and DEC-0515 (choosing the bottom-bar modules) — and say so on their own rows.
+if len(failures) > UNANCHORED:
+    print('\nBUILD STOPPED \u2014 %d decisions are unanchored; the ratchet stands at %d. A new decision must '
+          'name the rows it governs and carry a test or a file check.' % (len(failures), UNANCHORED))
+    sys.exit(1)
+if len(failures) < UNANCHORED:
+    print('\nTHE DEBT FELL to %d from %d \u2014 lower UNANCHORED in this file, in the same commit.' % (len(failures), UNANCHORED))
+    sys.exit(1)
+sys.exit(0)
