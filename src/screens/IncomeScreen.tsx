@@ -12,7 +12,7 @@ import { useStore, RecurringIncome } from '../store/useStore';
 import { Button, Card, TipCard, SegmentedControl } from '../components/UI';
 import { money2 } from '../domain/_shared/num';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
-import { format, addDays, addMonths } from 'date-fns';
+import { format, addDays, addMonths, parseISO } from 'date-fns';
 
 type IncomeFreq = 'hourly' | 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'annually';
 type Tab = 'list' | 'add' | 'recurring';
@@ -176,7 +176,7 @@ export default function IncomeScreen() {
             ListEmptyComponent={
               <View style={styles.empty}>
                 <Text style={{ fontSize: 38, marginBottom: 12 }}>💵</Text>
-                <Text style={styles.emptyTitle}>No income entries yet</Text>
+                <Text style={styles.emptyTitle}>Nothing entered yet.</Text>   {/* Q48 wording */}
                 <Text style={styles.emptySub}>Tap "Add new" above to log your first income</Text>
                 <TouchableOpacity style={styles.emptyBtn} onPress={() => setTab('add')}>
                   <Text style={styles.emptyBtnText}>+ Add income</Text>
@@ -199,7 +199,7 @@ export default function IncomeScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.entryLabel}>{(item as any).source || 'Income'}</Text>
                   <Text style={styles.entryDate}>
-                    {format(new Date(item.date), 'MMM d, yyyy')}
+                    {format(parseISO(String(item.date)), 'MMM d, yyyy')}
                     {(item as any).notes ? ` · ${(item as any).notes}` : ''}
                   </Text>
                 </View>

@@ -172,7 +172,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-051",
-  "notes": "16 of 24 of his words appear in what implements it: account accounts added approved assumed brokerage; cited by identifier in this-month.ts"
+  "notes": "17 of 24 of his words appear in what implements it: account accounts added approved assumed brokerage; cited by identifier in this-month.ts"
  },
  {
   "id": "DEC-0201",
@@ -488,5 +488,12 @@
   "check": "CITED",
   "governs": "MK-CF-M-049 · MK-CF-M-053",
   "notes": "4 of 5 of his words appear in what implements it: inflow month outflow question; cited by identifier in this-month.ts"
+ },
+ {
+  "id": "DEC-1112",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_log-i",
+  "notes": "only 15 of 51 appear — present: calendar detail entered fixed guaranteed · absent: approval approved audit audited bands; cited by identifier in decis"
  }
 ]

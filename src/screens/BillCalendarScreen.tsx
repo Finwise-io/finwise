@@ -4,6 +4,8 @@
 // ('will the money be there two days before it's due?'). Dated bills are added and edited HERE,
 // and a deferred loan visibly starts paying in its real first month. One grid (F2), no second math.
 import TopBar from '../components/TopBar';
+import { EmptyNote } from '../components/UI';
+import { SectionBand } from '../components/SectionBand';
 import React, { useMemo, useState } from 'react';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Switch } from 'react-native';
@@ -160,12 +162,13 @@ export default function BillCalendarScreen() {
             </TouchableOpacity>
           );
         })}
+        {grid.totalIn === 0 && grid.totalOut === 0 && <EmptyNote door="bills" />}   {/* Q48: nothing behind the table yet */}
       </View>
 
       {/* coming up (r40): day-level big bills — 55-70 copy: savings or a backup, never a family ask */}
       {(bills.length > 0 || deferredDebts.length > 0) && (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Coming up</Text>
+          <SectionBand inCard quiet title="COMING UP" />
           {bills.map((b) => (
             <TouchableOpacity accessibilityRole="button" key={b.id} style={styles.billRow} onPress={() => editBill(b.label)}
               accessibilityLabel={`${b.label}, ${figSaid('MK-CF-M-028', b.amount)} due ${fmtDate(b.dueDate)}. ${b.shortfall > 0 ? `Short ${figSaid('MK-CF-M-062', b.shortfall)} — set it aside by ${fmtDate(b.needByDate)}, from savings or a backup.` : `Covered: about ${figSaid('MK-CF-M-063', b.availableByNeed)} there by ${fmtDate(b.needByDate)}.`} Opens the editor.`}>
@@ -198,7 +201,7 @@ export default function BillCalendarScreen() {
       {/* beyond the window (r43): never silently dropped */}
       {grid.later.length > 0 && (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Later — beyond this 12-month window</Text>
+          <SectionBand inCard quiet title="LATER — BEYOND THIS 12-MONTH WINDOW" />
           {grid.later.map((l, i) => (
             <Text key={i} style={styles.billShort}>· {l.label} — {fig('MK-CF-M-016', Math.round(l.amount))}{l.year ? `, ${MO[l.month - 1]} ${l.year}` : ''}</Text>
           ))}
@@ -266,7 +269,7 @@ export default function BillCalendarScreen() {
       {/* prioritize when short — protect the essentials */}
       {short && (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>If you can't pay everything, pay these first</Text>
+          <SectionBand inCard quiet title="IF YOU CAN'T PAY EVERYTHING, PAY THESE FIRST" />
           <Text style={styles.tiny}>Protect the essentials — housing, food, utilities, medicine — before anything optional.</Text>
           {critical.length > 0
             ? critical.map((c: any) => <Text key={c.id} style={styles.critItem}>• {c.label}</Text>)
@@ -291,7 +294,7 @@ const styles = StyleSheet.create({
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   cardTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
-  billRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 44, justifyContent: 'center' },
+  billRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 52, justifyContent: 'center' },
   billName: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   billShort: { fontSize: 13, color: Colors.textSecondary, marginTop: 3, lineHeight: 17 },
   billOk: { fontSize: 13, color: Colors.primary, fontWeight: '700', marginTop: 3 },
@@ -306,17 +309,17 @@ const styles = StyleSheet.create({
   rowHead: { flexDirection: 'row', alignItems: 'center', paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: Colors.border },
   hCell: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.3 },
   numCell: { width: 88, textAlign: 'right' },
-  mRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 48 },
+  mRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 52 },
   mLabel: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   mChev: { fontSize: 17, color: Colors.textTertiary, marginLeft: 4 },
   mNum: { fontSize: 15, fontVariant: ['tabular-nums'] },
   critItem: { fontSize: 13, color: Colors.textPrimary, marginTop: 4, fontWeight: '600' },
   monthWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  monthChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 7, paddingHorizontal: 10, minHeight: 36 },
+  monthChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 7, paddingHorizontal: 10, minHeight: 44 },
   monthChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   monthChipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   formRow: { flexDirection: 'row', gap: 10 },
-  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, minHeight: 40 },
+  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, minHeight: 44 },
   switchL: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary, flex: 1 },
   addBtn: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10, alignItems: 'center', minHeight: 48, justifyContent: 'center', borderWidth: 1.5, borderColor: Colors.border },
   addBtnTxt: { fontSize: 15, fontWeight: '800', color: Colors.primaryDark },

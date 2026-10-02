@@ -227,11 +227,15 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-209', 'MoneyKeel/functions/cashflow/income-summary.ts', 'MoneyKeel/functions/cashflow/income-summary.test.ts'],
   ['MK-CF-F-210', 'MoneyKeel/functions/cashflow/income-summary.ts', 'MoneyKeel/functions/cashflow/income-summary.test.ts'],
   ['MK-CF-F-211', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/the-debts.test.ts'],
+  ['MK-CF-F-212', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
+  ['MK-CF-F-213', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
+  ['MK-CF-F-214', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
+  ['MK-CF-F-215', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
 ];
 
 describe('every Cash flow function traces to its proof in one hop (step 3.c)', () => {
   it('the table covers every Cash flow function in the code — and says how many', () => {
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(202);
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(206);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
   });
 

@@ -1,0 +1,107 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>MoneyKeel — Paycheck months, v02</title><style>
+:root{--bg:#F6F7F5;--card:#FFFFFF;--t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;--green:#178F6B;--greenDark:#0F6E56;--greenDeep:#085041;--greenLight:#E1F5EE;--bandLight:#DFF2E9;--border:rgba(0,0,0,.10);--red:#A32D2D;--amber:#854F0B;--gain:#006300}
+body{font-family:-apple-system,Inter,Segoe UI,sans-serif;background:#ECEEED;margin:0;padding:24px;color:var(--t1)}
+h1{font-size:20px;margin:0 0 6px} .blk{background:#fff;border-radius:10px;padding:12px 16px;margin:0 0 12px;max-width:860px;font-size:13px;line-height:19px} .blk h2{font-size:13px;margin:0 0 6px;letter-spacing:.3px} .blk ul{margin:0;padding-left:18px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start} .frame{display:flex;flex-direction:column;gap:8px} .cap{font-size:12px;color:#555;max-width:390px}
+.phone{width:390px;background:var(--bg);border-radius:40px;border:8px solid #1A1A18;overflow:hidden}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:12px 22px 4px;font-size:13px;font-weight:700}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 10px}
+.tbtn{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid rgba(0,0,0,.1);border-radius:19px;background:#fff;font-size:13px;font-weight:700;color:#6B6B66}
+.wordmark{font-size:15px;font-weight:800;letter-spacing:.2px} .wordmark b{color:#178F6B;font-weight:800} .wordmark i{font-style:normal;color:#0B2545}
+.tright{display:flex;gap:8px;align-items:center} .tico{width:32px;height:32px;border:1px solid rgba(0,0,0,.1);border-radius:19px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;color:#6B6B66}
+.content{padding:16px}
+.h1{font-size:20px;font-weight:800;margin:4px 0 8px;line-height:26px}
+.card{background:var(--card);border-radius:14px;padding:0 0 8px;margin-bottom:10px;overflow:hidden}
+.band{background:var(--greenDeep);color:#fff;padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-radius:0}
+.band .v{font-size:15px}
+.lband{background:var(--bandLight);color:var(--greenDeep);padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.5px;display:flex;justify-content:space-between}
+.quiet{color:var(--greenDeep);font-size:11px;font-weight:800;letter-spacing:.5px;padding:12px 12px 4px;text-transform:uppercase}
+.hero{font-size:30px;font-weight:800;padding:8px 12px 2px;font-variant-numeric:tabular-nums}
+.r{display:flex;justify-content:space-between;gap:12px;padding:0 12px;min-height:52px;align-items:center;font-size:15px;border-top:1px solid var(--border)} .r:first-child{border-top:0}
+.r .v{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.p{color:var(--t2);line-height:1.35;padding:6px 12px;margin:0} .p.s11{font-size:11px;color:var(--t3)} .p.s13{font-size:13px} .p.s15{font-size:15px;color:var(--t1)} .p.s17{font-size:17px;color:var(--t1)}
+.btn{display:block;margin:8px 12px;min-height:48px;line-height:48px;text-align:center;border-radius:12px;background:var(--green);color:#fff;font-weight:800;font-size:17px}
+.btn.sec{background:#fff;border:1.5px solid var(--border);color:var(--t1);font-size:15px;font-weight:700}
+.chips{padding:4px 12px} .chip{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;margin:4px 6px 0 0;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:700;color:var(--t2)} .chip.on{border-color:var(--green);background:var(--greenLight);color:var(--greenDark)}
+.ink{color:var(--t1)} .link{color:var(--green);font-weight:700} .i{display:inline-block;width:14px;height:14px;border-radius:7px;border:1px solid rgba(255,255,255,.7);font-size:9px;line-height:12px;text-align:center;margin-left:6px}
+.i.d{border-color:var(--greenDeep);color:var(--greenDeep)}
+</style></head><body>
+<h1>Paycheck months — v02</h1>
+<div class="blk"><h2>WHAT THIS IS</h2>The Paycheck months screen exactly as built on 2026-10-02, after it was audited against the screen standard (moneykeel_pres_spec_screen-design-standard_v01.md, sections 2 and 5) and the gaps fixed. His word of 2026-10-02 — <i>"ok. open them from build but make sure it meets new design standards"</i> — is the approval; the audit is this file. Every string is what src/screens/PaycheckMonthsScreen.tsx renders, in render order, at the StyleSheet's size, weight and colour; the app bar is TopBar.tsx with ‹ Back.</div>
+<div class="blk"><h2>WHAT CHANGED FROM v01 (2026-10-02, drawn before the audit)</h2><ul><li>The title is weight 800.</li><li>Month rows are 52 points.</li><li>No guaranteed income reads &quot;Nothing entered yet. Add your guaranteed income ›&quot; — a new door on the one list.</li><li>REGULAR BILLS is a quiet label (no total under it).</li></ul></div>
+<div class="blk"><h2>CHECKED BEFORE SENDING</h2><ul><li>[x] 0. Started from the build (no earlier approved design existed); the approval of 2026-10-02 is named above; every difference from v01 is listed.</li><li>[x] 1. Status bar and the MoneyKeel bar with ‹ Back on every frame; no tab bar (a pushed screen).</li><li>[x] 2. One title at 20 points, weight 800, or none; the frame invents no title.</li><li>[x] 3. Every dark-green band is edge to edge, square, capitals, and sits on a group with a total.</li><li>[x] 4. A section without a total is a quiet label.</li><li>[x] 5. Every size is on the scale (11 · 13 · 15 · 17 · 20 · 30 · 38); nothing under 10.5; money at 17 or more outside the month tables.</li><li>[x] 6. Words on the canon (one_term_per_concept.test.ts); doors from the one list; &quot;safe&quot; never appears.</li><li>[x] 7. The numbers add up (they are the door&#x27;s own); a figure with nothing behind it reads $0, then &quot;Nothing entered yet.&quot; and its door.</li><li>[x] 8. Every string is what the code renders, in render order, at the StyleSheet&#x27;s size, weight and colour.</li><li>[x] 9. Both data states are drawn: with data, and the first day.</li><li>[x] 10. Every change is listed above; no orange marks, because the frame IS the change.</li><li>[x] 11. Colours are the tokens; no meaning rests on colour alone.</li><li>[x] 12. Tap targets 44 points, rows 52.</li><li>[x] 13. File named by the standard, v01 archived, record and tracker updated.</li><li>[x] 14. Phone-width markup, no broken tags.</li><li>[x] 15. This list was walked on the rendered frames before sending.</li></ul><p style="margin:6px 0 0">Not checked here, by design: the larger-text settings and contrast on a device — on the next TestFlight build.</p></div>
+<div class="row">
+  <div class="frame"><div class="phone">
+<div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+<div class="topbar"><span class="tbtn">‹ Back</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+<div class="content">
+<p class="h1">Your paycheck, month by month</p>
+<div class="card">
+<p class="p s13">Every month is its own real month — a pension that lands in December shows up in December, a property tax in November dents November. This year: $55,140 (calculated).</p>
+<div class="r"><span>Oct</span><span class="v">$4,795</span></div>
+</div>
+<div class="card">
+<div class="band"><span>Inflow (Social Security + pension)</span></div>
+<div class="r"><span>Social Security</span><span class="v">$2,200</span></div>
+<div class="r"><span>Pension</span><span class="v">$1,300</span></div>
+<div class="r"><span>Draw from savings</span><span class="v">$1,295</span></div>
+<div class="r"><span>= Inflow</span><span class="v">$4,795</span></div>
+</div>
+<div class="card">
+<div class="band"><span>Big bills this month</span></div>
+<p class="p s13">No big bills this month</p>
+<div class="r"><span>= Surplus</span><span class="v">$4,795</span></div>
+</div>
+<div class="card">
+<div class="quiet">Regular bills (this is what it pays for)</div>
+<div class="r"><span>Everyday expenses</span><span class="v">$3,600</span></div>
+<div class="r"><span>Nov</span><span class="v">$4,795</span></div>
+<div class="r"><span>Dec</span><span class="v">$4,795</span></div>
+<div class="r"><span>Jan ’27</span><span class="v">$4,795</span></div>
+<div class="r"><span>Feb ’27</span><span class="v">$4,795</span></div>
+<div class="r"><span>Mar ’27</span><span class="v">$4,795</span></div>
+<div class="r"><span>Apr ’27</span><span class="v">$4,795</span></div>
+<div class="r"><span>May ’27</span><span class="v">$4,795</span></div>
+<div class="chips"><span class="chip">Jun ’27</span><span class="chip">bill month</span></div>
+<div class="r"><span></span><span class="v">$2,395</span></div>
+<div class="r"><span>Jul ’27</span><span class="v">$4,795</span></div>
+<div class="r"><span>Aug ’27</span><span class="v">$4,795</span></div>
+<div class="r"><span>Sep ’27</span><span class="v">$4,795</span></div>
+<p class="p s13">Estimates — these move with your live account balances.</p>
+</div>
+</div></div><p class="cap">Paycheck months — a retired household.</p></div>
+  <div class="frame"><div class="phone">
+<div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+<div class="topbar"><span class="tbtn">‹ Back</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+<div class="content">
+<p class="h1">Your paycheck, month by month</p>
+<div class="card">
+<p class="p s13">Every month is its own real month — a pension that lands in December shows up in December, a property tax in November dents November. This year: $0 (calculated).</p>
+<div class="r"><span>Oct</span><span class="v">$0</span></div>
+</div>
+<div class="card">
+<div class="band"><span>Inflow (income (take-home))</span></div>
+<p class="p s13">Nothing entered yet. Add your guaranteed income ›</p>
+<div class="r"><span>Draw from savings</span><span class="v">$0</span></div>
+<div class="r"><span>= Inflow</span><span class="v">$0</span></div>
+</div>
+<div class="card">
+<div class="band"><span>Big bills this month</span></div>
+<p class="p s13">No big bills this month</p>
+<div class="r"><span>= Surplus</span><span class="v">$0</span></div>
+<div class="r"><span>Nov</span><span class="v">$0</span></div>
+<div class="r"><span>Dec</span><span class="v">$0</span></div>
+<div class="r"><span>Jan ’27</span><span class="v">$0</span></div>
+<div class="r"><span>Feb ’27</span><span class="v">$0</span></div>
+<div class="r"><span>Mar ’27</span><span class="v">$0</span></div>
+<div class="r"><span>Apr ’27</span><span class="v">$0</span></div>
+<div class="r"><span>May ’27</span><span class="v">$0</span></div>
+<div class="r"><span>Jun ’27</span><span class="v">$0</span></div>
+<div class="r"><span>Jul ’27</span><span class="v">$0</span></div>
+<div class="r"><span>Aug ’27</span><span class="v">$0</span></div>
+<div class="r"><span>Sep ’27</span><span class="v">$0</span></div>
+<p class="p s13">Estimates — these move with your live account balances.</p>
+</div>
+</div></div><p class="cap">Paycheck months — the first day, nothing entered.</p></div>
+</div>
+</body></html>

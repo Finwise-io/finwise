@@ -2,6 +2,7 @@
 // flagged expense: the plain facts, why it stood out (one honest comparison), and a two-button resolution.
 // Reassures more than it warns — the words scam/fraud/alert never appear in v1, nothing is ever red.
 import TopBar from '../components/TopBar';
+import { SectionBand } from '../components/SectionBand';
 import React, { useMemo, useState } from 'react';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
@@ -41,12 +42,15 @@ export default function WorthALookScreen() {
 
   if (!f) {
     return (
-      <View style={[styles.root, { justifyContent: 'center', padding: Spacing.lg }]}>
+      <View style={styles.root}>
+        <TopBar back />
+        <View style={{ flex: 1, justifyContent: 'center', padding: Spacing.lg }}>
         <Text style={styles.magnifier}>🔍</Text>
         <Text style={[styles.factHead, { textAlign: 'center' }]}>Nothing to look at</Text>
         <Text style={[styles.softener, { textAlign: 'center' }]}>
           When an account is connected, we watch it for odd activity — hand-typed entries are yours, we never question them.
         </Text>
+        </View>
       </View>
     );
   }
@@ -73,7 +77,7 @@ export default function WorthALookScreen() {
       {f.payee ? <Text style={styles.payee}>Paid to: {String(f.payee).replace(/\b\w/g, (c) => c.toUpperCase())}</Text> : null}
 
       {/* why we're showing this — the comparison stored at flag time, so it never drifts */}
-      <Text style={styles.whyHead}>WHY WE'RE SHOWING THIS</Text>
+      <SectionBand quiet inCard inset={0} title="WHY WE'RE SHOWING THIS" />
       {/* the comparison masks its dollars but stays readable — '8 times your usual' is words */}
       <Text style={styles.whyBody}>{maskDollars(flagComparisonText(f))}</Text>
       <Text style={styles.softener}>Most large {f.reason === 'first_time_payee' ? 'first-time ' : ''}payments are fine — you know best.</Text>
@@ -82,7 +86,7 @@ export default function WorthALookScreen() {
         <Text style={styles.confirmed}>✓ You confirmed this on {weekdayDate(String(f.resolved_at ?? '').slice(0, 10))}</Text>
       ) : flaggedByYou ? (
         <View style={styles.checklistBox}>
-          <Text style={styles.checklistHead}>WHAT TO DO</Text>
+          <SectionBand quiet inCard inset={12} title="WHAT TO DO" />
           <Text style={styles.checklistItem}>1. Call the number on the back of your bank card — they can freeze the card and reverse charges.</Text>
           <Text style={styles.checklistItem}>2. If you shared a code or password recently, change it.</Text>
           <Text style={styles.checklistItem}>3. This stays here for your records until you mark it settled.</Text>

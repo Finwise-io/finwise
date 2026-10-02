@@ -5,6 +5,7 @@
 // annuities / other (withdrawals & required minimums live elsewhere; the draw from savings replaces them).
 import { retirementIncomeMonthly } from '../domain/income/onboarding';
 import TopBar from '../components/TopBar';
+import { InfoDot } from '../components/UI';
 import React, { useMemo, useState } from 'react';
 import { fig, figPer, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
@@ -103,7 +104,7 @@ export default function MonthlyIncomeScreen() {
       <Text style={styles.sub}>The money that arrives no matter what markets do. This builds your paycheck — no bank login needed.</Text>
 
       <View style={styles.card}>
-        <SectionBand inCard title="Social Security" />
+        <SectionBand inCard quiet title="Social Security" />
         <View style={styles.row}>
           <TouchableOpacity accessibilityRole="radio" accessibilityState={{ selected: ssReceiving }}
             style={[styles.chip, ssReceiving && styles.chipOn]} onPress={() => setSsReceiving(true)}>
@@ -131,7 +132,7 @@ export default function MonthlyIncomeScreen() {
       </View>
 
       <View style={styles.card}>
-        <SectionBand inCard title="Pension" />
+        <SectionBand inCard quiet title="Pension" />
         <Text style={styles.label}>Amount {pensionFreq === 'monthly' ? 'each month' : pensionFreq === 'quarterly' ? 'each quarter' : 'each year'}</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" value={pension} onChangeText={setPension}
           placeholder="1,600" accessibilityLabel="pension amount" />
@@ -139,22 +140,25 @@ export default function MonthlyIncomeScreen() {
       </View>
 
       <View style={styles.card}>
-        <SectionBand inCard title="Annuity" />
+        <SectionBand inCard quiet title="Annuity" />
         <TextInput style={styles.input} keyboardType="decimal-pad" value={annuity} onChangeText={setAnnuity}
           placeholder="0" accessibilityLabel="annuity amount" />
         {rhythmChips(annuityFreq, setAnnuityFreq, annuityMonth, setAnnuityMonth, 'annuity')}
       </View>
 
       <View style={styles.card}>
-        <SectionBand inCard title="Other steady income" />
+        <SectionBand inCard quiet title="Other steady income" />
         <Text style={styles.label}>Each month (rental, part-time, anything regular)</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" value={other} onChangeText={setOther}
           placeholder="0" accessibilityLabel="other steady income each month" />
       </View>
 
       <View style={styles.totalCard}>
-        <Text style={styles.totalLabel}>Your guaranteed income</Text>
-        <Text style={styles.totalV} accessibilityLabel={`guaranteed income ${fig('MK-CF-M-069', guaranteedMonthly)} a month`}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Text style={styles.totalLabel}>Your guaranteed income</Text>
+          <InfoDot term="guaranteedIncome" />
+        </View>
+        <Text style={styles.totalV} accessibilityLabel={`guaranteed income ${figSaid('MK-CF-M-069', guaranteedMonthly)}`}>
           {figPer('MK-CF-M-069', guaranteedMonthly)}
         </Text>
       </View>
@@ -168,7 +172,7 @@ export default function MonthlyIncomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  h1: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   section: { fontSize: 17, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.xs },

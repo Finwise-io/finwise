@@ -6,6 +6,7 @@
 import { inflowLabel } from '../../MoneyKeel/functions/cashflow/this-month';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import TopBar from '../components/TopBar';
+import { EmptyNote } from '../components/UI';
 import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -45,7 +46,7 @@ export default function PaycheckMonthsScreen() {
             {open && (
               <View style={styles.detail}>
                 <SectionBand inCard inset={14} title={inflowLabel('Inflow', m.guaranteed.map((g) => g.source))} />
-                {m.guaranteed.length === 0 && <Text style={styles.line}>No guaranteed income entered yet</Text>}
+                {m.guaranteed.length === 0 && <EmptyNote door="guaranteed" />}
                 {m.guaranteed.map((g, i) => (
                   <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={fig('MK-CF-M-024', g.amount)} />
                 ))}
@@ -59,7 +60,7 @@ export default function PaycheckMonthsScreen() {
                 <Row label="= Surplus" value={fig('MK-CF-M-049', m.netSafeToSpend)} bold />
                 {regulars.length > 0 && (
                   <>
-                    <SectionBand inCard inset={14} title="Regular bills (this is what it pays for)" />
+                    <SectionBand inCard inset={14} quiet title="Regular bills (this is what it pays for)" />
                     {regulars.map((b, i) => (
                       <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={fig('MK-CF-M-050', b.amount)} muted />
                     ))}
@@ -87,10 +88,10 @@ function Row({ label, value, bold, muted }: { label: string; value: string; bold
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
-  h1: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginBottom: Spacing.md, lineHeight: 18 },
   monthCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, marginBottom: 6, overflow: 'hidden' },
-  monthRow: { flexDirection: 'row', alignItems: 'center', padding: 14, minHeight: 48 },
+  monthRow: { flexDirection: 'row', alignItems: 'center', padding: 14, minHeight: 52 },
   monthLabel: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary, width: 72 },
   dipWord: { fontSize: 11, color: Colors.amber, fontWeight: '700', marginRight: 8 },
   monthNet: { flex: 1, textAlign: 'right', fontSize: 15, fontWeight: '600', color: Colors.textPrimary },

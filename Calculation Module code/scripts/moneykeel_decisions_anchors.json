@@ -2221,6 +2221,11 @@
   },
   "DEC-0352": {
    "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-1112": {
+   "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_log-income_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_month-detail_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_bill-calendar_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_paycheck-months_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_monthly-income_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_worth-a-look_v02.html · src/screens/IncomeScreen.tsx · src/screens/MonthDetailScreen.tsx · src/screens/BillCalendarScreen.tsx · src/screens/PaycheckMonthsScreen.tsx · src/screens/MonthlyIncomeScreen.tsx · src/screens/WorthALookScreen.tsx · src/constants/doors.ts",
+   "why_it_governs_those": "read, 2026-10-02: the six screens he approved, their drawings, and the one door list",
+   "verified_by_reading": "2026-10-02 — recorded the moment he approved; held by decisions_are_held.test.ts"
   }
  }
 }

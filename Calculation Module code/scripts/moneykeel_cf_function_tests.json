@@ -798,6 +798,7 @@
   "declared": true,
   "tests": [
    "Calculation Module code/bench/__tests__/bench.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/edge_extremes.test.ts",
    "src/__tests__/g21_essentials.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts",
@@ -847,6 +848,7 @@
   "declared": true,
   "tests": [
    "Calculation Module code/bench/__tests__/bench.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/edge_extremes.test.ts",
    "src/__tests__/g21_essentials.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts",
@@ -896,6 +898,7 @@
   "declared": true,
   "tests": [
    "Calculation Module code/bench/__tests__/bench.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/edge_extremes.test.ts",
    "src/__tests__/g21_essentials.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts",
@@ -3710,6 +3713,7 @@
   "declared": true,
   "tests": [
    "Calculation Module code/bench/__tests__/bench.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/edge_extremes.test.ts",
    "src/__tests__/g21_essentials.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts",
@@ -3759,6 +3763,7 @@
   "declared": true,
   "tests": [
    "Calculation Module code/bench/__tests__/bench.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/edge_extremes.test.ts",
    "src/__tests__/g21_essentials.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts",
@@ -3808,6 +3813,7 @@
   "declared": true,
   "tests": [
    "Calculation Module code/bench/__tests__/bench.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/edge_extremes.test.ts",
    "src/__tests__/g21_essentials.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts",
@@ -4449,6 +4455,7 @@
   "declared": true,
   "tests": [
    "Calculation Module code/bench/__tests__/bench.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/edge_extremes.test.ts",
    "src/__tests__/g21_essentials.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts",
@@ -4835,6 +4842,7 @@
   "declared": true,
   "tests": [
    "MoneyKeel/functions/cashflow/income-summary.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts"
   ]
  },
@@ -4886,6 +4894,7 @@
   "declared": true,
   "tests": [
    "MoneyKeel/functions/cashflow/income-summary.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts"
   ]
  },
@@ -4894,6 +4903,7 @@
   "declared": true,
   "tests": [
    "MoneyKeel/functions/cashflow/income-summary.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts"
   ]
  },
@@ -4902,6 +4912,7 @@
   "declared": true,
   "tests": [
    "MoneyKeel/functions/cashflow/income-summary.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts"
   ]
  },
@@ -4910,6 +4921,7 @@
   "declared": true,
   "tests": [
    "MoneyKeel/functions/cashflow/income-summary.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts"
   ]
  },
@@ -4918,6 +4930,34 @@
   "declared": true,
   "tests": [
    "MoneyKeel/functions/cashflow/the-debts.test.ts"
+  ]
+ },
+ "MK-CF-F-212": {
+  "source": "MoneyKeel/functions/cashflow/whats-coming.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/cashflow/whats-coming.test.ts"
+  ]
+ },
+ "MK-CF-F-213": {
+  "source": "MoneyKeel/functions/cashflow/whats-coming.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/cashflow/whats-coming.test.ts"
+  ]
+ },
+ "MK-CF-F-214": {
+  "source": "MoneyKeel/functions/cashflow/whats-coming.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/cashflow/whats-coming.test.ts"
+  ]
+ },
+ "MK-CF-F-215": {
+  "source": "MoneyKeel/functions/cashflow/whats-coming.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/cashflow/whats-coming.test.ts"
   ]
  }
 }

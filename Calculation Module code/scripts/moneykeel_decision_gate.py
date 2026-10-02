@@ -190,7 +190,7 @@ NO_PATH = 342             # (344 of 492 until DEC-0104 was marked restated as DE
                           # 148 do. Every one of the 344 is a decision nobody can act on without
                           # going back to the conversation it came from — which is the hole DEC-0036
                           # fell through. Lower it by answering them, never by loosening the test.
-DUPLICATE_PAIRS = 23      # decisions that appear to repeat an earlier one. Resolve a pair by marking
+DUPLICATE_PAIRS = 22      # decisions that appear to repeat an earlier one. Resolve a pair by marking
                           # the older row OLD, NOT IN USE with the newer named on it, or by recording
                           # what is genuinely different. Was 26 until DEC-0104 was marked restated as
                           # DEC-0109 — the pair this detector was tuned on, and the one that let the

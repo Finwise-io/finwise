@@ -21614,7 +21614,7 @@
     },
     {
      "k": "t",
-     "s": "If you can't pay everything, pay these first"
+     "s": "IF YOU CAN'T PAY EVERYTHING, PAY THESE FIRST"
     },
     {
      "k": "t",
@@ -25968,7 +25968,7 @@
     },
     {
      "k": "t",
-     "s": "No income entries yet"
+     "s": "Nothing entered yet."
     },
     {
      "k": "t",
@@ -26038,7 +26038,7 @@
     },
     {
      "k": "t",
-     "s": "No income entries yet"
+     "s": "Nothing entered yet."
     },
     {
      "k": "t",
@@ -26108,7 +26108,7 @@
     },
     {
      "k": "t",
-     "s": "No income entries yet"
+     "s": "Nothing entered yet."
     },
     {
      "k": "t",
@@ -26178,7 +26178,7 @@
     },
     {
      "k": "t",
-     "s": "No income entries yet"
+     "s": "Nothing entered yet."
     },
     {
      "k": "t",
@@ -29513,6 +29513,14 @@
      "s": "SURPLUS · AS OF TODAY"
     },
     {
+     "k": "a",
+     "s": "What is Surplus?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
      "k": "t",
      "s": "$2,980"
     },
@@ -29673,6 +29681,14 @@
     {
      "k": "t",
      "s": "SURPLUS · AS OF TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Surplus?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
     },
     {
      "k": "t",
@@ -29847,6 +29863,14 @@
     {
      "k": "t",
      "s": "SURPLUS · AS OF TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Surplus?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
     },
     {
      "k": "t",
@@ -30035,6 +30059,14 @@
      "s": "SURPLUS · AS OF TODAY"
     },
     {
+     "k": "a",
+     "s": "What is Surplus?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
      "k": "t",
      "s": "$0"
     },
@@ -30043,8 +30075,16 @@
      "s": "INFLOW"
     },
     {
+     "k": "a",
+     "s": "Nothing entered yet. Add your income ›"
+    },
+    {
      "k": "t",
-     "s": "No income mapped for this month."
+     "s": "Nothing entered yet."
+    },
+    {
+     "k": "t",
+     "s": "Add your income ›"
     },
     {
      "k": "t",
@@ -30063,8 +30103,16 @@
      "s": "Including everyday expenses."
     },
     {
+     "k": "a",
+     "s": "Nothing entered yet. Log your expenses ›"
+    },
+    {
      "k": "t",
-     "s": "No regular bills recorded."
+     "s": "Nothing entered yet."
+    },
+    {
+     "k": "t",
+     "s": "Log your expenses ›"
     },
     {
      "k": "t",
@@ -30249,6 +30297,14 @@
     },
     {
      "k": "a",
+     "s": "What is Guaranteed income?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "a",
      "s": "guaranteed income $0 a month"
     },
     {
@@ -30416,6 +30472,14 @@
     {
      "k": "t",
      "s": "Your guaranteed income"
+    },
+    {
+     "k": "a",
+     "s": "What is Guaranteed income?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
     },
     {
      "k": "a",
@@ -30589,6 +30653,14 @@
     },
     {
      "k": "a",
+     "s": "What is Guaranteed income?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "a",
      "s": "guaranteed income $3,500 a month"
     },
     {
@@ -30756,6 +30828,14 @@
     {
      "k": "t",
      "s": "Your guaranteed income"
+    },
+    {
+     "k": "a",
+     "s": "What is Guaranteed income?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
     },
     {
      "k": "a",
@@ -31577,8 +31657,16 @@
      "s": "Inflow (income (take-home))"
     },
     {
+     "k": "a",
+     "s": "Nothing entered yet. Add your guaranteed income ›"
+    },
+    {
      "k": "t",
-     "s": "No guaranteed income entered yet"
+     "s": "Nothing entered yet."
+    },
+    {
+     "k": "t",
+     "s": "Add your guaranteed income ›"
     },
     {
      "k": "t",
@@ -31835,8 +31923,16 @@
      "s": "Inflow (income (take-home))"
     },
     {
+     "k": "a",
+     "s": "Nothing entered yet. Add your guaranteed income ›"
+    },
+    {
      "k": "t",
-     "s": "No guaranteed income entered yet"
+     "s": "Nothing entered yet."
+    },
+    {
+     "k": "t",
+     "s": "Add your guaranteed income ›"
     },
     {
      "k": "t",
@@ -32363,8 +32459,16 @@
      "s": "Inflow (income (take-home))"
     },
     {
+     "k": "a",
+     "s": "Nothing entered yet. Add your guaranteed income ›"
+    },
+    {
      "k": "t",
-     "s": "No guaranteed income entered yet"
+     "s": "Nothing entered yet."
+    },
+    {
+     "k": "t",
+     "s": "Add your guaranteed income ›"
     },
     {
      "k": "t",
@@ -37028,6 +37132,34 @@
    "file": "src/screens/WorthALookScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "🔍"
     },
@@ -37041,6 +37173,34 @@
     }
    ],
    "rich": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "🔍"
@@ -37056,6 +37216,34 @@
    ],
    "retiree": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "🔍"
     },
@@ -37069,6 +37257,34 @@
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "🔍"

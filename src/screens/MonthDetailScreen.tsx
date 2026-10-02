@@ -2,6 +2,7 @@
 // month looks the way it does. A PURE RENDERER over one F2/F5 cell: every number comes from the one
 // model hook; this component computes NOTHING of its own (the one-concept-one-helper rule).
 import TopBar from '../components/TopBar';
+import { EmptyNote } from '../components/UI';
 import React, { useMemo, useState } from 'react';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -63,7 +64,7 @@ export default function MonthDetailScreen() {
       {/* headline + reason (the same cell the bar and — for the current month — the hero show) */}
       <View style={styles.card}
         accessible accessibilityLabel={`Surplus in ${title}: ${figSaid('MK-CF-M-049', headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
-        <SectionBand inCard title={`SURPLUS${isCurrent ? ' · AS OF TODAY' : ''}`} />
+        <SectionBand inCard infoTerm="surplus" title={`SURPLUS${isCurrent ? ' · AS OF TODAY' : ''}`} />
         <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${fig('MK-CF-M-049', Math.abs(headline))} short` : fig('MK-CF-M-049', headline)}</Text>
         {reason && <Text style={styles.reason}>⚑ {reason}</Text>}
       </View>
@@ -80,7 +81,7 @@ export default function MonthDetailScreen() {
           </>
         ) : (
           <>
-            {cell.incomeItems.length === 0 && <Text style={styles.empty}>No income mapped for this month.</Text>}
+            {cell.incomeItems.length === 0 && <EmptyNote door="income" />}   {/* Q48: $0, then the door */}
             {cell.incomeItems.map((i: any, k: number) => <Row key={k} label={`${i.source}${day(i.day)}${i.approx ? ' (about)' : ''}`} value={fig('MK-CF-M-050', i.amount)} />)}
             {cell.incomeItems.length > 0 && <View style={styles.dividerLine} />}
             {cell.incomeItems.length > 0 && <Row label="= Inflow" value={fig('MK-CF-M-047', cell.inflow)} strong />}
@@ -90,7 +91,8 @@ export default function MonthDetailScreen() {
 
       {/* big dated bills — absence is information, the section never silently disappears */}
       <View style={styles.card}>
-        <SectionBand inCard title="BIG BILLS THIS MONTH" />
+        {/* a full band only where the group shows its total (standard 2.3): the retired lens ends in = Surplus */}
+        <SectionBand inCard quiet={!retired} title="BIG BILLS THIS MONTH" />
         {bigBills.length === 0 && <Text style={styles.empty}>No big bills this month.</Text>}
         {bigBills.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={`−${fig('MK-CF-M-016', b.amount)}`} />)}
         {retired && (
@@ -103,9 +105,9 @@ export default function MonthDetailScreen() {
 
       {/* regular bills the envelope pays for (never subtracted twice) */}
       <View style={styles.card}>
-        <SectionBand inCard title="REGULAR BILLS" />
+        <SectionBand inCard quiet title="REGULAR BILLS" />
         <Text style={styles.cardHdrSub}>{retired ? 'These come out of the surplus.' : 'Including everyday expenses.'}</Text>
-        {regulars.length === 0 && <Text style={styles.empty}>No regular bills recorded.</Text>}
+        {regulars.length === 0 && <EmptyNote door="expenses" />}
         {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={fig('MK-CF-M-050', b.amount)} />)}
         {isCurrent && bva && (
           <Text style={styles.soFar}>So far this month: {fig('MK-CF-M-013', Math.round(bva.spent_total))} spent of {fig('MK-CF-M-001', Math.round(bva.planned_total))} planned.</Text>
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.sm },
   navTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary, paddingVertical: 12, minWidth: 64, minHeight: 44, textAlignVertical: 'center' },
   navOff: { color: Colors.textTertiary },
-  title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
+  title: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },   // a screen title is 20 points (screen standard 2.2)
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   cardHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
   cardHdrSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 1, marginBottom: 2 },

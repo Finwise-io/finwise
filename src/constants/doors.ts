@@ -8,6 +8,7 @@ export const EMPTY_DOORS = {
   accounts:   { label: 'Add your accounts ›',   route: '/add-account' },
   debts:      { label: 'Add your debts ›',      route: '/(tabs)/analytics' },
   income:     { label: 'Add your income ›',     route: '/income-manager' },
+  guaranteed: { label: 'Add your guaranteed income ›', route: '/monthly-income' },   // the retired paycheck's income (2026-10-02)
   expenses:   { label: 'Log your expenses ›',   route: '/(tabs)/budget' },
   bills:      { label: 'Add your bills ›',      route: '/bill-calendar' },
   plan:       { label: 'Set up your plan ›',    route: '/(tabs)/plan' },

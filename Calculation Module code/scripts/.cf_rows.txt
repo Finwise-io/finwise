@@ -200,3 +200,7 @@
   ['MK-CF-F-209', 'MoneyKeel/functions/cashflow/income-summary.ts', 'MoneyKeel/functions/cashflow/income-summary.test.ts'],
   ['MK-CF-F-210', 'MoneyKeel/functions/cashflow/income-summary.ts', 'MoneyKeel/functions/cashflow/income-summary.test.ts'],
   ['MK-CF-F-211', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/the-debts.test.ts'],
+  ['MK-CF-F-212', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
+  ['MK-CF-F-213', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
+  ['MK-CF-F-214', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
+  ['MK-CF-F-215', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
