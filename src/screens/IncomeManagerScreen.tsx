@@ -1,7 +1,9 @@
 // Income manager — see EVERY income source you entered and add/update them in one place.
 // Pulls structured sources from onboarding (salary/bonus/equity/rental), one-time incomes from the
 // store, and investment income (dividends/interest) from the transaction ledger.
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform , Alert } from 'react-native';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
@@ -82,11 +84,13 @@ export default function IncomeManagerScreen() {
   };
 
   return (
-    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <SectionBand title="YOUR INCOME" />
 
       <View style={styles.summary}>
-        <Text style={styles.sumVal}>{money(totalAnnual)}</Text>
+        <Text style={styles.sumVal}>{fig('MK-CF-M-065', totalAnnual)}</Text>
         <Text style={styles.sumLab}>total income / year (gross)</Text>
       </View>
 
@@ -101,9 +105,9 @@ export default function IncomeManagerScreen() {
               onPress={() => open?.()}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowName}>{s.label}</Text>
-                <Text style={styles.rowSub}>{s.who_earns === 'partner' ? 'spouse · ' : ''}{freqLabel(s.frequency)}{s.operating_expenses ? ` · net of ${money(s.operating_expenses)}/month costs` : ''}{editable ? ' · tap to edit' : ''}</Text>
+                <Text style={styles.rowSub}>{s.who_earns === 'partner' ? 'spouse · ' : ''}{freqLabel(s.frequency)}{s.operating_expenses ? ` · net of ${fig('MK-CF-M-027', s.operating_expenses)}/month costs` : ''}{editable ? ' · tap to edit' : ''}</Text>
               </View>
-              <Text style={styles.rowVal}>{money(annualOf(s))}</Text>
+              <Text style={styles.rowVal}>{fig('MK-CF-M-027', annualOf(s))}</Text>
             </TouchableOpacity>
           );
         })}
@@ -140,7 +144,7 @@ export default function IncomeManagerScreen() {
             <Text style={styles.rowName}>Dividends, interest & coupons</Text>
             <Text style={styles.rowSub}>{investIncome > 0 ? 'from your holdings & bonds (last 12 months + bond coupons)' : 'recorded when you log a cash dividend or add a bond'}</Text>
           </View>
-          <Text style={styles.rowVal}>{money(investIncome)}</Text>
+          <Text style={styles.rowVal}>{fig('MK-CF-M-066', investIncome)}</Text>
         </View>
         {coverageNotes.length > 0 && (
           <View accessibilityLabel={`How far back this figure reaches: ${coverageNotes.join(' ')}`}>
@@ -162,9 +166,9 @@ export default function IncomeManagerScreen() {
               <Text style={styles.rowName}>{i.source || i.type}</Text>
               <Text style={styles.rowSub}>{i.date}{i.notes ? ` · ${i.notes}` : ''}</Text>
             </View>
-            <Text style={styles.rowVal}>{money(i.amount)}</Text>
+            <Text style={styles.rowVal}>{fig('MK-CF-M-012', i.amount)}</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Delete ${i.source || i.type}`} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              onPress={() => Alert.alert('Delete this income?', `${i.source || i.type} · ${money(i.amount)}`, [
+              onPress={() => Alert.alert('Delete this income?', `${i.source || i.type} · ${fig('MK-CF-M-012', i.amount)}`, [
                 { text: 'Cancel', style: 'cancel' },
                 { text: 'Delete', style: 'destructive', onPress: () => store.deleteIncome(i.id) },
               ])}><Text style={styles.del}>✕</Text></TouchableOpacity>
@@ -211,6 +215,7 @@ export default function IncomeManagerScreen() {
       <SelfEmploymentEditor open={selfOpen} op={op} onClose={() => setSelfOpen(false)}
         onSave={(p) => { store.setOnboardingProfile?.({ ...op, ...p }); setSelfOpen(false); }} />
     </ScrollView>
+    </View>
   );
 }
 
@@ -239,7 +244,7 @@ function SelfEmploymentEditor({ open, op, onClose, onSave }: { open: boolean; op
           </View>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Save self-employment income" style={styles.saveBtn}
             onPress={() => onSave({ seAmount: num(amt) > 0 ? String(num(amt)) : '', seFreq: freq })}>
-            <Text style={styles.saveBtnT}>Save · {money(annual)}/year</Text>
+            <Text style={styles.saveBtnT}>Save · {fig('MK-CF-M-027', annual)}/year</Text>
           </TouchableOpacity>
           <View style={{ height: 16 }} />
         </View>
@@ -280,7 +285,7 @@ function BasePayEditor({ open, op, onClose, onSave }: { open: boolean; op: any; 
             a flat figure must clear that table — otherwise the edit silently does nothing. */}
         <TouchableOpacity style={[styles.saveBtn, num(amt) <= 0 && { opacity: 0.4 }]} disabled={num(amt) <= 0}
           onPress={() => onSave({ baseSalary: String(num(amt)), salaryFreq: freq, salaryMode: mode, salaryByMonth: undefined, salaryMonthMode: undefined })}>
-          <Text style={styles.saveBtnT}>Save · {money(annual)}/year</Text>
+          <Text style={styles.saveBtnT}>Save · {fig('MK-CF-M-027', annual)}/year</Text>
         </TouchableOpacity>
       </View>
       </KeyboardAvoidingView>

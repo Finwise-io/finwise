@@ -32,9 +32,10 @@ export interface InflationInForce { rate: number; basis: 'entered' | 'default'; 
  *
  * Called by ... MK-PL-F-067 willItLastInputs · MK-XS-F-031 buildSnapshot
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-031 buildSnapshot · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

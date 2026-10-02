@@ -24,6 +24,8 @@ import { CREDIT_LINE_FIGURES } from './cashflow/credit-line';
 import { TAX_ORGANIZER_FIGURES } from './cashflow/tax-organizer';
 import { WHATS_COMING_FIGURES } from './cashflow/whats-coming';
 import { THE_MONTH_FIGURES } from './cashflow/the-month';
+import { DEBT_FIGURES } from './cashflow/the-debts';
+import { FUTURE_PAYCHECK_FIGURES } from './cashflow/future-paycheck';
 
 /** identifier → who declared it, so a clash names both doors. */
 const DOORS: [string, Record<string, FigureSpec>][] = [
@@ -43,6 +45,8 @@ const DOORS: [string, Record<string, FigureSpec>][] = [
   ['MK-CF-O-007 theTaxOrganizer', TAX_ORGANIZER_FIGURES],   // Q-CF-5 — one screen, no decision
   ['MK-CF-O-008 whatsComing', WHATS_COMING_FIGURES],   // Q-CF-3, ruled 2026-09-27
   ['MK-CF-O-010 theMonth', THE_MONTH_FIGURES],   // Q-CF-2 — the last of the twelve
+  ['MK-CF-O-018 theDebts', DEBT_FIGURES],   // the Debts tab's door, 2026-10-02
+  ['MK-CF-O-017 futurePaycheck', FUTURE_PAYCHECK_FIGURES],   // the projection card's door, 2026-10-02
 ];
 
 /* ─ MK-XS-F-181 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)

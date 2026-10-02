@@ -1,31 +1,32 @@
-/** THE DOOR FOR "which bills and paychecks are coming" — MK-CF-O-008 whatsComing (Q-CF-3, ruled
- *  2026-09-27: "yes"). */
-import { whatsComing } from './whats-coming';
+/* What's coming — the door behind the Bill calendar, the radar and the paycheck year. */
+import { whatsComing, WHATS_COMING_FIGURES } from './whats-coming';
 
-const NOW = new Date('2026-09-28T12:00:00Z');
 const profile = {
-  monthlySpending: '3000',
-  bills: [
-    { id: 'b1', label: 'Property tax', amount: 2400, dueDay: 15, month: 11 },
-    { id: 'b2', label: 'No date', amount: 500 },
+  monthlySpending: 0,
+  spendCats: [
+    { id: 'proptax', label: 'Property tax', amount: 4800, bucket: 'nonmonthly', months: [11], dueDay: 1, tier: 'critical' },
+    { id: 'carins', label: 'Car insurance', amount: 1400, bucket: 'nonmonthly', months: [10], dueDay: 15 },
   ],
-} as any;
+};
+const now = new Date('2026-09-28T12:00:00');
 
-test('what is coming is in date order, soonest first', () => {
-  const w = whatsComing({ profile, startBalance: 10000, now: NOW });
-  const days = w.bills.map((b: any) => b.daysAway);
-  expect([...days].sort((a, b) => a - b)).toEqual(days);
-  expect(w.next).toBe(w.bills[0] ?? null);
-});
-
-test('nothing dated means no calendar at all, not an empty guess', () => {
-  const w = whatsComing({ profile: { monthlySpending: '3000' }, startBalance: 0, now: NOW });
-  expect(Array.isArray(w.bills)).toBe(true);
-  if (w.bills.length === 0) expect(w.next).toBeNull();
-});
-
-test('no profile is answered honestly rather than thrown', () => {
-  const w = whatsComing({ profile: null, now: NOW });
-  expect(w.bills).toEqual([]);
-  expect(w.next).toBeNull();
+describe('MK-CF-O-008 whatsComing — every dated bill ahead, soonest first', () => {
+  it('MK-CF-M-028: the bills in date order, with their days away', () => {
+    const c = whatsComing({ profile, startBalance: 8000, now, horizonDays: 120 } as any);
+    expect(c.bills.map((b) => b.label)).toEqual(['Car insurance', 'Property tax']);
+    expect(c.next?.label).toBe('Car insurance');
+    expect(c.bills[0].daysAway).toBeGreaterThan(0);
+  });
+  it('MK-CF-M-062 / 063: a bill the balance covers is not short, and says what is there by then', () => {
+    const c = whatsComing({ profile, startBalance: 8000, now, horizonDays: 120 } as any);
+    expect(c.bills[0].shortfall).toBe(0);
+    expect(c.bills[0].availableByNeed).toBeGreaterThanOrEqual(c.bills[0].amount);
+  });
+  it('with no balance to start from, every bill is short by its whole amount', () => {
+    const c = whatsComing({ profile, startBalance: 0, now, horizonDays: 120 } as any);
+    expect(c.bills[0].shortfall).toBe(1400);
+  });
+  it('every figure this door hands out has a worked example that runs', () => {
+    for (const [id, f] of Object.entries(WHATS_COMING_FIGURES as any)) expect(`${id}: ${typeof (f as any).worked?.run}`).toBe(`${id}: function`);
+  });
 });

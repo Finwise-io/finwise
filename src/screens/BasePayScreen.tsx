@@ -9,6 +9,7 @@
 // IT DOES NO ARITHMETIC. Every figure on it comes from MK-CF-O-001 basePay, which is handed one
 // entry per earner and gives back both sections and the household block together — so the screen
 // cannot show a total built from a different source than the rows above it.
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -87,13 +88,7 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
         keyboardShouldPersistTaps: 'handled' as const, automaticallyAdjustKeyboardInsets: true };
   return (
     <Frame {...frameProps}>
-      {frame === 'onboarding'
-        ? null
-        : (
-          <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} accessibilityLabel="Back to Income">
-            <Text style={s.back}>‹ Income</Text>
-          </TouchableOpacity>
-        )}
+      {frame === 'onboarding' ? null : <TopBar back />}   {/* DEC-0354: the app bar carries the way back */}
       {frame === 'screen' && <Text style={s.h1}>Your base pay</Text>}
       <Text style={s.sub}>
         {frame === 'onboarding'

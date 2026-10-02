@@ -78,17 +78,17 @@ export function grossFromNet(net: number, status: FilingStatus = 'single', over6
  *
  * Called by ... MK-CF-F-049 buildIncomeState · MK-CF-F-087 monthlyTaxRates
  *
- * Reaches ..... 65 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               … and 47 more — the full list is on functions_from_code
+ * Reaches ..... 72 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
+ *               MK-NW-F-100 TREND · MK-CF-F-215 YEAR
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               … and 54 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -188,17 +188,17 @@ export const SENIOR_DEDUCTION = {
  *
  * Called by ... MK-CF-F-099 deductionFor · MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 137 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ * Reaches ..... 144 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-NW-F-040 assetsFromOnboarding
- *               … and 119 more — the full list is on functions_from_code
+ *               MK-CF-F-215 YEAR · MK-CF-F-026 actualDebtPayment
+ *               … and 126 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -234,17 +234,17 @@ export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, 
  *
  * Called by ... MK-CF-F-100 taxableIncomeFor · MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 136 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ * Reaches ..... 143 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-NW-F-040 assetsFromOnboarding
- *               … and 118 more — the full list is on functions_from_code
+ *               MK-CF-F-215 YEAR · MK-CF-F-026 actualDebtPayment
+ *               … and 125 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -273,17 +273,17 @@ export function deductionFor(status: FilingStatus = 'single', over65 = 0, magi: 
  * Called by ... MK-CF-F-098 progressiveMonthlyTax · MK-CF-F-101 taxOwedFor
  *               MK-CF-F-103 marginalBracketFor · MK-CF-F-104 ltcgRateFor
  *
- * Reaches ..... 134 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ * Reaches ..... 141 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-NW-F-040 assetsFromOnboarding
- *               … and 116 more — the full list is on functions_from_code
+ *               MK-CF-F-215 YEAR · MK-CF-F-026 actualDebtPayment
+ *               … and 123 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -312,17 +312,17 @@ export function taxableIncomeFor(gross: number, status: FilingStatus = 'single',
  *               MK-CF-F-102 effectiveRateOnGrossFor · MK-CF-F-144 takeHomeAsEntered
  *               MK-PL-F-032 rothConversionCost
  *
- * Reaches ..... 130 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ * Reaches ..... 137 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-NW-F-040 assetsFromOnboarding
- *               … and 112 more — the full list is on functions_from_code
+ *               MK-CF-F-215 YEAR · MK-CF-F-026 actualDebtPayment
+ *               … and 119 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -359,17 +359,17 @@ export function taxOwedFor(gross: number, status: FilingStatus = 'single', state
  * Called by ... MK-CF-F-046 employerMatchAnnual · MK-CF-F-048 effectiveTaxRate
  *               MK-CF-F-181 rateInForce · MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 74 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-CF-O-001 basePay
- *               … and 56 more — the full list is on functions_from_code
+ *               MK-CF-F-215 YEAR · MK-CF-F-026 actualDebtPayment
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -394,17 +394,17 @@ export function effectiveRateOnGrossFor(gross: number, status: FilingStatus = 's
  * Called by ... MK-CF-F-091 userCapGainsRates · MK-CF-O-001 basePay
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
  *               MK-CF-O-001 basePay · MK-CF-F-036 buildDebtState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
  *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
  *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
- *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
- *               … and 1 more — the full list is on functions_from_code
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age

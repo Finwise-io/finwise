@@ -1,9 +1,12 @@
+import TopBar from '../components/TopBar';
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView, FlatList,
   TouchableOpacity, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { fig, figSaid, figWords } from '../components/figure';
+import { hourlyEarned, monthlyEquivalent } from '../../MoneyKeel/functions/cashflow/income-summary';   // rule 11: a figure prints with its identifier
 import { DateField } from '../components/DateField';
 import { useStore, RecurringIncome } from '../store/useStore';
 import { Button, Card, TipCard, SegmentedControl } from '../components/UI';
@@ -80,7 +83,7 @@ export default function IncomeScreen() {
   );
 
   const isHourly = freq === 'hourly';
-  const hourlyTotal = (parseFloat(hours) || 0) * (parseFloat(rate) || 0);
+  const hourlyTotal = hourlyEarned(parseFloat(hours) || 0, parseFloat(rate) || 0);   // MK-CF-M-067, from the door
 
   function getEnteredAmount(): number {
     if (mode === 'lump') return parseFloat(lumpAmount) || 0;
@@ -88,14 +91,9 @@ export default function IncomeScreen() {
     return parseFloat(amount) || 0;
   }
 
+  // MK-CF-M-068, from the door — the frequency table lives there, not here (2026-10-02)
   function getMonthlyEquiv(): number {
-    const amt = getEnteredAmount();
-    const m: Record<IncomeFreq, number> = {
-      hourly: 160, daily: 21.7, weekly: 4.33,
-      biweekly: 2.17, monthly: 1, quarterly: 1/3, annually: 1/12,
-    };
-    if (mode === 'lump') return amt;
-    return amt * (m[freq] || 1);
+    return monthlyEquivalent(getEnteredAmount(), freq, mode === 'lump' ? 'lump' : 'recurring');
   }
 
   const enteredAmount = getEnteredAmount();
@@ -158,6 +156,7 @@ export default function IncomeScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.root}>
+        <TopBar back />
         <SegmentedControl
           options={['My income', 'Add new', 'Recurring']}
           selected={tab === 'list' ? 'My income' : tab === 'add' ? 'Add new' : 'Recurring'}
@@ -205,7 +204,7 @@ export default function IncomeScreen() {
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.entryAmt}>+{money2(item.amount)}</Text>
+                  <Text style={styles.entryAmt}>+{fig('MK-CF-M-012', item.amount)}</Text>
                   <Text style={styles.entryEdit}>Tap to edit</Text>
                 </View>
               </TouchableOpacity>
@@ -234,7 +233,7 @@ export default function IncomeScreen() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.entryLabel}>{r.source}</Text>
                       <Text style={styles.entryDate}>
-                        {money2(r.amount)} · {r.frequency} · next: {format(new Date(r.nextDate), 'MMM d')}
+                        {fig('MK-CF-M-012', r.amount)} · {r.frequency} · next: {format(new Date(r.nextDate), 'MMM d')}
                       </Text>
                     </View>
                     <TouchableOpacity onPress={() => updateRecurringIncome(r.id, { active: !r.active })} style={styles.recurToggle}>
@@ -363,7 +362,7 @@ export default function IncomeScreen() {
                     {hourlyTotal > 0 && (
                       <View style={styles.calcBox}>
                         <Text style={styles.calcLabel}>You earned</Text>
-                        <Text style={styles.calcValue}>{money2(hourlyTotal)}</Text>
+                        <Text style={styles.calcValue}>{fig('MK-CF-M-067', hourlyTotal)}</Text>
                       </View>
                     )}
                   </Card>
@@ -388,7 +387,7 @@ export default function IncomeScreen() {
                     {amount !== '' && freq !== 'monthly' && (
                       <View style={styles.calcBox}>
                         <Text style={styles.calcLabel}>Monthly equivalent</Text>
-                        <Text style={styles.calcValue}>{money2(monthlyEquiv)}/month</Text>
+                        <Text style={styles.calcValue}>{fig('MK-CF-M-068', monthlyEquiv)}/month</Text>
                       </View>
                     )}
                   </Card>

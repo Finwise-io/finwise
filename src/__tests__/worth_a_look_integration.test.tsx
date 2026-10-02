@@ -77,7 +77,7 @@ describe('the detail screen', () => {
   test('shows the facts and the stored comparison (8 times the usual $310)', () => {
     openFlag();
     render(<WorthALookScreen />);
-    expect(screen.getByText(/\$2,400 left Chase checking/)).toBeOnTheScreen();
+    expect(screen.getByText(/\$2,400.00 left Chase checking/)).toBeOnTheScreen();
     expect(screen.getByText(/Paid to: Apex Solutions/)).toBeOnTheScreen();   // title-cased, never SHOUTED (audit WL-5)
     expect(screen.getByText(/about \$210/)).toBeOnTheScreen();
     expect(screen.getByText(/11 times/)).toBeOnTheScreen();

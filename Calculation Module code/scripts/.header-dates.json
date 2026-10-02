@@ -717,5 +717,16 @@
 "src/domain/_shared/freshness.ts::daysSince": "not in git yet|\u2014",
 "src/domain/decumulation/index.ts::rateBandWords": "not in git yet|\u2014",
 "src/domain/planning/hub.ts::oddsTail": "not in git yet|\u2014",
-"src/domain/_shared/dates.ts::dateShown": "not in git yet|\u2014"
+"src/domain/_shared/dates.ts::dateShown": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/future-paycheck.ts::futurePaycheck": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/income-summary.ts::annualOfSource": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/income-summary.ts::monthlyEquivalent": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/income-summary.ts::hourlyEarned": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/income-summary.ts::SOURCE": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/the-debts.ts::DEBTS": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/the-debts.ts::theDebts": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/whats-coming.ts::YEAR": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/whats-coming.ts::paycheckMonthWords": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/whats-coming.ts::unusualWords": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/whats-coming.ts::receivedInMonth": "not in git yet|\u2014"
 }

@@ -8,6 +8,7 @@
 // A RECAP SHOWS, IT DOES NOT ASK (founder, 2026-08-28). The tax rate is set in one place, on Your
 // base pay, and this screen reads it and says whose it is.
 import { EmptyNote } from '../components/UI';
+import TopBar from '../components/TopBar';
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -23,10 +24,9 @@ export default function IncomeSummaryScreen() {
   const sum = useMemo(() => incomeSummary(op), [op]);
 
   return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
     <ScrollView style={s.wrap} contentContainerStyle={{ paddingBottom: 48 }} automaticallyAdjustKeyboardInsets>
-      <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} accessibilityLabel="Back">
-        <Text style={s.back}>‹ Back</Text>
-      </TouchableOpacity>
       <Text style={s.h1}>Your income</Text>
       <Text style={s.sub}>Everything coming in, and what reaches your bank</Text>
 
@@ -93,6 +93,7 @@ export default function IncomeSummaryScreen() {
         <Text style={s.ctaT}>Edit your income</Text>
       </TouchableOpacity>
     </ScrollView>
+    </View>
   );
 }
 

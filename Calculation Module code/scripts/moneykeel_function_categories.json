@@ -44,6 +44,11 @@
   "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
   "category": "1 · ACTION"
  },
+ "DEBTS": {
+  "id": "MK-CF-F-211",
+  "file": "MoneyKeel/functions/cashflow/the-debts.ts",
+  "category": "1 · ACTION"
+ },
  "EF": {
   "id": "MK-NW-F-079",
   "file": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts",
@@ -144,6 +149,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "1 · ACTION"
  },
+ "SOURCE": {
+  "id": "MK-CF-F-207",
+  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
+  "category": "1 · ACTION"
+ },
  "TAX": {
   "id": "MK-CF-F-202",
   "file": "MoneyKeel/functions/cashflow/tax-organizer.ts",
@@ -153,6 +163,11 @@
   "id": "MK-NW-F-100",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "1 · ACTION"
+ },
+ "YEAR": {
+  "id": "MK-CF-F-215",
+  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
+  "category": "2 · DISPLAYED"
  },
  "accountAllowsTicker": {
   "id": "MK-NW-F-005",
@@ -328,6 +343,11 @@
   "id": "MK-CF-F-044",
   "file": "src/domain/income/calc.ts",
   "category": "3 · DEPENDENT"
+ },
+ "annualOfSource": {
+  "id": "MK-CF-F-210",
+  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "annualisedGross": {
   "id": "MK-CF-F-143",
@@ -537,7 +557,7 @@
  "buildPaycheckYear": {
   "id": "MK-CF-F-107",
   "file": "src/domain/paycheck/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "buildPerformance": {
   "id": "MK-PF-F-014",
@@ -1159,6 +1179,11 @@
   "file": "src/domain/retirement/ssTiming.ts",
   "category": "3 · DEPENDENT"
  },
+ "futurePaycheck": {
+  "id": "MK-CF-O-017",
+  "file": "MoneyKeel/functions/cashflow/future-paycheck.ts",
+  "category": "2 · DISPLAYED"
+ },
  "futureValue": {
   "id": "MK-CF-F-126",
   "file": "src/domain/debt/mortgageVsTreasury.ts",
@@ -1309,6 +1334,11 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "1 · ACTION"
  },
+ "hourlyEarned": {
+  "id": "MK-CF-F-208",
+  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
+  "category": "2 · DISPLAYED"
+ },
  "householdK401ByMonth": {
   "id": "MK-CF-F-206",
   "file": "src/domain/income/onboarding.ts",
@@ -1362,7 +1392,7 @@
  "incomeSources": {
   "id": "MK-CF-O-016",
   "file": "MoneyKeel/functions/cashflow/income-summary.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "incomeSummary": {
   "id": "MK-CF-O-004",
@@ -1844,6 +1874,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "monthlyEquivalent": {
+  "id": "MK-CF-F-209",
+  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
+  "category": "2 · DISPLAYED"
+ },
  "monthlyEssentials": {
   "id": "MK-CF-F-009",
   "file": "src/domain/budget/index.ts",
@@ -2077,6 +2112,11 @@
  "payFiguresAgree": {
   "id": "MK-CF-F-146",
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "paycheckMonthWords": {
+  "id": "MK-CF-F-214",
+  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
   "category": "3 · DEPENDENT"
  },
  "paymentShape": {
@@ -2347,6 +2387,11 @@
  "rebuiltSentence": {
   "id": "MK-ST-F-074",
   "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "receivedInMonth": {
+  "id": "MK-CF-F-212",
+  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
   "category": "2 · DISPLAYED"
  },
  "reclassifyAccounts": {
@@ -3049,6 +3094,11 @@
   "file": "MoneyKeel/functions/cashflow/credit-line.ts",
   "category": "2 · DISPLAYED"
  },
+ "theDebts": {
+  "id": "MK-CF-O-018",
+  "file": "MoneyKeel/functions/cashflow/the-debts.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "theEmergencyFund": {
   "id": "MK-NW-O-004",
   "file": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts",
@@ -3227,6 +3277,11 @@
  "unrealizedGain": {
   "id": "MK-PF-F-005",
   "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "unusualWords": {
+  "id": "MK-CF-F-213",
+  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
   "category": "3 · DEPENDENT"
  },
  "unwrapActivities": {

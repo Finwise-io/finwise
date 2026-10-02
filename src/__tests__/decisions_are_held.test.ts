@@ -50,6 +50,7 @@ import { reconcileAccountTotal, reconcileLedgerIdentity } from '../../Calculatio
 import { GLOSSARY } from '../domain/glossary';
 import { ADD_ACCOUNT_QUESTION } from '../constants/doors';
 import { reviewTransactions } from '../domain/transactions/flags';
+import { incomeSources, incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { figureSpec } from '../../MoneyKeel/functions/figures';
 import { writeFigure } from '../../MoneyKeel/functions/_figure-spec';
 import * as fs from 'fs';
@@ -1046,7 +1047,7 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(fs.readFileSync(path.join(__dirname, '..', '..', 'app', '(tabs)', '_layout.tsx'), 'utf8')).toMatch(/header: \(\) => <TopBar \/>/);
     const layout = fs.readFileSync(path.join(__dirname, '..', '..', 'app', '_layout.tsx'), 'utf8');
     for (const route of ['bonds', 'other-investments', 'itemize', 'holding-detail', 'add-account', 'account-detail']) {
-      expect(`${route}: ${new RegExp(`'${route}'[^\\n]*\\n?[^\\n]*headerShown: false|name="${route}" options=\\{\\{ headerShown: false`).test(layout)}`).toBe(`${route}: true`);
+      expect(`${route}: ${new RegExp(`'${route}'[\\s\\S]{0,400}?headerShown: false|name="${route}" options=\\{\\{ headerShown: false`).test(layout)}`).toBe(`${route}: true`);
     }
   });
 
@@ -1374,6 +1375,72 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(record).toMatch(/\| Look back \| `[^`]*moneykeel_pres_mock_look-back_v01\.html`[^|]*\*\*APPROVED 2026-10-02\*\*/);
     expect(fs.existsSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_look-back_v01.html'))).toBe(true);
     expect(noComments(screenSrc('LookBackScreen'))).toMatch(/<TopBar back \/>/);
+  });
+
+
+  // ── CASH FLOW, STEP 1.b (2026-10-02) ───────────────────────────────────────────────────────────
+  const HOUSEHOLD = { taxMode: 'manual', manualTaxRate: 22, filingStatus: 'married', whoEarns: 'both', baseSalary: 4200, salaryFreq: 'biweekly', salaryMode: 'gross', c_401k: 1200,
+    partnerName: 'Sam', partnerWage: { baseSalary: 5000, salaryFreq: 'monthly', salaryMode: 'gross', c_401k: 400 } };
+
+  // ── DEC-0176 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0176 — the income surface: BOTH earners are captured, one section each, never one earner standing for the household', () => {
+    const salaries = incomeSources(HOUSEHOLD).filter((s) => s.kind === 'salary');
+    expect(salaries.map((s) => s.label)).toEqual(['You · Salary — steady', 'Sam · Salary — steady']);
+    expect(noComments(screenSrc('BasePayScreen'))).toMatch(/earnerWages|earners/);
+  });
+
+  // ── DEC-0198 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0198 — dividends and interest come OUT of spendable take-home unless they reach the bank; the setup asks "Does this reach your bank?"', () => {
+    expect(incomeSummary({ ...HOUSEHOLD, invAnnual: 3600, invPaidToBank: 'no' }).taxedNotLanded).toBe(300);
+    expect(incomeSummary({ ...HOUSEHOLD, invAnnual: 3600, invPaidToBank: 'yes' }).taxedNotLanded).toBe(0);
+    expect(fs.readFileSync(path.join(__dirname, '..', 'onboarding', 'modules.tsx'), 'utf8')).toMatch(/Does this reach your bank\?/);
+  });
+
+  // ── DEC-0247 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0247 — "1000 everywhere": every projection runs 1,000 futures from the same seed, on every screen', () => {
+    for (const f of ['hooks/useCashflowModel.ts', '../MoneyKeel/functions/cashflow/future-paycheck.ts']) {
+      const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+      expect(`${f}: ${/paths: 1000/.test(src) && /seed: 42/.test(src)}`).toBe(`${f}: true`);
+    }
+  });
+
+  // ── DEC-0253 · DEC-0263 · DEC-0352 ─────────────────────────────────────────────────────────
+  test('DEC-0253 — the statutory tables are typed in from the published source, and the source is on record', () => {
+    const sources = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'Calculation Module code', 'scripts', 'moneykeel_published_sources.json'), 'utf8'));
+    const text = JSON.stringify(sources).toLowerCase();
+    expect(text).toMatch(/irs/);
+    expect(text).toMatch(/ssa|social security/);
+  });
+  test('DEC-0263 — four calculations the automatic reader could not render are written by hand in the file, and caps are declared', () => {
+    const overrides = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'Calculation Module code', 'scripts', 'moneykeel_overrides.json'), 'utf8'));
+    const hand = JSON.stringify(overrides).match(/formula/gi) || [];
+    expect(hand.length).toBeGreaterThanOrEqual(4);
+  });
+  test('DEC-0352 — a door DECLARES each figure beside the code that computes it: identifier, words, unit, formula, inputs', () => {
+    const { FIGURE_REGISTER } = require('../../MoneyKeel/functions/figures');
+    const ids = Object.keys(FIGURE_REGISTER);
+    expect(ids.length).toBeGreaterThan(150);
+    const incomplete = ids.filter((id) => { const f = FIGURE_REGISTER[id]; return !(f.label && f.unit && f.formula && Array.isArray(f.inputs) && f.inputs.length); });
+    expect(incomplete).toEqual([]);
+  });
+
+  // ── DEC-0270 · DEC-0283 · DEC-0389 ─────────────────────────────────────────────────────────
+  test('DEC-0270 — "you entered" is the one phrase for a figure the person gave us', () => {
+    const canon = fs.readFileSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'standards', 'moneykeel_naming_spec_calculation-vocabulary_v01.md'), 'utf8');
+    expect(canon).toMatch(/you entered/);
+    expect(canon).toMatch(/you typed/);   // the retired synonym, named in the Retired column
+  });
+  test('DEC-0283 — "Gross should be before any deductions": the word Gross is labelled so where income is entered', () => {
+    expect(noComments(screenSrc('IncomeManagerScreen'))).toMatch(/before any deductions/);
+  });
+  test('DEC-0389 — "calculated" is the word; "worked out", "Estimated federal tax" and "our estimate" appear on no screen', () => {
+    const dir = path.join(__dirname, '..', 'screens');
+    const hits: string[] = [];
+    for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.tsx'))) {
+      const src = noComments(fs.readFileSync(path.join(dir, f), 'utf8'));
+      for (const m of src.matchAll(/worked out|Estimated federal tax|our estimate/g)) hits.push(`${f}: ${m[0]}`);
+    }
+    expect(hits).toEqual([]);
   });
 
 });

@@ -66,10 +66,10 @@ export interface ColMatch { factor: number; name: string | null }
  *
  * Called by ... MK-PL-F-049 retirementSpendMonthly
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-031 buildSnapshot · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-PL-F-067 willItLastInputs
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

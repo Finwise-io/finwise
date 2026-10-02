@@ -4,6 +4,8 @@
 // (listed for completeness, never subtracted twice). Pure renderer — every number comes from the
 // F5 paycheck function and the F2 dated grid; this screen computes nothing of its own.
 import { inflowLabel } from '../../MoneyKeel/functions/cashflow/this-month';
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
+import TopBar from '../components/TopBar';
 import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -18,11 +20,13 @@ export default function PaycheckMonthsScreen() {
   const { year, grid } = useCashflowModel();
 
   return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
     <ScrollView style={styles.root} contentContainerStyle={{ padding: Spacing.md, paddingBottom: 40 }}>
       <Text style={styles.h1}>Your paycheck, month by month</Text>
       <Text style={styles.sub}>
         Every month is its own real month — a pension that lands in December shows up in December, a
-        property tax in November dents November. This year: {maskedMoney(year.thisYear)} (calculated).
+        property tax in November dents November. This year: {fig('MK-CF-M-064', year.thisYear)} (calculated).
       </Text>
 
       {year.months.map((m, s) => {
@@ -32,32 +36,32 @@ export default function PaycheckMonthsScreen() {
         return (
           <View key={m.label} style={styles.monthCard}>
             <TouchableOpacity accessibilityRole="button"
-              accessibilityLabel={`${m.label}: surplus ${spokenMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
+              accessibilityLabel={`${m.label}: surplus ${figSaid('MK-CF-M-049', m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
               style={styles.monthRow} onPress={() => setOpenSlot(open ? -1 : s)}>
               <Text style={styles.monthLabel}>{m.label}</Text>
               {dip && <Text style={styles.dipWord}>bill month</Text>}
-              <Text style={styles.monthNet}>{maskedMoney(m.netSafeToSpend)}</Text>
+              <Text style={styles.monthNet}>{fig('MK-CF-M-049', m.netSafeToSpend)}</Text>
             </TouchableOpacity>
             {open && (
               <View style={styles.detail}>
                 <SectionBand inCard inset={14} title={inflowLabel('Inflow', m.guaranteed.map((g) => g.source))} />
                 {m.guaranteed.length === 0 && <Text style={styles.line}>No guaranteed income entered yet</Text>}
                 {m.guaranteed.map((g, i) => (
-                  <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={maskedMoney(g.amount)} />
+                  <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={fig('MK-CF-M-024', g.amount)} />
                 ))}
-                <Row label="Draw from savings" value={maskedMoney(m.safeDraw)} />
-                <Row label="= Inflow" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />
+                <Row label="Draw from savings" value={fig('MK-CF-M-055', m.safeDraw)} />
+                <Row label="= Inflow" value={fig('MK-CF-M-047', m.guaranteedTotal + m.safeDraw)} bold />
                 <SectionBand inCard inset={14} title="Big bills this month" />
                 {m.bills.length === 0 && <Text style={styles.line}>No big bills this month</Text>}
                 {m.bills.map((b, i) => (
-                  <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={`−${maskedMoney(b.amount)}`} />
+                  <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={`−${fig('MK-CF-M-016', b.amount)}`} />
                 ))}
-                <Row label="= Surplus" value={maskedMoney(m.netSafeToSpend)} bold />
+                <Row label="= Surplus" value={fig('MK-CF-M-049', m.netSafeToSpend)} bold />
                 {regulars.length > 0 && (
                   <>
                     <SectionBand inCard inset={14} title="Regular bills (this is what it pays for)" />
                     {regulars.map((b, i) => (
-                      <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={maskedMoney(b.amount)} muted />
+                      <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={fig('MK-CF-M-050', b.amount)} muted />
                     ))}
                   </>
                 )}
@@ -68,6 +72,7 @@ export default function PaycheckMonthsScreen() {
       })}
       <Text style={styles.footer}>Estimates — these move with your live account balances.</Text>
     </ScrollView>
+    </View>
   );
 }
 
@@ -95,7 +100,7 @@ const styles = StyleSheet.create({
   rowLabel: { flex: 1, fontSize: 15, color: Colors.textSecondary },
   rowValue: { fontSize: 15, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   bold: { fontWeight: '700', color: Colors.textPrimary },
-  muted: { fontWeight: '400' },   // de-emphasis by weight, never faint gray on money (audit PM-1)
+  muted: { fontWeight: '400' },   // de-emphasis by weight, never faint gray on a money figure (audit PM-1)
   line: { fontSize: 13, color: Colors.textTertiary, paddingVertical: 2 },
   footer: { fontSize: 13, color: Colors.textTertiary, textAlign: 'center', marginTop: Spacing.sm },
 });

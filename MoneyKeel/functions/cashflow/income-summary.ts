@@ -12,6 +12,8 @@ import { salaryAnnual, taxableAnnual, rentalNetAnnual, extraIncome, filingStatus
          over65CountOf, incomeMonthlyGrid } from '../../../src/domain/income';
 // the two sources the YOUR SOURCES list needs, from the one place each is calculated
 import { rsuAnnual, retirementIncomeMonthly } from '../../../src/domain/income/onboarding';
+import { guaranteedOutsideStreams, totalGrossAnnual } from '../../../src/domain/income';
+import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
 import { earnerWages } from '../../../src/domain/income/earners';
 import { rateInForce } from '../../../src/domain/income/tax-rate';
 import { marginalBracketFor } from '../../../src/domain/income/tax';
@@ -75,24 +77,162 @@ const GIVEN =
  * Formula .....
  *     income summary(EXAMPLE)
  *
- * Called by ... MK-CF-F-024 totalDebtMonthly
+ * Called by ... MK-CF-F-024 totalDebtMonthly · MK-CF-F-210 annualOfSource
  *
- * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
  *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-041 getDebtState · MK-XS-F-029 monthlySavings
  *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
- *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *               MK-CF-O-018 theDebts · MK-NW-O-003 theNetWorth
+ *               MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-059 the month a bonus lands
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-201
  * Changed ..... not in git yet (—)
  */
 const INCOME = () => incomeSummary(EXAMPLE);
+
+/** THE SAME HOUSEHOLD WITH EVERY KIND OF SOURCE (2026-10-02) — so each source row has an example that
+ *  produces it: $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400,
+ *  a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security. */
+const SOURCES_EXAMPLE = {
+  ...EXAMPLE,
+  seAmount: 24000, seFreq: 'yearly', bonusAnnual: 12000, bonusMonth: 3,
+  rsuShares: '50', rsuPrice: '400',
+  rentalIncome: 2000, rentalExpenses: 800,
+  ri_ss: '2100', ri_ss_receiving: 'yes', ri_ss_freq: 'monthly',
+};
+const SOURCES_GIVEN =
+  'The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares '
+  + 'vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.';
+/* ─ MK-CF-F-207 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * SOURCE
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     income sources(SOURCES_EXAMPLE).find((x) => kind = kind)!
+ *
+ * Called by ... MK-CF-F-201 INCOME · MK-CF-F-210 annualOfSource
+ *               MK-CF-O-016 incomeSources
+ *
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-CF-F-207 SOURCE · MK-NW-F-100 TREND
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-040 whether a stream is already being received
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-207
+ * Changed ..... not in git yet (—)
+ */
+const SOURCE = (kind: IncomeSource['kind']) => incomeSources(SOURCES_EXAMPLE).find((x) => x.kind === kind)!;
+
+/** LOG INCOME'S OWN ARITHMETIC, moved off the screen (2026-10-02 — a screen computes nothing). */
+export const MONTHS_OF: Record<string, number> = {
+  hourly: 160, daily: 21.7, weekly: 4.33, biweekly: 2.17, monthly: 1, quarterly: 1 / 3, annually: 1 / 12,
+};
+/** What a number of hours at a rate comes to. */
+/* ─ MK-CF-F-208 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * hourlyEarned
+ *
+ * Answers ..... What a number of hours at a rate comes to.
+ *
+ * Formula .....
+ *     (number(hours) or 0) × (number(rate) or 0)
+ *
+ * Called by ... MK-CF-F-210 annualOfSource
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-210 annualOfSource
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-208
+ * Changed ..... not in git yet (—)
+ */
+export function hourlyEarned(hours: number, rate: number): number {
+  return (Number(hours) || 0) * (Number(rate) || 0);
+}
+/** What an amount paid at a frequency comes to in a month; a one-time amount is itself. */
+/* ─ MK-CF-F-209 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * monthlyEquivalent
+ *
+ * Answers ..... What an amount paid at a frequency comes to in a month; a one-time amount is itself.
+ *
+ * Formula .....
+ *     amt = amount read as a number (or 0 when missing or zero)
+ *     the answer:
+ *     amt   if mode = 'lump'
+ *     amt × (MONTHS_OF[freq] ?? 1)   otherwise
+ *
+ * Called by ... MK-CF-F-210 annualOfSource
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-210 annualOfSource
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If m o n t h s o f[freq] is missing it uses 1.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-209
+ * Changed ..... not in git yet (—)
+ */
+export function monthlyEquivalent(amount: number, freq: string, mode: 'lump' | 'recurring' = 'recurring'): number {
+  const amt = Number(amount) || 0;
+  return mode === 'lump' ? amt : amt * (MONTHS_OF[freq] ?? 1);
+}
+/** A source's yearly amount: a monthly one × 12, a yearly one as it is, a salary from its pay period. */
+/* ─ MK-CF-F-210 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * annualOfSource
+ *
+ * Answers ..... A source's yearly amount: a monthly one × 12, a yearly one as it is, a salary from its pay period.
+ *
+ * Formula .....
+ *     amount × 12   when per = 'month'
+ *     amount   when per = 'year'
+ *     salary annual((op ?? {}) as any) (or amount when missing or zero)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-022 pension monthly amount
+ *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-035 annuity income
+ *               MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-210
+ * Changed ..... not in git yet (—)
+ */
+export function annualOfSource(x: IncomeSource, op?: Record<string, any> | null): number {
+  if (x.per === 'month') return x.amount * 12;
+  if (x.per === 'year') return x.amount;
+  return salaryAnnual((op ?? {}) as any) || x.amount;
+}
 
 export const FIGURES = declareFigures({
   'MK-CF-M-037': {
@@ -131,6 +271,8 @@ export const FIGURES = declareFigures({
     decisions: ['A lump that lands once is never averaged across the year (founder, 2026-08-28).'],
     ruled: '2026-09-14',
     refusal: 'The line is hidden when no source behaves this way.',
+    // the month the $12,000 bonus lands: the usual month plus the bonus, after tax, as one figure
+    worked: { given: SOURCES_GIVEN, answer: '$40,052', run: () => incomeSummary(SOURCES_EXAMPLE).lands.standoutMonth?.amount ?? null },
   },
   'MK-CF-M-040': {
     label: 'is not here — it is reinvested where it is earned', unit: 'money', per: 'month', screens: ['/income-summary'],
@@ -139,6 +281,8 @@ export const FIGURES = declareFigures({
     inputs: ['MK-CF-I-011 interest and dividends'],
     ruled: '2026-09-14',
     refusal: 'The sentence is hidden when there is none.',
+    worked: { given: 'The two earners above, with $3,600/year of interest and dividends earned inside their accounts and left there.', answer: '$300/month',
+      run: () => incomeSummary({ ...EXAMPLE, invAnnual: 3600 }).taxedNotLanded },
   },
   'MK-CF-M-041': {
     label: 'What it is taxed on', unit: 'money', per: 'year', screens: ['/income-summary'],
@@ -193,6 +337,122 @@ export const FIGURES = declareFigures({
       answer: '$37,224/year',
       run: () => INCOME().taxed.tax,
     },
+  },
+  // ── YOUR SOURCES (2026-10-02): six hand-typed rows of the master became declarations — same identifiers,
+  //    same figures, now printed from here with their inputs, formulas and examples. The screen asks
+  //    incomeSources for them instead of adding the profile up itself.
+  'MK-CF-M-006': {
+    label: 'YOUR SOURCES — Base salary', unit: 'money', screens: ['/cashflow'], grain: 'one earner',
+    answers: 'Each earner’s base pay, as it was entered, with whether it was entered before tax or as take-home.',
+    formula: 'the base salary of each earner, in the period it was entered',
+    inputs: ['MK-XS-I-023 salary and other income', 'MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly'],
+    decisions: ['NEVER CONVERTED SILENTLY: the amount is shown in the period it was entered, and the period is said beside it.'],
+    refusal: 'No salary entered — the row does not appear; the door to enter it does.',
+    ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$4,200', run: () => SOURCE('salary').amount },
+  },
+  'MK-CF-M-007': {
+    label: 'YOUR SOURCES — Self-employment', unit: 'money', screens: ['/cashflow'],
+    answers: 'Self-employment income, net, in the period it was entered.',
+    formula: 'the self-employment amount as entered, monthly or yearly',
+    inputs: ['MK-XS-I-023 salary and other income'],
+    refusal: 'None entered — the row does not appear.', ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$24,000', run: () => SOURCE('self-employment').amount },
+  },
+  'MK-CF-M-008': {
+    label: 'YOUR SOURCES — Bonus', unit: 'money', per: 'year', screens: ['/cashflow'],
+    answers: 'The bonus for the year and the month it lands.',
+    formula: 'the bonus as entered, a year; shown in the month it lands, never spread',
+    inputs: ['MK-CF-I-009 bonus', 'MK-XS-I-059 the month a bonus lands'],
+    decisions: ['A LUMP THAT LANDS ONCE IS NEVER AVERAGED across the year (founder, 2026-08-28).'],
+    refusal: 'None entered — the row does not appear.', ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$12,000/year', run: () => SOURCE('bonus').amount },
+  },
+  'MK-CF-M-009': {
+    label: 'YOUR SOURCES — Stock vesting (equity)', unit: 'money', per: 'year', screens: ['/cashflow'],
+    answers: 'What vests in a year, valued at the price entered.',
+    formula: 'shares vesting × price per share; with a grant schedule, the total ÷ the years it vests over',
+    inputs: ['MK-CF-I-010 equity vesting', 'MK-XS-I-005 holding price'],
+    refusal: 'No equity entered — the row does not appear.', ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$20,000/year', run: () => SOURCE('equity').amount },
+  },
+  'MK-CF-M-010': {
+    label: 'YOUR SOURCES — Rental property', unit: 'money', per: 'month', screens: ['/cashflow'],
+    answers: 'What the rental brings in each month after its running costs.',
+    formula: '(rent − running costs) for each rental, added up',
+    inputs: ['MK-CF-I-007 rental income'],
+    refusal: 'No rental entered — the row does not appear.', ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$1,200/month', run: () => SOURCE('rental').amount },
+  },
+  'MK-CF-M-011': {
+    label: 'YOUR SOURCES — Social Security · pension', unit: 'money', per: 'month', screens: ['/cashflow'],
+    answers: 'Guaranteed income being received now — Social Security, pension, annuity and other — in a month.',
+    formula: 'Social Security + pension + annuity + other, each brought to a monthly amount',
+    inputs: ['MK-XS-I-020 Social Security monthly amount', 'MK-XS-I-022 pension monthly amount', 'MK-XS-I-035 annuity income', 'MK-XS-I-036 other guaranteed income'],
+    refusal: 'None being received — the row does not appear.', ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$2,100/month', run: () => SOURCE('guaranteed').amount },
+  },
+  'MK-CF-M-024': {
+    label: 'each source of guaranteed income', unit: 'money', per: 'month', screens: ['/monthly-income', '/month-detail', '/paycheck-months'], grain: 'one source',
+    answers: 'One line per guaranteed source — Social Security, a pension, an annuity, other — and what it pays a month.',
+    formula: 'each stream as entered, brought to a monthly amount',
+    inputs: ['MK-XS-I-020 Social Security monthly amount', 'MK-XS-I-022 pension monthly amount', 'MK-XS-I-035 annuity income', 'MK-XS-I-036 other guaranteed income'],
+    refusal: 'Nothing entered — the list is replaced by the door to enter it.', ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$2,100/month', run: () => guaranteedOutsideStreams(SOURCES_EXAMPLE as any)[0]?.monthly ?? null },
+  },
+  'MK-CF-M-069': {
+    label: 'Your guaranteed income', unit: 'money', per: 'month', screens: ['/monthly-income'],
+    answers: 'All the guaranteed income being received now, added up for a month.',
+    formula: 'the sum of each source of guaranteed income (MK-CF-M-024)',
+    inputs: ['MK-XS-I-020 Social Security monthly amount', 'MK-XS-I-022 pension monthly amount', 'MK-XS-I-035 annuity income', 'MK-XS-I-036 other guaranteed income'],
+    refusal: 'Nothing entered — $0, with the door to enter it.', ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$2,100/month', run: () => retirementIncomeMonthly(SOURCES_EXAMPLE as any) },
+  },
+  'MK-CF-M-027': {
+    label: 'each income source and its amount', unit: 'money', per: 'year', screens: ['/income-manager'], grain: 'one source',
+    answers: 'Every source of income, one line each, as a yearly amount.',
+    formula: 'a monthly source × 12; a yearly source as it is; a salary from its pay period',
+    inputs: ['MK-XS-I-023 salary and other income', 'MK-CF-I-009 bonus', 'MK-CF-I-010 equity vesting', 'MK-CF-I-007 rental income'],
+    refusal: 'Nothing entered — the list is replaced by the door to enter income.', ruled: '2026-10-02',
+    worked: { given: SOURCES_GIVEN, answer: '$14,400/year', run: () => annualOfSource(SOURCE('rental')) },
+  },
+  'MK-CF-M-065': {
+    label: 'total income / year (gross)', unit: 'money', per: 'year', screens: ['/income-manager'],
+    answers: 'Everything coming in over a year, before any deductions.',
+    formula: 'every source’s yearly amount added up, wages at gross',
+    inputs: ['MK-XS-I-023 salary and other income', 'MK-CF-I-009 bonus', 'MK-CF-I-010 equity vesting', 'MK-CF-I-007 rental income'],
+    refusal: 'Nothing entered — $0, with the door to enter income.', ruled: '2026-10-02',
+    worked: { given: GIVEN, answer: '$169,200/year', run: () => totalGrossAnnual(EXAMPLE as any, new Date('2026-06-15T12:00:00')) },
+  },
+  'MK-CF-M-066': {
+    label: 'Dividends, interest & coupons', unit: 'money', per: 'year', screens: ['/income-manager'],
+    answers: 'What your holdings and bonds paid out over the last twelve months, from the records.',
+    formula: 'the dividend, interest and coupon records of the last twelve months, added up',
+    inputs: ['MK-NW-I-004 the activity records', 'MK-NW-I-001 your accounts'],
+    refusal: 'No record of any — $0, never an estimate.', ruled: '2026-10-02',
+    worked: {
+      given: 'One account that recorded a $300 dividend in June and $120 of interest in March.',
+      answer: '$420/year',
+      run: () => incomeFromAccounts([{ asset_id: 'a1', label: 'Brokerage', balance: 10_000 }] as any,
+        [{ id: 'd1', account_id: 'a1', type: 'DIVIDEND', amount: 300, date: '2026-06-01' }, { id: 'i1', account_id: 'a1', type: 'INTEREST', amount: 120, date: '2026-03-01' }],
+        new Date('2026-09-01T12:00:00')).annual,
+    },
+  },
+  'MK-CF-M-067': {
+    label: 'You earned', unit: 'money-cents', screens: ['/income'],
+    answers: 'What the hours you entered come to at the rate you entered, before it is logged.',
+    formula: 'the hours entered × the rate entered — 37.5 hours × $24 = $900.00',
+    inputs: ['MK-CF-I-015 income recorded as received'],
+    refusal: 'Nothing entered yet — $0.00.', ruled: '2026-10-02',
+    worked: { given: 'Logging 37.5 hours of work at a rate of $24 an hour, before it is saved.', answer: '$900.00', run: () => hourlyEarned(37.5, 24) },
+  },
+  'MK-CF-M-068': {
+    label: 'Monthly equivalent', unit: 'money-cents', per: 'month', screens: ['/income'],
+    answers: 'What the amount you are logging comes to in a month, at the frequency you picked.',
+    formula: 'amount × the number of payments in a month (weekly 4.33, every two weeks 2.17, yearly 1÷12); a one-time amount is itself',
+    inputs: ['MK-CF-I-015 income recorded as received', 'MK-XS-I-039 how often each income arrives'],
+    refusal: 'Nothing entered yet — $0.00.', ruled: '2026-10-02',
+    worked: { given: 'Logging $900 that arrives every week, to see what that is in a month.', answer: '$3,897.00/month', run: () => monthlyEquivalent(900, 'weekly') },
   },
 } as const);
 
@@ -272,7 +532,7 @@ export interface IncomeSource {
   kind: 'salary' | 'self-employment' | 'bonus' | 'equity' | 'rental' | 'guaranteed';
 }
 
-/* ─ MK-CF-O-016 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-O-016 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * incomeSources
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -291,7 +551,18 @@ export interface IncomeSource {
  *     guaranteed = retirement income monthly(o)
  *     the answer = out
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-207 SOURCE
+ *
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-CF-F-207 SOURCE · MK-NW-F-100 TREND
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-022 pension monthly amount
@@ -379,21 +650,24 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *     bonus = bonus annual read as a number (0 when it is not one)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-F-201 INCOME
+ * Called by ... MK-CF-F-201 INCOME · MK-CF-F-210 annualOfSource
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-210 annualOfSource · MK-CF-F-036 buildDebtState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
  *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
- *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
- *               MK-CF-F-024 totalDebtMonthly
+ *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
  *
- * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-027
+ * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-009
+ *               MK-CF-M-010 · MK-CF-M-011 · MK-CF-M-024 · MK-CF-M-027
  *               MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-039 · MK-CF-M-040
  *               MK-CF-M-041 · MK-CF-M-042 · MK-CF-M-043 · MK-CF-M-044
- *               MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013
+ *               MK-CF-M-065 · MK-CF-M-066 · MK-CF-M-067 · MK-CF-M-068
+ *               MK-CF-M-069 · MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013
  * Reads ....... MK-XS-I-023 salary and other income
  *               MK-XS-I-030 tax filing status and age
  * Ruled by .... DEC-0078 · DEC-0108 · DEC-0149 · DEC-0152 · DEC-0165 · DEC-0166

@@ -92,8 +92,10 @@ export interface PaycheckOptions {
  *
  * Called by ... MK-CF-F-107 buildPaycheckYear
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-107 buildPaycheckYear
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-215 YEAR
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-CF-O-017 futurePaycheck · MK-NW-F-091 pricedGainOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -144,8 +146,10 @@ export function guaranteedRows(op: OnboardingProfile | null, now: Date = new Dat
  *
  * Called by ... MK-CF-F-107 buildPaycheckYear
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-107 buildPaycheckYear
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-215 YEAR
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-CF-O-017 futurePaycheck · MK-NW-F-091 pricedGainOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-018 retirement age
@@ -185,7 +189,7 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
 }
 
 /** Build the month-by-month paycheck. Pure; recompute triggers are the caller's job. */
-/* ─ MK-CF-F-107 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-107 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * buildPaycheckYear
  *
  * Answers ..... Build the month-by-month paycheck.
@@ -204,7 +208,12 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
  *     g total = Σ over g of (amount)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-215 YEAR · MK-CF-O-017 futurePaycheck
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-215 YEAR
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-CF-O-017 futurePaycheck · MK-NW-F-091 pricedGainOf
  *
  * Serves ...... MK-CF-M-022
  * Reads ....... MK-XS-I-024 logged expenses

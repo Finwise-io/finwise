@@ -1,7 +1,9 @@
 // Month detail (FCC detailed design v1.1, Cash flow sheet) — tap any bar and see exactly why that
 // month looks the way it does. A PURE RENDERER over one F2/F5 cell: every number comes from the one
 // model hook; this component computes NOTHING of its own (the one-concept-one-helper rule).
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -42,6 +44,8 @@ export default function MonthDetailScreen() {
   const bigBills = retired ? pm.bills : cell.billItems.filter((b: any) => b.kind === 'bill' && b.label !== 'Everyday expenses');
 
   return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       {/* previous / next month within the 12-month window */}
       <View style={styles.navRow}>
@@ -58,9 +62,9 @@ export default function MonthDetailScreen() {
 
       {/* headline + reason (the same cell the bar and — for the current month — the hero show) */}
       <View style={styles.card}
-        accessible accessibilityLabel={`Surplus in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
+        accessible accessibilityLabel={`Surplus in ${title}: ${figSaid('MK-CF-M-049', headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
         <SectionBand inCard title={`SURPLUS${isCurrent ? ' · AS OF TODAY' : ''}`} />
-        <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${maskedMoney(Math.abs(headline))} short` : maskedMoney(headline)}</Text>
+        <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${fig('MK-CF-M-049', Math.abs(headline))} short` : fig('MK-CF-M-049', headline)}</Text>
         {reason && <Text style={styles.reason}>⚑ {reason}</Text>}
       </View>
 
@@ -69,17 +73,17 @@ export default function MonthDetailScreen() {
         <SectionBand inCard title="INFLOW" />
         {retired ? (
           <>
-            {pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={maskedMoney(g.amount)} />)}
-            {pm.safeDraw > 0 && <Row label="Draw from savings" value={maskedMoney(pm.safeDraw)} />}
+            {pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={fig('MK-CF-M-024', g.amount)} />)}
+            {pm.safeDraw > 0 && <Row label="Draw from savings" value={fig('MK-CF-M-055', pm.safeDraw)} />}
             <View style={styles.dividerLine} />
-            <Row label="= Inflow" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />
+            <Row label="= Inflow" value={fig('MK-CF-M-047', pm.guaranteedTotal + pm.safeDraw)} strong />
           </>
         ) : (
           <>
             {cell.incomeItems.length === 0 && <Text style={styles.empty}>No income mapped for this month.</Text>}
-            {cell.incomeItems.map((i: any, k: number) => <Row key={k} label={`${i.source}${day(i.day)}${i.approx ? ' (about)' : ''}`} value={maskedMoney(i.amount)} />)}
+            {cell.incomeItems.map((i: any, k: number) => <Row key={k} label={`${i.source}${day(i.day)}${i.approx ? ' (about)' : ''}`} value={fig('MK-CF-M-050', i.amount)} />)}
             {cell.incomeItems.length > 0 && <View style={styles.dividerLine} />}
-            {cell.incomeItems.length > 0 && <Row label="= Inflow" value={maskedMoney(cell.inflow)} strong />}
+            {cell.incomeItems.length > 0 && <Row label="= Inflow" value={fig('MK-CF-M-047', cell.inflow)} strong />}
           </>
         )}
       </View>
@@ -88,11 +92,11 @@ export default function MonthDetailScreen() {
       <View style={styles.card}>
         <SectionBand inCard title="BIG BILLS THIS MONTH" />
         {bigBills.length === 0 && <Text style={styles.empty}>No big bills this month.</Text>}
-        {bigBills.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={`−${maskedMoney(b.amount)}`} />)}
+        {bigBills.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={`−${fig('MK-CF-M-016', b.amount)}`} />)}
         {retired && (
           <>
             <View style={styles.dividerLine} />
-            <Row label="= Surplus" value={maskedMoney(pm.netSafeToSpend)} strong />
+            <Row label="= Surplus" value={fig('MK-CF-M-049', pm.netSafeToSpend)} strong />
           </>
         )}
       </View>
@@ -102,15 +106,16 @@ export default function MonthDetailScreen() {
         <SectionBand inCard title="REGULAR BILLS" />
         <Text style={styles.cardHdrSub}>{retired ? 'These come out of the surplus.' : 'Including everyday expenses.'}</Text>
         {regulars.length === 0 && <Text style={styles.empty}>No regular bills recorded.</Text>}
-        {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={maskedMoney(b.amount)} />)}
+        {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={fig('MK-CF-M-050', b.amount)} />)}
         {isCurrent && bva && (
-          <Text style={styles.soFar}>So far this month: {maskedMoney(Math.round(bva.spent_total))} spent of {maskedMoney(Math.round(bva.planned_total))} planned.</Text>
+          <Text style={styles.soFar}>So far this month: {fig('MK-CF-M-013', Math.round(bva.spent_total))} spent of {fig('MK-CF-M-001', Math.round(bva.planned_total))} planned.</Text>
         )}
       </View>
 
       <Text style={styles.footer}>Estimates — these move with your live account balances.</Text>
       <View style={{ height: 32 }} />
     </ScrollView>
+    </View>
   );
 }
 

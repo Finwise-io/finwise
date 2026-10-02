@@ -60,10 +60,12 @@ ROUTE_TO_SCREEN.setdefault('/analytics', 'NetWorthScreen')
 # holdings declares no figure at all and is reached from the Connect flow and Home, not from Net worth.
 OWNED = {'networth': {'NetWorthScreen', 'AccountPortfolioScreen', 'ItemizeScreen', 'HoldingDetailScreen',
                       'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'},
+         # Income detail, Contribution room and Tax organizer are the MENU tab's: the master files their
+         # figures under MK-MN (his tab structure), so they are not asked for a Cash flow design here.
+         # Base pay and Income summary print only Cash flow figures, so they are Cash flow's (2026-10-02).
          'cashflow': {'CashFlowScreen', 'BudgetScreen', 'MonthDetailScreen', 'IncomeManagerScreen',
-                      'IncomeDetailScreen', 'IncomeScreen', 'MonthlyIncomeScreen',
-                      'PaycheckMonthsScreen', 'BillCalendarScreen', 'WorthALookScreen',
-                      'ContributionRoomScreen', 'TaxOrganizerScreen'},
+                      'IncomeScreen', 'MonthlyIncomeScreen', 'PaycheckMonthsScreen', 'BillCalendarScreen',
+                      'WorthALookScreen', 'BasePayScreen', 'IncomeSummaryScreen'},
          'performance': {'PerformanceScreen', 'AccountPortfolioScreen',   # Holding detail is Net worth's (his seven, DEC-0649)
                          'LookBackScreen'}}.get(MODULE, set())
 # A screen is still DERIVED from the figures that declare it, so a new one printing this module's
@@ -76,6 +78,11 @@ NOT_OURS = {'networth': {'HomeScreen', 'InsightsScreen', 'ImportHoldingsScreen',
             'cashflow': {'HomeScreen'}}.get(MODULE, set())
 declared = {ROUTE_TO_SCREEN[r] for i, f in FIGS.items() if i.startswith('MK-' + FAMILY + '-')
             and isinstance(f, dict) for r in (f.get('screens') or []) if r in ROUTE_TO_SCREEN}
+# WHERE THIS MODULE'S DOORS LIVE (2026-10-02): the Net worth and Performance doors share one folder;
+# Cash flow's are in their own. Steps 2.c, 3.c and 4.b–4.d read this, never a folder typed from memory —
+# the Cash flow run found all five of its orchestrators "not coded" because the folder was the other one.
+DOOR_DIR = ('MoneyKeel/functions/networth-and-performance' if MODULE in ('networth', 'performance')
+            else 'MoneyKeel/functions/' + MODULE)
 OBEYS = sorted(declared - OWNED)          # owned elsewhere, but must obey this module's decisions
 SCREENS = sorted((OWNED | declared) - NOT_OURS)
 
@@ -118,7 +125,12 @@ def step_1a():
               'AddAccountScreen': 'add an account, by hand',
               'BondsScreen': 'bonds', 'OtherInvestmentsScreen': 'other investments',
               'HoldingDetailScreen': 'holding detail', 'ItemizeScreen': 'itemize',
-              'LookBackScreen': 'look back'}
+              'LookBackScreen': 'look back',
+              'BudgetScreen': 'budget (expenses · debts)', 'MonthDetailScreen': 'month detail',
+              'IncomeManagerScreen': 'income manager', 'IncomeScreen': 'log income',
+              'MonthlyIncomeScreen': 'monthly income', 'PaycheckMonthsScreen': 'paycheck months',
+              'BillCalendarScreen': 'bill calendar', 'WorthALookScreen': 'worth a look',
+              'BasePayScreen': 'base pay', 'IncomeSummaryScreen': 'income summary'}
 
     mocks = {}
     for dp, dn, fn in os.walk('MoneyKeel/documents'):
@@ -156,7 +168,10 @@ def step_1a():
     for s_ in SCREENS:
         coded = os.path.exists(f'src/screens/{s_}.tsx')
         entry = APPROVED_BY_RECORD.get(TAB_OF.get(s_, ''), '')
-        approved = bool(re.search(r'(?i)approved', entry)) and 'WAITING' not in entry.upper()
+        # "NOT YET APPROVED" contains the word approved (2026-10-02: six Cash flow drawings read as approved
+        # the moment they were recorded as waiting). A negation anywhere in the cell means not approved.
+        approved = (bool(re.search(r'(?i)\bapproved\b', entry))
+                    and not re.search(r'(?i)NOT (YET )?APPROVED|WAITING|REJECTED|awaits his word', entry))
         file_named = (re.findall(r'moneykeel_pres_mock_[\w\-]+_v\d+', entry) or ['\u2014'])[0]
         # a design that exists for this screen but carries no approval in the record
         # WHICH FILE DRAWS WHICH SCREEN comes from the record's own gap table, not from the
@@ -260,8 +275,8 @@ def step_1b():
     say('1.b', ok,
         f'Step 1.b fully compliant — {len(GUARDS)} standards guards pass and all {len(V)} decisions '
         f'touching {MODULE} are confirmed against the screens.',
-        f'Step 1.b not compliant because, although all {len(GUARDS)} standards guards pass '
-        f'({passed} tests, 0 failed) and no decision is breached, the compliance of {unconfirmed} of '
+        f'Step 1.b not compliant because, {"although all" if not failed else "of the"} {len(GUARDS)} standards guards{" pass" if not failed else " run, " + str(failed) + " test(s) FAILED"} '
+        f'({passed} tests, {failed} failed) and no decision is breached, the compliance of {unconfirmed} of '
         f'{len(V)} decisions is UNCONFIRMED — they left only a faint mark in the screen code, so '
         f'nothing yet shows the screen obeys them. {tally.get("NOT FOUND", 0)} more quote wording not '
         f'found on any screen; all of those were read by hand on 2026-10-01 and are his own remarks '
@@ -378,7 +393,9 @@ def step_2a():
                     # prints, in the middle of a sentence. A label is a description only when its
                     # words appear in NEITHER the approved design NOR the screen's own code.
                     # string literals only: a comment quoting his ruling is not screen copy
-                    _raw = read(f'src/screens/{s_}.tsx')
+                    # the Cash flow tab EMBEDS the Budget screen as its Expenses and Debts sub-tabs (2026-10-02):
+                    # a figure declared on /cashflow may say its words in BudgetScreen.tsx
+                    _raw = read(f'src/screens/{s_}.tsx') + (read('src/screens/BudgetScreen.tsx') if s_ == 'CashFlowScreen' else '')
                     _raw = re.sub(r'(?s)/\*.*?\*/', ' ', re.sub(r'(?m)^\s*//.*$', ' ', _raw))
                     src_ = ' '.join(m.group(1) or m.group(2) or m.group(3) or '' for m in re.finditer(
                         r"'((?:[^'\\\n]|\\.)*)'|\"((?:[^\"\\\n]|\\.)*)\"|`((?:[^`\\]|\\.)*)`",
@@ -532,7 +549,7 @@ def step_2c(r2a, r2b):
     outstanding = (len(r2a['not_issued']) + len(r2a['wrong_family']) + len(r2a['no_metric'])
                    + len(r2a['described']) + len(r2b['no_refusal']) + len(r2b['no_worked']))
     print(f'   corrections still owed by 2.a and 2.b: {outstanding}')
-    f_, p_, t_ = jest(['MoneyKeel/functions/networth-and-performance'])
+    f_, p_, t_ = jest([DOOR_DIR])
     print(f'   the module\'s own door tests: {p_} passed, {f_} failed')
     ok = not missing and not outstanding and not f_
     say('2.c', ok, 'Step 2.c. complete',
@@ -627,7 +644,7 @@ def step_3c(r3a):
     print('\n' + '─' * 92)
     print(f'STEP 3.c · {MODULE.upper()} — tests that test the accuracy of these functions')
     counts = {}
-    base = 'MoneyKeel/functions/networth-and-performance'
+    base = DOOR_DIR
     for f in sorted(os.listdir(base)) if os.path.isdir(base) else []:
         if f.endswith('.test.ts'):
             t = read(os.path.join(base, f))
@@ -655,7 +672,7 @@ def step_3c(r3a):
 def step_3d():
     print('\n' + '─' * 92)
     print(f'STEP 3.d · {MODULE.upper()} — running those tests')
-    base = 'MoneyKeel/functions/networth-and-performance'
+    base = DOOR_DIR
     out = {}
     for f in sorted(os.listdir(base)) if os.path.isdir(base) else []:
         if f.endswith('.test.ts'):
@@ -718,7 +735,7 @@ def step_4b(orch, names):
     print(f'STEP 4.b · {MODULE.upper()} — orchestrators coded, and what they replaced')
     print(f'\n   {"ORCHESTRATOR":15s} {"CODED?":10s} FILE')
     files = {}
-    base = 'MoneyKeel/functions/networth-and-performance'
+    base = DOOR_DIR
     for f in sorted(os.listdir(base)) if os.path.isdir(base) else []:
         if f.endswith('.ts') and '.test.' not in f:
             t = read(os.path.join(base, f))
@@ -737,7 +754,7 @@ def step_4c(orch, files):
     print('\n' + '─' * 92)
     print(f'STEP 4.c · {MODULE.upper()} — tests on the orchestrators')
     out = {}
-    base = 'MoneyKeel/functions/networth-and-performance'
+    base = DOOR_DIR
     for o in orch:
         tf = (files.get(o) or '').replace('.ts', '.test.ts')
         path = os.path.join(base, tf) if tf else ''
@@ -756,7 +773,7 @@ def step_4c(orch, files):
 def step_4d(orch, files):
     print('\n' + '─' * 92)
     print(f'STEP 4.d · {MODULE.upper()} — running the orchestrator tests')
-    base = 'MoneyKeel/functions/networth-and-performance'
+    base = DOOR_DIR
     out = {}
     for o in orch:
         tf = (files.get(o) or '').replace('.ts', '.test.ts')

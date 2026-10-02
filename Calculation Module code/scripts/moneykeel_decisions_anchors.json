@@ -234,9 +234,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0026": {
-   "governs": "MoneyKeel/functions/cashflow/income-summary.ts · src/domain/insights/index.ts",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/cashflow/income-summary.ts (costs, coming, arrives); src/domain/insights/index.ts (costs, coming, arrives)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/BigCostsScreen.tsx · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-02: the big-costs feature is the Plan's; the income door was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; the big-costs feature is the Plan's; the income door was matched on shared words"
   },
   "DEC-0031": {
    "governs": "src/screens/SsTimingScreen.tsx · src/domain/import/holdingsImport.ts",
@@ -713,9 +714,10 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the FACT and DRAFT badges of the Plan inputs; Net worth was matched on shared words"
   },
   "DEC-0140": {
-   "governs": "src/screens/PlanHubScreen.tsx · MoneyKeel/functions/cashflow/base-pay.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (required, fits, gone, going, connected, minus, monthly, room, estimate, stopped, fact, somewhere, statement, tax-advantaged, saving, contribution-room, reason, including, contribution, gate, insight, hard-coded, know, computes); MoneyKeel/functions/cashflow/base-pay.ts (case, required, going, minus, monthly, bonus, estimate, fact, assumes, employer, somewhere, empty, given, subtract, ruled, reason, payroll, twelve, contribution, told, know, render, computes)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-02: the tax-advantaged sentence is on the Plan tab; base-pay was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; the tax-advantaged sentence is on the Plan tab; base-pay was matched on shared words"
   },
   "DEC-0141": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
@@ -891,7 +893,8 @@
   "DEC-0176": {
    "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/cashflow/base-pay.ts",
    "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (couple, stock, typical, taxed, earners, taxable, surface, treated, household, bonus, spendable, base, earner, calculated, dated, employer, pattern); MoneyKeel/functions/cashflow/base-pay.ts (varies, typical, taxed, earners, taxable, treated, household, bonus, base, earner, filer, calculated, filing-status, employer)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0180": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
@@ -972,7 +975,8 @@
   "DEC-0198": {
    "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/cashflow/income-summary.ts",
    "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (onboarding, profile, spendable, gains, reinvested, earned, default); MoneyKeel/functions/cashflow/income-summary.ts (profile, spendable, reinvested, earned)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0199": {
    "governs": "MK-CF-M-051",
@@ -1178,7 +1182,8 @@
   "DEC-0270": {
    "governs": "MoneyKeel/functions/cashflow/base-pay.ts · src/domain/income/tax-rate.ts",
    "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/cashflow/base-pay.ts (applied, entered', filing, told, status); src/domain/income/tax-rate.ts (entered', filing, told, roth, status)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0272": {
    "governs": "src/domain/assets/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
@@ -1193,7 +1198,8 @@
   "DEC-0283": {
    "governs": "MoneyKeel/functions/cashflow/base-pay.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
    "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/cashflow/base-pay.ts (applied, deductions, medical, example, toggle); MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (onboarding, applied, cash-flow, such, deductions)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0284": {
    "governs": "src/domain/assets/index.ts · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
@@ -1516,7 +1522,8 @@
   "DEC-0389": {
    "governs": "MK-CF-M-031 · MK-CF-M-033 · MK-CF-M-035 · MK-CF-M-044",
    "why_it_governs_those": "its own words appear in these figures: MK-CF-M-031 (federal, calculated); MK-CF-M-033 (federal, calculated); MK-CF-M-035 (federal, calculated); MK-CF-M-044 (federal, calculated)",
-   "evidence": "searched the figure register"
+   "evidence": "searched the figure register",
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0393": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/functions/cashflow/this-month.ts",
@@ -1650,9 +1657,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0423": {
-   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/functions/cashflow/this-month.ts",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (spent, consistently, trying, waiting, reaches, doing, hours, relying, versus); MoneyKeel/functions/cashflow/this-month.ts (spent, waiting, reaches, doing, finding)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "read, 2026-10-02: his rule on auditing before sending; the this-month door was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; his rule on auditing before sending; the this-month door was matched on shared words"
   },
   "DEC-0424": {
    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · src/screens/RetirementCockpit.tsx",
@@ -2007,9 +2015,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0494": {
-   "governs": "src/domain/assets/index.ts · MoneyKeel/functions/cashflow/expenses.ts",
-   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (dated, connected, including, bills); MoneyKeel/functions/cashflow/expenses.ts (dated, connected, bills)",
-   "evidence": "searched every calculation file"
+   "governs": "app/(tabs)/_layout.tsx (the tab bar) · DEC-0513 · DEC-0514",
+   "why_it_governs_those": "read, 2026-10-02: his question about putting Net worth, Money and spending on one screen was answered by the tab structure (DEC-0513, DEC-0514); the assets and cashflow files were matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-02 — read during Cash flow step 1.b; a question answered by the tab structure"
   },
   "DEC-0495": {
    "governs": "src/domain/paycheck/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
@@ -2200,6 +2209,18 @@
    "governs": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_look-back_v01.html · src/screens/LookBackScreen.tsx · MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012",
    "why_it_governs_those": "read, 2026-10-02: the drawing he approved, the screen it draws, and the three figures on it",
    "verified_by_reading": "2026-10-02 — recorded the moment he approved it; held by decisions_are_held.test.ts"
+  },
+  "DEC-0247": {
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0253": {
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0263": {
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0352": {
+   "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
   }
  }
 }

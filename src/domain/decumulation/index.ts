@@ -22,12 +22,13 @@ export interface BucketSplit { taxable: number; preTax: number; roth: number; ca
  *     v = earmarked amount(a)
  *     the answer = s
  *
- * Called by ... MK-PL-F-049 retirementSpendMonthly · MK-PL-F-067 willItLastInputs
- *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-031 buildSnapshot · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ * Called by ... MK-CF-O-017 futurePaycheck · MK-PL-F-049 retirementSpendMonthly
  *               MK-PL-F-067 willItLastInputs
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -207,7 +208,10 @@ export const DEFAULT_DRAW_ORDER: DrawBucket[] = ['cash', 'taxable', 'preTax', 'r
  *     pre = steps.find((s) => bucket = 'preTax')
  *     the answer = steps
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-017 futurePaycheck
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-O-017 futurePaycheck
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-029 inflation rate
@@ -256,10 +260,10 @@ export function withdrawalOrder(split: BucketSplit, age = 0, userOrder?: DrawBuc
  *               MK-PL-F-008 rmdSchedule · MK-PL-F-010 drawOrderOutcome
  *               MK-PL-F-027 nextDecision
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-027 nextDecision · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-004 withdrawalOrder
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-027 nextDecision
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-004 withdrawalOrder
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -282,11 +286,11 @@ export function rmdStartAgeFor(age?: number | null, nowYear = new Date().getFull
  *
  * Called by ... MK-PL-F-007 rmdAtAge · MK-PL-F-008 rmdSchedule
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-027 nextDecision · MK-PL-F-007 rmdAtAge
- *               MK-PL-F-080 rmdRequiredThisYear · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-004 withdrawalOrder
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-027 nextDecision
+ *               MK-PL-F-007 rmdAtAge · MK-PL-F-080 rmdRequiredThisYear
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-004 withdrawalOrder
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -313,10 +317,11 @@ export function rmdDivisorAtAge(age: number, nowYear = new Date().getFullYear())
  *               MK-PL-F-008 rmdSchedule · MK-PL-F-010 drawOrderOutcome
  *               MK-PL-F-080 rmdRequiredThisYear
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-027 nextDecision · MK-PL-F-080 rmdRequiredThisYear
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-004 withdrawalOrder
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-027 nextDecision
+ *               MK-PL-F-080 rmdRequiredThisYear · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-004 withdrawalOrder
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

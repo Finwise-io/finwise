@@ -23,8 +23,9 @@ import { retirementIncomeMonthly, guaranteedOutsideStreams, over65CountOf } from
  *
  * Called by ... MK-PL-F-067 willItLastInputs · MK-PL-F-068 selectWillItLast
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -42,9 +43,10 @@ const numOrZero = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^
  *
  * Called by ... MK-PL-F-008 rmdSchedule · MK-PL-F-065 volOf
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
- *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-065 volOf
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -66,8 +68,9 @@ export const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.mi
  *
  * Called by ... MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-026 big costs (amount and year)
@@ -162,10 +165,10 @@ export function displayOdds(chance: number): number {
  *     scenario return = A.expected return (or bench blended when missing)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-PL-F-068 selectWillItLast
+ * Called by ... MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
  *
  * Serves ...... MK-PL-M-008 · MK-PL-M-011 · MK-PL-M-029
  * Reads ....... MK-XS-I-017 birth year

@@ -83,10 +83,12 @@ export interface GridOptions {
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-F-107 buildPaycheckYear
+ * Called by ... MK-CF-F-107 buildPaycheckYear · MK-CF-F-215 YEAR
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-107 buildPaycheckYear
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-215 YEAR
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-CF-O-017 futurePaycheck · MK-NW-F-091 pricedGainOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance

@@ -23,7 +23,6 @@ const CALC = /(src\/domain|MoneyKeel\/functions|Calculation Module code\/engines
 /** file → the number of dependent-function imports it carried on 2026-09-12. Only ever goes down. */
 const BASELINE: Record<string, number> = {
   'src/onboarding/modules.tsx': 7,
-  'src/screens/CashFlowScreen.tsx': 1,
   'src/screens/HomeScreen.tsx': 1,
   'src/screens/ImportHoldingsScreen.tsx': 1,
   'src/screens/IncomeDetailScreen.tsx': 2,

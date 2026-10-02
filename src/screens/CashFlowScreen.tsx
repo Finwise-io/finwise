@@ -5,7 +5,10 @@
 //             future-paycheck PROJECTION card (same F5 function, projection mode, estimate-labeled)
 // Every by-month number is an F2/F5 cell — this screen computes NOTHING of its own.
 import { inflowLabel, monthOutflow } from '../../MoneyKeel/functions/cashflow/this-month';
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';
+import { futurePaycheck } from '../../MoneyKeel/functions/cashflow/future-paycheck';
+import { receivedInMonth } from '../../MoneyKeel/functions/cashflow/whats-coming';
 import { isoLocalDate } from '../domain/_shared/dates';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
@@ -16,15 +19,13 @@ import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { budgetVsActual } from '../domain/budget';
 import { actualDebtPayment } from '../domain/debt';
-import { retirementIncomeMonthly, guaranteedOutsideStreams, salaryGrossByMonth, monthlyTaxRates } from '../domain/income';
+import { retirementIncomeMonthly, monthlyTaxRates } from '../domain/income';
 import { rsuAnnual, rentalNetAnnual } from '../domain/income/onboarding';   // pre-48 A3: canonical source totals
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
-import { simulate } from '../domain/retirement';
-import { selectWillItLast, willItLastInputs } from '../domain/retirement/willItLast';
+import { selectWillItLast } from '../domain/retirement/willItLast';
 import { oddsLine } from '../domain/planning/hub';
 import { resolveLens } from '../domain/profile/lens';
 import { DrawSteerSheet } from '../components/DrawSteerSheet';
-import { buildPaycheckYear } from '../domain/paycheck';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { ageFromProfile } from '../utils/persona';
 import { PaycheckCard } from '../components/PaycheckCard';
@@ -225,7 +226,7 @@ function PlanSummaryCard({ op, bva }: { op: any; bva: any }) {
     <View style={styles.card}>
       <SectionBand inCard inset={16} title="YOUR BUDGET" />
       {top.length === 0 && <EmptyNote door="expenses" />}   {/* Q48 (MK-CF-M-015) */}
-      {top.map((c) => <Row key={c.label} label={c.label} value={maskedMoney(c.amount)} />)}
+      {top.map((c) => <Row key={c.label} label={c.label} value={fig('MK-CF-M-015', c.amount)} />)}
 
       <TouchableOpacity accessibilityRole="button" onPress={() => setOpen(true)} accessibilityLabel="Edit your budget — each category, with the live surplus math">
         <Text style={styles.link}>Edit the plan ›</Text>
@@ -254,11 +255,11 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending }: { offset
     return (
       <View style={styles.card}>
         <SectionBand inCard inset={16} title={`${label.toUpperCase()} — THE PLAN (AN ESTIMATE)`} />
-        <Row label="Planned inflow" value={maskedMoney(Math.round(cell.inflow))} />
+        <Row label="Planned inflow" value={fig('MK-CF-M-047', Math.round(cell.inflow))} />
         {(cell.incomeItems ?? []).length === 0 && <EmptyNote door="income" />}   {/* Q48 (MK-CF-M-001) */}
-        <Row label={bigBills.length ? `Planned outflow (expenses + debt) · incl. ${bigBills[0].label}` : 'Planned outflow (expenses + debt)'} value={maskedMoney(Math.round(cell.outflow))} dim />
+        <Row label={bigBills.length ? `Planned outflow (expenses + debt) · incl. ${bigBills[0].label}` : 'Planned outflow (expenses + debt)'} value={fig('MK-CF-M-048', Math.round(cell.outflow))} dim />
         {(cell.billItems ?? []).filter((b: any) => b.label !== 'Everyday expenses').length === 0 && <EmptyNote door="bills" />}   {/* Q48 (MK-CF-M-002) */}
-        <Row label="= Planned surplus" value={maskedMoney(Math.round(cell.net))} strong color={cell.net >= 0 ? Colors.gainText : Colors.red} />
+        <Row label="= Planned surplus" value={fig('MK-CF-M-049', Math.round(cell.net))} strong color={cell.net >= 0 ? Colors.gainText : Colors.red} />
         {cell.net < 0 && <Text style={styles.note}>A tight month you can see coming — the bill calendar feeds this.</Text>}
         <Text style={styles.note}>Every figure is planned — an estimate, never dressed as fact.</Text>
       </View>
@@ -273,9 +274,9 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending }: { offset
   return (
     <View style={styles.card}>
       <SectionBand inCard inset={16} title={`${label.toUpperCase()} — WHAT ACTUALLY HAPPENED`} />
-      <Row label="Actual inflow" value={maskedMoney(inn)} />
-      <Row label="Outflow (expenses + debt)" value={maskedMoney(out)} dim />
-      <Row label="= Surplus" value={maskedMoney(inn - out)} strong color={inn - out >= 0 ? Colors.gainText : Colors.red} />
+      <Row label="Actual inflow" value={fig('MK-CF-M-051', inn)} />
+      <Row label="Outflow (expenses + debt)" value={fig('MK-CF-M-052', out)} dim />
+      <Row label="= Surplus" value={fig('MK-CF-M-053', inn - out)} strong color={inn - out >= 0 ? Colors.gainText : Colors.red} />
       {!snap && inn === 0 && out === 0 && <Text style={styles.note}>Nothing recorded for this month — it predates your tracking.</Text>}
       <TouchableOpacity accessibilityRole="button" onPress={onSpending} accessibilityLabel="See that month’s activity on the Expenses tab">
         <Text style={styles.link}>That month’s activity ›</Text>
@@ -290,7 +291,7 @@ function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any;
   const router = useRouter();
   const varies = hasMonthlySalaryTable(op);
   const guaranteed = retirementIncomeMonthly(op);
-  const received = (store.incomes ?? []).filter((i: any) => String(i.date ?? '').startsWith(ym));
+  const received = receivedInMonth(store.incomes, ym);   // MK-CF-M-012, from the door (2026-10-02)
   const sources: { label: string; sub: string | string[]; amount: string }[] = [];
   // B46 finding 8 ("steady $5,000" vs In $8,600): this row must tell the TRUTH about what's stored —
   // the old code hardcoded 'take-home · monthly' and printed the raw per-period entry, so a salary
@@ -312,20 +313,20 @@ function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any;
       label: `${whose ? whose + ' · ' : ''}${varies ? 'Salary — varies' : 'Salary — steady'}`,
       sub: varies ? 'by-month table · tap Set up to adjust'
         : plainMonthlyTakehome ? 'take-home · monthly'
-        : [basis, unit, `≈ ${maskedMoney(monthlyNet)}/month take-home`],
-      amount: maskedMoney(Math.round(Number(w.baseSalary) || 0)),
+        : [basis, unit, `≈ ${fig('MK-CF-M-031', monthlyNet)}/month take-home`],
+      amount: fig('MK-CF-M-006', Math.round(Number(w.baseSalary) || 0)),
     });
   }
-  if (op?.seAmount) sources.push({ label: 'Self-employment', sub: op.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly', amount: maskedMoney(Math.round(Number(op.seAmount) || 0)) });
+  if (op?.seAmount) sources.push({ label: 'Self-employment', sub: op.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly', amount: fig('MK-CF-M-007', Math.round(Number(op.seAmount) || 0)) });
   // pre-48 audit A3 (PRD F2#2): every stored source is VISIBLE here — bonus with its month,
   // equity vesting, rental; invisible income was unexplainable months on the grid
   const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  if (Number(op?.bonusAnnual) > 0) sources.push({ label: 'Bonus', sub: op?.bonusMonth ? `lands in ${MO[(Number(op.bonusMonth) - 1 + 12) % 12]} · tap to edit` : 'month not set — tap to set it', amount: `${maskedMoney(Math.round(Number(op.bonusAnnual)))}/year` });
+  if (Number(op?.bonusAnnual) > 0) sources.push({ label: 'Bonus', sub: op?.bonusMonth ? `lands in ${MO[(Number(op.bonusMonth) - 1 + 12) % 12]} · tap to edit` : 'month not set — tap to set it', amount: `${fig('MK-CF-M-008', Math.round(Number(op.bonusAnnual)))}/year` });
   const rsuTotal = rsuAnnual(op);
-  if (rsuTotal > 0) sources.push({ label: 'Stock vesting (equity)', sub: 'vests through the year · tap to edit', amount: `${maskedMoney(Math.round(rsuTotal))}/year` });
+  if (rsuTotal > 0) sources.push({ label: 'Stock vesting (equity)', sub: 'vests through the year · tap to edit', amount: `${fig('MK-CF-M-009', Math.round(rsuTotal))}/year` });
   const rentalTotal = rentalNetAnnual(op);
-  if (rentalTotal > 0) sources.push({ label: 'Rental property', sub: 'net · tap to edit', amount: `${maskedMoney(Math.round(rentalTotal / 12))}/month` });
-  if (guaranteed > 0) sources.push({ label: 'Social Security · pension', sub: 'guaranteed income', amount: `${maskedMoney(Math.round(guaranteed))}/month` });
+  if (rentalTotal > 0) sources.push({ label: 'Rental property', sub: 'net · tap to edit', amount: `${fig('MK-CF-M-010', Math.round(rentalTotal / 12))}/month` });
+  if (guaranteed > 0) sources.push({ label: 'Social Security · pension', sub: 'guaranteed income', amount: `${fig('MK-CF-M-011', Math.round(guaranteed))}/month` });
   return (
     <>
       <View style={styles.card}>
@@ -358,7 +359,7 @@ function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any;
         <SectionBand inCard inset={16} title={`RECEIVED · ${ym}`} />
         {received.length === 0 && <EmptyNote door="income" />}   {/* Q48 */}
         {received.slice(0, 6).map((i: any) => (
-          <Row key={i.id} label={`${String(i.date).slice(5)} · ${i.source || i.type || 'Income'}`} value={`+${maskedMoney(Math.round(Number(i.amount) || 0))}`} color={Colors.gainText} />
+          <Row key={i.id} label={`${String(i.date).slice(5)} · ${i.source || i.type || 'Income'}`} value={`+${fig('MK-CF-M-012', Math.round(Number(i.amount) || 0))}`} color={Colors.gainText} />
         ))}
       </View>
       <View style={styles.card}>
@@ -420,7 +421,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
         </View>
       ) : (
         <View style={styles.card}>
-          <SectionBand inCard inset={16} title={`${monthWord.toUpperCase()} · ${maskedMoney(Math.round(spent))} SPENT`} />
+          <SectionBand inCard inset={16} title={`${monthWord.toUpperCase()} · ${fig('MK-CF-M-013', Math.round(spent))} SPENT`} />
           {monthExp.length === 0 && <EmptyNote door="expenses" />}   {/* Q48: the band above reads $0 SPENT */}
           {monthExp.slice(0, 6).map((e: any) => (
             <View key={e.id} style={styles.row}>
@@ -431,7 +432,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
                   <Text style={styles.srcChip}>{e.source === 'import' ? 'imported' : 'by hand'}</Text>
                 </View>
               </View>
-              <Text style={styles.rowV}>{maskedMoney(Math.round(Number(e.amount) || 0))}</Text>
+              <Text style={styles.rowV}>{fig('MK-CF-M-014', Math.round(Number(e.amount) || 0))}</Text>
             </View>
           ))}
           <View style={{ flexDirection: 'row', gap: 18 }}>
@@ -452,7 +453,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
           <SectionBand inCard inset={16} title="BY CATEGORY VS PLAN" />
           {(bva.buckets as any[]).filter((b) => (b.planned || 0) > 0).map((b) => (
             <Row key={b.key} label={BUCKET_WORDS[b.key] ?? b.key}
-              value={`${maskedMoney(Math.round(b.spent || 0))} of ${maskedMoney(Math.round(b.planned || 0))}`}
+              value={`${fig('MK-CF-M-015', Math.round(b.spent || 0))} of ${fig('MK-CF-M-015', Math.round(b.planned || 0))}`}
               color={(b.spent || 0) > (b.planned || 0) ? Colors.amber : undefined} />
           ))}
         </View>
@@ -498,7 +499,7 @@ function BigTicketRadar({ grid, offset, expenses, ym }: { grid: any; offset: num
     // Q48 (MK-CF-M-028): the section stays, at $0, with the one line and the door — never vanishes
     return (
       <View style={styles.card}>
-        <SectionBand inCard inset={16} title="BIG-TICKET RADAR" value={maskedMoney(0)} />
+        <SectionBand inCard inset={16} title="BIG-TICKET RADAR" value={fig('MK-CF-M-016', 0)} />
         <EmptyNote door="bills" />
       </View>
     );
@@ -507,10 +508,10 @@ function BigTicketRadar({ grid, offset, expenses, ym }: { grid: any; offset: num
     <View style={styles.card}>
       <SectionBand inCard inset={16} title="BIG-TICKET RADAR" />
       {bills.map((b: any, i: number) => (
-        <Row key={`b${i}`} label={`${b.label ?? 'Big bill'} · due ${cell.label}`} value={maskedMoney(Math.round(b.amount))} color={Colors.amber} />
+        <Row key={`b${i}`} label={`${b.label ?? 'Big bill'} · due ${cell.label}`} value={fig('MK-CF-M-016', Math.round(b.amount))} color={Colors.amber} />
       ))}
       {oneOffs.map((e: any) => (
-        <Row key={e.id} label={`${String(e.date).slice(5)} · ${e.store || e.category} · well above your usual ${e.category}`} value={maskedMoney(Math.round(Number(e.amount) || 0))} />
+        <Row key={e.id} label={`${String(e.date).slice(5)} · ${e.store || e.category} · well above your usual ${e.category}`} value={fig('MK-CF-M-014', Math.round(Number(e.amount) || 0))} />
       ))}
     </View>
   );
@@ -534,13 +535,13 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
       <PaycheckCard />
       {safePool > 0 && (
         <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/month-detail?slot=0' as any)}
-          accessibilityLabel={`Expense pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(safePool)} surplus — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
+          accessibilityLabel={`Expense pace: ${figSaid('MK-CF-M-013', Math.round(bva.spent_total))} of ${fig('MK-CF-M-049', safePool)} surplus — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
           <View style={styles.paceTrack}>
             <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
             <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
           </View>
           {/* P0 (design audit CF-1): the pace card's numbers are its message — money size, never 12pt gray */}
-          <Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(safePool)} surplus this month</Text>
+          <Text style={styles.paceLine}>Spent {fig('MK-CF-M-013', Math.round(bva.spent_total))} of {fig('MK-CF-M-049', safePool)} surplus this month</Text>
           <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone ›</Text>
         </TouchableOpacity>
       )}
@@ -615,26 +616,11 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
   const wilChance = wil.chance;
 
   // Future paycheck — PROJECTION (same F5 function, projection mode; estimate label is mandatory copy)
-  const projection = React.useMemo(() => {
-    const age = ageFromProfile(op);
-    const retireAge = A.retireAge ?? (Number(op?.targetRetirementAge) || 67);
-    // OUTSIDE money only — Social Security, pension, annuity, other (MK-CF-F-076). The six-source
-    // figure (MK-CF-F-075) also carries planned withdrawals and the required withdrawal, and this card
-    // prints a 'Draw from savings' line beside it — counting both is the double count founder ruling
-    // brief Q-38 (2026-08-20) forbids. Found 2026-09-08 executing second-verification G13.
-    const futureGuaranteed = guaranteedOutsideStreams(op).reduce((t, st) => t + st.monthly, 0);
-    if (age == null || age >= retireAge) return null;
-    const inputs = willItLastInputs({ op, accounts: store.assetAccounts ?? [], assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus });
-    if (!inputs || inputs.start_balance <= 0) return null;
-    const projectedEgg = simulate(inputs).projected_at_retirement;
-    if (!projectedEgg || projectedEgg <= 0) return null;
-    const projYear = buildPaycheckYear(op, {
-      nestEgg: projectedEgg,
-      sim: { current_age: retireAge, horizon_age: Math.max(retireAge + 5, inputs.horizon_age), mean_return: inputs.mean_return, vol_return: inputs.vol_return, inflation: inputs.inflation, seed: 42, paths: 1000 },
-    });
-    return { retireAge, monthly: Math.round(futureGuaranteed + projYear.safeDrawMonthly), guaranteed: Math.round(futureGuaranteed), draw: Math.round(projYear.safeDrawMonthly) };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [op, store.assetAccounts, A, store.inflationRate, store.employmentStatus]);
+  // Future paycheck — PROJECTION, from the one door (MK-CF-O-017 futurePaycheck, 2026-10-02); the
+  // estimate label is mandatory copy. Null is an answer: no pot, or past retirement age — no card.
+  const projection = React.useMemo(() => futurePaycheck({
+    op, accounts: store.assetAccounts ?? [], assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus,
+  }), [op, store.assetAccounts, A, store.inflationRate, store.employmentStatus]);
 
   return (
     <>
@@ -643,8 +629,8 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
         {(() => { const free = committed > 0 ? surplus - committed : surplus; return (
           <>
             <HeroAmount style={[styles.heroNum, { color: free >= 0 ? Colors.gainText : Colors.red }]} accessible
-              accessibilityLabel={`${free >= 0 ? '' : 'minus '}${spokenMoney(Math.abs(free))} ${committed > 0 ? 'surplus after your budget' : 'planned surplus'} this month`}>
-              {free >= 0 ? '+' : '−'}{maskedMoney(Math.abs(free))}
+              accessibilityLabel={`${free >= 0 ? '' : 'minus '}${figSaid('MK-CF-M-020', Math.abs(free))} ${committed > 0 ? 'surplus after your budget' : 'planned surplus'} this month`}>
+              {free >= 0 ? '+' : '−'}{fig('MK-CF-M-020', Math.abs(free))}
             </HeroAmount>
             <Text style={styles.heroSub}>{committed > 0 ? 'Surplus after your budget' : 'Planned surplus'}</Text>
           </>
@@ -653,16 +639,16 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
         {/* EVERY ROW, as the approved design draws it: the inflow, each debt by name, the budget,
             each big-ticket item — and then the surplus they actually add up to. */}
         {month.planned.lines.map((l, i) => (
-          <Row key={`${l.label}-${i}`} label={l.label} value={`${l.amount < 0 ? '−' : ''}${maskedMoney(Math.abs(Math.round(l.amount)))}`}
+          <Row key={`${l.label}-${i}`} label={l.label} value={`${l.amount < 0 ? '−' : ''}${fig('MK-CF-M-050', Math.abs(Math.round(l.amount)))}`}
             dim={l.kind !== 'in'} />
         ))}
         {(cell?.incomeItems ?? []).length === 0 && <EmptyNote door="income" />}   {/* Q48 (MK-CF-M-018) */}
         {(cell?.billItems ?? []).filter((b: any) => b.kind === 'bill' && b.label !== 'Everyday expenses').length === 0 && debtMo === 0 && <EmptyNote door="bills" />}   {/* Q48 (MK-CF-M-019): no bill and no debt entered — the everyday-expenses line is the budget, not a bill */}
         <Row label={committed > 0 ? 'Surplus after your budget' : '= Planned surplus'}
-          value={maskedMoney(committed > 0 ? surplus - committed : surplus)} strong
+          value={fig('MK-CF-M-020', committed > 0 ? surplus - committed : surplus)} strong
           color={(committed > 0 ? surplus - committed : surplus) >= 0 ? Colors.gainText : Colors.red} />
         {committed > 0 && commitments.map((c, i) => (
-          <Row key={i} label={`${c.label} · from your Plan`} value={`−${maskedMoney(c.monthlyAmount)}`} dim />
+          <Row key={i} label={`${c.label} · from your Plan`} value={`−${fig('MK-CF-M-021', c.monthlyAmount)}`} dim />
         ))}
         {(() => {
           const now = new Date();
@@ -670,12 +656,12 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
           const spentPct = bva.planned_total > 0 ? Math.round((bva.spent_total / bva.planned_total) * 100) : 0;
           return (
             <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/month-detail?slot=0' as any)}
-              accessibilityLabel={`Expense pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(Math.round(bva.planned_total))} planned — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
+              accessibilityLabel={`Expense pace: ${figSaid('MK-CF-M-013', Math.round(bva.spent_total))} of ${fig('MK-CF-M-001', Math.round(bva.planned_total))} planned — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
               <View style={styles.paceTrack}>
                 <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
                 <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
               </View>
-              <Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(Math.round(bva.planned_total))} planned</Text>
+              <Text style={styles.paceLine}>Spent {fig('MK-CF-M-013', Math.round(bva.spent_total))} of {fig('MK-CF-M-001', Math.round(bva.planned_total))} planned</Text>
               <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone ›</Text>
             </TouchableOpacity>
           );
@@ -684,12 +670,12 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
 
       {projection && (
         <TouchableOpacity accessibilityRole="button" style={styles.projCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
-          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${spokenMoney(projection.monthly)} a month.`}>
+          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${figSaid('MK-CF-M-022', projection.monthly)}.`}>
           <SectionBand inCard inset={16} title="YOUR FUTURE PAYCHECK" />
           <Text style={styles.projTag}>PROJECTION — an estimate, not a promise</Text>
-          <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)}/month</Text>
-          {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${maskedMoney(projection.guaranteed)}`} dim />}
-          <Row label="Draw from savings" value={`~${maskedMoney(projection.draw)}`} dim />
+          <Text style={styles.projHero}>At {projection.retireAge}:  ~{fig('MK-CF-M-022', projection.monthly)}/month</Text>
+          {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${fig('MK-CF-M-023', projection.guaranteed)}`} dim />}
+          <Row label="Draw from savings" value={`~${fig('MK-CF-M-055', projection.draw)}`} dim />
           {wilChance != null && <Text style={styles.note}>Based on your plan's {oddsLine(resolveLens(op ?? {}, store.lensOverride), wilChance, wil.horizonAge)} · see Plan ›</Text>}
         </TouchableOpacity>
       )}
@@ -705,9 +691,9 @@ function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid
         inflow: m.guaranteedTotal + m.safeDraw,
         outflow: m.billsTotal,
         flag: m.billsTotal > 0
-          ? `! ${m.bills[0]?.label ?? 'big bill'} −${maskedMoney(Math.round(m.bills[0]?.amount ?? m.billsTotal))}`
+          ? `! ${m.bills[0]?.label ?? 'big bill'} −${fig('MK-CF-M-016', Math.round(m.bills[0]?.amount ?? m.billsTotal))}`
           : (m.guaranteedTotal > year.months[0].guaranteedTotal + 0.005
-            ? (() => { const extra = m.guaranteedTotal - year.months[0].guaranteedTotal; return `+ ${m.guaranteed.find((g: any) => g.amount > 0)?.source ?? 'extra income'} +${maskedMoney(Math.round(extra))}`; })()
+            ? (() => { const extra = m.guaranteedTotal - year.months[0].guaranteedTotal; return `+ ${m.guaranteed.find((g: any) => g.amount > 0)?.source ?? 'extra income'} +${fig('MK-CF-M-024', Math.round(extra))}`; })()
             : null),
         spoken: `${m.label}: ${Math.round(m.guaranteedTotal + m.safeDraw)} dollars in, ${Math.round(m.billsTotal)} out${m.billsTotal > 0 ? `, ${m.bills[0]?.label} due` : ''}`,
       }))
@@ -717,7 +703,7 @@ function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid
         outflow: c.outflow,
         flag: (() => {
           const bonus = c.incomeItems.find((i: any) => i.source === 'Bonus');
-          if (bonus) return `+ Bonus ${maskedMoney(Math.round(bonus.amount))}`;
+          if (bonus) return `+ Bonus ${fig('MK-CF-M-008', Math.round(bonus.amount))}`;
           return c.net < -0.005 ? '! short month' : null;
         })(),
         spoken: `${c.label}: ${Math.round(c.inflow)} dollars in, ${Math.round(c.outflow)} out${c.net < -0.005 ? ', a short month' : ''}`,
@@ -758,7 +744,7 @@ function DrawOrderWhy({ visible, onClose, accounts, op }: { visible: boolean; on
           <Text style={styles.modalT}>Why this order?</Text>
           {order.map((s: any, i: number) => (
             <View key={i} style={{ marginBottom: 10 }}>
-              <Text style={styles.whyStep}>{i + 1}. {s.label} — {maskedMoney(s.amount ?? 0)}</Text>
+              <Text style={styles.whyStep}>{i + 1}. {s.label} — {fig('MK-CF-M-070', s.amount ?? 0)}</Text>
               <Text style={styles.whyTxt}>{s.why}</Text>
             </View>
           ))}

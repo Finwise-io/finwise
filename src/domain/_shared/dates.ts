@@ -16,17 +16,17 @@
  * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-183 paidOutByAccount
  *               MK-PF-F-022 factorOverMonths · MK-XS-F-175 uid
  *
- * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-NW-F-081 LB
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-199 ROOM · MK-CF-F-202 TAX
+ *               MK-NW-F-100 TREND · MK-CF-F-215 YEAR
+ *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-XS-F-004 buildDatedGrid
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               … and 50 more — the full list is on functions_from_code
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               … and 57 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -290,6 +290,10 @@
    ],
    "ruled": "2026-09-14",
    "refusal": "The line is hidden when no source behaves this way.",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$40,052"
+   },
    "door": "MK-CF-O-004 incomeSummary"
   },
   "MK-CF-M-040": {
@@ -306,6 +310,10 @@
    ],
    "ruled": "2026-09-14",
    "refusal": "The sentence is hidden when there is none.",
+   "worked": {
+    "given": "The two earners above, with $3,600/year of interest and dividends earned inside their accounts and left there.",
+    "answer": "$300/month"
+   },
    "door": "MK-CF-O-004 incomeSummary"
   },
   "MK-CF-M-041": {
@@ -394,6 +402,294 @@
    "worked": {
     "given": "Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), paying $1,200 and $400/month into their 401(k)s, with the tax rate typed at 22%.",
     "answer": "$37,224/year"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-006": {
+   "label": "YOUR SOURCES — Base salary",
+   "unit": "money",
+   "screens": [
+    "/cashflow"
+   ],
+   "grain": "one earner",
+   "answers": "Each earner’s base pay, as it was entered, with whether it was entered before tax or as take-home.",
+   "formula": "the base salary of each earner, in the period it was entered",
+   "inputs": [
+    "MK-XS-I-023 salary and other income",
+    "MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly"
+   ],
+   "decisions": [
+    "NEVER CONVERTED SILENTLY: the amount is shown in the period it was entered, and the period is said beside it."
+   ],
+   "refusal": "No salary entered — the row does not appear; the door to enter it does.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$4,200"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-007": {
+   "label": "YOUR SOURCES — Self-employment",
+   "unit": "money",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "Self-employment income, net, in the period it was entered.",
+   "formula": "the self-employment amount as entered, monthly or yearly",
+   "inputs": [
+    "MK-XS-I-023 salary and other income"
+   ],
+   "refusal": "None entered — the row does not appear.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$24,000"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-008": {
+   "label": "YOUR SOURCES — Bonus",
+   "unit": "money",
+   "per": "year",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "The bonus for the year and the month it lands.",
+   "formula": "the bonus as entered, a year; shown in the month it lands, never spread",
+   "inputs": [
+    "MK-CF-I-009 bonus",
+    "MK-XS-I-059 the month a bonus lands"
+   ],
+   "decisions": [
+    "A LUMP THAT LANDS ONCE IS NEVER AVERAGED across the year (founder, 2026-08-28)."
+   ],
+   "refusal": "None entered — the row does not appear.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$12,000/year"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-009": {
+   "label": "YOUR SOURCES — Stock vesting (equity)",
+   "unit": "money",
+   "per": "year",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "What vests in a year, valued at the price entered.",
+   "formula": "shares vesting × price per share; with a grant schedule, the total ÷ the years it vests over",
+   "inputs": [
+    "MK-CF-I-010 equity vesting",
+    "MK-XS-I-005 holding price"
+   ],
+   "refusal": "No equity entered — the row does not appear.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$20,000/year"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-010": {
+   "label": "YOUR SOURCES — Rental property",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "What the rental brings in each month after its running costs.",
+   "formula": "(rent − running costs) for each rental, added up",
+   "inputs": [
+    "MK-CF-I-007 rental income"
+   ],
+   "refusal": "No rental entered — the row does not appear.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$1,200/month"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-011": {
+   "label": "YOUR SOURCES — Social Security · pension",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "Guaranteed income being received now — Social Security, pension, annuity and other — in a month.",
+   "formula": "Social Security + pension + annuity + other, each brought to a monthly amount",
+   "inputs": [
+    "MK-XS-I-020 Social Security monthly amount",
+    "MK-XS-I-022 pension monthly amount",
+    "MK-XS-I-035 annuity income",
+    "MK-XS-I-036 other guaranteed income"
+   ],
+   "refusal": "None being received — the row does not appear.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$2,100/month"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-024": {
+   "label": "each source of guaranteed income",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/monthly-income",
+    "/month-detail",
+    "/paycheck-months"
+   ],
+   "grain": "one source",
+   "answers": "One line per guaranteed source — Social Security, a pension, an annuity, other — and what it pays a month.",
+   "formula": "each stream as entered, brought to a monthly amount",
+   "inputs": [
+    "MK-XS-I-020 Social Security monthly amount",
+    "MK-XS-I-022 pension monthly amount",
+    "MK-XS-I-035 annuity income",
+    "MK-XS-I-036 other guaranteed income"
+   ],
+   "refusal": "Nothing entered — the list is replaced by the door to enter it.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$2,100/month"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-069": {
+   "label": "Your guaranteed income",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/monthly-income"
+   ],
+   "answers": "All the guaranteed income being received now, added up for a month.",
+   "formula": "the sum of each source of guaranteed income (MK-CF-M-024)",
+   "inputs": [
+    "MK-XS-I-020 Social Security monthly amount",
+    "MK-XS-I-022 pension monthly amount",
+    "MK-XS-I-035 annuity income",
+    "MK-XS-I-036 other guaranteed income"
+   ],
+   "refusal": "Nothing entered — $0, with the door to enter it.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$2,100/month"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-027": {
+   "label": "each income source and its amount",
+   "unit": "money",
+   "per": "year",
+   "screens": [
+    "/income-manager"
+   ],
+   "grain": "one source",
+   "answers": "Every source of income, one line each, as a yearly amount.",
+   "formula": "a monthly source × 12; a yearly source as it is; a salary from its pay period",
+   "inputs": [
+    "MK-XS-I-023 salary and other income",
+    "MK-CF-I-009 bonus",
+    "MK-CF-I-010 equity vesting",
+    "MK-CF-I-007 rental income"
+   ],
+   "refusal": "Nothing entered — the list is replaced by the door to enter income.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
+    "answer": "$14,400/year"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-065": {
+   "label": "total income / year (gross)",
+   "unit": "money",
+   "per": "year",
+   "screens": [
+    "/income-manager"
+   ],
+   "answers": "Everything coming in over a year, before any deductions.",
+   "formula": "every source’s yearly amount added up, wages at gross",
+   "inputs": [
+    "MK-XS-I-023 salary and other income",
+    "MK-CF-I-009 bonus",
+    "MK-CF-I-010 equity vesting",
+    "MK-CF-I-007 rental income"
+   ],
+   "refusal": "Nothing entered — $0, with the door to enter income.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), paying $1,200 and $400/month into their 401(k)s, with the tax rate typed at 22%.",
+    "answer": "$169,200/year"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-066": {
+   "label": "Dividends, interest & coupons",
+   "unit": "money",
+   "per": "year",
+   "screens": [
+    "/income-manager"
+   ],
+   "answers": "What your holdings and bonds paid out over the last twelve months, from the records.",
+   "formula": "the dividend, interest and coupon records of the last twelve months, added up",
+   "inputs": [
+    "MK-NW-I-004 the activity records",
+    "MK-NW-I-001 your accounts"
+   ],
+   "refusal": "No record of any — $0, never an estimate.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "One account that recorded a $300 dividend in June and $120 of interest in March.",
+    "answer": "$420/year"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-067": {
+   "label": "You earned",
+   "unit": "money-cents",
+   "screens": [
+    "/income"
+   ],
+   "answers": "What the hours you entered come to at the rate you entered, before it is logged.",
+   "formula": "the hours entered × the rate entered — 37.5 hours × $24 = $900.00",
+   "inputs": [
+    "MK-CF-I-015 income recorded as received"
+   ],
+   "refusal": "Nothing entered yet — $0.00.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "Logging 37.5 hours of work at a rate of $24 an hour, before it is saved.",
+    "answer": "$900.00"
+   },
+   "door": "MK-CF-O-004 incomeSummary"
+  },
+  "MK-CF-M-068": {
+   "label": "Monthly equivalent",
+   "unit": "money-cents",
+   "per": "month",
+   "screens": [
+    "/income"
+   ],
+   "answers": "What the amount you are logging comes to in a month, at the frequency you picked.",
+   "formula": "amount × the number of payments in a month (weekly 4.33, every two weeks 2.17, yearly 1÷12); a one-time amount is itself",
+   "inputs": [
+    "MK-CF-I-015 income recorded as received",
+    "MK-XS-I-039 how often each income arrives"
+   ],
+   "refusal": "Nothing entered yet — $0.00.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "Logging $900 that arrives every week, to see what that is in a month.",
+    "answer": "$3,897.00/month"
    },
    "door": "MK-CF-O-004 incomeSummary"
   },
@@ -2795,9 +3091,11 @@
   },
   "MK-CF-M-012": {
    "label": "RECEIVED · <month> — each payment",
-   "unit": "money",
+   "unit": "money-cents",
    "screens": [
-    "/cashflow"
+    "/cashflow",
+    "/income",
+    "/income-manager"
    ],
    "grain": "one payment",
    "answers": "Each payment that has actually arrived this month, and when.",
@@ -2807,6 +3105,10 @@
    ],
    "refusal": "Nothing received yet this month.",
    "ruled": "2026-09-27",
+   "worked": {
+    "given": "Two $3,600 salary payments landed in September, on the 15th and the 30th; one landed on 31 August.",
+    "answer": "$3,600.00"
+   },
    "door": "MK-CF-O-008 whatsComing"
   },
   "MK-CF-M-016": {
@@ -2850,6 +3152,10 @@
    ],
    "refusal": "Too little history to call anything unusual.",
    "ruled": "2026-09-27",
+   "worked": {
+    "given": "Five grocery trips of about $60 at Safeway over the summer, then a $640 one on 27 September.",
+    "answer": "$640 — well above your usual Groceries"
+   },
    "door": "MK-CF-O-008 whatsComing"
   },
   "MK-CF-M-026": {
@@ -2866,6 +3172,10 @@
    ],
    "refusal": "Paid monthly — every month carries one, so there is nothing to point out.",
    "ruled": "2026-09-27",
+   "worked": {
+    "given": "Retired on $2,100/month of Social Security, with a $1,400 car-insurance bill in October.",
+    "answer": "Sep — $2,100"
+   },
    "door": "MK-CF-O-008 whatsComing"
   },
   "MK-CF-M-028": {
@@ -2907,6 +3217,121 @@
    ],
    "refusal": "No balance to start from.",
    "ruled": "2026-09-27",
+   "worked": {
+    "given": "On 28 Sep 2026, with $8,000 in the account: car insurance of $1,400 due 15 Oct and property tax of $4,800 due 1 Nov. Nothing else is dated.",
+    "answer": "$6,600"
+   },
+   "door": "MK-CF-O-008 whatsComing"
+  },
+  "MK-CF-M-060": {
+   "label": "Lowest point",
+   "unit": "money",
+   "screens": [
+    "/bill-calendar"
+   ],
+   "answers": "The lowest the balance falls to in the twelve months ahead, and which month.",
+   "formula": "the smallest running balance across the twelve month-ends, starting from the balance you gave",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-CF-I-002 your bills",
+    "MK-XS-I-023 salary and other income"
+   ],
+   "refusal": "No starting balance — the table starts from $0 and says so.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "On 28 Sep 2026, with $8,000 in the account: car insurance of $1,400 due 15 Oct and property tax of $4,800 due 1 Nov. Nothing else is dated.",
+    "answer": "$1,800"
+   },
+   "door": "MK-CF-O-008 whatsComing"
+  },
+  "MK-CF-M-061": {
+   "label": "END — where the month leaves you",
+   "unit": "money",
+   "screens": [
+    "/bill-calendar"
+   ],
+   "grain": "one month",
+   "answers": "The balance at the end of each month: the month before’s end, plus what came in, less what went out.",
+   "formula": "running balance = last month’s end + inflow − outflow, month by month from the starting balance",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-CF-I-002 your bills",
+    "MK-XS-I-023 salary and other income"
+   ],
+   "refusal": "No starting balance — the chain starts from $0 and says so.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "On 28 Sep 2026, with $8,000 in the account: car insurance of $1,400 due 15 Oct and property tax of $4,800 due 1 Nov. Nothing else is dated.",
+    "answer": "$6,600"
+   },
+   "door": "MK-CF-O-008 whatsComing"
+  },
+  "MK-CF-M-062": {
+   "label": "Short — set it aside by <date>",
+   "unit": "money",
+   "screens": [
+    "/bill-calendar"
+   ],
+   "grain": "one bill",
+   "answers": "How much more is needed for a bill by the day the money has to be there.",
+   "formula": "the bill − what is projected to be in the account on its need-by date, when that is less",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-CF-I-002 your bills"
+   ],
+   "refusal": "Nothing short — the line reads Covered instead.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "On 28 Sep 2026, with $8,000 in the account: car insurance of $1,400 due 15 Oct and property tax of $4,800 due 1 Nov. Nothing else is dated.",
+    "answer": "$0"
+   },
+   "door": "MK-CF-O-008 whatsComing"
+  },
+  "MK-CF-M-063": {
+   "label": "Covered — about $X there by <date>",
+   "unit": "money",
+   "screens": [
+    "/bill-calendar"
+   ],
+   "grain": "one bill",
+   "answers": "What is projected to be in the account on the day a bill’s money has to be there.",
+   "formula": "the starting balance, less every earlier dated bill, on the need-by date",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-CF-I-002 your bills"
+   ],
+   "refusal": "No balance to start from — nothing is projected.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "On 28 Sep 2026, with $8,000 in the account: car insurance of $1,400 due 15 Oct and property tax of $4,800 due 1 Nov. Nothing else is dated.",
+    "answer": "$8,000"
+   },
+   "door": "MK-CF-O-008 whatsComing"
+  },
+  "MK-CF-M-064": {
+   "label": "This year",
+   "unit": "money",
+   "per": "year",
+   "screens": [
+    "/paycheck-months"
+   ],
+   "answers": "The whole year’s paycheck for someone retired: the twelve months added up exactly, never a month × 12.",
+   "formula": "Σ over the twelve months of (guaranteed income + draw − the month’s big dated bills)",
+   "inputs": [
+    "MK-XS-I-020 Social Security monthly amount",
+    "MK-XS-I-022 pension monthly amount",
+    "MK-NW-I-001 your accounts",
+    "MK-CF-I-002 your bills"
+   ],
+   "decisions": [
+    "EXACT SUM OF THE TWELVE, never monthly × 12 — a pension that lands in December is in December."
+   ],
+   "refusal": "No guaranteed income entered — the year is not added up; the screen asks for it.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "Retired, with $2,100/month of Social Security and no pot; a $1,400 car-insurance bill in October.",
+    "answer": "$23,800/year"
+   },
    "door": "MK-CF-O-008 whatsComing"
   },
   "MK-CF-M-001": {
@@ -2927,7 +3352,7 @@
    "refusal": "No budget set — the line reads \"not set\" and offers the door, never a planned surplus built on a guess.",
    "ruled": "2026-09-27",
    "worked": {
-    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.",
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
     "answer": "-$3,400/month"
    },
    "door": "MK-CF-O-010 theMonth"
@@ -2953,7 +3378,7 @@
    "refusal": "No budget set — there is no planned surplus, and the screen says so rather than guessing one.",
    "ruled": "2026-09-27",
    "worked": {
-    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.",
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
     "answer": "$1,150/month"
    },
    "door": "MK-CF-O-010 theMonth"
@@ -2979,7 +3404,7 @@
    "refusal": "Nothing logged and no card linked — it says so and offers the door.",
    "ruled": "2026-09-27",
    "worked": {
-    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.",
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
     "answer": "$3,952/month"
    },
    "door": "MK-CF-O-010 theMonth"
@@ -3004,10 +3429,362 @@
    "refusal": "A section with nothing in it keeps its heading and says so.",
    "ruled": "2026-09-27",
    "worked": {
-    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.",
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
     "answer": "-$250"
    },
    "door": "MK-CF-O-010 theMonth"
+  },
+  "MK-CF-M-013": {
+   "label": "<MONTH> · $X SPENT",
+   "unit": "money",
+   "screens": [
+    "/cashflow",
+    "/month-detail"
+   ],
+   "answers": "What has actually gone out so far this month, from the expenses logged.",
+   "formula": "every expense logged inside the month, added up — a debt payment logged as an expense is counted with the debts, not here",
+   "inputs": [
+    "MK-CF-I-001 your logged expenses"
+   ],
+   "refusal": "Nothing logged yet — $0, and the door to log one.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
+    "answer": "$2,998"
+   },
+   "door": "MK-CF-O-010 theMonth"
+  },
+  "MK-CF-M-014": {
+   "label": "each expense and its amount",
+   "unit": "money-cents",
+   "screens": [
+    "/cashflow",
+    "/worth-a-look"
+   ],
+   "grain": "one expense",
+   "answers": "One logged expense — where, when, how much.",
+   "formula": "the amount as logged",
+   "inputs": [
+    "MK-CF-I-016 logged expense"
+   ],
+   "refusal": "Nothing logged yet — the list is replaced by the door to log one.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
+    "answer": "$186.00"
+   },
+   "door": "MK-CF-O-010 theMonth"
+  },
+  "MK-CF-M-015": {
+   "label": "BY CATEGORY VS PLAN — $X of $Y",
+   "unit": "money",
+   "screens": [
+    "/cashflow"
+   ],
+   "grain": "one category",
+   "answers": "For each category: what was planned for it this month, and what has been spent against it so far.",
+   "formula": "planned = the category’s budget line; spent = the expenses logged in that category inside the month",
+   "inputs": [
+    "MK-CF-I-012 planned expenses",
+    "MK-CF-I-001 your logged expenses"
+   ],
+   "refusal": "No budget set — the comparison is not drawn; the door to set one is.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
+    "answer": "$2,300"
+   },
+   "door": "MK-CF-O-010 theMonth"
+  },
+  "MK-CF-M-020": {
+   "label": "THIS MONTH — free to use",
+   "unit": "money",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "The planned surplus, less what the Plan has already promised to goals this month — what is genuinely free.",
+   "formula": "= Planned surplus (MK-CF-M-002) − the goals’ commitments (MK-CF-M-021)",
+   "inputs": [
+    "MK-XS-I-023 salary and other income",
+    "MK-NW-I-002 your debts",
+    "MK-CF-I-012 planned expenses",
+    "MK-XS-I-027 goals (target, saved, date)"
+   ],
+   "decisions": [
+    "A PROMISE TO A GOAL IS MONEY ALREADY SPOKEN FOR — it never reads as free."
+   ],
+   "refusal": "No budget set — nothing is called free until there is a plan to be free of.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
+    "answer": "$850"
+   },
+   "door": "MK-CF-O-010 theMonth"
+  },
+  "MK-CF-M-021": {
+   "label": "<goal> · from your Plan",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow"
+   ],
+   "grain": "one goal",
+   "answers": "What the Plan sends to one goal each month, shown on This month as a line already spoken for.",
+   "formula": "the goal’s monthly amount, as the Plan set it",
+   "inputs": [
+    "MK-XS-I-027 goals (target, saved, date)"
+   ],
+   "refusal": "No goal with a monthly amount — no line.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
+    "answer": "$300/month"
+   },
+   "door": "MK-CF-O-010 theMonth"
+  },
+  "MK-CF-M-056": {
+   "label": "left of your budget",
+   "unit": "money",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "What is left of this month’s budget after what has been spent so far.",
+   "formula": "the budget (MK-CF-M-001) − spent so far (MK-CF-M-013); below zero it reads as over",
+   "inputs": [
+    "MK-CF-I-012 planned expenses",
+    "MK-CF-I-001 your logged expenses"
+   ],
+   "refusal": "No budget set — nothing to be left of.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
+    "answer": "$402"
+   },
+   "door": "MK-CF-O-010 theMonth"
+  },
+  "MK-CF-M-057": {
+   "label": "/month interest",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "What your debts cost in interest in a month, at today’s balances and rates.",
+   "formula": "Σ balance × yearly rate ÷ 12, over every debt still owed",
+   "inputs": [
+    "MK-XS-I-014 debt balance",
+    "MK-XS-I-015 debt interest rate"
+   ],
+   "refusal": "No debts — $0.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid.",
+    "answer": "$261/month"
+   },
+   "door": "MK-CF-O-018 theDebts"
+  },
+  "MK-CF-M-058": {
+   "label": "debt-free",
+   "unit": "count",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "How many months until the last debt is cleared, paying the minimums plus anything extra, highest rate first.",
+   "formula": "the payoff plan: each month pay every minimum, put the extra on the costliest debt, roll a cleared debt’s payment onto the next",
+   "inputs": [
+    "MK-XS-I-014 debt balance",
+    "MK-XS-I-015 debt interest rate",
+    "MK-XS-I-016 debt minimum payment"
+   ],
+   "refusal": "The payments cannot cover the interest — the screen says never, not a number.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid.",
+    "answer": "84"
+   },
+   "door": "MK-CF-O-018 theDebts"
+  },
+  "MK-CF-M-059": {
+   "label": "total interest",
+   "unit": "money",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "All the interest paid over the plan until the last debt is gone.",
+   "formula": "the interest paid month by month over the payoff plan, added up",
+   "inputs": [
+    "MK-XS-I-014 debt balance",
+    "MK-XS-I-015 debt interest rate",
+    "MK-XS-I-016 debt minimum payment"
+   ],
+   "refusal": "The payments cannot cover the interest — the screen says never, not a number.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid.",
+    "answer": "$14,787"
+   },
+   "door": "MK-CF-O-018 theDebts"
+  },
+  "MK-CF-M-071": {
+   "label": "/month min",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "The least your debts require of you in a month, every minimum added up — the obligation, not what you choose to pay.",
+   "formula": "Σ the minimum monthly payment of every debt still owed",
+   "inputs": [
+    "MK-XS-I-016 debt minimum payment"
+   ],
+   "refusal": "No debts — $0.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid.",
+    "answer": "$450/month"
+   },
+   "door": "MK-CF-O-018 theDebts"
+  },
+  "MK-CF-M-072": {
+   "label": "/month total",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "What the payoff plan puts to debts each month: every minimum plus the extra you set.",
+   "formula": "the minimums added up (MK-CF-M-071) + the extra a month you set",
+   "inputs": [
+    "MK-XS-I-016 debt minimum payment",
+    "MK-XS-I-041 the payment the person chose to make on a debt"
+   ],
+   "refusal": "No debts — $0.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid.",
+    "answer": "$450/month"
+   },
+   "door": "MK-CF-O-018 theDebts"
+  },
+  "MK-CF-M-073": {
+   "label": "/month",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow",
+    "/bill-calendar"
+   ],
+   "grain": "one debt",
+   "answers": "What you pay on one debt each month — the payment you set, or its minimum where you set none.",
+   "formula": "the payment you chose for the debt; its minimum monthly payment where none is chosen",
+   "inputs": [
+    "MK-XS-I-016 debt minimum payment",
+    "MK-XS-I-041 the payment the person chose to make on a debt"
+   ],
+   "refusal": "A debt due in full on a date has no monthly payment — the line says when the whole balance is due.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid.",
+    "answer": "$200/month"
+   },
+   "door": "MK-CF-O-018 theDebts"
+  },
+  "MK-CF-M-022": {
+   "label": "YOUR FUTURE PAYCHECK — At <age>: ~$X/month",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "About what a month would bring at retirement: the guaranteed income plus a level draw from the projected pot.",
+   "formula": "guaranteed income a month + the draw the projected pot can support (the paycheck year’s level draw)",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-017 birth year",
+    "MK-XS-I-018 retirement age",
+    "MK-XS-I-028 assumed return",
+    "MK-XS-I-020 Social Security monthly amount"
+   ],
+   "decisions": [
+    "AN ESTIMATE, SAID TO BE ONE on the screen — never a promise.",
+    "NOTHING BEFORE THERE IS A POT: with no accounts, or past retirement age, the card is not drawn."
+   ],
+   "refusal": "No pot to project from, or retirement age already reached — the card is not drawn.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "Born in 1981, retiring at 67, with $200,000 in a 401(k) earning 6% and $2,000/month of Social Security from 67.",
+    "answer": "$4,345/month"
+   },
+   "door": "MK-CF-O-017 futurePaycheck"
+  },
+  "MK-CF-M-023": {
+   "label": "YOUR FUTURE PAYCHECK — Social Security · pension",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "The guaranteed part of that future month: Social Security, pension, annuity, other.",
+   "formula": "the outside guaranteed streams a month, added up",
+   "inputs": [
+    "MK-XS-I-020 Social Security monthly amount",
+    "MK-XS-I-022 pension monthly amount",
+    "MK-XS-I-035 annuity income",
+    "MK-XS-I-036 other guaranteed income"
+   ],
+   "refusal": "No pot to project from, or retirement age already reached — the card is not drawn.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "Born in 1981, retiring at 67, with $200,000 in a 401(k) earning 6% and $2,000/month of Social Security from 67.",
+    "answer": "$2,000/month"
+   },
+   "door": "MK-CF-O-017 futurePaycheck"
+  },
+  "MK-CF-M-055": {
+   "label": "Draw from savings",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/cashflow",
+    "/month-detail",
+    "/paycheck-months"
+   ],
+   "answers": "The level amount a month the pot can support, so the paycheck does not fall when a bill lands.",
+   "formula": "the paycheck year’s level draw from the pot, at the assumed return and horizon",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-028 assumed return",
+    "MK-XS-I-018 retirement age"
+   ],
+   "refusal": "No pot — no draw; the paycheck is the guaranteed income alone.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "Born in 1981, retiring at 67, with $200,000 in a 401(k) earning 6% and $2,000/month of Social Security from 67.",
+    "answer": "$2,345/month"
+   },
+   "door": "MK-CF-O-017 futurePaycheck"
+  },
+  "MK-CF-M-070": {
+   "label": "each step of the withdrawal order",
+   "unit": "money",
+   "screens": [
+    "/cashflow"
+   ],
+   "grain": "one step",
+   "answers": "Which pot the retired paycheck draws from first, second and so on, and how much sits in each.",
+   "formula": "cash first, then taxable, then pre-tax, then Roth — each with what is earmarked for retirement in it",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-XS-I-002 account type (taxable, pre-tax, Roth)",
+    "MK-XS-I-050 the share of an account earmarked for retirement"
+   ],
+   "refusal": "No retirement money in any pot — no order to explain.",
+   "ruled": "2026-10-02",
+   "worked": {
+    "given": "A $50,000 taxable brokerage account and a $120,000 pre-tax 401(k), both for retirement, at 68.",
+    "answer": "$50,000"
+   },
+   "door": "MK-CF-O-017 futurePaycheck"
   }
  }
 }

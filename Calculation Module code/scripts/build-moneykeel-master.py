@@ -424,27 +424,8 @@ NETWORTH = []
 PERFORMANCE = []
 
 CASHFLOW = [
- ('YOUR SOURCES — Base salary',              'op.baseSalary', 'TOTAL_INCOME'),
- # The band has driven 25 functions since the app existed and had NO identifier: 163 metric rows
- # were searched on 2026-08-27 and not one named it. It is one figure — everything the household
- # is taxed on, at the filing status they gave — shown on the base-pay screen and again on the
- # income summary. Founder ruling: total income is its home, base pay only reads it.
- ('YOUR BASE PAY — your tax band, on everything you are taxed on', 'band',
-                                             'NOT IN OLD MASTER — effectiveRate, src/domain/income'),
- ('YOUR SOURCES — Self-employment',          'op.seAmount',   'TOTAL_INCOME'),
- ('YOUR SOURCES — Bonus',                    'op.bonusAnnual','TOTAL_INCOME'),
- ('YOUR SOURCES — Stock vesting (equity)',   'rsuTotal',      NM + ' — the equity schedule, src/domain/income'),
- ('YOUR SOURCES — Rental property',          'rentalTotal',   'RENTAL_INCOME_A_YEAR'),
- ('YOUR SOURCES — Social Security · pension','guaranteed',    'RETIREMENT_INCOME_NOW'),
- ('<MONTH> · $X SPENT',                      'spent',         'SPENDING_BY_KIND'),
- ('each expense and its amount',             'e.amount',      'SPENDING_BY_KIND'),
- ('BY CATEGORY VS PLAN — $X of $Y',          'b.spent / b.planned', 'PLANNED_SPENDING'),
- ('THIS MONTH — In (take-home)',             'inflow',        NM + ' — incomeMonthlyGrid, src/domain/income'),
- ('THIS MONTH — Out (bills + debt)',         'outflow',       'SPENDING_BY_KIND · DEBT_REQUIRED_PAYMENT'),
- ('THIS MONTH — free to use',                'free',          'worked out on the screen: in − out − what the Plan committed'),
- ('<goal> · from your Plan',                 'c.monthlyAmount', NM + ' — plan commitments, src/domain/planning'),
- ('YOUR FUTURE PAYCHECK — At <age>: ~$X / mo','projection.monthly', 'POT_AT_RETIREMENT'),
- ('YOUR FUTURE PAYCHECK — Social Security · pension','projection.guaranteed','RETIREMENT_INCOME'),
+ # EMPTY since 2026-10-02: every hand-typed Cash flow row became a declaration in MoneyKeel/functions/cashflow
+ # (same identifiers), or was the same figure as a declared one and is retired on the register with its reason.
 ]
 
 PLAN = [
@@ -500,9 +481,7 @@ SECONDARY = {
   ('/education','$X/mo set aside closes the $Y gap','plan.monthlyNeeded / plan.gap','EDUCATION_COST'),
  ],
  'cashflow': [
-  ('/monthly-income','each source of guaranteed income','g.amount','RETIREMENT_INCOME_NOW'),
-  ('/month-detail','what came in and went out that month','cell','the by-month grid'),
-  ('/income-manager','each income source and its amount','sources','TOTAL_INCOME'),
+  # 024, 027 are declared in income-summary.ts since 2026-10-02; 025 (a month's cell) is retired — Month detail prints 047 to 054
  ],
  'menu': [
   ('/big-costs','each big cost and its year','c.amount','BIG_COSTS'),

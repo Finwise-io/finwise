@@ -32,11 +32,12 @@ export const FULL_RETIREMENT_AGE = 67;
  *
  * Called by ... MK-PL-F-058 ssClaimFactorFor · MK-PL-F-063 fraLabel
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-063 fraLabel · MK-PL-F-068 selectWillItLast
- *               MK-PL-F-060 ssBenefitAt · MK-PL-F-061 ssBenefitAtClaimAge
- *               MK-PL-F-059 ssClaimFactor · MK-PL-F-058 ssClaimFactorFor
- *               MK-PL-F-062 ssLifetimeTotal · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-063 fraLabel · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-060 ssBenefitAt
+ *               MK-PL-F-061 ssBenefitAtClaimAge · MK-PL-F-059 ssClaimFactor
+ *               MK-PL-F-058 ssClaimFactorFor · MK-PL-F-062 ssLifetimeTotal
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
@@ -73,10 +74,11 @@ export function fullRetirementAge(birthYear?: number | null): number {
  *
  * Called by ... MK-PL-F-059 ssClaimFactor · MK-PL-F-060 ssBenefitAt
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-060 ssBenefitAt
- *               MK-PL-F-061 ssBenefitAtClaimAge · MK-PL-F-059 ssClaimFactor
- *               MK-PL-F-062 ssLifetimeTotal · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-060 ssBenefitAt · MK-PL-F-061 ssBenefitAtClaimAge
+ *               MK-PL-F-059 ssClaimFactor · MK-PL-F-062 ssLifetimeTotal
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... MK-PL-M-019
  * Reads ....... MK-XS-I-017 birth year
@@ -137,9 +139,10 @@ export function ssClaimFactor(claimAge: number): number {
  * Called by ... MK-PL-F-061 ssBenefitAtClaimAge · MK-PL-F-062 ssLifetimeTotal
  *               MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-061 ssBenefitAtClaimAge
- *               MK-PL-F-062 ssLifetimeTotal · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-061 ssBenefitAtClaimAge · MK-PL-F-062 ssLifetimeTotal
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... MK-PL-M-017 · MK-PL-M-019
  * Reads ....... MK-XS-I-017 birth year

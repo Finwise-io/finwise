@@ -4,6 +4,7 @@ import {
   Modal, TextInput, KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { readFileString } from '../services/fileRead';   // T19: supported read path
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats, useCategorySpend, DebtEntry } from '../store/useStore';
@@ -366,18 +367,18 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           <View style={styles.strip}>
             <View style={styles.stripItem}>
               <Text style={styles.stripLabel}>Income (take-home)</Text>
-              <Text style={[styles.stripValue, { color: Colors.primary }]}>{money(Math.round(monthIncomeSel))}</Text>
+              <Text style={[styles.stripValue, { color: Colors.primary }]}>{fig('MK-CF-M-051', Math.round(monthIncomeSel))}</Text>
             </View>
             <View style={styles.stripDivider} />
             <View style={styles.stripItem}>
               <Text style={styles.stripLabel}>{monthDebtSel > 0 ? 'Actual expenses + debt' : 'Actual expenses'}</Text>
-              <Text style={[styles.stripValue, { color: Colors.red }]}>{money(Math.round(monthSpendSel))}</Text>
+              <Text style={[styles.stripValue, { color: Colors.red }]}>{fig('MK-CF-M-013', Math.round(monthSpendSel))}</Text>
             </View>
             <View style={styles.stripDivider} />
             <View style={styles.stripItem}>
               <Text style={styles.stripLabel}>Surplus</Text>
               <Text style={[styles.stripValue, { color: monthIncomeSel - monthSpendSel >= 0 ? Colors.primary : Colors.red }]}>
-                {money(Math.round(monthIncomeSel - monthSpendSel))}
+                {fig('MK-CF-M-003', Math.round(monthIncomeSel - monthSpendSel))}
               </Text>
             </View>
           </View>
@@ -427,7 +428,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                       <Text style={styles.txLabel} numberOfLines={1}>{(item as any).source}</Text>
                       <Text style={styles.txSub}>Recurring · {selMonthLabel} · tap to manage</Text>
                     </View>
-                    <Text style={[styles.txAmt, { color: Colors.primary }]}>+{money2((item as any).amount)}</Text>
+                    <Text style={[styles.txAmt, { color: Colors.primary }]}>+{fig('MK-CF-M-012', (item as any).amount)}</Text>
                   </TouchableOpacity>
                 );
               }
@@ -457,7 +458,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                       {(item as any).notes ? <Text style={styles.txNote} numberOfLines={1}>{(item as any).notes}</Text> : null}
                     </View>
                     <Text style={[styles.txAmt, { color: isIncome ? Colors.primary : Colors.red }]}>
-                      {isIncome ? '+' : '-'}{money2((item as any).amount)}
+                      {isIncome ? '+' : '-'}{fig('MK-CF-M-014', (item as any).amount)}
                     </Text>
                   </TouchableOpacity>
                 </Swipeable>
@@ -485,23 +486,23 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {/* YOUR MONTHLY PLAN — Income − Expenses − Debt = Surplus */}
           <Card>
             <Text style={styles.budgetCardTitle}>Your budget</Text>
-            <View style={styles.planRow}><Text style={styles.planLabel}>Income (take-home)</Text><Text style={styles.planVal}>{money(planIncome)}</Text></View>
-            <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{money(planExpenses)}</Text></View>
-            {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>−  Debt (min payments)</Text><Text style={styles.planVal}>{money(planDebt)}</Text></View>}
+            <View style={styles.planRow}><Text style={styles.planLabel}>Income (take-home)</Text><Text style={styles.planVal}>{fig('MK-CF-M-031', planIncome)}</Text></View>
+            <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{fig('MK-CF-M-001', planExpenses)}</Text></View>
+            {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>−  Debt payments</Text><Text style={styles.planVal}>{fig('MK-NW-M-012', planDebt)}</Text></View>}
             <View style={[styles.planRow, styles.planTotalRow]}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={styles.planTotalLabel}>=  Planned surplus</Text>
                 <InfoDot term="surplus" />
               </View>
-              <Text style={[styles.planTotalVal, { color: planLeftOver >= 0 ? Colors.primary : Colors.red }]}>{money(planLeftOver)}</Text>
+              <Text style={[styles.planTotalVal, { color: planLeftOver >= 0 ? Colors.primary : Colors.red }]}>{fig('MK-CF-M-002', planLeftOver)}</Text>
             </View>
             {planIncome > 0 && <Text style={styles.planNote}>Your expense budget is {budgetPctOfIncome}% of take-home pay.</Text>}
             <View style={{ marginTop: Spacing.md }}>
               <ProgressBar pct={Math.round(spentPct * 100)} color={spentOver ? Colors.red : Colors.primary} height={8} />
               <View style={styles.budgetFooterRow}>
-                <Text style={styles.budgetFooterText}>{money(spentTotal)} spent so far</Text>
+                <Text style={styles.budgetFooterText}>{fig('MK-CF-M-013', spentTotal)} spent so far</Text>
                 <Text style={[styles.budgetFooterText, { color: spentOver ? Colors.red : Colors.primary }]}>
-                  {spentOver ? `${money(spentTotal - planExpenses)} over` : `${money(planExpenses - spentTotal)} left`} · of {money(planExpenses)} plan
+                  {spentOver ? `${fig('MK-CF-M-056', spentTotal - planExpenses)} over` : `${fig('MK-CF-M-056', planExpenses - spentTotal)} left`} · of {fig('MK-CF-M-001', planExpenses)} plan
                 </Text>
               </View>
             </View>
@@ -531,7 +532,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 <Card key={bk} style={styles.catCard}>
                   <View style={styles.bucketHeadRow}>
                     <Text style={styles.bucketName}>{BUCKET_LABEL[bk]}</Text>
-                    <Text style={[styles.bucketTotal, bover && { color: Colors.red }]}>{money(Math.round(ba.spent))} / {money(Math.round(ba.planned))}</Text>
+                    <Text style={[styles.bucketTotal, bover && { color: Colors.red }]}>{fig('MK-CF-M-015', Math.round(ba.spent))} / {fig('MK-CF-M-015', Math.round(ba.planned))}</Text>
                   </View>
                   <ProgressBar pct={Math.round(bpct * 100)} color={bover ? Colors.red : Colors.primary} height={6} />
                   {rows.slice().sort((a, b) => b.spent - a.spent).map((r) => {
@@ -541,7 +542,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                         <Text style={styles.bcatIcon}>{r.icon}</Text>
                         <Text style={styles.bcatLabel} numberOfLines={1}>{r.label}</Text>
                         <Text style={[styles.bcatAmt, rover && { color: Colors.red }]}>
-                          {money(Math.round(r.spent))}{r.limit > 0 ? <Text style={styles.bcatLimit}> / {money(Math.round(r.limit))}</Text> : <Text style={styles.bcatLimit}> · no limit</Text>}
+                          {fig('MK-CF-M-015', Math.round(r.spent))}{r.limit > 0 ? <Text style={styles.bcatLimit}> / {fig('MK-CF-M-015', Math.round(r.limit))}</Text> : <Text style={styles.bcatLimit}> · no limit</Text>}
                         </Text>
                       </View>
                     );
@@ -565,7 +566,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                   <View key={d.id} style={[styles.bcatRow, i > 0 && { borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8, marginTop: 2 }]}>
                     <Text style={styles.bcatIcon}>{DEBT_TYPES.find((t) => t.value === d.type)?.icon || '📄'}</Text>
                     <Text style={styles.bcatLabel} numberOfLines={1}>{d.name}</Text>
-                    <Text style={styles.bcatAmt}>{money(Math.round(d.minimumPayment))}<Text style={styles.bcatLimit}> /month min</Text></Text>
+                    <Text style={styles.bcatAmt}>{fig('MK-NW-M-011', Math.round(d.minimumPayment))}<Text style={styles.bcatLimit}> /month min</Text></Text>
                   </View>
                 ))}
               </Card>
@@ -665,11 +666,11 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               <View style={{ flex: 1 }}>
                 <Text style={styles.budgetCardTitle}>Total debt</Text>
                 <Text style={[styles.budgetCardSub, { marginTop: 2 }]}>
-                  {activeDebts.length} account{activeDebts.length !== 1 ? 's' : ''} · {money(totalMinMonthly)}/month min · ~{money(totalInterestMonthly)}/month interest
+                  {activeDebts.length} account{activeDebts.length !== 1 ? 's' : ''} · {fig('MK-CF-M-071', totalMinMonthly)}/month min · ~{fig('MK-CF-M-057', totalInterestMonthly)}/month interest
                 </Text>
               </View>
               <Text style={{ fontSize: 24, fontWeight: '700', color: totalDebt > 0 ? Colors.red : Colors.primary }}>
-                {money(Math.round(totalDebt))}
+                {fig('MK-NW-M-009', Math.round(totalDebt))}
               </Text>
             </View>
           </Card>
@@ -694,9 +695,9 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 </View>
               </View>
               <View style={styles.payoffSummary}>
-                <View style={styles.payoffStat}><Text style={[styles.payoffStatV, plan.neverPaysOff && { color: Colors.red }]}>{debtFreeLabel}</Text><Text style={styles.payoffStatL}>debt-free</Text></View>
-                <View style={styles.payoffStat}><Text style={styles.payoffStatV}>{money(totalMinMonthly + Math.round(num(extraPay)))}</Text><Text style={styles.payoffStatL}>/month total</Text></View>
-                <View style={styles.payoffStat}><Text style={[styles.payoffStatV, { color: Colors.red }]}>{plan.neverPaysOff ? '—' : money(Math.round(plan.totalInterest))}</Text><Text style={styles.payoffStatL}>total interest</Text></View>
+                <View style={styles.payoffStat}><Text style={[styles.payoffStatV, plan.neverPaysOff && { color: Colors.red }]}>{figWords('MK-CF-M-058', debtFreeLabel)}</Text><Text style={styles.payoffStatL}>debt-free</Text></View>
+                <View style={styles.payoffStat}><Text style={styles.payoffStatV}>{fig('MK-CF-M-072', totalMinMonthly + Math.round(num(extraPay)))}</Text><Text style={styles.payoffStatL}>/month total</Text></View>
+                <View style={styles.payoffStat}><Text style={[styles.payoffStatV, { color: Colors.red }]}>{plan.neverPaysOff ? '—' : fig('MK-CF-M-059', Math.round(plan.totalInterest))}</Text><Text style={styles.payoffStatL}>total interest</Text></View>
               </View>
               {plan.neverPaysOff && (
                 <Text style={[styles.planNote, { color: Colors.red, marginTop: 8 }]}>⚠️ At this payment your balance grows faster than you pay it down. Add an extra payment to start getting ahead.</Text>
@@ -741,10 +742,10 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                       <View style={{ flex: 1, marginLeft: Spacing.sm }}>
                         <View style={styles.catTitleRow}>
                           <Text style={styles.catLabel} numberOfLines={1}>{d.label}{idx === 0 && <Text style={styles.payFirst}>  • pay first</Text>}</Text>
-                          <Text style={[styles.catAmt, { color: Colors.red }]}>{money(Math.round(d.remaining_balance || 0))}</Text>
+                          <Text style={[styles.catAmt, { color: Colors.red }]}>{fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))}</Text>
                         </View>
                         <Text style={styles.catLimit}>
-                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}% yearly interest (APR) · {money(Math.round(requiredPayment(d)))}/month min · ~{money(Math.round(monthlyInterest))}/month interest{pm ? ` · clear in ${pm} mo` : ''}
+                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}% yearly interest (APR) · {fig('MK-CF-M-073', Math.round(requiredPayment(d)))}/month min · ~{fig('MK-CF-M-073', Math.round(monthlyInterest))}/month interest{pm ? ` · clear in ${pm} mo` : ''}
                         </Text>
                         {(() => {
                           const dd = d.due_day; if (!dd) return null;
@@ -829,7 +830,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             <TouchableOpacity onPress={logPayment}><Text style={styles.modalSave}>Log</Text></TouchableOpacity>
           </View>
           <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
-            <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>{payDebt?.label} · {money(Math.round(payDebt?.remaining_balance || 0))} balance</Text>
+            <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>{payDebt?.label} · {fig('MK-NW-M-010', Math.round(payDebt?.remaining_balance || 0))} balance</Text>
             <View style={styles.limitRow}>
               <Text style={styles.limitLabel}>Amount</Text>
               <View style={styles.limitInputWrap}>
@@ -838,7 +839,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               </View>
             </View>
             <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, lineHeight: 18 }}>
-              Adds a “Debt payment” to your activity and lowers this balance.{'\n'}New balance: {money(Math.max(0, Math.round((payDebt?.remaining_balance || 0) - num(payAmt))))}.
+              Adds a “Debt payment” to your activity and lowers this balance.{'\n'}New balance: {fig('MK-NW-M-010', Math.max(0, Math.round((payDebt?.remaining_balance || 0) - num(payAmt))))}.
             </Text>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -919,7 +920,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                   <Text style={styles.bcatIcon}>{budgetCategoryIcon(r.category, customCategories || [])}</Text>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.limitLabel}>{r.store || r.category}</Text>
-                    <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>{money(Math.round(r.amount))} · {r.frequency} · {r.category}</Text>
+                    <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>{fig('MK-CF-M-014', Math.round(r.amount))} · {r.frequency} · {r.category}</Text>
                   </View>
                   <TouchableOpacity onPress={() => deleteRecurringExpense(r.id)}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: Typography.sizes.sm }}>Stop</Text></TouchableOpacity>
                 </View>
@@ -929,7 +930,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                   <Text style={styles.bcatIcon}>💵</Text>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.limitLabel}>{r.source}</Text>
-                    <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>{money(Math.round(r.amount))} · {r.frequency} · income</Text>
+                    <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>{fig('MK-CF-M-012', Math.round(r.amount))} · {r.frequency} · income</Text>
                   </View>
                   <TouchableOpacity onPress={() => deleteRecurringIncome(r.id)}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: Typography.sizes.sm }}>Stop</Text></TouchableOpacity>
                 </View>

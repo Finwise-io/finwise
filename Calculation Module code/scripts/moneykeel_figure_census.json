@@ -20305,6 +20305,34 @@
    "file": "src/screens/BillCalendarScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Bill calendar"
     },
@@ -20382,7 +20410,7 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $7,200, out $4,220, ending balance $2,980. Opens the month's detail."
+     "s": "Oct 2026: in $7,200 a month, out $4,220 a month, ending balance $2,980. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20406,7 +20434,7 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $7,200, out $4,220, ending balance $5,960. Opens the month's detail."
+     "s": "Nov 2026: in $7,200 a month, out $4,220 a month, ending balance $5,960. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20430,7 +20458,7 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $7,200, out $4,220, ending balance $8,940. Opens the month's detail."
+     "s": "Dec 2026: in $7,200 a month, out $4,220 a month, ending balance $8,940. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20454,7 +20482,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $7,200, out $4,220, ending balance $11,920. Opens the month's detail."
+     "s": "Jan ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $11,920. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20478,7 +20506,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27 2027: in $7,200, out $4,220, ending balance $14,900. Opens the month's detail."
+     "s": "Feb ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $14,900. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20502,7 +20530,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $7,200, out $4,220, ending balance $17,880. Opens the month's detail."
+     "s": "Mar ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $17,880. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20526,7 +20554,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27 2027: in $7,200, out $7,820, ending balance $17,260. Opens the month's detail."
+     "s": "Apr ’27 2027: in $7,200 a month, out $7,820 a month, ending balance $17,260. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20550,7 +20578,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $7,200, out $4,220, ending balance $20,240. Opens the month's detail."
+     "s": "May ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $20,240. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20574,7 +20602,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $7,200, out $4,220, ending balance $23,220. Opens the month's detail."
+     "s": "Jun ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $23,220. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20598,7 +20626,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $7,200, out $4,220, ending balance $26,200. Opens the month's detail."
+     "s": "Jul ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $26,200. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20622,7 +20650,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $7,200, out $4,220, ending balance $29,180. Opens the month's detail."
+     "s": "Aug ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $29,180. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20646,7 +20674,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27 2027: in $7,200, out $4,220, ending balance $32,160. Opens the month's detail."
+     "s": "Sep ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $32,160. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20682,6 +20710,34 @@
     }
    ],
    "rich": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Bill calendar"
@@ -20760,7 +20816,7 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $7,200, out $6,000, ending balance $21,200. Opens the month's detail."
+     "s": "Oct 2026: in $7,200 a month, out $6,000 a month, ending balance $21,200. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20784,7 +20840,7 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $7,200, out $6,000, ending balance $22,400. Opens the month's detail."
+     "s": "Nov 2026: in $7,200 a month, out $6,000 a month, ending balance $22,400. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20808,7 +20864,7 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $7,200, out $6,000, ending balance $23,600. Opens the month's detail."
+     "s": "Dec 2026: in $7,200 a month, out $6,000 a month, ending balance $23,600. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20832,7 +20888,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $7,200, out $6,000, ending balance $24,800. Opens the month's detail."
+     "s": "Jan ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $24,800. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20856,7 +20912,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27 2027: in $7,200, out $6,000, ending balance $26,000. Opens the month's detail."
+     "s": "Feb ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $26,000. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20880,7 +20936,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $7,200, out $6,000, ending balance $27,200. Opens the month's detail."
+     "s": "Mar ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $27,200. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20904,7 +20960,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27 2027: in $7,200, out $9,600, ending balance $24,800. Opens the month's detail."
+     "s": "Apr ’27 2027: in $7,200 a month, out $9,600 a month, ending balance $24,800. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20928,7 +20984,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $7,200, out $6,000, ending balance $26,000. Opens the month's detail."
+     "s": "May ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $26,000. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20952,7 +21008,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $7,200, out $6,000, ending balance $27,200. Opens the month's detail."
+     "s": "Jun ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $27,200. Opens the month's detail."
     },
     {
      "k": "t",
@@ -20976,7 +21032,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $7,200, out $6,000, ending balance $28,400. Opens the month's detail."
+     "s": "Jul ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $28,400. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21000,7 +21056,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $7,200, out $6,000, ending balance $29,600. Opens the month's detail."
+     "s": "Aug ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $29,600. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21024,7 +21080,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27 2027: in $7,200, out $6,000, ending balance $30,800. Opens the month's detail."
+     "s": "Sep ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $30,800. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21060,6 +21116,34 @@
     }
    ],
    "retiree": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Bill calendar"
@@ -21138,7 +21222,7 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $3,500, out $3,600, ending balance -$100 — short. Opens the month's detail."
+     "s": "Oct 2026: in $3,500 a month, out $3,600 a month, ending balance -$100 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21170,7 +21254,7 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $3,500, out $3,600, ending balance -$200 — short. Opens the month's detail."
+     "s": "Nov 2026: in $3,500 a month, out $3,600 a month, ending balance -$200 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21202,7 +21286,7 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $3,500, out $3,600, ending balance -$300 — short. Opens the month's detail."
+     "s": "Dec 2026: in $3,500 a month, out $3,600 a month, ending balance -$300 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21234,7 +21318,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $3,500, out $3,600, ending balance -$400 — short. Opens the month's detail."
+     "s": "Jan ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$400 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21266,7 +21350,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27 2027: in $3,500, out $3,600, ending balance -$500 — short. Opens the month's detail."
+     "s": "Feb ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$500 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21298,7 +21382,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $3,500, out $3,600, ending balance -$600 — short. Opens the month's detail."
+     "s": "Mar ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$600 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21330,7 +21414,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27 2027: in $3,500, out $3,600, ending balance -$700 — short. Opens the month's detail."
+     "s": "Apr ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$700 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21362,7 +21446,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $3,500, out $3,600, ending balance -$800 — short. Opens the month's detail."
+     "s": "May ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$800 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21394,7 +21478,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $3,500, out $6,000, ending balance -$3,300 — short. Opens the month's detail."
+     "s": "Jun ’27 2027: in $3,500 a month, out $6,000 a month, ending balance -$3,300 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21426,7 +21510,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $3,500, out $3,600, ending balance -$3,400 — short. Opens the month's detail."
+     "s": "Jul ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$3,400 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21458,7 +21542,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $3,500, out $3,600, ending balance -$3,500 — short. Opens the month's detail."
+     "s": "Aug ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$3,500 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21490,7 +21574,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27 2027: in $3,500, out $3,600, ending balance -$3,600 — short. Opens the month's detail."
+     "s": "Sep ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$3,600 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -25396,6 +25480,34 @@
    "file": "src/screens/IncomeManagerScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "YOUR INCOME"
     },
@@ -25473,6 +25585,34 @@
     }
    ],
    "rich": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "YOUR INCOME"
@@ -25564,6 +25704,34 @@
    ],
    "retiree": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "YOUR INCOME"
     },
@@ -25637,6 +25805,34 @@
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "YOUR INCOME"
@@ -25716,6 +25912,34 @@
    "worker": [
     {
      "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
      "s": "My income"
     },
     {
@@ -25756,6 +25980,34 @@
     }
    ],
    "rich": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "a",
      "s": "My income"
@@ -25800,6 +26052,34 @@
    "retiree": [
     {
      "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
      "s": "My income"
     },
     {
@@ -25840,6 +26120,34 @@
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "a",
      "s": "My income"
@@ -29142,6 +29450,34 @@
    "worker": [
     {
      "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
      "s": "Previous month"
     },
     {
@@ -29170,7 +29506,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in October 2026: $2,980. As of today."
+     "s": "Surplus in October 2026: $2,980 a month. As of today."
     },
     {
      "k": "t",
@@ -29276,6 +29612,34 @@
    "rich": [
     {
      "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
      "s": "Previous month"
     },
     {
@@ -29304,7 +29668,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in October 2026: $1,200. As of today."
+     "s": "Surplus in October 2026: $1,200 a month. As of today."
     },
     {
      "k": "t",
@@ -29422,6 +29786,34 @@
    "retiree": [
     {
      "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
      "s": "Previous month"
     },
     {
@@ -29450,7 +29842,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in October 2026: $4,795. As of today."
+     "s": "Surplus in October 2026: $4,795 a month. As of today."
     },
     {
      "k": "t",
@@ -29580,6 +29972,34 @@
    "new": [
     {
      "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
      "s": "Previous month"
     },
     {
@@ -29608,7 +30028,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in October 2026: $0. As of today."
+     "s": "Surplus in October 2026: $0 a month. As of today."
     },
     {
      "k": "t",
@@ -29676,6 +30096,34 @@
    "file": "src/screens/MonthlyIncomeScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Your monthly income"
     },
@@ -29805,11 +30253,7 @@
     },
     {
      "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "t",
-     "s": "a month"
+     "s": "$0/month"
     },
     {
      "k": "a",
@@ -29822,6 +30266,34 @@
    ],
    "rich": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Your monthly income"
     },
@@ -29951,11 +30423,7 @@
     },
     {
      "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "t",
-     "s": "a month"
+     "s": "$0/month"
     },
     {
      "k": "a",
@@ -29967,6 +30435,34 @@
     }
    ],
    "retiree": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Your monthly income"
@@ -30097,11 +30593,7 @@
     },
     {
      "k": "t",
-     "s": "$3,500"
-    },
-    {
-     "k": "t",
-     "s": "a month"
+     "s": "$3,500/month"
     },
     {
      "k": "a",
@@ -30113,6 +30605,34 @@
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Your monthly income"
@@ -30243,11 +30763,7 @@
     },
     {
      "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "t",
-     "s": "a month"
+     "s": "$0/month"
     },
     {
      "k": "a",
@@ -31001,6 +31517,34 @@
    "file": "src/screens/PaycheckMonthsScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Your paycheck, month by month"
     },
@@ -31018,7 +31562,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: surplus $335"
+     "s": "Oct: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31090,7 +31634,7 @@
     },
     {
      "k": "a",
-     "s": "Nov: surplus $335"
+     "s": "Nov: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31102,7 +31646,7 @@
     },
     {
      "k": "a",
-     "s": "Dec: surplus $335"
+     "s": "Dec: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31114,7 +31658,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27: surplus $335"
+     "s": "Jan ’27: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31126,7 +31670,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27: surplus $335"
+     "s": "Feb ’27: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31138,7 +31682,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27: surplus $335"
+     "s": "Mar ’27: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31150,7 +31694,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27: surplus -$3,265, lower — big bill this month"
+     "s": "Apr ’27: surplus -$3,265 a month, lower — big bill this month"
     },
     {
      "k": "t",
@@ -31166,7 +31710,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27: surplus $335"
+     "s": "May ’27: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31178,7 +31722,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27: surplus $335"
+     "s": "Jun ’27: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31190,7 +31734,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27: surplus $335"
+     "s": "Jul ’27: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31202,7 +31746,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27: surplus $335"
+     "s": "Aug ’27: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31214,7 +31758,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27: surplus $335"
+     "s": "Sep ’27: surplus $335 a month"
     },
     {
      "k": "t",
@@ -31230,6 +31774,34 @@
     }
    ],
    "rich": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Your paycheck, month by month"
@@ -31248,7 +31820,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: surplus $1,495"
+     "s": "Oct: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31328,7 +31900,7 @@
     },
     {
      "k": "a",
-     "s": "Nov: surplus $1,495"
+     "s": "Nov: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31340,7 +31912,7 @@
     },
     {
      "k": "a",
-     "s": "Dec: surplus $1,495"
+     "s": "Dec: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31352,7 +31924,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27: surplus $1,495"
+     "s": "Jan ’27: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31364,7 +31936,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27: surplus $1,495"
+     "s": "Feb ’27: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31376,7 +31948,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27: surplus $1,495"
+     "s": "Mar ’27: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31388,7 +31960,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27: surplus -$2,105, lower — big bill this month"
+     "s": "Apr ’27: surplus -$2,105 a month, lower — big bill this month"
     },
     {
      "k": "t",
@@ -31404,7 +31976,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27: surplus $1,495"
+     "s": "May ’27: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31416,7 +31988,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27: surplus $1,495"
+     "s": "Jun ’27: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31428,7 +32000,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27: surplus $1,495"
+     "s": "Jul ’27: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31440,7 +32012,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27: surplus $1,495"
+     "s": "Aug ’27: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31452,7 +32024,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27: surplus $1,495"
+     "s": "Sep ’27: surplus $1,495 a month"
     },
     {
      "k": "t",
@@ -31468,6 +32040,34 @@
     }
    ],
    "retiree": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Your paycheck, month by month"
@@ -31486,7 +32086,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: surplus $4,795"
+     "s": "Oct: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31562,7 +32162,7 @@
     },
     {
      "k": "a",
-     "s": "Nov: surplus $4,795"
+     "s": "Nov: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31574,7 +32174,7 @@
     },
     {
      "k": "a",
-     "s": "Dec: surplus $4,795"
+     "s": "Dec: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31586,7 +32186,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27: surplus $4,795"
+     "s": "Jan ’27: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31598,7 +32198,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27: surplus $4,795"
+     "s": "Feb ’27: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31610,7 +32210,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27: surplus $4,795"
+     "s": "Mar ’27: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31622,7 +32222,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27: surplus $4,795"
+     "s": "Apr ’27: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31634,7 +32234,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27: surplus $4,795"
+     "s": "May ’27: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31646,7 +32246,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27: surplus $2,395, lower — big bill this month"
+     "s": "Jun ’27: surplus $2,395 a month, lower — big bill this month"
     },
     {
      "k": "t",
@@ -31662,7 +32262,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27: surplus $4,795"
+     "s": "Jul ’27: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31674,7 +32274,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27: surplus $4,795"
+     "s": "Aug ’27: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31686,7 +32286,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27: surplus $4,795"
+     "s": "Sep ’27: surplus $4,795 a month"
     },
     {
      "k": "t",
@@ -31702,6 +32302,34 @@
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Your paycheck, month by month"
@@ -31720,7 +32348,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: surplus $0"
+     "s": "Oct: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31772,7 +32400,7 @@
     },
     {
      "k": "a",
-     "s": "Nov: surplus $0"
+     "s": "Nov: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31784,7 +32412,7 @@
     },
     {
      "k": "a",
-     "s": "Dec: surplus $0"
+     "s": "Dec: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31796,7 +32424,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27: surplus $0"
+     "s": "Jan ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31808,7 +32436,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27: surplus $0"
+     "s": "Feb ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31820,7 +32448,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27: surplus $0"
+     "s": "Mar ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31832,7 +32460,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27: surplus $0"
+     "s": "Apr ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31844,7 +32472,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27: surplus $0"
+     "s": "May ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31856,7 +32484,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27: surplus $0"
+     "s": "Jun ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31868,7 +32496,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27: surplus $0"
+     "s": "Jul ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31880,7 +32508,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27: surplus $0"
+     "s": "Aug ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -31892,7 +32520,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27: surplus $0"
+     "s": "Sep ’27: surplus $0 a month"
     },
     {
      "k": "t",
@@ -36467,6 +37095,26 @@
      "s": "‹ Back"
     },
     {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Your income"
     },
@@ -36573,6 +37221,26 @@
      "s": "‹ Back"
     },
     {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Your income"
     },
@@ -36677,6 +37345,26 @@
     {
      "k": "t",
      "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
     },
     {
      "k": "t",
@@ -36765,6 +37453,26 @@
      "s": "‹ Back"
     },
     {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Your income"
     },
@@ -36835,11 +37543,31 @@
    "worker": [
     {
      "k": "a",
-     "s": "Back to Income"
+     "s": "Back"
     },
     {
      "k": "t",
-     "s": "‹ Income"
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
     },
     {
      "k": "t",
@@ -37137,11 +37865,31 @@
    "rich": [
     {
      "k": "a",
-     "s": "Back to Income"
+     "s": "Back"
     },
     {
      "k": "t",
-     "s": "‹ Income"
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
     },
     {
      "k": "t",
@@ -37439,11 +38187,31 @@
    "retiree": [
     {
      "k": "a",
-     "s": "Back to Income"
+     "s": "Back"
     },
     {
      "k": "t",
-     "s": "‹ Income"
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
     },
     {
      "k": "t",
@@ -37733,11 +38501,31 @@
    "new": [
     {
      "k": "a",
-     "s": "Back to Income"
+     "s": "Back"
     },
     {
      "k": "t",
-     "s": "‹ Income"
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
     },
     {
      "k": "t",
@@ -38138,6 +38926,34 @@
     "MK-PF-M-019"
    ]
   },
+  "/cashflow": {
+   "worker": [
+    "MK-CF-M-001",
+    "MK-CF-M-013",
+    "MK-CF-M-015",
+    "MK-CF-M-020",
+    "MK-CF-M-022",
+    "MK-CF-M-050",
+    "MK-CF-M-055",
+    "MK-CF-M-070"
+   ],
+   "rich": [
+    "MK-CF-M-001",
+    "MK-CF-M-013",
+    "MK-CF-M-015",
+    "MK-CF-M-020",
+    "MK-CF-M-022",
+    "MK-CF-M-050",
+    "MK-CF-M-055",
+    "MK-CF-M-070"
+   ],
+   "retiree": [
+    "MK-CF-M-013",
+    "MK-CF-M-016",
+    "MK-CF-M-049",
+    "MK-CF-M-070"
+   ]
+  },
   "/account-detail": {
    "worker": [
     "MK-NW-M-018",
@@ -38166,6 +38982,30 @@
     "MK-PF-M-015"
    ]
   },
+  "/bill-calendar": {
+   "worker": [
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-060",
+    "MK-CF-M-061",
+    "MK-NW-M-005"
+   ],
+   "rich": [
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-060",
+    "MK-CF-M-061",
+    "MK-NW-M-005"
+   ],
+   "retiree": [
+    "MK-CF-M-016",
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-060",
+    "MK-CF-M-061",
+    "MK-NW-M-005"
+   ]
+  },
   "/bonds": {
    "worker": [
     "MK-NW-M-041"
@@ -38186,6 +39026,28 @@
    ],
    "new": [
     "MK-NW-M-041"
+   ]
+  },
+  "/income-manager": {
+   "worker": [
+    "MK-CF-M-027",
+    "MK-CF-M-065",
+    "MK-CF-M-066"
+   ],
+   "rich": [
+    "MK-CF-M-027",
+    "MK-CF-M-065",
+    "MK-CF-M-066"
+   ],
+   "retiree": [
+    "MK-CF-M-027",
+    "MK-CF-M-065",
+    "MK-CF-M-066"
+   ],
+   "new": [
+    "MK-CF-M-027",
+    "MK-CF-M-065",
+    "MK-CF-M-066"
    ]
   },
   "/insights": {
@@ -38212,6 +39074,50 @@
     "MK-NW-M-039"
    ]
   },
+  "/month-detail": {
+   "worker": [
+    "MK-CF-M-001",
+    "MK-CF-M-013",
+    "MK-CF-M-047",
+    "MK-CF-M-049",
+    "MK-CF-M-050"
+   ],
+   "rich": [
+    "MK-CF-M-001",
+    "MK-CF-M-013",
+    "MK-CF-M-047",
+    "MK-CF-M-049",
+    "MK-CF-M-050"
+   ],
+   "retiree": [
+    "MK-CF-M-001",
+    "MK-CF-M-013",
+    "MK-CF-M-024",
+    "MK-CF-M-047",
+    "MK-CF-M-049",
+    "MK-CF-M-050",
+    "MK-CF-M-055"
+   ],
+   "new": [
+    "MK-CF-M-001",
+    "MK-CF-M-013",
+    "MK-CF-M-049"
+   ]
+  },
+  "/monthly-income": {
+   "worker": [
+    "MK-CF-M-069"
+   ],
+   "rich": [
+    "MK-CF-M-069"
+   ],
+   "retiree": [
+    "MK-CF-M-069"
+   ],
+   "new": [
+    "MK-CF-M-069"
+   ]
+  },
   "/other-investments": {
    "worker": [
     "MK-NW-M-049"
@@ -38224,6 +39130,36 @@
    ],
    "new": [
     "MK-NW-M-049"
+   ]
+  },
+  "/paycheck-months": {
+   "worker": [
+    "MK-CF-M-047",
+    "MK-CF-M-049",
+    "MK-CF-M-050",
+    "MK-CF-M-055",
+    "MK-CF-M-064"
+   ],
+   "rich": [
+    "MK-CF-M-047",
+    "MK-CF-M-049",
+    "MK-CF-M-050",
+    "MK-CF-M-055",
+    "MK-CF-M-064"
+   ],
+   "retiree": [
+    "MK-CF-M-024",
+    "MK-CF-M-047",
+    "MK-CF-M-049",
+    "MK-CF-M-050",
+    "MK-CF-M-055",
+    "MK-CF-M-064"
+   ],
+   "new": [
+    "MK-CF-M-047",
+    "MK-CF-M-049",
+    "MK-CF-M-055",
+    "MK-CF-M-064"
    ]
   },
   "/income-summary": {
@@ -38302,14 +39238,20 @@
     "/account-detail",
     "/analytics",
     "/base-pay",
+    "/bill-calendar",
     "/bonds",
+    "/cashflow",
     "/holding-detail",
     "/home",
+    "/income-manager",
     "/income-summary",
     "/insights",
     "/invest",
     "/itemize",
-    "/other-investments"
+    "/month-detail",
+    "/monthly-income",
+    "/other-investments",
+    "/paycheck-months"
    ],
    "states": [
     "/account-detail|retiree",
@@ -38323,13 +39265,24 @@
     "/base-pay|retiree",
     "/base-pay|rich",
     "/base-pay|worker",
+    "/bill-calendar|retiree",
+    "/bill-calendar|rich",
+    "/bill-calendar|worker",
     "/bonds|new",
     "/bonds|retiree",
     "/bonds|rich",
     "/bonds|worker",
+    "/cashflow|new",
+    "/cashflow|retiree",
+    "/cashflow|rich",
+    "/cashflow|worker",
     "/holding-detail|rich",
     "/home|retiree",
     "/home|worker",
+    "/income-manager|new",
+    "/income-manager|retiree",
+    "/income-manager|rich",
+    "/income-manager|worker",
     "/income-summary|new",
     "/income-summary|retiree",
     "/income-summary|rich",
@@ -38343,10 +39296,22 @@
     "/itemize|retiree",
     "/itemize|rich",
     "/itemize|worker",
+    "/month-detail|new",
+    "/month-detail|retiree",
+    "/month-detail|rich",
+    "/month-detail|worker",
+    "/monthly-income|new",
+    "/monthly-income|retiree",
+    "/monthly-income|rich",
+    "/monthly-income|worker",
     "/other-investments|new",
     "/other-investments|retiree",
     "/other-investments|rich",
-    "/other-investments|worker"
+    "/other-investments|worker",
+    "/paycheck-months|new",
+    "/paycheck-months|retiree",
+    "/paycheck-months|rich",
+    "/paycheck-months|worker"
    ],
    "inside": "writeFigure",
    "line": "spec.unit === 'money' ? formatMoney(value)",
@@ -38360,7 +39325,7 @@
     "$45,000",
     "$0"
    ],
-   "renders": 581
+   "renders": 1323
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:73",
@@ -38785,7 +39750,7 @@
    "renders": 12
   },
   {
-   "site": "src/domain/income/from-accounts.ts:172",
+   "site": "src/domain/income/from-accounts.ts:173",
    "routes": [
     "/income-detail",
     "/income-manager",
@@ -38881,675 +39846,6 @@
     "$25,000"
    ],
    "renders": 1
-  },
-  {
-   "site": "src/screens/BillCalendarScreen.tsx:109",
-   "routes": [
-    "/bill-calendar"
-   ],
-   "states": [
-    "/bill-calendar|retiree"
-   ],
-   "inside": "BillCalendarScreen",
-   "line": "return big ? `The biggest cause: ${big.label} (${maskedMoney(Math.round(big.amount))}) in ${cell!.label}.` : '';",
-   "values": [
-    "$3,600"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/BillCalendarScreen.tsx:121",
-   "routes": [
-    "/bill-calendar"
-   ],
-   "states": [
-    "/bill-calendar|retiree",
-    "/bill-calendar|rich",
-    "/bill-calendar|worker"
-   ],
-   "inside": "BillCalendarScreen",
-   "line": "<Text style={styles.tiny}>Auto-filled from your accounts ({maskedMoney(Math.round(cashOnHand))}) — the starting balance the table carries forward. Edit it and the End column recalculates from there.</",
-   "values": [
-    "$0",
-    "$20,000"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/BillCalendarScreen.tsx:128",
-   "routes": [
-    "/bill-calendar"
-   ],
-   "states": [
-    "/bill-calendar|rich",
-    "/bill-calendar|worker"
-   ],
-   "inside": "BillCalendarScreen",
-   "line": ": `OK — you stay above zero in all 12 months. Lowest point ${maskedMoney(Math.round(grid.lowestBalance))} in ${lowestCell?.label}.`}>",
-   "values": [
-    "$2,980",
-    "$21,200"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/BillCalendarScreen.tsx:133",
-   "routes": [
-    "/bill-calendar"
-   ],
-   "states": [
-    "/bill-calendar|retiree",
-    "/bill-calendar|rich",
-    "/bill-calendar|worker"
-   ],
-   "inside": "BillCalendarScreen",
-   "line": "{short ? `Lowest point ${maskedMoney(Math.round(grid.lowestBalance))} (${lowestCell?.label}). ${shortCause}` : `Lowest point ${maskedMoney(Math.round(grid.lowestBalance))} — ${lowestCell?.label}.`}",
-   "values": [
-    "$2,980",
-    "$21,200",
-    "-$3,600"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/BillCalendarScreen.tsx:150",
-   "routes": [
-    "/bill-calendar"
-   ],
-   "states": [
-    "/bill-calendar|retiree",
-    "/bill-calendar|rich",
-    "/bill-calendar|worker"
-   ],
-   "inside": "BillCalendarScreen",
-   "line": "accessibilityLabel={`${c.label} ${c.year}: in ${spokenMoney(Math.round(c.inflow))}, out ${spokenMoney(Math.round(c.outflow))}, ending balance ${spokenMoney(Math.round(c.runningBalance))}${neg ? ' — sh",
-   "values": [
-    "$7,200",
-    "$4,220",
-    "$2,980",
-    "$5,960",
-    "$8,940",
-    "$11,920",
-    "$14,900",
-    "$17,880"
-   ],
-   "renders": 108
-  },
-  {
-   "site": "src/screens/BillCalendarScreen.tsx:152",
-   "routes": [
-    "/bill-calendar"
-   ],
-   "states": [
-    "/bill-calendar|retiree",
-    "/bill-calendar|rich",
-    "/bill-calendar|worker"
-   ],
-   "inside": "BillCalendarScreen",
-   "line": "<Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + maskedMoney(Math.round(c.inflow)) : '—'}</Text>",
-   "values": [
-    "$7,200",
-    "$3,500"
-   ],
-   "renders": 36
-  },
-  {
-   "site": "src/screens/BillCalendarScreen.tsx:153",
-   "routes": [
-    "/bill-calendar"
-   ],
-   "states": [
-    "/bill-calendar|retiree",
-    "/bill-calendar|rich",
-    "/bill-calendar|worker"
-   ],
-   "inside": "BillCalendarScreen",
-   "line": "<Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + maskedMoney(Math.round(c.outflow)) : '—'}</Text>",
-   "values": [
-    "$4,220",
-    "$7,820",
-    "$6,000",
-    "$9,600",
-    "$3,600"
-   ],
-   "renders": 36
-  },
-  {
-   "site": "src/screens/BillCalendarScreen.tsx:154",
-   "routes": [
-    "/bill-calendar"
-   ],
-   "states": [
-    "/bill-calendar|retiree",
-    "/bill-calendar|rich",
-    "/bill-calendar|worker"
-   ],
-   "inside": "BillCalendarScreen",
-   "line": "<Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{maskedMoney(Math.round(c.runningBalance))}{neg ? ' short' : ''}</Text>",
-   "values": [
-    "$2,980",
-    "$5,960",
-    "$8,940",
-    "$11,920",
-    "$14,900",
-    "$17,880",
-    "$17,260",
-    "$20,240"
-   ],
-   "renders": 36
-  },
-  {
-   "site": "src/screens/BudgetScreen.tsx:668",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|new",
-    "/cashflow|retiree",
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BudgetScreen",
-   "line": "{activeDebts.length} account{activeDebts.length !== 1 ? 's' : ''} · {money(totalMinMonthly)}/month min · ~{money(totalInterestMonthly)}/month interest",
-   "values": [
-    "$420",
-    "$64",
-    "$2,020",
-    "$1,542",
-    "$0"
-   ],
-   "renders": 16
-  },
-  {
-   "site": "src/screens/BudgetScreen.tsx:672",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|new",
-    "/cashflow|retiree",
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BudgetScreen",
-   "line": "{money(Math.round(totalDebt))}",
-   "values": [
-    "$14,000",
-    "$284,200",
-    "$0"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/BudgetScreen.tsx:698",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BudgetScreen",
-   "line": "<View style={styles.payoffStat}><Text style={styles.payoffStatV}>{money(totalMinMonthly + Math.round(num(extraPay)))}</Text><Text style={styles.payoffStatL}>/month total</Text></View>",
-   "values": [
-    "$420",
-    "$2,020"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/BudgetScreen.tsx:699",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BudgetScreen",
-   "line": "<View style={styles.payoffStat}><Text style={[styles.payoffStatV, { color: Colors.red }]}>{plan.neverPaysOff ? '—' : money(Math.round(plan.totalInterest))}</Text><Text style={styles.payoffStatL}>total",
-   "values": [
-    "$1,228",
-    "$236,683"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/BudgetScreen.tsx:744",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BudgetScreen",
-   "line": "<Text style={[styles.catAmt, { color: Colors.red }]}>{money(Math.round(d.remaining_balance || 0))}</Text>",
-   "values": [
-    "$14,000",
-    "$4,200",
-    "$280,000"
-   ],
-   "renders": 6
-  },
-  {
-   "site": "src/screens/BudgetScreen.tsx:747",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BudgetScreen",
-   "line": "{((d.interest_rate_apr || 0) * 100).toFixed(2)}% yearly interest (APR) · {money(Math.round(requiredPayment(d)))}/month min · ~{money(Math.round(monthlyInterest))}/month interest{pm ? ` · clear in ${pm",
-   "values": [
-    "$420",
-    "$64",
-    "$300",
-    "$84",
-    "$1,900",
-    "$1,458"
-   ],
-   "renders": 12
-  },
-  {
-   "site": "src/screens/BudgetScreen.tsx:832",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|new",
-    "/cashflow|retiree",
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BudgetScreen",
-   "line": "<Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>{payDebt?.label} · {money(Math.round(payDebt?.remaining_balance || 0))} balance</Text>",
-   "values": [
-    "$0"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/BudgetScreen.tsx:841",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|new",
-    "/cashflow|retiree",
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BudgetScreen",
-   "line": "Adds a “Debt payment” to your activity and lowers this balance.{'\\n'}New balance: {money(Math.max(0, Math.round((payDebt?.remaining_balance || 0) - num(payAmt))))}.",
-   "values": [
-    "$0"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:228",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "PlanSummaryCard",
-   "line": "{top.map((c) => <Row key={c.label} label={c.label} value={maskedMoney(c.amount)} />)}",
-   "values": [
-    "$3,200",
-    "$300",
-    "$600"
-   ],
-   "renders": 30
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:315",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "IncomeTab",
-   "line": ": [basis, unit, `≈ ${maskedMoney(monthlyNet)}/month take-home`],",
-   "values": [
-    "$7,200"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:316",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "IncomeTab",
-   "line": "amount: maskedMoney(Math.round(Number(w.baseSalary) || 0)),",
-   "values": [
-    "$9,000"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:328",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|retiree"
-   ],
-   "inside": "IncomeTab",
-   "line": "if (guaranteed > 0) sources.push({ label: 'Social Security · pension', sub: 'guaranteed income', amount: `${maskedMoney(Math.round(guaranteed))}/month` });",
-   "values": [
-    "$3,500"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:423",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|worker"
-   ],
-   "inside": "SpendingTab",
-   "line": "<SectionBand inCard inset={16} title={`${monthWord.toUpperCase()} · ${maskedMoney(Math.round(spent))} SPENT`} />",
-   "values": [
-    "$0"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:455",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|retiree",
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "SpendingTab",
-   "line": "value={`${maskedMoney(Math.round(b.spent || 0))} of ${maskedMoney(Math.round(b.planned || 0))}`}",
-   "values": [
-    "$0",
-    "$3,200",
-    "$300",
-    "$600",
-    "$2,500",
-    "$200",
-    "$500"
-   ],
-   "renders": 18
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:501",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|new"
-   ],
-   "inside": "BigTicketRadar",
-   "line": "<SectionBand inCard inset={16} title=\"BIG-TICKET RADAR\" value={maskedMoney(0)} />",
-   "values": [
-    "$0"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:510",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|retiree",
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "BigTicketRadar",
-   "line": "<Row key={`b${i}`} label={`${b.label ?? 'Big bill'} · due ${cell.label}`} value={maskedMoney(Math.round(b.amount))} color={Colors.amber} />",
-   "values": [
-    "$3,800",
-    "$1,900",
-    "$3,600"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:537",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|retiree"
-   ],
-   "inside": "RetiredMain",
-   "line": "accessibilityLabel={`Expense pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(safePool)} surplus — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month'",
-   "values": [
-    "$0",
-    "$4,795"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:543",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|retiree"
-   ],
-   "inside": "RetiredMain",
-   "line": "<Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(safePool)} surplus this month</Text>",
-   "values": [
-    "$0",
-    "$4,795"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:646",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "accessibilityLabel={`${free >= 0 ? '' : 'minus '}${spokenMoney(Math.abs(free))} ${committed > 0 ? 'surplus after your budget' : 'planned surplus'} this month`}>",
-   "values": [
-    "$2,980",
-    "$1,200"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:647",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "{free >= 0 ? '+' : '−'}{maskedMoney(Math.abs(free))}",
-   "values": [
-    "$2,980",
-    "$1,200"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:656",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "<Row key={`${l.label}-${i}`} label={l.label} value={`${l.amount < 0 ? '−' : ''}${maskedMoney(Math.abs(Math.round(l.amount)))}`}",
-   "values": [
-    "$7,200",
-    "$420",
-    "$3,800",
-    "$300",
-    "$1,900"
-   ],
-   "renders": 35
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:662",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "value={maskedMoney(committed > 0 ? surplus - committed : surplus)} strong",
-   "values": [
-    "$2,980",
-    "$1,200"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:673",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "accessibilityLabel={`Expense pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(Math.round(bva.planned_total))} planned — ${spentPct} percent spent, ${monthPct} percent of the month go",
-   "values": [
-    "$0",
-    "$4,100"
-   ],
-   "renders": 20
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:678",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "<Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(Math.round(bva.planned_total))} planned</Text>",
-   "values": [
-    "$0",
-    "$4,100"
-   ],
-   "renders": 20
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:687",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${spokenMoney(projection.monthly)} a month.`}>",
-   "values": [
-    "$20,125",
-    "$35,095"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:690",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "<Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)}/month</Text>",
-   "values": [
-    "$20,125",
-    "$35,095"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:692",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "WorkingMain",
-   "line": "<Row label=\"Draw from savings\" value={`~${maskedMoney(projection.draw)}`} dim />",
-   "values": [
-    "$20,125",
-    "$35,095"
-   ],
-   "renders": 10
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:708",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|retiree"
-   ],
-   "inside": "MonthBars",
-   "line": "? `! ${m.bills[0]?.label ?? 'big bill'} −${maskedMoney(Math.round(m.bills[0]?.amount ?? m.billsTotal))}`",
-   "values": [
-    "$2,400"
-   ],
-   "renders": 5
-  },
-  {
-   "site": "src/screens/CashFlowScreen.tsx:761",
-   "routes": [
-    "/cashflow"
-   ],
-   "states": [
-    "/cashflow|retiree",
-    "/cashflow|rich",
-    "/cashflow|worker"
-   ],
-   "inside": "DrawOrderWhy",
-   "line": "<Text style={styles.whyStep}>{i + 1}. {s.label} — {maskedMoney(s.amount ?? 0)}</Text>",
-   "values": [
-    "$45,000",
-    "$120,000",
-    "$20,000",
-    "$309,800",
-    "$400,000",
-    "$250,000"
-   ],
-   "renders": 54
   },
   {
    "site": "src/screens/ContributionRoomScreen.tsx:30",
@@ -40178,100 +40474,6 @@
    "renders": 4
   },
   {
-   "site": "src/screens/IncomeManagerScreen.tsx:106",
-   "routes": [
-    "/income-manager"
-   ],
-   "states": [
-    "/income-manager|retiree",
-    "/income-manager|rich",
-    "/income-manager|worker"
-   ],
-   "inside": "IncomeManagerScreen",
-   "line": "<Text style={styles.rowVal}>{money(annualOf(s))}</Text>",
-   "values": [
-    "$108,000",
-    "$42,000"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/IncomeManagerScreen.tsx:143",
-   "routes": [
-    "/income-manager"
-   ],
-   "states": [
-    "/income-manager|new",
-    "/income-manager|retiree",
-    "/income-manager|rich",
-    "/income-manager|worker"
-   ],
-   "inside": "IncomeManagerScreen",
-   "line": "<Text style={styles.rowVal}>{money(investIncome)}</Text>",
-   "values": [
-    "$0",
-    "$400"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/IncomeManagerScreen.tsx:242",
-   "routes": [
-    "/income-manager"
-   ],
-   "states": [
-    "/income-manager|new",
-    "/income-manager|retiree",
-    "/income-manager|rich",
-    "/income-manager|worker"
-   ],
-   "inside": "SelfEmploymentEditor",
-   "line": "<Text style={styles.saveBtnT}>Save · {money(annual)}/year</Text>",
-   "values": [
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/IncomeManagerScreen.tsx:283",
-   "routes": [
-    "/income-manager"
-   ],
-   "states": [
-    "/income-manager|new",
-    "/income-manager|retiree",
-    "/income-manager|rich",
-    "/income-manager|worker"
-   ],
-   "inside": "BasePayEditor",
-   "line": "<Text style={styles.saveBtnT}>Save · {money(annual)}/year</Text>",
-   "values": [
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/IncomeManagerScreen.tsx:89",
-   "routes": [
-    "/income-manager"
-   ],
-   "states": [
-    "/income-manager|new",
-    "/income-manager|retiree",
-    "/income-manager|rich",
-    "/income-manager|worker"
-   ],
-   "inside": "IncomeManagerScreen",
-   "line": "<Text style={styles.sumVal}>{money(totalAnnual)}</Text>",
-   "values": [
-    "$108,000",
-    "$108,400",
-    "$42,000",
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
    "site": "src/screens/InsightsScreen.tsx:155",
    "routes": [
     "/home",
@@ -40618,220 +40820,6 @@
    "renders": 3
   },
   {
-   "site": "src/screens/MonthDetailScreen.tsx:105",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|retiree",
-    "/month-detail|rich",
-    "/month-detail|worker"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "{regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={maskedMoney(b.amount)} />)}",
-   "values": [
-    "$3,800",
-    "$420",
-    "$300",
-    "$1,900",
-    "$3,600"
-   ],
-   "renders": 6
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:107",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|new",
-    "/month-detail|retiree",
-    "/month-detail|rich",
-    "/month-detail|worker"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "<Text style={styles.soFar}>So far this month: {maskedMoney(Math.round(bva.spent_total))} spent of {maskedMoney(Math.round(bva.planned_total))} planned.</Text>",
-   "values": [
-    "$0",
-    "$4,100",
-    "$3,200"
-   ],
-   "renders": 8
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:61",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|new",
-    "/month-detail|retiree",
-    "/month-detail|rich",
-    "/month-detail|worker"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "accessible accessibilityLabel={`Surplus in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>",
-   "values": [
-    "$2,980",
-    "$1,200",
-    "$4,795",
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:63",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|new",
-    "/month-detail|retiree",
-    "/month-detail|rich",
-    "/month-detail|worker"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "<Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${maskedMoney(Math.abs(headline))} short` : maskedMoney(headline)}</Text>",
-   "values": [
-    "$2,980",
-    "$1,200",
-    "$4,795",
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:72",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|retiree"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "{pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={maskedMoney(g.amount)} />)}",
-   "values": [
-    "$2,200",
-    "$1,300"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:73",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|retiree"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "{pm.safeDraw > 0 && <Row label=\"Draw from savings\" value={maskedMoney(pm.safeDraw)} />}",
-   "values": [
-    "$1,295"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:75",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|retiree"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "<Row label=\"= Inflow\" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />",
-   "values": [
-    "$4,795"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:80",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|rich",
-    "/month-detail|worker"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "{cell.incomeItems.map((i: any, k: number) => <Row key={k} label={`${i.source}${day(i.day)}${i.approx ? ' (about)' : ''}`} value={maskedMoney(i.amount)} />)}",
-   "values": [
-    "$7,200"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:82",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|rich",
-    "/month-detail|worker"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "{cell.incomeItems.length > 0 && <Row label=\"= Inflow\" value={maskedMoney(cell.inflow)} strong />}",
-   "values": [
-    "$7,200"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/MonthDetailScreen.tsx:95",
-   "routes": [
-    "/month-detail"
-   ],
-   "states": [
-    "/month-detail|retiree"
-   ],
-   "inside": "MonthDetailScreen",
-   "line": "<Row label=\"= Surplus\" value={maskedMoney(pm.netSafeToSpend)} strong />",
-   "values": [
-    "$4,795"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/MonthlyIncomeScreen.tsx:151",
-   "routes": [
-    "/monthly-income"
-   ],
-   "states": [
-    "/monthly-income|new",
-    "/monthly-income|retiree",
-    "/monthly-income|rich",
-    "/monthly-income|worker"
-   ],
-   "inside": "MonthlyIncomeScreen",
-   "line": "<Text style={styles.totalV} accessibilityLabel={`guaranteed income ${money(guaranteedMonthly)} a month`}>",
-   "values": [
-    "$0",
-    "$3,500"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/MonthlyIncomeScreen.tsx:152",
-   "routes": [
-    "/monthly-income"
-   ],
-   "states": [
-    "/monthly-income|new",
-    "/monthly-income|retiree",
-    "/monthly-income|rich",
-    "/monthly-income|worker"
-   ],
-   "inside": "MonthlyIncomeScreen",
-   "line": "{money(guaranteedMonthly)} <Text style={styles.totalUnit}>a month</Text>",
-   "values": [
-    "$0",
-    "$3,500"
-   ],
-   "renders": 4
-  },
-  {
    "site": "src/screens/MultiGoalScreen.tsx:131",
    "routes": [
     "/multi-goal"
@@ -40939,175 +40927,6 @@
     "$500"
    ],
    "renders": 8
-  },
-  {
-   "site": "src/screens/PaycheckMonthsScreen.tsx:25",
-   "routes": [
-    "/paycheck-months"
-   ],
-   "states": [
-    "/paycheck-months|new",
-    "/paycheck-months|retiree",
-    "/paycheck-months|rich",
-    "/paycheck-months|worker"
-   ],
-   "inside": "PaycheckMonthsScreen",
-   "line": "property tax in November dents November. This year: {maskedMoney(year.thisYear)} (calculated).",
-   "values": [
-    "$420",
-    "$14,340",
-    "$55,140",
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/PaycheckMonthsScreen.tsx:35",
-   "routes": [
-    "/paycheck-months"
-   ],
-   "states": [
-    "/paycheck-months|new",
-    "/paycheck-months|retiree",
-    "/paycheck-months|rich",
-    "/paycheck-months|worker"
-   ],
-   "inside": "PaycheckMonthsScreen",
-   "line": "accessibilityLabel={`${m.label}: surplus ${spokenMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}",
-   "values": [
-    "$335",
-    "-$3,265",
-    "$1,495",
-    "-$2,105",
-    "$4,795",
-    "$2,395",
-    "$0"
-   ],
-   "renders": 48
-  },
-  {
-   "site": "src/screens/PaycheckMonthsScreen.tsx:39",
-   "routes": [
-    "/paycheck-months"
-   ],
-   "states": [
-    "/paycheck-months|new",
-    "/paycheck-months|retiree",
-    "/paycheck-months|rich",
-    "/paycheck-months|worker"
-   ],
-   "inside": "PaycheckMonthsScreen",
-   "line": "<Text style={styles.monthNet}>{maskedMoney(m.netSafeToSpend)}</Text>",
-   "values": [
-    "$335",
-    "-$3,265",
-    "$1,495",
-    "-$2,105",
-    "$4,795",
-    "$2,395",
-    "$0"
-   ],
-   "renders": 48
-  },
-  {
-   "site": "src/screens/PaycheckMonthsScreen.tsx:46",
-   "routes": [
-    "/paycheck-months"
-   ],
-   "states": [
-    "/paycheck-months|retiree"
-   ],
-   "inside": "PaycheckMonthsScreen",
-   "line": "<Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={maskedMoney(g.amount)} />",
-   "values": [
-    "$2,200",
-    "$1,300"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/PaycheckMonthsScreen.tsx:48",
-   "routes": [
-    "/paycheck-months"
-   ],
-   "states": [
-    "/paycheck-months|new",
-    "/paycheck-months|retiree",
-    "/paycheck-months|rich",
-    "/paycheck-months|worker"
-   ],
-   "inside": "PaycheckMonthsScreen",
-   "line": "<Row label=\"Draw from savings\" value={maskedMoney(m.safeDraw)} />",
-   "values": [
-    "$335",
-    "$1,495",
-    "$1,295",
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/PaycheckMonthsScreen.tsx:49",
-   "routes": [
-    "/paycheck-months"
-   ],
-   "states": [
-    "/paycheck-months|new",
-    "/paycheck-months|retiree",
-    "/paycheck-months|rich",
-    "/paycheck-months|worker"
-   ],
-   "inside": "PaycheckMonthsScreen",
-   "line": "<Row label=\"= Inflow\" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />",
-   "values": [
-    "$335",
-    "$1,495",
-    "$4,795",
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/PaycheckMonthsScreen.tsx:55",
-   "routes": [
-    "/paycheck-months"
-   ],
-   "states": [
-    "/paycheck-months|new",
-    "/paycheck-months|retiree",
-    "/paycheck-months|rich",
-    "/paycheck-months|worker"
-   ],
-   "inside": "PaycheckMonthsScreen",
-   "line": "<Row label=\"= Surplus\" value={maskedMoney(m.netSafeToSpend)} bold />",
-   "values": [
-    "$335",
-    "$1,495",
-    "$4,795",
-    "$0"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/PaycheckMonthsScreen.tsx:60",
-   "routes": [
-    "/paycheck-months"
-   ],
-   "states": [
-    "/paycheck-months|retiree",
-    "/paycheck-months|rich",
-    "/paycheck-months|worker"
-   ],
-   "inside": "PaycheckMonthsScreen",
-   "line": "<Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={maskedMoney(b.amount)} muted />",
-   "values": [
-    "$3,800",
-    "$420",
-    "$300",
-    "$1,900",
-    "$3,600"
-   ],
-   "renders": 6
   },
   {
    "site": "src/screens/PlanHubScreen.tsx:233",

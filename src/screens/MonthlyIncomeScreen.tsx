@@ -3,7 +3,10 @@
 // screen didn't exist). Two numbers a retiree knows by heart, ~20 seconds, no bank login.
 // Writes the ri_* fields the F5 paycheck function reads — LOCKED guaranteed set: ss / pension /
 // annuities / other (withdrawals & required minimums live elsewhere; the draw from savings replaces them).
+import { retirementIncomeMonthly } from '../domain/income/onboarding';
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
+import { fig, figPer, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
@@ -35,14 +38,8 @@ export default function MonthlyIncomeScreen() {
   const [other, setOther] = useState(String(op.ri_other ?? ''));
 
   // running total (display only): the monthly equivalent of the guaranteed set — instant payoff
-  const guaranteedMonthly = useMemo(() => {
-    const ssM = ssReceiving ? num(ss) : 0;
-    return ssM + num(pension) / DIV[pensionFreq] + num(annuity) / DIV[annuityFreq] + num(other);
-  }, [ssReceiving, ss, pension, pensionFreq, annuity, annuityFreq, other]);
-
-  const save = () => {
-    const patch: Record<string, any> = {
-      ...op,
+  /** The fields as typed, in the shape the profile keeps them — saved as they are, and read live. */
+  const fields = (): Record<string, any> => ({
       ri_ss: ssReceiving ? String(num(ss) || '') : '',
       ri_ss_freq: 'monthly',
       ri_ss_day: num(ssDay) >= 1 && num(ssDay) <= 31 ? Math.round(num(ssDay)) : undefined,
@@ -55,7 +52,14 @@ export default function MonthlyIncomeScreen() {
       ri_annuities_month: annuityFreq === 'monthly' ? undefined : annuityMonth,
       ri_other: String(num(other) || ''),
       ri_other_freq: 'monthly',
-    };
+  });
+  // MK-CF-M-069 — the one function that reads guaranteed income (retirementIncomeMonthly), on the
+  // fields as typed, so the total shown before saving is the total every screen shows after (2026-10-02)
+  const guaranteedMonthly = useMemo(() => retirementIncomeMonthly({ ...op, ...fields() } as any),
+    [op, ssReceiving, ss, ssDay, pension, pensionFreq, pensionMonth, annuity, annuityFreq, annuityMonth, other]);
+
+  const save = () => {
+    const patch: Record<string, any> = { ...op, ...fields() };
     // the received-now gate reads incomeSources — saving an amount here MUST open that gate,
     // or the paycheck function would see nothing (the B-31 lesson, enforced by test)
     if (guaranteedMonthly > 0) {
@@ -92,6 +96,8 @@ export default function MonthlyIncomeScreen() {
   );
 
   return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
     <KeyboardAwareScreen>
       <Text style={styles.h1}>Your monthly income</Text>
       <Text style={styles.sub}>The money that arrives no matter what markets do. This builds your paycheck — no bank login needed.</Text>
@@ -148,8 +154,8 @@ export default function MonthlyIncomeScreen() {
 
       <View style={styles.totalCard}>
         <Text style={styles.totalLabel}>Your guaranteed income</Text>
-        <Text style={styles.totalV} accessibilityLabel={`guaranteed income ${money(guaranteedMonthly)} a month`}>
-          {money(guaranteedMonthly)} <Text style={styles.totalUnit}>a month</Text>
+        <Text style={styles.totalV} accessibilityLabel={`guaranteed income ${fig('MK-CF-M-069', guaranteedMonthly)} a month`}>
+          {figPer('MK-CF-M-069', guaranteedMonthly)}
         </Text>
       </View>
 
@@ -157,6 +163,7 @@ export default function MonthlyIncomeScreen() {
         <Text style={styles.saveT}>Save</Text>
       </TouchableOpacity>
     </KeyboardAwareScreen>
+    </View>
   );
 }
 

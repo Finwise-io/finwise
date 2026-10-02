@@ -1,7 +1,9 @@
 // Worth a look — one row of activity, up close (F10, FCC detailed design v1.1). The calm close-up of a
 // flagged expense: the plain facts, why it stood out (one honest comparison), and a two-button resolution.
 // Reassures more than it warns — the words scam/fraud/alert never appear in v1, nothing is ever red.
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -57,13 +59,15 @@ export default function WorthALookScreen() {
   const flaggedByYou = f.status === 'flagged' || checklist;
 
   return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.magnifier} accessibilityElementsHidden importantForAccessibility="no">🔍</Text>
 
       {/* fact block — pure facts from the activity record, one sentence for screen readers */}
       <Text style={styles.factHead}
-        accessibilityLabel={`${spokenMoney(f.amount)} left ${accountName(f.account_id)} on ${weekdayDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
-        {maskedMoney(f.amount)} left {accountName(f.account_id)} on {weekdayDate(f.date)}
+        accessibilityLabel={`${figSaid('MK-CF-M-014', f.amount)} left ${accountName(f.account_id)} on ${weekdayDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
+        {fig('MK-CF-M-014', f.amount)} left {accountName(f.account_id)} on {weekdayDate(f.date)}
       </Text>
       {/* payee is stored lowercase — show it title-cased, never SHOUTED (audit WL-5) */}
       {f.payee ? <Text style={styles.payee}>Paid to: {String(f.payee).replace(/\b\w/g, (c) => c.toUpperCase())}</Text> : null}
@@ -115,6 +119,7 @@ export default function WorthALookScreen() {
       {/* the read-only promise, at the exact moment of worry — same wording as the connect screen */}
       <Text style={styles.footer}>We can only look at your accounts — we can never move or block money. Your bank can.</Text>
     </ScrollView>
+    </View>
   );
 }
 

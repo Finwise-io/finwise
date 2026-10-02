@@ -3,7 +3,9 @@
 // the end of each month, starting from real cash on hand. Big bills get day-level treatment
 // ('will the money be there two days before it's due?'). Dated bills are added and edited HERE,
 // and a deferred loan visibly starts paying in its real first month. One grid (F2), no second math.
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Switch } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter } from 'expo-router';
@@ -106,11 +108,13 @@ export default function BillCalendarScreen() {
   const shortCause = short ? (() => {
     const cell = grid.cells.find((c) => grid.shortMonths.includes(c.label));
     const big = cell?.billItems.slice().sort((a, b) => b.amount - a.amount)[0];
-    return big ? `The biggest cause: ${big.label} (${maskedMoney(Math.round(big.amount))}) in ${cell!.label}.` : '';
+    return big ? `The biggest cause: ${big.label} (${fig('MK-CF-M-016', Math.round(big.amount))}) in ${cell!.label}.` : '';
   })() : '';
 
   return (
-    <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
+    <KeyboardAwareScreen style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Bill calendar</Text>
       <Text style={styles.sub}>{grid.cells[0]?.label} {grid.cells[0]?.year} – {grid.cells[11]?.label} {grid.cells[11]?.year} · when money lands, when bills are due, and the surplus.</Text>
 
@@ -118,19 +122,19 @@ export default function BillCalendarScreen() {
         <Text style={styles.fieldL}>Cash on hand now</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
           value={startStr} onChangeText={setStartStr} accessibilityLabel="Cash on hand now, editable" />
-        <Text style={styles.tiny}>Auto-filled from your accounts ({maskedMoney(Math.round(cashOnHand))}) — the starting balance the table carries forward. Edit it and the End column recalculates from there.</Text>
+        <Text style={styles.tiny}>Auto-filled from your accounts ({fig('MK-NW-M-005', Math.round(cashOnHand))}) — the starting balance the table carries forward. Edit it and the End column recalculates from there.</Text>
       </View>
 
       {/* verdict (r38) — the flagged months here match the '!' flags on the Cash flow bars */}
       <View style={[styles.verdict, short ? styles.verdictBad : styles.verdictGood]} accessible
         accessibilityLabel={short
           ? `Careful — short in ${grid.shortMonths.join(' and ')}. ${shortCause}`
-          : `OK — you stay above zero in all 12 months. Lowest point ${maskedMoney(Math.round(grid.lowestBalance))} in ${lowestCell?.label}.`}>
+          : `OK — you stay above zero in all 12 months. Lowest point ${fig('MK-CF-M-060', Math.round(grid.lowestBalance))} in ${lowestCell?.label}.`}>
         <Text style={[styles.verdictTitle, short && { color: Colors.red }]}>
           {short ? `Careful — short in ${grid.shortMonths.join(', ')}` : 'OK — you stay above zero in all 12 months'}
         </Text>
         <Text style={styles.verdictSub}>
-          {short ? `Lowest point ${maskedMoney(Math.round(grid.lowestBalance))} (${lowestCell?.label}). ${shortCause}` : `Lowest point ${maskedMoney(Math.round(grid.lowestBalance))} — ${lowestCell?.label}.`}
+          {short ? `Lowest point ${fig('MK-CF-M-060', Math.round(grid.lowestBalance))} (${lowestCell?.label}). ${shortCause}` : `Lowest point ${fig('MK-CF-M-060', Math.round(grid.lowestBalance))} — ${lowestCell?.label}.`}
         </Text>
       </View>
 
@@ -147,11 +151,11 @@ export default function BillCalendarScreen() {
           return (
             <TouchableOpacity accessibilityRole="button" key={`${c.label}${c.year}`} style={styles.mRow}
               onPress={() => router.push(`/month-detail?slot=${slot}` as any)}
-              accessibilityLabel={`${c.label} ${c.year}: in ${spokenMoney(Math.round(c.inflow))}, out ${spokenMoney(Math.round(c.outflow))}, ending balance ${spokenMoney(Math.round(c.runningBalance))}${neg ? ' — short' : ''}. Opens the month's detail.`}>
+              accessibilityLabel={`${c.label} ${c.year}: in ${figSaid('MK-CF-M-051', Math.round(c.inflow))}, out ${figSaid('MK-CF-M-052', Math.round(c.outflow))}, ending balance ${figSaid('MK-CF-M-061', Math.round(c.runningBalance))}${neg ? ' — short' : ''}. Opens the month's detail.`}>
               <Text style={[styles.mLabel, { flex: 1 }]}>{c.label}{neg ? ' !' : ''}</Text>
-              <Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + maskedMoney(Math.round(c.inflow)) : '—'}</Text>
-              <Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + maskedMoney(Math.round(c.outflow)) : '—'}</Text>
-              <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{maskedMoney(Math.round(c.runningBalance))}{neg ? ' short' : ''}</Text>
+              <Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + fig('MK-CF-M-051', Math.round(c.inflow)) : '—'}</Text>
+              <Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + fig('MK-CF-M-052', Math.round(c.outflow)) : '—'}</Text>
+              <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{fig('MK-CF-M-061', Math.round(c.runningBalance))}{neg ? ' short' : ''}</Text>
               <Text style={styles.mChev}>›</Text>
             </TouchableOpacity>
           );
@@ -164,26 +168,26 @@ export default function BillCalendarScreen() {
           <Text style={styles.cardTitle}>Coming up</Text>
           {bills.map((b) => (
             <TouchableOpacity accessibilityRole="button" key={b.id} style={styles.billRow} onPress={() => editBill(b.label)}
-              accessibilityLabel={`${b.label}, ${spokenMoney(b.amount)} due ${fmtDate(b.dueDate)}. ${b.shortfall > 0 ? `Short ${spokenMoney(b.shortfall)} — set it aside by ${fmtDate(b.needByDate)}, from savings or a backup.` : `Covered: about ${spokenMoney(b.availableByNeed)} there by ${fmtDate(b.needByDate)}.`} Opens the editor.`}>
-              <Text style={styles.billName}>{b.label} · {maskedMoney(b.amount)} due {fmtDate(b.dueDate)}</Text>
+              accessibilityLabel={`${b.label}, ${figSaid('MK-CF-M-028', b.amount)} due ${fmtDate(b.dueDate)}. ${b.shortfall > 0 ? `Short ${figSaid('MK-CF-M-062', b.shortfall)} — set it aside by ${fmtDate(b.needByDate)}, from savings or a backup.` : `Covered: about ${figSaid('MK-CF-M-063', b.availableByNeed)} there by ${fmtDate(b.needByDate)}.`} Opens the editor.`}>
+              <Text style={styles.billName}>{b.label} · {fig('MK-CF-M-028', b.amount)} due {fmtDate(b.dueDate)}</Text>
               {b.shortfall > 0 ? (
-                <Text style={styles.billShort}>Short {maskedMoney(b.shortfall)} — set it aside by {fmtDate(b.needByDate)}, from savings or a backup.</Text>
+                <Text style={styles.billShort}>Short {fig('MK-CF-M-062', b.shortfall)} — set it aside by {fmtDate(b.needByDate)}, from savings or a backup.</Text>
               ) : (
-                <Text style={styles.billOk}>✓ Covered — about {maskedMoney(b.availableByNeed)} there by {fmtDate(b.needByDate)}.</Text>
+                <Text style={styles.billOk}>✓ Covered — about {fig('MK-CF-M-063', b.availableByNeed)} there by {fmtDate(b.needByDate)}.</Text>
               )}
             </TouchableOpacity>
           ))}
           {dueInFullDebts.map((d: any) => (
             <View key={d.debt_id} style={styles.billRow} accessible
-              accessibilityLabel={`${d.label}: ${spokenMoney(d.remaining_balance)} due in full ${fmtDate(d.payoff_date)}. No monthly payment — the full balance is due on that date.`}>
-              <Text style={styles.billName}>{d.label} — {maskedMoney(d.remaining_balance)} due in full {fmtDate(d.payoff_date)}</Text>
+              accessibilityLabel={`${d.label}: ${figSaid('MK-NW-M-010', d.remaining_balance)} due in full ${fmtDate(d.payoff_date)}. No monthly payment — the full balance is due on that date.`}>
+              <Text style={styles.billName}>{d.label} — {fig('MK-NW-M-010', d.remaining_balance)} due in full {fmtDate(d.payoff_date)}</Text>
               <Text style={styles.billShort}>One lump payment, not a monthly bill — it's in that month's Out column.</Text>
             </View>
           ))}
           {deferredDebts.map((d: any) => (
             <View key={d.debt_id} style={styles.billRow} accessible
-              accessibilityLabel={`${d.label}: first payment ${fmtDate(d.first_payment_date)}, ${spokenMoney(requiredPayment(d))} a month. No payments before then.`}>
-              <Text style={styles.billName}>{d.label} — first payment {fmtDate(d.first_payment_date)}, {maskedMoney(requiredPayment(d))}/month</Text>
+              accessibilityLabel={`${d.label}: first payment ${fmtDate(d.first_payment_date)}, ${figSaid('MK-CF-M-073', requiredPayment(d))} a month. No payments before then.`}>
+              <Text style={styles.billName}>{d.label} — first payment {fmtDate(d.first_payment_date)}, {fig('MK-CF-M-073', requiredPayment(d))}/month</Text>
               <Text style={styles.billShort}>Visible now; the Out column starts counting it in its real first month.</Text>
             </View>
           ))}
@@ -196,7 +200,7 @@ export default function BillCalendarScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Later — beyond this 12-month window</Text>
           {grid.later.map((l, i) => (
-            <Text key={i} style={styles.billShort}>· {l.label} — {maskedMoney(Math.round(l.amount))}{l.year ? `, ${MO[l.month - 1]} ${l.year}` : ''}</Text>
+            <Text key={i} style={styles.billShort}>· {l.label} — {fig('MK-CF-M-016', Math.round(l.amount))}{l.year ? `, ${MO[l.month - 1]} ${l.year}` : ''}</Text>
           ))}
         </View>
       )}
@@ -273,6 +277,7 @@ export default function BillCalendarScreen() {
       <Text style={styles.foot}>A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose. Tap any row for that month's full detail.</Text>
       <View style={{ height: 40 }} />
     </KeyboardAwareScreen>
+    </View>
   );
 }
 

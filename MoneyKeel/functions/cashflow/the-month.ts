@@ -73,19 +73,21 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 63 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               … and 45 more — the full list is on functions_from_code
+ * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
+ *               MK-NW-F-100 TREND · MK-CF-F-215 YEAR
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               … and 52 more — the full list is on functions_from_code
  *
- * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003
+ * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-013
+ *               MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020 · MK-CF-M-021
+ *               MK-CF-M-056
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
@@ -151,11 +153,12 @@ const EXAMPLE = {
     { amount: 250, category: 'Debt payment', store: 'Car loan', date: '2026-09-12' },
   ],
   bigBills: [{ label: 'Property tax', amount: 4800, dueLabel: 'due Nov 1' }],
+  commitments: [{ label: 'Emergency fund', monthlyAmount: 300 }],
 } as any;
 const GIVEN =
   'September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget '
   + '($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, '
-  + '$186 eating out, and the $250 car loan paid.';
+  + '$186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.';
 /* ─ MK-CF-F-203 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * MONTH
  *
@@ -165,19 +168,20 @@ const GIVEN =
  *     the month(EXAMPLE)
  *
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-157 debtPaymentsByDebt
- *               MK-CF-F-204 line · MK-CF-O-010 theMonth
+ *               MK-CF-F-204 line · MK-CF-F-205 COMING
+ *               MK-CF-O-010 theMonth
  *
- * Reaches ..... 63 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               … and 45 more — the full list is on functions_from_code
+ * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
+ *               MK-NW-F-100 TREND · MK-CF-F-215 YEAR
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
+ *               … and 52 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -199,20 +203,21 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
  *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
+ * Reaches ..... 40 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
+ *               MK-NW-F-100 TREND · MK-CF-F-215 YEAR
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
  *               MK-CF-O-001 basePay · MK-XS-F-004 buildDatedGrid
  *               MK-CF-F-036 buildDebtState · MK-CF-F-107 buildPaycheckYear
- *               MK-PF-F-014 buildPerformance · MK-XS-F-031 buildSnapshot
- *               MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
- *               … and 15 more — the full list is on functions_from_code
+ *               … and 22 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-027 goals (target, saved, date)
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-204
@@ -281,5 +286,65 @@ export const THE_MONTH_FIGURES = declareFigures({
       answer: '-$250',
       run: () => line('planned', 'Car loan'),
     },
+  },
+
+  // ── THE EXPENSES FIGURES AND THE HERO (2026-10-02): hand-typed rows of the master, now printed from
+  //    here. MK-CF-M-018 and MK-CF-M-019 (the old In and Out lines) were the same figures as 051 and 052
+  //    and are retired; MK-CF-M-005 (the old surplus line) is 053; MK-CF-M-025 (a month's cell) is 047 to
+  //    054 on Month detail; MK-CF-M-029 (the tax band) is 032 and 043. All five are retired on the register.
+  'MK-CF-M-013': {
+    label: '<MONTH> · $X SPENT', unit: 'money', screens: ['/cashflow', '/month-detail'],
+    answers: 'What has actually gone out so far this month, from the expenses logged.',
+    formula: 'every expense logged inside the month, added up — a debt payment logged as an expense is counted with the debts, not here',
+    inputs: ['MK-CF-I-001 your logged expenses'],
+    refusal: 'Nothing logged yet — $0, and the door to log one.',
+    ruled: '2026-10-02',
+    worked: { given: GIVEN, answer: '$2,998', run: () => MONTH().expenses.actualTotal },
+  },
+  'MK-CF-M-014': {
+    label: 'each expense and its amount', unit: 'money-cents', screens: ['/cashflow', '/worth-a-look'], grain: 'one expense',
+    answers: 'One logged expense — where, when, how much.',
+    formula: 'the amount as logged',
+    inputs: ['MK-CF-I-016 logged expense'],
+    refusal: 'Nothing logged yet — the list is replaced by the door to log one.',
+    ruled: '2026-10-02',
+    worked: { given: GIVEN, answer: '$186.00', run: () => MONTH().expenses.actual.items[0].amount },
+  },
+  'MK-CF-M-015': {
+    label: 'BY CATEGORY VS PLAN — $X of $Y', unit: 'money', screens: ['/cashflow'], grain: 'one category',
+    answers: 'For each category: what was planned for it this month, and what has been spent against it so far.',
+    formula: 'planned = the category’s budget line; spent = the expenses logged in that category inside the month',
+    inputs: ['MK-CF-I-012 planned expenses', 'MK-CF-I-001 your logged expenses'],
+    refusal: 'No budget set — the comparison is not drawn; the door to set one is.',
+    ruled: '2026-10-02',
+    worked: { given: GIVEN, answer: '$2,300', run: () => MONTH().expenses.planned[0].monthly },
+  },
+  'MK-CF-M-020': {
+    label: 'THIS MONTH — free to use', unit: 'money', screens: ['/cashflow'],
+    answers: 'The planned surplus, less what the Plan has already promised to goals this month — what is genuinely free.',
+    formula: '= Planned surplus (MK-CF-M-002) − the goals’ commitments (MK-CF-M-021)',
+    inputs: ['MK-XS-I-023 salary and other income', 'MK-NW-I-002 your debts', 'MK-CF-I-012 planned expenses', 'MK-XS-I-027 goals (target, saved, date)'],
+    decisions: ['A PROMISE TO A GOAL IS MONEY ALREADY SPOKEN FOR — it never reads as free.'],
+    refusal: 'No budget set — nothing is called free until there is a plan to be free of.',
+    ruled: '2026-10-02',
+    worked: { given: GIVEN, answer: '$850', run: () => MONTH().free },
+  },
+  'MK-CF-M-021': {
+    label: '<goal> · from your Plan', unit: 'money', per: 'month', screens: ['/cashflow'], grain: 'one goal',
+    answers: 'What the Plan sends to one goal each month, shown on This month as a line already spoken for.',
+    formula: 'the goal’s monthly amount, as the Plan set it',
+    inputs: ['MK-XS-I-027 goals (target, saved, date)'],
+    refusal: 'No goal with a monthly amount — no line.',
+    ruled: '2026-10-02',
+    worked: { given: GIVEN, answer: '$300/month', run: () => MONTH().committed },
+  },
+  'MK-CF-M-056': {
+    label: 'left of your budget', unit: 'money', screens: ['/cashflow'],
+    answers: 'What is left of this month’s budget after what has been spent so far.',
+    formula: 'the budget (MK-CF-M-001) − spent so far (MK-CF-M-013); below zero it reads as over',
+    inputs: ['MK-CF-I-012 planned expenses', 'MK-CF-I-001 your logged expenses'],
+    refusal: 'No budget set — nothing to be left of.',
+    ruled: '2026-10-02',
+    worked: { given: GIVEN, answer: '$402', run: () => MONTH().expenses.plannedTotal - MONTH().expenses.actualTotal },
   },
 });

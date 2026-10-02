@@ -17,11 +17,11 @@ import { Profile, ProfileReadModel, DEFAULT_PLAN_TO_AGE } from './types';
  *
  * Called by ... MK-XS-F-020 toReadModel · MK-XS-F-179 ageToday
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-179 ageToday · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-023 getProfileReadModel · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-020 toReadModel
- *               MK-PL-F-067 willItLastInputs
+ *               MK-CF-O-017 futurePaycheck · MK-XS-F-023 getProfileReadModel
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-020 toReadModel · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
@@ -62,8 +62,9 @@ export function currentAge(
  *
  * Called by ... MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year

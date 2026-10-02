@@ -32,17 +32,17 @@ const CD_RE = /\b(cd|certificate of deposit)\b/i;
  *
  * Called by ... MK-NW-F-072 rowOf
  *
- * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 55 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -113,17 +113,17 @@ export interface BondsInput {
  *
  * Called by ... MK-NW-O-001 theBonds
  *
- * Reaches ..... 72 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 54 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               … and 61 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -206,17 +206,17 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 71 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 78 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
- *               MK-CF-F-205 COMING · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 53 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               … and 60 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
@@ -319,17 +319,17 @@ const GIVEN =
  *
  * Called by ... MK-NW-F-078 ONE
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 77 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-100 TREND
- *               … and 52 more — the full list is on functions_from_code
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               … and 59 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -348,17 +348,17 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-F-102 rateWhereItRefuses
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               … and 51 more — the full list is on functions_from_code
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-199 ROOM
+ *               … and 58 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
