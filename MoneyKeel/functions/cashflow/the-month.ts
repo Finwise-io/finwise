@@ -239,7 +239,7 @@ export const THE_MONTH_FIGURES = declareFigures({
   },
   'MK-CF-M-002': {
     label: '= Planned surplus', unit: 'money', per: 'month', screens: ['/cashflow', '/home'],
-    answers: 'What is left over in the month if everything goes to plan.',
+    answers: 'The surplus in the month if everything goes to plan.',
     formula: 'the inflow, less every debt payment due, less the budget, less each big-ticket item',
     inputs: ['MK-XS-I-023 salary and other income', 'MK-NW-I-002 your debts', 'MK-CF-I-001 your logged expenses'],
     decisions: ['EVERY ROW SHOWN IS A ROW DEDUCTED (his rule under the approved design): nothing appears on This month without being in the sum.'],

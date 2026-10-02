@@ -46,7 +46,7 @@ import { figureSpec } from '../../MoneyKeel/functions/figures';
 import { writeFigure } from '../../MoneyKeel/functions/_figure-spec';
 import * as fs from 'fs';
 import * as path from 'path';
-import { historyCoverage } from '../domain/assets';
+import { historyCoverage, sourceWording } from '../domain/assets';
 import { CONSENT_COPY } from '../services/sync';
 import { sampleOddsLine, oddsTail } from '../domain/planning/hub';
 
@@ -830,5 +830,64 @@ describe('the decisions in the log are held by something that executes', () => {
     // inflating it for 28 years would overstate it by more than half.
     const note = src.slice(Math.max(0, src.indexOf('recurring_until') - 1200), src.indexOf('recurring_until'));
     expect(note).toMatch(/NOT INFLATED/);
+  });
+
+  // ── DEC-0222 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0222 — "tight besides emergency funds - keep it": the ONE named exception to showing the fact and not a verdict', () => {
+    const nw = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+    // his rule elsewhere is the fact without a grade. He kept this one word, and only this one.
+    expect(nw).toMatch(/Tight\s*⚠/);
+    expect(nw).toMatch(/Comfortable\s*✓/);
+    // and it turns on the months the screen is showing, not on a second rule that could drift
+    expect(nw).toMatch(/shownMonths\s*<\s*3\s*\?\s*'Tight/);
+  });
+
+  // ── DEC-0223 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0223 — "connected only unless stale": the source chip says Linked, and a date only once it is old', () => {
+    const acct = (iso?: string) => ({ asset_id: 'a1', label: 'Chase', kind: 'checking',
+      tax_bucket: 'CASH', balance: 1000, target_return: 0, source: 'connected',
+      ...(iso ? { last_synced: iso } : {}) }) as any;
+    const noon = Date.parse('2026-10-01T12:00:00Z');
+    const daysAgo = (n: number) => new Date(noon - n * 86_400_000).toISOString();
+
+    // fresh: the source, and NOTHING else. A date that is always there cannot be a warning.
+    expect(sourceWording(acct(daysAgo(1)), noon)).toBe('Linked');
+    expect(sourceWording(acct(daysAgo(3)), noon)).toBe('Linked');
+    // old: it says how old, in words, never a raw date
+    expect(sourceWording(acct(daysAgo(9)), noon)).toBe('Linked · 9 days old');
+    expect(sourceWording(acct(daysAgo(9)), noon)).not.toMatch(/\d{4}-\d{2}-\d{2}/);
+  });
+
+  // ── DEC-0251 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0251 — "one producer for essentials": a month with nothing logged is not counted as a $0 month', () => {
+    const essSrc = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'MoneyKeel', 'functions', 'cashflow', 'essentials.ts'), 'utf8');
+    // the window is the twelve complete months before this one — not a part-month that would read low
+    expect(essSrc).toMatch(/12 complete calendar months/);
+    // and only the months with something logged are counted. Dividing by twelve when four were
+    // logged would report a third of the true cost.
+    expect(essSrc).toMatch(/months in that window with at least one logged entry/);
+    expect(essSrc).toMatch(/÷ number of counted months/);
+  });
+
+  // ── DEC-0267 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0267 — "the money left after everything out → Surplus": the retired words are gone from every screen', () => {
+    const dirs = [path.join(__dirname, '..'), path.join(__dirname, '..', '..', 'MoneyKeel', 'functions')];
+    const RETIRED = [/\bleft over\b/i, /\bLeft to spend\b/i, /\bFree to spend\b/i, /\bAvailable to spend\b/i];
+    const offenders: string[] = [];
+    let seen = 0;
+    const walk = (d: string): string[] => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+      if (e.name === '__tests__' || e.name === '__snapshots__' || e.name === 'node_modules') return [];
+      const q = path.join(d, e.name);
+      return e.isDirectory() ? walk(q) : (/\.tsx?$/.test(e.name) && !/\.test\./.test(e.name) ? [q] : []);
+    });
+    for (const dir of dirs) for (const f of walk(dir)) {
+      seen += 1;
+      const copy = fs.readFileSync(f, 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[\s;,)}])\/\/.*$/gm, '$1 ');
+      for (const r of RETIRED) if (r.test(copy)) offenders.push(`${path.basename(f)} — ${r}`);
+    }
+    expect(seen).toBeGreaterThanOrEqual(150);
+    expect(offenders).toEqual([]);
   });
 });

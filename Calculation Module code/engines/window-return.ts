@@ -133,7 +133,7 @@ export interface ReturnVerdict {
   sentence: string;
 }
 
-/* ─ MK-ST-F-064 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-ST-F-064 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * modifiedDietzOverWindow
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.

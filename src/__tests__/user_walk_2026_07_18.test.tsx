@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import HomeScreen from '../screens/HomeScreen';
 import CashFlowScreen from '../screens/CashFlowScreen';
 import NetWorthScreen from '../screens/NetWorthScreen';
-import AccountDetailScreen from '../screens/AccountDetailScreen';
+import AccountPortfolioScreen from '../screens/AccountPortfolioScreen';
 import AddAccountScreen from '../screens/AddAccountScreen';
 import SnapTradeConnect from '../screens/SnapTradeConnect';
 import GoalsScreen from '../screens/GoalsScreen';
@@ -104,7 +104,7 @@ describe('USER WALK · 10 common flows', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
     seedConnected();
     mockParams = { id: 'st-acc-1' };
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.getAllByText(/\$52,000/).length).toBeGreaterThan(0);   // the header trio repeats the value, as the approved mock does          // the broker's total — authoritative
     expect(screen.getAllByText(/VTI/).length).toBeGreaterThan(0);
     expect(screen.getByText('AAPL $220 call · exp Jan 16 2027')).toBeOnTheScreen();
@@ -167,7 +167,7 @@ describe('USER WALK · 10 common flows', () => {
     const { setHideBalances } = require('../domain/_shared/money');
     setHideBalances(true);
     mockParams = { id: 'st-acc-1' };
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.queryByText(/\$52,000/)).toBeNull();
     expect(screen.queryByText(/\$1,300/)).toBeNull();
     setHideBalances(false);
@@ -211,7 +211,7 @@ describe('USER WALK · 5 edge cases', () => {
     }], NOW);
     useStore.setState({ assetAccounts: r.accounts } as any);
     mockParams = { id: 'st-acc-s' };
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.getByText(/F \$90 put · exp Dec 18 2026 \(short\)/)).toBeOnTheScreen();
   });
 

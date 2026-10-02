@@ -146,8 +146,8 @@ test('E2E-42 importing a crypto row files it under Alternatives (visible + corre
 test('E2E-43 deposit then withdraw on a cash account: balance right, history shows both rows', () => {
   useStore.setState({ assetAccounts: [{ asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 1000 }] } as any);
   mockParams = { id: 'chk' };
-  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   // mock v14: money in and money out share ONE door, and the kind is chosen inside its sheet
   fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   fireEvent.press(screen.getByLabelText('Record a deposit for Checking'));
@@ -169,8 +169,8 @@ test('E2E-44 stale gold: update the value in one tap and the as-of stamp resets 
   const old = new Date(); old.setMonth(old.getMonth() - 8);
   useStore.setState({ assetAccounts: [{ asset_id: 'gld', label: 'Gold coins', kind: 'commodities', asset_class: 'alternatives', tax_bucket: 'TAXABLE', balance: 9000, value_as_of: old.toISOString().slice(0, 10) }] } as any);
   mockParams = { id: 'gld' };
-  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   fireEvent.press(screen.getByLabelText("Update this account's value"));
   fireEvent.changeText(screen.getByLabelText('Current value'), '10400');
   fireEvent.press(screen.getByLabelText('Save the updated value'));

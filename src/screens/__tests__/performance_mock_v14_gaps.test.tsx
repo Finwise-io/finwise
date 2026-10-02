@@ -36,21 +36,21 @@ beforeEach(() => {
 });
 
 test('a class with nothing in it keeps its heading and says so', () => {
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   // the account holds only a stock: Bonds, Cash and Alternatives are empty and still drawn
   expect(screen.getAllByText('Nothing held in this account').length).toBeGreaterThan(0);
 });
 
 test('the activity list says which records can be edited and which cannot', () => {
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText(/Records from E\*TRADE can’t be edited/)).toBeOnTheScreen();
 });
 
 test('a linked account’s walk says where its lines come from', () => {
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText(/Every line here comes from E\*TRADE’s own records/)).toBeOnTheScreen();
 });
 
@@ -104,7 +104,7 @@ describe('a CD is told the truth about rates', () => {
 
   test('a CD is never told its value falls when rates rise', () => {
     useStore.setState({ assetAccounts: [fixed('KeyBank CD 4.00%')] } as any);
-    render(require('react').createElement(require('../AccountDetailScreen').default));
+    render(require('react').createElement(require('../AccountPortfolioScreen').default));
     expect(screen.queryByText(/Rates rise 1%/)).toBeNull();
     expect(screen.getByText(/Nothing happens to this CD/)).toBeOnTheScreen();
     expect(screen.getByText(/fixed penalty/)).toBeOnTheScreen();
@@ -112,7 +112,7 @@ describe('a CD is told the truth about rates', () => {
 
   test('a real bond still gets the rates-move estimate', () => {
     useStore.setState({ assetAccounts: [fixed('US Treasury 4.25% 2028')] } as any);
-    render(require('react').createElement(require('../AccountDetailScreen').default));
+    render(require('react').createElement(require('../AccountPortfolioScreen').default));
     expect(screen.getByText(/Rates rise 1%/)).toBeOnTheScreen();
   });
 });

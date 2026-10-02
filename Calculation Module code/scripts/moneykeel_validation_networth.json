@@ -1,12 +1,5 @@
 [
  {
-  "id": "DEC-0005",
-  "verdict": "CONFIRMED BY CITATION",
-  "check": "CITED",
-  "governs": "src/screens/PlanHubScreen.tsx · src/screens/HomeScreen",
-  "notes": "only 6 of 19 appear — present: account alternative gauge questions retired · absent: approved brand-new design dropped empty; cited by identifier in d"
- },
- {
   "id": "DEC-0006",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
@@ -110,20 +103,6 @@
   "check": "TRACE",
   "governs": "src/screens/AccountDetailScreen.tsx · src/domain/insig",
   "notes": "only 6 of 15 appear — present: breakdown build builds invest investment · absent: batch built drawn fallen goal-offtrack"
- },
- {
-  "id": "DEC-0039",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
-  "governs": "src/screens/HomeScreen.tsx · src/screens/CashFlowScree",
-  "notes": "quoted copy nowhere a person reads: \"+Expense\"; cited by identifier in decisions_are_held.test.ts"
- },
- {
-  "id": "DEC-0040",
-  "verdict": "COMPLIES",
-  "check": "REQUIRES",
-  "governs": "src/screens/HomeScreen.tsx · src/domain/insights/index",
-  "notes": "1 quoted phrase(s) present; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0041",
@@ -553,13 +532,6 @@
   "notes": "only 9 of 55 appear — present: check constants costs credit fixed · absent: apart applied assumed belongs claim; cited by identifier in decisions_are_"
  },
  {
-  "id": "DEC-0151",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/HomeScreen.tsx · src/domain/income/onboard",
-  "notes": "only 10 of 72 appear — present: check claim dollar gauge opens · absent: amount angle approved arrives asking"
- },
- {
   "id": "DEC-0152",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
@@ -651,13 +623,6 @@
   "notes": "12 of 20 of his words appear in what implements it: approved asserted bond's dates fresh invest; cited by identifier in net-worth.ts"
  },
  {
-  "id": "DEC-0214",
-  "verdict": "CONFIRMED BY CITATION",
-  "check": "CITED",
-  "governs": "src/screens/HomeScreen.tsx · src/screens/SettingsScree",
-  "notes": "8 of 11 of his words appear in what implements it: account accounts add-account login onboarding opens; cited by identifier in decisions_are_held.test"
- },
- {
   "id": "DEC-0215",
   "verdict": "NOT FOUND",
   "check": "REQUIRES",
@@ -680,17 +645,17 @@
  },
  {
   "id": "DEC-0222",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-013",
-  "notes": "only 4 of 9 appear — present: beside emergency funds tight · absent: besides brief exception verdict warning"
+  "notes": "only 4 of 9 appear — present: beside emergency funds tight · absent: besides brief exception verdict warning; cited by identifier in decisions_are_hel"
  },
  {
   "id": "DEC-0223",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScree",
-  "notes": "only 2 of 9 appear — present: label source · absent: applies brief connected linked small"
+  "notes": "only 2 of 9 appear — present: label source · absent: applies brief connected linked small; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0224",
@@ -750,10 +715,10 @@
  },
  {
   "id": "DEC-0251",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-013 · MK-NW-M-014 · MK-MN-M-020 · MK-MN-M-021 ",
-  "notes": "15 of 22 of his words appear in what implements it: actually average essentials essentialsmonthly fewer label"
+  "notes": "15 of 22 of his words appear in what implements it: actually average essentials essentialsmonthly fewer label; cited by identifier in decisions_are_he"
  },
  {
   "id": "DEC-0258",
@@ -782,13 +747,6 @@
   "check": "CITED",
   "governs": "MK-NW-M-032 · MK-NW-M-003",
   "notes": "17 of 25 of his words appear in what implements it: balances calculation decimals display dollars early; cited by identifier in net-worth.ts"
- },
- {
-  "id": "DEC-0267",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_ca",
-  "notes": "only 10 of 26 appear — present: budget functions label money moneykeel · absent: applied assumed available bill-calendar budget'"
  },
  {
   "id": "DEC-0274",
@@ -880,13 +838,6 @@
   "check": "TRACE",
   "governs": "src/domain/income/onboarding.ts · src/screens/AccountD",
   "notes": "only 4 of 16 appear — present: coupon deleted entered state · absent: default defaults empty filling input"
- },
- {
-  "id": "DEC-0297",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
-  "governs": "src/screens/HomeScreen.tsx",
-  "notes": "quoted copy nowhere a person reads: \"show the fact, not the verdict — no grading.\""
  },
  {
   "id": "DEC-0298",
@@ -1155,13 +1106,6 @@
   "notes": "quoted copy nowhere a person reads: \"the take-home above is higher…\"; cited by identifier in account.ts"
  },
  {
-  "id": "DEC-0412",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_fi",
-  "notes": "only 1 of 14 appear — present: moneykeel · absent: added calculation comes founder longer"
- },
- {
   "id": "DEC-0413",
   "verdict": "FAINT TRACE",
   "check": "TRACE",
@@ -1309,39 +1253,11 @@
   "notes": "only 2 of 14 appear — present: market return · absent: ahead benchmark benchmark' compared existing"
  },
  {
-  "id": "DEC-0459",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/PlanHubScreen.tsx · src/screens/HomeScreen",
-  "notes": "only 7 of 22 appear — present: check estimate month morning pension · absent: amount comes correction guaranteed order"
- },
- {
   "id": "DEC-0461",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/domain/transactions/flags.ts · MoneyKeel/functions",
   "notes": "only 5 of 23 appear — present: account comparison large reads withdrawal · absent: advice first-time formulated payee plain-english; cited by identifi"
- },
- {
-  "id": "DEC-0463",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/HomeScreen.tsx · src/domain/planning/hub.t",
-  "notes": "only 4 of 22 appear — present: including opens question questions · absent: choice commits defaults drawn empty"
- },
- {
-  "id": "DEC-0465",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
-  "governs": "src/screens/HomeScreen.tsx · src/screens/PerformanceSc",
-  "notes": "quoted copy nowhere a person reads: \"This does not have refresh date and time.\""
- },
- {
-  "id": "DEC-0466",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/domain/assets/index.ts · src/screens/HomeScreen.ts",
-  "notes": "only 5 of 16 appear — present: chase investments morning question worth · absent: caught connection differently drift hasn't"
  },
  {
   "id": "DEC-0469",
@@ -1356,13 +1272,6 @@
   "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
   "notes": "only 5 of 29 appear — present: account asset button class questions · absent: adjusting collecting collects connect dynamic; cited by identifier in de"
- },
- {
-  "id": "DEC-0472",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/domain/glossary.ts · src/screens/JobSafetyScreen.t",
-  "notes": "only 4 of 15 appear — present: cover emergency monthly months · absent: answered aside asked cushion equivalent"
  },
  {
   "id": "DEC-0473",
@@ -1393,13 +1302,6 @@
   "notes": "only 8 of 17 appear — present: alternatives bonds collapse holdings investment · absent: all-investments collapasable collapsable current expandable"
  },
  {
-  "id": "DEC-0485",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/CashFlowScreen.tsx · src/screens/HomeScree",
-  "notes": "only 4 of 16 appear — present: expenses income month question · absent: actual bills capture day-to-day drawn"
- },
- {
   "id": "DEC-0488",
   "verdict": "FAINT TRACE",
   "check": "TRACE",
@@ -1407,39 +1309,11 @@
   "notes": "only 13 of 56 appear — present: accounts cards checking counts credit · absent: actually anyother captured choices claims"
  },
  {
-  "id": "DEC-0489",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/HomeScreen.tsx · src/screens/PlanHubScreen",
-  "notes": "only 2 of 18 appear — present: chief staff · absent: addition advisor assumptions attention best-math"
- },
- {
-  "id": "DEC-0496",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/HomeScreen.tsx · src/domain/debt/index.ts",
-  "notes": "only 5 of 11 appear — present: asked investments morning question shared · absent: capture chief-of-staff dashboard flexes information"
- },
- {
   "id": "DEC-0506",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowS",
   "notes": "3 of 4 of his words appear in what implements it: money question worth"
- },
- {
-  "id": "DEC-0509",
-  "verdict": "CONFIRMED BY CITATION",
-  "check": "CITED",
-  "governs": "src/screens/HomeScreen.tsx · the onboarding · MK-XS-M-",
-  "notes": "only 1 of 3 appear — present: question · absent: capture information; cited by identifier in net-worth.ts"
- },
- {
-  "id": "DEC-0510",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/InsightsScreen.tsx",
-  "notes": "only 2 of 5 appear — present: detail invest · absent: investments level question"
  },
  {
   "id": "DEC-0596",

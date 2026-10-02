@@ -35,6 +35,25 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ # ── Net worth module, 2026-10-01 — his nine rulings while the module was taken through the seven steps ──
+ 'Quite Instrument v08 - approved all screens from A to G':
+  'All seven frames of Quiet Instrument v08 are approved: A with data by category, B all collapsed and the down case, C the first day, D the missing-data banner, E the change walk, F the fix sheet, G the add sheet.',
+ 'Add Account by hand v01 - approved':
+  'The Add-an-account-by-hand screen design is approved.',
+ 'Account detail screen should be same as Account Portfolio screen':
+  'The account-detail v01 drawing is rejected. The screen once called Account detail IS the Account portfolio screen, one screen with one design: frame 2 of Performance v17.',
+ 'I have already approved Perf v17 for perf module':
+  'Performance v17 is approved in full, for the Performance module — all five frames.',
+ 'Investment v07 - archive it as it is old version of performance':
+  'investments_v07 is archived. It is an old version of the Performance screen, not a design for the Bonds, Other investments or Holding detail screens.',
+ 'Forget about these screens - Home, Insights, Import holdings, Job safety, Stress test':
+  'The Net worth module is SEVEN screens: Net worth, Account portfolio, Add account by hand, Itemize, Bonds, Other investments, Holding detail. Home, Insights, Import holdings, Job safety and Stress test are not part of it.',
+ 'Mark these three as approved as of now':
+  'Bonds v01, Alternatives v01 and Holding detail v01 are approved as of 2026-10-01, subject to his review on a TestFlight build.',
+ 'why you keep asking like a broken record':
+  'The way into Itemize is one link on the Account portfolio, shown when an account holds money and nothing is recorded inside it. Itemize v01 is the design and is built from; I decided it rather than asking him a fourth time.',
+ 'The Itemize door was decided and built on the Account portfolio':
+  'Work every failing step of the Net worth module through, without asking him anything, and report the result in the Word format he asked for.',
  'B47 FINDING 3': (
   "When you link a brokerage, the app takes the account's total straight from the broker. Vanguard sent "
   "back no total at all, while the account really held $132,000 — so it showed $0. Four decisions:\n"

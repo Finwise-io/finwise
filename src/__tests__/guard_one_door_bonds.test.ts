@@ -48,7 +48,7 @@ test('a screen asks "what are my bonds worth" through the door, and nowhere else
 });
 
 test('the two screens that ask the question import the door, not its parts', () => {
-  for (const rel of ['src/screens/BondsScreen.tsx', 'src/screens/AccountDetailScreen.tsx']) {
+  for (const rel of ['src/screens/BondsScreen.tsx', 'src/screens/AccountPortfolioScreen.tsx']) {
     const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
     expect(src).toMatch(/theBonds/);
     expect(src).not.toMatch(/from '.*domain\/bonds'/);

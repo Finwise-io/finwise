@@ -49,43 +49,6 @@ export interface EmergencyFund {
   housingDisagreement: { budgeted: number; owed: number; difference: number } | null;
 }
 
-/* ─ MK-NW-F-074 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theEmergencyFund
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     cash = input.cash override   if input.cash override ≠ nothing
- *     cash total(input.accounts ?? [])   otherwise
- *     debts = input.debts (or none when missing)
- *     cats = input.profile.spend cats   if array.is array(input.profile.spend cats)
- *     []   otherwise
- *     housing budgeted = cats.some((c: any) => id = 'rent' and number(amount) > 0)
- *     kind = string(debt type ?? type ?? '').to upper case()
- *     t   when housing budgeted and kind = 'MORTGAGE'
- *     the answer = t + required payment(d)
- *     ess = essentials monthly(input.expenses ?? [], monthly essentials(input.profile))
- *     monthly = (ess.monthly ?? 0) + debt minimums
- *     planned = planned monthly spend(input.profile) + debt minimums
- *     target = monthly × months
- *     … the first steps only — the rest of the body needs reading by hand.
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
- *               MK-XS-I-025 typical monthly essentials
- *               MK-XS-I-032 expenses categories the person set up
- *               MK-XS-I-048 the person’s own asset-class answer
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · If monthly is missing it uses 0.
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-074
- * Changed ..... not in git yet (—)
- */
 /** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how

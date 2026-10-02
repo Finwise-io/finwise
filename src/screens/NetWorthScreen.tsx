@@ -5,7 +5,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
-import { fig, figPer, figSaid } from '../components/figure';
+import { fig, figPer, figSaid, figWords } from '../components/figure';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
 import { onCourseSentence, shortfallAgeFromBand, planDoor, sampleAskLine, oddsLine, sampleOddsLine } from '../domain/planning/hub';
@@ -680,7 +680,7 @@ export default function NetWorthScreen() {
     // worth, the percent is a RETURN and it is measured on cash + investments only. Spelled out in
     // full on both sides (no "NW"), so the line never needs a decoder.
     const pctText = invPct == null ? ''
-      : ` · Return on cash + investments ${invPct > 0 ? '+' : invPct < 0 ? '−' : ''}${Math.abs(invPct).toFixed(2)}%`   /* founder 2026-09-14: "Return on cash - use 2 decimals" */;
+      : ` · Return on cash + investments ${invPct > 0 ? '+' : invPct < 0 ? '−' : ''}${fig('MK-NW-M-002', Math.abs(invPct) / 100)}`   /* founder 2026-09-14: "Return on cash - use 2 decimals" */;
     // B45 rule, re-broken and re-fixed 2026-08-10: ONE rounded value drives the words, the arrow and
     // the colour — so "up $0" / "down $0" can never be rendered again by any path.
     // a NaN slipped past the zero check and printed "down $0" — guard for finiteness too
@@ -953,7 +953,7 @@ export default function NetWorthScreen() {
             <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
             <View style={styles.ledgerPad}>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-                <Text style={styles.cushionMonths}>{shownMonths.toFixed(1)} months</Text>
+                <Text style={styles.cushionMonths}>{fig('MK-NW-M-013', shownMonths)}</Text>
                 <Text style={[styles.cushionWord, { color: shownMonths < 3 ? Colors.amber : Colors.gainText }]}>
                   {shownMonths < 3 ? 'Tight ⚠' : 'Comfortable ✓'}
                 </Text>

@@ -127,13 +127,13 @@ test('APPROVED daily snapshots · two open-days draw the trend; same-day recaptu
 });
 
 test('APPROVED detail · a multi-type connected account is called "Mixed holdings", never mislabeled', () => {
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
   useStore.setState({
     assetAccounts: [{ asset_id: 'st-m1', label: 'E*Trade Individual Brokerage', institution: 'E-Trade', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 111000, target_return: 0.08, source: 'connected', cash_balance: 1000, last_synced: new Date().toISOString(),
       positions: [{ position_id: 'p1', ticker: '49306SX43', name: 'CD 4.30% due May 2027', asset_class: 'bond', last_price: 100, lots: [{ shares: 1100, cost_per_share: 100, purchase_date: '' }] }] }],
   } as any);
   jest.spyOn(require('expo-router'), 'useLocalSearchParams').mockReturnValue({ id: 'st-m1' });
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText(/Mixed holdings · taxable/)).toBeOnTheScreen();
   expect(screen.getByText(/CD 4\.30% due May 2027/)).toBeOnTheScreen();     // the readable name, not the CUSIP
   expect(screen.getByText('Cash in this account')).toBeOnTheScreen();   // his words, ruled 2026-08-11

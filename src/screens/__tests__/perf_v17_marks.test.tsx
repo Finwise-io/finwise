@@ -79,7 +79,7 @@ test('MARK 18 — the yearly rate rides under the chosen window, spoken as "a ye
 });
 
 test('MARK 16 on the account page — the same figure, the same words', () => {
-  renderScreen('AccountDetailScreen');
+  renderScreen('AccountPortfolioScreen');
   const lines = readable();
   const trio = lines.findIndex((l) => l === 'Return');
   expect(trio).toBeGreaterThan(-1);

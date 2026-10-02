@@ -68,9 +68,9 @@ const dumpStrings = (): string[] => {
 const SCREENS: { key: string; file: string; params?: any }[] = [
   { key: 'NW main', file: 'NetWorthScreen' },
   { key: 'Performance main', file: 'PerformanceScreen' },
-  { key: 'Account detail (portfolio)', file: 'AccountDetailScreen', params: { id: 'van' } },
-  { key: 'Account detail - class slice', file: 'AccountDetailScreen', params: { id: 'van', class: 'stocks_etf' } },
-  { key: 'Account detail - matured CD', file: 'AccountDetailScreen', params: { id: 'etr' } },
+  { key: 'Account detail (portfolio)', file: 'AccountPortfolioScreen', params: { id: 'van' } },
+  { key: 'Account detail - class slice', file: 'AccountPortfolioScreen', params: { id: 'van', class: 'stocks_etf' } },
+  { key: 'Account detail - matured CD', file: 'AccountPortfolioScreen', params: { id: 'etr' } },
   { key: 'Itemize', file: 'ItemizeScreen', params: { id: 'van' } },
   { key: 'Import holdings', file: 'ImportHoldingsScreen' },
   { key: 'Connect flow', file: 'ConnectFlowScreen' },
@@ -339,6 +339,10 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     // debt, HELOC, car loan?":  8,838 ÷ (3,600 essentials + 150 Visa minimum) = 2.4.
     // It was 8,838 ÷ 4,500 planned spend = 2.0, with no debt payment in it at all.
     // The $2,400 mortgage is NOT added: the Rent / Mortgage category already carries it at $2,300.
-    expect(strings[strings.indexOf('months') - 1]).toBe('2.4');
+    // ONE TEXT NODE NOW (2026-10-01). The figure and its unit used to be two pieces of text, so the
+    // test looked for the bare number with 'months' beside it. The emergency fund prints through its
+    // own tag (MK-NW-M-013), which writes the unit with the number — so the screen says "2.4 months"
+    // as one string and the unit can no longer drift from the figure it belongs to.
+    expect(strings).toContain('2.4 months');
   });
 });

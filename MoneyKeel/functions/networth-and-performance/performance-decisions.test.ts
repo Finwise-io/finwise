@@ -183,6 +183,29 @@ describe('MK-PF-M-014 Wealth generated', () => {
   });
 });
 
+describe('MK-PF-M-016 Return — one account, the window picked', () => {
+  test('two decimals and its sign, always (Q49): +6.67%, never 6.67% and never +6.7%', () => {
+    const { writeFigure } = require('../_figure-spec');
+    const { PERFORMANCE_FIGURES } = require('./performance');
+    const spec = PERFORMANCE_FIGURES['MK-PF-M-016'];
+    expect(spec.unit).toBe('percent-signed');
+    expect(writeFigure(spec, 0.0666666)).toBe('+6.67%');
+    expect(writeFigure(spec, -0.0057)).toBe('\u22120.57%');
+    expect(writeFigure(spec, null)).toBe(spec.refusal);
+  });
+  test('a quiet window measures; a window where WHEN money moved would decide it refuses, and the rate per year stands in (Q52, mark 16)', () => {
+    const days = [recordDay('2025-12-31', 30_000, 'a1')] as any;
+    const quiet = ask({ ending: 32_000, snapshotDays: days, investmentAccountIds: new Set(['a1']) });
+    expect(quiet.ret).toBeCloseTo(2_000 / 30_000, 6);
+    expect(quiet.sentence).toBe('');
+    const heavy = ask({ ending: 46_600, snapshotDays: days, investmentAccountIds: new Set(['a1']),
+      transactions: [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1', amount: 6_000, created_at: 'x' }] as any });
+    expect(heavy.ret).toBeNull();                       // the figure refuses …
+    expect(heavy.sentence.length).toBeGreaterThan(20);  // … and says why
+    expect(heavy.refusedRate).not.toBeNull();           // … with the exact rate per year standing in
+  });
+});
+
 describe('MK-PF-M-015 one line of the walk', () => {
   test('the lines always add up to the ending — a walk that does not is worse than no walk', () => {
     const a = ask({ ending: 46_600, snapshotDays: [recordDay('2026-01-01', 30_000, 'a1')] as any,

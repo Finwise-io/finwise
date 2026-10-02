@@ -71,7 +71,9 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     const screen = read('PerformanceScreen.tsx');
     expect(src).toMatch(/refusedRate/);                                  // the door hands it out
     expect(screen).toMatch(/sentence && refusedRate != null/);           // the screen prefers the rate
-    expect(screen).toMatch(/this is your rate per year, counting when you added money/);
+    // the words live in the door (RATE_STANDS_IN_WORDS, 2026-10-01) and both screens print that one constant
+    expect(src).toMatch(/this is your rate per year, counting when you added money/);
+    expect(screen).toMatch(/RATE_STANDS_IN_WORDS/);
     expect(screen).not.toMatch(/\{sentence\s*\n?\s*\?\s*sentence/);     // the old unconditional branch is gone
   });
 });

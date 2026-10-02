@@ -80,7 +80,7 @@ const OUT = 'Calculation Module code/scripts/moneykeel_figure_census.json';
 const ROUTES: [string, string][] = [
   ['/home', 'HomeScreen'], ['/analytics', 'NetWorthScreen'], ['/invest', 'PerformanceScreen'], ['/plan', 'PlanHubScreen'], ['/cashflow', 'CashFlowScreen'],
   ['/goals', 'GoalsScreen'], ['/retirement', 'RetirementCockpit'], ['/rewards', 'RewardsScreen'], ['/settings', 'SettingsScreen'], ['/tips', 'TipsScreen'],
-  ['/account-detail', 'AccountDetailScreen'], ['/big-costs', 'BigCostsScreen'], ['/bill-calendar', 'BillCalendarScreen'], ['/bonds', 'BondsScreen'],
+  ['/account-detail', 'AccountPortfolioScreen'], ['/big-costs', 'BigCostsScreen'], ['/bill-calendar', 'BillCalendarScreen'], ['/bonds', 'BondsScreen'],
   ['/contribution-room', 'ContributionRoomScreen'], ['/credit', 'CreditScreen'], ['/education', 'EducationScreen'], ['/estate', 'EstateScreen'],
   ['/expense', 'ExpenseScreen'], ['/first-run', 'FirstRunScreen'], ['/holding-detail', 'HoldingDetailScreen'], ['/import-holdings', 'ImportHoldingsScreen'],
   ['/income-detail', 'IncomeDetailScreen'], ['/income-manager', 'IncomeManagerScreen'], ['/income', 'IncomeScreen'], ['/insights', 'InsightsScreen'],

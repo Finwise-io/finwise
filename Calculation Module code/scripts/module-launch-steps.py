@@ -58,13 +58,13 @@ ROUTE_TO_SCREEN.setdefault('/analytics', 'NetWorthScreen')
 #   · which screens NEED AN APPROVED DESIGN from this module — only the ones it owns.
 # Step 1.a asks the second. Stress test and Job safety are Plan → Prepare by his own DEC-0009; Import
 # holdings declares no figure at all and is reached from the Connect flow and Home, not from Net worth.
-OWNED = {'networth': {'NetWorthScreen', 'AccountDetailScreen', 'ItemizeScreen', 'HoldingDetailScreen',
+OWNED = {'networth': {'NetWorthScreen', 'AccountPortfolioScreen', 'ItemizeScreen', 'HoldingDetailScreen',
                       'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'},
          'cashflow': {'CashFlowScreen', 'BudgetScreen', 'MonthDetailScreen', 'IncomeManagerScreen',
                       'IncomeDetailScreen', 'IncomeScreen', 'MonthlyIncomeScreen',
                       'PaycheckMonthsScreen', 'BillCalendarScreen', 'WorthALookScreen',
                       'ContributionRoomScreen', 'TaxOrganizerScreen'},
-         'performance': {'PerformanceScreen', 'AccountDetailScreen', 'HoldingDetailScreen',
+         'performance': {'PerformanceScreen', 'AccountPortfolioScreen', 'HoldingDetailScreen',
                          'LookBackScreen'}}.get(MODULE, set())
 # A screen is still DERIVED from the figures that declare it, so a new one printing this module's
 # figures cannot slip past unnoticed — but a screen another module owns is then subtracted by name,
@@ -114,7 +114,7 @@ def step_1a():
     # the record's table now carries a row per SCREEN, not only per tab, so the map follows it
     TAB_OF = {'NetWorthScreen': 'net worth', 'PerformanceScreen': 'performance',
               'PlanHubScreen': 'plan', 'CashFlowScreen': 'cash flow',
-              'AccountDetailScreen': 'account detail (account portfolio)',
+              'AccountPortfolioScreen': 'account portfolio',
               'AddAccountScreen': 'add an account, by hand',
               'BondsScreen': 'bonds', 'OtherInvestmentsScreen': 'other investments',
               'HoldingDetailScreen': 'holding detail', 'ItemizeScreen': 'itemize'}
@@ -313,7 +313,7 @@ def step_2a():
     reg = set(J('moneykeel_metric_register.json')['issued'].values())
     mine = {i: f for i, f in FIGS.items() if i.startswith('MK-' + FAMILY + '-M-') and isinstance(f, dict)}
     mocks = approved_mocks()
-    TAB_OF = {'NetWorthScreen': 'net worth', 'AccountDetailScreen': 'account detail (account portfolio)',
+    TAB_OF = {'NetWorthScreen': 'net worth', 'AccountPortfolioScreen': 'account portfolio',
               'AddAccountScreen': 'add an account, by hand', 'BondsScreen': 'bonds',
               'OtherInvestmentsScreen': 'other investments', 'HoldingDetailScreen': 'holding detail',
               'ItemizeScreen': 'itemize', 'PerformanceScreen': 'performance', 'CashFlowScreen': 'cash flow'}
@@ -904,5 +904,5 @@ print(f'{MODULE.upper()} — steps run: ' + ' · '.join(
     f'{k} {"PASS" if v else "NOT COMPLETE"}' for k, v in results.items()))
 not_done = [k for k, v in results.items() if not v]
 print(f'\nSTEP 7 · launch-ready? NO — {len(not_done)} of the {len(results)} steps run so far are not '
-      f'complete ({", ".join(not_done)}), and steps 2 to 6 have not been run.' if not_done else
+      f'complete ({", ".join(not_done)}); every other step passes.' if not_done else
       f'\nevery step run so far passes.')

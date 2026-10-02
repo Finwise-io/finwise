@@ -18,9 +18,9 @@
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import AccountDetailScreen from '../AccountDetailScreen';
+import AccountPortfolioScreen from '../AccountPortfolioScreen';
 import { useStore } from '../../store/useStore';
-import { isoLocalDate } from '../../domain/_shared/dates';
+import { isoLocalDate, dateShown } from '../../domain/_shared/dates';
 
 let mockParams: Record<string, string | undefined> = {};
 const mockPushes: string[] = [];
@@ -82,18 +82,18 @@ function seed(extra: Record<string, unknown> = {}) {
 beforeEach(() => seed());
 
 // ── 1 · THE HEADER TRIO ─────────────────────────────────────────────────────────────────────────
-test('the trio reads Market value · Wealth generated · Return, in that order, and Income is not one of them', () => {
-  render(<AccountDetailScreen />);
+test('the trio reads Ending value · Wealth generated · Return, in that order (Performance v17 frame 2), and Income is not one of them', () => {
+  render(<AccountPortfolioScreen />);
   // the first three are the trio; "Wealth generated" appears again further down, as a walk line
-  const labels = screen.getAllByText(/^(Market value|Wealth generated|Return)$/).map((n: any) => String(n.props.children));
-  expect(labels.slice(0, 3)).toEqual(['Market value', 'Wealth generated', 'Return']);
+  const labels = screen.getAllByText(/^(Ending value|Wealth generated|Return)$/).map((n: any) => String(n.props.children));
+  expect(labels.slice(0, 3)).toEqual(['Ending value', 'Wealth generated', 'Return']);
   expect(screen.queryByText('Income')).toBeNull();          // it sits with the holding that earned it
   expect(screen.getAllByText('$52,704').length).toBeGreaterThan(0);
   expect(screen.getAllByText('$300').length).toBeGreaterThan(0);
 });
 
 test('the Return carries TWO decimals (ruling Q49) and is the WINDOW return, not the return on cost', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(RETURN_TEXT).toBe('+0.57%');                        // the mock's own figure
   expect(screen.getAllByText(RETURN_TEXT).length).toBeGreaterThan(0);
   // the lifetime return on cost — LCTX cost $24,000 and is worth $40,000 — must appear NOWHERE:
@@ -103,46 +103,62 @@ test('the Return carries TWO decimals (ruling Q49) and is the WINDOW return, not
 });
 
 test('the header Return and the walk cannot disagree — one is the other divided by the beginning', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   // read the walk's own two figures off the screen, then check the header against THEM
-  expect(screen.getByText('HOW $52,404 BECAME $52,704 · THIS ACCOUNT')).toBeOnTheScreen();
+  expect(screen.getByText('HOW $52,404 BECAME $52,704')).toBeOnTheScreen();
   const expected = `+${((WEALTH / BEGINNING) * 100).toFixed(2)}%`;
-  // twice on the screen: the header trio, and the Total row of BY CATEGORY & HOLDING
-  expect(screen.getAllByText(expected).length).toBe(2);
+  // the Since segment, the SUMMARY trio and the Total row of BY CATEGORY & HOLDING all carry it
+  expect(screen.getAllByText(expected).length).toBeGreaterThanOrEqual(3);
+  expect(screen.getByLabelText(`Total, $52,704, return ${expected}`)).toBeOnTheScreen();
 });
 
 // ── 2 · THIS ACCOUNT'S OWN WALK ─────────────────────────────────────────────────────────────────
 test('the walk names every line the mock names, in order, and its rows reach the ending value', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   const rows = [
-    `Beginning market value (${short(BEGAN)})`, 'Contributions', 'Withdrawals', 'Wealth generated',
-    'Dividends', 'Interest', 'Change in investment value', `Ending market value (${short(TODAY)})`,
+    `Beginning market value (${dateShown(BEGAN)})`, 'Contributions', 'Withdrawals', 'Wealth generated',
+    'Dividends', 'Interest', 'Change in investment value', `Ending market value (${dateShown(TODAY)})`,
   ];
   for (const r of rows) expect(screen.getAllByText(r).length).toBeGreaterThan(0);
   expect(screen.getByText('$52,404')).toBeOnTheScreen();      // beginning
-  expect(screen.getByText('$120')).toBeOnTheScreen();         // dividends
-  expect(screen.getByText('$100')).toBeOnTheScreen();         // interest
-  expect(screen.getByText('$80')).toBeOnTheScreen();          // the residual IS the price movement
+  // each figure is on the walk, and may also sit in WHAT EACH CATEGORY EARNED beneath it
+  expect(screen.getAllByText('$120').length).toBeGreaterThan(0);   // dividends
+  expect(screen.getAllByText('$100').length).toBeGreaterThan(0);   // interest
+  expect(screen.getAllByText('$80').length).toBeGreaterThan(0);    // the residual IS the price movement
   // 120 + 100 + 80 = 300 = wealth generated, and 52,404 + 300 = 52,704 — the walk closes exactly
   expect(120 + 100 + 80).toBe(WEALTH);
   expect(BEGINNING + WEALTH).toBe(ENDING);
-  expect(screen.getByText('Every line opens the rows behind it ›')).toBeOnTheScreen();
 });
 
-test('no daily record reaching back → the two figures say "—" and no walk is drawn, never a guess', () => {
+test('no daily record but activity records → the window opens the first day money moved, no return is measured, and the screen says why', () => {
   seed({ invDaily: {}, snapshotDays: [] });
-  render(<AccountDetailScreen />);
-  expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2);
-  expect(screen.queryByText(/^HOW .* BECAME /)).toBeNull();
-  expect(screen.getByText(/Wealth generated and Return start once the daily record/)).toBeOnTheScreen();
+  render(<AccountPortfolioScreen />);
+  expect(screen.getByText('Since Jul 31, 2026')).toBeOnTheScreen();
+  expect(screen.getByText('Beginning market value (Jul 31, 2026)')).toBeOnTheScreen();
+  expect(screen.getByText(/Your daily record does not reach back to Jul 31, 2026 yet/)).toBeOnTheScreen();
+  expect(screen.queryByText(/Day one:/)).toBeNull();
+});
+
+test('day one — no record and nothing moved → Since today, every line a real $0, and the day-one sentence (v17)', () => {
+  seed({ invDaily: {}, snapshotDays: [], transactions: [] });
+  render(<AccountPortfolioScreen />);
+  expect(screen.getByText('Since today')).toBeOnTheScreen();
+  expect(screen.getByText('SUMMARY · SINCE TODAY')).toBeOnTheScreen();
+  expect(screen.getByText(/Day one: your value is real, your return starts measuring from today/)).toBeOnTheScreen();
+  expect(screen.getByText("HOW TODAY'S VALUE STANDS")).toBeOnTheScreen();
+  expect(screen.getByText('Beginning market value (today)')).toBeOnTheScreen();
+  expect(screen.getByText('Ending market value (today)')).toBeOnTheScreen();
+  expect(screen.getByText('Every line fills in as days pass — the structure never changes.')).toBeOnTheScreen();
+  expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(5);   // five windows and the trio's Return
 });
 
 // ── 3 · BY CATEGORY & HOLDING: the RETURN column and the Total row ──────────────────────────────
 test('the holdings table carries a RETURN column beside MARKET VALUE and a Total row with both figures', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText('BY CATEGORY & HOLDING')).toBeOnTheScreen();
   expect(screen.getByText('MARKET VALUE')).toBeOnTheScreen();
-  expect(screen.getByText('RETURN')).toBeOnTheScreen();
+  // RETURN heads two tables now: WHAT EACH CATEGORY EARNED (v17) and BY CATEGORY & HOLDING (v14)
+  expect(screen.getAllByText('RETURN').length).toBe(2);
   expect(screen.getByText('Total')).toBeOnTheScreen();
   expect(screen.getByLabelText(`Total, $52,704, return ${RETURN_TEXT}`)).toBeOnTheScreen();
   // a class narrower than the whole account has no measured window return of its own yet — "—",
@@ -150,7 +166,7 @@ test('the holdings table carries a RETURN column beside MARKET VALUE and a Total
   expect(screen.getByLabelText(/Stocks \/ Funds, \$40,000, return —/)).toBeOnTheScreen();
   // income still sits with the holding that earned it, and the account's total is said out loud
   expect(screen.getByText('Income: $120 dividends')).toBeOnTheScreen();
-  expect(screen.getByText('$220')).toBeOnTheScreen();
+  expect(screen.getAllByText('$220').length).toBeGreaterThan(0);   // the account's income, said out loud
 });
 
 test('a class that IS the whole account shows the account\'s own return — the two cannot differ', () => {
@@ -158,7 +174,7 @@ test('a class that IS the whole account shows the account\'s own return — the 
     assetAccounts: [{ ...ETRADE, cash_balance: 0, balance: 52704,
       positions: [{ position_id: 'p1', ticker: 'LCTX', asset_class: 'stock_etf', last_price: 52704, lots: [{ lot_id: 'l1', shares: 1, cost_per_share: 100 }] }] }],
   });
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByLabelText(`Stocks / Funds, $52,704, return ${RETURN_TEXT}`)).toBeOnTheScreen();
 });
 
@@ -171,20 +187,20 @@ test('a bond states its own yearly rate, and the column spells the period out in
       positions: [{ position_id: 'p2', ticker: 'KEYBANK CD 4.00%', asset_class: 'bond', last_price: 1, lots: [{ lot_id: 'l2', shares: 5704, cost_per_share: 1 }] }],
     }],
   });
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getAllByText('4.20%/year').length).toBeGreaterThan(0);
   expect(screen.queryByText(/4\.20%\/yr\b/)).toBeNull();
 });
 
 test('a holding row still opens its own page', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   fireEvent.press(screen.getAllByLabelText(/^LCTX · 800 shares/)[0]);
   expect(mockPushes.some((r) => r.startsWith('/holding-detail?account=e1&position=p1'))).toBe(true);
 });
 
 // ── 4 · THE THREE DOORS ─────────────────────────────────────────────────────────────────────────
 test('three doors, in the mock\'s order and wording, with every kind of record still behind them', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   const doors = screen.getAllByText(/^Add a .* ›$/).map((n: any) => String(n.props.children));
   expect(doors).toEqual([
     'Add a contribution or withdrawal ›', 'Add a dividend or interest ›', 'Add a buy or sale ›',
@@ -208,7 +224,7 @@ test('three doors, in the mock\'s order and wording, with every kind of record s
 });
 
 test('door two records income, and door three opens the buy-or-sale flow', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   fireEvent.press(screen.getByLabelText('Add a dividend or interest for Account 1'));
   expect(screen.getByLabelText('Record a dividend for Account 1')).toBeOnTheScreen();
   expect(screen.getByLabelText('Record a interest for Account 1')).toBeOnTheScreen();
@@ -222,7 +238,7 @@ test('door two records income, and door three opens the buy-or-sale flow', () =>
 
 // ── 5 · THE TOP BAR ─────────────────────────────────────────────────────────────────────────────
 test('the page carries the app\'s own top bar, with "‹ Back" where a tab screen carries Menu', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByLabelText('Back')).toBeOnTheScreen();
   expect(screen.getByText('‹ Back')).toBeOnTheScreen();
   expect(screen.queryByLabelText('Menu')).toBeNull();
@@ -247,7 +263,7 @@ test('each priced holding carries its own return, and an unpriced one says nothi
     // the window this page names comes from the daily record's own first day
     invDaily: { [iso(31)]: 50000, [iso(0)]: 52704 }, transactions: [],
   } as any);
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   // +3.625% from 40 → 41.45, to two decimals; the unpriced holding refuses rather than guesses
   expect(screen.getAllByText('+3.63%').length).toBeGreaterThan(0);
   expect(screen.getAllByText('—').length).toBeGreaterThan(0);

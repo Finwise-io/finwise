@@ -684,7 +684,7 @@ def _mreg_save():
 _FIGPATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_figures.json')
 DECLARED = json.load(open(_FIGPATH))['figures'] if os.path.exists(_FIGPATH) else {}
 UNIT_WORDS = {'money': 'dollars, whole', 'money-cents': 'dollars, two decimals', 'percent': 'a percentage, whole',
-              'percent-2dp': 'a percentage, two decimals', 'count': 'a count', 'months': 'a number of months',
+              'percent-2dp': 'a percentage, two decimals', 'percent-signed': 'a return with its sign, two decimals', 'count': 'a count', 'months': 'a number of months',
               'age': 'an age in years', 'date': 'a date', 'words': 'a sentence'}
 FAM_OF_TAB = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL','multiple_screens':'XS'}
 def declared_for(tab):

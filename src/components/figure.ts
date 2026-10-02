@@ -52,6 +52,21 @@ function print(id: string, value: number | null, spoken: boolean, withPeriod: bo
 /** The figure as a person reads it — the number alone. Use where the words beside it already say
  *  over what period, as a band heading does ("Take-home each month  $7,200"). */
 export const fig = (id: string, value: number | null): string => print(id, value, false, false);
+/** A FIGURE WHOSE VALUE IS ALREADY A SENTENCE — "3 shares", "2 bonds · face $25,000", "Matures
+ *  30 Sep 2029", "Assets $X − Debts $Y = Net worth $Z".
+ *
+ *  Most figures are a number this module formats. Some are a sentence a function composed, because
+ *  the words and the number cannot be separated: "1 coin" is not "1" with a unit stuck on afterwards,
+ *  it is singular BECAUSE the quantity is one. The function that knows that composes the whole thing.
+ *
+ *  Until 2026-10-01 those figures were printed as plain text, so 16 of the Net worth module's 63
+ *  numbers were on screen with nothing linking them to their row on the master file — and the guard
+ *  that counts untagged figures only looks for dollar amounts, so it reported none missing. This
+ *  records the print with its identifier and hands the sentence back unchanged. */
+export const figWords = (id: string, text: string): string => {
+  PRINTED.push({ id, value: null, text, spoken: false });
+  return text;
+};
 /** The figure with its period after it — "$108,000/year". Use where the number stands on its own.
  *  The wording comes from the declaration, so the canon (cluster 14) is applied once, not remembered. */
 export const figPer = (id: string, value: number | null): string => print(id, value, false, true);

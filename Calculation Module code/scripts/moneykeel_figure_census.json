@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-01",
+ "generated": "2026-10-02",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -1179,11 +1179,7 @@
     },
     {
      "k": "t",
-     "s": "0.0"
-    },
-    {
-     "k": "t",
-     "s": "months"
+     "s": "0.0 months"
     },
     {
      "k": "t",
@@ -1509,11 +1505,7 @@
     },
     {
      "k": "t",
-     "s": "0.0"
-    },
-    {
-     "k": "t",
-     "s": "months"
+     "s": "0.0 months"
     },
     {
      "k": "t",
@@ -1983,11 +1975,7 @@
     },
     {
      "k": "t",
-     "s": "5.7"
-    },
-    {
-     "k": "t",
-     "s": "months"
+     "s": "5.7 months"
     },
     {
      "k": "t",
@@ -2505,11 +2493,7 @@
     },
     {
      "k": "t",
-     "s": "5.7"
-    },
-    {
-     "k": "t",
-     "s": "months"
+     "s": "5.7 months"
     },
     {
      "k": "t",
@@ -2815,11 +2799,7 @@
     },
     {
      "k": "t",
-     "s": "0.0"
-    },
-    {
-     "k": "t",
-     "s": "months"
+     "s": "0.0 months"
     },
     {
      "k": "t",
@@ -3077,11 +3057,7 @@
     },
     {
      "k": "t",
-     "s": "0.0"
-    },
-    {
-     "k": "t",
-     "s": "months"
+     "s": "0.0 months"
     },
     {
      "k": "t",
@@ -16894,7 +16870,7 @@
    ]
   },
   "/account-detail": {
-   "file": "src/screens/AccountDetailScreen.tsx",
+   "file": "src/screens/AccountPortfolioScreen.tsx",
    "worker": [
     {
      "k": "a",
@@ -16933,24 +16909,84 @@
      "s": "ⓘ"
     },
     {
+     "k": "t",
+     "s": "Oct 1, 2026"
+    },
+    {
      "k": "a",
-     "s": "Balance $120,000. Unclassified, pre-tax — taxed when it comes out"
+     "s": "Since today, no figure"
     },
     {
      "k": "t",
-     "s": "THIS ACCOUNT"
+     "s": "Since today"
     },
     {
      "k": "t",
-     "s": "$120,000"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1M, no figure"
     },
     {
      "k": "t",
-     "s": "$120,000"
+     "s": "1M"
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "This year, no figure"
+    },
+    {
+     "k": "t",
+     "s": "This year"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "1Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "2Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "2Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "SUMMARY · SINCE TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -16962,7 +16998,7 @@
     },
     {
      "k": "t",
-     "s": "—"
+     "s": "$0"
     },
     {
      "k": "t",
@@ -16974,7 +17010,163 @@
     },
     {
      "k": "t",
-     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Retirement (Traditional) has no activity records — dividends and interest here are only what you enter."
+    },
+    {
+     "k": "t",
+     "s": "HOW TODAY'S VALUE STANDS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $120,000"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$120,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
+     "k": "t",
+     "s": "Contributions"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
+     "k": "t",
+     "s": "Withdrawals"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
+     "k": "t",
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value today, $120,000"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value ("
+    },
+    {
+     "k": "t",
+     "s": "today"
+    },
+    {
+     "k": "t",
+     "s": ")"
+    },
+    {
+     "k": "t",
+     "s": "$120,000"
+    },
+    {
+     "k": "t",
+     "s": "Every line fills in as days pass — the structure never changes."
+    },
+    {
+     "k": "a",
+     "s": "Retirement (Traditional) Retirement (Traditional), $120,000. Opens its holdings."
+    },
+    {
+     "k": "t",
+     "s": "▸"
+    },
+    {
+     "k": "t",
+     "s": "Retirement (Traditional)"
+    },
+    {
+     "k": "t",
+     "s": "Retirement (Traditional)"
+    },
+    {
+     "k": "t",
+     "s": "$120,000"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "By hand · you update it"
+    },
+    {
+     "k": "t",
+     "s": "· wealth generated $0 since today"
     },
     {
      "k": "t",
@@ -17127,24 +17319,84 @@
      "s": "Updated Sep 12, 5:00 AM"
     },
     {
+     "k": "t",
+     "s": "Oct 1, 2026"
+    },
+    {
      "k": "a",
-     "s": "Balance $300,000. Stocks / Funds, taxable"
+     "s": "Since today, no figure"
     },
     {
      "k": "t",
-     "s": "THIS ACCOUNT"
+     "s": "Since today"
     },
     {
      "k": "t",
-     "s": "$300,000"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1M, no figure"
     },
     {
      "k": "t",
-     "s": "$300,000"
+     "s": "1M"
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "This year, no figure"
+    },
+    {
+     "k": "t",
+     "s": "This year"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "1Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "2Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "2Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "SUMMARY · SINCE TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -17156,7 +17408,7 @@
     },
     {
      "k": "t",
-     "s": "—"
+     "s": "$0"
     },
     {
      "k": "t",
@@ -17168,7 +17420,163 @@
     },
     {
      "k": "t",
-     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Vanguard hasn't shared any activity records yet — its income lines stay empty rather than showing a false $0."
+    },
+    {
+     "k": "t",
+     "s": "HOW TODAY'S VALUE STANDS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $300,000"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
+     "k": "t",
+     "s": "Contributions"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
+     "k": "t",
+     "s": "Withdrawals"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
+     "k": "t",
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value today, $300,000"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value ("
+    },
+    {
+     "k": "t",
+     "s": "today"
+    },
+    {
+     "k": "t",
+     "s": ")"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
+    },
+    {
+     "k": "t",
+     "s": "Every line fills in as days pass — the structure never changes."
+    },
+    {
+     "k": "a",
+     "s": "Vanguard Brokerage, $300,000. Opens its holdings."
+    },
+    {
+     "k": "t",
+     "s": "▸"
+    },
+    {
+     "k": "t",
+     "s": "Vanguard"
+    },
+    {
+     "k": "t",
+     "s": "Brokerage"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "Linked · 19 days old"
+    },
+    {
+     "k": "t",
+     "s": "· wealth generated $0 since today"
     },
     {
      "k": "t",
@@ -17409,24 +17817,84 @@
      "s": "Updated Sep 12, 5:00 AM"
     },
     {
+     "k": "t",
+     "s": "Oct 1, 2026"
+    },
+    {
      "k": "a",
-     "s": "Balance $300,000. Stocks / Funds, taxable"
+     "s": "Since today, no figure"
     },
     {
      "k": "t",
-     "s": "THIS ACCOUNT"
+     "s": "Since today"
     },
     {
      "k": "t",
-     "s": "$300,000"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1M, no figure"
     },
     {
      "k": "t",
-     "s": "$300,000"
+     "s": "1M"
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "This year, no figure"
+    },
+    {
+     "k": "t",
+     "s": "This year"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "1Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "2Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "2Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "SUMMARY · SINCE TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -17438,7 +17906,7 @@
     },
     {
      "k": "t",
-     "s": "—"
+     "s": "$0"
     },
     {
      "k": "t",
@@ -17450,7 +17918,163 @@
     },
     {
      "k": "t",
-     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Vanguard hasn't shared any activity records yet — its income lines stay empty rather than showing a false $0."
+    },
+    {
+     "k": "t",
+     "s": "HOW TODAY'S VALUE STANDS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $300,000"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
+     "k": "t",
+     "s": "Contributions"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
+     "k": "t",
+     "s": "Withdrawals"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
+     "k": "t",
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value today, $300,000"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value ("
+    },
+    {
+     "k": "t",
+     "s": "today"
+    },
+    {
+     "k": "t",
+     "s": ")"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
+    },
+    {
+     "k": "t",
+     "s": "Every line fills in as days pass — the structure never changes."
+    },
+    {
+     "k": "a",
+     "s": "Vanguard Brokerage, $300,000. Opens its holdings."
+    },
+    {
+     "k": "t",
+     "s": "▸"
+    },
+    {
+     "k": "t",
+     "s": "Vanguard"
+    },
+    {
+     "k": "t",
+     "s": "Brokerage"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "Linked · 19 days old"
+    },
+    {
+     "k": "t",
+     "s": "· wealth generated $0 since today"
     },
     {
      "k": "t",
@@ -17687,24 +18311,84 @@
      "s": "ⓘ"
     },
     {
+     "k": "t",
+     "s": "Oct 1, 2026"
+    },
+    {
      "k": "a",
-     "s": "Balance $20,000. Cash, taxable"
+     "s": "Since today, no figure"
     },
     {
      "k": "t",
-     "s": "THIS ACCOUNT"
+     "s": "Since today"
     },
     {
      "k": "t",
-     "s": "$20,000"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1M, no figure"
     },
     {
      "k": "t",
-     "s": "$20,000"
+     "s": "1M"
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "This year, no figure"
+    },
+    {
+     "k": "t",
+     "s": "This year"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "1Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "2Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "2Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "SUMMARY · SINCE TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -17716,7 +18400,7 @@
     },
     {
      "k": "t",
-     "s": "—"
+     "s": "$0"
     },
     {
      "k": "t",
@@ -17728,7 +18412,163 @@
     },
     {
      "k": "t",
-     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Ally has no activity records — dividends and interest here are only what you enter."
+    },
+    {
+     "k": "t",
+     "s": "HOW TODAY'S VALUE STANDS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $20,000"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
+     "k": "t",
+     "s": "Contributions"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
+     "k": "t",
+     "s": "Withdrawals"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
+     "k": "t",
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value today, $20,000"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value ("
+    },
+    {
+     "k": "t",
+     "s": "today"
+    },
+    {
+     "k": "t",
+     "s": ")"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "t",
+     "s": "Every line fills in as days pass — the structure never changes."
+    },
+    {
+     "k": "a",
+     "s": "Ally Ally Savings, $20,000. Opens its holdings."
+    },
+    {
+     "k": "t",
+     "s": "▸"
+    },
+    {
+     "k": "t",
+     "s": "Ally"
+    },
+    {
+     "k": "t",
+     "s": "Ally Savings"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "By hand · you update it"
+    },
+    {
+     "k": "t",
+     "s": "· wealth generated $0 since today"
     },
     {
      "k": "t",
@@ -17869,24 +18709,84 @@
      "s": "ⓘ"
     },
     {
+     "k": "t",
+     "s": "Oct 1, 2026"
+    },
+    {
      "k": "a",
-     "s": "Balance $400,000. Unclassified, pre-tax — taxed when it comes out"
+     "s": "Since today, no figure"
     },
     {
      "k": "t",
-     "s": "THIS ACCOUNT"
+     "s": "Since today"
     },
     {
      "k": "t",
-     "s": "$400,000"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1M, no figure"
     },
     {
      "k": "t",
-     "s": "$400,000"
+     "s": "1M"
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "This year, no figure"
+    },
+    {
+     "k": "t",
+     "s": "This year"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "1Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "2Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "2Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "SUMMARY · SINCE TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -17898,7 +18798,7 @@
     },
     {
      "k": "t",
-     "s": "—"
+     "s": "$0"
     },
     {
      "k": "t",
@@ -17910,7 +18810,163 @@
     },
     {
      "k": "t",
-     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Fidelity has no activity records — dividends and interest here are only what you enter."
+    },
+    {
+     "k": "t",
+     "s": "HOW TODAY'S VALUE STANDS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $400,000"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$400,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
+     "k": "t",
+     "s": "Contributions"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
+     "k": "t",
+     "s": "Withdrawals"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
+     "k": "t",
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value today, $400,000"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value ("
+    },
+    {
+     "k": "t",
+     "s": "today"
+    },
+    {
+     "k": "t",
+     "s": ")"
+    },
+    {
+     "k": "t",
+     "s": "$400,000"
+    },
+    {
+     "k": "t",
+     "s": "Every line fills in as days pass — the structure never changes."
+    },
+    {
+     "k": "a",
+     "s": "Fidelity Traditional IRA, $400,000. Opens its holdings."
+    },
+    {
+     "k": "t",
+     "s": "▸"
+    },
+    {
+     "k": "t",
+     "s": "Fidelity"
+    },
+    {
+     "k": "t",
+     "s": "Traditional IRA"
+    },
+    {
+     "k": "t",
+     "s": "$400,000"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "By hand · you update it"
+    },
+    {
+     "k": "t",
+     "s": "· wealth generated $0 since today"
     },
     {
      "k": "t",
@@ -18059,24 +19115,84 @@
      "s": "ⓘ"
     },
     {
+     "k": "t",
+     "s": "Oct 1, 2026"
+    },
+    {
      "k": "a",
-     "s": "Balance $9,800. Bonds & CDs, taxable"
+     "s": "Since today, no figure"
     },
     {
      "k": "t",
-     "s": "THIS ACCOUNT"
+     "s": "Since today"
     },
     {
      "k": "t",
-     "s": "$9,800"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1M, no figure"
     },
     {
      "k": "t",
-     "s": "$9,800"
+     "s": "1M"
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "This year, no figure"
+    },
+    {
+     "k": "t",
+     "s": "This year"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "1Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "2Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "2Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "SUMMARY · SINCE TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -18088,7 +19204,7 @@
     },
     {
      "k": "t",
-     "s": "—"
+     "s": "$0"
     },
     {
      "k": "t",
@@ -18100,7 +19216,163 @@
     },
     {
      "k": "t",
-     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "TreasuryDirect has no activity records — dividends and interest here are only what you enter."
+    },
+    {
+     "k": "t",
+     "s": "HOW TODAY'S VALUE STANDS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $9,800"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$9,800"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
+     "k": "t",
+     "s": "Contributions"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
+     "k": "t",
+     "s": "Withdrawals"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
+     "k": "t",
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value today, $9,800"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value ("
+    },
+    {
+     "k": "t",
+     "s": "today"
+    },
+    {
+     "k": "t",
+     "s": ")"
+    },
+    {
+     "k": "t",
+     "s": "$9,800"
+    },
+    {
+     "k": "t",
+     "s": "Every line fills in as days pass — the structure never changes."
+    },
+    {
+     "k": "a",
+     "s": "TreasuryDirect Treasury note, $9,800. Opens its holdings."
+    },
+    {
+     "k": "t",
+     "s": "▸"
+    },
+    {
+     "k": "t",
+     "s": "TreasuryDirect"
+    },
+    {
+     "k": "t",
+     "s": "Treasury note"
+    },
+    {
+     "k": "t",
+     "s": "$9,800"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "By hand · you update it"
+    },
+    {
+     "k": "t",
+     "s": "· wealth generated $0 since today"
     },
     {
      "k": "t",
@@ -18409,24 +19681,84 @@
      "s": "ⓘ"
     },
     {
+     "k": "t",
+     "s": "Oct 1, 2026"
+    },
+    {
      "k": "a",
-     "s": "Balance $250,000. Stocks / Funds, taxable"
+     "s": "Since today, no figure"
     },
     {
      "k": "t",
-     "s": "THIS ACCOUNT"
+     "s": "Since today"
     },
     {
      "k": "t",
-     "s": "$250,000"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1M, no figure"
     },
     {
      "k": "t",
-     "s": "$250,000"
+     "s": "1M"
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "This year, no figure"
+    },
+    {
+     "k": "t",
+     "s": "This year"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "1Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "1Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "2Y, no figure"
+    },
+    {
+     "k": "t",
+     "s": "2Y"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "SUMMARY · SINCE TODAY"
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Ending value"
     },
     {
      "k": "t",
@@ -18438,7 +19770,7 @@
     },
     {
      "k": "t",
-     "s": "—"
+     "s": "$0"
     },
     {
      "k": "t",
@@ -18450,7 +19782,163 @@
     },
     {
      "k": "t",
-     "s": "Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+    },
+    {
+     "k": "a",
+     "s": "What is Your money-weighted return?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio has no activity records — dividends and interest here are only what you enter."
+    },
+    {
+     "k": "t",
+     "s": "HOW TODAY'S VALUE STANDS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $250,000"
+    },
+    {
+     "k": "t",
+     "s": "Beginning market value (today)"
+    },
+    {
+     "k": "t",
+     "s": "$250,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
+     "k": "t",
+     "s": "Contributions"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
+     "k": "t",
+     "s": "Withdrawals"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
+     "k": "t",
+     "s": "Wealth generated"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
+     "k": "t",
+     "s": "Dividends"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
+     "k": "t",
+     "s": "Interest"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
+     "k": "t",
+     "s": "Change in investment value"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value today, $250,000"
+    },
+    {
+     "k": "t",
+     "s": "Ending market value ("
+    },
+    {
+     "k": "t",
+     "s": "today"
+    },
+    {
+     "k": "t",
+     "s": ")"
+    },
+    {
+     "k": "t",
+     "s": "$250,000"
+    },
+    {
+     "k": "t",
+     "s": "Every line fills in as days pass — the structure never changes."
+    },
+    {
+     "k": "a",
+     "s": "Savings / portfolio Savings / portfolio, $250,000. Opens its holdings."
+    },
+    {
+     "k": "t",
+     "s": "▸"
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio"
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio"
+    },
+    {
+     "k": "t",
+     "s": "$250,000"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "t",
+     "s": "By hand · you update it"
+    },
+    {
+     "k": "t",
+     "s": "· wealth generated $0 since today"
     },
     {
      "k": "t",
@@ -35973,6 +37461,7 @@
     "MK-NW-M-007",
     "MK-NW-M-009",
     "MK-NW-M-010",
+    "MK-NW-M-013",
     "MK-NW-M-046",
     "MK-NW-M-047",
     "MK-NW-M-048",
@@ -35985,6 +37474,7 @@
     "MK-NW-M-008",
     "MK-NW-M-009",
     "MK-NW-M-010",
+    "MK-NW-M-013",
     "MK-NW-M-046",
     "MK-NW-M-047",
     "MK-NW-M-048",
@@ -35997,6 +37487,7 @@
     "MK-NW-M-007",
     "MK-NW-M-008",
     "MK-NW-M-009",
+    "MK-NW-M-013",
     "MK-NW-M-046",
     "MK-NW-M-048",
     "MK-XS-M-001"
@@ -36012,15 +37503,30 @@
   },
   "/account-detail": {
    "worker": [
-    "MK-NW-M-018"
+    "MK-NW-M-018",
+    "MK-PF-M-003",
+    "MK-PF-M-004",
+    "MK-PF-M-013",
+    "MK-PF-M-014",
+    "MK-PF-M-015"
    ],
    "rich": [
     "MK-NW-M-018",
     "MK-NW-M-020",
-    "MK-NW-M-030"
+    "MK-NW-M-030",
+    "MK-PF-M-003",
+    "MK-PF-M-004",
+    "MK-PF-M-013",
+    "MK-PF-M-014",
+    "MK-PF-M-015"
    ],
    "retiree": [
-    "MK-NW-M-018"
+    "MK-NW-M-018",
+    "MK-PF-M-003",
+    "MK-PF-M-004",
+    "MK-PF-M-013",
+    "MK-PF-M-014",
+    "MK-PF-M-015"
    ]
   },
   "/bonds": {
@@ -36145,6 +37651,7 @@
   "/holding-detail": {
    "rich": [
     "MK-NW-M-030",
+    "MK-NW-M-031",
     "MK-NW-M-032",
     "MK-NW-M-033",
     "MK-NW-M-061"
@@ -36153,7 +37660,7 @@
  },
  "callsites": [
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:70",
+   "site": "MoneyKeel/functions/_figure-spec.ts:71",
    "routes": [
     "/account-detail",
     "/analytics",
@@ -36211,10 +37718,10 @@
     "$45,000",
     "$0"
    ],
-   "renders": 359
+   "renders": 499
   },
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:72",
+   "site": "MoneyKeel/functions/_figure-spec.ts:73",
    "routes": [
     "/holding-detail"
    ],

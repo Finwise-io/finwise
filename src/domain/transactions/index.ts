@@ -89,19 +89,19 @@ export interface Transaction {
  *               MK-ST-F-016 totalOf · MK-ST-F-020 sumSigned
  *               MK-ST-F-022 reconcileAccountTotal · MK-ST-F-029 prune
  *               MK-ST-F-061 isMonthEnd · MK-ST-F-064 modifiedDietzOverWindow
- *               MK-ST-F-073 rebuildDays · MK-XS-F-004 buildDatedGrid
- *               MK-XS-F-005 trendPoints · MK-XS-F-009 readHistory
- *               MK-XS-F-015 importHoldings · MK-XS-F-028 surplusByMonth
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
- *               MK-XS-F-083 fetchPriceSeries · MK-XS-F-094 parseReceiptText
- *               MK-XS-F-102 ingestSync · MK-XS-F-103 confirmWrapper
- *               MK-XS-F-105 mapPosition · MK-XS-F-111 mergeHistoryFrom
- *               MK-XS-F-116 runSnapTradeSync · MK-XS-F-129 findHeaderRow
- *               MK-XS-F-146 prettyExpiry · MK-XS-F-174 recomputeBalances
- *               MK-XS-F-175 uid · MK-XS-F-177 useCategorySpend
- *               MK-XS-F-181 merge
+ *               MK-ST-F-073 rebuildDays · MK-ST-F-078 dateShown
+ *               MK-XS-F-004 buildDatedGrid · MK-XS-F-005 trendPoints
+ *               MK-XS-F-009 readHistory · MK-XS-F-015 importHoldings
+ *               MK-XS-F-028 surplusByMonth · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-058 parseReceipt · MK-XS-F-083 fetchPriceSeries
+ *               MK-XS-F-094 parseReceiptText · MK-XS-F-102 ingestSync
+ *               MK-XS-F-103 confirmWrapper · MK-XS-F-105 mapPosition
+ *               MK-XS-F-111 mergeHistoryFrom · MK-XS-F-116 runSnapTradeSync
+ *               MK-XS-F-129 findHeaderRow · MK-XS-F-146 prettyExpiry
+ *               MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
+ *               MK-XS-F-177 useCategorySpend · MK-XS-F-181 merge
  *
- * Reaches ..... 283 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 284 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-NW-F-079 EF
@@ -111,7 +111,7 @@ export interface Transaction {
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 265 more — the full list is on functions_from_code
+ *               … and 266 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

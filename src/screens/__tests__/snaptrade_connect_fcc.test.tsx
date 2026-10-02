@@ -80,7 +80,7 @@ test('the reconnect (fix) flow goes straight to the portal with the connection i
 // display + lifecycle pins: options itemize on the account page; a broken connection gets the
 // Home fix line; Settings lists connections with Fix/Disconnect.
 describe('display & lifecycle', () => {
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
   const HomeScreen = require('../HomeScreen').default;
 
   test('AccountDetail: BY CATEGORY & HOLDING itemizes options with the counted-inside note (G2 + final mock rename)', () => {
@@ -89,7 +89,7 @@ describe('display & lifecycle', () => {
         option_holdings: [{ label: 'AAPL $220 call · exp Jan 16 2027', contracts: 2, value: 1300 }] }],
     } as any);
     jest.spyOn(require('expo-router'), 'useLocalSearchParams').mockReturnValue({ id: 'st-a1' });
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.getByText('BY CATEGORY & HOLDING')).toBeOnTheScreen();     // final mock rename, 2026-08-04
     expect(screen.getByText('AAPL $220 call · exp Jan 16 2027')).toBeOnTheScreen();
     expect(screen.getByText(/option — 2 contracts/)).toBeOnTheScreen();

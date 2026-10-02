@@ -54,7 +54,7 @@ const savings = (over: any = {}) => ({
 const screens = {
   NW: () => require('../screens/NetWorthScreen').default,
   Home: () => require('../screens/HomeScreen').default,
-  Account: () => require('../screens/AccountDetailScreen').default,
+  Account: () => require('../screens/AccountPortfolioScreen').default,
   Answers: () => require('../screens/PlanHubScreen').default,   // the questions live on the tab (2026-08-12)
   Performance: () => require('../screens/PerformanceScreen').default,
 };

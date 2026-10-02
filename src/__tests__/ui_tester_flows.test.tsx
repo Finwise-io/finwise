@@ -10,7 +10,7 @@ import FirstRunScreen from '../screens/FirstRunScreen';
 import HomeScreen from '../screens/HomeScreen';
 import CashFlowScreen from '../screens/CashFlowScreen';
 import ImportHoldingsScreen from '../screens/ImportHoldingsScreen';
-import AccountDetailScreen from '../screens/AccountDetailScreen';
+import AccountPortfolioScreen from '../screens/AccountPortfolioScreen';
 import NetWorthScreen from '../screens/NetWorthScreen';
 import PerformanceScreen from '../screens/PerformanceScreen';
 import SsTimingScreen from '../screens/SsTimingScreen';
@@ -161,7 +161,7 @@ describe('FLOW 5 · money management: add → drill → move money → hide it a
     nw.unmount();
 
     mockParams = { id: 'chk' };
-    const det = render(<AccountDetailScreen />);
+    const det = render(<AccountPortfolioScreen />);
     // mock v14: a transfer lives behind the contribution-or-withdrawal door
     fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
     fireEvent.press(screen.getByLabelText('Record a transfer for Checking'));
@@ -262,12 +262,12 @@ describe('EDGE 4 · deleting the OTHER side of a transfer must not break history
     (useStore.getState() as any).deleteAsset('sav');
 
     mockParams = { id: 'chk' };
-    const det = render(<AccountDetailScreen />);
+    const det = render(<AccountPortfolioScreen />);
     expect(screen.getByLabelText(/Transfer, minus \$500/)).toBeOnTheScreen();   // history intact, no crash
     det.unmount();
 
     mockParams = { id: 'sav' };
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.getByText('This one lives in your setup answers')).toBeOnTheScreen();   // honest fallback
   });
 });

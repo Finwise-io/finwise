@@ -58,8 +58,8 @@ test('row 5: an undated hand-entered value gets the confirm-it-once nudge', () =
     assetAccounts: [{ asset_id: 'gold', label: 'Gold coins', kind: 'commodities', tax_bucket: 'TAXABLE', balance: 9000 }],
   } as any);
   mockParams = { id: 'gold' };
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText(/Value date unknown — confirm it once/)).toBeOnTheScreen();
 });
 
@@ -86,7 +86,7 @@ test('rows 6-11: the consolidations hold at the source', () => {
   // row 8: one source-wording helper; the inline variants are gone
   expect(read('domain/assets/index.ts')).toMatch(/export function sourceWording/);
   expect(read('screens/NetWorthScreen.tsx')).not.toMatch(/Manual · you update it/);
-  expect(read('screens/AccountDetailScreen.tsx')).toMatch(/sourceWording\(account\)/);
+  expect(read('screens/AccountPortfolioScreen.tsx')).toMatch(/sourceWording\(account\)/);
   // row 9: the RMD schedule grows by the shared step, clamp gone
   expect(read('domain/decumulation/index.ts')).toMatch(/growOneYear\(bal/);
   expect(read('domain/decumulation/index.ts')).not.toMatch(/Math\.min\(0\.12, expReturn/);
@@ -212,7 +212,7 @@ test('the validated colorblind-safe palette is adopted, fixed order, same class 
   expect(nw).toMatch(/\(ClassMarkColors as any\)\[key\]/);
   // the second consumer today is Account detail's WHAT'S-INSIDE section (Invest's grouped list
   // carries no class dots in the approved v7 build — colors-only change, per the mock's own rule)
-  const ad = fs.readFileSync(path.join(__dirname, '..', 'AccountDetailScreen.tsx'), 'utf8');
+  const ad = fs.readFileSync(path.join(__dirname, '..', 'AccountPortfolioScreen.tsx'), 'utf8');
   expect(ad).toMatch(/ClassMarkColors/);
 });
 
@@ -321,8 +321,8 @@ test('matured bond: the dated banner with the three outcomes; paid-out writes th
     (btns ?? []).find((b: any) => b.text === 'Paid out to my bank')?.onPress?.();
   });
   const { fireEvent } = require('@testing-library/react-native');
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText(/⏰ This bond matured Jun 30/)).toBeOnTheScreen();
   // pre-48 audit A8: the three outcomes are VISIBLE on the card (approved mock) — no popup detour
   fireEvent.press(screen.getByLabelText('Paid out to my bank — records the payout'));
@@ -426,8 +426,8 @@ test('B47 finding 7: arriving with ?class= renders the class-only view with the 
     }],
   } as any);
   mockParams = { id: 'vg1', class: 'stocks_etf' };
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText(/IN THIS ACCOUNT/)).toBeOnTheScreen();
   // 2026-08-11: two bare figures read as a mismatch, so the line states the arithmetic instead —
   // this slice, of the account total, and what the remainder is
@@ -694,8 +694,8 @@ test('B48 finding 2: the class-view sum line adds ONLY the viewed class — and 
     }],
   } as any);
   mockParams = { id: 'vg', class: 'bonds' };
-  const AccountDetailScreen = require('../AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   // the bonds slice: ONLY the $5,000 CD in the addition — and it equals the slice total
   expect(screen.getByText(/\$5,000 = \$5,000\./)).toBeOnTheScreen();
   expect(screen.queryByText(/\$30,000 \+ /)).toBeNull();               // the stock row stays OUT of the bonds sum

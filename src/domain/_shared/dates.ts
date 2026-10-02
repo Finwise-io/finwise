@@ -36,3 +36,33 @@
 export function isoLocalDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+/** A DAY WRITTEN THE WAY THE APPROVED SCREENS WRITE IT — "Aug 4, 2026".
+ *
+ *  Performance v17 (approved 2026-10-01) writes every day on its face as month, day, year. The
+ *  Account portfolio screen carried its own copy of this; a screen owning a formatter is a second
+ *  place for the wording to drift, so it lives here and the screen asks for it.
+ */
+const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/* ─ MK-ST-F-078 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * dateShown
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     ''   when iso is missing
+ *     `${MONTH_SHORT[(m or 1) − 1]} ${d}, ${y}`   if y
+ *     ''   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-078
+ * Changed ..... not in git yet (—)
+ */
+export function dateShown(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const [y, m, d] = String(iso).slice(0, 10).split('-').map(Number);
+  return y ? `${MONTH_SHORT[(m || 1) - 1]} ${d}, ${y}` : '';
+}

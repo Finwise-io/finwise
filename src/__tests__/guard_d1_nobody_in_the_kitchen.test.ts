@@ -28,7 +28,6 @@ const BASELINE: Record<string, number> = {
   'src/screens/ImportHoldingsScreen.tsx': 1,
   'src/screens/IncomeDetailScreen.tsx': 2,
   'src/screens/IncomeManagerScreen.tsx': 2,
-  'src/screens/PerformanceScreen.tsx': 1,
   'src/screens/SsTimingScreen.tsx': 1,
   'src/screens/TaxOrganizerScreen.tsx': 2,
 };

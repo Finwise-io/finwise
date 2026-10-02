@@ -13,12 +13,12 @@ const ROOT = path.join(__dirname, '..', '..');
 const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
 test('the two screens that ask the question import the door', () => {
-  expect(read('src/screens/AccountDetailScreen.tsx')).toMatch(/theAccount/);
+  expect(read('src/screens/AccountPortfolioScreen.tsx')).toMatch(/theAccount/);
   expect(read('src/screens/ItemizeScreen.tsx')).toMatch(/itemising/);
 });
 
 test('neither screen works out an account’s income or a holding’s income for itself', () => {
-  for (const rel of ['src/screens/AccountDetailScreen.tsx', 'src/screens/ItemizeScreen.tsx']) {
+  for (const rel of ['src/screens/AccountPortfolioScreen.tsx', 'src/screens/ItemizeScreen.tsx']) {
     const src = read(rel);
     // the door answers both; a screen that filters the ledger for DIVIDEND/INTEREST again is
     // assembling a second answer to a question that already has one

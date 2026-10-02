@@ -375,10 +375,10 @@ test('untickered income is not pinned onto every holding — a CD never shows "d
     ],
   } as any);
   mockParams = { id: 'van' };
-  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   // the whole-account Income figure still counts it — the money is real and is not hidden
-  expect(screen.getByText('$27,694')).toBeOnTheScreen();
+  expect(screen.getAllByText('$27,694').length).toBeGreaterThan(0);   // the balance: trio, account row and Total row
   // …but no holding row claims it, and no CD is ever shown paying dividends
   expect(screen.queryByText(/\$16,907 dividends/)).toBeNull();
   expect(screen.queryByText(/Income: .*dividends/)).toBeNull();
@@ -394,8 +394,8 @@ test('the activity list is newest-first, so recent income is never pushed off th
     transactions: [...many, { id: 'div', account_id: 'van', type: 'DIVIDEND', amount: 250, date: '2026-08-01' }],
   } as any);
   mockParams = { id: 'van' };
-  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText('08-01')).toBeOnTheScreen();        // the 2026 dividend, newest, is visible
   // 2026-08-11: each row now also says WHOSE fact it is — the broker's or yours
   expect(screen.getByLabelText(/2026-08-01: Dividend, plus \$250\. You entered this — editable\./)).toBeOnTheScreen();
@@ -467,8 +467,8 @@ test('the deposit sheet says where the money lands, so nothing is decided silent
     }],
   } as any);
   mockParams = { id: 'van' };
-  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   // mock v14: the deposit sheet opens through the contribution-or-withdrawal door
   fireEvent.press(screen.getByLabelText(/Add a contribution or withdrawal/));
   fireEvent.press(screen.getByLabelText(/Record a deposit/));
@@ -765,8 +765,8 @@ test('a row you entered is marked yours and editable; a broker row says where it
     ],
   } as any);
   mockParams = { id: 'van' };
-  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText('you entered this')).toBeOnTheScreen();
   expect(screen.getByText('from Vanguard')).toBeOnTheScreen();
   // only YOUR row offers the pencil — a broker row would be overwritten by the next sync
@@ -784,8 +784,8 @@ test('correcting your record reverses the old amount and records the new one —
   (useStore.getState() as any).recordTransaction({ account_id: 'sav', type: 'DEPOSIT', amount: 5000, date: '2026-08-01' });
   expect((useStore.getState() as any).assetAccounts[0].balance).toBe(6000);
   mockParams = { id: 'sav' };
-  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   fireEvent.press(screen.getByLabelText(/Edit or delete your deposit/));
   fireEvent.changeText(screen.getByLabelText('Amount'), '500');
   fireEvent.press(screen.getByLabelText('Save this correction'));
@@ -806,8 +806,8 @@ test('the activity door names the DATE the list stops at, not just how many rows
     transactions: many,
   } as any);
   mockParams = { id: 'van' };
-  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
-  render(<AccountDetailScreen />);
+  const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText('14 records')).toBeOnTheScreen();          // the header carries the count
   expect(screen.getByText(/See all activity \(older than \w{3} \d+, \d{4}\)/)).toBeOnTheScreen();
   expect(screen.getByText(/6 more records below this date/)).toBeOnTheScreen();

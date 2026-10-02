@@ -44,7 +44,7 @@ const SCREENS: [string, React.ComponentType<any>][] = [
   ['SsTimingScreen', require('../SsTimingScreen').default],
   ['MonthDetailScreen', require('../MonthDetailScreen').default],
   ['CashFlowScreen', require('../CashFlowScreen').default],
-  ['AccountDetailScreen', require('../AccountDetailScreen').default],
+  ['AccountPortfolioScreen', require('../AccountPortfolioScreen').default],
   ['MultiGoalScreen', require('../MultiGoalScreen').default],
   ['FirstRunScreen', require('../FirstRunScreen').default],
   ['LookBackScreen', require('../LookBackScreen').default],

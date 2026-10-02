@@ -26,6 +26,7 @@ export type FigureUnit =
   | 'money-cents'   // two decimals — prices, per-share figures, a logged expense
   | 'percent'       // a rate held as 0…1, shown as whole percent
   | 'percent-2dp'   // a rate shown to two decimals — returns and yields
+  | 'percent-signed' // a return: its sign always written, two decimals — +16.24%, −0.57%
   | 'count'         // a plain number of things
   | 'months'        // a number of months
   | 'age'           // a number of years of age
@@ -72,6 +73,7 @@ export function writeFigure(spec: FigureSpec, value: number | null, opts?: { spo
     : spec.unit === 'money-cents' ? formatMoneyCents(value)
     : spec.unit === 'percent' ? `${Math.round(value * 100)}%`
     : spec.unit === 'percent-2dp' ? `${(value * 100).toFixed(2)}%`
+    : spec.unit === 'percent-signed' ? `${value < 0 ? '−' : '+'}${Math.abs(value * 100).toFixed(2)}%`
     : spec.unit === 'months' ? `${(Math.round(value * 10) / 10).toFixed(1)} ${value === 1 ? 'month' : 'months'}`
     : spec.unit === 'age' ? `${value}`
     : `${value}`;

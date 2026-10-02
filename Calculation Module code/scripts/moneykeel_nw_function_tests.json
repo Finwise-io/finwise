@@ -4392,23 +4392,16 @@
   "source": "MoneyKeel/functions/networth-and-performance/account.ts",
   "declared": true,
   "tests": [
-   "MoneyKeel/functions/networth-and-performance/account.test.ts"
-  ]
- },
- "MK-NW-F-074": {
-  "source": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts",
-  "declared": true,
-  "tests": [
-   "MoneyKeel/functions/networth-and-performance/emergency-fund.test.ts",
-   "src/__tests__/decisions_are_held.test.ts",
-   "src/__tests__/guard_one_door_emergency_fund.test.ts"
+   "MoneyKeel/functions/networth-and-performance/account.test.ts",
+   "src/__tests__/decisions_are_held.test.ts"
   ]
  },
  "MK-NW-F-075": {
   "source": "MoneyKeel/functions/networth-and-performance/account.ts",
   "declared": true,
   "tests": [
-   "MoneyKeel/functions/networth-and-performance/account.test.ts"
+   "MoneyKeel/functions/networth-and-performance/account.test.ts",
+   "src/__tests__/decisions_are_held.test.ts"
   ]
  },
  "MK-NW-F-076": {

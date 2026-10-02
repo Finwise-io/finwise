@@ -80,12 +80,12 @@ SCREENS = sorted(set(SCREENS) | {
  # owned elsewhere that print one of its figures — Home, Insights and Job safety — because they are
  # still bound by its decisions; they come in through the register below, not through this list.
  # Import holdings and Stress test print no Net worth figure at all and so drop out of both.
- 'networth': {'NetWorthScreen', 'AccountDetailScreen', 'ItemizeScreen', 'HoldingDetailScreen',
+ 'networth': {'NetWorthScreen', 'AccountPortfolioScreen', 'ItemizeScreen', 'HoldingDetailScreen',
               'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'},
  'cashflow': {'CashFlowScreen', 'BudgetScreen', 'MonthDetailScreen', 'IncomeManagerScreen',
               'IncomeDetailScreen', 'IncomeScreen', 'MonthlyIncomeScreen', 'PaycheckMonthsScreen',
               'BillCalendarScreen', 'WorthALookScreen', 'ContributionRoomScreen', 'TaxOrganizerScreen'},
- 'performance': {'PerformanceScreen', 'AccountDetailScreen', 'HoldingDetailScreen', 'LookBackScreen'},
+ 'performance': {'PerformanceScreen', 'AccountPortfolioScreen', 'HoldingDetailScreen', 'LookBackScreen'},
 }.get(MODULE, set()))
 DOORS = 'MoneyKeel/functions/networth-and-performance' if MODULE in ('networth', 'performance') \
         else 'MoneyKeel/functions/' + MODULE
@@ -194,6 +194,15 @@ for _dp, _dn, _fn in os.walk('src'):
             ALL_VIS[os.path.join(_dp, _f)] = visible(read(os.path.join(_dp, _f)) or '')
 
 
+# THE SCREENS THIS MODULE OWNS, as against the ones it merely reads. One list, used by both the scope
+# test and the line that prints the split, so they cannot disagree.
+OWNED = {
+ 'networth': {'NetWorthScreen', 'AccountPortfolioScreen', 'ItemizeScreen', 'HoldingDetailScreen',
+              'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'},
+ 'performance': {'PerformanceScreen', 'AccountPortfolioScreen', 'HoldingDetailScreen', 'LookBackScreen'},
+}.get(MODULE, set())
+
+
 def touches(x):
     """Does this decision GOVERN this module, or merely share a word with it?
 
@@ -209,7 +218,13 @@ def touches(x):
     g = str(x.get('governs', ''))
     if re.search(r'MK-' + FAMILY + r'-[MFOI]-', g):
         return True
-    if any(s in g for s in SCREENS):
+    # ONLY THE SCREENS THIS MODULE OWNS. SCREENS also holds the screens owned elsewhere that print
+    # one of its figures — Home, Insights, Job safety — because their FIGURES must agree. But a
+    # decision about one of those screens in general is that module's, not this one's. Matching on
+    # the whole list pulled in DEC-0267, which governs the vocabulary standard and the Home screen and
+    # nothing here at all, and sent me editing onboarding and cash-flow copy while he had scoped me
+    # to Net worth. His words: *"There is no place surplus is displayed in NW module."*
+    if any(s in g for s in OWNED):
         return True
     door = DOORS.split('/')[-1]
     return bool(door) and door in g
@@ -380,12 +395,9 @@ for x in TODO:
 
 print(f'── does the {MODULE.upper()} module obey his decisions?')
 print(f'   decisions touching it : {len(TODO)}')
-_owned = {
- 'networth': {'NetWorthScreen', 'AccountDetailScreen', 'ItemizeScreen', 'HoldingDetailScreen',
-              'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'}}.get(MODULE, set(SCREENS))
 print(f'   screens read          : {len([p for p in ART if "/screens/" in p])} '
-      f'— {len([s_ for s_ in SCREENS if s_ in _owned])} the module owns, '
-      f'{len([s_ for s_ in SCREENS if s_ not in _owned])} owned elsewhere that print its figures '
+      f'— {len([s_ for s_ in SCREENS if s_ in (OWNED or set(SCREENS))])} the module owns, '
+      f'{len([s_ for s_ in SCREENS if s_ not in (OWNED or set(SCREENS))])} owned elsewhere that print its figures '
       f'and so must obey its decisions')
 print(f'   doors read            : {len([p for p in ART if "/functions/" in p])}')
 print(f'   mocks read            : {len(MOCK_TEXT)}')

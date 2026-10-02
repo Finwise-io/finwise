@@ -189,7 +189,7 @@ test('the holdings list ROUTES to this page — from the account page, where the
   // and Performance no longer tries to.
   const fs = require('fs'); const path = require('path');
   const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-  expect(read('AccountDetailScreen.tsx')).toMatch(/\/holding-detail\?account=/);
+  expect(read('AccountPortfolioScreen.tsx')).toMatch(/\/holding-detail\?account=/);
   expect(read('PerformanceScreen.tsx')).not.toMatch(/\/holding-detail\?account=/);
 });
 

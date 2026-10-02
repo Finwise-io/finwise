@@ -1,22 +1,22 @@
-// Account detail — any class (FCC detailed design v1.1, Net worth sheet). One page per account:
-// the balance, where the number comes from and how fresh it is, what it holds, its full activity
-// history, and the right record-activity buttons for its class. Every recorded action goes through
-// the ONE transactions function (recordTransaction) — balances update by the same tested rules
-// everywhere, and hand-recorded rows are never questioned by the F10 watch (no source field).
+// Account portfolio — ONE screen per account, built to Performance v17 frame 2 (his DEC-0646, 2026-10-01):
+// the five windows across the top, the SUMMARY trio on one row, the value line, this account's own walk,
+// then — in his caption's words — "its holdings, income and activity are v14's, unchanged": what it
+// holds by category, the three record doors, its full activity, and the editors. Every figure comes
+// from one door (MK-NW-O-002 theAccount, MK-NW-O-008 thePerformance); the screen calculates nothing.
 import React, { useMemo, useState } from 'react';
-import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
-import { fig, figSaid } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { periodReturnSince } from '../domain/performance';
-import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
+import { periodReturnSince, buildPerformance, startDateFor, type Period, type Position } from '../domain/performance';
+import { historyCoverage, assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
-import { windowStartKey, rateWhereItRefuses } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, thePerformance, categoryEarnings, pricedGainOf, RATE_STANDS_IN_WORDS } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { ValueGraph } from '../components/ValueGraph';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
@@ -24,17 +24,14 @@ import { modalAnimation } from '../hooks/reducedMotion';
 import TopBar from '../components/TopBar';
 // ONE walk builder and ONE window return for the whole app: the account page calls exactly what the
 // Performance screen calls, so an account's figures and the portfolio's can never disagree.
-import { buildChangeWalk } from '../domain/history';
-import { windowBounds, modifiedDietzOverWindow } from '../../Calculation Module code/engines/window-return';
 import { valueOn } from '../../Calculation Module code/engines/snapshots';
-import { Dec } from '../../Calculation Module code/engines/decimal';
 
 const TAX_WORDS: Record<string, string> = {
   taxable: 'taxable',
   tax_deferred: 'pre-tax — taxed when it comes out',
   tax_free: 'tax-free (Roth)',
 };
-import { isoLocalDate as iso } from '../domain/_shared/dates';
+import { isoLocalDate as iso, dateShown } from '../domain/_shared/dates';
 
 type ActionType = 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'DIVIDEND' | 'INTEREST' | 'COUPON';
 const ACTION_LABEL: Record<ActionType, string> = {
@@ -52,20 +49,26 @@ const INCOME_KINDS: ActionType[] = ['DIVIDEND', 'INTEREST', 'COUPON'];
 const pct2 = (v: number | null): string => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(v * 100).toFixed(2)}%`);
 /** A stated yearly rate, worded the one way the canon allows (cluster 14 spells the period in full). */
 const rateWords = (rate: number): string => `${(rate * 100).toFixed(2)}%/year`;
+const WINDOW_KEYS = ['SINCE', '1M', 'YTD', '1Y', '2Y'] as const;
+const WINDOW_WORDS: Record<string, string> = {
+  '1M': '1M', YTD: 'This year', '1Y': '1Y', '2Y': '2Y',
+};
+/** How the window reads inside a sentence — "since Jun 3, 2024", "this year". */
+const PHRASE: Record<string, string> = {
+  '1M': 'the past month', YTD: 'this year', '1Y': 'the past year', '2Y': 'the past 2 years',
+};
 /** Money as a person reads it — whole dollars, rounded HERE and nowhere earlier, in one place, so two
  *  rows showing the same figure can never round differently. */
 // `mny` is gone (2026-10-01): every figure on this screen prints through its own identifier,
 // so the screen no longer has a money formatter of its own to reach for.
-/** 'Jul 19' — the short day the approved walk prints in its first and its last row. It carries its own
- *  name because MK-ST-F-003 dayWords already words a date the long way ('19 Jul 2026'). */
-const dayShort = (d: string): string => new Date(`${d}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 /** The day after a date. D3 (MK-ST-F-038 windowBounds): a window's beginning value is the close of the
  *  day BEFORE its start — so a window whose beginning IS the daily record's first day opens the day
  *  after it, and the beginning is READ from the record instead of being back-solved. */
 
-export default function AccountDetailScreen() {
+export default function AccountPortfolioScreen() {
   const router = useRouter();
-  const { id, class: classParam } = useLocalSearchParams<{ id?: string; class?: string }>();
+  const { id: idParam, accountId, class: classParam } = useLocalSearchParams<{ id?: string; accountId?: string; class?: string }>();
+  const id = idParam ?? accountId;
   // B47 finding 7 (APPROVED): arriving from a class slice = the class-only view; the whole
   // account is one labeled tap away (clearing the param).
   const classView = classParam && ['stocks_etf', 'bonds', 'cash', 'alternatives'].includes(String(classParam)) ? String(classParam) : null;
@@ -76,6 +79,7 @@ export default function AccountDetailScreen() {
   const [showAll, setShowAll] = useState(false);
   const [valueSheet, setValueSheet] = useState(false);
   const [editRow, setEditRow] = useState<Transaction | null>(null);   // a row YOU entered, opened to correct
+  const [period, setPeriod] = useState<string>('SINCE');               // the window picked across the top (v17 frame 2)
 
   // FOUNDER FINDING 2026-08-11: this was unsorted, and the list below shows only the first eight —
   // so on an account with any history the dividends and interest could be sitting past the cut and
@@ -142,60 +146,77 @@ export default function AccountDetailScreen() {
   };
   const acctIncome = answer.income;
 
-  // ── THE WINDOW ("THIS ACCOUNT · SINCE JUL 19" on the approved mock) ─────────────────────────
-  // This page carries no window picker, so it answers ONE window: since the daily record began —
-  // the same window the Performance screen opens on, read from the same daily record, so the two
-  // screens can never name different windows. The record's first day IS the beginning value, so the
-  // window opens the day after it (MK-NW-F-090 windowStartKey).
+  // ── THE WINDOW (Performance v17 frame 2, his DEC-0646) ─────────────────────────────────────
+  // The same five windows the Performance tab offers, each answered by the ONE door (MK-NW-O-008
+  // thePerformance) — so this account and the portfolio can never name different figures for the
+  // same window. Nothing below is calculated on the screen; it is asked for, once per window.
   const todayKey = iso(new Date());
-  const recordFrom = Object.keys((store.invDaily ?? {}) as Record<string, number>)
-    .filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0] ?? null;
-  // THE DOOR'S OWN RULE (MK-NW-F-090), not this screen's copy of it. This page had it right and the
-  // Performance tab had it wrong — opening ON the record's first day rather than the day after, which
-  // asks the record for a day it does not have (B-115). One function now, so they cannot differ again.
-  const windowStart = recordFrom ? windowStartKey('SINCE', [recordFrom], todayKey) : null;
-  const bounds = windowStart && windowStart <= todayKey ? windowBounds(windowStart, todayKey) : null;
-  // The beginning is READ from the daily record, never back-solved: MK-ST-F-031 valueOn answers
-  // nothing when the record does not reach that far back, and nothing means this page says "—".
-  const beginning = bounds
-    ? valueOn((store.snapshotDays ?? []) as any, new Set([String(account.asset_id)]), bounds.beginningAsOf)
-    : null;
-  const windowLedger = ledger.filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
-  const wFlows = personalFlowTotals(windowLedger);
-  // THE SAME BUILDER the Performance screen uses (MK-XS-F-011 buildChangeWalk), given this account's
-  // own rows — so the account's walk and the portfolio's walk are the same arithmetic, one narrower.
-  const walk = beginning == null || !bounds ? null : buildChangeWalk({
-    beginning, ending: account.balance || 0,
-    fromLabel: `since ${dayShort(bounds.beginningAsOf)}`, toLabel: 'today',
-    contributions: wFlows.contributions.toNumber(2), withdrawals: wFlows.withdrawals.toNumber(2),
-    dividends: wFlows.dividends.toNumber(2), interest: wFlows.interest.toNumber(2),
-  });
-  // THE DEFECT THE FOUNDER FOUND (mock v14, mark 4). This was (balance − cost) / cost — the LIFETIME
-  // return on cost, which disagreed with the walk printed directly beneath it. The header figure is
-  // the WINDOW return now: wealth generated ÷ the money working in the window, from the one function
-  // the Performance screen uses (MK-ST-F-064 modifiedDietzOverWindow). Its numerator IS the walk's
-  // wealth generated (ending − beginning − net flows), so the header and the walk cannot disagree.
-  // A refusal is an answer: rate comes back null and the screen shows "—", never a guess.
-  const acctReturn = beginning == null || !bounds ? null : modifiedDietzOverWindow({
-    beginning: Dec.of(String(beginning)), ending: Dec.of(String(account.balance || 0)),
-    flows: windowLedger
-      .filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
-      .map((t: any) => ({
-        date: String(t.date ?? '').slice(0, 10) || null,
-        amount: (Dec.parse(t.amount) ?? Dec.ZERO).mul(Dec.of(t.type === 'WITHDRAWAL' ? '-1' : '1')),
-      })),
-    start: bounds.start, end: bounds.end,
-  });
-  // MARK 16, approved as mock v17 (2026-09-30): where this account's window return refuses, the EXACT
-  // rate per year stands in its place. Same rule and same function as the Performance tab — it is asked
-  // of THIS account's own window, so the figure answers the period the band above it names.
-  const acctRefusedRate = acctReturn?.rate != null || beginning == null || !bounds ? null
-    : rateWhereItRefuses({ beginning, windowLedger, ending: account.balance || 0,
-                           beginningAsOf: bounds.beginningAsOf, today: todayKey });
-  // mark 18: the trio prints the plain percent; the yearly rate's words live in the note beneath it,
-  // because this page has no window control to carry them
-  const acctReturnText = acctReturn?.rate != null ? pct2(acctReturn.rate)
-    : acctRefusedRate != null ? pct2(acctRefusedRate) : pct2(null);
+  const who = (account.institution || account.label || 'this account').trim();
+  const priceCache = store.priceCache ?? {};
+  const priceOf = (t: string) => priceCache[String(t).trim().toUpperCase()];
+  const positions: Position[] = (account.positions ?? []) as any;
+  const ids = new Set([String(account.asset_id)]);
+  // the whole daily record: the door scopes each day to this account by `investmentAccountIds`
+  const days = ((store as any).snapshotDays ?? []) as any[];
+  /** The first day this account's own records reach back to — what "Since" means here: a day somebody
+   *  recorded a value first; only with no record at all does the first money movement stand in. */
+  const okDay = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d);
+  const recordedDays = days.map((d: any) => String(d.date).slice(0, 10)).filter(okDay).sort();
+  const movedDays = ledger.map((t: any) => String(t.date).slice(0, 10)).filter(okDay).sort();
+  const dataStart: string | null = recordedDays[0] ?? movedDays[0] ?? null;
+  const figuresFor = (p: string) => {
+    // "Since" opens the day after the record's first day (MK-NW-F-090: that day IS the beginning
+    // value); with no record, it opens ON the first day money moved, so that movement counts; with
+    // neither, it is null and the door answers day one.
+    const start = p === 'SINCE'
+      ? (recordedDays.length ? windowStartKey('SINCE', recordedDays, todayKey) : movedDays[0] ?? null)
+      : iso(startDateFor(p as Period, new Date()));
+    const priced = buildPerformance(positions, priceOf, p as Period, new Date(), () => dataStart);
+    return thePerformance({
+      windowStart: start,
+      windowLabel: p === 'SINCE' ? (dataStart ? `since ${dateShown(dataStart)}` : 'since today') : (PHRASE[p] ?? 'this window'),
+      today: todayKey,
+      ending: account.balance || 0,
+      pricedGain: pricedGainOf(priced as any),
+      transactions: ledger,
+      snapshotDays: days,
+      investmentAccountIds: ids,
+    });
+  };  const byWindow: Record<string, ReturnType<typeof figuresFor>> = {};
+  for (const k of WINDOW_KEYS) byWindow[k] = figuresFor(k);
+  const now = byWindow[period];
+  const walk = now?.walk;
+  const windowStart: string | null = now?.windowStart ?? null;
+  /** DAY ONE: nothing recorded and no money moved — the value is real, the return starts today. */
+  const dayOne = !dataStart;
+  /** The day the figures start from, as the drawing writes it: the record's first day. */
+  // read from the record: its first day; from the activity records alone: the first day money moved
+  const since: string | null = recordedDays.length ? (now?.beginningAsOf ?? null) : (movedDays[0] ?? null);
+  const sinceWords = dayOne || !since ? 'today' : dateShown(since);
+  const windowWords = period === 'SINCE' ? `since ${sinceWords}` : (PHRASE[period] ?? 'this window');
+  /** WHAT EACH CATEGORY EARNED — the same door, so a category cannot read differently here. */
+  const cats = categoryEarnings({
+    transactions: ledger,
+    windowStart: now?.windowStart ?? todayKey,
+    rows: buildPerformance(positions, priceOf, period as Period, new Date(), () => dataStart) as any,
+  });  const catsTotal = cats.reduce((n, b) => n + b.earned, 0);
+  /** THE VALUE LINE — this account's worth on each recorded day inside the window, at most 26 points. */
+  const graphPoints: { date: string; value: number }[] = [];
+  if (days.length && now?.windowStart) {
+    const from = now.beginningAsOf ?? now.windowStart!;
+    const inWindow = days.map((d: any) => String(d.date)).filter((d: string) => d >= from).sort();
+    const step = Math.max(1, Math.ceil(inWindow.length / 26));
+    for (let i = 0; i < inWindow.length; i += step) {
+      const v = valueOn(days, ids, inWindow[i]);
+      if (v != null) graphPoints.push({ date: inWindow[i], value: v });
+    }
+    if (account.balance != null) graphPoints.push({ date: todayKey, value: account.balance });
+  }
+  /** How far back this account's own records reach — said only when the window asks for more. */
+  const coverage = historyCoverage(account, now?.windowStart ?? todayKey, new Date());
+  // the Total row of BY CATEGORY & HOLDING carries the account's own return — the window's, from the
+  // door above, never a second method; where the window return refuses, the exact yearly rate stands in
+  const acctReturnText = pct2(now?.ret ?? now?.refusedRate ?? null);
   // ONE string for this account's market value: the band, the trio and the Total row all print it,
   // so three places on one screen can never show three different roundings of the same figure.
   const marketValueText = fig('MK-NW-M-018', account.balance || 0);
@@ -299,7 +320,6 @@ export default function AccountDetailScreen() {
         {updatedLine && <Text style={s.updated}>{updatedLine}</Text>}
       </View>
 
-      {/* B47 finding 7 (APPROVED): the class-only view — the slice you tapped is the question */}
       {classView && breakdown ? (
         <View style={s.card}>
           <SectionBand inCard title={`${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT`} />
@@ -335,54 +355,173 @@ export default function AccountDetailScreen() {
           </View>
         </View>
       ) : (
-      /* The spoken summary names the holdings ONLY when they are not listed below (mock v14 gives
-         them their own card, each row spoken with its own value and return) — reading a summary of a
-         list that is right there made the card the first thing a screen reader, and a test looking
-         for a holding, landed on. */
-      <View style={s.card} accessible
-        accessibilityLabel={`Balance ${figSaid('MK-NW-M-018', account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${insideRows.length === 0 && tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
-        <SectionBand inCard value={marketValueText}
-          title={`THIS ACCOUNT${bounds ? ` · SINCE ${dayShort(bounds.beginningAsOf).toUpperCase()}` : ''}`} />
-        <Text style={s.balance}>{marketValueText}</Text>
-        {/* HEADER TRIO (approved mock v14, second phone): Market value · Wealth generated · Return,
-            in that order. Income left the headline — it sits with the holding that earned it and in
-            this account's own walk below. Wealth generated comes from the walk, and the Return is the
-            walk's own figure over the money working in the window, so the three agree by construction. */}
-        <View style={s.trioRow}>
-          <View style={s.trioCell}><Text style={s.trioLbl}>Market value</Text><Text style={s.trioVal}>{marketValueText}</Text></View>
-          <View style={s.trioCell}><Text style={s.trioLbl}>Wealth generated</Text>
-            <Text style={[s.trioVal, walk != null && walk.wealthGenerated < 0 && { color: Colors.red }]}>
-              {walk == null ? '—' : `${walk.wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(walk.wealthGenerated))}`}
+      <>
+      <Text style={p.sub}>{dateShown(todayKey)}</Text>
+
+      {/* ── THE WINDOW SELECTOR · one control, a rate under each segment ────────────────────── */}
+      <View style={p.segRow}>
+        {WINDOW_KEYS.map((k) => {
+          const on = k === period;
+          // mark 16 (v17): where the window return refuses, the exact rate per year stands in its place
+          const r = byWindow[k]?.ret ?? byWindow[k]?.refusedRate ?? null;
+          const label = k === 'SINCE'
+            ? (dayOne || !since ? 'Since today' : `Since ${dateShown(since)}`)
+            : WINDOW_WORDS[k];
+          return (
+            <TouchableOpacity key={k} accessibilityRole="button" accessibilityState={{ selected: on }}
+              accessibilityLabel={`${label}, ${r == null ? 'no figure' : pct2(r)}`}
+              style={[p.seg, k === 'SINCE' && p.segWide, on && p.segOn]} onPress={() => setPeriod(k)}>
+              <Text numberOfLines={1} style={[p.segK, on && p.segOnT]}>{label}</Text>
+              <Text numberOfLines={1} style={[p.segV, on && p.segOnT]}>
+                {r == null ? '—' : fig('MK-PF-M-016', r)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      {period === '2Y' && (
+        <Text style={p.note}>2Y is shown per year, so it sits fairly beside 1Y</Text>
+      )}
+
+      {/* ── SUMMARY · the trio ON ONE ROW ──────────────────────────────────────────────────── */}
+      <View style={s.card}>
+        <SectionBand inCard title={`SUMMARY · ${windowWords.toUpperCase()}`} infoTerm="moneyWeighted" />
+        <View style={p.trio}>
+          <View style={p.trioCell}>
+            <Text style={p.trioL}>Ending value</Text>
+            <Text style={p.trioV}>{fig('MK-PF-M-004', account.balance || 0)}</Text>
+          </View>
+          <View style={p.trioCell}>
+            <Text style={p.trioL}>Wealth generated</Text>
+            <Text style={p.trioV}>{walk ? fig('MK-PF-M-014', walk.wealthGenerated) : '—'}</Text>
+          </View>
+          <View style={p.trioCell}>
+            <Text style={p.trioL}>Return</Text>
+            <Text style={[p.trioV, (now?.ret ?? now?.refusedRate ?? 0) < 0 && { color: Colors.red }]}>
+              {(now?.ret ?? now?.refusedRate) == null ? '—' : fig('MK-PF-M-016', now?.ret ?? now?.refusedRate ?? null)}
             </Text>
           </View>
-          <View style={s.trioCell}><Text style={s.trioLbl}>Return</Text>
-            <Text style={[s.trioVal, (acctReturn?.rate ?? 0) < 0 && { color: Colors.red }]}>{acctReturnText}</Text>
-          </View>
         </View>
-        {/* A refusal is an answer (D4). When the daily record does not reach back far enough, or WHEN
-            money moved drives the percentage, the two figures above say "—" and this line says why —
-            never a guess dressed as a measurement. */}
-        {(walk == null || acctReturn?.rate == null) && (
-          <Text style={s.trioNote}>
-            {walk == null
+        {/* the return is for the window picked, and is not a yearly rate unless the window is longer
+            than a year — his Q49 ruling, stated on the screen rather than assumed */}
+        <View style={p.noteRow}>
+          <Text style={p.note}>
+            {dayOne
+              /* the drawing's own day-one line (v17, "DAY ONE, A LINKED ACCOUNT") */
+              ? 'Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn\'t see.'
+              : walk == null
+              /* a refusal is an answer (D4): no daily record reaching back, so no beginning — say so */
               ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
-              : acctRefusedRate != null
-                /* mark 16: the rate stands in, so the note says WHAT IT IS rather than why there is none */
-                ? 'Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money.'
-                : acctReturn?.sentence}
+              : now?.refusedRate != null
+              /* mark 16: the rate per year stands in, so the words say what the figure IS */
+              ? RATE_STANDS_IN_WORDS
+              : now?.sentence
+              || (now?.measured == null
+                /* no recorded value on the first day: the beginning is read back from the records, so no return is measured */
+                ? `Your daily record does not reach back to ${sinceWords} yet, so the beginning is read back from your activity records and no return is measured.`
+                : `Return is for the window you picked (${sinceWords} → ${dateShown(todayKey)}) — not a yearly rate · money-weighted`)}
+          </Text>
+          <InfoDot term="moneyWeighted" />
+        </View>
+        {/* where the figures came from, and the first day that source can speak for */}
+        {account.source === 'connected' && dataStart && (
+          <Text style={p.note}>
+            ↺ Rebuilt from {who}&apos;s own records, back to {sinceWords} — the first day it shares.
           </Text>
         )}
-        {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called
-            what it is — "Mixed holdings" — never mislabeled by its single biggest type */}
-        {/* NOTE for the live review: the mock's portfolio header shows the trio only, but this line
-            carries real information (class + tax treatment), so it stays until the founder says drop it. */}
-        <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
-        {account.status && account.status !== 'open' && (
-          <Text style={s.statusBadge}>This account is {account.status} at {account.institution ?? 'the broker'} — kept here so its history stays.</Text>
-        )}
-        {insideRows.length === 0 && tickers.length > 0 && (
-          <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>
-        )}
+        {coverage && <Text style={p.note}>{coverage.sentence}</Text>}
+      </View>
+
+      {/* ── THE VALUE LINE · with its own axis ──────────────────────────────────────────────── */}
+      {graphPoints.length >= 2 && (
+        <View style={[s.card, { paddingHorizontal: 0 }]} testID="account-portfolio-value-line"
+          accessibilityLabel={`Value over the window, ${graphPoints.length} recorded days`}>
+          <ValueGraph points={graphPoints} />
+        </View>
+      )}
+
+      {/* ── THE WALK · how the beginning became the ending ─────────────────────────────────── */}
+      {walk != null && walk.beginning != null && (
+        <View style={s.card}>
+          <SectionBand inCard
+            title={figWords('MK-PF-M-003', dayOne ? "HOW TODAY'S VALUE STANDS"
+              : `HOW ${fig('MK-PF-M-013', walk.beginning)} BECAME ${fig('MK-PF-M-004', walk.ending)}`)} />
+          {([
+            [`Beginning market value (${sinceWords})`, walk.beginning, 'MK-PF-M-013'],
+            ['Contributions', walk.contributions, 'MK-PF-M-015'],
+            ['Withdrawals', -Math.abs(walk.withdrawals), 'MK-PF-M-015'],
+            ['Wealth generated', walk.wealthGenerated, 'MK-PF-M-014'],
+            ['Dividends', walk.dividends, 'MK-PF-M-015'],
+            ['Interest', walk.interest, 'MK-PF-M-015'],
+            ['Change in investment value', walk.marketChange, 'MK-PF-M-015'],
+          ] as [string, number, string][]).map(([label, v, metric]) => (
+            <View key={label} style={p.wRow} accessible
+              accessibilityLabel={`${label}, ${v < 0 ? 'minus ' : ''}${figSaid(metric, Math.abs(v))}`}>
+              <Text style={p.wL}>{label}</Text>
+              <Text style={[p.wV, v < 0 && { color: Colors.red }]}>
+                {v < 0 ? '−' : ''}{fig(metric, Math.abs(v))}
+              </Text>
+            </View>
+          ))}
+          <View style={[p.wRow, p.wTotal]} accessible
+            accessibilityLabel={`Ending market value today, ${figSaid('MK-PF-M-004', walk.ending)}`}>
+            <Text style={[p.wL, p.wStrong]}>Ending market value ({dayOne ? 'today' : dateShown(todayKey)})</Text>
+            <Text style={[p.wV, p.wStrong]}>{fig('MK-PF-M-004', walk.ending)}</Text>
+          </View>
+          <Text style={p.note}>
+            {dayOne
+              ? 'Every line fills in as days pass — the structure never changes.'
+              : `Every line here comes from ${who}’s own records. A hand-entered account has no records to rebuild from, so its walk starts the day you entered it.`}
+          </Text>
+        </View>
+      )}
+
+      {/* ── THIS ACCOUNT'S OWN ROW ─────────────────────────────────────────────────────────── */}
+      <TouchableOpacity accessibilityRole="button" style={p.acctRow}
+        accessibilityLabel={`${who} ${account.label}, ${figSaid('MK-PF-M-004', account.balance || 0)}. Opens its holdings.`}
+        onPress={() => router.push(`/holding-detail?account=${account.asset_id}` as any)}>
+        <Text style={p.acctName} numberOfLines={1}>▸ {who} {account.label}</Text>
+        <Text style={p.acctV}>{fig('MK-PF-M-004', account.balance || 0)}</Text>
+        <Text style={p.chev}>›</Text>
+      </TouchableOpacity>
+      <Text style={p.acctSub}>
+        {sourceWording(account)}{walk ? ` · wealth generated ${fig('MK-PF-M-014', walk.wealthGenerated)} ${windowWords}` : ''}
+      </Text>
+      {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called what it
+          is — "Mixed holdings" — and its tax treatment is said beside it. v17 frame 2 is drawn for the
+          portfolio, where there is no one treatment to name; on one account the line keeps its home. */}
+      <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
+
+      {/* ── WHAT EACH CATEGORY EARNED ──────────────────────────────────────────────────────── */}
+      {cats.length > 0 && (
+        <View style={s.card}>
+          <SectionBand inCard title="WHAT EACH CATEGORY EARNED" value={windowWords} />
+          <View style={p.catHead}>
+            <Text style={p.catHeadL}>CATEGORY</Text>
+            <Text style={[p.catHeadR, p.colEarned]}>EARNED</Text>
+            <Text style={[p.catHeadR, p.colReturn]}>RETURN</Text>
+          </View>
+          {cats.map((b) => (
+            <View key={b.label} style={p.catRow} accessible
+              accessibilityLabel={`${b.label}, earned ${figSaid('MK-NW-M-019', b.earned)}, return ${b.ret == null ? 'no figure' : pct2(b.ret)}`}>
+              <Text style={p.catL} numberOfLines={1}>{b.label}</Text>
+              <Text style={[p.catV, p.colEarned]}>{fig('MK-NW-M-019', b.earned)}</Text>
+              <Text style={[p.catV, p.colReturn]}>{b.ret == null ? '—' : pct2(b.ret)}</Text>
+            </View>
+          ))}
+          <View style={[p.catRow, p.wTotal]}>
+            <Text style={[p.catL, p.wStrong]}>All categories</Text>
+            <Text style={[p.catV, p.colEarned, p.wStrong]}>{fig('MK-NW-M-019', catsTotal)}</Text>
+            <Text style={[p.catV, p.colReturn]} />
+          </View>
+          <View style={p.noteRow}>
+            <Text style={p.note}>
+              Earned = dividends + interest received in this window
+            </Text>
+            <InfoDot term="benchmark" />
+          </View>
+        </View>
+      )}
         {/* THE WAY INTO ITEMIZE, and the only one (2026-10-01).
             The Itemize screen had no door in any approved design: the Net worth mock v08 does not draw
             one, and the approved Account portfolio (Performance v17 frame 2) has no Edit button — so
@@ -404,58 +543,7 @@ export default function AccountDetailScreen() {
               what it actually holds and the total stays {fig('MK-NW-M-018', account.balance || 0)}.</Text>
           </TouchableOpacity>
         )}
-      </View>
-      )}
-
-      {/* THIS ACCOUNT'S OWN WALK (approved mock v14, second phone) — a card of its own, directly
-          under the header trio and above BY CATEGORY & HOLDING. Contributions and withdrawals live
-          HERE, per account, and the rows reach the ending value exactly because the SAME builder the
-          Performance screen uses makes the residual the change in investment value. */}
-      {!classView && walk != null && bounds != null && (
-        <View style={s.card}>
-          <SectionBand inCard title={`HOW ${fig('MK-PF-M-013', walk.beginning)} BECAME ${fig('MK-PF-M-004', walk.ending)} · THIS ACCOUNT`} />
-          {[
-            { l: `Beginning market value (${dayShort(bounds.beginningAsOf)})`, v: walk.beginning },
-            { l: 'Contributions', v: walk.contributions },
-            { l: 'Withdrawals', v: -walk.withdrawals },
-            { l: 'Wealth generated', v: walk.wealthGenerated, strong: true },
-            { l: 'Dividends', v: walk.dividends, indent: true },
-            { l: 'Interest', v: walk.interest, indent: true },
-            { l: 'Change in investment value', v: walk.marketChange, indent: true },
-          ].map((r) => (
-            /* "Every line opens the rows behind it" (the mock's own words): a walk line is a summary
-               of ledger rows, so tapping one opens this account's full activity list below — the place
-               a wrong number is actually fixed. */
-            <TouchableOpacity key={r.l} style={[s.walkRow, (r as any).indent && { paddingLeft: 20 }]}
-              // a walk line is a 30-point row in the approved drawing; hitSlop carries the tap target
-              // back to the 44 points a finger needs without stretching the card to twice its height
-              hitSlop={{ top: 7, bottom: 7, left: 8, right: 8 }}
-              accessibilityRole="button" onPress={() => setShowAll(true)}
-              accessibilityLabel={`${r.l}, ${r.v < 0 ? 'minus ' : ''}${figSaid('MK-PF-M-015', Math.abs(Math.round(r.v)))}. Opens the activity records behind this walk.`}>
-              <Text style={[s.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
-              <Text style={[s.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
-                {r.v < 0 ? '−' : ''}{fig('MK-PF-M-015', Math.abs(r.v))}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          <View style={[s.walkRow, s.walkTotal]} accessible
-            accessibilityLabel={`Ending market value today, ${figSaid('MK-PF-M-004', Math.round(walk.ending))}`}>
-            <Text style={[s.walkL, { fontWeight: '800' }]}>Ending market value ({dayShort(todayKey)})</Text>
-            <Text style={[s.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig('MK-PF-M-004', walk.ending)}</Text>
-          </View>
-          <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)}
-            accessibilityLabel="Open the activity records behind this walk">
-            <Text style={s.walkNote}>Every line opens the rows behind it ›</Text>
-          </TouchableOpacity>
-          {/* the approved design's note under a LINKED account's walk (mock v14, the rebuilt-history
-              phone): where these lines come from, and why an account without a ledger has none. */}
-          {source === 'connected' && (
-            <Text style={s.txnNote}>
-              Every line here comes from {account.institution?.trim() || 'your broker'}’s own records. An account you
-              entered by hand, or a cash balance, has none — so it starts the day you enter it, and says so.
-            </Text>
-          )}
-        </View>
+      </>
       )}
 
       {/* BY CATEGORY & HOLDING (approved mock v14, second phone) — its own card, with a RETURN column
@@ -604,7 +692,7 @@ export default function AccountDetailScreen() {
       {(cls === 'bonds' || cls === 'alternatives') && <ReportedReturnCard account={account} />}
 
       {/* activity history — the ledger, in plain words with signed effects */}
-      <SectionBand title="ACTIVITY" value={txns.length ? `${txns.length} record${txns.length === 1 ? '' : 's'}` : undefined} />
+      <SectionBand title="ACTIVITY" value={txns.length ? `${fig('MK-NW-M-022', txns.length)} record${txns.length === 1 ? '' : 's'}` : undefined} />
       <View style={s.card}>
         {txns.length === 0 && <Text style={s.empty}>Log a deposit or a buy — your history starts here.</Text>}
         {shown.map((t) => {
@@ -715,10 +803,10 @@ function BondDetail({ account }: { account: AssetAccount }) {
       <View style={s.card}>
         <Text style={s.cardHdr2}>BOND FACTS</Text>
         <FactRow label="Face value" value={fig('MK-NW-M-023', one.face)} />
-        <FactRow label="Interest payments" value={`${(one.couponRate * 100).toFixed(2)}%/year · ${fig('MK-NW-M-056', one.couponPerYear)}/year`} />
-        <FactRow label="Matures" value={matured ? `${one.maturity} (matured)` : `${one.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`} />
-        {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${(one.yieldToMaturity * 100).toFixed(2)}% · estimate`} />}
-        {one.currentYield != null && <FactRow label="Yield on today's value" value={`${(one.currentYield * 100).toFixed(2)}%`} />}
+        <FactRow label="Interest payments" value={figWords('MK-NW-M-024', `${(one.couponRate * 100).toFixed(2)}%/year · ${fig('MK-NW-M-056', one.couponPerYear)}/year`)} />
+        <FactRow label="Matures" value={figWords('MK-NW-M-025', matured ? `${one.maturity} (matured)` : `${one.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`)} />
+        {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${fig('MK-NW-M-026', one.yieldToMaturity)} · estimate`} />}
+        {one.currentYield != null && <FactRow label="Yield on today's value" value={fig('MK-NW-M-027', one.currentYield)} />}
         {!!one.accruedCaveat && <Text style={s.bondNote}>{one.accruedCaveat}</Text>}
       </View>
 
@@ -1135,4 +1223,60 @@ const sh = StyleSheet.create({
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.lg },
   saveTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   deleteLink: { fontSize: 15, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: Spacing.md, minHeight: 44, paddingTop: 12 },
+});
+
+/** The v17 top (frame 2) keeps the styles it was built and diff-tested with. */
+const p = StyleSheet.create({
+  root: { flex: 1, backgroundColor: Colors.bgSecondary },
+  content: { padding: Spacing.lg },
+  topRow: { flexDirection: 'row', alignItems: 'center' },
+  back: { color: Colors.primary, fontSize: 17, fontWeight: '700' },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 6 },
+  sub: { fontSize: 13, color: Colors.textSecondary, marginBottom: Spacing.md },
+
+  // the window selector: one quiet tray, the chosen window lifted onto a white card (mock v14)
+  segRow: {
+    flexDirection: 'row', gap: 3, backgroundColor: Colors.bgTertiary,
+    borderRadius: Radii.md, padding: 3, marginBottom: Spacing.md,
+  },
+  seg: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: Radii.sm, paddingHorizontal: 2 },
+  segWide: { flex: 1.6 },
+  segOn: { backgroundColor: Colors.cardBg },
+  segK: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.3 },
+  segV: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, marginTop: 2, fontVariant: ['tabular-nums'] },
+  segOnT: { color: Colors.primaryDark },
+
+  // the trio on ONE row — his change in v17
+  trio: { flexDirection: 'row', marginTop: Spacing.sm },
+  trioCell: { flex: 1, alignItems: 'center' },
+  trioL: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 },
+  trioV: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 3, fontVariant: ['tabular-nums'] },
+
+  noteRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
+  note: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, marginTop: 6, flexShrink: 1 },
+
+  wRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, gap: 12 },
+  wL: { fontSize: 15, color: Colors.textSecondary, flexShrink: 1 },
+  wV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'], textAlign: 'right' },
+  wTotal: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4 },
+  wStrong: { fontWeight: '800', color: Colors.textPrimary },
+
+  acctRow: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, backgroundColor: Colors.cardBg,
+    borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12,
+  },
+  acctName: { flex: 1, fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  acctV: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  chev: { fontSize: 17, color: Colors.textTertiary },
+  acctSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 4, marginBottom: Spacing.md, paddingHorizontal: Spacing.md },
+
+  catHead: { flexDirection: 'row', alignItems: 'center', paddingTop: Spacing.sm, paddingBottom: 4 },
+  catHeadL: { flex: 1, fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 },
+  catHeadR: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3, textAlign: 'right' },
+  catRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 9 },
+  catL: { flex: 1, fontSize: 15, color: Colors.textPrimary },
+  catV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'], textAlign: 'right' },
+  // ONE right edge for every figure: both columns are fixed width, so nothing shifts (his gap 4)
+  colEarned: { width: 96 },
+  colReturn: { width: 92 },
 });

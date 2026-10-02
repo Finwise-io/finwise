@@ -1226,7 +1226,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           ? <Callout text={`You have about ${money(capMo)}/month for goals`}
               sub={`That's the surplus of your income after taxes, expenses, your 401(k)${investMo > 0 ? `, and the ${money(investMo * 12)}/year you're investing` : ''}. Timelines fund one goal at a time, in this order.`} />
           : investMo > 0
-            ? <Callout warn text="Nothing is left over for these goals right now"
+            ? <Callout warn text="There is no surplus for these goals right now"
                 sub={`Your investing plan (${money(investMo * 12)}/year) uses all your free cash. To fund goals, dial the investing number down — it's the same pot of money.`} />
             : <Callout warn text="No free cash for these goals yet"
                 sub="After taxes, expenses and your 401(k), nothing is left this year. The goals stay on your list — fund them when your cash flow allows." />}
@@ -2353,7 +2353,7 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
     {investMo0 > 0 && (goalCap > 0
       ? <Callout text={`You have about ${money(goalCap)}/month for goals`}
           sub={`What's left of your income after taxes, expenses, your 401(k), and the ${money(investMo0 * 12)}/year you're investing.`} />
-      : <Callout warn text="Nothing is left over for goals right now"
+      : <Callout warn text="There is no surplus for goals right now"
           sub={`Your investing plan (${money(investMo0 * 12)}/year) uses all your free cash — goals here would need that number dialed down. It's one pot of money.`} />)}
     <Card>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.sm }}>

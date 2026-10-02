@@ -4,7 +4,7 @@
 //   the balance shown IS the stored number every total reads (no per-screen recomputation).
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import AccountDetailScreen from '../AccountDetailScreen';
+import AccountPortfolioScreen from '../AccountPortfolioScreen';
 import { useStore } from '../../store/useStore';
 import { valueFreshness } from '../../domain/assets';
 import { isoLocalDate } from '../../domain/_shared/dates';
@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 test('shows the balance, class in plain words, and the by-hand source sentence (walk row 8: one wording)', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText('Chase Checking')).toBeOnTheScreen();
   expect(screen.getByText('By hand · you update it')).toBeOnTheScreen();
   expect(screen.getAllByText('$12,000').length).toBeGreaterThan(0);   // the header trio repeats the value, as the approved mock does
@@ -36,7 +36,7 @@ test('shows the balance, class in plain words, and the by-hand source sentence (
 });
 
 test('recording a deposit moves the BALANCE and the LEDGER together (the one function)', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   // mock v14: the five buttons became three doors — money in/out lives behind the first one, and the
   // kind is chosen inside the sheet it opens. Same recorder, one door instead of three buttons.
   fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
@@ -52,7 +52,7 @@ test('recording a deposit moves the BALANCE and the LEDGER together (the one fun
 });
 
 test('a transfer needs a destination and moves BOTH sides', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   fireEvent.press(screen.getByLabelText('Record a transfer for Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '500');
@@ -67,7 +67,7 @@ test('a transfer needs a destination and moves BOTH sides', () => {
 test('the activity list shows the ledger newest-first in plain words with signed effects', () => {
   useStore.getState().recordTransaction({ type: 'DEPOSIT', account_id: 'chk' as any, amount: 2000, date: '2026-07-01' } as any);
   useStore.getState().recordTransaction({ type: 'WITHDRAWAL', account_id: 'chk' as any, amount: 300, date: '2026-07-05' } as any);
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByLabelText(/2026-07-05: Withdrawal, minus \$300/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/2026-07-01: Deposit, plus \$2,000/)).toBeOnTheScreen();
 });
@@ -75,7 +75,7 @@ test('the activity list shows the ledger newest-first in plain words with signed
 test('a hand-entered value 6+ months old gets the gentle nudge; "Still right" re-stamps today', () => {
   mockParams = { id: 'hme' };
   expect(valueFreshness(HOME_VALUE as any)!.stale).toBe(true);
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText(/months old — still right\?/)).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('Still right — keep the amount and re-stamp today'));
   const a = (useStore.getState() as any).assetAccounts.find((x: any) => x.asset_id === 'hme');
@@ -85,7 +85,7 @@ test('a hand-entered value 6+ months old gets the gentle nudge; "Still right" re
 
 test('Update value re-stamps the as-of date with the new amount', () => {
   mockParams = { id: 'hme' };
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   fireEvent.press(screen.getByLabelText("Update this account's value"));
   fireEvent.changeText(screen.getByLabelText('Current value'), '680000');
   fireEvent.press(screen.getByLabelText('Save the updated value'));
@@ -95,7 +95,7 @@ test('Update value re-stamps the as-of date with the new amount', () => {
 });
 
 test('property accounts get no money-movement doors; cash gets deposit/withdraw/transfer AND interest (savings earns it)', () => {
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   // mock v14: two doors on a cash account — money in/out, and income received. No buy-or-sale door:
   // a savings account holds nothing to buy or sell.
   expect(screen.getByText('Add a contribution or withdrawal ›')).toBeOnTheScreen();
@@ -107,13 +107,13 @@ test('property accounts get no money-movement doors; cash gets deposit/withdraw/
   expect(screen.getByLabelText('Record a transfer for Checking')).toBeOnTheScreen();
   expect(screen.queryByLabelText(/Record a coupon/)).toBeNull();
   mockParams = { id: 'hme' };
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.queryByText('Add a contribution or withdrawal ›')).toBeNull();
 });
 
 test('an unknown id (a pre-seed setup row) gets the honest fallback, not a crash', () => {
   mockParams = { id: 'nope' };
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText('This one lives in your setup answers')).toBeOnTheScreen();
 });
 
@@ -128,7 +128,7 @@ describe('bond and alternative detail sections', () => {
   test('a bond shows its facts, both yields, and the rates-move ESTIMATE (never a prediction)', () => {
     useStore.setState({ assetAccounts: [BOND] } as any);
     mockParams = { id: 'bnd' };
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.getByText('BOND FACTS')).toBeOnTheScreen();
     expect(screen.getByLabelText(/Face value: \$100,000/)).toBeOnTheScreen();
     expect(screen.getByLabelText(/Interest payments: 4.50%\/year · \$4,500\/year/)).toBeOnTheScreen();
@@ -142,7 +142,7 @@ describe('bond and alternative detail sections', () => {
   test('an alternative shows its type, the typical return, the look-back door, and the stale nudge', () => {
     useStore.setState({ assetAccounts: [GOLD] } as any);
     mockParams = { id: 'gld' };
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.getByLabelText(/Typical yearly return for this type/)).toBeOnTheScreen();
     expect(screen.getByLabelText('Look back: what if this had been in the stock market?')).toBeOnTheScreen();
     expect(screen.getByText(/months old — still right\?/)).toBeOnTheScreen();   // Nov 2025 value → stale
@@ -151,7 +151,7 @@ describe('bond and alternative detail sections', () => {
   test('the reported return edits the SAME actual_ttm the Retirement cockpit reads (one field)', () => {
     useStore.setState({ assetAccounts: [GOLD] } as any);
     mockParams = { id: 'gld' };
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.getByText(/not set — projections use the typical return/)).toBeOnTheScreen();
     fireEvent.press(screen.getByLabelText('Add reported return'));
     fireEvent.changeText(screen.getByLabelText(/actual return over the past 12 months/), '2.1');
@@ -163,7 +163,7 @@ describe('bond and alternative detail sections', () => {
   test('a bond FUND (no coupon/face/maturity) shows NO bond math — never a guessed number', () => {
     useStore.setState({ assetAccounts: [{ asset_id: 'bf', label: 'Bond fund', kind: 'fixed_income', tax_bucket: 'TAXABLE', asset_class: 'bonds', balance: 40000 }] } as any);
     mockParams = { id: 'bf' };
-    render(<AccountDetailScreen />);
+    render(<AccountPortfolioScreen />);
     expect(screen.queryByText('BOND FACTS')).toBeNull();
     expect(screen.queryByText('IF INTEREST RATES MOVE')).toBeNull();
   });
@@ -188,7 +188,7 @@ test('class sub-bands with per-holding income, and the income door exists for a 
     ],
   } as any);
   mockParams = { id: 'e1' };
-  render(<AccountDetailScreen />);
+  render(<AccountPortfolioScreen />);
   expect(screen.getByText('BY CATEGORY & HOLDING')).toBeOnTheScreen();
   expect(screen.getByText(/Income: \$120 dividends/)).toBeOnTheScreen();
   expect(screen.getAllByText('Interest').length).toBeGreaterThan(0);

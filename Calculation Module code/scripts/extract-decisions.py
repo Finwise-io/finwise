@@ -359,7 +359,11 @@ def sweep_feedback():
 # confidence plan is looking for, and exactly what was missing when his 2026-09-12 correction lived
 # in one place.
 MARKS_A_DECISION = re.compile(r'founder|he ruled|his ruling|standing order|approved|ruling|decided', re.I)
-QUOTE_IN_PROSE = re.compile('[\u201c"]([^\u201d"]{15,400})[\u201d"]')
+# {0,400} NOT {15,400} (2026-10-01): with a minimum, a quote shorter than it — "as built" — could not
+# match, so its CLOSING mark was read as the next quote's OPENING mark and the sweep recorded the prose
+# between two quotes as his words (DEC-0784, DEC-0785 — both deleted). Short quotes are dropped below.
+QUOTE_IN_PROSE = re.compile('[\u201c"]([^\u201d"]{0,400})[\u201d"]')
+CITES_A_DECISION = re.compile(r'DEC-\d{4}')
 
 def _strip_tags(t):
     t = re.sub(r'<script.*?</script>|<style.*?</style>', ' ', t, flags=re.S | re.I)
@@ -394,6 +398,16 @@ def sweep_prose():
             around = text[max(0, m.start() - 220):m.start()]
             if not MARKS_A_DECISION.search(around):
                 continue                       # a quote with nothing marking it as his is just a quote
+            # A QUOTE FOLLOWED BY ITS DEC ID IS A CITATION of a decision already in this log — the design
+            # record writes (*"his words"*, DEC-0645) on every row — never a new decision (2026-10-01).
+            if CITES_A_DECISION.search(text[m.end():m.end() + 60]) or CITES_A_DECISION.search(words):
+                continue
+            if re.match(r'\d+ of \d+\b', words):
+                continue                       # a coverage line of mine ("161 of 161 documented"), never his words
+            # A DOCUMENT BEING QUOTED — 'step 0 says "…"', 'the standard reads "…"' — is my text, not his
+            # (DEC-0811, deleted 2026-10-01). "The founder said" is not caught: founder is not a document.
+            if re.search(r'\b(step\s*\d+|standard|section|record|file|spec|mock|header|caption|title|row|column|sheet|tab)\s+(says|reads|states|is titled|is named)\s*[:,]?\s*$', around, re.I):
+                continue
             # NOR IS A QUOTE I WROTE OFFERING HIM WORDS TO SAY (2026-09-30). In mock v17 I wrote
             # 'Say "only the whole duration" and it becomes v18' — my own proposed wording, in quotes,
             # inside a sentence inviting him to use it. The sweep recorded it as HIS ruling. A decision

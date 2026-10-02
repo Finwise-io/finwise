@@ -2,18 +2,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
+import { ValueGraph } from '../components/ValueGraph';
 import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { SourceChip } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf, RATE_STANDS_IN_WORDS } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
-import { windowBounds, modifiedDietzOverWindow } from '../../Calculation Module code/engines/window-return';
+import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
-import { valueOn, covers as snapshotCovers } from '../../Calculation Module code/engines/snapshots';
+import { valueOn } from '../../Calculation Module code/engines/snapshots';
 import { Colors, Spacing, Radii, Shadows, ClassMarkColors } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
@@ -334,7 +334,7 @@ export default function PerformanceScreen() {
                     {sentence && refusedRate != null
                       /* mark 16: the refusal sentence is replaced by what the figure IS. A person reading
                          a rate has to be told it is a yearly one, counted from when the money went in. */
-                      ? `Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money.`
+                      ? RATE_STANDS_IN_WORDS
                       : sentence
                         ? sentence
                         : `Return is for the window you picked (${phraseFor(period)}) — not a yearly rate. Money you added never counts as return.`}
@@ -795,58 +795,7 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
   );
 }
 
-/** THE VALUE LINE with a Y AXIS (mock v14 mark 11). A rising line with no figures beside it can
- *  mean $20 or $20,000; four dollar gridlines say which. Every point comes from the daily record,
- *  so the line starts where the record starts and not a day earlier. */
-function ValueGraph({ points, dayOneNote }: { points: { date: string; value: number }[]; dayOneNote?: string }) {
-  const [w, setW] = useState(0);
-  if (points.length < 2) return null;
-  const H = 120, padTop = 10, padBot = 16, gutter = 52;
-  const vals = points.map((p) => p.value);
-  const lo = Math.min(...vals), hi = Math.max(...vals);
-  const ticks = niceTicks(lo, hi, 4);
-  const top = ticks[0], bottom = ticks[ticks.length - 1];
-  const y = (v: number) => padTop + (1 - (v - bottom) / ((top - bottom) || 1)) * (H - padTop - padBot);
-  const x = (i: number) => gutter + (i / (points.length - 1 || 1)) * ((w || 1) - gutter - 4);
-  const path = 'M ' + points.map((p, i) => `${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(' L ');
-  const day = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return (
-    <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)} style={{ paddingHorizontal: Spacing.base, paddingBottom: 10 }}>
-      {w > 0 && (
-        <>
-          <Svg width={w} height={H}>
-            {ticks.map((t) => (
-              <React.Fragment key={t}>
-                <Line x1={gutter} y1={y(t)} x2={w} y2={y(t)} stroke={Colors.border} strokeWidth={1} />
-                <SvgText x={0} y={y(t) + 3} fontSize={11} fill={Colors.textTertiary}>{maskedMoney(t)}</SvgText>
-              </React.Fragment>
-            ))}
-            <Path d={path} stroke={Colors.primary} strokeWidth={2.5} fill="none" />
-          </Svg>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginLeft: gutter }}>
-            <Text style={styles.axisDay}>{day(points[0].date)}</Text>
-            {points.length > 1 ? (
-              <Text style={styles.axisDay}>{day(points[points.length - 1].date)}</Text>
-            ) : !!dayOneNote && <Text style={styles.axisDay}>{dayOneNote}</Text>}
-          </View>
-        </>
-      )}
-    </View>
-  );
-}
-
-/** Round gridline values a person can read — 352,000 rather than 352,404.17. */
-function niceTicks(lo: number, hi: number, count: number): number[] {
-  if (!(hi > lo)) { const v = Math.round(hi); return [v + 1, v, v - 1].slice(0, count); }
-  const rawStep = (hi - lo) / (count - 1);
-  const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((c) => c >= rawStep) ?? 10 * mag;
-  const bottom = Math.floor(lo / step) * step;
-  const out: number[] = [];
-  for (let i = count - 1; i >= 0; i -= 1) out.push(Math.round(bottom + i * step));
-  return out;
-}
-
+// THE VALUE LINE now lives in src/components/ValueGraph.tsx, shared with the Account portfolio screen.
 
 // ───────────────────────── Record a transaction ─────────────────────────
 const TXN_TYPES: { k: TxnType; label: string }[] = [

@@ -35,13 +35,13 @@ function filesUnder(dir: string): string[] {
 
 describe('Itemize has exactly one door, and it is on the Account portfolio', () => {
   it('the Account portfolio opens it', () => {
-    const t = code(read('screens/AccountDetailScreen.tsx'));
+    const t = code(read('screens/AccountPortfolioScreen.tsx'));
     expect(t).toMatch(/router\.push\(`\/itemize\?accountId=\$\{account\.asset_id\}/);
     expect(t).toContain('Itemize into holdings');
   });
 
   it('it shows only when the account holds money with nothing recorded inside it', () => {
-    const t = code(read('screens/AccountDetailScreen.tsx'));
+    const t = code(read('screens/AccountPortfolioScreen.tsx'));
     const at = t.indexOf('itemizeDoor');
     const guard = t.slice(Math.max(0, at - 320), at);
     expect(guard).toContain('insideRows.length === 0');
@@ -56,7 +56,7 @@ describe('Itemize has exactly one door, and it is on the Account portfolio', () 
     expect(files.length).toBeGreaterThanOrEqual(120);
     const doors = files.filter((f) => /\/itemize\?/.test(code(fs.readFileSync(f, 'utf8'))));
     expect(doors.map((f) => path.relative(SRC, f)).sort())
-      .toEqual(['screens/AccountDetailScreen.tsx']);
+      .toEqual(['screens/AccountPortfolioScreen.tsx']);
   });
 
   it('the old door is gone from the Net worth edit sheet', () => {
@@ -68,7 +68,7 @@ describe('Itemize has exactly one door, and it is on the Account portfolio', () 
     // the old path went through Account detail's Edit, whose route forks by class and sends a bonds
     // account to /bonds and an alternatives account to /other-investments — neither of which can
     // itemise. The new door is on the screen itself and does not fork.
-    const t = code(read('screens/AccountDetailScreen.tsx'));
+    const t = code(read('screens/AccountPortfolioScreen.tsx'));
     const at = t.indexOf('itemizeDoor');
     expect(t.slice(Math.max(0, at - 320), at)).not.toContain('cls ===');
   });

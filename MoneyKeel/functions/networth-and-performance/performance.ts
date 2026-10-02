@@ -38,6 +38,8 @@ export interface WindowFigures {
   walk: ChangeWalk;
   /** The beginning as READ from the daily record, or null when the record cannot reach back. */
   measured: number | null;
+  /** The day the beginning value is read for — the record's first day for "since". Null on day one. */
+  beginningAsOf: string | null;
   /** What the window shows: the yearly rate over a year, otherwise the total. Null when it refuses. */
   ret: number | null;
   /** The total over the window, and the yearly rate — both, always, so the screen can label them. */
@@ -176,7 +178,7 @@ export function pricedGainOf(
  *  Null where there is nothing honest to say: no beginning to stand on, or under 30 days, where there
  *  is not enough window to state a yearly rate at all.
  */
-/* ─ MK-NW-F-102 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-102 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * rateWhereItRefuses
  *
  * Answers ..... THE EXACT RATE PER YEAR, FOR ONE WINDOW — what stands in where the window return refuses.
@@ -351,6 +353,64 @@ export function investmentAccountIdsOf(
  * Formula also on the master file · functions_from_code · MK-NW-O-008
  * Changed ..... not in git yet (—)
  */
+/** MARK 16 (Performance v17, approved): where the window return refuses, the exact rate per year stands
+ *  in its place and THESE words say what it is. One sentence, printed by the Performance tab and the
+ *  Account portfolio alike — the test "the same figure, the same words" holds the two together. */
+export const RATE_STANDS_IN_WORDS =
+  'Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money.';
+
+/* ─ MK-NW-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * thePerformance
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     flows = personal flow totals(ledger)
+ *     contributions = flows.contributions.to number(2)
+ *     withdrawals = flows.withdrawals.to number(2)
+ *     dividends = flows.dividends.to number(2)
+ *     interest = flows.interest.to number(2)
+ *     bounds = window bounds(window start, today)   if window start
+ *     nothing   otherwise
+ *     days = input.snapshot days (or none when missing)
+ *     beginning = measured (or ending − input.priced gain − contributions + withdrawals when missing)
+ *     years = bounds.days ÷ 365   if bounds
+ *     0   otherwise
+ *     has basis = measured ≠ nothing (or walk.wealth generated ! = 0 when missing or zero)
+ *     refused = verdict ≠ nothing and verdict.rate = nothing
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *
+ * Serves ...... MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-005 · MK-PF-M-006
+ *               MK-PF-M-007 · MK-PF-M-008 · MK-PF-M-013 · MK-PF-M-014
+ *               MK-PF-M-015 · MK-PF-M-016 · MK-XS-M-004
+ * Reads ....... MK-XS-I-008 transaction amount
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-024 logged expenses
+ * Ruled by .... DEC-0008 · DEC-0015 · DEC-0046 · DEC-0056 · DEC-0063 · DEC-0064
+ *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
+ *               DEC-0126 · DEC-0133 · DEC-0134 · DEC-0135 · DEC-0136 · DEC-0142
+ *               DEC-0143 · DEC-0149 · DEC-0160 · DEC-0165 · DEC-0173 · DEC-0182
+ *               DEC-0185 · DEC-0192 · DEC-0204 · DEC-0229 · DEC-0230 · DEC-0236
+ *               DEC-0255 · DEC-0257 · DEC-0322 · DEC-0323 · DEC-0357 · DEC-0368
+ *               DEC-0382 · DEC-0399 · DEC-0402 · DEC-0445 · DEC-0479 · DEC-0482
+ *               DEC-0490 · DEC-0498
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
+ *
+ * Decides .....
+ *     · Treats a year as 365 days.
+ *     · Shows 2 decimal places.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-O-008
+ * Changed ..... not in git yet (—)
+ */
 export function thePerformance(input: {
   /** The window's first day, or null for "since the record began". */
   windowStart: string | null;
@@ -422,6 +482,10 @@ export function thePerformance(input: {
 
   return {
     windowStart, ledger, walk, measured,
+    /** The day the beginning value is READ for — the record's first day for "since", the day before
+     *  the window opens otherwise. The screen's "Since …" and "Beginning market value (…)" print THIS
+     *  day: Performance v17 writes "Since Jun 3, 2024" beside "Beginning market value (Jun 3, 2024)". */
+    beginningAsOf: bounds ? bounds.beginningAsOf : null,
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
     sentence: refused ? verdict!.sentence : '',
@@ -823,6 +887,29 @@ export const PERFORMANCE_FIGURES = declareFigures({
     ruled: '2026-10-01',
     // money paid in over the window — $6,000 on 1 April
     worked: { given: GIVEN, answer: '$6,000', run: () => PERF().walk.contributions },
+  },
+  // ISSUED AND DECLARED 2026-10-01 (Account portfolio built to Performance v17 frame 2, DEC-0646). The
+  // Return across the top and in the SUMMARY trio printed under MK-PF-M-008, which is the MARKET's
+  // return — a different figure. This is the account's own.
+  'MK-PF-M-016': {
+    label: 'Return', unit: 'percent-signed', screens: ['/account-detail'], grain: 'one account',
+    answers: 'What this one account returned over the window you picked \u2014 wealth generated \u00f7 the money '
+      + 'that was working in it, counting when money moved in or out. Shown per year when the window is '
+      + 'longer than a year.',
+    formula: '(ending \u2212 beginning \u2212 net flows) \u00f7 (beginning + \u03a3 each flow \u00d7 the share of the window it was '
+      + 'invested for) \u2014 Modified Dietz; a window longer than a year is turned into a yearly rate',
+    inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
+    decisions: [
+      'TWO DECIMALS AND ITS SIGN, always (Q49): +6.67%, \u22120.57% \u2014 never +6.7%, never a bare 6.67%.',
+      'WHEN MONEY MOVED WOULD DECIDE THE FIGURE, IT REFUSES (Q52): the screen shows \u2014 and the exact rate '
+      + 'per year stands in its place, with a sentence saying why.',
+      'ONE METHOD WITH THE PORTFOLIO: the same door the Performance tab calls, asked for this one account.',
+    ],
+    refusal: 'Money moved in and out in amounts where WHEN it moved would decide a window return, so none is '
+      + 'shown; the rate per year stands in its place.',
+    ruled: '2026-10-01',
+    // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
+    worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },
   },
   'MK-PF-M-006': {
     label: 'WHAT EACH CATEGORY EARNED — RETURN', unit: 'percent-2dp', screens: ['/invest'],

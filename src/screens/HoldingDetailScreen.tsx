@@ -16,7 +16,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, maskedMoney2, maskedPrice, coinQuantity, spokenMoney } from '../components/useMoney';
 import { theHolding } from '../../MoneyKeel/functions/networth-and-performance/holding';
-import { fig, figSpoken } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { fig, figSpoken, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
 import {
@@ -214,7 +214,7 @@ export default function HoldingDetailScreen() {
                 <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text>
                   <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{fig('MK-NW-M-059', Math.abs(gain))}{roi != null ? ` (${pct(roi)})` : ''}</Text></View>
               )}
-              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String))}</Text></View>
               <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
             </View>
           </>
@@ -224,7 +224,7 @@ export default function HoldingDetailScreen() {
             <Text style={s.big}>{fig('MK-NW-M-030', value)}</Text>
             <Text style={s.metaLine}>⏱ live pricing arrives with the price provider</Text>
             <View style={s.tblTop}>
-              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String))}</Text></View>
               <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
             </View>
             <Text style={s.note}>No market compare, dividends or tax estimate without a live price — sections appear when pricing does. Nothing invented.</Text>

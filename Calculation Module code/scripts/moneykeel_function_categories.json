@@ -789,6 +789,11 @@
   "file": "src/domain/gaps/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "dateShown": {
+  "id": "MK-ST-F-078",
+  "file": "src/domain/_shared/dates.ts",
+  "category": "2 · DISPLAYED"
+ },
  "dayWords": {
   "id": "MK-ST-F-003",
   "file": "Calculation Module code/engines/coverage.ts",
@@ -1787,7 +1792,7 @@
  "modifiedDietzOverWindow": {
   "id": "MK-ST-F-064",
   "file": "Calculation Module code/engines/window-return.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "money": {
   "id": "MK-ST-F-053",
@@ -2297,7 +2302,7 @@
  "rateWhereItRefuses": {
   "id": "MK-NW-F-102",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "readFileString": {
   "id": "MK-XS-F-059",

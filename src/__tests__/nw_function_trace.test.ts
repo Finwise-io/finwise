@@ -98,7 +98,6 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-071', 'MoneyKeel/functions/networth-and-performance/bonds.ts', 'Calculation Module code/probes/bonds-and-freshness.probe.test.ts'],
   ['MK-NW-F-072', 'MoneyKeel/functions/networth-and-performance/bonds.ts', 'Calculation Module code/probes/bonds-and-freshness.probe.test.ts'],
   ['MK-NW-F-073', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/account.test.ts'],
-  ['MK-NW-F-074', 'MoneyKeel/functions/networth-and-performance/emergency-fund.ts', 'MoneyKeel/functions/networth-and-performance/emergency-fund.test.ts'],
   ['MK-NW-F-075', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/account.test.ts'],
   ['MK-NW-F-076', 'MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts', 'MoneyKeel/functions/networth-and-performance/alternatives-outlook.test.ts'],
   ['MK-NW-F-077', 'MoneyKeel/functions/networth-and-performance/bonds.ts', 'Calculation Module code/probes/bonds-and-freshness.probe.test.ts'],
@@ -130,7 +129,9 @@ const FUNCTIONS: [string, string, string][] = [
 
 describe('every Net worth function traces to its proof in one hop (step 3.c)', () => {
   it('the table covers every Net worth function in the code — and says how many', () => {
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(101);
+    // 100, not 101 (2026-10-01): the 101st was a retired MK-NW-F-074 header left above theEmergencyFund's
+    // real one (MK-NW-O-004) — one function counted twice, not a function lost.
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(100);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
   });
 
