@@ -1,6 +1,7 @@
 // "Itemize this account" (Mock C) — decompose a lump-sum account into its real holdings while a meter shows
 // what's still unallocated. On Done we delete the lump and create the holdings (institution inherited); a
 // positive remainder is kept as cash so the account TOTAL never drifts (buildItemizedAccounts).
+import TopBar from '../components/TopBar';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -50,9 +51,12 @@ export default function ItemizeScreen() {
 
   if (!lump) {
     return (
-      <View style={[styles.root, styles.content]}>
+      <View style={styles.root}>
+        <TopBar back />
+        <View style={styles.content}>
         <Text style={styles.h1}>Account not found</Text>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Go back" onPress={() => router.back()}><Text style={styles.link}>← Back</Text></TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -86,10 +90,11 @@ export default function ItemizeScreen() {
   };
 
   return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
     <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.head}>
         <Text style={styles.h1}>Itemize {inst}</Text>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => router.back()}><Text style={styles.close}>✕</Text></TouchableOpacity>
       </View>
       <Text style={styles.sub}>Add what's actually inside. We keep the total at {fig('MK-NW-M-038', lump.balance)} — any leftover stays as cash in {inst}.</Text>
 
@@ -146,6 +151,7 @@ export default function ItemizeScreen() {
       </TouchableOpacity>
       <View style={{ height: 40 }} />
     </ScrollView>
+    </View>
   );
 }
 

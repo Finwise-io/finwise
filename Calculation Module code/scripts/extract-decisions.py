@@ -379,6 +379,21 @@ OFFERED_NOT_SAID = re.compile(
     "|and\\s+it\\s+becomes\\s+v\\d+"
     "|on\\s+your\\s+word|needs?\\s+your\\s+word|waiting\\s+on\\s+you)\\b", re.I)
 
+_APP_COPY_FILES = sorted(glob.glob(os.path.join(ROOT, 'src/screens/*.tsx')) + glob.glob(os.path.join(ROOT, 'src/components/*.tsx'))
+                         + glob.glob(os.path.join(ROOT, 'src/constants/*.ts')))
+def _norm_copy(t):
+    return re.sub(r'[^a-z0-9]+', ' ', t.lower()).strip()
+APP_COPY = set()
+for _f in _APP_COPY_FILES:
+    try:
+        _t = open(_f, encoding='utf8', errors='ignore').read()
+    except Exception:
+        continue
+    for _m in re.finditer(r"(['\"`])((?:(?!\1).){12,300})\1|>([^<>{}]{12,300})<", _t):
+        APP_COPY.add(_norm_copy(_m.group(2) or _m.group(3) or ''))
+if len(APP_COPY) < 500:
+    raise SystemExit(f'the app-copy corpus read only {len(APP_COPY)} strings from {len(_APP_COPY_FILES)} files — the pattern stopped matching')
+
 def sweep_prose():
     paths = (sorted(glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/standards/*.md')))
              + sorted(glob.glob(os.path.join(ROOT, 'MoneyKeel/documents/standards/*.html')))
@@ -396,7 +411,11 @@ def sweep_prose():
         for m in QUOTE_IN_PROSE.finditer(text):
             words = m.group(1).strip()
             around = text[max(0, m.start() - 220):m.start()]
-            if not MARKS_A_DECISION.search(around):
+            # "approved v01" names a design VERSION he approved, not words of his beside it (2026-10-01:
+            # a mock's note "nothing else changed from the approved v01" turned my own caption into DEC-0983)
+            marks = [m for m in MARKS_A_DECISION.finditer(around)
+                     if not re.match(r'approved\s+v\d+', around[m.start():m.start() + 14], re.I)]
+            if not marks:
                 continue                       # a quote with nothing marking it as his is just a quote
             # A QUOTE FOLLOWED BY ITS DEC ID IS A CITATION of a decision already in this log — the design
             # record writes (*"his words"*, DEC-0645) on every row — never a new decision (2026-10-01).
@@ -404,6 +423,11 @@ def sweep_prose():
                 continue
             if re.match(r'\d+ of \d+\b', words):
                 continue                       # a coverage line of mine ("161 of 161 documented"), never his words
+            # APP COPY DRAWN IN A PHONE IS NOT HIS DECISION (2026-10-01): "Itemize this account into holdings"
+            # is a door the app prints, quoted in a mock beside the word "approved". His words are never
+            # a string literal in the screens; the app's own are. One corpus, read once.
+            if _norm_copy(words) in APP_COPY:
+                continue
             # A DOCUMENT BEING QUOTED — 'step 0 says "…"', 'the standard reads "…"' — is my text, not his
             # (DEC-0811, deleted 2026-10-01). "The founder said" is not caught: founder is not a document.
             if re.search(r'\b(step\s*\d+|standard|section|record|file|spec|mock|header|caption|title|row|column|sheet|tab)\s+(says|reads|states|is titled|is named)\s*[:,]?\s*$', around, re.I):

@@ -176,7 +176,8 @@
   "DEC-0013": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (dated, findings, honest, note, balances, fixes, naming, headline, roth, save, manual, checks, build-, flag, snapshot, editors, step, contributions, shared, through, derived, hidden); src/screens/NetWorthScreen.tsx (dated, honest, note, balances, fixes, tappable, headline, roth, save, manual, build-, snapshot, editors, items, step, contributions, shared, sync, through, derived, hidden, banner)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0014": {
    "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
@@ -189,14 +190,16 @@
    "evidence": "searched the figure register"
   },
   "DEC-0016": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (carry, form, open, picked, chips, payment, ledger, round, writes, editors, colors, stamps, pick, editor, stay, doors, banner); src/screens/AccountDetailScreen.tsx (matured, carry, findings, open, facts, chips, call, ledger, round, colors, stamps, separate, stay, doors, banner)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (carry, form, open, picked, chips, payment, ledger, round, writes, editors, colors, stamps, pick, editor, stay, doors, banner); src/screens/AccountPortfolioScreen.tsx (matured, carry, findings, open, facts, chips, call, ledger, round, colors, stamps, separate, stay, doors, banner)",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0017": {
-   "governs": "src/screens/AccountDetailScreen.tsx · src/screens/HomeScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (separate, honestly, decided, hold, honest, root, empty, store, start, ready, stops, draws, banner, until, takes); src/screens/HomeScreen.tsx (as-of, renders, honestly, hold, t-refresh, honest, root, empty, store, start, draws, banner, until, takes, refresh)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/HomeScreen.tsx · app/_layout.tsx (nothing draws until the store is ready)",
+   "why_it_governs_those": "read, 2026-10-01: the refresh banner is Home's and the no-grey-bars rule is the app shell's; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the refresh banner is Home's and the no-grey-bars rule is the app shell's; the account page was matched on shared words"
   },
   "DEC-0018": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/IncomeManagerScreen.tsx",
@@ -216,7 +219,8 @@
   "DEC-0022": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/HoldingDetailScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (decimal, buttons, position, hero, honest, rebuilt, bought, chips, edit, else, headline, lots, graph, header); src/screens/HoldingDetailScreen.tsx (position, hero, grammar, basis, bought, compares, chips, gains, edit, else, lots, graph, header)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0023": {
    "governs": "MK-NW-M-006 · MK-NW-M-005",
@@ -244,9 +248,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0034": {
-   "governs": "src/screens/AccountDetailScreen.tsx · src/domain/insights/index.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (breakdown, builds, tells, else, invest); src/domain/insights/index.ts (goal, invest, insight)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/insights/index.ts",
+   "why_it_governs_those": "read, 2026-10-01: a goal-behind insight and a mock-first note; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; a goal-behind insight and a mock-first note; the account page was matched on shared words"
   },
   "DEC-0036": {
    "governs": "src/domain/decumulation/index.ts rateBandWords · src/screens/PlanHubScreen.tsx · src/screens/RetirementCockpit.tsx (both the verdict sentence and the rate box) · src/components/PaycheckCard.tsx",
@@ -282,7 +287,8 @@
   "DEC-0055": {
    "governs": "src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (app-wide, view, layout, final, blank, sample); src/screens/PlanHubScreen.tsx (view, blank, gauge, sample)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0056": {
    "governs": "MK-XS-M-004",
@@ -295,8 +301,8 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0058": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (included, imply, sits, covers, since-date, depth, reaches, edge, hidden, older, history, sheet, shared); src/screens/AccountDetailScreen.tsx (wealth, sits, generated, reaches, edge, hidden, older, right-hand, history, sheet, share, matters, shared)",
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (included, imply, sits, covers, since-date, depth, reaches, edge, hidden, older, history, sheet, shared); src/screens/AccountPortfolioScreen.tsx (wealth, sits, generated, reaches, edge, hidden, older, right-hand, history, sheet, share, matters, shared)",
    "evidence": "searched every calculation file"
   },
   "DEC-0059": {
@@ -372,12 +378,14 @@
   "DEC-0075": {
    "governs": "src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (round, handoff, hero, beneath, white, audit, headline, vanguard); src/screens/PlanHubScreen.tsx (round, hero, beneath, white, audit, sweep)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0076": {
    "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (today's, print, imply, replace, hero, helper, title, dates, bare, fact, zeros, stamps, alone, first-day); src/screens/PerformanceScreen.tsx (today's, replace, hero, helper, title, dates, zeros, alone, returns)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0077": {
    "governs": "src/screens/NetWorthScreen.tsx · src/screens/RetirementCockpit.tsx",
@@ -440,10 +448,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0090": {
-   "governs": "src/domain/assets/index.ts classPortionLabel (the bonds branch) · src/screens/AccountDetailScreen.tsx · MK-NW-M-021 · MK-NW-M-008",
+   "governs": "src/domain/assets/index.ts classPortionLabel (the bonds branch) · src/screens/AccountPortfolioScreen.tsx · MK-NW-M-021 · MK-NW-M-008",
    "why_it_governs_those": "READ. His ask was to stop repeating the heading and count what is in the account instead. classPortionLabel counts CDs, Treasuries and other bonds separately and builds \"3 CDs & 1 Treasury in this account\" — his own form, with the ampersand he typed.",
    "evidence": "the bonds branch of classPortionLabel in src/domain/assets/index.ts; it already COMPLIED when this validation read it, and the old anchor named only figures, not the function.",
-   "verified_by_reading": "2026-10-01"
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0091": {
    "governs": "MK-NW-M-017",
@@ -461,8 +469,8 @@
    "evidence": "searched the figure register"
   },
   "DEC-0094": {
-   "governs": "src/screens/AccountDetailScreen.tsx · src/domain/assets/index.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (honestly, counted, arithmetic, untickered, ticker, mismatch, bare, eight, newest, none, activity, belongs, account's, history, share, slice, ledger, onto); src/domain/assets/index.ts (honestly, counted, arithmetic, pinned, ticker, guessed, bare, none, activity, belongs, account's, claims, history, share, slice, ledger, vanguard)",
+   "governs": "src/screens/AccountPortfolioScreen.tsx · src/domain/assets/index.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountPortfolioScreen.tsx (honestly, counted, arithmetic, untickered, ticker, mismatch, bare, eight, newest, none, activity, belongs, account's, history, share, slice, ledger, onto); src/domain/assets/index.ts (honestly, counted, arithmetic, pinned, ticker, guessed, bare, none, activity, belongs, account's, claims, history, share, slice, ledger, vanguard)",
    "evidence": "searched every calculation file"
   },
   "DEC-0095": {
@@ -486,9 +494,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0099": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (connect, guard, here, whose, sample, field, route, find, moved, else, import, straight, yours, shared, covers, worse, completeness); src/screens/AccountDetailScreen.tsx (went, takes, here, whose, stops, differently, field, opening, nowhere, route, find, moved, else, import, yours, saving, shared)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (connect, guard, here, whose, sample, field, route, find, moved, else, import, straight, yours, shared, covers, worse, completeness); src/screens/AccountPortfolioScreen.tsx (went, takes, here, whose, stops, differently, field, opening, nowhere, route, find, moved, else, import, yours, saving, shared)",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0100": {
    "governs": "src/domain/assets/index.ts · src/screens/RetirementCockpit.tsx",
@@ -496,9 +505,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0101": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (lists, include, hold, exist, open, give, find, hiding, enter, running, doors, shape, save); src/screens/PlanHubScreen.tsx (separate, include, exist, open, complete, sharpen, running, ones, re-run, shape, save)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; the three-answers screen is the Plan tab — the Net worth screen had been matched on shared words (lists, open, save) and prints no answer of the three",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the three-answers screen is the Plan tab — the Net worth screen had been matched on shared words (lists, open, save) and prints no answer of the three"
   },
   "DEC-0102": {
    "governs": "src/domain/planning/hub.ts · src/screens/NetWorthScreen.tsx",
@@ -517,8 +527,8 @@
    "verified_by_reading": "2026-10-01"
   },
   "DEC-0105": {
-   "governs": "src/components/UI.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/components/UI.tsx (area, scrolling, visible, several, definition, explanation, text, simply, long, away, scrolls, bottom, component, shared); src/screens/AccountDetailScreen.tsx (honest, visible, several, definition, method, text, long, away, bottom, shared)",
+   "governs": "src/components/UI.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/components/UI.tsx (area, scrolling, visible, several, definition, explanation, text, simply, long, away, scrolls, bottom, component, shared); src/screens/AccountPortfolioScreen.tsx (honest, visible, several, definition, method, text, long, away, bottom, shared)",
    "evidence": "searched every calculation file"
   },
   "DEC-0106": {
@@ -529,7 +539,8 @@
   "DEC-0107": {
    "governs": "MK-NW-M-022",
    "why_it_governs_those": "its own words appear in these figures: MK-NW-M-022 (activity, ledger)",
-   "evidence": "searched the figure register"
+   "evidence": "searched the figure register",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0108": {
    "governs": "MK-CF-M-037 · MK-NW-M-027 · MK-NW-M-020 · MK-NW-M-034",
@@ -540,7 +551,7 @@
    "governs": "src/domain/planning/hub.ts oddsLine + oddsTail · src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx · src/screens/CashFlowScreen.tsx · src/components/PlanOutcome.tsx · src/domain/glossary.ts",
    "why_it_governs_those": "READ. Same surface as DEC-0104, which he had to rule on twice three weeks apart because the first fix reached three screens and missed the fourth. That is the whole reason the guard counts files rather than checking the screens someone remembered.",
    "evidence": "src/__tests__/one_wording_for_the_odds.test.ts — reads all of src (floor 120 files), allows only oddsLine/oddsTail and the spoken form, and pins the glossary illustration to the helper character for character.",
-   "verified_by_reading": "2026-10-01"
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0110": {
    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
@@ -563,19 +574,22 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0115": {
-   "governs": "src/screens/PlanHubScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (claimed, moves, pair, lives, inputs, confusing, sandbox, monthly, score, draft, became, copies, facts, whenever, block, nest, save, short, track, outcome, saving, what-ifs, printed, steppers, choices, repeated, derived, gate, sitting); src/screens/NetWorthScreen.tsx (clear, moves, lives, inputs, monthly, projection, planned, save, alone, writes, short, track, printed, choices, repeated, deleted, costs, derived, adding, layer)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; \"inputs on the tab\" is the Plan tab; Net worth was matched on shared words only",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; \"inputs on the tab\" is the Plan tab; Net worth was matched on shared words only"
   },
   "DEC-0116": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (stand, gone, clean, existed, drew, handoff, marks, route, moved, empty, amber, import, caught, entry, onto, shared, separate, doors); src/screens/NetWorthScreen.tsx (connect, stand, labels, choice, gone, guard, sample, handoff, route, moved, empty, amber, import, shared, deleted, doors)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the Plan tab absorbed the plan-answers screen; Net worth and Performance were matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the Plan tab absorbed the plan-answers screen; Net worth and Performance were matched on shared words"
   },
   "DEC-0117": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (coverage, definition, rounded, string, sits, visible, identical, fixes, audit, drawing, rendered, short, colour, rounding, step, seven, lists, printed, gaps, render); src/screens/AccountDetailScreen.tsx (definition, rounded, string, sits, visible, rebuilt, identical, fixes, audit, drawing, call, looking, differ, short, colour, rounding, printed, method, size)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx · src/__tests__/plan_appearance_audit.test.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the line-by-line audit of the Plan tab; Net worth and the account page were matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the line-by-line audit of the Plan tab; Net worth and the account page were matched on shared words"
   },
   "DEC-0118": {
    "governs": "src/screens/RetirementCockpit.tsx · src/screens/PlanHubScreen.tsx",
@@ -583,14 +597,16 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0119": {
-   "governs": "src/screens/PlanHubScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (current, very, exist, waiting, pays, create, longer, brief, assets, confusing, dated, monthly, draft, open, credit, nest, roth, short, seven, saving, promise, beneath, paycheck, default); src/screens/NetWorthScreen.tsx (current, collapsed, exist, applies, pays, create, assets, dated, monthly, open, credit, roth, logged, short, seven, promise, beneath, costs, default)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: his verdict on the Plan screen; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; his verdict on the Plan screen; Net worth was matched on shared words"
   },
   "DEC-0120": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/domain/retirement/index.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (today's, exist, zero, moves, close, monthly, ends, paying, leads, saved, store, payment, whose, fact, flat, roth, logged, alone, included, builds, debts, checking, text, contributions, existing, control, costs, know); src/domain/retirement/index.ts (today's, exist, zero, required, brief, charged, close, monthly, ends, paying, early, payment, whose, flat, extra, runs, simulation, included, schedule, contributions, inflation, clears, house, annual, costs, assumed)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx · src/domain/retirement/index.ts",
+   "why_it_governs_those": "read, 2026-10-01: where each Plan decision row leads; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; where each Plan decision row leads; Net worth was matched on shared words"
   },
   "DEC-0121": {
    "governs": "src/screens/RetirementCockpit.tsx · src/screens/PlanHubScreen.tsx",
@@ -598,14 +614,16 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0122": {
-   "governs": "src/screens/PlanHubScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PlanHubScreen.tsx (whatever, required, brief, dated, sits, points, simply, ordering, drawing, roth, until, principle, position, short, mind, columns, anywhere, sort, reason, withdrawal, draw, hard-coded); src/screens/AccountDetailScreen.tsx (mine, dated, takes, sits, happened, holds, balances, points, drawing, roth, until, position, short, types, else, columns, sort, existing, reason, withdrawal, size)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the order of the Plan decision rows; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the order of the Plan decision rows; the account page was matched on shared words"
   },
   "DEC-0123": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (applied, doesn't, buttons, theme, moves, gone, assets, dated, summary, sits, open, carrying, dollar, note, glance, points, fixes, zeros, structure, roth, until, save, quiet, included, placeholder, handoff, hero, short, portfolio, exact, stale, rulings, hidden, computed, older, filled); src/screens/NetWorthScreen.tsx (collapsed, doesn't, buttons, theme, moves, gone, colourblind, assets, dated, sits, open, dollar, note, glance, points, fixes, zeros, roth, until, save, quiet, included, placeholder, handoff, hero, frame, short, seven, exact, stale, notes, hidden, computed, older, expanded, filled)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the third Plan design handoff; Net worth and Performance were matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the third Plan design handoff; Net worth and Performance were matched on shared words"
   },
   "DEC-0124": {
    "governs": "src/domain/planning/target.ts · src/domain/assets/index.ts",
@@ -613,9 +631,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0125": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (today's, carry, required, pass, honest, note, vanished, glance, half, shape, gives, handoff, hero, short, step, stating, reaches, reached, agreement); src/screens/NetWorthScreen.tsx (today's, carry, pass, ends, honest, note, glance, half, shape, recommendation, handoff, hero, short, step, straight, stating, reaches)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the what-to-do-next line on the Plan tab; Net worth and Performance were matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the what-to-do-next line on the Plan tab; Net worth and Performance were matched on shared words"
   },
   "DEC-0126": {
    "governs": "MK-XS-M-004",
@@ -633,9 +652,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0129": {
-   "governs": "src/screens/AccountDetailScreen.tsx · src/domain/assets/index.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (mine, earns, carry, reverse, reachable, reported, looks, draws, summary, listed, open, call, menu, field, nowhere, foot, route, moved, entry, remove, gets, reason, root, none, landed, invest); src/domain/assets/index.ts (onboarding, claimed, earns, carry, reported, clean, guard, open, naming, call, one-time, field, seven, entry, returns, groups, future, none, landed, invest, worse, verified, fully, insights)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/BigCostsScreen.tsx · src/__tests__/orphan_route_guard.test.ts",
+   "why_it_governs_those": "read, 2026-10-01: the Add-a-big-cost door on the Plan tab; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the Add-a-big-cost door on the Plan tab; the account page was matched on shared words"
   },
   "DEC-0130": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/PlanHubScreen.tsx",
@@ -650,7 +670,8 @@
   "DEC-0132": {
    "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (caps, exist, carry, flagged, clean, here, open, holds, note, audit, sweep, naming, wider, call, totals, defaults, quiet, side, fill, else, seven, defect, pinned, regardless, stale, derived, older); src/screens/NetWorthScreen.tsx (exist, theme, carry, lives, edge, here, open, holds, note, audit, remaining, totals, quiet, full-width, handoff, text, fill, else, seven, title, deleted, stale, derived, older, bands, filled, quieter)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts Exception read on 2026-10-01: Quiet Instrument v08 (approved in full, DEC-0644) draws \"Your retirement plan\" as a filled band with no total — the newer approval stands for that card."
   },
   "DEC-0133": {
    "governs": "MK-XS-M-004",
@@ -683,9 +704,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0139": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/components/PlanInputs.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (apart, alike, moves, lives, guard, primary, saved, note, glance, inset, chips, whose, fact, quiet, stop, colour, text, comment, blank, palette, choices, light, default); src/components/PlanInputs.tsx (tells, wear, matters, draft, trying, primary, saved, note, facts, glance, chips, fact, quiet, colour, text, neutral, blank, choices, light, tint, default)",
-   "evidence": "searched every calculation file"
+   "governs": "src/components/PlanInputs.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the FACT and DRAFT badges of the Plan inputs; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the FACT and DRAFT badges of the Plan inputs; Net worth was matched on shared words"
   },
   "DEC-0140": {
    "governs": "src/screens/PlanHubScreen.tsx · MoneyKeel/functions/cashflow/base-pay.ts",
@@ -708,9 +730,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0144": {
-   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (collapsed, inputs, gone, open, note, drawing, handoff, frame, find, text, view, ruled, stay, worse, expanded); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (claude, brief, open, happened, drawing, handoff, frame, smaller, find, text, ruled, settles, stay, rulings, verified)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the two dials of the Plan tab stay, smaller; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the two dials of the Plan tab stay, smaller; Net worth was matched on shared words"
   },
   "DEC-0145": {
    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
@@ -718,9 +741,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0147": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (today's, closed, leaves, ends, honest, paying, visible, hiding, points, half, roth, until, recommendation, handoff, frame, empty, remove, hidden, computed, render); src/screens/PerformanceScreen.tsx (today's, required, honest, visible, hiding, points, belong, half, roth, until, handoff, empty, remove, withdrawal, rulings, hidden, dollars, computed, render)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the decisions list stays visible on the Plan tab; Net worth and Performance were matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the decisions list stays visible on the Plan tab; Net worth and Performance were matched on shared words"
   },
   "DEC-0148": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
@@ -753,9 +777,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0154": {
-   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (zero, moves, running, broken, print, default, holds, dollar, identical, logged, handoff, find, moved, calculated, rest, control, beneath, largest, costs, directly); MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md (applied, zero, moves, running, brief, requires, engine, holds, dollar, identical, naming, find, moved, calculated, defect, rest, reading, costs, directly, meant)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx · src/__tests__/june_numbers_probe.test.ts",
+   "why_it_governs_those": "read, 2026-10-01: the spend-more row on the Plan tab; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the spend-more row on the Plan tab; Net worth was matched on shared words"
   },
   "DEC-0155": {
    "governs": "src/domain/planning/spendMore.ts · src/screens/PlanHubScreen.tsx",
@@ -818,9 +843,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0167": {
-   "governs": "src/screens/AccountDetailScreen.tsx · src/screens/PlanHubScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (waiting, option, looks, dated, open, facts, biggest, belongs, headline, gives, short, drop, effect, defect, separate, printed, gets, decided, doors, dollars, sitting); src/screens/PlanHubScreen.tsx (become, exist, waiting, audience, dated, open, facts, biggest, belongs, decides, principle, hero, short, defect, separate, printed, dollars, sitting)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the Plan headline carries no door the decisions list opens; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the Plan headline carries no door the decisions list opens; the account page was matched on shared words"
   },
   "DEC-0168": {
    "governs": "src/domain/assets/index.ts · src/domain/glossary.ts",
@@ -913,9 +939,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0190": {
-   "governs": "src/screens/BasePayScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/BasePayScreen.tsx (onboarding, corrected, unreachable, import, block, guided); src/screens/NetWorthScreen.tsx (renders, connect, setup, import, guided, guard)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/FirstRunScreen.tsx · src/screens/BasePayScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the guided setup keeps a signed-in person; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the guided setup keeps a signed-in person; Net worth was matched on shared words"
   },
   "DEC-0191": {
    "governs": "MK-CF-M-037",
@@ -953,9 +980,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0202": {
-   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (apart, renders, frame, writes, setup, step, guided, drift, save, steps, progress); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (renders, writes, setup, remain, base-pay, piece, step, longer, drift, steps, component)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/BasePayScreen.tsx · src/screens/FirstRunScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: the base-pay step IS the base-pay screen; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the base-pay step IS the base-pay screen; Net worth was matched on shared words"
   },
   "DEC-0204": {
    "governs": "MK-NW-M-006 · MK-PF-M-008",
@@ -995,11 +1023,12 @@
   "DEC-0215": {
    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (term, pres, html, import, want, ways-to-add-an-account, moneykeel); src/screens/NetWorthScreen.tsx (connect, term, import, first-day, brokerage, moneykeel)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0216": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (title, moved, size, points); src/screens/AccountDetailScreen.tsx (title, moved, size, points)",
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (title, moved, size, points); src/screens/AccountPortfolioScreen.tsx (title, moved, size, points)",
    "evidence": "searched every calculation file"
   },
   "DEC-0219": {
@@ -1013,8 +1042,8 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0224": {
-   "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/functions/_figure-spec.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (term, went, read-only, through, canon); MoneyKeel/functions/_figure-spec.ts (went, through, canon, carried)",
+   "governs": "src/screens/AccountPortfolioScreen.tsx · MoneyKeel/functions/_figure-spec.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountPortfolioScreen.tsx (term, went, read-only, through, canon); MoneyKeel/functions/_figure-spec.ts (went, through, canon, carried)",
    "evidence": "searched every calculation file"
   },
   "DEC-0225": {
@@ -1045,7 +1074,8 @@
   "DEC-0231": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (radio, corners, counted, buttons, chips, selector, semicircle, shape, radius); src/screens/NetWorthScreen.tsx (app-wide, connect, ends, buttons, rounded, chips, remaining, shape, monthly)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts Read 2026-10-01: the grouping pills and the editor chips are drawn as pills in the approved v08 and v02 mocks — they are chips, not buttons; the rule holds for every button."
   },
   "DEC-0232": {
    "governs": "MK-PF-M-011",
@@ -1058,14 +1088,16 @@
    "evidence": "searched the figure register"
   },
   "DEC-0234": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (rebuild, hand-entered, gets, rebuilt, showed, history, phone); src/screens/AccountDetailScreen.tsx (hand-entered, gets, rebuilt, history, phone)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/assets/index.ts sourceWording · src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; the wording is made in sourceWording, which both screens print; held by decisions_are_held.test.ts",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the wording is made in sourceWording, which both screens print; held by decisions_are_held.test.ts"
   },
   "DEC-0235": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (onto, sits, chosen, width, quiet, inset, white, selector, points, dividers, hidden, tall, segment, radius); src/screens/NetWorthScreen.tsx (sits, width, beneath, holds, quiet, inset, white, points, light, hidden, segment, edges)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0236": {
    "governs": "MK-PF-M-008 · MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-006",
@@ -1078,9 +1110,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0238": {
-   "governs": "src/screens/AccountDetailScreen.tsx · src/screens/PlanHubScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (caps, offers, honest, open, reading, facts, balance, amber, given, eight, whose, stops, save, until, saving); src/screens/PlanHubScreen.tsx (spend-more, simulation, honest, open, ours, facts, balance, amber, whose, save, until, saving)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx · MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
+   "why_it_governs_those": "read, 2026-10-01: the eight Plan questions; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the eight Plan questions; the account page was matched on shared words"
   },
   "DEC-0239": {
    "governs": "src/screens/PerformanceScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
@@ -1105,9 +1138,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0261": {
-   "governs": "MoneyKeel/functions/networth-and-performance/performance.ts · MoneyKeel/functions/networth-and-performance/look-back.ts",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/networth-and-performance/performance.ts (given, derived, unit, units); MoneyKeel/functions/networth-and-performance/look-back.ts (given, partial, unit, units)",
-   "evidence": "searched every calculation file"
+   "governs": "Calculation Module code/scripts/build-moneykeel-master.py (a unit derived by rule says so on its row)",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; a rule about the master file rows, not the performance door; held by check-rulings-in-file.py",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; a rule about the master file rows, not the performance door; held by check-rulings-in-file.py"
   },
   "DEC-0262": {
    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
@@ -1162,7 +1196,8 @@
   "DEC-0285": {
    "governs": "src/domain/glossary.ts · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (explain, debts, balance, payment, types, plainly, loan, monthly); src/screens/NetWorthScreen.tsx (debts, balance, underneath, payment, kinds, plainly, loan, monthly)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0286": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/PerformanceScreen.tsx",
@@ -1180,9 +1215,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0289": {
-   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (applied, others, open, copy, carry, week, labels, weeks, quarter); src/screens/AccountDetailScreen.tsx (applied, others, open, copy, carry, visible, week)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md (applied, others, open, copy, carry, week, labels, weeks, quarter); src/screens/AccountPortfolioScreen.tsx (applied, others, open, copy, carry, visible, week)",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0290": {
    "governs": "src/domain/assets/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md",
@@ -1195,19 +1231,22 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0294": {
-   "governs": "src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (onboarding, pick, center, connect, primary, setup, note, doors, import, center', brokerage, constants, guided, let's); src/screens/NetWorthScreen.tsx (pick, center, connect, primary, setup, note, notes, doors, import, center', brokerage, constants, guided)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/HomeScreen.tsx · src/screens/FirstRunScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: twelve onboarding notes; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; twelve onboarding notes; Net worth was matched on shared words"
   },
   "DEC-0295": {
    "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (safe, projection, promise, guard); src/screens/CashFlowScreen.tsx (withdrawal, projection, promise, guard)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0296": {
-   "governs": "src/domain/income/onboarding.ts · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (known, unknown, empty, filling, input, defaults, default); src/screens/AccountDetailScreen.tsx (reason, unknown, deleted, empty, looks, coupon, default)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/income/onboarding.ts · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/domain/income/onboarding.ts (known, unknown, empty, filling, input, defaults, default); src/screens/AccountPortfolioScreen.tsx (reason, unknown, deleted, empty, looks, coupon, default)",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0297": {
    "governs": "src/screens/HomeScreen.tsx",
@@ -1215,9 +1254,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0299": {
-   "governs": "src/domain/retirement/index.ts · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/retirement/index.ts (separate, house, share, field, brief, fields); src/screens/AccountDetailScreen.tsx (separate, house, share, field, differ, facts)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/assets/index.ts (asset_class — what a thing is) · src/domain/planning/index.ts (liquidSavings — what can be used)",
+   "why_it_governs_those": "read, 2026-10-01: READ, NOT BUILT AS A FIELD: no account carries a liquidity field; what a thing IS is asset_class and what can be used is computed in planning — the two never share a field, which is the rule, but there is no liquidity field to point at. On the tracker.",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; READ, NOT BUILT AS A FIELD: no account carries a liquidity field; what a thing IS is asset_class and what can be used is computed in planning — the two never share a field, which is the rule, but there is no liquidity field to point at. On the tracker."
   },
   "DEC-0300": {
    "governs": "Calculation Module code/engines/decimal.ts · MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md",
@@ -1228,7 +1268,7 @@
    "governs": "src/domain/_shared/freshness.ts (STALE_AFTER_DAYS, daysSince, ageLabel, agoLabel, isStale) · src/domain/assets/index.ts sourceWording · src/services/sync/index.ts connectionFreshness · src/services/marketData.ts priceFreshness · MK-NW-M-003 · MK-NW-M-029",
    "why_it_governs_those": "READ. \"Date only when stale\" needs a definition of stale, and there were three: the price cache at four days, a connection at \"more than three\", and the source chip at none — it printed the day every time, in raw ISO. The thresholds agreed by luck; the words did not, so one age read \"44 days ago\" in one place and \"44 days old\" in another.",
    "evidence": "src/__tests__/source_always_date_only_when_stale.test.ts — walks days 0..10 and asserts the chip, the connection and the price cache call the same age stale, that a fresh account shows no date, that a stale one shows words not a date, and that no other file defines the threshold.",
-   "verified_by_reading": "2026-10-01"
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0302": {
    "governs": "src/screens/RetirementCockpit.tsx · src/domain/retirement/index.ts",
@@ -1278,16 +1318,18 @@
   "DEC-0312": {
    "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (currency, field, deferred, picked, dollars, stored, foreign); src/screens/NetWorthScreen.tsx (currency, field, picked, store, budget, foreign)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0314": {
-   "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/functions/networth-and-performance/performance.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (hand-entered, house, happened, edit, market, yours, marked); MoneyKeel/functions/networth-and-performance/performance.ts (hand-entered, happened, movement, market, booked)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/AccountPortfolioScreen.tsx · MoneyKeel/functions/networth-and-performance/performance.ts",
+   "why_it_governs_those": "its own words appear in these files: src/screens/AccountPortfolioScreen.tsx (hand-entered, house, happened, edit, market, yours, marked); MoneyKeel/functions/networth-and-performance/performance.ts (hand-entered, happened, movement, market, booked)",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0315": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (counted, includes, engines, start, none, beginning, module, close, dietz); src/screens/AccountDetailScreen.tsx (counted, includes, engines, start, none, beginning, boundary, module, close)",
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (counted, includes, engines, start, none, beginning, module, close, dietz); src/screens/AccountPortfolioScreen.tsx (counted, includes, engines, start, none, beginning, boundary, module, close)",
    "evidence": "searched every calculation file"
   },
   "DEC-0316": {
@@ -1298,7 +1340,8 @@
   "DEC-0317": {
    "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (silently, pair, side, stable, flagged, choice, transaction, snaptrade); src/screens/NetWorthScreen.tsx (silently, sync, choose, stable, choice, identity)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against src/domain/transactions/flags.ts reviewTransactions; held by decisions_are_held.test.ts"
   },
   "DEC-0318": {
    "governs": "Calculation Module code/engines/events.ts · src/domain/assets/index.ts",
@@ -1306,9 +1349,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0320": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (sorted, item, debt-to-income, property, trailing, carry, pre-, unclassified, labels, amber, step, inputs, expenses, assets, yours, steps); src/screens/CashFlowScreen.tsx (item, property, carry, pre-, labels, spouse, amber, step, inputs, expenses, ratio, steps)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PlanHubScreen.tsx · src/screens/CashFlowScreen.tsx · src/domain/planning/index.ts",
+   "why_it_governs_those": "read, 2026-10-01: nine Plan and Cash flow rulings; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; nine Plan and Cash flow rulings; Net worth was matched on shared words"
   },
   "DEC-0322": {
    "governs": "MK-NW-M-006 · MK-XS-M-004",
@@ -1333,7 +1377,8 @@
   "DEC-0328": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (checks, hold, stable, reconciliation, ledger); src/screens/NetWorthScreen.tsx (hold, sync, stable, identity, ledger)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0343": {
    "governs": "MK-NW-M-006",
@@ -1351,9 +1396,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0346": {
-   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (however, derived, share, waiting, others, arithmetic, compute, difference); src/screens/AccountDetailScreen.tsx (derived, share, waiting, others, arithmetic, definition, difference)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (however, derived, share, waiting, others, arithmetic, compute, difference); src/screens/AccountPortfolioScreen.tsx (derived, share, waiting, others, arithmetic, definition, difference)",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0347": {
    "governs": "MK-CF-M-037 · MK-NW-M-006",
@@ -1383,7 +1429,8 @@
   "DEC-0354": {
    "governs": "src/screens/HoldingDetailScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
    "why_it_governs_those": "its own words appear in these files: src/screens/HoldingDetailScreen.tsx (main, import, moneykeel, belongs); MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (main, import, moneykeel, belongs)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts Applied 2026-10-01 to Bonds, Other investments, Itemize, Holding detail and Add an account: they drew the navigator's empty or route-name header; now the app bar with ‹ Back (mocks v02)."
   },
   "DEC-0355": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/domain/gaps/index.ts",
@@ -1406,9 +1453,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0362": {
-   "governs": "src/screens/AccountDetailScreen.tsx · src/components/PlanInputs.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (visible, tells, truth, stops); src/components/PlanInputs.tsx (visible, tells, truth, stops)",
-   "evidence": "searched every calculation file"
+   "governs": "src/components/PlanInputs.tsx · MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html",
+   "why_it_governs_those": "read, 2026-10-01: the capped bar on the Plan inputs; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the capped bar on the Plan inputs; the account page was matched on shared words"
   },
   "DEC-0363": {
    "governs": "src/components/PlanOutcome.tsx · src/domain/planning/target.ts",
@@ -1438,12 +1486,14 @@
   "DEC-0370": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (decimal, hero, ratchet, moved, decimals); src/screens/NetWorthScreen.tsx (decimal, hero, moved, decimals, remaining)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0378": {
-   "governs": "src/domain/income/limits.ts · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/income/limits.ts (catch-up, constant, checking, published, entirely, limits, ages, statutory, super); src/screens/NetWorthScreen.tsx (find, checking, deleted, stale, many, given, constants, fallback, stop)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/income/limits.ts · src/__tests__/statutory_constants.test.ts",
+   "why_it_governs_those": "read, 2026-10-01: the IRS and SSA figures; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the IRS and SSA figures; Net worth was matched on shared words"
   },
   "DEC-0382": {
    "governs": "MK-XS-M-004",
@@ -1513,7 +1563,8 @@
   "DEC-0406": {
    "governs": "MK-NW-M-021",
    "why_it_governs_those": "its own words appear in these figures: MK-NW-M-021 (step, finding)",
-   "evidence": "searched the figure register"
+   "evidence": "searched the figure register",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0407": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
@@ -1536,9 +1587,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0413": {
-   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/functions/networth-and-performance/performance.ts",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (august, changelog, began, ledger, rulings, relied, advice); MoneyKeel/functions/networth-and-performance/performance.ts (gave, began, ledger, rulings)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · Calculation Module code/scripts/build-decision-log.py",
+   "why_it_governs_those": "read, 2026-10-01: the decision log replaces the rulings ledger; the performance door was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the decision log replaces the rulings ledger; the performance door was matched on shared words"
   },
   "DEC-0414": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · src/domain/assets/index.ts",
@@ -1556,9 +1608,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0417": {
-   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md (learn, excel, inventory, terms, wrapped, workbook, widths, width, readable, original, future, filter, text, through, format, columns, header, folded, away, frozen, sliver); src/screens/AccountDetailScreen.tsx (width, readable, filter, text, through, columns, header, folded, away)",
-   "evidence": "searched every calculation file"
+   "governs": "Calculation Module code/scripts/xlsx_readable.py",
+   "why_it_governs_those": "read, 2026-10-01: every workbook goes through one formatter; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; every workbook goes through one formatter; the account page was matched on shared words"
   },
   "DEC-0418": {
    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
@@ -1601,14 +1654,16 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0426": {
-   "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
-   "why_it_governs_those": "its own words appear in these files: src/screens/AccountDetailScreen.tsx (gets, drawing, columns, defect, difference); MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (drawing, columns, defect, difference)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "read, 2026-10-01: the two columns of a mock; the account page was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the two columns of a mock; the account page was matched on shared words"
   },
   "DEC-0427": {
-   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (widened, covers, such, writing, drawing, gate, draws, scoped); src/screens/NetWorthScreen.tsx (covers, slipped, drawing, draws)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · Calculation Module code/scripts/check-read-from-approved.py",
+   "why_it_governs_those": "read, 2026-10-01: the start-from-approved rule covers questions too; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the start-from-approved rule covers questions too; Net worth was matched on shared words"
   },
   "DEC-0428": {
    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md",
@@ -1621,9 +1676,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0430": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (title, none, size, points); src/screens/AccountDetailScreen.tsx (title, none, size, points)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (title, none, size, points); src/screens/AccountPortfolioScreen.tsx (title, none, size, points)",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0431": {
    "governs": "MK-CF-M-037",
@@ -1636,9 +1692,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0433": {
-   "governs": "MoneyKeel/functions/networth-and-performance/performance.ts · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
-   "why_it_governs_those": "its own words appear in these files: MoneyKeel/functions/networth-and-performance/performance.ts (called, identifier, rulings, engines); MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md (called, identifier, rulings, engines)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · src/__tests__/one_name_one_function.test.ts",
+   "why_it_governs_those": "read, 2026-10-01: a thing defined thrice is retired to one; the performance door was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; a thing defined thrice is retired to one; the performance door was matched on shared words"
   },
   "DEC-0434": {
    "governs": "src/domain/assets/index.ts · src/screens/BudgetScreen.tsx",
@@ -1646,12 +1703,13 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0436": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (step, through, doors, import, summary, offered); src/screens/NetWorthScreen.tsx (step, through, choice, doors, import, offered)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "read, 2026-10-01: a choice of report form offered to him; Net worth and Performance were matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; a choice of report form offered to him; Net worth and Performance were matched on shared words"
   },
   "DEC-0437": {
-   "governs": "src/domain/assets/index.ts sourceWording · src/screens/AccountDetailScreen.tsx · src/screens/NetWorthScreen.tsx",
+   "governs": "src/domain/assets/index.ts sourceWording · src/screens/AccountPortfolioScreen.tsx · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "READ. The chip is composed in sourceWording and printed on the Net worth row and the account detail header. A hand-entered account returns \"By hand · you update it\" and can never fall through to the linked wording, because the linked branch requires source === 'connected'.",
    "evidence": "src/__tests__/source_always_date_only_when_stale.test.ts — \"a hand-entered account says whose job it is to keep it current\", for both an absent source and an explicit manual one.",
    "verified_by_reading": "2026-10-01"
@@ -1712,9 +1770,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0450": {
-   "governs": "src/screens/FirstRunScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/FirstRunScreen.tsx (field, connect, assets, default); src/screens/NetWorthScreen.tsx (field, connect, assets, default)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/FirstRunScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; \"what's this used for?\" was asked of a first-run field; Net worth was matched on shared words only",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; \"what's this used for?\" was asked of a first-run field; Net worth was matched on shared words only"
   },
   "DEC-0451": {
    "governs": "MK-NW-M-006 · MK-NW-M-020 · MK-NW-M-005",
@@ -1734,7 +1793,8 @@
   "DEC-0454": {
    "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (lump, capture, liabilities, store, many, budget); src/screens/CashFlowScreen.tsx (liabilities, store, many, budget, stored)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0455": {
    "governs": "MK-NW-M-008",
@@ -1742,9 +1802,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0456": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDetailScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (clear, direction, color, market); src/screens/AccountDetailScreen.tsx (correction, color, market, matters)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (clear, direction, color, market); src/screens/AccountPortfolioScreen.tsx (correction, color, market, matters)",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0457": {
    "governs": "src/screens/NetWorthScreen.tsx · src/domain/assets/index.ts",
@@ -1754,7 +1815,8 @@
   "DEC-0458": {
    "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (existing, ahead, hero, benchmark, matching, market); src/screens/NetWorthScreen.tsx (existing, ahead, hero, matching, tappable, market)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0459": {
    "governs": "src/screens/PlanHubScreen.tsx · src/screens/HomeScreen.tsx",
@@ -1807,9 +1869,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0469": {
-   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/functions/networth-and-performance/net-worth.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (minus, trend, mean, headline); MoneyKeel/functions/networth-and-performance/net-worth.ts (minus, trend, mean)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md",
+   "why_it_governs_those": "read, 2026-10-01: an ambiguous description in a specification; Net worth and the net-worth door were matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; an ambiguous description in a specification; Net worth and the net-worth door were matched on shared words"
   },
   "DEC-0470": {
    "governs": "src/domain/glossary.ts · src/domain/assets/index.ts",
@@ -1827,9 +1890,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0473": {
-   "governs": "src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/HomeScreen.tsx (here, ahead, path, assumptions, form, trend, graph, takes); src/screens/NetWorthScreen.tsx (here, ahead, path, assumptions, form, trend, display)",
-   "evidence": "searched every calculation file"
+   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md (a specification says what form a figure takes)",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; a rule for specifications, not a screen; the Home and Net worth files were matched on shared words only",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; a rule for specifications, not a screen; the Home and Net worth files were matched on shared words only"
   },
   "DEC-0474": {
    "governs": "src/screens/BudgetScreen.tsx · src/screens/FirstRunScreen.tsx",
@@ -1864,7 +1928,8 @@
   "DEC-0480": {
    "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (current, etfs, many, priced, grouped, long, alternatives); src/screens/NetWorthScreen.tsx (current, collapse, etfs, many, grouped, alternatives)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0481": {
    "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md",
@@ -1902,9 +1967,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0488": {
-   "governs": "src/screens/NetWorthScreen.tsx · src/domain/glossary.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/NetWorthScreen.tsx (rest, pull, honest, open, daily, choices, checking, credit, truth, cards, connected, layer, explore, shared); src/domain/glossary.ts (rest, foundation, honest, open, daily, checking, finwise, truth, connected, growing, financial, matters)",
-   "evidence": "searched every calculation file"
+   "governs": "src/domain/glossary.ts (netWorth) · src/screens/FirstRunScreen.tsx",
+   "why_it_governs_those": "read, 2026-10-01: his three questions on the foundation layer; Net worth was matched on shared words",
+   "evidence": "searched every calculation file",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; his three questions on the foundation layer; Net worth was matched on shared words"
   },
   "DEC-0489": {
    "governs": "src/screens/HomeScreen.tsx · src/screens/PlanHubScreen.tsx",
@@ -2055,16 +2121,57 @@
    "why_it_governs_those": "HIS QUESTION, ANSWERED BY ME 2026-09-30: Home captures nothing itself — it READS. Everything comes from onboarding, the add-an-account doors, or a linked account, and Home shows net worth, investments and the month. That is why Home has no +Expense button (his DEC-0039)."
   },
   "DEC-0513": {
-   "governs": "the tab bar — Home · Net worth · Performance · Cash flow · Plan · src/app/(tabs)/_layout.tsx",
+   "governs": "the tab bar — Home · Net worth · Performance · Cash flow · Plan · app/(tabs)/_layout.tsx",
    "why_it_governs_those": "his DECISION on the tab names and the five-tab spine: it governs the bottom bar and the route layout that defines it"
   },
   "DEC-0514": {
-   "governs": "the tab bar order — src/app/(tabs)/_layout.tsx",
+   "governs": "the tab bar order — app/(tabs)/_layout.tsx",
    "why_it_governs_those": "his DECISION to order tabs by what each group cares about: it governs the order in the layout"
   },
   "DEC-0515": {
-   "governs": "the tab bar — src/app/(tabs)/_layout.tsx · Settings",
+   "governs": "the tab bar — app/(tabs)/_layout.tsx · Settings",
    "why_it_governs_those": "his DECISION about whether a person can choose which modules sit in the bottom bar. SEARCHED: no such setting exists, so this is UNBUILT — the bar is fixed at five. Saying so is the honest mapping."
+  },
+  "DEC-0280": {
+   "governs": "src/domain/bonds/index.ts accruedInterestCaveat · MoneyKeel/functions/networth-and-performance/bonds.ts rowOf · MK-NW-M-044",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0298": {
+   "governs": "MoneyKeel/functions/networth-and-performance/net-worth.ts NET_WORTH_FIGURES (no tax figure among them)",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0641": {
+   "governs": "MK-NW-M-012 Monthly debt payments · MoneyKeel/functions/networth-and-performance/net-worth.ts theNetWorth (monthlyDebtPayments, monthlyDebtMinimum)",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts and net-worth.test.ts",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts and net-worth.test.ts"
+  },
+  "DEC-0258": {
+   "governs": "Calculation Module code/scripts/build-moneykeel-master.py (the specification tab counts are printed from the build)",
+   "why_it_governs_those": "read, 2026-10-01: 2026-10-01 — read against the screen or door it names during Net worth step 1.b; a rule about the master file, not a screen; held by check-rulings-in-file.py",
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; a rule about the master file, not a screen; held by check-rulings-in-file.py"
+  },
+  "DEC-0332": {
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0644": {
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0646": {
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0647": {
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0648": {
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0650": {
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
+  },
+  "DEC-0651": {
+   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   }
  }
 }

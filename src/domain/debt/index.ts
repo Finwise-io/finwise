@@ -162,6 +162,9 @@ export function requiredPayment(d: Debt): number {
  *               MK-NW-O-003 theNetWorth
  *
  * Serves ...... MK-NW-M-012
+ * Ruled by .... DEC-0641
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-024
  * Changed ..... 2026-07-31 (8428ea8)

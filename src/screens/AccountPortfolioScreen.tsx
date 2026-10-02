@@ -587,7 +587,7 @@ export default function AccountPortfolioScreen() {
                       <Text style={[s.optVal, s.colValW]}>{fig('MK-NW-M-030', rw.value)}</Text>
                       <Text style={[s.optRet, s.colRetW]}>{returnTextFor(rw.cls, rw.value, rw.ticker)}</Text>
                     </TouchableOpacity>
-                    {!!incomeOf(rw) && <Text style={s.incomeLine}>Income: {incomeOf(rw)}</Text>}
+                    {!!incomeOf(rw) && <Text style={s.incomeLine}>{figWords('MK-NW-M-021', `Income: ${incomeOf(rw)}`)}</Text>}
                   </View>
                 ))}
               </View>

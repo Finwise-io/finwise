@@ -205,6 +205,12 @@ export default function RootLayout() {
           {/* the account page carries the app's own MoneyKeel top bar with "‹ Back" (approved
               performance mock v14), so the navigator's header would be a second bar above it */}
           <Stack.Screen name="account-detail" options={{ headerShown: false }} />
+          {/* DEC-0354 (founder, 2026-09-14: "you did not have 'MoneyKeel' at the top which every other screen
+              has"): the Net worth module's pushed screens draw the app's own bar with ‹ Back, as account-detail
+              does — never the navigator's empty header, and never a raw route name ("holding-detail") as a title. */}
+          {['bonds', 'other-investments', 'itemize', 'holding-detail', 'add-account'].map((name) => (
+            <Stack.Screen key={name} name={name} options={{ headerShown: false }} />
+          ))}
           <Stack.Screen name="multi-goal" options={{ title: 'Afford it all?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="first-run" options={{ title: 'Your setup', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="look-back" options={{ title: 'Look back', headerShown: true, ...backBtn(() => router.back()) }} />
@@ -214,8 +220,8 @@ export default function RootLayout() {
           {/* Founder UX review 2026-07-16: every pushed page needs a visible way back. These screens
               carry their own in-content headline, so the header is just the ← Back on the same
               background — never a duplicated or raw route-name title. */}
-          {['bill-calendar', 'bonds', 'credit', 'estate', 'education', 'income-manager', 'insights',
-            'insurance', 'monthly-income', 'other-investments', 'paycheck-months', 'performance',
+          {['bill-calendar', 'credit', 'estate', 'education', 'income-manager', 'insights',
+            'insurance', 'monthly-income', 'paycheck-months', 'performance',
             'required-withdrawals', 'retirement', 'roth', 'stress-test', 'tax-organizer'].map((name) => (
             <Stack.Screen key={name} name={name} options={{ title: '', headerShown: true, ...backBtn(() => router.back()) }} />
           ))}

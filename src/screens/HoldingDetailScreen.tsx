@@ -3,6 +3,7 @@
 // if you sold (clearly an estimate). Every number is the SAME helper the Invest main list uses;
 // nothing is recomputed differently here (r24: same row object, no recomputation).
 import { quantityWithUnit } from '../domain/performance';
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -91,6 +92,7 @@ export default function HoldingDetailScreen() {
   if (!account || !position || !row) {
     return (
       <ScrollView style={s.root} contentContainerStyle={s.content}>
+        <TopBar back />
         <Text style={s.h1}>This holding isn't here any more</Text>
         <Text style={s.sub}>It may have been deleted. Your investments live on the Performance tab.</Text>
         <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => router.replace('/(tabs)/invest')} accessibilityLabel="Open the Performance tab">
@@ -160,11 +162,11 @@ export default function HoldingDetailScreen() {
   const realized = answer.realised;
 
   return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <View style={s.topRow}>
-        <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} accessibilityLabel="Back" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Text style={s.back}>‹ Back</Text>
-        </TouchableOpacity>
+        <View />
         <TouchableOpacity accessibilityRole="button" onPress={() => setEditOpen(true)} accessibilityLabel="Edit this holding" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Text style={s.back}>✎ Edit</Text>
         </TouchableOpacity>
@@ -323,6 +325,7 @@ export default function HoldingDetailScreen() {
         onClose={() => setHistoryOpen(false)} onDelete={(id: string) => store.deleteTransaction(id)} />
       <View style={{ height: 40 }} />
     </ScrollView>
+    </View>
   );
 }
 

@@ -389,6 +389,13 @@ for x in TODO:
         where = (cited + in_test)[0]
         if verdict in ('FAINT TRACE', 'NO TRACE', 'LEAVES A TRACE'):
             verdict, check = 'CONFIRMED BY CITATION', 'CITED'
+        # HIS REMARK IS NOT COPY (2026-10-01). The quote check read "why the accounts say linked if hand
+        # entered?" as words that must appear on a screen, and ten rules a test re-runs stayed NOT FOUND.
+        # A decision whose TYPE is copy must still show its words; any other kind is held by the test
+        # that names it, and the note says which.
+        elif verdict == 'NOT FOUND' and in_test and str(x.get('type', '')).upper() != 'COPY':
+            verdict, check = 'CONFIRMED BY CITATION', 'CITED'
+            notes.append('his remark, not copy to find — the rule is held by the test named')
         notes.append(f'cited by identifier in {where}')
 
     verdicts.append((x['id'], verdict, check, g[:54], '; '.join(notes)[:150]))

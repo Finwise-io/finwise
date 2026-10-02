@@ -42,6 +42,14 @@ import { oddsLine, onCourseSentence, planDoor, SS_DECISION_FROM, SS_DECISION_TO 
 import { paymentShape, defaultPaymentType } from '../domain/debt';
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
+import { theNetWorth, NET_WORTH_FIGURES } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
+import { accruedInterestCaveat } from '../domain/bonds';
+import { theHolding } from '../../MoneyKeel/functions/networth-and-performance/holding';
+import { buildDayFromAccounts } from '../../Calculation Module code/engines/snapshots';
+import { reconcileAccountTotal, reconcileLedgerIdentity } from '../../Calculation Module code/engines/reconcile';
+import { GLOSSARY } from '../domain/glossary';
+import { ADD_ACCOUNT_QUESTION } from '../constants/doors';
+import { reviewTransactions } from '../domain/transactions/flags';
 import { figureSpec } from '../../MoneyKeel/functions/figures';
 import { writeFigure } from '../../MoneyKeel/functions/_figure-spec';
 import * as fs from 'fs';
@@ -890,4 +898,394 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(seen).toBeGreaterThanOrEqual(150);
     expect(offenders).toEqual([]);
   });
+
+  // ── NET WORTH, STEP 1.b (2026-10-01) — the decisions whose wording is on no screen, because they are
+  //    rules rather than copy. Each one below asserts the RULE through the door or the file it governs.
+
+  // ── DEC-0090 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0090 — the line under a bonds slice COUNTS what is in it ("3 CDs & 1 Treasury in this account"), never repeats the heading', () => {
+    const acct = {
+      asset_id: 'b', label: 'Brokerage', tax_bucket: 'TAXABLE', balance: 1, target_return: 0,
+      positions: [
+        { position_id: '1', ticker: 'KEYBANK CD 4.00%', asset_class: 'bond', last_price: 1, lots: [] },
+        { position_id: '2', ticker: 'ALLY CD 4.10%', asset_class: 'bond', last_price: 1, lots: [] },
+        { position_id: '3', ticker: 'MARCUS CD 3.90%', asset_class: 'bond', last_price: 1, lots: [] },
+        { position_id: '4', ticker: 'US TREASURY 4.25%', asset_class: 'bond', last_price: 1, lots: [] },
+      ],
+    } as any;
+    expect(classPortionLabel(acct, 'bonds')).toBe('3 CDs & 1 Treasury in this account');
+    // with nothing inside, the line still says what the slice IS rather than echoing "Bonds & CDs" as a total
+    expect(classPortionLabel({ ...acct, positions: [] }, 'bonds')).toBe('bonds & CDs in this account');
+  });
+
+  // ── DEC-0107 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0107 — every activity row says where it came from: the broker\'s own record or one you entered', () => {
+    const account = { asset_id: 'e1', label: 'Account 1', institution: 'Vanguard', tax_bucket: 'TAXABLE', balance: 1000, target_return: 0, source: 'connected' } as any;
+    const a = theAccount({ account, transactions: [
+      { id: 'r1', account_id: 'e1', type: 'DEPOSIT', amount: 500, date: '2026-09-01', source: 'connected' },
+      { id: 'r2', account_id: 'e1', type: 'DEPOSIT', amount: 5000, date: '2026-09-02' },
+    ] as any });
+    const byId = Object.fromEntries(a.activity.map((r) => [r.recordId, r]));
+    expect(byId.r1.mine).toBe(false);     // the broker's own figure
+    expect(byId.r2.mine).toBe(true);      // typed by hand — the one a mistyped $5,000 can hide in
+    // and the screen prints that difference in words, on the row
+    const screen = fs.readFileSync(path.join(__dirname, '..', 'screens', 'AccountPortfolioScreen.tsx'), 'utf8');
+    expect(screen).toMatch(/mine \? 'you entered this' : `from \$\{account\.institution/);
+  });
+
+  // ── DEC-0109 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0109 — every screen that states the odds states them the ONE way: "<word> — xx% odds of lasting to age nn"', () => {
+    // ONE function makes the words; the lens word in front of it changes nothing after the dash
+    expect(oddsLine('retired', 72, 90)).toBe('72% odds of lasting to age 90');
+    expect(oddsLine('working', 72, 90)).toBe(oddsLine('retired', 72, 90));
+    expect(oddsTail(90)).toBe('odds of lasting to age 90');
+    // the Net worth screen either prints that line through the one function, or does not print odds at all
+    const nw = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+    expect(nw.includes('odds of lasting') && !nw.includes('oddsLine(')).toBe(false);
+  });
+
+  // ── DEC-0215 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0215 — "one door one term rule — so change on all": the connect door reads the same on every screen that offers it', () => {
+    const dir = path.join(__dirname, '..', 'screens');
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith('.tsx'));
+    expect(files.length).toBeGreaterThan(30);
+    // the bank door has ONE wording (canon row 17, 2026-09-14); a retired synonym on any screen breaks the rule
+    const retired = /\b(Link your bank|Connect a bank|Add your bank|Link a bank|Connect accounts?)\b/;
+    const offenders: string[] = [];
+    let doors = 0;
+    for (const f of files) {
+      const src = fs.readFileSync(path.join(dir, f), 'utf8').replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '');
+      if (/>Connect your bank\b/.test(src)) doors += 1;
+      if (retired.test(src)) offenders.push(f);
+    }
+    expect(doors).toBeGreaterThan(0);
+    expect(offenders).toEqual([]);
+  });
+
+  // ── DEC-0234 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0234 — "why the accounts say linked if hand entered?" — a hand-entered account says By hand, never Linked', () => {
+    const byHand = { asset_id: 'h', label: 'Savings', tax_bucket: 'TAXABLE', balance: 1, target_return: 0 } as any;
+    expect(sourceWording(byHand)).toBe('By hand · you update it');
+    expect(sourceWording({ ...byHand, source: 'manual' })).not.toMatch(/Linked/);
+    expect(sourceWording({ ...byHand, source: 'connected', last_synced: new Date().toISOString() })).toMatch(/^Linked/);
+  });
+
+  // ── DEC-0280 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0280 — "subtract accrued interest when known; say so when not"', () => {
+    expect(accruedInterestCaveat({ accruedInterest: null } as any)).toBe('accrued interest not entered — the yield uses the price as you entered it');
+    expect(accruedInterestCaveat({ accruedInterest: 12.5 } as any)).toBeNull();
+    expect(accruedInterestCaveat({ accruedInterest: 0 } as any)).toBeNull();   // zero is known; nothing is not
+  });
+
+  // ── DEC-0295 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0295 — "never the word safe": no Net worth screen promises safety', () => {
+    const screens = ['NetWorthScreen', 'AccountPortfolioScreen', 'AddAccountScreen', 'ItemizeScreen', 'BondsScreen', 'OtherInvestmentsScreen', 'HoldingDetailScreen'];
+    const hits: string[] = [];
+    for (const s of screens) {
+      // what a PERSON reads: the source with its comments stripped
+      const src = fs.readFileSync(path.join(__dirname, '..', 'screens', `${s}.tsx`), 'utf8').replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '');
+      for (const m of src.matchAll(/(^|[^-\w])safe(?![-\w])/gi)) hits.push(`${s}: ${m[0].trim()}`);
+    }
+    expect(screens.length).toBe(7);
+    expect(hits).toEqual([]);
+  });
+
+  // ── DEC-0298 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0298 — "a tax figure requires a YEAR — net worth shows no tax": no Net worth figure is a tax amount', () => {
+    const taxMoney = Object.entries(NET_WORTH_FIGURES)
+      .filter(([, f]: any) => f.unit === 'money' && /\btax\b/i.test(f.label))
+      .map(([id]) => id);
+    expect(Object.keys(NET_WORTH_FIGURES).length).toBeGreaterThan(10);
+    expect(taxMoney).toEqual([]);
+  });
+
+  // ── DEC-0301 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0301 — "source always, date only when stale": a fresh linked account says only Linked; a stale one says how old', () => {
+    const linked = (ageDays: number) => ({
+      asset_id: 'l', label: 'Fidelity', tax_bucket: 'TAXABLE', balance: 1, target_return: 0, source: 'connected',
+      last_synced: new Date(Date.now() - ageDays * 86_400_000).toISOString(),
+    }) as any;
+    expect(sourceWording(linked(0))).toBe('Linked');                 // the source, nothing more
+    expect(sourceWording(linked(2))).toBe('Linked');                 // still fresh — no date, no noise
+    expect(sourceWording(linked(9))).toMatch(/^Linked · .*(day|week|ago)/);   // stale — and only now, the age
+  });
+
+  // ── DEC-0406 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0406 — "Always be explicit": a holding\'s income line names its subject, and an untickered record names nothing', () => {
+    const account = { asset_id: 'e1', label: 'Account 1', tax_bucket: 'TAXABLE', balance: 1000, target_return: 0 } as any;
+    const a = theAccount({ account, transactions: [
+      { id: 'd1', account_id: 'e1', type: 'DIVIDEND', ticker: 'LCTX', amount: 120, date: '2026-08-01' },
+      { id: 'i3', account_id: 'e1', type: 'INTEREST', amount: 40, date: '2026-07-31' },
+    ] as any });
+    expect(a.incomeOfHolding('LCTX').words).toBe('120 dividends');
+    expect(a.incomeOfHolding(null).words).toBe('');                   // nothing to be about — no sentence
+    // and the screen puts the subject in front of it — "Income: $120 dividends" — under its own identifier
+    const screen = fs.readFileSync(path.join(__dirname, '..', 'screens', 'AccountPortfolioScreen.tsx'), 'utf8');
+    expect(screen).toMatch(/figWords\('MK-NW-M-021', `Income: \$\{incomeOf\(rw\)\}`\)/);
+  });
+
+  // ── DEC-0641 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0641 — "what actually leaves": Monthly debt payments is what you pay, the minimum stays on the debt-to-income door', () => {
+    const card = (over: any = {}) => ({ debt_id: 'c', label: 'Card', debt_type: 'CREDIT_CARD', remaining_balance: 9000, interest_rate_apr: 0.24, minimum_monthly_payment: 200, ...over }) as any;
+    const a = theNetWorth({ uid: 'x', accounts: [], debts: [card({ monthly_payment: 600 })] } as any);
+    expect(a.monthlyDebtPayments).toBe(600);
+    expect(a.monthlyDebtMinimum).toBe(200);
+    expect((NET_WORTH_FIGURES as any)['MK-NW-M-012'].label).toBe('Monthly debt payments');
+  });
+
+
+  // ── DEC-0354 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0354 — "you did not have MoneyKeel at the top which every other screen has": every Net worth screen carries the app bar', () => {
+    const pushed = ['AccountPortfolioScreen', 'AddAccountScreen', 'ItemizeScreen', 'BondsScreen', 'OtherInvestmentsScreen', 'HoldingDetailScreen'];
+    for (const s of pushed) {
+      const src = fs.readFileSync(path.join(__dirname, '..', 'screens', `${s}.tsx`), 'utf8');
+      expect(`${s}: ${/<TopBar back \/>/.test(src)}`).toBe(`${s}: true`);
+    }
+    // the Net worth tab gets the same bar from the tab navigator; the pushed screens hide the navigator's
+    // header so the bar is the only thing at the top — never an empty header, never a raw route name
+    expect(fs.readFileSync(path.join(__dirname, '..', '..', 'app', '(tabs)', '_layout.tsx'), 'utf8')).toMatch(/header: \(\) => <TopBar \/>/);
+    const layout = fs.readFileSync(path.join(__dirname, '..', '..', 'app', '_layout.tsx'), 'utf8');
+    for (const route of ['bonds', 'other-investments', 'itemize', 'holding-detail', 'add-account', 'account-detail']) {
+      expect(`${route}: ${new RegExp(`'${route}'[^\\n]*\\n?[^\\n]*headerShown: false|name="${route}" options=\\{\\{ headerShown: false`).test(layout)}`).toBe(`${route}: true`);
+    }
+  });
+
+
+  // ── NET WORTH, STEP 1.b (2026-10-01), second batch — decisions that left only a faint mark on a screen.
+  const NW_SCREENS = ['NetWorthScreen', 'AccountPortfolioScreen', 'AddAccountScreen', 'ItemizeScreen', 'BondsScreen', 'OtherInvestmentsScreen', 'HoldingDetailScreen'];
+  const screenSrc = (s: string) => fs.readFileSync(path.join(__dirname, '..', 'screens', `${s}.tsx`), 'utf8');
+  const noComments = (s: string) => s.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '');
+
+  // ── DEC-0013 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0013 — "Approve all 25": the bond and other-investment editors record the date a value was true', () => {
+    expect(noComments(screenSrc('BondsScreen'))).toMatch(/value_as_of: valueAsOf \|\|/);
+    expect(noComments(screenSrc('OtherInvestmentsScreen'))).toMatch(/value_as_of: valueAsOf \|\|/);
+    // and hidden balances cannot leak: the mask guard runs over every screen of the module
+    expect(fs.existsSync(path.join(__dirname, 'hide_balances_mask.test.ts'))).toBe(true);
+  });
+
+  // ── DEC-0016 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0016 — Net worth rows say where each figure came from; a matured bond shows its banner; Add opens the real editor', () => {
+    const nw = noComments(screenSrc('NetWorthScreen'));
+    expect(nw).toMatch(/const stamp = sourceWording\(a\)/);                 // 2 · the source label on every row
+    expect(noComments(screenSrc('AccountPortfolioScreen'))).toMatch(/maturedCard/);   // 3 · the matured banner
+    expect(ADD_ACCOUNT_QUESTION).toBe('How do you want to add an account?'); // 4 · the chooser, then the real editor
+    expect(nw).toMatch(/ADD_ACCOUNT_QUESTION/);
+  });
+
+  // ── DEC-0022 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0022 — the holding page: no price → it shows what you PAID, never a made-up value; the price leads with its graph', () => {
+    const position = { position_id: 'p1', ticker: 'AAPL', asset_class: 'stock_etf', lots: [{ lot_id: 'l1', shares: 10, cost_per_share: 150, purchase_date: '2026-01-02' }] } as any;
+    const unpriced = theHolding({ position, accountId: 'a1', price: null, transactions: [] });
+    expect(unpriced.value).toBe(1500);          // what was paid
+    expect(unpriced.gain).toBeNull();           // nothing invented on top of it
+    const priced = theHolding({ position, accountId: 'a1', price: 200, transactions: [] });
+    expect(priced.value).toBe(2000);
+    expect(noComments(screenSrc('HoldingDetailScreen'))).toMatch(/recentCloses/);   // the graph under the price
+  });
+
+  // ── DEC-0055 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0055 — on a brand-new account the Net worth screen keeps its full layout and shows $0 with a door, never a blank', () => {
+    const nw = noComments(screenSrc('NetWorthScreen'));
+    expect(nw).toMatch(/title="WHAT YOU OWN" value=\{fig\('MK-NW-M-004', 0\)\}/);
+    expect(nw).toMatch(/title="DEBTS" infoTerm="debt" value=\{fig\('MK-NW-M-009', 0\)\}/);
+    expect(nw).toMatch(/＋ Add an account/);
+  });
+
+  // ── DEC-0075 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0075 — the cash row keeps the real account name, with "cash in this account" beneath it', () => {
+    expect(classPortionLabel({ asset_id: 'c', label: 'Chase', tax_bucket: 'TAXABLE', balance: 1, target_return: 0, positions: [] } as any, 'cash')).toBe('cash in this account');
+    expect(noComments(screenSrc('NetWorthScreen'))).toMatch(/classPortionLabel\(a, r\.key\)/);
+  });
+
+  // ── DEC-0076 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0076 — the Net worth band carries the day the figures are true as of, AND the change line keeps its own "since" date', () => {
+    const nw = noComments(screenSrc('NetWorthScreen'));
+    expect(nw).toMatch(/title=\{`YOUR NET WORTH · \$\{asOfToday\}`\}/);
+    expect(nw).toMatch(/since /);
+  });
+
+  // ── DEC-0099 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0099 — a line that names a missing answer takes you to THAT answer, not to a screen that asks again', () => {
+    expect(noComments(screenSrc('NetWorthScreen'))).toMatch(/router\.push\(`\/\(tabs\)\/plan\$\{nwDoor\.count === 1 \? `\?focus=/);
+  });
+
+  // ── DEC-0132 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0132 — a filled dark-green band carries the total of what it heads (What you own, Debts)', () => {
+    const nw = noComments(screenSrc('NetWorthScreen'));
+    expect(nw).toMatch(/<SectionBand title="WHAT YOU OWN" value=\{fig\('MK-NW-M-004'/);
+    expect(nw).toMatch(/<SectionBand title="DEBTS" infoTerm="debt"[\s\S]{0,80}value=\{/);
+  });
+
+  // ── DEC-0231 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0231 — "rounded corners not semicircle ends": no BUTTON on a Net worth screen is a pill (the drawn chips and grouping pills are chips, not buttons)', () => {
+    const pills: string[] = [];
+    for (const s of NW_SCREENS) {
+      for (const m of noComments(screenSrc(s)).matchAll(/(\w*(?:Btn|Button|btn)\w*): \{[^}]*borderRadius: (999|Radii\.pill)/g)) pills.push(`${s}.${m[1]}`);
+    }
+    expect(NW_SCREENS.length).toBe(7);
+    expect(pills).toEqual([]);
+  });
+
+  // ── DEC-0235 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0235 — each period segment carries two lines: the window on top, its return beneath', () => {
+    for (const s of ['AccountPortfolioScreen', 'PerformanceScreen']) {
+      const src = noComments(screenSrc(s));
+      expect(`${s}: ${/segK/.test(src) && /segV/.test(src)}`).toBe(`${s}: true`);
+    }
+  });
+
+  // ── DEC-0285 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0285 — "debt … Explain in info dot Debt is amount you owe"', () => {
+    expect(GLOSSARY.debt.title).toBe('Debt');
+    expect(GLOSSARY.debt.body).toMatch(/amount you owe/);
+    expect(noComments(screenSrc('NetWorthScreen'))).toMatch(/infoTerm="debt"/);
+  });
+
+  // ── DEC-0289 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0289 — "/month, /year": one way of writing a period; spoken, "a month"', () => {
+    const spec = figureSpec('MK-NW-M-012');
+    expect(writeFigure(spec, 2650, { withPeriod: true })).toBe('$2,650/month');
+    expect(writeFigure(spec, 2650, { withPeriod: true, spoken: true })).toBe('$2,650 a month');
+  });
+
+  // ── DEC-0296 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0296 — "an unknown input produces no number and a reason — never a default": a holding without a price', () => {
+    const position = { position_id: 'p1', ticker: 'ZZZ', asset_class: 'stock_etf', lots: [{ lot_id: 'l1', shares: 4, cost_per_share: 25 }] } as any;
+    const h = theHolding({ position, accountId: 'a1', price: null, transactions: [] });
+    expect(h.gain).toBeNull();
+    expect(h.value).toBe(100);                                    // what was paid, labelled as that on the screen
+    expect(figureSpec('MK-NW-M-029').refusal).toMatch(/No price/); // the row says why
+  });
+
+  // ── DEC-0312 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0312 — "store the currency field now": every recorded day carries the currency of each row', () => {
+    const day = buildDayFromAccounts([{ asset_id: 'a1', balance: 500, source: 'manual', asset_class: 'cash' }] as any, '2026-10-01', '2026-10-01T12:00:00.000Z');
+    expect(day.accounts.length).toBe(1);
+    expect(day.accounts[0].currency).toBe('USD');
+  });
+
+  // ── DEC-0314 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0314 — "hand-entered revaluations marked": a typed lump carries typedValue on the day; a linked account does not', () => {
+    const day = buildDayFromAccounts([
+      { asset_id: 'ira', balance: 40_000, source: 'manual', asset_class: 'stocks_etf' },
+      { asset_id: 'link', balance: 40_000, source: 'connected', asset_class: 'stocks_etf' },
+    ] as any, '2026-10-01', '2026-10-01T12:00:00.000Z');
+    const by = Object.fromEntries(day.accounts.map((a: any) => [a.accountId, a]));
+    expect(by.ira.typedValue).toBe(40_000);
+    expect(by.link.typedValue).toBeNull();
+  });
+
+  // ── DEC-0328 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0328 — "holdings + cash = the broker total; re-ingest never doubles money": the two reconciliation checks', () => {
+    expect(reconcileAccountTotal([300, 200], 50, 550).ok).toBe(true);
+    const off = reconcileAccountTotal([300, 200], 50, 600);
+    expect(off.ok).toBe(false);
+    expect(off.difference.toNumber(2)).toBe(-50);
+    expect(off.sentence.length).toBeGreaterThan(10);
+    expect(reconcileLedgerIdentity({ beginning: 1000, ending: 1300, contributions: 200, withdrawals: 0, income: 50, costs: 0, marketChange: 50 }).ok).toBe(true);
+  });
+
+  // ── DEC-0332 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0332 — "a missing maturity date is unknown, not due now"', () => {
+    expect(yearsToMaturity('' as any)).toBeNull();
+    expect(yearsToMaturity(undefined as any)).toBeNull();
+    expect(yearsToMaturity('2031-06-30', new Date('2026-10-01T12:00:00'))).toBeCloseTo(4.75, 1);
+  });
+
+  // ── DEC-0346 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0346 — "screens compute nothing": no Net worth screen reaches past its door into the calculation code', () => {
+    const guard = fs.readFileSync(path.join(__dirname, 'guard_d1_nobody_in_the_kitchen.test.ts'), 'utf8');
+    for (const s of NW_SCREENS) expect(`${s}: ${guard.includes(`src/screens/${s}.tsx`)}`).toBe(`${s}: false`);
+  });
+
+  // ── DEC-0370 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0370 — "fix decimal error on NW screens": every Net worth rate prints two decimals, every total whole dollars', () => {
+    const specs = Object.entries(NET_WORTH_FIGURES) as [string, any][];
+    const rates = specs.filter(([, f]) => /return|rate|yield|%/i.test(f.label)).map(([id, f]) => `${id}:${f.unit}`);
+    expect(rates.length).toBeGreaterThan(0);
+    expect(rates.filter((r) => !/:(percent-2dp|percent-signed|words)$/.test(r))).toEqual([]);
+    expect(specs.filter(([, f]) => f.unit === 'money-cents' && /total|balance|net worth/i.test(f.label))).toEqual([]);
+  });
+
+  // ── DEC-0430 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0430 — "a screen does not need a title — the Net worth tab keeps none"', () => {
+    const nw = noComments(screenSrc('NetWorthScreen'));
+    expect(nw).not.toMatch(/<Text style=\{styles\.h1\}>Net worth<\/Text>/);
+    const mock = fs.readFileSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_net-worth-quiet-instrument_v08.html'), 'utf8');
+    expect(/<p class="h1s">Net worth<\/p>|<h1>Net worth<\/h1>/.test(mock.slice(mock.indexOf('<body')))).toBe(false);
+  });
+
+  // ── DEC-0456 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0456 — "Triangle (green color) up $11,200 this month": the direction comes BEFORE the amount', () => {
+    expect(noComments(screenSrc('NetWorthScreen'))).toMatch(/'▲ ' : '▼ '\}\{deltaText\}/);
+  });
+
+  // ── DEC-0458 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0458 — "Benchmark in S&P 500? If that add info dot": a comparison names its benchmark behind a tappable explanation', () => {
+    expect(noComments(screenSrc('AccountPortfolioScreen'))).toMatch(/<InfoDot term="benchmark" \/>/);
+    expect(GLOSSARY.benchmark.body.length).toBeGreaterThan(20);
+  });
+
+  // ── DEC-0480 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0480 — "Is this expandable / collapsable as many people can have 20-30 or more holdings?": the groups collapse', () => {
+    const nw = noComments(screenSrc('NetWorthScreen'));
+    expect(nw).toMatch(/\$\{open \? '▾' : '▸'\}/);
+    expect(nw).toMatch(/\$\{gOpen \? '▾' : '▸'\}/);
+  });
+
+  // ── DEC-0644 · DEC-0646 · DEC-0647 · DEC-0648 · DEC-0650 · DEC-0651 ─────────────────────────
+  test('DEC-0644 — "Quite Instrument v08 - approved all screens from A to G": the record names v08 as the Net worth design', () => {
+    const record = fs.readFileSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'standards', 'moneykeel_pres_spec_design-each-screen-was-built-from_v01.md'), 'utf8');
+    expect(record).toMatch(/\| Net worth \| `[^`]*net-worth-quiet-instrument_v08\.html` — \*\*ALL SEVEN FRAMES, A TO G, APPROVED 2026-10-01\*\*/);
+  });
+  test('DEC-0646 — "Account detail screen should be same as Account Portfolio screen": one screen, one file, drawn from Performance v17 frame 2', () => {
+    expect(fs.readFileSync(path.join(__dirname, '..', '..', 'app', 'account-detail.tsx'), 'utf8')).toMatch(/AccountPortfolioScreen/);
+    expect(fs.existsSync(path.join(__dirname, '..', 'screens', 'AccountDetailScreen.tsx'))).toBe(false);
+    expect(fs.existsSync(path.join(__dirname, '..', 'screens', '__tests__', 'account_portfolio_vs_mock.test.tsx'))).toBe(true);
+  });
+  test('DEC-0647 — "I have already approved Perf v17 for perf module": the record says v17 is approved in full', () => {
+    const record = fs.readFileSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'standards', 'moneykeel_pres_spec_design-each-screen-was-built-from_v01.md'), 'utf8');
+    expect(record).toMatch(/Frames 1, 3, 4 and 5 are the Performance module.s and are approved too/);
+  });
+  test('DEC-0648 — "Investment v07 - archive it": investments_v07 lives in archive/ and nowhere else', () => {
+    const dir = path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance');
+    expect(fs.readdirSync(dir).some((f) => f.includes('investments_v07'))).toBe(false);
+    expect(fs.readdirSync(path.join(dir, 'archive')).some((f) => f.includes('investments_v07'))).toBe(true);
+  });
+  test('DEC-0650 — "Mark these three as approved as of now": Bonds, Alternatives and Holding detail have a design of record', () => {
+    const record = fs.readFileSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'standards', 'moneykeel_pres_spec_design-each-screen-was-built-from_v01.md'), 'utf8');
+    for (const row of ['Bonds', 'Other investments', 'Holding detail']) {
+      expect(`${row}: ${new RegExp(`\\\\| ${row} \\\\| \\\\*\\\\*APPROVED 2026-10-01\\\\*\\\\*`).test(record)}`).toBe(`${row}: true`);
+    }
+  });
+  test('DEC-0651 — the way into Itemize is one door on the Account portfolio, shown only when the account holds money and nothing is recorded inside', () => {
+    const src = noComments(screenSrc('AccountPortfolioScreen'));
+    expect(src).toMatch(/insideRows\.length === 0 && tickers\.length === 0 && \(account\.balance \|\| 0\) > 0\s*&& source !== 'connected'/);
+    expect(src).toMatch(/router\.push\(`\/itemize\?accountId=/);
+    expect(fs.existsSync(path.join(__dirname, 'itemize_has_one_door.test.tsx'))).toBe(true);
+  });
+
+
+  // ── DEC-0454 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0454 — "we should capture as some debt might not be due for many years": a lump due in full carries its date, however far off', () => {
+    const model = fs.readFileSync(path.join(__dirname, '..', 'domain', 'debt', 'index.ts'), 'utf8');
+    expect(model).toMatch(/payoff_date\?: string;/);
+    const editor = noComments(fs.readFileSync(path.join(__dirname, '..', 'components', 'DebtEditorSheet.tsx'), 'utf8'));
+    expect(editor).toMatch(/shape !== 'due_in_full' \|\| !!dueIso/);     // a due-in-full debt cannot be saved without its date
+    expect(editor).toMatch(/payoff_date/);
+  });
+
+
+  // ── DEC-0317 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0317 — an imported row and one you typed that look the same are BOTH kept and the newer is flagged; nothing is merged or dropped', () => {
+    const older = { id: 't1', account_id: 'chk', type: 'WITHDRAWAL', amount: 84.2, note: 'Costco', date: '2026-09-28', source: 'connected' } as any;
+    const typed = { id: 't2', account_id: 'chk', type: 'WITHDRAWAL', amount: 84.2, note: 'costco', date: '2026-09-29' } as any;
+    const flags = reviewTransactions([typed], { history: [older], makeId: () => 'f1', now: new Date('2026-10-01T12:00:00') });
+    expect(flags.map((f) => [f.reason, f.transaction_ids, f.status])).toEqual([['possible_duplicate', ['t2'], 'open']]);
+    expect(flags[0].comparison).toBe(84.2);          // the twin it was matched against — stable, by amount, payee and day
+    // a different payee two days later is not a twin: nothing is flagged, nothing is touched
+    expect(reviewTransactions([{ ...typed, note: 'Trader Joe' }], { history: [older], makeId: () => 'f2' })).toEqual([]);
+  });
+
 });

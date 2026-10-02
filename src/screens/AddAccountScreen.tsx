@@ -3,6 +3,7 @@
 // ones gate the Save. Edit mode is this same screen pre-filled (the 'manual update' view) —
 // saving writes the balance AND stamps value-as-of together, the same staleness concept bonds
 // and alternatives use. Writes through the SAME store actions every editor uses — one write path.
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -116,11 +117,9 @@ export default function AddAccountScreen() {
   );
 
   return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
     <KeyboardAwareScreen style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} accessibilityLabel="Back"
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={s.backBtn}>
-        <Text style={s.back}>‹ Back</Text>
-      </TouchableOpacity>
       <Text style={s.h1}>{editMode ? `Update ${existing.label}` : 'Add an account'}</Text>
       {editMode && <Text style={s.sub}>Saving updates the balance and stamps today as its value date.</Text>}
 
@@ -225,6 +224,7 @@ export default function AddAccountScreen() {
       )}
       <View style={{ height: 40 }} />
     </KeyboardAwareScreen>
+    </View>
   );
 }
 

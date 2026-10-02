@@ -1,6 +1,7 @@
 // Other investments (Phase C) — alternatives (crypto, PE, hedge funds, commodities, annuities, other)
 // held at a manual value as AssetAccounts, so they flow to Net Worth + nest egg. Third management
 // surface alongside Performance (stocks/ETFs) and Bonds.
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -47,7 +48,9 @@ export default function OtherInvestmentsScreen() {
   const [addOpen, setAddOpen] = useState(false);
 
   return (
-    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Alternatives</Text>
       <SectionBand title="ALTERNATIVES" /><InfoDot term="alternatives" /></View>
 
@@ -93,6 +96,7 @@ export default function OtherInvestmentsScreen() {
         }}
         onDelete={edit ? () => { store.deleteAsset(edit.asset_id); setEdit(null); } : undefined} />
     </ScrollView>
+    </View>
   );
 }
 

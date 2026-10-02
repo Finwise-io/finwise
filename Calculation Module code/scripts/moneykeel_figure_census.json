@@ -21588,6 +21588,34 @@
    "file": "src/screens/BondsScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Bonds"
     },
@@ -21637,6 +21665,34 @@
     }
    ],
    "rich": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Bonds"
@@ -21780,6 +21836,34 @@
    ],
    "retiree": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Bonds"
     },
@@ -21829,6 +21913,34 @@
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Bonds"
@@ -24285,6 +24397,34 @@
    "file": "src/screens/HoldingDetailScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "This holding isn't here any more"
     },
@@ -24302,6 +24442,34 @@
     }
    ],
    "worker|Open the Performance": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "This holding isn't here any more"
@@ -24327,6 +24495,26 @@
     {
      "k": "t",
      "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
     },
     {
      "k": "a",
@@ -24439,6 +24627,34 @@
    ],
    "retiree": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "This holding isn't here any more"
     },
@@ -24456,6 +24672,34 @@
     }
    ],
    "retiree|Open the Performance": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "This holding isn't here any more"
@@ -24475,6 +24719,34 @@
    ],
    "new": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "This holding isn't here any more"
     },
@@ -24492,6 +24764,34 @@
     }
    ],
    "new|Open the Performance": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "This holding isn't here any more"
@@ -26604,20 +26904,40 @@
    "file": "src/screens/ItemizeScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Itemize"
     },
     {
      "k": "t",
      "s": "Retirement (Traditional)"
-    },
-    {
-     "k": "a",
-     "s": "Close"
-    },
-    {
-     "k": "t",
-     "s": "✕"
     },
     {
      "k": "t",
@@ -26762,20 +27082,40 @@
    ],
    "rich": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Itemize"
     },
     {
      "k": "t",
      "s": "Vanguard"
-    },
-    {
-     "k": "a",
-     "s": "Close"
-    },
-    {
-     "k": "t",
-     "s": "✕"
     },
     {
      "k": "t",
@@ -26920,20 +27260,40 @@
    ],
    "retiree": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Itemize"
     },
     {
      "k": "t",
      "s": "Savings / portfolio"
-    },
-    {
-     "k": "a",
-     "s": "Close"
-    },
-    {
-     "k": "t",
-     "s": "✕"
     },
     {
      "k": "t",
@@ -27077,6 +27437,34 @@
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Account not found"
@@ -30210,6 +30598,34 @@
    "file": "src/screens/OtherInvestmentsScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Alternatives"
     },
@@ -30255,6 +30671,34 @@
     }
    ],
    "rich": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Alternatives"
@@ -30302,6 +30746,34 @@
    ],
    "retiree": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Alternatives"
     },
@@ -30347,6 +30819,34 @@
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Alternatives"

@@ -1,5 +1,6 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
 // already flow into Net Worth + the nest egg; here we add/edit them and show bond-specific metrics.
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Platform, Alert, KeyboardAvoidingView } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -38,7 +39,9 @@ export default function BondsScreen() {
   const [addOpen, setAddOpen] = useState(false);
 
   return (
-    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <TopBar back />
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Bonds</Text>
       <SectionBand title="BONDS & CDS" /><InfoDot term="bonds" /></View>
 
@@ -112,6 +115,7 @@ export default function BondsScreen() {
         }}
         onDelete={edit ? () => { store.deleteAsset(edit.asset_id); setEdit(null); } : undefined} />
     </ScrollView>
+    </View>
   );
 }
 

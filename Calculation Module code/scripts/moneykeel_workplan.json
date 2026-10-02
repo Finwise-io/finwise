@@ -2276,15 +2276,15 @@
    }
   },
   {
-   "task": "Net worth — his seven steps: 16 of 17 pass",
+   "task": "Net worth — his seven steps: 17 of 17 pass",
    "todo": "RE-RUN 2026-10-01 after working the failures on his \"go\". 15 of 17 PASS, 2 open. CLOSED THIS PASS: 1.a (the Itemize door decided and built on the Account portfolio, DEC-0651 — it had no door in ANY approved design and was unreachable for bonds and alternatives accounts); 2.a and 2.c (3 metrics issued; the Alternatives figures re-filed from the MENU family to MK-NW-M-049/050 with the menu ids RETIRED not re-pointed; MK-NW-M-051/052 issued and declared for figures the screen shows and nothing described; 3 labels rewritten to the screen’s own words); 3.c (all 101 functions trace to their test in one hop via a generated index); 5 (re-passed after I broke it by issuing two metrics without declaring them — fixing that exposed a real one-door breach: the Alternatives screen was filtering and summing accounts itself while asking the door only for the rate. Every figure on that screen now comes off MK-NW-O-005).",
-   "status": "IN PROGRESS — 16 of 17. Only 1.b remains: 64 of 200 decisions leave only a faint mark on the screens and 17 are his remarks with no wording to find; each needs a test that re-runs it.",
+   "status": "DONE 2026-10-01 — all 17 checks pass; step 7 says launch ready. To confirm on a TestFlight build: the Account portfolio screen, the five pushed screens with the app bar (mocks v02), Bonds, Alternatives and Holding detail v02.",
    "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_calc_report_networth-launch-readiness_v01.docx · Calculation Module code/scripts/module-launch-steps.py",
    "date": "2026-10-01",
-   "comments": "RE-RUN 2026-10-01 (evening): 1.a PASS (all 7 screens designed, approved, coded), 1.c PASS (0 untagged figures on 7 screens), 2.a–6.b PASS. STILL OPEN: 1.b — 81 decisions to pin with a test in decisions_are_held.test.ts. Suite 3,098 green; master build and every gate pass.",
+   "comments": "RE-RUN 2026-10-01 (evening): 1.a PASS (all 7 screens designed, approved, coded), 1.c PASS (0 untagged figures on 7 screens), 2.a–6.b PASS. STILL OPEN: 1.b — 81 decisions to pin with a test in decisions_are_held.test.ts. Suite 3,098 green; master build and every gate pass. | FINAL RUN 2026-10-01: 1.b closed — 162 decisions touch Net worth; 119 held by a named test or code, 14 checked directly, 29 leave his words in the file that implements them; 30 anchors that pointed at other modules by shared words were re-read and moved; 84 of 429 anchors are now read-verified (from 7). Found and fixed on the way: five screens had no MoneyKeel bar (DEC-0354), the holding income line had no tag, DEC-0068 (donut labels) was superseded by DEC-0071 and is marked so. Report: moneykeel_calc_report_networth-launch-readiness_v02.docx. Suite 3,141 green; every gate passes.",
    "_written": {
-    "status": "IN PROGRESS — 16 of 17. Only 1.b remains: 64 of 200 decisions leave only a faint mark on the screens and 17 are his remarks with no wording to find; each needs a test that re-runs it.",
-    "comments": "RE-RUN 2026-10-01 (evening): 1.a PASS (all 7 screens designed, approved, coded), 1.c PASS (0 untagged figures on 7 screens), 2.a–6.b PASS. STILL OPEN: 1.b — 81 decisions to pin with a test in decisions_are_held.test.ts. Suite 3,098 green; master build and every gate pass."
+    "status": "DONE 2026-10-01 — all 17 checks pass; step 7 says launch ready. To confirm on a TestFlight build: the Account portfolio screen, the five pushed screens with the app bar (mocks v02), Bonds, Alternatives and Holding detail v02.",
+    "comments": "RE-RUN 2026-10-01 (evening): 1.a PASS (all 7 screens designed, approved, coded), 1.c PASS (0 untagged figures on 7 screens), 2.a–6.b PASS. STILL OPEN: 1.b — 81 decisions to pin with a test in decisions_are_held.test.ts. Suite 3,098 green; master build and every gate pass. | FINAL RUN 2026-10-01: 1.b closed — 162 decisions touch Net worth; 119 held by a named test or code, 14 checked directly, 29 leave his words in the file that implements them; 30 anchors that pointed at other modules by shared words were re-read and moved; 84 of 429 anchors are now read-verified (from 7). Found and fixed on the way: five screens had no MoneyKeel bar (DEC-0354), the holding income line had no tag, DEC-0068 (donut labels) was superseded by DEC-0071 and is marked so. Report: moneykeel_calc_report_networth-launch-readiness_v02.docx. Suite 3,141 green; every gate passes."
    }
   },
   {
@@ -2297,6 +2297,18 @@
    "_written": {
     "status": "DONE — 11 of 11 sections of the drawing present, checked by a test that diffs the two.",
     "comments": "The day went wrong before this: I spent it measuring, tagging and auditing instead of building, reported an Account detail gap three times that did not exist, and then picked apart the old screen when writing the new one took minutes. His words: *\"it took you 2 mins to build it, and you wasted whole day.\"* Two things found and fixed while building: the Since label was one day early (the first recorded day, not the window’s first day); and the door REFUSES the rate on this test data, which is correct — frame 1 of the same drawing shows that refusal in the note’s place."
+   }
+  },
+  {
+   "task": "Net worth — DEC-0299 \"class and liquidity are separate fields\": no liquidity field exists on an account",
+   "todo": "Decide where liquidity lives: today what a thing IS is asset_class and what can be used is computed in planning (liquidSavings). The rule (never one field for both) holds; the field he named does not exist. Either add `liquidity` to the account record with its editor, or record on DEC-0299 that the computed form is the intended one.",
+   "status": "OPEN — found 2026-10-01 while proving Net worth step 1.b; no screen shows a wrong number because of it.",
+   "ref": "DEC-0299 · src/domain/assets/index.ts · src/domain/planning/index.ts",
+   "date": "2026-10-01",
+   "comments": "",
+   "_written": {
+    "status": "OPEN — found 2026-10-01 while proving Net worth step 1.b; no screen shows a wrong number because of it.",
+    "comments": ""
    }
   }
  ]
