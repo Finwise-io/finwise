@@ -170,8 +170,10 @@ def step_1a():
         entry = APPROVED_BY_RECORD.get(TAB_OF.get(s_, ''), '')
         # "NOT YET APPROVED" contains the word approved (2026-10-02: six Cash flow drawings read as approved
         # the moment they were recorded as waiting). A negation anywhere in the cell means not approved.
+        # A negation is a STATUS MARKER, not any word in the cell: the Account portfolio row says the
+        # earlier account-detail drawing "is rejected" and is itself approved (2026-10-02).
         approved = (bool(re.search(r'(?i)\bapproved\b', entry))
-                    and not re.search(r'(?i)NOT (YET )?APPROVED|WAITING|REJECTED|awaits his word', entry))
+                    and not re.search(r'(?i)NOT (YET )?APPROVED|WAITING|awaits his word', entry))
         file_named = (re.findall(r'moneykeel_pres_mock_[\w\-]+_v\d+', entry) or ['\u2014'])[0]
         # a design that exists for this screen but carries no approval in the record
         # WHICH FILE DRAWS WHICH SCREEN comes from the record's own gap table, not from the
