@@ -35,6 +35,8 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ 'The Look back drawing v01 is approved':
+  "The Look back drawing v01 is approved. It is now the screen's design of record, and the last open check of the Performance module closes.",
  # ── Net worth module, 2026-10-01 — his nine rulings while the module was taken through the seven steps ──
  'Quite Instrument v08 - approved all screens from A to G':
   'All seven frames of Quiet Instrument v08 are approved: A with data by category, B all collapsed and the down case, C the first day, D the missing-data banner, E the change walk, F the fix sheet, G the add sheet.',

@@ -2195,6 +2195,11 @@
   },
   "DEC-0640": {
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Performance step 1.b; held by guard_d3_screens_agree.test.tsx — his \"dividend\" renders as \"dividends\", approved knowingly"
+  },
+  "DEC-1069": {
+   "governs": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_look-back_v01.html · src/screens/LookBackScreen.tsx · MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012",
+   "why_it_governs_those": "read, 2026-10-02: the drawing he approved, the screen it draws, and the three figures on it",
+   "verified_by_reading": "2026-10-02 — recorded the moment he approved it; held by decisions_are_held.test.ts"
   }
  }
 }

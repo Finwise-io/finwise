@@ -185,12 +185,12 @@ def supersede_question(new, prior):
 #
 # These two controls bind what comes NEXT. What is already in the log was written before they existed,
 # and the numbers below are what that cost, measured on 2026-10-01 rather than estimated:
-NO_PATH = 343             # (344 of 492 until DEC-0104 was marked restated as DEC-0109.)
+NO_PATH = 342             # (344 of 492 until DEC-0104 was marked restated as DEC-0109.)
                           # of the 492 decisions in force, this many do not answer all three questions.
                           # 148 do. Every one of the 344 is a decision nobody can act on without
                           # going back to the conversation it came from — which is the hole DEC-0036
                           # fell through. Lower it by answering them, never by loosening the test.
-DUPLICATE_PAIRS = 25      # decisions that appear to repeat an earlier one. Resolve a pair by marking
+DUPLICATE_PAIRS = 23      # decisions that appear to repeat an earlier one. Resolve a pair by marking
                           # the older row OLD, NOT IN USE with the newer named on it, or by recording
                           # what is genuinely different. Was 26 until DEC-0104 was marked restated as
                           # DEC-0109 — the pair this detector was tuned on, and the one that let the

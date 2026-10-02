@@ -1367,4 +1367,13 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(noComments(screenSrc('AccountPortfolioScreen'))).toMatch(/router\.push\('\/look-back'\)/);
   });
 
+
+  // ── DEC-1069 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-1069 — "approved.": Look back v01 is the screen\'s design of record, drawn from the code as built', () => {
+    const record = fs.readFileSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'standards', 'moneykeel_pres_spec_design-each-screen-was-built-from_v01.md'), 'utf8');
+    expect(record).toMatch(/\| Look back \| `[^`]*moneykeel_pres_mock_look-back_v01\.html`[^|]*\*\*APPROVED 2026-10-02\*\*/);
+    expect(fs.existsSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_look-back_v01.html'))).toBe(true);
+    expect(noComments(screenSrc('LookBackScreen'))).toMatch(/<TopBar back \/>/);
+  });
+
 });

@@ -117,7 +117,8 @@ def step_1a():
               'AccountPortfolioScreen': 'account portfolio',
               'AddAccountScreen': 'add an account, by hand',
               'BondsScreen': 'bonds', 'OtherInvestmentsScreen': 'other investments',
-              'HoldingDetailScreen': 'holding detail', 'ItemizeScreen': 'itemize'}
+              'HoldingDetailScreen': 'holding detail', 'ItemizeScreen': 'itemize',
+              'LookBackScreen': 'look back'}
 
     mocks = {}
     for dp, dn, fn in os.walk('MoneyKeel/documents'):

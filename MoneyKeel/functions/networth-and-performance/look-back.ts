@@ -50,7 +50,7 @@ import { lookBack, type LookBackResult } from '../../../src/domain/performance/l
  *
  * Serves ...... MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012
  * Reads ....... MK-XS-I-005 holding price
- * Ruled by .... DEC-0030 · DEC-0232 · DEC-0233
+ * Ruled by .... DEC-0030 · DEC-0232 · DEC-0233 · DEC-1069
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *

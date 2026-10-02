@@ -586,5 +586,12 @@
   "check": "CITED",
   "governs": "src/screens/AccountPortfolioScreen.tsx · src/screens/N",
   "notes": "only 16 of 46 appear — present: account alternatives bonds button earned · absent: account-detail accounts applied approve approved; cited by identifi"
+ },
+ {
+  "id": "DEC-1069",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "MoneyKeel/documents/networth-and-performance/moneykeel",
+  "notes": "only 4 of 16 appear — present: look-back moneykeel performance prices · absent: approved built check closes design; cited by identifier in decisions_a"
  }
 ]
