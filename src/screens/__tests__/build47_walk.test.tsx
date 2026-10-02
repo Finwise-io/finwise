@@ -407,7 +407,9 @@ test('B47 finding 4: the delete path leaves quietly (leaving-guard before the no
 test('B47 finding 8: activity prices show cents; the button and the sheet share one word', () => {
   const fs = require('fs'); const path = require('path');
   const perf = fs.readFileSync(path.join(__dirname, '..', 'PerformanceScreen.tsx'), 'utf8');
-  expect(perf).toMatch(/@ \$\{money2\(t\.price\)\}/);
+  // 2026-10-01: the price prints through its identifier; MK-NW-M-061 ("sh @") is a money-cents figure, so the cents stay
+  expect(perf).toMatch(/@ \$\{fig\('MK-NW-M-061', t\.price\)\}/);
+  expect(require('../../../MoneyKeel/functions/networth-and-performance/holding').HOLDING_FIGURES['MK-NW-M-061'].unit).toBe('money-cents');
   const hd = fs.readFileSync(path.join(__dirname, '..', 'HoldingDetailScreen.tsx'), 'utf8');
   expect(hd).toMatch(/>Activity<\/Text>/);
   expect(hd).not.toMatch(/>History<\/Text>/);

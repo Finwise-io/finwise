@@ -213,7 +213,7 @@ export default function RootLayout() {
           ))}
           <Stack.Screen name="multi-goal" options={{ title: 'Afford it all?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="first-run" options={{ title: 'Your setup', headerShown: true, ...backBtn(() => router.back()) }} />
-          <Stack.Screen name="look-back" options={{ title: 'Look back', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="look-back" options={{ headerShown: false }} />   {/* DEC-0354: the screen draws the MoneyKeel bar itself */}
           <Stack.Screen name="what-if" options={{ title: 'What if I add more?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="will-it-last" options={{ title: 'Will my money last?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="import-holdings" options={{ title: 'Import holdings 📄', headerShown: true, presentation: 'modal', ...backBtn(() => router.back()) }} />

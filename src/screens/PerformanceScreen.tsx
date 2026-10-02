@@ -22,7 +22,7 @@ import { resolveNetWorthRows } from '../domain/snapshot';
 import { isBond } from '../domain/bonds';
 import { isAlternative } from '../domain/alternatives';
 import { valueFreshness } from '../domain/assets';
-import { maskedMoney, spokenMoney } from '../components/useMoney';
+import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { searchTickers } from '../constants/tickers';
 import {
   // portfolioPeriodReturn is GONE from this screen (2026-09-30). It was imported and never called:
@@ -265,8 +265,8 @@ export default function PerformanceScreen() {
           <View style={styles.card}>
             <SectionBand inCard title="SUMMARY · SINCE TODAY" />
             <View style={styles.trioRow}>
-              <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(0)}</Text></View>
-              <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>{maskedMoney(0)}</Text></View>
+              <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', 0)}</Text></View>
+              <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>{fig('MK-PF-M-002', 0)}</Text></View>
               <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text></View>
             </View>
             {/* Q48 (MK-PF-M-005..008): $0 above, the one line, the door. Mock v14 mark 9: the line
@@ -281,12 +281,12 @@ export default function PerformanceScreen() {
             {['Beginning market value (today)', 'Contributions', 'Withdrawals', 'Wealth generated', 'Dividends', 'Interest', 'Change in investment value'].map((l, i) => (
               <View key={l} style={[styles.walkRow, i >= 4 && { paddingLeft: 20 }]}>
                 <Text style={[styles.walkL, i >= 4 && { color: Colors.textSecondary }, i === 3 && { fontWeight: '800' }]}>{l}</Text>
-                <Text style={[styles.walkV, i === 3 && { fontWeight: '800' }]}>{maskedMoney(0)}</Text>
+                <Text style={[styles.walkV, i === 3 && { fontWeight: '800' }]}>{fig(i === 0 ? 'MK-PF-M-018' : i === 3 ? 'MK-PF-M-002' : 'MK-PF-M-019', 0)}</Text>
               </View>
             ))}
             <View style={[styles.walkRow, styles.walkTotal]}>
               <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value (today)</Text>
-              <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{maskedMoney(0)}</Text>
+              <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig('MK-PF-M-001', 0)}</Text>
             </View>
             <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
           </View>
@@ -319,8 +319,8 @@ export default function PerformanceScreen() {
                 <View style={styles.card}>
                   <SectionBand inCard title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} />
                   <View style={styles.trioRow}>
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(walk.ending))}</Text></View>
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(walk.wealthGenerated)))}</Text></View>
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', walk.ending)}</Text></View>
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walk.wealthGenerated))}</Text></View>
                     {/* MARKS 16 AND 18, approved as mock v17 (2026-09-30). 16: where the window return
                         refuses, the EXACT rate per year stands in its place instead of an em-dash — the
                         person actively adding money is the one who most needs a rate and used to get
@@ -328,7 +328,7 @@ export default function PerformanceScreen() {
                         with its words sits under the chosen window above. Measured at the app's type
                         sizes: the three cells need 270 of the card's 334 points that way, against 328
                         with "/year" in here — six points of headroom, which is why it wrapped. */}
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (shownReturn ?? refusedRate ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn != null ? pct(shownReturn) : refusedRate != null ? pct(refusedRate) : '—'}</Text></View>
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (shownReturn ?? refusedRate ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn != null ? fig('MK-PF-M-017', shownReturn) : refusedRate != null ? fig('MK-PF-M-017', refusedRate) : '—'}</Text></View>
                   </View>
                   <Text style={styles.sumNote}>
                     {sentence && refusedRate != null
@@ -348,7 +348,7 @@ export default function PerformanceScreen() {
                       Nothing said so until mock v14 mark 15 — a rate nobody can name is a trap. */}
                   {perYear != null && cumulative != null && (
                     <Text style={styles.sumNote}>
-                      {pct(cumulative)} over the {yearsWord}, which is {pct(perYear)}/year — a yearly rate, so it sits fairly beside a one-year window.
+                      {fig('MK-PF-M-017', cumulative)} over the {yearsWord}, which is {fig('MK-PF-M-017', perYear)}/year — a yearly rate, so it sits fairly beside a one-year window.
                     </Text>
                   )}
                   {/* the value graph lives INSIDE the summary card (approved performance-FINAL),
@@ -360,26 +360,26 @@ export default function PerformanceScreen() {
                 <DataGapsBanner gaps={gaps} />
 
                 <View style={styles.card}>
-                  <SectionBand inCard title={`HOW ${maskedMoney(Math.round(walk.beginning))} BECAME ${maskedMoney(Math.round(walk.ending))} · ALL ACCOUNTS`} />
+                  <SectionBand inCard title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)} />
                   {[
-                    { l: `Beginning market value (${beginLabelFor(period)})`, v: walk.beginning },
-                    { l: 'Contributions', v: walk.contributions },
-                    { l: 'Withdrawals', v: -walk.withdrawals },
-                    { l: 'Wealth generated', v: walk.wealthGenerated, strong: true },
-                    { l: 'Dividends', v: walk.dividends, indent: true },
-                    { l: 'Interest', v: walk.interest, indent: true },
-                    { l: 'Change in investment value', v: walk.marketChange, indent: true },
+                    { l: `Beginning market value (${beginLabelFor(period)})`, v: walk.beginning, m: 'MK-PF-M-018' },
+                    { l: 'Contributions', v: walk.contributions, m: 'MK-PF-M-019' },
+                    { l: 'Withdrawals', v: -walk.withdrawals, m: 'MK-PF-M-019' },
+                    { l: 'Wealth generated', v: walk.wealthGenerated, strong: true, m: 'MK-PF-M-002' },
+                    { l: 'Dividends', v: walk.dividends, indent: true, m: 'MK-PF-M-019' },
+                    { l: 'Interest', v: walk.interest, indent: true, m: 'MK-PF-M-019' },
+                    { l: 'Change in investment value', v: walk.marketChange, indent: true, m: 'MK-PF-M-019' },
                   ].map((r) => (
                     <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
                       <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
                       <Text style={[styles.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
-                        {r.v < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(r.v)))}
+                        {r.v < 0 ? '−' : ''}{fig((r as any).m, Math.abs(r.v))}
                       </Text>
                     </View>
                   ))}
                   <View style={[styles.walkRow, styles.walkTotal]}>
                     <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value (today)</Text>
-                    <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{maskedMoney(Math.round(walk.ending))}</Text>
+                    <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig('MK-PF-M-001', walk.ending)}</Text>
                   </View>
                 </View>
               </>
@@ -433,8 +433,8 @@ export default function PerformanceScreen() {
                 <View key={id} style={styles.card}>
                   <TouchableOpacity accessibilityRole="button" activeOpacity={0.85}
                     onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
-                    accessibilityLabel={`${a.label}, ${spokenMoney(Math.round(a.ending))}. ${isOpen ? 'Collapses' : 'Expands'} its walk.`}>
-                    <SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))}
+                    accessibilityLabel={`${a.label}, ${figSaid('MK-PF-M-005', a.ending)}. ${isOpen ? 'Collapses' : 'Expands'} its walk.`}>
+                    <SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={fig('MK-PF-M-005', a.ending)}
                       onTitlePress={() => router.push(`/account-detail?id=${id}` as any)}
                       titleHint={`Open ${a.label} — this account's own page`} />
                   </TouchableOpacity>
@@ -443,29 +443,29 @@ export default function PerformanceScreen() {
                   {!!acctOf && <View style={styles.walkChip}><SourceChip account={acctOf} /></View>}
                   {!isOpen ? (
                     <Text style={styles.sumNote}>
-                      wealth generated {w.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(w.wealthGenerated)))} · tap to see the walk
+                      wealth generated {w.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-014', Math.abs(w.wealthGenerated))} · tap to see the walk
                     </Text>
                   ) : (
                     <>
                       {[
-                        { l: 'Beginning market value', v: w.beginning },
-                        { l: 'Contributions', v: w.contributions },
-                        { l: 'Withdrawals', v: -w.withdrawals },
-                        { l: 'Wealth generated', v: w.wealthGenerated, strong: true },
-                        { l: 'Dividends', v: w.dividends, indent: true },
-                        { l: 'Interest', v: w.interest, indent: true },
-                        { l: 'Change in investment value', v: w.marketChange, indent: true },
+                        { l: 'Beginning market value', v: w.beginning, m: 'MK-PF-M-013' },
+                        { l: 'Contributions', v: w.contributions, m: 'MK-PF-M-015' },
+                        { l: 'Withdrawals', v: -w.withdrawals, m: 'MK-PF-M-015' },
+                        { l: 'Wealth generated', v: w.wealthGenerated, strong: true, m: 'MK-PF-M-014' },
+                        { l: 'Dividends', v: w.dividends, indent: true, m: 'MK-PF-M-015' },
+                        { l: 'Interest', v: w.interest, indent: true, m: 'MK-PF-M-015' },
+                        { l: 'Change in investment value', v: w.marketChange, indent: true, m: 'MK-PF-M-015' },
                       ].map((r) => (
                         <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
                           <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
                           <Text style={[styles.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
-                            {r.v < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(r.v)))}
+                            {r.v < 0 ? '−' : ''}{fig((r as any).m, Math.abs(r.v))}
                           </Text>
                         </View>
                       ))}
                       <View style={[styles.walkRow, styles.walkTotal]}>
                         <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value</Text>
-                        <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{maskedMoney(Math.round(w.ending))}</Text>
+                        <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig('MK-PF-M-004', w.ending)}</Text>
                       </View>
                       {/* the approved design's line under an open walk (mock v14, first phone). It is
                           printed only now that both taps are real: the arrow collapses, the name opens
@@ -503,16 +503,16 @@ export default function PerformanceScreen() {
                 </View>
                 {shown.map((b) => (
                   <View key={b.key} style={styles.catRow} accessible
-                    accessibilityLabel={`${b.label}, earned ${spokenMoney(Math.round(b.earned))}, return ${b.ret == null ? 'not known' : pct(b.ret)}`}>
+                    accessibilityLabel={`${b.label}, earned ${figSaid('MK-PF-M-007', b.earned)}, return ${b.ret == null ? 'not known' : fig('MK-PF-M-006', b.ret)}`}>
                     <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
                     <Text style={styles.catL}>{b.label}</Text>
-                    <Text style={[styles.catV, { color: Colors.gainText }]}>{maskedMoney(Math.round(b.earned))}</Text>
-                    <Text style={styles.catR}>{b.ret == null ? '\u2014' : pct(b.ret)}</Text>
+                    <Text style={[styles.catV, { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
+                    <Text style={styles.catR}>{b.ret == null ? '\u2014' : fig('MK-PF-M-006', b.ret)}</Text>
                   </View>
                 ))}
                 <View style={[styles.catRow, styles.walkTotal]}>
                   <Text style={[styles.catL, { fontWeight: '800', marginLeft: 14 }]}>All categories</Text>
-                  <Text style={[styles.catV, { fontWeight: '800' }]}>{maskedMoney(Math.round(total))}</Text>
+                  <Text style={[styles.catV, { fontWeight: '800' }]}>{fig('MK-PF-M-007', total)}</Text>
                   <Text style={styles.catR}> </Text>
                 </View>
                 <Text style={styles.sumNote}>
@@ -728,14 +728,14 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
                 // performance only (B-60). A position-derived account is built FROM its holdings.
                 if (!sel || sel.derive_balance === true) return null;
                 return (
-                  <Text style={styles.note}>📊 Tracked for performance — this won't change {sel.institution?.trim() || sel.label}'s {moneyCompact(sel.balance, 'M')} total. Edit the account total in Net Worth.</Text>
+                  <Text style={styles.note}>📊 Tracked for performance — this won't change {sel.institution?.trim() || sel.label}'s {fig('MK-NW-M-018', sel.balance)} total. Edit the account total in Net Worth.</Text>
                 );
               })()}
             </>
           )}
 
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} accessibilityRole="button" accessibilityLabel={isNew ? 'Add holding' : 'Save holding'} onPress={save}>
-            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && costBasis({ position_id: '', ticker, lots } as Position) > 0 ? ` · cost ${moneyCompact(costBasis({ position_id: '', ticker, lots } as Position), 'M')}` : ''}</Text>
+            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && costBasis({ position_id: '', ticker, lots } as Position) > 0 ? ` · cost ${fig('MK-NW-M-033', costBasis({ position_id: '', ticker, lots } as Position))}` : ''}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete holding" onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
           <View style={{ height: 20 }} />
@@ -780,10 +780,10 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
             <TouchableOpacity
               style={[styles.seg, w.key === 'SINCE' && styles.segWide, on && styles.segOn]}
               accessibilityRole="button" accessibilityState={{ selected: on }}
-              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${pct(ret)}${perYear ? ' a year' : ''}${windowRet == null ? ', counting when you added money' : ''}`}`}
+              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${fig('MK-PF-M-017', ret)}${perYear ? ' a year' : ''}${windowRet == null ? ', counting when you added money' : ''}`}`}
               onPress={() => onPick(w.key)}>
               <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segRest]}>{w.label}</Text>
-              <Text numberOfLines={1} style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>{ret == null ? '—' : pct(ret)}</Text>
+              <Text numberOfLines={1} style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>{ret == null ? '—' : fig('MK-PF-M-017', ret)}</Text>
               {perYear && (
                 <Text numberOfLines={1} style={[styles.segPer, on && styles.segOnT]}>/year</Text>
               )}
@@ -920,7 +920,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
 
           {/* available-cash note for spend actions */}
           {(isBuy || type === 'WITHDRAWAL' || isTransfer) && acct && (
-            <Text style={[styles.note, !enough && { color: Colors.red, fontWeight: '700' }]}>Available cash: {money(avail)}{!enough ? '  ⚠ not enough — deposit or transfer cash in first' : ''}</Text>
+            <Text style={[styles.note, !enough && { color: Colors.red, fontWeight: '700' }]}>Available cash: {fig('MK-PF-M-020', avail)}{!enough ? '  ⚠ not enough — deposit or transfer cash in first' : ''}</Text>
           )}
 
           {isBuy && (<><Text style={styles.fieldL}>Ticker</Text>
@@ -986,14 +986,14 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
           {transactions.map((t) => {
             const eff = cashEffect(t);
             // B47 finding 8: a PRICE is cents-precise — $250.10, never $250 (the B44 precision rule, applied here too)
-            const detail = t.ticker ? `${t.ticker}${t.shares ? ` · ${t.shares} sh` : ''}${t.price ? ` @ ${money2(t.price)}` : ''}` : acctName(t.account_id);
+            const detail = t.ticker ? `${t.ticker}${t.shares ? ` · ${t.shares} sh` : ''}${t.price ? ` @ ${fig('MK-NW-M-061', t.price)}` : ''}` : acctName(t.account_id);
             return (
               <View key={t.id} style={styles.hRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.hType}>{txnLabel(t.type)} <Text style={styles.hDetail}>{detail}</Text></Text>
                   <Text style={styles.hMeta}>{t.date} · {acctName(t.account_id)}{t.counter_account_id ? ` → ${acctName(t.counter_account_id)}` : ''}{t.reinvested ? ' · reinvested' : ''}</Text>
                 </View>
-                {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.gainText : Colors.red }]}>{eff >= 0 ? '+' : ''}{money(eff)}</Text>}
+                {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.gainText : Colors.red }]}>{eff >= 0 ? '+' : ''}{fig('MK-NW-M-062', eff)}</Text>}
                 <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Delete ${txnLabel(t.type).toLowerCase()}${t.ticker ? ` ${t.ticker}` : ''}`} onPress={() => onDelete(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
               </View>
             );

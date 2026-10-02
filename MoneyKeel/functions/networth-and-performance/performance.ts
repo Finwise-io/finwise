@@ -17,6 +17,7 @@
 //   · A WINDOW LONGER THAN A YEAR SHOWS A YEARLY RATE, and says so (founder, 2026-09-25, after the
 //     convention was checked: GIPS forbids annualising under a year and annualises above it, and
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
+import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures } from '../_figure-spec';
 import { portfolioBenchReturn } from '../../../src/domain/performance';
 // MK-PF-F-026 is on a screen again (his Q52 ruling, 2026-09-30): it answers where the window return
@@ -389,7 +390,8 @@ export const RATE_STANDS_IN_WORDS =
  *
  * Serves ...... MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-005 · MK-PF-M-006
  *               MK-PF-M-007 · MK-PF-M-008 · MK-PF-M-013 · MK-PF-M-014
- *               MK-PF-M-015 · MK-PF-M-016 · MK-XS-M-004
+ *               MK-PF-M-015 · MK-PF-M-016 · MK-PF-M-017 · MK-PF-M-018
+ *               MK-PF-M-019 · MK-PF-M-020 · MK-XS-M-004
  * Reads ....... MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
@@ -399,8 +401,8 @@ export const RATE_STANDS_IN_WORDS =
  *               DEC-0143 · DEC-0149 · DEC-0160 · DEC-0165 · DEC-0173 · DEC-0182
  *               DEC-0185 · DEC-0192 · DEC-0204 · DEC-0229 · DEC-0230 · DEC-0236
  *               DEC-0255 · DEC-0257 · DEC-0322 · DEC-0323 · DEC-0357 · DEC-0368
- *               DEC-0382 · DEC-0399 · DEC-0402 · DEC-0445 · DEC-0479 · DEC-0482
- *               DEC-0490 · DEC-0498
+ *               DEC-0382 · DEC-0402 · DEC-0445 · DEC-0479 · DEC-0482 · DEC-0490
+ *               DEC-0498
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
@@ -808,6 +810,7 @@ const BENCH_GIVEN =
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-003 institution name
+ *               MK-XS-I-005 holding price
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
@@ -910,6 +913,57 @@ export const PERFORMANCE_FIGURES = declareFigures({
     ruled: '2026-10-01',
     // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
     worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },
+  },
+  // ISSUED AND DECLARED 2026-10-01 (Performance step 1.c): the Performance tab printed its own Return,
+  // its walk and its trade sheet's cash with no identifier — 23 figures. These are EVERY ACCOUNT TOGETHER,
+  // which is why they are not the one-account rows above (MK-PF-M-013 to 016).
+  'MK-PF-M-017': {
+    label: 'Return', unit: 'percent-signed', screens: ['/invest'], grain: 'every account together',
+    answers: 'What all your investments returned over the window you picked \u2014 wealth generated \u00f7 the money '
+      + 'that was working, counting when money moved in or out. Per year when the window is longer than a year.',
+    formula: '(ending \u2212 beginning \u2212 net flows) \u00f7 (beginning + \u03a3 each flow \u00d7 the share of the window it was '
+      + 'invested for) \u2014 Modified Dietz over every investment account; a window longer than a year becomes a yearly rate',
+    inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
+    decisions: [
+      'TWO DECIMALS AND ITS SIGN, always (Q49).',
+      'WHEN MONEY MOVED WOULD DECIDE THE FIGURE, IT REFUSES (Q52) and the exact rate per year stands in its place (mark 16, v17).',
+      'THE SAME DOOR AS ONE ACCOUNT\u2019S RETURN (MK-PF-M-016), asked for every account at once \u2014 one method, never two.',
+    ],
+    refusal: 'Money moved in and out in amounts where WHEN it moved would decide a window return, so none is shown; the rate per year stands in its place.',
+    ruled: '2026-10-01',
+    // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
+    worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },
+  },
+  'MK-PF-M-018': {
+    label: 'Beginning market value', unit: 'money', screens: ['/invest'], grain: 'every account together',
+    answers: 'What all your investments were worth on the day the window opens, READ from the daily record.',
+    formula: 'the recorded value of every investment account at the close of the day before the window opens',
+    inputs: ['MK-NW-I-003 the recorded history'],
+    decisions: ['READ, NEVER BACK-SOLVED: with no recorded value the walk says so instead of inventing a start.'],
+    refusal: 'No recorded value that far back \u2014 the walk starts the day the record does, and says so.',
+    ruled: '2026-10-01',
+    worked: { given: GIVEN, answer: '$30,000', run: () => PERF().walk.beginning },
+  },
+  'MK-PF-M-019': {
+    label: 'one line of the walk', unit: 'money', screens: ['/invest'], grain: 'every account together',
+    answers: 'One line of how the beginning became the ending, over every account: contributions, withdrawals, dividends, interest, or the change in investment value.',
+    formula: 'contributions and withdrawals from the records inside the window; dividends and interest received; change in value = ending \u2212 beginning \u2212 contributions + withdrawals \u2212 dividends \u2212 interest',
+    inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
+    decisions: ['THE LINES ALWAYS ADD UP TO THE ENDING \u2014 the change in investment value is what is left, so nothing is lost between the lines.'],
+    refusal: 'A real $0 \u2014 a line with nothing in it still prints, so the structure never changes.',
+    ruled: '2026-10-01',
+    // $6,000 paid in on 1 Apr is the Contributions line
+    worked: { given: GIVEN, answer: '$6,000', run: () => PERF().walk.contributions },
+  },
+  'MK-PF-M-020': {
+    label: 'Available cash', unit: 'money', screens: ['/invest'], grain: 'one account',
+    answers: 'The cash in this account that a buy, a withdrawal or a transfer can use right now.',
+    formula: 'the cash sleeve of a brokerage account; the whole balance of a cash account',
+    inputs: ['MK-NW-I-001 your accounts'],
+    decisions: ['A BUY OR WITHDRAWAL BIGGER THAN THIS IS REFUSED on the sheet, with the words to deposit or transfer cash in first.'],
+    refusal: 'No account picked \u2014 the line is not shown.',
+    ruled: '2026-10-01',
+    worked: { given: 'A savings account holding $5,000 and nothing else.', answer: '$5,000', run: () => availableCash({ asset_id: 'x', label: 'Savings', balance: 5_000 } as any) },
   },
   'MK-PF-M-006': {
     label: 'WHAT EACH CATEGORY EARNED — RETURN', unit: 'percent-2dp', screens: ['/invest'],

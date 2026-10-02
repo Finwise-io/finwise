@@ -115,7 +115,7 @@ const LB = () => theLookBack(EXAMPLE)!;
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const LOOK_BACK_FIGURES = declareFigures({
   'MK-PF-M-010': {
-    label: 'Left in <fund> it became $X (up/down $Y, Z%)', unit: 'words', screens: ['/look-back'],
+    label: 'Left in <fund> it became $X (up/down $Y, Z%)', unit: 'money', screens: ['/look-back'],
     answers: 'What your money actually did, where it actually was.',
     formula: 'the amount × (the fund’s price today ÷ its price at the start of the window)',
     inputs: ['MK-NW-I-005 the price feed'],
@@ -124,8 +124,10 @@ export const LOOK_BACK_FIGURES = declareFigures({
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,
-      answer: 'Left in BND it became $10,250 (up $250, 2.5%)',
-      run: () => `Left in BND it became ${formatMoney(LB().stayed.endValue)} (up ${formatMoney(LB().stayed.delta)}, ${LB().stayed.pct}%)`,
+      // the figure is the money; the screen writes the sentence around it (2026-10-01: unit money, not words,
+      // so the end value and the change print through fig() with their identifier)
+      answer: '$10,250',
+      run: () => LB().stayed.endValue,
     },
   },
   'MK-PF-M-011': {

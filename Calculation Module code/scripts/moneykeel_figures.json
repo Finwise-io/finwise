@@ -955,7 +955,8 @@
    "label": "Market value",
    "unit": "money",
    "screens": [
-    "/account-detail"
+    "/account-detail",
+    "/invest"
    ],
    "grain": "one account",
    "answers": "What this account is worth today.",
@@ -1047,7 +1048,8 @@
    "label": "what one record moved",
    "unit": "money",
    "screens": [
-    "/account-detail"
+    "/account-detail",
+    "/invest"
    ],
    "grain": "one record",
    "answers": "What this one record added to the account or took out of it.",
@@ -1872,7 +1874,8 @@
    "label": "sh @",
    "unit": "money-cents",
    "screens": [
-    "/holding-detail"
+    "/holding-detail",
+    "/invest"
    ],
    "grain": "one purchase",
    "answers": "What one purchase cost per share, on the day it was bought.",
@@ -1985,7 +1988,8 @@
    "label": "Total paid",
    "unit": "money",
    "screens": [
-    "/holding-detail"
+    "/holding-detail",
+    "/invest"
    ],
    "grain": "one holding",
    "answers": "What you paid for the shares you still hold.",
@@ -2257,6 +2261,102 @@
    },
    "door": "MK-NW-O-008 thePerformance"
   },
+  "MK-PF-M-017": {
+   "label": "Return",
+   "unit": "percent-signed",
+   "screens": [
+    "/invest"
+   ],
+   "grain": "every account together",
+   "answers": "What all your investments returned over the window you picked — wealth generated ÷ the money that was working, counting when money moved in or out. Per year when the window is longer than a year.",
+   "formula": "(ending − beginning − net flows) ÷ (beginning + Σ each flow × the share of the window it was invested for) — Modified Dietz over every investment account; a window longer than a year becomes a yearly rate",
+   "inputs": [
+    "MK-NW-I-003 the recorded history",
+    "MK-NW-I-004 the activity records"
+   ],
+   "decisions": [
+    "TWO DECIMALS AND ITS SIGN, always (Q49).",
+    "WHEN MONEY MOVED WOULD DECIDE THE FIGURE, IT REFUSES (Q52) and the exact rate per year stands in its place (mark 16, v17).",
+    "THE SAME DOOR AS ONE ACCOUNT’S RETURN (MK-PF-M-016), asked for every account at once — one method, never two."
+   ],
+   "refusal": "Money moved in and out in amounts where WHEN it moved would decide a window return, so none is shown; the rate per year stands in its place.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $32,000 on 28 Sep 2026, with nothing paid in or taken out and $825 of it arriving as dividends.",
+    "answer": "+6.67%"
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-018": {
+   "label": "Beginning market value",
+   "unit": "money",
+   "screens": [
+    "/invest"
+   ],
+   "grain": "every account together",
+   "answers": "What all your investments were worth on the day the window opens, READ from the daily record.",
+   "formula": "the recorded value of every investment account at the close of the day before the window opens",
+   "inputs": [
+    "MK-NW-I-003 the recorded history"
+   ],
+   "decisions": [
+    "READ, NEVER BACK-SOLVED: with no recorded value the walk says so instead of inventing a start."
+   ],
+   "refusal": "No recorded value that far back — the walk starts the day the record does, and says so.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, with $6,000 paid in on 1 Apr and $825 of dividends received.",
+    "answer": "$30,000"
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-019": {
+   "label": "one line of the walk",
+   "unit": "money",
+   "screens": [
+    "/invest"
+   ],
+   "grain": "every account together",
+   "answers": "One line of how the beginning became the ending, over every account: contributions, withdrawals, dividends, interest, or the change in investment value.",
+   "formula": "contributions and withdrawals from the records inside the window; dividends and interest received; change in value = ending − beginning − contributions + withdrawals − dividends − interest",
+   "inputs": [
+    "MK-NW-I-003 the recorded history",
+    "MK-NW-I-004 the activity records"
+   ],
+   "decisions": [
+    "THE LINES ALWAYS ADD UP TO THE ENDING — the change in investment value is what is left, so nothing is lost between the lines."
+   ],
+   "refusal": "A real $0 — a line with nothing in it still prints, so the structure never changes.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, with $6,000 paid in on 1 Apr and $825 of dividends received.",
+    "answer": "$6,000"
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-020": {
+   "label": "Available cash",
+   "unit": "money",
+   "screens": [
+    "/invest"
+   ],
+   "grain": "one account",
+   "answers": "The cash in this account that a buy, a withdrawal or a transfer can use right now.",
+   "formula": "the cash sleeve of a brokerage account; the whole balance of a cash account",
+   "inputs": [
+    "MK-NW-I-001 your accounts"
+   ],
+   "decisions": [
+    "A BUY OR WITHDRAWAL BIGGER THAN THIS IS REFUSED on the sheet, with the words to deposit or transfer cash in first."
+   ],
+   "refusal": "No account picked — the line is not shown.",
+   "ruled": "2026-10-01",
+   "worked": {
+    "given": "A savings account holding $5,000 and nothing else.",
+    "answer": "$5,000"
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
   "MK-PF-M-006": {
    "label": "WHAT EACH CATEGORY EARNED — RETURN",
    "unit": "percent-2dp",
@@ -2471,7 +2571,7 @@
   },
   "MK-PF-M-010": {
    "label": "Left in <fund> it became $X (up/down $Y, Z%)",
-   "unit": "words",
+   "unit": "money",
    "screens": [
     "/look-back"
    ],
@@ -2487,7 +2587,7 @@
    "ruled": "2026-09-28",
    "worked": {
     "given": "$10,000 left in BND for 12 months, against moving it to VTI. BND closed $72.00 a year ago and $73.80 now; VTI closed $250.00 and $290.00.",
-    "answer": "Left in BND it became $10,250 (up $250, 2.5%)"
+    "answer": "$10,250"
    },
    "door": "MK-NW-O-007 theLookBack"
   },

@@ -2310,6 +2310,18 @@
     "status": "OPEN — found 2026-10-01 while proving Net worth step 1.b; no screen shows a wrong number because of it.",
     "comments": ""
    }
+  },
+  {
+   "task": "Performance — his seven steps: 16 of 17 pass",
+   "todo": "ONE THING FOR HIM: the Look back screen has a drawing of record for the first time — moneykeel_pres_mock_look-back_v01.html, drawn 2026-10-01 from the screen's own code with the MoneyKeel bar. One word from him makes step 1.a complete and the module launch ready. Nothing else is open.",
+   "status": "IN PROGRESS — 16 of 17. Only 1.a remains, and it waits on his word for the Look back drawing (v01).",
+   "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_calc_report_performance-launch-readiness_v01.docx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_look-back_v01.html",
+   "date": "2026-10-01",
+   "comments": "RUN 2026-10-01: the baseline was 9 of 17. Closed the same day: 1.b (84 decisions touch Performance; 62 held by a named test or code, 8 checked directly, 14 carry his words in the file that implements them; 5 anchors that pointed here on shared words moved to the screens they govern); 1.c (31 figures on the Performance tab and Look back printed with no identifier — now every one carries its tag; four new figures for the tab's own Return, beginning value, walk lines and available cash: MK-PF-M-017 to 020; the account's Return MK-PF-M-016 issued); 2.a/2.c (Holding detail is Net worth's screen, not Performance's; the retired MK-PF-M-009 recorded as retired); 3.c (a trace test names every one of the 34 functions); 4.a–4.d (an orchestrator belongs to the module whose figures it hands out — thePerformance and theLookBack serve Performance though their numbers are MK-NW-O; the count had read zero). Also applied his app-bar rule (DEC-0354) to Look back. Two gates fixed on the way: step 1.b read a stale verdict file when the validator crashed — it now re-runs the validator every time and refuses a verdict if it fails.",
+   "_written": {
+    "status": "IN PROGRESS — 16 of 17. Only 1.a remains, and it waits on his word for the Look back drawing (v01).",
+    "comments": "RUN 2026-10-01: the baseline was 9 of 17. Closed the same day: 1.b (84 decisions touch Performance; 62 held by a named test or code, 8 checked directly, 14 carry his words in the file that implements them; 5 anchors that pointed here on shared words moved to the screens they govern); 1.c (31 figures on the Performance tab and Look back printed with no identifier — now every one carries its tag; four new figures for the tab's own Return, beginning value, walk lines and available cash: MK-PF-M-017 to 020; the account's Return MK-PF-M-016 issued); 2.a/2.c (Holding detail is Net worth's screen, not Performance's; the retired MK-PF-M-009 recorded as retired); 3.c (a trace test names every one of the 34 functions); 4.a–4.d (an orchestrator belongs to the module whose figures it hands out — thePerformance and theLookBack serve Performance though their numbers are MK-NW-O; the count had read zero). Also applied his app-bar rule (DEC-0354) to Look back. Two gates fixed on the way: step 1.b read a stale verdict file when the validator crashed — it now re-runs the validator every time and refuses a verdict if it fails."
+   }
   }
  ]
 }

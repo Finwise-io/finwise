@@ -181,9 +181,8 @@ export function currencySymbol(): string {
  *     ''   otherwise
  *
  * Called by ... MK-NW-F-078 ONE · MK-NW-F-079 EF
- *               MK-NW-F-081 LB · MK-NW-F-088 BENCH
- *               MK-NW-F-101 PLAN · MK-ST-F-053 money
- *               MK-XS-F-183 writeFigure
+ *               MK-NW-F-088 BENCH · MK-NW-F-101 PLAN
+ *               MK-ST-F-053 money · MK-XS-F-183 writeFigure
  *
  * Reaches ..... 132 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING

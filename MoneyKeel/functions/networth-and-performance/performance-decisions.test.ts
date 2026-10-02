@@ -206,6 +206,30 @@ describe('MK-PF-M-016 Return — one account, the window picked', () => {
   });
 });
 
+describe('MK-PF-M-017 Return · MK-PF-M-018 Beginning market value · MK-PF-M-019 one line of the walk — every account together', () => {
+  test('the Performance tab\'s own figures are the same door asked for every account: beginning + lines = ending, Return signed to two decimals', () => {
+    const days = [recordDay('2025-12-31', 30_000, 'a1')] as any;
+    const a = ask({ ending: 46_600, snapshotDays: days, investmentAccountIds: new Set(['a1']),
+      transactions: [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1', amount: 6_000, created_at: 'x' }] as any });
+    expect(a.walk.beginning).toBe(30_000);                                             // MK-PF-M-018, read from the record
+    const lines = a.walk.contributions - a.walk.withdrawals + a.walk.dividends + a.walk.interest + a.walk.marketChange;
+    expect(a.walk.beginning + lines).toBeCloseTo(a.walk.ending, 2);                   // MK-PF-M-019: the lines reach the ending
+    const { PERFORMANCE_FIGURES } = require('./performance');
+    expect(PERFORMANCE_FIGURES['MK-PF-M-017'].unit).toBe('percent-signed');          // MK-PF-M-017
+    expect(PERFORMANCE_FIGURES['MK-PF-M-017'].grain).toBe('every account together');
+    expect(PERFORMANCE_FIGURES['MK-PF-M-016'].grain).toBe('one account');             // the one-account twin, same door
+  });
+});
+
+describe('MK-PF-M-020 Available cash', () => {
+  test('a brokerage spends its cash sleeve; a cash account spends its whole balance', () => {
+    const { PERFORMANCE_FIGURES } = require('./performance');
+    const w = PERFORMANCE_FIGURES['MK-PF-M-020'].worked;
+    expect(w.run()).toBe(5_000);
+    expect(w.answer).toBe('$5,000');
+  });
+});
+
 describe('MK-PF-M-015 one line of the walk', () => {
   test('the lines always add up to the ending — a walk that does not is worse than no walk', () => {
     const a = ask({ ending: 46_600, snapshotDays: [recordDay('2026-01-01', 30_000, 'a1')] as any,

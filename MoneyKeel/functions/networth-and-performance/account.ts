@@ -264,7 +264,7 @@ const ACC = () => theAccount({ account: EXAMPLE_ACCOUNT, transactions: EXAMPLE_L
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const ACCOUNT_FIGURES = declareFigures({
   'MK-NW-M-018': {
-    label: 'Market value', unit: 'money', screens: ['/account-detail'], grain: 'one account',
+    label: 'Market value', unit: 'money', screens: ['/account-detail', '/invest'], grain: 'one account',
     answers: 'What this account is worth today.',
     formula: 'the account’s balance — for a linked account the broker’s own figure, for one entered by hand the value entered',
     inputs: ['MK-NW-I-001 your accounts'],
@@ -328,7 +328,7 @@ export const ACCOUNT_FIGURES = declareFigures({
   // each one's amount — but only the count had a name. The amounts are what a person actually reads
   // down the list, and they are what a mistyped deposit hides in.
   'MK-NW-M-062': {
-    label: 'what one record moved', unit: 'money', screens: ['/account-detail'], grain: 'one record',
+    label: 'what one record moved', unit: 'money', screens: ['/account-detail', '/invest'], grain: 'one record',
     answers: 'What this one record added to the account or took out of it.',
     formula: 'the amount on the record, positive where it came in and negative where it went out',
     inputs: ['MK-NW-I-004 the activity records'],

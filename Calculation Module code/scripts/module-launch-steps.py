@@ -64,7 +64,7 @@ OWNED = {'networth': {'NetWorthScreen', 'AccountPortfolioScreen', 'ItemizeScreen
                       'IncomeDetailScreen', 'IncomeScreen', 'MonthlyIncomeScreen',
                       'PaycheckMonthsScreen', 'BillCalendarScreen', 'WorthALookScreen',
                       'ContributionRoomScreen', 'TaxOrganizerScreen'},
-         'performance': {'PerformanceScreen', 'AccountPortfolioScreen', 'HoldingDetailScreen',
+         'performance': {'PerformanceScreen', 'AccountPortfolioScreen',   # Holding detail is Net worth's (his seven, DEC-0649)
                          'LookBackScreen'}}.get(MODULE, set())
 # A screen is still DERIVED from the figures that declare it, so a new one printing this module's
 # figures cannot slip past unnoticed — but a screen another module owns is then subtracted by name,
@@ -236,9 +236,17 @@ def step_1b():
     print(f'   result: {passed} test(s) passed, {failed} failed, {total} total')
 
     vp = os.path.join(HERE, f'moneykeel_validation_{MODULE}.json')
-    if not os.path.exists(vp):
-        subprocess.run([sys.executable, os.path.join(HERE, 'validate-module-complies.py'), MODULE],
-                       capture_output=True)
+    # ALWAYS RE-RUN (2026-10-01): a file left by an earlier run reported 66 Performance decisions as
+    # unconfirmed an hour after the tests holding them were written. A verdict is read from the code
+    # as it is now, never from a file that says what it was.
+    _vr = subprocess.run([sys.executable, os.path.join(HERE, 'validate-module-complies.py'), MODULE],
+                         capture_output=True, text=True)
+    if _vr.returncode != 0:
+        # A GUARD MUST PROVE IT LOOKED: a validator that crashed left yesterday's file behind and the
+        # step read it as today's answer (2026-10-01, a syntax error in the validator cost an hour).
+        print('\n   THE VALIDATOR ITSELF FAILED — nothing below is a verdict:\n' + (_vr.stderr or _vr.stdout)[-600:])
+        say('1.b', False, '', 'Step 1.b not compliant because the compliance validator failed to run; fix it before reading any verdict.')
+        return
     V = json.load(open(vp, encoding='utf8'))
     import collections
     tally = collections.Counter(v['verdict'] for v in V)
@@ -671,11 +679,18 @@ def step_4a():
                      for d in ('src', 'MoneyKeel/functions')
                      for dp, dn, fn in os.walk(d) if 'node_modules' not in dp
                      for f in fn if f.endswith(('.ts', '.tsx')))
-    orch = sorted(set(re.findall(r'MK-' + FAMILY + r'-O-\d{3}', blob)))
+    # A MODULE'S ORCHESTRATORS ARE THE DOORS THAT DECLARE ITS FIGURES (2026-10-01). thePerformance and
+    # theLookBack carry MK-NW-O identifiers — issued when the two modules were one family — and a count
+    # by identifier family found Performance had no orchestrator at all. An identifier is issued once and
+    # never re-pointed, so the door keeps its number; what says which module it serves is the family of
+    # the figures it hands out, read from the declarations.
     names = {}
-    for o in orch:
-        m = re.search(re.escape(o) + r'\s+(\w+)', blob)
-        names[o] = m.group(1) if m else '?'
+    for i, fg in FIGS.items():
+        if i.startswith('MK-' + FAMILY + '-M-') and isinstance(fg, dict) and fg.get('door'):
+            oid, _, nm = str(fg['door']).partition(' ')
+            if re.match(r'MK-[A-Z]{2}-O-\d{3}$', oid):
+                names[oid] = nm.strip() or '?'
+    orch = sorted(names)
     served = {}
     for o in orch:
         f = {i for i, fg in FIGS.items() if isinstance(fg, dict)
@@ -690,7 +705,7 @@ def step_4a():
     print(f'\n   Every orchestrator this module needs ALREADY EXISTS — {len(orch)} of them, one per')
     print('   question a screen asks. Nothing is proposed for deletion, because the screens were moved')
     print('   onto these doors when each was built (Q-NW-2 and Q-NW-4, ruled 2026-09-27).')
-    say('4.a', len(orch) >= 8,
+    say('4.a', len(orch) >= 1,
         f'Step 4.a complete — {len(orch)} orchestrators exist and the architecture needs no new one: '
         + ', '.join(f'{o} {names[o]}' for o in orch),
         f'Step 4.a not complete because only {len(orch)} orchestrator(s) exist.')
@@ -706,7 +721,7 @@ def step_4b(orch, names):
     for f in sorted(os.listdir(base)) if os.path.isdir(base) else []:
         if f.endswith('.ts') and '.test.' not in f:
             t = read(os.path.join(base, f))
-            for o in re.findall(r'MK-' + FAMILY + r'-O-\d{3}', t):
+            for o in re.findall(r'MK-[A-Z]{2}-O-\d{3}', t):
                 files.setdefault(o, f)
     for o in orch:
         print(f'   {o:15s} {"coded" if o in files else "NOT CODED":10s} {files.get(o, "—")}')

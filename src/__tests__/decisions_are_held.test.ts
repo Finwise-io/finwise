@@ -1288,4 +1288,83 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(reviewTransactions([{ ...typed, note: 'Trader Joe' }], { history: [older], makeId: () => 'f2' })).toEqual([]);
   });
 
+
+  // ── PERFORMANCE, STEP 1.b (2026-10-01) ─────────────────────────────────────────────────────────
+
+  // ── DEC-0057 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0057 — a linked account records how far back its source reaches, and a window that reaches further says so in one sentence', () => {
+    const linked = { asset_id: 'a1', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 10_000, target_return: 0, source: 'connected', history_from: '2026-06-01' } as any;
+    const now = new Date('2026-10-01T12:00:00');
+    expect(historyCoverage(linked, '2025-10-01', now)?.sentence).toMatch(/4 months of history/);
+    expect(historyCoverage(linked, '2026-09-01', now)).toBeNull();   // fully inside the records: nothing is said
+    expect(fs.readFileSync(path.join(__dirname, '..', 'domain', 'assets', 'index.ts'), 'utf8')).toMatch(/history_from\?: string/);
+  });
+
+  // ── DEC-0088 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0088 — the explanation names every FIGURE it assumes, not just the categories', () => {
+    expect(GLOSSARY.nestEggMath.body).toMatch(/10\.4%/);
+    expect(GLOSSARY.nestEggMath.body).toMatch(/7\.9%/);
+    expect(GLOSSARY.nestEggMath.body).toMatch(/\b8%/);
+  });
+
+  // ── DEC-0227 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0227 — on the first day the three ways to add an account appear ONCE on the Performance tab', () => {
+    const src = noComments(screenSrc('PerformanceScreen'));
+    const dayOne = src.slice(src.indexOf('positions.length === 0 && bondAccts.length === 0'), src.indexOf("title=\"WHAT EACH CATEGORY EARNED\" />"));
+    expect(dayOne.length).toBeGreaterThan(500);
+    expect((dayOne.match(/<EmptyNote door="accounts"/g) || []).length).toBe(1);
+    expect(dayOne).not.toMatch(/Add your accounts/);
+  });
+
+  // ── DEC-0239 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0239 — the word-check reads the copy AS IT RENDERS: string bodies, template text and JSX text', () => {
+    const guard = fs.readFileSync(path.join(__dirname, 'one_term_per_concept.test.ts'), 'utf8');
+    expect(guard).toMatch(/isNoSubstitutionTemplateLiteral/);
+    expect(guard).toMatch(/template text, JSX text/);
+  });
+
+  // ── DEC-0357 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0357 — "why income when % is calculated using wealth generated?": the trio is Ending value · Wealth generated · Return, never Income', () => {
+    const src = noComments(screenSrc('PerformanceScreen'));
+    const labels = [...src.matchAll(/<Text style=\{styles\.sumLbl\}>([^<]+)<\/Text>/g)].map((m) => m[1]);
+    expect(labels.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(labels)).toEqual(new Set(['Ending value', 'Wealth generated', 'Return']));
+  });
+
+  // ── DEC-0421 ───────────────────────────────────────────────────────────────────────────────
+  test("DEC-0421 — tapping an account's name opens that account's holdings", () => {
+    expect(noComments(screenSrc('PerformanceScreen'))).toMatch(/onTitlePress=\{\(\) => router\.push\(`\/account-detail\?id=\$\{id\}`/);
+  });
+
+  // ── DEC-0448 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0448 — "yes.": the reported trailing-12-month return is ONE field (actual_ttm), entered on the account page and read by the Retirement cockpit', () => {
+    const acct = noComments(screenSrc('AccountPortfolioScreen'));
+    expect(acct).toMatch(/const ttm = account\.actual_ttm/);
+    expect(acct).toMatch(/<ReportedReturnCard account=\{account\} \/>/);
+    expect(noComments(screenSrc('RetirementCockpit'))).toMatch(/actual_ttm/);
+  });
+
+  // ── DEC-0465 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0465 — "This does not have refresh date and time": a linked figure says when it was last true', () => {
+    expect(noComments(screenSrc('PerformanceScreen'))).toMatch(/· updated \{f\.label\}/);
+    const stale = { asset_id: 'l', label: 'Fidelity', tax_bucket: 'TAXABLE', balance: 1, target_return: 0, source: 'connected', last_synced: new Date(Date.now() - 9 * 86_400_000).toISOString() } as any;
+    expect(sourceWording(stale)).toMatch(/^Linked · /);
+  });
+
+  // ── DEC-0478 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0478 — "Is this manual, imported or connected?": every figure says which, in one of three words', () => {
+    const base = { asset_id: 'x', label: 'X', tax_bucket: 'TAXABLE', balance: 1, target_return: 0, last_synced: new Date().toISOString() } as any;
+    expect(sourceWording({ ...base, source: 'connected' })).toBe('Linked');
+    expect(sourceWording({ ...base, source: 'imported' })).toBe('Imported');
+    expect(sourceWording({ ...base, source: 'manual' })).toBe('By hand · you update it');
+  });
+
+  // ── DEC-0642 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-0642 — "Dec-0030 - remove it": the LOOK BACK door is gone from the holding page, and the page itself is still reached', () => {
+    const holding = noComments(screenSrc('HoldingDetailScreen'));
+    expect(holding).not.toMatch(/LOOK BACK:/);
+    expect(holding).not.toMatch(/router\.push\('\/look-back/);
+    expect(noComments(screenSrc('AccountPortfolioScreen'))).toMatch(/router\.push\('\/look-back'\)/);
+  });
+
 });

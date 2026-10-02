@@ -2,6 +2,7 @@
 // honest wording, explicitly backward-looking: a fact about the past, clearly separated from any
 // forward estimate, never a suggestion to trade now. When prices don't reach back far enough, the
 // screen says so — it never invents a price.
+import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
@@ -12,7 +13,7 @@ import { currencySymbol } from '../domain/_shared/money';
 // ONE DOOR (MK-NW-O-007 theLookBack, Q-PF-2) — one screen, one question.
 import { theLookBack } from '../../MoneyKeel/functions/networth-and-performance/look-back';
 import { BENCHMARK_TICKER, type PriceSeries } from '../domain/performance';
-import { maskedMoney, spokenMoney } from '../components/useMoney';
+import { fig, figSaid } from '../components/figure';   // rule 11: a figure prints with its identifier
 
 const WINDOWS = [{ m: 12, label: '12 months ago' }, { m: 24, label: '2 years ago' }, { m: 36, label: '3 years ago' }] as const;
 
@@ -57,6 +58,8 @@ export default function LookBackScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <View style={s.root}>
+    <TopBar back />
     <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <Text style={s.pastOnly}>Facts about the PAST only</Text>
       <Text style={s.h1}>What if I'd moved money {WINDOWS.find((w) => w.m === months)?.label}?</Text>
@@ -85,19 +88,19 @@ export default function LookBackScreen() {
 
       {result ? (
         <View style={s.card} accessible
-          accessibilityLabel={`What actually happened: left in ${from} it became ${spokenMoney(result.stayed.endValue)}, ${result.stayed.pct} percent. Moved to ${to} it would be ${spokenMoney(result.moved.endValue)}, ${result.moved.pct} percent. Difference ${spokenMoney(Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
+          accessibilityLabel={`What actually happened: left in ${from} it became ${figSaid('MK-PF-M-010', result.stayed.endValue)}, ${result.stayed.pct} percent. Moved to ${to} it would be ${figSaid('MK-PF-M-011', result.moved.endValue)}, ${result.moved.pct} percent. Difference ${figSaid('MK-PF-M-012', Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
           <SectionBand title="WHAT ACTUALLY HAPPENED" />
           <Text style={s.legLine}>
-            Left in {from} it became <Text style={s.strong}>{maskedMoney(result.stayed.endValue)}</Text>
-            {'  '}({result.stayed.delta >= 0 ? 'up' : 'down'} {maskedMoney(Math.abs(result.stayed.delta))}, {result.stayed.pct >= 0 ? '+' : ''}{result.stayed.pct}%)
+            Left in {from} it became <Text style={s.strong}>{fig('MK-PF-M-010', result.stayed.endValue)}</Text>
+            {'  '}({result.stayed.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-010', Math.abs(result.stayed.delta))}, {result.stayed.pct >= 0 ? '+' : ''}{result.stayed.pct}%)
           </Text>
           <Text style={s.legLine}>
-            Moved to {to} it would be <Text style={s.strong}>{maskedMoney(result.moved.endValue)}</Text>
-            {'  '}({result.moved.delta >= 0 ? 'up' : 'down'} {maskedMoney(Math.abs(result.moved.delta))}, {result.moved.pct >= 0 ? '+' : ''}{result.moved.pct}%)
+            Moved to {to} it would be <Text style={s.strong}>{fig('MK-PF-M-011', result.moved.endValue)}</Text>
+            {'  '}({result.moved.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-011', Math.abs(result.moved.delta))}, {result.moved.pct >= 0 ? '+' : ''}{result.moved.pct}%)
           </Text>
           <View style={s.diffBox}>
             <Text style={s.diffTxt}>
-              Difference: {maskedMoney(Math.abs(result.difference))} {result.difference >= 0 ? 'more' : 'less'} if you had moved.
+              Difference: {fig('MK-PF-M-012', Math.abs(result.difference))} {result.difference >= 0 ? 'more' : 'less'} if you had moved.
             </Text>
           </View>
           <Text style={s.note}>Real past prices; not a prediction of what happens next.</Text>
@@ -112,6 +115,7 @@ export default function LookBackScreen() {
       )}
       <View style={{ height: 32 }} />
     </ScrollView>
+    </View>
     </KeyboardAvoidingView>
   );
 }

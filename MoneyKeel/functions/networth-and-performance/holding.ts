@@ -284,7 +284,7 @@ export const HOLDING_FIGURES = declareFigures({
     worked: { given: GIVEN, answer: '$2.31', run: () => HOLD().dayChange?.amount ?? null },
   },
   'MK-NW-M-061': {
-    label: 'sh @', unit: 'money-cents', screens: ['/holding-detail'], grain: 'one purchase',
+    label: 'sh @', unit: 'money-cents', screens: ['/holding-detail', '/invest'], grain: 'one purchase',
     answers: 'What one purchase cost per share, on the day it was bought.',
     formula: 'the cost per share as recorded on that purchase',
     inputs: ['MK-XS-I-001 account balance'],
@@ -352,7 +352,7 @@ export const HOLDING_FIGURES = declareFigures({
     },
   },
   'MK-NW-M-033': {
-    label: 'Total paid', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
+    label: 'Total paid', unit: 'money', screens: ['/holding-detail', '/invest'], grain: 'one holding',
     answers: 'What you paid for the shares you still hold.',
     formula: 'the cost of every lot still held, added up',
     inputs: ['MK-NW-I-001 your accounts'],

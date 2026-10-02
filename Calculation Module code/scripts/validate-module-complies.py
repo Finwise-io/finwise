@@ -85,7 +85,8 @@ SCREENS = sorted(set(SCREENS) | {
  'cashflow': {'CashFlowScreen', 'BudgetScreen', 'MonthDetailScreen', 'IncomeManagerScreen',
               'IncomeDetailScreen', 'IncomeScreen', 'MonthlyIncomeScreen', 'PaycheckMonthsScreen',
               'BillCalendarScreen', 'WorthALookScreen', 'ContributionRoomScreen', 'TaxOrganizerScreen'},
- 'performance': {'PerformanceScreen', 'AccountPortfolioScreen', 'HoldingDetailScreen', 'LookBackScreen'},
+ 'performance': {'PerformanceScreen', 'AccountPortfolioScreen',   # Holding detail is Net worth's (his seven, DEC-0649)
+                     'LookBackScreen'},
 }.get(MODULE, set()))
 DOORS = 'MoneyKeel/functions/networth-and-performance' if MODULE in ('networth', 'performance') \
         else 'MoneyKeel/functions/' + MODULE
@@ -199,7 +200,8 @@ for _dp, _dn, _fn in os.walk('src'):
 OWNED = {
  'networth': {'NetWorthScreen', 'AccountPortfolioScreen', 'ItemizeScreen', 'HoldingDetailScreen',
               'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'},
- 'performance': {'PerformanceScreen', 'AccountPortfolioScreen', 'HoldingDetailScreen', 'LookBackScreen'},
+ 'performance': {'PerformanceScreen', 'AccountPortfolioScreen',   # Holding detail is Net worth's (his seven, DEC-0649)
+                     'LookBackScreen'},
 }.get(MODULE, set())
 
 
@@ -336,7 +338,12 @@ for x in TODO:
         # and the fixed words around it are what must really be there.
         def pat(q):
             holes = re.compile(r'<[a-z ]+>|\[[a-z ]+\]|\((?:N|n|\d+)\)|\bxx\b|\babc\b|\bnn\b|\$X\b|\bY\b')
-            return '.{0,24}'.join(re.escape(b) for b in holes.split(q) if b.strip()) or None
+            # A WORD HE TYPED IN THE SINGULAR MAY RENDER IN THE PLURAL (2026-10-01): he wrote "including
+            # dividend and interest" and approved the screen's "dividends" knowing so (DEC-0640). Each word
+            # may carry a trailing s on the screen; nothing else is loosened.
+            def words(seg):
+                return r'\s+'.join(re.escape(w) + ('s?' if not w.endswith('s') else '') for w in seg.split())
+            return '.{0,24}'.join(words(b) for b in holes.split(q) if b.strip()) or None
 
         hay = dict(where, **{k: v for k, v in ALL_VIS.items()})
         absent = []

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>MoneyKeel — Look back, v01</title>
+<style>
+:root{--bg:#F4F6F5;--card:#FFFFFF;--t1:#1A1A18;--t2:#6B6B66;--t3:#9A9A94;--green:#178F6B;--greenDeep:#0E5E47;--greenLight:#E3F3EC;--border:#E2E5E3}
+body{font-family:-apple-system,Inter,Segoe UI,sans-serif;background:#ECEEED;margin:0;padding:24px;color:var(--t1)}
+h1{font-size:20px;margin:0 0 6px} .note0{font-size:13px;color:#555;max-width:760px;margin:0 0 16px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.frame{display:flex;flex-direction:column;gap:8px} .cap{font-size:12px;color:#555;max-width:390px}
+.phone{width:390px;background:var(--bg);border-radius:40px;border:8px solid #1A1A18;overflow:hidden}
+
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:12px 22px 4px;font-size:13px;font-weight:700}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 10px}
+.tbtn{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid rgba(0,0,0,.1);border-radius:19px;background:#fff;font-size:13px;font-weight:700;color:#6B6B66}
+.wordmark{font-size:15px;font-weight:800;letter-spacing:.2px}
+.wordmark b{color:#178F6B;font-weight:800}
+.wordmark i{font-style:normal;color:#0B2545}
+.tright{display:flex;gap:8px;align-items:center}
+.tico{width:32px;height:32px;border:1px solid rgba(0,0,0,.1);border-radius:19px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;color:#6B6B66}
+
+.content{padding:16px}
+.pastOnly{font-size:13px;font-weight:800;color:var(--t3);letter-spacing:.5px;margin:0}
+.h1{font-size:20px;font-weight:800;margin:4px 0 8px;line-height:26px}
+.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:8px}
+.pickLabel{font-size:13px;font-weight:800;color:var(--t2);letter-spacing:.3px;margin:10px 0 0}
+.amtRow{display:flex;align-items:center;margin:4px 0 6px} .amtPrefix{font-size:24px;font-weight:700;color:var(--t2)} .amtInput{font-size:24px;font-weight:800;margin-left:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{padding:0 12px;min-height:44px;display:inline-flex;align-items:center;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:700;color:var(--t2)}
+.chip.on{border-color:var(--green);background:var(--greenLight);color:var(--greenDeep)}
+.band{background:var(--greenDeep);color:#fff;padding:8px 12px;margin:-16px -16px 8px;font-size:11px;font-weight:800;letter-spacing:.5px;border-radius:0}
+.legLine{font-size:15px;line-height:22px;margin:6px 0 0}
+.diffBox{background:var(--bg);border-radius:10px;padding:10px;margin-top:10px} .diffTxt{font-size:20px;font-weight:800;line-height:26px;margin:0;font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--t2);line-height:18px;margin:8px 0 0}
+</style></head><body>
+<h1>Look back — v01</h1>
+<p class="note0">Drawn 2026-10-01 from the screen's own code and tokens (src/screens/LookBackScreen.tsx), with the app bar every screen carries (DEC-0354). Two states on two phones: prices reach back far enough · they do not. The figures are the door's own worked example scaled to $20,000: BND +2.5% over the year, SPY +16.0%, so moving would have made $2,700 more — $20,500 + $2,700 = $23,200. Opened from the Account portfolio (an alternative's "Look back" line) and from Contribution room; the Holding detail door was removed on his ruling (DEC-0642).</p>
+<div class="row">
+  <div class="frame"><div class="phone">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+  <div class="topbar"><span class="tbtn">‹ Back</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+  <div class="content">
+    <p class="pastOnly">Facts about the PAST only</p>
+    <p class="h1">What if I'd moved money 12 months ago?</p>
+    <div class="card">
+      <p class="pickLabel">Amount</p>
+      <div class="amtRow"><span class="amtPrefix">$</span><span class="amtInput">20,000</span></div>
+      <p class="pickLabel">From</p>
+      <div class="chips"><span class="chip on">BND</span><span class="chip">VTI</span><span class="chip">QQQ</span></div>
+      <p class="pickLabel">To</p>
+      <div class="chips"><span class="chip on">SPY</span><span class="chip">VTI</span><span class="chip">QQQ</span></div>
+      <p class="pickLabel">When</p>
+      <div class="chips"><span class="chip on">12 months ago</span><span class="chip">2 years ago</span><span class="chip">3 years ago</span></div>
+    </div>
+    <div class="card">
+      <div class="band"><span class="t">WHAT ACTUALLY HAPPENED</span></div>
+      <p class="legLine">Left in BND it became <b>$20,500</b>&nbsp;&nbsp;(up $500, +2.5%)</p>
+      <p class="legLine">Moved to SPY it would be <b>$23,200</b>&nbsp;&nbsp;(up $3,200, +16.0%)</p>
+      <div class="diffBox"><p class="diffTxt">Difference: $2,700 more if you had moved.</p></div>
+      <p class="note">Real past prices; not a prediction of what happens next.</p>
+    </div>
+  </div>
+</div><p class="cap">STATE A — with prices. The three lines are MK-PF-M-010, 011 and 012; each prints through its identifier.</p></div>
+  <div class="frame"><div class="phone">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▭</span></div>
+  <div class="topbar"><span class="tbtn">‹ Back</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+  <div class="content">
+    <p class="pastOnly">Facts about the PAST only</p>
+    <p class="h1">What if I'd moved money 12 months ago?</p>
+    <div class="card">
+      <p class="pickLabel">Amount</p>
+      <div class="amtRow"><span class="amtPrefix">$</span><span class="amtInput">20,000</span></div>
+      <p class="pickLabel">From</p>
+      <div class="chips"><span class="chip on">BND</span><span class="chip">VTI</span><span class="chip">QQQ</span></div>
+      <p class="pickLabel">To</p>
+      <div class="chips"><span class="chip on">SPY</span><span class="chip">VTI</span><span class="chip">QQQ</span></div>
+      <p class="pickLabel">When</p>
+      <div class="chips"><span class="chip on">12 months ago</span><span class="chip">2 years ago</span><span class="chip">3 years ago</span></div>
+    </div>
+    <div class="card">
+      <p class="note">We don't have prices reaching back that far — open the Performance tab and refresh prices, or pick a shorter window.</p>
+    </div>
+  </div>
+</div><p class="cap">STATE B — no price history over the whole window. Nothing is invented; the screen says what is missing and what to do.</p></div>
+</div>
+</body></html>

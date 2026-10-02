@@ -1,73 +1,45 @@
 [
  {
-  "id": "DEC-0001",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/RetirementCockpit.tsx · src/screens/PlanHu",
-  "notes": "only 15 of 32 appear — present: ahead comes delta difference empty · absent: birthyear canonical carry explains explanation"
- },
- {
   "id": "DEC-0008",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-008 · MK-NW-M-040 · MK-PF-M-005",
-  "notes": "only 13 of 28 appear — present: approved closed compact floor headline · absent: applies confirmed decided dense heroes; cited in PerformanceScreen.ts"
+  "notes": "only 13 of 28 appear — present: approved closed compact floor headline · absent: applies confirmed decided dense heroes; cited by identifier in Perfor"
  },
  {
   "id": "DEC-0013",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 18 of 72 appear — present: balances banner build- component contributions · absent: accuracy add-any-income-source among approve approved"
+  "notes": "only 17 of 72 appear — present: balances banner build- component contributions · absent: accuracy add-any-income-source among approve approved; cited "
  },
  {
   "id": "DEC-0014",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 10 of 51 appear — present: alternatives asset bonds estate fixed · absent: adopted adopts amber chart chart-palettes-v"
+  "notes": "only 9 of 51 appear — present: alternatives asset bonds estate fixed · absent: adopted adopts amber chart chart-palettes-v; cited by identifier in dec"
  },
  {
   "id": "DEC-0016",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDe",
-  "notes": "only 10 of 62 appear — present: label ledger matured opens payment · absent: answered approved as-is banner become"
- },
- {
-  "id": "DEC-0017",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · src/screens/Home",
-  "notes": "only 3 of 44 appear — present: router start store · absent: as-of banner built clears cold-start"
- },
- {
-  "id": "DEC-0018",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/PerformanceScreen.tsx · src/screens/Income",
-  "notes": "only 9 of 26 appear — present: build button equity field fixed · absent: bottom company company-share editable editor"
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountPo",
+  "notes": "only 11 of 62 appear — present: label ledger matured opens payment · absent: answered approved as-is banner become; cited by identifier in decisions_a"
  },
  {
   "id": "DEC-0022",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/Holdin",
-  "notes": "only 10 of 31 appear — present: basis bought decimal dividends graph · absent: approved average averages buttons chips"
+  "notes": "only 10 of 31 appear — present: basis bought decimal dividends graph · absent: approved average averages buttons chips; cited by identifier in decisio"
  },
  {
   "id": "DEC-0030",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/HoldingDetailScreen.tsx · MK-PF-M-010 · MK",
-  "notes": "only 1 of 4 appear — present: holding · absent: drawing look-back omission; cited in HoldingDetailScreen.tsx"
- },
- {
-  "id": "DEC-0034",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · src/domain/insig",
-  "notes": "only 6 of 15 appear — present: breakdown build builds invest investment · absent: batch built drawn fallen goal-offtrack"
+  "notes": "2 of 4 of his words appear in what implements it: holding look-back; cited by identifier in look-back.ts"
  },
  {
   "id": "DEC-0041",
@@ -78,66 +50,66 @@
  },
  {
   "id": "DEC-0046",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-001 · MK-PF-M-002 · MK-PF-M-003 · the bottom b",
-  "notes": "9 of 18 of his words appear in what implements it: founder invest performance reads route together; cited in performance.ts"
+  "notes": "10 of 18 of his words appear in what implements it: desktop founder invest performance reads route; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0057",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/assets/index.ts · src/screens/PerformanceSc",
-  "notes": "only 20 of 61 appear — present: account banner broker check connected · absent: activity actually aren't back-fill built"
+  "notes": "only 20 of 61 appear — present: account banner broker check connected · absent: activity actually aren't back-fill built; cited by identifier in decis"
  },
  {
   "id": "DEC-0058",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDe",
-  "notes": "only 15 of 39 appear — present: added dividends generated hidden history · absent: appear appears covers depth dropped"
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountPo",
+  "notes": "only 14 of 39 appear — present: dividends generated hidden history income · absent: added appear appears covers depth; cited by identifier in decision"
  },
  {
   "id": "DEC-0061",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-M-003 · dataGaps in src/screens/PerformanceScree",
-  "notes": "only 17 of 44 appear — present: banner button count counts datagaps · absent: built checks complete confirmed connection; cited in net-worth.ts"
+  "notes": "only 17 of 44 appear — present: banner button count counts datagaps · absent: built checks complete confirmed connection; cited by identifier in net-w"
  },
  {
   "id": "DEC-0063",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-003 · MK-PF-M-002 · MK-PF-M-001 · MK-PF-M-004",
-  "notes": "30 of 45 of his words appear in what implements it: added approved banner beginning built construction; cited in performance.ts"
+  "notes": "33 of 45 of his words appear in what implements it: added approved banner becomes beginning built; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0064",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-006 · MK-PF-M-007",
-  "notes": "31 of 47 of his words appear in what implements it: account appear asset belongs beneath built; cited in performance.ts"
+  "notes": "32 of 47 of his words appear in what implements it: account appear asset belongs beneath built; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0067",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 9 of 48 appear — present: account amounts became close ledger · absent: arrow bands become bleed built"
+  "notes": "only 7 of 48 appear — present: account became close ledger section · absent: amounts arrow bands become bleed; cited by identifier in decisions_are_he"
  },
  {
   "id": "DEC-0073",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/functions/n",
-  "notes": "only 5 of 21 appear — present: account comes founder month worth · absent: add-or-connect audit button captured cashflow"
+  "notes": "only 5 of 21 appear — present: account comes founder month worth · absent: add-or-connect audit button captured cashflow; cited by identifier in decis"
  },
  {
   "id": "DEC-0076",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 6 of 28 appear — present: dates dating state title today's · absent: alone appears approved asserts comes"
+  "notes": "only 6 of 28 appear — present: dates dating state title today's · absent: alone appears approved asserts comes; cited by identifier in decisions_are_h"
  },
  {
   "id": "DEC-0082",
@@ -148,248 +120,164 @@
  },
  {
   "id": "DEC-0088",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/glossary.ts · src/screens/PerformanceScreen",
-  "notes": "only 16 of 62 appear — present: added bonds brokerage checking crypto · absent: actual amendments answered argued assumes"
+  "notes": "only 16 of 62 appear — present: added bonds brokerage checking crypto · absent: actual amendments answered argued assumes; cited by identifier in deci"
+ },
+ {
+  "id": "DEC-0090",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/domain/assets/index.ts classPortionLabel (the bond",
+  "notes": "quoted copy nowhere a person reads: \"CDs & Treasuries in this account\"; his remark, not copy to find — the rule is held by the test named; cited by id"
  },
  {
   "id": "DEC-0094",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · src/domain/asset",
-  "notes": "only 17 of 43 appear — present: account account's activity class dividends · absent: appeared arithmetic belongs claims contradict"
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/screens/AccountPortfolioScreen.tsx · src/domain/as",
+  "notes": "only 17 of 43 appear — present: account account's activity class dividends · absent: appeared arithmetic belongs claims contradict; cited by identifie"
  },
  {
   "id": "DEC-0099",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDe",
-  "notes": "only 10 of 54 appear — present: asked class connect count engine · absent: becomes captured checklist click complete"
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountPo",
+  "notes": "only 8 of 54 appear — present: class connect count engine route · absent: asked becomes captured checklist click; cited by identifier in decisions_are"
  },
  {
   "id": "DEC-0105",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
-  "governs": "src/components/UI.tsx · src/screens/AccountDetailScree",
-  "notes": "1 quoted phrase(s) present"
+  "governs": "src/components/UI.tsx · src/screens/AccountPortfolioSc",
+  "notes": "1 quoted phrase(s) present; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0106",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-006 · MK-PF-M-007 · MK-PF-M-008",
-  "notes": "only 42 of 91 appear — present: account accounts activity approved balance · absent: adopted affordance all-accounts amber archived; cited in performa"
- },
- {
-  "id": "DEC-0116",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 13 of 57 appear — present: accounts can't connect doors entry · absent: amber carries caught choice claude"
- },
- {
-  "id": "DEC-0117",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDe",
-  "notes": "only 8 of 74 appear — present: added class engine fixed recorded · absent: a-instructions already-approved appearance approved assumed"
- },
- {
-  "id": "DEC-0122",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/PlanHubScreen.tsx · src/screens/AccountDet",
-  "notes": "only 15 of 80 appear — present: account build columns dated early · absent: absent anywhere appear appearing applies"
- },
- {
-  "id": "DEC-0123",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 15 of 152 appear — present: amount assets button character dated · absent: accepted age-missing agreed applied argument"
- },
- {
-  "id": "DEC-0125",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 11 of 71 appear — present: added calculation engine fixed lower · absent: actionable agreement annuity beside brief"
- },
- {
-  "id": "DEC-0129",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · src/domain/asset",
-  "notes": "only 14 of 98 appear — present: button class comes components domain · absent: big-costs both' built cards carry"
- },
- {
-  "id": "DEC-0147",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 13 of 68 appear — present: accounts early hidden linked money · absent: actionable age-missing answered app's apply"
+  "notes": "only 41 of 91 appear — present: account accounts activity approved balance · absent: adopted affordance all-accounts amber archived; cited by identifi"
  },
  {
   "id": "DEC-0148",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 5 of 69 appear — present: amount balances build money recorded · absent: accept along' argued assumed brief"
+  "notes": "only 4 of 69 appear — present: balances build money recorded · absent: accept along' amount argued assumed; cited by identifier in decisions_are_held."
  },
  {
   "id": "DEC-0149",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-008 · MK-CF-M-037 · MK-NW-M-021 · MK-NW-M-008",
-  "notes": "only 23 of 62 appear — present: beneath carries character comparison correct · absent: accumulated byte-for-byte claude clean confirmed; cited in acco"
+  "notes": "only 25 of 62 appear — present: beneath carries character comparison correct · absent: accumulated byte-for-byte claude clean confirmed; cited by iden"
  },
  {
   "id": "DEC-0159",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/domain/assets/",
-  "notes": "only 7 of 80 appear — present: bonds field fixed interest market · absent: actual average backwards becomes bonds'"
- },
- {
-  "id": "DEC-0162",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/components/PlanGlanceRows.tsx · src/screens/Perfor",
-  "notes": "only 5 of 63 appear — present: asked button return state value · absent: ahead answered argument assumed assumes"
+  "notes": "only 6 of 80 appear — present: bonds field fixed interest market · absent: actual average backwards becomes bonds'; cited by identifier in decisions_a"
  },
  {
   "id": "DEC-0165",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-037 · MK-NW-M-029 · MK-PF-M-008 · MK-NW-M-006",
-  "notes": "only 39 of 106 appear — present: accounts added blend build built · absent: accept app's appears asserts avoid; cited in holding.ts"
- },
- {
-  "id": "DEC-0167",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · src/screens/Plan",
-  "notes": "only 8 of 69 appear — present: dated fixed month opens option · absent: apart approved audience become belongs"
- },
- {
-  "id": "DEC-0171",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/PlanHubScreen.tsx · src/screens/Performanc",
-  "notes": "only 18 of 112 appear — present: added asked build check component · absent: absent almost answering app's audit"
+  "notes": "only 42 of 106 appear — present: accounts added bigger blend build · absent: accept app's appears asserts avoid; cited by identifier in holding.ts"
  },
  {
   "id": "DEC-0204",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-006 · MK-PF-M-008",
-  "notes": "10 of 20 of his words appear in what implements it: approved asserted bond's dates fresh invest; cited in net-worth.ts"
+  "notes": "12 of 20 of his words appear in what implements it: approved asserted bond's dates fresh invest; cited by identifier in net-worth.ts"
  },
  {
   "id": "DEC-0216",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/Accoun",
-  "notes": "2 of 4 of his words appear in what implements it: moved title"
+  "notes": "only 1 of 4 appear — present: title · absent: heading moved standard; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0224",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
-  "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/functi",
+  "governs": "src/screens/AccountPortfolioScreen.tsx · MoneyKeel/fun",
   "notes": "2 quoted phrase(s) present"
  },
  {
   "id": "DEC-0227",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_scre",
-  "notes": "only 8 of 24 appear — present: account account' accounts moneykeel networth-and-performance · absent: again' appear approved built decimals"
- },
- {
-  "id": "DEC-0228",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_scre",
-  "notes": "only 14 of 32 appear — present: account back-solved build design drawn · absent: archive beginnings claude confirmed crashed"
+  "notes": "only 8 of 24 appear — present: account account' accounts moneykeel networth-and-performance · absent: again' appear approved built decimals; cited by "
  },
  {
   "id": "DEC-0229",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-M-004 · MK-PF-M-001 · MK-PF-M-002 · MK-PF-M-003",
-  "notes": "32 of 45 of his words appear in what implements it: account beginning broker close dollar drawn; cited in performance.ts"
+  "notes": "32 of 45 of his words appear in what implements it: account beginning broker close dollar drawn; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0230",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-002 · MK-PF-M-003",
-  "notes": "33 of 42 of his words appear in what implements it: account balance beginning beneath broker comes; cited in performance.ts"
+  "notes": "35 of 42 of his words appear in what implements it: account back-fill balance beginning beneath broker; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0231",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 7 of 32 appear — present: bonds button connect income performance · absent: afterwards app-wide buttons chips corner"
+  "notes": "only 7 of 32 appear — present: bonds button connect income performance · absent: afterwards app-wide buttons chips corner; cited by identifier in deci"
  },
  {
   "id": "DEC-0232",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-011",
-  "notes": "26 of 43 of his words appear in what implements it: account accounts approved beneath blank broker; cited in look-back.ts"
+  "notes": "27 of 43 of his words appear in what implements it: account accounts approved beneath blank broker; cited by identifier in look-back.ts"
  },
  {
   "id": "DEC-0233",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-011",
-  "notes": "only 11 of 31 appear — present: become button carries equal height · absent: asthetically bordered buttons chosen control; cited in look-back.ts"
+  "notes": "only 12 of 31 appear — present: become button carries equal height · absent: asthetically bordered buttons chosen control; cited by identifier in look"
  },
  {
   "id": "DEC-0234",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
-  "governs": "src/screens/PerformanceScreen.tsx · src/screens/Accoun",
-  "notes": "quoted copy nowhere a person reads: \"why the accounts say linked if hand entered?\""
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/domain/assets/index.ts sourceWording · src/screens",
+  "notes": "quoted copy nowhere a person reads: \"why the accounts say linked if hand entered?\"; his remark, not copy to find — the rule is held by the test named;"
  },
  {
   "id": "DEC-0235",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 7 of 37 appear — present: added hidden period records return · absent: beneath beside carries chosen clipped"
+  "notes": "only 7 of 37 appear — present: added hidden period records return · absent: beneath beside carries chosen clipped; cited by identifier in decisions_ar"
  },
  {
   "id": "DEC-0236",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-008 · MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-006",
-  "notes": "44 of 59 of his words appear in what implements it: account accounts activity ahead approved became; cited in performance.ts"
- },
- {
-  "id": "DEC-0237",
-  "verdict": "COMPLIES",
-  "check": "REQUIRES",
-  "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_prec",
-  "notes": "1 quoted phrase(s) present"
- },
- {
-  "id": "DEC-0238",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · src/screens/Plan",
-  "notes": "only 7 of 46 appear — present: balance build eight fixed holding · absent: amber approved below-yield blockers buckets"
+  "notes": "45 of 59 of his words appear in what implements it: account accounts activity ahead approved became; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0239",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · MoneyKeel/document",
-  "notes": "quoted copy nowhere a person reads: \"{pct(perYear)} a year\""
+  "notes": "quoted copy nowhere a person reads: \"{pct(perYear)} a year\"; his remark, not copy to find — the rule is held by the test named; cited by identifier in"
  },
  {
   "id": "DEC-0248",
@@ -399,18 +287,11 @@
   "notes": "6 of 9 of his words appear in what implements it: average column header money rates weighted"
  },
  {
-  "id": "DEC-0261",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
-  "governs": "MoneyKeel/functions/networth-and-performance/performan",
-  "notes": "quoted copy nowhere a person reads: \"ok — units derived by rule say so.\""
- },
- {
   "id": "DEC-0274",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-030 · MK-XS-I-034 · MK-PF-F-031 · MK-XS-I-063 ",
-  "notes": "17 of 27 of his words appear in what implements it: applied broker contract contracts costbasis domain"
+  "notes": "19 of 27 of his words appear in what implements it: applied broker contract contracts costbasis domain"
  },
  {
   "id": "DEC-0277",
@@ -418,6 +299,13 @@
   "check": "TRACE",
   "governs": "MK-NW-M-031 · MK-PF-F-032 · MK-PF-F-033 · MK-XS-I-064",
   "notes": "13 of 23 of his words appear in what implements it: beside contracts domain holding-detail index mk-xs-i-"
+ },
+ {
+  "id": "DEC-0280",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/domain/bonds/index.ts accruedInterestCaveat · Mone",
+  "notes": "quoted copy nowhere a person reads: \"subtract accrued interest when known; say so when not.\"; his remark, not copy to find — the rule is held by the t"
  },
  {
   "id": "DEC-0282",
@@ -435,38 +323,38 @@
  },
  {
   "id": "DEC-0289",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_ca",
-  "notes": "only 3 of 25 appear — present: asked month spoken · absent: aloud applied carry everywhere frequency"
+  "notes": "only 1 of 25 appear — present: month · absent: aloud applied asked carry everywhere; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0296",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/domain/income/onboarding.ts · src/screens/AccountD",
-  "notes": "only 4 of 16 appear — present: coupon deleted entered state · absent: default defaults empty filling input"
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/domain/income/onboarding.ts · src/screens/AccountP",
+  "notes": "only 4 of 16 appear — present: coupon deleted entered state · absent: default defaults empty filling input; cited by identifier in decisions_are_held."
  },
  {
-  "id": "DEC-0299",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/domain/retirement/index.ts · src/screens/AccountDe",
-  "notes": "only 2 of 12 appear — present: class share · absent: brief built differ exists facts"
+  "id": "DEC-0298",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "MoneyKeel/functions/networth-and-performance/net-worth",
+  "notes": "quoted copy nowhere a person reads: \"a tax figure requires a YEAR — net worth shows no tax.\"; his remark, not copy to find — the rule is held by the t"
  },
  {
   "id": "DEC-0314",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/functi",
-  "notes": "only 4 of 15 appear — present: market movement update value · absent: booked built entries evenly hand-entered"
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/screens/AccountPortfolioScreen.tsx · MoneyKeel/fun",
+  "notes": "only 5 of 15 appear — present: hand-entered market movement update value · absent: booked built entries evenly happened; cited by identifier in decisi"
  },
  {
   "id": "DEC-0315",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/Accoun",
-  "notes": "12 of 20 of his words appear in what implements it: beginning beginningasof calculation close count engines"
+  "notes": "11 of 20 of his words appear in what implements it: beginning calculation close count engines module"
  },
  {
   "id": "DEC-0316",
@@ -480,14 +368,14 @@
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-PF-M-008",
-  "notes": "1 quoted phrase(s) present; cited in performance.ts"
+  "notes": "1 quoted phrase(s) present; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0328",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 5 of 19 appear — present: account broker counts ledger money · absent: assertions checks dedupe doubles equals"
+  "notes": "only 5 of 19 appear — present: account broker counts ledger money · absent: assertions checks dedupe doubles equals; cited by identifier in decisions_"
  },
  {
   "id": "DEC-0329",
@@ -501,70 +389,35 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-XS-M-004 · MK-PF-F-019",
-  "notes": "5 of 10 of his words appear in what implements it: engines functions questions return window"
+  "notes": "6 of 10 of his words appear in what implements it: engines functions money-weighted questions return window"
  },
  {
   "id": "DEC-0346",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-",
-  "notes": "only 2 of 14 appear — present: function share · absent: arithmetic calculates compute definition derived"
- },
- {
-  "id": "DEC-0354",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/HoldingDetailScreen.tsx · MoneyKeel/docume",
-  "notes": "only 2 of 5 appear — present: moneykeel worth · absent: belongs import similar"
+  "notes": "only 2 of 14 appear — present: function share · absent: arithmetic calculates compute definition derived; cited by identifier in decisions_are_held.te"
  },
  {
   "id": "DEC-0357",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-002 · MK-PF-M-003",
-  "notes": "quoted copy nowhere a person reads: \"why income when % is calculated using wealth generated?\"; cited in performance.ts"
- },
- {
-  "id": "DEC-0362",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · src/components/P",
-  "notes": "only 1 of 12 appear — present: state · absent: breaking numeral overfill past-target picture"
- },
- {
-  "id": "DEC-0368",
-  "verdict": "COMPLIES",
-  "check": "REQUIRES",
-  "governs": "MK-XS-M-004 · canon row 14 in moneykeel_naming_spec_ca",
-  "notes": "1 quoted phrase(s) present; cited in performance.ts"
+  "notes": "quoted copy nowhere a person reads: \"why income when % is calculated using wealth generated?\"; his remark, not copy to find — the rule is held by the "
  },
  {
   "id": "DEC-0370",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 4 of 17 appear — present: decimal moved return worth · absent: corrected cushion decimals error exception"
- },
- {
-  "id": "DEC-0398",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_obje",
-  "notes": "only 5 of 22 appear — present: count counts coverage engine today's · absent: agreed approval approved column consequence"
- },
- {
-  "id": "DEC-0399",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MK-PF-M-008",
-  "notes": "only 11 of 23 appear — present: approved count counter counts honest · absent: approval confirmed consequence documented giving; cited in performance."
+  "notes": "only 3 of 17 appear — present: decimal return worth · absent: corrected cushion decimals error exception; cited by identifier in decisions_are_held.te"
  },
  {
   "id": "DEC-0402",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-008",
-  "notes": "5 of 8 of his words appear in what implements it: ahead approved declared order ruled; cited in performance.ts"
+  "notes": "5 of 8 of his words appear in what implements it: ahead approved declared order ruled; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0404",
@@ -574,74 +427,32 @@
   "notes": "6 of 10 of his words appear in what implements it: beside longer return shown window yearly"
  },
  {
-  "id": "DEC-0413",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_fi",
-  "notes": "only 4 of 11 appear — present: check ledger recorded records · absent: advice august began changelog relied"
- },
- {
-  "id": "DEC-0417",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_fi",
-  "notes": "only 4 of 29 appear — present: column columns filter opens · absent: beside clipped excel folded format"
- },
- {
   "id": "DEC-0421",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/assets/index.ts · src/screens/PerformanceSc",
-  "notes": "only 3 of 10 appear — present: account account's money · absent: approvals founder holdings opens portfolio"
- },
- {
-  "id": "DEC-0426",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/AccountDetailScreen.tsx · MoneyKeel/docume",
-  "notes": "only 2 of 12 appear — present: column columns · absent: approved built defect design difference"
+  "notes": "only 3 of 10 appear — present: account account's money · absent: approvals founder holdings opens portfolio; cited by identifier in decisions_are_held"
  },
  {
   "id": "DEC-0430",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/Accoun",
-  "notes": "only 2 of 9 appear — present: title worth · absent: checked founder instruction keeps opposite"
- },
- {
-  "id": "DEC-0433",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "MoneyKeel/functions/networth-and-performance/performan",
-  "notes": "only 2 of 9 appear — present: engines identifier · absent: content defined one-term retired rulings"
- },
- {
-  "id": "DEC-0436",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 2 of 8 appear — present: doors summary · absent: choice import offered read-only ruling"
+  "notes": "only 2 of 9 appear — present: title worth · absent: checked founder instruction keeps opposite; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0437",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
-  "governs": "src/domain/assets/index.ts · src/screens/AccountDetail",
-  "notes": "1 quoted phrase(s) present"
- },
- {
-  "id": "DEC-0444",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/RetirementCockpit.tsx · src/domain/assets/",
-  "notes": "only 17 of 36 appear — present: alternatives beatby bonds built current · absent: assumes assuming attribution backward-looking cap-gains"
+  "governs": "src/domain/assets/index.ts sourceWording · src/screens",
+  "notes": "1 quoted phrase(s) present; cited by identifier in source_always_date_only_when_stale.test.ts"
  },
  {
   "id": "DEC-0448",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/assets/index.ts · src/screens/PerformanceSc",
-  "notes": "only 9 of 20 appear — present: accounts asset assets connect decimal · absent: actual approved assetaccount cluster editable"
+  "notes": "only 9 of 20 appear — present: accounts asset assets connect decimal · absent: actual approved assetaccount cluster editable; cited by identifier in d"
  },
  {
   "id": "DEC-0453",
@@ -652,59 +463,52 @@
  },
  {
   "id": "DEC-0456",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountDe",
-  "notes": "only 7 of 19 appear — present: amount comes correction investments market · absent: clear color direction green matters"
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/screens/NetWorthScreen.tsx · src/screens/AccountPo",
+  "notes": "only 7 of 19 appear — present: amount comes correction investments market · absent: clear color direction green matters; cited by identifier in decisi"
  },
  {
   "id": "DEC-0458",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 3 of 14 appear — present: market matching return · absent: ahead benchmark benchmark' compared existing"
+  "notes": "only 3 of 14 appear — present: market matching return · absent: ahead benchmark benchmark' compared existing; cited by identifier in decisions_are_hel"
  },
  {
   "id": "DEC-0461",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/transactions/flags.ts · MoneyKeel/functions",
-  "notes": "only 5 of 23 appear — present: account comparison large reads withdrawal · absent: advice first-time formulated payee plain-english"
+  "notes": "only 5 of 23 appear — present: account comparison large reads withdrawal · absent: advice first-time formulated payee plain-english; cited by identifi"
  },
  {
   "id": "DEC-0465",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/HomeScreen.tsx · src/screens/PerformanceSc",
-  "notes": "quoted copy nowhere a person reads: \"This does not have refresh date and time.\""
- },
- {
-  "id": "DEC-0469",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/NetWorthScreen.tsx · MoneyKeel/functions/n",
-  "notes": "only 5 of 13 appear — present: minus month question trend worth · absent: ambiguous calendar description graph headline"
+  "notes": "quoted copy nowhere a person reads: \"This does not have refresh date and time.\"; his remark, not copy to find — the rule is held by the test named; ci"
  },
  {
   "id": "DEC-0471",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 4 of 29 appear — present: account asset button connect · absent: adjusting class collecting collects dynamic"
+  "notes": "only 4 of 29 appear — present: account asset button connect · absent: adjusting class collecting collects dynamic; cited by identifier in decisions_ar"
  },
  {
   "id": "DEC-0478",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/domain/assets/index.ts · src/screens/PerformanceSc",
-  "notes": "only 6 of 13 appear — present: connected crypto hedge investment options · absent: annuity captured imported manual plaid"
+  "notes": "only 6 of 13 appear — present: connected crypto hedge investment options · absent: annuity captured imported manual plaid; cited by identifier in deci"
  },
  {
   "id": "DEC-0479",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-007 · MK-PF-M-008",
-  "notes": "10 of 16 of his words appear in what implements it: display dividend gains interest invest questions; cited in performance.ts"
+  "notes": "10 of 16 of his words appear in what implements it: display dividend gains interest invest questions; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0483",
@@ -714,52 +518,73 @@
   "notes": "6 of 12 of his words appear in what implements it: brokerage dividends holding price shares stocks"
  },
  {
-  "id": "DEC-0497",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "src/domain/insights/index.ts · src/screens/RetirementC",
-  "notes": "9 of 12 of his words appear in what implements it: asked details invest investments level question"
- },
- {
-  "id": "DEC-0510",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
-  "governs": "src/screens/InsightsScreen.tsx",
-  "notes": "5 of 5 of his words appear in what implements it: detail invest investments level question"
- },
- {
   "id": "DEC-0595",
-  "verdict": "NOT FOUND",
+  "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-PF-M-008 market +X% · MK-XS-M-004 ▲ up/▼ down $X (Y",
-  "notes": "quoted copy nowhere a person reads: \"including dividend and interest\""
+  "notes": "2 quoted phrase(s) present"
  },
  {
   "id": "DEC-0596",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-XS-M-004 · MK-PF-F-026 moneyWeightedReturn · MK-NW-",
-  "notes": "34 of 49 of his words appear in what implements it: added adding alone amount amounts apart"
+  "notes": "36 of 49 of his words appear in what implements it: added adding alone amount amounts apart"
  },
  {
   "id": "DEC-0640",
-  "verdict": "NOT FOUND",
+  "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-PF-M-008 market +X% · MK-XS-M-004 ▲ up/▼ down $X (Y",
-  "notes": "quoted copy nowhere a person reads: \"including dividend and interest\""
+  "notes": "2 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-0641",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "MK-NW-M-012 Monthly debt payments · MoneyKeel/function",
+  "notes": "quoted copy nowhere a person reads: \"what actually leaves.\"; his remark, not copy to find — the rule is held by the test named; cited by identifier in"
  },
  {
   "id": "DEC-0642",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012 · DEC-0030",
-  "notes": "quoted copy nowhere a person reads: \"LOOK BACK: what if I’d sold a year ago?\""
+  "notes": "quoted copy nowhere a person reads: \"LOOK BACK: what if I’d sold a year ago?\"; his remark, not copy to find — the rule is held by the test named; cite"
  },
  {
   "id": "DEC-0643",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-O-008 thePerformance · MK-PF-F-026 moneyWeighted",
-  "notes": "27 of 37 of his words appear in what implements it: account amount approved beginning beneath built"
+  "notes": "28 of 37 of his words appear in what implements it: account amount approved beginning beneath built"
+ },
+ {
+  "id": "DEC-0646",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/screens/AccountPortfolioScreen.tsx · MK-NW-M-021 ·",
+  "notes": "only 6 of 19 appear — present: account dated detail module performance · absent: account-detail approved archive design drawing; cited by identifier i"
+ },
+ {
+  "id": "DEC-0647",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "MoneyKeel/documents/networth-and-performance/moneykeel",
+  "notes": "only 7 of 22 appear — present: build comes module performance record · absent: approved built closing colour design; cited by identifier in decisions_"
+ },
+ {
+  "id": "DEC-0648",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "MoneyKeel/documents/networth-and-performance/archive/2",
+  "notes": "12 of 18 of his words appear in what implements it: alternatives bonds design detail drawn holding; cited by identifier in decisions_are_held.test.ts"
+ },
+ {
+  "id": "DEC-0651",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "src/screens/AccountPortfolioScreen.tsx · src/screens/N",
+  "notes": "only 16 of 46 appear — present: account alternatives bonds button earned · absent: account-detail accounts applied approve approved; cited by identifi"
  }
 ]
