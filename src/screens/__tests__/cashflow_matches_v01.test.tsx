@@ -22,6 +22,14 @@
  *  6. "same every month" rides each recurring row in both frames (the drawing prints it in C, not in D).
  *  7. "Import a statement ›" stays at the foot of the tab: it is the one way anything arrives imported.
  *  8. Rows the drawing folds away under "Show all N" are opened in the full list, not in place.
+ *  On the Income tab (frame 5):
+ *  9. A source is listed once it has been entered, under the name the Income screens give it
+ *     (income-end-to-end_v07 — "where the architecture file and a detail file disagree, the detail file
+ *     wins"). The drawing lists two unentered ones ("Rental income $0", "Equity comp —") under older names.
+ *  10. The line under "Add your income ›" — "opens the steady-or-varies pop-up…" — describes a pop-up
+ *     that became a full screen on 2026-08-27 (v07, frame 2). It is not printed.
+ *  11. "Your income, all of it — Open ›" stays under the tab: it is the only way in to the approved
+ *     summary screen (v07, frames 16 and 17).
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -140,4 +148,23 @@ test('D · Expenses, a fresh account — every section keeps its heading when em
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByLabelText('Expenses tab'));
   checkExpenses(folded(4), builtLines(screen.toJSON()));
+});
+
+// ── the Income tab ───────────────────────────────────────────────────────────────────────────────
+test('E · Income — the month’s expected take-home, your sources, and what has been received', () => {
+  useStore.getState().resetAll();
+  useStore.setState({ onboardingComplete: true, hideBalances: false,
+    onboardingProfile: { ...WORKER, baseSalary: '6200', monthlySpending: '2000' },
+    incomes: [{ id: 'i2', date: today, source: 'Paycheck', amount: 3100 }, { id: 'i1', date: `${today.slice(0, 8)}01`, source: 'Paycheck', amount: 3100 }],
+  } as any);
+  render(<CashFlowScreen />);
+  fireEvent.press(screen.getByLabelText('Income tab'));
+  const KNOWN_INCOME = (s: string) => s
+    .replace(/ rental income # properties \$# equity comp rsu grants —/, '')                                   // 9
+    .replace(/ opens the steady-or-varies pop-up — variable earners fine-tune month by month/, '')             // 10
+    .replace(/ your income, all of it the take-home, and what it is taxed on open/, '')                        // 11
+    .replace(/ expense$/, '');                                                                                 // 2
+  const want = KNOWN_INCOME(month(norm(phone(5)))), got = KNOWN_INCOME(month(norm(builtLines(screen.toJSON()))));
+  expect(want.split(' ').length).toBeGreaterThan(25);
+  expect(firstDifference(want, got)).toBe('');
 });

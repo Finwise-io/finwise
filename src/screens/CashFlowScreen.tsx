@@ -137,7 +137,9 @@ export default function CashFlowScreen() {
       ))}
 
       {surfTab === 'Income' && (
-        <IncomeTab op={op} store={store} ym={selYm} onSetup={() => router.push('/base-pay')} onSummary={() => router.push('/income-summary')} />
+        <IncomeTab op={op} store={store} ym={selYm} expected={grid.cells[Math.max(0, surfOffset)]?.inflow ?? 0} current={surfOffset === 0}
+          monthLabel={selDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          onSetup={() => router.push('/base-pay')} onSummary={() => router.push('/income-summary')} />
       )}
 
       {surfTab === 'Expenses' && (
@@ -251,12 +253,15 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending }: { offset
 }
 
 /** INCOME tab: sources + the steady/varies pop-up door + received-this-month + the Teller door. */
-function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any; ym: string; onSetup: () => void; onSummary: () => void }) {
+function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSummary }: { op: any; store: any; ym: string; expected: number; current: boolean; monthLabel: string; onSetup: () => void; onSummary: () => void }) {
   const router = useRouter();
   const varies = hasMonthlySalaryTable(op);
   const guaranteed = retirementIncomeMonthly(op);
   const received = receivedInMonth(store.incomes, ym);   // MK-CF-M-012, from the door (2026-10-02)
-  const sources: { label: string; sub: string | string[]; amount: string }[] = [];
+  // each source is a row AND the way to change it — the drawing sets a › on every one (cash-flow_v01,
+  // frame 5). The rows used to say "tap to edit" and could not be tapped.
+  const sources: { label: string; sub: string | string[]; amount: string; open: () => void }[] = [];
+  const manage = (what: string) => () => router.push(`/income-manager?open=${what}` as any);
   // B46 finding 8 ("steady $5,000" vs In $8,600): this row must tell the TRUTH about what's stored —
   // the old code hardcoded 'take-home · monthly' and printed the raw per-period entry, so a salary
   // saved as gross/biweekly showed a number nothing else on the screen could reconcile with. The sub
@@ -275,77 +280,77 @@ function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any;
     const whose = earnerWages(op).length > 1 ? (w === (op as any) ? 'You' : (op as any)?.partnerName || 'Spouse') : null;
     sources.push({
       label: `${whose ? whose + ' · ' : ''}${varies ? 'Salary — varies' : 'Salary — steady'}`,
-      sub: varies ? 'by-month table · tap Set up to adjust'
+      sub: varies ? 'by-month table'
         : plainMonthlyTakehome ? 'take-home · monthly'
         : [basis, unit, `≈ ${fig('MK-CF-M-031', monthlyNet)}/month take-home`],
       amount: fig('MK-CF-M-006', Math.round(Number(w.baseSalary) || 0)),
+      open: onSetup,
     });
   }
-  if (op?.seAmount) sources.push({ label: 'Self-employment', sub: op.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly', amount: fig('MK-CF-M-007', Math.round(Number(op.seAmount) || 0)) });
+  if (op?.seAmount) sources.push({ label: 'Self-employment', sub: op.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly', amount: fig('MK-CF-M-007', Math.round(Number(op.seAmount) || 0)), open: manage('self') });
   // pre-48 audit A3 (PRD F2#2): every stored source is VISIBLE here — bonus with its month,
   // equity vesting, rental; invisible income was unexplainable months on the grid
   const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  if (Number(op?.bonusAnnual) > 0) sources.push({ label: 'Bonus', sub: op?.bonusMonth ? `lands in ${MO[(Number(op.bonusMonth) - 1 + 12) % 12]} · tap to edit` : 'month not set — tap to set it', amount: `${fig('MK-CF-M-008', Math.round(Number(op.bonusAnnual)))}/year` });
+  if (Number(op?.bonusAnnual) > 0) sources.push({ label: 'Bonus', sub: op?.bonusMonth ? `lands in ${MO[(Number(op.bonusMonth) - 1 + 12) % 12]}` : 'month not set', amount: `${fig('MK-CF-M-008', Math.round(Number(op.bonusAnnual)))}/year`, open: manage('bonus') });
   const rsuTotal = rsuAnnual(op);
-  if (rsuTotal > 0) sources.push({ label: 'Stock vesting (equity)', sub: 'vests through the year · tap to edit', amount: `${fig('MK-CF-M-009', Math.round(rsuTotal))}/year` });
+  if (rsuTotal > 0) sources.push({ label: 'Stock vesting (equity)', sub: 'vests through the year', amount: `${fig('MK-CF-M-009', Math.round(rsuTotal))}/year`, open: manage('equity') });
   const rentalTotal = rentalNetAnnual(op);
-  if (rentalTotal > 0) sources.push({ label: 'Rental property', sub: 'net · tap to edit', amount: `${fig('MK-CF-M-010', Math.round(rentalTotal / 12))}/month` });
-  if (guaranteed > 0) sources.push({ label: 'Social Security · pension', sub: 'guaranteed income', amount: `${fig('MK-CF-M-011', Math.round(guaranteed))}/month` });
+  if (rentalTotal > 0) sources.push({ label: 'Rental property', sub: 'net', amount: `${fig('MK-CF-M-010', Math.round(rentalTotal / 12))}/month`, open: manage('rental') });
+  if (guaranteed > 0) sources.push({ label: 'Social Security · pension', sub: 'guaranteed income', amount: `${fig('MK-CF-M-011', Math.round(guaranteed))}/month`, open: () => router.push('/monthly-income' as any) });
+  const dayWords = (iso: string) => { const [, m, d] = String(iso).slice(0, 10).split('-').map(Number); return `${MON3[(m || 1) - 1]} ${d}`; };
   return (
     <>
+      {/* THE MONTH'S EXPECTED TAKE-HOME, first (cash-flow_v01, frame 5) — the figure the sources below add up to */}
+      <View style={styles.card}>
+        <SectionBand inCard inset={16} title={current ? 'THIS MONTH' : monthLabel.toUpperCase()} />
+        <Text style={styles.incomeHero} accessible accessibilityLabel={`${figSaid('MK-CF-M-047', Math.round(expected))}, expected take-home`}>{fig('MK-CF-M-047', Math.round(expected))}</Text>
+        <Text style={styles.heroSub}>expected take-home</Text>
+      </View>
       <View style={styles.card}>
         <SectionBand inCard inset={16} title="YOUR SOURCES" />
         {sources.length === 0 && <EmptyNote door="income" />}   {/* Q48 */}
         {sources.map((sc) => (
-          <View key={sc.label} style={styles.row}>
+          <TouchableOpacity key={sc.label} accessibilityRole="button" activeOpacity={0.7} style={styles.mRow} onPress={sc.open}
+            accessibilityLabel={`${sc.label}, ${Array.isArray(sc.sub) ? sc.sub.join(', ') : sc.sub}, ${sc.amount}. Opens it to change.`}>
             <View style={{ flex: 1 }}><Text style={styles.rowL}>{sc.label}</Text>{Array.isArray(sc.sub) ? <DotJoined style={styles.doorSub} parts={sc.sub} /> : <Text style={styles.doorSub}>{sc.sub}</Text>}</View>
-            <Text style={styles.rowV}>{sc.amount}</Text>
-          </View>
+            <Text style={styles.rowV}>{sc.amount} ›</Text>
+          </TouchableOpacity>
         ))}
-        {/* B47 finding 10: ONE add entry, zero explanation — the chooser's labels carry the meaning.
-            (Superseded the two-door + two-sentence layout the founder rightly called out.) */}
+        {/* ONE way to add, in the one wording every screen uses for it (constants/doors.ts). The
+            chooser's labels carry the meaning (B47 finding 10). */}
         <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}
-          accessibilityLabel="Add income"
+          accessibilityLabel="Add your income"
           onPress={() => {
-            Alert.alert('Add income', undefined, [
+            Alert.alert('Add your income', undefined, [
               { text: 'Salary / take-home', onPress: onSetup },
-              { text: 'Stock vesting (equity)', onPress: () => router.push('/income-manager?open=equity' as any) },
-              { text: 'Rental property', onPress: () => router.push('/income-manager?open=rental' as any) },
-              { text: 'Self-employment', onPress: () => router.push('/income-manager?open=self' as any) },
-              { text: 'Bonus / one-time', onPress: () => router.push('/income-manager?open=bonus' as any) },
+              { text: 'Stock vesting (equity)', onPress: manage('equity') },
+              { text: 'Rental property', onPress: manage('rental') },
+              { text: 'Self-employment', onPress: manage('self') },
+              { text: 'Bonus / one-time', onPress: manage('bonus') },
               { text: 'Cancel', style: 'cancel' },
             ]);
           }}>
-          <Text style={styles.link}>＋ Add income ›</Text>
+          <Text style={styles.link}>Add your income ›</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.card}>
-        <SectionBand inCard inset={16} title={`RECEIVED · ${ym}`} />
-        {received.length === 0 && <EmptyNote door="income" />}   {/* Q48 */}
+        <SectionBand inCard inset={16} title={current ? 'RECEIVED THIS MONTH' : `RECEIVED · ${monthLabel.toUpperCase()}`} />
+        {received.length === 0 && <Text style={styles.emptyP}>Nothing received yet this month.</Text>}
         {received.slice(0, 6).map((i: any) => (
-          <Row key={i.id} label={`${String(i.date).slice(5)} · ${i.source || i.type || 'Income'}`} value={`+${fig('MK-CF-M-012', Math.round(Number(i.amount) || 0))}`} color={Colors.gainText} />
+          <Row key={i.id} label={`${dayWords(i.date)} · ${i.source || i.type || 'Income'}`} value={`+${fig('MK-CF-M-012', Math.round(Number(i.amount) || 0))}`} color={Colors.gainText} />
         ))}
       </View>
-      <View style={styles.card}>
-        <SectionBand inCard inset={16} title="COMING SOON" />
-        <View style={styles.door}>
-          <View style={{ flex: 1 }}><Text style={styles.doorT}>Connect your bank</Text><Text style={styles.doorSub}>paychecks appear on their own</Text></View>
-          <Text style={styles.soonPill}>SOON</Text>
-        </View>
-      </View>
-      {/* Your income, all of it — the summary (approved mock income-v5, 5a). Two totals: the take-home,
-          and what it is taxed on. It reads the rate set on Your base pay and never asks again. */}
+      {/* Your income, all of it — the summary (approved mock income-end-to-end, frames 16 and 17). Not
+          on the tab's own drawing; kept, because it is the only way in to an approved screen. */}
       <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={onSummary}
         accessibilityLabel="Your income, all of it — the take-home and what it is taxed on">
         <View style={{ flex: 1 }}><Text style={styles.doorT}>Your income, all of it</Text>
           <Text style={styles.doorSub}>the take-home, and what it is taxed on</Text></View>
         <Text style={styles.link}>Open ›</Text>
       </TouchableOpacity>
-
     </>
   );
 }
-
 
 /** EXPENSES tab — as cash-flow_v01 draws it (frames C and D): what repeats every month · what is
  *  planned · what was actually spent, by where it came from · and the big-ticket radar. Every figure is
@@ -866,6 +871,7 @@ const styles = StyleSheet.create({
   cta: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', marginTop: 8, paddingHorizontal: 14, backgroundColor: Colors.primary },
   ctaT: { fontSize: 13, fontWeight: '800', color: Colors.white },
   heroNum: { fontSize: 38, fontWeight: '800', marginTop: 2 },
+  incomeHero: { fontSize: 30, fontWeight: '800', color: Colors.gainText, marginTop: 2, fontVariant: ['tabular-nums'] },
   heroSub: { fontSize: 13, color: Colors.textSecondary, fontWeight: '700', marginBottom: 6 },
   paceTrack: { height: 10, borderRadius: 5, backgroundColor: Colors.bgTertiary, marginTop: 10, overflow: 'hidden' },
   paceFill: { height: 10, borderRadius: 5 },

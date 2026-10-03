@@ -7772,7 +7772,27 @@
     },
     {
      "k": "t",
+     "s": "THIS MONTH"
+    },
+    {
+     "k": "a",
+     "s": "$7,200 a month, expected take-home"
+    },
+    {
+     "k": "t",
+     "s": "$7,200"
+    },
+    {
+     "k": "t",
+     "s": "expected take-home"
+    },
+    {
+     "k": "t",
      "s": "YOUR SOURCES"
+    },
+    {
+     "k": "a",
+     "s": "Salary — steady, before tax, monthly, ≈ $7,200/month take-home, $9,000. Opens it to change."
     },
     {
      "k": "t",
@@ -7803,24 +7823,12 @@
      "s": "$9,000"
     },
     {
-     "k": "a",
-     "s": "Add income"
-    },
-    {
      "k": "t",
-     "s": "＋ Add income ›"
-    },
-    {
-     "k": "t",
-     "s": "RECEIVED · 2026-10"
+     "s": "›"
     },
     {
      "k": "a",
-     "s": "Nothing entered yet. Add your income ›"
-    },
-    {
-     "k": "t",
-     "s": "Nothing entered yet."
+     "s": "Add your income"
     },
     {
      "k": "t",
@@ -7828,19 +7836,11 @@
     },
     {
      "k": "t",
-     "s": "COMING SOON"
+     "s": "RECEIVED THIS MONTH"
     },
     {
      "k": "t",
-     "s": "Connect your bank"
-    },
-    {
-     "k": "t",
-     "s": "paychecks appear on their own"
-    },
-    {
-     "k": "t",
-     "s": "SOON"
+     "s": "Nothing received yet this month."
     },
     {
      "k": "a",
@@ -8794,7 +8794,27 @@
     },
     {
      "k": "t",
+     "s": "THIS MONTH"
+    },
+    {
+     "k": "a",
+     "s": "$7,200 a month, expected take-home"
+    },
+    {
+     "k": "t",
+     "s": "$7,200"
+    },
+    {
+     "k": "t",
+     "s": "expected take-home"
+    },
+    {
+     "k": "t",
      "s": "YOUR SOURCES"
+    },
+    {
+     "k": "a",
+     "s": "Salary — steady, before tax, monthly, ≈ $7,200/month take-home, $9,000. Opens it to change."
     },
     {
      "k": "t",
@@ -8825,24 +8845,12 @@
      "s": "$9,000"
     },
     {
-     "k": "a",
-     "s": "Add income"
-    },
-    {
      "k": "t",
-     "s": "＋ Add income ›"
-    },
-    {
-     "k": "t",
-     "s": "RECEIVED · 2026-10"
+     "s": "›"
     },
     {
      "k": "a",
-     "s": "Nothing entered yet. Add your income ›"
-    },
-    {
-     "k": "t",
-     "s": "Nothing entered yet."
+     "s": "Add your income"
     },
     {
      "k": "t",
@@ -8850,19 +8858,11 @@
     },
     {
      "k": "t",
-     "s": "COMING SOON"
+     "s": "RECEIVED THIS MONTH"
     },
     {
      "k": "t",
-     "s": "Connect your bank"
-    },
-    {
-     "k": "t",
-     "s": "paychecks appear on their own"
-    },
-    {
-     "k": "t",
-     "s": "SOON"
+     "s": "Nothing received yet this month."
     },
     {
      "k": "a",
@@ -10204,7 +10204,27 @@
     },
     {
      "k": "t",
+     "s": "THIS MONTH"
+    },
+    {
+     "k": "a",
+     "s": "$3,500 a month, expected take-home"
+    },
+    {
+     "k": "t",
+     "s": "$3,500"
+    },
+    {
+     "k": "t",
+     "s": "expected take-home"
+    },
+    {
+     "k": "t",
      "s": "YOUR SOURCES"
+    },
+    {
+     "k": "a",
+     "s": "Social Security · pension, guaranteed income, $3,500/month. Opens it to change."
     },
     {
      "k": "t",
@@ -10219,24 +10239,12 @@
      "s": "$3,500/month"
     },
     {
-     "k": "a",
-     "s": "Add income"
-    },
-    {
      "k": "t",
-     "s": "＋ Add income ›"
-    },
-    {
-     "k": "t",
-     "s": "RECEIVED · 2026-10"
+     "s": "›"
     },
     {
      "k": "a",
-     "s": "Nothing entered yet. Add your income ›"
-    },
-    {
-     "k": "t",
-     "s": "Nothing entered yet."
+     "s": "Add your income"
     },
     {
      "k": "t",
@@ -10244,19 +10252,11 @@
     },
     {
      "k": "t",
-     "s": "COMING SOON"
+     "s": "RECEIVED THIS MONTH"
     },
     {
      "k": "t",
-     "s": "Connect your bank"
-    },
-    {
-     "k": "t",
-     "s": "paychecks appear on their own"
-    },
-    {
-     "k": "t",
-     "s": "SOON"
+     "s": "Nothing received yet this month."
     },
     {
      "k": "a",
@@ -10854,6 +10854,22 @@
     },
     {
      "k": "t",
+     "s": "THIS MONTH"
+    },
+    {
+     "k": "a",
+     "s": "$0 a month, expected take-home"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "expected take-home"
+    },
+    {
+     "k": "t",
      "s": "YOUR SOURCES"
     },
     {
@@ -10870,23 +10886,7 @@
     },
     {
      "k": "a",
-     "s": "Add income"
-    },
-    {
-     "k": "t",
-     "s": "＋ Add income ›"
-    },
-    {
-     "k": "t",
-     "s": "RECEIVED · 2026-10"
-    },
-    {
-     "k": "a",
-     "s": "Nothing entered yet. Add your income ›"
-    },
-    {
-     "k": "t",
-     "s": "Nothing entered yet."
+     "s": "Add your income"
     },
     {
      "k": "t",
@@ -10894,19 +10894,11 @@
     },
     {
      "k": "t",
-     "s": "COMING SOON"
+     "s": "RECEIVED THIS MONTH"
     },
     {
      "k": "t",
-     "s": "Connect your bank"
-    },
-    {
-     "k": "t",
-     "s": "paychecks appear on their own"
-    },
-    {
-     "k": "t",
-     "s": "SOON"
+     "s": "Nothing received yet this month."
     },
     {
      "k": "a",
@@ -37401,7 +37393,7 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1256
+   "renders": 1264
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:73",

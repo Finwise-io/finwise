@@ -959,7 +959,12 @@ describe('the decisions in the log are held by something that executes', () => {
       if (/>Connect your bank\b/.test(src)) doors += 1;
       if (retired.test(src)) offenders.push(f);
     }
-    expect(doors).toBeGreaterThan(0);
+    // NO SCREEN OFFERS THE BANK DOOR TODAY (2026-10-03): the two "coming soon" cards that carried it left
+    // the Cash flow tab with the rebuild to cash-flow_v01, which does not draw them. The rule still
+    // binds the day the door returns, so the check proves it can still see one.
+    expect(doors).toBeGreaterThanOrEqual(0);
+    expect(retired.test('<Text>Link your bank ›</Text>')).toBe(true);
+    expect(/>Connect your bank\b/.test('<Text>Connect your bank ›</Text>')).toBe(true);
     expect(offenders).toEqual([]);
   });
 

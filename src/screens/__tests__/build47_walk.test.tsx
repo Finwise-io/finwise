@@ -189,7 +189,7 @@ test('rows 22-25: finding fixes hold at the source', () => {
   expect(read('components/DebtEditorSheet.tsx')).toMatch(/debt comes off your list/);
   // row 24 → SUPERSEDED by B47 finding 10 (founder): ONE add entry, no explanations at all
   const cf = read('screens/CashFlowScreen.tsx');
-  expect(cf).toMatch(/＋ Add income ›/);
+  expect(cf).toMatch(/Add your income ›/);   // the one wording for this door (cash-flow_v01, frame 5; constants/doors.ts)
   expect(cf).not.toMatch(/Rich editors \(equity comp, rental\) live in the income manager/);
   // row 25: every income source can be ADDED
   const im = read('screens/IncomeManagerScreen.tsx');
@@ -449,11 +449,11 @@ test('B47 finding 7: arriving with ?class= renders the class-only view with the 
 test('B47 finding 10: one Add income entry, zero explanatory sentences, deep-linked chooser', () => {
   const fs = require('fs'); const path = require('path');
   const cf = fs.readFileSync(path.join(__dirname, '..', 'CashFlowScreen.tsx'), 'utf8');
-  expect(cf).toMatch(/＋ Add income ›/);
+  expect(cf).toMatch(/Add your income ›/);   // the one wording for this door (cash-flow_v01, frame 5; constants/doors.ts)
   expect(cf).not.toMatch(/＋ Add or set up income/);
   expect(cf).not.toMatch(/Asks whether your pay is the same every month or varies/);
   expect(cf).not.toMatch(/Pay from stock vesting or a rental\? Open Income/);
-  expect(cf).toMatch(/income-manager\?open=equity/);
+  expect(cf).toMatch(/income-manager\?open=\$\{what\}/); expect(cf).toMatch(/manage\('equity'\)/);
   const im = fs.readFileSync(path.join(__dirname, '..', 'IncomeManagerScreen.tsx'), 'utf8');
   expect(im).toMatch(/openParam === 'equity'\) setRich\('equity'\)/);
 });
@@ -645,7 +645,7 @@ test('A3: Cash flow sources list shows the bonus WITH its landing month; the cho
   const fs = require('fs'); const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'CashFlowScreen.tsx'), 'utf8');
   expect(src).toMatch(/Bonus \/ one-time/);                       // the chooser entry exists
-  expect(src).toMatch(/income-manager\?open=bonus/);              // and deep-links to the editor
+  expect(src).toMatch(/income-manager\?open=\$\{what\}/); expect(src).toMatch(/manage\('bonus'\)/);              // and deep-links to the editor
 });
 
 test('A3: the bonus editor carries the 12 month chips writing bonusMonth (no more onboarding-only)', () => {
