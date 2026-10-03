@@ -39,7 +39,7 @@ export const BIG_BILL_FLOOR = 500;
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 114 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 115 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -49,7 +49,7 @@ export const BIG_BILL_FLOOR = 500;
  *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 96 more — the full list is on functions_from_code
+ *               … and 97 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -81,7 +81,7 @@ export function recurringDebtPayments(s: ExpensesInput): { label: string; monthl
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 114 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 115 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -91,7 +91,7 @@ export function recurringDebtPayments(s: ExpensesInput): { label: string; monthl
  *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 96 more — the full list is on functions_from_code
+ *               … and 97 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -114,7 +114,8 @@ export function debtPaymentsCountedAsExpenses(
       .filter((e) => e.category === DEBT_CATEGORY && inMonth(e, s.ym)
                      && String(e.store ?? '').trim().toLowerCase() === String(d.label).trim().toLowerCase())
       .reduce((t, e) => t + toNum(e.amount), 0);
-    if (paid > 0) out.push({ label: d.label, amount: (paid) });
+    // named as the drawing names it: "HELOC payment"; a debt already called "… payment" keeps its name
+    if (paid > 0) out.push({ label: /payment$/i.test(String(d.label).trim()) ? d.label : `${d.label} payment`, amount: (paid) });
   }
   return out;
 }
@@ -137,7 +138,7 @@ export const SHOW_FIRST = 5;
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 114 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 115 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -147,7 +148,7 @@ export const SHOW_FIRST = 5;
  *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 96 more — the full list is on functions_from_code
+ *               … and 97 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -155,9 +156,13 @@ export const SHOW_FIRST = 5;
  * Formula also on the master file · functions_from_code · MK-CF-F-151
  * Changed ..... not in git yet (—)
  */
-export function actualSpending(s: ExpensesInput): SpentList {
+export function actualSpending(s: ExpensesInput, origin?: 'by-hand' | 'imported'): SpentList {
+  // BY WHERE IT CAME FROM (cash-flow_v01, frame C): what was typed in or photographed, and what a card
+  // brought — two lists, each with its own five-then-the-rest and its own closing total, "so you can
+  // see what the card brought in". With no origin asked for, it is every expense of the month.
   const items = (s.expenses ?? [])
     .filter((e) => inMonth(e, s.ym) && e.category !== DEBT_CATEGORY)
+    .filter((e) => !origin || (origin === 'imported') === (e.origin === 'imported'))
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const shown = items.slice(0, SHOW_FIRST);
   const total = (items.reduce((t, e) => t + toNum(e.amount), 0));
@@ -224,11 +229,13 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *     amount = paid   if paid > 0
  *     required payment(d)   otherwise
  *     counted = !purchases captured.has(string(debt id))
+ *     name = label   if ÷ payment$ ÷ test(string(label).trim())
+ *     `${label} payment`   otherwise
  *     the answer = out
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 114 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 115 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -238,7 +245,7 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 96 more — the full list is on functions_from_code
+ *               … and 97 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -258,9 +265,15 @@ export function radar(s: ExpensesInput, purchasesCaptured: Set<string> = new Set
     const amount = (paid > 0 ? paid : requiredPayment(d));
     if (amount <= 0) continue;
     const counted = !purchasesCaptured.has(String(d.debt_id));
-    out.push({ label: d.label, amount, reason, countedAsExpense: counted,
-               note: counted ? 'counted as an expense — no purchases to match it to'
-                             : 'NOT counted as an expense — the imported purchases are' });
+    // EACH ITEM SAYS WHETHER IT IS COUNTED, in the drawing's words (cash-flow_v01, frame C) — "so nobody
+    // adds it up twice in their head". A card whose purchases arrive on their own is not counted: the
+    // purchases are the expense. A payment entered on the Debts tab is; for a card it adds why.
+    const name = /payment$/i.test(String(d.label).trim()) ? d.label : `${d.label} payment`;
+    out.push({ label: name, amount, reason, countedAsExpense: counted,
+               note: !counted ? 'connected card · NOT counted as an expense — the purchases are'
+                 : reason === 'revolving-debt' && d.debt_type === 'CREDIT_CARD'
+                   ? 'entered on the Debts tab · counted as an expense — no receipts to match it to'
+                   : 'entered on the Debts tab · counted as an expense' });
   }
   for (const b of (s.bigBills ?? [])) {
     if ((b.amount) >= BIG_BILL_FLOOR) {
@@ -279,6 +292,9 @@ export interface Expenses {
   planned: { label: string; monthly: number }[];
   plannedTotal: number;
   actual: SpentList;
+  /** The same expenses, apart: what was entered by hand, and what a card or a file brought. */
+  byHand: SpentList;
+  imported: SpentList;
   debtCountedAsExpense: { label: string; amount: number }[];
   actualTotal: number;
   radar: RadarItem[];
@@ -296,14 +312,14 @@ export interface Expenses {
  *
  * Called by ... MK-CF-F-044 annualNet · MK-CF-F-067 rentalList
  *               MK-CF-F-068 rentalNetAnnual · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-190 essentialsMonthly · MK-CF-O-010 theMonth
- *               MK-PL-F-040 targetAtRetirement · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-050 simulate · MK-PL-F-065 volOf
- *               MK-PL-F-067 willItLastInputs · MK-XS-F-004 buildDatedGrid
- *               MK-XS-F-057 analyzeExpenses · MK-XS-F-176 useMonthlyStats
- *               MK-XS-F-177 useCategorySpend
+ *               MK-CF-F-153 radar · MK-CF-F-190 essentialsMonthly
+ *               MK-CF-O-010 theMonth · MK-PL-F-040 targetAtRetirement
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-050 simulate
+ *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
+ *               MK-XS-F-004 buildDatedGrid · MK-XS-F-057 analyzeExpenses
+ *               MK-XS-F-176 useMonthlyStats · MK-XS-F-177 useCategorySpend
  *
- * Reaches ..... 113 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 115 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -313,7 +329,7 @@ export interface Expenses {
  *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 95 more — the full list is on functions_from_code
+ *               … and 97 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -331,6 +347,8 @@ export function expenses(s: ExpensesInput, purchasesCaptured: Set<string> = new 
     planned: s.plannedByCategory ?? [],
     plannedTotal: ((s.plannedByCategory ?? []).reduce((t, c) => t + c.monthly, 0)),
     actual: act,
+    byHand: actualSpending(s, 'by-hand'),
+    imported: actualSpending(s, 'imported'),
     debtCountedAsExpense: debtExp,
     actualTotal: (act.total + debtExp.reduce((t, d) => t + d.amount, 0)),
     radar: radar(s, purchasesCaptured),

@@ -7930,51 +7930,35 @@
     },
     {
      "k": "t",
-     "s": "BIG-TICKET RADAR"
+     "s": "MONTHLY RECURRING EXPENSES"
     },
     {
      "k": "t",
-     "s": "Everyday expenses · due Oct"
+     "s": "$420"
     },
     {
      "k": "t",
-     "s": "$3,800"
+     "s": "Car loan"
     },
     {
      "k": "t",
-     "s": "OCTOBER · $0 SPENT"
+     "s": "same every month"
+    },
+    {
+     "k": "t",
+     "s": "$420"
+    },
+    {
+     "k": "t",
+     "s": "PLANNED EXPENSES"
+    },
+    {
+     "k": "t",
+     "s": "$4,100"
     },
     {
      "k": "a",
-     "s": "Nothing entered yet. Log your expenses ›"
-    },
-    {
-     "k": "t",
-     "s": "Nothing entered yet."
-    },
-    {
-     "k": "t",
-     "s": "Log your expenses ›"
-    },
-    {
-     "k": "a",
-     "s": "All transactions — browse, search, edit"
-    },
-    {
-     "k": "t",
-     "s": "All transactions · search ›"
-    },
-    {
-     "k": "a",
-     "s": "Import a statement"
-    },
-    {
-     "k": "t",
-     "s": "Import a statement ›"
-    },
-    {
-     "k": "t",
-     "s": "BY CATEGORY VS PLAN"
+     "s": "Planned expenses, by category. Opens your budget."
     },
     {
      "k": "t",
@@ -7982,7 +7966,7 @@
     },
     {
      "k": "t",
-     "s": "$0 of $3,200"
+     "s": "$3,200"
     },
     {
      "k": "t",
@@ -7990,7 +7974,7 @@
     },
     {
      "k": "t",
-     "s": "$0 of $300"
+     "s": "$300"
     },
     {
      "k": "t",
@@ -7998,7 +7982,51 @@
     },
     {
      "k": "t",
-     "s": "$0 of $600"
+     "s": "$600"
+    },
+    {
+     "k": "t",
+     "s": "= Total"
+    },
+    {
+     "k": "t",
+     "s": "$4,100"
+    },
+    {
+     "k": "t",
+     "s": "ACTUAL EXPENSES"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Nothing logged this month. Connect a card and purchases arrive on their own, or add a receipt by hand."
+    },
+    {
+     "k": "a",
+     "s": "Log an expense"
+    },
+    {
+     "k": "t",
+     "s": "Log an expense"
+    },
+    {
+     "k": "t",
+     "s": "BIG-TICKET RADAR"
+    },
+    {
+     "k": "t",
+     "s": "Nothing unusual. Regular debt payments never appear here — only a card or HELOC payment, or a bill well above its usual size."
+    },
+    {
+     "k": "a",
+     "s": "Import a statement — a CSV from your bank"
+    },
+    {
+     "k": "t",
+     "s": "Import a statement ›"
     },
     {
      "k": "a",
@@ -8924,19 +8952,31 @@
     },
     {
      "k": "t",
-     "s": "BIG-TICKET RADAR"
+     "s": "MONTHLY RECURRING EXPENSES"
     },
     {
      "k": "t",
-     "s": "Everyday expenses · due Oct"
+     "s": "$2,200"
     },
     {
      "k": "t",
-     "s": "$3,800"
+     "s": "Chase Sapphire"
     },
     {
      "k": "t",
-     "s": "Mortgage · due Oct"
+     "s": "same every month"
+    },
+    {
+     "k": "t",
+     "s": "$300"
+    },
+    {
+     "k": "t",
+     "s": "Mortgage"
+    },
+    {
+     "k": "t",
+     "s": "same every month"
     },
     {
      "k": "t",
@@ -8944,51 +8984,15 @@
     },
     {
      "k": "t",
-     "s": "GET YOUR EXPENSES IN"
+     "s": "PLANNED EXPENSES"
     },
     {
      "k": "t",
-     "s": "Connect your bank or card"
-    },
-    {
-     "k": "t",
-     "s": "every transaction, automatically"
-    },
-    {
-     "k": "t",
-     "s": "SOON"
+     "s": "$4,100"
     },
     {
      "k": "a",
-     "s": "Import a statement — a CSV from your bank"
-    },
-    {
-     "k": "t",
-     "s": "Import a statement"
-    },
-    {
-     "k": "t",
-     "s": "a CSV from your bank — takes a minute"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
-     "s": "Add an expense by hand"
-    },
-    {
-     "k": "t",
-     "s": "the ＋ Expense button, any time"
-    },
-    {
-     "k": "t",
-     "s": "Everything you add now stays — when your bank connects, nothing is doubled (each entry keeps its source)."
-    },
-    {
-     "k": "t",
-     "s": "BY CATEGORY VS PLAN"
+     "s": "Planned expenses, by category. Opens your budget."
     },
     {
      "k": "t",
@@ -8996,7 +9000,7 @@
     },
     {
      "k": "t",
-     "s": "$0 of $3,200"
+     "s": "$3,200"
     },
     {
      "k": "t",
@@ -9004,7 +9008,7 @@
     },
     {
      "k": "t",
-     "s": "$0 of $300"
+     "s": "$300"
     },
     {
      "k": "t",
@@ -9012,7 +9016,51 @@
     },
     {
      "k": "t",
-     "s": "$0 of $600"
+     "s": "$600"
+    },
+    {
+     "k": "t",
+     "s": "= Total"
+    },
+    {
+     "k": "t",
+     "s": "$4,100"
+    },
+    {
+     "k": "t",
+     "s": "ACTUAL EXPENSES"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Nothing logged this month. Connect a card and purchases arrive on their own, or add a receipt by hand."
+    },
+    {
+     "k": "a",
+     "s": "Log an expense"
+    },
+    {
+     "k": "t",
+     "s": "Log an expense"
+    },
+    {
+     "k": "t",
+     "s": "BIG-TICKET RADAR"
+    },
+    {
+     "k": "t",
+     "s": "Nothing unusual. Regular debt payments never appear here — only a card or HELOC payment, or a bill well above its usual size."
+    },
+    {
+     "k": "a",
+     "s": "Import a statement — a CSV from your bank"
+    },
+    {
+     "k": "t",
+     "s": "Import a statement ›"
     },
     {
      "k": "a",
@@ -10298,63 +10346,23 @@
     },
     {
      "k": "t",
-     "s": "BIG-TICKET RADAR"
+     "s": "MONTHLY RECURRING EXPENSES"
     },
     {
      "k": "t",
-     "s": "Everyday expenses · due Oct"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "$3,600"
+     "s": "PLANNED EXPENSES"
     },
     {
      "k": "t",
-     "s": "GET YOUR EXPENSES IN"
-    },
-    {
-     "k": "t",
-     "s": "Connect your bank or card"
-    },
-    {
-     "k": "t",
-     "s": "every transaction, automatically"
-    },
-    {
-     "k": "t",
-     "s": "SOON"
+     "s": "$3,200"
     },
     {
      "k": "a",
-     "s": "Import a statement — a CSV from your bank"
-    },
-    {
-     "k": "t",
-     "s": "Import a statement"
-    },
-    {
-     "k": "t",
-     "s": "a CSV from your bank — takes a minute"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
-     "s": "Add an expense by hand"
-    },
-    {
-     "k": "t",
-     "s": "the ＋ Expense button, any time"
-    },
-    {
-     "k": "t",
-     "s": "Everything you add now stays — when your bank connects, nothing is doubled (each entry keeps its source)."
-    },
-    {
-     "k": "t",
-     "s": "BY CATEGORY VS PLAN"
+     "s": "Planned expenses, by category. Opens your budget."
     },
     {
      "k": "t",
@@ -10362,7 +10370,7 @@
     },
     {
      "k": "t",
-     "s": "$0 of $2,500"
+     "s": "$2,500"
     },
     {
      "k": "t",
@@ -10370,7 +10378,7 @@
     },
     {
      "k": "t",
-     "s": "$0 of $200"
+     "s": "$200"
     },
     {
      "k": "t",
@@ -10378,7 +10386,51 @@
     },
     {
      "k": "t",
-     "s": "$0 of $500"
+     "s": "$500"
+    },
+    {
+     "k": "t",
+     "s": "= Total"
+    },
+    {
+     "k": "t",
+     "s": "$3,200"
+    },
+    {
+     "k": "t",
+     "s": "ACTUAL EXPENSES"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "Nothing logged this month. Connect a card and purchases arrive on their own, or add a receipt by hand."
+    },
+    {
+     "k": "a",
+     "s": "Log an expense"
+    },
+    {
+     "k": "t",
+     "s": "Log an expense"
+    },
+    {
+     "k": "t",
+     "s": "BIG-TICKET RADAR"
+    },
+    {
+     "k": "t",
+     "s": "Nothing unusual. Regular debt payments never appear here — only a card or HELOC payment, or a bill well above its usual size."
+    },
+    {
+     "k": "a",
+     "s": "Import a statement — a CSV from your bank"
+    },
+    {
+     "k": "t",
+     "s": "Import a statement ›"
     },
     {
      "k": "a",
@@ -10944,39 +10996,59 @@
     },
     {
      "k": "t",
-     "s": "BIG-TICKET RADAR"
+     "s": "MONTHLY RECURRING EXPENSES"
     },
     {
      "k": "t",
      "s": "$0"
     },
     {
+     "k": "t",
+     "s": "PLANNED EXPENSES"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "You haven’t set your budget yet. This is what every “of $X planned” on any screen is measured against."
+    },
+    {
      "k": "a",
-     "s": "Nothing entered yet. Add your bills ›"
+     "s": "Set your budget"
     },
     {
      "k": "t",
-     "s": "Nothing entered yet."
+     "s": "Set your budget"
     },
     {
      "k": "t",
-     "s": "Add your bills ›"
+     "s": "ACTUAL EXPENSES"
     },
     {
      "k": "t",
-     "s": "GET YOUR EXPENSES IN"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "Connect your bank or card"
+     "s": "Nothing logged this month. Connect a card and purchases arrive on their own, or add a receipt by hand."
+    },
+    {
+     "k": "a",
+     "s": "Log an expense"
     },
     {
      "k": "t",
-     "s": "every transaction, automatically"
+     "s": "Log an expense"
     },
     {
      "k": "t",
-     "s": "SOON"
+     "s": "BIG-TICKET RADAR"
+    },
+    {
+     "k": "t",
+     "s": "Nothing unusual. Regular debt payments never appear here — only a card or HELOC payment, or a bill well above its usual size."
     },
     {
      "k": "a",
@@ -10984,27 +11056,7 @@
     },
     {
      "k": "t",
-     "s": "Import a statement"
-    },
-    {
-     "k": "t",
-     "s": "a CSV from your bank — takes a minute"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
-     "s": "Add an expense by hand"
-    },
-    {
-     "k": "t",
-     "s": "the ＋ Expense button, any time"
-    },
-    {
-     "k": "t",
-     "s": "Everything you add now stays — when your bank connects, nothing is doubled (each entry keeps its source)."
+     "s": "Import a statement ›"
     },
     {
      "k": "a",
@@ -37349,7 +37401,7 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1250
+   "renders": 1256
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:73",

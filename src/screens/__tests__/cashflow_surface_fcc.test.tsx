@@ -54,35 +54,34 @@ test('FIRST OPEN: no zeros — the two setup doors; door 1 opens the base-pay sc
   expect(mockPush).toHaveBeenCalledWith('/base-pay');
 });
 
-test('Expenses tab (approved mock): month header, rows with source chips, categories vs plan, both door links', () => {
-  // bucket plans come from the budget fields (spendCats / b_*) — give the fixture a real plan
+// THE EXPENSES TAB, as cash-flow_v01 draws it (frames C and D, approved 2026-09-28; built 2026-10-03).
+// The word-for-word comparison is in cashflow_matches_v01.test.tsx; what is checked HERE is that the
+// actions the old tab offered still have a way in.
+test('Expenses tab: a logged expense lands under "Entered by hand", and the budget, the full list and the import are each one tap away', () => {
   useStore.setState({ onboardingProfile: { ...WORKER, b_fixed: '1800', b_flexible: '900' }, onboardingComplete: true } as any);
-  (useStore.getState() as any).addExpense({ amount: 86, category: 'Food', store: 'Whole Foods', date: isoLocalDate(new Date()), notes: '' });
+  for (let i = 0; i < 6; i += 1) (useStore.getState() as any).addExpense({ amount: 10 + i, category: 'Food', store: `Shop ${i}`, date: isoLocalDate(new Date()), notes: '' });
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByLabelText('Expenses tab'));
-  expect(screen.getByText(/· \$86 SPENT/)).toBeOnTheScreen();                  // the month header with the sum
-  expect(screen.getByText(/Whole Foods/)).toBeOnTheScreen();
-  expect(screen.getByText('by hand')).toBeOnTheScreen();                       // the Teller-ready source chip
-  expect(screen.getByText('BY CATEGORY VS PLAN')).toBeOnTheScreen();
-  expect(screen.getByText('All transactions · search ›')).toBeOnTheScreen();
-  expect(screen.getByText('Import a statement ›')).toBeOnTheScreen();
-  // the all-transactions door opens the PROVEN browse/search body
-  fireEvent.press(screen.getByLabelText('All transactions — browse, search, edit'));
+  expect(screen.getByText('PLANNED EXPENSES')).toBeOnTheScreen();
+  expect(screen.getByText('ENTERED BY HAND')).toBeOnTheScreen();
+  expect(screen.getByText('= Entered by hand · 6 items')).toBeOnTheScreen();
+  expect(screen.getByText('= Actual expenses, all sources')).toBeOnTheScreen();
+  // five, then the rest on a tap — and the rest opens the PROVEN browse / search / edit body
+  fireEvent.press(screen.getByLabelText(/^Show all 6 — /));
   expect(screen.getByText('All transactions')).toBeOnTheScreen();
-  const { MENU_ITEMS } = jest.requireActual('../../components/TopBar');
-  if (MENU_ITEMS) expect(JSON.stringify(MENU_ITEMS)).not.toMatch('/budget');
+  // the planned rows are the door to the budget; the statement import keeps its one link
+  expect(screen.getByLabelText('Planned expenses, by category. Opens your budget.')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Import a statement — a CSV from your bank')).toBeOnTheScreen();
 });
 
-test('Expenses tab day one: the three doors (connect SOON · import · by hand), never an empty list', () => {
+test('Expenses tab day one: every section keeps its heading, and each empty one offers its door', () => {
   useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByLabelText('Expenses tab'));
-  expect(screen.getByText('GET YOUR EXPENSES IN')).toBeOnTheScreen();
-  expect(screen.getByText('Connect your bank or card')).toBeOnTheScreen();
-  expect(screen.getByText('SOON')).toBeOnTheScreen();
-  expect(screen.getByText('Import a statement')).toBeOnTheScreen();
-  // one door, one term: "Add by hand" adds an ACCOUNT; this door adds an EXPENSE and says so
-  expect(screen.getByText('Add an expense by hand')).toBeOnTheScreen();
+  for (const h of ['MONTHLY RECURRING EXPENSES', 'PLANNED EXPENSES', 'ACTUAL EXPENSES', 'BIG-TICKET RADAR']) expect(screen.getByText(h)).toBeOnTheScreen();
+  expect(screen.getByLabelText('Log an expense')).toBeOnTheScreen();
+  expect(screen.getByText(/^Nothing unusual\./)).toBeOnTheScreen();
+  // one door, one term: "Add by hand" adds an ACCOUNT; this tab logs an EXPENSE and says so
   expect(screen.queryByText('Add by hand')).toBeNull();
 });
 

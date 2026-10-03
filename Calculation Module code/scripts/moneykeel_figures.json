@@ -3315,7 +3315,7 @@
    "door": "MK-CF-O-010 theMonth"
   },
   "MK-CF-M-013": {
-   "label": "<MONTH> · $X SPENT",
+   "label": "Actual expenses",
    "unit": "money",
    "screens": [
     "/cashflow"
@@ -3354,7 +3354,7 @@
    "door": "MK-CF-O-010 theMonth"
   },
   "MK-CF-M-015": {
-   "label": "BY CATEGORY VS PLAN — $X of $Y",
+   "label": "Planned expenses — each category",
    "unit": "money",
    "screens": [
     "/cashflow"

@@ -47,27 +47,27 @@ describe('the radar', () => {
 
   it('THE LAW: a credit-card and a HELOC payment ALWAYS are', () => {
     const labels = radar(base()).map((r) => r.label);
-    expect(labels).toContain('Credit card');
-    expect(labels).toContain('HELOC');
+    expect(labels).toContain('Credit card payment');   // named as the drawing names it (cash-flow_v01, frame C)
+    expect(labels).toContain('HELOC payment');
   });
 
   it('the unusual card payment is the one shown — $1,850 against a usual $195', () => {
-    const card = radar(base()).find((r) => r.label === 'Credit card')!;
+    const card = radar(base()).find((r) => r.label === 'Credit card payment')!;
     expect(card.amount).toBe(1850);        // what was actually paid, not the minimum
   });
 
   it('THE LAW: when a card’s purchases are imported, its payment is NOT counted as an expense', () => {
     const captured = new Set(['d4']);
-    const card = radar(base(), captured).find((r) => r.label === 'Credit card')!;
+    const card = radar(base(), captured).find((r) => r.label === 'Credit card payment')!;
     expect(card.countedAsExpense).toBe(false);
     expect(card.note).toContain('NOT counted');
-    expect(debtPaymentsCountedAsExpenses(base(), captured).some((d) => d.label === 'Credit card')).toBe(false);
+    expect(debtPaymentsCountedAsExpenses(base(), captured).some((d) => d.label === 'Credit card payment')).toBe(false);
   });
 
   it('and when they are not, it IS counted — the payment is the only record of that spending', () => {
-    const card = radar(base()).find((r) => r.label === 'Credit card')!;
+    const card = radar(base()).find((r) => r.label === 'Credit card payment')!;
     expect(card.countedAsExpense).toBe(true);
-    expect(debtPaymentsCountedAsExpenses(base()).map((d) => d.label)).toEqual(['HELOC', 'Credit card']);
+    expect(debtPaymentsCountedAsExpenses(base()).map((d) => d.label)).toEqual(['HELOC payment', 'Credit card payment']);
   });
 
   it('a large non-debt bill is a radar item; a small one is not', () => {

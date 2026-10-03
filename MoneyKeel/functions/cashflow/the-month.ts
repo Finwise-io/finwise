@@ -293,7 +293,7 @@ export const THE_MONTH_FIGURES = declareFigures({
   //    and are retired; MK-CF-M-005 (the old surplus line) is 053; MK-CF-M-025 (a month's cell) is 047 to
   //    054 on Month detail; MK-CF-M-029 (the tax band) is 032 and 043. All five are retired on the register.
   'MK-CF-M-013': {
-    label: '<MONTH> · $X SPENT', unit: 'money', screens: ['/cashflow'],
+    label: 'Actual expenses', unit: 'money', screens: ['/cashflow'],
     answers: 'What has actually gone out so far this month, from the expenses logged.',
     formula: 'every expense logged inside the month, added up — a debt payment logged as an expense is counted with the debts, not here',
     inputs: ['MK-CF-I-001 your logged expenses'],
@@ -311,7 +311,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     worked: { given: GIVEN, answer: '$186.00', run: () => MONTH().expenses.actual.items[0].amount },
   },
   'MK-CF-M-015': {
-    label: 'BY CATEGORY VS PLAN — $X of $Y', unit: 'money', screens: ['/cashflow'], grain: 'one category',
+    label: 'Planned expenses — each category', unit: 'money', screens: ['/cashflow'], grain: 'one category',
     answers: 'For each category: what was planned for it this month, and what has been spent against it so far.',
     formula: 'planned = the category’s budget line; spent = the expenses logged in that category inside the month',
     inputs: ['MK-CF-I-012 planned expenses', 'MK-CF-I-001 your logged expenses'],

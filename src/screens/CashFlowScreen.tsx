@@ -141,7 +141,7 @@ export default function CashFlowScreen() {
       )}
 
       {surfTab === 'Expenses' && (
-        <SpendingTab grid={grid} offset={surfOffset} expenses={expenses} ym={selYm} bva={bva} monthWord={selDate.toLocaleDateString('en-US', { month: 'long' })} />
+        <ExpensesTab ym={selYm} liabilities={liabilities} bva={bva} expenses={expenses} onLog={() => setSheet(true)} />
       )}
 
       {surfTab === 'Debts' && (
@@ -347,83 +347,175 @@ function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any;
 }
 
 
-/** EXPENSES tab — the APPROVED mock's presentation (row 40 conformance): big-ticket radar,
- *  the month's recent rows with source chips, categories vs plan, and the two linked doors —
- *  All transactions (the proven browse/search/edit body) and Import a statement. Day one shows
- *  the three honest doors instead of an empty list. */
-function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any; offset: number; expenses: any[]; ym: string; bva: any; monthWord: string }) {
+/** EXPENSES tab — as cash-flow_v01 draws it (frames C and D): what repeats every month · what is
+ *  planned · what was actually spent, by where it came from · and the big-ticket radar. Every figure is
+ *  MK-CF-O-010 theMonth's; the screen prints. Every section keeps its heading when empty, "so the shape
+ *  of the screen never changes — only what is in it". */
+const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const BUCKET_WORDS: Record<string, string> = { fixed: 'Bills & fixed', nonmonthly: 'Once in a while', flexible: 'Everyday expenses' };
+function ExpensesTab({ ym, liabilities, bva, expenses, onLog }: { ym: string; liabilities: any[]; bva: any; expenses: any[]; onLog: () => void }) {
   const [allTxns, setAllTxns] = useState(false);
   const [importing, setImporting] = useState(false);
-  const monthExp = (expenses ?? []).filter((e: any) => String(e.date ?? '').startsWith(ym))
-    .sort((a: any, b: any) => String(b.date).localeCompare(String(a.date)));
-  const spent = monthExp.reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
-  const BUCKET_WORDS: Record<string, string> = { fixed: 'Bills & fixed', nonmonthly: 'Once in a while', flexible: 'Everyday expenses' };
+  const [budgetOpen, setBudgetOpen] = useState(false);
+  const x = useMemo(() => theMonth({
+    ym, takeHomeMonthly: 0, debts: liabilities as any, plannedExpenses: Math.round(bva?.planned_total || 0),
+    // the budget's own categories, in plain words — the same plan This month reads
+    plannedByCategory: (bva?.buckets ?? []).filter((b: any) => (b.planned || 0) > 0)
+      .map((b: any) => ({ label: BUCKET_WORDS[String(b.key)] ?? String(b.key), monthly: Math.round(b.planned || 0) })),
+    expenses: expenses as any,
+  }).expenses, [ym, liabilities, bva, expenses]);
+  const day = (iso: string) => { const [, m, d] = String(iso).slice(0, 10).split('-').map(Number); return `${d} ${MON3[(m || 1) - 1]}`; };
+  const every = x.recurringDebt.map((r) => r.label.toLowerCase());
+  /** One list of what was spent: the five most recent, the way to the rest, and its closing total. */
+  const list = (l: typeof x.byHand, closing: string, how: (e: any) => string) => (
+    <>
+      {l.shown.map((e: any, i: number) => (
+        <View key={`${e.id ?? i}`} style={styles.mRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowL}>{day(e.date)} · {e.store || e.category}</Text>
+            <Text style={styles.mSub}>{how(e)}</Text>
+          </View>
+          <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-014', Number(e.amount) || 0)}</Text>
+        </View>
+      ))}
+      {l.hidden > 0 && (
+        /* FIVE, THEN THE REST ON A TAP (rule 7 under the drawing). The rest opens in the full list,
+           where a row can also be searched, corrected or removed. */
+        <TouchableOpacity accessibilityRole="button" onPress={() => setAllTxns(true)} accessibilityLabel={`Show all ${l.items.length} — ${figSaid('MK-CF-M-004', Math.round(l.hiddenTotal))} more`}>
+          <Text style={styles.link}>Show all {l.items.length} · {fig('MK-CF-M-004', Math.round(l.hiddenTotal))} more ›</Text>
+        </TouchableOpacity>
+      )}
+      <View style={[styles.mRow, styles.mTotal]}>
+        <Text style={[styles.rowL, { fontWeight: '800' }]}>= {closing}</Text>
+        <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-004', Math.round(l.total))}</Text>
+      </View>
+    </>
+  );
+  const anySpent = x.actual.items.length > 0 || x.debtCountedAsExpense.length > 0;
+
   return (
     <>
-      <BigTicketRadar grid={grid} offset={offset} expenses={expenses} ym={ym} />
+      <View style={styles.card}>
+        <SectionBand inCard inset={16} title="MONTHLY RECURRING EXPENSES" value={fig('MK-CF-M-004', Math.round(x.recurringDebtTotal))} />
+        {x.recurringDebt.map((r) => (
+          <View key={r.label} style={styles.mRow}>
+            <View style={{ flex: 1 }}><Text style={styles.rowL}>{r.label}</Text><Text style={styles.mSub}>same every month</Text></View>
+            <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-004', Math.round(r.monthly))}</Text>
+          </View>
+        ))}
+      </View>
 
-      {(expenses ?? []).length === 0 ? (
-        /* day one — the three doors (approved §A), never an empty list */
-        <View style={styles.card}>
-          <SectionBand inCard inset={16} title="GET YOUR EXPENSES IN" />
-          <View style={styles.door}>
-            <View style={{ flex: 1 }}><Text style={styles.doorT}>Connect your bank or card</Text><Text style={styles.doorSub}>every transaction, automatically</Text></View>
-            <Text style={styles.soonPill}>SOON</Text>
-          </View>
-          <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => setImporting(true)}
-            accessibilityLabel="Import a statement — a CSV from your bank">
-            <View style={{ flex: 1 }}><Text style={styles.doorT}>Import a statement</Text><Text style={styles.doorSub}>a CSV from your bank — takes a minute</Text></View>
-            <Text style={styles.link}>›</Text>
-          </TouchableOpacity>
-          <View style={styles.door}>
-            {/* ONE DOOR, ONE TERM (founder, 2026-09-14). "Add by hand" is the account door — it adds an
-                ACCOUNT, from the one list in constants/doors.ts. This one adds an EXPENSE, so it says so:
-                the same words for two different doors is how Home and Net worth came to disagree. */}
-            <View style={{ flex: 1 }}><Text style={styles.doorT}>Add an expense by hand</Text><Text style={styles.doorSub}>the ＋ Expense button, any time</Text></View>
-          </View>
-          <Text style={styles.note}>Everything you add now stays — when your bank connects, nothing is doubled (each entry keeps its source).</Text>
-        </View>
-      ) : (
-        <View style={styles.card}>
-          <SectionBand inCard inset={16} title={`${monthWord.toUpperCase()} · ${fig('MK-CF-M-013', Math.round(spent))} SPENT`} />
-          {monthExp.length === 0 && <EmptyNote door="expenses" />}   {/* Q48: the band above reads $0 SPENT */}
-          {monthExp.slice(0, 6).map((e: any) => (
-            <View key={e.id} style={styles.row}>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.rowL} numberOfLines={1}>{String(e.date).slice(5)} · {e.store || e.category}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={styles.doorSub}>{e.category}</Text>
-                  <Text style={styles.srcChip}>{e.source === 'import' ? 'imported' : 'by hand'}</Text>
-                </View>
+      <View style={styles.card}>
+        <SectionBand inCard inset={16} title="PLANNED EXPENSES" value={x.plannedTotal > 0 ? fig('MK-CF-M-001', Math.round(x.plannedTotal)) : '—'} />
+        {x.plannedTotal > 0 ? (
+          <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} onPress={() => setBudgetOpen(true)} accessibilityLabel="Planned expenses, by category. Opens your budget.">
+            {x.planned.map((c) => (
+              <View key={c.label} style={styles.mRow}>
+                <Text style={styles.rowL}>{c.label}</Text>
+                <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-015', c.monthly)}</Text>
               </View>
-              <Text style={styles.rowV}>{fig('MK-CF-M-014', Math.round(Number(e.amount) || 0))}</Text>
+            ))}
+            <View style={[styles.mRow, styles.mTotal]}>
+              <Text style={[styles.rowL, { fontWeight: '800' }]}>= Total</Text>
+              <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-001', Math.round(x.plannedTotal))}</Text>
             </View>
-          ))}
-          <View style={{ flexDirection: 'row', gap: 18 }}>
-            <TouchableOpacity accessibilityRole="button" onPress={() => setAllTxns(true)}
-              accessibilityLabel="All transactions — browse, search, edit">
-              <Text style={styles.link}>All transactions · search ›</Text>
+          </TouchableOpacity>
+        ) : (
+          <>
+            <Text style={styles.emptyP}>You haven’t set your budget yet. This is what every “of $X planned” on any screen is measured against.</Text>
+            <TouchableOpacity accessibilityRole="button" style={styles.cta} onPress={() => setBudgetOpen(true)} accessibilityLabel="Set your budget">
+              <Text style={styles.ctaT}>Set your budget</Text>
             </TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" onPress={() => setImporting(true)}
-              accessibilityLabel="Import a statement">
-              <Text style={styles.link}>Import a statement ›</Text>
+          </>
+        )}
+      </View>
+
+      {/* ACTUAL EXPENSES, by where each came from — one card a source, as the drawing sets them, and the
+          all-sources total closing the last of them */}
+      <View style={[styles.card, anySpent && styles.cardBandOnly]}>
+        <SectionBand inCard inset={16} title="ACTUAL EXPENSES" value={fig('MK-CF-M-013', Math.round(x.actualTotal))} />
+        {!anySpent && (
+          <>
+            <Text style={styles.emptyP}>Nothing logged this month. Connect a card and purchases arrive on their own, or add a receipt by hand.</Text>
+            <TouchableOpacity accessibilityRole="button" style={styles.cta} onPress={onLog} accessibilityLabel="Log an expense">
+              <Text style={styles.ctaT}>Log an expense</Text>
             </TouchableOpacity>
+          </>
+        )}
+      </View>
+      {(() => {
+        const allSources = (
+          <View style={[styles.mRow, styles.mTotal]}>
+            <Text style={[styles.rowL, { fontWeight: '800' }]}>= Actual expenses, all sources</Text>
+            <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-013', Math.round(x.actualTotal))}</Text>
           </View>
-        </View>
-      )}
+        );
+        const last = x.debtCountedAsExpense.length > 0 ? 'debt' : x.imported.items.length > 0 ? 'imported' : 'hand';
+        return (
+          <>
+            {x.byHand.items.length > 0 && (
+              <View style={styles.card}>
+                <SectionBand light inCard inset={16} title="ENTERED BY HAND" value={fig('MK-CF-M-004', Math.round(x.byHand.total))} />
+                {list(x.byHand, `Entered by hand · ${x.byHand.items.length} item${x.byHand.items.length === 1 ? '' : 's'}`,
+                  (e) => `${e.category} · ${e.receiptUri ? 'receipt' : 'typed'}`)}
+                {last === 'hand' && allSources}
+              </View>
+            )}
+            {x.imported.items.length > 0 && (
+              <View style={styles.card}>
+                <SectionBand light inCard inset={16} title="IMPORTED FROM YOUR CARD" value={fig('MK-CF-M-004', Math.round(x.imported.total))} />
+                {list(x.imported, `Imported · ${x.imported.items.length} purchase${x.imported.items.length === 1 ? '' : 's'}`, (e) => String(e.category))}
+                {last === 'imported' && allSources}
+              </View>
+            )}
+            {x.debtCountedAsExpense.length > 0 && (
+              <View style={styles.card}>
+                <SectionBand light inCard inset={16} title="DEBT PAYMENTS COUNTED AS EXPENSES" value={fig('MK-CF-M-004', Math.round(x.debtCountedAsExpense.reduce((t, d) => t + d.amount, 0)))} />
+                {x.debtCountedAsExpense.map((d) => (
+                  <View key={d.label} style={styles.mRow}>
+                    <View style={{ flex: 1 }}><Text style={styles.rowL}>{d.label}</Text><Text style={styles.mSub}>entered on the Debts tab</Text></View>
+                    <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-004', Math.round(d.amount))}</Text>
+                  </View>
+                ))}
+                {allSources}
+              </View>
+            )}
+          </>
+        );
+      })()}
 
-      {(bva?.buckets ?? []).some((b: any) => (b.planned || 0) > 0) && (
-        <View style={styles.card}>
-          <SectionBand inCard inset={16} title="BY CATEGORY VS PLAN" />
-          {(bva.buckets as any[]).filter((b) => (b.planned || 0) > 0).map((b) => (
-            <Row key={b.key} label={BUCKET_WORDS[b.key] ?? b.key}
-              value={`${fig('MK-CF-M-015', Math.round(b.spent || 0))} of ${fig('MK-CF-M-015', Math.round(b.planned || 0))}`}
-              color={(b.spent || 0) > (b.planned || 0) ? Colors.amber : undefined} />
-          ))}
-        </View>
-      )}
+      {/* THE RADAR NEVER DEDUCTS (rule 5): a lens on rows already counted, each saying whether it is */}
+      <View style={styles.card}>
+        <SectionBand light inCard inset={16} title="BIG-TICKET RADAR" />
+        {x.radar.length === 0 ? (
+          <Text style={styles.emptyP}>Nothing unusual. Regular debt payments never appear here — only a card or HELOC payment, or a bill well above its usual size.</Text>
+        ) : (
+          <>
+            {x.radar.map((r, i) => (
+              <View key={`${r.label}-${i}`} style={styles.mRow}>
+                <View style={{ flex: 1 }}>
+                  <View style={styles.mNameRow}>
+                    <Text style={styles.rowL}>{r.label}</Text>
+                    {r.reason !== 'big-bill' && <Text style={styles.mTag}>debt</Text>}
+                  </View>
+                  <Text style={styles.mSub}>{r.note}</Text>
+                </View>
+                <Text style={[styles.rowV, r.countedAsExpense ? { fontWeight: '800' } : { color: Colors.textSecondary }]}>{fig('MK-CF-M-016', Math.round(r.amount))}</Text>
+              </View>
+            ))}
+            {every.length > 0 && (
+              <Text style={styles.emptyP}>Your {every.join(' and ')} never appear here. They are the same every month, and a warning you see every month stops being a warning.</Text>
+            )}
+          </>
+        )}
+        {/* the one way anything arrives "imported" today: a statement file. Not on the drawing — kept, or
+            the Imported list above could never fill. */}
+        <TouchableOpacity accessibilityRole="button" onPress={() => setImporting(true)} accessibilityLabel="Import a statement — a CSV from your bank">
+          <Text style={styles.link}>Import a statement ›</Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* the linked doors — the PROVEN bodies, presented full-screen */}
+      <BudgetEditor open={budgetOpen} onClose={() => setBudgetOpen(false)} />
       <Modal visible={allTxns} animationType={modalAnimation()} onRequestClose={() => setAllTxns(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
           <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
@@ -447,37 +539,6 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
         </KeyboardAvoidingView>
       </Modal>
     </>
-  );
-}
-
-/** EXPENSES tab header: the big-ticket radar — dated bills due + one-offs far above the usual. */
-function BigTicketRadar({ grid, offset, expenses, ym }: { grid: any; offset: number; expenses: any[]; ym: string }) {
-  const cell = offset >= 0 ? grid.cells[offset] : null;
-  const bills = (cell?.billItems ?? []).filter((b: any) => (b.amount ?? 0) >= 500).slice(0, 3);
-  const monthExp = (expenses ?? []).filter((e: any) => String(e.date ?? '').startsWith(ym));
-  const byCat: Record<string, number[]> = {};
-  (expenses ?? []).forEach((e: any) => { const k = e.category ?? '?'; (byCat[k] = byCat[k] ?? []).push(Number(e.amount) || 0); });
-  const usual = (cat: string) => { const v = byCat[cat] ?? []; return v.length ? v.reduce((t, x) => t + x, 0) / v.length : 0; };
-  const oneOffs = monthExp.filter((e: any) => (Number(e.amount) || 0) >= Math.max(500, 3 * usual(e.category))).slice(0, 3);
-  if (bills.length === 0 && oneOffs.length === 0) {
-    // Q48 (MK-CF-M-028): the section stays, at $0, with the one line and the door — never vanishes
-    return (
-      <View style={styles.card}>
-        <SectionBand inCard inset={16} title="BIG-TICKET RADAR" value={fig('MK-CF-M-016', 0)} />
-        <EmptyNote door="bills" />
-      </View>
-    );
-  }
-  return (
-    <View style={styles.card}>
-      <SectionBand inCard inset={16} title="BIG-TICKET RADAR" />
-      {bills.map((b: any, i: number) => (
-        <Row key={`b${i}`} label={`${b.label ?? 'Big bill'} · due ${cell.label}`} value={fig('MK-CF-M-016', Math.round(b.amount))} color={Colors.amber} />
-      ))}
-      {oneOffs.map((e: any) => (
-        <Row key={e.id} label={`${String(e.date).slice(5)} · ${e.store || e.category} · well above your usual ${e.category}`} value={fig('MK-CF-M-014', Math.round(Number(e.amount) || 0))} />
-      ))}
-    </View>
   );
 }
 
@@ -800,6 +861,8 @@ const styles = StyleSheet.create({
   mSub: { fontSize: 11, color: Colors.textTertiary },
   mTotal: { borderTopWidth: 1.5, borderTopColor: Colors.textPrimary },
   emptyP: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, marginTop: 9 },
+  // a card that is only its band (the heading over the cards that follow) needs no room under it
+  cardBandOnly: { paddingBottom: 0, marginBottom: 6 },
   cta: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', marginTop: 8, paddingHorizontal: 14, backgroundColor: Colors.primary },
   ctaT: { fontSize: 13, fontWeight: '800', color: Colors.white },
   heroNum: { fontSize: 38, fontWeight: '800', marginTop: 2 },

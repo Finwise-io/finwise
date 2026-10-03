@@ -14,9 +14,17 @@
  *     It is not on the drawing. It is kept because he ruled on its arithmetic by name (2026-09-08) and
  *     nothing since says to remove it; src/screens/__tests__/cashflow_fcc.test.tsx holds it. These
  *     frames have no accounts, as the drawing has none, so the card does not appear in them.
+ *  On the Expenses tab (frames C and D):
+ *  4. The planned rows are the budget's OWN categories (Bills & fixed · Once in a while · Everyday
+ *     expenses). The drawing's four — Gas, Grocery, Utilities, Other — are examples of categories.
+ *  5. The radar row for a CONNECTED card ("NOT counted as an expense — the purchases are") cannot occur
+ *     yet: no card can be connected. The door writes that row and its test holds it; the frame omits it.
+ *  6. "same every month" rides each recurring row in both frames (the drawing prints it in C, not in D).
+ *  7. "Import a statement ›" stays at the foot of the tab: it is the one way anything arrives imported.
+ *  8. Rows the drawing folds away under "Show all N" are opened in the full list, not in place.
  */
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, fireEvent } from '@testing-library/react-native';
 import CashFlowScreen from '../CashFlowScreen';
 import { useStore } from '../../store/useStore';
 import { isoLocalDate } from '../../domain/_shared/dates';
@@ -78,4 +86,58 @@ test('B · This month, a fresh account — no budget set, so no planned surplus 
     liabilities: DEBTS, expenses: [pay('Mortgage', 2000)] } as any);
   render(<CashFlowScreen />);
   check(phone(2), builtLines(screen.toJSON()));
+});
+
+// ── the Expenses tab ─────────────────────────────────────────────────────────────────────────────
+/** The same drawing, with the rows it folds under "Show all N" left out — they are behind a tap. */
+const FOLDED = drawingLines('MoneyKeel/documents/cashflow/moneykeel_pres_mock_cash-flow_v01.html', [/<\/summary>[\s\S]*?<\/details>/g]);
+const FSTARTS = FOLDED.map((l, i) => (l === '9:41' ? i : -1)).filter((i) => i >= 0);
+const folded = (n: number): string[] => {
+  const seg = FOLDED.slice(FSTARTS[n - 1], FSTARTS[n] ?? FOLDED.length);
+  const end = seg.findIndex((l, k) => (l === '⌂' || l === 'Home') && k > 8);
+  return seg.slice(0, end).filter((l) => !CHROME.has(l));
+};
+const KNOWN_EXPENSES = (s: string) => s
+  .replace(/# (jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/g, '<day>')                       // a day of the month is data
+  .replace(/planned expenses \$# .*? = total \$#/, 'planned expenses $# <the budget\'s categories> = total $#')   // 4
+  .replace(/credit card debt payment debt connected card not counted as an expense — the \$# of purchases is \$# /, '')   // 5
+  .replace(/ same every month/g, '')                                                                 // 6
+  .replace(/ import a statement/, '')                                                                // 7
+  .replace(/ expense$/, '');                                                                         // 2
+const checkExpenses = (drawn: string[], built: string[]) => {
+  const want = KNOWN_EXPENSES(month(norm(drawn))), got = KNOWN_EXPENSES(month(norm(built)));
+  expect(want.split(' ').length).toBeGreaterThan(60);
+  expect(firstDifference(want, got)).toBe('');
+};
+const typed = (store: string, category: string, amount: number, receipt = false) =>
+  ({ id: `h-${store}`, amount, category, store, date: today, notes: '', createdAt: today, ...(receipt ? { receiptUri: 'file://r.jpg' } : {}) });
+const card = (store: string, category: string, amount: number, i = 0) =>
+  ({ id: `c-${store}-${i}`, amount, category, store, date: today, notes: '', createdAt: today, origin: 'imported' });
+
+test('C · Expenses, with data — recurring, planned, actual by where it came from, and the radar', () => {
+  useStore.getState().resetAll();
+  useStore.setState({ onboardingComplete: true, hideBalances: false,
+    onboardingProfile: { ...WORKER, monthlySpending: '2000', b_fixed: '1100', b_flexible: '900' },
+    liabilities: [...DEBTS, ...RADAR],
+    expenses: [
+      // nine entered by hand — $500; the five most recent are shown, $195 more behind the tap
+      typed('Amazon', 'Other', 100), typed('Trader Joe’s', 'Grocery', 65, true), typed('Shell', 'Gas', 60), typed('CVS', 'Other', 42, true), typed('Starbucks', 'Other', 38, true),
+      typed('Costco', 'Grocery', 88, true), typed('Chevron', 'Gas', 55), typed('Walgreens', 'Other', 30, true), typed('PG&E', 'Utilities', 22),
+      // twenty-three from the card — $1,200; five shown, $560 more behind the tap
+      card('Target', 'Other', 15), card('Home Depot', 'Other', 315), card('Chevron', 'Gas', 70), card('Local Kitchen', 'Other', 95), card('Whole Foods', 'Grocery', 145),
+      card('Safeway', 'Grocery', 120), card('Netflix', 'Other', 18), ...Array.from({ length: 16 }, (_, i) => card('Corner shop', 'Other', i === 0 ? 32 : 26, i)),
+      pay('HELOC', 200), pay('Credit card debt payment', 200),
+    ],
+  } as any);
+  render(<CashFlowScreen />);
+  fireEvent.press(screen.getByLabelText('Expenses tab'));
+  checkExpenses(folded(3), builtLines(screen.toJSON()));
+});
+
+test('D · Expenses, a fresh account — every section keeps its heading when empty', () => {
+  useStore.getState().resetAll();
+  useStore.setState({ onboardingComplete: true, hideBalances: false, onboardingProfile: WORKER, liabilities: DEBTS, expenses: [] } as any);
+  render(<CashFlowScreen />);
+  fireEvent.press(screen.getByLabelText('Expenses tab'));
+  checkExpenses(folded(4), builtLines(screen.toJSON()));
 });
