@@ -293,9 +293,12 @@ test('C10 open Performance — the all-accounts walk stands and every account wi
   } as any);
   render(React.createElement(screens.Performance()));
   noNonsense();
-  expect(screen.getByText(/HOW .* BECAME .* · ALL ACCOUNTS/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/Vanguard.*Expands its walk/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/E\*TRADE.*Expands its walk/)).toBeOnTheScreen();
+  // no daily record yet, so this is DAY ONE (Performance v17, phone 4): the walk stands at today's
+  // value, and every account's own walk is open beneath it
+  expect(screen.getByText("HOW TODAY'S VALUE STANDS · ALL ACCOUNTS")).toBeOnTheScreen();
+  expect(screen.getByLabelText(/^Vanguard/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/^E\*TRADE/)).toBeOnTheScreen();
+  expect(screen.getAllByText('Beginning market value (today)')).toHaveLength(3);   // the whole, and its two parts
 });
 
 // ═══════════════════════════ EDGE · the ten states that break apps ═══════════════════════════

@@ -4,7 +4,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const SCREENS = ['NetWorthScreen.tsx', 'PerformanceScreen.tsx', 'HoldingDetailScreen.tsx'];
+// PERFORMANCE LEFT THIS LIST ON 2026-10-03, and not because it stopped saying how far back it sees.
+// Its approved drawing (v17) goes further: a window the record cannot cover is greyed to an em-dash and
+// cannot be picked, so there is never a shorter period answered under a longer label to apologise for.
+// That rule is pinned in its own block below.
+const SCREENS = ['NetWorthScreen.tsx', 'HoldingDetailScreen.tsx'];
 const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
 // 2026-09-28: these two rules moved behind MK-NW-O-008 thePerformance (Q-PF-1). The pins are
 // unchanged in purpose — the beginning comes from the record, and a refused rate says why — they
@@ -27,6 +31,37 @@ describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
       const src = read(f);
       expect(src).not.toMatch(/when your records begin/);  // the words live in the function only
     }
+  });
+});
+
+describe('PERFORMANCE: A WINDOW THE RECORD CANNOT COVER SHOWS NOTHING AND CANNOT BE PICKED (v17)', () => {
+  const { thePerformance } = require('../../../MoneyKeel/functions/networth-and-performance/performance');
+  const day = (date: string, value: number) => ({ date, origin: 'observed', writtenAt: `${date}T00:00:00Z`, holdings: [],
+    accounts: [{ date, accountId: 'a1', cash: 0, statedTotal: value, typedValue: value, currency: 'USD' }] });
+  const ask = (windowStart: string) => thePerformance({
+    windowStart, windowLabel: 'x', today: '2026-09-30', ending: 120_000,
+    pricedGain: 9_000,                                   // prices moved — the old rule took that as grounds for a percent
+    transactions: [], snapshotDays: [day('2026-06-01', 100_000)], investmentAccountIds: new Set(['a1']),
+  });
+  test('the door answers no percent for it — even when prices moved', () => {
+    const past = ask('2025-09-30');                      // a year back, on a record four months long
+    expect(past.covered).toBe(false);
+    expect([past.ret, past.cumulative, past.perYear, past.refusedRate]).toEqual([null, null, null, null]);
+    const inside = ask('2026-07-01');                    // a window the record does reach
+    expect(inside.covered).toBe(true);
+    expect(inside.ret).not.toBeNull();
+  });
+  test('the screen greys it and takes it out of reach', () => {
+    const src = read('PerformanceScreen.tsx');
+    expect(src).toMatch(/const uncovered = figures\[w\.key\]\?\.covered === false && !on;/);
+    expect(src).toMatch(/disabled=\{uncovered\}/);
+    expect(src).not.toMatch(/coverage\.sentence/);       // no shorter period under a longer label
+  });
+  test('with no investment accounts there is nothing to read — an empty list never means "every account"', () => {
+    const none = thePerformance({ windowStart: '2026-07-01', windowLabel: 'x', today: '2026-09-30', ending: 0, pricedGain: 0,
+      transactions: [], snapshotDays: [day('2026-06-01', 852_000)], investmentAccountIds: new Set() });
+    expect(none.measured).toBeNull();                    // it read the $852,000 home before this
+    expect(none.walk.beginning).toBe(0);
   });
 });
 
@@ -61,7 +96,7 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     expect(src).toContain("engines/window-return");
     // the refusal is carried on the window's own figures (one set per window, 2026-09-25) and only a
     // REAL refusal speaks: having no record yet is an em-dash, not a sentence
-    expect(src).toMatch(/const refused = verdict != null && verdict\.rate == null;/);
+    expect(src).toMatch(/const refused = covered && verdict != null && verdict\.rate == null;/);
     expect(src).toMatch(/sentence: refused \? verdict!\.sentence : ''/);
     // HIS RULING ON Q52, built as mock v17 mark 16 and approved 2026-09-30: where the window return
     // refuses, the exact rate per year stands in its place and the note says WHAT THE FIGURE IS. So the
@@ -70,10 +105,10 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     // cannot creep back.
     const screen = read('PerformanceScreen.tsx');
     expect(src).toMatch(/refusedRate/);                                  // the door hands it out
-    expect(screen).toMatch(/sentence && refusedRate != null/);           // the screen prefers the rate
+    expect(screen).toMatch(/now\.refusedRate != null \? \(/);            // the screen prefers the rate
     // the words live in the door (RATE_STANDS_IN_WORDS, 2026-10-01) and both screens print that one constant
     expect(src).toMatch(/this is your rate per year, counting when you added money/);
     expect(screen).toMatch(/RATE_STANDS_IN_WORDS/);
-    expect(screen).not.toMatch(/\{sentence\s*\n?\s*\?\s*sentence/);     // the old unconditional branch is gone
+    expect(screen.indexOf('now.refusedRate != null ? (')).toBeLessThan(screen.indexOf('now.sentence ? ('));   // …and asks for it first
   });
 });

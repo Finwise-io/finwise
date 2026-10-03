@@ -12,6 +12,9 @@ export type GlossaryTerm =
   | 'grossIncome' | 'contributionRoom' | 'capitalGains'
   | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate' | 'moneyWeighted' | 'benchmark'
   | 'investments' | 'yourReturn' | 'nestEggMath' | 'priceReturn' | 'howReturnsWork'
+  // Performance (mock v17): one entry per ⓘ the approved drawing carries
+  | 'performanceSummary' | 'windowReturn' | 'moneyAddedIsNotReturn' | 'rateStandsIn' | 'rebuiltHistory'
+  | 'dayOne' | 'cashInAccount' | 'earnedInWindow' | 'yearlyPace'
   | 'debt';   // cluster #10 ruling (2026-09-10): "Debt is the amount you owe" — the types stay
 
 export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
@@ -54,5 +57,15 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   rateSensitivity: { title: 'Rate sensitivity', body: 'How much a bond’s market value moves if interest rates move. Rates up, existing bonds down — but held to maturity, a bond still returns its face value.' },
   provenance: { title: 'Where this number came from', body: 'Every figure shows its source — connected from your bank, imported from a file, or entered by you — and how fresh it is. You can always trace a number.' },
   moneyWeighted: { title: 'Your money-weighted return', body: 'The yearly rate your OWN dollars actually earned, counting when you put money in and took it out. Different from a fund’s posted return — timing matters. Computed from your recorded activity; an estimate.' },
+  // ── Performance (mock v17): one entry per ⓘ the approved drawing carries ──
+  performanceSummary: { title: 'Summary', body: 'Ending value is what your investments are worth today. Wealth generated is what they made or lost for you between the dates shown — dividends, interest and changes in price. Return is that gain as a percent of the money that was invested.' },
+  windowReturn: { title: 'Return for the window you picked', body: 'The gain between the two dates shown, as a percent of the money that was invested over that time. It is the total for those dates — not a rate for one year.' },
+  moneyAddedIsNotReturn: { title: 'Money you add is not return', body: 'When you put $1,000 in, your balance goes up by $1,000 — but your investments did not earn it. So money you add or take out is left out of the gain, and each amount counts only for the days it was actually invested.' },
+  rateStandsIn: { title: 'Your rate per year', body: 'You added or took out a large amount between these dates. A plain percent would then depend mostly on WHEN the money moved, not on how the investments did. So this shows the yearly rate your money earned, counting each amount from the day it went in.' },
+  rebuiltHistory: { title: 'Rebuilt from the institution’s records', body: 'A linked account shares its past buys, sales, deposits and dividends. The app walks those records back, one day at a time, to work out what the account was worth on each day — as far back as the records go.' },
+  dayOne: { title: 'Day one', body: 'A return can only be measured from the first day the app saw your accounts. Today’s value is real. The gain starts counting from today and fills in as days pass — nothing earlier is guessed.' },
+  cashInAccount: { title: 'Cash in this account', body: 'Money sitting in an investment account that is not invested in anything yet. The interest it pays you is shown on this line.' },
+  earnedInWindow: { title: 'Earned', body: 'Dividends and interest that were actually paid to you between the dates shown. It comes from your records only — so a category with no records shows a dash, never a made-up $0.' },
+  yearlyPace: { title: 'Yearly pace', body: 'A figure marked /year is a rate for a full year — for a bond or a CD, the yearly rate it states. A figure without /year is the gain for the dates shown.' },
   estimate: { title: 'Estimate', body: 'A figure computed from your numbers and stated assumptions — not a promise or a prediction. Change the inputs and it changes. You decide what to do with it.' },
 };

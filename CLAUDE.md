@@ -85,8 +85,8 @@ the founder had approved all of it. Never again.
   every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` (the current Net worth design),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html` (the Performance
   design, APPROVED IN FULL on 2026-10-01 — all five frames; its frame 2, Account portfolio, is also the Account
-  detail screen's design, one screen and one design). What is BUILT is v14, so v17 is ahead of the build and
-  closing that gap is MINE,
+  detail screen's design, one screen and one design). The tab is BUILT to v17 since 2026-10-03 and held there,
+  word for word, by `src/screens/__tests__/perf_matches_v17.test.tsx`),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_add-account-by-hand_v01.html` (Add an account
   by hand, approved 2026-10-01). Numbers inside mocks must ADD UP (accuracy rule applies).
 - WHICH DESIGN EACH SCREEN IS BUILT FROM, and which is current, lives in ONE record:

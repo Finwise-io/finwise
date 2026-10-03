@@ -14,9 +14,32 @@ import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import { Colors, Spacing } from '../utils/theme';
 import { maskedMoney } from './useMoney';
 
-export function ValueGraph({ points, dayOneNote }: { points: { date: string; value: number }[]; dayOneNote?: string }) {
+export function ValueGraph({ points, dayOneNote, dayOneValue, today }: {
+  points: { date: string; value: number }[];
+  /** DAY ONE (Performance v17, phones 4 and 5): no line yet, so the frame says where it will start —
+   *  today's value on the axis, the note in the middle, today's date at both ends. It used to draw
+   *  nothing at all with fewer than two points, so the note could never appear. */
+  /** today's value ALREADY PRINTED by the screen with its identifier — the graph prints no figure of its own */
+  dayOneNote?: string; dayOneValue?: string; today?: string;
+}) {
   const [w, setW] = useState(0);
-  if (points.length < 2) return null;
+  if (points.length < 2) {
+    if (!dayOneNote) return null;
+    const d = today ? new Date(`${today}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+    return (
+      <View style={{ paddingHorizontal: Spacing.base, paddingBottom: 10 }}>
+        <View style={s.dayOneFrame}>
+          <Text style={s.axisDay}>{dayOneValue ?? ''}</Text>
+          <View style={s.dayOneLine} />
+          <Text style={s.axisDay}>{dayOneNote}</Text>
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginLeft: 52 }}>
+          <Text style={s.axisDay}>{d}</Text>
+          <Text style={s.axisDay}>{d}</Text>
+        </View>
+      </View>
+    );
+  }
   const H = 120, padTop = 10, padBot = 16, gutter = 52;
   const vals = points.map((p) => p.value);
   const lo = Math.min(...vals), hi = Math.max(...vals);
@@ -65,4 +88,6 @@ export function niceTicks(lo: number, hi: number, count: number): number[] {
 
 const s = StyleSheet.create({
   axisDay: { fontSize: 11, color: Colors.textSecondary },
+  dayOneFrame: { height: 56, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dayOneLine: { flex: 1, height: 1, backgroundColor: Colors.border },
 });

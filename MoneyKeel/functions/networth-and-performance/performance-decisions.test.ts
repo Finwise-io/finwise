@@ -105,7 +105,7 @@ describe('MK-PF-M-007 All categories', () => {
     // a $1,000 holding up 10% and NO records: nothing was received, so nothing is claimed
     expect(categoryEarnings({ windowStart: '2026-01-01', transactions: [], rows })).toEqual([]);
   });
-  test('a record with no ticker is classed by WHAT IT IS — a dividend from a fund, interest from a bond', () => {
+  test('a record that names no holding is classed by WHAT IT IS — a dividend from a fund, interest from the cash in the account', () => {
     const cats = categoryEarnings({
       windowStart: '2026-01-01', rows,
       transactions: [
@@ -114,7 +114,27 @@ describe('MK-PF-M-007 All categories', () => {
       ],
     });
     expect(cats.find((c) => c.key === 'stocks_etf')!.earned).toBe(90);
+    // Performance v17 (phones 1 to 3) puts interest that names nothing under "Cash in this account":
+    // it is what the uninvested balance earned. Interest that NAMES a holding stays with that holding's
+    // category — a CD we hold no price for is still Bonds & CDs (B-116, pinned above).
+    expect(cats.find((c) => c.key === 'cash')!.earned).toBe(40);
+    expect(cats.find((c) => c.key === 'bonds')).toBeUndefined();
+  });
+  test('a holding the sync brought in is weighed in its category — the two spellings of a class agree', () => {
+    // the sync writes 'stock_etf'; the table's row is 'stocks_etf'. Compared directly they never matched,
+    // so every linked holding left Stocks / Funds with an em-dash for a return (found 2026-10-03).
+    const cats = categoryEarnings({
+      windowStart: '2026-01-01',
+      rows: [{ position: { ticker: 'VTI', asset_class: 'stock_etf' }, periodReturn: 0.1, marketValue: 1_000 },
+             { position: { ticker: 'CD1', asset_class: 'bond' }, periodReturn: 0.02, marketValue: 500 }],
+      transactions: [
+        { txn_id: 'd', ticker: 'VTI', type: 'DIVIDEND', amount: 90, date: '2026-05-01' },
+        { txn_id: 'i', ticker: 'CD1', type: 'INTEREST', amount: 40, date: '2026-05-01' },
+      ],
+    });
+    expect(cats.find((c) => c.key === 'stocks_etf')!.ret).toBeCloseTo(0.1, 9);
     expect(cats.find((c) => c.key === 'bonds')!.earned).toBe(40);
+    expect(cats.find((c) => c.key === 'bonds')!.ret).toBeCloseTo(0.02, 9);
   });
   test('a class that received nothing is not shown at all — never a $0 row', () => {
     const cats = categoryEarnings({

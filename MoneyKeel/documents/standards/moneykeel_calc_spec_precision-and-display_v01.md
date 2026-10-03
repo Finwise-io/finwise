@@ -40,8 +40,17 @@ Why both, and why labelled:
 - A person does not read conventions. Stating both, with the words on them, means nobody has to
   know one: the yearly rate is comparable, and the total is what actually happened to their money.
 
-Where it applies: every window selector, summary and table that offers a window longer than a year
-(Performance today). A category table under such a window says its returns are yearly rates too.
+Where it applies: every **fixed** window longer than a year — on Performance today, that is 2Y. The
+control says so under itself, in the drawing’s words: `2Y is shown per year, so it sits fairly beside 1Y`.
+
+**"Since" is not one of them (applied 2026-10-03, from the approved drawing).** Performance v17, phone
+3, draws a record 26 months long as `Since Jun 3, 2024 +16.24%` with the words `Return is for the
+window you picked (Jun 3, 2024 → Aug 4, 2026) — not a yearly rate`. "Since" answers how much the money has made since the records began, so it shows that window's own total and names both of its dates.
+The code had been turning it into a yearly rate whenever the record passed a year. To reverse: drop
+`wholeRecord` from the calls to `thePerformance` and "Since" becomes a yearly rate again.
+
+Where a window's return is refused and the exact rate stands in its place (Q52), that figure is a
+yearly rate by its nature and carries "/year" whatever the window's length.
 
 
 ## What this changes for the file

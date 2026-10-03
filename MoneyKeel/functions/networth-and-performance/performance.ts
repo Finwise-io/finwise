@@ -39,6 +39,8 @@ export interface WindowFigures {
   walk: ChangeWalk;
   /** The beginning as READ from the daily record, or null when the record cannot reach back. */
   measured: number | null;
+  /** Whether the record reaches back to the window's first day. False → every percent here is null. */
+  covered: boolean;
   /** The day the beginning value is read for — the record's first day for "since". Null on day one. */
   beginningAsOf: string | null;
   /** What the window shows: the yearly rate over a year, otherwise the total. Null when it refuses. */
@@ -121,6 +123,35 @@ export function windowStartKey(period: string, recordDates: string[], today: str
   if (period === 'YTD') return `${today.slice(0, 4)}-01-01`;
   d.setUTCMonth(d.getUTCMonth() - (months[period] ?? 12));
   return d.toISOString().slice(0, 10);
+}
+
+/** THE DAYS THE RECORD HOLDS AN INVESTMENT VALUE FOR, oldest first. "Since" opens on the first of
+ *  them. The record's own first day will not do: a household that entered its bank account in March
+ *  and its first investment in June has a record from March, and asking it what the investments were
+ *  worth in March gets nothing — so "Since" would never answer. */
+/* ─ MK-NW-F-103 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * investmentRecordDates
+ *
+ * Answers ..... THE DAYS THE RECORD HOLDS AN INVESTMENT VALUE FOR, oldest first.
+ *
+ * Formula .....
+ *     []   when investment account ids.size is missing
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-103
+ * Changed ..... not in git yet (—)
+ */
+export function investmentRecordDates(snapshotDays: any[], investmentAccountIds: Set<string>): string[] {
+  // no investment accounts → no investment record. (To the record's reader an EMPTY set means "every
+  // account", which here would count a home and a bank balance as investments.)
+  if (!investmentAccountIds.size) return [];
+  return (snapshotDays ?? [])
+    .filter((d) => /^\d{4}-\d{2}-\d{2}/.test(String(d?.date ?? '')) && valueOn([d], investmentAccountIds, d.date) != null)
+    .map((d) => String(d.date).slice(0, 10))
+    .sort();
 }
 
 /** MK-NW-F-091 · What the PRICED holdings gained over the window. It is used ONLY to derive a
@@ -358,7 +389,7 @@ export function investmentAccountIdsOf(
  *  in its place and THESE words say what it is. One sentence, printed by the Performance tab and the
  *  Account portfolio alike — the test "the same figure, the same words" holds the two together. */
 export const RATE_STANDS_IN_WORDS =
-  'Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money.';
+  'Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money';
 
 /* ─ MK-NW-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * thePerformance
@@ -374,11 +405,12 @@ export const RATE_STANDS_IN_WORDS =
  *     bounds = window bounds(window start, today)   if window start
  *     nothing   otherwise
  *     days = input.snapshot days (or none when missing)
- *     beginning = measured (or ending − input.priced gain − contributions + withdrawals when missing)
+ *     priced gain = 0   if window start = today
+ *     input.priced gain   otherwise
+ *     beginning = measured (or ending − priced gain − contributions + withdrawals when missing)
  *     years = bounds.days ÷ 365   if bounds
  *     0   otherwise
- *     has basis = measured ≠ nothing (or walk.wealth generated ! = 0 when missing or zero)
- *     refused = verdict ≠ nothing and verdict.rate = nothing
+ *     covered = measured ≠ nothing
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
@@ -429,6 +461,10 @@ export function thePerformance(input: {
   /** What the priced holdings gained over the window — used ONLY to derive a beginning the record
    *  cannot reach. It never becomes the return. */
   pricedGain: number;
+  /** True for "Since" — the whole record. Its return is the window's OWN total and is never turned
+   *  into a yearly rate (Performance v17, phone 3: "Since Jun 3, 2024 +16.24% … not a yearly rate").
+   *  A fixed window longer than a year (2Y) still shows the yearly rate. */
+  wholeRecord?: boolean;
 }): WindowFigures {
   const { windowStart, today, ending } = input;
   const ledger = (input.transactions ?? []).filter(
@@ -442,9 +478,15 @@ export function thePerformance(input: {
   const bounds = windowStart ? windowBounds(windowStart, today) : null;
   const days = input.snapshotDays ?? [];
   // READ, never back-filled (B-98)
-  const measured = bounds && snapshotCovers(days, bounds.beginningAsOf)
+  // …and only for the accounts named: with none named there is nothing to read (an empty set would
+  // otherwise read EVERY account — the home and the bank balance included)
+  const measured = bounds && input.investmentAccountIds.size > 0 && snapshotCovers(days, bounds.beginningAsOf)
     ? valueOn(days, input.investmentAccountIds, bounds.beginningAsOf) : null;
-  const beginning = measured ?? (ending - input.pricedGain - contributions + withdrawals);
+  // A WINDOW THAT OPENS TODAY has seen no price move: "your value is real, your return starts
+  // measuring from today" (Performance v17, phone 4). What the holdings gained before today is not
+  // this window's gain, so it is not taken off the beginning.
+  const pricedGain = windowStart === today ? 0 : input.pricedGain;
+  const beginning = measured ?? (ending - pricedGain - contributions + withdrawals);
 
   const walk = buildChangeWalk({
     beginning, ending, fromLabel: input.windowLabel, toLabel: 'today',
@@ -461,11 +503,17 @@ export function thePerformance(input: {
   }) : null;
 
   const years = bounds ? bounds.days / 365 : 0;
-  // a rate needs something to stand on: a beginning read from the record, or movement to point at
-  const hasBasis = measured != null || walk.wealthGenerated !== 0;
-  const refused = verdict != null && verdict.rate == null;
-  const cumulative = hasBasis ? verdict?.rate ?? null : null;
-  const perYear = cumulative != null && years > 1 ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
+  // A WINDOW THE RECORD CANNOT COVER ANSWERS NOTHING (Performance v17, approved 2026-10-01: "a window
+  // the record cannot cover is greyed to — … nothing on this page shows a figure for a window its
+  // record cannot cover"). A rate stood on a beginning READ from the record, or — until now — on a
+  // beginning worked backwards from today's prices whenever those prices had moved. The second is a
+  // back-filled beginning wearing a percent sign, and it is the one thing B-98 forbids. So a rate
+  // needs a beginning that was read. The dollar walk still answers; only the percent is withheld.
+  const covered = measured != null;
+  const refused = covered && verdict != null && verdict.rate == null;
+  const cumulative = covered ? verdict?.rate ?? null : null;
+  // "Since" is the whole record: its figure is the window's own total, said with its two dates
+  const perYear = cumulative != null && years > 1 && !input.wholeRecord ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
 
   // WHERE THE WINDOW RETURN REFUSES, THE EXACT RATE STANDS IN ITS PLACE (his ruling on Q52, 2026-09-30,
   // drawn as mock v17 mark 16 and approved). The window return divides the gain once by a straight-line
@@ -484,6 +532,9 @@ export function thePerformance(input: {
 
   return {
     windowStart, ledger, walk, measured,
+    /** Whether the record reaches back to this window's first day. Where it does not, every percent
+     *  is null and the screen greys the window to an em-dash. */
+    covered,
     /** The day the beginning value is READ for — the record's first day for "since", the day before
      *  the window opens otherwise. The screen's "Since …" and "Beginning market value (…)" print THIS
      *  day: Performance v17 writes "Since Jun 3, 2024" beside "Beginning market value (Jun 3, 2024)". */
@@ -520,6 +571,9 @@ export interface CategoryEarned {
   earned: number;
   /** That class’s return over the window, value-weighted — null where it cannot be calculated. */
   ret: number | null;
+  /** True where `ret` is a STATED yearly rate (a bond or CD's own coupon), printed with "/year" —
+   *  Performance v17: "a /year figure is that category's yearly pace". */
+  yearly: boolean;
 }
 
 /* ─ MK-NW-F-084 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -529,19 +583,17 @@ export interface CategoryEarned {
  *
  * Formula .....
  *     rows = input.rows (or none when missing)
+ *     cls = string(asset class ?? '')
+ *     'bonds'   when cls = 'bond' (or cls = 'bonds' when missing or zero)
+ *     'cash'   when cls = 'cash'
+ *     'alternatives'   when cls = 'other' (or cls = 'alternatives' when missing or zero)
+ *     'bonds'   when !cls and kind = 'fixed_income'
+ *     the answer = 'stocks_etf'
  *     r = rows.find((x) => string(position.ticker ?? '').to upper case() = string(tk ?? '').to upper case())
- *     string(position.kind ?? position.asset class ?? 'stocks_etf')   when r
- *     the answer:
- *     'stocks_etf'   if type = 'DIVIDEND'
- *     'bonds'   otherwise
- *     in class = rows where string(position.asset class ?? 'stocks_etf') = cls
+ *     category of(position)   when r
+ *     in class = rows where category of(position) = cls
  *     usable = in class where period return ≠ nothing and (market value ?? 0) > 0
- *     total = Σ over usable of (market value (or 0 when missing))
- *     nothing   when total ≤ 0
- *     amt = size of(amount read as a number (or 0 when missing or zero))
- *     cls = class of ticker(ticker, type)   if ticker
- *     'stocks_etf'   if type = 'DIVIDEND'
- *     'bonds'   otherwise   otherwise
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-086 CATS
  *
@@ -550,13 +602,17 @@ export interface CategoryEarned {
  *               MK-NW-F-086 CATS
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-008 transaction amount
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-008 transaction amount
+ *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · If market value is missing it uses 0.
+ *     · If balance is missing it uses 0.
+ *     · If coupon rate is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-084
  * Changed ..... 2026-09-30 (4476da5)
@@ -568,6 +624,12 @@ export function categoryEarnings(input: {
   windowStart: string | null;
   /** each holding with its class and its own return, as buildPerformance produces them */
   rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; marketValue?: number }[];
+  /** Every bond or CD held as its own account: what it is worth and the yearly rate it states. */
+  bonds?: { balance?: number; coupon_rate?: number }[];
+  /** DAY ONE: every category is shown at $0 — "every line fills in as days pass, the structure never
+   *  changes" (Performance v17, phones 4 and 5). Any other day, a category that received nothing is
+   *  left out. */
+  dayOne?: boolean;
 }): CategoryEarned[] {
   const { windowStart } = input;
   const led = (input.transactions ?? []).filter(
@@ -581,37 +643,65 @@ export function categoryEarnings(input: {
   // corner: it is a bond's income shown under the wrong heading on the approved category table. The
   // rule his decision already states covers it — class the record by WHAT IT IS when we cannot class
   // it by what it is attached to: a dividend comes from a fund, interest from a bond.
+  // WHICH CATEGORY A HOLDING BELONGS TO — one rule, used to sort its income AND to weigh its return.
+  // A holding says its class in the words the sync writes ('stock_etf', 'bond', 'cash', 'other'); the
+  // table's rows are named 'stocks_etf', 'bonds', 'cash'. This compared the two spellings directly, so
+  // every holding a linked account brought in matched NO row and Stocks / Funds showed an em-dash for
+  // its return — found 2026-10-03 holding the screen against Performance v17, word for word.
+  const categoryOf = (p?: { kind?: string; asset_class?: string }): string => {
+    const cls = String(p?.asset_class ?? '');
+    if (cls === 'bond' || cls === 'bonds') return 'bonds';
+    if (cls === 'cash') return 'cash';
+    if (cls === 'other' || cls === 'alternatives') return 'alternatives';
+    if (!cls && p?.kind === 'fixed_income') return 'bonds';
+    return 'stocks_etf';
+  };
   const classOfTicker = (tk: string, type: string): string => {
     const r = rows.find((x) => String(x.position?.ticker ?? '').toUpperCase() === String(tk ?? '').toUpperCase());
-    if (r) return String(r.position?.kind ?? r.position?.asset_class ?? 'stocks_etf');
+    if (r) return categoryOf(r.position);
     return type === 'DIVIDEND' ? 'stocks_etf' : 'bonds';
   };
   // the value-weighted return of the holdings in one class — the same rule the whole portfolio uses
   const retOf = (cls: string): number | null => {
-    const inClass = rows.filter((x) => String(x.position?.asset_class ?? 'stocks_etf') === cls);
+    const inClass = rows.filter((x) => categoryOf(x.position) === cls);
     const usable = inClass.filter((r) => r.periodReturn != null && (r.marketValue ?? 0) > 0);
     const total = usable.reduce((t, r) => t + (r.marketValue ?? 0), 0);
     if (total <= 0) return null;
     return usable.reduce((t, r) => t + (r.periodReturn as number) * (r.marketValue ?? 0), 0) / total;
   };
 
+  // A BOND STATES ITS OWN YEARLY RATE, and where every bond held states one the category shows that
+  // rate — weighted by what each is worth — with "/year" on it (Performance v17: "Bonds & CDs 4.20%/year").
+  // It is the same stated rate the account page prints beside the bond, so the two cannot disagree.
+  // One bond with no stated rate and the category falls back to what its prices did, or to nothing.
+  const held = (input.bonds ?? []).filter((b) => (b.balance ?? 0) > 0);
+  // a bond held as a holding INSIDE an account states no rate here, so the category cannot speak for it
+  const bondHoldings = rows.filter((x) => categoryOf(x.position) === 'bonds');
+  const allState = held.length > 0 && bondHoldings.length === 0 && held.every((b) => (b.coupon_rate ?? 0) > 0);
+  const heldTotal = held.reduce((t, b) => t + (b.balance ?? 0), 0);
+  const statedBondRate = allState ? held.reduce((t, b) => t + (b.coupon_rate ?? 0) * (b.balance ?? 0), 0) / heldTotal : null;
+
   const buckets: CategoryEarned[] = [
     // "Cash in this account" is his wording of 2026-08-11; the shorter wording was declined by name
-    { key: 'stocks_etf', label: 'Stocks / Funds', earned: 0, ret: retOf('stocks_etf') },
-    { key: 'bonds', label: 'Bonds & CDs', earned: 0, ret: retOf('bonds') },
-    { key: 'cash', label: 'Cash in this account', earned: 0, ret: retOf('cash') },
+    { key: 'stocks_etf', label: 'Stocks / Funds', earned: 0, ret: retOf('stocks_etf'), yearly: false },
+    { key: 'bonds', label: 'Bonds & CDs', earned: 0, ret: statedBondRate ?? retOf('bonds'), yearly: statedBondRate != null },
+    { key: 'cash', label: 'Cash in this account', earned: 0, ret: retOf('cash'), yearly: false },
   ];
   for (const t of led) {
     if (t?.type !== 'DIVIDEND' && t?.type !== 'INTEREST') continue;
     const amt = Math.abs(Number(t.amount) || 0);
-    // an untickered row is classed by WHAT IT IS: a dividend comes from a fund, interest from a bond
-    const cls = t.ticker ? classOfTicker(t.ticker, t.type) : (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds');
+    // A RECORD THAT NAMES NO HOLDING is classed by what it is. A dividend comes from a fund. Interest
+    // that names nothing is what the uninvested balance earned — "Cash in this account", where the
+    // approved drawing puts it (Performance v17, phones 1 to 3). Interest that NAMES a holding we hold
+    // no price for is a bond's or a CD's (B-116), and stays under Bonds & CDs.
+    const cls = t.ticker ? classOfTicker(t.ticker, t.type) : (t.type === 'DIVIDEND' ? 'stocks_etf' : 'cash');
     const b = buckets.find((x) => x.key === cls)
            ?? buckets.find((x) => x.key === (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds'))!;
     b.earned += amt;
   }
-  // a category that received nothing is not shown at all — never a $0 row
-  return buckets.filter((b) => b.earned > 0);
+  // day one shows every category at $0 with NO return — nothing has been measured yet, and a holding's
+  // lifetime gain is not this window's. Any other day a category that received nothing is left out.
+  return input.dayOne ? buckets.map((b) => ({ ...b, ret: null, yearly: false })) : buckets.filter((b) => b.earned > 0);
 }
 
 /** THE WORKED EXAMPLE (six steps, step 6, 2026-09-28).
@@ -895,7 +985,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
   // Return across the top and in the SUMMARY trio printed under MK-PF-M-008, which is the MARKET's
   // return — a different figure. This is the account's own.
   'MK-PF-M-016': {
-    label: 'Return', unit: 'percent-signed', screens: ['/account-detail'], grain: 'one account',
+    label: 'Return', unit: 'percent-signed', screens: ['/account-detail', '/invest'], grain: 'one account',
     answers: 'What this one account returned over the window you picked \u2014 wealth generated \u00f7 the money '
       + 'that was working in it, counting when money moved in or out. Shown per year when the window is '
       + 'longer than a year.',
@@ -966,7 +1056,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     worked: { given: 'A savings account holding $5,000 and nothing else.', answer: '$5,000', run: () => availableCash({ asset_id: 'x', label: 'Savings', balance: 5_000 } as any) },
   },
   'MK-PF-M-006': {
-    label: 'WHAT EACH CATEGORY EARNED — RETURN', unit: 'percent-2dp', screens: ['/invest'],
+    label: 'WHAT EACH CATEGORY EARNED — RETURN', unit: 'percent-signed', screens: ['/invest'],
     answers: 'What each kind of holding returned over the window you picked.',
     formula: "each class's own return, weighted by what each holding in it is worth",
     inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-006 the price fetched at'],
@@ -977,7 +1067,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     refusal: 'An em-dash — no holding in that class can be priced over this window.',
     worked: {
       given: CAT_GIVEN,
-      answer: '12.00%',
+      answer: '+12.00%',
       run: () => CAT('stocks_etf')?.ret ?? null,
     },
     ruled: '2026-09-03',

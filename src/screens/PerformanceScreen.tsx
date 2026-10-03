@@ -1,15 +1,15 @@
 // Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, RefreshControl, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ValueGraph } from '../components/ValueGraph';
 import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
-import { SourceChip } from '../components/SourceChip';
+import { SourceChip, sourceWords } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf, RATE_STANDS_IN_WORDS } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf, investmentRecordDates, RATE_STANDS_IN_WORDS } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -33,17 +33,15 @@ import {
   type Period, type Position, type Lot,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
-// THE CALCULATION MODULE — say plainly when a window reaches further back than our record.
-// Founder 2026-08-18: the memory limit was a code comment; nobody using the app was ever told.
-import { coverageFor } from '../../Calculation Module code/engines/coverage';
-import { EmptyNote } from '../components/UI';
+import { EmptyNote, InfoDot } from '../components/UI';
+import type { GlossaryTerm } from '../domain/glossary';
 import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../constants/doors';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { BondEditor } from './BondsScreen';
 import { AltEditor } from './OtherInvestmentsScreen';
-import { isoLocalDate } from '../domain/_shared/dates';
+import { isoLocalDate, dateShown } from '../domain/_shared/dates';
 import { rebuiltSentence } from '../../Calculation Module code/engines/rebuild-history';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -100,11 +98,6 @@ export default function PerformanceScreen() {
   const anyCapped = rows.some((r) => r.cappedSince != null);
   // FINAL mock: every chip shows ITS OWN return — a window with no data shows an em-dash, never a
   // guess. Same rows and function as the headline, just run per period, so chips can't disagree with it.
-  // the earliest day we actually have data for — the mock's "Since <date>" chip
-  const dataStartLabel = useMemo(() => {
-    const keys = Object.keys((store.invDaily ?? {}) as Record<string, number>).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
-    return keys.length ? new Date(`${keys[0]}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
-  }, [store.invDaily]);
   const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
   // FCC glance pin: the SAME resolved rows + helper Home's hero uses — the two can never disagree
   const resolvedNwAccounts = resolveNetWorthRows(
@@ -120,25 +113,29 @@ export default function PerformanceScreen() {
   // example of a dense table, and the list had not existed for five days.
   // capped rows: the dollar is YOUR true gain (value − cost) — same math as unrealized everywhere
   const rowGain = (r: any) => pricedGainOf([r]);                    // the door's own rule, one row at a time
+  const investIds = useMemo(
+    () => investmentAccountIdsOf(resolvedNwAccounts as any, assetClassOf), [resolvedNwAccounts]);
+  // WHERE "SINCE" STARTS is read from the SAME daily record the door reads the beginning from — the
+  // first day it holds an investment value. It used to come from a second, older list of days, so the
+  // label could name a day the door had no value for, and the figure under it was then worked
+  // backwards. Day one is the day that record begins: nothing before today to measure from.
+  const todayKey = isoLocalDate(new Date());
+  const recordDates = useMemo(
+    () => investmentRecordDates(((store as any).snapshotDays ?? []) as any[], investIds),
+    [store.snapshotDays, investIds]);
+  const dayOne = recordDates.length === 0 || recordDates[0] >= todayKey;
+  const sinceWords = dayOne ? 'today' : dateShown(recordDates[0]);
   // ONE definition of a period's start — the walk, the ledger filter and the gap checks all use it.
-  // It lives in the door now (MK-NW-F-090), so Home asks the same question of the same window.
-  const periodStartKey = (p: string): string =>
-    windowStartKey(p, Object.keys((store.invDaily ?? {}) as Record<string, number>), isoLocalDate(new Date()));
-  // How far back our record actually reaches, against the window the chosen chip asks for.
-  const coverage = useMemo(() => {
-    const dates = Object.keys((store.invDaily ?? {}) as Record<string, number>)
-      .filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).map((date) => ({ date }));
-    return coverageFor(dates, periodStartKey(period), isoLocalDate(new Date()));
-  }, [store.invDaily, period]);
+  // It lives in the door (MK-NW-F-090), so Home asks the same question of the same window.
+  const periodStartKey = (p: string): string => windowStartKey(p, recordDates, todayKey);
   const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
   // FOUND 2026-09-14: tapping "Since <date>" crashed the screen — the phrase table had no entry for it,
   // so the summary title read undefined.toUpperCase(). Every window now has words, the Since one included.
-  const phraseFor = (p: string): string => (p === 'SINCE' ? `since ${dataStartLabel ?? 'your records began'}` : PERIOD_PHRASE[p] ?? 'this window');
-  const beginLabelFor = (p: string): string => (p === 'SINCE' ? (dataStartLabel ?? 'start') : `${phraseFor(p)} start`);
+  const phraseFor = (p: string): string => (p === 'SINCE' ? `since ${sinceWords}` : PERIOD_PHRASE[p] ?? 'this window');
   // THE FIVE WINDOWS the screen offers (mock v14). "This year" is YTD said in words; 3M and 6M go —
   // Build 53 offered six windows and called YTD "YTD".
   const WINDOWS: { key: string; label: string }[] = [
-    { key: 'SINCE', label: dataStartLabel ? `Since ${dataStartLabel}` : 'Since today' },
+    { key: 'SINCE', label: `Since ${sinceWords}` },
     { key: '1M', label: '1M' }, { key: 'YTD', label: 'This year' }, { key: '1Y', label: '1Y' }, { key: '2Y', label: '2Y' },
   ];
   // ONE MEANING OF RETURN on this screen (founder, 2026-09-25 — he caught the same disagreement on
@@ -147,8 +144,6 @@ export default function PerformanceScreen() {
   // from PRICE CHANGE only, weighted by holding, so it silently disagreed with "Wealth generated"
   // standing beside it, which counts dividends and interest. Same function for the window selector,
   // the summary and the walk, so no two figures on this screen can tell different stories.
-  const investIds = useMemo(
-    () => investmentAccountIdsOf(resolvedNwAccounts as any, assetClassOf), [resolvedNwAccounts]);
   // ONE DOOR (MK-NW-O-008 thePerformance, Q-PF-1 ruled 2026-09-27: "yes"). This screen worked the
   // whole answer out for itself — the window's records, the flows, the beginning, the walk, the
   // money-weighted return and the yearly-rate rule — while Home printed a return of its own. The
@@ -157,7 +152,6 @@ export default function PerformanceScreen() {
   // cannot lose them.
   const figuresFor = (p: string) => {
     const windowStart = periodStartKey(p);
-    const todayKey = isoLocalDate(new Date());
     // what the priced holdings gained: used ONLY to derive a beginning the record cannot reach
     const priced = p === period ? rows : buildPerformance(positions, priceOf, p as Period, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()]);
     const pricedDollar = pricedGainOf(priced as any);
@@ -167,6 +161,7 @@ export default function PerformanceScreen() {
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investIds,
+      wholeRecord: p === 'SINCE',   // "Since" shows the window's own total, never a yearly rate (v17, phone 3)
     });
     return { ...answer, led: answer.ledger, bounds: windowStart ? windowBounds(windowStart, todayKey) : null };
   };
@@ -174,7 +169,7 @@ export default function PerformanceScreen() {
     const out: Record<string, ReturnType<typeof figuresFor>> = {};
     for (const w of WINDOWS) out[w.key] = figuresFor(w.key);
     return out;
-  }, [store.transactions, store.snapshotDays, investTotalAll, owned, priceCache, period, dataStartLabel]);
+  }, [store.transactions, store.snapshotDays, investTotalAll, owned, priceCache, period, sinceWords]);
   // THE VALUE LINE (mock v14 mark 11). It is read from the daily record — which a linked account's
   // rebuild now fills backwards from its own transactions — between the window's start and today.
   // What it will never do again is take TODAY's share count and price it at past dates: that drew a
@@ -182,7 +177,8 @@ export default function PerformanceScreen() {
   const graphPoints = useMemo(() => {
     const days = ((store as any).snapshotDays ?? []) as any[];
     if (!days.length) return [] as { date: string; value: number }[];
-    const start = periodStartKey(period);
+    // the line starts on the day the beginning is READ for, so its first point is the walk's first row
+    const start = windowFigures[period]?.beginningAsOf ?? periodStartKey(period);
     const inWindow = days.filter((d) => d.date >= start).map((d) => d.date).sort();
     const step = Math.max(1, Math.ceil(inWindow.length / 26));
     const out: { date: string; value: number }[] = [];
@@ -196,7 +192,7 @@ export default function PerformanceScreen() {
       if (v != null) out.push({ date: last, value: v });
     }
     return out;
-  }, [store.snapshotDays, period, investIds]);
+  }, [store.snapshotDays, period, investIds, windowFigures]);
   // The screen has something to say whenever there ARE investments — a balance-only 401(k) with no
   // itemised holdings is still money, and gating on priced rows alone left that person staring at an
   // empty screen while Home showed their total (agreement pin 1).
@@ -210,12 +206,9 @@ export default function PerformanceScreen() {
     const earliest = ids.map((id) => from[id]).sort()[0];
     const one = ids.length === 1 ? accounts.find((a) => String(a.asset_id) === ids[0]) : null;
     const byHand = accounts.some((a) => a.source !== 'connected' && investIds.has(String(a.asset_id)));
-    return { sentence: rebuiltSentence(one?.institution ?? (ids.length > 1 ? 'your linked accounts' : null), earliest), byHand };
+    const who = one?.institution ?? (ids.length > 1 ? 'your linked accounts' : null);
+    return { sentence: rebuiltSentence(who, earliest), byHand, who };
   }, [store.rebuiltFrom, accounts, investIds]);
-  const freshLine = (() => {
-    const f = priceFreshness(store.pricesFetchedAt, Date.now());
-    return store.pricesFetchedAt ? `${f.stale ? 'Prices may be out of date — ' : 'Prices updated '}${f.label}` : null;
-  })();
   const bondAccts = accounts.filter(isBond);
   const altAccts = accounts.filter(isAlternative);
   // investment ACCOUNTS without tickers (a balance-only 401(k)/brokerage) still belong on this
@@ -235,305 +228,260 @@ export default function PerformanceScreen() {
   };
   useEffect(() => { if (positions.length) refresh(); }, [positions.length]);   // fetch on open / when holdings change
 
-  return (
-    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <HiddenBalancesBanner />
-      {/* Invest (FCC glance-then-drill): title + refresh; the grouped list below owns the total */}
-      <View style={styles.headRow}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text style={styles.investTitle}>Performance</Text>
-          {/* the mock puts today's date on the header row, right-aligned */}
-          <Text style={styles.headDate}>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
+  // ── WHAT THE SCREEN SAYS, in the order the approved drawing says it (Performance v17) ──────────
+  // ONE path for every state. Day one and "no accounts yet" used to be a second copy of the screen
+  // with its own wording, and the two drifted: day one with accounts showed neither the account walks
+  // nor the category table the drawing gives it. The structure never changes; only the figures do.
+  const nothingEntered = positions.length === 0 && bondAccts.length === 0 && altAccts.length === 0 && untracked.length === 0;
+  const now = windowFigures[period] ?? figuresFor(period);
+  const { walk } = now;
+  const beginWords = dayOne ? 'today' : dateShown(now.beginningAsOf);
+  const endWords = dayOne ? 'today' : dateShown(todayKey);
+  const shownReturn = now.ret ?? now.refusedRate;
+  const yearsWord = now.years >= 1.9 && now.years < 2.1 ? 'two years' : `${now.years.toFixed(1)} years`;
+  const stale = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
+  /** One walk, drawn the same way for every account together and for each account alone. */
+  const walkRows = (w: typeof walk, ids: { begin: string; line: string; wealth: string; end: string }) => (
+    <>
+      {[
+        { l: `Beginning market value (${beginWords})`, v: w.beginning, m: ids.begin },
+        { l: 'Contributions', v: w.contributions, m: ids.line },
+        { l: 'Withdrawals', v: -w.withdrawals, m: ids.line },
+        { l: 'Wealth generated', v: w.wealthGenerated, strong: true, m: ids.wealth },
+        { l: 'Dividends', v: w.dividends, indent: true, m: ids.line },
+        { l: 'Interest', v: w.interest, indent: true, m: ids.line },
+        { l: 'Change in investment value', v: w.marketChange, indent: true, m: ids.line },
+      ].map((r) => (
+        <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
+          <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
+          <Text style={[styles.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
+            {r.v < 0 ? '−' : ''}{fig(r.m, Math.abs(r.v))}
+          </Text>
         </View>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={loading ? 'Refreshing prices' : 'Refresh prices'} onPress={refresh} disabled={loading}>
-          <Text style={styles.refresh}>{loading ? 'Updating…' : '↻ Refresh'}</Text>
-        </TouchableOpacity>
+      ))}
+      <View style={[styles.walkRow, styles.walkTotal]}>
+        <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value ({endWords})</Text>
+        <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig(ids.end, w.ending)}</Text>
       </View>
-      {/* B-18: surface price freshness so stale cached values aren't presented as live. */}
-      {positions.length > 0 && (() => {
-        const f = priceFreshness(store.pricesFetchedAt, Date.now());
-        return <Text style={[styles.freshness, f.stale && { color: Colors.amber }]}>{f.stale ? '⚠ Prices may be out of date' : 'Prices'} · updated {f.label}{f.stale ? ' — tap Refresh' : ''}</Text>;
-      })()}
+    </>
+  );
 
-      {positions.length === 0 && bondAccts.length === 0 && altAccts.length === 0 && untracked.length === 0 ? (
-        /* DAY ONE (approved performance-FINAL state B + the founder's empty-state rule): the
-           structure is IDENTICAL to the rich screen — chips, summary, walk, category table —
-           with honest zeros. Nothing hides, nothing is invented, nothing moves position later. */
-        <View>
-          <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
+  return (
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
+      /* the drawing's header is the title and the date, nothing else. Prices refresh when the screen
+         opens; pulling down asks again. The visible "↻ Refresh" link is gone with the header line it sat on. */
+      refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} tintColor={Colors.primary} />}>
+        <HiddenBalancesBanner />
+      <View style={styles.headRow}>
+        <Text style={styles.investTitle}>Performance</Text>
+        <Text style={styles.headDate}>{dateShown(todayKey)}</Text>
+      </View>
+      {/* SOURCE ALWAYS, DATE ONLY WHEN STALE (his brief R7). Fresh prices say nothing; old ones say so. */}
+      {!!stale?.stale && (
+        <Text style={[styles.freshness, { color: Colors.amber }]}>⚠ Prices may be out of date · {store.pricesFetchedAt ? `updated ${stale.label}` : stale.label} — pull down to refresh</Text>
+      )}
 
-          <View style={styles.card}>
-            <SectionBand inCard title="SUMMARY · SINCE TODAY" />
-            <View style={styles.trioRow}>
-              <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', 0)}</Text></View>
-              <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>{fig('MK-PF-M-002', 0)}</Text></View>
-              <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text></View>
-            </View>
-            {/* Q48 (MK-PF-M-005..008): $0 above, the one line, the door. Mock v14 mark 9: the line
-                opens the SAME three ways to add an account Net worth opens — the separate
-                separate add button and the separate import link are gone. */}
-            <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />
-            <Text style={styles.sumNote}>Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</Text>
-          </View>
+      <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
+      {/* founder ruling 2026-08-18: the 2Y figure is a yearly rate, so it sits fairly beside 1Y — and
+          the screen says so under the control (mock v14 mark 15), wherever 2Y has a figure to show */}
+      {windowFigures['2Y']?.perYear != null && (
+        <Text style={styles.coverageLine}>2Y is shown per year, so it sits fairly beside 1Y</Text>
+      )}
 
-          <View style={styles.card}>
-            <SectionBand inCard title="HOW TODAY'S VALUE STANDS · ALL ACCOUNTS" />
-            {['Beginning market value (today)', 'Contributions', 'Withdrawals', 'Wealth generated', 'Dividends', 'Interest', 'Change in investment value'].map((l, i) => (
-              <View key={l} style={[styles.walkRow, i >= 4 && { paddingLeft: 20 }]}>
-                <Text style={[styles.walkL, i >= 4 && { color: Colors.textSecondary }, i === 3 && { fontWeight: '800' }]}>{l}</Text>
-                <Text style={[styles.walkV, i === 3 && { fontWeight: '800' }]}>{fig(i === 0 ? 'MK-PF-M-018' : i === 3 ? 'MK-PF-M-002' : 'MK-PF-M-019', 0)}</Text>
-              </View>
-            ))}
-            <View style={[styles.walkRow, styles.walkTotal]}>
-              <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value (today)</Text>
-              <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig('MK-PF-M-001', 0)}</Text>
-            </View>
-            <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
-          </View>
-
-          <View style={styles.card}>
-            <SectionBand inCard title="WHAT EACH CATEGORY EARNED" />
-            <Text style={styles.sumNote}>Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</Text>
-          </View>
-
+      {/* SUMMARY — the trio on one row, what the Return is in words, where the history came from, the line */}
+      <View style={styles.card}>
+        <SectionBand inCard title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} infoTerm="performanceSummary" />
+        <View style={styles.trioRow}>
+          <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', walk.ending)}</Text></View>
+          <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: dayOne ? Colors.textTertiary : walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walk.wealthGenerated))}</Text></View>
+          {/* MARKS 16 AND 18, approved as mock v17 (2026-09-30). 16: where the window return
+              refuses, the EXACT rate per year stands in its place instead of an em-dash — the
+              person actively adding money is the one who most needs a rate and used to get
+              none. 18: this cell prints the plain percent and NOT "/year"; the yearly rate
+              with its words sits under the chosen window above. Measured at the app's type
+              sizes: the three cells need 270 of the card's 334 points that way, against 328
+              with "/year" in here — six points of headroom, which is why it wrapped. */}
+          <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: shownReturn == null ? Colors.textTertiary : shownReturn >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn == null ? '—' : fig('MK-PF-M-017', shownReturn)}</Text></View>
         </View>
-      ) : (
-        <>
-          {/* PERIOD SELECTOR */}
-          <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
-          {/* FOUNDER 2026-08-18: a chip may name a longer window than our record covers. Say so,
-              rather than answering a shorter period under the longer label. Silent when covered. */}
-          {coverage.sentence !== '' && (
-            <Text style={styles.coverageLine} accessibilityLabel={coverage.sentence}>{coverage.sentence}</Text>
+        {nothingEntered ? (
+          /* Q48 (MK-PF-M-005..008): $0 above, the one line, the door. Mock v14 mark 9: the line opens
+             the SAME three ways to add an account Net worth opens. */
+          <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />
+        ) : dayOne ? (
+          <Note term="dayOne">Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</Note>
+        ) : now.refusedRate != null ? (
+          /* mark 16: the refusal sentence is replaced by what the figure IS. A person reading a rate
+             has to be told it is a yearly one, counted from when the money went in. */
+          <Note term="rateStandsIn">{RATE_STANDS_IN_WORDS}</Note>
+        ) : now.sentence ? (
+          <Text style={styles.sumNote}>{now.sentence}</Text>
+        ) : now.perYear != null && now.cumulative != null ? (
+          <>
+            {/* a fixed window longer than a year shows the yearly rate, with the window's own total
+                beside it and the words on both (his ruling of 2026-09-25, DEC-0368's wording) */}
+            <Text style={styles.sumNote}>
+              {fig('MK-PF-M-017', now.cumulative)} over the {yearsWord}, which is {fig('MK-PF-M-017', now.perYear)}/year — a yearly rate, so it sits fairly beside a one-year window.
+            </Text>
+            <Note term="moneyAddedIsNotReturn">money-weighted, so money you added never counts as return</Note>
+          </>
+        ) : (
+          <>
+            <Note term="windowReturn">Return is for the window you picked ({beginWords} → {endWords}) — not a yearly rate</Note>
+            <Note term="moneyAddedIsNotReturn">money-weighted, so money you added never counts as return</Note>
+          </>
+        )}
+        {/* WHERE THE HISTORY CAME FROM (mock v14 mark 13): a rebuilt line names its source and first day */}
+        {!!rebuilt && !dayOne && <Note term="rebuiltHistory">↺ {rebuilt.sentence}</Note>}
+        {/* the value graph lives INSIDE the summary card, with a Y axis (mock v14 mark 11), drawn ONLY
+            from days we have a record for — never today's share count priced at old dates */}
+        <ValueGraph points={dayOne ? [] : graphPoints} dayOneValue={fig('MK-PF-M-001', walk.ending)} today={todayKey}
+          dayOneNote={!dayOne ? undefined : nothingEntered ? 'your line starts with your first account' : 'your line starts today'} />
+      </View>
+
+      {!nothingEntered && (
+        <DataGapsBanner gaps={dataGaps(accounts, now.windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any)} />
+      )}
+
+      {/* THE WALK — how the beginning became the ending, every account together */}
+      <View style={styles.card}>
+        {dayOne
+          ? <SectionBand inCard title="HOW TODAY'S VALUE STANDS · ALL ACCOUNTS" value={fig('MK-PF-M-001', walk.ending)} />
+          : <SectionBand inCard title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)} />}
+        {walkRows(walk, { begin: 'MK-PF-M-018', line: 'MK-PF-M-019', wealth: 'MK-PF-M-002', end: 'MK-PF-M-001' })}
+        {dayOne
+          ? <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
+          : !!rebuilt?.who && (
+            <Text style={styles.sumNote}>Every line here comes from {rebuilt.who}’s own records. A hand-entered account or a cash balance has none, so it starts the day you enter it — and says so.</Text>
           )}
+      </View>
 
-          {/* FINAL mock (mockup-vf/performance-FINAL, founder-approved 2026-08-04): the SUMMARY trio
-              and the VALUE WALK. Both read the same rows/breakdown the hero below uses, so the two
-              can never disagree; the walk's rows sum to the ending value by construction. */}
-          {hasInvestments && (() => {
-            const { windowStart, walk, ret: shownReturn, sentence, cumulative, perYear, years, refusedRate } = windowFigures[period] ?? figuresFor(period);
-            const yearsWord = years >= 1.9 && years < 2.1 ? 'two years' : `${years.toFixed(1)} years`;
-            const gaps = dataGaps(accounts, windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any);
-            return (
-              <>
-                <View style={styles.card}>
-                  <SectionBand inCard title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} />
-                  <View style={styles.trioRow}>
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', walk.ending)}</Text></View>
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walk.wealthGenerated))}</Text></View>
-                    {/* MARKS 16 AND 18, approved as mock v17 (2026-09-30). 16: where the window return
-                        refuses, the EXACT rate per year stands in its place instead of an em-dash — the
-                        person actively adding money is the one who most needs a rate and used to get
-                        none. 18: this cell prints the plain percent and NOT "/year"; the yearly rate
-                        with its words sits under the chosen window above. Measured at the app's type
-                        sizes: the three cells need 270 of the card's 334 points that way, against 328
-                        with "/year" in here — six points of headroom, which is why it wrapped. */}
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (shownReturn ?? refusedRate ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn != null ? fig('MK-PF-M-017', shownReturn) : refusedRate != null ? fig('MK-PF-M-017', refusedRate) : '—'}</Text></View>
-                  </View>
-                  <Text style={styles.sumNote}>
-                    {sentence && refusedRate != null
-                      /* mark 16: the refusal sentence is replaced by what the figure IS. A person reading
-                         a rate has to be told it is a yearly one, counted from when the money went in. */
-                      ? RATE_STANDS_IN_WORDS
-                      : sentence
-                        ? sentence
-                        : `Return is for the window you picked (${phraseFor(period)}) — not a yearly rate. Money you added never counts as return.`}
-                  </Text>
-                  {rebuilt && (
-                    <Text style={styles.sumNote}>
-                      ↺ {rebuilt.sentence}{rebuilt.byHand ? ' Anything entered by hand starts the day you entered it.' : ''}
-                    </Text>
-                  )}
-                  {/* founder ruling 2026-08-18 annualises the 2Y figure so it sits fairly beside 1Y.
-                      Nothing said so until mock v14 mark 15 — a rate nobody can name is a trap. */}
-                  {perYear != null && cumulative != null && (
-                    <Text style={styles.sumNote}>
-                      {fig('MK-PF-M-017', cumulative)} over the {yearsWord}, which is {fig('MK-PF-M-017', perYear)}/year — a yearly rate, so it sits fairly beside a one-year window.
-                    </Text>
-                  )}
-                  {/* the value graph lives INSIDE the summary card (approved performance-FINAL),
-                      now with a Y axis (mock v14 mark 11) and drawn ONLY from days we have a record
-                      for — never today's share count priced at old dates */}
-                  <ValueGraph points={graphPoints} dayOneNote={hasInvestments ? 'your line starts today' : 'your line starts with your first account'} />
-                </View>
-
-                <DataGapsBanner gaps={gaps} />
-
-                <View style={styles.card}>
-                  <SectionBand inCard title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)} />
-                  {[
-                    { l: `Beginning market value (${beginLabelFor(period)})`, v: walk.beginning, m: 'MK-PF-M-018' },
-                    { l: 'Contributions', v: walk.contributions, m: 'MK-PF-M-019' },
-                    { l: 'Withdrawals', v: -walk.withdrawals, m: 'MK-PF-M-019' },
-                    { l: 'Wealth generated', v: walk.wealthGenerated, strong: true, m: 'MK-PF-M-002' },
-                    { l: 'Dividends', v: walk.dividends, indent: true, m: 'MK-PF-M-019' },
-                    { l: 'Interest', v: walk.interest, indent: true, m: 'MK-PF-M-019' },
-                    { l: 'Change in investment value', v: walk.marketChange, indent: true, m: 'MK-PF-M-019' },
-                  ].map((r) => (
-                    <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
-                      <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
-                      <Text style={[styles.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
-                        {r.v < 0 ? '−' : ''}{fig((r as any).m, Math.abs(r.v))}
-                      </Text>
-                    </View>
-                  ))}
-                  <View style={[styles.walkRow, styles.walkTotal]}>
-                    <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value (today)</Text>
-                    <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig('MK-PF-M-001', walk.ending)}</Text>
-                  </View>
-                </View>
-              </>
-            );
-          })()}
-
-          {/* PER-ACCOUNT WALKS (final mock): the same card, one per account, collapsible — a
-              person with eight accounts sees a list, not an endless scroll. Every account's walk
-              uses the SAME function as the all-accounts walk, so the parts sum to the whole. */}
-          {hasInvestments && (() => {
-            const windowStart = periodStartKey(period);
-            const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
-            const names = accountDisplayNames(accounts);   // one account name, used everywhere
-            const byAcct = new Map<string, { label: string; ending: number; gain: number }>();
-            for (const r of rows as any[]) {
-              const o = owned.find((x) => x.p.position_id === r.position.position_id);
-              if (!o) continue;
-              const acct = accounts.find((a) => a.asset_id === o.accountId);
-              // named by ACCOUNT, the way the approved design draws it ("Vanguard Brokerage",
-              // "E*TRADE Account 1"). Build 53 titled the walk with the institution ("VANGUARD"),
-              // so two accounts at one broker could not be told apart (founder screenshot 2026-08-17).
-              const cur = byAcct.get(o.accountId) ?? { label: names.get(o.accountId) ?? acct?.label ?? 'Account', ending: 0, gain: 0 };
-              cur.ending += r.marketValue; cur.gain += rowGain(r);
-              byAcct.set(o.accountId, cur);
-            }
-            // HANDOFF 2026-08-11 + reconciliation: the per-account walks must SUM to the all-accounts
-            // walk above them. They were built only from itemised holding rows, so an account with a
-            // balance and no holdings (a CD account, anything hand-entered) simply vanished from the
-            // list — the parts stopped adding up to the whole with no sign that anything was missing.
-            for (const a of (accounts ?? []) as AssetAccount[]) {
-              if (byAcct.has(a.asset_id) || !(a.balance > 0)) continue;
-              // a home, a car, a chequing account is not an investment and gets no walk here
-              if (!investIds.has(String(a.asset_id))) continue;
-              byAcct.set(a.asset_id, { label: names.get(a.asset_id) ?? a.label, ending: a.balance, gain: 0 });
-            }
-            if (byAcct.size < 2) return null;                    // one account → the all-accounts walk already says it
-            return [...byAcct.entries()].map(([id, a]) => {
-              // Track 1 step 7: read the account's beginning from the record when covered
-              // the SAME door, over one account — so an account's walk and the all-accounts walk
-              // above it are the same arithmetic, one narrower, and cannot disagree (Q-PF-1)
-              const w = thePerformance({
-                windowStart, windowLabel: phraseFor(period), today: isoLocalDate(new Date()),
-                ending: a.ending, pricedGain: a.gain,
-                transactions: ((store.transactions ?? []) as any[]).filter((t) => String(t.account_id) === String(id)),
-                snapshotDays: (store as any).snapshotDays ?? [],
-                investmentAccountIds: new Set([String(id)]),
-              }).walk;
-              const isOpen = !!openAcctWalk[id];
-              const acctOf = accounts.find((x) => String(x.asset_id) === String(id));
-              return (
-                <View key={id} style={styles.card}>
-                  <TouchableOpacity accessibilityRole="button" activeOpacity={0.85}
-                    onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
-                    accessibilityLabel={`${a.label}, ${figSaid('MK-PF-M-005', a.ending)}. ${isOpen ? 'Collapses' : 'Expands'} its walk.`}>
-                    <SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={fig('MK-PF-M-005', a.ending)}
-                      onTitlePress={() => router.push(`/account-detail?id=${id}` as any)}
-                      titleHint={`Open ${a.label} — this account's own page`} />
-                  </TouchableOpacity>
-                  {/* the approved design carries ONE quiet line under each account band: where its
-                      numbers come from and how fresh they are (mock v14, first phone) */}
-                  {!!acctOf && <View style={styles.walkChip}><SourceChip account={acctOf} /></View>}
-                  {!isOpen ? (
-                    <Text style={styles.sumNote}>
-                      wealth generated {w.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-014', Math.abs(w.wealthGenerated))} · tap to see the walk
-                    </Text>
+      {/* EACH ACCOUNT — the same walk, one account at a time, from the SAME door, so the parts are the
+          whole's own arithmetic one account narrower. An account is worth its BALANCE here: the cash in
+          it counts. This list used to add up holdings only, so an account holding $2,000 of cash read
+          $2,000 short of its own page and the accounts stopped summing to the total above them. */}
+      {!nothingEntered && (() => {
+        const names = accountDisplayNames(accounts);   // one account name, used everywhere
+        const list = (resolvedNwAccounts as AssetAccount[]).filter((a) => investIds.has(String(a.asset_id)) && (a.balance > 0 || (a.positions?.length ?? 0) > 0));
+        return list.map((acct, i) => {
+          const id = String(acct.asset_id);
+          const label = names.get(acct.asset_id) ?? acct.label ?? 'Account';
+          const gain = (rows as any[]).filter((r) => owned.find((x) => x.p.position_id === r.position.position_id)?.accountId === acct.asset_id)
+            .reduce((t, r) => t + rowGain(r), 0);
+          const one = thePerformance({
+            windowStart: now.windowStart, windowLabel: phraseFor(period), today: todayKey,
+            ending: acct.balance || 0, pricedGain: gain,
+            transactions: ((store.transactions ?? []) as any[]).filter((t) => String(t.account_id) === id),
+            snapshotDays: (store as any).snapshotDays ?? [],
+            investmentAccountIds: new Set([id]),
+            wholeRecord: (period as string) === 'SINCE',
+          });
+          const w = one.walk;
+          // the drawing opens the first account when there are several (phone 1) and leaves a lone one
+          // closed (phone 3); on day one every walk is open and there is nothing to collapse (phone 4)
+          const isOpen = dayOne || (openAcctWalk[id] ?? (i === 0 && list.length > 1));
+          const src = sourceWords(acct);
+          const oneReturn = one.ret != null ? fig('MK-PF-M-016', one.ret)
+            : one.refusedRate != null ? `${fig('MK-PF-M-016', one.refusedRate)}/year` : null;
+          return (
+            <View key={id} style={styles.card}>
+              <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} disabled={dayOne}
+                onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
+                accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', acct.balance || 0)}.${dayOne ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}>
+                <SectionBand inCard title={`${dayOne ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', acct.balance || 0)}
+                  onTitlePress={() => router.push(`/account-detail?id=${id}` as any)}
+                  titleHint={`Open ${label} — this account's own page`} />
+              </TouchableOpacity>
+              {!isOpen ? (
+                /* closed: where its numbers come from, what it made, and its return — one quiet line */
+                <Text style={styles.sumNote}>
+                  {src.icon} {src.text} · wealth generated {w.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-014', Math.abs(w.wealthGenerated))}{oneReturn ? ` · return ${oneReturn}` : ''}
+                </Text>
+              ) : (
+                <>
+                  <View style={styles.walkChip}><SourceChip account={acct} /></View>
+                  {!dayOne && one.refusedRate != null && <Note term="rateStandsIn">{RATE_STANDS_IN_WORDS}</Note>}
+                  {walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' })}
+                  {dayOne ? (
+                    <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
                   ) : (
                     <>
-                      {[
-                        { l: 'Beginning market value', v: w.beginning, m: 'MK-PF-M-013' },
-                        { l: 'Contributions', v: w.contributions, m: 'MK-PF-M-015' },
-                        { l: 'Withdrawals', v: -w.withdrawals, m: 'MK-PF-M-015' },
-                        { l: 'Wealth generated', v: w.wealthGenerated, strong: true, m: 'MK-PF-M-014' },
-                        { l: 'Dividends', v: w.dividends, indent: true, m: 'MK-PF-M-015' },
-                        { l: 'Interest', v: w.interest, indent: true, m: 'MK-PF-M-015' },
-                        { l: 'Change in investment value', v: w.marketChange, indent: true, m: 'MK-PF-M-015' },
-                      ].map((r) => (
-                        <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
-                          <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
-                          <Text style={[styles.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
-                            {r.v < 0 ? '−' : ''}{fig((r as any).m, Math.abs(r.v))}
-                          </Text>
-                        </View>
-                      ))}
                       <View style={[styles.walkRow, styles.walkTotal]}>
-                        <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value</Text>
-                        <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig('MK-PF-M-004', w.ending)}</Text>
+                        <Text style={styles.walkL}>Return</Text>
+                        <Text style={[styles.walkV, { color: oneReturn == null ? Colors.textTertiary : (one.ret ?? one.refusedRate ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{oneReturn ?? '—'}</Text>
                       </View>
-                      {/* the approved design's line under an open walk (mock v14, first phone). It is
-                          printed only now that both taps are real: the arrow collapses, the name opens
-                          the account. A line that promises a tap the screen does not have is a lie. */}
-                      <Text style={styles.sumNote}>Tap ▾ to collapse · tap the name to open this account’s portfolio ›</Text>
+                      {/* printed because both taps are real: the arrow collapses, the name opens the account */}
+                      <Text style={styles.sumNote}>Tap ▾ to collapse · tap the name to open this account's portfolio ›</Text>
                     </>
                   )}
+                </>
+              )}
+            </View>
+          );
+        });
+      })()}
+
+      {/* WHAT EACH CATEGORY EARNED: dollars received in this window, then the rate WITH ITS NAME.
+          The screen computes nothing — it asks MK-NW-O-008's categoryEarnings and prints. Day one
+          shows every category at $0; after that a category that received nothing is left out, and
+          where nothing at all was received the table is not drawn. */}
+      {(() => {
+        const shown = categoryEarnings({
+          transactions: (store.transactions ?? []) as any[],
+          windowStart: now.windowStart,
+          rows: rows as any,
+          bonds: bondAccts as any,
+          dayOne,
+        });
+        if (!shown.length) return null;
+        const total = shown.reduce((n, b) => n + b.earned, 0);
+        return (
+          <View style={styles.card}>
+            <SectionBand inCard title="WHAT EACH CATEGORY EARNED" value={phraseFor(period).toUpperCase()} />
+            <View style={styles.catHead}>
+              <Text style={styles.catHeadL}>CATEGORY</Text>
+              <Text style={styles.catHeadV}>EARNED</Text>
+              <Text style={styles.catHeadR}>RETURN</Text>
+            </View>
+            {shown.map((b) => {
+              const ret = b.ret == null ? '—' : `${fig('MK-PF-M-006', b.ret)}${b.yearly ? '/year' : ''}`;
+              return (
+                <View key={b.key} style={styles.catRow} accessible
+                  accessibilityLabel={`${b.label}, earned ${figSaid('MK-PF-M-007', b.earned)}, return ${b.ret == null ? 'not known' : `${fig('MK-PF-M-006', b.ret)}${b.yearly ? ' a year' : ''}`}`}>
+                  <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
+                  <View style={styles.catName}>
+                    <Text style={styles.catLabel}>{b.label}</Text>
+                    {b.key === 'cash' && !dayOne && <InfoDot size={13} term="cashInAccount" />}
+                  </View>
+                  <Text style={[styles.catV, !dayOne && { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
+                  <Text style={[styles.catR, b.ret == null && { color: Colors.textTertiary }]}>{ret}</Text>
                 </View>
               );
-            });
-          })()}
+            })}
+            <View style={[styles.catRow, styles.walkTotal]}>
+              <Text style={[styles.catL, { fontWeight: '800', marginLeft: 14, flex: 1 }]}>All categories</Text>
+              <Text style={[styles.catV, { fontWeight: '800' }]}>{fig('MK-PF-M-007', total)}</Text>
+              <Text style={styles.catR}> </Text>
+            </View>
+            {dayOne ? (
+              <Note term="earnedInWindow">Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</Note>
+            ) : (
+              <>
+                <Note term="earnedInWindow">Earned = dividends + interest received in this window</Note>
+                <Note term="yearlyPace">a /year figure is that category’s yearly pace</Note>
+              </>
+            )}
+          </View>
+        );
+      })()}
 
-          {/* WHAT EACH CATEGORY EARNED (final mock): dollars received in this window, then the
-              rate WITH ITS NAME. Income is ledger-only — a category with no records shows an
-              em-dash, never a false $0. Rows sum to the walk's income lines by construction. */}
-          {hasInvestments && (() => {
-            // THE SCREEN COMPUTES NOTHING (his rule). This block used to filter the records, class
-            // each ticker, bucket the dividends and interest and calculate a return per class — four
-            // figures' worth of arithmetic with no row, no worked example and nothing able to check
-            // it. It is MK-NW-O-008's categoryEarnings now; the screen asks and prints.
-            const shown = categoryEarnings({
-              transactions: (store.transactions ?? []) as any[],
-              windowStart: periodStartKey(period),
-              rows: rows as any,
-            });
-            const total = shown.reduce((n, b) => n + b.earned, 0);
-            if (!shown.length) return null;                       // nothing received → no table at all
-            return (
-              <View style={styles.card}>
-                <SectionBand inCard title="WHAT EACH CATEGORY EARNED" value={phraseFor(period)} />
-                <View style={styles.catHead}>
-                  <Text style={styles.catHeadL}>CATEGORY</Text>
-                  <Text style={styles.catHeadV}>EARNED</Text>
-                  <Text style={styles.catHeadR}>RETURN</Text>
-                </View>
-                {shown.map((b) => (
-                  <View key={b.key} style={styles.catRow} accessible
-                    accessibilityLabel={`${b.label}, earned ${figSaid('MK-PF-M-007', b.earned)}, return ${b.ret == null ? 'not known' : fig('MK-PF-M-006', b.ret)}`}>
-                    <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
-                    <Text style={styles.catL}>{b.label}</Text>
-                    <Text style={[styles.catV, { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
-                    <Text style={styles.catR}>{b.ret == null ? '\u2014' : fig('MK-PF-M-006', b.ret)}</Text>
-                  </View>
-                ))}
-                <View style={[styles.catRow, styles.walkTotal]}>
-                  <Text style={[styles.catL, { fontWeight: '800', marginLeft: 14 }]}>All categories</Text>
-                  <Text style={[styles.catV, { fontWeight: '800' }]}>{fig('MK-PF-M-007', total)}</Text>
-                  <Text style={styles.catR}> </Text>
-                </View>
-                <Text style={styles.sumNote}>
-                  Earned = dividends + interest received in this window. A category with no records shows —, never a false $0.
-                  {windowFigures[period]?.perYear != null ? ' Over a window longer than a year, every return here is a yearly rate.' : ''}
-                </Text>
-              </View>
-            );
-          })()}
-
-          {/* NOT IN THE APPROVED DESIGN, so they are gone (founder confirmed the Performance
-              FINAL of 2026-08-04 on 2026-09-14, approved mock v14 on 2026-09-25): the older Invest
-              screen's Your return hero, Honest comparison, the money-weighted card, Winners &
-              laggards, the concentration note, Look ahead / Look back, the plan chip, the Your
-              investments list and the Add investment / Import / Record / Activity row. Nothing is
-              stranded: What if is reached from Contribution room, Look back from Holding detail and
-              Account detail, importing from the add-an-account doors, and every holding, record and
-              activity row from its own account page. */
-          }
-        </>
-      )}
+      {/* NOT IN THE APPROVED DESIGN, so they are gone (founder confirmed the Performance
+          FINAL of 2026-08-04 on 2026-09-14, approved mock v14 on 2026-09-25): the older Invest
+          screen's Your return hero, Honest comparison, the money-weighted card, Winners &
+          laggards, the concentration note, Look ahead / Look back, the plan chip, the Your
+          investments list and the Add investment / Import / Record / Activity row. Nothing is
+          stranded: What if is reached from Contribution room, Look back from Holding detail and
+          Account detail, importing from the add-an-account doors, and every holding, record and
+          activity row from its own account page. */}
 
       <View style={{ height: 40 }} />
       {/* the three ways to add an account, from the one list every screen reads (founder 2026-09-14) */}
@@ -755,10 +703,20 @@ const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2
  *  at any readable size (measured: 434–492 points against the 362 a 390-point phone gives).
  *  Shape note worth keeping: a 12-point radius on a 26-point-tall chip IS a semicircle. The app's
  *  radio buttons are 42 tall with that radius, which is why they read as corners; so is a segment. */
+/** A quiet line under a card's figures, with its ⓘ where the drawing puts it: at the end of the words. */
+function Note({ term, children }: { term: GlossaryTerm; children: React.ReactNode }) {
+  return (
+    <View style={styles.noteRow}>
+      <Text style={styles.noteT}>{children}</Text>
+      <InfoDot size={11} term={term} />
+    </View>
+  );
+}
+
 function WindowSelector({ windows, chosen, figures, onPick }: {
   windows: { key: string; label: string }[];
   chosen: string;
-  figures: Record<string, { ret: number | null; perYear?: number | null; refusedRate?: number | null }>;
+  figures: Record<string, { ret: number | null; perYear?: number | null; refusedRate?: number | null; covered?: boolean }>;
   onPick: (key: string) => void;
 }) {
   return (
@@ -766,27 +724,31 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
       {windows.map((w, i) => {
         const on = w.key === chosen;
         // MARK 16 + 18 (mock v17, approved 2026-09-30). Where the window return refused, the segment
-        // carries the EXACT rate per year in its place — and it is always a yearly rate, so "/year"
-        // rides under it exactly as it does for a window longer than a year. This is where the yearly
-        // rate lives; the summary trio above prints the plain percent so its three cells fit one row.
+        // carries the EXACT rate per year in its place — and it is always a yearly rate, so it reads
+        // "+7.46%/year". This is where the yearly rate lives; the summary trio prints the plain percent
+        // so its three cells fit one row.
         const windowRet = figures[w.key]?.ret ?? null;
         const stoodIn = figures[w.key]?.refusedRate ?? null;
         const ret = windowRet ?? stoodIn;
         const perYear = figures[w.key]?.perYear != null || (windowRet == null && stoodIn != null);
+        // A WINDOW THE RECORD CANNOT COVER IS GREYED TO AN EM-DASH AND CANNOT BE PICKED (v17: "the
+        // screen states nothing rather than a guess"). Picking it would open a walk whose beginning
+        // nobody recorded.
+        const uncovered = figures[w.key]?.covered === false && !on;
         const divider = i > 0 && !on && chosen !== windows[i - 1].key;
         return (
           <React.Fragment key={w.key}>
             {divider && <View style={styles.segDivider} />}
             <TouchableOpacity
               style={[styles.seg, w.key === 'SINCE' && styles.segWide, on && styles.segOn]}
-              accessibilityRole="button" accessibilityState={{ selected: on }}
+              disabled={uncovered}
+              accessibilityRole="button" accessibilityState={{ selected: on, disabled: uncovered }}
               accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${fig('MK-PF-M-017', ret)}${perYear ? ' a year' : ''}${windowRet == null ? ', counting when you added money' : ''}`}`}
               onPress={() => onPick(w.key)}>
               <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segRest]}>{w.label}</Text>
-              <Text numberOfLines={1} style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>{ret == null ? '—' : fig('MK-PF-M-017', ret)}</Text>
-              {perYear && (
-                <Text numberOfLines={1} style={[styles.segPer, on && styles.segOnT]}>/year</Text>
-              )}
+              <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>
+                {ret == null ? '—' : `${fig('MK-PF-M-017', ret)}${windowRet == null ? '/year' : ''}`}
+              </Text>
             </TouchableOpacity>
           </React.Fragment>
         );
@@ -1016,6 +978,11 @@ const styles = StyleSheet.create({
   catHeadR: { width: 64, textAlign: 'right', fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
   catRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: 6 },
   catL: { flex: 1, fontSize: 13, color: Colors.textPrimary },
+  catName: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  catLabel: { fontSize: 13, color: Colors.textPrimary },
+  // a quiet line with its ⓘ at the end of the words (Performance v17)
+  noteRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, marginTop: 4 },
+  noteT: { flexShrink: 1, fontSize: 11, color: Colors.textTertiary, lineHeight: 15 },
   catV: { width: 84, textAlign: 'right', fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'] },
   catR: { width: 64, textAlign: 'right', fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   headDate: { fontSize: 11, color: Colors.textSecondary },

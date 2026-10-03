@@ -1347,7 +1347,9 @@ describe('the decisions in the log are held by something that executes', () => {
 
   // ── DEC-0465 ───────────────────────────────────────────────────────────────────────────────
   test('DEC-0465 — "This does not have refresh date and time": a linked figure says when it was last true', () => {
-    expect(noComments(screenSrc('PerformanceScreen'))).toMatch(/· updated \{f\.label\}/);
+    // his later ruling narrows WHEN it is said — brief R7, 2026-08-20: "source always, date only when
+    // stale" — so the date rides the warning that prices are old, and fresh prices say nothing
+    expect(noComments(screenSrc('PerformanceScreen'))).toMatch(/\{!!stale\?\.stale && \(\s*<Text[^>]*>⚠ Prices may be out of date · \{store\.pricesFetchedAt \? `updated \$\{stale\.label\}` : stale\.label\}/);
     const stale = { asset_id: 'l', label: 'Fidelity', tax_bucket: 'TAXABLE', balance: 1, target_return: 0, source: 'connected', last_synced: new Date(Date.now() - 9 * 86_400_000).toISOString() } as any;
     expect(sourceWording(stale)).toMatch(/^Linked · /);
   });

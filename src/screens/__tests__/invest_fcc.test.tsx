@@ -62,6 +62,16 @@ beforeEach(() => {
 });
 
 
+/** A DAILY RECORD reaching `back` days — the accounts as they stand, on its first day and today.
+ *  Without one the screen is on DAY ONE (Performance v17, phone 4): every window is an em-dash and
+ *  nothing can be picked, so a test about a window has to give the screen a record to measure from. */
+const withRecord = (back: number) => {
+  const st = useStore.getState() as any;
+  const mk = (date: string) => ({ date, origin: 'observed', writtenAt: `${date}T00:00:00Z`, holdings: [],
+    accounts: (st.assetAccounts as any[]).map((a) => ({ date, accountId: a.asset_id, cash: 0, statedTotal: a.balance || 0, typedValue: a.balance || 0, currency: 'USD' })) });
+  useStore.setState({ snapshotDays: [mk(isoLocalDate(new Date(Date.now() - back * 86400000))), mk(isoLocalDate(new Date()))] } as any);
+};
+
 // ── the window selector (mock v14 mark 10/14) ───────────────────────────────────────────────────
 describe('the window selector', () => {
   test('five windows, each carrying its own return — and no 3M, 6M or "YTD"', () => {
@@ -80,6 +90,7 @@ describe('the window selector', () => {
   });
 
   test('picking a window moves the whole screen to it', () => {
+    withRecord(400);
     render(<PerformanceScreen />);
     fireEvent.press(screen.getAllByText('This year')[0]);
     expect(screen.getByText('SUMMARY · THIS YEAR')).toBeOnTheScreen();
@@ -102,7 +113,7 @@ describe('the window selector', () => {
     render(<PerformanceScreen />);
     fireEvent.press(screen.getAllByText('2Y')[0]);
     // the segment says which kind of figure it is, and the summary states both
-    expect(screen.getAllByText('/year').length).toBeGreaterThan(0);          // the segment says which kind of figure it is
+    expect(screen.getByText('2Y is shown per year, so it sits fairly beside 1Y')).toBeOnTheScreen();   // v14 mark 15, under the control
     expect(screen.getByText(/% over the two years, which is .*%\/year/)).toBeOnTheScreen();
   });
 
@@ -120,25 +131,28 @@ describe('the summary and the value walk', () => {
       { account_id: 'brk', type: 'DIVIDEND', amount: 300, date: isoLocalDate(new Date()) },
       { account_id: 'brk', type: 'INTEREST', amount: 120, date: isoLocalDate(new Date()) },
     ] } as any);
+    withRecord(30);
     render(<PerformanceScreen />);
     expect(screen.getByText(/HOW .* BECAME .* · ALL ACCOUNTS/)).toBeOnTheScreen();
-    expect(screen.getByText(/Beginning market value/)).toBeOnTheScreen();
-    expect(screen.getByText('Contributions')).toBeOnTheScreen();
-    expect(screen.getByText('Withdrawals')).toBeOnTheScreen();
+    // v17 dates both ends of the walk: the day the beginning is read for, and today
+    expect(screen.getAllByText(/^Beginning market value \(\w{3} \d{1,2}, \d{4}\)$/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Contributions').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Withdrawals').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Wealth generated').length).toBeGreaterThan(0);   // trio + walk row
-    expect(screen.getByText('Dividends')).toBeOnTheScreen();
-    expect(screen.getByText('Interest')).toBeOnTheScreen();
-    expect(screen.getByText('Change in investment value')).toBeOnTheScreen();
-    expect(screen.getByText('Ending market value (today)')).toBeOnTheScreen();
+    expect(screen.getAllByText('Dividends').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Interest').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Change in investment value').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/^Ending market value \(\w{3} \d{1,2}, \d{4}\)$/).length).toBeGreaterThan(0);
   });
 
   test('the trio is Ending value · Wealth generated · Return, and states the window rule in words', () => {
+    withRecord(30);
     render(<PerformanceScreen />);
     expect(screen.getByText('Ending value')).toBeOnTheScreen();
     expect(screen.getAllByText('Wealth generated').length).toBeGreaterThan(0);
-    expect(screen.getByText('Return')).toBeOnTheScreen();
+    expect(screen.getAllByText('Return').length).toBeGreaterThan(0);          // the trio, and each open account's own
     expect(screen.getByText(/not a yearly rate/)).toBeOnTheScreen();
-    expect(screen.getByText(/Money you added never counts as return/)).toBeOnTheScreen();
+    expect(screen.getByText('money-weighted, so money you added never counts as return')).toBeOnTheScreen();
   });
 
   test('every percentage on the screen carries two decimals (Q49)', () => {
@@ -151,24 +165,34 @@ describe('the summary and the value walk', () => {
 });
 
 // ── one walk per account, named by ACCOUNT (founder screenshot 2026-08-17: Build 53 said VANGUARD) ─
-test('per-account walks: collapsed by default, named by account, expanding to the full walk', () => {
+test('per-account walks: named by account, the first one open, the rest one tap from the full walk', () => {
   useStore.setState({
     assetAccounts: [
-      { asset_id: 'a1', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+      { asset_id: 'a1', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 84_600, derive_balance: true,
         positions: [{ position_id: 'q1', ticker: 'NVDA', kind: 'stocks_etf', lots: [{ lot_id: 'm1', shares: 200, cost_per_share: 300, purchase_date: '2024-01-02' }] }] },
-      { asset_id: 'a2', label: 'E*TRADE Account 1', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+      { asset_id: 'a2', label: 'E*TRADE Account 1', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 22_400, derive_balance: true,
         positions: [{ position_id: 'q2', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'm2', shares: 100, cost_per_share: 200, purchase_date: '2024-01-02' }] }] },
     ],
   } as any);
+  withRecord(30);
   render(<PerformanceScreen />);
   // the name comes from the app's ONE account-name helper, so a walk is titled exactly as the
-  // account is titled everywhere else — Build 53 titled it with the institution instead
-  expect(screen.getByLabelText(/Vanguard Brokerage, .*Expands its walk/)).toBeOnTheScreen();
+  // account is titled everywhere else — Build 53 titled it with the institution instead.
+  // Performance v17, phone 1: with several accounts the first opens and the others stay closed, each
+  // closed one saying in one line where its numbers come from and what it made.
+  expect(screen.getByLabelText(/Vanguard Brokerage, .*Collapses its walk/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/E\*TRADE Brokerage, .*Expands its walk/)).toBeOnTheScreen();
-  expect(screen.getAllByText(/tap to see the walk/).length).toBe(2);
-  fireEvent.press(screen.getByLabelText(/Vanguard Brokerage, .*Expands its walk/));
-  expect(screen.getAllByText('Beginning market value').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('Ending market value').length).toBeGreaterThan(0);
+  expect(screen.getAllByText(/wealth generated \$/).length).toBe(1);        // the one closed account
+  expect(screen.getAllByText(/^Beginning market value/).length).toBe(2);    // every account together + the open one
+  fireEvent.press(screen.getByLabelText(/E\*TRADE Brokerage, .*Expands its walk/));
+  expect(screen.getAllByText(/^Beginning market value/).length).toBe(3);
+  expect(screen.getAllByText(/^Ending market value/).length).toBe(3);
+  expect(screen.getAllByText(/Tap ▾ to collapse/).length).toBe(2);
+  // AN ACCOUNT IS WORTH ITS BALANCE, cash included — so the accounts sum to the total above them. This
+  // list used to add up holdings only, and an account holding cash read short of its own page.
+  expect(screen.getAllByText('$84,600').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('$22,400').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('$107,000').length).toBeGreaterThan(0);        // 84,600 + 22,400, the whole
 });
 
 test('a home gets no walk on a screen about investments (Build 53 gave it one: "HOME $852,000")', () => {
@@ -194,19 +218,31 @@ describe('what each category earned', () => {
       { account_id: 'brk', type: 'DIVIDEND', ticker: 'VTI', amount: 300, date: today },
       { account_id: 'brk', type: 'INTEREST', amount: 120, date: today },
     ] } as any);
+    withRecord(30);
     render(<PerformanceScreen />);
     expect(screen.getByText('CATEGORY')).toBeOnTheScreen();
     expect(screen.getByText('EARNED')).toBeOnTheScreen();
     expect(screen.getAllByText('RETURN').length).toBeGreaterThan(0);
     expect(screen.getByText('All categories')).toBeOnTheScreen();
     expect(screen.getByText('$420')).toBeOnTheScreen();                     // 300 + 120, the ledger's own rows
-    expect(screen.getByText(/never a false \$0/)).toBeOnTheScreen();
+    expect(screen.getByText('Earned = dividends + interest received in this window')).toBeOnTheScreen();
+    // interest that names no holding is what the uninvested balance earned (v17, phones 1 to 3)
+    expect(screen.getByText('Cash in this account')).toBeOnTheScreen();
   });
 
   test('with no income records the table is absent entirely (no zero rows)', () => {
     useStore.setState({ transactions: [] } as any);
+    withRecord(30);
     render(<PerformanceScreen />);
     expect(screen.queryByText('WHAT EACH CATEGORY EARNED')).toBeNull();
+  });
+
+  test('DAY ONE shows every category at $0 — the structure never changes (v17, phones 4 and 5)', () => {
+    useStore.setState({ transactions: [], snapshotDays: [] } as any);
+    render(<PerformanceScreen />);
+    expect(screen.getByText('WHAT EACH CATEGORY EARNED')).toBeOnTheScreen();
+    for (const c of ['Stocks / Funds', 'Bonds & CDs', 'Cash in this account', 'All categories']) expect(screen.getByText(c)).toBeOnTheScreen();
+    expect(screen.getByText(/rather than show a false \$0/)).toBeOnTheScreen();
   });
 });
 
@@ -239,7 +275,7 @@ test('a rebuilt line names its source and its first day, and says what could not
   render(<PerformanceScreen />);
   const day = new Date(`${iso2(20)}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   expect(screen.getByText(new RegExp(`Rebuilt from E\\*TRADE.s own records, back to ${day}`))).toBeOnTheScreen();
-  expect(screen.getByText(/Anything entered by hand starts the day you entered it/)).toBeOnTheScreen();
+  expect(screen.getByText(/A hand-entered account or a cash balance has none, so it starts the day you enter it — and says so/)).toBeOnTheScreen();
 });
 
 // mock v14 mark 9: with nothing entered, the ONE line opens the three ways to add an account —

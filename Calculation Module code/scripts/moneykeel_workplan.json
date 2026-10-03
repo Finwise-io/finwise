@@ -2266,13 +2266,13 @@
   {
    "task": "Performance — v17 is approved and the build is behind it: close the gap",
    "todo": "His correction, 2026-10-01: *\"these are screens for performance and not NW - and I have already approved Perf v17 for perf module.\"* v17 is APPROVED IN FULL, all five frames. What is BUILT is v14 (2026-09-25, commit 727e22a). By his standing order a mock approved after the build IS the design and closing the gap is mine, never a question to him. TO DO: mock-match the built Performance screen against all five frames of v17, report every difference, then close each in code. The two states v17 adds over v14 are where the Return refuses and shows the exact yearly rate instead (his Q52 ruling).",
-   "status": "TO DO — mine, not waiting on him.",
+   "status": "DONE 2026-10-03 — the Performance tab is built to v17 and a test holds it there, word for word, on phones 1, 3, 4 and 5.",
    "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html · DEC-0647 · the design record’s Performance row",
    "date": "2026-10-01",
-   "comments": "MY ERROR, corrected: I recorded that frames 1, 3, 4 and 5 of v17 were still waiting on him. Both halves were wrong — those frames are Performance screens rather than Net worth ones, and he had already approved v17 for the Performance module. The design record and CLAUDE.md both still said \"WAITING ON HIM\"; both corrected. Performance step 1.a now reads 2 of 5 screens approved: Holding detail is drawn in investments_v07 awaiting his look, and Home and Look back have no design of record at all (mine to draw).",
+   "comments": "MY ERROR, corrected: I recorded that frames 1, 3, 4 and 5 of v17 were still waiting on him. Both halves were wrong — those frames are Performance screens rather than Net worth ones, and he had already approved v17 for the Performance module. The design record and CLAUDE.md both still said \"WAITING ON HIM\"; both corrected. Performance step 1.a now reads 2 of 5 screens approved: Holding detail is drawn in investments_v07 awaiting his look, and Home and Look back have no design of record at all (mine to draw). | CLOSED 2026-10-03. Compared line by line and rebuilt: one path for every state (day one and no-accounts were a second copy that had drifted); a window the record cannot cover is greyed and cannot be picked; \"Since\" shows the window’s own total with both dates; each account is worth its balance, cash included, so the accounts sum to the total; interest that names no holding goes to \"Cash in this account\". Three accuracy defects found on the way and fixed in the calculation: a percent could stand on a beginning worked backwards from prices; a linked holding matched no category, so Stocks / Funds showed a dash; the rebuilt record stopped one day short of the two-year window. Test: src/screens/__tests__/perf_matches_v17.test.tsx. THREE KNOWN DIFFERENCES, named in that test: no yearly rate for cash (the app holds none); the closed account line uses phone 1’s wording on every phone; the arrows on the category rows and the all-accounts bar are not built, because no approved screen exists for them to open.",
    "_written": {
-    "status": "TO DO — mine, not waiting on him.",
-    "comments": "MY ERROR, corrected: I recorded that frames 1, 3, 4 and 5 of v17 were still waiting on him. Both halves were wrong — those frames are Performance screens rather than Net worth ones, and he had already approved v17 for the Performance module. The design record and CLAUDE.md both still said \"WAITING ON HIM\"; both corrected. Performance step 1.a now reads 2 of 5 screens approved: Holding detail is drawn in investments_v07 awaiting his look, and Home and Look back have no design of record at all (mine to draw)."
+    "status": "DONE 2026-10-03 — the Performance tab is built to v17 and a test holds it there, word for word, on phones 1, 3, 4 and 5.",
+    "comments": "MY ERROR, corrected: I recorded that frames 1, 3, 4 and 5 of v17 were still waiting on him. Both halves were wrong — those frames are Performance screens rather than Net worth ones, and he had already approved v17 for the Performance module. The design record and CLAUDE.md both still said \"WAITING ON HIM\"; both corrected. Performance step 1.a now reads 2 of 5 screens approved: Holding detail is drawn in investments_v07 awaiting his look, and Home and Look back have no design of record at all (mine to draw). | CLOSED 2026-10-03. Compared line by line and rebuilt: one path for every state (day one and no-accounts were a second copy that had drifted); a window the record cannot cover is greyed and cannot be picked; \"Since\" shows the window’s own total with both dates; each account is worth its balance, cash included, so the accounts sum to the total; interest that names no holding goes to \"Cash in this account\". Three accuracy defects found on the way and fixed in the calculation: a percent could stand on a beginning worked backwards from prices; a linked holding matched no category, so Stocks / Funds showed a dash; the rebuilt record stopped one day short of the two-year window. Test: src/screens/__tests__/perf_matches_v17.test.tsx. THREE KNOWN DIFFERENCES, named in that test: no yearly rate for cash (the app holds none); the closed account line uses phone 1’s wording on every phone; the arrows on the category rows and the all-accounts bar are not built, because no approved screen exists for them to open."
    }
   },
   {
@@ -2350,13 +2350,13 @@
   {
    "task": "Before any build — line-by-line match of each tab against its approved drawing",
    "todo": "The seven steps check that a drawing exists and is approved; they do not compare the screen with it. Done so far by diff test: Account portfolio (v17 frame 2). To do: Performance tab (v17 phones 1, 3, 4, 5), Net worth (v08 A to G), Cash flow tab (cash-flow_v01 frames 1 to 4), Income (income-end-to-end_v07). Each gets a test like account_portfolio_vs_mock.test.tsx, and every gap is closed.",
-   "status": "OPEN — mine. Found 2026-10-03 when he said \"commit and build\": the release gate needs the match in every data state, and it has been run for one screen.",
+   "status": "IN PROGRESS — 2 of 5 drawings matched (Account portfolio, Performance tab). To do: Net worth v08, Cash flow v01, Income v07.",
    "ref": "docs/MOCK-MATCH-AUDIT-STANDING-ORDER.md · CLAUDE.md § RELEASE GATE",
    "date": "2026-10-03",
-   "comments": "",
+   "comments": " 2026-10-03: Performance tab matched to v17 phones 1, 3, 4, 5 by src/screens/__tests__/perf_matches_v17.test.tsx.",
    "_written": {
-    "status": "OPEN — mine. Found 2026-10-03 when he said \"commit and build\": the release gate needs the match in every data state, and it has been run for one screen.",
-    "comments": ""
+    "status": "IN PROGRESS — 2 of 5 drawings matched (Account portfolio, Performance tab). To do: Net worth v08, Cash flow v01, Income v07.",
+    "comments": " 2026-10-03: Performance tab matched to v17 phones 1, 3, 4, 5 by src/screens/__tests__/perf_matches_v17.test.tsx."
    }
   }
  ]

@@ -181,6 +181,7 @@ export default function AccountPortfolioScreen() {
       transactions: ledger,
       snapshotDays: days,
       investmentAccountIds: ids,
+      wholeRecord: p === 'SINCE',   // "Since" is the window's own total, never a yearly rate (v17, phone 3)
     });
   };  const byWindow: Record<string, ReturnType<typeof figuresFor>> = {};
   for (const k of WINDOW_KEYS) byWindow[k] = figuresFor(k);

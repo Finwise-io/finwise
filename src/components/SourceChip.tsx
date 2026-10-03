@@ -7,7 +7,10 @@ import { Colors, Radii } from '../utils/theme';
 import { connectionFreshness } from '../services/sync';
 import type { AssetAccount } from '../domain/assets';
 
-export function SourceChip({ account, paused }: { account: AssetAccount; paused?: boolean }) {
+/** WHERE AN ACCOUNT'S NUMBERS COME FROM, in words — the one definition. The chip draws them as a pill;
+ *  a line that carries them inside a sentence ("🔗 Linked · wealth generated $2,000") asks for the same
+ *  words, so the two can never name one account's source differently. */
+export function sourceWords(account: AssetAccount, paused?: boolean): { icon: string; text: string; bg: string; fg: string } {
   let icon = '✍️'; let text = 'By hand · you update it'; let bg = Colors.bgTertiary; let fg = Colors.textSecondary;
   if (account.source === 'connected') {
     if (paused) { icon = '⏸'; text = 'Link paused · link again ›'; bg = Colors.amberLight; fg = Colors.amber; }
@@ -20,6 +23,11 @@ export function SourceChip({ account, paused }: { account: AssetAccount; paused?
     const day = account.last_synced ? String(account.last_synced).slice(0, 10) : '';
     icon = '📄'; text = `Imported${day ? ` · ${day}` : ''}`; bg = Colors.blueLight; fg = Colors.blue;
   }
+  return { icon, text, bg, fg };
+}
+
+export function SourceChip({ account, paused }: { account: AssetAccount; paused?: boolean }) {
+  const { icon, text, bg, fg } = sourceWords(account, paused);
   return (
     <View style={[s.chip, { backgroundColor: bg }]}>
       <Text style={[s.txt, { color: fg }]}>{icon} {text}</Text>

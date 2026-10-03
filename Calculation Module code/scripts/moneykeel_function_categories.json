@@ -799,6 +799,11 @@
   "file": "src/domain/bonds/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "dailyWindowStart": {
+  "id": "MK-ST-F-079",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT"
+ },
  "dataGaps": {
   "id": "MK-XS-F-002",
   "file": "src/domain/gaps/index.ts",
@@ -1453,6 +1458,11 @@
   "id": "MK-CF-F-119",
   "file": "src/domain/transactions/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "investmentRecordDates": {
+  "id": "MK-NW-F-103",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "2 · DISPLAYED"
  },
  "investmentsTotal": {
   "id": "MK-NW-F-021",

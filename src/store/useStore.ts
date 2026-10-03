@@ -77,7 +77,7 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
 }
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
 import { ingestSync as ingestSyncPure, type AccountSyncPayload } from '../services/sync/ingest';
-import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, DAILY_YEARS, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
+import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, dailyWindowStart, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
 import { rebuildDays } from '../../Calculation Module code/engines/rebuild-history';
 import { newEntityId } from '../domain/_shared/ids';
 import { goalsFromOnboarding } from '../domain/goals';
@@ -990,7 +990,8 @@ export const useStore = create<AppState>()(
         const linked = ((s.assetAccounts ?? []) as any[]).filter((a) => a.source === 'connected');
         if (!linked.length) return {};
         const today = isoLocalDate(new Date());
-        const earliest = isoLocalDate(new Date(Date.now() - DAILY_YEARS * 365 * 86_400_000));
+        // two years back and the day before — the day a two-year window reads its beginning for
+        const earliest = dailyWindowStart(today);
         const out = rebuildDays({
           accounts: (s.assetAccounts ?? []) as any,
           transactions: (s.transactions ?? []) as any,

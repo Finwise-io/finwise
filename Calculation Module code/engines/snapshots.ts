@@ -93,7 +93,7 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
  *               MK-XS-F-147 call · MK-XS-F-149 allActivities
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 185 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 186 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -103,7 +103,7 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 167 more — the full list is on functions_from_code
+ *               … and 168 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -224,6 +224,49 @@ export function buildDayFromAccounts(accounts: AccountLike[], date: string, writ
  *  screen offers no window longer than two years — a window longer than the record would draw a
  *  line from dates we have no evidence for. */
 export const DAILY_YEARS = 2;
+/** THE FIRST DAY OF THE DAILY RECORD: two years back AND THE DAY BEFORE THAT.
+ *
+ *  A window's beginning is read at the close of the day BEFORE it opens (his ruling: "beginning value
+ *  = close of the day before the start"). A two-year window opens two years back, so the day it reads
+ *  is one day older than "two years of dailies" — and a record cut at exactly two years could never
+ *  answer the longest window the screen offers. Found 2026-10-03: a linked account's rebuilt history
+ *  stopped one day short, so 2Y showed a figure only by working the beginning backwards from today's
+ *  prices, which is the thing B-98 forbids. One definition, used by the prune and by the rebuild. */
+/* ─ MK-ST-F-079 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * dailyWindowStart
+ *
+ * Answers ..... THE FIRST DAY OF THE DAILY RECORD: two years back AND THE DAY BEFORE THAT.
+ *
+ * Formula .....
+ *     cutoff = the first 10)}T12:00:00Z` of new date(`${today
+ *     the answer = the first 10 of cutoff.to isostring()
+ *
+ * Called by ... MK-ST-F-029 prune · MK-XS-F-174 recomputeBalances
+ *               MK-XS-F-175 uid
+ *
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               … and 40 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-079
+ * Changed ..... not in git yet (—)
+ */
+export function dailyWindowStart(today: string): string {
+  const cutoff = new Date(`${today.slice(0, 10)}T12:00:00Z`);
+  cutoff.setUTCFullYear(cutoff.getUTCFullYear() - DAILY_YEARS);
+  cutoff.setUTCDate(cutoff.getUTCDate() - 1);
+  return cutoff.toISOString().slice(0, 10);
+}
 /** Month-ends are NEVER pruned. They are what answers "since I started" once the dailies age out,
  *  and thirty years of them is under two megabytes. */
 export const KEEP_MONTH_ENDS_FOREVER = true;
@@ -267,8 +310,7 @@ const isMonthEnd = (date: string, allDates: Set<string>): boolean => {
  * Answers ..... Which days survive.
  *
  * Formula .....
- *     cutoff = the date today
- *     cutoff key = the first 10 of cutoff.to isostring()
+ *     cutoff key = daily window start(today)
  *     all = a list with no repeats of for each of days: date
  *     the answer = days where date ≥ cutoff key (or is month end(date, all) when missing or zero)
  *
@@ -281,9 +323,7 @@ const isMonthEnd = (date: string, allDates: Set<string>): boolean => {
  * Changed ..... 2026-08-18 (3bd88c8)
  */
 export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
-  const cutoff = new Date(today);
-  cutoff.setFullYear(cutoff.getFullYear() - DAILY_YEARS);
-  const cutoffKey = cutoff.toISOString().slice(0, 10);
+  const cutoffKey = dailyWindowStart(today);
   const all = new Set(days.map((d) => d.date));
   return days.filter((d) => d.date >= cutoffKey || isMonthEnd(d.date, all));
 }
@@ -344,12 +384,12 @@ export function record(days: SnapshotDay[], day: SnapshotDay): SnapshotDay[] {
  *     nothing   when !day.holdings.some((h) => in set(account id)) and !day.accounts.some((a) => in set(account id))
  *     the answer = holdings + cash
  *
- * Called by ... MK-NW-O-008 thePerformance
+ * Called by ... MK-NW-F-103 investmentRecordDates · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-103 investmentRecordDates · MK-NW-O-008 thePerformance
  *
  * Serves ...... MK-PF-M-001 · MK-PF-M-004
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -414,11 +454,12 @@ export function unitsOn(days: SnapshotDay[], accId: string, securityKey: string,
  * Called by ... MK-ST-F-006 canAnswer · MK-ST-F-031 valueOn
  *               MK-ST-F-032 unitsOn
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-ST-F-006 canAnswer · MK-NW-O-008 thePerformance
- *               MK-ST-F-032 unitsOn · MK-ST-F-031 valueOn
+ *               MK-ST-F-006 canAnswer · MK-NW-F-103 investmentRecordDates
+ *               MK-NW-O-008 thePerformance · MK-ST-F-032 unitsOn
+ *               MK-ST-F-031 valueOn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

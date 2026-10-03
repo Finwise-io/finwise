@@ -747,11 +747,16 @@ test('every account with value gets its own walk, so the per-account walks sum t
   mockParams = {};
   const Perf = require('../screens/PerformanceScreen').default;
   render(<Perf />);
-  // the all-accounts walk says what it is, because per-account walks sit directly beneath it
-  expect(screen.getByText(/HOW .* BECAME .* · ALL ACCOUNTS/)).toBeOnTheScreen();
+  // the all-accounts walk says what it is, because per-account walks sit directly beneath it. With
+  // no daily record yet this is DAY ONE (Performance v17, phone 4): the walk stands at today's value
+  // and every account's walk is open beneath it.
+  expect(screen.getByText("HOW TODAY'S VALUE STANDS · ALL ACCOUNTS")).toBeOnTheScreen();
   // and BOTH accounts have a walk of their own — the CD account included
-  expect(screen.getByLabelText(/Vanguard.*Expands its walk/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/E\*TRADE.*Expands its walk/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/^Vanguard Brokerage, \$300,000/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/^E\*TRADE.*, \$52,704/)).toBeOnTheScreen();
+  expect(screen.getAllByText('Beginning market value (today)')).toHaveLength(3);   // the whole, and its two parts
+  // THE PARTS SUM TO THE WHOLE: 300,000 + 52,704 = 352,704, each an account's own balance
+  expect(screen.getAllByText('$352,704').length).toBeGreaterThan(0);
 });
 
 // ── WHOSE FACT IS THIS ROW? (handoff 2026-08-11) ───────────────────────────────────────────────

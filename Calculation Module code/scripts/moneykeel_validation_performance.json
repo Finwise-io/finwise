@@ -11,7 +11,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 17 of 72 appear — present: balances banner build- component contributions · absent: accuracy add-any-income-source among approve approved; cited "
+  "notes": "only 18 of 72 appear — present: balances banner build- built component · absent: accuracy add-any-income-source among approve approved; cited by ident"
  },
  {
   "id": "DEC-0014",
@@ -32,7 +32,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/Holdin",
-  "notes": "only 10 of 31 appear — present: basis bought decimal dividends graph · absent: approved average averages buttons chips; cited by identifier in decisio"
+  "notes": "only 11 of 31 appear — present: basis bought decimal dividends graph · absent: approved average averages buttons chips; cited by identifier in decisio"
  },
  {
   "id": "DEC-0030",
@@ -60,7 +60,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/domain/assets/index.ts · src/screens/PerformanceSc",
-  "notes": "only 20 of 61 appear — present: account banner broker check connected · absent: activity actually aren't back-fill built; cited by identifier in decis"
+  "notes": "only 20 of 61 appear — present: account banner broker built check · absent: activity actually aren't back-fill confirms; cited by identifier in decisi"
  },
  {
   "id": "DEC-0058",
@@ -74,7 +74,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-XS-M-003 · dataGaps in src/screens/PerformanceScree",
-  "notes": "only 17 of 44 appear — present: banner button count counts datagaps · absent: built checks complete confirmed connection; cited by identifier in net-w"
+  "notes": "only 16 of 44 appear — present: banner built button count counts · absent: checks complete confirmed connection covers; cited by identifier in net-wor"
  },
  {
   "id": "DEC-0063",
@@ -95,7 +95,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 7 of 48 appear — present: account became close ledger section · absent: amounts arrow bands become bleed; cited by identifier in decisions_are_he"
+  "notes": "only 8 of 48 appear — present: account became built close ledger · absent: amounts arrow bands become bleed; cited by identifier in decisions_are_held"
  },
  {
   "id": "DEC-0073",
@@ -109,7 +109,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "only 6 of 28 appear — present: dates dating state title today's · absent: alone appears approved asserts comes; cited by identifier in decisions_are_h"
+  "notes": "only 5 of 28 appear — present: dates state title today's worth · absent: alone appears approved asserts comes; cited by identifier in decisions_are_he"
  },
  {
   "id": "DEC-0082",
@@ -123,7 +123,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/domain/glossary.ts · src/screens/PerformanceScreen",
-  "notes": "only 16 of 62 appear — present: added bonds brokerage checking crypto · absent: actual amendments answered argued assumes; cited by identifier in deci"
+  "notes": "only 15 of 62 appear — present: added bonds brokerage checking crypto · absent: actual amendments answered argued assumes; cited by identifier in deci"
  },
  {
   "id": "DEC-0090",
@@ -165,7 +165,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 4 of 69 appear — present: balances build money recorded · absent: accept along' amount argued assumed; cited by identifier in decisions_are_held."
+  "notes": "only 5 of 69 appear — present: balances build built money recorded · absent: accept along' amount argued assumed; cited by identifier in decisions_are"
  },
  {
   "id": "DEC-0149",
@@ -214,7 +214,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_scre",
-  "notes": "only 8 of 24 appear — present: account account' accounts moneykeel networth-and-performance · absent: again' appear approved built decimals; cited by "
+  "notes": "only 9 of 24 appear — present: account account' accounts built moneykeel · absent: again' appear approved decimals documents; cited by identifier in d"
  },
  {
   "id": "DEC-0229",
@@ -242,7 +242,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-PF-M-011",
-  "notes": "27 of 43 of his words appear in what implements it: account accounts approved beneath blank broker; cited by identifier in look-back.ts"
+  "notes": "28 of 43 of his words appear in what implements it: account accounts approved beneath blank broker; cited by identifier in look-back.ts"
  },
  {
   "id": "DEC-0233",
@@ -263,14 +263,14 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWor",
-  "notes": "only 7 of 37 appear — present: added hidden period records return · absent: beneath beside carries chosen clipped; cited by identifier in decisions_ar"
+  "notes": "only 6 of 37 appear — present: added hidden period return tabular · absent: beneath beside carries chosen clipped; cited by identifier in decisions_ar"
  },
  {
   "id": "DEC-0236",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-PF-M-008 · MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-006",
-  "notes": "45 of 59 of his words appear in what implements it: account accounts activity ahead approved became; cited by identifier in performance.ts"
+  "notes": "46 of 59 of his words appear in what implements it: account accounts activity ahead approved became; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-0239",
@@ -452,14 +452,14 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/domain/assets/index.ts · src/screens/PerformanceSc",
-  "notes": "only 9 of 20 appear — present: accounts asset assets connect decimal · absent: actual approved assetaccount cluster editable; cited by identifier in d"
+  "notes": "only 8 of 20 appear — present: accounts asset assets connect decimal · absent: actual approved assetaccount cluster editable; cited by identifier in d"
  },
  {
   "id": "DEC-0453",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/screens/NetWorthScreen.tsx · src/screens/Performan",
-  "notes": "12 of 24 of his words appear in what implements it: asset brokerage checking crypto fixed income"
+  "notes": "13 of 24 of his words appear in what implements it: asset brokerage checking crypto fixed glossary"
  },
  {
   "id": "DEC-0456",
@@ -571,7 +571,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MoneyKeel/documents/networth-and-performance/moneykeel",
-  "notes": "only 7 of 22 appear — present: build comes module performance record · absent: approved built closing colour design; cited by identifier in decisions_"
+  "notes": "only 8 of 22 appear — present: build built comes module performance · absent: approved closing colour design exact; cited by identifier in decisions_a"
  },
  {
   "id": "DEC-0648",
