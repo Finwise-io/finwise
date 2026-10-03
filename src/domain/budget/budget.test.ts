@@ -284,7 +284,7 @@ describe('actualMonthFlow + allocatableThisMonth — the canonical month surplus
     const amountOf = (label: string) => f.lines.find((l) => l.label === label)?.amount;
     expect(amountOf('Actual inflow (income (take-home))')).toBe(5000);
     expect(amountOf('Other debt payments')).toBe(-800);   // logged debt, no debt record — still deducted
-    expect(amountOf('Actual expenses so far')).toBe(-1200);         // groceries only — the $800 debt is NOT in spent
+    expect(amountOf('Expenses entered by hand')).toBe(-1200);         // groceries only — the $800 debt is NOT in spent
     expect(f.surplus).toBe(3000);                         // 5000 − 1200 − 800 (after debt, once)
   });
 

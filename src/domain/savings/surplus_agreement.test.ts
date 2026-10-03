@@ -47,7 +47,10 @@ test('CashFlow THIS-MONTH surplus = In − Out from the SAME month cell (B46 fin
   // In/Out rows display — never a second function (monthlySavings measured a related-but-different
   // concept and disagreed by $572 on the founder's device).
   const s = screen('CashFlowScreen.tsx');
-  expect(s).toMatch(/const surplus = Math\.round\(inflow - outflow\)/);
+  // since 2026-10-03 the card prints the month door's own surplus — the sum of the very rows above it
+  // (cash-flow_v01: "every row shown is a row deducted"), so there is no second subtraction to drift
+  expect(s).toMatch(/signed\('MK-CF-M-002', planned\.surplus\)/);
+  expect(s).toMatch(/planned\.lines\.map/);
   expect(s).not.toMatch(/monthlySavings\(/);        // the second function stays out of this screen
   expect(s).toMatch(/Planned surplus/);
   expect(s).toMatch(/useCashflowModel/);           // by-month = the ONE dated grid

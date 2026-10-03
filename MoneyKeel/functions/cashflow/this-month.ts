@@ -23,14 +23,17 @@ export interface MonthInput {
   takeHomeMonthly: number;       // from basePay — the take-home
   inflowSources?: string[];      // the sources inside takeHomeMonthly, by name — the inflow line prints them (cluster #5 ruling, 2026-09-10)
   debts: Debt[];
-  plannedExpenses: number;       // from plannedMonthlySpend — the ONE canonical planned figure
+  plannedExpenses: number;       // from plannedMonthlySpend — the ONE canonical planned figure; 0 = no budget set
   expenses: LoggedExpense[];     // everything logged, debt payments included
   /** WHAT THE PLAN HAS ALREADY PROMISED to goals, per month. The hero figure on This month is the
    *  surplus LESS these, because money already committed to a goal is not free (F11). */
   commitments?: { label: string; monthlyAmount: number }[];
 }
 
-export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'spend'; paid?: boolean; note?: string; }
+export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'spend'; paid?: boolean; note?: string;
+  /** NO BUDGET SET: the row reads "— not set" and is no part of any sum (cash-flow_v01, rule 6:
+   *  "nothing is guessed — no plan set → not set, never $0 dressed as an answer"). */
+  notSet?: boolean; }
 
 /** THE MONTH'S OUTFLOW — expenses plus the debt actually paid — from one place. G12 (founder,
  *  2026-09-12): the Cash-flow month card used to add the two on the screen itself; a screen doing
@@ -62,7 +65,10 @@ export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'sp
 export function monthOutflow(snap: { spending?: number | null; debt_paid?: number | null } | null | undefined, loggedSoFar: number): number {
   return snap ? ((snap.spending ?? 0) + (snap.debt_paid ?? 0)) : loggedSoFar;
 }
-export interface MonthBlock { lines: Line[]; surplus: number; }
+export interface MonthBlock { lines: Line[]; surplus: number;
+  /** False on the PLANNED side when no budget is set: there is no planned surplus, and the screen
+   *  prints an em-dash rather than a figure built on a guess. Always true on the actual side. */
+  planSet: boolean; }
 
 /** The inflow line names what is inside it — founder's cluster #5 ruling (2026-09-10): the words in
  *  the brackets are the sources, "Inflow (income (take-home) + rent)". No sources named → the
@@ -206,12 +212,15 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  * Answers ..... THE PLAN for this month: the take-home, less each debt, less planned expenses.
  *
  * Formula .....
- *     lines = [{ label: inflow label('Inflow', inflow sources), amount: (take home monthly), kind: 'in' }]
+ *     plan set = (planned expenses ?? 0) > 0
+ *     every month = debts (or none when missing) where !is radar item(each)
+ *     radar = debts (or none when missing) where is radar item(each)
  *     due = required payment(d)
  *     radar kind = is radar item(d)
  *     the answer:
  *     lines = lines
  *     surplus = cash(lines.reduce((t, l) => t + amount, 0))
+ *     plan set = plan set
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
@@ -230,12 +239,26 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
+ * Decides .....
+ *     · If planned expenses is missing it uses 0.
+ *
  * Formula also on the master file · functions_from_code · MK-CF-F-156
  * Changed ..... not in git yet (—)
  */
 export function plannedMonthFlow(m: MonthInput): MonthBlock {
-  const lines: Line[] = [{ label: inflowLabel('Inflow', m.inflowSources), amount: (m.takeHomeMonthly), kind: 'in' }];
-  for (const d of m.debts ?? []) {
+  // THE ORDER IS THE DRAWING'S (cash-flow_v01, frame 1): what comes in · the debts that are the same
+  // every month · the budget · then the radar's items, the rows a person does not expect and would
+  // otherwise hunt for. It ran in the order the debts were entered, with the budget last.
+  const lines: Line[] = [{ label: inflowLabel('Inflow', m.inflowSources), amount: (m.takeHomeMonthly), kind: 'in',
+                           note: 'after tax and 401(k)' }];
+  const planSet = (m.plannedExpenses ?? 0) > 0;
+  const budget: Line = planSet
+    ? { label: 'Expenses', amount: cash(-m.plannedExpenses), kind: 'spend', note: 'your budget' }
+    : { label: 'Expenses', amount: 0, kind: 'spend', note: 'not set', notSet: true };
+  const everyMonth = (m.debts ?? []).filter((d) => !isRadarItem(d));
+  const radar = (m.debts ?? []).filter((d) => isRadarItem(d));
+  for (const d of [...everyMonth, null, ...radar]) {
+    if (d === null) { lines.push(budget); continue; }
     const due = (requiredPayment(d));
     if (due <= 0) continue;
     // EVERY ROW SAYS WHERE IT CAME FROM (approved mock cash-flow_v01, corrected 2026-09-30). The mock
@@ -246,9 +269,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
     lines.push({ label: d.label, amount: cash(-due), kind: 'debt',
                  note: radarKind ? 'from big-ticket radar' : 'debt' });
   }
-  lines.push({ label: 'Expenses', amount: cash(-m.plannedExpenses), kind: 'spend',
-               note: 'your budget' });
-  return { lines, surplus: cash(lines.reduce((t, l) => t + l.amount, 0)) };
+  return { lines, surplus: cash(lines.reduce((t, l) => t + l.amount, 0)), planSet };
 }
 
 /** WHAT HAS ACTUALLY HAPPENED: what landed, less only the debts confirmed paid, less what was
@@ -336,19 +357,18 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
   const byHand = spending.filter((e) => e.origin !== 'imported');
   const brought = spending.filter((e) => e.origin === 'imported');
   const sum = (xs: typeof spending) => (xs.reduce((t, e) => t + toNum(e.amount), 0));
-  if (byHand.length && brought.length) {
-    lines.push({ label: 'Expenses entered by hand', amount: cash(-sum(byHand)), kind: 'spend',
-                 note: `${byHand.length} logged` });
+  // "Expenses entered by hand" is always there, at $0 on a month with nothing typed in (frame B draws
+  // it so); the imported row joins it once a card has brought anything. Each is worded as drawn.
+  lines.push({ label: 'Expenses entered by hand', amount: cash(-sum(byHand)), kind: 'spend' });
+  if (brought.length) {
     lines.push({ label: 'Expenses imported from your card', amount: cash(-sum(brought)), kind: 'spend',
                  note: 'imported' });
-  } else if (brought.length) {
-    lines.push({ label: 'Expenses imported from your card', amount: cash(-sum(brought)), kind: 'spend',
-                 note: 'imported' });
-  } else {
-    lines.push({ label: 'Actual expenses so far', amount: cash(-sum(byHand)), kind: 'spend',
-                 note: `${byHand.length} logged` });
   }
-  return { lines, surplus: cash(lines.reduce((t, l) => t + l.amount, 0)) };
+  // THE ACTUAL SIDE RUNS IN THE DRAWING'S ORDER TOO: inflow · the every-month debts · the expenses ·
+  // then the radar's items.
+  const isRadarLine = (l: Line) => l.kind === 'debt' && /from big-ticket radar/.test(l.note ?? '');
+  const ordered = [...lines.filter((l) => !isRadarLine(l)), ...lines.filter(isRadarLine)];
+  return { lines: ordered, surplus: cash(ordered.reduce((t, l) => t + l.amount, 0)), planSet: true };
 }
 
 /** WHICH DEBTS HAVE ACTUALLY BEEN PAID this month, and how much each.
@@ -567,7 +587,7 @@ export const FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: '-$3,248/month',
-      run: () => workedLineAmount('actual', 'Actual expenses') + workedLineAmount('actual', 'Mortgage') + workedLineAmount('actual', 'Car loan'),
+      run: () => workedLineAmount('actual', 'Expenses entered by hand') + workedLineAmount('actual', 'Mortgage') + workedLineAmount('actual', 'Car loan'),
     },
   },
   'MK-CF-M-053': {

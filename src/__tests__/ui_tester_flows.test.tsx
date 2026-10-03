@@ -91,7 +91,9 @@ describe('FLOW 2 · the daily habit: log a coffee with + Expense on Cash flow (i
     const exp = (useStore.getState() as any).expenses;
     expect(exp).toHaveLength(1);
     expect(exp[0].amount).toBe(6.5);
-    expect(screen.getByText(/Spent \$(6\.50|7) of/)).toBeOnTheScreen();   // budgetVsActual, same helper
+    // …and on the month's Actual card, as its own row (cash-flow_v01: every row shown is a row deducted)
+    expect(screen.getByText('Expenses entered by hand')).toBeOnTheScreen();
+    expect(screen.getAllByText('−$7').length).toBeGreaterThan(0);
   });
 
   test('founder decision 2026-07-16: Home has NO + Expense button — logging lives on Cash flow', () => {

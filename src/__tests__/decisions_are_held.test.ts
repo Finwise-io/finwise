@@ -1406,6 +1406,19 @@ describe('the decisions in the log are held by something that executes', () => {
     }
   });
 
+  // ── DEC-1134 ───────────────────────────────────────────────────────────────────────────────
+  test('DEC-1134 — "these are no longer needed per new design": the four screens are gone and nothing on Cash flow opens them', () => {
+    const app = path.join(__dirname, '..', '..', 'app');
+    for (const route of ['month-detail', 'paycheck-months', 'income', 'worth-a-look']) {
+      expect(`${route}: ${fs.existsSync(path.join(app, `${route}.tsx`))}`).toBe(`${route}: false`);
+    }
+    for (const gone of ['MonthDetailScreen', 'PaycheckMonthsScreen', 'IncomeScreen', 'WorthALookScreen']) {
+      expect(`${gone}: ${fs.existsSync(path.join(__dirname, '..', 'screens', `${gone}.tsx`))}`).toBe(`${gone}: false`);
+    }
+    const cash = noComments(screenSrc('CashFlowScreen'));
+    expect(cash).not.toMatch(/router\.push\('\/(month-detail|paycheck-months|income|worth-a-look|bill-calendar)['?]/);
+  });
+
   // ── DEC-0253 · DEC-0263 · DEC-0352 ─────────────────────────────────────────────────────────
   test('DEC-0253 — the statutory tables are typed in from the published source, and the source is on record', () => {
     const sources = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'Calculation Module code', 'scripts', 'moneykeel_published_sources.json'), 'utf8'));

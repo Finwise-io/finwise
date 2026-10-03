@@ -28,8 +28,9 @@ test('the four tabs render and switch (This month · Income · Expenses · Debts
   useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
   render(<CashFlowScreen />);
   expect(screen.getByLabelText('This month tab, selected')).toBeOnTheScreen();
-  expect(screen.getByText('THIS MONTH')).toBeOnTheScreen();          // the working hero
-  expect(screen.getByText('YOUR BUDGET')).toBeOnTheScreen();   // budget absorbed — canon row 7, one word for the per-category plan (2026-09-26)
+  expect(screen.getByText(/^PLANNED · /)).toBeOnTheScreen();          // cash-flow_v01: the month's two cards
+  expect(screen.getByText('ACTUAL · SO FAR')).toBeOnTheScreen();
+  expect(screen.getByLabelText(/^Expenses, your budget, .*Opens your budget\.$/)).toBeOnTheScreen();   // the budget row is the door to the budget
   fireEvent.press(screen.getByLabelText('Income tab'));
   expect(screen.getByText('YOUR SOURCES')).toBeOnTheScreen();
   expect(screen.getByText(/Salary — steady/)).toBeOnTheScreen();

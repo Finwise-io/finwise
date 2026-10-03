@@ -94,7 +94,9 @@ test('rows 6-11: the consolidations hold at the source', () => {
   expect(read('domain/snapshot.ts')).toMatch(/mean_return: blendedReturn\(acctRows\)/);
   // row 11: the money heroes render through HeroAmount. Performance left this list on 2026-09-25:
   // the approved design (mock v14) has no hero on that screen — its headline is the summary trio.
-  for (const f of ['screens/NetWorthScreen.tsx', 'screens/CashFlowScreen.tsx', 'components/PaycheckCard.tsx']) {
+  // Cash flow left it on 2026-10-03 for the same reason: cash-flow_v01 has no hero on the working
+  // month — each card's total rides its own band. The retired lens keeps its hero in PaycheckCard.
+  for (const f of ['screens/NetWorthScreen.tsx', 'components/PaycheckCard.tsx']) {
     expect(read(f)).toMatch(/<HeroAmount/);
   }
 });

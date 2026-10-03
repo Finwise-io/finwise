@@ -22,9 +22,11 @@ test('working lens: this-month in/out + the canonical Planned surplus + dated by
   } as any);
 
   const { getByText } = render(<CashFlowScreen />);
-  expect(getByText('THIS MONTH')).toBeTruthy();
+  // cash-flow_v01 (approved 2026-09-28), built 2026-10-03: the working month is two cards — what is
+  // planned, and what has actually happened — each ending in its own surplus, and nothing after them
+  expect(getByText(/^PLANNED · /)).toBeTruthy();
   expect(getByText('Inflow (income (take-home))')).toBeTruthy();
   expect(getByText('= Planned surplus')).toBeTruthy();       // canonical after-debt vocabulary
-  expect(getByText(/BY MONTH ·/)).toBeTruthy();              // the dated F2 window (Jul 26 – Jun 27 style)
-  expect(getByText(/Spent .* of .* planned/)).toBeTruthy();            // planned-vs-actual line
+  expect(getByText('ACTUAL · SO FAR')).toBeTruthy();
+  expect(getByText('= Actual surplus so far')).toBeTruthy();
 });

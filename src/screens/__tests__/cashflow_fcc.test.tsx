@@ -82,17 +82,31 @@ describe('working lens', () => {
     assetAccounts: [{ asset_id: 'k', label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 500000 }],
   } as any);
 
-  test('in/out/surplus card + dated bars (the bars are rows, not doors — 2026-10-02)', () => {
+  test('the month is two cards — Planned, then Actual — each ending in its own surplus (cash-flow_v01)', () => {
     seedWorker();
     render(<CashFlowScreen />);
-    expect(screen.getByText('THIS MONTH')).toBeOnTheScreen();
+    expect(screen.getByText(/^PLANNED · /)).toBeOnTheScreen();
     expect(screen.getByText('Inflow (income (take-home))')).toBeOnTheScreen();
     expect(screen.getByText(/= Planned surplus/)).toBeOnTheScreen();
-    expect(screen.getByText(/Spent .* of .* planned/)).toBeOnTheScreen();
+    expect(screen.getByText('ACTUAL · SO FAR')).toBeOnTheScreen();
+    expect(screen.getByText('= Actual surplus so far')).toBeOnTheScreen();
     expect(screen.queryByText(/SURPLUS —/)).toBeNull();   // no retiree hero on the working lens
   });
 
-  test('the future-paycheck card is projection-labeled (mandatory copy) and never a promise', () => {
+  test('and nothing follows them: the cards the approved drawing does not have are gone', () => {
+    // built 2026-10-03 from cash-flow_v01 (approved 2026-09-28, after the build that carried these):
+    // the pace line is the one the drawing cites as the bug ("Spent $45 of $0 planned"); the budget
+    // card, the twelve bars and the will-it-last strip are not on it.
+    seedWorker();
+    render(<CashFlowScreen />);
+    for (const gone of [/^THIS MONTH$/, /Spent .* of .* planned/, /^YOUR BUDGET$/, /^BY MONTH · /, /^WILL MY MONEY LAST\?$/]) {
+      expect(screen.queryByText(gone)).toBeNull();
+    }
+  });
+
+  test('the future-paycheck card is kept, projection-labeled (mandatory copy) and never a promise', () => {
+    // NOT on cash-flow_v01, and kept on purpose: he ruled on this card's arithmetic by name on
+    // 2026-09-08 and nothing since says to remove it. It is the one named difference from the drawing.
     seedWorker();
     render(<CashFlowScreen />);
     expect(screen.getByText('YOUR FUTURE PAYCHECK')).toBeOnTheScreen();
@@ -131,22 +145,16 @@ test('THIS MONTH: In − Out = Planned surplus, to the dollar, always', () => {
     },
   } as any);
   render(<CashFlowScreen />);
-  const num = (label: RegExp) => {
-    const row = screen.getByText(label).parent?.parent;
-    const texts: string[] = [];
-    const walk = (n: any) => { if (n == null) return; if (typeof n === 'string') { texts.push(n); return; } (n.children ?? []).forEach(walk); };
-    walk(row);
-    const m = texts.join(' ').match(/\$([\d,]+)/g);
-    return m ? Number(m[m.length - 1].replace(/[$,]/g, '')) : NaN;
-  };
-  const inn = num(/^Inflow \(/);   // cluster #5: the brackets name the sources
-  // 2026-09-28: the card no longer summarises the outflow into ONE row. The approved design
-  // (cash-flow_v01) SPELLS OUT every row, and his rule under it is stronger than this pin was:
-  // "every row shown is a row deducted". So the test adds up what is actually drawn.
-  const outRows = screen.getAllByText(/^−\$[\d,]+$/).map((n: any) =>
-    Number(String(n.props.children).replace(/[−$,]/g, '')));
+  // cash-flow_v01 SPELLS OUT every row, and his rule under it is "every row shown is a row deducted".
+  // So the test reads the Planned card as a person does — top to bottom — and adds up what is drawn.
+  const { builtLines } = require('../../testing/mockMatch');
+  const lines: string[] = builtLines(screen.toJSON());
+  const card = lines.slice(lines.findIndex((l) => /^PLANNED · /.test(l)), lines.indexOf('= Planned surplus') + 2);
+  const dollars = (t: string) => Number(t.replace(/[^\d]/g, ''));
+  const inn = dollars(card[card.findIndex((l) => /^Inflow \(/.test(l)) + 2]);   // name · "after tax and 401(k)" · amount
+  const outRows = card.filter((l) => /^−\$[\d,]+$/.test(l)).map(dollars);
   const out = outRows.reduce((t, v) => t + v, 0);
-  const sur = num(/^= Planned surplus$|^Surplus after your budget$/);   // the ROW label (the hero sub duplicates the words)
+  const sur = dollars(card[card.length - 1]);
   expect(Number.isFinite(inn) && Number.isFinite(sur)).toBe(true);
   expect(outRows.length).toBeGreaterThan(0);        // the flow is spelled out, not summarised
   expect(sur).toBe(inn - out);   // the equals sign is earned, by every row that is drawn

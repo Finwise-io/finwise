@@ -182,19 +182,19 @@ exports[`photograph — retiree WillItLastScreen 1`] = `
 
 exports[`photograph — worker CashFlowScreen 1`] = `
 [
-  "[spoken] $2,700 planned surplus this month",
-  "$2,700",
+  "+$2,700",
   "$7,200",
+  "[spoken] Expenses, your budget, −$4,500. Opens your budget.",
   "−$4,500",
-  "$2,700",
-  "[spoken] Expense pace: $0 of $0 planned — 0 percent spent, 40 percent of the month gone. Opens this month's detail.",
+  "+$2,700",
+  "+$7,200",
+  "$7,200",
   "$0",
-  "$0",
+  "+$7,200",
   "[spoken] Your future paycheck — a projection, an estimate, not a promise. At 65: about $2,455 a month.",
   "$2,455",
   "~$2,455",
   "13.9% odds of lasting to age 92",
-  "[spoken] Will my money last: 13.9 percent, an estimate. Lives in your Plan.",
 ]
 `;
 

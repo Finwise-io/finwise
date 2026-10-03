@@ -7344,27 +7344,19 @@
     },
     {
      "k": "t",
-     "s": "THIS MONTH"
-    },
-    {
-     "k": "a",
-     "s": "$2,980 planned surplus this month"
+     "s": "PLANNED · OCTOBER"
     },
     {
      "k": "t",
-     "s": "+"
-    },
-    {
-     "k": "t",
-     "s": "$2,980"
-    },
-    {
-     "k": "t",
-     "s": "Planned surplus"
+     "s": "+$2,980"
     },
     {
      "k": "t",
      "s": "Inflow (income (take-home))"
+    },
+    {
+     "k": "t",
+     "s": "after tax and 401(k)"
     },
     {
      "k": "t",
@@ -7376,11 +7368,23 @@
     },
     {
      "k": "t",
+     "s": "debt"
+    },
+    {
+     "k": "t",
      "s": "−$420"
+    },
+    {
+     "k": "a",
+     "s": "Expenses, your budget, −$3,800. Opens your budget."
     },
     {
      "k": "t",
      "s": "Expenses"
+    },
+    {
+     "k": "t",
+     "s": "your budget"
     },
     {
      "k": "t",
@@ -7392,15 +7396,31 @@
     },
     {
      "k": "t",
-     "s": "$2,980"
-    },
-    {
-     "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 10 percent of the month gone. Opens this month's detail."
+     "s": "+$2,980"
     },
     {
      "k": "t",
-     "s": "Spent"
+     "s": "ACTUAL · SO FAR"
+    },
+    {
+     "k": "t",
+     "s": "+$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Actual inflow (income (take-home))"
+    },
+    {
+     "k": "t",
+     "s": "$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Car loan"
+    },
+    {
+     "k": "t",
+     "s": "not paid yet"
     },
     {
      "k": "t",
@@ -7408,31 +7428,23 @@
     },
     {
      "k": "t",
-     "s": "of"
+     "s": "Expenses entered by hand"
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "planned"
+     "s": "= Actual surplus so far"
     },
     {
      "k": "t",
-     "s": "0"
+     "s": "+$7,200"
     },
     {
      "k": "t",
-     "s": "% spent,"
-    },
-    {
-     "k": "t",
-     "s": "10"
-    },
-    {
-     "k": "t",
-     "s": "% of the month gone"
+     "s": "Nothing logged yet, and no card connected. Connect a card and your purchases arrive here on their own."
     },
     {
      "k": "a",
@@ -7473,174 +7485,6 @@
     {
      "k": "t",
      "s": "~$20,125"
-    },
-    {
-     "k": "t",
-     "s": "YOUR BUDGET"
-    },
-    {
-     "k": "t",
-     "s": "Bills & fixed"
-    },
-    {
-     "k": "t",
-     "s": "$3,200"
-    },
-    {
-     "k": "t",
-     "s": "Once in a while"
-    },
-    {
-     "k": "t",
-     "s": "$300"
-    },
-    {
-     "k": "t",
-     "s": "Everyday expenses"
-    },
-    {
-     "k": "t",
-     "s": "$600"
-    },
-    {
-     "k": "a",
-     "s": "Edit your budget — each category, with the live surplus math"
-    },
-    {
-     "k": "t",
-     "s": "Edit the plan ›"
-    },
-    {
-     "k": "t",
-     "s": "BY MONTH · Oct – Sep ’27"
-    },
-    {
-     "k": "a",
-     "s": "Oct: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "a",
-     "s": "Nov: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Nov"
-    },
-    {
-     "k": "a",
-     "s": "Dec: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Dec"
-    },
-    {
-     "k": "a",
-     "s": "Jan ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Jan ’27"
-    },
-    {
-     "k": "a",
-     "s": "Feb ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Feb ’27"
-    },
-    {
-     "k": "a",
-     "s": "Mar ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Mar ’27"
-    },
-    {
-     "k": "a",
-     "s": "Apr ’27: 7200 dollars in, 7820 out, a short month"
-    },
-    {
-     "k": "t",
-     "s": "Apr ’27"
-    },
-    {
-     "k": "t",
-     "s": "! short month"
-    },
-    {
-     "k": "a",
-     "s": "May ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "May ’27"
-    },
-    {
-     "k": "a",
-     "s": "Jun ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Jun ’27"
-    },
-    {
-     "k": "a",
-     "s": "Jul ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Jul ’27"
-    },
-    {
-     "k": "a",
-     "s": "Aug ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep ’27"
-    },
-    {
-     "k": "t",
-     "s": "in"
-    },
-    {
-     "k": "t",
-     "s": "out"
-    },
-    {
-     "k": "t",
-     "s": "· tap a month for detail"
-    },
-    {
-     "k": "a",
-     "s": "See your odds in Plan"
-    },
-    {
-     "k": "t",
-     "s": "WILL MY MONEY LAST?"
-    },
-    {
-     "k": "t",
-     "s": "Answer 3 quick questions in Plan to see your odds"
-    },
-    {
-     "k": "t",
-     "s": "Lives in your Plan ›"
     },
     {
      "k": "a",
@@ -7714,27 +7558,19 @@
     },
     {
      "k": "t",
-     "s": "THIS MONTH"
-    },
-    {
-     "k": "a",
-     "s": "$2,980 planned surplus this month"
+     "s": "PLANNED · OCTOBER"
     },
     {
      "k": "t",
-     "s": "+"
-    },
-    {
-     "k": "t",
-     "s": "$2,980"
-    },
-    {
-     "k": "t",
-     "s": "Planned surplus"
+     "s": "+$2,980"
     },
     {
      "k": "t",
      "s": "Inflow (income (take-home))"
+    },
+    {
+     "k": "t",
+     "s": "after tax and 401(k)"
     },
     {
      "k": "t",
@@ -7746,11 +7582,23 @@
     },
     {
      "k": "t",
+     "s": "debt"
+    },
+    {
+     "k": "t",
      "s": "−$420"
+    },
+    {
+     "k": "a",
+     "s": "Expenses, your budget, −$3,800. Opens your budget."
     },
     {
      "k": "t",
      "s": "Expenses"
+    },
+    {
+     "k": "t",
+     "s": "your budget"
     },
     {
      "k": "t",
@@ -7762,15 +7610,31 @@
     },
     {
      "k": "t",
-     "s": "$2,980"
-    },
-    {
-     "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 10 percent of the month gone. Opens this month's detail."
+     "s": "+$2,980"
     },
     {
      "k": "t",
-     "s": "Spent"
+     "s": "ACTUAL · SO FAR"
+    },
+    {
+     "k": "t",
+     "s": "+$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Actual inflow (income (take-home))"
+    },
+    {
+     "k": "t",
+     "s": "$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Car loan"
+    },
+    {
+     "k": "t",
+     "s": "not paid yet"
     },
     {
      "k": "t",
@@ -7778,31 +7642,23 @@
     },
     {
      "k": "t",
-     "s": "of"
+     "s": "Expenses entered by hand"
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "planned"
+     "s": "= Actual surplus so far"
     },
     {
      "k": "t",
-     "s": "0"
+     "s": "+$7,200"
     },
     {
      "k": "t",
-     "s": "% spent,"
-    },
-    {
-     "k": "t",
-     "s": "10"
-    },
-    {
-     "k": "t",
-     "s": "% of the month gone"
+     "s": "Nothing logged yet, and no card connected. Connect a card and your purchases arrive here on their own."
     },
     {
      "k": "a",
@@ -7843,174 +7699,6 @@
     {
      "k": "t",
      "s": "~$20,125"
-    },
-    {
-     "k": "t",
-     "s": "YOUR BUDGET"
-    },
-    {
-     "k": "t",
-     "s": "Bills & fixed"
-    },
-    {
-     "k": "t",
-     "s": "$3,200"
-    },
-    {
-     "k": "t",
-     "s": "Once in a while"
-    },
-    {
-     "k": "t",
-     "s": "$300"
-    },
-    {
-     "k": "t",
-     "s": "Everyday expenses"
-    },
-    {
-     "k": "t",
-     "s": "$600"
-    },
-    {
-     "k": "a",
-     "s": "Edit your budget — each category, with the live surplus math"
-    },
-    {
-     "k": "t",
-     "s": "Edit the plan ›"
-    },
-    {
-     "k": "t",
-     "s": "BY MONTH · Oct – Sep ’27"
-    },
-    {
-     "k": "a",
-     "s": "Oct: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "a",
-     "s": "Nov: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Nov"
-    },
-    {
-     "k": "a",
-     "s": "Dec: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Dec"
-    },
-    {
-     "k": "a",
-     "s": "Jan ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Jan ’27"
-    },
-    {
-     "k": "a",
-     "s": "Feb ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Feb ’27"
-    },
-    {
-     "k": "a",
-     "s": "Mar ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Mar ’27"
-    },
-    {
-     "k": "a",
-     "s": "Apr ’27: 7200 dollars in, 7820 out, a short month"
-    },
-    {
-     "k": "t",
-     "s": "Apr ’27"
-    },
-    {
-     "k": "t",
-     "s": "! short month"
-    },
-    {
-     "k": "a",
-     "s": "May ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "May ’27"
-    },
-    {
-     "k": "a",
-     "s": "Jun ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Jun ’27"
-    },
-    {
-     "k": "a",
-     "s": "Jul ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Jul ’27"
-    },
-    {
-     "k": "a",
-     "s": "Aug ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep ’27: 7200 dollars in, 4220 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep ’27"
-    },
-    {
-     "k": "t",
-     "s": "in"
-    },
-    {
-     "k": "t",
-     "s": "out"
-    },
-    {
-     "k": "t",
-     "s": "· tap a month for detail"
-    },
-    {
-     "k": "a",
-     "s": "See your odds in Plan"
-    },
-    {
-     "k": "t",
-     "s": "WILL MY MONEY LAST?"
-    },
-    {
-     "k": "t",
-     "s": "Answer 3 quick questions in Plan to see your odds"
-    },
-    {
-     "k": "t",
-     "s": "Lives in your Plan ›"
     },
     {
      "k": "a",
@@ -8602,27 +8290,19 @@
     },
     {
      "k": "t",
-     "s": "THIS MONTH"
-    },
-    {
-     "k": "a",
-     "s": "$1,200 planned surplus this month"
+     "s": "PLANNED · OCTOBER"
     },
     {
      "k": "t",
-     "s": "+"
-    },
-    {
-     "k": "t",
-     "s": "$1,200"
-    },
-    {
-     "k": "t",
-     "s": "Planned surplus"
+     "s": "+$1,200"
     },
     {
      "k": "t",
      "s": "Inflow (income (take-home))"
+    },
+    {
+     "k": "t",
+     "s": "after tax and 401(k)"
     },
     {
      "k": "t",
@@ -8634,6 +8314,10 @@
     },
     {
      "k": "t",
+     "s": "debt"
+    },
+    {
+     "k": "t",
      "s": "−$300"
     },
     {
@@ -8642,11 +8326,23 @@
     },
     {
      "k": "t",
+     "s": "debt"
+    },
+    {
+     "k": "t",
      "s": "−$1,900"
+    },
+    {
+     "k": "a",
+     "s": "Expenses, your budget, −$3,800. Opens your budget."
     },
     {
      "k": "t",
      "s": "Expenses"
+    },
+    {
+     "k": "t",
+     "s": "your budget"
     },
     {
      "k": "t",
@@ -8658,15 +8354,31 @@
     },
     {
      "k": "t",
-     "s": "$1,200"
-    },
-    {
-     "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 10 percent of the month gone. Opens this month's detail."
+     "s": "+$1,200"
     },
     {
      "k": "t",
-     "s": "Spent"
+     "s": "ACTUAL · SO FAR"
+    },
+    {
+     "k": "t",
+     "s": "+$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Actual inflow (income (take-home))"
+    },
+    {
+     "k": "t",
+     "s": "$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Chase Sapphire"
+    },
+    {
+     "k": "t",
+     "s": "due 15th"
     },
     {
      "k": "t",
@@ -8674,31 +8386,35 @@
     },
     {
      "k": "t",
-     "s": "of"
+     "s": "Mortgage"
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "due 1st"
     },
     {
      "k": "t",
-     "s": "planned"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "0"
+     "s": "Expenses entered by hand"
     },
     {
      "k": "t",
-     "s": "% spent,"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "10"
+     "s": "= Actual surplus so far"
     },
     {
      "k": "t",
-     "s": "% of the month gone"
+     "s": "+$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Nothing logged yet, and no card connected. Connect a card and your purchases arrive here on their own."
     },
     {
      "k": "a",
@@ -8739,174 +8455,6 @@
     {
      "k": "t",
      "s": "~$35,095"
-    },
-    {
-     "k": "t",
-     "s": "YOUR BUDGET"
-    },
-    {
-     "k": "t",
-     "s": "Bills & fixed"
-    },
-    {
-     "k": "t",
-     "s": "$3,200"
-    },
-    {
-     "k": "t",
-     "s": "Once in a while"
-    },
-    {
-     "k": "t",
-     "s": "$300"
-    },
-    {
-     "k": "t",
-     "s": "Everyday expenses"
-    },
-    {
-     "k": "t",
-     "s": "$600"
-    },
-    {
-     "k": "a",
-     "s": "Edit your budget — each category, with the live surplus math"
-    },
-    {
-     "k": "t",
-     "s": "Edit the plan ›"
-    },
-    {
-     "k": "t",
-     "s": "BY MONTH · Oct – Sep ’27"
-    },
-    {
-     "k": "a",
-     "s": "Oct: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "a",
-     "s": "Nov: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Nov"
-    },
-    {
-     "k": "a",
-     "s": "Dec: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Dec"
-    },
-    {
-     "k": "a",
-     "s": "Jan ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Jan ’27"
-    },
-    {
-     "k": "a",
-     "s": "Feb ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Feb ’27"
-    },
-    {
-     "k": "a",
-     "s": "Mar ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Mar ’27"
-    },
-    {
-     "k": "a",
-     "s": "Apr ’27: 7200 dollars in, 9600 out, a short month"
-    },
-    {
-     "k": "t",
-     "s": "Apr ’27"
-    },
-    {
-     "k": "t",
-     "s": "! short month"
-    },
-    {
-     "k": "a",
-     "s": "May ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "May ’27"
-    },
-    {
-     "k": "a",
-     "s": "Jun ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Jun ’27"
-    },
-    {
-     "k": "a",
-     "s": "Jul ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Jul ’27"
-    },
-    {
-     "k": "a",
-     "s": "Aug ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep ’27"
-    },
-    {
-     "k": "t",
-     "s": "in"
-    },
-    {
-     "k": "t",
-     "s": "out"
-    },
-    {
-     "k": "t",
-     "s": "· tap a month for detail"
-    },
-    {
-     "k": "a",
-     "s": "See your odds in Plan"
-    },
-    {
-     "k": "t",
-     "s": "WILL MY MONEY LAST?"
-    },
-    {
-     "k": "t",
-     "s": "Answer 3 quick questions in Plan to see your odds"
-    },
-    {
-     "k": "t",
-     "s": "Lives in your Plan ›"
     },
     {
      "k": "a",
@@ -8980,27 +8528,19 @@
     },
     {
      "k": "t",
-     "s": "THIS MONTH"
-    },
-    {
-     "k": "a",
-     "s": "$1,200 planned surplus this month"
+     "s": "PLANNED · OCTOBER"
     },
     {
      "k": "t",
-     "s": "+"
-    },
-    {
-     "k": "t",
-     "s": "$1,200"
-    },
-    {
-     "k": "t",
-     "s": "Planned surplus"
+     "s": "+$1,200"
     },
     {
      "k": "t",
      "s": "Inflow (income (take-home))"
+    },
+    {
+     "k": "t",
+     "s": "after tax and 401(k)"
     },
     {
      "k": "t",
@@ -9012,6 +8552,10 @@
     },
     {
      "k": "t",
+     "s": "debt"
+    },
+    {
+     "k": "t",
      "s": "−$300"
     },
     {
@@ -9020,11 +8564,23 @@
     },
     {
      "k": "t",
+     "s": "debt"
+    },
+    {
+     "k": "t",
      "s": "−$1,900"
+    },
+    {
+     "k": "a",
+     "s": "Expenses, your budget, −$3,800. Opens your budget."
     },
     {
      "k": "t",
      "s": "Expenses"
+    },
+    {
+     "k": "t",
+     "s": "your budget"
     },
     {
      "k": "t",
@@ -9036,15 +8592,31 @@
     },
     {
      "k": "t",
-     "s": "$1,200"
-    },
-    {
-     "k": "a",
-     "s": "Expense pace: $0 of $4,100 planned — 0 percent spent, 10 percent of the month gone. Opens this month's detail."
+     "s": "+$1,200"
     },
     {
      "k": "t",
-     "s": "Spent"
+     "s": "ACTUAL · SO FAR"
+    },
+    {
+     "k": "t",
+     "s": "+$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Actual inflow (income (take-home))"
+    },
+    {
+     "k": "t",
+     "s": "$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Chase Sapphire"
+    },
+    {
+     "k": "t",
+     "s": "due 15th"
     },
     {
      "k": "t",
@@ -9052,31 +8624,35 @@
     },
     {
      "k": "t",
-     "s": "of"
+     "s": "Mortgage"
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "due 1st"
     },
     {
      "k": "t",
-     "s": "planned"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "0"
+     "s": "Expenses entered by hand"
     },
     {
      "k": "t",
-     "s": "% spent,"
+     "s": "$0"
     },
     {
      "k": "t",
-     "s": "10"
+     "s": "= Actual surplus so far"
     },
     {
      "k": "t",
-     "s": "% of the month gone"
+     "s": "+$7,200"
+    },
+    {
+     "k": "t",
+     "s": "Nothing logged yet, and no card connected. Connect a card and your purchases arrive here on their own."
     },
     {
      "k": "a",
@@ -9117,174 +8693,6 @@
     {
      "k": "t",
      "s": "~$35,095"
-    },
-    {
-     "k": "t",
-     "s": "YOUR BUDGET"
-    },
-    {
-     "k": "t",
-     "s": "Bills & fixed"
-    },
-    {
-     "k": "t",
-     "s": "$3,200"
-    },
-    {
-     "k": "t",
-     "s": "Once in a while"
-    },
-    {
-     "k": "t",
-     "s": "$300"
-    },
-    {
-     "k": "t",
-     "s": "Everyday expenses"
-    },
-    {
-     "k": "t",
-     "s": "$600"
-    },
-    {
-     "k": "a",
-     "s": "Edit your budget — each category, with the live surplus math"
-    },
-    {
-     "k": "t",
-     "s": "Edit the plan ›"
-    },
-    {
-     "k": "t",
-     "s": "BY MONTH · Oct – Sep ’27"
-    },
-    {
-     "k": "a",
-     "s": "Oct: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "a",
-     "s": "Nov: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Nov"
-    },
-    {
-     "k": "a",
-     "s": "Dec: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Dec"
-    },
-    {
-     "k": "a",
-     "s": "Jan ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Jan ’27"
-    },
-    {
-     "k": "a",
-     "s": "Feb ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Feb ’27"
-    },
-    {
-     "k": "a",
-     "s": "Mar ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Mar ’27"
-    },
-    {
-     "k": "a",
-     "s": "Apr ’27: 7200 dollars in, 9600 out, a short month"
-    },
-    {
-     "k": "t",
-     "s": "Apr ’27"
-    },
-    {
-     "k": "t",
-     "s": "! short month"
-    },
-    {
-     "k": "a",
-     "s": "May ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "May ’27"
-    },
-    {
-     "k": "a",
-     "s": "Jun ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Jun ’27"
-    },
-    {
-     "k": "a",
-     "s": "Jul ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Jul ’27"
-    },
-    {
-     "k": "a",
-     "s": "Aug ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Aug ’27"
-    },
-    {
-     "k": "a",
-     "s": "Sep ’27: 7200 dollars in, 6000 out"
-    },
-    {
-     "k": "t",
-     "s": "Sep ’27"
-    },
-    {
-     "k": "t",
-     "s": "in"
-    },
-    {
-     "k": "t",
-     "s": "out"
-    },
-    {
-     "k": "t",
-     "s": "· tap a month for detail"
-    },
-    {
-     "k": "a",
-     "s": "See your odds in Plan"
-    },
-    {
-     "k": "t",
-     "s": "WILL MY MONEY LAST?"
-    },
-    {
-     "k": "t",
-     "s": "Answer 3 quick questions in Plan to see your odds"
-    },
-    {
-     "k": "t",
-     "s": "Lives in your Plan ›"
     },
     {
      "k": "a",
@@ -37618,22 +37026,18 @@
   },
   "/cashflow": {
    "worker": [
-    "MK-CF-M-001",
-    "MK-CF-M-013",
-    "MK-CF-M-015",
-    "MK-CF-M-020",
+    "MK-CF-M-002",
+    "MK-CF-M-003",
+    "MK-CF-M-004",
     "MK-CF-M-022",
-    "MK-CF-M-050",
     "MK-CF-M-055",
     "MK-CF-M-070"
    ],
    "rich": [
-    "MK-CF-M-001",
-    "MK-CF-M-013",
-    "MK-CF-M-015",
-    "MK-CF-M-020",
+    "MK-CF-M-002",
+    "MK-CF-M-003",
+    "MK-CF-M-004",
     "MK-CF-M-022",
-    "MK-CF-M-050",
     "MK-CF-M-055",
     "MK-CF-M-070"
    ],
@@ -37945,7 +37349,7 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1275
+   "renders": 1250
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:73",

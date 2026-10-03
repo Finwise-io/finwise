@@ -24,12 +24,16 @@ const seed = (extra: any = {}) => {
 const line = () => screen.getAllByText(/^Nothing entered yet\./).length;
 const door = (k: keyof typeof EMPTY_DOORS) => screen.getAllByText(EMPTY_DOORS[k].label).length;
 
-test('Cash flow — set up, but no bills or debts entered: the this-month outflow row carries the line and the bills door', () => {
-  // before setup the screen asks its two questions in place (approved §A); the pattern applies once the month exists
-  seed({ assetAccounts: [savings], onboardingProfile: { status: 'employed', birthYear: '1971', birthMonth: '3', baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly', monthlySpending: '3000' } });
+test('Cash flow — income set, no budget yet: the budget row reads "not set", there is no planned surplus, and the door is offered', () => {
+  // cash-flow_v01, frame B (approved 2026-09-28), rule 6 under it: "nothing is guessed — no plan set →
+  // not set, never $0 dressed as an answer". The month's own wording replaced the generic line here.
+  seed({ assetAccounts: [savings], onboardingProfile: { status: 'employed', birthYear: '1971', birthMonth: '3', baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly' } });
   show('CashFlowScreen');
-  expect(line()).toBeGreaterThanOrEqual(1);
-  expect(door('bills')).toBeGreaterThanOrEqual(1);
+  expect(screen.getByText('— not set')).toBeOnTheScreen();
+  expect(screen.queryByText('= Planned surplus')).toBeNull();
+  expect(screen.getByText(/Until you do there is no planned surplus — we won’t guess one\./)).toBeOnTheScreen();
+  expect(screen.getByLabelText('Set your budget')).toBeOnTheScreen();
+  expect(screen.getByText('= Actual surplus so far')).toBeOnTheScreen();          // actual needs no plan
 });
 
 test('Home — accounts but no income: the Income cell carries the line; no investments: YOUR INVESTMENTS carries it', () => {

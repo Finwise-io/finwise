@@ -59,7 +59,7 @@ describe('1 · returning WORKING user upgrades from Build 40', () => {
 
   test('Cash flow and Plan render their working-lens content', () => {
     const cf = render(<CashFlowScreen />);
-    expect(screen.getByText('THIS MONTH')).toBeOnTheScreen();
+    expect(screen.getByText(/^PLANNED · /)).toBeOnTheScreen();
     cf.unmount();
     render(<PlanHubScreen />);
     // mock v9 (approved 2026-08-01): this upgrade user has accounts but no spending answer yet →

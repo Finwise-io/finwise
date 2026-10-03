@@ -106,12 +106,15 @@ describe('cash-flow_v01 — This month, against the approved mock', () => {
 
   test("PLANNED reads exactly as the mock draws it, and = Planned surplus is the mock's corrected 350", () => {
     expect(rows('planned')).toEqual([
-      ['Inflow (income (take-home))', '', 5000],
+      // THE DRAWING'S ORDER (frame A), read off it line by line on 2026-10-03: the budget sits between
+      // the every-month debts and the radar's items. This list had the budget last and the inflow with
+      // no words under it while its title said "exactly as the mock draws it" — it was not.
+      ['Inflow (income (take-home))', 'after tax and 401(k)', 5000],
       ['Mortgage', 'debt', -2000],
       ['Car loan', 'debt', -250],
+      ['Expenses', 'your budget', -2000],
       ['HELOC', 'from big-ticket radar', -200],
       ['Credit card debt payment', 'from big-ticket radar', -200],
-      ['Expenses', 'your budget', -2000],
     ]);
     expect(theMonth(MOCK).planned.surplus).toBe(350);        // the mock: 350, was 750
   });
@@ -121,10 +124,10 @@ describe('cash-flow_v01 — This month, against the approved mock', () => {
       ['Actual inflow (income (take-home))', '', 5000],
       ['Mortgage', 'paid', -2000],
       ['Car loan', 'due 28th', 0],                            // the mock names the day, not "not paid yet"
+      ['Expenses entered by hand', '', -500],                 // the drawing puts no words beside this one
+      ['Expenses imported from your card', 'imported', -1200],
       ['HELOC', 'from big-ticket radar', -200],
       ['Credit card debt payment', 'from big-ticket radar', -200],
-      ['Expenses entered by hand', '1 logged', -500],
-      ['Expenses imported from your card', 'imported', -1200],
     ]);
     expect(theMonth(MOCK).actual.surplus).toBe(900);          // the mock: 900, was 1,300
   });
@@ -136,11 +139,19 @@ describe('cash-flow_v01 — This month, against the approved mock', () => {
     }
   });
 
-  test('a month with only hand-entered expenses keeps ONE row — no $0 line that means nothing', () => {
+  test('a month with only hand-entered expenses keeps ONE row — no $0 imported line that means nothing', () => {
     const typedOnly = { ...MOCK, expenses: MOCK.expenses.filter((e: any) => e.origin !== 'imported') };
     const labels = theMonth(typedOnly).actual.lines.map((l: any) => l.label);
-    expect(labels).toContain('Actual expenses so far');
+    expect(labels).toContain('Expenses entered by hand');     // worded as frame B draws it
     expect(labels).not.toContain('Expenses imported from your card');
+  });
+
+  test('NO BUDGET SET: the row reads "not set", it is no part of the sum, and there is no planned surplus to show', () => {
+    const noPlan = theMonth({ ...MOCK, plannedExpenses: 0 }).planned;
+    expect(noPlan.planSet).toBe(false);
+    const row = noPlan.lines.find((l: any) => l.label === 'Expenses')!;
+    expect([row.notSet, row.note, row.amount]).toEqual([true, 'not set', 0]);
+    expect(theMonth(MOCK).planned.planSet).toBe(true);
   });
 
   test('and the one label rule: a debt is called the same thing in both blocks', () => {

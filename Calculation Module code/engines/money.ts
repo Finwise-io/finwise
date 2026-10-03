@@ -84,7 +84,7 @@ export function readMoney(
 
 /** The signed value, for arithmetic. IN is positive, OUT is negative, everywhere in the app.
  *  One convention, chosen once, so no screen has to remember which way this number runs. */
-/* ─ MK-ST-F-019 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-ST-F-019 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * signed
  *
  * Answers ..... The signed value, for arithmetic.

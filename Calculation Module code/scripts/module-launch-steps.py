@@ -812,8 +812,13 @@ def step_5():
     if os.path.exists(vp):
         V = {x['id']: x for x in json.load(open(vp, encoding='utf8'))}
 
-    metrics = sorted({v for v in reg.values() if v.startswith('MK-' + FAMILY + '-M-')}
-                     | {i for i in FIGS if i.startswith('MK-' + FAMILY + '-M-')})
+    # A RETIRED METRIC IS NOT AN ORPHAN. Its number stays on the register for ever (issued once, never
+    # reused), so "on the register and in no code" is exactly what retired means. This list counted
+    # them, and passed only while some comment happened to mention the number (found 2026-10-03, when a
+    # rewritten comment turned three retired numbers into three "orphans").
+    gone = set(J('moneykeel_metric_register.json').get('retired', {}))
+    metrics = sorted(({v for v in reg.values() if v.startswith('MK-' + FAMILY + '-M-')}
+                      | {i for i in FIGS if i.startswith('MK-' + FAMILY + '-M-')}) - gone)
     funcs = sorted(set(re.findall(r'MK-' + FAMILY + r'-F-\d{3}', blob)))
     inputs = sorted(set(re.findall(r'MK-[A-Z]{2}-I-\d{3}', inputs_src)))
     decisions = [r for r in DEC_ROWS if r['id'] in V]

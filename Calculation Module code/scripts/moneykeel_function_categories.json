@@ -217,7 +217,7 @@
  "actualDebtPayment": {
   "id": "MK-CF-F-026",
   "file": "src/domain/debt/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "actualMonthFlow": {
   "id": "MK-CF-F-005",
@@ -2842,7 +2842,7 @@
  "signed": {
   "id": "MK-ST-F-019",
   "file": "Calculation Module code/engines/money.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "2 · DISPLAYED"
  },
  "simulate": {
   "id": "MK-PL-F-050",

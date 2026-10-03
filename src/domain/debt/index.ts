@@ -209,7 +209,7 @@ export function minimumDebtService(debts: Debt[]): number {
   return ((debts ?? []).reduce((t, d) => t + (paymentShape(d) === 'due_in_full' ? 0 : d.minimum_monthly_payment || 0), 0));
 }
 /** Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account. Use for CASH FLOW. */
-/* ─ MK-CF-F-026 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-026 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * actualDebtPayment
  *
  * Answers ..... Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account.
