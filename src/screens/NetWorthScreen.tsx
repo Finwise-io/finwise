@@ -14,7 +14,7 @@ import { resolveLens } from '../domain/profile/lens';
 // Founder question 2026-08-18: the retention rule was a comment for a developer; nobody using the
 // app was told it has a memory limit. A figure that never says what it is measured FROM is how
 // "+2.0%" stood for a year in which the account actually fell 4.2%.
-import { coverageFor, measuredFromLabel } from '../../Calculation Module code/engines/coverage';
+import { measuredFromLabel } from '../../Calculation Module code/engines/coverage';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
 import { dataGaps } from '../domain/gaps';
@@ -662,7 +662,6 @@ export default function NetWorthScreen() {
     // reaches further back than anything we hold. A month-only point is read as its first day.
     const historyDates = series.map((pt) => ({ date: pt.month.length === 7 ? `${pt.month}-01` : pt.month }));
     const windowStart = `${new Date().getFullYear()}-01-01`;
-    const coverage = coverageFor(historyDates, windowStart, isoLocalDate(new Date()));
     const measuredFrom = measuredFromLabel(historyDates, windowStart);
     // FOUNDER DECISION 2026-08-18: the label now ALWAYS names the date it is measured from, with the
     // year, rather than saying "this year" when the record began in July. The function writes it.
@@ -712,7 +711,13 @@ export default function NetWorthScreen() {
     const flows = personalFlowTotals(led);
     const changeWalk = janPoint && changeThisYear != null ? buildChangeWalk({
       beginning: janPoint.nw, ending: nw.net_worth,
-      fromLabel: sinceLabel.replace(/^since /, '') || 'the start',
+      // the two days as the approved walk writes them (Net worth v08, state E): "Aug 3" and "Aug 4",
+      // one form for both ends. The beginning used to read "25 September 2026" beside an ending of
+      // "Oct 3" — two spellings of a date on one card. A beginning in an earlier year keeps its year.
+      fromLabel: (() => {
+        const d = new Date(janPoint.month.length === 7 ? `${janPoint.month}-01T12:00:00` : `${janPoint.month}T12:00:00`);
+        return d.toLocaleDateString('en-US', d.getFullYear() === new Date().getFullYear() ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' });
+      })(),
       toLabel: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       contributions: flows.contributions.toNumber(2), withdrawals: flows.withdrawals.toNumber(2),
       dividends: flows.dividends.toNumber(2), interest: flows.interest.toNumber(2),
@@ -763,13 +768,11 @@ export default function NetWorthScreen() {
             {/* the mock's second line: the TRUE date the change is measured from — never "as of today".
                 Founder 2026-08-10: the date reads as a plain line, not another bold figure. */}
             {sinceDate != null && <Text style={styles.glanceSince}>since {sinceDate}</Text>}
-            {/* FOUNDER 2026-08-18: say what the app can actually remember. The date above already
-                names the start; this says plainly when that start is LATER than the window a person
-                would assume — "this year" answered from July is the fault that let +2.0% stand for a
-                year the account fell 4.2%. Silent when the record covers the window. */}
-            {coverage.sentence !== '' && (
-              <Text style={styles.glanceCoverage} accessibilityLabel={coverage.sentence}>{coverage.sentence}</Text>
-            )}
+            {/* THE DATE ABOVE IS THE WHOLE STATEMENT (Net worth v08, approved 2026-09-14). A second
+                sentence used to follow it, saying the figure was measured from the record's first day and
+                not from 1 January — written when the label still said "this year". The label has named
+                its own date, with the year, since his decision of 2026-08-18, so the sentence was
+                correcting a claim the screen no longer makes, and the approved drawing does not carry it. */}
             {/* the stale-connection warning moved OFF the hero (founder 2026-08-10) — the missing-data
                 banner below already names stale accounts with a fix button; saying it twice is noise.
                 The trend sparkline is gone too (founder 2026-08-10: "the green line at the bottom —

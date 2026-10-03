@@ -8,7 +8,11 @@ import * as path from 'path';
 // Its approved drawing (v17) goes further: a window the record cannot cover is greyed to an em-dash and
 // cannot be picked, so there is never a shorter period answered under a longer label to apologise for.
 // That rule is pinned in its own block below.
-const SCREENS = ['NetWorthScreen.tsx', 'HoldingDetailScreen.tsx'];
+// NET WORTH LEFT IT THE SAME DAY. Its approved drawing (v08) carries the dated line and nothing after
+// it: "since Aug 3, 2026" IS the statement of how far back the figure reaches. The sentence that used
+// to follow corrected "1 January" — a claim the screen stopped making on 2026-08-18, when the label
+// began naming its own date.
+const SCREENS = ['HoldingDetailScreen.tsx'];
 const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
 // 2026-09-28: these two rules moved behind MK-NW-O-008 thePerformance (Q-PF-1). The pins are
 // unchanged in purpose — the beginning comes from the record, and a refused rate says why — they
@@ -26,8 +30,15 @@ describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
     });
   }
 
+  test('Net worth names the day its change is measured from, with the year — and says it once', () => {
+    const src = read('NetWorthScreen.tsx');
+    expect(src).toMatch(/\{sinceDate != null && <Text style=\{styles\.glanceSince\}>since \{sinceDate\}<\/Text>\}/);
+    expect(src).toMatch(/year: 'numeric'/);
+    expect(src).not.toMatch(/coverage\.sentence/);
+  });
+
   test('no screen writes its own version of the sentence', () => {
-    for (const f of SCREENS) {
+    for (const f of [...SCREENS, 'NetWorthScreen.tsx', 'PerformanceScreen.tsx']) {
       const src = read(f);
       expect(src).not.toMatch(/when your records begin/);  // the words live in the function only
     }
