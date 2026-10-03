@@ -2368,7 +2368,7 @@
   "date": "2026-09-27",
   "source": "orchestrator map, Map tab, Q-CF-2, column YOUR ANSWER",
   "ruling": "yes",
-  "rows": "MK-XS-M-005 Spent so far · Spent $X of $Y left to spend this month · MK-XS-M-007 Left / Over · left to spend this month · MK-HM-M-004 <n>% spent · day n of m · MK-CF-M-001 Expenses · MK-CF-M-002 = Planned surplus · MK-CF-M-003 = Actual surplus so far · MK-CF-M-004 each row of the month — what it is and what it costs · MK-CF-M-013 <MONTH> · $X SPENT · MK-CF-M-014 each expense and its amount · MK-CF-M-015 BY CATEGORY VS PLAN — $X of $Y · MK-CF-M-020 THIS MONTH — free to use · MK-MN-M-007 $X of $Y this month · over by $Z · MK-CF-M-047 Expected inflow · MK-CF-M-048 Planned outflow (expenses + debt) · MK-CF-M-049 = Planned surplus · MK-CF-M-050 each planned line · MK-CF-M-051 Inflow · MK-CF-M-052 Outflow (expenses + debt) · MK-CF-M-053 = Surplus · MK-CF-M-054 each received line",
+  "rows": "MK-XS-M-005 Spent so far · Spent $X of $Y left to spend this month · MK-XS-M-007 Left / Over · left to spend this month · MK-HM-M-004 <n>% spent · day n of m · MK-CF-M-001 Expenses · MK-CF-M-002 = Planned surplus · MK-CF-M-003 = Actual surplus so far · MK-CF-M-004 each row of the month — what it is and what it costs · MK-CF-M-013 Actual expenses · MK-CF-M-014 each expense and its amount · MK-CF-M-015 Planned expenses — each category · MK-CF-M-020 THIS MONTH — free to use · MK-MN-M-007 $X of $Y this month · over by $Z · MK-CF-M-047 Expected inflow · MK-CF-M-048 Planned outflow (expenses + debt) · MK-CF-M-049 = Planned surplus · MK-CF-M-050 each planned line · MK-CF-M-051 Inflow · MK-CF-M-052 Outflow (expenses + debt) · MK-CF-M-053 = Surplus · MK-CF-M-054 each received line",
   "status": "RULED",
   "code": "",
   "proof": "",

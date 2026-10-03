@@ -817,7 +817,7 @@
  "dayWords": {
   "id": "MK-ST-F-003",
   "file": "Calculation Module code/engines/coverage.ts",
-  "category": "3 · DEPENDENT"
+  "category": "2 · DISPLAYED"
  },
  "daysApart": {
   "id": "MK-CF-F-162",
@@ -3087,7 +3087,7 @@
  "theDebts": {
   "id": "MK-CF-O-018",
   "file": "MoneyKeel/functions/cashflow/the-debts.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "2 · DISPLAYED"
  },
  "theEmergencyFund": {
   "id": "MK-NW-O-004",

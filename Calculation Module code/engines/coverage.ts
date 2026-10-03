@@ -59,7 +59,7 @@ export function monthWords(iso: string | null): string {
 }
 
 /** "14 March 2022". Used where the exact day matters, as it does for a figure's start. */
-/* ─ MK-ST-F-003 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-ST-F-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * dayWords
  *
  * Answers ..... "14 March 2022".

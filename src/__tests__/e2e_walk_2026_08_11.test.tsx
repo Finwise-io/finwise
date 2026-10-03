@@ -246,7 +246,7 @@ test('C8 log a $1,000 payment — the debt falls, net worth rises, and both surf
   const Budget = require('../screens/BudgetScreen').default;
   render(<Budget />);
   fireEvent.press(screen.getByText('Debts'));
-  fireEvent.press(screen.getByText('Log payment'));
+  fireEvent.press(screen.getByLabelText('Log a payment'));
   const amounts = screen.getAllByPlaceholderText('0');
   fireEvent.changeText(amounts[amounts.length - 1], '1000');   // the field inside the payment sheet
   fireEvent.press(screen.getByText('Log'));

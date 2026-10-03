@@ -3544,6 +3544,48 @@
    },
    "door": "MK-CF-O-018 theDebts"
   },
+  "MK-CF-M-074": {
+   "label": "paid down since <month>",
+   "unit": "money",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "How much less you owe than at the first month-end we recorded this year.",
+   "formula": "what every debt together stood at then − what they stand at now",
+   "inputs": [
+    "MK-XS-I-014 debt balance"
+   ],
+   "decisions": [
+    "READ FROM TWO RECORDED TOTALS, never estimated from the payments made — interest and new borrowing are inside it.",
+    "NOT DRAWN where there is no earlier total to compare with, or the debts have not fallen."
+   ],
+   "refusal": "No earlier total on record, or the debts have not fallen — the line is not drawn.",
+   "ruled": "2026-10-03",
+   "worked": {
+    "given": "A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid. They stood at $27,100 at the end of January.",
+    "answer": "$4,100"
+   },
+   "door": "MK-CF-O-018 theDebts"
+  },
+  "MK-CF-M-075": {
+   "label": "% of where you started",
+   "unit": "percent",
+   "screens": [
+    "/cashflow"
+   ],
+   "answers": "That paid-down amount as a share of what you owed at the start.",
+   "formula": "paid down (MK-CF-M-074) ÷ what every debt together stood at then",
+   "inputs": [
+    "MK-XS-I-014 debt balance"
+   ],
+   "refusal": "No earlier total on record, or the debts have not fallen — the line is not drawn.",
+   "ruled": "2026-10-03",
+   "worked": {
+    "given": "A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid. They stood at $27,100 at the end of January.",
+    "answer": "15%"
+   },
+   "door": "MK-CF-O-018 theDebts"
+  },
   "MK-CF-M-073": {
    "label": "/month",
    "unit": "money",

@@ -20,17 +20,25 @@ export interface TheDebts {
   planMonthly: number;
   /** The plan: months to debt-free, interest paid over it, and whether the payments can ever clear it. */
   plan: PayoffResult;
+  /** PROGRESS (cash-flow_v01, frame 6: "$4,100 paid down since January — 24% of where you started").
+   *  What the debts stood at on the first month-end we hold this year, less what they stand at now.
+   *  Null — and the line is not drawn — where we hold no earlier figure, or the debts have not fallen:
+   *  progress is read from two recorded totals, never estimated from the payments. */
+  progress: { paidDown: number; share: number } | null;
 }
 
 /** ── ORCHESTRATOR ────────────────────────────────────────────────────────────────────────────
  *  The one function the Debts tab calls. */
-/* ─ MK-CF-O-018 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-O-018 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theDebts
  *
  * Answers ..... ── ORCHESTRATOR ──────────────────────────────────────────────────────────────────────────── The one function the Debts tab calls.
  *
  * Formula .....
  *     active = input.debts (or none when missing) where (remaining balance or 0) > 0
+ *     total now = Σ over active of (remaining balance (or 0 when missing or zero))
+ *     began = input.start of year debt (or 0 when missing)
+ *     paid down = began − total now
  *
  * Called by ... MK-CF-F-211 DEBTS
  *
@@ -38,12 +46,13 @@ export interface TheDebts {
  *               MK-CF-F-211 DEBTS
  *
  * Serves ...... MK-CF-M-057 · MK-CF-M-058 · MK-CF-M-059 · MK-CF-M-071
- *               MK-CF-M-072 · MK-CF-M-073
+ *               MK-CF-M-072 · MK-CF-M-073 · MK-CF-M-074 · MK-CF-M-075
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
  *
  * Decides .....
+ *     · If start of year debt is missing it uses 0.
  *     · If extra monthly is missing it uses 0.
  *     · If remaining balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If interest rate apr is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -52,9 +61,15 @@ export interface TheDebts {
  * Formula also on the master file · functions_from_code · MK-CF-O-018
  * Changed ..... not in git yet (—)
  */
-export function theDebts(input: { debts: Debt[]; extraMonthly?: number; method?: PayoffMethod; now?: Date }): TheDebts {
+export function theDebts(input: { debts: Debt[]; extraMonthly?: number; method?: PayoffMethod; now?: Date;
+  /** what every debt together stood at on the earliest month-end recorded this year, if any */
+  startOfYearDebt?: number | null }): TheDebts {
   const active = (input.debts ?? []).filter((d) => (d.remaining_balance || 0) > 0);
+  const totalNow = active.reduce((t, d) => t + (d.remaining_balance || 0), 0);
+  const began = input.startOfYearDebt ?? 0;
+  const paidDown = began - totalNow;
   return {
+    progress: began > 0 && paidDown > 0 ? { paidDown, share: paidDown / began } : null,
     totalBalance: active.reduce((t, d) => t + (d.remaining_balance || 0), 0),
     minimumMonthly: minimumDebtService(active),
     paymentsMonthly: totalDebtMonthly(active),
@@ -136,6 +151,26 @@ export const DEBT_FIGURES = declareFigures({
     refusal: 'No debts — $0.',
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$450/month', run: () => DEBTS().planMonthly },
+  },
+  'MK-CF-M-074': {
+    label: 'paid down since <month>', unit: 'money', screens: ['/cashflow'],
+    answers: 'How much less you owe than at the first month-end we recorded this year.',
+    formula: 'what every debt together stood at then − what they stand at now',
+    inputs: ['MK-XS-I-014 debt balance'],
+    decisions: ['READ FROM TWO RECORDED TOTALS, never estimated from the payments made — interest and new borrowing are inside it.',
+      'NOT DRAWN where there is no earlier total to compare with, or the debts have not fallen.'],
+    refusal: 'No earlier total on record, or the debts have not fallen — the line is not drawn.',
+    ruled: '2026-10-03',
+    worked: { given: `${GIVEN} They stood at $27,100 at the end of January.`, answer: '$4,100', run: () => theDebts({ ...EXAMPLE, startOfYearDebt: 27_100 }).progress?.paidDown ?? null },
+  },
+  'MK-CF-M-075': {
+    label: '% of where you started', unit: 'percent', screens: ['/cashflow'],
+    answers: 'That paid-down amount as a share of what you owed at the start.',
+    formula: 'paid down (MK-CF-M-074) ÷ what every debt together stood at then',
+    inputs: ['MK-XS-I-014 debt balance'],
+    refusal: 'No earlier total on record, or the debts have not fallen — the line is not drawn.',
+    ruled: '2026-10-03',
+    worked: { given: `${GIVEN} They stood at $27,100 at the end of January.`, answer: '15%', run: () => theDebts({ ...EXAMPLE, startOfYearDebt: 27_100 }).progress?.share ?? null },
   },
   'MK-CF-M-073': {
     label: '/month', unit: 'money', per: 'month', screens: ['/cashflow', '/bill-calendar'], grain: 'one debt',

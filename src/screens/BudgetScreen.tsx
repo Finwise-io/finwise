@@ -18,6 +18,8 @@ import { MortgageRateCompare } from '../components/MortgageRateCompare';
 import { willItLastInputs } from '../domain/retirement/willItLast';
 import { FALLBACK_TREASURY } from '../services/economicData';
 import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod, type Debt } from '../domain/debt';
+import { theDebts } from '../../MoneyKeel/functions/cashflow/the-debts';
+import { SectionBand } from '../components/SectionBand';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor (same sheet as Net worth)
 import { money, money2 } from '../domain/_shared/num';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -53,6 +55,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
     debts, deleteDebt,   // legacy — read only for a one-time migration to liabilities
     customCategories, addCustomCategory, deleteCustomCategory,
     treasuryYield, treasuryIsFallback,   // the ten-year, for the mortgage rate comparison
+    monthlySnapshots,                    // the month-ends on record — what the Debts tab's PROGRESS measures from
   } = useStore() as any;
   // Single source of truth for debt = `liabilities` (Net Worth model). Adapt it to the
   // DebtEntry shape this screen's UI already renders.
@@ -330,6 +333,18 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
     ? (b.interest_rate_apr - a.interest_rate_apr)
     : (a.remaining_balance - b.remaining_balance));
   const payoffMonthFor = (id: string) => plan.order.find((o) => o.debt_id === id)?.payoffMonth;
+  // the row's own words, as the drawing writes them: "22.90% — the costliest", "6.40% · 3 years left"
+  const costliest = activeDebts.length > 1
+    ? activeDebts.slice().sort((a, b) => (b.interest_rate_apr || 0) - (a.interest_rate_apr || 0))[0]?.debt_id : null;
+  const timeLeft = (months: number) => (months >= 12
+    ? `${Math.round(months / 12)} year${Math.round(months / 12) === 1 ? '' : 's'} left`
+    : `${months} month${months === 1 ? '' : 's'} left`);
+  // PROGRESS, from the door (MK-CF-O-018): the earliest month-end recorded this year against today
+  const yearKeys = Object.keys((monthlySnapshots ?? {}) as Record<string, any>).filter((k) => k.startsWith(`${new Date().getFullYear()}-`)).sort();
+  const firstSnap = yearKeys.length ? (monthlySnapshots as any)[yearKeys[0]] : null;
+  const debtProgress = theDebts({ debts: activeDebts as any, startOfYearDebt: firstSnap?.gross_debt ?? null }).progress;
+  const debtProgressSince = yearKeys.length
+    ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][Number(yearKeys[0].slice(5, 7)) - 1] : '';
 
   function openPay(d: any) { setPayDebt(d); setPayAmt(String(Math.round(requiredPayment(d)))); }
   function logPayment() {
@@ -660,19 +675,14 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       {tab === 'Debts' && (
         <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
 
-          {/* SUMMARY */}
+          {/* YOUR DEBT — the total first, then what it asks of the month (cash-flow_v01, frame 6) */}
           <Card>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.budgetCardTitle}>Total debt</Text>
-                <Text style={[styles.budgetCardSub, { marginTop: 2 }]}>
-                  {activeDebts.length} account{activeDebts.length !== 1 ? 's' : ''} · {fig('MK-CF-M-071', totalMinMonthly)}/month min · ~{fig('MK-CF-M-057', totalInterestMonthly)}/month interest
-                </Text>
-              </View>
-              <Text style={{ fontSize: 24, fontWeight: '700', color: totalDebt > 0 ? Colors.red : Colors.primary }}>
-                {fig('MK-NW-M-009', Math.round(totalDebt))}
-              </Text>
-            </View>
+            <SectionBand inCard inset={Spacing.base} title="YOUR DEBT" />
+            <Text style={[styles.debtHero, { color: totalDebt > 0 ? Colors.red : Colors.primary }]} accessible
+              accessibilityLabel={`You owe ${figSaid('MK-NW-M-009', Math.round(totalDebt))}`}>{fig('MK-NW-M-009', Math.round(totalDebt))}</Text>
+            <Text style={styles.budgetCardSub}>
+              across {activeDebts.length} debt{activeDebts.length !== 1 ? 's' : ''} · {fig('MK-CF-M-071', totalMinMonthly)}/month in payments · ~{fig('MK-CF-M-057', totalInterestMonthly)}/month interest
+            </Text>
           </Card>
 
           {/* PAYOFF PLAN */}
@@ -720,7 +730,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             </Card>
           )}
 
-          {/* DEBT LIST — ordered by the chosen strategy */}
+          {/* YOUR DEBTS — ordered by the chosen strategy; the first is the one to pay first */}
+          <View style={{ marginHorizontal: -Spacing.base }}><SectionBand title="YOUR DEBTS" /></View>
           {activeDebts.length === 0 ? (
             <Card>
               <View style={styles.empty}>
@@ -741,11 +752,11 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                       <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}><Text style={{ fontSize: 17 }}>{dk?.icon || '📄'}</Text></View>
                       <View style={{ flex: 1, marginLeft: Spacing.sm }}>
                         <View style={styles.catTitleRow}>
-                          <Text style={styles.catLabel} numberOfLines={1}>{d.label}{idx === 0 && <Text style={styles.payFirst}>  • pay first</Text>}</Text>
-                          <Text style={[styles.catAmt, { color: Colors.red }]}>{fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))}</Text>
+                          <Text style={styles.catLabel} numberOfLines={1}>{d.label}</Text>
+                          {idx === 0 && activeDebts.length > 1 && <Text style={styles.payFirstTag}>pay first</Text>}
                         </View>
                         <Text style={styles.catLimit}>
-                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}% yearly interest (APR) · {fig('MK-CF-M-073', Math.round(requiredPayment(d)))}/month min · ~{fig('MK-CF-M-073', Math.round(monthlyInterest))}/month interest{pm ? ` · clear in ${pm} mo` : ''}
+                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}%{costliest === d.debt_id ? ' — the costliest' : ''}{pm ? ` · ${timeLeft(pm)}` : ''} · {fig('MK-CF-M-073', Math.round(requiredPayment(d)))}/month min · ~{fig('MK-CF-M-073', Math.round(monthlyInterest))}/month interest
                         </Text>
                         {(() => {
                           const dd = d.due_day; if (!dd) return null;
@@ -756,14 +767,30 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                           return <Text style={[styles.dueNote, { color: n <= 2 ? Colors.red : Colors.amber }]}>🔔 {n === 0 ? 'payment due today' : `payment due in ${n} day${n === 1 ? '' : 's'}`}</Text>;
                         })()}
                       </View>
+                      <Text style={[styles.catAmt, { color: Colors.red, marginLeft: 8 }]}>−{fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))} ›</Text>
                     </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.logPayBtn} onPress={() => openPay(d)} activeOpacity={0.85}>
-                    <Text style={styles.logPayTxt}>Log payment</Text>
                   </TouchableOpacity>
                 </Card>
               );
             })
+          )}
+
+          {/* ONE "Log a payment ›" under the list, as drawn — it asks which debt when there are several.
+              Each row carried its own button, so the same words repeated down the screen. */}
+          {activeDebts.length > 0 && (
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Log a payment" style={{ minHeight: 44, justifyContent: 'center' }}
+              onPress={() => (orderedDebts.length === 1 ? openPay(orderedDebts[0])
+                : Alert.alert('Log a payment', 'Which debt did you pay?', [...orderedDebts.map((d) => ({ text: d.label, onPress: () => openPay(d) })), { text: 'Cancel', style: 'cancel' as const }]))}>
+              <Text style={styles.sectionLink}>Log a payment ›</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* PROGRESS — only where there is an earlier recorded total to measure from */}
+          {debtProgress && (
+            <Card>
+              <SectionBand inCard inset={Spacing.base} title="PROGRESS" />
+              <Text style={styles.progressLine}>{fig('MK-CF-M-074', Math.round(debtProgress.paidDown))} paid down since {debtProgressSince} — {fig('MK-CF-M-075', debtProgress.share)} of where you started</Text>
+            </Card>
           )}
 
           <TouchableOpacity style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}>
@@ -1157,6 +1184,9 @@ const styles = StyleSheet.create({
   payoffStat: { flex: 1, alignItems: 'center' },
   payoffStatV: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.textPrimary },
   payoffStatL: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, marginTop: 1 },
+  debtHero: { fontSize: 30, fontWeight: '800', marginTop: 2, fontVariant: ['tabular-nums'] },
+  payFirstTag: { marginLeft: 6, fontSize: 11, fontWeight: '800', letterSpacing: 0.4, textTransform: 'uppercase', color: Colors.amber, backgroundColor: Colors.amberLight, paddingHorizontal: 5, paddingVertical: 1, overflow: 'hidden' },
+  progressLine: { fontSize: 15, color: Colors.textPrimary, lineHeight: 21, marginTop: 4 },
   payFirst: { fontSize: Typography.sizes.xs, color: Colors.primary, fontWeight: Typography.weights.bold },
   logPayBtn: { marginTop: Spacing.sm, alignSelf: 'flex-start', backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingHorizontal: 16, minHeight: 44, justifyContent: 'center' },
   logPayTxt: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.primaryDeep },

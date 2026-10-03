@@ -30,6 +30,12 @@
  *     that became a full screen on 2026-08-27 (v07, frame 2). It is not printed.
  *  11. "Your income, all of it — Open ›" stays under the tab: it is the only way in to the approved
  *     summary screen (v07, frames 16 and 17).
+ *  On the Debts tab (frame 6):
+ *  12. PAYOFF PLAN — and the mortgage comparison inside it — stays between the total and the list. It is
+ *     not on the drawing; he moved "Pay off the mortgage early" to Cash flow · Debt himself (DEC-0157).
+ *  13. Each debt's line goes on after the drawn words to say its monthly payment and its interest, and
+ *     the total's line adds the interest a month — figures the tab already carried.
+ *  14. "+ Add debt account" and the edit hint stay under the list: the drawing has no way to add a debt.
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -165,6 +171,32 @@ test('E · Income — the month’s expected take-home, your sources, and what h
     .replace(/ your income, all of it the take-home, and what it is taxed on open/, '')                        // 11
     .replace(/ expense$/, '');                                                                                 // 2
   const want = KNOWN_INCOME(month(norm(phone(5)))), got = KNOWN_INCOME(month(norm(builtLines(screen.toJSON()))));
+  expect(want.split(' ').length).toBeGreaterThan(25);
+  expect(firstDifference(want, got)).toBe('');
+});
+
+// ── the Debts tab ────────────────────────────────────────────────────────────────────────────────
+test('F · Debts — what you owe, each debt in the order to pay it, one way to log a payment, and progress', () => {
+  useStore.getState().resetAll();
+  const year = today.slice(0, 4);
+  useStore.setState({ onboardingComplete: true, hideBalances: false, onboardingProfile: { ...WORKER, monthlySpending: '2000' },
+    liabilities: [
+      { debt_id: 'v', label: 'Visa card', debt_type: 'CREDIT_CARD', remaining_balance: 3200, interest_rate_apr: 0.229, minimum_monthly_payment: 110 },
+      { debt_id: 'c', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 9800, interest_rate_apr: 0.064, minimum_monthly_payment: 300 },
+    ],
+    monthlySnapshots: { [`${year}-01`]: { month: `${year}-01`, gross_debt: 17100 } },
+  } as any);
+  render(<CashFlowScreen />);
+  fireEvent.press(screen.getByLabelText('Debts tab'));
+  const KNOWN_DEBTS = (s: string) => s
+    .replace(/ payoff plan avalanche snowball .*? your debts /, ' your debts ')              // 12
+    .replace(/ \$#\/month in payments \$#\/month interest/, ' $#/month in payments')         // 13
+    .replace(/ \$#\/month min \$#\/month interest/g, '')                                     // 13
+    .replace(/ \+ add debt account tap a debt to edit • hold to delete/, '')                 // 14
+    .replace(/#%( — the costliest)? # (years?|months?) left/g, '#%$1 <time> left')          // how long is data
+    .replace(/#% — the costliest(?! <time>)/, '#% — the costliest <time> left')              // the drawing leaves the time off the costliest row
+    .replace(/ expense$/, '');                                                               // 2
+  const want = KNOWN_DEBTS(month(norm(phone(6)))), got = KNOWN_DEBTS(month(norm(builtLines(screen.toJSON()))));
   expect(want.split(' ').length).toBeGreaterThan(25);
   expect(firstDifference(want, got)).toBe('');
 });

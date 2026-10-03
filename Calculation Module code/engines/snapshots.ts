@@ -340,20 +340,21 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *     rest = days where date ! = day.date
  *     the answer = [...rest, day].sort((a, b) => date.locale compare(date))
  *
- * Called by ... MK-NW-F-075 ACC · MK-NW-F-084 categoryEarnings
- *               MK-NW-O-008 thePerformance · MK-XS-F-174 recomputeBalances
+ * Called by ... MK-CF-F-211 DEBTS · MK-NW-F-075 ACC
+ *               MK-NW-F-084 categoryEarnings · MK-NW-O-008 thePerformance
+ *               MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 66 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 67 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-100 TREND
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 48 more — the full list is on functions_from_code
+ *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               … and 49 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
