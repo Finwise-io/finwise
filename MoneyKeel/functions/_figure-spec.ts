@@ -148,14 +148,14 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  * Called by ... MK-CF-F-199 ROOM · MK-CF-F-200 LINE
  *               MK-CF-F-202 TAX · MK-CF-F-204 line
  *               MK-CF-F-210 annualOfSource · MK-CF-F-211 DEBTS
- *               MK-CF-F-215 YEAR · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-F-212 receivedInMonth · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-CF-O-015 workedLineAmount · MK-CF-O-017 futurePaycheck
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-078 ONE · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-NW-F-081 LB
  *               MK-NW-F-088 BENCH · MK-NW-F-101 PLAN
  *
- * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -165,7 +165,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 64 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

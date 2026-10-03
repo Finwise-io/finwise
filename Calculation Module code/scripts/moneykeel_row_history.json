@@ -552,9 +552,9 @@
 "hash": "446facb41fa0ec69"
 },
 "MK-CF-F-110": {
-"changed": "2026-08-27",
+"changed": "2026-10-02",
 "first": "2026-08-27",
-"hash": "93aa063a9b1c7c42"
+"hash": "f1880eaab3d588b2"
 },
 "MK-CF-F-111": {
 "changed": "2026-09-12",
@@ -948,9 +948,9 @@
 "hash": "a89f5c89e15fa53d"
 },
 "MK-CF-F-192": {
-"changed": "2026-09-11",
+"changed": "2026-10-02",
 "first": "2026-09-11",
-"hash": "35c4abbc2bbe4e48"
+"hash": "719eea0f102e71f6"
 },
 "MK-CF-F-193": {
 "changed": "2026-09-11",
@@ -1029,11 +1029,13 @@
 },
 "MK-CF-F-208": {
 "changed": "2026-10-02",
+"decommissioned": "2026-10-02",
 "first": "2026-10-02",
 "hash": "c7391fce3454053f"
 },
 "MK-CF-F-209": {
 "changed": "2026-10-02",
+"decommissioned": "2026-10-02",
 "first": "2026-10-02",
 "hash": "7c058292c38bc522"
 },
@@ -1054,16 +1056,19 @@
 },
 "MK-CF-F-213": {
 "changed": "2026-10-02",
+"decommissioned": "2026-10-02",
 "first": "2026-10-02",
 "hash": "eac611e504eb2aa4"
 },
 "MK-CF-F-214": {
 "changed": "2026-10-02",
+"decommissioned": "2026-10-02",
 "first": "2026-10-02",
 "hash": "8c2b9cfe885cf9b0"
 },
 "MK-CF-F-215": {
 "changed": "2026-10-02",
+"decommissioned": "2026-10-02",
 "first": "2026-10-02",
 "hash": "7479e3912b459317"
 },
@@ -4554,7 +4559,7 @@
 "MK-XS-I-001": {
 "changed": "2026-10-02",
 "first": "2026-08-27",
-"hash": "525b6483e9fb3e14"
+"hash": "710c923bd3d5b7a0"
 },
 "MK-XS-I-002": {
 "changed": "2026-10-02",
@@ -4659,7 +4664,7 @@
 "MK-XS-I-022": {
 "changed": "2026-10-02",
 "first": "2026-08-27",
-"hash": "d666df658198f2f6"
+"hash": "9bf42bb234e5f2c0"
 },
 "MK-XS-I-023": {
 "changed": "2026-10-02",
@@ -4669,7 +4674,7 @@
 "MK-XS-I-024": {
 "changed": "2026-10-02",
 "first": "2026-08-27",
-"hash": "6e0021076027f9ee"
+"hash": "1a4c96de5dbc22e6"
 },
 "MK-XS-I-025": {
 "changed": "2026-09-28",
@@ -4689,12 +4694,12 @@
 "MK-XS-I-028": {
 "changed": "2026-10-02",
 "first": "2026-08-27",
-"hash": "b15c78aa7786ce7a"
+"hash": "d6a52e7b440f382c"
 },
 "MK-XS-I-029": {
 "changed": "2026-10-02",
 "first": "2026-08-27",
-"hash": "9df6a09fdb18ab40"
+"hash": "fdc978c0f87649f9"
 },
 "MK-XS-I-030": {
 "changed": "2026-09-28",
@@ -4709,7 +4714,7 @@
 "MK-XS-I-032": {
 "changed": "2026-10-02",
 "first": "2026-08-27",
-"hash": "2b61f62d243cec2c"
+"hash": "5ed63301314c4e83"
 },
 "MK-XS-I-033": {
 "changed": "2026-08-27",
@@ -4744,7 +4749,7 @@
 "MK-XS-I-039": {
 "changed": "2026-10-02",
 "first": "2026-08-27",
-"hash": "dc6183aeb56f8a4a"
+"hash": "40b7e36cb907138a"
 },
 "MK-XS-I-040": {
 "changed": "2026-10-02",
@@ -4869,7 +4874,7 @@
 "MK-XS-I-064": {
 "changed": "2026-10-02",
 "first": "2026-09-11",
-"hash": "d152d5e5e1e697bd"
+"hash": "19b0905ec4e21ec4"
 },
 "MK-XS-I-065": {
 "changed": "2026-09-27",

@@ -67,9 +67,6 @@ export function PaycheckCard() {
         <Text style={styles.flag}>Heads-up: this draw is {rateBandWords('high')} — the pace itself is the risk.</Text>
       )}
 
-      <TouchableOpacity accessibilityRole="link" onPress={() => router.push('/paycheck-months')}>
-        <Text style={styles.monthsLink}>See {new Date().toLocaleDateString('en-US', { month: 'long' })}'s paycheck →</Text>
-      </TouchableOpacity>
 
     </View>
   );

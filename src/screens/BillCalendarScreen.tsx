@@ -151,15 +151,13 @@ export default function BillCalendarScreen() {
         {grid.cells.map((c, slot) => {
           const neg = c.runningBalance < 0;
           return (
-            <TouchableOpacity accessibilityRole="button" key={`${c.label}${c.year}`} style={styles.mRow}
-              onPress={() => router.push(`/month-detail?slot=${slot}` as any)}
+            <View key={`${c.label}${c.year}`} style={styles.mRow} accessible
               accessibilityLabel={`${c.label} ${c.year}: in ${figSaid('MK-CF-M-051', Math.round(c.inflow))}, out ${figSaid('MK-CF-M-052', Math.round(c.outflow))}, ending balance ${figSaid('MK-CF-M-061', Math.round(c.runningBalance))}${neg ? ' — short' : ''}. Opens the month's detail.`}>
               <Text style={[styles.mLabel, { flex: 1 }]}>{c.label}{neg ? ' !' : ''}</Text>
               <Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + fig('MK-CF-M-051', Math.round(c.inflow)) : '—'}</Text>
               <Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + fig('MK-CF-M-052', Math.round(c.outflow)) : '—'}</Text>
               <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{fig('MK-CF-M-061', Math.round(c.runningBalance))}{neg ? ' short' : ''}</Text>
-              <Text style={styles.mChev}>›</Text>
-            </TouchableOpacity>
+            </View>
           );
         })}
         {grid.totalIn === 0 && grid.totalOut === 0 && <EmptyNote door="bills" />}   {/* Q48: nothing behind the table yet */}

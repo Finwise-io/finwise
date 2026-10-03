@@ -73,17 +73,17 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
- *               MK-NW-F-100 TREND · MK-CF-F-215 YEAR
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 52 more — the full list is on functions_from_code
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-210 annualOfSource
+ *               … and 50 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-013
  *               MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020 · MK-CF-M-021
@@ -171,17 +171,17 @@ const GIVEN =
  *               MK-CF-F-204 line · MK-CF-F-205 COMING
  *               MK-CF-O-010 theMonth
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
- *               MK-NW-F-100 TREND · MK-CF-F-215 YEAR
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 52 more — the full list is on functions_from_code
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-210 annualOfSource
+ *               … and 50 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -203,17 +203,17 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
  *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 40 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
  *               MK-NW-F-082 NW · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
- *               MK-NW-F-100 TREND · MK-CF-F-215 YEAR
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
  *               MK-CF-O-001 basePay · MK-XS-F-004 buildDatedGrid
  *               MK-CF-F-036 buildDebtState · MK-CF-F-107 buildPaycheckYear
- *               … and 22 more — the full list is on functions_from_code
+ *               MK-PF-F-014 buildPerformance · MK-XS-F-031 buildSnapshot
+ *               … and 20 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -257,7 +257,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     },
   },
   'MK-CF-M-003': {
-    label: '= Actual surplus so far', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail'],
+    label: '= Actual surplus so far', unit: 'money', per: 'month', screens: ['/cashflow'],
     answers: 'What is actually left, on what has really happened so far this month.',
     formula: 'the inflow received, less each debt actually paid, less everything logged by hand and imported',
     inputs: ['MK-NW-I-004 the activity records', 'MK-CF-I-001 your logged expenses'],
@@ -293,7 +293,7 @@ export const THE_MONTH_FIGURES = declareFigures({
   //    and are retired; MK-CF-M-005 (the old surplus line) is 053; MK-CF-M-025 (a month's cell) is 047 to
   //    054 on Month detail; MK-CF-M-029 (the tax band) is 032 and 043. All five are retired on the register.
   'MK-CF-M-013': {
-    label: '<MONTH> · $X SPENT', unit: 'money', screens: ['/cashflow', '/month-detail'],
+    label: '<MONTH> · $X SPENT', unit: 'money', screens: ['/cashflow'],
     answers: 'What has actually gone out so far this month, from the expenses logged.',
     formula: 'every expense logged inside the month, added up — a debt payment logged as an expense is counted with the debts, not here',
     inputs: ['MK-CF-I-001 your logged expenses'],
@@ -302,7 +302,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     worked: { given: GIVEN, answer: '$2,998', run: () => MONTH().expenses.actualTotal },
   },
   'MK-CF-M-014': {
-    label: 'each expense and its amount', unit: 'money-cents', screens: ['/cashflow', '/worth-a-look'], grain: 'one expense',
+    label: 'each expense and its amount', unit: 'money-cents', screens: ['/cashflow'], grain: 'one expense',
     answers: 'One logged expense — where, when, how much.',
     formula: 'the amount as logged',
     inputs: ['MK-CF-I-016 logged expense'],

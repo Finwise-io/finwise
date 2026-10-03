@@ -51,15 +51,6 @@ test('E2E-36 retiree types SS + pension on Monthly income → Save → the paych
 });
 
 // ── E2E-37 · month detail: open a dated month, navigate to the next ──
-test('E2E-37 month detail renders the dated headline and Previous/Next months navigate', () => {
-  useStore.setState({ onboardingProfile: WORKER } as any);
-  mockParams = { slot: '0' };
-  const MonthDetailScreen = require('../screens/MonthDetailScreen').default;
-  render(<MonthDetailScreen />);
-  expect(screen.getByLabelText(/Surplus in .*:/)).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText('Next month'));
-  expect(screen.getByLabelText(/Surplus in .*:/)).toBeOnTheScreen();   // still standing after nav
-});
 
 // ── E2E-38 · what-if: two +$100 taps → the before/after estimate moves ──
 test('E2E-38 what-if raises the extra amount and speaks a full before→after estimate', () => {
@@ -264,12 +255,6 @@ test('E2E-49 answering how you file lowers the Roth conversion tax in the same s
 });
 
 // ── E2E-50 · the retiree's year at a glance: 12 paycheck months, each spoken ──
-test('E2E-50 paycheck months: twelve dated rows, each a full left-to-spend sentence', () => {
-  useStore.setState({ onboardingProfile: RETIREE74, assetAccounts: EGG } as any);
-  const PaycheckMonthsScreen = require('../screens/PaycheckMonthsScreen').default;
-  render(<PaycheckMonthsScreen />);
-  expect(screen.getAllByLabelText(/surplus/).length).toBeGreaterThanOrEqual(12);
-});
 
 // ── E2E-51 · the worker peeks at the steer sheet: projection mode is bannered ──
 test('E2E-51 a working user sees the draw-order sheet in projection mode with the honest banner', () => {
@@ -330,13 +315,3 @@ test('E2E-55 from the consent screen, Add-by-hand is one tap away (never a dead 
 });
 
 // ── E2E-56 · log an expense with a category → the month detail carries it ──
-test('E2E-56 a logged grocery run shows inside the month detail it belongs to', () => {
-  useStore.setState({
-    onboardingProfile: WORKER,
-    expenses: [{ id: 'e1', amount: 240, category: 'Groceries', date: isoLocalDate(new Date()) }],
-  } as any);
-  mockParams = { slot: '0' };
-  const MonthDetailScreen = require('../screens/MonthDetailScreen').default;
-  render(<MonthDetailScreen />);
-  expect(screen.getAllByText(/\$240|Groceries/).length).toBeGreaterThan(0);
-});

@@ -198,17 +198,17 @@ export interface RetirementState {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
- *               MK-CF-F-215 YEAR · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
- *               MK-PL-F-043 howTheGapCloses · MK-PL-F-046 leverDeltas
- *               MK-CF-F-042 mortgageOddsEffect · MK-PL-F-069 oddsAt
- *               MK-PL-F-071 oddsOf · MK-PL-F-044 planTarget
- *               MK-NW-F-091 pricedGainOf · MK-PL-F-055 projectNestEgg
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
  *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
- *               … and 13 more — the full list is on functions_from_code
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -234,17 +234,17 @@ function mulberry32(seed: number) {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
- *               MK-CF-F-215 YEAR · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
- *               MK-PL-F-043 howTheGapCloses · MK-PL-F-046 leverDeltas
- *               MK-CF-F-042 mortgageOddsEffect · MK-PL-F-069 oddsAt
- *               MK-PL-F-071 oddsOf · MK-PL-F-044 planTarget
- *               MK-NW-F-091 pricedGainOf · MK-PL-F-055 projectNestEgg
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
  *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
- *               … and 13 more — the full list is on functions_from_code
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -270,17 +270,17 @@ function normal(rng: () => number, mean: number, sd: number): number {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
- *               MK-CF-F-215 YEAR · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
- *               MK-PL-F-043 howTheGapCloses · MK-PL-F-046 leverDeltas
- *               MK-CF-F-042 mortgageOddsEffect · MK-PL-F-069 oddsAt
- *               MK-PL-F-071 oddsOf · MK-PL-F-044 planTarget
- *               MK-NW-F-091 pricedGainOf · MK-PL-F-055 projectNestEgg
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
  *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
- *               … and 13 more — the full list is on functions_from_code
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -326,17 +326,17 @@ function pctOfSorted(sorted: number[], p: number): number {
  *               MK-PL-F-065 volOf · MK-PL-F-068 selectWillItLast
  *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
  *
- * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN · MK-CF-F-199 ROOM
- *               MK-CF-F-215 YEAR · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
- *               MK-PL-F-043 howTheGapCloses · MK-PL-F-046 leverDeltas
- *               MK-CF-F-042 mortgageOddsEffect · MK-PL-F-069 oddsAt
- *               MK-PL-F-071 oddsOf · MK-PL-F-044 planTarget
- *               MK-NW-F-091 pricedGainOf · MK-PL-F-055 projectNestEgg
+ * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
  *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
- *               … and 12 more — the full list is on functions_from_code
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-056 solveRetireAge
+ *               … and 8 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-022 · MK-PL-M-034 · MK-XS-M-002
  * Reads ....... MK-XS-I-018 retirement age

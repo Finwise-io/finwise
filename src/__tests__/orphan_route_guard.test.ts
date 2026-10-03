@@ -31,7 +31,6 @@ const NO_INBOUND_LINK_EXPECTED: Record<string, string> = {
 const DELIBERATE_KEEPS: Record<string, string> = {
   '(tabs)/tips': 'saved for future use (founder 2026-08-14) — written for a younger audience',
   '(tabs)/rewards': 'saved for future use (founder 2026-08-14) — written for a younger audience',
-  income: 'kept on purpose (founder 2026-08-02) — serves a future age group',
   invest: 'kept on purpose (founder 2026-08-02) — superseded by Performance for 55-70',
   'income-detail': 'kept on purpose (founder 2026-08-02) — serves a future age group',
 };

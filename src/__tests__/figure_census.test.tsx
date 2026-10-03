@@ -85,8 +85,8 @@ const ROUTES: [string, string][] = [
   ['/expense', 'ExpenseScreen'], ['/first-run', 'FirstRunScreen'], ['/holding-detail', 'HoldingDetailScreen'], ['/import-holdings', 'ImportHoldingsScreen'],
   ['/income-detail', 'IncomeDetailScreen'], ['/income-manager', 'IncomeManagerScreen'], ['/income', 'IncomeScreen'], ['/insights', 'InsightsScreen'],
   ['/insurance', 'InsuranceScreen'], ['/itemize', 'ItemizeScreen'], ['/jobsafety', 'JobSafetyScreen'], ['/look-back', 'LookBackScreen'],
-  ['/month-detail', 'MonthDetailScreen'], ['/monthly-income', 'MonthlyIncomeScreen'], ['/multi-goal', 'MultiGoalScreen'], ['/other-investments', 'OtherInvestmentsScreen'],
-  ['/paycheck-months', 'PaycheckMonthsScreen'], ['/required-withdrawals', 'RequiredWithdrawalsScreen'], ['/roth', 'RothScreen'], ['/sharpen', 'SharpenPlanScreen'],
+  ['/monthly-income', 'MonthlyIncomeScreen'], ['/multi-goal', 'MultiGoalScreen'], ['/other-investments', 'OtherInvestmentsScreen'],
+  ['/required-withdrawals', 'RequiredWithdrawalsScreen'], ['/roth', 'RothScreen'], ['/sharpen', 'SharpenPlanScreen'],
   ['/ss-timing', 'SsTimingScreen'], ['/stress-test', 'StressTestScreen'], ['/tax-organizer', 'TaxOrganizerScreen'], ['/what-if', 'WhatIfScreen'],
   ['/will-it-last', 'WillItLastScreen'], ['/worth-a-look', 'WorthALookScreen'], ['/income-summary', 'IncomeSummaryScreen'], ['/base-pay', 'BasePayScreen'],
 ];

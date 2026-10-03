@@ -1,12 +1,11 @@
 // FCC Cash flow tab — the sameness pins the design demands:
 //   PIN 1: hero = the F5 cell for the current month = that month's bar = the month-detail total.
 //   PIN 2: this-year = the EXACT sum of the 12 by-month cells (never monthly × 12).
-//   PIN 3: month-detail rows visibly sum to the headline.
+//   PIN 3 (month detail) retired 2026-10-02 with the screen.
 //   Plus: lens switching, the working projection card's estimate label, and the draw-order preview.
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import CashFlowScreen from '../CashFlowScreen';
-import MonthDetailScreen from '../MonthDetailScreen';
 import { useStore } from '../../store/useStore';
 import { buildPaycheckYear } from '../../domain/paycheck';
 
@@ -60,9 +59,9 @@ describe('retired lens', () => {
     // the current-month bar carries the same in/out the cell holds
     const currentBar = screen.getByLabelText(new RegExp(`^${year.months[0].label}: ${Math.round(year.months[0].guaranteedTotal + year.months[0].safeDraw)} dollars in`));
     expect(currentBar).toBeOnTheScreen();
-    // tapping it routes to the month detail for slot 0
+    // RETIRED 2026-10-02: the bar is a row, not a door — no approved design opens a month from it
     fireEvent.press(currentBar);
-    expect(pushes).toContain('/month-detail?slot=0');
+    expect(pushes).not.toContain('/month-detail?slot=0');
   });
 
   test('draw-order preview names the buckets and the Why sheet explains each in plain English', () => {
@@ -75,16 +74,6 @@ describe('retired lens', () => {
     expect(screen.getByText(/taxed as income/)).toBeOnTheScreen();
   });
 
-  test('month detail: rows visibly sum to the headline (PIN 3) and the bill month carries its reason', () => {
-    seedRetired();
-    (global as any).__slot = '0';
-    render(<MonthDetailScreen />);
-    expect(screen.getByText(/Social Security · 3rd/)).toBeOnTheScreen();
-    expect(screen.getByText(/Pension · 1st/)).toBeOnTheScreen();
-    expect(screen.getByText('= Inflow')).toBeOnTheScreen();   // canon row 5: one word for money arriving (2026-09-26)
-    expect(screen.getByText('= Surplus')).toBeOnTheScreen();
-    expect(screen.getByText(/Estimates — these move with your live account balances/)).toBeOnTheScreen();
-  });
 });
 
 describe('working lens', () => {
@@ -93,7 +82,7 @@ describe('working lens', () => {
     assetAccounts: [{ asset_id: 'k', label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 500000 }],
   } as any);
 
-  test('in/out/surplus card + dated bars + tap-through to month detail', () => {
+  test('in/out/surplus card + dated bars (the bars are rows, not doors — 2026-10-02)', () => {
     seedWorker();
     render(<CashFlowScreen />);
     expect(screen.getByText('THIS MONTH')).toBeOnTheScreen();

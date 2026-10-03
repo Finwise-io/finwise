@@ -519,7 +519,8 @@ QUESTIONS_BY_METRIC = {
  'MK-NW-M-036': ['Q20 — A lot with no recorded purchase price is skipped, so its gain is simply absent. Should the screen SAY so — "gain not counted for N shares, no purchase price on record" — rather than quietly reporting less?'],
  'MK-NW-M-035': ['Q21 — On a second device the ledger is absent, so this reads nothing. Until history syncs, should it refuse in words rather than show a figure that looks like zero?'],
  'MK-MN-M-028': ['Q24 — State tax is applied to taxable accounts only. Do you want a state rate captured per person, or to keep the single blended figure we use now?'],
- 'MK-CF-M-026': ['Q30 — The draw from savings is shown as one figure a month. Should it hold steady in today\'s dollars, or rise with inflation each year?'],
+ # Q30 (the draw: level in today's dollars, or rising with inflation?) was DECIDED 2026-10-03 and is no longer a question:
+ # the decision is on MK-CF-M-055's own row (future-paycheck.ts). It follows what the simulation already does.
  'MK-NW-M-032': ["Q34 — Approve the exact wording for the average-price rule (info dot + column Q): 'Shares with no recorded purchase price are left out of the average. N of your shares are in that position.' — and the refusal: 'Average not available — none of these shares has a recorded price.'"],
  'MK-NW-M-034': ["Q35 — Approve the exact label and the canon phrase for the twelve-month window. Proposed: 'Dividends received (trailing twelve months)' here, and 'trailing twelve months' in the other four places (spelled out — no initialism).",
                  "Q36 — Dividends on this card: THIS account only, matching 'Realized from sales' beside it? Recommended: yes."],

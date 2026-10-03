@@ -4898,24 +4898,6 @@
    "src/__tests__/guard_total_agrees_with_its_lines.test.ts"
   ]
  },
- "MK-CF-F-208": {
-  "source": "MoneyKeel/functions/cashflow/income-summary.ts",
-  "declared": true,
-  "tests": [
-   "MoneyKeel/functions/cashflow/income-summary.test.ts",
-   "src/__tests__/decisions_are_held.test.ts",
-   "src/__tests__/guard_total_agrees_with_its_lines.test.ts"
-  ]
- },
- "MK-CF-F-209": {
-  "source": "MoneyKeel/functions/cashflow/income-summary.ts",
-  "declared": true,
-  "tests": [
-   "MoneyKeel/functions/cashflow/income-summary.test.ts",
-   "src/__tests__/decisions_are_held.test.ts",
-   "src/__tests__/guard_total_agrees_with_its_lines.test.ts"
-  ]
- },
  "MK-CF-F-210": {
   "source": "MoneyKeel/functions/cashflow/income-summary.ts",
   "declared": true,
@@ -4933,27 +4915,6 @@
   ]
  },
  "MK-CF-F-212": {
-  "source": "MoneyKeel/functions/cashflow/whats-coming.ts",
-  "declared": true,
-  "tests": [
-   "MoneyKeel/functions/cashflow/whats-coming.test.ts"
-  ]
- },
- "MK-CF-F-213": {
-  "source": "MoneyKeel/functions/cashflow/whats-coming.ts",
-  "declared": true,
-  "tests": [
-   "MoneyKeel/functions/cashflow/whats-coming.test.ts"
-  ]
- },
- "MK-CF-F-214": {
-  "source": "MoneyKeel/functions/cashflow/whats-coming.ts",
-  "declared": true,
-  "tests": [
-   "MoneyKeel/functions/cashflow/whats-coming.test.ts"
-  ]
- },
- "MK-CF-F-215": {
   "source": "MoneyKeel/functions/cashflow/whats-coming.ts",
   "declared": true,
   "tests": [

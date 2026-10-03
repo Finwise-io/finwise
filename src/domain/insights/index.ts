@@ -105,22 +105,14 @@ const money0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
 type RawInsight = Omit<Insight, 'theme'>;   // rules return everything but the theme; buildInsights attaches it
 type Rule = (i: InsightInput) => RawInsight | null;
 const THEME_BY_ID: Record<string, InsightTheme> = {
-  'worth-a-look': 'protect', 'rmd-due': 'protect', 'goals-gap': 'protect', 'goal-offtrack': 'protect',
+  'rmd-due': 'protect', 'goals-gap': 'protect', 'goal-offtrack': 'protect',
   'toxic-debt': 'protect', 'runway': 'protect', 'retire-offtrack': 'protect', 'concentration': 'protect', 'holding-concentration': 'protect',
   'behind-bench': 'grow', 'cash-drag': 'grow', 'invest-rate': 'grow',
   'k401-room': 'optimize', 'plan-incomplete': 'optimize', 'ss-window': 'optimize',
 };
 const RULES: Rule[] = [
-  // F10 (FCC): an open "worth a look" card ALWAYS takes slot 1 — first priority-1 rule, stable sort
-  // keeps it on top. Calm wording: never the words scam/fraud/alert, never red.
-  (i) => i.worthALook ? {
-    id: 'worth-a-look', priority: 1, icon: '🔍',
-    title: i.worthALook.followUp ? `You flagged ${money0(i.worthALook.amount)} — settled?` : 'Worth a look',
-    body: i.worthALook.followUp
-      ? `The ${money0(i.worthALook.amount)} from ${i.worthALook.account} you flagged is still open — mark it settled when your bank sorts it out.`
-      : `${money0(i.worthALook.amount)} went out of ${i.worthALook.account}${i.worthALook.more > 0 ? ` — and ${i.worthALook.more} more` : ''}. Most large payments are fine — you know best.`,
-    route: '/worth-a-look',
-  } : null,
+  // RETIRED 2026-10-02 (his finding): the "worth a look" card opened a screen no approved design draws; the
+  // flag stays recorded (DEC-0317) and nothing shows it until the Insights screen has a design of record.
   // FCC retiree rule: the government-required yearly withdrawal from pre-tax accounts (age 73+).
   (i) => i.rmdDue ? { id: 'rmd-due', priority: 1, icon: '📌', title: 'Required withdrawal due', body: `${money0(i.rmdDue.amount)} must come out of your pre-tax retirement accounts by Dec 31 — the IRS requires it from age 73.`, route: '/required-withdrawals' } : null,
   (i) => i.toxicDebt ? { id: 'toxic-debt', priority: 1, icon: '🔥', title: 'Tackle high-interest debt first', body: `${i.toxicDebt.label} is at ${pctTxt(i.toxicDebt.apr)} APR — paying it down beats almost any investment return.`, route: '/(tabs)/goals' } : null,

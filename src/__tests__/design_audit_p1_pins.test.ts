@@ -7,8 +7,6 @@ const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', 'screens'
 const PINS: [string, string, RegExp][] = [
   ['StressTestScreen.tsx', 'preset chips are finger-sized', /preset: \{[^}]*minHeight: 44/],
   ['RothScreen.tsx', 'the rate-change link (key honesty affordance) is 44pt', /link: \{[^}]*minHeight: 44/],
-  ['MonthDetailScreen.tsx', 'prev/next month nav is 44pt at 15pt text', /navTxt: \{ fontSize: 15[^}]*minHeight: 44/],
-  ['WorthALookScreen.tsx', 'Previous/Next are 44pt', /navTxt: \{[^}]*minHeight: 44/],
   ['ConnectFlowScreen.tsx', 'the merge decision rows are 44pt at 15pt', /mergeOpt: \{[^}]*minHeight: 44/],
   ['BondsScreen.tsx', 'the add action reads as a button, not a bare link', /addLink: \{[^}]*borderWidth: 1.5/],
   ['OtherInvestmentsScreen.tsx', 'the add action reads as a button', /addLink: \{[^}]*borderWidth: 1.5/],

@@ -115,8 +115,13 @@ export const FUTURE_PAYCHECK_FIGURES = declareFigures({
     worked: { given: GIVEN, answer: '$2,000/month', run: () => futurePaycheck(SAVER as any)?.guaranteed ?? null },
   },
   'MK-CF-M-055': {
-    label: 'Draw from savings', unit: 'money', per: 'month', screens: ['/cashflow', '/month-detail', '/paycheck-months'],
+    label: 'Draw from savings', unit: 'money', per: 'month', screens: ['/cashflow'],
     answers: 'The level amount a month the pot can support, so the paycheck does not fall when a bill lands.',
+    decisions: [
+      'IN TODAY\u2019S DOLLARS (decided 2026-10-03, the master\u2019s old Q30): the draw keeps its buying power \u2014 the figure shown is '
+      + 'what it buys today, and the dollars paid rise with inflation each year. It is what the simulation behind the odds already '
+      + 'charges, so the draw shown and the odds beside it are the same plan. To reverse: hold the dollars flat instead, and the odds must be re-run that way.',
+    ],
     formula: 'the paycheck year’s level draw from the pot, at the assumed return and horizon',
     inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-028 assumed return', 'MK-XS-I-018 retirement age'],
     refusal: 'No pot — no draw; the paycheck is the guaranteed income alone.',

@@ -23,7 +23,6 @@ const NAMED_TITLES: Record<string, string[]> = {
 /** Large bold styles whose names look like titles but which show a number, not a title. */
 const FIGURES: Record<string, string> = {
   'WillItLastScreen.tsx:headline': 'the odds, a percentage',
-  'MonthDetailScreen.tsx:headline': 'the month’s figure',
 };
 const TITLE_LIKE = /^(h1|title|heading|headline|[a-z]+Title|[a-z]+H1)$/;
 

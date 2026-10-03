@@ -166,7 +166,7 @@ print(f'   {len(failures)} unanchored · {len(warnings)} unproved · {len(seen)}
 # So the count below is the one that matters for trust: how many anchors someone has actually READ and
 # confirmed. It prints the true number every build and may only rise (standing order, 2026-09-28 — a
 # ratchet carries the TRUE number, never zero).
-READ_VERIFIED = 116     # 2026-10-01, the Net worth compliance validation: DEC-0036, DEC-0090, DEC-0104,
+READ_VERIFIED = 117     # 2026-10-01, the Net worth compliance validation: DEC-0036, DEC-0090, DEC-0104,
                       # DEC-0109, DEC-0301, DEC-0437, DEC-0502. Raise it as more are read, never lower it.
 ANCHORS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                       'moneykeel_decisions_anchors.json'), encoding='utf8'))['rows']

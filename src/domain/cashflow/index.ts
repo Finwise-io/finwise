@@ -22,11 +22,10 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  *
  * Called by ... MK-CF-F-018 equityByMonth · MK-CF-F-020 cashflowYear
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-F-215 YEAR
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
  *               MK-CF-F-020 cashflowYear · MK-CF-F-018 equityByMonth
- *               MK-CF-O-017 futurePaycheck · MK-NW-F-091 pricedGainOf
+ *               MK-CF-O-017 futurePaycheck · MK-CF-F-212 receivedInMonth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -55,11 +54,10 @@ function zero12(): number[] { return new Array(12).fill(0); }
  *
  * Called by ... MK-CF-F-020 cashflowYear · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-F-215 YEAR
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
  *               MK-CF-F-020 cashflowYear · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-091 pricedGainOf
+ *               MK-CF-F-212 receivedInMonth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -102,12 +100,9 @@ const DAY_MS = 86400000;
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-199 ROOM
- *               MK-CF-F-215 YEAR · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-091 pricedGainOf · MK-CF-F-019 upcomingBills
- *               MK-CF-O-008 whatsComing
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-212 receivedInMonth
+ *               MK-CF-F-019 upcomingBills · MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -128,12 +123,9 @@ function daysBetweenDates(a: Date, b: Date): number { return Math.round((b.getTi
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-199 ROOM
- *               MK-CF-F-215 YEAR · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-091 pricedGainOf · MK-CF-F-019 upcomingBills
- *               MK-CF-O-008 whatsComing
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-212 receivedInMonth
+ *               MK-CF-F-019 upcomingBills · MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -157,12 +149,9 @@ import { isoLocalDate } from '../_shared/dates';
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-199 ROOM
- *               MK-CF-F-215 YEAR · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-091 pricedGainOf · MK-CF-F-019 upcomingBills
- *               MK-CF-O-008 whatsComing
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-212 receivedInMonth
+ *               MK-CF-F-019 upcomingBills · MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -213,11 +202,9 @@ export interface UpcomingBill {
  *
  * Called by ... MK-CF-O-008 whatsComing
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-199 ROOM
- *               MK-CF-F-215 YEAR · MK-XS-F-004 buildDatedGrid
- *               MK-CF-F-107 buildPaycheckYear · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-091 pricedGainOf · MK-CF-O-008 whatsComing
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-212 receivedInMonth
+ *               MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

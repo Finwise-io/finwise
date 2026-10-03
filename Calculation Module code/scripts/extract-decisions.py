@@ -428,6 +428,8 @@ def sweep_prose():
             # a string literal in the screens; the app's own are. One corpus, read once.
             if _norm_copy(words) in APP_COPY:
                 continue
+            if words.rstrip().endswith('›'):
+                continue                       # a door's own words (they end in the chevron), never his
             # A DOCUMENT BEING QUOTED — 'step 0 says "…"', 'the standard reads "…"' — is my text, not his
             # (DEC-0811, deleted 2026-10-01). "The founder said" is not caught: founder is not a document.
             if re.search(r'\b(step\s*\d+|standard|section|record|file|spec|mock|header|caption|title|row|column|sheet|tab)\s+(says|reads|states|is titled|is named)\s*[:,]?\s*$', around, re.I):

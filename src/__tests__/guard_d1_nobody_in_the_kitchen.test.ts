@@ -26,6 +26,7 @@ const BASELINE: Record<string, number> = {
   'src/screens/HomeScreen.tsx': 1,
   'src/screens/ImportHoldingsScreen.tsx': 1,
   'src/screens/IncomeDetailScreen.tsx': 2,
+  'src/screens/CashFlowScreen.tsx': 1,   // inflowLabel (MK-CF-F-192) — the true number, restored 2026-10-03
   'src/screens/IncomeManagerScreen.tsx': 2,
   'src/screens/SsTimingScreen.tsx': 1,
   'src/screens/TaxOrganizerScreen.tsx': 2,

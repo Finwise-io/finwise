@@ -1,5 +1,5 @@
 /* Income summary — the door the Income screen, Income manager, Monthly income and Log income read. */
-import { incomeSources, incomeSummary, hourlyEarned, monthlyEquivalent, annualOfSource, FIGURES } from './income-summary';
+import { incomeSources, incomeSummary, annualOfSource, FIGURES } from './income-summary';
 
 const op = {
   taxMode: 'manual', manualTaxRate: 22, filingStatus: 'married', whoEarns: 'both',
@@ -18,12 +18,6 @@ describe('MK-CF-O-004 incomeSummary — every source, named, never converted sil
   });
   it('MK-CF-M-037: the usual month is one figure from every source together', () => {
     expect(incomeSummary(op).lands.usualMonth).toBeGreaterThan(0);
-  });
-  it('MK-CF-M-067 / 068: log income arithmetic — hours × rate, and a month at the frequency picked', () => {
-    expect(hourlyEarned(37.5, 24)).toBe(900);
-    expect(monthlyEquivalent(900, 'weekly')).toBeCloseTo(3897, 0);
-    expect(monthlyEquivalent(5000, 'annually')).toBeCloseTo(416.67, 1);
-    expect(monthlyEquivalent(1200, 'weekly', 'lump')).toBe(1200);            // a one-off is itself
   });
   it('MK-CF-M-027: a yearly amount for every source — monthly × 12, yearly as it is', () => {
     expect(annualOfSource({ label: 'x', note: '', amount: 1200, per: 'month', kind: 'rental' })).toBe(14_400);

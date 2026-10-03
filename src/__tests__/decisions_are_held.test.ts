@@ -1445,29 +1445,20 @@ describe('the decisions in the log are held by something that executes', () => {
 
 
   // ── DEC-1112 ───────────────────────────────────────────────────────────────────────────────
-  test('DEC-1112 — "ok. open them from build but make sure it meets new design standards": the six Cash flow screens, approved as built on condition of the screen standard', () => {
-    const six = ['IncomeScreen', 'MonthDetailScreen', 'BillCalendarScreen', 'PaycheckMonthsScreen', 'MonthlyIncomeScreen', 'WorthALookScreen'];
+  test('DEC-1112 — "ok. open them from build but make sure it meets new design standards": the two Cash flow editors kept, audited against the screen standard (four screens retired the same day)', () => {
     const record = fs.readFileSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'standards', 'moneykeel_pres_spec_design-each-screen-was-built-from_v01.md'), 'utf8');
-    for (const f of ['log-income', 'month-detail', 'bill-calendar', 'paycheck-months', 'monthly-income', 'worth-a-look']) {
+    for (const f of ['bill-calendar', 'monthly-income']) {
       expect(`${f}: ${fs.existsSync(path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'cashflow', `moneykeel_pres_mock_${f}_v02.html`))}`).toBe(`${f}: true`);
       expect(`${f}: ${new RegExp(`moneykeel_pres_mock_${f}_v02\\.html[^|]*\\*\\*APPROVED 2026-10-02\\*\\*`).test(record)}`).toBe(`${f}: true`);
     }
-    for (const s of six) {
-      const src = noComments(screenSrc(s));
-      expect(`${s} bar: ${/<TopBar back \/>/.test(src)}`).toBe(`${s} bar: true`);                                   // 2.1
-      expect(`${s} title: ${!/fontSize: 1[0-9], fontWeight: '[78]00'[^}]*\n?.*(h1|title):/.test(src)}`).toBe(`${s} title: true`);   // 2.2
-    }
-    // the standard's fixes, each where it was made
-    expect(noComments(screenSrc('MonthDetailScreen'))).toMatch(/title: \{ fontSize: 20, fontWeight: '800'/);
-    expect(noComments(screenSrc('MonthDetailScreen'))).toMatch(/infoTerm="surplus"/);
-    expect(noComments(screenSrc('MonthDetailScreen'))).toMatch(/<SectionBand inCard quiet title="REGULAR BILLS" \/>/);
+    for (const s of ['BillCalendarScreen', 'MonthlyIncomeScreen']) expect(`${s} bar: ${/<TopBar back \/>/.test(noComments(screenSrc(s)))}`).toBe(`${s} bar: true`);
     expect(noComments(screenSrc('BillCalendarScreen'))).toMatch(/<SectionBand inCard quiet title="COMING UP" \/>/);
     expect(noComments(screenSrc('BillCalendarScreen'))).toMatch(/mRow: \{[^}]*minHeight: 52/);
-    expect(noComments(screenSrc('PaycheckMonthsScreen'))).toMatch(/<EmptyNote door="guaranteed" \/>/);
     expect(noComments(screenSrc('MonthlyIncomeScreen'))).toMatch(/<InfoDot term="guaranteedIncome" \/>/);
-    expect(noComments(screenSrc('WorthALookScreen'))).toMatch(/<SectionBand quiet inCard inset=\{0\} title="WHY WE'RE SHOWING THIS" \/>/);
-    expect(noComments(screenSrc('IncomeScreen'))).toMatch(/parseISO\(String\(item\.date\)\)/);
-    expect(noComments(screenSrc('IncomeScreen'))).toMatch(/Nothing entered yet\./);
+    expect(noComments(screenSrc('MonthlyIncomeScreen'))).toMatch(/h1: \{ fontSize: 20, fontWeight: '800'/);
+    // the four with no door in any approved design are gone (his finding, 2026-10-02)
+    for (const s of ['MonthDetailScreen', 'PaycheckMonthsScreen', 'IncomeScreen', 'WorthALookScreen']) expect(`${s}: ${fs.existsSync(path.join(__dirname, '..', 'screens', `${s}.tsx`))}`).toBe(`${s}: false`);
+    for (const f of ['log-income', 'month-detail', 'paycheck-months', 'worth-a-look']) expect(`${f}: ${new RegExp(`\\| [A-Za-z ]+ \\| \\*\\*RETIRED 2026-10-02\\*\\*`).test(record)}`).toBe(`${f}: true`);
   });
 
 });

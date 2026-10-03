@@ -61,8 +61,7 @@ test('and it names them the same way Home does — the note under it says one se
 test('GUARD: no screen reads .label off a guaranteed-income row again', () => {
   const root = path.join(__dirname, '..');
   const files = [
-    'screens/PlanHubScreen.tsx', 'screens/MonthDetailScreen.tsx',
-    'screens/PaycheckMonthsScreen.tsx', 'components/PaycheckCard.tsx',
+    'screens/PlanHubScreen.tsx', 'components/PaycheckCard.tsx',
   ];
   const offenders: string[] = [];
   for (const rel of files) {

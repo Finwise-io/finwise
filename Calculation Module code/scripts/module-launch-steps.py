@@ -63,9 +63,10 @@ OWNED = {'networth': {'NetWorthScreen', 'AccountPortfolioScreen', 'ItemizeScreen
          # Income detail, Contribution room and Tax organizer are the MENU tab's: the master files their
          # figures under MK-MN (his tab structure), so they are not asked for a Cash flow design here.
          # Base pay and Income summary print only Cash flow figures, so they are Cash flow's (2026-10-02).
-         'cashflow': {'CashFlowScreen', 'BudgetScreen', 'MonthDetailScreen', 'IncomeManagerScreen',
-                      'IncomeScreen', 'MonthlyIncomeScreen', 'PaycheckMonthsScreen', 'BillCalendarScreen',
-                      'WorthALookScreen', 'BasePayScreen', 'IncomeSummaryScreen'},
+         # Month detail, Paycheck months, Log income and Worth a look were RETIRED 2026-10-02: no approved
+         # design draws a door to them (his finding). Bill calendar and Monthly income stay as editors.
+         'cashflow': {'CashFlowScreen', 'BudgetScreen', 'IncomeManagerScreen', 'MonthlyIncomeScreen',
+                      'BillCalendarScreen', 'BasePayScreen', 'IncomeSummaryScreen'},
          'performance': {'PerformanceScreen', 'AccountPortfolioScreen',   # Holding detail is Net worth's (his seven, DEC-0649)
                          'LookBackScreen'}}.get(MODULE, set())
 # A screen is still DERIVED from the figures that declare it, so a new one printing this module's
@@ -126,10 +127,8 @@ def step_1a():
               'BondsScreen': 'bonds', 'OtherInvestmentsScreen': 'other investments',
               'HoldingDetailScreen': 'holding detail', 'ItemizeScreen': 'itemize',
               'LookBackScreen': 'look back',
-              'BudgetScreen': 'budget (expenses · debts)', 'MonthDetailScreen': 'month detail',
-              'IncomeManagerScreen': 'income manager', 'IncomeScreen': 'log income',
-              'MonthlyIncomeScreen': 'monthly income', 'PaycheckMonthsScreen': 'paycheck months',
-              'BillCalendarScreen': 'bill calendar', 'WorthALookScreen': 'worth a look',
+              'BudgetScreen': 'budget (expenses · debts)', 'IncomeManagerScreen': 'income manager',
+              'MonthlyIncomeScreen': 'monthly income', 'BillCalendarScreen': 'bill calendar',
               'BasePayScreen': 'base pay', 'IncomeSummaryScreen': 'income summary'}
 
     mocks = {}
@@ -278,7 +277,7 @@ def step_1b():
         f'Step 1.b fully compliant — {len(GUARDS)} standards guards pass and all {len(V)} decisions '
         f'touching {MODULE} are confirmed against the screens.',
         f'Step 1.b not compliant because, {"although all" if not failed else "of the"} {len(GUARDS)} standards guards{" pass" if not failed else " run, " + str(failed) + " test(s) FAILED"} '
-        f'({passed} tests, {failed} failed) and no decision is breached, the compliance of {unconfirmed} of '
+        f'({passed} tests, {failed} failed), {breached} decision(s) are breached or name a file that is gone, and the compliance of {unconfirmed} of '
         f'{len(V)} decisions is UNCONFIRMED — they left only a faint mark in the screen code, so '
         f'nothing yet shows the screen obeys them. {tally.get("NOT FOUND", 0)} more quote wording not '
         f'found on any screen; all of those were read by hand on 2026-10-01 and are his own remarks '

@@ -35,6 +35,8 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ 'these are no longer needed per new design':
+  'Four Cash flow screens are retired: Month detail, Paycheck months, Log income and Worth a look. No approved design draws a door to any of them, and no ruling needs them. Bill calendar and Monthly income stay only as the editors behind figures the approved designs show — not as destinations.',
  'open them from build but make sure it meets new design standards':
   'The six Cash flow screens that had no drawing — Log income, Month detail, Bill calendar, Paycheck months, Monthly income, Worth a look — are approved as built, on condition that each meets the screen standard. Each was audited against it the same day and the gaps fixed; the v02 drawings show the result.',
  'The Look back drawing v01 is approved':

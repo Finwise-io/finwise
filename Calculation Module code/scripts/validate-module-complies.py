@@ -82,9 +82,8 @@ SCREENS = sorted(set(SCREENS) | {
  # Import holdings and Stress test print no Net worth figure at all and so drop out of both.
  'networth': {'NetWorthScreen', 'AccountPortfolioScreen', 'ItemizeScreen', 'HoldingDetailScreen',
               'BondsScreen', 'OtherInvestmentsScreen', 'AddAccountScreen'},
- 'cashflow': {'CashFlowScreen', 'BudgetScreen', 'MonthDetailScreen', 'IncomeManagerScreen',
-              'IncomeDetailScreen', 'IncomeScreen', 'MonthlyIncomeScreen', 'PaycheckMonthsScreen',
-              'BillCalendarScreen', 'WorthALookScreen', 'ContributionRoomScreen', 'TaxOrganizerScreen'},
+ 'cashflow': {'CashFlowScreen', 'BudgetScreen', 'IncomeManagerScreen', 'MonthlyIncomeScreen',
+              'BillCalendarScreen', 'BasePayScreen', 'IncomeSummaryScreen'},   # four RETIRED 2026-10-02 (his finding)
  'performance': {'PerformanceScreen', 'AccountPortfolioScreen',   # Holding detail is Net worth's (his seven, DEC-0649)
                      'LookBackScreen'},
 }.get(MODULE, set()))

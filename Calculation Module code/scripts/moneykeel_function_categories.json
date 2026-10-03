@@ -164,11 +164,6 @@
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "1 · ACTION"
  },
- "YEAR": {
-  "id": "MK-CF-F-215",
-  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
-  "category": "2 · DISPLAYED"
- },
  "accountAllowsTicker": {
   "id": "MK-NW-F-005",
   "file": "src/domain/assets/index.ts",
@@ -1152,7 +1147,7 @@
  "flagComparisonText": {
   "id": "MK-CF-F-110",
   "file": "src/domain/transactions/flags.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "flatSymbol": {
   "id": "MK-XS-F-145",
@@ -1334,11 +1329,6 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "1 · ACTION"
  },
- "hourlyEarned": {
-  "id": "MK-CF-F-208",
-  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
-  "category": "2 · DISPLAYED"
- },
  "householdK401ByMonth": {
   "id": "MK-CF-F-206",
   "file": "src/domain/income/onboarding.ts",
@@ -1412,7 +1402,7 @@
  "inflowLabel": {
   "id": "MK-CF-F-192",
   "file": "MoneyKeel/functions/cashflow/this-month.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "inflowSourceWord": {
   "id": "MK-CF-F-193",
@@ -1874,11 +1864,6 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
- "monthlyEquivalent": {
-  "id": "MK-CF-F-209",
-  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
-  "category": "2 · DISPLAYED"
- },
  "monthlyEssentials": {
   "id": "MK-CF-F-009",
   "file": "src/domain/budget/index.ts",
@@ -2112,11 +2097,6 @@
  "payFiguresAgree": {
   "id": "MK-CF-F-146",
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
-  "category": "3 · DEPENDENT"
- },
- "paycheckMonthWords": {
-  "id": "MK-CF-F-214",
-  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
   "category": "3 · DEPENDENT"
  },
  "paymentShape": {
@@ -3277,11 +3257,6 @@
  "unrealizedGain": {
   "id": "MK-PF-F-005",
   "file": "src/domain/performance/index.ts",
-  "category": "3 · DEPENDENT"
- },
- "unusualWords": {
-  "id": "MK-CF-F-213",
-  "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
   "category": "3 · DEPENDENT"
  },
  "unwrapActivities": {

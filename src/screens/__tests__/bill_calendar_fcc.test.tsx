@@ -49,7 +49,7 @@ test('rows are the SAME cells as the Cash flow grid (one grid, no second math) a
   const grid = buildDatedGrid(RETIREE as any, { startBalance: 18400 });
   const c0 = grid.cells[0];
   fireEvent.press(screen.getByLabelText(new RegExp(`${c0.label} ${c0.year}: in .*, out .*, ending balance`)));
-  expect(mockPushes).toContain('/month-detail?slot=0');
+  expect(mockPushes).not.toContain('/month-detail?slot=0');   // RETIRED 2026-10-02: a month row is a row, not a door
 });
 
 test('editing cash on hand re-chains every End immediately', () => {

@@ -2223,9 +2223,14 @@
    "verified_by_reading": "2026-10-02 — read against the screen or door it names during Cash flow step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-1112": {
-   "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_log-income_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_month-detail_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_bill-calendar_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_paycheck-months_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_monthly-income_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_worth-a-look_v02.html · src/screens/IncomeScreen.tsx · src/screens/MonthDetailScreen.tsx · src/screens/BillCalendarScreen.tsx · src/screens/PaycheckMonthsScreen.tsx · src/screens/MonthlyIncomeScreen.tsx · src/screens/WorthALookScreen.tsx · src/constants/doors.ts",
-   "why_it_governs_those": "read, 2026-10-02: the six screens he approved, their drawings, and the one door list",
+   "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_bill-calendar_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_monthly-income_v02.html · src/screens/BillCalendarScreen.tsx · src/screens/MonthlyIncomeScreen.tsx · src/constants/doors.ts",
+   "why_it_governs_those": "read, 2026-10-02: the two editors kept after DEC-1134 retired the other four the same day; their drawings and the one door list",
    "verified_by_reading": "2026-10-02 — recorded the moment he approved; held by decisions_are_held.test.ts"
+  },
+  "DEC-1134": {
+   "governs": "src/screens/CashFlowScreen.tsx (no door to a month or the calendar) · src/components/PaycheckCard.tsx · src/domain/insights/index.ts · app/_layout.tsx · MK-CF-M-017 · MK-CF-M-026 · MK-CF-M-064 · MK-CF-M-067 · MK-CF-M-068 (retired) · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "why_it_governs_those": "read, 2026-10-02: the screens retired, the links removed, the figures retired",
+   "verified_by_reading": "2026-10-02 — recorded the moment he said it; held by decisions_are_held.test.ts"
   }
  }
 }

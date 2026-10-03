@@ -144,61 +144,6 @@ const SOURCES_GIVEN =
  */
 const SOURCE = (kind: IncomeSource['kind']) => incomeSources(SOURCES_EXAMPLE).find((x) => x.kind === kind)!;
 
-/** LOG INCOME'S OWN ARITHMETIC, moved off the screen (2026-10-02 — a screen computes nothing). */
-export const MONTHS_OF: Record<string, number> = {
-  hourly: 160, daily: 21.7, weekly: 4.33, biweekly: 2.17, monthly: 1, quarterly: 1 / 3, annually: 1 / 12,
-};
-/** What a number of hours at a rate comes to. */
-/* ─ MK-CF-F-208 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * hourlyEarned
- *
- * Answers ..... What a number of hours at a rate comes to.
- *
- * Formula .....
- *     (number(hours) or 0) × (number(rate) or 0)
- *
- * Called by ... MK-CF-F-210 annualOfSource
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-210 annualOfSource
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-CF-F-208
- * Changed ..... not in git yet (—)
- */
-export function hourlyEarned(hours: number, rate: number): number {
-  return (Number(hours) || 0) * (Number(rate) || 0);
-}
-/** What an amount paid at a frequency comes to in a month; a one-time amount is itself. */
-/* ─ MK-CF-F-209 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * monthlyEquivalent
- *
- * Answers ..... What an amount paid at a frequency comes to in a month; a one-time amount is itself.
- *
- * Formula .....
- *     amt = amount read as a number (or 0 when missing or zero)
- *     the answer:
- *     amt   if mode = 'lump'
- *     amt × (MONTHS_OF[freq] ?? 1)   otherwise
- *
- * Called by ... MK-CF-F-210 annualOfSource
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-210 annualOfSource
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · If m o n t h s o f[freq] is missing it uses 1.
- *
- * Formula also on the master file · functions_from_code · MK-CF-F-209
- * Changed ..... not in git yet (—)
- */
-export function monthlyEquivalent(amount: number, freq: string, mode: 'lump' | 'recurring' = 'recurring'): number {
-  const amt = Number(amount) || 0;
-  return mode === 'lump' ? amt : amt * (MONTHS_OF[freq] ?? 1);
-}
 /** A source's yearly amount: a monthly one × 12, a yearly one as it is, a salary from its pay period. */
 /* ─ MK-CF-F-210 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * annualOfSource
@@ -218,7 +163,6 @@ export function monthlyEquivalent(amount: number, freq: string, mode: 'lump' | '
  *               MK-XS-I-022 pension monthly amount
  *               MK-XS-I-023 salary and other income
  *               MK-XS-I-035 annuity income
- *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
@@ -393,7 +337,7 @@ export const FIGURES = declareFigures({
     worked: { given: SOURCES_GIVEN, answer: '$2,100/month', run: () => SOURCE('guaranteed').amount },
   },
   'MK-CF-M-024': {
-    label: 'each source of guaranteed income', unit: 'money', per: 'month', screens: ['/monthly-income', '/month-detail', '/paycheck-months'], grain: 'one source',
+    label: 'each source of guaranteed income', unit: 'money', per: 'month', screens: ['/monthly-income'], grain: 'one source',
     answers: 'One line per guaranteed source — Social Security, a pension, an annuity, other — and what it pays a month.',
     formula: 'each stream as entered, brought to a monthly amount',
     inputs: ['MK-XS-I-020 Social Security monthly amount', 'MK-XS-I-022 pension monthly amount', 'MK-XS-I-035 annuity income', 'MK-XS-I-036 other guaranteed income'],
@@ -437,22 +381,6 @@ export const FIGURES = declareFigures({
         [{ id: 'd1', account_id: 'a1', type: 'DIVIDEND', amount: 300, date: '2026-06-01' }, { id: 'i1', account_id: 'a1', type: 'INTEREST', amount: 120, date: '2026-03-01' }],
         new Date('2026-09-01T12:00:00')).annual,
     },
-  },
-  'MK-CF-M-067': {
-    label: 'You earned', unit: 'money-cents', screens: ['/income'],
-    answers: 'What the hours you entered come to at the rate you entered, before it is logged.',
-    formula: 'the hours entered × the rate entered — 37.5 hours × $24 = $900.00',
-    inputs: ['MK-CF-I-015 income recorded as received'],
-    refusal: 'Nothing entered yet — $0.00.', ruled: '2026-10-02',
-    worked: { given: 'Logging 37.5 hours of work at a rate of $24 an hour, before it is saved.', answer: '$900.00', run: () => hourlyEarned(37.5, 24) },
-  },
-  'MK-CF-M-068': {
-    label: 'Monthly equivalent', unit: 'money-cents', per: 'month', screens: ['/income'],
-    answers: 'What the amount you are logging comes to in a month, at the frequency you picked.',
-    formula: 'amount × the number of payments in a month (weekly 4.33, every two weeks 2.17, yearly 1÷12); a one-time amount is itself',
-    inputs: ['MK-CF-I-015 income recorded as received', 'MK-XS-I-039 how often each income arrives'],
-    refusal: 'Nothing entered yet — $0.00.', ruled: '2026-10-02',
-    worked: { given: 'Logging $900 that arrives every week, to see what that is in a month.', answer: '$3,897.00/month', run: () => monthlyEquivalent(900, 'weekly') },
   },
 } as const);
 
@@ -666,8 +594,8 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               MK-CF-M-010 · MK-CF-M-011 · MK-CF-M-024 · MK-CF-M-027
  *               MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-039 · MK-CF-M-040
  *               MK-CF-M-041 · MK-CF-M-042 · MK-CF-M-043 · MK-CF-M-044
- *               MK-CF-M-065 · MK-CF-M-066 · MK-CF-M-067 · MK-CF-M-068
- *               MK-CF-M-069 · MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013
+ *               MK-CF-M-065 · MK-CF-M-066 · MK-CF-M-069 · MK-MN-M-011
+ *               MK-MN-M-012 · MK-MN-M-013
  * Reads ....... MK-XS-I-023 salary and other income
  *               MK-XS-I-030 tax filing status and age
  * Ruled by .... DEC-0078 · DEC-0108 · DEC-0149 · DEC-0152 · DEC-0165 · DEC-0166

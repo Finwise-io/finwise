@@ -161,11 +161,10 @@ export default function CashFlowScreen() {
       {/* BY MONTH — the dated 12 cells; tap a month for its detail (also a quick-jump for the switcher) */}
       <View style={styles.card}>
         <SectionBand inCard inset={16} title={`BY MONTH · ${grid.cells[0]?.label} – ${grid.cells[11]?.label}`} />
-        <MonthBars lens={lens} year={year} grid={grid} onOpen={(slot) => router.push(`/month-detail?slot=${slot}` as any)} />
-        <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/bill-calendar')}
-          accessibilityLabel="All bills and the calendar">
-          <Text style={styles.link}>All bills & the calendar ›</Text>
-        </TouchableOpacity>
+        {/* RETIRED 2026-10-02 (his finding): the approved This month (cash-flow_v01, frame 1) draws no door to a
+            month's detail or to a bill calendar — it spells every row out itself. The bars stay as the drawing
+            has them; nothing opens from them. */}
+        <MonthBars lens={lens} year={year} grid={grid} />
       </View>
 
       {/* will-it-last strip — mirrors Plan, never a second computation */}
@@ -534,7 +533,7 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
     <>
       <PaycheckCard />
       {safePool > 0 && (
-        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/month-detail?slot=0' as any)}
+        <View style={styles.card} accessible
           accessibilityLabel={`Expense pace: ${figSaid('MK-CF-M-013', Math.round(bva.spent_total))} of ${fig('MK-CF-M-049', safePool)} surplus — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
           <View style={styles.paceTrack}>
             <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
@@ -542,8 +541,8 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
           </View>
           {/* P0 (design audit CF-1): the pace card's numbers are its message — money size, never 12pt gray */}
           <Text style={styles.paceLine}>Spent {fig('MK-CF-M-013', Math.round(bva.spent_total))} of {fig('MK-CF-M-049', safePool)} surplus this month</Text>
-          <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone ›</Text>
-        </TouchableOpacity>
+          <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone</Text>
+        </View>
       )}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -655,15 +654,15 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
           const monthPct = Math.round((now.getDate() / new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()) * 100);
           const spentPct = bva.planned_total > 0 ? Math.round((bva.spent_total / bva.planned_total) * 100) : 0;
           return (
-            <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/month-detail?slot=0' as any)}
+            <View accessible
               accessibilityLabel={`Expense pace: ${figSaid('MK-CF-M-013', Math.round(bva.spent_total))} of ${fig('MK-CF-M-001', Math.round(bva.planned_total))} planned — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
               <View style={styles.paceTrack}>
                 <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
                 <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
               </View>
               <Text style={styles.paceLine}>Spent {fig('MK-CF-M-013', Math.round(bva.spent_total))} of {fig('MK-CF-M-001', Math.round(bva.planned_total))} planned</Text>
-              <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone ›</Text>
-            </TouchableOpacity>
+              <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone</Text>
+            </View>
           );
         })()}
       </View>
@@ -684,7 +683,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
 }
 
 // ── the dated 12-month bars (both lenses) ───────────────────────────────────────
-function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid: any; onOpen: (slot: number) => void }) {
+function MonthBars({ lens, year, grid }: { lens: string; year: any; grid: any }) {
   const cells = lens === 'retired'
     ? year.months.map((m: any, s: number) => ({
         label: m.label,
@@ -712,8 +711,7 @@ function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid
   return (
     <View>
       {cells.map((c: any, s: number) => (
-        <TouchableOpacity accessibilityRole="button" key={c.label} style={styles.barRow} onPress={() => onOpen(s)}
-          accessibilityLabel={c.spoken} accessibilityHint="Opens this month's detail">
+        <View key={c.label} style={styles.barRow} accessible accessibilityLabel={c.spoken}>
           <Text style={styles.barLabel}>{c.label}</Text>
           <View style={{ flex: 1 }}>
             <View style={styles.barTrack}><View style={[styles.barIn, { width: `${Math.max(2, (c.inflow / max) * 100)}%` }]} /></View>
@@ -722,7 +720,7 @@ function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid
                 line under the bars, never a 10.5pt truncated gutter caption */}
             {c.flag && <Text style={styles.barFlag}>{c.flag}</Text>}
           </View>
-        </TouchableOpacity>
+        </View>
       ))}
       <View style={styles.legendRow}>
         <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.chartIn }]} /><Text style={styles.legendT}>in</Text></View>

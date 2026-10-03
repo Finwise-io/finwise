@@ -19,7 +19,6 @@ import GoalsScreen from '../GoalsScreen';
 import HomeScreen from '../HomeScreen';
 import IncomeDetailScreen from '../IncomeDetailScreen';
 import IncomeManagerScreen from '../IncomeManagerScreen';
-import IncomeScreen from '../IncomeScreen';
 import InsightsScreen from '../InsightsScreen';
 import InsuranceScreen from '../InsuranceScreen';
 import JobSafetyScreen from '../JobSafetyScreen';
@@ -40,9 +39,7 @@ import TipsScreen from '../TipsScreen';
 const SCREENS: [string, React.ComponentType<any>][] = [
   ['MonthlyIncomeScreen', require('../MonthlyIncomeScreen').default],
   ['PlanHubScreen', require('../PlanHubScreen').default],
-  ['WorthALookScreen', require('../WorthALookScreen').default],
   ['SsTimingScreen', require('../SsTimingScreen').default],
-  ['MonthDetailScreen', require('../MonthDetailScreen').default],
   ['CashFlowScreen', require('../CashFlowScreen').default],
   ['AccountPortfolioScreen', require('../AccountPortfolioScreen').default],
   ['MultiGoalScreen', require('../MultiGoalScreen').default],
@@ -52,7 +49,6 @@ const SCREENS: [string, React.ComponentType<any>][] = [
   ['WillItLastScreen', require('../WillItLastScreen').default],
   ['ContributionRoomScreen', require('../ContributionRoomScreen').default],   // audit: had zero test contact
   ['ItemizeScreen', require('../ItemizeScreen').default],                     // audit: had zero test contact
-  ['PaycheckMonthsScreen', require('../PaycheckMonthsScreen').default],
   ['BillCalendarScreen', BillCalendarScreen],
   ['BondsScreen', BondsScreen],
   ['BudgetScreen', BudgetScreen],
@@ -64,7 +60,6 @@ const SCREENS: [string, React.ComponentType<any>][] = [
   ['HomeScreen', HomeScreen],
   ['IncomeDetailScreen', IncomeDetailScreen],
   ['IncomeManagerScreen', IncomeManagerScreen],
-  ['IncomeScreen', IncomeScreen],
   ['InsightsScreen', InsightsScreen],
   ['InsuranceScreen', InsuranceScreen],
   ['JobSafetyScreen', JobSafetyScreen],

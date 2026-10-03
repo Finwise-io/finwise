@@ -190,7 +190,6 @@ export default function RootLayout() {
           <Stack.Screen name="auth"       options={{ headerShown: false }} />
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)"     options={{ headerShown: false }} />
-          <Stack.Screen name="income"     options={{ headerShown: false, presentation: 'modal' }} />   {/* DEC-0354: the screen draws the bar */}
           <Stack.Screen name="expense"    options={{ title: 'Add expense 🧾',     presentation: 'modal', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="savings"    options={{ title: 'Add savings 🏦',     presentation: 'modal', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="invest"     options={{ title: 'Log investment 📈',  presentation: 'modal', ...backBtn(() => router.back()) }} />
@@ -198,10 +197,8 @@ export default function RootLayout() {
           <Stack.Screen name="income-detail" options={{ title: 'Income 💵', headerShown: true, ...backBtn(() => router.back()) }} />
           {/* FCC: cash flow is now a bottom TAB (app/(tabs)/cashflow.tsx) — no root stack route. */}
           <Stack.Screen name="contribution-room" options={{ title: 'Contribution room 💼', headerShown: true, ...backBtn(() => router.back()) }} />
-          <Stack.Screen name="worth-a-look" options={{ headerShown: false }} />
           <Stack.Screen name="big-costs" options={{ title: 'What big costs are coming?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="ss-timing" options={{ title: 'When should I claim Social Security?', headerShown: true, ...backBtn(() => router.back()) }} />
-          <Stack.Screen name="month-detail" options={{ headerShown: false }} />
           {/* the account page carries the app's own MoneyKeel top bar with "‹ Back" (approved
               performance mock v14), so the navigator's header would be a second bar above it */}
           <Stack.Screen name="account-detail" options={{ headerShown: false }} />
@@ -209,7 +206,7 @@ export default function RootLayout() {
               has"): the Net worth module's pushed screens draw the app's own bar with ‹ Back, as account-detail
               does — never the navigator's empty header, and never a raw route name ("holding-detail") as a title. */}
           {['bonds', 'other-investments', 'itemize', 'holding-detail', 'add-account',
-            'bill-calendar', 'income-manager', 'monthly-income', 'paycheck-months', 'base-pay', 'income-summary'].map((name) => (
+            'bill-calendar', 'income-manager', 'monthly-income', 'base-pay', 'income-summary'].map((name) => (
             <Stack.Screen key={name} name={name} options={{ headerShown: false }} />
           ))}
           <Stack.Screen name="multi-goal" options={{ title: 'Afford it all?', headerShown: true, ...backBtn(() => router.back()) }} />
