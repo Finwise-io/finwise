@@ -88,15 +88,15 @@ export default function LookBackScreen() {
 
       {result ? (
         <View style={s.card} accessible
-          accessibilityLabel={`What actually happened: left in ${from} it became ${figSaid('MK-PF-M-010', result.stayed.endValue)}, ${result.stayed.pct} percent. Moved to ${to} it would be ${figSaid('MK-PF-M-011', result.moved.endValue)}, ${result.moved.pct} percent. Difference ${figSaid('MK-PF-M-012', Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
+          accessibilityLabel={`What actually happened: left in ${from} it became ${figSaid('MK-PF-M-010', result.stayed.endValue)}, ${result.stayed.pct.toFixed(2)} percent. Moved to ${to} it would be ${figSaid('MK-PF-M-011', result.moved.endValue)}, ${result.moved.pct.toFixed(2)} percent. Difference ${figSaid('MK-PF-M-012', Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
           <SectionBand title="WHAT ACTUALLY HAPPENED" />
           <Text style={s.legLine}>
             Left in {from} it became <Text style={s.strong}>{fig('MK-PF-M-010', result.stayed.endValue)}</Text>
-            {'  '}({result.stayed.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-010', Math.abs(result.stayed.delta))}, {result.stayed.pct >= 0 ? '+' : ''}{result.stayed.pct}%)
+            {'  '}({result.stayed.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-010', Math.abs(result.stayed.delta))}, {result.stayed.pct >= 0 ? '+' : ''}{result.stayed.pct.toFixed(2)}%)
           </Text>
           <Text style={s.legLine}>
             Moved to {to} it would be <Text style={s.strong}>{fig('MK-PF-M-011', result.moved.endValue)}</Text>
-            {'  '}({result.moved.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-011', Math.abs(result.moved.delta))}, {result.moved.pct >= 0 ? '+' : ''}{result.moved.pct}%)
+            {'  '}({result.moved.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-011', Math.abs(result.moved.delta))}, {result.moved.pct >= 0 ? '+' : ''}{result.moved.pct.toFixed(2)}%)
           </Text>
           <View style={s.diffBox}>
             <Text style={s.diffTxt}>
@@ -109,7 +109,7 @@ export default function LookBackScreen() {
         <View style={s.card}>
           <Text style={s.note}>
             {amt <= 0 ? 'Enter an amount to look back on.'
-              : `We don't have ${!priceCache[from] || !priceCache[to] ? 'prices for that pairing yet' : 'prices reaching back that far'} — open the Performance tab and refresh prices, or pick a shorter window. We never invent a price.`}
+              : `We don't have ${!priceCache[from] || !priceCache[to] ? 'prices for that pairing yet' : 'prices reaching back that far'} — open the Performance tab and refresh prices, or pick a shorter window.`}
           </Text>
         </View>
       )}

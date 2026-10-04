@@ -54,7 +54,7 @@ describe('Look back', () => {
   test('prices not reaching back → the honest absence, never an invented number', () => {
     useStore.setState({ priceCache: {} } as any);
     render(<LookBackScreen />);
-    expect(screen.getByText(/We never invent a price/)).toBeOnTheScreen();
+    expect(screen.getByText(/We don't have prices for that pairing yet — open the Performance tab and refresh prices, or pick a shorter window\.$/)).toBeOnTheScreen();   // the sentence as its drawing ends it (look-back v01, state B)
     expect(screen.queryByText(/Difference:/)).toBeNull();
   });
 });

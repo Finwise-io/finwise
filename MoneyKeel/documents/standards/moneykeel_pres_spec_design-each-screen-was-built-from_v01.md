@@ -58,6 +58,8 @@ Home and every screen opened from another screen still need their Build 53 desig
 
 ## The current approved design, by screen
 
+**Held by test since 2026-10-04.** Every phone of every drawing named below for Net worth, Performance and Cash flow is compared with the built screen word for word: `perf_matches_v17`, `networth_matches_v08`, `cashflow_matches_v01`, `income_matches_v07`, `basepay_matches_v07`, `filing_matches_v07`, `income_manager_matches_v07` and `kept_editors_match` (Bill calendar, Monthly income, Look back, Add an account, Bonds, Alternatives, Itemize, Holding detail) in `src/screens/__tests__/`. Each file lists the differences it allows and why; one phone — the Alternatives editor — is held as open, not as matched.
+
 The file each next task on that screen starts from. It is updated the same day an approval changes it.
 
 | Screen | Current approved design | Waiting for approval |

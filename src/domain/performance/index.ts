@@ -558,8 +558,13 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
  *     start = close as of(series, start date for(period, now))
  *     nothing   when end = nothing (or start = nothing (or start ≤ 0 when missing or zero) when missing or zero)
  *     raw = end ÷ start − 1
- *     (end ÷ start)^(1 ÷ 2) − 1   when period = '2Y'
- *     the answer = raw
+ *     first = the date series.points[0].date), last = new date(series.points[series.points.length − 1].date
+ *     reaches = first.get time() ≤ start date for(period, now).get time()
+ *     years = 2   if reaches
+ *     (last.get time() − first.get time()) ÷ (365.25 × 86400000)   otherwise
+ *     the answer:
+ *     (end ÷ start)^(1 ÷ years) − 1   if years > 1
+ *     raw   otherwise
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-021 periodDollarDelta
  *
@@ -585,7 +590,18 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
   // FOUNDER DECISION 2026-08-18: two years is the longest window offered, because two years is
   // exactly how much daily history the app keeps. Offering three would draw a line from a date
   // we have no record of. Multi-year returns are still shown per year, so 2Y sits fairly beside 1Y.
-  if (period === '2Y') return ((Math.pow(end / start, 1 / 2) - 1));
+  if (period === '2Y') {
+    // WHEN THE PRICES DO NOT REACH BACK TWO YEARS the start is the first price on record, and the
+    // figure covers only that span. It was still turned into a yearly rate as though it covered two
+    // years — fourteen months of a holding that rose 21% read as +10% a year instead of +17.8%
+    // (found 2026-10-04 holding the Holding page to its drawing, which says the window out loud).
+    // The yearly rate is over the span the prices do cover; a span of a year or less is never made
+    // yearly (founder ruling 2026-09-25).
+    const first = new Date(series.points[0].date), last = new Date(series.points[series.points.length - 1].date);
+    const reaches = first.getTime() <= startDateFor(period, now).getTime();
+    const years = reaches ? 2 : (last.getTime() - first.getTime()) / (365.25 * 86_400_000);
+    return years > 1 ? Math.pow(end / start, 1 / years) - 1 : raw;
+  }
   return (raw);
 }
 

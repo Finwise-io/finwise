@@ -102,7 +102,7 @@ export function lookBack(amount: number, fromSeries: PriceSeries | null | undefi
   const leg = (f: number): LookBackLeg => ({
     endValue: (amount * f),
     delta: (amount * f - amount),
-    pct: Math.round((f - 1) * 1000) / 10,
+    pct: (f - 1) * 100,   // at full precision — rounding happens once, where it is shown (Q49); it was rounded to one decimal here
   });
   const stayed = leg(fFrom);
   const moved = leg(fTo);

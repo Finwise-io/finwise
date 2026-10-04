@@ -26,7 +26,8 @@ describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
       const src = read(f);
       expect(src).toContain("engines/coverage");          // the ONE function, not a local rewrite
       expect(src).toMatch(/coverageFor\(/);
-      expect(src).toMatch(/coverage\.sentence !== ''/);    // silent when the record covers the window
+      expect(src).toMatch(/if \(coverage\.covers \|\| !coverage\.from\) return '';/);   // silent when the prices cover the window
+      expect(src).toMatch(/shortBy !== ''/);                // and the sentence is printed only when there is one (the drawing's words, 2026-10-04)
     });
   }
 

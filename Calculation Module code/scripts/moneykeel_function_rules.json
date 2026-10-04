@@ -1774,8 +1774,8 @@
   },
   "MK-PF-F-010": {
    "name": "periodReturn",
-   "rule": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate: (end ÷ start) to the power one half, − 1. Nothing when there are no prices or the start close is zero or less.",
-   "read_from": "5eb4560806",
+   "rule": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate. When the prices reach back two years: (end ÷ start) to the power one half, − 1. When they do not: the yearly rate over the span the prices do cover — (end ÷ start) to the power 1 ÷ years, − 1, where years = the days from the first price to the last ÷ 365.25 — and only when that span is more than one year; a span of a year or less keeps its own total. Nothing when there are no prices or the start close is zero or less.",
+   "read_from": "194675a792",
    "sent_as": "5eb4560806"
   },
   "MK-PF-F-011": {
@@ -1852,8 +1852,8 @@
   },
   "MK-PF-F-023": {
    "name": "lookBack",
-   "rule": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1), as a percent to one decimal. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value.",
-   "read_from": "0243077ca8",
+   "rule": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1) × 100, at full precision. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value.",
+   "read_from": "365946ef93",
    "sent_as": "0243077ca8"
   },
   "MK-PF-F-024": {

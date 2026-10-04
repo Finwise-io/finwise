@@ -566,8 +566,8 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               MK-CF-M-010 · MK-CF-M-011 · MK-CF-M-024 · MK-CF-M-027
  *               MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-039 · MK-CF-M-040
  *               MK-CF-M-041 · MK-CF-M-042 · MK-CF-M-043 · MK-CF-M-044
- *               MK-CF-M-065 · MK-CF-M-066 · MK-CF-M-069 · MK-MN-M-011
- *               MK-MN-M-012 · MK-MN-M-013
+ *               MK-CF-M-066 · MK-CF-M-069 · MK-MN-M-011 · MK-MN-M-012
+ *               MK-MN-M-013
  * Reads ....... MK-XS-I-022 pension monthly amount
  *               MK-XS-I-023 salary and other income
  *               MK-XS-I-030 tax filing status and age

@@ -33,7 +33,7 @@ export function drawingLines(file: string, strip: RegExp[] = []): string[] {
     .replace(/^[\s\S]*<body/, '<body').replace(/<(script|style)[\s\S]*?<\/\1>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   for (const r of strip) body = body.replace(r, '');
   return body.replace(/<[^>]+>/g, '\n')
-    .replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'").replace(/&nbsp;/g, ' ').replace(/&minus;/g, '−').replace(/&rarr;/g, '→')
+    .replace(/&amp;/g, '&').replace(/&#39;|&#x27;|&rsquo;/g, "'").replace(/&nbsp;/g, ' ').replace(/&minus;/g, '−').replace(/&rarr;/g, '→')
     .replace(/&ldquo;|&rdquo;|&quot;/g, '"').replace(/&mdash;/g, '—').replace(/&middot;/g, '·').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
 }
@@ -74,4 +74,20 @@ export function firstBreakInside(drawn: string, built: string): string {
   }
   if (best < 0) return `the first drawn word "${x[0]}" is nowhere on the built screen:\n  DRAWN … ${x.slice(0, 20).join(' ')}\n  BUILT … ${y.slice(0, 30).join(' ')}`;
   return `the run breaks at word ${best} of ${x.length} drawn:\n  DRAWN … ${x.slice(Math.max(0, best - 10), best + 16).join(' ')}\n  BUILT … ${y.slice(Math.max(0, bestAt + best - 10), bestAt + best + 16).join(' ')}`;
+}
+
+/** For a drawing that leaves out part of a form: which drawn lines are NOT on the built screen, in the
+ *  drawn order? Empty when every drawn line is there and in order. The built screen may carry lines
+ *  between them — the caller must say which, because this does not hold them. */
+export function missingInOrder(drawn: string[], built: string[]): string[] {
+  const b = built.map((l) => norm([l]));
+  const out: string[] = [];
+  let at = 0;
+  for (const line of drawn) {
+    const want = norm([line]);
+    if (!want) continue;
+    const i = b.findIndex((x, k) => k >= at && x === want);
+    if (i < 0) out.push(line); else at = i + 1;
+  }
+  return out;
 }

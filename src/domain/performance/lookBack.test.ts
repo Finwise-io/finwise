@@ -20,9 +20,9 @@ test("the design's worked example: $20,000, BND −3% vs VTI +10.1% → $2,620 m
   const r = lookBack(20000, bnd, vti, 12, NOW)!;
   expect(r.stayed.endValue).toBe(19400);
   expect(r.stayed.delta).toBe(-600);
-  expect(r.stayed.pct).toBe(-3);
+  expect(r.stayed.pct).toBeCloseTo(-3, 9);
   expect(r.moved.endValue).toBe(22020);
-  expect(r.moved.pct).toBe(10.1);
+  expect(r.moved.pct).toBeCloseTo(10.1, 9);
   expect(r.difference).toBe(2620);
 });
 

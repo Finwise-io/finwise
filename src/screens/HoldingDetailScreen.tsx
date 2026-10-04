@@ -28,7 +28,8 @@ import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScre
 import type { AssetAccount } from '../domain/assets';
 import { isoLocalDate } from '../domain/_shared/dates';
 
-const pct = (v: number | null | undefined) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 1000) / 10)}%`);
+// a return is a percent to TWO decimals (precision standard, Q49) — this printed one, and dropped a trailing zero
+const pct = (v: number | null | undefined) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${(Math.abs(v) * 100).toFixed(2)}%`);
 const PERIOD_WORDS: Record<string, string> = { '1M': 'month', '3M': '3 months', '6M': '6 months', YTD: 'year so far', '1Y': 'year', '2Y': '2 years' };
 
 /** The hero sparkline — the period's daily closes, nothing smoothed or invented. */
@@ -85,6 +86,18 @@ export default function HoldingDetailScreen() {
     return coverageFor(pts.map((x) => ({ date: x.date })), start.toISOString().slice(0, 10),
                        isoLocalDate(new Date()));
   }, [position, priceCache, period]);
+
+  // The sentence the approved drawing writes for it (holding-detail v02, phone 3): how many months the
+  // prices reach, against the window the chip names — never a shorter window under the longer label.
+  const shortBy = useMemo(() => {
+    if (coverage.covers || !coverage.from) return '';
+    const first = new Date(coverage.from), now = new Date();
+    const months = Math.max(0, (now.getFullYear() - first.getFullYear()) * 12 + now.getMonth() - first.getMonth() - (now.getDate() < first.getDate() ? 1 : 0));
+    const NAMED: Record<string, [string, string]> = { '1M': ['1-month', 'a month'], '3M': ['3-month', 'three months'], '6M': ['6-month', 'six months'],
+      YTD: ['year-so-far', 'the whole year so far'], '1Y': ['1-year', 'a year'], '2Y': ['2-year', 'two years'] };
+    const [label, words] = NAMED[period] ?? NAMED['1Y'];
+    return `Prices for this holding go back ${months} ${months === 1 ? 'month' : 'months'}, so the ${label} figure covers ${months} ${months === 1 ? 'month' : 'months'} — not ${words}.`;
+  }, [coverage, period]);
 
   // B47 finding 4: deleting re-renders BEFORE router.back() finishes — the not-found screen
   // flashed as an "error" while the (correct) deletion exited. Leaving = render nothing, quietly.
@@ -182,13 +195,16 @@ export default function HoldingDetailScreen() {
             {/* Q48 does not apply here: a holding page exists only once a holding was entered, so $0 means sold */}
             <Text style={s.gainLine}>Holding liquidated — all shares sold. Its history is kept below.</Text>
           </>
-        ) : hasPrice ? (
+        ) : null}
+        {/* A SOLD HOLDING STILL HAS A PRICE AND A HISTORY (approved drawing holding-detail v02, phone 3):
+            the price, the day's change, the graph and its window stay; the position table goes. */}
+        {hasPrice ? (
           <>
             <SectionBand inCard inset={20} title={`CURRENT PRICE${fresh.stale ? '' : ' · LIVE'}`} />
             <Text style={s.big}>{fig('MK-NW-M-029', row.price as number)}</Text>
             {dayChange != null && (
               <Text style={[s.gainLine, { color: dayChange.d >= 0 ? Colors.gainText : Colors.red }]}>
-                {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{fig('MK-NW-M-060', Math.abs(dayChange.d))} ({Math.abs(Math.round(dayChange.p * 1000) / 10)}%) {fresh.stale ? 'last market day' : 'today'}
+                {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{fig('MK-NW-M-060', Math.abs(dayChange.d))} ({(Math.abs(dayChange.p) * 100).toFixed(2)}%) {fresh.stale ? 'last market day' : 'today'}
               </Text>
             )}
             {fresh.stale && <Text style={[s.metaLine, s.warn]}>prices may be out of date ({fresh.label})</Text>}
@@ -205,11 +221,12 @@ export default function HoldingDetailScreen() {
                 </View>
                 {/* FOUNDER 2026-08-18: when the price history does not reach back as far as the chip
                     asks for, say so rather than answering a shorter window under the longer label. */}
-                {coverage.sentence !== '' && (
-                  <Text style={s.coverageLine} accessibilityLabel={coverage.sentence}>{coverage.sentence}</Text>
+                {shortBy !== '' && (
+                  <Text style={s.coverageLine} accessibilityLabel={shortBy}>{shortBy}</Text>
                 )}
               </>
             )}
+            {!closed && (
             <View style={s.tblTop}>
               <View style={s.tRow}><Text style={s.tL}>Current value</Text><Text style={s.tV}>{fig('MK-NW-M-030', value)}</Text></View>
               {gain != null && (
@@ -219,8 +236,9 @@ export default function HoldingDetailScreen() {
               <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String))}</Text></View>
               <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
             </View>
+            )}
           </>
-        ) : (
+        ) : closed ? null : (
           <>
             <Text style={[s.kicker, s.warn]}>NO LIVE PRICE — SHOWING WHAT YOU PAID</Text>
             <Text style={s.big}>{fig('MK-NW-M-030', value)}</Text>
@@ -256,6 +274,7 @@ export default function HoldingDetailScreen() {
       ))}
 
       {/* what you bought — r25: the lots ARE the cost basis */}
+      {position.lots.length > 0 && (
       <View style={s.card}>
         <SectionBand inCard inset={20} title="WHAT YOU BOUGHT" />
         {position.lots.map((l) => (
@@ -268,6 +287,7 @@ export default function HoldingDetailScreen() {
         <View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><Text style={s.tV}>{fig('MK-NW-M-033', basis)}</Text></View>
         <Text style={s.note}>These purchases are the cost basis — they explain the average cost above.</Text>
       </View>
+      )}
 
       {/* dividends & realized — one card (mock v2); facts from the ledger, zeros said plainly */}
       {hasPrice && !closed && (
