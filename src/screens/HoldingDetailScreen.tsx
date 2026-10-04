@@ -298,6 +298,7 @@ export default function HoldingDetailScreen() {
             <Text style={s.tV}>{realized.sellsCounted > 0
               ? `${realized.realizedAllTime >= 0 ? '+' : '−'}${fig('MK-NW-M-035', Math.abs(realized.realizedAllTime))} all time`
               : `${fig('MK-NW-M-035', 0)} — nothing sold`}</Text></View>
+          {/* his ruling, 2026-10-04: "$0 — nothing sold" stays; the line about how sales are matched is for when there is a sale */}
           {realized.sellsCounted > 0 && (
             <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).{realized.sellsWithoutBasis > 0 ? ` ${realized.sellsWithoutBasis} sale${realized.sellsWithoutBasis === 1 ? '' : 's'} had no recorded purchase, so its gain isn't counted.` : ''}</Text>
           )}

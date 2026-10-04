@@ -5,6 +5,9 @@
  *  5,000 − 2,000 − 0 − 500 − 1,200 − 200 − 200 = 900 actual) and must give the same words in order.
  *
  *  KNOWN DIFFERENCES, each named where it is applied:
+ *  HIS RULING ON THESE, 2026-10-04 (DEC-1560, "Rest - keep it"): 2, 7, 8, 11, 12, 13 and 14 were put to him by
+ *  name — things the app has that the drawing does not show — and stay as built.
+ *
  *  1. "after tax and 401(k)" rides the planned inflow in BOTH frames. The drawing prints it in frame A
  *     and not in frame B; take-home means the same thing with or without a budget, so it is always said.
  *  2. The "＋ Expense" button floats over every tab, in the same corner as on Home. The drawing has no

@@ -619,11 +619,18 @@ def main():
     else:
         print('changed since the pack was sent: none')
     if '--supplement' in sys.argv:
+        # a supplement, once written, is also something he may have sent: the next one holds only what
+        # has moved since the LAST file each card went out in
+        last_out = {cid: v.get('sent_as') for cid, v in written.items()}
+        for sup in rules_file.get('supplements', []):
+            last_out.update(sup['cards'])
+        moved = [c for c in testable if last_out.get(c['card']['id']) != written[c['card']['id']]['read_from']]
+        number = len(rules_file.get('supplements', [])) + 1
         if not moved:
-            sys.exit('nothing has changed since the pack was sent — no supplement to write')
+            sys.exit('nothing has changed since the last file each card went out in — no supplement to write')
         lean = appendix(moved)
-        body = [brief, '', '---', '', '# The cards — batch "changed since sent 01"', '',
-                f'{len(moved)} cards, so {len(moved)} formula checks and {len(moved) * 5} cases. Put `"batch": "changed since sent 01"` in your reply.', '',
+        body = [brief, '', '---', '', f'# The cards — batch "changed since sent {number:02d}"', '',
+                f'{len(moved)} cards, so {len(moved)} formula checks and {len(moved) * 5} cases. Put `"batch": "changed since sent {number:02d}"` in your reply.', '',
                 'These functions were corrected after their cards first went out. The formula below is the one in the app now; '
                 'judge and test it as you would any other.', ''] + tables
         types = {}
@@ -637,8 +644,10 @@ def main():
             body += ['## Formulas these cards lean on', '',
                      f'{len(lean)} functions named by the formulas above. They are here so you can work your answers. Do not judge or test them in this batch.', '',
                      '```json', json.dumps(lean, indent=1, ensure_ascii=False), '```', '']
-        name = 'moneykeel_audit_cards_changed-since-sent_01.md'
+        name = f'moneykeel_audit_cards_changed-since-sent_{number:02d}.md'
         open(os.path.join(send_dir, name), 'w', encoding='utf8').write('\n'.join(body))
+        rules_file.setdefault('supplements', []).append({'file': name, 'cards': {c['card']['id']: written[c['card']['id']]['read_from'] for c in moved}})
+        json.dump(rules_file, open(RULES, 'w', encoding='utf8'), indent=1, ensure_ascii=False)
         print(f'supplement written: to-send/{name} — {len(moved)} cards')
         return
     if '--check' in sys.argv:

@@ -35,6 +35,16 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ '#2 - Add AGG, GLD, BTS, AOR.':
+  "Look back offers what you hold, the stock market (SPY), and four more yardsticks: bonds (AGG), gold (GLD), bitcoin (BTC) and a balanced fund (AOR). BTS is read as BTC; the app has no BTS.",
+ '#4 - remove second sentence.':
+  "On Your base pay, when the app calculates the tax, the card states its own sum and stops. The drawn second sentence, about a wrong number wearing a layout, is not shown.",
+ '#1 - sort by soonest maturing first':
+  "On the Bonds screen a person's bonds are listed soonest-maturing first. The approved drawing listed its three in another order; this ruling is newer and is the design.",
+ '#3 - "$0 - nothing sold" keep this.':
+  "On a holding's page, when nothing has been sold, the Realized from sales row reads \"$0 — nothing sold\". The approved drawing printed $0.00 with a line under it; the app's wording stays.",
+ 'Rest - keep it.':
+  "In twelve named places the app differs from its approved drawing and the app stays as it is — among them the Expense button, Import a statement, the Payoff plan, Add debt, twelve months for a bonus, and the kinds offered on the Alternatives editor.",
  'these are no longer needed per new design':
   'Four Cash flow screens are retired: Month detail, Paycheck months, Log income and Worth a look. No approved design draws a door to any of them, and no ruling needs them. Bill calendar and Monthly income stay only as the editors behind figures the approved designs show — not as destinations.',
  'open them from build but make sure it meets new design standards':

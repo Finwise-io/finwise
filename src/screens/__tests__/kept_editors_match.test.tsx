@@ -13,17 +13,19 @@
  *    Itemize v02 (taken as the design 2026-10-01) .... 3 phones
  *    Holding detail v02 (approved 2026-10-01) ........ 3 phones
  *
+ *  HIS RULING ON THESE, 2026-10-04 (DEC-1558, DEC-1559, DEC-1560): put to him one by one, he ruled 5 (soonest
+ *  maturing first) and 13 ("$0 — nothing sold" stays), and of the rest: "keep it" — 8 and 9 stay as built.
+ *
  *  KNOWN DIFFERENCES, each named where it is applied:
  *  1. The drawings write the top bar's wordmark as the words "Money Keel" and its two icons as glyphs.
  *     In the build the wordmark is the logo image and the icons are icons — none of them is text.
  *  2. What a person has typed sits in an input box, which the reader of the built screen does not read.
- *  3. Look back draws three choices in each row, for room (BND · VTI · QQQ and SPY · VTI · QQQ). The
- *     build offers every holding and every yardstick. Held: every drawn choice is offered, and the
- *     rest of the screen word for word.
+ *  3. HIS RULING, 2026-10-04: "Add AGG, GLD, BTS, AOR". Look back draws three choices in each row (what
+ *     you hold, and SPY). The build offers those and four more yardsticks — bonds, gold, bitcoin (BTC)
+ *     and a balanced fund — after them. Held: the drawn choices first and in the drawn order, then the four.
  *  4. The drawings write the info dot as the letter "i"; in the build it is the ⓘ icon.
- *  5. Bonds lists its three bonds in the order they were typed into the drawing. The build lists a
- *     person's bonds soonest-maturing first (MK-NW-O-001 theBonds), which is what "NEXT MATURITY"
- *     above the list is read from. Held: the same three blocks, word for word, in the build's order.
+ *  5. HIS RULING, 2026-10-04: "sort by soonest maturing first". The drawing lists its three bonds in
+ *     another order; the ruling is newer. Held: the same three blocks, word for word, soonest first.
  *  6. An empty Bonds or Alternatives screen carries "Nothing entered yet." and its door — his ruling
  *     for every empty state (Q48, 2026-09-09). The two drawings left the line out.
  *  7. Alternatives draws the kind "Commodities"; the app's one name for it is "Gold / commodities"
@@ -45,8 +47,8 @@
  *     coins". The precision standard (Q49) prints totals in whole dollars and trims a coin quantity's
  *     trailing zeros; the build follows the standard, and the figures are asserted in that form.
  *     Look back draws its two percents to one decimal ("+2.5%"); the standard prints a percent to two.
- * 13. With nothing sold the build says "$0 — nothing sold"; the drawing prints "$0.00" and, under it,
- *     the line about how sales are matched — a line the build keeps for when there is a sale.
+ * 13. HIS RULING, 2026-10-04: "$0 — nothing sold" stays. The drawing prints "$0.00" and, under it, the
+ *     line about how sales are matched — a line the build keeps for when there is a sale.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -135,16 +137,17 @@ describe('Look back v01', () => {
   const series = (a: number, b: number, from = 14) => ({ points: [{ date: back(from), close: a }, { date: back(Math.floor(from / 2)), close: (a + b) / 2 }, { date: iso(now), close: b }] });
   const HELD = [{ asset_id: 'b', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 60000, positions: ['BND', 'VTI', 'QQQ'].map((t, i) => (
     { position_id: `p${i}`, ticker: t, kind: t === 'BND' ? 'fixed_income' : 'stocks', lots: [{ lot_id: `l${i}`, shares: 100, cost_per_share: 100, purchase_date: '2024-01-01' }] })) }];
-  /** The drawn stream with its typed amount (2) and its two rows of choices (3) taken out; the built one the same. */
-  const noChoices = (s: string) => s.replace(/amount \$ (#,# )?from .*? when # months ago/, 'amount $ from <choices> to <choices> when # months ago');
+  const noTyped = (lines: string[]) => lines.filter((l) => l !== '20,000');                                    // 2: the amount is typed
+  const fourMore = (s: string) => s.replace(/ agg gld btc aor/g, '');                                          // 3: the four yardsticks he added
   test('the drawing has its two phones', () => { expect(P).toHaveLength(2); });
 
   test('state A · with prices — what actually happened, in three lines', () => {
     const built = show(LookBackScreen, { onboardingProfile: {}, assetAccounts: HELD, priceCache: { BND: { ticker: 'BND', ...series(100, 102.5) }, SPY: { ticker: 'SPY', ...series(100, 116) } } });
-    const want = noChoices(norm(upTo(P[0], /^Real past prices/)));
+    const want = norm(noTyped(upTo(P[0], /^Real past prices/)));
     expect(want.split(' ').length).toBeGreaterThan(45);
-    expect(firstDifference(want, noChoices(norm(built)))).toBe('');
-    for (const t of ['BND', 'VTI', 'QQQ', 'SPY']) expect(built).toContain(t);                                 // 3: every drawn choice is offered
+    expect(firstDifference(want, fourMore(norm(built)))).toBe('');
+    expect(built.slice(built.indexOf('From') + 1, built.indexOf('When'))).toEqual(                                // 3
+      ['BND', 'VTI', 'QQQ', 'AGG', 'GLD', 'BTC', 'AOR', 'To', 'SPY', 'VTI', 'QQQ', 'AGG', 'GLD', 'BTC', 'AOR']);
     expect(built).toContain('Left in BND it became $20,500 (up $500, +2.50%)');                                 // $20,000 × 1.025 — a percent to two decimals (Q49)
     expect(built).toContain('Moved to SPY it would be $23,200 (up $3,200, +16.00%)');                           // $20,000 × 1.16
     expect(built).toContain('Difference: $2,700 more if you had moved.');
@@ -152,8 +155,8 @@ describe('Look back v01', () => {
 
   test('state B · prices that do not reach back that far — it says what is missing and what to do', () => {
     const built = show(LookBackScreen, { onboardingProfile: {}, assetAccounts: HELD, priceCache: { BND: { ticker: 'BND', ...series(100, 102.5, 4) }, SPY: { ticker: 'SPY', ...series(100, 116, 4) } } });
-    const want = noChoices(norm(upTo(P[1], /pick a shorter window\.$/)));
-    expect(firstDifference(want, noChoices(norm(built)))).toBe('');
+    const want = norm(noTyped(upTo(P[1], /pick a shorter window\.$/)));
+    expect(firstDifference(want, fourMore(norm(built)))).toBe('');
     expect(built.join(' ')).not.toMatch(/Difference:/);                                                         // nothing invented
   });
 });
@@ -191,9 +194,11 @@ describe('Bonds v02', () => {
     const at = (name: string) => seg.indexOf(name);
     const [t, a, c, add] = [at('US Treasury 2027'), at('Apple Corp 4.5%'), at('Chase 12-month CD'), at('＋ Add a bond')];
     expect([t, a, c, add].every((i) => i > 0) && t < a && a < c && c < add).toBe(true);
-    const star = seg.slice(a, c).filter((l) => l.startsWith('* accrued'));                                   // the note sits under the list
+    const star = seg.slice(a, c).filter((l) => l.startsWith('* accrued'));                                   // the note sits under the bond it is about
     const soonestFirst = [...seg.slice(0, t), ...seg.slice(c, add), ...seg.slice(t, a), ...seg.slice(a, c).filter((l) => !l.startsWith('* accrued')), ...star, ...seg.slice(add)];   // 5
     expect(firstDifference(norm(soonestFirst), norm(built))).toBe('');
+    expect(built.indexOf('Chase 12-month CD')).toBeLessThan(built.indexOf('US Treasury 2027'));            // Feb 2027, then Jun 2027, then Mar 2030
+    expect(built.indexOf('US Treasury 2027')).toBeLessThan(built.indexOf('Apple Corp 4.5%'));
     expect(built).toEqual(expect.arrayContaining(['$74,180', '3 bonds · face $75,000', '$3,163', '4.26%', '$1,063/year coupon', 'yield 4.31%', 'yield 4.61% *', 'yield 4.00%']));
   });
 

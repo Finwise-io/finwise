@@ -131,7 +131,7 @@ test('dividends & realized: one card — trailing 12 months from the one ledger,
   expect(screen.getByText('DIVIDENDS & REALIZED')).toBeOnTheScreen();
   expect(screen.getByText('Dividends received (12 mo)')).toBeOnTheScreen();
   expect(screen.getByText('$310')).toBeOnTheScreen();                    // a TOTAL: whole dollars
-  expect(screen.getByText(/\$0 — nothing sold/)).toBeOnTheScreen();       // the zero is a sentence, not a hidden card
+  expect(screen.getByText(/\$0 — nothing sold/)).toBeOnTheScreen();       // the zero is a sentence, not a hidden card — kept by his ruling of 2026-10-04
 });
 
 test('no price for the ticker: honest basis hero, comparison/tax/look-back all absent — nothing invented', () => {

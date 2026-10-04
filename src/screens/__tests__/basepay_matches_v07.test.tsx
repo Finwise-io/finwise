@@ -20,9 +20,9 @@
  *  5. Phone 3 shows the rate question before AND after a rate is typed, in one frame. A screen is in
  *     one state at a time, so it is held as two: before (the warning, the question) and after (the
  *     sentence that says where the rate is used, and the take-home under it).
- *  6. Phone 3's card ends "The rows on this card always add up — a card whose own rows disagree is a
- *     wrong number wearing a layout." That is a remark to the reader of the drawing about the rule,
- *     not a sentence for a customer. The build prints the sum itself and stops there.
+ *  6. HIS RULING, 2026-10-04: "remove second sentence". Phone 3's card ends "The rows on this card always
+ *     add up — a card whose own rows disagree is a wrong number wearing a layout." The build prints
+ *     the sum itself and stops there.
  *  7. "Everything else taken out" reads "$1,200/month" in the build and "$1,200" on phone 5. A monthly
  *     figure says it is monthly (canon row 15).
  *  8. Phones 6 and 7 leave out the grey line under a question that phone 5 draws for the same

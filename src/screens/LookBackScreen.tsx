@@ -12,7 +12,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 // ONE DOOR (MK-NW-O-007 theLookBack, Q-PF-2) — one screen, one question.
 import { theLookBack } from '../../MoneyKeel/functions/networth-and-performance/look-back';
-import { BENCHMARK_TICKER, type PriceSeries } from '../domain/performance';
+import { type PriceSeries } from '../domain/performance';
 import { fig, figSaid } from '../components/figure';   // rule 11: a figure prints with its identifier
 
 const WINDOWS = [{ m: 12, label: '12 months ago' }, { m: 24, label: '2 years ago' }, { m: 36, label: '3 years ago' }] as const;
@@ -21,19 +21,23 @@ export default function LookBackScreen() {
   const store = useStore() as any;
   const priceCache: Record<string, PriceSeries> = store.priceCache ?? {};
 
-  // choices = every ticker the user holds + the standard yardsticks (one benchmark family app-wide)
+  // choices = every ticker the user holds, and the yardsticks he named
   const held: string[] = useMemo(() => {
     const t = new Set<string>();
     for (const a of store.assetAccounts ?? []) for (const p of a.positions ?? []) if (p.ticker) t.add(String(p.ticker).toUpperCase());
     return [...t];
   }, [store.assetAccounts]);
-  const yardsticks = useMemo(() => [...new Set(Object.values(BENCHMARK_TICKER))], []);
-  const choices = useMemo(() => [...new Set([...held, ...yardsticks])], [held, yardsticks]);
+  // THE CHOICES — his ruling, 2026-10-04: what you hold, the stock market (SPY) as the drawing draws,
+  // and four more yardsticks he named: "Add AGG, GLD, BTS, AOR" — bonds, gold, bitcoin (BTC; there is no
+  // BTS) and a balanced fund. The private-equity and hedge-fund yardsticks (PSP, QAI) are not offered.
+  const OFFERED = ['AGG', 'GLD', 'BTC', 'AOR'];
+  const fromChoices = useMemo(() => [...new Set([...held, ...OFFERED])], [held]);
+  const toChoices = useMemo(() => [...new Set(['SPY', ...held, ...OFFERED])], [held]);
 
   // the equity detail page's "what if I'd sold a year ago?" arrives pre-filled with that holding
   const params = useLocalSearchParams<{ from?: string; amount?: string }>();
   const [amount, setAmount] = useState(() => (params.amount && parseFloat(params.amount) > 0 ? String(Math.round(parseFloat(params.amount))) : '20000'));
-  const [from, setFrom] = useState<string>(() => (params.from ? String(params.from).toUpperCase() : held[0] ?? yardsticks.find((t) => t !== 'SPY') ?? 'BND'));
+  const [from, setFrom] = useState<string>(() => (params.from ? String(params.from).toUpperCase() : held[0] ?? 'AGG'));
   const [to, setTo] = useState<string>('SPY');
   const [months, setMonths] = useState<12 | 24 | 36>(12);
 
@@ -42,7 +46,7 @@ export default function LookBackScreen() {
     () => theLookBack({ amount: amt, fromSeries: priceCache[from], toSeries: priceCache[to], months }),
     [amt, priceCache, from, to, months]);
 
-  const Picker = ({ value, onPick, exclude, label }: { value: string; onPick: (t: string) => void; exclude: string; label: string }) => (
+  const Picker = ({ value, onPick, exclude, label, choices }: { value: string; onPick: (t: string) => void; exclude: string; label: string; choices: string[] }) => (
     <View style={s.pickWrap}>
       <Text style={s.pickLabel}>{label}</Text>
       <View style={s.chips}>
@@ -71,8 +75,8 @@ export default function LookBackScreen() {
           <TextInput style={s.amtInput} keyboardType="number-pad" value={amount} onChangeText={setAmount}
             accessibilityLabel="Amount to look back on" />
         </View>
-        <Picker label="From" value={from} onPick={setFrom} exclude={to} />
-        <Picker label="To" value={to} onPick={setTo} exclude={from} />
+        <Picker label="From" value={from} onPick={setFrom} exclude={to} choices={fromChoices} />
+        <Picker label="To" value={to} onPick={setTo} exclude={from} choices={toChoices} />
         <View style={s.pickWrap}>
           <Text style={s.pickLabel}>When</Text>
           <View style={s.chips}>

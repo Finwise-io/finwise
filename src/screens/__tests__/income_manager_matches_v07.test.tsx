@@ -3,6 +3,9 @@
  *  Method and limits: src/testing/mockMatch.ts. Each phone is held whole. Figures are compared as
  *  tokens there, so the drawing's own household is also asserted by value, phone by phone.
  *
+ *  HIS RULING ON THESE, 2026-10-04 (DEC-1560, "Rest - keep it"): 3 (twelve months), 4 ("by $600/month") and 8 (the
+ *  picker) were put to him by name and stay as built.
+ *
  *  KNOWN DIFFERENCES, each named where it is applied:
  *  1. "‹ Back" heads each screen where the drawing writes "‹ Income" (DEC-0354: the top bar carries the
  *     way back on every pushed screen).

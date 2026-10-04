@@ -1932,5 +1932,26 @@
   "commit": "62d47df",
   "date": "2026-10-04",
   "note": "sent_as is the fingerprint of each function as its card went out. A function whose fingerprint has moved since is listed by the builder, and goes out again in a file of its own."
- }
+ },
+ "supplements": [
+  {
+   "file": "moneykeel_audit_cards_changed-since-sent_01.md",
+   "commit": "b7f1d4e",
+   "cards": {
+    "MK-CF-F-087": "071ff745e1",
+    "MK-CF-F-092": "e41d3cbd6c",
+    "MK-CF-F-144": "01183eecd0",
+    "MK-CF-F-146": "9d184b5700",
+    "MK-CF-F-180": "30af7612b5",
+    "MK-CF-F-181": "dc776f0fe3",
+    "MK-CF-F-182": "e2df15bc02",
+    "MK-CF-F-186": "8f766bae7a",
+    "MK-CF-O-001": "8b30b23c26",
+    "MK-CF-O-004": "04d984b2a7",
+    "MK-PF-F-010": "194675a792",
+    "MK-PF-F-023": "365946ef93",
+    "MK-CF-O-019": "9616a8a545"
+   }
+  }
+ ]
 }

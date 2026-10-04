@@ -217,8 +217,9 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
 export function theBonds(input: BondsInput): Bonds {
   const now = input.today ?? new Date();
   const held = (input.accounts ?? []).filter(isBond);
-  // SORTED BY MATURITY, once, in the door — so the Bonds screen and any other reader show the same
-  // list in the same order without each sorting for itself.
+  // SOONEST-MATURING FIRST — his ruling, 2026-10-04: "sort by soonest maturing first". The approved
+  // drawing (bonds v02) lists its three in another order; the ruling is newer and is the design.
+  // Sorted once, in the door, so the Bonds screen and any other reader show the same list.
   const rows = held.map((a) => rowOf(a, now))
     .sort((x, y) => (Date.parse(x.maturity) || Infinity) - (Date.parse(y.maturity) || Infinity));
   const sum = bondSummary(held.map(bondInfo), now);
@@ -382,7 +383,7 @@ export const BOND_FIGURES = declareFigures({
     inputs: ['MK-XS-I-001 account balance'],
     refusal: '\u2014 the row is not drawn at all when there is no bond.',
     ruled: '2026-10-01',
-    worked: { given: GIVEN, answer: '$10,000', run: () => ALL().rows[0].value },
+    worked: { given: GIVEN, answer: '$10,000', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.value },
   },
   'MK-NW-M-055': {
     label: 'one bond\u2019s face', unit: 'money', screens: ['/bonds'], grain: 'one bond',
@@ -391,7 +392,7 @@ export const BOND_FIGURES = declareFigures({
     inputs: ['MK-XS-I-001 account balance'],
     refusal: 'Falls back to the value entered, and the row says face with that figure.',
     ruled: '2026-10-01',
-    worked: { given: GIVEN, answer: '$10,000', run: () => ALL().rows[0].face },
+    worked: { given: GIVEN, answer: '$10,000', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.face },
   },
   'MK-NW-M-056': {
     label: 'coupon', unit: 'money', per: 'year', screens: ['/bonds'], grain: 'one bond',
@@ -404,7 +405,7 @@ export const BOND_FIGURES = declareFigures({
     ],
     refusal: 'No coupon rate entered \u2014 the figure is left out rather than shown as $0.',
     ruled: '2026-10-01',
-    worked: { given: GIVEN, answer: '$505/year', run: () => ALL().rows[0].couponPerYear },
+    worked: { given: GIVEN, answer: '$505/year', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.couponPerYear },
   },
   'MK-NW-M-057': {
     label: 'yield', unit: 'percent-2dp', screens: ['/bonds'], grain: 'one bond',
@@ -417,7 +418,7 @@ export const BOND_FIGURES = declareFigures({
     ],
     refusal: '\u2014 when there is no coupon rate or no value to divide by.',
     ruled: '2026-10-01',
-    worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows[0].currentYield },
+    worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.currentYield },
   },
   'MK-NW-M-058': {
     label: 'Yield to maturity', unit: 'percent-2dp', screens: ['/bonds'], grain: 'one bond',
@@ -428,7 +429,7 @@ export const BOND_FIGURES = declareFigures({
     decisions: ['AN ESTIMATE, and the foot of the screen says so in those words.'],
     refusal: '\u2014 with no maturity date there are no years to spread the difference over.',
     ruled: '2026-10-01',
-    worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows[0].yieldToMaturity },
+    worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.yieldToMaturity },
   },
   'MK-NW-M-041': {
     label: 'total value of your bonds', unit: 'money', screens: ['/bonds'],
@@ -492,7 +493,7 @@ export const BOND_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: 'Ally 12-month CD — face $10,000, $505/year, 5.05%',
-      run: () => (() => { const r = ALL().rows[0]; return `${r.label} — face ${formatMoney(r.face)}, ${formatMoney(r.couponPerYear)}/year, ${((r.currentYield ?? 0) * 100).toFixed(2)}%`; })(),
+      run: () => (() => { const r = ALL().rows.find((r) => r.label === 'Ally 12-month CD')!; return `${r.label} — face ${formatMoney(r.face)}, ${formatMoney(r.couponPerYear)}/year, ${((r.currentYield ?? 0) * 100).toFixed(2)}%`; })(),
     },
   },
   'MK-NW-M-023': {
