@@ -78,10 +78,12 @@ const EXAMPLE = {
 const GIVEN =
   'Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), '
   + 'paying $1,200 and $400/month into their 401(k)s, with the tax rate typed at 22%.';
+
+/** Example only: runs incomeSummary on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-201 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * INCOME
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs incomeSummary on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     income summary(EXAMPLE)
@@ -122,10 +124,12 @@ const SOURCES_EXAMPLE = {
 const SOURCES_GIVEN =
   'The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares '
   + 'vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.';
+
+/** Example only: picks one kind of income source out of the worked example household. */
 /* ─ MK-CF-F-207 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * SOURCE
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: picks one kind of income source out of the worked example household.
  *
  * Formula .....
  *     income sources(SOURCES_EXAMPLE).find((x) => kind = kind)!
@@ -399,47 +403,6 @@ export const FIGURES = declareFigures({
  *  It does no arithmetic beyond adding up what the functions below give it, so the two totals cannot
  *  be built from different sources than the rows above them.
  */
-/* ─ MK-CF-O-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * incomeSummary
- *
- * Answers ..... ── ORCHESTRATOR ──────────────────────────────────────────────────────────────────────────── WHAT IS THIS HOUSEHOLD'S INCOME?
- *
- * Formula .....
- *     a = op (or none when missing)
- *     wages = earner wages(op as any)
- *     rent = rental net annual(op as any) ÷ 12
- *     grid = income monthly grid(op as any, 'available')
- *     months = for each of grid: amount
- *     usual = months.slice().sort((x, y) => x − y)[math.floor(months.length ÷ 2)]   if count of months
- *     0   otherwise
- *     biggest = months.reduce((best, v, i) => (v > months[best] ? i : best), 0)
- *     taxed lines = []
- *     rent annual = rental net annual(op as any)
- *     inv = inv annual read as a number (0 when it is not one)
- *     bonus = bonus annual read as a number (0 when it is not one)
- *     … the first steps only — the rest of the body needs reading by hand.
- *
- * Called by ... MK-CF-F-201 INCOME
- *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
- *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
- *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
- *               MK-CF-F-024 totalDebtMonthly
- *
- * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-027
- *               MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-039 · MK-CF-M-040
- *               MK-CF-M-041 · MK-CF-M-042 · MK-CF-M-043 · MK-CF-M-044
- *               MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013
- * Reads ....... MK-XS-I-023 salary and other income
- *               MK-XS-I-030 tax filing status and age
- *
- * Formula also on the master file · functions_from_code · MK-CF-O-004
- * Changed ..... not in git yet (—)
- */
 /** YOUR SOURCES — every source of income you have entered, named, with what it brings in.
  *
  *  MOVED OFF THE SCREEN (Cash flow pass 1, 2026-10-01). CashFlowScreen built this list itself: six
@@ -469,10 +432,11 @@ export interface IncomeSource {
   kind: 'salary' | 'self-employment' | 'bonus' | 'equity' | 'rental' | 'guaranteed';
 }
 
+/** Which sources of income has this household entered, and what does each one bring in? */
 /* ─ MK-CF-O-016 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * incomeSources
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Which sources of income has this household entered, and what does each one bring in?
  *
  * Formula .....
  *     o = (op ?? {}) as any
@@ -567,10 +531,11 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
   return out;
 }
 
+/** What is this household's income: what reaches the bank each month, and what the year is taxed on? */
 /* ─ MK-CF-O-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * incomeSummary
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... What is this household's income: what reaches the bank each month, and what the year is taxed on?
  *
  * Formula .....
  *     a = op (or none when missing)

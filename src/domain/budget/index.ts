@@ -568,10 +568,11 @@ export function annualCashflow(op: OnboardingProfile | null): {
   };
 }
 
+/** Turns the answers about expenses given during setup into the stored budget: the monthly total and its three parts, which are fixed bills, once-in-a-while costs and everyday expenses. */
 /* ─ MK-CF-F-013 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * budgetFromOnboarding
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Turns the answers about expenses given during setup into the stored budget: the monthly total and its three parts, which are fixed bills, once-in-a-while costs and everyday expenses.
  *
  * Formula .....
  *     a = op (or none when missing)
@@ -664,10 +665,12 @@ export function budgetVsActual(expenses: any[], op: OnboardingProfile | null, no
 
 const COLLECTION = 'budgets';
 export const SURPLUS_CALCULATED = 'SurplusCalculatedEvent';
+
+/** Reads a person's saved budget from storage and calculates nothing. */
 /* ─ MK-CF-F-015 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * loadBudget
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Reads a person's saved budget from storage and calculates nothing.
  *
  * Formula .....
  *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
@@ -680,10 +683,12 @@ export const SURPLUS_CALCULATED = 'SurplusCalculatedEvent';
  * Changed ..... 2026-06-05 (f742136)
  */
 export async function loadBudget(uid: UserId) { return getUserDoc<BudgetDoc>(COLLECTION, uid); }
+
+/** Saves a person's budget to storage and calculates nothing. */
 /* ─ MK-CF-F-016 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * saveBudget
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Saves a person's budget to storage and calculates nothing.
  *
  * Formula .....
  *     It records or announces something and returns no figure — no arithmetic of its own.

@@ -21,39 +21,15 @@ export interface WhatsComing {
   next: UpcomingBill | null;
 }
 
-/* ─ MK-CF-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * whatsComing
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     bills = bills
- *     next = the first of bills   if count of bills
- *     nothing   otherwise
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... MK-CF-M-012 · MK-CF-M-016 · MK-CF-M-017 · MK-CF-M-026
- *               MK-CF-M-028 · MK-MN-M-030
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-024 logged expenses
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · If start balance is missing it uses 0.
- *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *
- * Formula also on the master file · functions_from_code · MK-CF-O-008
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** Which bills and paychecks are coming over the next twelve months, and which look out of the ordinary?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-CF-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * whatsComing
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... Which bills and paychecks are coming over the next twelve months, and which look out of the ordinary?
  *
  * Formula .....
  *     bills = bills
@@ -119,10 +95,12 @@ const EXAMPLE = {
 const GIVEN =
   'On 28 Sep 2026, with $8,000 in the account: car insurance of $1,400 due 15 Oct and property tax of '
   + '$4,800 due 1 Nov. Nothing else is dated.';
+
+/** Example only: runs whatsComing on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-205 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * COMING
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs whatsComing on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     whats coming(EXAMPLE)

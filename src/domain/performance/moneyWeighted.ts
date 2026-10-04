@@ -128,10 +128,11 @@ export function historyIsComplete(transactions: Transaction[], accounts: AssetAc
   return true;
 }
 
+/** The value today of a set of dated money movements plus an ending value, at a given yearly rate; the money-weighted return is the rate that makes this come to zero. */
 /* ─ MK-PF-F-030 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * npv
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The value today of a set of dated money movements plus an ending value, at a given yearly rate; the money-weighted return is the rate that makes this come to zero.
  *
  * Formula .....
  *     disc = (when: number) => (1 + rate)^(-((when − t0) ÷ DAY) ÷ 365)

@@ -18,10 +18,11 @@ export interface EssentialsAverage {
 }
 export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered'; label: string; logged: EssentialsAverage | null }
 
+/** Writes a date as its year and month: 2026-08. */
 /* ─ MK-CF-F-191 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * ym
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Writes a date as its year and month: 2026-08.
  *
  * Formula .....
  *     the answer = 'YYYY-MM' from the date's year and month

@@ -50,50 +50,15 @@ export interface HoldingAnswer {
   realised: RealizedResult;
 }
 
-/* ─ MK-NW-O-006 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theHolding
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     now = input.now (or new date() when missing)
- *     p = input.position
- *     ticker = string((p as any).ticker ?? '')
- *     shares = total shares(p)
- *     paid = cost basis(p)
- *     priced = input.price ≠ nothing
- *     value = market value(p, input.price as number)   if priced
- *     paid   otherwise
- *     a year ago = the first 10 of the date now.get time() − 365 × 24 × 3600 × 1000).to isostring(
- *     div rows = named where type = 'DIVIDEND'
- *     sum = Σ over (list: any[]) => list of (amount (or 0 when missing or zero))
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... MK-MN-M-023
- * Reads ....... MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-005 holding price
- *               MK-XS-I-007 purchase price and date (per lot)
- *               MK-XS-I-009 transaction date
- *               MK-XS-I-024 logged expenses
- *               MK-XS-I-048 the person’s own asset-class answer
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *
- * Formula also on the master file · functions_from_code · MK-NW-O-006
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** How is this one holding doing: its value, its cost, and its gains realised and not yet realised?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-NW-O-006 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theHolding
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... How is this one holding doing: its value, its cost, and its gains realised and not yet realised?
  *
  * Formula .....
  *     now = input.now (or new date() when missing)
@@ -220,10 +185,12 @@ const EXAMPLE_LEDGER = [
 const GIVEN =
   '140 shares of VTI on 28 Sep 2026, priced at $290: 100 bought at $210 in Mar 2023 and 40 at $265 in '
   + 'Jun 2026. Dividends of $420 and $405 this year; 20 shares bought at $200 were sold at $285.';
+
+/** Example only: runs theHolding on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-080 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * HOLD
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theHolding on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.

@@ -11,34 +11,15 @@ import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { lookBack, type LookBackResult } from '../../../src/domain/performance/lookBack';
 
-/* ─ MK-NW-O-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theLookBack
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     look back(input.amount, input.from series, input.to series, input.months, input.now ?? new date())
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-048 the person’s own asset-class answer
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *
- * Formula also on the master file · functions_from_code · MK-NW-O-007
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** What would this holding be worth today had I put the same money into something else on the same days?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-NW-O-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theLookBack
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... What would this holding be worth today had I put the same money into something else on the same days?
  *
  * Formula .....
  *     look back(input.amount, input.from series, input.to series, input.months, input.now ?? new date())
@@ -93,10 +74,12 @@ const EXAMPLE = {
 const GIVEN =
   '$10,000 left in BND for 12 months, against moving it to VTI. BND closed $72.00 a year ago and '
   + '$73.80 now; VTI closed $250.00 and $290.00.';
+
+/** Example only: runs theLookBack on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-081 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * LB
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theLookBack on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the look back(EXAMPLE)!

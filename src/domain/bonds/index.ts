@@ -202,10 +202,12 @@ export function currentYield(b: BondInfo): number | null {
 }
 
 /** A47 (founder, 2026-08-26): subtract accrued interest when known; say so when not. */
+
+/** The note shown beside a bond's yield when its accrued interest was not entered, or nothing when it was. */
 /* ─ MK-NW-F-070 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * accruedInterestCaveat
  *
- * Answers ..... A47 (founder, 2026-08-26): subtract accrued interest when known; say so when not.
+ * Answers ..... The note shown beside a bond's yield when its accrued interest was not entered, or nothing when it was.
  *
  * Formula .....
  *     'accrued interest not entered — the yield uses the price as you entered it'   if accrued interest = nothing
@@ -280,10 +282,12 @@ export function approxYTM(b: BondInfo, now: Date = new Date()): number | null {
 }
 
 export interface BondSummary { count: number; totalValue: number; totalFace: number; annualCoupon: number; avgYield: number | null; nextMaturity: string | null; }
+
+/** Adds up every bond and CD held: how many there are, what they are worth, their face value, the interest they pay in a year, their average yield and the next one to mature. */
 /* ─ MK-NW-F-061 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * bondSummary
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Adds up every bond and CD held: how many there are, what they are worth, their face value, the interest they pay in a year, their average yield and the next one to mature.
  *
  * Formula .....
  *     list = bonds (or none when missing)
@@ -359,10 +363,12 @@ export function couponIncomeAnnual(accounts: AssetAccount[]): number {
  *  bonds: face × coupon. A CD (class 'bonds', founder rule 2026-08-04) or a rate-stated cash account
  *  (HYSA) contributes balance × its stated rate. A bond FUND with no coupon rate contributes $0 —
  *  A46 (founder, 2026-08-26): if the coupon rate is not available use 0, never a built-in yield. */
+
+/** The interest every bond, CD and rate-paying cash account pays in a year, added up, counting nothing for a holding that states no rate. */
 /* ─ MK-NW-F-063 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * interestIncomeAnnual
  *
- * Answers ..... Canonical annual INTEREST income across all interest-bearing holdings (Term #6).
+ * Answers ..... The interest every bond, CD and rate-paying cash account pays in a year, added up, counting nothing for a holding that states no rate.
  *
  * Formula .....
  *     cls = asset class of(a)

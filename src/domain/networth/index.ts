@@ -8,10 +8,12 @@ export interface NetWorthState {
   gross_debt: number;
 }
 
+
+/** Net worth from two totals: everything owned less everything owed. */
 /* ─ MK-NW-F-065 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * buildNetWorth
  *
- * Answers ..... What is this household worth?
+ * Answers ..... Net worth from two totals: everything owned less everything owed.
  *
  * Formula .....
  *     gross assets = round(assets total, 2 dp)

@@ -5,10 +5,11 @@ export const PERIODS_PER_YEAR: Record<Frequency, number> = {
   ONETIME: 1, WEEKLY: 52, BIWEEKLY: 26, MONTHLY: 12, QUARTERLY: 4, ANNUAL: 1,
 };
 
+/** Whether an income source is rent from a property, long-term or short-term. */
 /* ─ MK-CF-F-127 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * isRental
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Whether an income source is rent from a property, long-term or short-term.
  *
  * Formula .....
  *     t = 'LONG_TERM_RENTAL' (or t = 'SHORT_TERM_RENTAL' when missing or zero)
@@ -84,10 +85,11 @@ export function grossAnnualBaseline(sources: IncomeSource[]): number {
   return sources.reduce((t, s) => t + annualNet(s), 0);
 }
 
+/** The employer's 401(k) match for a year, added up across every job. */
 /* ─ MK-CF-F-046 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * employerMatchAnnual
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The employer's 401(k) match for a year, added up across every job.
  *
  * Formula .....
  *     Σ over sources of ((employer match amount or 0) × PERIODS_PER_YEAR[frequency])
@@ -117,10 +119,11 @@ export function employerMatchAnnual(sources: IncomeSource[]): number {
 import { effectiveRateOnGrossFor, progressiveMonthlyTax } from './tax';
 
 
+/** The share of gross income that goes to tax: the person's own rate where they gave one, otherwise the calculated federal rate for the way they file. */
 /* ─ MK-CF-F-048 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * effectiveTaxRate
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The share of gross income that goes to tax: the person's own rate where they gave one, otherwise the calculated federal rate for the way they file.
  *
  * Formula .....
  *     min(max(tax.manual effective tax rate, 0), 1)
@@ -154,10 +157,12 @@ export function effectiveTaxRate(grossAnnual: number, tax: TaxProfile): number {
 // ── monthly cash-flow grid ───────────────────────────────────────────────────
 /** Gross dollars a source delivers in each of the 12 months (lumpy items land on
  *  specific months; even cadences spread evenly). */
+
+/** The gross amount one income source brings in each of the twelve months, with rent taken after its running costs and lump payments placed in the months they arrive. */
 /* ─ MK-CF-F-161 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * monthlyGrossOfSource
  *
- * Answers ..... ── monthly cash-flow grid ─────────────────────────────────────────────────── Gross dollars a source delivers in each of the 12 months (lumpy items land on specific months; even cadences spread evenly).
+ * Answers ..... The gross amount one income source brings in each of the twelve months, with rent taken after its running costs and lump payments placed in the months they arrive.
  *
  * Formula .....
  *     m = 12 slots, each 0
@@ -201,10 +206,11 @@ function monthlyGrossOfSource(s: IncomeSource): number[] {
   return m;
 }
 
+/** The income picture for a year: gross, tax rate and take-home, and the gross, tax and take-home of each of the twelve months. */
 /* ─ MK-CF-F-049 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * buildIncomeState
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The income picture for a year: gross, tax rate and take-home, and the gross, tax and take-home of each of the twelve months.
  *
  * Formula .....
  *     gross = gross annual baseline(sources)
@@ -253,10 +259,11 @@ export function buildIncomeState(userId: string, sources: IncomeSource[], tax: T
   };
 }
 
+/** Returns a number unchanged, because rounding is done once, where a figure is shown. */
 /* ─ MK-CF-F-129 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * round4
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Returns a number unchanged, because rounding is done once, where a figure is shown.
  *
  * Formula .....
  *     n

@@ -40,32 +40,15 @@ export interface AlternativeRow {
   benchmark: number;
 }
 
-/* ─ MK-NW-O-005 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theAlternativesOutlook
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     s = alternatives summary(input.accounts ?? [])
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... MK-NW-M-029 · MK-NW-M-030 · MK-NW-M-031 · MK-NW-M-033
- *               MK-NW-M-034 · MK-NW-M-035 · MK-NW-M-036 · MK-NW-M-037
- * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Formula also on the master file · functions_from_code · MK-NW-O-005
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** What might my alternative investments earn in a year: the expected rate, and the money it comes to?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-NW-O-005 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theAlternativesOutlook
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... What might my alternative investments earn in a year: the expected rate, and the money it comes to?
  *
  * Formula .....
  *     accounts = input.accounts (or none when missing)
@@ -122,10 +105,12 @@ const EXAMPLE = [
   { asset_id: 'a6', label: 'Bitcoin', kind: 'crypto', tax_bucket: 'TAXABLE', balance: 6000, target_return: 0, asset_class: 'alternatives' },
 ] as any[];
 const GIVEN = '$9,000 of gold and $6,000 of bitcoin — $15,000 of other investments, at their kinds\' own benchmark rates.';
+
+/** Example only: runs theAlternativesOutlook on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-076 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * ALT
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theAlternativesOutlook on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.

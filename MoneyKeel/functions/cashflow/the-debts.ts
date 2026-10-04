@@ -27,12 +27,13 @@ export interface TheDebts {
   progress: { paidDown: number; share: number } | null;
 }
 
-/** ── ORCHESTRATOR ────────────────────────────────────────────────────────────────────────────
+/** What do I owe, what does it ask of me each month, when would I be clear of it, and how much have I paid down this year?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function the Debts tab calls. */
 /* ─ MK-CF-O-018 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theDebts
  *
- * Answers ..... ── ORCHESTRATOR ──────────────────────────────────────────────────────────────────────────── The one function the Debts tab calls.
+ * Answers ..... What do I owe, what does it ask of me each month, when would I be clear of it, and how much have I paid down this year?
  *
  * Formula .....
  *     active = input.debts (or none when missing) where (remaining balance or 0) > 0
@@ -87,10 +88,12 @@ const EXAMPLE = {
   extraMonthly: 0, method: 'avalanche' as PayoffMethod, now: new Date('2026-10-01T12:00:00'),
 };
 const GIVEN = 'A $9,000 card at 24% with a $200 minimum and a $14,000 car loan at 6.9% with a $250 minimum, nothing extra paid.';
+
+/** Example only: runs theDebts on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-211 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * DEBTS
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theDebts on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the debts(EXAMPLE)

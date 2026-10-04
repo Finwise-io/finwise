@@ -52,10 +52,12 @@ export const itemizedTotal = (items: ItemHolding[]): number =>
   (items.reduce((t, h) => t + (h.value || 0), 0));
 
 /** Lump balance − Σ holdings. Positive = still unallocated; negative = holdings exceed the entered total. */
+
+/** The entered total of an account less the value of the holdings listed under it: positive when some is still unexplained, negative when the holdings add up to more. */
 /* ─ MK-NW-F-050 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * itemizeRemainder
  *
- * Answers ..... Lump balance − Σ holdings.
+ * Answers ..... The entered total of an account less the value of the holdings listed under it: positive when some is still unexplained, negative when the holdings add up to more.
  *
  * Formula .....
  *     the answer = (lump balance, or 0) − itemized total(items)

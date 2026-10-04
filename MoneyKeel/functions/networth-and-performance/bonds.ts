@@ -22,10 +22,12 @@ import {
 
 /** A CD is recognised by its name, the same rule the asset classifier uses (CD_RE). */
 const CD_RE = /\b(cd|certificate of deposit)\b/i;
+
+/** Whether an account is a certificate of deposit, judged from its name. */
 /* ─ MK-NW-F-071 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * isCertificateOfDeposit
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Whether an account is a certificate of deposit, judged from its name.
  *
  * Formula .....
  *     CD_RE.test(`${label ?? ''} ${institution ?? ''}`)
@@ -103,10 +105,11 @@ export interface BondsInput {
   today?: Date;
 }
 
+/** One bond's row for the Bonds screen: its face value, yearly interest rate, interest paid in a year, maturity date and years left. */
 /* ─ MK-NW-F-072 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * rowOf
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... One bond's row for the Bonds screen: its face value, yearly interest rate, interest paid in a year, maturity date and years left.
  *
  * Formula .....
  *     b = bond info(a)
@@ -155,45 +158,15 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
   };
 };
 
-/* ─ MK-NW-O-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theBonds
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     now = input.today (or new date() when missing)
- *     held = input.accounts (or none when missing) where is bond
- *     sum = bond summary(held.map(bond info), now)
- *     one = nothing
- *     b = bond info(opened)
- *     row = row of(opened, now)
- *     years = row.years left (or 0 when missing)
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
- *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
- *               MK-NW-M-044 · MK-NW-M-045
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-011 bond face value
- *               MK-XS-I-013 bond maturity date
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · If years left is missing it uses 0.
- *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *
- * Formula also on the master file · functions_from_code · MK-NW-O-001
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** What bonds and CDs do I hold, what do they pay, and when do they mature?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-NW-O-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theBonds
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... What bonds and CDs do I hold, what do they pay, and when do they mature?
  *
  * Formula .....
  *     now = input.today (or new date() when missing)
@@ -309,10 +282,12 @@ const EXAMPLE = [
 const GIVEN =
   'Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today; '
   + 'and a $10,000 Ally CD paying 5.05%, maturing 15 Mar 2027, worth its $10,000.';
+
+/** Example only: runs theBonds on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-077 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * ALL
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theBonds on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -337,10 +312,12 @@ const GIVEN =
  * Changed ..... not in git yet (—)
  */
 const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
+
+/** Example only: runs theBonds for one bond of the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-078 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * ONE
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theBonds for one bond of the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.

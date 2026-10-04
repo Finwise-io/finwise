@@ -860,10 +860,12 @@ export function retirementIncomeMonthly(op: OnboardingProfile | null): number {
  *  counting them as income lets the pot fund itself, and the odds rise the more a person spends.
  *  The paycheck DISPLAY still lists every line via retirementIncomeMonthly above. */
 export interface GuaranteedStream { kind: 'ss' | 'pension' | 'annuity' | 'other'; monthly: number; inflates: boolean }
+
+/** The guaranteed income that comes from outside the person's own savings, one row for each source that pays anything: Social Security, a pension, an annuity or another, each as a monthly amount with whether it rises with prices. */
 /* ─ MK-CF-F-076 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * guaranteedOutsideStreams
  *
- * Answers ..... The plan's guaranteed-income input as separate streams of OUTSIDE money only. Answers: zer
+ * Answers ..... The guaranteed income that comes from outside the person's own savings, one row for each source that pays anything: Social Security, a pension, an annuity or another, each as a monthly amount with whether it rises with prices.
  *
  * Formula .....
  *     a = (op ?? {}) as any
@@ -1023,10 +1025,11 @@ export function wageMatchMonthly(w: Record<string, any> | null): number {
   return a.employerMatchMode === 'pct' ? (toNum(a.c_401k) * val) / 100 : val;
 }
 
+/** Turns the income answers given during setup into the list of income sources the app stores. */
 /* ─ MK-CF-F-079 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * incomeFromOnboarding
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Turns the income answers given during setup into the list of income sources the app stores.
  *
  * Formula .....
  *     a = op (or none when missing)
@@ -1336,10 +1339,12 @@ export function filingStatusOf(op: OnboardingProfile | null): import('./tax').Fi
   const v = a.filingStatus;
   return v === 'married' || v === 'mfs' || v === 'hoh' ? v : 'single';
 }
+
+/** The state income tax rate the person entered, as a share, held between 0% and 15%. */
 /* ─ MK-CF-F-086 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * stateRateOf
  *
- * Answers ..... What state tax rate applies?
+ * Answers ..... The state income tax rate the person entered, as a share, held between 0% and 15%.
  *
  * Formula .....
  *     min(0.15, max(0, to num((op as any).state tax rate) ÷ 100))
@@ -1373,10 +1378,12 @@ export function stateRateOf(op: OnboardingProfile | null): number {
  *  its real higher withholding while Σ monthly tax === the annual schedule EXACTLY. Manual mode:
  *  the user's flat rate in every month — their explicit number always wins. Both money grids
  *  (this module's and the dated F2 grid) read THIS vector, so they cannot disagree on take-home. */
+
+/** The tax rate for each of the twelve months, as a share: the person's own rate in every month where they gave one, otherwise a calculated rate that is higher in a month with a bonus. */
 /* ─ MK-CF-F-087 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * monthlyTaxRates
  *
- * Answers ..... PRD F2#11 — the ONE per-calendar-month effective tax-rate vector (Jan→Dec).
+ * Answers ..... The tax rate for each of the twelve months, as a share: the person's own rate in every month where they gave one, otherwise a calculated rate that is higher in a month with a bonus.
  *
  * Formula .....
  *     flat = effective rate(op)
@@ -1567,10 +1574,12 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
 /** E8 (founder brief 2026-08-20): how many people on the return are 65+. The app captures the
  *  person's birth year only — a spouse's age is unknown, so a joint return counts the person
  *  alone. The error direction slightly overstates tax: conservative for a plan. */
+
+/** How many people on the tax return are 65 or older: none, one or two. */
 /* ─ MK-CF-F-089 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * over65CountOf
  *
- * Answers ..... E8 (founder brief 2026-08-20): how many people on the return are 65+.
+ * Answers ..... How many people on the tax return are 65 or older: none, one or two.
  *
  * Formula .....
  *     a = op (or none when missing)
@@ -1624,10 +1633,11 @@ export function over65CountOf(op: OnboardingProfile | null): number {
   return new Date().getFullYear() - y >= 65 ? 1 : 0;
 }
 
+/** The one tax rate in force for the household, as a share of gross: their own figure where they gave one, otherwise the calculated rate. */
 /* ─ MK-CF-F-090 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * effectiveRate
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The one tax rate in force for the household, as a share of gross: their own figure where they gave one, otherwise the calculated rate.
  *
  * Formula .....
  *     rate in force(op).rate
@@ -1664,10 +1674,12 @@ export function effectiveRate(op: OnboardingProfile | null): number {
 
 /** PRD F3#17 — the user's OWN capital-gains rates (long: 0/15/20 ladder by filing status;
  *  short: their marginal bracket), each plus the flat state rate. Still a labeled estimate. */
+
+/** The person's own capital-gains tax rates, long-term and short-term, each with their state rate added. */
 /* ─ MK-CF-F-091 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * userCapGainsRates
  *
- * Answers ..... PRD F3#17 — the user's OWN capital-gains rates (long: 0/15/20 ladder by filing status; short: their marginal bracket), each plus the flat state rate.
+ * Answers ..... The person's own capital-gains tax rates, long-term and short-term, each with their state rate added.
  *
  * Formula .....
  *     gross = total gross annual(op)

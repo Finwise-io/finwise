@@ -141,10 +141,12 @@ export function annual401kLimit(age: number | null): number {
   if (age != null && age >= 60 && age <= 63) return IRS_LIMITS.elective_deferral_401k + IRS_LIMITS.super_catch_up_60_63;
   return IRS_LIMITS.elective_deferral_401k + (age != null && age >= 50 ? IRS_LIMITS.catch_up_50 : 0);
 }
+
+/** How much a person may put into an IRA this year: the standard limit, plus the catch-up amount from age 50. */
 /* ─ MK-CF-F-054 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * annualIraLimit
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... How much a person may put into an IRA this year: the standard limit, plus the catch-up amount from age 50.
  *
  * Formula .....
  *     IRS_LIMITS.ira + (age ≠ nothing and age ≥ 50 ? IRS_LIMITS.ira catch up 50 : 0)

@@ -38,10 +38,12 @@ export function isAlternative(a: AssetAccount): boolean {
 }
 
 export interface AltSummary { count: number; totalValue: number; blendedReturn: number; estAnnualGrowth: number; }
+
+/** Adds up the alternative investments: how many there are, what they are worth together, their blended yearly growth rate and the growth in dollars that rate gives over a year. */
 /* ─ MK-NW-F-002 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * alternativesSummary
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Adds up the alternative investments: how many there are, what they are worth together, their blended yearly growth rate and the growth in dollars that rate gives over a year.
  *
  * Formula .....
  *     alts = accounts (or none when missing) where is alternative

@@ -49,14 +49,15 @@ export interface EmergencyFund {
   housingDisagreement: { budgeted: number; owed: number; difference: number } | null;
 }
 
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** How many months of essential expenses would my cash cover?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-NW-O-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theEmergencyFund
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... How many months of essential expenses would my cash cover?
  *
  * Formula .....
  *     cash = input.cash override   if input.cash override ≠ nothing
@@ -219,10 +220,12 @@ const GIVEN =
   '$18,000 in checking. A $2,400/month mortgage, entered both as the Rent / Mortgage budget line and as a '
   + 'Mortgage debt — the same $2,400, not two different numbers. Plus $700 groceries (an essential) and $400 '
   + 'eating out (not). Also a car loan at $250/month and a Visa at $120/month. Nothing logged yet.';
+
+/** Example only: runs theEmergencyFund on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-079 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * EF
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theEmergencyFund on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the emergency fund(EXAMPLE)

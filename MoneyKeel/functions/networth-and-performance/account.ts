@@ -48,47 +48,15 @@ export interface Itemising {
   remainder: number;
 }
 
-/* ─ MK-NW-O-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theAccount
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     ledger = input.transactions (or none when missing) where string(account id) = string(account.asset id)
- *     income = personal flow totals(ledger.filter((t) => type = 'DIVIDEND' or type = 'INTEREST'))
- *     breakdown = account class breakdown(account)
- *     tk = string(ticker ?? '').trim().to upper case()
- *     f = personal flow totals(rows)
- *     dividends = dividends.to number(2)
- *     interest = interest.to number(2)
- *     parts = []
- *     the answer:
- *     dividends = dividends
- *     interest = interest
- *     words = parts.join(' · ')
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... MK-NW-M-019 · MK-NW-M-020 · MK-NW-M-021 · MK-NW-M-038
- *               MK-NW-M-039 · MK-NW-M-040
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-024 logged expenses
- *
- * Decides .....
- *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Rounds the answer to a whole number.
- *
- * Formula also on the master file · functions_from_code · MK-NW-O-002
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** What is in this one account: what it is worth, what it holds, what each holding has paid, and its activity?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-NW-O-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theAccount
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... What is in this one account: what it is worth, what it holds, what each holding has paid, and its activity?
  *
  * Formula .....
  *     ledger = input.transactions (or none when missing) where string(account id) = string(account.asset id)
@@ -179,10 +147,11 @@ export function theAccount(input: {
   };
 }
 
+/** When an account entered as one total is broken into holdings: the total to keep, the value of the holdings listed so far, and the amount still not explained by them. */
 /* ─ MK-NW-F-073 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * itemising
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... When an account entered as one total is broken into holdings: the total to keep, the value of the holdings listed so far, and the amount still not explained by them.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -239,10 +208,12 @@ const EXAMPLE_ACCOUNT = { asset_id: 'a2', label: 'Fidelity Brokerage', instituti
 const GIVEN =
   'A linked Fidelity brokerage worth $46,600: $6,000 in cash and 140 shares of VTI marked at $290 '
   + '($40,600). Its records: dividends of $420 and $405, a buy of 20 shares at $200, a sell of 20 at $285.';
+
+/** Example only: runs theAccount on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-075 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * ACC
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theAccount on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.

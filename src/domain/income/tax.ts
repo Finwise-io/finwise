@@ -63,10 +63,12 @@ export function grossFromNet(net: number, status: FilingStatus = 'single', over6
  *  month by month (Jan→Dec), so tax_m = taxOwedFor(cumulative through m) − taxOwedFor(cumulative through
  *  m−1). Telescoping guarantees Σ tax_m === taxOwedFor(annual) EXACTLY — the annual identity the
  *  sameness contract requires — while a bonus month visibly withholds at its higher bracket. */
+
+/** The tax taken in each of the twelve months when the brackets fill as the year's income builds up, so a month with a bonus is taxed higher and the twelve add up to the year's tax exactly. */
 /* ─ MK-CF-F-098 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * progressiveMonthlyTax
  *
- * Answers ..... PRD F2#11 — progressive PER-MONTH tax: brackets fill as the year's taxable income accumulates month by month (Jan→Dec), so tax_m = taxOwedFor(cumulative through m) − taxOwedFor(cumulative through m−1).
+ * Answers ..... The tax taken in each of the twelve months when the brackets fill as the year's income builds up, so a month with a bonus is taxed higher and the twelve add up to the year's tax exactly.
  *
  * Formula .....
  *     cum = 0, prev tax = 0, prev ti = 0
@@ -223,10 +225,12 @@ export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, 
   return Math.max(0, full - S.phaseOutRate * excess);
 }
 
+
+/** The amount of income that is free of tax before the brackets start: the standard deduction for the way the person files, plus the extra amounts for anyone 65 or older. */
 /* ─ MK-CF-F-099 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * deductionFor
  *
- * Answers ..... What amount of income is tax-free before the brackets start. Answers: $16,100 single · $32
+ * Answers ..... The amount of income that is free of tax before the brackets start: the standard deduction for the way the person files, plus the extra amounts for anyone 65 or older.
  *
  * Formula .....
  *     t = TAX_TABLES[status]

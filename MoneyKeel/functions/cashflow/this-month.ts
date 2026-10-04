@@ -174,14 +174,15 @@ export function inflowSourceWord(source: string): string {
  *               MK-HM-F-006 money0 · MK-NW-F-004 portfolioActualReturn
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-007 assetKind
  *               MK-NW-F-008 incomeBearingClassOf · MK-NW-F-010 wrapperAccount
- *               MK-NW-F-026 accountDisplayNames · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-035 blendedVolatility · MK-NW-F-056 bondInfo
- *               MK-NW-F-075 ACC · MK-NW-F-079 EF
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-101 PLAN
- *               MK-NW-O-004 theEmergencyFund · MK-PF-F-017 allocation
- *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-022 goalProgressPct
- *               MK-ST-F-031 valueOn · MK-ST-F-072 undo
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-107 mapActivityType
+ *               MK-NW-F-021 investmentsTotal · MK-NW-F-026 accountDisplayNames
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-035 blendedVolatility
+ *               MK-NW-F-056 bondInfo · MK-NW-F-075 ACC
+ *               MK-NW-F-079 EF · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-101 PLAN · MK-NW-O-004 theEmergencyFund
+ *               MK-PF-F-017 allocation · MK-PL-F-010 drawOrderOutcome
+ *               MK-PL-F-022 goalProgressPct · MK-ST-F-031 valueOn
+ *               MK-ST-F-072 undo · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-107 mapActivityType
  *
  * Reaches ..... 190 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
@@ -459,10 +460,12 @@ const EXAMPLE: MonthInput = {
 const GIVEN =
   'September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget. '
   + 'Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.';
+
+/** Example only: runs thisMonth on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-O-014 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * M
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs thisMonth on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     this month(EXAMPLE)
@@ -478,10 +481,12 @@ const GIVEN =
  * Changed ..... not in git yet (—)
  */
 const M = () => thisMonth(EXAMPLE);
+
+/** Example only: reads one row's amount from the worked example of the month. */
 /* ─ MK-CF-O-015 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * workedLineAmount
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: reads one row's amount from the worked example of the month.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -620,10 +625,11 @@ export const FIGURES = declareFigures({
   },
 } as const);
 
+/** How is the month going: what the plan says it holds and what has actually happened so far, each row by row and each ending in its surplus? */
 /* ─ MK-CF-O-003 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * thisMonth
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... How is the month going: what the plan says it holds and what has actually happened so far, each row by row and each ending in its surplus?
  *
  * Formula .....
  *     planned = planned month flow(m)

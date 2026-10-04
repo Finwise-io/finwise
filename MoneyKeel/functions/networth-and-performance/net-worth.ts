@@ -52,51 +52,15 @@ export interface TheNetWorth {
   investableChangePct: number | null;
 }
 
-/* ─ MK-NW-O-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theNetWorth
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     accounts = input.accounts (or none when missing)
- *     debts = input.debts (or none when missing)
- *     a state = build assets state(input.uid, accounts)
- *     d state = build debt state(input.uid, debts)
- *     nw = build net worth(input.uid, a state.total asset value, d state.total debt balance)
- *     by class = asset allocation(accounts)
- *     investable = investable assets(accounts)
- *     as percent = investable change pct(input.investable daily, investable, input.since)
- *     the answer:
- *     nothing   if as percent = nothing
- *     as percent ÷ 100   otherwise
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... MK-MN-M-016 · MK-MN-M-022 · MK-NW-M-002 · MK-NW-M-004
- *               MK-NW-M-005 · MK-NW-M-007 · MK-NW-M-009 · MK-NW-M-011
- *               MK-NW-M-017 · MK-XS-M-001 · MK-XS-M-003
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-003 institution name
- *               MK-XS-I-014 debt balance
- *               MK-XS-I-048 the person’s own asset-class answer
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · If alternatives is missing it uses 0.
- *     · If remaining balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *
- * Formula also on the master file · functions_from_code · MK-NW-O-003
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** What am I worth: everything I own, less everything I owe, and how each breaks down?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-NW-O-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theNetWorth
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... What am I worth: everything I own, less everything I owe, and how each breaks down?
  *
  * Formula .....
  *     accounts = input.accounts (or none when missing)
@@ -226,10 +190,11 @@ export interface LedgerGroup {
   mix: { key: string; total: number }[];
 }
 
+/** Groups the accounts for the Net worth list, by asset class or by institution, and gives each group its total. */
 /* ─ MK-NW-F-094 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * ledgerGroups
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Groups the accounts for the Net worth list, by asset class or by institution, and gives each group its total.
  *
  * Formula .....
  *     out = new map<string, ledger group>()
@@ -320,10 +285,12 @@ const GIVEN =
   '$18,000 checking, $142,000 brokerage, a $24,200 Treasury, a $310,000 rental and $9,000 of gold; '
   + 'against a $228,000 mortgage at $2,400/month and a $14,000 car loan at $250/month. '
   + 'Cash + investments stood at $180,000 on 2 Jan 2026.';
+
+/** Example only: runs theNetWorth on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-082 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * NW
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theNetWorth on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the net worth(EXAMPLE)
@@ -364,10 +331,12 @@ const LEDGER_ACCOUNTS = [
 const LEDGER_GIVEN =
   'The five accounts above plus a $21,000 car: $18,000 checking, $142,000 brokerage, a $24,200 Treasury '
   + 'at Fidelity, a $310,000 rental with no institution recorded, $9,000 of gold in a vault and the car.';
+
+/** Example only: the display name of an asset class, used by the worked example of the Net worth list. */
 /* ─ MK-NW-F-095 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * CLASS_LABEL_OF
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: the display name of an asset class, used by the worked example of the Net worth list.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -388,10 +357,12 @@ const CLASS_LABEL_OF = (a: any) => ({
   cash: 'Cash', stocks_etf: 'Stocks / Funds', bonds: 'Bonds & CDs', alternatives: 'Alternatives',
   real_estate: 'Real estate', personal_property: 'Personal property', mixed: 'Mixed',
 } as Record<string, string>)[String(a.asset_class)] ?? 'Unclassified';
+
+/** Example only: the asset class an account is filed under, used by the worked example of the Net worth list. */
 /* ─ MK-NW-F-096 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * CLASS_KEY_OF
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: the asset class an account is filed under, used by the worked example of the Net worth list.
  *
  * Formula .....
  *     string(asset class)
@@ -409,10 +380,12 @@ const CLASS_LABEL_OF = (a: any) => ({
  * Changed ..... not in git yet (—)
  */
 const CLASS_KEY_OF = (a: any) => String(a.asset_class);
+
+/** Example only: groups the worked example's accounts for the Net worth list, by class or by institution. */
 /* ─ MK-NW-F-097 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * LEDGER
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: groups the worked example's accounts for the Net worth list, by class or by institution.
  *
  * Formula .....
  *     ledger groups(LEDGER_ACCOUNTS, by, CLASS_LABEL_OF, CLASS_KEY_OF)
@@ -431,10 +404,12 @@ const CLASS_KEY_OF = (a: any) => String(a.asset_class);
  * Changed ..... not in git yet (—)
  */
 const LEDGER = (by: 'class' | 'institution') => ledgerGroups(LEDGER_ACCOUNTS, by, CLASS_LABEL_OF, CLASS_KEY_OF);
+
+/** Example only: the total of one named group in the worked example of the Net worth list. */
 /* ─ MK-NW-F-098 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * LEDGER_BAND
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: the total of one named group in the worked example of the Net worth list.
  *
  * Formula .....
  *     LEDGER('class').find((g) => label = label).total (or nothing when missing)
@@ -457,10 +432,12 @@ const LEDGER_BAND = (label: string) => LEDGER('class').find((g) => g.label === l
 const TREND_GIVEN =
   'Net worth recorded at the end of each month — $240,000 in January, $246,000 in February, $252,000 in '
   + 'March, $258,000 in April — and one daily point of $261,200 on 30 April.';
+
+/** Example only: makes one month's recorded net worth for the worked example of the trend line. */
 /* ─ MK-NW-F-099 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * SNAP
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: makes one month's recorded net worth for the worked example of the trend line.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -476,10 +453,12 @@ const TREND_GIVEN =
  * Changed ..... not in git yet (—)
  */
 const SNAP = (month: string, net: number) => ({ month, net_worth: net, gross_assets: net + 242000, gross_debt: 242000 });
+
+/** Example only: runs theNetWorth on four months of recorded net worth, to show the trend line. */
 /* ─ MK-NW-F-100 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * TREND
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theNetWorth on four months of recorded net worth, to show the trend line.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -515,10 +494,12 @@ const PLAN_GIVEN =
   'A 50-year-old with $184,200 of cash and investments, saving $24,000/year, retiring at 65 and '
   + 'planning to 92, expecting 6% a year with 2.5% inflation, with expenses of $5,500/month in retirement '
   + 'and $2,400/month of guaranteed income from 67.';
+
+/** Example only: runs the nest-egg projection on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-101 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * PLAN
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs the nest-egg projection on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.

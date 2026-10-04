@@ -33,10 +33,12 @@ export type QuantityUnit = 'shares' | 'coins' | 'contracts' | 'ounces' | 'units'
 /** Q06 (founder, 2026-08-26): options are contracts × 100 × price unless the broker or the person
  *  states another multiplier. Everything that is not an option is 1. */
 export const OPTION_CONTRACT_MULTIPLIER = 100;
+
+/** How many units one contract stands for: 100 for an option unless the holding states its own figure, and 1 for everything else. */
 /* ─ MK-PF-F-031 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * contractMultiplier
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... How many units one contract stands for: 100 for an option unless the holding states its own figure, and 1 for everything else.
  *
  * Formula .....
  *     multiplier   when multiplier ≠ nothing and multiplier > 0
@@ -72,10 +74,12 @@ export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'>): nu
 /** Q09 (founder, 2026-08-26): the unit beside a quantity — the person's when entered, else the one
  *  the kind implies: coins for crypto, contracts for options, ounces for gold and commodities, shares
  *  for everything else. */
+
+/** The unit written beside a quantity: the person's own where they entered one, otherwise coins for crypto, contracts for options, ounces for commodities and shares for everything else. */
 /* ─ MK-PF-F-032 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * quantityUnit
  *
- * Answers ..... Q09 (founder, 2026-08-26): the unit beside a quantity — the person's when entered, else the one the kind implies: coins for crypto, contracts for options, ounces for gold and commodities, shares for everything else.
+ * Answers ..... The unit written beside a quantity: the person's own where they entered one, otherwise coins for crypto, contracts for options, ounces for commodities and shares for everything else.
  *
  * Formula .....
  *     unit   when unit
@@ -138,10 +142,12 @@ export type Period = '1M' | '3M' | '6M' | 'YTD' | '1Y' | '2Y';
 export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
 
 // ---- cost basis & value (lot math) ----
+
+/** How many shares of a holding are held, added up across every purchase. */
 /* ─ MK-PF-F-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * totalShares
  *
- * Answers ..... ---- cost basis & value (lot math) ----
+ * Answers ..... How many shares of a holding are held, added up across every purchase.
  *
  * Formula .....
  *     total shares(holding) = Σ over every lot of (shares, or 0 when missing)
@@ -214,10 +220,12 @@ export function totalShares(p: Position): number {
 export function costBasis(p: Position): number {
   return ((p.lots ?? []).reduce((t, l) => t + (l.shares || 0) * (l.cost_per_share || 0), 0) * contractMultiplier(p));
 }
+
+/** The average price paid per share of a holding: its total cost divided by the shares held, or zero when no shares are held. */
 /* ─ MK-PF-F-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * avgCost
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The average price paid per share of a holding: its total cost divided by the shares held, or zero when no shares are held.
  *
  * Formula .....
  *     sh = total shares(p)
@@ -390,10 +398,12 @@ export function totalROI(p: Position, price: number | null | undefined): number 
 }
 
 // ---- period returns from a price series (price return of the security itself) ----
+
+/** The date a period starts from, counted back from today: one, three or six months, the start of this year, one year or two years. */
 /* ─ MK-PF-F-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * startDateFor
  *
- * Answers ..... ---- period returns from a price series (price return of the security itself) ----
+ * Answers ..... The date a period starts from, counted back from today: one, three or six months, the start of this year, one year or two years.
  *
  * Formula .....
  *     d = the date now

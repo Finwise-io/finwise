@@ -16,46 +16,15 @@ export interface CreditLine {
   status: 'good' | 'caution' | 'high' | null;
 }
 
-/* ─ MK-CF-O-006 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theCreditLine
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     balance = input.balance (or 0 when missing or zero)
- *     limit = input.limit (or 0 when missing or zero)
- *     balance = balance
- *     limit = limit
- *     used = nothing
- *     status = nothing   when not (limit > 0)
- *     u = credit utilization(balance, limit)
- *     the answer:
- *     balance = balance
- *     limit = limit
- *     used = ratio
- *     status = status
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... MK-MN-M-006
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If limit is missing it counts as zero, so nothing recorded and a real zero look the same.
- *
- * Formula also on the master file · functions_from_code · MK-CF-O-006
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** How much of my credit limit am I using?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-CF-O-006 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theCreditLine
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... How much of my credit limit am I using?
  *
  * Formula .....
  *     balance = input.balance (or 0 when missing or zero)
@@ -101,10 +70,12 @@ export function theCreditLine(input: { balance: number; limit: number }): Credit
  *  so the door calls it good. It runs `theCreditLine`, the real door.
  */
 const GIVEN = '$3,100 owed on the cards against $12,000 of total limit — 25.8% of the line in use.';
+
+/** Example only: runs theCreditLine on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-200 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * LINE
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theCreditLine on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.

@@ -49,10 +49,11 @@ export interface BasePayEntry {
   estRate?: number;
 }
 
+/** How many pay periods a year a pay frequency has, taken as 12 when it is monthly or not stated. */
 /* ─ MK-CF-F-140 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * periodsAYear
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... How many pay periods a year a pay frequency has, taken as 12 when it is monthly or not stated.
  *
  * Formula .....
  *     PAY_PERIODS[string(freq)] (or 12 when missing)
@@ -248,10 +249,11 @@ export function annualisedGross(e: BasePayEntry): number {
  *  expected to show it prefixed with ≈ and say what it cannot see. */
 export interface TakeHome { monthly: number; estimated: boolean; why: string; }
 
+/** A person's monthly take-home exactly as they entered it, averaged over their month-by-month table when their pay varies, or a calculated figure marked as calculated when they entered none. */
 /* ─ MK-CF-F-144 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * takeHomeAsEntered
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... A person's monthly take-home exactly as they entered it, averaged over their month-by-month table when their pay varies, or a calculated figure marked as calculated when they entered none.
  *
  * Formula .....
  *     months = months of(lands by month)
@@ -385,10 +387,11 @@ export const HIGH_DEDUCTION_SHARE = 0.6;
 
 export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
 
+/** Checks month by month that gross pay, less the 401(k), is enough to leave the take-home the person entered, and says in words when it is not or when an unusually large share goes elsewhere. */
 /* ─ MK-CF-F-146 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * payFiguresAgree
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Checks month by month that gross pay, less the 401(k), is enough to leave the take-home the person entered, and says in words when it is not or when an unusually large share goes elsewhere.
  *
  * Formula .....
  *     t = take home as entered(e)
@@ -493,10 +496,11 @@ export interface EarnerPay {
   months: [string, number][];
 }
 
+/** One earner's pay: gross for a month and for a year, their 401(k), their take-home and whether it was entered or calculated, and everything else taken out. */
 /* ─ MK-CF-F-171 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * earnerPay
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... One earner's pay: gross for a month and for a year, their 401(k), their take-home and whether it was entered or calculated, and everything else taken out.
  *
  * Formula .....
  *     t = take home as entered(e)
@@ -641,10 +645,12 @@ const GIVEN_LANDS_TYPED = WAGES + 'Each has typed what actually lands: $2,700 a 
 const GIVEN_LAW =
   'The payroll-tax figures Congress publishes for the 2026 tax year — not a calculation, and not '
   + 'ours to choose; they are read back so the sentence on screen can be checked against the law.';
+
+/** Example only: runs basePay on the worked example household with a tax rate of their own. */
 /* ─ MK-CF-O-011 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * PAY
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs basePay on the worked example household with a tax rate of their own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -662,10 +668,12 @@ const GIVEN_LAW =
  */
 const PAY = () => basePay({ earners: EXAMPLE_EARNERS as any, filingStatus: 'married', over65: 0,
   profile: { taxMode: 'manual', manualTaxRate: 22 } });
+
+/** Example only: runs basePay on the worked example household with the tax rate calculated. */
 /* ─ MK-CF-O-012 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * PAY_ESTIMATED
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs basePay on the worked example household with the tax rate calculated.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -682,10 +690,12 @@ const PAY = () => basePay({ earners: EXAMPLE_EARNERS as any, filingStatus: 'marr
  * Changed ..... not in git yet (—)
  */
 const PAY_ESTIMATED = () => basePay({ earners: EXAMPLE_EARNERS as any, filingStatus: 'married', over65: 0, profile: {} });
+
+/** Example only: runs basePay on the worked example household with the take-home entered. */
 /* ─ MK-CF-O-013 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * PAY_LANDS_TYPED
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs basePay on the worked example household with the take-home entered.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
@@ -832,10 +842,11 @@ export const FIGURES = declareFigures({
   },
 } as const);
 
+/** What does this household's base pay come to: each earner's pay, and the household's gross, tax bracket, tax, 401(k)s and take-home for a month? */
 /* ─ MK-CF-O-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * basePay
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... What does this household's base pay come to: each earner's pay, and the household's gross, tax bracket, tax, 401(k)s and take-home for a month?
  *
  * Formula .....
  *     profile = profile
@@ -990,10 +1001,12 @@ export const FICA_SHARE = 0.0765;   // kept for the record: the flat share the c
  *  tax is withheld per employer at $200,000 regardless of filing status). Per earner, a year. */
 export const SS_WAGE_BASE = 184_500;                 // 2026 Social Security wage base (SSA, October 2025 announcement)
 export const MEDICARE_ADDITIONAL_THRESHOLD = 200_000; // wages above this carry 0.9% more (IRC §3101(b)(2))
+
+/** Social Security and Medicare tax on a year's wages: 6.2% up to the wage cap, 1.45% of all of it, and 0.9% more above the higher-earner threshold. */
 /* ─ MK-CF-F-198 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * payrollTaxWithheld
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Social Security and Medicare tax on a year's wages: 6.2% up to the wage cap, 1.45% of all of it, and 0.9% more above the higher-earner threshold.
  *
  * Formula .....
  *     w = max(0, wage annual)
@@ -1036,10 +1049,12 @@ export function payrollTaxWithheld(wageAnnual: number): number {
  *  that assembles an input keeps the assembly to itself, and the next screen assembles it slightly
  *  differently — which is the same fault as a screen assembling a figure.
  */
+
+/** Turns a wage as the profile stores it into the form the pay calculations read: how often it is paid, whether it varies, the gross, the 401(k) and the take-home entered. */
 /* ─ MK-CF-F-179 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * entryFromWage
  *
- * Answers ..... WHAT IS STORED → WHAT THIS FILE READS.
+ * Answers ..... Turns a wage as the profile stores it into the form the pay calculations read: how often it is paid, whether it varies, the gross, the 401(k) and the take-home entered.
  *
  * Formula .....
  *     a = w (or none when missing)

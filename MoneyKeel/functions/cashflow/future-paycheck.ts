@@ -22,13 +22,14 @@ export interface FuturePaycheck {
   draw: number;
 }
 
-/** ── ORCHESTRATOR ────────────────────────────────────────────────────────────────────────────
+/** About what would a month bring in at retirement: the guaranteed income plus a level draw from savings?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function the Cash flow tab calls for the projection card. Null is an answer: before
  *  retirement age is known, or with no pot to project, nothing is shown — never a guess. */
 /* ─ MK-CF-O-017 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * futurePaycheck
  *
- * Answers ..... ── ORCHESTRATOR ──────────────────────────────────────────────────────────────────────────── The one function the Cash flow tab calls for the projection card.
+ * Answers ..... About what would a month bring in at retirement: the guaranteed income plus a level draw from savings?
  *
  * Formula .....
  *     age = age from profile(op)

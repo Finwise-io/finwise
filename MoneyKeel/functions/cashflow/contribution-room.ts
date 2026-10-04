@@ -33,46 +33,15 @@ export interface ContributionRoom {
   hsaBarredByMedicare: boolean;
 }
 
-/* ─ MK-CF-O-005 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theContributionRoom
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     op = input.profile (or none when missing)
- *     num = (v: any) => (number.is finite(number(v)) ? number(v) : 0)
- *     age = age attained in year(num(op.birth year) or nothing)
- *     k401 = k401 headroom(age, num(op.c 401k) × 12)
- *     ira limit = annual ira limit(age)
- *     ira used = min(num(op.c roth) × 12, ira limit)
- *     medicare = true   if op.medicare enrolled = 'yes'
- *     false   if op.medicare enrolled = 'no'
- *     nothing   otherwise   otherwise
- *     hsa limit = annual hsa limit(age, false, medicare)
- *     hsa used = min(num(op.c hsa) × 12, hsa limit)
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-017 birth year
- *               MK-XS-I-043 their own retirement contribution
- *               MK-XS-I-062 enrolled in Medicare (yes / no)
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · Turns a monthly figure into a year by multiplying by twelve.
- *
- * Formula also on the master file · functions_from_code · MK-CF-O-005
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** How much room is left in my 401(k), IRA and HSA this year, and what would fill it?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-CF-O-005 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theContributionRoom
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... How much room is left in my 401(k), IRA and HSA this year, and what would fill it?
  *
  * Formula .....
  *     op = input.profile (or none when missing)
@@ -155,10 +124,12 @@ const EXAMPLE = {
 const GIVEN =
   'Born 1965 — so 61 during 2026. Paying in $1,200/month to a 401(k), $300 to a Roth IRA and $150 '
   + 'to an HSA; not on Medicare. Read on 29 September 2026, so four months of the year are left.';
+
+/** Example only: runs theContributionRoom on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-199 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * ROOM
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theContributionRoom on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the contribution room(EXAMPLE)

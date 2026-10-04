@@ -81,10 +81,12 @@ export interface WindowFigures {
  *  where there is a real value to read — which is his ruling: THE BEGINNING IS READ, NEVER
  *  BACK-FILLED. The account page has always done it this way; the Performance tab did not, and the
  *  Performance tab opens on this window. */
+
+/** The first day of a period: the day after the record's first day for Since, 1 January for This year, and the same day one month, one year or two years back for the others. */
 /* ─ MK-NW-F-090 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * windowStartKey
  *
- * Answers ..... MK-NW-F-090 · The first day of a window.
+ * Answers ..... The first day of a period: the day after the record's first day for Since, 1 January for This year, and the same day one month, one year or two years back for the others.
  *
  * Formula .....
  *     first = record dates where ÷ ^\d{4}-\d{2}-\d{2}$ ÷ .test(each)the first of , in order
@@ -157,10 +159,12 @@ export function investmentRecordDates(snapshotDays: any[], investmentAccountIds:
 /** MK-NW-F-091 · What the PRICED holdings gained over the window. It is used ONLY to derive a
  *  beginning the daily record cannot reach — it never becomes the return. A holding bought inside the
  *  window counts its true gain (value − cost); any other counts what the window's price move gave it. */
+
+/** What the priced holdings gained over the period in dollars: the true gain for a holding bought inside the period, and the price move's share of today's value for any other. */
 /* ─ MK-NW-F-091 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * pricedGainOf
  *
- * Answers ..... MK-NW-F-091 · What the PRICED holdings gained over the window.
+ * Answers ..... What the priced holdings gained over the period in dollars: the true gain for a holding bought inside the period, and the price move's share of today's value for any other.
  *
  * Formula .....
  *     t + (gain ?? 0)   when capped since
@@ -268,10 +272,12 @@ export function rateWhereItRefuses(input: {
 
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
  *  investments, and an account left out here is an account whose dividends never reach the return. */
+
+/** Which accounts count as investments: those holding stocks and funds, bonds and CDs, alternatives or a mix, and never cash or property. */
 /* ─ MK-NW-F-092 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * investmentAccountIdsOf
  *
- * Answers ..... MK-NW-F-092 · Which accounts this door measures: the invested ones.
+ * Answers ..... Which accounts count as investments: those holding stocks and funds, bonds and CDs, alternatives or a mix, and never cash or property.
  *
  * Formula .....
  *     invested = a list with no repeats of ['stocks_etf', 'bonds', 'alternatives', 'mixed']
@@ -292,109 +298,21 @@ export function investmentAccountIdsOf(
   return new Set((accounts ?? []).filter((a) => invested.has(classOf(a))).map((a) => String(a.asset_id)));
 }
 
-/* ─ MK-NW-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * thePerformance
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     flows = personal flow totals(ledger)
- *     contributions = flows.contributions.to number(2)
- *     withdrawals = flows.withdrawals.to number(2)
- *     dividends = flows.dividends.to number(2)
- *     interest = flows.interest.to number(2)
- *     bounds = window bounds(window start, today)   if window start
- *     nothing   otherwise
- *     days = input.snapshot days (or none when missing)
- *     beginning = measured (or ending − input.priced gain − contributions + withdrawals when missing)
- *     years = bounds.days ÷ 365   if bounds
- *     0   otherwise
- *     has basis = measured ≠ nothing (or walk.wealth generated ! = 0 when missing or zero)
- *     refused = verdict ≠ nothing and verdict.rate = nothing
- *     … the first steps only — the rest of the body needs reading by hand.
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-003 institution name
- *               MK-XS-I-008 transaction amount
- *               MK-XS-I-009 transaction date
- *               MK-XS-I-024 logged expenses
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · Treats a year as 365 days.
- *     · Shows 2 decimal places.
- *
- * Formula also on the master file · functions_from_code · MK-NW-O-008
- * Changed ..... not in git yet (—)
- */
 /** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
-/* ─ MK-NW-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * thePerformance
- *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
- *
- * Formula .....
- *     flows = personal flow totals(ledger)
- *     contributions = flows.contributions.to number(2)
- *     withdrawals = flows.withdrawals.to number(2)
- *     dividends = flows.dividends.to number(2)
- *     interest = flows.interest.to number(2)
- *     bounds = window bounds(window start, today)   if window start
- *     nothing   otherwise
- *     days = input.snapshot days (or none when missing)
- *     beginning = measured (or ending − input.priced gain − contributions + withdrawals when missing)
- *     years = bounds.days ÷ 365   if bounds
- *     0   otherwise
- *     has basis = measured ≠ nothing (or walk.wealth generated ! = 0 when missing or zero)
- *     refused = verdict ≠ nothing and verdict.rate = nothing
- *     … the first steps only — the rest of the body needs reading by hand.
- *
- * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF
- *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *
- * Serves ...... MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-005 · MK-PF-M-006
- *               MK-PF-M-007 · MK-PF-M-008 · MK-PF-M-013 · MK-PF-M-014
- *               MK-PF-M-015 · MK-XS-M-004
- * Reads ....... MK-XS-I-008 transaction amount
- *               MK-XS-I-009 transaction date
- *               MK-XS-I-024 logged expenses
- * Ruled by .... DEC-0008 · DEC-0015 · DEC-0046 · DEC-0056 · DEC-0063 · DEC-0064
- *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
- *               DEC-0126 · DEC-0133 · DEC-0134 · DEC-0135 · DEC-0136 · DEC-0142
- *               DEC-0143 · DEC-0149 · DEC-0160 · DEC-0165 · DEC-0173 · DEC-0182
- *               DEC-0185 · DEC-0192 · DEC-0204 · DEC-0229 · DEC-0230 · DEC-0236
- *               DEC-0255 · DEC-0257 · DEC-0322 · DEC-0323 · DEC-0357 · DEC-0368
- *               DEC-0382 · DEC-0399 · DEC-0402 · DEC-0445 · DEC-0479 · DEC-0482
- *               DEC-0490 · DEC-0498
- *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
- *               Change the arithmetic and one of those stops being obeyed — read them first.
- *
- * Decides .....
- *     · Treats a year as 365 days.
- *     · Shows 2 decimal places.
- *
- * Formula also on the master file · functions_from_code · MK-NW-O-008
- * Changed ..... not in git yet (—)
- */
 /** MARK 16 (Performance v17, approved): where the window return refuses, the exact rate per year stands
  *  in its place and THESE words say what it is. One sentence, printed by the Performance tab and the
  *  Account portfolio alike — the test "the same figure, the same words" holds the two together. */
 export const RATE_STANDS_IN_WORDS =
   'Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money';
 
+/** How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return? */
 /* ─ MK-NW-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * thePerformance
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return?
  *
  * Formula .....
  *     flows = personal flow totals(ledger)
@@ -576,10 +494,11 @@ export interface CategoryEarned {
   yearly: boolean;
 }
 
+/** What each category of investment paid in dividends and interest over the period, and that category's return. */
 /* ─ MK-NW-F-084 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * categoryEarnings
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... What each category of investment paid in dividends and interest over the period, and that category's return.
  *
  * Formula .....
  *     rows = input.rows (or none when missing)
@@ -749,10 +668,12 @@ const QUIET = {
 const QUIET_GIVEN =
   'An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $32,000 on 28 Sep 2026, '
   + 'with nothing paid in or taken out and $825 of it arriving as dividends.';
+
+/** Example only: runs thePerformance on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-093 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * QUIET_PERF
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs thePerformance on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the performance(QUIET)
@@ -768,10 +689,12 @@ const QUIET_GIVEN =
  * Changed ..... not in git yet (—)
  */
 const QUIET_PERF = () => thePerformance(QUIET);
+
+/** Example only: runs thePerformance on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-083 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * PERF
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs thePerformance on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the performance(EXAMPLE)
@@ -841,10 +764,12 @@ const CAT_GIVEN =
   'Since 1 Jan 2026: dividends of $420 and $405 on VTI, $505 of interest on an Ally CD, and one '
   + 'dividend of $40 with no ticker on it. A $900 dividend from Nov 2025 is outside the window. '
   + 'Holdings: $40,600 of VTI up 12%, $10,000 of CD up 5%.';
+
+/** Example only: runs categoryEarnings on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-086 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * CATS
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs categoryEarnings on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     category earnings(CAT_EXAMPLE)
@@ -860,10 +785,12 @@ const CAT_GIVEN =
  * Changed ..... not in git yet (—)
  */
 const CATS = () => categoryEarnings(CAT_EXAMPLE);
+
+/** Example only: picks one category out of the worked example of what each category earned. */
 /* ─ MK-NW-F-087 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * CAT
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: picks one category out of the worked example of what each category earned.
  *
  * Formula .....
  *     CATS().find((c) => key = key)
@@ -887,10 +814,12 @@ const CAT = (key: string) => CATS().find((c) => c.key === key);
 const BENCH_GIVEN =
   '$40,000 of shares against a benchmark up 10% over the window, and $10,000 of bonds against one up '
   + '4% over the same days.';
+
+/** Example only: runs the market comparison on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-088 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * BENCH
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs the market comparison on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     portfolio bench return([

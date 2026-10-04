@@ -126,10 +126,11 @@ export interface SpentList { items: LoggedExpense[]; shown: LoggedExpense[]; hid
                              hiddenTotal: number; total: number; }
 export const SHOW_FIRST = 5;
 
+/** What was actually spent in a month, debt payments left out: every expense newest first, the five shown, how many more there are and the totals, for all of them or only those entered by hand or only those imported. */
 /* ─ MK-CF-F-151 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * actualSpending
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... What was actually spent in a month, debt payments left out: every expense newest first, the five shown, how many more there are and the totals, for all of them or only those entered by hand or only those imported.
  *
  * Formula .....
  *     shown = the first SHOW_FIRST of items
@@ -179,10 +180,11 @@ export type RadarReason = 'revolving-debt' | 'lump-debt' | 'big-bill';
 export interface RadarItem { label: string; amount: number; reason: RadarReason;
                              countedAsExpense: boolean; note: string; }
 
+/** Whether a debt belongs on the big-ticket radar: yes for a card or a credit line and for a debt due in one lump, no for a loan paid the same every month. */
 /* ─ MK-CF-F-152 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * isRadarItem
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Whether a debt belongs on the big-ticket radar: yes for a card or a credit line and for a debt due in one lump, no for a loan paid the same every month.
  *
  * Formula .....
  *     shape = payment shape(d)
@@ -218,10 +220,11 @@ export function isRadarItem(d: Debt): RadarReason | null {
   return shape === 'due_in_full' ? 'lump-debt' : 'revolving-debt';
 }
 
+/** The big-ticket radar for a month: each card, credit-line or lump-sum debt payment and each large dated bill, with its amount and whether it is already counted as an expense. */
 /* ─ MK-CF-F-153 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * radar
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The big-ticket radar for a month: each card, credit-line or lump-sum debt payment and each large dated bill, with its amount and whether it is already counted as an expense.
  *
  * Formula .....
  *     out = []
@@ -300,10 +303,11 @@ export interface Expenses {
   radar: RadarItem[];
 }
 
+/** What is being spent this month: the debts that repeat every month, the planned expenses by category, what was actually spent by where it came from, and the big-ticket radar? */
 /* ─ MK-CF-O-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * expenses
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... What is being spent this month: the debts that repeat every month, the planned expenses by category, what was actually spent by where it came from, and the big-ticket radar?
  *
  * Formula .....
  *     rec = recurring debt payments(s)

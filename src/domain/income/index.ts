@@ -16,10 +16,11 @@ export { taxOwedFor, effectiveRateOnGrossFor, grossFromNet, marginalBracketFor, 
 const COLLECTION = 'incomes';
 export const INCOME_UPDATED = 'IncomeUpdated';
 
+/** Reads a person's saved income from storage and calculates nothing. */
 /* ─ MK-CF-F-050 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * loadIncome
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Reads a person's saved income from storage and calculates nothing.
  *
  * Formula .....
  *     get user doc<income doc>(COLLECTION, uid)
@@ -38,10 +39,11 @@ export async function loadIncome(uid: UserId): Promise<IncomeDoc | null> {
   return getUserDoc<IncomeDoc>(COLLECTION, uid);
 }
 
+/** Saves a person's income to storage, tells the rest of the app it changed, and calculates nothing. */
 /* ─ MK-CF-F-051 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * saveIncome
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Saves a person's income to storage, tells the rest of the app it changed, and calculates nothing.
  *
  * Formula .....
  *     It records or announces something and returns no figure — no arithmetic of its own.

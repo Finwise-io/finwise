@@ -2394,6 +2394,18 @@
     "status": "OPEN — mine.",
     "comments": ""
    }
+  },
+  {
+   "task": "Outside test cases — two outside models write the cases, so my functions are judged by someone other than me",
+   "todo": "HIS INSTRUCTION, 2026-10-04: a brief for Claude and Gemini, and test cases that are two easy, two complex and one edge for each function and orchestrator. The pack is built: the brief, and 25 files holding 319 cards (Net worth 78, Performance 43, Cash flow 198), which is 1,595 cases from each model. 42 are left out with the reason beside each (34 only run a worked example, 8 only read or save). Each file goes to both models, each in its own new chat; each reply is saved unchanged in returned/.",
+   "status": "WAITING ON YOU — feed the 25 files in to-send/ to Claude and to Gemini and save what comes back in returned/. When replies are there, I run every case against the app and report the three answers side by side.",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/moneykeel_audit_cards_index_v01.md · Calculation Module code/scripts/build-outside-test-cards.py",
+   "date": "2026-10-04",
+   "comments": "Done first, because a function nobody has described cannot be tested from outside: 150 descriptions written into the code — 102 that read NOT DETERMINED, 16 orchestrators that carried one stock sentence, 32 that named an internal ticket or were cut off. 14 stale copies of records removed. src/__tests__/guard_function_descriptions.test.ts holds it: none may return in these three modules; the other modules owe 97, a number that may only fall. KNOWN LIMIT: only 32 of the 319 cards carry any written rule (18 carry a decision of his); the rest give the outside model one sentence and what the function is handed, so expect many answers marked RULE UNCLEAR — each of those is a rule that was never written down.",
+   "_written": {
+    "status": "WAITING ON YOU — feed the 25 files in to-send/ to Claude and to Gemini and save what comes back in returned/. When replies are there, I run every case against the app and report the three answers side by side.",
+    "comments": "Done first, because a function nobody has described cannot be tested from outside: 150 descriptions written into the code — 102 that read NOT DETERMINED, 16 orchestrators that carried one stock sentence, 32 that named an internal ticket or were cut off. 14 stale copies of records removed. src/__tests__/guard_function_descriptions.test.ts holds it: none may return in these three modules; the other modules owe 97, a number that may only fall. KNOWN LIMIT: only 32 of the 319 cards carry any written rule (18 carry a decision of his); the rest give the outside model one sentence and what the function is handed, so expect many answers marked RULE UNCLEAR — each of those is a rule that was never written down."
+   }
   }
  ]
 }

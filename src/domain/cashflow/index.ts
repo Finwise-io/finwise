@@ -12,10 +12,11 @@ import { spendBuckets, spendByMonth } from '../budget';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+/** Twelve zeros: an empty year, one slot for each month. */
 /* ─ MK-CF-F-121 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * zero12
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Twelve zeros: an empty year, one slot for each month.
  *
  * Formula .....
  *     the answer = twelve zeros, one per month
@@ -90,10 +91,12 @@ export function equityByMonth(op: Record<string, any>): number[] {
 // money in the bank, how much will you actually have — and how much (and by when) to ask whoever
 // covers your shortfall. Works at DAY resolution for dated items; steady income/spend accrues daily.
 const DAY_MS = 86400000;
+
+/** The number of whole days from one date to another. */
 /* ─ MK-CF-F-160 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * daysBetweenDates
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The number of whole days from one date to another.
  *
  * Formula .....
  *     the answer = round((b − a) in milliseconds ÷ 86,400,000)
@@ -113,10 +116,12 @@ const DAY_MS = 86400000;
  * Changed ..... not in git yet (—)
  */
 function daysBetweenDates(a: Date, b: Date): number { return Math.round((b.getTime() - a.getTime()) / DAY_MS); }
+
+/** The date a given number of days after another date. */
 /* ─ MK-CF-F-122 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * addDays
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The date a given number of days after another date.
  *
  * Formula .....
  *     the answer = d + n × 86,400,000 milliseconds
@@ -179,10 +184,11 @@ export interface UpcomingBill {
   daysAway: number;         // days from now until due
 }
 
+/** The dated bills coming due over the next year, each with the day the money must be there, the cash expected by that day and how much short it would be. */
 /* ─ MK-CF-F-019 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * upcomingBills
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The dated bills coming due over the next year, each with the day the money must be there, the cash expected by that day and how much short it would be.
  *
  * Formula .....
  *     a = op (or none when missing)

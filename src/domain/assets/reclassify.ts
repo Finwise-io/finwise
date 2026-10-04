@@ -51,10 +51,11 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
   return null;
 }
 
+/** Corrects the asset class of any account or holding filed under the wrong one, and counts how many it changed. */
 /* ─ MK-NW-F-054 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * reclassifyAccounts
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Corrects the asset class of any account or holding filed under the wrong one, and counts how many it changed.
  *
  * Formula .....
  *     changed = 0

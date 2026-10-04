@@ -37,35 +37,15 @@ export interface TheMonth {
   free: number;
 }
 
-/* ─ MK-CF-O-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theMonth
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     flow = this month(input)
- *     the answer:
- *     planned = flow.planned
- *     actual = flow.actual
- *     expenses = expenses(input)
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Formula also on the master file · functions_from_code · MK-CF-O-010
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** How is this month going: the plan, what has actually happened, the detail behind the expenses, and what is free after anything already promised to a goal?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-CF-O-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theMonth
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... How is this month going: the plan, what has actually happened, the detail behind the expenses, and what is free after anything already promised to a goal?
  *
  * Formula .....
  *     flow = this month(input)
@@ -159,10 +139,12 @@ const GIVEN =
   'September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget '
   + '($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, '
   + '$186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.';
+
+/** Example only: runs theMonth on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-203 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * MONTH
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theMonth on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the month(EXAMPLE)
@@ -189,19 +171,22 @@ const GIVEN =
  * Changed ..... not in git yet (—)
  */
 const MONTH = () => theMonth(EXAMPLE);
+
+/** Example only: reads one row's amount from the worked example of the month. */
 /* ─ MK-CF-F-204 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * line
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: reads one row's amount from the worked example of the month.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-O-001 basePay · MK-CF-O-006 theCreditLine
- *               MK-NW-F-028 classPortionLabel · MK-NW-F-101 PLAN
- *               MK-PF-F-005 unrealizedGain · MK-XS-F-002 dataGaps
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
- *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
+ * Called by ... MK-CF-F-036 buildDebtState · MK-CF-O-001 basePay
+ *               MK-CF-O-006 theCreditLine · MK-NW-F-028 classPortionLabel
+ *               MK-NW-F-101 PLAN · MK-PF-F-005 unrealizedGain
+ *               MK-XS-F-002 dataGaps · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-058 parseReceipt · MK-XS-F-094 parseReceiptText
+ *               MK-XS-F-096 pickReceipt
  *
  * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME

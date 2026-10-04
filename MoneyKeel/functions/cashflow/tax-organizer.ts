@@ -10,37 +10,15 @@ import { declareFigures } from '../_figure-spec';
 import { taxOrganizer, type TaxOrganizer } from '../../../src/domain/planning';
 import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
 
-/* ─ MK-CF-O-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * theTaxOrganizer
- *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
- *
- * Formula .....
- *     year = input.year (or the date ).get full year( when missing)
- *     actual passive = round(income from accounts(input.accounts ?? [], input.transactions ?? []).annual)
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
- *
- * Formula also on the master file · functions_from_code · MK-CF-O-007
- * Changed ..... not in git yet (—)
- */
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** What will my taxes look like: each taxable line, the deduction and the tax?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
 /* ─ MK-CF-O-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * theTaxOrganizer
  *
- * Answers ..... ── ORCHESTRATOR ───────────────────────────────────────────────────────────────────── The one function a screen calls for this question.
+ * Answers ..... What will my taxes look like: each taxable line, the deduction and the tax?
  *
  * Formula .....
  *     year = input.year (or the date ).get full year( when missing)
@@ -105,10 +83,12 @@ const EXAMPLE = {
 const GIVEN =
   'Filing jointly for 2026 on $169,200 of wages, with $19,200 paid into 401(k)s between the two of '
   + 'them and the $32,200 standard deduction.';
+
+/** Example only: runs theTaxOrganizer on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-202 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * TAX
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Example only: runs theTaxOrganizer on the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     the tax organizer(EXAMPLE)

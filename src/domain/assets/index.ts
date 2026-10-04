@@ -547,10 +547,12 @@ export function realEstateUseOf(a: AssetAccount): RealEstateUse {
 
 /** True when the asset is a real/physical asset (real estate or personal property) — excluded from
  *  investable assets and the nest egg (Term #4/#7). */
+
+/** Whether an account is a physical asset, meaning real estate or personal property. */
 /* ─ MK-NW-F-014 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * isRealAsset
  *
- * Answers ..... True when the asset is a real/physical asset (real estate or personal property) — excluded from investable assets and the nest egg (Term #4/#7).
+ * Answers ..... Whether an account is a physical asset, meaning real estate or personal property.
  *
  * Formula .....
  *     c = asset class of(a)
@@ -576,10 +578,12 @@ export function isRealAsset(a: AssetAccount): boolean {
 // ── Canonical asset totals (Term #2/#3/#4) ────────────────────────────────────
 // THE single source for each total — screens read these, never re-sum inline. All derive from
 // assetClassOf, so they stay consistent across every surface (Net Worth, Home, Insights, donut).
+
+/** Adds up the balances of the accounts that pass a given test. */
 /* ─ MK-NW-F-066 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * sumWhere
  *
- * Answers ..... ── Canonical asset totals (Term #2/#3/#4) ──────────────────────────────────── THE single source for each total — screens read these, never re-sum inline.
+ * Answers ..... Adds up the balances of the accounts that pass a given test.
  *
  * Formula .....
  *     Σ over accounts (or none when missing) where pred of (balance (or 0 when missing or zero))
@@ -607,10 +611,12 @@ export function isRealAsset(a: AssetAccount): boolean {
 function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => boolean): number {
   return ((accounts ?? []).filter(pred).reduce((t, a) => t + (a.balance || 0), 0));
 }
+
+/** Everything owned, added up: the balance of every account. */
 /* ─ MK-NW-F-015 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * totalAssets
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Everything owned, added up: the balance of every account.
  *
  * Formula .....
  *     Σ over accounts (or none when missing) of (balance (or 0 when missing or zero))
@@ -638,10 +644,12 @@ export function totalAssets(accounts: AssetAccount[]): number {
  *  shows. L-7 fix 2026-08-10: this used to count whole cash accounts only, so a connected brokerage's
  *  sweep balance was cash in the donut and the CASH group but NOT in the emergency emergency fund — the same
  *  screen printed "CASH $8,838" above "$8,000 cash ÷ …". Both now read the class breakdown. */
+
+/** All the cash a person has: every bank account, plus the uninvested cash sitting inside investment accounts. */
 /* ─ MK-NW-F-016 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * cashTotal
  *
- * Answers ..... Cash & cash equivalents (Term #3) — THE cash number, and the same one the Net Worth CASH group shows.
+ * Answers ..... All the cash a person has: every bank account, plus the uninvested cash sitting inside investment accounts.
  *
  * Formula .....
  *     b = account class breakdown(a)
@@ -669,10 +677,12 @@ export function cashTotal(accounts: AssetAccount[]): number {
     return t + (b ? b.cash : assetClassOf(a) === 'cash' ? (a.balance || 0) : 0);
   }, 0));
 }
+
+/** The total value of every account classed as Stocks / Funds. */
 /* ─ MK-NW-F-017 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * equitiesTotal
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The total value of every account classed as Stocks / Funds.
  *
  * Formula .....
  *     sum where(accounts, (a) => asset class of(a) = 'stocks_etf')
@@ -687,10 +697,12 @@ export function cashTotal(accounts: AssetAccount[]): number {
 export function equitiesTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => assetClassOf(a) === 'stocks_etf');
 }
+
+/** The total value of every account classed as Bonds & CDs. */
 /* ─ MK-NW-F-018 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * fixedIncomeTotal
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The total value of every account classed as Bonds & CDs.
  *
  * Formula .....
  *     sum where(accounts, (a) => asset class of(a) = 'bonds')
@@ -705,10 +717,12 @@ export function equitiesTotal(accounts: AssetAccount[]): number {
 export function fixedIncomeTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => assetClassOf(a) === 'bonds');
 }
+
+/** The total value of every account classed as Alternatives. */
 /* ─ MK-NW-F-019 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * alternativesTotal
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The total value of every account classed as Alternatives.
  *
  * Formula .....
  *     sum where(accounts, (a) => asset class of(a) = 'alternatives')
@@ -723,10 +737,12 @@ export function fixedIncomeTotal(accounts: AssetAccount[]): number {
 export function alternativesTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => assetClassOf(a) === 'alternatives');
 }
+
+/** The total value of every account classed as Real estate. */
 /* ─ MK-NW-F-020 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * realEstateTotal
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The total value of every account classed as Real estate.
  *
  * Formula .....
  *     sum where(accounts, (a) => asset class of(a) = 'real_estate')
@@ -743,10 +759,12 @@ export function realEstateTotal(accounts: AssetAccount[]): number {
 }
 /** Investments / holdings (allocation view, Term #4) = equities + fixed income + alternatives,
  *  ACROSS all wrappers (so a 401(k)'s stocks count). Excludes cash + real assets. */
+
+/** The total value of everything invested: stocks and funds, bonds and CDs, alternatives and accounts holding a mix, in whatever kind of account they sit, with cash and property left out. */
 /* ─ MK-NW-F-021 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * investmentsTotal
  *
- * Answers ..... Investments / holdings (allocation view, Term #4) = equities + fixed income + alternatives, ACROSS all wrappers (so a 401(k)'s stocks count).
+ * Answers ..... The total value of everything invested: stocks and funds, bonds and CDs, alternatives and accounts holding a mix, in whatever kind of account they sit, with cash and property left out.
  *
  * Formula .....
  *     sum where(accounts, (a) => { const c = asset class of(a); return c = 'stocks_etf' or c = 'bonds' or c = 'alternatives' or c = 'mixed'; })
@@ -767,10 +785,12 @@ export function investmentsTotal(accounts: AssetAccount[]): number {
 }
 /** Investable assets (Term #4) = all financial assets (cash + investments + retirement balances),
  *  EXCLUDING real estate + personal property. */
+
+/** Everything owned except real estate and personal property: cash, investments and retirement balances. */
 /* ─ MK-NW-F-022 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * investableAssets
  *
- * Answers ..... Investable assets (Term #4) = all financial assets (cash + investments + retirement balances), EXCLUDING real estate + personal property.
+ * Answers ..... Everything owned except real estate and personal property: cash, investments and retirement balances.
  *
  * Formula .....
  *     sum where(accounts, (a) => !is real asset(a))
@@ -805,10 +825,12 @@ const KIND_TO_WRAPPER: Record<string, string> = {
   '401k': '401(k)', trad_ira: 'Traditional IRA', roth_ira: 'Roth IRA', hsa: 'HSA', college_529: '529',
   home: 'Home', vehicle: 'Vehicle',
 };
+
+/** The plain word for the kind of account something sits in, such as 401(k) or IRA, or nothing when that kind has no such word. */
 /* ─ MK-NW-F-023 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * wrapperWord
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The plain word for the kind of account something sits in, such as 401(k) or IRA, or nothing when that kind has no such word.
  *
  * Formula .....
  *     KIND_TO_WRAPPER[kind] (or '' when missing)   if kind
@@ -867,10 +889,12 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *  ONLY when the label doesn't already say it (E*TRADE's own name is "E*Trade Individual Brokerage" —
  *  prefixing the institution again rendered "E-Trade E*Trade Individual…"), and the broker's mask
  *  suffixes when present so two same-named accounts are tellable apart (wireframe: "Brokerage ...4821"). */
+
+/** The one name an account is shown by, built from its institution, the kind of account and its last four digits where they are known. */
 /* ─ MK-NW-F-025 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * accountDisplayName
  *
- * Answers ..... The ONE display name for an account row (build-43 finding #1): institution prefixes the label ONLY when the label doesn't already say it (E*TRADE's own name is "E*Trade Individual Brokerage" — prefixing the institution again rendered "E-Trade E*Trade Individual…"), and the broker's mask suffixes when present so two same-named accounts are tellable apart (wireframe: "Brokerage ...4821").
+ * Answers ..... The one name an account is shown by, built from its institution, the kind of account and its last four digits where they are known.
  *
  * Formula .....
  *     inst raw = (institution ?? '').trim()
@@ -1107,10 +1131,12 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
 
 const CD_RE = /\b(cd|certificate of deposit)\b/i;
 const TREASURY_RE = /\b(treasur\w*|t-?bills?|t-?notes?|govt?|government)\b/i;
+
+/** Writes a count with its noun, singular for one and plural otherwise: 1 CD, 3 CDs. */
 /* ─ MK-NW-F-067 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * plural
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Writes a count with its noun, singular for one and plural otherwise: 1 CD, 3 CDs.
  *
  * Formula .....
  *     the answer = n + ' ' + (one   when n = 1;   many   otherwise)
@@ -1777,10 +1803,12 @@ export function monthlyContributionsFromOnboarding(op: Record<string, any> | nul
 
 const COLLECTION = 'assets';
 export const ASSETS_UPDATED = 'AssetsUpdated';
+
+/** Reads a person's saved accounts from storage and calculates nothing. */
 /* ─ MK-NW-F-042 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * loadAssets
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Reads a person's saved accounts from storage and calculates nothing.
  *
  * Formula .....
  *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
@@ -1796,10 +1824,12 @@ export const ASSETS_UPDATED = 'AssetsUpdated';
  * Changed ..... 2026-07-30 (a85874e)
  */
 export async function loadAssets(uid: UserId) { return getUserDoc<AssetsDoc>(COLLECTION, uid); }
+
+/** Saves a person's accounts to storage, tells the rest of the app it changed, and calculates nothing. */
 /* ─ MK-NW-F-043 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * saveAssets
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Saves a person's accounts to storage, tells the rest of the app it changed, and calculates nothing.
  *
  * Formula .....
  *     It records or announces something and returns no figure — no arithmetic of its own.
@@ -1812,10 +1842,12 @@ export async function loadAssets(uid: UserId) { return getUserDoc<AssetsDoc>(COL
  * Changed ..... 2026-07-30 (a85874e)
  */
 export async function saveAssets(d: AssetsDoc) { await setUserDoc(COLLECTION, d.user_id, d); emit(ASSETS_UPDATED, { user_id: d.user_id }); }
+
+/** Reads a person's saved accounts and returns their totals, or nothing when none are saved. */
 /* ─ MK-NW-F-044 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * getAssetsState
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Reads a person's saved accounts and returns their totals, or nothing when none are saved.
  *
  * Formula .....
  *     d = build assets state(uid, accounts ?? [])   if await load assets(uid); return d
@@ -1835,10 +1867,12 @@ export async function getAssetsState(uid: UserId) {
 /** THE source wording (Build-47 walk row 8, audit Strategy #9): one sentence per source, used by
  *  every screen that names where an account's numbers come from. The on-row chip LOOK is a separate
  *  founder-gated mock (audit item 10) — this is the words, so they can never drift again. */
+
+/** The words saying where an account's numbers come from, which are Linked, Imported or By hand, with a date added only when the numbers are stale. */
 /* ─ MK-NW-F-045 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * sourceWording
  *
- * Answers ..... THE source wording (Build-47 walk row 8, audit Strategy #9): one sentence per source, used by every screen that names where an account's numbers come from.
+ * Answers ..... The words saying where an account's numbers come from, which are Linked, Imported or By hand, with a date added only when the numbers are stale.
  *
  * Formula .....
  *     stale = is stale(last synced, now)
@@ -1886,10 +1920,12 @@ export interface HistoryCoverage {
   monthsCovered: number | null;   // how much of the claimed window is really covered
   sentence: string;               // the one plain sentence a screen shows
 }
+
+/** Says how far back one account's activity records reach, set against the period being asked about, in a sentence a person can read. */
 /* ─ MK-NW-F-046 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * historyCoverage
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Says how far back one account's activity records reach, set against the period being asked about, in a sentence a person can read.
  *
  * Formula .....
  *     who = (institution or label or 'this account').trim()
@@ -1941,10 +1977,12 @@ export function historyCoverage(
     sentence: `${who} shared ${span} of history (from ${prettyDay(from)}) — figures before that aren't counted.` };
 }
 const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** Writes a date as month, day and year: Aug 4, 2026. */
 /* ─ MK-NW-F-068 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * prettyDay
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Writes a date as month, day and year: Aug 4, 2026.
  *
  * Formula .....
  *     `${MONTH_ABBR[(m or 1) − 1]} ${d}, ${y}`
@@ -1981,10 +2019,12 @@ const CLASS_UBER: Record<AssetClass, UberGroup> = {
   stocks_etf: 'investments', bonds: 'investments', alternatives: 'investments', mixed: 'investments',
   real_estate: 'property', personal_property: 'property',
 };
+
+/** Which of the three Net worth groups an asset class belongs to: Cash, Investments or Personal property. */
 /* ─ MK-NW-F-047 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * uberGroupOf
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Which of the three Net worth groups an asset class belongs to: Cash, Investments or Personal property.
  *
  * Formula .....
  *     CLASS_UBER[cls] (or 'investments' when missing)

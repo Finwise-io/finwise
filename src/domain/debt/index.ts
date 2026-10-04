@@ -32,10 +32,12 @@ export interface Debt {
 /** B47 finding 11 — a debt's repayment SHAPE. Cards/lines revolve (a minimum that floats with the
  *  balance); everything else is an installment loan (a real fixed payment + an end date) unless the
  *  user says it's due in full on a date. One function so every editor defaults the same way. */
+
+/** How a kind of debt is normally repaid: a card or a credit line revolves, and every other kind is a loan paid in fixed instalments. */
 /* ─ MK-CF-F-021 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * defaultPaymentType
  *
- * Answers ..... B47 finding 11 — a debt's repayment SHAPE.
+ * Answers ..... How a kind of debt is normally repaid: a card or a credit line revolves, and every other kind is a loan paid in fixed instalments.
  *
  * Formula .....
  *     'revolving'   if t = 'CREDIT_CARD' (or t = 'HELOC' when missing or zero)
@@ -64,10 +66,12 @@ export interface Debt {
 export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type']> {
   return t === 'CREDIT_CARD' || t === 'HELOC' ? 'revolving' : 'installment';
 }
+
+/** How this debt is repaid: the way the person said, or the normal way for its kind when they did not say. */
 /* ─ MK-CF-F-022 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * paymentShape
  *
- * Answers ..... How is THIS debt repaid?
+ * Answers ..... How this debt is repaid: the way the person said, or the normal way for its kind when they did not say.
  *
  * Formula .....
  *     payment type (or default payment type(debt type) when missing)
@@ -177,10 +181,12 @@ export function totalDebtMonthly(debts: Debt[]): number {
 
 // Term #9 — TWO clearly-named monthly-debt numbers (they're different concepts, not a bug to pick one):
 /** Σ MINIMUM required payments — the contractual obligation. Use for DEBT-TO-INCOME (DTI). */
+
+/** The minimum payments every debt requires in a month, added up, leaving out any debt due in one lump on a date. */
 /* ─ MK-CF-F-025 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * minimumDebtService
  *
- * Answers ..... Term #9 — TWO clearly-named monthly-debt numbers (they're different concepts, not a bug to pick one): Σ MINIMUM required payments — the contractual obligation.
+ * Answers ..... The minimum payments every debt requires in a month, added up, leaving out any debt due in one lump on a date.
  *
  * Formula .....
  *     Σ over debts (or none when missing) of (0   if payment shape(each) = 'due_in_full'
@@ -311,10 +317,12 @@ export function loanPayment(principal: number, aprPct: number, termYears: number
 // ── B47 finding 11: the installment two-way math — enter the payment OR the end date, the app
 // computes the other. Both use Debt's DECIMAL rate (0.0625 = 6.25%), unlike loanPayment's percent.
 /** Months to clear `principal` paying `payment`/month at decimal APR. null = never (payment ≤ interest). */
+
+/** How many months it takes to clear a balance at a given yearly rate and monthly payment, or never when the payment does not cover the interest. */
 /* ─ MK-CF-F-029 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * monthsToClear
  *
- * Answers ..... ── B47 finding 11: the installment two-way math — enter the payment OR the end date, the app computes the other.
+ * Answers ..... How many months it takes to clear a balance at a given yearly rate and monthly payment, or never when the payment does not cover the interest.
  *
  * Formula .....
  *     0   when principal ≤ 0
@@ -372,10 +380,12 @@ export function paymentToClearBy(principal: number, aprDecimal: number, months: 
 
 // ── Credit health — utilization (balance ÷ limit) + score band ──
 export interface CreditUtil { ratio: number; status: 'good' | 'caution' | 'high'; }
+
+/** How much of a credit limit is in use, as a share, and whether that is good (30% or less), a caution (up to 50%) or high. */
 /* ─ MK-CF-F-031 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * creditUtilization
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... How much of a credit limit is in use, as a share, and whether that is good (30% or less), a caution (up to 50%) or high.
  *
  * Formula .....
  *     ratio = balance ÷ limit   if limit > 0
@@ -407,10 +417,12 @@ export function creditUtilization(balance: number, limit: number): CreditUtil {
   const status: CreditUtil['status'] = ratio <= 0.30 ? 'good' : ratio <= 0.50 ? 'caution' : 'high';
   return { ratio: Math.round(ratio * 1000) / 1000, status };
 }
+
+/** The word for a credit score: Excellent from 800, Very good from 740, Good from 670, Fair from 580 and Poor below that. */
 /* ─ MK-CF-F-032 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * creditScoreBand
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The word for a credit score: Excellent from 800, Very good from 740, Good from 670, Fair from 580 and Poor below that.
  *
  * Formula .....
  *     label = 'Excellent'
@@ -441,10 +453,12 @@ export function creditScoreBand(score: number): { label: string; good: boolean }
 
 // ── Debt-to-income ratio (CFPB) — how much of your gross income goes to debt payments ──
 export interface DTI { ratio: number; monthlyDebt: number; grossMonthly: number; guideline: number; status: 'good' | 'caution' | 'high'; }
+
+/** Monthly debt payments as a share of gross monthly income, judged against a guideline of 36% for a homeowner and 20% for anyone else. */
 /* ─ MK-CF-F-033 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * debtToIncome
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Monthly debt payments as a share of gross monthly income, judged against a guideline of 36% for a homeowner and 20% for anyone else.
  *
  * Formula .....
  *     ratio = monthly debt ÷ gross monthly   if gross monthly > 0
@@ -657,10 +671,12 @@ export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
 
 /** B-30: infer the debt type from its name so a "Mortgage" is treated as a mortgage (homeowner DTI
  *  guideline), not lumped into OTHER (renter guideline). */
+
+/** The kind of debt, judged from its name: a home-equity credit line, a mortgage, a car loan, a student loan, a credit card, a medical debt, a personal loan or something else. */
 /* ─ MK-CF-F-037 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * inferDebtType
  *
- * Answers ..... B-30: infer the debt type from its name so a "Mortgage" is treated as a mortgage (homeowner DTI guideline), not lumped into OTHER (renter guideline).
+ * Answers ..... The kind of debt, judged from its name: a home-equity credit line, a mortgage, a car loan, a student loan, a credit card, a medical debt, a personal loan or something else.
  *
  * Formula .....
  *     s = (label ?? '').to lower case()
@@ -758,10 +774,12 @@ export function debtsFromOnboarding(uid: UserId, op: Record<string, any> | null)
 
 const COLLECTION = 'debts';
 export const DEBT_UPDATED = 'DebtUpdated';
+
+/** Reads a person's saved debts from storage and calculates nothing. */
 /* ─ MK-CF-F-039 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * loadDebt
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Reads a person's saved debts from storage and calculates nothing.
  *
  * Formula .....
  *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
@@ -777,10 +795,12 @@ export const DEBT_UPDATED = 'DebtUpdated';
  * Changed ..... 2026-06-05 (f742136)
  */
 export async function loadDebt(uid: UserId) { return getUserDoc<DebtDoc>(COLLECTION, uid); }
+
+/** Saves a person's debts to storage, tells the rest of the app it changed, and calculates nothing. */
 /* ─ MK-CF-F-040 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * saveDebt
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Saves a person's debts to storage, tells the rest of the app it changed, and calculates nothing.
  *
  * Formula .....
  *     It records or announces something and returns no figure — no arithmetic of its own.
@@ -793,10 +813,12 @@ export async function loadDebt(uid: UserId) { return getUserDoc<DebtDoc>(COLLECT
  * Changed ..... 2026-06-05 (f742136)
  */
 export async function saveDebt(d: DebtDoc) { await setUserDoc(COLLECTION, d.user_id, d); emit(DEBT_UPDATED, { user_id: d.user_id }); }
+
+/** Reads a person's saved debts and returns their totals, or nothing when none are saved. */
 /* ─ MK-CF-F-041 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * getDebtState
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Reads a person's saved debts and returns their totals, or nothing when none are saved.
  *
  * Formula .....
  *     d = build debt state(uid, debts ?? [])   if await load debt(uid); return d

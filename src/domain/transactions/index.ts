@@ -43,10 +43,11 @@ export interface Transaction {
                               // never drift; rows recorded before this field use inverseOf()).
 }
 
+/** Applies one change to the one account named and leaves every other account as it was. */
 /* ─ MK-CF-F-132 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * map
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Applies one change to the one account named and leaves every other account as it was.
  *
  * Formula .....
  *     asset account) =>
@@ -121,10 +122,12 @@ export interface Transaction {
  */
 const map = (accs: AssetAccount[], id: EntityId, fn: (a: AssetAccount) => AssetAccount) =>
   accs.map((a) => (a.asset_id === id ? fn(a) : a));
+
+/** The uninvested cash held inside an account, or zero when none is recorded. */
 /* ─ MK-CF-F-133 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * cashOf
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The uninvested cash held inside an account, or zero when none is recorded.
  *
  * Formula .....
  *     cash balance (or 0 when missing or zero)
@@ -190,10 +193,12 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  */
 const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY'
   && (a.derive_balance === true || a.cash_balance != null);
+
+/** The cash an account can spend right now: the uninvested cash inside an investment account, or the whole balance of a bank account. */
 /* ─ MK-CF-F-135 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * availableCash
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... The cash an account can spend right now: the uninvested cash inside an investment account, or the whole balance of a bank account.
  *
  * Formula .....
  *     cash balance (or 0 when missing or zero)   if uses sleeve(a)
@@ -215,10 +220,12 @@ const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket 
  * Changed ..... not in git yet (—)
  */
 const availableCash = (a: AssetAccount) => (usesSleeve(a) ? (a.cash_balance || 0) : (a.balance || 0));
+
+/** Adds cash to an account, or takes it out, in the right place: the uninvested cash of an investment account, or the balance of a bank account. */
 /* ─ MK-CF-F-136 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * bumpCash
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Adds cash to an account, or takes it out, in the right place: the uninvested cash of an investment account, or the balance of a bank account.
  *
  * Formula .....
  *     ...a = ...a
@@ -275,10 +282,12 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
   }
   return { ...a, balance: ((a.balance || 0) + delta) };
 }
+
+/** Finds the holding a transaction refers to, by the holding's own identifier or by its ticker. */
 /* ─ MK-CF-F-137 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * findPos
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Finds the holding a transaction refers to, by the holding's own identifier or by its ticker.
  *
  * Formula .....
  *     the answer = the first holding in the account whose position id matches, or whose ticker matches (case-insensitive)

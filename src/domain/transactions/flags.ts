@@ -62,10 +62,11 @@ export function isMoneyOut(t: Transaction): boolean {
   return false;
 }
 
+/** Tidies a payee's name so two can be compared: trims the spaces and puts it in lower case. */
 /* ─ MK-CF-F-131 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * normPayee
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Tidies a payee's name so two can be compared: trims the spaces and puts it in lower case.
  *
  * Formula .....
  *     (note ?? '').trim().to lower case()
@@ -90,10 +91,12 @@ export function isMoneyOut(t: Transaction): boolean {
  * Changed ..... not in git yet (—)
  */
 const normPayee = (note?: string | null) => (note ?? '').trim().toLowerCase();
+
+/** How many days lie between two dates, whichever comes first. */
 /* ─ MK-CF-F-162 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * daysApart
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... How many days lie between two dates, whichever comes first.
  *
  * Formula .....
  *     size of(the date a).get time() − new date(b) ÷ 86400000

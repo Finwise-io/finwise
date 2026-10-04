@@ -31,10 +31,11 @@ export interface EarnerWage {
   landsTypical?: Money;
 }
 
+/** Whether a person has a wage on record: a base salary above zero, or a month-by-month pay table. */
 /* ─ MK-CF-F-172 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * hasWage
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Whether a person has a wage on record: a base salary above zero, or a month-by-month pay table.
  *
  * Formula .....
  *     the answer = w exists and (base salary > 0 or the salary-by-month table has entries)
@@ -139,10 +140,12 @@ export function hasTwoEarners(op: OnboardingProfile | null): boolean {
 }
 
 /** Add up one number per earner. The shape every household figure is built from. */
+
+/** Adds up one figure across every earner in the household. */
 /* ─ MK-CF-F-175 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * sumOverEarners
  *
- * Answers ..... Add up one number per earner.
+ * Answers ..... Adds up one figure across every earner in the household.
  *
  * Formula .....
  *     Σ over earner wages(op) of (of(each) (or 0 when missing or zero))
