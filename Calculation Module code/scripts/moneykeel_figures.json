@@ -86,7 +86,7 @@
     "/base-pay"
    ],
    "answers": "The federal income tax we calculate on the household’s wages, when nobody has entered their own figure.",
-   "formula": "tax a month = federal tax on (gross less the standard deduction, at the published bands) ÷ 12",
+   "formula": "tax a month = federal tax on (everything taxable, less the 401(k)s and the standard deduction, at the published bands) ÷ 12 — the same in every month",
    "inputs": [
     "MK-CF-M-030 gross a year",
     "MK-XS-I-024 filing status",
@@ -173,7 +173,7 @@
    "refusal": "The row is hidden for anyone whose take-home was calculated rather than entered; the household row is hidden unless every earner entered one.",
    "note": "ONE figure over two sets: one earner, and the household. Moved off the screen into this door on 2026-09-14 — the base-pay card used to do the subtraction itself (rule 5).",
    "worked": {
-    "given": "Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), paying $1,200 and $400/month into their 401(k)s — $14,100/month of wages in all. Each has typed what actually lands: $2,700 a period and $3,400/month.",
+    "given": "Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), paying $1,200 and $400/month into their 401(k)s — $14,100/month of wages in all. Each has typed their take-home each month: $5,850 and $3,400.",
     "answer": "$3,250/month"
    },
    "door": "MK-CF-O-001 basePay"

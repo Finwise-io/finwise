@@ -761,7 +761,7 @@ export const FIGURES = declareFigures({
   'MK-CF-M-033': {
     label: 'Calculated federal tax', unit: 'money', per: 'month', screens: ['/base-pay'],
     answers: 'The federal income tax we calculate on the household’s wages, when nobody has entered their own figure.',
-    formula: 'tax a month = federal tax on (gross less the standard deduction, at the published bands) ÷ 12',
+    formula: 'tax a month = federal tax on (everything taxable, less the 401(k)s and the standard deduction, at the published bands) ÷ 12 — the same in every month',
     inputs: ['MK-CF-M-030 gross a year', 'MK-XS-I-024 filing status', 'MK-XS-I-025 how many are over 65'],
     decisions: ['Assumes the standard deduction, never itemised (MK-CF-D-002).'],
     ruled: '2026-09-14',

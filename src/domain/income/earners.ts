@@ -81,10 +81,10 @@ const hasWage = (w: any): boolean =>
  *     the answer = out
  *     [spouse as earner wage]   when who = 'partner' and has wage(spouse)
  *
- * Called by ... MK-CF-F-174 hasTwoEarners · MK-CF-F-175 sumOverEarners
- *               MK-CF-F-176 sumMonthsOverEarners · MK-CF-F-180 enteredLandsAnnual
- *               MK-CF-F-181 rateInForce · MK-CF-O-004 incomeSummary
- *               MK-CF-O-016 incomeSources
+ * Called by ... MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-174 hasTwoEarners
+ *               MK-CF-F-175 sumOverEarners · MK-CF-F-176 sumMonthsOverEarners
+ *               MK-CF-F-180 enteredLandsAnnual · MK-CF-F-181 rateInForce
+ *               MK-CF-O-004 incomeSummary · MK-CF-O-016 incomeSources
  *
  * Reaches ..... 97 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -120,7 +120,7 @@ export function earnerWages(op: OnboardingProfile | null): EarnerWage[] {
 }
 
 /** Does this household have a second wage on record? */
-/* ─ MK-CF-F-174 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-174 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * hasTwoEarners
  *
  * Answers ..... Does this household have a second wage on record?

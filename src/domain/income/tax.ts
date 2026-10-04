@@ -78,19 +78,11 @@ export function grossFromNet(net: number, status: FilingStatus = 'single', over6
  *     state m = (ti − prev ti) × min(0.15, max(0, state rate))
  *     the answer = m + state m
  *
- * Called by ... MK-CF-F-049 buildIncomeState · MK-CF-F-087 monthlyTaxRates
+ * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-CF-F-210 annualOfSource
- *               … and 52 more — the full list is on functions_from_code
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -314,7 +306,7 @@ export function taxableIncomeFor(gross: number, status: FilingStatus = 'single',
  *
  * Called by ... MK-CF-F-097 grossFromNet · MK-CF-F-098 progressiveMonthlyTax
  *               MK-CF-F-102 effectiveRateOnGrossFor · MK-CF-F-144 takeHomeAsEntered
- *               MK-PL-F-032 rothConversionCost
+ *               MK-CF-F-181 rateInForce · MK-PL-F-032 rothConversionCost
  *
  * Reaches ..... 135 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -361,19 +353,14 @@ export function taxOwedFor(gross: number, status: FilingStatus = 'single', state
  *     0   otherwise
  *
  * Called by ... MK-CF-F-046 employerMatchAnnual · MK-CF-F-048 effectiveTaxRate
- *               MK-CF-F-181 rateInForce · MK-PL-F-067 willItLastInputs
+ *               MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               … and 61 more — the full list is on functions_from_code
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-048 effectiveTaxRate · MK-CF-F-046 employerMatchAnnual
+ *               MK-CF-O-017 futurePaycheck · MK-CF-F-052 getIncomeState
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age

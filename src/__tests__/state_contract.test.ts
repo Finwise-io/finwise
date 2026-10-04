@@ -100,27 +100,33 @@ describe('state contract (FCC-state-contract.md)', () => {
     expect(Math.abs(rmdDivisorAtAge(75) - rmdTable.UNIFORM_LIFETIME[75])).toBeLessThan(0.01);
   });
 
-  test('PRD F2#11 — progressive monthly withholding: EXACT annual identity + honest bonus months + manual stays flat', () => {
+  test('PRD F2#11, as his later rulings left it — ONE rate every month, the year exact, the 401(k) before tax', () => {
+    // WHAT CHANGED, 2026-10-04. F2#11 laid a calculated rate on the months by filling the tax bands as the
+    // year went on: a steady $6,000 salary showed no tax in January and the top band in December. No
+    // payslip does that, the base-pay card showed a level "≈/month" beside it, and the Income summary's
+    // rows stopped adding up. His rulings since: the rate is used "everywhere your take-home matters —
+    // cash flow, budget, the surplus" (G46, 2026-08-28), and a 401(k) comes off before tax (B05).
     const { progressiveMonthlyTax, taxOwedFor } = require('../domain/income/tax');
     const { monthlyTaxRates, incomeMonthlyGrid } = require('../domain/income');
-    // telescoping identity: the twelve monthly taxes sum to the annual schedule TO THE CENT
+    // the band-filling function itself still sums to the year TO THE CENT (the stored income record uses it)
     const lumpy = [6000, 6000, 36000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000];
     const tax = progressiveMonthlyTax(lumpy);
     expect(Math.abs(tax.reduce((a: number, b: number) => a + b, 0) - taxOwedFor(lumpy.reduce((a, b) => a + b, 0)))).toBeLessThan(0.01);
-    // the bonus month's effective rate exceeds a plain month's (brackets fill up)
-    expect(tax[2] / lumpy[2]).toBeGreaterThan(tax[1] / lumpy[1]);
-    // estimate mode: the vector reflects that; manual mode: the user's flat number in all 12
-    const est = { status: 'employed', baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly', bonusAnnual: '30000', bonusMonth: 3 };
-    const rates = monthlyTaxRates(est as any);
-    expect(rates[2]).toBeGreaterThan(rates[1]);
-    const man = monthlyTaxRates({ ...est, taxMode: 'manual', manualTaxRate: '20' } as any);
-    expect(new Set(man.map((r: number) => Math.round(r * 1000))).size).toBe(1);
-    expect(man[0]).toBeCloseTo(0.2);
-    // and the visible grid carries it: March take-home rate is HIGHER-taxed than February's
-    const grid = incomeMonthlyGrid(est as any, 'net');
-    const gross = incomeMonthlyGrid(est as any, 'gross');
-    const rateOf = (i: number) => 1 - grid[i].amount / gross[i].amount;
-    expect(rateOf(2)).toBeGreaterThan(rateOf(1));
+    // calculated or typed, the rate is one number in all twelve months
+    const est = { status: 'employed', baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly', c_401k: '500', bonusAnnual: '30000', bonusMonth: 3 };
+    for (const op of [est, { ...est, taxMode: 'manual', manualTaxRate: '20' }]) {
+      expect(new Set(monthlyTaxRates(op as any).map((r: number) => Math.round(r * 1e6))).size).toBe(1);
+    }
+    expect(monthlyTaxRates({ ...est, taxMode: 'manual', manualTaxRate: '20' } as any)[0]).toBeCloseTo(0.2);
+    // the year's tax in the grid is the schedule's tax on what is left after the 401(k) — exactly
+    const gross = incomeMonthlyGrid(est as any, 'gross').reduce((t: number, m: any) => t + m.amount, 0);
+    const net = incomeMonthlyGrid(est as any, 'net').reduce((t: number, m: any) => t + m.amount, 0);
+    expect(gross).toBeCloseTo(6000 * 12 + 30000, 6);
+    expect(gross - net).toBeCloseTo(taxOwedFor(6000 * 12 + 30000 - 500 * 12), 6);
+    // eleven equal months, and the bonus in its own month
+    const lands = incomeMonthlyGrid(est as any, 'available').map((m: any) => m.amount);
+    expect(new Set(lands.filter((_: number, i: number) => i !== 2).map((x: number) => Math.round(x * 100))).size).toBe(1);
+    expect(lands[2]).toBeGreaterThan(lands[1] + 20000);
   });
 
   test('PRD F9#14/F3#17 — filing status + state rate tune EVERY tax estimate from two answers', () => {

@@ -20,6 +20,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import FilingStatusScreen from '../FilingStatusScreen';
 import { useStore } from '../../store/useStore';
 import { norm, drawingLines, builtLines, firstDifference } from '../../testing/mockMatch';
+import { TAX_TABLES } from '../../domain/income/tax';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn(), canGoBack: () => true }),
@@ -56,6 +57,9 @@ test('phone 14 · they have a spouse — jointly, named, and who is 65 or older'
   const want = norm(phone(14, /^Continue$/));
   expect(want.split(' ').length).toBeGreaterThan(80);
   expect(firstDifference(want, built())).toBe('');
+  // the amount in the sentence is the tax table's own, so the two cannot drift apart
+  expect(TAX_TABLES.married.over65Add).toBe(1650);
+  expect(screen.getByText(/\$1,650 each on a joint return/)).toBeOnTheScreen();
 });
 
 test('phone 15 · what it changes — shown once, right after the answer', () => {

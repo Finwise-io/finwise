@@ -13,13 +13,13 @@ const handlers: Record<string, Set<Handler>> = {};
  * Formula .....
  *     () => handlers[event type].delete(handler as handler)
  *
- * Called by ... MK-CF-F-071 extraIncome · MK-CF-F-091 userCapGainsRates
- *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-202 TAX
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-091 pricedGainOf · MK-NW-O-003 theNetWorth
- *               MK-PL-F-004 withdrawalOrder · MK-PL-F-036 weighGoals
- *               MK-PL-F-082 taxableIncomeSteps · MK-ST-F-049 formatMoney
- *               MK-XS-F-183 writeFigure
+ * Called by ... MK-CF-F-071 extraIncome · MK-CF-F-087 monthlyTaxRates
+ *               MK-CF-F-091 userCapGainsRates · MK-CF-F-144 takeHomeAsEntered
+ *               MK-CF-F-202 TAX · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-CF-O-017 futurePaycheck · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-003 theNetWorth · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-036 weighGoals · MK-PL-F-082 taxableIncomeSteps
+ *               MK-ST-F-049 formatMoney · MK-XS-F-183 writeFigure
  *
  * Reaches ..... 155 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING

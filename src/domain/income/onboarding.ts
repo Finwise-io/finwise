@@ -107,7 +107,8 @@ function enteredMonthlyRaw(a: Record<string, any>): number {
  * Called by ... MK-CF-F-020 cashflowYear · MK-CF-F-061 grossSalaryMonthly
  *               MK-CF-F-080 jobActiveMonth · MK-CF-F-081 salaryActiveMonths
  *               MK-CF-F-082 salaryAnnual · MK-CF-F-088 taxableByCalendarMonth
- *               MK-CF-F-092 incomeMonthlyGrid · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-XS-F-004 buildDatedGrid
  *
  * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -146,7 +147,8 @@ export function salaryGrossByMonth(op: OnboardingProfile | null): number[] {
  *     typical = entered monthly raw(a)
  *     the answer = for each of raw: each
  *
- * Called by ... MK-CF-F-060 salaryGrossByMonth · MK-CF-F-206 householdK401ByMonth
+ * Called by ... MK-CF-F-060 salaryGrossByMonth · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-F-206 householdK401ByMonth
  *
  * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -541,7 +543,8 @@ export function rentalNetAnnual(op: OnboardingProfile | null): number {
  *     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]   otherwise
  *
  * Called by ... MK-CF-F-020 cashflowYear · MK-CF-F-070 benefitAnnual
- *               MK-CF-F-092 incomeMonthlyGrid · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-XS-F-004 buildDatedGrid
  *
  * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -700,9 +703,9 @@ export function extraIncome(op: OnboardingProfile | null): {
  * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-020 cashflowYear
  *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-083 totalGrossAnnual
  *               MK-CF-F-084 taxableAnnual · MK-CF-F-088 taxableByCalendarMonth
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-016 incomeSources
- *               MK-PL-F-031 taxOrganizer · MK-XS-F-004 buildDatedGrid
- *               MK-XS-F-024 resolveLens
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
+ *               MK-CF-O-016 incomeSources · MK-PL-F-031 taxOrganizer
+ *               MK-XS-F-004 buildDatedGrid · MK-XS-F-024 resolveLens
  *
  * Reaches ..... 130 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -1298,10 +1301,9 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
  *     'single'   otherwise
  *     v = filing status
  *
- * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-091 userCapGainsRates
- *               MK-CF-F-181 rateInForce · MK-CF-F-186 convertTakeHomeMode
- *               MK-CF-O-004 incomeSummary · MK-PL-F-067 willItLastInputs
- *               MK-PL-F-082 taxableIncomeSteps
+ * Called by ... MK-CF-F-091 userCapGainsRates · MK-CF-F-181 rateInForce
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-O-004 incomeSummary
+ *               MK-PL-F-067 willItLastInputs · MK-PL-F-082 taxableIncomeSteps
  *
  * Reaches ..... 126 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -1349,8 +1351,8 @@ export function filingStatusOf(op: OnboardingProfile | null): import('./tax').Fi
  * Formula .....
  *     min(0.15, max(0, to num((op as any).state tax rate) ÷ 100))
  *
- * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-091 userCapGainsRates
- *               MK-CF-F-181 rateInForce · MK-PL-F-067 willItLastInputs
+ * Called by ... MK-CF-F-091 userCapGainsRates · MK-CF-F-181 rateInForce
+ *               MK-PL-F-067 willItLastInputs
  *
  * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -1373,17 +1375,16 @@ export function stateRateOf(op: OnboardingProfile | null): number {
   return Math.min(0.15, Math.max(0, toNum((op as any)?.stateTaxRate) / 100));
 }
 
-/** PRD F2#11 — the ONE per-calendar-month effective tax-rate vector (Jan→Dec). Estimate mode:
- *  progressive bracket-filling over the calendar-year taxable profile, so a bonus month carries
- *  its real higher withholding while Σ monthly tax === the annual schedule EXACTLY. Manual mode:
- *  the user's flat rate in every month — their explicit number always wins. Both money grids
- *  (this module's and the dated F2 grid) read THIS vector, so they cannot disagree on take-home. */
+/** THE ONE per-calendar-month tax-rate vector (Jan→Dec) — PRD F2#11 as his later rulings left it
+ *  (2026-10-04): the rate in force, the same in every month, whether the person gave it or the app
+ *  calculated it. Σ monthly tax === the year's tax EXACTLY, and both money grids (this module's and
+ *  the dated F2 grid) read THIS vector, so they cannot disagree on take-home. */
 
-/** The tax rate for each of the twelve months, as a share: the person's own rate in every month where they gave one, otherwise a calculated rate that is higher in a month with a bonus. */
+/** The tax rate for each of the twelve months, as a share: the one rate in force in every month — the person's own where they gave one, otherwise the calculated rate. */
 /* ─ MK-CF-F-087 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * monthlyTaxRates
  *
- * Answers ..... The tax rate for each of the twelve months, as a share: the person's own rate in every month where they gave one, otherwise a calculated rate that is higher in a month with a bonus.
+ * Answers ..... The tax rate for each of the twelve months, as a share: the one rate in force in every month — the person's own where they gave one, otherwise the calculated rate.
  *
  * Formula .....
  *     flat = effective rate(op)
@@ -1416,21 +1417,16 @@ export function stateRateOf(op: OnboardingProfile | null): number {
  * Changed ..... 2026-08-20 (764ca16)
  */
 export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Date()): number[] {
-  const a = op ?? {};
-  const flat = effectiveRate(op);
-  // WHEN THE RATE IS THEIRS, IT IS THE RATE — every month, flat. Progressive bracket-filling is how
-  // we work out a rate we were not given; running it over one the person handed us would replace
-  // their answer with our guess. Until 2026-08-28 this checked only taxMode, so a household that had
-  // entered an exact take-home still had it re-estimated here, and the income grid
-  // disagreed with the base-pay screen by $572/month on the founder's own persona.
-  const { rateInForce } = require('./tax-rate');
-  if (rateInForce(op).mine) return new Array(12).fill(flat);
-  const taxable = taxableByCalendarMonth(op, now);
-  const total = taxable.reduce((t, g) => t + g, 0);
-  if (total <= 0) return new Array(12).fill(flat);
-  const { progressiveMonthlyTax } = require('./tax');
-  const tax = progressiveMonthlyTax(taxable, filingStatusOf(op), stateRateOf(op), over65CountOf(op));
-  return taxable.map((g, i) => (g > 0 ? Math.min(0.6, Math.max(0, tax[i] / g)) : flat));
+  // ONE RATE, EVERY MONTH — theirs when they gave one, the calculated one when they did not.
+  // Until 2026-10-04 a calculated rate was laid on the months by filling the tax bands as the year
+  // went on, so a steady $7,000 salary read $7,000 of take-home in January and February (no tax yet)
+  // and $5,460 in December. No payslip does that: an employer withholds the same from every equal
+  // pay cheque. It also made the base-pay card ("≈$6,196/month", level) and the Cash flow months
+  // disagree about the same take-home, and gave the Income summary rows that did not add up to its
+  // total and a "standout month" that was only January being untaxed. His ruling of 2026-08-28 (G46)
+  // is that the rate is used "everywhere your take-home matters — cash flow, budget, the surplus";
+  // that now holds for the calculated rate as it did for a typed one. The year's tax is unchanged.
+  return new Array(12).fill(effectiveRate(op));
 }
 
 /** THE HOUSEHOLD'S 401(k) CONTRIBUTIONS, MONTH BY MONTH — every earner's, in the months that earner
@@ -1469,18 +1465,19 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
  *     0   otherwise
  *
  * Called by ... MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-F-181 rateInForce
  *
- * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 74 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               MK-CF-F-012 annualCashflow · MK-CF-F-210 annualOfSource
- *               … and 51 more — the full list is on functions_from_code
+ *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
+ *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
+ *               … and 56 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-043 their own retirement contribution
@@ -1517,7 +1514,7 @@ export function householdK401ByMonth(op: OnboardingProfile | null): number[] {
  *     other idx = other income month(op) − 1
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-092 incomeMonthlyGrid
+ * Called by ... MK-CF-F-092 incomeMonthlyGrid
  *
  * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -1591,10 +1588,9 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
  *     y = birth year read as a number (0 when it is not one)
  *     0   when y is missing
  *
- * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-091 userCapGainsRates
- *               MK-CF-F-181 rateInForce · MK-CF-F-186 convertTakeHomeMode
- *               MK-CF-O-004 incomeSummary · MK-PL-F-067 willItLastInputs
- *               MK-PL-F-082 taxableIncomeSteps
+ * Called by ... MK-CF-F-091 userCapGainsRates · MK-CF-F-181 rateInForce
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-O-004 incomeSummary
+ *               MK-PL-F-067 willItLastInputs · MK-PL-F-082 taxableIncomeSteps
  *
  * Reaches ..... 126 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -1749,9 +1745,11 @@ export function userCapGainsRates(op: OnboardingProfile | null): { lt: number; s
  *
  * Serves ...... MK-XS-M-006
  * Reads ....... MK-XS-I-023 salary and other income
+ *               MK-XS-I-043 their own retirement contribution
  *               MK-XS-I-059 the month a bonus lands
  *
  * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *     · Never lets earned before401k fall below 0.
  *
@@ -1766,7 +1764,7 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
   const bonus = toNum(a.bonusAnnual);
   const signing = toNum(a.signingOnetime);
   const k401ByMonth = householdK401ByMonth(op);   // EVERY earner's — MK-CF-F-206
-  const rates = monthlyTaxRates(op, now);   // PRD F2#11 — per-month withholding, one shared vector
+  const rates = monthlyTaxRates(op, now);   // one shared vector — the rate in force, every month
 
   // distribute the level annual equity by the months its vests land on — the ONE placement rule
   const eqAnnual = rsuAnnual(op);
@@ -1787,6 +1785,19 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
   // tax would be wrong in a way nothing could see. They cannot drift now.
   const taxableByMonth = taxableByCalendarMonth(op, now);   // 401(k) already removed — it is pre-tax
   const rateIsTheirs = require('./tax-rate').rateInForce(op).mine;
+  // EACH EARNER'S OWN WAGE, EACH EARNER'S OWN ANSWER (approved drawing v07, frame 2a-iii: "Entered and
+  // estimated are never blended silently"). Someone who typed their take-home lands exactly that; the
+  // household rate is for a wage nobody gave a take-home for. Until 2026-10-04 the grid taxed every
+  // wage at one household rate, so where one of two earners had entered a take-home it was thrown
+  // away here — the base-pay card said $8,720 and the months said $10,130.
+  const wageRows = earnerWages(op).map((w) => {
+    const gross = wageGrossByMonth(w);
+    const year = gross.reduce((t, g) => t + g, 0);
+    const typed = toNum((w as any).landsTypical);
+    const k401Year = toNum((w as any).c_401k) * gross.filter((g) => g > 0).length;
+    const own = typed > 0 && year > 0 ? Math.min(1, Math.max(0, (year - k401Year - typed * 12) / year)) : null;
+    return { gross, own };
+  });
   return MONTH_ABBR.map((label, i) => {
     const taxable = taxableByMonth[i];
     const earnedBefore401k = taxable + k401ByMonth[i];   // what the job actually paid
@@ -1818,7 +1829,11 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
     // The CALCULATED rate is unchanged: it is tax ÷ everything taxable, so it still spreads the tax on
     // dividends over the pay that does reach the bank (the law in dividends.test.ts, finding B34).
     const notOnThePayslip = Math.min(rentalM + toNum(a.invAnnual) / 12, Math.max(0, earnedBefore401k));
-    const tax = rateIsTheirs ? (earnedBefore401k - notOnThePayslip) * rates[i] : taxable * rates[i];
+    // a CALCULATED rate is the year's tax ÷ everything taxable, so it is applied to everything taxable
+    // (that is how the tax on reinvested dividends still comes out of pay — the law in dividends.test.ts)
+    const wages = wageRows.reduce((t, w) => t + w.gross[i], 0);
+    const taxOnWages = wageRows.reduce((t, w) => t + w.gross[i] * (w.own ?? rates[i]), 0);
+    const tax = taxOnWages + (earnedBefore401k - wages - (rateIsTheirs ? notOnThePayslip : 0)) * rates[i];
     const k401 = k401ByMonth[i];   // nobody contributes out of a month with no pay; every earner counted
     const amount = mode === 'gross' ? gross
                  : mode === 'available' ? gross - tax - k401     // take-home: after tax AND 401(k)

@@ -35602,7 +35602,19 @@
     },
     {
      "k": "t",
-     "s": "= Inflow (income (take-home))"
+     "s": "Social Security · pension"
+    },
+    {
+     "k": "t",
+     "s": "after tax"
+    },
+    {
+     "k": "t",
+     "s": "$3,500"
+    },
+    {
+     "k": "t",
+     "s": "= Inflow (income (take-home) + Social Security)"
     },
     {
      "k": "t",
@@ -37435,6 +37447,7 @@
    ],
    "retiree": [
     "MK-CF-M-037",
+    "MK-CF-M-038",
     "MK-CF-M-041",
     "MK-CF-M-043",
     "MK-CF-M-044"
@@ -37569,7 +37582,7 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1269
+   "renders": 1270
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:73",

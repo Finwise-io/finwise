@@ -16,9 +16,9 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { taxOwedFor, TAX_TABLES, type FilingStatus } from '../domain/income/tax';
+import { taxOwedFor, type FilingStatus } from '../domain/income/tax';
 import { taxableAnnual, stateRateOf } from '../domain/income';
-import { hasTwoEarners } from '../domain/income/earners';
+import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { money } from '../domain/_shared/num';
 
 const OPTIONS: { v: FilingStatus; label: string }[] = [
@@ -89,7 +89,7 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
             </Text>
           </View>
           {/* SAY WHOSE INCOME THE BRACKET CAME FROM (founder, 2026-08-27) — true only while one wage is entered */}
-          {(status === 'married' || status === 'mfs') && !hasTwoEarners(op) && (
+          {(status === 'married' || status === 'mfs') && incomeSummary(op).wages < 2 && (
             <>
               <Text style={s.whoseT}>Your tax bracket is calculated from your income only.</Text>
               <Text style={s.note}>Add your spouse’s income if you want it to be accurate.</Text>
@@ -152,7 +152,7 @@ export function FilingStatusQuestions({ op, status, onStatus, over65, onOver65 }
             ))}
           </View>
           <Text style={s.note}>
-            Being 65 or older adds to your standard deduction — {money(TAX_TABLES.married.over65Add)} each on a joint return. We know
+            Being 65 or older adds to your standard deduction — $1,650 each on a joint return. We know
             your age from your birth year; we have never asked about {partnerName ? `${partnerName}’s` : 'your spouse’s'}.
           </Text>
         </>

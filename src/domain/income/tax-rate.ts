@@ -23,8 +23,8 @@
 import type { OnboardingProfile } from '../onboardingProfile';
 import { toNum } from '../_shared/num';
 import { earnerWages, type EarnerWage } from './earners';
-import { salaryAnnual, taxableAnnual, filingStatusOf, stateRateOf, over65CountOf } from './onboarding';
-import { effectiveRateOnGrossFor } from './tax';
+import { salaryAnnual, taxableAnnual, filingStatusOf, stateRateOf, over65CountOf, householdK401ByMonth } from './onboarding';
+import { taxOwedFor } from './tax';
 
 
 export type RateSource = 'typed' | 'implied' | 'estimated';
@@ -100,11 +100,11 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *     k401 = Σ over earner wages(op) of (to num((each as any).c 401k) × 12)
  *     out = max(0, gross − k401 − lands)
  *     rate = min(max(out ÷ gross, 0), 1)
- *     rate = effective rate on gross for(taxable annual(op), filing status of(op), state rate of(op), over65 count of(op))
+ *     taxed = taxable annual(op)
+ *     k401 = Σ over household k401 by month(op) of (each)
  *
- * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-090 effectiveRate
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-001 basePay
- *               MK-CF-O-004 incomeSummary
+ * Called by ... MK-CF-F-090 effectiveRate · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *
  * Reaches ..... 72 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -152,7 +152,16 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
              covers: 'everything that comes out, calculated from the take-home you entered' };
   }
 
-  const rate = effectiveRateOnGrossFor(taxableAnnual(op), filingStatusOf(op), stateRateOf(op), over65CountOf(op));
+  // B05 (founder audit 2026-08-26): a 401(k) comes off BEFORE tax. The calculated rate was tax on the
+  // whole of what the household earns ÷ what it earns — so the base-pay card charged tax on money
+  // that had gone into the 401(k) ($185/month too much on the approved drawing's own household),
+  // while the month grid took it off first. One sum now: the year's tax on what is left after the
+  // 401(k)s, as a share of everything taxable — so gross − tax − 401(k)s still adds up on the card.
+  const taxed = taxableAnnual(op);
+  const k401 = householdK401ByMonth(op).reduce((t, m) => t + m, 0);   // only the months each earner is paid
+  const rate = taxed > 0
+    ? taxOwedFor(Math.max(0, taxed - k401), filingStatusOf(op), stateRateOf(op), over65CountOf(op)) / taxed
+    : 0;
   return { rate, source: 'estimated', mine: false,
            label: `calculated, ${Math.round(rate * 100)}%`,
            covers: 'federal income tax only, assuming the standard deduction' };

@@ -31,18 +31,19 @@ exports[`photograph — retiree HomeScreen 1`] = `
   "You're investing about 0% of your gross income toward retirement — even +1% compounds over time.",
   "[spoken] Will my money last: 93.2 percent odds of lasting to age 92, an estimate. Opens Plan.",
   "93.2% odds of lasting to age 92",
-  "[spoken] This month's cash flow, On pace: income $2,400, spent so far $0, $2,400 left, bills may still be coming. Opens the Cash flow tab.",
+  "[spoken] This month's cash flow, On pace: income $2,361, spent so far $0, $2,361 left, bills may still be coming. Opens the Cash flow tab.",
   "0% spent ·",
-  "$2,400",
+  "$2,361",
   "$0",
-  "$2,400",
+  "$2,361",
 ]
 `;
 
 exports[`photograph — retiree IncomeSummaryScreen 1`] = `
 [
-  "$2,400",
-  "$2,400",
+  "$2,361",
+  "$2,361",
+  "$2,361",
   "$28,800",
   "$28,800",
   "10%",

@@ -151,7 +151,7 @@ const GIVEN =
  *
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-157 debtPaymentsByDebt
  *               MK-CF-F-204 line · MK-CF-F-205 COMING
- *               MK-CF-O-010 theMonth
+ *               MK-CF-O-004 incomeSummary · MK-CF-O-010 theMonth
  *
  * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS

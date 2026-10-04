@@ -487,8 +487,8 @@
   },
   "MK-CF-F-087": {
    "name": "monthlyTaxRates",
-   "rule": "Twelve rates. When the rate in force is the person's own (typed, or implied by a typed take-home): that one rate, every month. Otherwise, for each month with taxed income: (the federal tax on the year's running total up to that month − the tax up to the month before, plus state tax on the same slice) ÷ that month's taxed income, held between 0 and 60%. A month with no taxed income gets the flat rate in force.",
-   "read_from": "01fcea1c2b",
+   "rule": "Twelve rates, all the same: the rate in force (rateInForce) — the person's own, or the calculated one. A steady income is taxed the same in every month.",
+   "read_from": "071ff745e1",
    "sent_as": "01fcea1c2b"
   },
   "MK-CF-F-088": {
@@ -517,8 +517,8 @@
   },
   "MK-CF-F-092": {
    "name": "incomeMonthlyGrid",
-   "rule": "For each calendar month. Earned before 401(k) = that month's taxed income (taxableByCalendarMonth) + that month's 401(k). Untaxed = support + that month's scholarships + benefits in their months + one-off untaxed income in its month. Gross = earned before 401(k) + untaxed − reinvested interest and dividends. Tax: when the rate is the person's own, (earned before 401(k) − the month's rent and interest and dividends, which are not on a payslip) × the rate; when the app calculates it, that month's taxed income × that month's rate (monthlyTaxRates). After-tax = gross − tax. Take-home = gross − tax − 401(k).",
-   "read_from": "552eafa8dd",
+   "rule": "For each calendar month. Earned before 401(k) = that month's taxed income (taxableByCalendarMonth) + that month's 401(k). Untaxed = support + that month's scholarships + benefits in their months + one-off untaxed income in its month. Gross = earned before 401(k) + untaxed − reinvested interest and dividends. Tax = tax on the wages + tax on the rest. The wages, earner by earner: an earner who typed a take-home is taxed at their own share — (their yearly gross − their 401(k) for the year − 12 × the typed take-home) ÷ their yearly gross, held between 0 and 1 — so they land exactly what they typed; any other earner's wage × the rate in force (monthlyTaxRates). The rest (earned before 401(k) − the wages) × the rate in force — except that when the rate is the person's own, the month's rent and interest and dividends are left out, because they are not on a payslip. After-tax = gross − tax. Take-home = gross − tax − 401(k).",
+   "read_from": "e41d3cbd6c",
    "sent_as": "552eafa8dd"
   },
   "MK-CF-F-097": {
@@ -1003,8 +1003,8 @@
   },
   "MK-CF-F-181": {
    "name": "rateInForce",
-   "rule": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) ÷ that income, by filing status, with the standard deduction.",
-   "read_from": "dcf7659181",
+   "rule": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) LESS the household's 401(k) contributions for the year — they come off before tax — ÷ the yearly taxed income, by filing status, with the standard deduction. 0 when there is no taxed income.",
+   "read_from": "dc776f0fe3",
    "sent_as": "dcf7659181"
   },
   "MK-CF-F-182": {
@@ -1147,8 +1147,8 @@
   },
   "MK-CF-O-004": {
    "name": "incomeSummary",
-   "rule": "TAKE-HOME rows: one for each earner whose take-home is above zero (from basePay), plus Rent = rent after running costs for the year ÷ 12, when above zero. Usual month = the middle one of the twelve monthly take-home figures of the year (incomeMonthlyGrid, take-home) put in order — the 7th smallest. Standout month = the largest month, shown only when it is more than $1 above the usual month; its note reads with the bonus when a bonus is entered and that is the bonus month (December when no month is set). TAXED rows, each only when above zero: each earner's yearly gross; rent, net, for the year; interest and dividends for the year; the bonus. Yearly taxed total = taxableAnnual. Band = the federal band on that total, by filing status. Tax = that total × the rate in force (rateInForce). Taxed but not received = interest and dividends in a month, unless they are paid to the bank. Ready when there is any salary or any taxed income.",
-   "read_from": "94b31566db",
+   "rule": "TAKE-HOME rows — everything that arrives in a usual month; after tax means × (1 − the rate in force, rateInForce): each earner's take-home above zero (from basePay); tips after tax, only when every month has pay; self-employment after tax; rent after running costs — whole when the rate is the person's own, after tax when the app calculates it; interest and dividends paid to the bank, the same way — and when they are reinvested and the rate is calculated, a row of MINUS the tax on them; Social Security and pension after tax; other monthly income after tax, or whole when marked not taxable; benefits paid in all twelve months, support and monthly scholarships, whole. Usual month = the rows added up. Standout month = the largest of the twelve monthly take-home figures (incomeMonthlyGrid, take-home), shown only when it is more than $1 above the usual month; its note reads with the bonus when a bonus is entered and that is the bonus month (December when no month is set). TAXED rows, each only when above zero: each earner's yearly gross; rent, net, for the year; interest and dividends for the year; the bonus. Yearly taxed total = taxableAnnual. Band = the federal band on that total, by filing status. Tax = that total × the rate in force (rateInForce). Taxed but not received = interest and dividends in a month, unless they are paid to the bank. Ready when there is any salary or any taxed income.",
+   "read_from": "dbb3bf997e",
    "sent_as": "94b31566db"
   },
   "MK-CF-O-005": {

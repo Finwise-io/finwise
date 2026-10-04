@@ -114,8 +114,8 @@ export interface GridOptions {
 export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions = {}): DatedGrid {
   const a: Record<string, any> = op ?? {};
   const now = opts.now ?? new Date();
-  const rates = monthlyTaxRates(op, opts.now ?? new Date());   // PRD F2#11 — the ONE shared per-month vector
-  // net varies by CALENDAR month (progressive withholding); slot → its calendar month's rate
+  const rates = monthlyTaxRates(op, opts.now ?? new Date());   // the ONE shared per-month vector — the rate in force, every month
+  // slot → its calendar month's rate
   const netAt = (s: number, gross: number) => gross * (1 - rates[calMonth(s)]);
 
   const startMonth = now.getMonth();                       // 0–11

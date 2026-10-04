@@ -11,7 +11,7 @@ import { toNum } from '../../../src/domain/_shared/num';
 import { salaryAnnual, taxableAnnual, rentalNetAnnual, extraIncome, filingStatusOf,
          over65CountOf, incomeMonthlyGrid } from '../../../src/domain/income';
 // the two sources the YOUR SOURCES list needs, from the one place each is calculated
-import { rsuAnnual, retirementIncomeMonthly } from '../../../src/domain/income/onboarding';
+import { rsuAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly, benefitActiveMonths, salaryGrossByMonth } from '../../../src/domain/income/onboarding';
 import { guaranteedOutsideStreams, totalGrossAnnual } from '../../../src/domain/income';
 import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
 import { earnerWages } from '../../../src/domain/income/earners';
@@ -44,6 +44,8 @@ export interface IncomeSummary {
   };
   /** Money that is taxed but never lands — said on the screen so the gap is never a mystery. */
   taxedNotLanded: number;
+  /** How many earners have a wage entered — so a screen can say whose income a figure rests on. */
+  wages: number;
   ready: boolean;             // false on a fresh account: the screen keeps its shape and shows no $0
 }
 
@@ -540,19 +542,17 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  * Formula .....
  *     a = op (or none when missing)
  *     wages = earner wages(op as any)
- *     rent = rental net annual(op as any) ÷ 12
- *     grid = income monthly grid(op as any, 'available')
- *     months = for each of grid: amount
- *     usual = months.slice().sort((x, y) => x − y)[math.floor(months.length ÷ 2)]   if count of months
+ *     inf = rate in force(op as any)
+ *     r = inf.rate, theirs = inf.mine
+ *     after tax = (x: number) => x × (1 − r)
+ *     steady pay = salary gross by month(op as any).every((m) => m > 0)
+ *     tips = tips monthly read as a number (0 when it is not one)   if steady pay
  *     0   otherwise
- *     biggest = months.reduce((best, v, i) => (v > months[best] ? i : best), 0)
- *     full = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
- *     bonus month = min(11, max(0, (to num(bonus month) or 12) − 1))
- *     filing = single = 'Single'
- *     married = 'married filing jointly'
- *     mfs = 'married filing separately'
- *     hoh = 'head of household'
- *     filing = FILING[string(filing status of(op as any))] (or 'Single' when missing)
+ *     self employed = to num(se amount) ÷ 12   if se freq = 'annual'
+ *     se amount read as a number (0 when it is not one)   otherwise
+ *     rent = rental net annual(op as any) ÷ 12
+ *     inv monthly = to num(inv annual) ÷ 12
+ *     guaranteed = current retirement income monthly(op as any)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-201 INCOME · MK-CF-F-210 annualOfSource
@@ -573,8 +573,10 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               MK-CF-M-041 · MK-CF-M-042 · MK-CF-M-043 · MK-CF-M-044
  *               MK-CF-M-065 · MK-CF-M-066 · MK-CF-M-069 · MK-MN-M-011
  *               MK-MN-M-012 · MK-MN-M-013
- * Reads ....... MK-XS-I-023 salary and other income
+ * Reads ....... MK-XS-I-022 pension monthly amount
+ *               MK-XS-I-023 salary and other income
  *               MK-XS-I-030 tax filing status and age
+ *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-059 the month a bonus lands
  * Ruled by .... DEC-0078 · DEC-0108 · DEC-0149 · DEC-0152 · DEC-0165 · DEC-0166
  *               DEC-0178 · DEC-0181 · DEC-0182 · DEC-0184 · DEC-0187 · DEC-0188
@@ -598,21 +600,61 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   });
 
   // ── the take-home ──────────────────────────────────────────────────────────────────────────────
+  // EVERY ROW IS SOMETHING THAT ARRIVES IN A USUAL MONTH, AND THE TOTAL IS THE ROWS ADDED UP.
+  // The rows used to be the pay and the rent only, with the total read from the month grid — so a
+  // household with tips, a pension, self-employment, or a calculated rate saw a total its own rows
+  // did not add up to (found 2026-10-04). Each row follows the rule the month grid follows: a rate
+  // the person gave is a rate on their pay and is not laid on rent or on interest and dividends
+  // (approved drawing v07, frame 16); a CALCULATED rate is the year's tax over everything taxable, so
+  // it is taken from everything taxable — including the tax on dividends that never reach the bank.
+  const inf = rateInForce(op as any);
+  const r = inf.rate, theirs = inf.mine;
+  const afterTax = (x: number) => x * (1 - r);
   const landsLines: Line[] = pay.earners
     .filter((e) => e.pay.landsInBank > 0)
     .map((e) => ({ label: e.name, note: 'after tax and 401(k)', amount: (e.pay.landsInBank) }));
+  const steadyPay = salaryGrossByMonth(op as any).every((m) => m > 0);
+  const tips = steadyPay ? toNum(a.tipsMonthly) : 0;
+  if (tips > 0) landsLines.push({ label: 'Tips', note: 'after tax', amount: afterTax(tips) });
+  const selfEmployed = a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount);
+  if (selfEmployed > 0) landsLines.push({ label: 'Self-employment', note: 'after tax', amount: afterTax(selfEmployed) });
   const rent = (rentalNetAnnual(op as any) / 12);
-  if (rent > 0) landsLines.push({ label: 'Rent', note: 'after running costs', amount: rent });
+  if (rent > 0) {
+    landsLines.push(theirs ? { label: 'Rent', note: 'after running costs', amount: rent }
+                           : { label: 'Rent', note: 'after running costs and calculated tax', amount: afterTax(rent) });
+  }
+  const invMonthly = toNum(a.invAnnual) / 12;
+  if (invMonthly > 0 && a.invPaidToBank === 'yes') {
+    landsLines.push(theirs ? { label: 'Interest & dividends', note: 'paid to your bank', amount: invMonthly }
+                           : { label: 'Interest & dividends', note: 'paid to your bank, after calculated tax', amount: afterTax(invMonthly) });
+  } else if (invMonthly > 0 && !theirs && r > 0) {
+    landsLines.push({ label: 'Tax on interest and dividends', note: 'calculated — they are reinvested, and the tax still comes out', amount: -(invMonthly * r) });
+  }
+  const guaranteed = currentRetirementIncomeMonthly(op as any);
+  if (guaranteed > 0) landsLines.push({ label: 'Social Security · pension', note: 'after tax', amount: afterTax(guaranteed) });
+  const otherFreq = a.otherFreq ?? 'monthly';
+  const other = otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : otherFreq === 'monthly' ? toNum(a.otherAmount) : 0;
+  if (other > 0) {
+    landsLines.push(a.otherTaxable !== 'no' ? { label: String(a.otherLabel || '').trim() || 'Other income', note: 'after tax', amount: afterTax(other) }
+                                            : { label: String(a.otherLabel || '').trim() || 'Other income', note: 'not taxed', amount: other });
+  }
+  const benefits = benefitActiveMonths(op as any).length === 12 ? toNum(a.benefitMonthly) : 0;   // paid in some months only: those months stand out
+  if (benefits > 0) landsLines.push({ label: 'Benefits', note: 'not taxed', amount: benefits });
+  const support = toNum(a.supportMonthly);
+  if (support > 0) landsLines.push({ label: 'Child support or alimony', note: 'not taxed', amount: support });
+  const school = (Array.isArray(a.scholarships) ? a.scholarships : [])
+    .reduce((t: number, x: any) => t + (x?.freq === 'monthly' ? toNum(x?.amount) : 0), 0);
+  if (school > 0) landsLines.push({ label: 'Scholarships, grants, stipend', note: 'not taxed', amount: school });
+  const usual = landsLines.reduce((t, l) => t + l.amount, 0);
 
+  // A month stands out only when something arrives in it that does not arrive every month.
   const grid = incomeMonthlyGrid(op as any, 'available');
   const months = grid.map((g) => g.amount);
-  const usual = months.length ? (months.slice().sort((x, y) => x - y)[Math.floor(months.length / 2)]) : 0;
   const biggest = months.reduce((best, v, i) => (v > months[best] ? i : best), 0);
   const FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const bonusMonth = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));
   const standout = months.length && (months[biggest]) > usual + 1
     ? { label: FULL[biggest] ?? grid[biggest].label,
-        // why it stands apart, where we know: the bonus lands in its own month and is never spread
         note: toNum(a.bonusAnnual) > 0 && biggest === bonusMonth ? 'with the bonus' : 'its own month, never spread',
         amount: (months[biggest]) } : null;
   const FILING: Record<string, string> = { single: 'Single', married: 'Married filing jointly', mfs: 'Married filing separately', hoh: 'Head of household' };
@@ -634,11 +676,11 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   if (bonus > 0) taxedLines.push({ label: 'Bonus', amount: bonus });
 
   const grossAnnual = (taxableAnnual(op as any));
-  const inf = rateInForce(op as any);
 
   return {
     lands: { lines: landsLines, usualMonth: usual, standoutMonth: standout,
-             totalLabel: `= ${inflowLabel('Inflow', ['income (take-home)', ...(rent > 0 ? ['rent'] : [])])}` },
+             totalLabel: `= ${inflowLabel('Inflow', ['income (take-home)',
+               ...landsLines.filter((l) => l.amount > 0 && !pay.earners.some((e) => e.name === l.label)).map((l) => l.label)])}` },
     taxed: {
       lines: taxedLines,
       grossAnnual,
@@ -653,6 +695,7 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
     // Taxed, and never landed. The screen says this rather than leaving a gap between two totals
     // that a person would otherwise have to work out for themselves.
     taxedNotLanded: (extraIncome(op as any).reinvestedMonthly),
+    wages: pay.earners.filter((e) => e.pay.grossAnnualised > 0).length,
     ready: salaryAnnual(op as any) > 0 || grossAnnual > 0,
   };
 }
