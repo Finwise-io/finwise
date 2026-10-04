@@ -18,7 +18,7 @@ const MON = '(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*';
 export function norm(lines: string[], names: RegExp[] = []): string {
   let s = lines.join(' ').toLowerCase()
     .replace(/[’‘]/g, "'").replace(/[“”]/g, '"')
-    .replace(/\p{Extended_Pictographic}|️|[ⓘ›↺·▮⌁▐＋]/gu, ' ');
+    .replace(/\p{Extended_Pictographic}|️|\u200D|[\uE000-\uF8FF]|[ⓘ›↺·▮⌁▐＋]/gu, ' ');   // icons: emoji, the joiner between two of them, and icon-font glyphs (private-use codes)
   for (const n of names) s = s.replace(n, '<name>');
   return s
     .replace(new RegExp(`${MON} \\d{1,2}(, \\d{4})?`, 'g'), '<date>')

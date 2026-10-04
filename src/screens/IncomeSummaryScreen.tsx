@@ -46,9 +46,9 @@ export default function IncomeSummaryScreen() {
         ) : (
           <>
             {sum.lands.lines.map((l) => <Row key={l.label} label={l.label} note={l.note} value={fig('MK-CF-M-038', l.amount)} />)}
-            <Row label="= Income (take-home), a usual month" value={fig('MK-CF-M-037', sum.lands.usualMonth)} strong />
+            <Row label={sum.lands.totalLabel} value={fig('MK-CF-M-037', sum.lands.usualMonth)} strong />
             {sum.lands.standoutMonth && (
-              <Row label={sum.lands.standoutMonth.label} note="its own month, never spread"
+              <Row label={sum.lands.standoutMonth.label} note={sum.lands.standoutMonth.note}
                    value={fig('MK-CF-M-039', sum.lands.standoutMonth.amount)} />
             )}
             {sum.taxedNotLanded > 0 && (
@@ -72,7 +72,7 @@ export default function IncomeSummaryScreen() {
           <>
             {sum.taxed.lines.map((l) => <Row key={l.label} label={l.label} value={fig('MK-CF-M-042', l.amount)} />)}
             <Row label="= Gross /year" value={fig('MK-CF-M-041', sum.taxed.grossAnnual)} strong />
-            <Row label="Federal tax bracket" note="every source counted"
+            <Row label="Federal tax bracket" note={`${sum.taxed.filing.replace(/^Married /, '').toLowerCase()}, every source counted`}
                  value={fig('MK-CF-M-043', sum.taxed.bracket)} />
             <Row label={sum.taxed.estimated ? 'Calculated federal tax' : 'Tax'}
                  note={sum.taxed.estimated
@@ -82,16 +82,19 @@ export default function IncomeSummaryScreen() {
             <Text style={s.note}>
               {sum.taxed.estimated
                 ? 'Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.'
-                : 'Your own rate, used on every figure built from your take-home.'}
+                : sum.taxed.closing}
             </Text>
           </>
         )}
       </View>
 
-      <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => router.push('/base-pay')}
-        accessibilityLabel="Edit your income">
-        <Text style={s.ctaT}>Edit your income</Text>
-      </TouchableOpacity>
+      {/* nothing to edit on a fresh account — the door above adds; the drawing's empty frame has no button here */}
+      {sum.ready && (
+        <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => router.push('/base-pay')}
+          accessibilityLabel="Edit your income">
+          <Text style={s.ctaT}>Edit your income</Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
     </View>
   );

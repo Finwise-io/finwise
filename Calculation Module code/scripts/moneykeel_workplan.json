@@ -2362,24 +2362,24 @@
   {
    "task": "Income summary — the take-home total is not the sum of its own rows (rent)",
    "todo": "FOUND 2026-10-03 comparing the screen with income-end-to-end_v07 frame 16. The rows read Your pay $5,000 · Sam’s pay $3,300 · Rent $1,200 and the total under them reads $9,248, not $9,500. The Rent row is the rent after running costs; the total takes the month from the cash-flow grid, which also takes tax off the rent ($1,200 → $948). The approved drawing says $1,200 lands and the total is $9,500 (\"$9,500 a month landing\"). Decide in the calculation which is the take-home for rent, make the row and the total the same figure, and carry it to Cash flow’s inflow and Home so no screen disagrees. Function: MK-CF-O-004 incomeSummary (usualMonth) against the monthly income grid.",
-   "status": "OPEN — mine. BLOCKS THE BUILD: one card disagreeing with itself is the class of error the accuracy rule exists for.",
+   "status": "DONE 2026-10-04 for the case the approved drawing shows (a person who entered their own take-home): the total is $9,500, the sum of its rows. STILL OPEN: the same card when the app calculates the tax itself and there is rent — not yet measured.",
    "ref": "MoneyKeel/functions/cashflow/income-summary.ts · MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html frame 16",
    "date": "2026-10-03",
-   "comments": "",
+   "comments": "The person’s own payslip rate was being applied to their rent and their dividends. It now applies to pay only. Tests: src/domain/income/dividends.test.ts (five new) · src/screens/__tests__/income_matches_v07.test.tsx frame 16. Worked example MK-CF-M-039 moved $40,052 → $40,316 (the rent, $1,200, no longer loses 22%). To reverse: restore the one line in incomeMonthlyGrid.",
    "_written": {
-    "status": "OPEN — mine. BLOCKS THE BUILD: one card disagreeing with itself is the class of error the accuracy rule exists for.",
-    "comments": ""
+    "status": "DONE 2026-10-04 for the case the approved drawing shows (a person who entered their own take-home): the total is $9,500, the sum of its rows. STILL OPEN: the same card when the app calculates the tax itself and there is rent — not yet measured.",
+    "comments": "The person’s own payslip rate was being applied to their rent and their dividends. It now applies to pay only. Tests: src/domain/income/dividends.test.ts (five new) · src/screens/__tests__/income_matches_v07.test.tsx frame 16. Worked example MK-CF-M-039 moved $40,052 → $40,316 (the rent, $1,200, no longer loses 22%). To reverse: restore the one line in incomeMonthlyGrid."
    }
   },
   {
    "task": "Income screens — compare line by line with income-end-to-end_v07 and close the gaps",
    "todo": "Measured 2026-10-03, not yet built. (1) Income manager (frames 1, 9, 10, 11, 12) is NOT the drawn screen: it shows a gross total and a list; the drawing shows \"You entered about 3 sources\", one line per source with Edit, and \"Anything else?\" with the seven sources not picked. (2) Income summary (frames 16, 17): wording differs in five places (\"= Inflow (income (take-home) + rent)\", \"December · with the bonus\", the bracket and tax lines, the closing sentence), and the empty state shows $0 with three doors where the drawing shows an em-dash and one. (3) Base pay (frames 2 to 8): close; \"‹ Income\", two sentences and the onboarding frame to check. (4) Filing status (frames 13 to 15) not yet compared.",
-   "status": "OPEN — mine. Blocks the build (the release gate needs the match in every data state).",
+   "status": "IN PROGRESS — 2 of 17 frames held by test (the summary, frames 16 and 17). To do: the income manager (1, 9, 10, 11, 12 — not the drawn screen), Your base pay (2 to 8), the filing question (13 to 15).",
    "ref": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html · src/testing/mockMatch.ts",
    "date": "2026-10-03",
    "comments": "",
    "_written": {
-    "status": "OPEN — mine. Blocks the build (the release gate needs the match in every data state).",
+    "status": "IN PROGRESS — 2 of 17 frames held by test (the summary, frames 16 and 17). To do: the income manager (1, 9, 10, 11, 12 — not the drawn screen), Your base pay (2 to 8), the filing question (13 to 15).",
     "comments": ""
    }
   },

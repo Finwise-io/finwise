@@ -18,12 +18,17 @@ import { earnerWages } from '../../../src/domain/income/earners';
 import { rateInForce } from '../../../src/domain/income/tax-rate';
 import { marginalBracketFor } from '../../../src/domain/income/tax';
 import { basePay, entryFromWage } from './base-pay';
+import { inflowLabel } from './this-month';
 
 export interface Line { label: string; note?: string; amount: number; }
 
 export interface IncomeSummary {
   /** What reaches the bank, per month — the money that can be spent. */
-  lands: { lines: Line[]; usualMonth: number; standoutMonth: { label: string; amount: number } | null };
+  lands: { lines: Line[]; usualMonth: number;
+    /** The words on the total — his one wording for money arriving: "Inflow (income (take-home) + rent)". */
+    totalLabel: string;
+    /** The month that stands apart, named in full, with why: "December · with the bonus". */
+    standoutMonth: { label: string; note: string; amount: number } | null };
   /** What the year is taxed on — a different number, and said to be one. */
   taxed: {
     lines: Line[];
@@ -32,6 +37,10 @@ export interface IncomeSummary {
     tax: number;              // the year's tax, at whichever rate is in force
     whose: string;            // 'your rate, 24%' · 'calculated, 9%'
     estimated: boolean;
+    /** How the household files, in the words the filing question uses — "Married filing jointly". */
+    filing: string;
+    /** The sentence under the tax line when the rate is the person's own (income-end-to-end_v07, frame 16). */
+    closing: string;
   };
   /** Money that is taxed but never lands — said on the screen so the gap is never a mystery. */
   taxedNotLanded: number;
@@ -216,7 +225,7 @@ export const FIGURES = declareFigures({
     ruled: '2026-09-14',
     refusal: 'The line is hidden when no source behaves this way.',
     // the month the $12,000 bonus lands: the usual month plus the bonus, after tax, as one figure
-    worked: { given: SOURCES_GIVEN, answer: '$40,052', run: () => incomeSummary(SOURCES_EXAMPLE).lands.standoutMonth?.amount ?? null },
+    worked: { given: SOURCES_GIVEN, answer: '$40,316', run: () => incomeSummary(SOURCES_EXAMPLE).lands.standoutMonth?.amount ?? null },
   },
   'MK-CF-M-040': {
     label: 'is not here — it is reinvested where it is earned', unit: 'money', per: 'month', screens: ['/income-summary'],
@@ -572,10 +581,13 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *     usual = months.slice().sort((x, y) => x − y)[math.floor(months.length ÷ 2)]   if count of months
  *     0   otherwise
  *     biggest = months.reduce((best, v, i) => (v > months[best] ? i : best), 0)
- *     taxed lines = []
- *     rent annual = rental net annual(op as any)
- *     inv = inv annual read as a number (0 when it is not one)
- *     bonus = bonus annual read as a number (0 when it is not one)
+ *     full = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+ *     bonus month = min(11, max(0, (to num(bonus month) or 12) − 1))
+ *     filing = single = 'Single'
+ *     married = 'married filing jointly'
+ *     mfs = 'married filing separately'
+ *     hoh = 'head of household'
+ *     filing = FILING[string(filing status of(op as any))] (or 'Single' when missing)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-201 INCOME · MK-CF-F-210 annualOfSource
@@ -598,12 +610,16 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               MK-MN-M-012 · MK-MN-M-013
  * Reads ....... MK-XS-I-023 salary and other income
  *               MK-XS-I-030 tax filing status and age
+ *               MK-XS-I-059 the month a bonus lands
  * Ruled by .... DEC-0078 · DEC-0108 · DEC-0149 · DEC-0152 · DEC-0165 · DEC-0166
  *               DEC-0178 · DEC-0181 · DEC-0182 · DEC-0184 · DEC-0187 · DEC-0188
  *               DEC-0189 · DEC-0191 · DEC-0194 · DEC-0195 · DEC-0197 · DEC-0207
  *               DEC-0208 · DEC-0209 · DEC-0347 · DEC-0389 · DEC-0431
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-004
  * Changed ..... not in git yet (—)
@@ -627,8 +643,15 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   const months = grid.map((g) => g.amount);
   const usual = months.length ? (months.slice().sort((x, y) => x - y)[Math.floor(months.length / 2)]) : 0;
   const biggest = months.reduce((best, v, i) => (v > months[best] ? i : best), 0);
+  const FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const bonusMonth = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));
   const standout = months.length && (months[biggest]) > usual + 1
-    ? { label: grid[biggest].label, amount: (months[biggest]) } : null;
+    ? { label: FULL[biggest] ?? grid[biggest].label,
+        // why it stands apart, where we know: the bonus lands in its own month and is never spread
+        note: toNum(a.bonusAnnual) > 0 && biggest === bonusMonth ? 'with the bonus' : 'its own month, never spread',
+        amount: (months[biggest]) } : null;
+  const FILING: Record<string, string> = { single: 'Single', married: 'Married filing jointly', mfs: 'Married filing separately', hoh: 'Head of household' };
+  const filing = FILING[String(filingStatusOf(op as any))] ?? 'Single';
 
   // ── what it is taxed on ─────────────────────────────────────────────────────────────────────
   const taxedLines: Line[] = [];
@@ -649,7 +672,8 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   const inf = rateInForce(op as any);
 
   return {
-    lands: { lines: landsLines, usualMonth: usual, standoutMonth: standout },
+    lands: { lines: landsLines, usualMonth: usual, standoutMonth: standout,
+             totalLabel: `= ${inflowLabel('Inflow', ['income (take-home)', ...(rent > 0 ? ['rent'] : [])])}` },
     taxed: {
       lines: taxedLines,
       grossAnnual,
@@ -657,6 +681,9 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
       tax: (grossAnnual * inf.rate),
       whose: inf.label,
       estimated: inf.source === 'estimated',
+      filing,
+      closing: `${filing}, every source counted. Your ${Math.round(inf.rate * 100)}%, used on every figure built from your take-home. `
+        + 'Without it we show the calculated rate — federal income tax only, assuming the standard deduction.',
     },
     // Taxed, and never landed. The screen says this rather than leaving a gap between two totals
     // that a person would otherwise have to work out for themselves.

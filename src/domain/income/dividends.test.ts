@@ -49,3 +49,36 @@ test('THE LAW: no dividends, no change', () => {
   expect(lands({ ...WAGE, invAnnual: '0' })).toBeCloseTo(lands(WAGE), 2);
   expect(extraIncome(WAGE).reinvestedMonthly).toBe(0);
 });
+
+/* ── A PAYSLIP RATE IS A RATE ON THE PAYSLIP (2026-10-03) ─────────────────────────────────────────
+ *  The household the approved design draws (income-end-to-end_v07, frame 16): take-homes of $5,000
+ *  and $3,300 entered, $1,200/month of rent after running costs, $3,000/year of dividends left where
+ *  they are earned. Its own rule 5 — "the take-home someone enters IS the take-home" — and its
+ *  reconciled total: $9,500 lands. The grid applied the couple's payslip rate to the rent and the
+ *  dividends as well and read $9,248, under three rows that add to $9,500. */
+describe('a rate taken from a payslip is applied to pay, and to nothing else', () => {
+  const HOUSE: any = {
+    baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800', landsTypical: '5000',
+    hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both',
+    partnerWage: { baseSalary: '4500', salaryFreq: 'monthly', c_401k: '400', landsTypical: '3300' },
+    invAnnual: '3000', incomeSources: ['employment', 'rental', 'investment'], rentalIncome: '1800', rentalExpenses: '600',
+  };
+  const month = (op: any) => incomeMonthlyGrid(op, 'available')[0].amount;
+
+  test('the entered take-homes plus the rent are the month — $5,000 + $3,300 + $1,200 = $9,500', () => {
+    expect(month(HOUSE)).toBeCloseTo(9_500, 0);
+  });
+  test('the rent arrives whole: adding it raises the month by exactly the rent', () => {
+    const noRent = { ...HOUSE, rentalIncome: '0', rentalExpenses: '0', incomeSources: ['employment', 'investment'] };
+    expect(month(HOUSE) - month(noRent)).toBeCloseTo(1_200, 0);
+  });
+  test('and dividends left where they are earned take nothing off an ENTERED take-home', () => {
+    expect(month({ ...HOUSE, invAnnual: '0' })).toBeCloseTo(month(HOUSE), 0);
+  });
+  test('the yearly tax still counts both — they are in what is taxed, only not in a month’s deduction', () => {
+    expect(taxableAnnual(HOUSE)).toBeCloseTo(taxableAnnual({ ...HOUSE, invAnnual: '0', rentalIncome: '0', rentalExpenses: '0' }) + 3_000 + 14_400, 0);
+  });
+  test('the CALCULATED rate is untouched: with no take-home entered, the tax on dividends still comes out of the pay', () => {
+    expect(lands({ ...WAGE, invAnnual: '3000' })).toBeLessThan(lands(WAGE));
+  });
+});

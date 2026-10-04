@@ -1741,6 +1741,7 @@ export function userCapGainsRates(op: OnboardingProfile | null): { lt: number; s
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Never lets earned before401k fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-092
  * Changed ..... 2026-07-29 (13c9be6)
@@ -1794,7 +1795,18 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
     // gross to a base that already has the 401(k) removed understates the tax by the rate times the
     // contribution: $137/month on the founder's persona, which is exactly how far the base-pay
     // screen and the income grid still disagreed after the first half of this fix.
-    const tax = rateIsTheirs ? earnedBefore401k * rates[i] : taxable * rates[i];
+    // A PAYSLIP RATE IS A RATE ON THE PAYSLIP (found 2026-10-03, holding the Income summary to its
+    // approved drawing). When the person has entered their take-home, the rate is theirs: everything
+    // that came out of the pay, as a share of the pay. It says nothing about their tenant's rent or
+    // about interest and dividends, yet it was applied to both — so a household entering take-homes of
+    // $5,000 and $3,300 with $1,200 of rent read $9,248/month over three rows adding to $9,500. The
+    // approved design draws exactly that household at $9,500 (income-end-to-end_v07, frame 16), and
+    // its rule 5 is "the take-home someone enters IS the take-home". Rent and investment income stay
+    // in "what it is taxed on" and in the yearly tax; their own rate no longer reaches them.
+    // The CALCULATED rate is unchanged: it is tax ÷ everything taxable, so it still spreads the tax on
+    // dividends over the pay that does reach the bank (the law in dividends.test.ts, finding B34).
+    const notOnThePayslip = Math.min(rentalM + toNum(a.invAnnual) / 12, Math.max(0, earnedBefore401k));
+    const tax = rateIsTheirs ? (earnedBefore401k - notOnThePayslip) * rates[i] : taxable * rates[i];
     const k401 = k401ByMonth[i];   // nobody contributes out of a month with no pay; every earner counted
     const amount = mode === 'gross' ? gross
                  : mode === 'available' ? gross - tax - k401     // take-home: after tax AND 401(k)

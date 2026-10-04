@@ -84,6 +84,7 @@ export interface MonthBlock { lines: Line[]; surplus: number;
  *     the answer = `${prefix} (${words.join(' + ')})`
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-O-004 incomeSummary
  *
  * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS

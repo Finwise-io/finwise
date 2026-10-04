@@ -24,7 +24,8 @@ test('5a — two totals, each named', () => {
   render(<IncomeSummaryScreen />);
   expect(screen.getByText('Take-home each month')).toBeOnTheScreen();
   expect(screen.getByText('What it is taxed on')).toBeOnTheScreen();
-  expect(screen.getByText('= Income (take-home), a usual month')).toBeOnTheScreen();
+  // his one wording for money arriving (DEC-0271), as the approved frame writes it; with no rent it names the one source
+  expect(screen.getByText('= Inflow (income (take-home))')).toBeOnTheScreen();
   expect(screen.getByText('= Gross /year')).toBeOnTheScreen();
 });
 

@@ -231,6 +231,7 @@ exports[`photograph — worker IncomeSummaryScreen 1`] = `
   "22%",
   "your rate, 20% (edit on Your base pay screen)",
   "$21,600/year",
+  "Single, every source counted. Your 20%, used on every figure built from your take-home. Without it we show the calculated rate — federal inc",
 ]
 `;
 
