@@ -19,7 +19,6 @@ const ROOT = path.join(__dirname, '..', '..');
 const ALLOWED: Record<string, string> = {
   'src/screens/TaxOrganizerScreen.tsx': 'interestIncomeAnnual — an INCOME figure (Q-CF-5), not what a bond is worth',
   'src/screens/IncomeDetailScreen.tsx': 'interestIncomeAnnual — an INCOME figure (Q-CF-1), not what a bond is worth',
-  'src/screens/IncomeManagerScreen.tsx': 'interestIncomeAnnual — an INCOME figure (Q-CF-1), not what a bond is worth',
   'src/screens/PerformanceScreen.tsx': 'isBond — a CLASSIFIER used to split holdings by category (Q-PF-1), not a bond figure',
 };
 

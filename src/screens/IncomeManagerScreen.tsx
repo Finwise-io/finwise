@@ -1,327 +1,417 @@
-// Income manager — see EVERY income source you entered and add/update them in one place.
-// Pulls structured sources from onboarding (salary/bonus/equity/rental), one-time incomes from the
-// store, and investment income (dividends/interest) from the transaction ledger.
+// YOUR INCOME — every source in one place: what is entered, one line each, and the rest one tap away.
+//
+// Built from the approved mock: MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html,
+// frames 3a to 3d (phones 9 to 12) — held to it word for word by
+// src/screens/__tests__/income_manager_matches_v07.test.tsx.
+//
+// ONE ROUTE, FOUR FRAMES. The list (phone 12) and the three editors it opens — bonus and stock (9),
+// rent (10), interest and dividends (11) — are views of this one screen, so a source is edited where
+// it is listed and there is no second place to keep in step. The sources the drawing does not draw an
+// editor for (self-employment, benefits, support, scholarships, student loans, something else) open
+// the question the person was asked when they first picked them, unchanged.
+//
+// IT DOES NO ARITHMETIC. Which sources are entered and what each line says comes from MK-CF-O-016's
+// neighbour theIncomeManager; the December card reads MK-CF-O-004 incomeSummary; what the accounts pay
+// comes from MK-CF-F-184 incomeFromAccounts.
 import TopBar from '../components/TopBar';
-import React, { useMemo, useState } from 'react';
-import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform , Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { money } from '../domain/_shared/num';
-import { incomeFromOnboarding, totalGrossAnnual, SALARY_PERIODS } from '../domain/income';
-import { investmentIncomeAnnual } from '../domain/transactions';
+import { EmptyNote } from '../components/UI';
+import { fig } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { theIncomeManager, incomeSummary, type ManagedSource } from '../../MoneyKeel/functions/cashflow/income-summary';
+import { incomeFromAccounts } from '../domain/income/from-accounts';
 import { historyCoverage } from '../domain/assets';
-import { interestIncomeAnnual } from '../domain/bonds';
-import { RsuEditor, RentalEditor } from '../onboarding/modules';   // reuse the rich grants/rentals editors
+import { RsuEditor, renderStep } from '../onboarding/modules';
 import type { StepCtx } from '../onboarding/modules';
 import { modalAnimation } from '../hooks/reducedMotion';
-import { useLocalSearchParams, router } from 'expo-router';
 import { isoLocalDate } from '../domain/_shared/dates';
-import { incomeFromAccounts } from '../domain/income/from-accounts';
 
+type View_ = null | ManagedSource['key'] | 'bonus';
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
-// annualize a structured income source for display
-function annualOf(s: any): number {
-  if (s.frequency === 'MONTHLY') return Math.round((s.gross_amount - (s.operating_expenses || 0)) * 12);
-  return Math.round(s.gross_amount);   // ANNUAL or ONETIME shown as-is
-}
-const freqLabel = (f: string) => (f === 'MONTHLY' ? '/year (from monthly)' : f === 'ONETIME' ? 'one-time' : '/year');
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** The question each undrawn source was first asked with — reused, so it is asked one way. */
+const STEP: Partial<Record<ManagedSource['key'], { step: string; title: string }>> = {
+  self_employment: { step: 'income_self', title: 'Self-employed / side gig' },
+  benefits: { step: 'income_benefits', title: 'Benefits' },
+  support: { step: 'income_support', title: 'Child support or alimony' },
+  scholarship: { step: 'income_scholarship', title: 'Scholarships, grants, stipend' },
+  loans: { step: 'income_loans', title: 'Student loans' },
+  other_income: { step: 'income_other', title: 'Something else' },
+};
 
 export default function IncomeManagerScreen() {
+  const router = useRouter();
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
-  const uid = store.user?.uid ?? 'local';
-  const incomes = store.incomes ?? [];               // one-time entries
-  const transactions = store.transactions ?? [];
-  const [baseOpen, setBaseOpen] = useState(false);
-  const [editKey, setEditKey] = useState<null | 'bonusAnnual' | 'signingOnetime'>(null);
-  const [rich, setRich] = useState<null | 'equity' | 'rental'>(null);
-  // B47 finding 10: the Cash-flow chooser deep-links straight into the right editor
+  const set = (patch: Record<string, any>) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), ...patch });
+  const [view, setView] = useState<View_>(null);
+  const [jobOpen, setJobOpen] = useState(false);
+  // a row on the Cash flow tab opens the source it names
   const { open: openParam } = useLocalSearchParams() as { open?: string };
   React.useEffect(() => {
-    if (openParam === 'equity') setRich('equity');
-    else if (openParam === 'rental') setRich('rental');
-    else if (openParam === 'self') setSelfOpen(true);
-    else if (openParam === 'bonus') setEditKey('bonusAnnual');
-    if (openParam) router.setParams({ open: undefined } as any);
-  }, [openParam]);   // reuse onboarding RsuEditor/RentalEditor
-  const [selfOpen, setSelfOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  // Shim the onboarding StepCtx onto the live profile so the reused editors read/write op fields directly.
-  const editorCtx: StepCtx = {
-    status: (op.status ?? null) as any, tracks: [] as any, answers: op,
-    setAnswer: (k, v) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), [k]: v }),
-  };
+    const to: Record<string, View_> = { bonus: 'bonus', equity: 'bonus', rental: 'rental', self: 'self_employment', dividends: 'investment_income', onetime: 'other_income' };
+    if (openParam && to[openParam]) setView(to[openParam]);
+    if (openParam) (router as any).setParams?.({ open: undefined });
+  }, [openParam]);
 
-  const investIncome = incomeFromAccounts(store.assetAccounts ?? [], transactions).annual;
-  // FOUNDER RULE 2026-08-04 (fifth ingredient check): a "last 12 months" figure can only cover the
-  // history each source actually shared. Name the shortfalls rather than quietly understating.
-  const yearStart = new Date(Date.now() - 365 * 86400_000).toISOString().slice(0, 10);
-  const coverageNotes = ((store.assetAccounts ?? []) as any[])
-    .filter((a) => a.source === 'connected' || a.source === 'imported')
-    .map((a) => historyCoverage(a, yearStart))
-    .filter(Boolean)
-    .map((c: any) => c.sentence);
-  // When real holdings/bonds report income, drop the onboarding interest/dividends ESTIMATE so we
-  // don't double-count it with the actual "Investment income" row below.
-  const opLive = useMemo(() => (investIncome > 0 ? { ...op, invAnnual: 0 } : op), [op, investIncome]);
-  const sources = useMemo(() => incomeFromOnboarding(uid, opLive).sources, [opLive, uid]);
-  const oneOffTotal = incomes.reduce((t: number, i: any) => t + (i.amount || 0), 0);
-  const totalAnnual = Math.round(totalGrossAnnual(opLive)) + investIncome + oneOffTotal;
-
-  // What opens when you tap a source row (null = not directly editable here).
-  const openEditorFor = (label: string): null | (() => void) => {
-    switch (label) {
-      case 'Base salary': return () => setBaseOpen(true);
-      case 'Bonus': return () => setEditKey('bonusAnnual');
-      case 'Signing bonus': return () => setEditKey('signingOnetime');
-      case 'Equity comp': return () => setRich('equity');
-      case 'Rental property': return () => setRich('rental');
-      case 'Self-employment': return () => setSelfOpen(true);
-      default: return null;
-    }
+  const m = theIncomeManager(op);
+  const open = (key: ManagedSource['key']) => {
+    if (key === 'employment') router.push('/base-pay' as any);
+    else if (key === 'retirement_income') router.push('/monthly-income' as any);
+    else setView(key);
   };
+  const line = (x: ManagedSource) => [x.lead, `${x.estimated ? '≈' : ''}${fig(x.key === 'employment' ? 'MK-CF-M-031' : 'MK-CF-M-027', x.amount)}${x.per === 'one-time' ? '' : `/${x.per}`}`,
+    x.per === 'one-time' ? 'one-time' : '', x.tail].filter(Boolean).join(' ');
+
+  if (view === 'bonus') return <BonusAndStock op={op} set={set} onDone={() => setView(null)} />;
+  if (view === 'rental') return <Rent op={op} set={set} onDone={() => setView(null)} />;
+  if (view === 'investment_income') return <InterestAndDividends op={op} set={set} onDone={() => setView(null)} />;
+  if (view && STEP[view]) return <AskedBefore source={view as ManagedSource['key']} onDone={() => setView(null)} />;
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
-    <TopBar back />
-    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <SectionBand title="YOUR INCOME" />
+      <TopBar back />
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+        <Text style={s.h1}>Your income</Text>
+        <Text style={s.sub}>Add anything that changes</Text>
 
-      <View style={styles.summary}>
-        <Text style={styles.sumVal}>{fig('MK-CF-M-065', totalAnnual)}</Text>
-        <Text style={styles.sumLab}>total income / year (gross)</Text>
-      </View>
-
-      {/* RECURRING / STRUCTURED SOURCES */}
-      <SectionBand title="WHAT YOU ENTERED" />
-      <View style={styles.card}>
-        {sources.map((s: any) => {
-          const open = openEditorFor(s.label);
-          const editable = !!open;
+        <View style={s.bandRow}>
+          <Text style={s.band}>You entered about</Text>
+          <Text style={s.bandNum}>{m.entered.length} {m.entered.length === 1 ? 'source' : 'sources'}</Text>
+        </View>
+        {m.entered.length === 0 && (
+          <View style={s.card}><EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} /></View>   /* Q48 */
+        )}
+        {m.entered.map((x) => {
+          const isJob = x.key === 'employment';
+          const expanded = isJob && jobOpen;
           return (
-            <TouchableOpacity key={s.income_source_id} style={styles.row} disabled={!editable}
-              onPress={() => open?.()}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.rowName}>{s.label}</Text>
-                <Text style={styles.rowSub}>{s.who_earns === 'partner' ? 'spouse · ' : ''}{freqLabel(s.frequency)}{s.operating_expenses ? ` · net of ${fig('MK-CF-M-027', s.operating_expenses)}/month costs` : ''}{editable ? ' · tap to edit' : ''}</Text>
-              </View>
-              <Text style={styles.rowVal}>{fig('MK-CF-M-027', annualOf(s))}</Text>
-            </TouchableOpacity>
+            <View key={x.key} style={s.section}>
+              <TouchableOpacity accessibilityRole="button" style={s.secHead}
+                accessibilityLabel={`${x.title}: ${line(x)}. ${expanded ? 'Done' : 'Edit'}`}
+                onPress={() => (isJob ? setJobOpen(!jobOpen) : open(x.key))}>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Text style={s.who}>{x.title}</Text>
+                    <Text style={s.tick} accessibilityLabel="entered">✓</Text>
+                  </View>
+                  <Text style={s.whoSub}>{line(x)}</Text>
+                </View>
+                <Text style={s.chev}>{expanded ? 'Done ⌃' : 'Edit ⌄'}</Text>
+              </TouchableOpacity>
+              {/* A JOB HOLDS TWO THINGS — the pay, and what is paid on top of it (frames 2 and 3a). */}
+              {expanded && (
+                <View style={s.card}>
+                  <TouchableOpacity accessibilityRole="button" style={s.linkRow} onPress={() => router.push('/base-pay' as any)}>
+                    <Text style={s.linkL}>Your base pay</Text><Text style={s.linkV}>›</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity accessibilityRole="button" style={s.linkRow} onPress={() => setView('bonus')}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.linkL}>Bonus and stock</Text>
+                      <Text style={s.whoSub}>{m.bonusAndStock && m.bonusAndStock.amount > 0
+                        ? `${fig('MK-CF-M-027', m.bonusAndStock.amount)}/year ${m.bonusAndStock.tail}` : 'Paid on top of base pay'}</Text>
+                    </View>
+                    <Text style={s.linkV}>›</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           );
         })}
-        {sources.length === 0 && (
-          <View>
-            <Text style={styles.empty}>No income entered yet.</Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add your income" style={styles.emptyBtn} onPress={() => setBaseOpen(true)}>
-              <Text style={styles.emptyBtnT}>＋ Add your income</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        {/* Build-47 walk row 25 (B46 finding 9b): every source can be ADDED here — the editors used
-            to open only from rows that exist once the amount is already above zero. */}
-        <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}
-          accessibilityLabel="Add an income source — bonus, stock vesting, rental, or self-employment"
-          onPress={() => {
-            Alert.alert('Add an income source', 'Each opens its own editor.', [
-              { text: 'Bonus', onPress: () => setEditKey('bonusAnnual') },
-              { text: 'Stock vesting (equity comp)', onPress: () => setRich('equity') },
-              { text: 'Rental property', onPress: () => setRich('rental') },
-              { text: 'Self-employment', onPress: () => setSelfOpen(true) },
-              { text: 'Cancel', style: 'cancel' },
-            ]);
-          }}>
-          <Text style={styles.addLink}>＋ Add an income source ›</Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* INVESTMENT INCOME (from the ledger) */}
-      <SectionBand title="INVESTMENT INCOME" />
-      <View style={styles.card}>
-        <View style={styles.row}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.rowName}>Dividends, interest & coupons</Text>
-            <Text style={styles.rowSub}>{investIncome > 0 ? 'from your holdings & bonds (last 12 months + bond coupons)' : 'recorded when you log a cash dividend or add a bond'}</Text>
-          </View>
-          <Text style={styles.rowVal}>{fig('MK-CF-M-066', investIncome)}</Text>
-        </View>
-        {coverageNotes.length > 0 && (
-          <View accessibilityLabel={`How far back this figure reaches: ${coverageNotes.join(' ')}`}>
-            {coverageNotes.map((n: string, i: number) => (
-              <Text key={i} style={styles.coverageNote}>· {n}</Text>
+        {m.notEntered.length > 0 && <Text style={s.band}>Anything else?</Text>}
+        {m.notEntered.length > 0 && (
+          <View style={s.card}>
+            {m.notEntered.map((x) => (
+              <TouchableOpacity key={x.key} accessibilityRole="button" style={s.moreRow} onPress={() => open(x.key)}
+                accessibilityLabel={`Add ${x.title}`}>
+                <Text style={s.moreIcon}>{x.icon}</Text>
+                <Text style={s.moreT}>{x.title}</Text>
+              </TouchableOpacity>
             ))}
           </View>
         )}
-        <Text style={styles.note}>Reinvested dividends grow the holding instead of paying cash, so they're not counted as income here. Log dividends from Performance → Record transaction.</Text>
-      </View>
 
-      {/* ONE-TIME INCOME */}
-      <SectionBand title="ONE-TIME INCOME" />
-      <View style={styles.card}>
-        {incomes.length === 0 && <Text style={styles.empty}>None logged.</Text>}
-        {incomes.map((i: any) => (
-          <View key={i.id} style={styles.row}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.rowName}>{i.source || i.type}</Text>
-              <Text style={styles.rowSub}>{i.date}{i.notes ? ` · ${i.notes}` : ''}</Text>
-            </View>
-            <Text style={styles.rowVal}>{fig('MK-CF-M-012', i.amount)}</Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Delete ${i.source || i.type}`} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              onPress={() => Alert.alert('Delete this income?', `${i.source || i.type} · ${fig('MK-CF-M-012', i.amount)}`, [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Delete', style: 'destructive', onPress: () => store.deleteIncome(i.id) },
-              ])}><Text style={styles.del}>✕</Text></TouchableOpacity>
-          </View>
-        ))}
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add one-time income" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add one-time income</Text></TouchableOpacity>
-      </View>
-
-      <View style={{ height: 40 }} />
-
-      <BasePayEditor open={baseOpen} op={op} onClose={() => setBaseOpen(false)}
-        onSave={(p) => { store.setOnboardingProfile?.({ ...op, ...p }); setBaseOpen(false); }} />
-      <AmountEditor open={editKey != null} title={editKey === 'bonusAnnual' ? 'Annual bonus' : 'Signing bonus (one-time)'}
-        value={editKey ? num(op[editKey]) : 0} onClose={() => setEditKey(null)}
-        onSave={(v) => { if (editKey) store.setOnboardingProfile?.({ ...op, [editKey]: String(v) }); setEditKey(null); }}
-        monthKey={editKey === 'bonusAnnual' ? 'bonusMonth' : 'otherMonth'}
-        month={editKey ? Number(op[editKey === 'bonusAnnual' ? 'bonusMonth' : 'otherMonth']) || null : null}
-        onMonth={(m) => { if (editKey) store.setOnboardingProfile?.({ ...op, [editKey === 'bonusAnnual' ? 'bonusMonth' : 'otherMonth']: m }); }} />
-      <AddIncome open={addOpen} onClose={() => setAddOpen(false)}
-        onSave={(source, amount) => { store.addIncome?.({ type: 'other', amount, source, date: isoLocalDate(new Date()) }); setAddOpen(false); }} />
-
-      {/* Equity comp + Rental — reuse the rich onboarding editors (grants / multiple properties), live-backed */}
-      <Modal visible={rich != null} transparent animationType={modalAnimation()} onRequestClose={() => setRich(null)}>
-        <View style={styles.richWrap}>
-          <View style={styles.richBar}>
-            <Text style={styles.richTitle}>{rich === 'equity' ? 'Equity comp' : 'Rental income'}</Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done editing" onPress={() => setRich(null)}><Text style={styles.richDone}>Done</Text></TouchableOpacity>
-          </View>
-          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.lg }} keyboardShouldPersistTaps="handled">
-            {rich === 'equity' && <RsuEditor ctx={editorCtx} />}
-            {rich === 'rental' && <RentalEditor ctx={editorCtx} />}
-            {/* B47 finding 2: the only Done was small text in the top bar — invisible from the
-                bottom of a long form. The primary action lives where the work ends. */}
-            <TouchableOpacity accessibilityRole="button" style={styles.richDoneBtn} onPress={() => setRich(null)}
-              accessibilityLabel="Done — your changes save as you type">
-              <Text style={styles.richDoneBtnTxt}>Done</Text>
-            </TouchableOpacity>
-            <Text style={styles.richDoneNote}>Your changes save as you type — Done just closes.</Text>
-            <View style={{ height: 40 }} />
-          </ScrollView>
-        </View>
-      </Modal>
-
-      <SelfEmploymentEditor open={selfOpen} op={op} onClose={() => setSelfOpen(false)}
-        onSave={(p) => { store.setOnboardingProfile?.({ ...op, ...p }); setSelfOpen(false); }} />
-    </ScrollView>
+        <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => router.back()} accessibilityLabel="Done">
+          <Text style={s.ctaT}>Done</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
 
-// ── self-employment editor (net amount + per year / per month) ──
-function SelfEmploymentEditor({ open, op, onClose, onSave }: { open: boolean; op: any; onClose: () => void; onSave: (p: any) => void }) {
-  const [amt, setAmt] = useState('');
-  const [freq, setFreq] = useState<'annual' | 'monthly'>('annual');
-  React.useEffect(() => { if (open) { setAmt(op.seAmount ? String(op.seAmount) : ''); setFreq(op.seFreq === 'monthly' ? 'monthly' : 'annual'); } }, [open]);
-  const annual = num(amt) * (freq === 'monthly' ? 12 : 1);
+/** The frame every editor shares: the way back, the title, what it is, and Save where the drawing has one. */
+function Frame({ title, sub, onDone, save, children }: { title: string; sub: string; onDone: () => void; save?: boolean; children: React.ReactNode }) {
   return (
-    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-        <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Dismiss" onPress={onClose} />
-        <View style={styles.sheet}>
-          <View style={styles.grab} />
-          <Text style={styles.sheetT}>Self-employment income</Text>
-          <Text style={styles.fieldL}>Net amount (after business expenses)</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={amt} onChangeText={setAmt} placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
-          <Text style={styles.fieldL}>How often</Text>
-          <View style={styles.chips}>
-            {(['annual', 'monthly'] as const).map((f) => (
-              <TouchableOpacity key={f} accessibilityRole="button" accessibilityLabel={f === 'annual' ? 'Per year' : 'Per month'} style={[styles.chip, freq === f && styles.chipOn]} onPress={() => setFreq(f)}>
-                <Text style={[styles.chipT, freq === f && styles.chipTOn]}>{f === 'annual' ? 'Per year' : 'Per month'}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Save self-employment income" style={styles.saveBtn}
-            onPress={() => onSave({ seAmount: num(amt) > 0 ? String(num(amt)) : '', seFreq: freq })}>
-            <Text style={styles.saveBtnT}>Save · {fig('MK-CF-M-027', annual)}/year</Text>
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+      <TopBar back onBack={onDone} />
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+        <Text style={s.h1}>{title}</Text>
+        <Text style={s.sub}>{sub}</Text>
+        {children}
+        {save !== false && (
+          <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={onDone} accessibilityLabel={`Save ${title}`}>
+            <Text style={s.ctaT}>Save</Text>
           </TouchableOpacity>
-          <View style={{ height: 16 }} />
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
-// ── base-pay editor (amount + frequency + gross/take-home) ──
-const FREQS: { k: string; label: string }[] = [
-  { k: 'weekly', label: 'Weekly' }, { k: 'biweekly', label: 'Biweekly' }, { k: 'monthly', label: 'Monthly' }, { k: 'annual', label: 'Annual' },
-];
-function BasePayEditor({ open, op, onClose, onSave }: { open: boolean; op: any; onClose: () => void; onSave: (p: any) => void }) {
-  const [amt, setAmt] = useState('');
-  const [freq, setFreq] = useState('annual');
-  const [mode, setMode] = useState<'gross' | 'takehome'>('gross');
-  React.useEffect(() => { if (open) { setAmt(op.baseSalary ? String(op.baseSalary) : ''); setFreq(op.salaryFreq ?? 'annual'); setMode(op.salaryMode === 'takehome' ? 'takehome' : 'gross'); } }, [open]);
-  const annual = num(amt) * (SALARY_PERIODS[freq] ?? 1);
+function Money({ label, hint, value, onChangeText, placeholder, a11y }: { label: string; hint?: string; value: any; onChangeText: (v: string) => void; placeholder?: string; a11y?: string }) {
   return (
-    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
-      <View style={styles.sheet}>
-        <View style={styles.grab} />
-        <Text style={styles.sheetT}>Base pay</Text>
-        <Text style={styles.fieldL}>Amount</Text>
-        <TextInput style={styles.input} keyboardType="decimal-pad" value={amt} onChangeText={setAmt} placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
-        <Text style={styles.fieldL}>How often</Text>
-        <View style={styles.chips}>{FREQS.map((f) => (
-          <TouchableOpacity key={f.k} style={[styles.chip, freq === f.k && styles.chipOn]} onPress={() => setFreq(f.k)}><Text style={[styles.chipT, freq === f.k && styles.chipTOn]}>{f.label}</Text></TouchableOpacity>
-        ))}</View>
-        <Text style={styles.fieldL}>This is</Text>
-        <View style={styles.chips}>
-          <TouchableOpacity style={[styles.chip, mode === 'gross' && styles.chipOn]} onPress={() => setMode('gross')}><Text style={[styles.chipT, mode === 'gross' && styles.chipTOn]}>Gross (before any deductions)</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.chip, mode === 'takehome' && styles.chipOn]} onPress={() => setMode('takehome')}><Text style={[styles.chipT, mode === 'takehome' && styles.chipTOn]}>Take-home</Text></TouchableOpacity>
-        </View>
-        {/* B-40: a per-month salary table takes precedence over a flat amount, so editing base pay to
-            a flat figure must clear that table — otherwise the edit silently does nothing. */}
-        <TouchableOpacity style={[styles.saveBtn, num(amt) <= 0 && { opacity: 0.4 }]} disabled={num(amt) <= 0}
-          onPress={() => onSave({ baseSalary: String(num(amt)), salaryFreq: freq, salaryMode: mode, salaryByMonth: undefined, salaryMonthMode: undefined })}>
-          <Text style={styles.saveBtnT}>Save · {fig('MK-CF-M-027', annual)}/year</Text>
+    <>
+      <Text style={s.q}>{label}</Text>
+      {!!hint && <Text style={s.qsub}>{hint}</Text>}
+      <TextInput style={s.input} keyboardType="decimal-pad" accessibilityLabel={a11y ?? label} placeholder={placeholder}
+        placeholderTextColor={Colors.textTertiary} value={value != null && value !== '' ? String(value) : ''} onChangeText={onChangeText} />
+    </>
+  );
+}
+
+function Seg<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }) {
+  return (
+    <View style={s.segRow}>
+      {options.map(([v, label]) => (
+        <TouchableOpacity key={v} accessibilityRole="radio" accessibilityState={{ selected: value === v }} accessibilityLabel={label}
+          style={[s.seg, value === v && s.segOn]} onPress={() => onChange(v)}>
+          <Text style={[s.segT, value === v && s.segTOn]}>{label}</Text>
         </TouchableOpacity>
-      </View>
-      </KeyboardAvoidingView>
-    </Modal>
+      ))}
+    </View>
   );
 }
 
-function AmountEditor({ open, title, value, onClose, onSave, monthKey, month, onMonth }: { open: boolean; title: string; value: number; onClose: () => void; onSave: (v: number) => void; monthKey?: string; month?: number | null; onMonth?: (m: number) => void }) {
-  const [v, setV] = useState('');
-  React.useEffect(() => { if (open) setV(value ? String(value) : ''); }, [open]);
-  const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// ── 3a · BONUS AND STOCK (phone 9) ───────────────────────────────────────────────────────────────
+// A bonus belongs to a person, so it follows base pay's just-me / just-them / both pattern. The
+// household's bonus (bonusAnnual, the figure every calculation reads) is kept as the sum of the parts.
+function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => void; onDone: () => void }) {
+  const partner = String(op.partnerName || '').trim() || 'my spouse';
+  const couple = op.hasPartner === 'yes' || op.whoEarns === 'both' || op.whoEarns === 'partner';
+  const who: 'you' | 'partner' | 'both' = op.bonusWho ?? 'you';
+  const mine = op.bonusMine ?? (who !== 'partner' ? op.bonusAnnual : '') ?? '';
+  const theirs = op.bonusTheirs ?? (who === 'partner' ? op.bonusAnnual : '') ?? '';
+  const write = (w: typeof who, a: any, b: any) => set({
+    bonusWho: w, bonusMine: a, bonusTheirs: b,
+    bonusAnnual: String((w !== 'partner' ? num(a) : 0) + (w !== 'you' ? num(b) : 0) || ''),
+  });
+  const month = Number(op.bonusMonth) || 12;
+  const [grants, setGrants] = useState(false);
+  const dated = Array.isArray(op.rsuGrants) && op.rsuGrants.length > 0;
+  const sum = incomeSummary(op);
+  const ctx: StepCtx = { status: (op.status ?? null) as any, tracks: [] as any, answers: op, setAnswer: (k, v) => set({ [k]: v }) };
+  const people: { key: 'you' | 'partner'; band: string; value: any; on: (v: string) => void }[] = [];
+  if (who !== 'partner') people.push({ key: 'you', band: 'Your bonus', value: mine, on: (v) => write(who, v, theirs) });
+  if (who !== 'you') people.push({ key: 'partner', band: `${partner === 'my spouse' ? 'Your spouse' : partner}’s bonus`, value: theirs, on: (v) => write(who, mine, v) });
   return (
-    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
-      <View style={styles.sheet}>
-        <View style={styles.grab} />
-        <Text style={styles.sheetT}>{title}</Text>
-        <TextInput style={[styles.input, { marginTop: 12 }]} keyboardType="decimal-pad" value={v} onChangeText={setV} placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
-        {onMonth && (
+    <Frame title="Bonus and stock" sub="Paid on top of base pay" onDone={onDone}>
+      {couple && (
+        <>
+          <Text style={s.band}>Who gets a bonus?</Text>
+          <Seg value={who} options={[['you', 'Just me'], ['partner', `Just ${partner}`], ['both', 'Both of us']]} onChange={(v) => write(v, mine, theirs)} />
+        </>
+      )}
+      {people.map((p, i) => (
+        <View key={p.key}>
+          <View style={s.bandRow}>
+            <Text style={s.band}>{p.band}</Text>
+            <Text style={s.bandNum}>{fig('MK-CF-M-008', num(p.value))}/year</Text>
+          </View>
+          <View style={s.card}>
+            <Money label="How much, a year" hint="Before tax. A typical year if it varies." value={p.value} onChangeText={p.on} a11y={`${p.band}, a year`} />
+            {i === 0 && (
+              <>
+                <Text style={s.q}>Which month is it paid?</Text>
+                <Text style={s.qsub}>It counts in that month, not spread across the year.</Text>
+                <View style={s.segRow}>
+                  {MONTHS.map((mo, k) => (
+                    <TouchableOpacity key={mo} accessibilityRole="radio" accessibilityState={{ selected: month === k + 1 }} accessibilityLabel={`Paid in ${mo}`}
+                      style={[s.month, month === k + 1 && s.segOn]} onPress={() => set({ bonusMonth: k + 1 })}>
+                      <Text style={[s.segT, month === k + 1 && s.segTOn]}>{mo}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {dated ? (
+                  <>
+                    <Text style={s.q}>Stock that vests, a year</Text>
+                    <TouchableOpacity accessibilityRole="button" style={s.linkRow} onPress={() => setGrants(true)}
+                      accessibilityLabel="Change the grants and their vesting dates">
+                      <Text style={s.linkL}>{fig('MK-CF-M-009', sumOfStock(op))}/year, from the grants you entered</Text><Text style={s.linkV}>›</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <Money label="Stock that vests, a year" hint="Leave blank if you have none."
+                    value={num(op.rsuShares) * num(op.rsuPrice) || ''} onChangeText={(v) => set({ rsuShares: v, rsuPrice: '1' })} />
+                )}
+              </>
+            )}
+          </View>
+        </View>
+      ))}
+      {num(op.bonusAnnual) > 0 && sum.lands.standoutMonth && (
+        <>
+          <Text style={s.band}>{sum.lands.standoutMonth.label} will look different</Text>
+          <View style={s.card}>
+            <Row label={sum.lands.totalLabel.replace(/^= /, '')} value={fig('MK-CF-M-037', sum.lands.usualMonth)} />
+            <Row label={sum.lands.standoutMonth.label} note="bonus, after tax" value={fig('MK-CF-M-039', sum.lands.standoutMonth.amount)} strong />
+            <Text style={s.note}>
+              Cash flow will show that spike where it happens. Spreading it across twelve months would make every month wrong to make one look tidy.
+            </Text>
+          </View>
+        </>
+      )}
+      <Modal visible={grants} transparent animationType={modalAnimation()} onRequestClose={() => setGrants(false)}>
+        <View style={s.sheetWrap}>
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.lg }} keyboardShouldPersistTaps="handled">
+            <RsuEditor ctx={ctx} />
+            <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => setGrants(false)} accessibilityLabel="Done — your changes save as you type">
+              <Text style={s.ctaT}>Done</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </Modal>
+    </Frame>
+  );
+}
+/** What the dated grants come to in a year — read back from the one place it is calculated. */
+const sumOfStock = (op: any) => theIncomeManager(op).bonusAndStock ? Math.max(0, (theIncomeManager(op).bonusAndStock as any).amount - num(op.bonusAnnual)) : 0;
+
+// ── 3b · RENT FROM A PROPERTY (phone 10) ─────────────────────────────────────────────────────────
+// Two figures, not one: rent received is not income; what is left after running the place is.
+function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => void; onDone: () => void }) {
+  const list: { type?: string; income: any; expenses: any }[] = Array.isArray(op.rentals) && op.rentals.length
+    ? op.rentals : [{ type: op.rentalType, income: op.rentalIncome ?? '', expenses: op.rentalExpenses ?? '' }];
+  const write = (i: number, patch: Record<string, any>) => set({ rentals: list.map((r, k) => (k === i ? { ...r, ...patch } : r)) });
+  return (
+    <Frame title="Rent from a property" sub="What you keep, after what it costs to run" onDone={onDone} save={false}>
+      {list.map((r, i) => {
+        const keep = num(r.income) - num(r.expenses);
+        return (
+          <View key={i}>
+            <View style={s.bandRow}>
+              <Text style={s.band}>{list.length > 1 ? `Property ${i + 1}` : 'The property'}</Text>
+              <Text style={s.bandNum}>{fig('MK-CF-M-010', keep)}/month net</Text>
+            </View>
+            <View style={s.card}>
+              <Money label="Rent you receive each month" value={r.income} onChangeText={(v) => write(i, { income: v })} a11y={`Rent you receive each month, property ${i + 1}`} />
+              <Money label="What it costs to run each month" hint="Mortgage interest, tax, insurance, repairs, management."
+                value={r.expenses} onChangeText={(v) => write(i, { expenses: v })} a11y={`What it costs to run each month, property ${i + 1}`} />
+              <Row label="= You keep" value={`${fig('MK-CF-M-010', keep)}/month`} strong />
+              <Text style={s.note}>
+                {fig('MK-CF-M-027', keep * 12)}/year. This is the figure every other screen uses
+                {num(r.expenses) > 0 ? ` — the rent alone would overstate what reaches you by ${fig('MK-CF-M-027', num(r.expenses))}/month.` : '.'}
+              </Text>
+            </View>
+          </View>
+        );
+      })}
+      <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}
+        onPress={() => set({ rentals: [...list, { type: 'long', income: '', expenses: '' }] })} accessibilityLabel="Add another property">
+        <Text style={s.link}>Add another property</Text>
+      </TouchableOpacity>
+    </Frame>
+  );
+}
+
+// ── 3c · INTEREST AND DIVIDENDS (phone 11) ───────────────────────────────────────────────────────
+// The app holds the accounts, so it shows what they pay and lets the person correct it — and it is
+// TAXED BUT NOT SPENDABLE unless they say it reaches their bank (finding B34, founder 2026-08-27).
+function InterestAndDividends({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => void; onDone: () => void }) {
+  const store = useStore() as any;
+  const worked = incomeFromAccounts(store.assetAccounts ?? [], store.transactions ?? []);
+  // founder rule 2026-08-04: a "last 12 months" figure can only cover the history each source shared
+  const yearStart = new Date(Date.now() - 365 * 86400_000).toISOString().slice(0, 10);
+  const coverageNotes = ((store.assetAccounts ?? []) as any[]).filter((a) => a.source === 'connected' || a.source === 'imported')
+    .map((a) => historyCoverage(a, yearStart)).filter(Boolean).map((c: any) => c.sentence);
+  const paid = op.invPaidToBank === 'yes';
+  return (
+    <Frame title="Interest & dividends" sub="What your savings and investments pay you" onDone={onDone}>
+      {worked.lines.length > 0 && (
+        <>
+          <View style={s.bandRow}>
+            <Text style={s.band}>From your accounts</Text>
+            <Text style={s.bandNum}>{fig('MK-CF-M-066', worked.annual)}/year</Text>
+          </View>
+          <View style={s.card}>
+            {worked.lines.map((l) => <Row key={l.label} label={l.label} note={l.why} value={fig('MK-CF-M-066', l.annual)} />)}
+            <Row label="= We calculate" value={`${fig('MK-CF-M-066', worked.annual)}/year`} strong />
+            {!!worked.missing && <Text style={s.note}>{worked.missing}</Text>}
+            {coverageNotes.map((c: string, i: number) => <Text key={i} style={s.note}>· {c}</Text>)}
+          </View>
+        </>
+      )}
+      <View style={s.card}>
+        <Money label={worked.lines.length > 0 ? 'Change it if that is not right' : 'How much, a year'}
+          hint={worked.lines.length > 0 ? 'We only see the accounts you entered.' : 'Interest from savings plus dividends from shares and funds.'}
+          placeholder={worked.annual > 0 ? `use ${fig('MK-CF-M-066', worked.annual)}` : undefined}
+          value={op.invAnnual ?? ''} onChangeText={(v) => set({ invAnnual: v, invAmount: v, invFreq: 'annual' })} a11y="Interest and dividends, a year" />
+      </View>
+      <Text style={s.band}>{paid ? 'This reaches your bank' : 'This does not reach your bank'}</Text>
+      <View style={s.card}>
+        <Text style={s.lead}>
+          {paid ? 'Interest and dividends are counted as income you are taxed on, and as money you can spend.'
+                : 'Interest and dividends are counted as income you are taxed on, not money you can spend.'}
+        </Text>
+        <Text style={s.note}>
+          They are normally reinvested where they are earned, so they never reach your bank account. If you actually take them as cash, tell us and we will count them.
+        </Text>
+        <Seg value={paid ? 'yes' : 'no'} options={[['no', 'Reinvested'], ['yes', 'Paid to my bank']]} onChange={(v) => set({ invPaidToBank: v })} />
+      </View>
+    </Frame>
+  );
+}
+
+// ── THE SOURCES THE DRAWING DOES NOT DRAW AN EDITOR FOR ──────────────────────────────────────────
+// Each opens the question it was first asked with. "Something else" also holds the one-time payments
+// recorded as they arrived (MK-CF-M-012) — the list Cash flow's "Received this month" reads.
+function AskedBefore({ source, onDone }: { source: ManagedSource['key']; onDone: () => void }) {
+  const store = useStore() as any;
+  const op = store.onboardingProfile ?? {};
+  const ctx: StepCtx = { status: (op.status ?? null) as any, tracks: [] as any, answers: op,
+    setAnswer: (k, v) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), [k]: v }) };
+  const [add, setAdd] = useState(false);
+  const incomes = store.incomes ?? [];
+  return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+      <TopBar back onBack={onDone} />
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+        {renderStep(STEP[source]!.step as any, ctx)}
+        {source === 'other_income' && (
           <>
-            <Text style={styles.monthLbl}>Which month does it land? (pre-48 audit A3 — drives the by-month grid)</Text>
-            <View style={styles.monthRow}>
-              {MO.map((mo, i) => (
-                <TouchableOpacity key={mo} accessibilityRole="button" accessibilityState={{ selected: month === i + 1 }} accessibilityLabel={`Lands in ${mo}`}
-                  style={[styles.monthChip, month === i + 1 && styles.monthChipOn]} onPress={() => onMonth(i + 1)}>
-                  <Text style={[styles.monthChipT, month === i + 1 && styles.monthChipTOn]}>{mo}</Text>
-                </TouchableOpacity>
+            <Text style={s.band}>One-time payments you recorded</Text>
+            <View style={s.card}>
+              {incomes.length === 0 && <Text style={s.note}>None recorded.</Text>}
+              {incomes.map((i: any) => (
+                <View key={i.id} style={s.linkRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.linkL}>{i.source || i.type}</Text>
+                    <Text style={s.whoSub}>{i.date}{i.notes ? ` · ${i.notes}` : ''}</Text>
+                  </View>
+                  <Text style={s.rowV}>{fig('MK-CF-M-012', i.amount)}</Text>
+                  <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Delete ${i.source || i.type}`} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                    onPress={() => Alert.alert('Delete this income?', `${i.source || i.type} · ${fig('MK-CF-M-012', i.amount)}`, [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Delete', style: 'destructive', onPress: () => store.deleteIncome(i.id) },
+                    ])}><Text style={s.del}>✕</Text></TouchableOpacity>
+                </View>
               ))}
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add one-time income" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => setAdd(true)}>
+                <Text style={s.link}>＋ Add one-time income</Text>
+              </TouchableOpacity>
             </View>
           </>
         )}
-        <TouchableOpacity style={styles.saveBtn} onPress={() => onSave(num(v))}><Text style={styles.saveBtnT}>Save</Text></TouchableOpacity>
-      </View>
-      </KeyboardAvoidingView>
-    </Modal>
+        <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={onDone} accessibilityLabel="Done — your changes save as you type">
+          <Text style={s.ctaT}>Done</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <AddIncome open={add} onClose={() => setAdd(false)}
+        onSave={(src, amount) => { store.addIncome?.({ type: 'other', amount, source: src, date: isoLocalDate(new Date()) }); setAdd(false); }} />
+    </View>
   );
 }
 
@@ -331,69 +421,78 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
   React.useEffect(() => { if (open) { setSource(''); setAmount(''); } }, [open]);
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
-      <View style={styles.sheet}>
-        <View style={styles.grab} />
-        <Text style={styles.sheetT}>Add one-time income</Text>
-        <Text style={styles.fieldL}>What was it?</Text>
-        <TextInput style={styles.input} value={source} onChangeText={setSource} placeholder="e.g. Gift, stock sale, freelance" placeholderTextColor={Colors.textTertiary} />
-        <Text style={styles.fieldL}>Amount</Text>
-        <TextInput style={styles.input} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} placeholder="0" placeholderTextColor={Colors.textTertiary} />
-        <TouchableOpacity style={[styles.saveBtn, (num(amount) <= 0 || !source.trim()) && { opacity: 0.4 }]} disabled={num(amount) <= 0 || !source.trim()}
-          onPress={() => onSave(source.trim(), num(amount))}><Text style={styles.saveBtnT}>Add</Text></TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <TouchableOpacity style={s.scrim} activeOpacity={1} onPress={onClose} accessibilityRole="button" accessibilityLabel="Dismiss" />
+        <View style={s.sheet}>
+          <Text style={s.who}>Add one-time income</Text>
+          <Text style={s.q}>What was it?</Text>
+          <TextInput style={s.input} value={source} onChangeText={setSource} placeholder="e.g. Gift, stock sale, freelance" placeholderTextColor={Colors.textTertiary} accessibilityLabel="What was it?" />
+          <Text style={s.q}>Amount</Text>
+          <TextInput style={s.input} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} placeholder="0" placeholderTextColor={Colors.textTertiary} accessibilityLabel="Amount" />
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add" style={[s.cta, (num(amount) <= 0 || !source.trim()) && { opacity: 0.4 }]}
+            disabled={num(amount) <= 0 || !source.trim()} onPress={() => onSave(source.trim(), num(amount))}>
+            <Text style={s.ctaT}>Add</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </Modal>
   );
 }
 
-const styles = StyleSheet.create({
-  // fifth ingredient check (2026-08-04): how far back each source's shared history reaches
-  coverageNote: { fontSize: 11, color: Colors.textSecondary, marginTop: 4, lineHeight: 16 },
-  content: { padding: Spacing.lg },
-  eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 8 },
-  summary: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 12, alignItems: 'center' },
-  sumVal: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
-  sumLab: { fontSize: 13, color: Colors.textTertiary, marginTop: 2 },
-  section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 18, marginBottom: 6 },
-  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
-  rowName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
-  rowSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },
-  rowVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+function Row({ label, note, value, strong }: { label: string; note?: string | null; value: string; strong?: boolean }) {
+  return (
+    <View style={s.row}>
+      <View style={{ flex: 1 }}>
+        <Text style={[s.rowL, strong && s.rowLStrong]}>{label}</Text>
+        {note ? <Text style={s.rowNote}>{note}</Text> : null}
+      </View>
+      <Text style={[s.rowV, strong && s.rowVStrong]}>{value}</Text>
+    </View>
+  );
+}
+
+const s = StyleSheet.create({
+  content: { padding: Spacing.lg, paddingBottom: 48 },
+  h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
+  sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, marginBottom: 6 },
+  band: { fontSize: 11, fontWeight: '800', letterSpacing: 0.6, color: Colors.textSecondary, textTransform: 'uppercase', marginTop: 20 },
+  bandRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
+  bandNum: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.base, marginTop: 8, borderWidth: 1, borderColor: Colors.border },
+  section: { marginTop: 8 },
+  secHead: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.base, borderWidth: 1, borderColor: Colors.border, minHeight: 56 },
+  who: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  tick: { fontSize: 13, fontWeight: '800', color: Colors.primaryDark },
+  whoSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 2 },
+  chev: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
+  linkRow: { flexDirection: 'row', alignItems: 'center', minHeight: 48, gap: 8 },
+  linkL: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
+  linkV: { fontSize: 17, fontWeight: '700', color: Colors.primaryDark },
+  moreRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 },
+  moreIcon: { fontSize: 17, width: 26, textAlign: 'center' },
+  moreT: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  q: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, marginTop: 14 },
+  qsub: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, lineHeight: 16 },
+  lead: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, lineHeight: 21 },
+  input: { borderWidth: 1.5, borderColor: Colors.borderStrong, borderRadius: Radii.md, padding: 12, fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, backgroundColor: Colors.bgSecondary, fontVariant: ['tabular-nums'] },
+  segRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
+  seg: { flexGrow: 1, minHeight: 44, minWidth: 84, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 10 },
+  month: { minHeight: 44, minWidth: 52, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 8 },
+  segOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  segT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
+  segTOn: { color: Colors.primaryDark, fontWeight: '800' },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },
+  rowL: { fontSize: 15, color: Colors.textSecondary },
+  rowLStrong: { fontWeight: '800', color: Colors.textPrimary },
+  rowNote: { fontSize: 11, color: Colors.textTertiary },
+  rowV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  rowVStrong: { fontSize: 17, fontWeight: '800' },
+  note: { fontSize: 11, color: Colors.textSecondary, lineHeight: 17, marginTop: 8 },
+  link: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
   del: { fontSize: 17, color: Colors.textSecondary, paddingHorizontal: 8, paddingVertical: 8 },
-  empty: { fontSize: 13, color: Colors.textSecondary, paddingVertical: 12, textAlign: 'center' },
-  emptyBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
-  emptyBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
-  note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },
-  addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
-
+  cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 52, justifyContent: 'center', alignItems: 'center', marginTop: 24 },
+  ctaT: { fontSize: 17, fontWeight: '800', color: Colors.white },
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  richWrap: { flex: 1, backgroundColor: Colors.bgSecondary },
-  richBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: Colors.border, backgroundColor: Colors.white },
-  richTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
-  richDone: { fontSize: 17, fontWeight: '700', color: Colors.primary },
-  richDoneBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
-  richDoneBtnTxt: { fontSize: 17, fontWeight: '800', color: Colors.white },
-  richDoneNote: { fontSize: 11, color: Colors.textTertiary, textAlign: 'center', marginTop: 6 },
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
-  grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
-  sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
-  fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
-  input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
-  chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 12, paddingVertical: 8 },
-  chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
-  chipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
-  chipTOn: { color: Colors.primaryDark },
-  monthLbl: { fontSize: 13, color: Colors.textSecondary, marginTop: 12 },
-  monthRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
-  monthChip: { minHeight: 44, minWidth: 48, alignItems: 'center', justifyContent: 'center', borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.cardBg, paddingHorizontal: 8 },
-  monthChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
-  monthChipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
-  monthChipTOn: { color: Colors.primaryDark },
-  saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 18 },
-  saveBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
+  sheetWrap: { flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 48 },
 });
-

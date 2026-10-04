@@ -167,10 +167,10 @@ test('a gross biweekly salary is described truthfully and reconciles with the In
   useStore.setState({
     onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'biweekly' },
   } as any);
-  const { salaryGrossByMonth, monthlyTaxRates } = require('../../domain/income');
+  // the take-home the base-pay card shows for this earner — one figure, read from the one place (2026-10-04)
+  const { basePay, entryFromWage } = require('../../../MoneyKeel/functions/cashflow/base-pay');
   const op = (useStore.getState() as any).onboardingProfile;
-  const m = new Date().getMonth();
-  const expectedNet = Math.round(salaryGrossByMonth(op)[m] * (1 - monthlyTaxRates(op)[m]));
+  const expectedNet = Math.round(basePay({ earners: [{ name: 'You', entry: entryFromWage(op) }], profile: op }).landsInBank);
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByText('Income'));
   const bridge = 'before tax · every 2 weeks · ≈ ' + '$' + expectedNet.toLocaleString() + '/month take-home';

@@ -90,7 +90,7 @@ export function monthWindow(from: Date, back: number, count: number): string[] {
  *               MK-CF-F-168 salaryWindow · MK-CF-F-169 withSalaryMonth
  *               MK-CF-F-179 entryFromWage
  *
- * Reaches ..... 93 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 94 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -100,7 +100,7 @@ export function monthWindow(from: Date, back: number, count: number): string[] {
  *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
  *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               … and 75 more — the full list is on functions_from_code
+ *               … and 76 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -139,7 +139,7 @@ export function salaryMonths(op: OnboardingProfile | null, now: Date = new Date(
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth
  *
- * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 89 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -149,7 +149,7 @@ export function salaryMonths(op: OnboardingProfile | null, now: Date = new Date(
  *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
  *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               … and 70 more — the full list is on functions_from_code
+ *               … and 71 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -176,7 +176,7 @@ export function hasMonthlySalaryTable(op: OnboardingProfile | null): boolean {
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth
  *
- * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 89 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -186,7 +186,7 @@ export function hasMonthlySalaryTable(op: OnboardingProfile | null): boolean {
  *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
  *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               … and 70 more — the full list is on functions_from_code
+ *               … and 71 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

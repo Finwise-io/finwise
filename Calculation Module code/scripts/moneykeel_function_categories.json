@@ -1892,7 +1892,7 @@
  "monthlyTaxRates": {
   "id": "MK-CF-F-087",
   "file": "src/domain/income/onboarding.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "monthsLeftInYear": {
   "id": "MK-CF-F-195",
@@ -3099,6 +3099,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/holding.ts",
   "category": "2 · DISPLAYED"
  },
+ "theIncomeManager": {
+  "id": "MK-CF-O-019",
+  "file": "MoneyKeel/functions/cashflow/income-summary.ts",
+  "category": "2 · DISPLAYED"
+ },
  "theLookBack": {
   "id": "MK-NW-O-007",
   "file": "MoneyKeel/functions/networth-and-performance/look-back.ts",
@@ -3352,7 +3357,7 @@
  "wageGrossByMonth": {
   "id": "MK-CF-F-177",
   "file": "src/domain/income/onboarding.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "wageMatchMonthly": {
   "id": "MK-CF-F-178",

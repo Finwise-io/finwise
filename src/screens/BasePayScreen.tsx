@@ -225,7 +225,11 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle, frame }: {
 }) {
   const freq = String(wage.salaryFreq ?? 'monthly');
   const midName = name === 'Your spouse' ? 'your spouse' : name;   // lowercase mid-sentence (#6)
-  const varies = wage.salaryMonthMode === 'months';
+  // A month table entered before this screen existed carries no mode of its own. It still drives
+  // every figure, so the section must show it as "It varies" — otherwise the gross typed here would
+  // change nothing (bug B-40, which this screen inherited when the manager's own sheet was retired).
+  const varies = wage.salaryMonthMode === 'months'
+    || (wage.salaryMonthMode == null && Object.keys(salaryMonths(wage as any)).length > 0);
   const set = (k: string, v: any) => onChange({ ...wage, [k]: v });
   // Fourteen months, last month to twelve ahead — the window the approved screen asks for, and the
   // reason the table is keyed by month rather than by a slot.

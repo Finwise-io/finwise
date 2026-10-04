@@ -193,8 +193,11 @@ test('rows 22-25: finding fixes hold at the source', () => {
   expect(cf).not.toMatch(/Rich editors \(equity comp, rental\) live in the income manager/);
   // row 25: every income source can be ADDED
   const im = read('screens/IncomeManagerScreen.tsx');
-  expect(im).toMatch(/＋ Add an income source/);
-  expect(im).toMatch(/Stock vesting \(equity comp\)/);
+  // every source can be ADDED from here, not only edited once it exists: the ones not yet entered are
+  // listed under "Anything else?", and a job's row opens Bonus and stock (rebuilt to its drawing 2026-10-04)
+  expect(im).toMatch(/Anything else\?/);
+  expect(im).toMatch(/m\.notEntered\.map/);
+  expect(im).toMatch(/Bonus and stock/);
 });
 
 // ── Palette adoption (mock #2, founder YES 2026-07-30): the validated set is pinned exactly ──
@@ -390,9 +393,10 @@ test('B47 finding 1: the equity editor captures the stock symbol and seeds new r
 test('B47 finding 2: the editor modal has a real bottom Done (the top link was invisible from a long form)', () => {
   const fs = require('fs'); const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'IncomeManagerScreen.tsx'), 'utf8');
-  expect(src).toMatch(/richDoneBtn/);
-  expect(src).toMatch(/Your changes save as you type — Done just closes\./);
-  expect(src).toMatch(/minHeight: 48/);
+  // every editor ends in a full-width button where the work ends (rebuilt to its drawing 2026-10-04)
+  expect(src).toMatch(/accessibilityLabel="Done — your changes save as you type"/);
+  expect(src).toMatch(/accessibilityLabel=\{`Save \$\{title\}`\}/);
+  expect(src).toMatch(/cta: \{[^}]*minHeight: 52/);
 });
 
 // B47 finding 4: deleting a holding must exit silently — the deletion worked but the not-found
@@ -455,7 +459,7 @@ test('B47 finding 10: one Add income entry, zero explanatory sentences, deep-lin
   expect(cf).not.toMatch(/Pay from stock vesting or a rental\? Open Income/);
   expect(cf).toMatch(/income-manager\?open=\$\{what\}/); expect(cf).toMatch(/manage\('equity'\)/);
   const im = fs.readFileSync(path.join(__dirname, '..', 'IncomeManagerScreen.tsx'), 'utf8');
-  expect(im).toMatch(/openParam === 'equity'\) setRich\('equity'\)/);
+  expect(im).toMatch(/equity: 'bonus', rental: 'rental', self: 'self_employment'/);   // each chooser row opens its own editor
 });
 
 // ── B47 finding 11 (founder "approved.", 2026-07-31): ONE debt editor, shaped by repayment ──
@@ -651,8 +655,9 @@ test('A3: Cash flow sources list shows the bonus WITH its landing month; the cho
 test('A3: the bonus editor carries the 12 month chips writing bonusMonth (no more onboarding-only)', () => {
   const fs = require('fs'); const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'IncomeManagerScreen.tsx'), 'utf8');
-  expect(src).toMatch(/monthKey=\{editKey === 'bonusAnnual' \? 'bonusMonth' : 'otherMonth'\}/);
-  expect(src).toMatch(/Which month does it land\?/);
+  expect(src).toMatch(/MONTHS\.map\(\(mo, k\) =>/);                       // all twelve
+  expect(src).toMatch(/set\(\{ bonusMonth: k \+ 1 \}\)/);
+  expect(src).toMatch(/Which month is it paid\?/);                       // the drawing's words (income-end-to-end v07, frame 3a)
 });
 
 // ── Pre-48 audit C4: the two approved rows the July triage missed, now built ──

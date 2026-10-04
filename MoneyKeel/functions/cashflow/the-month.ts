@@ -53,7 +53,7 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -63,7 +63,7 @@ export interface TheMonth {
  *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
  *               MK-CF-F-012 annualCashflow · MK-CF-F-210 annualOfSource
- *               … and 50 more — the full list is on functions_from_code
+ *               … and 51 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-013
  *               MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020 · MK-CF-M-021
@@ -153,7 +153,7 @@ const GIVEN =
  *               MK-CF-F-204 line · MK-CF-F-205 COMING
  *               MK-CF-O-004 incomeSummary · MK-CF-O-010 theMonth
  *
- * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -163,7 +163,7 @@ const GIVEN =
  *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
  *               MK-CF-F-012 annualCashflow · MK-CF-F-210 annualOfSource
- *               … and 50 more — the full list is on functions_from_code
+ *               … and 51 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -188,7 +188,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-XS-F-058 parseReceipt · MK-XS-F-094 parseReceiptText
  *               MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 39 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
  *               MK-NW-F-082 NW · MK-CF-O-011 PAY
@@ -198,7 +198,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-CF-O-001 basePay · MK-XS-F-004 buildDatedGrid
  *               MK-CF-F-036 buildDebtState · MK-CF-F-107 buildPaycheckYear
  *               MK-PF-F-014 buildPerformance · MK-XS-F-031 buildSnapshot
- *               … and 20 more — the full list is on functions_from_code
+ *               … and 21 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses

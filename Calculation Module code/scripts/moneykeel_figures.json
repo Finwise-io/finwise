@@ -33,7 +33,8 @@
    "per": "month",
    "screens": [
     "/base-pay",
-    "/cashflow"
+    "/cashflow",
+    "/income-manager"
    ],
    "answers": "What actually reaches the bank each month, after federal tax and 401(k) — for one earner, and for the household.",
    "formula": "for one earner: what they entered, or their gross less federal tax less their own 401(k). For the household: the sum of the earners’ figures, never a second calculation.",
@@ -229,7 +230,8 @@
    "unit": "money",
    "per": "month",
    "screens": [
-    "/income-summary"
+    "/income-summary",
+    "/income-manager"
    ],
    "answers": "What reaches the bank in a usual month, from every source of income added together.",
    "formula": "take-home a usual month = Σ of every source’s take-home in a usual month; a source that lands in one month of the year is not spread across twelve",
@@ -277,7 +279,8 @@
    "label": "its own month, never spread",
    "unit": "money",
    "screens": [
-    "/income-summary"
+    "/income-summary",
+    "/income-manager"
    ],
    "answers": "A source that arrives in one month of the year, shown in that month rather than divided by twelve.",
    "formula": "the standout month = the source whose whole year lands in a single month, with that amount and that month",
@@ -453,7 +456,8 @@
    "unit": "money",
    "per": "year",
    "screens": [
-    "/cashflow"
+    "/cashflow",
+    "/income-manager"
    ],
    "answers": "The bonus for the year and the month it lands.",
    "formula": "the bonus as entered, a year; shown in the month it lands, never spread",
@@ -477,7 +481,8 @@
    "unit": "money",
    "per": "year",
    "screens": [
-    "/cashflow"
+    "/cashflow",
+    "/income-manager"
    ],
    "answers": "What vests in a year, valued at the price entered.",
    "formula": "shares vesting × price per share; with a grant schedule, the total ÷ the years it vests over",
@@ -498,7 +503,8 @@
    "unit": "money",
    "per": "month",
    "screens": [
-    "/cashflow"
+    "/cashflow",
+    "/income-manager"
    ],
    "answers": "What the rental brings in each month after its running costs.",
    "formula": "(rent − running costs) for each rental, added up",
@@ -586,13 +592,12 @@
   "MK-CF-M-027": {
    "label": "each income source and its amount",
    "unit": "money",
-   "per": "year",
    "screens": [
     "/income-manager"
    ],
    "grain": "one source",
-   "answers": "Every source of income, one line each, as a yearly amount.",
-   "formula": "a monthly source × 12; a yearly source as it is; a salary from its pay period",
+   "answers": "Every source of income that has been entered, one line each, in the period it is counted in — a month or a year, said beside it.",
+   "formula": "each source as it was entered: rent after its running costs, in a month; interest and dividends, a bonus, scholarships and loans, in a year; the rest in a month",
    "inputs": [
     "MK-XS-I-023 salary and other income",
     "MK-CF-I-009 bonus",
@@ -602,31 +607,8 @@
    "refusal": "Nothing entered — the list is replaced by the door to enter income.",
    "ruled": "2026-10-02",
    "worked": {
-    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security.",
-    "answer": "$14,400/year"
-   },
-   "door": "MK-CF-O-004 incomeSummary"
-  },
-  "MK-CF-M-065": {
-   "label": "total income / year (gross)",
-   "unit": "money",
-   "per": "year",
-   "screens": [
-    "/income-manager"
-   ],
-   "answers": "Everything coming in over a year, before any deductions.",
-   "formula": "every source’s yearly amount added up, wages at gross",
-   "inputs": [
-    "MK-XS-I-023 salary and other income",
-    "MK-CF-I-009 bonus",
-    "MK-CF-I-010 equity vesting",
-    "MK-CF-I-007 rental income"
-   ],
-   "refusal": "Nothing entered — $0, with the door to enter income.",
-   "ruled": "2026-10-02",
-   "worked": {
-    "given": "Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), paying $1,200 and $400/month into their 401(k)s, with the tax rate typed at 22%.",
-    "answer": "$169,200/year"
+    "given": "The two earners above, plus $24,000/year of self-employment, a $12,000 bonus in March, 50 shares vesting at $400, a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security. The line shown is the rental’s: what it brings in a month after its costs.",
+    "answer": "$1,200"
    },
    "door": "MK-CF-O-004 incomeSummary"
   },

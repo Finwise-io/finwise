@@ -17,7 +17,8 @@ import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { budgetVsActual } from '../domain/budget';
-import { retirementIncomeMonthly, monthlyTaxRates } from '../domain/income';
+import { retirementIncomeMonthly } from '../domain/income';
+import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { rsuAnnual, rentalNetAnnual } from '../domain/income/onboarding';   // pre-48 A3: canonical source totals
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
 import { selectWillItLast } from '../domain/retirement/willItLast';
@@ -36,7 +37,7 @@ import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
 import { hasMonthlySalaryTable } from '../domain/income/salary-months';
 import { earnerWages } from '../domain/income/earners';
-import { wageGrossByMonth, salaryAnnual } from '../domain/income';
+import { salaryAnnual } from '../domain/income';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -269,10 +270,17 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
   // ONE ROW PER EARNER. This showed a single salary however many people earned one, so a household
   // on two wages saw one of them here and the total of both on the In line — two numbers on one
   // screen that could not be reconciled. Founder ruling 2026-08-27 (B32).
+  // THE TAKE-HOME ON THIS ROW IS THE ONE THE BASE-PAY CARD SHOWS. It used to be worked here — this
+  // month's gross × (1 − the month's rate) — which ignored a take-home the person had typed and their
+  // 401(k), so the row and the screen it opens gave two answers (found 2026-10-04). It wears ≈ only
+  // when the figure is the app's calculation.
+  const payRows = incomeSummary(op).lands.lines.filter((l) => l.estimated != null);
+  let earnerAt = -1;
   for (const w of earnerWages(op)) {
     if (!Number(w.baseSalary)) continue;
-    const mIdx = new Date().getMonth();
-    const monthlyNet = Math.round(wageGrossByMonth(w)[mIdx] * (1 - monthlyTaxRates(op)[mIdx]));
+    earnerAt += 1;
+    const monthlyNet = Math.round(payRows[earnerAt]?.amount ?? 0);
+    const approx = payRows[earnerAt]?.estimated !== false;
     const FREQ_WORD: Record<string, string> = { monthly: 'monthly', biweekly: 'every 2 weeks', weekly: 'weekly', semimonthly: 'twice a month', annual: 'yearly' };
     const unit = FREQ_WORD[String(w.salaryFreq ?? 'monthly')] ?? 'monthly';
     const basis = w.salaryMode === 'takehome' ? 'take-home' : 'before tax';
@@ -282,7 +290,7 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
       label: `${whose ? whose + ' · ' : ''}${varies ? 'Salary — varies' : 'Salary — steady'}`,
       sub: varies ? 'by-month table'
         : plainMonthlyTakehome ? 'take-home · monthly'
-        : [basis, unit, `≈ ${fig('MK-CF-M-031', monthlyNet)}/month take-home`],
+        : [basis, unit, `${approx ? '≈ ' : ''}${fig('MK-CF-M-031', monthlyNet)}/month take-home`],
       amount: fig('MK-CF-M-006', Math.round(Number(w.baseSalary) || 0)),
       open: onSetup,
     });

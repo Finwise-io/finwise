@@ -46,7 +46,7 @@ export interface InsightInput {
  *
  * Called by ... MK-HM-F-006 money0
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
  *               MK-NW-F-082 NW · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
@@ -56,7 +56,7 @@ export interface InsightInput {
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
  *               MK-CF-O-004 incomeSummary · MK-HM-F-006 money0
  *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
- *               … and 4 more — the full list is on functions_from_code
+ *               … and 5 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -77,7 +77,7 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *
  * Called by ... MK-CF-O-001 basePay
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
  *               MK-NW-F-082 NW · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
@@ -87,7 +87,7 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
  *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
  *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
- *               … and 3 more — the full list is on functions_from_code
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses

@@ -1,7 +1,7 @@
 {
  "highest": {
   "CF": 215,
-  "CF-O": 18,
+  "CF-O": 19,
   "HM": 6,
   "NW": 103,
   "NW-O": 8,
@@ -636,6 +636,7 @@
   "theDebts": "MK-CF-O-018",
   "theEmergencyFund": "MK-NW-O-004",
   "theHolding": "MK-NW-O-006",
+  "theIncomeManager": "MK-CF-O-019",
   "theLookBack": "MK-NW-O-007",
   "theMonth": "MK-CF-O-010",
   "theNetWorth": "MK-NW-O-003",

@@ -11,7 +11,7 @@ import { toNum } from '../../../src/domain/_shared/num';
 import { salaryAnnual, taxableAnnual, rentalNetAnnual, extraIncome, filingStatusOf,
          over65CountOf, incomeMonthlyGrid } from '../../../src/domain/income';
 // the two sources the YOUR SOURCES list needs, from the one place each is calculated
-import { rsuAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly, benefitActiveMonths, salaryGrossByMonth } from '../../../src/domain/income/onboarding';
+import { rsuAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly, benefitActiveMonths, salaryGrossByMonth, rentalList } from '../../../src/domain/income/onboarding';
 import { guaranteedOutsideStreams, totalGrossAnnual } from '../../../src/domain/income';
 import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
 import { earnerWages } from '../../../src/domain/income/earners';
@@ -20,7 +20,9 @@ import { marginalBracketFor } from '../../../src/domain/income/tax';
 import { basePay, entryFromWage } from './base-pay';
 import { inflowLabel } from './this-month';
 
-export interface Line { label: string; note?: string; amount: number; }
+export interface Line { label: string; note?: string; amount: number;
+  /** On an earner's pay row: true when the take-home is the app's calculation, not theirs — it then wears ≈. */
+  estimated?: boolean; }
 
 export interface IncomeSummary {
   /** What reaches the bank, per month — the money that can be spent. */
@@ -195,7 +197,7 @@ export function annualOfSource(x: IncomeSource, op?: Record<string, any> | null)
 
 export const FIGURES = declareFigures({
   'MK-CF-M-037': {
-    label: 'Take-home each month', unit: 'money', per: 'month', screens: ['/income-summary'],
+    label: 'Take-home each month', unit: 'money', per: 'month', screens: ['/income-summary', '/income-manager'],
     answers: 'What reaches the bank in a usual month, from every source of income added together.',
     formula: 'take-home a usual month = Σ of every source’s take-home in a usual month; a source that lands in one month of the year is not spread across twelve',
     inputs: ['MK-CF-M-031 household take-home', 'MK-CF-I-006 other income', 'MK-CF-I-007 rental income', 'MK-CF-I-008 retirement income'],
@@ -223,7 +225,7 @@ export const FIGURES = declareFigures({
     },
   },
   'MK-CF-M-039': {
-    label: 'its own month, never spread', unit: 'money', screens: ['/income-summary'],
+    label: 'its own month, never spread', unit: 'money', screens: ['/income-summary', '/income-manager'],
     answers: 'A source that arrives in one month of the year, shown in that month rather than divided by twelve.',
     formula: 'the standout month = the source whose whole year lands in a single month, with that amount and that month',
     inputs: ['MK-CF-I-009 bonus', 'MK-CF-I-010 equity vesting'],
@@ -319,7 +321,7 @@ export const FIGURES = declareFigures({
     worked: { given: SOURCES_GIVEN, answer: '$24,000', run: () => SOURCE('self-employment').amount },
   },
   'MK-CF-M-008': {
-    label: 'YOUR SOURCES — Bonus', unit: 'money', per: 'year', screens: ['/cashflow'],
+    label: 'YOUR SOURCES — Bonus', unit: 'money', per: 'year', screens: ['/cashflow', '/income-manager'],
     answers: 'The bonus for the year and the month it lands.',
     formula: 'the bonus as entered, a year; shown in the month it lands, never spread',
     inputs: ['MK-CF-I-009 bonus', 'MK-XS-I-059 the month a bonus lands'],
@@ -328,7 +330,7 @@ export const FIGURES = declareFigures({
     worked: { given: SOURCES_GIVEN, answer: '$12,000/year', run: () => SOURCE('bonus').amount },
   },
   'MK-CF-M-009': {
-    label: 'YOUR SOURCES — Stock vesting (equity)', unit: 'money', per: 'year', screens: ['/cashflow'],
+    label: 'YOUR SOURCES — Stock vesting (equity)', unit: 'money', per: 'year', screens: ['/cashflow', '/income-manager'],
     answers: 'What vests in a year, valued at the price entered.',
     formula: 'shares vesting × price per share; with a grant schedule, the total ÷ the years it vests over',
     inputs: ['MK-CF-I-010 equity vesting', 'MK-XS-I-005 holding price'],
@@ -336,7 +338,7 @@ export const FIGURES = declareFigures({
     worked: { given: SOURCES_GIVEN, answer: '$20,000/year', run: () => SOURCE('equity').amount },
   },
   'MK-CF-M-010': {
-    label: 'YOUR SOURCES — Rental property', unit: 'money', per: 'month', screens: ['/cashflow'],
+    label: 'YOUR SOURCES — Rental property', unit: 'money', per: 'month', screens: ['/cashflow', '/income-manager'],
     answers: 'What the rental brings in each month after its running costs.',
     formula: '(rent − running costs) for each rental, added up',
     inputs: ['MK-CF-I-007 rental income'],
@@ -368,20 +370,13 @@ export const FIGURES = declareFigures({
     worked: { given: SOURCES_GIVEN, answer: '$2,100/month', run: () => retirementIncomeMonthly(SOURCES_EXAMPLE as any) },
   },
   'MK-CF-M-027': {
-    label: 'each income source and its amount', unit: 'money', per: 'year', screens: ['/income-manager'], grain: 'one source',
-    answers: 'Every source of income, one line each, as a yearly amount.',
-    formula: 'a monthly source × 12; a yearly source as it is; a salary from its pay period',
+    label: 'each income source and its amount', unit: 'money', screens: ['/income-manager'], grain: 'one source',
+    answers: 'Every source of income that has been entered, one line each, in the period it is counted in — a month or a year, said beside it.',
+    formula: 'each source as it was entered: rent after its running costs, in a month; interest and dividends, a bonus, scholarships and loans, in a year; the rest in a month',
     inputs: ['MK-XS-I-023 salary and other income', 'MK-CF-I-009 bonus', 'MK-CF-I-010 equity vesting', 'MK-CF-I-007 rental income'],
     refusal: 'Nothing entered — the list is replaced by the door to enter income.', ruled: '2026-10-02',
-    worked: { given: SOURCES_GIVEN, answer: '$14,400/year', run: () => annualOfSource(SOURCE('rental')) },
-  },
-  'MK-CF-M-065': {
-    label: 'total income / year (gross)', unit: 'money', per: 'year', screens: ['/income-manager'],
-    answers: 'Everything coming in over a year, before any deductions.',
-    formula: 'every source’s yearly amount added up, wages at gross',
-    inputs: ['MK-XS-I-023 salary and other income', 'MK-CF-I-009 bonus', 'MK-CF-I-010 equity vesting', 'MK-CF-I-007 rental income'],
-    refusal: 'Nothing entered — $0, with the door to enter income.', ruled: '2026-10-02',
-    worked: { given: GIVEN, answer: '$169,200/year', run: () => totalGrossAnnual(EXAMPLE as any, new Date('2026-06-15T12:00:00')) },
+    worked: { given: SOURCES_GIVEN + ' The line shown is the rental’s: what it brings in a month after its costs.', answer: '$1,200',
+              run: () => theIncomeManager(SOURCES_EXAMPLE as any).entered.find((x) => x.key === 'rental')?.amount ?? null },
   },
   'MK-CF-M-066': {
     label: 'Dividends, interest & coupons', unit: 'money', per: 'year', screens: ['/income-manager'],
@@ -612,7 +607,7 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   const afterTax = (x: number) => x * (1 - r);
   const landsLines: Line[] = pay.earners
     .filter((e) => e.pay.landsInBank > 0)
-    .map((e) => ({ label: e.name, note: 'after tax and 401(k)', amount: (e.pay.landsInBank) }));
+    .map((e) => ({ label: e.name, note: 'after tax and 401(k)', amount: (e.pay.landsInBank), estimated: e.pay.landsIsEstimated }));
   const steadyPay = salaryGrossByMonth(op as any).every((m) => m > 0);
   const tips = steadyPay ? toNum(a.tipsMonthly) : 0;
   if (tips > 0) landsLines.push({ label: 'Tips', note: 'after tax', amount: afterTax(tips) });
@@ -697,5 +692,118 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
     taxedNotLanded: (extraIncome(op as any).reinvestedMonthly),
     wages: pay.earners.filter((e) => e.pay.grossAnnualised > 0).length,
     ready: salaryAnnual(op as any) > 0 || grossAnnual > 0,
+  };
+}
+
+/** ONE SOURCE ON THE INCOME MANAGER — what its line says, and whether it has been entered. */
+export interface ManagedSource {
+  key: 'employment' | 'self_employment' | 'rental' | 'investment_income' | 'retirement_income'
+     | 'benefits' | 'support' | 'scholarship' | 'loans' | 'other_income';
+  icon: string;
+  /** The row's name: short once it is entered ("A job"), the picker's own words while it is not. */
+  title: string;
+  entered: boolean;
+  /** The words before the figure — "You and Sam · take-home", "One property ·". */
+  lead: string;
+  amount: number;
+  per: 'month' | 'year' | 'one-time';
+  /** True when the figure is the app's calculation, not the person's own — it then wears ≈. */
+  estimated: boolean;
+  /** The words after the figure — "net", "· reinvested". */
+  tail: string;
+}
+export interface IncomeManager {
+  /** The sources that have an amount, in the picker's order. */
+  entered: ManagedSource[];
+  /** The rest — one tap away, never hidden behind the picker they said no to. */
+  notEntered: ManagedSource[];
+  /** A bonus and stock belong to a job, so they are reached from the job's row: what is entered for
+   *  the year and the words after it. Null while there is no job to attach them to. */
+  bonusAndStock: { amount: number; tail: string } | null;
+}
+
+/** Which of the ten sources of income has this household entered, what does each one's line say, and which are still one tap away?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
+ *  The Income manager's one door (approved drawing income-end-to-end_v07, frame 3d). */
+/* ─ MK-CF-O-019 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * theIncomeManager
+ *
+ * Answers ..... Which of the ten sources of income has this household entered, what does each one's line say, and which are still one tap away?
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     wages = earner wages(op as any) where to num(base salary) > 0 (or salary by month and object.keys(salary by month).length > 0 when missing or zero)
+ *     who = for each of pay.earners: name.join(' and ')
+ *     rentals = rental list(op as any)
+ *     count = ['No', 'One', 'Two', 'Three', 'Four', 'Five']
+ *     inv = inv annual read as a number (0 when it is not one)
+ *     self per = 'year'   if se freq = 'annual'
+ *     'month'   otherwise
+ *     benefit months = count of benefit active months(op as any)
+ *     other per = 'year'   if other freq = 'annual'
+ *     'one − time'   if other freq = 'onetime'
+ *     'month'   otherwise   otherwise
+ *     mo = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+ *     lumps = to num(bonus annual) + rsu annual(op as any)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-210 annualOfSource
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-210 annualOfSource
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-023 salary and other income
+ *               MK-XS-I-030 tax filing status and age
+ *               MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-059 the month a bonus lands
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-O-019
+ * Changed ..... not in git yet (—)
+ */
+export function theIncomeManager(op: Record<string, any> | null): IncomeManager {
+  const a: any = op ?? {};
+  const wages = earnerWages(op as any).filter((w: any) => toNum(w.baseSalary) > 0 || (w.salaryByMonth && Object.keys(w.salaryByMonth).length > 0));
+  const pay = basePay({
+    earners: wages.map((w) => ({ name: w === a ? 'You' : String(a.partnerName || 'your spouse'), entry: entryFromWage(w) })),
+    filingStatus: filingStatusOf(op as any), over65: over65CountOf(op as any), profile: op,
+  });
+  const who = pay.earners.map((e) => e.name).join(' and ');
+  const rentals = rentalList(op as any);
+  const COUNT = ['No', 'One', 'Two', 'Three', 'Four', 'Five'];
+  const inv = toNum(a.invAnnual);
+  const selfPer: 'month' | 'year' = a.seFreq === 'annual' ? 'year' : 'month';
+  const benefitMonths = benefitActiveMonths(op as any).length;
+  const schoolYear = (Array.isArray(a.scholarships) ? a.scholarships : [])
+    .reduce((t: number, x: any) => t + toNum(x?.amount) * (x?.freq === 'monthly' ? 12 : 1), 0)
+    || toNum(a.scholarshipAmount) * (a.scholarshipFreq === 'monthly' ? 12 : 1);
+  const loansYear = (Array.isArray(a.loans) ? a.loans : [])
+    .reduce((t: number, x: any) => t + toNum(x?.amount) * (Array.isArray(x?.months) && x.months.length ? x.months.length : 1), 0);
+  const otherPer: 'month' | 'year' | 'one-time' = a.otherFreq === 'annual' ? 'year' : a.otherFreq === 'onetime' ? 'one-time' : 'month';
+  const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const lumps = toNum(a.bonusAnnual) + rsuAnnual(op as any);
+  const row = (key: ManagedSource['key'], icon: string, short: string, long: string, amount: number,
+               per: ManagedSource['per'], lead = '', tail = '', estimated = false): ManagedSource =>
+    ({ key, icon, title: amount > 0 ? short : long, entered: amount > 0, lead, amount, per, estimated, tail });
+  const all: ManagedSource[] = [
+    row('employment', '💼', 'A job', 'A job (wages or salary)', pay.landsInBank, 'month', `${who} · take-home`, '', pay.landsEstimated),
+    row('self_employment', '🧰', 'Self-employed / side gig', 'Self-employed / side gig', toNum(a.seAmount), selfPer, '', 'net'),
+    row('rental', '🏠', 'Rent', 'Rent from a property', rentalNetAnnual(op as any) / 12, 'month',
+        `${COUNT[rentals.length] ?? rentals.length} ${rentals.length === 1 ? 'property' : 'properties'} ·`, 'net'),
+    row('investment_income', '💵', 'Interest & dividends', 'Interest & dividends', inv, 'year', '',
+        a.invPaidToBank === 'yes' ? '· paid to your bank' : '· reinvested'),
+    row('retirement_income', '📨', 'Retirement income', 'Retirement income', retirementIncomeMonthly(op as any), 'month'),
+    row('benefits', '🛟', 'Benefits', 'Benefits', toNum(a.benefitMonthly), 'month', '',
+        benefitMonths < 12 ? `· ${benefitMonths} months of the year` : ''),
+    row('support', '👪', 'Child support or alimony', 'Child support or alimony', toNum(a.supportMonthly), 'month'),
+    row('scholarship', '🎓', 'Scholarships, grants, stipend', 'Scholarships, grants, stipend', schoolYear, 'year'),
+    row('loans', '🏦', 'Student loans', 'Student loans', loansYear, 'year'),
+    row('other_income', '🧾', 'Something else', 'Something else', toNum(a.otherAmount), otherPer),
+  ];
+  return {
+    entered: all.filter((x) => x.entered), notEntered: all.filter((x) => !x.entered),
+    bonusAndStock: wages.length ? { amount: lumps,
+      tail: toNum(a.bonusAnnual) > 0 ? `· bonus paid in ${MO[Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1))]}`
+          : lumps > 0 ? '· vests through the year' : '' } : null,
   };
 }

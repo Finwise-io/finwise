@@ -1,12 +1,22 @@
 /**
- * B-40 — editing base pay after onboarding must take effect even when a per-month salary table
- * (gaps) was captured during onboarding; the table takes precedence, so the edit has to clear it.
+ * B-40 — editing base pay must take effect even when a per-month salary table was captured earlier;
+ * the table takes precedence over the typical figure, so the edit has to be able to clear it.
+ *
+ * The edit used to happen in a sheet on the Income manager. Since the manager was rebuilt to its
+ * approved drawing (2026-10-04) base pay is edited in one place, Your base pay — and the same bug was
+ * waiting there: a table stored without a mode showed as "The same", so the gross typed beside it
+ * changed nothing.
  */
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import IncomeManagerScreen from '../IncomeManagerScreen';
+import BasePayScreen from '../BasePayScreen';
 import { useStore } from '../../store/useStore';
 import { totalGrossAnnual } from '../../domain/income';
+
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn(), canGoBack: () => true }),
+  useLocalSearchParams: () => ({}), router: { push: jest.fn(), back: jest.fn() },
+}));
 
 beforeEach(() => {
   useStore.getState().resetAll();
@@ -15,17 +25,19 @@ beforeEach(() => {
     taxMode: 'manual', manualTaxRate: '0', status: 'employed',
     salaryByMonth: ['10000', '10000', '10000', '10000', '10000', '10000', '0', '0', '0', '0', '0', '0'],
     salaryMode: 'gross', baseSalary: '10000',
-  });
+  } as any);
 });
 
-test('editing base pay to a flat amount clears the per-month table so it takes effect', () => {
-  render(<IncomeManagerScreen />);
-  // open the base-pay editor from the Base salary row
-  fireEvent.press(screen.getByText('Base salary'));
-  // enter a flat $8,000/month and save (the editor defaults freq to the stored salaryFreq)
-  const input = screen.getByPlaceholderText('0');
-  fireEvent.changeText(input, '8000');
-  fireEvent.press(screen.getByText(/^Save ·/));
+test('a month table entered earlier is shown as "It varies" — the screen never hides what drives the figures', () => {
+  render(<BasePayScreen />);
+  expect(screen.getByLabelText('It varies').props.accessibilityState.selected).toBe(true);
+  expect(totalGrossAnnual(useStore.getState().onboardingProfile as any)).toBe(60000);
+});
+
+test('choosing "The same" and typing a flat amount clears the per-month table so it takes effect', () => {
+  render(<BasePayScreen />);
+  fireEvent.press(screen.getByLabelText('The same'));
+  fireEvent.changeText(screen.getByLabelText('Gross pay each month'), '8000');
 
   const op = useStore.getState().onboardingProfile as any;
   expect(op.salaryByMonth).toBeUndefined();           // table cleared

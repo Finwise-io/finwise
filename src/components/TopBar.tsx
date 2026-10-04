@@ -48,7 +48,9 @@ const hit = { top: 10, bottom: 10, left: 10, right: 10 };
 
 // `back` (approved performance mock v14, second phone): a page opened FROM another screen carries
 // "‹ Back" where a tab screen carries Menu — same bar, same wordmark, same modes on the right.
-export default function TopBar({ back }: { back?: boolean } = {}) {
+// `onBack` is for a screen that shows more than one view of itself (the Income manager and its
+// editors): Back then returns to the view before, not out of the screen.
+export default function TopBar({ back, onBack }: { back?: boolean; onBack?: () => void } = {}) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const store = useStore() as any;
@@ -66,7 +68,7 @@ export default function TopBar({ back }: { back?: boolean } = {}) {
     <View style={[s.bar, { paddingTop: insets.top + 6 }]}>
       {back ? (
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={() => (onBack ? onBack() : router.back())}
           hitSlop={hit}
           style={s.menuBtn}
           accessibilityRole="button"

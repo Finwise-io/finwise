@@ -132,7 +132,7 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
                 Alert.alert('Add something else', 'Where does it belong?', [
                   { text: 'A dated bill', onPress: () => { reset(); onClose(); router.push('/bill-calendar' as any); } },
                   { text: 'An account', onPress: () => { reset(); onClose(); router.push('/add-account' as any); } },
-                  { text: 'Inflow (one-time income)', onPress: () => { reset(); onClose(); router.push('/income-manager' as any); } },
+                  { text: 'Inflow (one-time income)', onPress: () => { reset(); onClose(); router.push('/income-manager?open=onetime' as any); } },
                   { text: 'Cancel', style: 'cancel' },
                 ]);
               }}>

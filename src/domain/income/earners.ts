@@ -42,7 +42,7 @@ export interface EarnerWage {
  *
  * Called by ... MK-CF-F-173 earnerWages
  *
- * Reaches ..... 98 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 99 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -52,7 +52,7 @@ export interface EarnerWage {
  *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 80 more — the full list is on functions_from_code
+ *               … and 81 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -85,8 +85,9 @@ const hasWage = (w: any): boolean =>
  *               MK-CF-F-175 sumOverEarners · MK-CF-F-176 sumMonthsOverEarners
  *               MK-CF-F-180 enteredLandsAnnual · MK-CF-F-181 rateInForce
  *               MK-CF-O-004 incomeSummary · MK-CF-O-016 incomeSources
+ *               MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 97 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 98 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -96,7 +97,7 @@ const hasWage = (w: any): boolean =>
  *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 79 more — the full list is on functions_from_code
+ *               … and 80 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -182,7 +183,7 @@ export function sumOverEarners(op: OnboardingProfile | null, of: (w: EarnerWage)
  *
  * Called by ... MK-CF-F-060 salaryGrossByMonth · MK-CF-F-206 householdK401ByMonth
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -192,7 +193,7 @@ export function sumOverEarners(op: OnboardingProfile | null, of: (w: EarnerWage)
  *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
  *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               … and 69 more — the full list is on functions_from_code
+ *               … and 70 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

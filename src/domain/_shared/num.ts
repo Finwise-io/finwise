@@ -40,13 +40,14 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-CF-F-185 needsTakeHomeConversion · MK-CF-F-186 convertTakeHomeMode
  *               MK-CF-F-188 householdPreTaxContributionsAnnual · MK-CF-F-189 essentialsFromLoggedSpending
  *               MK-CF-F-206 householdK401ByMonth · MK-CF-O-004 incomeSummary
- *               MK-CF-O-016 incomeSources · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-PL-F-013 goalsFromOnboarding
- *               MK-PL-F-031 taxOrganizer · MK-PL-F-049 retirementSpendMonthly
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-030 effectiveAnnualContribution
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
+ *               MK-CF-O-016 incomeSources · MK-CF-O-019 theIncomeManager
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-041 monthlyContributionsFromOnboarding
+ *               MK-PL-F-013 goalsFromOnboarding · MK-PL-F-031 taxOrganizer
+ *               MK-PL-F-049 retirementSpendMonthly · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-058 parseReceipt
  *
- * Reaches ..... 213 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 214 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
@@ -56,7 +57,7 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
  *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
  *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 195 more — the full list is on functions_from_code
+ *               … and 196 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -84,7 +85,7 @@ export const toNum = (v: any): number => {
  *               MK-ST-F-044 setMoneyFormat · MK-ST-F-064 modifiedDietzOverWindow
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 135 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 136 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
@@ -94,7 +95,7 @@ export const toNum = (v: any): number => {
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 117 more — the full list is on functions_from_code
+ *               … and 118 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

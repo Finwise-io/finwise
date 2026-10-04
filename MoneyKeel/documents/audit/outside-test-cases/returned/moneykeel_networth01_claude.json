@@ -1,0 +1,1818 @@
+{
+  "batch": "networth 01",
+  "written_by": "claude",
+  "formula_checks": [
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "verdict": "WRONG",
+      "why": "Two faults and one gap. (1) AVG YIELD (bondSummary) divides interest summed over ALL bonds by value summed over all bonds. A bond with no price today still adds its full coupon to the top but nothing to the bottom, so the yield is overstated — the opposite of figure MK-NW-M-044's own rule that an unpriced bond is left out. (2) Owner rule DEC-0280 says accrued interest is subtracted when known. The formula never mentions accrued interest, so a dirty price entered as value understates every yield on today's value (M-027, M-044, M-057). (3) Gap: 'matured = years left is zero or less' and 'next maturity = earliest date that has not passed' disagree on a bond maturing today — the first calls it matured, the second can still list it as next to mature. Observation outside this card: bondRateSensitivity rounds the range to the nearest $1,000, so any bond under roughly $20,000 shows the same figure for rates up and down (a $10,000 par bond reads $10,000–$10,000 both ways) — worth a look in its own batch.",
+      "should_be": "Average yield = Σ(face × coupon rate) over bonds WITH a value today ÷ Σ(value today − accrued interest where known) over the same bonds; bonds without a price are excluded from both top and bottom and named on screen. Yield on today's value for one bond = face × rate ÷ (value − accrued interest when known), with the 'accrued interest not entered' note when it is not. A bond maturing on today's date is matured, and 'next maturity' is the earliest date strictly after today.",
+      "rests_on": "Owner DEC-0280 (2026-08-26); figure MK-NW-M-044's refusal rule; current-yield convention (annual coupon ÷ clean price); ordinary arithmetic.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "verdict": "INCOMPLETE",
+      "why": "The arithmetic is right (balance as market value, income from this account's records only, untickered income at account level, transfer-in shown at the amount moved). Two cases change the answer and the formula is silent on them: (1) with no records, 'dividends + interest to the cent' sums to $0.00, but M-019 and the author's own note require no figure ('it says so instead of showing zero'); (2) ticker matching ignores capitals but says nothing about stray spaces, so a broker record 'VTI ' would match no holding and its income would vanish from the holding row.",
+      "should_be": "Income = Σ dividends + interest in this account's records, or NO FIGURE (with the 'no records' sentence) when the account has no income records at all. Income of one holding = records whose ticker, trimmed of spaces and with capitals ignored, equals the holding's ticker trimmed the same way; a blank ticker belongs to no holding.",
+      "rests_on": "Figure MK-NW-M-019 refusal rule; author note on M-019; ordinary string comparison.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "verdict": "WRONG",
+      "why": "(1) Cash comes from cashTotal, which takes the uninvested cash OUT of a linked investment account; Investments comes from investmentsTotal, which counts that same account WHOLE. The uninvested cash is counted twice. The approved drawing (state A) shows Investments $354,314 = $348,495 + $5,819, i.e. WITHOUT Vanguard's $838 cash; the formula gives $355,152, and Cash + Investments + Personal property then comes to $813,990 against What you own $813,152. Two formulas describing the same money differently (cashTotal MK-NW-F-016 vs investmentsTotal MK-NW-F-021). (2) 'Return on cash + investments' is a change in balance, not a return: a deposit made inside the period is reported as if it were earned. (3) Incomplete: the type carries both monthlyDebtMinimum and monthlyDebtPayments (actual, above minimum), but the formula defines only the sum of required payments.",
+      "should_be": "Investments = the investment slices only — for a linked account, its breakdown less its cash slice; for any other account, the whole balance when its class is an investment class — so that Cash + Investments + real assets = What you own, and Investments = Σ byClass over Stocks/Funds, Bonds & CDs, Alternatives, Unclassified. Return on cash + investments = the time-weighted return: split the period at every deposit or withdrawal, take each sub-period's growth factor (value just before the next flow ÷ value just after the previous one, the first starting from the value on the start day), multiply the factors together and subtract 1. Refuse when a flow is recorded but the value just before it is not, since the sub-period cannot then be measured. Monthly debt payments = Σ max(stated minimum, payment set), kept separate from Σ minimums.",
+      "rests_on": "Approved drawing 'Net worth, Quiet Instrument v08, state A'; owner DEC-0343 (a total and the sum of its parts are pinned by an invariant); owner instruction 2026-10-04: all returns are time-weighted returns (TWR); GIPS time-weighted method; author-recorded founder ruling G19.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "verdict": "WRONG",
+      "why": "The mortgage is left out of debt minimums whenever the budget carries ANY rent or housing amount. That is a rule applied to money it should not touch: a household that rents its own home (budget Rent / Mortgage = its rent) and also owes a mortgage on a second property has a real, unstoppable mortgage payment dropped from both runways, and the housing-disagreement figure then compares their rent to a different property's mortgage and reports a false 'disagreement'. Also silent on: what 'enough' logged expenses means (author cites G21: average over months logged), the afterAShock arithmetic (cash after, months after, and whether a shock exactly equal to cash is covered), and whether logged expenses that already contain debt payments are de-duplicated against debt minimums.",
+      "should_be": "Leave a mortgage's minimum out only when that mortgage IS the housing cost the budget line carries (the person's own home); any other mortgage counts in debt minimums. Report a housing disagreement only between the budget line and the mortgage on the home it describes. afterAShock: cashAfter = cash − shock; coversIt = cash ≥ shock; monthsAfter = cashAfter ÷ essentials, no figure when essentials is zero.",
+      "rests_on": "Author note on MK-NW-M-047 ('a mortgage is never counted twice' — the purpose is avoiding double counting, which only applies to the same mortgage); founder note 2026-09-28 on M-047 ('you cannot skip a car payment'); ordinary arithmetic.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "verdict": "WRONG",
+      "why": "As the card itself admits, the totals (isAlternative: kind list, no maturity, not property) and the rows (assetClassOf = Alternatives) use two different tests. Any account where they disagree — a person's own class answer of Alternatives on a fund whose kind is 'stocks', or a 'crypto'-kind account the person reclassified as Stocks / Funds — makes the rows not add to the total, which breaks the type's own promise ('the rows add to totalValue by construction') and author rule on M-052. The total must also equal the Alternatives slice on the Net worth tab (M-049), which is built from assetClassOf, so the totals must use assetClassOf too. Second fault: with nothing held, alternativesSummary gives a blended rate of 0, but M-051 requires no figure.",
+      "should_be": "One test for both: the set is the accounts whose class (assetClassOf) is Alternatives. Count, total, blended rate and rows are all over that one set; total = Σ rows. Blended rate = Σ(value × benchmark for its kind) ÷ total, and NO FIGURE (not 0) when the set is empty or the total is zero; growth likewise no figure.",
+      "rests_on": "Type comment on AlternativesOutlook.rows; author rule on MK-NW-M-052; founder 2026-09-27 'ok' recorded on M-049/M-050; refusal rule of MK-NW-M-051.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "verdict": "WRONG",
+      "why": "(1) For an option, value is multiplied by 100 but total paid is not: total paid = contracts × cost per share. Option premiums are quoted per share (one contract = 100 shares), so cost basis is understated 100-fold and gain and return on cost explode (4 contracts bought at $7.35 show $29.40 paid instead of $2,940). (2) The formula never says how the long-term / short-term split is made. The US rule is 'held MORE than one year' (counting from the day after purchase); a lot held exactly one year to the day is short-term. The labels say 'over 1 yr' / 'under 1 yr', leaving exactly one year undefined. (3) Silent on sales: 'shares of every purchase added up' is only right if sold shares are removed from the lots first, and the method (first in, first out or specific lots) is not stated. (4) Day change is described per share ('last close − the close before') while M-060 describes what the holding moved in money — RULE UNCLEAR.",
+      "should_be": "For a holding with a contract multiplier m (100 for options unless stated): value = quantity × price × m and total paid = Σ quantity × cost per share × m, so gain and return compare like with like. Long-term = lots held more than one year (sold or valued on a date later than the purchase date's anniversary); otherwise short-term. Shares and total paid are over the lots still held after sales are matched (method named). Say whether day change is per share or × shares held.",
+      "rests_on": "Standard option contract multiplier (100 shares per equity option contract, OCC); IRS Publication 550 (2025), holding period 'more than 1 year'; ordinary arithmetic.",
+      "severity": "high"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "easy",
+      "title": "One Treasury bought at par",
+      "given": "Today 2026-10-04. One Treasury note: face $10,000, coupon 4%, worth $10,000 today, matures 2028-10-04. No accrued interest.",
+      "inputs": {
+        "today": "2026-10-04",
+        "bond_face": 10000,
+        "bond_coupon_rate": 0.04,
+        "bond_value_today": 10000,
+        "bond_maturity": "2028-10-04",
+        "accrued_interest": 0
+      },
+      "expected": {
+        "count": 1,
+        "total_value": {
+          "exact": 10000.0,
+          "shown": "$10,000"
+        },
+        "total_face": {
+          "exact": 10000.0,
+          "shown": "$10,000"
+        },
+        "coupon_per_year": {
+          "exact": 400.0,
+          "shown": "$400"
+        },
+        "avg_yield": {
+          "exact": 0.04,
+          "shown": "4.00%"
+        },
+        "next_maturity": "2028-10-04",
+        "matured": false
+      },
+      "working": [
+        "Coupon = 10,000 × 0.04 = 400",
+        "Yield on today's value = 400 ÷ 10,000 = 0.04 = 4.00%",
+        "Only one bond, so next maturity is its date, 2028-10-04, which is after today, so not matured"
+      ],
+      "rests_on": "Formula in words (bondSummary); current-yield convention",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "easy",
+      "title": "A CD opened on its own page: interest given, no rate-move figure",
+      "given": "Today 2026-10-04. A bank CD: face $5,000, rate 5%, balance $5,000, matures 2027-04-04. Its page is open.",
+      "inputs": {
+        "today": "2026-10-04",
+        "kind": "CD",
+        "face": 5000,
+        "rate": 0.05,
+        "value_today": 5000,
+        "maturity": "2027-04-04",
+        "account_opened": true
+      },
+      "expected": {
+        "coupon_per_year": {
+          "exact": 250.0,
+          "shown": "$250"
+        },
+        "yield_on_value": {
+          "exact": 0.05,
+          "shown": "5.00%"
+        },
+        "matured": false,
+        "rate_sensitivity": "REFUSES — a CD is not traded and is worth its balance until it matures; the sentence is shown instead of a range"
+      },
+      "working": [
+        "Interest in a year = 5,000 × 0.05 = 250",
+        "Yield = 250 ÷ 5,000 = 5.00%",
+        "Maturity 2027-04-04 is after today, so not matured",
+        "Kind is CD, so no sensitivity figure (founder 2026-09-27, recorded on M-028)"
+      ],
+      "rests_on": "Formula in words; author-recorded founder note on MK-NW-M-028",
+      "confidence": "high",
+      "notes": "Interest shown as simple face × rate; a CD that compounds would pay slightly more — the card does not distinguish."
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "complex",
+      "title": "Three bonds bought at different prices: rows sorted, rows add to the totals",
+      "given": "Today 2026-10-04. Bond A: face $25,000, 4.5%, worth $24,200, matures 2031-06-15. Bond B: face $15,000, 5.25%, worth $14,637.50, matures 2028-02-01. Bond C: face $8,000, 4.1%, worth $8,213.47, matures 2027-11-30. No accrued interest on any.",
+      "inputs": {
+        "today": "2026-10-04",
+        "bonds": [
+          {
+            "label": "A",
+            "face": 25000,
+            "rate": 0.045,
+            "value": 24200.0,
+            "maturity": "2031-06-15"
+          },
+          {
+            "label": "B",
+            "face": 15000,
+            "rate": 0.0525,
+            "value": 14637.5,
+            "maturity": "2028-02-01"
+          },
+          {
+            "label": "C",
+            "face": 8000,
+            "rate": 0.041,
+            "value": 8213.47,
+            "maturity": "2027-11-30"
+          }
+        ]
+      },
+      "expected": {
+        "row_order": [
+          "C",
+          "B",
+          "A"
+        ],
+        "rows": [
+          {
+            "label": "C",
+            "value": 8213.47,
+            "coupon": 328.0
+          },
+          {
+            "label": "B",
+            "value": 14637.5,
+            "coupon": 787.5
+          },
+          {
+            "label": "A",
+            "value": 24200.0,
+            "coupon": 1125.0
+          }
+        ],
+        "count": 3,
+        "total_value": {
+          "exact": 47050.97,
+          "shown": "$47,051"
+        },
+        "total_face": {
+          "exact": 48000.0,
+          "shown": "$48,000"
+        },
+        "coupon_per_year": {
+          "exact": 2240.5,
+          "shown": "$2,241"
+        },
+        "avg_yield": {
+          "exact": 0.047619,
+          "shown": "4.76%"
+        },
+        "next_maturity": "2027-11-30"
+      },
+      "working": [
+        "Coupons are paid on face: A 25,000 × 0.045 = 1,125.00; B 15,000 × 0.0525 = 787.50; C 8,000 × 0.041 = 328.00",
+        "Coupon total = 1,125.00 + 787.50 + 328.00 = 2,240.50 (the three rows sum to it)",
+        "Total value = 24,200.00 + 14,637.50 + 8,213.47 = 47,050.97 (the three rows sum to it)",
+        "Total face = 25,000 + 15,000 + 8,000 = 48,000 — shown beside value, and different from it",
+        "Average yield = 2,240.50 ÷ 47,050.97 = 0.0476186 → 4.76%",
+        "Sorted soonest first: C 2027-11-30, B 2028-02-01, A 2031-06-15; next maturity 2027-11-30"
+      ],
+      "rests_on": "Formula in words; author note on M-056 (coupon on face, not value)",
+      "confidence": "high",
+      "notes": "Coupon total shown in whole dollars per the totals rule (DEC-0264); $2,240.50 → $2,241."
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "complex",
+      "title": "One bond unpriced, one carrying known accrued interest, one CD",
+      "given": "Today 2026-10-04. Bond A: face $20,000, 3.875%, worth $19,412.60 as the broker sends it, of which $150.00 is accrued interest (known), matures 2029-08-15. Bond B: face $12,500, 3.7%, typed in by hand with NO value today, matures 2030-05-15. CD: face $5,000, 5%, balance $5,000, matures 2027-03-01.",
+      "inputs": {
+        "today": "2026-10-04",
+        "bonds": [
+          {
+            "label": "A",
+            "face": 20000,
+            "rate": 0.03875,
+            "value": 19412.6,
+            "accrued_interest": 150.0,
+            "maturity": "2029-08-15",
+            "source": "broker link"
+          },
+          {
+            "label": "B",
+            "face": 12500,
+            "rate": 0.037,
+            "value": null,
+            "maturity": "2030-05-15",
+            "source": "typed"
+          },
+          {
+            "label": "CD",
+            "kind": "CD",
+            "face": 5000,
+            "rate": 0.05,
+            "value": 5000,
+            "maturity": "2027-03-01",
+            "source": "typed"
+          }
+        ]
+      },
+      "expected": {
+        "coupon_per_year": {
+          "exact": 1487.5,
+          "shown": "$1,488"
+        },
+        "avg_yield": {
+          "exact": 0.042246,
+          "shown": "4.22%"
+        },
+        "next_maturity": "2027-03-01",
+        "bond_A_yield_on_value": {
+          "exact": 0.040231,
+          "shown": "4.02%"
+        },
+        "bond_B_yield": "REFUSES — no value today to divide by"
+      },
+      "formula_gives": {
+        "avg_yield": {
+          "exact": 0.060932,
+          "shown": "6.09%"
+        },
+        "bond_A_yield_on_value": {
+          "exact": 0.039922,
+          "shown": "3.99%"
+        }
+      },
+      "working": [
+        "Coupons: A 20,000 × 0.03875 = 775.00; B 12,500 × 0.037 = 462.50; CD 5,000 × 0.05 = 250.00; all three pay, total 1,487.50",
+        "Bond B has no price, so it is left out of the yield entirely (M-044)",
+        "Bond A clean value = 19,412.60 − 150.00 = 19,262.60 (DEC-0280: subtract accrued interest when known)",
+        "Right average yield = (775.00 + 250.00) ÷ (19,262.60 + 5,000.00) = 1,025.00 ÷ 24,262.60 = 0.0422461 → 4.22%",
+        "Formula: (775.00 + 462.50 + 250.00) ÷ (19,412.60 + 0 + 5,000.00) = 1,487.50 ÷ 24,412.60 = 0.0609317 → 6.09%",
+        "Bond A yield: right 775 ÷ 19,262.60 = 0.0402334 → 4.02%; formula 775 ÷ 19,412.60 = 0.0399225 → 3.99%",
+        "Next maturity: CD 2027-03-01 is the earliest after today"
+      ],
+      "rests_on": "Owner DEC-0280; refusal rule of MK-NW-M-044; ordinary arithmetic",
+      "confidence": "medium",
+      "notes": "Whether the unpriced bond's coupon belongs in the COUPON total is not settled by the card; I keep it (the coupon is paid on face whatever the price). Total value with an unpriced bond is also not settled — I'd expect $24,413 with a note that one bond is unpriced."
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "edge",
+      "title": "A bond maturing exactly today",
+      "given": "Today 2026-10-04. Bond A: face $10,000, 4%, worth $10,000, matures 2026-10-04. Bond B: face $5,000, 3%, worth $4,950, matures 2027-01-15.",
+      "inputs": {
+        "today": "2026-10-04",
+        "bonds": [
+          {
+            "label": "A",
+            "face": 10000,
+            "rate": 0.04,
+            "value": 10000,
+            "maturity": "2026-10-04"
+          },
+          {
+            "label": "B",
+            "face": 5000,
+            "rate": 0.03,
+            "value": 4950,
+            "maturity": "2027-01-15"
+          }
+        ]
+      },
+      "expected": {
+        "bond_A_matured": true,
+        "bond_A_yield_to_maturity": "REFUSES — matured",
+        "bond_A_rate_sensitivity": "REFUSES — matured",
+        "next_maturity": "RULE UNCLEAR — reading 1 (today counts as passed, consistent with 'matured'): 2027-01-15; reading 2 (only dates before today have passed): 2026-10-04"
+      },
+      "working": [
+        "Years left for A = 0, and the formula says zero or less is matured, so A is matured",
+        "A matured bond gives no yield to maturity and no sensitivity (M-026, M-028)",
+        "bondSummary's 'has not passed' does not say whether today has passed; the two readings give different next maturities"
+      ],
+      "rests_on": "Formula in words; refusal rules of M-026 and M-028",
+      "confidence": "medium",
+      "notes": "I believe reading 1 is right — one bond cannot be both matured and next to mature — but the card does not settle it."
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "easy",
+      "title": "A hand-entered account with one dividend and one interest payment",
+      "given": "Brokerage account typed in by hand, balance $50,000. Two records: dividend $120.00 naming VTI; interest $30.00 naming no ticker. Holding VTI exists in the account.",
+      "inputs": {
+        "linked": false,
+        "balance": 50000,
+        "records": [
+          {
+            "type": "dividend",
+            "ticker": "VTI",
+            "amount": 120.0
+          },
+          {
+            "type": "interest",
+            "ticker": null,
+            "amount": 30.0
+          }
+        ]
+      },
+      "expected": {
+        "market_value": {
+          "exact": 50000.0,
+          "shown": "$50,000"
+        },
+        "income": {
+          "exact": 150.0,
+          "shown": "$150"
+        },
+        "inside": "none — not linked; the itemise door is shown",
+        "activity_count": 2,
+        "income_of_VTI": {
+          "exact": 120.0,
+          "shown": "$120.00"
+        }
+      },
+      "working": [
+        "Market value = balance = 50,000",
+        "Income = 120 + 30 = 150",
+        "VTI's income = records naming VTI = 120; the untickered 30 stays at account level only",
+        "Not linked, so no inside breakdown"
+      ],
+      "rests_on": "Formula in words; author notes on M-020 and M-021",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "easy",
+      "title": "What each record moved, with its sign",
+      "given": "Account records: a transfer IN of $5,000 (typed by the person); a withdrawal of $1,200 (typed); a buy of $2,000 of stock (sent by the broker link).",
+      "inputs": {
+        "records": [
+          {
+            "type": "transfer_in",
+            "amount_moved": 5000,
+            "cash_effect": 5000,
+            "source": "typed"
+          },
+          {
+            "type": "withdrawal",
+            "cash_effect": -1200,
+            "source": "typed"
+          },
+          {
+            "type": "buy",
+            "cash_effect": -2000,
+            "source": "link"
+          }
+        ]
+      },
+      "expected": {
+        "activity": [
+          {
+            "type": "transfer_in",
+            "amount": 5000.0,
+            "shown": "+$5,000.00",
+            "mine": true
+          },
+          {
+            "type": "withdrawal",
+            "amount": -1200.0,
+            "shown": "−$1,200.00",
+            "mine": true
+          },
+          {
+            "type": "buy",
+            "amount": -2000.0,
+            "shown": "−$2,000.00",
+            "mine": false
+          }
+        ],
+        "activity_count": 3
+      },
+      "working": [
+        "Transfer IN shows the amount moved: +5,000",
+        "Withdrawal shows its effect on cash: −1,200",
+        "Buy shows its effect on cash: −2,000",
+        "Typed records are the person's own; the broker's is not",
+        "Signs carried by a mark, not colour (author note M-062)"
+      ],
+      "rests_on": "Formula in words; author notes on MK-NW-M-062",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "complex",
+      "title": "Linked Vanguard account holding cash, stocks and a Treasury, with a small gap to the broker balance",
+      "given": "Linked account, broker balance $186,442.19. Inside: cash $1,213.62; VTI 412 shares at $301.18; a Treasury bill (name is evidence for a bond) worth $23,915.08; COST 37 shares at $1,006.10. Records: dividend $486.12 naming VTI; interest $71.40 naming no ticker; dividend $134.85 naming 'cost' in lower case.",
+      "inputs": {
+        "linked": true,
+        "broker_balance": 186442.19,
+        "cash_balance": 1213.62,
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "shares": 412,
+            "price": 301.18
+          },
+          {
+            "name": "Treasury bill",
+            "value": 23915.08
+          },
+          {
+            "ticker": "COST",
+            "shares": 37,
+            "price": 1006.1
+          }
+        ],
+        "records": [
+          {
+            "type": "dividend",
+            "ticker": "VTI",
+            "amount": 486.12
+          },
+          {
+            "type": "interest",
+            "ticker": null,
+            "amount": 71.4
+          },
+          {
+            "type": "dividend",
+            "ticker": "cost",
+            "amount": 134.85
+          }
+        ]
+      },
+      "expected": {
+        "market_value": {
+          "exact": 186442.19,
+          "shown": "$186,442"
+        },
+        "inside": [
+          {
+            "label": "Stocks / Funds",
+            "exact": 161311.86,
+            "shown": "$161,312"
+          },
+          {
+            "label": "Bonds & CDs",
+            "exact": 23915.08,
+            "shown": "$23,915"
+          },
+          {
+            "label": "Cash in this account",
+            "exact": 1215.25,
+            "shown": "$1,215"
+          }
+        ],
+        "inside_sum_equals_market_value": true,
+        "income": {
+          "exact": 692.37,
+          "shown": "$692"
+        },
+        "income_of_VTI": {
+          "exact": 486.12,
+          "shown": "$486.12"
+        },
+        "income_of_COST": {
+          "exact": 134.85,
+          "shown": "$134.85"
+        },
+        "market_value_same_on": [
+          "/account-detail",
+          "/invest"
+        ]
+      },
+      "working": [
+        "VTI = 412 × 301.18 = 124,086.16; COST = 37 × 1,006.10 = 37,225.70; Treasury = 23,915.08; cash = 1,213.62",
+        "Parts = 1,213.62 + 124,086.16 + 23,915.08 + 37,225.70 = 186,440.56",
+        "Gap = 186,442.19 − 186,440.56 = +1.63, within max($1, 1% × 186,442.19 = $1,864.42), positive, so added to cash: 1,213.62 + 1.63 = 1,215.25",
+        "Stocks / Funds = 124,086.16 + 37,225.70 = 161,311.86",
+        "Check: 161,311.86 + 23,915.08 + 1,215.25 = 186,442.19 = market value",
+        "Income = 486.12 + 71.40 + 134.85 = 692.37",
+        "'cost' matches COST with capitals ignored: 134.85; the untickered 71.40 belongs to no holding"
+      ],
+      "rests_on": "Formula in words; accountClassBreakdown (MK-NW-F-027); author notes on M-021 and M-038",
+      "confidence": "high",
+      "notes": "Market value appears on both /account-detail and /invest and must be the same $186,442 on both."
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "complex",
+      "title": "Two CDs paying untickered interest, plus a typed deposit alongside broker records",
+      "given": "Hand-entered account, balance $30,500, holding two CDs (no tickers). Records: interest $210.00 (no ticker, from link), interest $187.50 (no ticker, from link), a transfer IN of $500 the person typed, and a transfer OUT of $2,000 sent by the link.",
+      "inputs": {
+        "linked": false,
+        "balance": 30500,
+        "holdings": [
+          {
+            "name": "CD 1",
+            "ticker": null
+          },
+          {
+            "name": "CD 2",
+            "ticker": null
+          }
+        ],
+        "records": [
+          {
+            "type": "interest",
+            "ticker": null,
+            "amount": 210.0,
+            "source": "link"
+          },
+          {
+            "type": "interest",
+            "ticker": null,
+            "amount": 187.5,
+            "source": "link"
+          },
+          {
+            "type": "transfer_in",
+            "amount_moved": 500,
+            "source": "typed"
+          },
+          {
+            "type": "transfer_out",
+            "cash_effect": -2000,
+            "source": "link"
+          }
+        ]
+      },
+      "expected": {
+        "market_value": {
+          "exact": 30500.0,
+          "shown": "$30,500"
+        },
+        "income": {
+          "exact": 397.5,
+          "shown": "$398"
+        },
+        "income_of_CD_1": "no line — no record names it",
+        "income_of_CD_2": "no line — no record names it",
+        "activity_count": 4,
+        "activity_amounts": [
+          210.0,
+          187.5,
+          500.0,
+          -2000.0
+        ],
+        "mine_flags": [
+          false,
+          false,
+          true,
+          false
+        ]
+      },
+      "working": [
+        "Income at account level = 210.00 + 187.50 = 397.50",
+        "Neither record names a ticker, so neither CD row shows income (founder finding 2026-08-11: before, both CDs showed the same figure twice)",
+        "Transfer IN shows +500, transfer OUT its cash effect −2,000",
+        "Only the typed record is the person's own"
+      ],
+      "rests_on": "Formula in words; author note on M-021; DEC-0096",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "edge",
+      "title": "A new account with no records at all",
+      "given": "Hand-entered savings-style brokerage account, balance $2,000, no records yet.",
+      "inputs": {
+        "linked": false,
+        "balance": 2000,
+        "records": []
+      },
+      "expected": {
+        "market_value": {
+          "exact": 2000.0,
+          "shown": "$2,000"
+        },
+        "income": "REFUSES — no records; the screen says so instead of $0",
+        "activity_count": 0,
+        "activity": "section keeps its heading and says there are no records yet"
+      },
+      "formula_gives": {
+        "income": {
+          "exact": 0.0,
+          "shown": "$0"
+        }
+      },
+      "working": [
+        "Balance 2,000 is the market value",
+        "There are no dividend or interest records; summing nothing gives 0, but M-019 says no records → no figure",
+        "Count of records = 0"
+      ],
+      "rests_on": "Refusal rule of MK-NW-M-019; author note on M-019",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "easy",
+      "title": "Checking account and a home with a mortgage",
+      "given": "Checking $10,000. Home $300,000. Mortgage balance $250,000.",
+      "inputs": {
+        "checking": 10000,
+        "home": 300000,
+        "mortgage_balance": 250000
+      },
+      "expected": {
+        "assets": {
+          "exact": 310000.0,
+          "shown": "$310,000"
+        },
+        "debts": {
+          "exact": 250000.0,
+          "shown": "$250,000"
+        },
+        "net_worth": {
+          "exact": 60000.0,
+          "shown": "$60,000"
+        },
+        "cash": {
+          "exact": 10000.0,
+          "shown": "$10,000"
+        },
+        "investments": {
+          "exact": 0.0,
+          "shown": "Nothing invested yet"
+        },
+        "investable": {
+          "exact": 10000.0,
+          "shown": "$10,000"
+        }
+      },
+      "working": [
+        "Assets = 10,000 + 300,000 = 310,000",
+        "Debts = 250,000",
+        "Net worth = 310,000 − 250,000 = 60,000",
+        "Investable excludes the home: 10,000"
+      ],
+      "rests_on": "Formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "easy",
+      "title": "Owes more than owns — negative net worth shown, not floored",
+      "given": "Savings $5,000. Car worth $18,000. Car loan $22,000 (minimum $455/month). Student loan $30,000 (minimum $312/month).",
+      "inputs": {
+        "savings": 5000,
+        "car": 18000,
+        "debts": [
+          {
+            "name": "car loan",
+            "balance": 22000,
+            "minimum": 455
+          },
+          {
+            "name": "student loan",
+            "balance": 30000,
+            "minimum": 312
+          }
+        ]
+      },
+      "expected": {
+        "assets": {
+          "exact": 23000.0,
+          "shown": "$23,000"
+        },
+        "debts": {
+          "exact": 52000.0,
+          "shown": "$52,000"
+        },
+        "net_worth": {
+          "exact": -29000.0,
+          "shown": "−$29,000"
+        },
+        "monthly_debt_minimum": {
+          "exact": 767.0,
+          "shown": "$767"
+        }
+      },
+      "working": [
+        "Assets = 5,000 + 18,000 = 23,000",
+        "Debts = 22,000 + 30,000 = 52,000",
+        "Net worth = 23,000 − 52,000 = −29,000, shown as a negative",
+        "Minimums = 455 + 312 = 767"
+      ],
+      "rests_on": "Formula in words; author note on M-016 (a genuine negative is shown)",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "complex",
+      "title": "Approved drawing, state A, exactly as drawn",
+      "given": "Chase Checking $8,000 (bank). Vanguard Brokerage $349,333 (linked), of which $838 uninvested cash and $348,495 stocks and funds. E*TRADE bonds and CDs $5,819. Home $450,000. Debts: mortgage $412,000; Chase Visa $6,000.",
+      "inputs": {
+        "chase_checking": 8000,
+        "vanguard_balance": 349333,
+        "vanguard_cash": 838,
+        "vanguard_stocks_funds": 348495,
+        "vanguard_linked": true,
+        "etrade_bonds_cds": 5819,
+        "home": 450000,
+        "mortgage": 412000,
+        "visa": 6000
+      },
+      "expected": {
+        "cash": {
+          "exact": 8838.0,
+          "shown": "$8,838"
+        },
+        "investments": {
+          "exact": 354314.0,
+          "shown": "$354,314"
+        },
+        "personal_property": {
+          "exact": 450000.0,
+          "shown": "$450,000"
+        },
+        "what_you_own": {
+          "exact": 813152.0,
+          "shown": "$813,152"
+        },
+        "debts": {
+          "exact": 418000.0,
+          "shown": "$418,000"
+        },
+        "net_worth": {
+          "exact": 395152.0,
+          "shown": "$395,152"
+        },
+        "parts_sum_check": "8,838 + 354,314 + 450,000 = 813,152 = What you own",
+        "investable": {
+          "exact": 363152.0,
+          "shown": "$363,152"
+        },
+        "same_three_totals_on": [
+          "/networth",
+          "/analytics",
+          "/insights (MK-MN-M-016)"
+        ]
+      },
+      "formula_gives": {
+        "investments": {
+          "exact": 355152.0,
+          "shown": "$355,152"
+        },
+        "parts_sum": {
+          "exact": 813990.0,
+          "note": "Cash + Investments + property = 813,990 ≠ What you own 813,152; the $838 is counted twice"
+        }
+      },
+      "working": [
+        "Cash = 8,000 (Chase) + 838 (Vanguard's uninvested cash) = 8,838",
+        "Investments = 348,495 (Vanguard stocks/funds) + 5,819 (E*TRADE) = 354,314",
+        "What you own = 8,000 + 349,333 + 5,819 + 450,000 = 813,152",
+        "Check: 8,838 + 354,314 + 450,000 = 813,152",
+        "Debts = 412,000 + 6,000 = 418,000",
+        "Net worth = 813,152 − 418,000 = 395,152",
+        "Investable = 813,152 − 450,000 = 363,152 = 8,838 + 354,314",
+        "Formula's investmentsTotal counts Vanguard whole: 349,333 + 5,819 = 355,152, which double-counts the 838"
+      ],
+      "rests_on": "Approved drawing 'Net worth, Quiet Instrument v08, state A' (2026-09-14); owner DEC-0343",
+      "confidence": "high",
+      "notes": "The drawing labels the home 'Personal property'; the author's note on M-006 says real estate is its own band. The figure is the same either way."
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "complex",
+      "title": "Return on cash + investments with a large deposit mid-year, and three kinds of debt",
+      "given": "Comparing from 2025-10-04. Recorded cash + investments: $200,000 on 2025-10-04; $212,400 on 2026-04-15 just before a $60,000 deposit (inheritance) that day; $284,630 on 2026-10-04 (exactly one year). Debts: mortgage $318,400 with $2,140/month required (paid this month); credit card $1,912.33 with $85 minimum (not yet paid this month); family loan $8,000 with no payment required.",
+      "inputs": {
+        "since": "2025-10-04",
+        "investable_start": 200000,
+        "flows": [
+          {
+            "date": "2026-04-15",
+            "amount": 60000
+          }
+        ],
+        "investable_end": 284630,
+        "end_date": "2026-10-04",
+        "debts": [
+          {
+            "name": "mortgage",
+            "balance": 318400,
+            "minimum": 2140,
+            "paid_this_month": true
+          },
+          {
+            "name": "credit card",
+            "balance": 1912.33,
+            "minimum": 85,
+            "paid_this_month": false
+          },
+          {
+            "name": "family loan",
+            "balance": 8000,
+            "minimum": null
+          }
+        ],
+        "value_before_flow": 212400
+      },
+      "expected": {
+        "investable_change_pct": {
+          "exact": 0.109681,
+          "shown": "10.97%"
+        },
+        "debts": {
+          "exact": 328312.33,
+          "shown": "$328,312"
+        },
+        "debt_rows": [
+          {
+            "label": "mortgage",
+            "exact": 318400.0
+          },
+          {
+            "label": "credit card",
+            "exact": 1912.33
+          },
+          {
+            "label": "family loan",
+            "exact": 8000.0
+          }
+        ],
+        "monthly_debt_minimum": {
+          "exact": 2225.0,
+          "shown": "$2,225"
+        },
+        "family_loan_minimum": "REFUSES — no minimum entered (the line shows none, not $0)",
+        "monthly_payments_same_on": [
+          "/analytics",
+          "/home"
+        ]
+      },
+      "formula_gives": {
+        "investable_change_pct": {
+          "exact": 0.42315,
+          "shown": "42.32%"
+        }
+      },
+      "working": [
+        "Split at the deposit on 2026-04-15",
+        "Sub-period 1 (2025-10-04 to just before the deposit): 212,400 ÷ 200,000 = 1.062000",
+        "Value just after the deposit = 212,400 + 60,000 = 272,400",
+        "Sub-period 2 (after the deposit to 2026-10-04): 284,630 ÷ 272,400 = 1.0448972",
+        "Time-weighted return = 1.062000 × 1.0448972 − 1 = 0.1096808 → 10.97%",
+        "Formula (balance change) = 284,630 ÷ 200,000 − 1 = 0.42315 → 42.32%",
+        "Formula (balance change) = 284,630 ÷ 200,000 − 1 = 0.42315 → 42.32%",
+        "Debts = 318,400 + 1,912.33 + 8,000 = 328,312.33 (rows sum to it)",
+        "Minimums = 2,140 + 85 = 2,225; whether this month's payment is made does not change what is required; the family loan has none"
+      ],
+      "rests_on": "Owner instruction 2026-10-04: all returns are time-weighted (TWR); owner DEC-0054 (return measured on cash + investments, not property)",
+      "confidence": "medium",
+      "notes": "Medium only because the card does not say whether the value just before each flow is available to the function; if it is not, the honest answer is to refuse, not to show 42.32%."
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "edge",
+      "title": "Comparison day before the record begins",
+      "given": "Daily record of cash + investments begins 2026-03-01 at $142,000; today $151,300. The person compares from 2026-01-01.",
+      "inputs": {
+        "since": "2026-01-01",
+        "record_first_day": "2026-03-01",
+        "record_first_value": 142000,
+        "today_value": 151300
+      },
+      "expected": {
+        "investable_change_pct": "REFUSES — the record does not reach back to 2026-01-01; no figure rather than a made-up change"
+      },
+      "formula_gives": "Not settled: 'measured from the daily record since the given start day' could take the first recorded day (2026-03-01) and give 151,300 ÷ 142,000 − 1 = 6.55% under a January label.",
+      "working": [
+        "The baseline must be the value ON the start day",
+        "Nothing is recorded on or before 2026-01-01",
+        "So no movement can honestly be measured from that day (M-002)"
+      ],
+      "rests_on": "Refusal rule of MK-NW-M-002",
+      "confidence": "medium",
+      "notes": "The author's note on M-002 says 'no recorded day on or after the baseline → no figure', which would ALLOW the 2026-03-01 reading. That contradicts the screen's refusal rule ('does not reach back that far'). I hold to the screen rule; owner to settle."
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "easy",
+      "title": "Cash and a planned essentials figure, no debts",
+      "given": "Savings $30,000. Nothing logged; profile says essentials $5,000/month. No debts entered.",
+      "inputs": {
+        "cash": 30000,
+        "logged_months": 0,
+        "profile_essentials_monthly": 5000,
+        "debts": []
+      },
+      "expected": {
+        "essentials_monthly": {
+          "exact": 5000.0,
+          "shown": "$5,000"
+        },
+        "months_covered": {
+          "exact": 6.0,
+          "shown": "6.0 months"
+        },
+        "basis": "the plan you entered"
+      },
+      "working": [
+        "Nothing logged, so essentials come from the profile: 5,000",
+        "No debts, so minimums 0",
+        "Months = 30,000 ÷ 5,000 = 6.0"
+      ],
+      "rests_on": "Formula in words; refusal note on MK-MN-M-021",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "easy",
+      "title": "What a six-month target costs and how far off it is",
+      "given": "Cash $12,000. Essentials $4,000/month from the profile. No debts. Target 6 months.",
+      "inputs": {
+        "cash": 12000,
+        "profile_essentials_monthly": 4000,
+        "debts": [],
+        "target_months": 6
+      },
+      "expected": {
+        "target": {
+          "exact": 24000.0,
+          "shown": "$24,000"
+        },
+        "gap": {
+          "exact": 12000.0,
+          "shown": "$12,000"
+        },
+        "months_covered": {
+          "exact": 3.0,
+          "shown": "3.0 months"
+        }
+      },
+      "working": [
+        "Target = 4,000 × 6 = 24,000",
+        "Gap = 24,000 − 12,000 = 12,000",
+        "Months = 12,000 ÷ 4,000 = 3.0"
+      ],
+      "rests_on": "Formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "complex",
+      "title": "Cash in three places, a CD and money market that are not cash, three debts, and a mortgage budgeted $100 light",
+      "given": "Checking $9,412.55; high-yield savings $31,200.00; linked brokerage with $1,846.20 uninvested cash (plus $40,000 of funds); a $10,000 CD; a $6,500 money-market fund. Four months of logged essentials totalling $16,400. Planned monthly expenses $5,850. Debts: car loan minimum $412.37; credit card minimum $95.00 (paid this month); home mortgage required $2,400.00 while the budget's Rent / Mortgage line is $2,300.00. Then a $10,000 hit.",
+      "inputs": {
+        "checking": 9412.55,
+        "hysa": 31200.0,
+        "brokerage_cash_linked": 1846.2,
+        "cd": 10000,
+        "money_market": 6500,
+        "logged_essentials_total": 16400,
+        "logged_months": 4,
+        "planned_monthly": 5850,
+        "debts": [
+          {
+            "name": "car loan",
+            "minimum": 412.37
+          },
+          {
+            "name": "credit card",
+            "minimum": 95.0
+          },
+          {
+            "name": "home mortgage",
+            "minimum": 2400.0,
+            "is_home_in_budget": true
+          }
+        ],
+        "budget_housing": 2300.0,
+        "shock": 10000
+      },
+      "expected": {
+        "cash": {
+          "exact": 42458.75,
+          "shown": "$42,459"
+        },
+        "debt_minimums": {
+          "exact": 507.37,
+          "shown": "$507"
+        },
+        "essentials_monthly": {
+          "exact": 4607.37,
+          "shown": "$4,607"
+        },
+        "months_covered": {
+          "exact": 9.215398,
+          "shown": "9.2 months"
+        },
+        "planned_spend_monthly": {
+          "exact": 6357.37,
+          "shown": "$6,357"
+        },
+        "months_at_planned": {
+          "exact": 6.678666,
+          "shown": "6.7 months"
+        },
+        "housing_disagreement": {
+          "budgeted": 2300.0,
+          "owed": 2400.0,
+          "difference": 100.0
+        },
+        "target_6_months": {
+          "target": 27644.22,
+          "gap": 0.0
+        },
+        "after_shock": {
+          "cash_after": 32458.75,
+          "months_after": 7.044963,
+          "covers_it": true
+        },
+        "essentials_same_on": [
+          "/jobsafety",
+          "/stress-test",
+          "/analytics"
+        ],
+        "debt_minimums_same_on": [
+          "/analytics",
+          "/insights"
+        ]
+      },
+      "working": [
+        "Cash = 9,412.55 + 31,200.00 + 1,846.20 = 42,458.75; the CD and money-market fund are not cash (DEC-0051)",
+        "Logged essentials = 16,400 ÷ 4 = 4,100.00/month (G21: average over months logged)",
+        "Debt minimums = 412.37 + 95.00 = 507.37; the home mortgage is left out because the budget carries it",
+        "Essentials = 4,100.00 + 507.37 = 4,607.37; months = 42,458.75 ÷ 4,607.37 = 9.2154",
+        "Planned = 5,850 + 507.37 = 6,357.37; months = 42,458.75 ÷ 6,357.37 = 6.6787",
+        "Housing: budgeted 2,300 vs owed 2,400, difference 100, reported",
+        "Target 6 months = 4,607.37 × 6 = 27,644.22; gap = max(0, 27,644.22 − 42,458.75) = 0",
+        "After a 10,000 hit: 42,458.75 − 10,000 = 32,458.75; ÷ 4,607.37 = 7.0450 months; covered"
+      ],
+      "rests_on": "Formula in words; owner DEC-0051 via author note on M-005; founder ruling 2026-09-29 in the EmergencyFund type",
+      "confidence": "medium",
+      "notes": "The afterAShock arithmetic is not in the formula; I worked it from the type's comment. Assumes logged essentials do not already contain the car and card payments."
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "complex",
+      "title": "Renter who also owes a mortgage on a rental house",
+      "given": "Two earners. Checking $6,140.88; savings $14,700.00. Logged essentials for three months: $3,512.44, $3,498.02, $3,566.54 (these include their own rent). Budget Rent / Mortgage line $2,200 (their rent). Debts: mortgage on a house they let out, required $1,980.00/month; car loan minimum $254.50.",
+      "inputs": {
+        "checking": 6140.88,
+        "savings": 14700.0,
+        "logged_essentials": [
+          3512.44,
+          3498.02,
+          3566.54
+        ],
+        "budget_housing": 2200,
+        "debts": [
+          {
+            "name": "rental-house mortgage",
+            "minimum": 1980.0,
+            "is_home_in_budget": false
+          },
+          {
+            "name": "car loan",
+            "minimum": 254.5
+          }
+        ]
+      },
+      "expected": {
+        "cash": {
+          "exact": 20840.88,
+          "shown": "$20,841"
+        },
+        "debt_minimums": {
+          "exact": 2234.5,
+          "shown": "$2,235"
+        },
+        "essentials_monthly": {
+          "exact": 5760.1667,
+          "shown": "$5,760"
+        },
+        "months_covered": {
+          "exact": 3.618104,
+          "shown": "3.6 months"
+        },
+        "housing_disagreement": null
+      },
+      "formula_gives": {
+        "debt_minimums": {
+          "exact": 254.5,
+          "shown": "$255"
+        },
+        "essentials_monthly": {
+          "exact": 3780.1667,
+          "shown": "$3,780"
+        },
+        "months_covered": {
+          "exact": 5.513217,
+          "shown": "5.5 months"
+        },
+        "housing_disagreement": {
+          "budgeted": 2200.0,
+          "owed": 1980.0,
+          "difference": -220.0
+        }
+      },
+      "working": [
+        "Cash = 6,140.88 + 14,700.00 = 20,840.88",
+        "Logged essentials average = (3,512.44 + 3,498.02 + 3,566.54) ÷ 3 = 10,577.00 ÷ 3 = 3,525.6667",
+        "The budget's housing line is their rent, not this mortgage, so the mortgage counts: minimums = 1,980.00 + 254.50 = 2,234.50",
+        "Essentials = 3,525.6667 + 2,234.50 = 5,760.1667; months = 20,840.88 ÷ 5,760.1667 = 3.6181",
+        "Formula drops the mortgage because a housing amount is budgeted: 3,525.6667 + 254.50 = 3,780.1667; months = 5.5132 — 1.9 months too long",
+        "Formula also reports a 'disagreement' between their rent and a different property's mortgage"
+      ],
+      "rests_on": "Purpose of the rule in the author note on M-047 (no double counting of the same mortgage); founder 2026-09-28 'you cannot skip a car payment'",
+      "confidence": "medium",
+      "notes": "Rent received from the let house could offset the mortgage; the card does not say whether income is netted here, and the brief's question is what cash covers if income stops. The difference shown is the mortgage obligation alone."
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "edge",
+      "title": "Cash but nothing logged, no plan and no debts entered",
+      "given": "Savings $8,000. No logged expenses, no essentials in the profile, no planned expenses, no debts entered.",
+      "inputs": {
+        "cash": 8000,
+        "logged_months": 0,
+        "profile_essentials_monthly": null,
+        "planned_monthly": null,
+        "debts": null
+      },
+      "expected": {
+        "months_covered": "REFUSES — no essentials figure; it says so rather than dividing by nothing",
+        "months_at_planned": "REFUSES — no expense figure",
+        "target_for_6": "REFUSES — no essentials figure",
+        "debt_payments_line": "not shown — no debts entered",
+        "cash": {
+          "exact": 8000.0,
+          "shown": "$8,000"
+        }
+      },
+      "working": [
+        "Essentials = nothing + 0 = no figure; cash ÷ nothing is not a number",
+        "Planned likewise",
+        "Debts missing means none entered, not none owed, so the line does not appear"
+      ],
+      "rests_on": "Formula in words ('no figure when essentials are zero'); refusal rules of M-013, M-046, M-047, MK-MN-M-020",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "easy",
+      "title": "One crypto holding",
+      "given": "One crypto account (Coinbase) worth $10,000. Let r_crypto be the app's benchmark yearly rate for crypto.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "crypto",
+            "value": 10000,
+            "maturity": null
+          }
+        ],
+        "benchmark_crypto": "r_crypto (app table)"
+      },
+      "expected": {
+        "count": 1,
+        "total_value": {
+          "exact": 10000.0,
+          "shown": "$10,000"
+        },
+        "expected_return": {
+          "exact": "r_crypto",
+          "shown": "r_crypto to 2 dp"
+        },
+        "growth_per_year": {
+          "exact": "10,000 × r_crypto",
+          "shown": "whole dollars"
+        },
+        "rows": [
+          {
+            "label": "crypto",
+            "exact": 10000.0
+          }
+        ]
+      },
+      "working": [
+        "Blended rate with one holding = 10,000 × r_crypto ÷ 10,000 = r_crypto",
+        "Growth = 10,000 × r_crypto",
+        "One row, 10,000 = total"
+      ],
+      "rests_on": "Formula in words; alternativesSummary (MK-NW-F-002)",
+      "confidence": "medium",
+      "notes": "The benchmark table is not on the card, so the rate is written as a symbol; substitute the app's crypto benchmark without changing the relation."
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "easy",
+      "title": "Weighted by value, not an average of rates",
+      "given": "Crypto worth $28,000 and gold (commodities) worth $500.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "crypto",
+            "value": 28000
+          },
+          {
+            "kind": "commodities",
+            "value": 500
+          }
+        ],
+        "benchmarks": "r_crypto, r_commodities (app table)"
+      },
+      "expected": {
+        "total_value": {
+          "exact": 28500.0,
+          "shown": "$28,500"
+        },
+        "expected_return": {
+          "exact": "0.982456 × r_crypto + 0.017544 × r_commodities"
+        },
+        "weights": {
+          "crypto": 0.982456,
+          "commodities": 0.017544
+        }
+      },
+      "working": [
+        "Total = 28,000 + 500 = 28,500",
+        "Crypto weight = 28,000 ÷ 28,500 = 0.9824561; gold = 500 ÷ 28,500 = 0.0175439",
+        "Blended = 0.9824561 × r_crypto + 0.0175439 × r_commodities — not (r_crypto + r_commodities) ÷ 2"
+      ],
+      "rests_on": "Author rule on MK-NW-M-051",
+      "confidence": "medium",
+      "notes": "Rates as symbols; same reason as above."
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "complex",
+      "title": "A fund the person classed as an alternative, and a crypto-kind account they classed as stocks",
+      "given": "Coinbase crypto $14,382.77 (kind crypto). A real-estate crowdfunding fund $8,640.15 whose kind is 'stocks' but whose class the person set to Alternatives. A spot-bitcoin ETF $3,905.40 whose kind is 'crypto' but whose class the person set to Stocks / Funds.",
+      "inputs": {
+        "accounts": [
+          {
+            "label": "Coinbase",
+            "kind": "crypto",
+            "stated_class": null,
+            "value": 14382.77
+          },
+          {
+            "label": "RE fund",
+            "kind": "stocks",
+            "stated_class": "Alternatives",
+            "value": 8640.15
+          },
+          {
+            "label": "Bitcoin ETF",
+            "kind": "crypto",
+            "stated_class": "Stocks / Funds",
+            "value": 3905.4
+          }
+        ]
+      },
+      "expected": {
+        "count": 2,
+        "rows": [
+          {
+            "label": "Coinbase",
+            "exact": 14382.77
+          },
+          {
+            "label": "RE fund",
+            "exact": 8640.15
+          }
+        ],
+        "total_value": {
+          "exact": 23022.92,
+          "shown": "$23,023"
+        },
+        "rows_sum_equals_total": true,
+        "same_total_on": [
+          "/other-investments (M-049)",
+          "Net worth tab Alternatives slice"
+        ]
+      },
+      "formula_gives": {
+        "count": 2,
+        "total_value": {
+          "exact": 18288.17,
+          "shown": "$18,288",
+          "note": "Coinbase + Bitcoin ETF (isAlternative)"
+        },
+        "rows_sum": {
+          "exact": 23022.92,
+          "note": "Coinbase + RE fund (assetClassOf); rows do not add to the total above them"
+        }
+      },
+      "working": [
+        "assetClassOf: Coinbase → kind crypto → Alternatives; RE fund → stated class Alternatives; Bitcoin ETF → stated class Stocks / Funds",
+        "Right set (one test, assetClassOf, matching the Net worth slice) = Coinbase + RE fund = 14,382.77 + 8,640.15 = 23,022.92",
+        "Rows sum to 23,022.92 = total",
+        "Formula's total uses isAlternative (kind list): Coinbase + Bitcoin ETF = 14,382.77 + 3,905.40 = 18,288.17",
+        "Formula's rows use assetClassOf: 23,022.92 — off from its own total by 4,734.75"
+      ],
+      "rests_on": "AlternativesOutlook type comment ('rows add to totalValue by construction'); author rules on M-049, M-052",
+      "confidence": "high",
+      "notes": "Blended rate depends on the benchmark for a fund whose kind is 'stocks' — the card does not say what benchmark that row gets; left out here."
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "complex",
+      "title": "Crypto linked, gold typed in, an annuity with a maturity date, and a house",
+      "given": "Coinbase crypto (linked) $21,906.48. Gold typed in by hand, kind commodities, $4,310.00. An annuity worth $1,455.00 with a maturity date of 2034-01-01 and no stated class. Home $610,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "label": "Coinbase",
+            "kind": "crypto",
+            "value": 21906.48,
+            "linked": true
+          },
+          {
+            "label": "Gold",
+            "kind": "commodities",
+            "value": 4310.0,
+            "linked": false
+          },
+          {
+            "label": "Annuity",
+            "kind": "annuities",
+            "value": 1455.0,
+            "maturity": "2034-01-01"
+          },
+          {
+            "label": "Home",
+            "kind": "home",
+            "value": 610000
+          }
+        ]
+      },
+      "expected": {
+        "count": 2,
+        "rows": [
+          {
+            "label": "Coinbase",
+            "exact": 21906.48
+          },
+          {
+            "label": "Gold",
+            "exact": 4310.0
+          }
+        ],
+        "total_value": {
+          "exact": 26216.48,
+          "shown": "$26,216"
+        },
+        "rows_sum_equals_total": true,
+        "weights": {
+          "crypto": 0.8356,
+          "commodities": 0.1644
+        },
+        "same_total_on": [
+          "/other-investments",
+          "Net worth tab Alternatives slice"
+        ]
+      },
+      "working": [
+        "Annuity: isAlternative is false (it has a maturity date); assetClassOf rule 3 (maturity date) puts it in Bonds & CDs — both tests leave it out",
+        "Home: property under both tests — out",
+        "Total = 21,906.48 + 4,310.00 = 26,216.48; rows sum to the same",
+        "Weights: 21,906.48 ÷ 26,216.48 = 0.8356; 4,310.00 ÷ 26,216.48 = 0.1644"
+      ],
+      "rests_on": "isAlternative (MK-NW-F-001); assetClassOf (MK-NW-F-011)",
+      "confidence": "high",
+      "notes": "Here the two tests happen to agree, so formula and expected match."
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "edge",
+      "title": "No alternatives held",
+      "given": "The household has a checking account and a brokerage account, and no alternatives.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "checking",
+            "value": 5000
+          },
+          {
+            "kind": "stocks",
+            "value": 40000
+          }
+        ]
+      },
+      "expected": {
+        "count": 0,
+        "total_value": {
+          "exact": 0.0,
+          "shown": "None entered yet"
+        },
+        "expected_return": "REFUSES — nothing held; a 0.00% reads as a forecast",
+        "growth_per_year": "REFUSES — nothing held",
+        "rows": []
+      },
+      "formula_gives": {
+        "expected_return": {
+          "exact": 0.0,
+          "shown": "0.00%"
+        }
+      },
+      "working": [
+        "No account passes either test",
+        "alternativesSummary returns blended rate 0 when total is 0, but M-051 requires no figure",
+        "Growth is already refused by the formula when the total is not above zero"
+      ],
+      "rests_on": "Refusal rules of MK-NW-M-050, MK-NW-M-051",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "easy",
+      "title": "One purchase, priced today",
+      "given": "Bought 100 shares at $50. Price today $60.",
+      "inputs": {
+        "lots": [
+          {
+            "shares": 100,
+            "cost_per_share": 50
+          }
+        ],
+        "price": 60
+      },
+      "expected": {
+        "shares": 100,
+        "total_paid": {
+          "exact": 5000.0,
+          "shown": "$5,000"
+        },
+        "avg_paid_per_share": {
+          "exact": 50.0,
+          "shown": "$50.00"
+        },
+        "value": {
+          "exact": 6000.0,
+          "shown": "$6,000"
+        },
+        "gain": {
+          "exact": 1000.0,
+          "shown": "$1,000"
+        },
+        "return_on_cost": {
+          "exact": 0.2,
+          "shown": "20.00%"
+        }
+      },
+      "working": [
+        "Paid = 100 × 50 = 5,000",
+        "Value = 100 × 60 = 6,000",
+        "Gain = 1,000; return = 1,000 ÷ 5,000 = 20%"
+      ],
+      "rests_on": "Formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "easy",
+      "title": "No price today",
+      "given": "Bought 20 shares at $150. No price available.",
+      "inputs": {
+        "lots": [
+          {
+            "shares": 20,
+            "cost_per_share": 150
+          }
+        ],
+        "price": null
+      },
+      "expected": {
+        "value": {
+          "exact": 3000.0,
+          "shown": "$3,000 — what you paid"
+        },
+        "priced": false,
+        "gain": "REFUSES — no price",
+        "return_on_cost": "REFUSES — no price",
+        "capital_gains": "REFUSES — no price"
+      },
+      "working": [
+        "Paid = 20 × 150 = 3,000",
+        "No price, so value shown is what was paid, labelled as such; no gain, return or tax split"
+      ],
+      "rests_on": "Formula in words; author note r30 on M-030",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "complex",
+      "title": "Three purchases across two years, fractional shares, dividends in and out of the 12-month window",
+      "given": "Today 2026-10-04. Purchases: 37.5 shares at $251.18 on 2024-03-12; 12.25 at $318.44 on 2026-02-20; 8.4 at $329.07 on 2026-08-05. Price $334.62; previous close $331.90. Dividend records naming the ticker: $35.10 on 2025-09-18, $41.27 on 2025-12-18, $38.90 on 2026-03-19, $44.12 on 2026-06-18, $47.60 on 2026-09-17. One dividend record of $112.35 naming no ticker.",
+      "inputs": {
+        "today": "2026-10-04",
+        "lots": [
+          {
+            "date": "2024-03-12",
+            "shares": 37.5,
+            "cost_per_share": 251.18
+          },
+          {
+            "date": "2026-02-20",
+            "shares": 12.25,
+            "cost_per_share": 318.44
+          },
+          {
+            "date": "2026-08-05",
+            "shares": 8.4,
+            "cost_per_share": 329.07
+          }
+        ],
+        "price": 334.62,
+        "recent_closes": [
+          331.9,
+          334.62
+        ],
+        "dividends": [
+          {
+            "date": "2025-09-18",
+            "ticker": "X",
+            "amount": 35.1
+          },
+          {
+            "date": "2025-12-18",
+            "ticker": "X",
+            "amount": 41.27
+          },
+          {
+            "date": "2026-03-19",
+            "ticker": "X",
+            "amount": 38.9
+          },
+          {
+            "date": "2026-06-18",
+            "ticker": "X",
+            "amount": 44.12
+          },
+          {
+            "date": "2026-09-17",
+            "ticker": "X",
+            "amount": 47.6
+          },
+          {
+            "date": "2026-07-01",
+            "ticker": null,
+            "amount": 112.35
+          }
+        ]
+      },
+      "expected": {
+        "shares": 58.15,
+        "total_paid": {
+          "exact": 16084.328,
+          "shown": "$16,084"
+        },
+        "avg_paid_per_share": {
+          "exact": 276.600653,
+          "shown": "$276.60"
+        },
+        "value": {
+          "exact": 19458.153,
+          "shown": "$19,458"
+        },
+        "gain": {
+          "exact": 3373.825,
+          "shown": "$3,374"
+        },
+        "return_on_cost": {
+          "exact": 0.209759,
+          "shown": "20.98%"
+        },
+        "gain_long_term": {
+          "exact": 3129.0,
+          "shown": "$3,129"
+        },
+        "gain_short_term": {
+          "exact": 244.825,
+          "shown": "$245"
+        },
+        "gain_parts_sum_check": "3,129.000 + 244.825 = 3,373.825 = gain",
+        "dividends_trailing_12": {
+          "exact": 171.89,
+          "shown": "$171.89"
+        },
+        "dividends_all_time": {
+          "exact": 206.99,
+          "shown": "$206.99"
+        },
+        "day_change": "RULE UNCLEAR — per share: +$2.72 (0.82%); for the holding: 2.72 × 58.15 = +$158.17 (0.82%)",
+        "total_paid_same_on": [
+          "/holding-detail",
+          "/invest"
+        ]
+      },
+      "working": [
+        "Shares = 37.5 + 12.25 + 8.4 = 58.15",
+        "Paid = 37.5 × 251.18 (9,419.25) + 12.25 × 318.44 (3,900.89) + 8.4 × 329.07 (2,764.188) = 16,084.328",
+        "Average = 16,084.328 ÷ 58.15 = 276.600653 → $276.60 (kept unrounded until display, Q49)",
+        "Value = 58.15 × 334.62 = 19,458.153",
+        "Gain = 19,458.153 − 16,084.328 = 3,373.825; return = 3,373.825 ÷ 16,084.328 = 0.2097585",
+        "Long-term (held more than a year): 37.5 × (334.62 − 251.18) = 37.5 × 83.44 = 3,129.00",
+        "Short-term: 12.25 × (334.62 − 318.44) = 198.205; 8.4 × (334.62 − 329.07) = 46.62; total 244.825",
+        "Dividends in the last 365 days (after 2025-10-04): 41.27 + 38.90 + 44.12 + 47.60 = 171.89; all time adds 35.10 = 206.99; the untickered 112.35 belongs to no holding",
+        "Day change per share = 334.62 − 331.90 = 2.72; ÷ 331.90 = 0.0081952"
+      ],
+      "rests_on": "Formula in words; IRS Publication 550 holding period; author note on M-034",
+      "confidence": "medium",
+      "notes": "Medium because of the day-change reading only; every other figure is high confidence."
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "complex",
+      "title": "Call options bought in two lots, priced per share as a broker quotes them",
+      "given": "Two purchases of the same call option, as the broker link describes them: 4 contracts at $7.35 premium per share, then 2 contracts at $5.80. Option price today $9.10 per share. No stated multiplier.",
+      "inputs": {
+        "unit": "contracts",
+        "lots": [
+          {
+            "contracts": 4,
+            "premium_per_share": 7.35
+          },
+          {
+            "contracts": 2,
+            "premium_per_share": 5.8
+          }
+        ],
+        "price_per_share": 9.1,
+        "multiplier_stated": null
+      },
+      "expected": {
+        "quantity": 6,
+        "total_paid": {
+          "exact": 4100.0,
+          "shown": "$4,100"
+        },
+        "avg_paid_per_share": {
+          "exact": 6.833333,
+          "shown": "$6.83"
+        },
+        "value": {
+          "exact": 5460.0,
+          "shown": "$5,460"
+        },
+        "gain": {
+          "exact": 1360.0,
+          "shown": "$1,360"
+        },
+        "return_on_cost": {
+          "exact": 0.331707,
+          "shown": "33.17%"
+        }
+      },
+      "formula_gives": {
+        "total_paid": {
+          "exact": 41.0,
+          "shown": "$41"
+        },
+        "value": {
+          "exact": 5460.0,
+          "shown": "$5,460"
+        },
+        "gain": {
+          "exact": 5419.0,
+          "shown": "$5,419"
+        },
+        "return_on_cost": {
+          "exact": 132.170732,
+          "shown": "13,217.07%"
+        }
+      },
+      "working": [
+        "Multiplier 100 (none stated)",
+        "Paid = (4 × 7.35 + 2 × 5.80) × 100 = (29.40 + 11.60) × 100 = 4,100",
+        "Value = 6 × 9.10 × 100 = 5,460",
+        "Gain = 5,460 − 4,100 = 1,360; return = 1,360 ÷ 4,100 = 0.3317073",
+        "Average premium per share = 4,100 ÷ 600 shares = 6.8333; per contract 683.33",
+        "Formula: paid = 29.40 + 11.60 = 41 (no multiplier) while value carries it; gain 5,419, return 5,419 ÷ 41 = 132.17 = 13,217%"
+      ],
+      "rests_on": "Standard equity option contract size, 100 shares (OCC); ordinary arithmetic",
+      "confidence": "medium",
+      "notes": "Medium because the card does not say whether a broker sends cost per share or per contract; if per contract ($735, $580) were stored, the formula would give paid $4,100 but value $5,460 only if price is also per share. The point is that cost and value must use the same unit."
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "edge",
+      "title": "Held exactly one year to the day",
+      "given": "Bought 10 shares at $100 on 2025-10-04. Today is 2026-10-04 and the price is $130.",
+      "inputs": {
+        "today": "2026-10-04",
+        "lots": [
+          {
+            "date": "2025-10-04",
+            "shares": 10,
+            "cost_per_share": 100
+          }
+        ],
+        "price": 130
+      },
+      "expected": {
+        "gain": {
+          "exact": 300.0,
+          "shown": "$300"
+        },
+        "gain_long_term": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "gain_short_term": {
+          "exact": 300.0,
+          "shown": "$300"
+        }
+      },
+      "formula_gives": "Not stated in the formula. A 'one year or more' reading would show $300 long-term and $0 short-term.",
+      "working": [
+        "Gain = 10 × (130 − 100) = 300",
+        "Holding period counts from 2025-10-05; on 2026-10-04 it is exactly one year, not more than one year",
+        "So the whole gain is short-term; from 2026-10-05 it would be long-term"
+      ],
+      "rests_on": "IRS Publication 550 (2025), 'Holding Period': more than 1 year is long-term, counting from the day after acquisition",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "could_not_test": []
+}

@@ -730,5 +730,6 @@
 "MoneyKeel/functions/cashflow/whats-coming.ts::unusualWords": "not in git yet|\u2014",
 "MoneyKeel/functions/cashflow/whats-coming.ts::receivedInMonth": "not in git yet|\u2014",
 "Calculation Module code/engines/snapshots.ts::dailyWindowStart": "not in git yet|\u2014",
-"MoneyKeel/functions/networth-and-performance/performance.ts::investmentRecordDates": "not in git yet|\u2014"
+"MoneyKeel/functions/networth-and-performance/performance.ts::investmentRecordDates": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/income-summary.ts::theIncomeManager": "not in git yet|\u2014"
 }

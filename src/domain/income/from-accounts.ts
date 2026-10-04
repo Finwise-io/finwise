@@ -50,10 +50,13 @@ export interface AccountIncome {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
+ * Decides .....
+ *     · Shows 2 decimal places.
+ *
  * Formula also on the master file · functions_from_code · MK-CF-F-182
  * Changed ..... not in git yet (—)
  */
-const asPercent = (r: number) => `${(r * 100)}%`;
+const asPercent = (r: number) => `${+(r * 100).toFixed(2)}%`;   // two decimals at most, and no arithmetic dust: 0.038 × 100 is 3.8000000000000003
 
 /** What each account actually PAID OUT in the last year, by account. Reinvested income is excluded:
  *  it never reached the bank. */

@@ -7792,7 +7792,7 @@
     },
     {
      "k": "a",
-     "s": "Salary — steady, before tax, monthly, ≈ $7,200/month take-home, $9,000. Opens it to change."
+     "s": "Salary — steady, before tax, monthly, ≈ $6,400/month take-home, $9,000. Opens it to change."
     },
     {
      "k": "t",
@@ -7816,7 +7816,7 @@
     },
     {
      "k": "t",
-     "s": "≈ $7,200/month take-home"
+     "s": "≈ $6,400/month take-home"
     },
     {
      "k": "t",
@@ -8838,7 +8838,7 @@
     },
     {
      "k": "a",
-     "s": "Salary — steady, before tax, monthly, ≈ $7,200/month take-home, $9,000. Opens it to change."
+     "s": "Salary — steady, before tax, monthly, ≈ $6,400/month take-home, $9,000. Opens it to change."
     },
     {
      "k": "t",
@@ -8862,7 +8862,7 @@
     },
     {
      "k": "t",
-     "s": "≈ $7,200/month take-home"
+     "s": "≈ $6,400/month take-home"
     },
     {
      "k": "t",
@@ -25653,79 +25653,167 @@
     },
     {
      "k": "t",
-     "s": "YOUR INCOME"
+     "s": "Your income"
     },
     {
      "k": "t",
-     "s": "$108,000"
+     "s": "Add anything that changes"
     },
     {
      "k": "t",
-     "s": "total income / year (gross)"
+     "s": "You entered about"
     },
     {
      "k": "t",
-     "s": "WHAT YOU ENTERED"
+     "s": "1"
     },
     {
      "k": "t",
-     "s": "Base salary"
-    },
-    {
-     "k": "t",
-     "s": "/year (from monthly)"
-    },
-    {
-     "k": "t",
-     "s": "· tap to edit"
-    },
-    {
-     "k": "t",
-     "s": "$108,000"
+     "s": "source"
     },
     {
      "k": "a",
-     "s": "Add an income source — bonus, stock vesting, rental, or self-employment"
+     "s": "A job: You · take-home ≈$6,400/month. Edit"
     },
     {
      "k": "t",
-     "s": "＋ Add an income source ›"
-    },
-    {
-     "k": "t",
-     "s": "INVESTMENT INCOME"
-    },
-    {
-     "k": "t",
-     "s": "Dividends, interest & coupons"
-    },
-    {
-     "k": "t",
-     "s": "recorded when you log a cash dividend or add a bond"
-    },
-    {
-     "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "t",
-     "s": "Reinvested dividends grow the holding instead of paying cash, so they're not counted as income here. Log dividends from Performance → Record transaction."
-    },
-    {
-     "k": "t",
-     "s": "ONE-TIME INCOME"
-    },
-    {
-     "k": "t",
-     "s": "None logged."
+     "s": "A job"
     },
     {
      "k": "a",
-     "s": "Add one-time income"
+     "s": "entered"
     },
     {
      "k": "t",
-     "s": "＋ Add one-time income"
+     "s": "✓"
+    },
+    {
+     "k": "t",
+     "s": "You · take-home ≈$6,400/month"
+    },
+    {
+     "k": "t",
+     "s": "Edit ⌄"
+    },
+    {
+     "k": "t",
+     "s": "Anything else?"
+    },
+    {
+     "k": "a",
+     "s": "Add Self-employed / side gig"
+    },
+    {
+     "k": "t",
+     "s": "🧰"
+    },
+    {
+     "k": "t",
+     "s": "Self-employed / side gig"
+    },
+    {
+     "k": "a",
+     "s": "Add Rent from a property"
+    },
+    {
+     "k": "t",
+     "s": "🏠"
+    },
+    {
+     "k": "t",
+     "s": "Rent from a property"
+    },
+    {
+     "k": "a",
+     "s": "Add Interest & dividends"
+    },
+    {
+     "k": "t",
+     "s": "💵"
+    },
+    {
+     "k": "t",
+     "s": "Interest & dividends"
+    },
+    {
+     "k": "a",
+     "s": "Add Retirement income"
+    },
+    {
+     "k": "t",
+     "s": "📨"
+    },
+    {
+     "k": "t",
+     "s": "Retirement income"
+    },
+    {
+     "k": "a",
+     "s": "Add Benefits"
+    },
+    {
+     "k": "t",
+     "s": "🛟"
+    },
+    {
+     "k": "t",
+     "s": "Benefits"
+    },
+    {
+     "k": "a",
+     "s": "Add Child support or alimony"
+    },
+    {
+     "k": "t",
+     "s": "👪"
+    },
+    {
+     "k": "t",
+     "s": "Child support or alimony"
+    },
+    {
+     "k": "a",
+     "s": "Add Scholarships, grants, stipend"
+    },
+    {
+     "k": "t",
+     "s": "🎓"
+    },
+    {
+     "k": "t",
+     "s": "Scholarships, grants, stipend"
+    },
+    {
+     "k": "a",
+     "s": "Add Student loans"
+    },
+    {
+     "k": "t",
+     "s": "🏦"
+    },
+    {
+     "k": "t",
+     "s": "Student loans"
+    },
+    {
+     "k": "a",
+     "s": "Add Something else"
+    },
+    {
+     "k": "t",
+     "s": "🧾"
+    },
+    {
+     "k": "t",
+     "s": "Something else"
+    },
+    {
+     "k": "a",
+     "s": "Done"
+    },
+    {
+     "k": "t",
+     "s": "Done"
     }
    ],
    "rich": [
@@ -25759,91 +25847,167 @@
     },
     {
      "k": "t",
-     "s": "YOUR INCOME"
+     "s": "Your income"
     },
     {
      "k": "t",
-     "s": "$108,400"
+     "s": "Add anything that changes"
     },
     {
      "k": "t",
-     "s": "total income / year (gross)"
+     "s": "You entered about"
     },
     {
      "k": "t",
-     "s": "WHAT YOU ENTERED"
+     "s": "1"
     },
     {
      "k": "t",
-     "s": "Base salary"
-    },
-    {
-     "k": "t",
-     "s": "/year (from monthly)"
-    },
-    {
-     "k": "t",
-     "s": "· tap to edit"
-    },
-    {
-     "k": "t",
-     "s": "$108,000"
+     "s": "source"
     },
     {
      "k": "a",
-     "s": "Add an income source — bonus, stock vesting, rental, or self-employment"
+     "s": "A job: You · take-home ≈$6,400/month. Edit"
     },
     {
      "k": "t",
-     "s": "＋ Add an income source ›"
-    },
-    {
-     "k": "t",
-     "s": "INVESTMENT INCOME"
-    },
-    {
-     "k": "t",
-     "s": "Dividends, interest & coupons"
-    },
-    {
-     "k": "t",
-     "s": "from your holdings & bonds (last 12 months + bond coupons)"
-    },
-    {
-     "k": "t",
-     "s": "$400"
+     "s": "A job"
     },
     {
      "k": "a",
-     "s": "How far back this figure reaches: Vanguard hasn't shared any activity records yet — its income lines stay empty rather than showing a false $0."
+     "s": "entered"
     },
     {
      "k": "t",
-     "s": "·"
+     "s": "✓"
     },
     {
      "k": "t",
-     "s": "Vanguard hasn't shared any activity records yet — its income lines stay empty rather than showing a false $0."
+     "s": "You · take-home ≈$6,400/month"
     },
     {
      "k": "t",
-     "s": "Reinvested dividends grow the holding instead of paying cash, so they're not counted as income here. Log dividends from Performance → Record transaction."
+     "s": "Edit ⌄"
     },
     {
      "k": "t",
-     "s": "ONE-TIME INCOME"
-    },
-    {
-     "k": "t",
-     "s": "None logged."
+     "s": "Anything else?"
     },
     {
      "k": "a",
-     "s": "Add one-time income"
+     "s": "Add Self-employed / side gig"
     },
     {
      "k": "t",
-     "s": "＋ Add one-time income"
+     "s": "🧰"
+    },
+    {
+     "k": "t",
+     "s": "Self-employed / side gig"
+    },
+    {
+     "k": "a",
+     "s": "Add Rent from a property"
+    },
+    {
+     "k": "t",
+     "s": "🏠"
+    },
+    {
+     "k": "t",
+     "s": "Rent from a property"
+    },
+    {
+     "k": "a",
+     "s": "Add Interest & dividends"
+    },
+    {
+     "k": "t",
+     "s": "💵"
+    },
+    {
+     "k": "t",
+     "s": "Interest & dividends"
+    },
+    {
+     "k": "a",
+     "s": "Add Retirement income"
+    },
+    {
+     "k": "t",
+     "s": "📨"
+    },
+    {
+     "k": "t",
+     "s": "Retirement income"
+    },
+    {
+     "k": "a",
+     "s": "Add Benefits"
+    },
+    {
+     "k": "t",
+     "s": "🛟"
+    },
+    {
+     "k": "t",
+     "s": "Benefits"
+    },
+    {
+     "k": "a",
+     "s": "Add Child support or alimony"
+    },
+    {
+     "k": "t",
+     "s": "👪"
+    },
+    {
+     "k": "t",
+     "s": "Child support or alimony"
+    },
+    {
+     "k": "a",
+     "s": "Add Scholarships, grants, stipend"
+    },
+    {
+     "k": "t",
+     "s": "🎓"
+    },
+    {
+     "k": "t",
+     "s": "Scholarships, grants, stipend"
+    },
+    {
+     "k": "a",
+     "s": "Add Student loans"
+    },
+    {
+     "k": "t",
+     "s": "🏦"
+    },
+    {
+     "k": "t",
+     "s": "Student loans"
+    },
+    {
+     "k": "a",
+     "s": "Add Something else"
+    },
+    {
+     "k": "t",
+     "s": "🧾"
+    },
+    {
+     "k": "t",
+     "s": "Something else"
+    },
+    {
+     "k": "a",
+     "s": "Done"
+    },
+    {
+     "k": "t",
+     "s": "Done"
     }
    ],
    "retiree": [
@@ -25877,75 +26041,167 @@
     },
     {
      "k": "t",
-     "s": "YOUR INCOME"
+     "s": "Your income"
     },
     {
      "k": "t",
-     "s": "$42,000"
+     "s": "Add anything that changes"
     },
     {
      "k": "t",
-     "s": "total income / year (gross)"
+     "s": "You entered about"
     },
     {
      "k": "t",
-     "s": "WHAT YOU ENTERED"
+     "s": "1"
+    },
+    {
+     "k": "t",
+     "s": "source"
+    },
+    {
+     "k": "a",
+     "s": "Retirement income: $3,500/month. Edit"
     },
     {
      "k": "t",
      "s": "Retirement income"
     },
     {
-     "k": "t",
-     "s": "/year (from monthly)"
+     "k": "a",
+     "s": "entered"
     },
     {
      "k": "t",
-     "s": "$42,000"
+     "s": "✓"
+    },
+    {
+     "k": "t",
+     "s": "$3,500/month"
+    },
+    {
+     "k": "t",
+     "s": "Edit ⌄"
+    },
+    {
+     "k": "t",
+     "s": "Anything else?"
     },
     {
      "k": "a",
-     "s": "Add an income source — bonus, stock vesting, rental, or self-employment"
+     "s": "Add A job (wages or salary)"
     },
     {
      "k": "t",
-     "s": "＋ Add an income source ›"
+     "s": "💼"
     },
     {
      "k": "t",
-     "s": "INVESTMENT INCOME"
-    },
-    {
-     "k": "t",
-     "s": "Dividends, interest & coupons"
-    },
-    {
-     "k": "t",
-     "s": "recorded when you log a cash dividend or add a bond"
-    },
-    {
-     "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "t",
-     "s": "Reinvested dividends grow the holding instead of paying cash, so they're not counted as income here. Log dividends from Performance → Record transaction."
-    },
-    {
-     "k": "t",
-     "s": "ONE-TIME INCOME"
-    },
-    {
-     "k": "t",
-     "s": "None logged."
+     "s": "A job (wages or salary)"
     },
     {
      "k": "a",
-     "s": "Add one-time income"
+     "s": "Add Self-employed / side gig"
     },
     {
      "k": "t",
-     "s": "＋ Add one-time income"
+     "s": "🧰"
+    },
+    {
+     "k": "t",
+     "s": "Self-employed / side gig"
+    },
+    {
+     "k": "a",
+     "s": "Add Rent from a property"
+    },
+    {
+     "k": "t",
+     "s": "🏠"
+    },
+    {
+     "k": "t",
+     "s": "Rent from a property"
+    },
+    {
+     "k": "a",
+     "s": "Add Interest & dividends"
+    },
+    {
+     "k": "t",
+     "s": "💵"
+    },
+    {
+     "k": "t",
+     "s": "Interest & dividends"
+    },
+    {
+     "k": "a",
+     "s": "Add Benefits"
+    },
+    {
+     "k": "t",
+     "s": "🛟"
+    },
+    {
+     "k": "t",
+     "s": "Benefits"
+    },
+    {
+     "k": "a",
+     "s": "Add Child support or alimony"
+    },
+    {
+     "k": "t",
+     "s": "👪"
+    },
+    {
+     "k": "t",
+     "s": "Child support or alimony"
+    },
+    {
+     "k": "a",
+     "s": "Add Scholarships, grants, stipend"
+    },
+    {
+     "k": "t",
+     "s": "🎓"
+    },
+    {
+     "k": "t",
+     "s": "Scholarships, grants, stipend"
+    },
+    {
+     "k": "a",
+     "s": "Add Student loans"
+    },
+    {
+     "k": "t",
+     "s": "🏦"
+    },
+    {
+     "k": "t",
+     "s": "Student loans"
+    },
+    {
+     "k": "a",
+     "s": "Add Something else"
+    },
+    {
+     "k": "t",
+     "s": "🧾"
+    },
+    {
+     "k": "t",
+     "s": "Something else"
+    },
+    {
+     "k": "a",
+     "s": "Done"
+    },
+    {
+     "k": "t",
+     "s": "Done"
     }
    ],
    "new": [
@@ -25979,75 +26235,167 @@
     },
     {
      "k": "t",
-     "s": "YOUR INCOME"
+     "s": "Your income"
     },
     {
      "k": "t",
-     "s": "$0"
+     "s": "Add anything that changes"
     },
     {
      "k": "t",
-     "s": "total income / year (gross)"
+     "s": "You entered about"
     },
     {
      "k": "t",
-     "s": "WHAT YOU ENTERED"
+     "s": "0"
     },
     {
      "k": "t",
-     "s": "No income entered yet."
+     "s": "sources"
     },
     {
      "k": "a",
-     "s": "Add your income"
+     "s": "Nothing entered yet. Add your income ›"
     },
     {
      "k": "t",
-     "s": "＋ Add your income"
+     "s": "Nothing entered yet."
+    },
+    {
+     "k": "t",
+     "s": "Add your income ›"
+    },
+    {
+     "k": "t",
+     "s": "Anything else?"
     },
     {
      "k": "a",
-     "s": "Add an income source — bonus, stock vesting, rental, or self-employment"
+     "s": "Add A job (wages or salary)"
     },
     {
      "k": "t",
-     "s": "＋ Add an income source ›"
+     "s": "💼"
     },
     {
      "k": "t",
-     "s": "INVESTMENT INCOME"
-    },
-    {
-     "k": "t",
-     "s": "Dividends, interest & coupons"
-    },
-    {
-     "k": "t",
-     "s": "recorded when you log a cash dividend or add a bond"
-    },
-    {
-     "k": "t",
-     "s": "$0"
-    },
-    {
-     "k": "t",
-     "s": "Reinvested dividends grow the holding instead of paying cash, so they're not counted as income here. Log dividends from Performance → Record transaction."
-    },
-    {
-     "k": "t",
-     "s": "ONE-TIME INCOME"
-    },
-    {
-     "k": "t",
-     "s": "None logged."
+     "s": "A job (wages or salary)"
     },
     {
      "k": "a",
-     "s": "Add one-time income"
+     "s": "Add Self-employed / side gig"
     },
     {
      "k": "t",
-     "s": "＋ Add one-time income"
+     "s": "🧰"
+    },
+    {
+     "k": "t",
+     "s": "Self-employed / side gig"
+    },
+    {
+     "k": "a",
+     "s": "Add Rent from a property"
+    },
+    {
+     "k": "t",
+     "s": "🏠"
+    },
+    {
+     "k": "t",
+     "s": "Rent from a property"
+    },
+    {
+     "k": "a",
+     "s": "Add Interest & dividends"
+    },
+    {
+     "k": "t",
+     "s": "💵"
+    },
+    {
+     "k": "t",
+     "s": "Interest & dividends"
+    },
+    {
+     "k": "a",
+     "s": "Add Retirement income"
+    },
+    {
+     "k": "t",
+     "s": "📨"
+    },
+    {
+     "k": "t",
+     "s": "Retirement income"
+    },
+    {
+     "k": "a",
+     "s": "Add Benefits"
+    },
+    {
+     "k": "t",
+     "s": "🛟"
+    },
+    {
+     "k": "t",
+     "s": "Benefits"
+    },
+    {
+     "k": "a",
+     "s": "Add Child support or alimony"
+    },
+    {
+     "k": "t",
+     "s": "👪"
+    },
+    {
+     "k": "t",
+     "s": "Child support or alimony"
+    },
+    {
+     "k": "a",
+     "s": "Add Scholarships, grants, stipend"
+    },
+    {
+     "k": "t",
+     "s": "🎓"
+    },
+    {
+     "k": "t",
+     "s": "Scholarships, grants, stipend"
+    },
+    {
+     "k": "a",
+     "s": "Add Student loans"
+    },
+    {
+     "k": "t",
+     "s": "🏦"
+    },
+    {
+     "k": "t",
+     "s": "Student loans"
+    },
+    {
+     "k": "a",
+     "s": "Add Something else"
+    },
+    {
+     "k": "t",
+     "s": "🧾"
+    },
+    {
+     "k": "t",
+     "s": "Something else"
+    },
+    {
+     "k": "a",
+     "s": "Done"
+    },
+    {
+     "k": "t",
+     "s": "Done"
     }
    ]
   },
@@ -37356,24 +37704,13 @@
   },
   "/income-manager": {
    "worker": [
-    "MK-CF-M-027",
-    "MK-CF-M-065",
-    "MK-CF-M-066"
+    "MK-CF-M-031"
    ],
    "rich": [
-    "MK-CF-M-027",
-    "MK-CF-M-065",
-    "MK-CF-M-066"
+    "MK-CF-M-031"
    ],
    "retiree": [
-    "MK-CF-M-027",
-    "MK-CF-M-065",
-    "MK-CF-M-066"
-   ],
-   "new": [
-    "MK-CF-M-027",
-    "MK-CF-M-065",
-    "MK-CF-M-066"
+    "MK-CF-M-027"
    ]
   },
   "/insights": {
@@ -37544,7 +37881,6 @@
     "/holding-detail|rich",
     "/home|retiree",
     "/home|worker",
-    "/income-manager|new",
     "/income-manager|retiree",
     "/income-manager|rich",
     "/income-manager|worker",
@@ -37582,7 +37918,7 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1270
+   "renders": 1257
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:73",
@@ -37600,14 +37936,20 @@
    "renders": 3
   },
   {
-   "site": "MoneyKeel/functions/cashflow/base-pay.ts:961",
+   "site": "MoneyKeel/functions/cashflow/base-pay.ts:962",
    "routes": [
     "/base-pay",
+    "/cashflow",
+    "/income-manager",
     "/income-summary"
    ],
    "states": [
     "/base-pay|rich",
     "/base-pay|worker",
+    "/cashflow|rich",
+    "/cashflow|worker",
+    "/income-manager|rich",
+    "/income-manager|worker",
     "/income-summary|rich",
     "/income-summary|worker"
    ],
@@ -37619,7 +37961,7 @@
     "$800",
     "$6,400"
    ],
-   "renders": 16
+   "renders": 32
   },
   {
    "site": "src/components/DrawSteerSheet.tsx:136",
@@ -38029,15 +38371,13 @@
    "renders": 12
   },
   {
-   "site": "src/domain/income/from-accounts.ts:173",
+   "site": "src/domain/income/from-accounts.ts:176",
    "routes": [
     "/income-detail",
-    "/income-manager",
     "/tax-organizer"
    ],
    "states": [
     "/income-detail|rich",
-    "/income-manager|rich",
     "/tax-organizer|rich"
    ],
    "inside": "incomeFromAccounts",
@@ -38045,7 +38385,7 @@
    "values": [
     "$10,000"
    ],
-   "renders": 3
+   "renders": 2
   },
   {
    "site": "src/domain/planning/hub.ts:354",

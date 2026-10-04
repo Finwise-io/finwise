@@ -1451,7 +1451,11 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(canon).toMatch(/you typed/);   // the retired synonym, named in the Retired column
   });
   test('DEC-0283 — "Gross should be before any deductions": the word Gross is labelled so where income is entered', () => {
-    expect(noComments(screenSrc('IncomeManagerScreen'))).toMatch(/before any deductions/);
+    // Gross is entered on Your base pay — the manager's own sheet went when it was rebuilt to its
+    // drawing (2026-10-04) — and the line under it says so, in the approved drawing's words.
+    const pay = noComments(screenSrc('BasePayScreen'));
+    expect(pay).toMatch(/Gross pay each month/);
+    expect(pay).toMatch(/Before anything comes out\./);
   });
   test('DEC-0389 — "calculated" is the word; "worked out", "Estimated federal tax" and "our estimate" appear on no screen', () => {
     const dir = path.join(__dirname, '..', 'screens');
