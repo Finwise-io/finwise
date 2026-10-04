@@ -605,7 +605,7 @@ export default function AccountPortfolioScreen() {
           <Text style={s.optNote}>
             Counted inside this account's total — listed here so nothing is hidden. A holding's return is
             what its own price did in this window; the income it paid sits on the line beneath it. Income sits with the
-            holding that earned it{acctIncome > 0
+            holding that earned it{acctIncome != null && acctIncome > 0
               ? <Text> — <Text style={s.optNoteFig}>{fig('MK-NW-M-019', acctIncome)}</Text> for this account</Text>
               : null}.
           </Text>

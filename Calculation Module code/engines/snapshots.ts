@@ -93,7 +93,7 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
  *               MK-XS-F-147 call · MK-XS-F-149 allActivities
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 187 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 188 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -103,7 +103,7 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 169 more — the full list is on functions_from_code
+ *               … and 170 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -341,10 +341,11 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *     the answer = [...rest, day].sort((a, b) => date.locale compare(date))
  *
  * Called by ... MK-CF-F-211 DEBTS · MK-NW-F-075 ACC
- *               MK-NW-F-084 categoryEarnings · MK-NW-O-008 thePerformance
- *               MK-PF-F-010 periodReturn · MK-XS-F-174 recomputeBalances
+ *               MK-NW-F-084 categoryEarnings · MK-NW-O-002 theAccount
+ *               MK-NW-O-008 thePerformance · MK-PF-F-010 periodReturn
+ *               MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 71 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
@@ -354,7 +355,7 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 52 more — the full list is on functions_from_code
+ *               … and 53 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots

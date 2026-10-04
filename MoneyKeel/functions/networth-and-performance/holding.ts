@@ -9,7 +9,7 @@
 //     the account page carries, for the same reason: an untickered row belongs to no holding.
 import { declareFigures } from '../_figure-spec';
 import {
-  totalShares, costBasis, capGains, marketValue, type Position, type CapGains,
+  totalShares, costBasis, capGains, marketValue, contractMultiplier, type Position, type CapGains,
 } from '../../../src/domain/performance';
 import { realizedFromLedger, type RealizedResult } from '../../../src/domain/performance/realized';
 
@@ -88,6 +88,7 @@ export interface HoldingAnswer {
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  * Ruled by .... DEC-0092 · DEC-0108 · DEC-0152 · DEC-0165 · DEC-0301 · DEC-0475
  *               DEC-0476
@@ -134,7 +135,10 @@ export function theHolding(input: {
     shares,
     closed: shares <= 0,
     totalPaid: paid,
-    avgPaidPerShare: shares > 0 ? paid / shares : 0,
+    // IN THE UNIT THE PRICE IS QUOTED IN. An option's price is per share and a contract is 100 of them;
+    // total paid carries that 100, so the average is taken back per share — it read $683.33 beside a
+    // price of $9.10 (outside review, 2026-10-04).
+    avgPaidPerShare: shares > 0 ? paid / (shares * contractMultiplier(p as any)) : 0,
     price: input.price ?? null,
     value,
     priced,

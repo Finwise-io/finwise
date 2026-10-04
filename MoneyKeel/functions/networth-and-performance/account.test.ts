@@ -57,6 +57,6 @@ test('itemising never moves what the account is worth', () => {
 test('nothing entered → zeros that are true, never a guess', () => {
   const a = theAccount({ account: byHand({ balance: 0 }), transactions: [] });
   expect(a.marketValue).toBe(0);
-  expect(a.income).toBe(0);
+  expect(a.income).toBeNull();   // no records, no figure — the figure's own rule (MK-NW-M-019); it read 0 until the outside review of 2026-10-04
   expect(a.activityCount).toBe(0);
 });

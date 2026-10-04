@@ -10,7 +10,7 @@ test('the rate is weighted by what each is worth, and the money follows from it'
   ] });
   expect(a.count).toBe(2);
   expect(a.expectedReturn).toBeGreaterThan(0);
-  expect(a.estimatedGrowthPerYear).toBeCloseTo(10000 * a.expectedReturn, 6);
+  expect(a.estimatedGrowthPerYear).toBeCloseTo(10000 * (a.expectedReturn as number), 6);
 });
 
 test('NOTHING HELD IS NOT A FORECAST OF NOTHING — there is no figure at all', () => {

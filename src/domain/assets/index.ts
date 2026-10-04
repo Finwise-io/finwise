@@ -321,7 +321,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-027 accountClassBreakdown
  *               MK-NW-F-053 correctClassOf · MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 171 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 172 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -331,7 +331,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 153 more — the full list is on functions_from_code
+ *               … and 154 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -433,17 +433,18 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *     'real_estate'   when tax bucket = 'PROPERTY'
  *     the answer = 'mixed'
  *
- * Called by ... MK-CF-F-184 incomeFromAccounts · MK-NW-F-005 accountAllowsTicker
- *               MK-NW-F-007 assetKind · MK-NW-F-014 isRealAsset
- *               MK-NW-F-016 cashTotal · MK-NW-F-017 equitiesTotal
- *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-020 realEstateTotal · MK-NW-F-021 investmentsTotal
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-029 assetAllocation
- *               MK-NW-F-030 earmarkDefault · MK-NW-F-031 primaryCarIdOf
- *               MK-NW-F-055 isBond · MK-NW-F-063 interestIncomeAnnual
+ * Called by ... MK-CF-F-184 incomeFromAccounts · MK-NW-F-001 isAlternative
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-007 assetKind
+ *               MK-NW-F-014 isRealAsset · MK-NW-F-016 cashTotal
+ *               MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-020 realEstateTotal
+ *               MK-NW-F-021 investmentsTotal · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-030 earmarkDefault
+ *               MK-NW-F-031 primaryCarIdOf · MK-NW-F-055 isBond
+ *               MK-NW-F-063 interestIncomeAnnual · MK-NW-O-004 theEmergencyFund
  *               MK-NW-O-005 theAlternativesOutlook
  *
- * Reaches ..... 120 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 121 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -453,7 +454,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 102 more — the full list is on functions_from_code
+ *               … and 103 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -522,19 +523,19 @@ export function taxTreatmentOf(a: AssetAccount): TaxTreatment {
  * Formula .....
  *     re use (or 'primary' when missing)
  *
- * Called by ... MK-NW-F-030 earmarkDefault
+ * Called by ... MK-NW-F-030 earmarkDefault · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-076 ALT · MK-NW-F-037 blendedReturn
- *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-PL-F-077 clamp
- *               MK-NW-F-030 earmarkDefault · MK-NW-F-032 earmarkedAmount
- *               MK-NW-F-038 earmarkedKinds · MK-CF-O-017 futurePaycheck
- *               MK-PL-F-026 planDoor · MK-NW-F-004 portfolioActualReturn
- *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
- *               … and 3 more — the full list is on functions_from_code
+ * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-079 EF
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-NW-F-030 earmarkDefault
+ *               MK-NW-F-032 earmarkedAmount · MK-NW-F-038 earmarkedKinds
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
+ *               MK-NW-F-004 portfolioActualReturn · MK-NW-F-033 retirementEarmarkedValue
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 5 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -769,11 +770,7 @@ export function realEstateTotal(accounts: AssetAccount[]): number {
  * Formula .....
  *     sum where(accounts, (a) => { const c = asset class of(a); return c = 'stocks_etf' or c = 'bonds' or c = 'alternatives' or c = 'mixed'; })
  *
- * Called by ... MK-NW-O-003 theNetWorth
- *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -781,6 +778,10 @@ export function realEstateTotal(accounts: AssetAccount[]): number {
  * Changed ..... 2026-08-11 (4975971)
  */
 export function investmentsTotal(accounts: AssetAccount[]): number {
+  // THE INVESTMENT ACCOUNTS, EACH COUNTED WHOLE — cash sitting inside one included. This is what
+  // Performance measures (an account's market value, as its daily record holds it). It is NOT the
+  // "Investments" line on Net worth, which leaves a linked account's uninvested cash to the Cash line:
+  // that one is the investment classes of assetAllocation, summed in MK-NW-O-003 theNetWorth.
   return sumWhere(accounts, (a) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives' || c === 'mixed'; });
 }
 /** Investable assets (Term #4) = all financial assets (cash + investments + retirement balances),
@@ -1050,12 +1051,13 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  * Called by ... MK-NW-F-016 cashTotal · MK-NW-F-029 assetAllocation
  *               MK-NW-O-002 theAccount
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-079 EF
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-029 assetAllocation
- *               MK-NW-F-016 cashTotal · MK-NW-O-002 theAccount
- *               MK-NW-O-004 theEmergencyFund · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-016 cashTotal · MK-NW-F-021 investmentsTotal
+ *               MK-NW-O-002 theAccount · MK-NW-O-004 theEmergencyFund
+ *               MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -1239,11 +1241,12 @@ export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
  *     b = account class breakdown(a)
  *     the answer = out
  *
- * Called by ... MK-NW-O-003 theNetWorth
+ * Called by ... MK-NW-F-021 investmentsTotal · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-100 TREND · MK-NW-F-021 investmentsTotal
+ *               MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

@@ -34,9 +34,9 @@ test('the essentials figure says where it came from (his ruling G21)', () => {
 
 test('a target of N months costs N × essentials, and the gap never goes below zero', () => {
   const c = theEmergencyFund({ accounts: CASH, expenses: LOGGED, profile: { monthlySpending: 4000 } });
-  const six = c.targetFor(6);
+  const six = c.targetFor(6)!;
   expect(six.target).toBeCloseTo(c.essentialsMonthly * 6, 6);
-  expect(c.targetFor(1).gap).toBe(0);            // one month is well covered by $24,000
+  expect(c.targetFor(1)!.gap).toBe(0);            // one month is well covered by $24,000
   expect(six.gap).toBeGreaterThanOrEqual(0);
 });
 

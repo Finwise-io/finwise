@@ -11,6 +11,7 @@
 //
 // Two grains, one door: `theBonds({ accounts })` answers for every bond a person holds, and
 // `theBonds({ accounts, accountId })` also answers for the one they opened.
+import { isoLocalDate } from '../../../src/domain/_shared/dates';
 import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
@@ -175,7 +176,7 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *     one = nothing
  *     b = bond info(opened)
  *     row = row of(opened, now)
- *     years = row.years left (or 0 when missing)
+ *     matured today = the first 10) ≤ iso local date(now of !!row.maturity and string(row.maturity)
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
@@ -208,7 +209,6 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
- *     · If years left is missing it uses 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-001
@@ -231,7 +231,10 @@ export function theBonds(input: BondsInput): Bonds {
   if (opened) {
     const b = bondInfo(opened);
     const row = rowOf(opened, now);
-    const years = row.yearsLeft ?? 0;
+    // MATURED IS A FACT ABOUT THE DATE, NOT THE CLOCK — and a bond with no date has not matured, it is
+    // unknown (G11). It read years-left ≤ 0 with "no date" counted as 0, so an undated bond was called
+    // matured, and a bond's maturity day depended on the hour and the time zone (outside review, 2026-10-04).
+    const maturedToday = !!row.maturity && String(row.maturity).slice(0, 10) <= isoLocalDate(now);
     // A CD IS NOT MARKED TO MARKET — the founder's ruling, built into the door so no screen has to
     // remember it. KEEP (2026-09-27): the app does not ask whether a CD is a bank one or a brokered
     // one; it says the true thing for a bank CD, which is what almost everyone holds, and names the
@@ -245,8 +248,9 @@ export function theBonds(input: BondsInput): Bonds {
       : '';
     one = {
       ...row,
-      matured: years <= 0,
-      ratesMove: row.isCD ? null : bondRateSensitivity(b, now),
+      matured: maturedToday,
+      ratesMove: row.isCD || maturedToday ? null : bondRateSensitivity(b, now),
+      yieldToMaturity: maturedToday ? null : row.yieldToMaturity,
       ratesMoveRefusal: refusal,
     };
   }
@@ -577,7 +581,7 @@ export const BOND_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '$23,000–$24,000',
+      answer: '$23,300–$23,800',
       run: () => `${formatMoney(ONE().ratesMove!.ratesUp.low)}–${formatMoney(ONE().ratesMove!.ratesUp.high)}`,
     },
   },

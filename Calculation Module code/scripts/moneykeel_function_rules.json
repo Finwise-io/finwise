@@ -1201,14 +1201,14 @@
   },
   "MK-NW-F-001": {
    "name": "isAlternative",
-   "rule": "True when the account's kind is crypto, private equity, hedge funds, commodities, annuities, options or other; AND it has no maturity date; AND it is not property.",
-   "read_from": "ef9b5955b6",
+   "rule": "True when the account's class (assetClassOf) is Alternatives.",
+   "read_from": "298c87a6b7",
    "sent_as": "ef9b5955b6"
   },
   "MK-NW-F-002": {
    "name": "alternativesSummary",
-   "rule": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total (0 when the total is 0); growth in a year = total × blended rate.",
-   "read_from": "4eeda56b57",
+   "rule": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total (no figure when the total is 0); growth in a year = total × blended rate (0 when there is no rate).",
+   "read_from": "a684e74732",
    "sent_as": "4eeda56b57"
   },
   "MK-NW-F-003": {
@@ -1321,7 +1321,7 @@
   },
   "MK-NW-F-021": {
    "name": "investmentsTotal",
-   "rule": "The balances of the accounts whose class (assetClassOf) is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified, added up. An account counts whole, so cash sitting inside an investment account is included.",
+   "rule": "The balances of the accounts whose class (assetClassOf) is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified, added up. An account counts whole, so cash sitting inside an investment account is included. This is the figure Performance measures; it is not the Investments line on Net worth.",
    "read_from": "0bdb899d99",
    "sent_as": "0bdb899d99"
   },
@@ -1552,8 +1552,8 @@
   },
   "MK-NW-F-061": {
    "name": "bondSummary",
-   "rule": "Count = how many bonds. Total value and total face value = each added up. Interest in a year = face × rate, added up. Average yield = that interest ÷ total value; nothing when the total value is zero. Next maturity = the earliest maturity date that has not passed.",
-   "read_from": "95c273f536",
+   "rule": "Count = how many bonds. Total value and total face value = each added up. Interest in a year = face × rate, added up. Average yield is over the bonds that have a value today only: their interest in a year ÷ their value today less accrued interest where that is known; nothing when no bond has a value. A bond with no value today is left out of both. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next.",
+   "read_from": "f22a4fd99f",
    "sent_as": "95c273f536"
   },
   "MK-NW-F-062": {
@@ -1570,9 +1570,16 @@
   },
   "MK-NW-F-064": {
    "name": "bondRateSensitivity",
-   "rule": "Nothing when the yield to maturity is unknown, or the face value or rate is zero or less. For rates one percentage point UP and one DOWN: the new price is priceAtYield at the yield to maturity plus or minus one point (never below 0.01%). It gives a range from 1% under to 1% over that price, and the change against today's value, each rounded to the nearest $1,000.",
-   "read_from": "de92efd74a",
-   "sent_as": "de92efd74a"
+   "rule": "Nothing when the yield to maturity is unknown, or the face value or rate is zero or less. For rates one percentage point UP and one DOWN: the new price is priceAtYield at the yield to maturity plus or minus one point (never below 0.01%). It gives a range from 1% under to 1% over that price, and the change against today's value, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
+   "read_from": "c0fa8f1daa",
+   "sent_as": "de92efd74a",
+   "figures_checked_by_hand": {
+    "$100,000": "10 to the power 5: the step is 10 to the power (whole digits of the value − 3)",
+    "$100": "the step from $10,000",
+    "$10,000": "10 to the power 4",
+    "$10": "the step from $1,000",
+    "$1,000": "the step from $100,000, and 10 to the power 3"
+   }
   },
   "MK-NW-F-065": {
    "name": "buildNetWorth",
@@ -1672,38 +1679,38 @@
   },
   "MK-NW-O-001": {
    "name": "theBonds",
-   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = years left is zero or less; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures.",
-   "read_from": "ac38213b75",
+   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures.",
+   "read_from": "8122f43c12",
    "sent_as": "ac38213b75"
   },
   "MK-NW-O-002": {
    "name": "theAccount",
-   "rule": "Uses only the records whose account is this account. Market value = the account's balance. Income = dividends + interest in those records, to the cent. Inside = for a linked account, the value in each asset class that is not zero (accountClassBreakdown); for any other account, nothing. Activity = every record with its date, type, ticker and amount: the amount is the record's effect on cash, except a transfer INTO this account, which shows the amount moved; a record counts as the person's own unless it came through the link. Income of one holding = dividends and interest whose record names that holding's ticker, capitals ignored; a record naming no ticker belongs to no holding.",
-   "read_from": "6d973197e7",
+   "rule": "Uses the records whose account is this account, and any transfer that arrives in it from another account. Market value = the account's balance. Income = dividends + interest in those records, to the cent — and NO FIGURE when the account has no records at all. Inside = for a linked account, the value in each asset class that is not zero (accountClassBreakdown); for any other account, nothing. Activity = every record with its date, type, ticker and amount: the amount is the record's effect on cash, except a transfer INTO this account, which shows the amount moved; a record counts as the person's own unless it came through the link. Income of one holding = dividends and interest whose record names that holding's ticker, capitals ignored; a record naming no ticker belongs to no holding.",
+   "read_from": "6663ca8691",
    "sent_as": "6d973197e7"
   },
   "MK-NW-O-003": {
    "name": "theNetWorth",
-   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = investmentsTotal. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment; monthly debt payments = those added up. The percent change on cash + investments is measured from the daily record since the given start day and returned as a share; no figure when there is no record.",
-   "read_from": "93975a41df",
+   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. The percent change on cash + investments is measured from the daily record since the given start day and returned as a share; no figure when there is no record.",
+   "read_from": "2eec17307b",
    "sent_as": "93975a41df"
   },
   "MK-NW-O-004": {
    "name": "theEmergencyFund",
-   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Debt minimums = the required monthly payment of every debt added up, leaving out a mortgage when the budget already carries an amount for rent or housing. Essentials for a month = essential expenses (from logged expenses where there are enough, otherwise from the profile) + debt minimums. Months covered = cash ÷ essentials; no figure when essentials are zero. Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ planned; no figure when zero. Housing disagreement: when housing is budgeted, a mortgage payment exists and the two amounts differ, it gives both and the difference. Target for N months = essentials × N; gap = target − cash, never below zero.",
-   "read_from": "aca43cd91b",
+   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Debt minimums = the required monthly payment of every debt added up, leaving out ONE mortgage — the home's — when the budget already carries an amount for rent or housing: the mortgage whose payment is nearest that budgeted amount. No mortgage is left out when the only property on record is not lived in (a rental, a second home, land), because the housing line is then rent. Essentials for a month = essential expenses (from logged expenses where there are enough, otherwise from the profile) + debt minimums. Months covered = cash ÷ essentials; no figure when essentials are zero. Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ planned; no figure when zero. Housing disagreement: when housing is budgeted, a mortgage payment exists and the two amounts differ, it gives both and the difference. Target for N months = essentials × N; gap = target − cash, never below zero. A housing disagreement is reported only between the budget line and that one mortgage. A target, and the months left after a shock, are given only when there is an essentials figure.",
+   "read_from": "13248d0ad2",
    "sent_as": "aca43cd91b"
   },
   "MK-NW-O-005": {
    "name": "theAlternativesOutlook",
-   "rule": "Count, total value and blended rate are over the accounts that pass isAlternative (alternativesSummary). Growth in a year = total value × blended rate, given only when there is at least one such account and the total is above zero; otherwise no figure. Rows = every account whose class is Alternatives (assetClassOf), each with its value and the benchmark yearly rate for its kind. Note the totals and the rows use two different tests of what an alternative is.",
+   "rule": "Count, total value and blended rate are over the accounts whose class is Alternatives (isAlternative, alternativesSummary) — the same set the rows list and the Net worth tab's Alternatives slice counts, so the rows add up to the total. Blended rate: no figure when nothing is held. Growth in a year = total value × blended rate, given only when there is at least one such account and the total is above zero; otherwise no figure. Rows = each of those accounts with its value and the benchmark yearly rate for its kind.",
    "read_from": "d0fb7728cb",
    "sent_as": "d0fb7728cb"
   },
   "MK-NW-O-006": {
    "name": "theHolding",
-   "rule": "Shares = shares of every purchase added up. Total paid = shares × cost per share over every purchase. With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = value − total paid; return on cost = gain ÷ total paid (no figure when nothing was paid). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = total paid ÷ shares (0 with no shares). Closed = shares zero or less. Day change = last close − the close before, and that ÷ the close before; none with fewer than two closes. Dividends = dividend records that name this ticker: the last 365 days, and all time. Realised gain = from the sale records of this ticker in this account.",
-   "read_from": "b5f1daf09f",
+   "rule": "Shares = shares of every purchase added up. Total paid = shares × cost per share over every purchase (× 100 for an option contract unless the holding states its own multiplier). With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = value − total paid; return on cost = gain ÷ total paid (no figure when nothing was paid). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = total paid ÷ (shares × that multiplier), so it is in the unit the price is quoted in (0 with no shares). Closed = shares zero or less. Day change = last close − the close before, and that ÷ the close before; none with fewer than two closes. Dividends = dividend records that name this ticker: the last 365 days, and all time. Realised gain = from the sale records of this ticker in this account.",
+   "read_from": "c5ff5711b9",
    "sent_as": "b5f1daf09f"
   },
   "MK-NW-O-007": {
@@ -1732,8 +1739,8 @@
   },
   "MK-PF-F-003": {
    "name": "avgCost",
-   "rule": "Cost (costBasis) ÷ shares held; 0 when no shares are held. For an option the cost already includes the contract multiplier.",
-   "read_from": "d9d43ace24",
+   "rule": "Cost (costBasis) ÷ (shares held × the contract multiplier); 0 when no shares are held. The cost carries an option's multiplier, so it is taken back out: the answer is per share, the unit a price is quoted in.",
+   "read_from": "d1c356c817",
    "sent_as": "d9d43ace24"
   },
   "MK-PF-F-004": {
@@ -1750,8 +1757,8 @@
   },
   "MK-PF-F-006": {
    "name": "capGains",
-   "rule": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise; a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum. The contract multiplier is not applied here.",
-   "read_from": "c6a551aec2",
+   "rule": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share) × the contract multiplier (100 for an option unless the holding states its own, otherwise 1). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise; a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum.",
+   "read_from": "adf3d3fbfb",
    "sent_as": "c6a551aec2"
   },
   "MK-PF-F-007": {

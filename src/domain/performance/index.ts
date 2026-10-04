@@ -45,9 +45,11 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *     OPTION_CONTRACT_MULTIPLIER   if kind = 'options'
  *     1   otherwise
  *
- * Called by ... MK-PF-F-002 costBasis · MK-PF-F-004 marketValue
+ * Called by ... MK-NW-O-006 theHolding · MK-PF-F-002 costBasis
+ *               MK-PF-F-003 avgCost · MK-PF-F-004 marketValue
+ *               MK-PF-F-006 capGains
  *
- * Reaches ..... 72 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-080 HOLD · MK-NW-F-082 NW
  *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
@@ -57,7 +59,7 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               … and 54 more — the full list is on functions_from_code
+ *               … and 55 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -230,7 +232,7 @@ export function costBasis(p: Position): number {
  * Formula .....
  *     sh = total shares(p)
  *     the answer:
- *     cost basis(p) ÷ sh   if sh > 0
+ *     cost basis(p) ÷ (sh × contract multiplier(p))   if sh > 0
  *     0   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -238,6 +240,7 @@ export function costBasis(p: Position): number {
  * Serves ...... MK-NW-M-032
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  * Ruled by .... DEC-0264 · DEC-0310
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
@@ -247,7 +250,8 @@ export function costBasis(p: Position): number {
  */
 export function avgCost(p: Position): number {
   const sh = totalShares(p);
-  return sh > 0 ? (costBasis(p) / sh) : 0;
+  // per share, the unit a price is quoted in: the cost carries an option's contract multiplier, so it comes back out here
+  return sh > 0 ? (costBasis(p) / (sh * contractMultiplier(p))) : 0;
 }
 /* ─ MK-PF-F-004 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * marketValue
@@ -337,6 +341,7 @@ export interface CapGains { longGain: number; shortGain: number; totalGain: numb
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -349,7 +354,9 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
   let lg = 0, sg = 0;
   for (const lot of (p.lots ?? [])) {
     if (!(lot.cost_per_share > 0) || !(lot.shares > 0)) continue;
-    const gain = lot.shares * (price - lot.cost_per_share);
+    // × the contract multiplier, as cost and value are (Q06): an option's long/short split was 100 times
+    // too small, so its two parts did not add up to the gain above them (outside review, 2026-10-04)
+    const gain = lot.shares * (price - lot.cost_per_share) * contractMultiplier(p);
     const bought = new Date(lot.purchase_date);
     let longTerm = false;
     if (!isNaN(bought.getTime())) {

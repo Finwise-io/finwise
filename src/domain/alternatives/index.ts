@@ -1,7 +1,7 @@
 // Other / alternative investments (Phase C) — crypto, private equity, hedge funds, commodities,
 // annuities, and anything else that isn't a ticker stock/ETF (Performance) or an individual bond
 // (Bonds). Modeled as manually-valued AssetAccounts, so they already flow to Net Worth + nest egg.
-import { benchmarkReturn, type AssetAccount } from '../assets';
+import { benchmarkReturn, assetClassOf, type AssetAccount } from '../assets';
 
 export const ALT_KINDS = ['crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities', 'options', 'other_asset'] as const;
 export type AltKindAll = typeof ALT_KINDS[number];
@@ -17,7 +17,7 @@ export type AltKind = typeof ALT_KINDS[number];
  * Answers ..... Is this account an "other investment" — an alternative held at a manual value (not a bond, not cash/property)?
  *
  * Formula .....
- *     ALT_KINDS.includes((kind ?? '') as alt kind) and !maturity date and tax bucket ! = 'PROPERTY'
+ *     asset class of(a) = 'alternatives'
  *
  * Called by ... MK-NW-F-002 alternativesSummary
  *
@@ -26,18 +26,22 @@ export type AltKind = typeof ALT_KINDS[number];
  *               MK-NW-O-005 theAlternativesOutlook
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-013 bond maturity date
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-001
  * Changed ..... 2026-06-06 (a41cd47)
  */
 export function isAlternative(a: AssetAccount): boolean {
-  return ALT_KINDS.includes((a.kind ?? '') as AltKind) && !a.maturity_date && a.tax_bucket !== 'PROPERTY';
+  // ONE TEST, THE SAME ONE THE NET WORTH TAB USES (outside review, 2026-10-04). This used to ask the
+  // account's KIND, while the rows under the total and the Alternatives slice on Net worth ask its
+  // CLASS (assetClassOf) — so a fund the person classed as an alternative was in the rows and not the
+  // total, a crypto-kind account they classed as Stocks / Funds was in the total and not the rows,
+  // and the rows did not add up to the figure above them.
+  return assetClassOf(a) === 'alternatives';
 }
 
-export interface AltSummary { count: number; totalValue: number; blendedReturn: number; estAnnualGrowth: number; }
+export interface AltSummary { count: number; totalValue: number;
+  /** Null when nothing is held: 0% would read as a forecast. */
+  blendedReturn: number | null; estAnnualGrowth: number; }
 
 /** Adds up the alternative investments: how many there are, what they are worth together, their blended yearly growth rate and the growth in dollars that rate gives over a year. */
 /* ─ MK-NW-F-002 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -48,7 +52,7 @@ export interface AltSummary { count: number; totalValue: number; blendedReturn: 
  * Formula .....
  *     alts = accounts (or none when missing) where is alternative
  *     total = Σ over alts of (balance (or 0 when missing or zero))
- *     weighted = Σ over total > 0 ? alts of ((balance or 0) × benchmark return(kind))÷ total : 0
+ *     weighted = Σ over total > 0 ? alts of ((balance or 0) × benchmark return(kind))÷ total : nothing
  *
  * Called by ... MK-NW-O-005 theAlternativesOutlook
  *
@@ -60,6 +64,7 @@ export interface AltSummary { count: number; totalValue: number; blendedReturn: 
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
+ *     · If weighted is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-002
@@ -68,11 +73,11 @@ export interface AltSummary { count: number; totalValue: number; blendedReturn: 
 export function alternativesSummary(accounts: AssetAccount[]): AltSummary {
   const alts = (accounts ?? []).filter(isAlternative);
   const total = alts.reduce((t, a) => t + (a.balance || 0), 0);
-  const weighted = total > 0 ? alts.reduce((t, a) => t + (a.balance || 0) * benchmarkReturn(a.kind), 0) / total : 0;
+  const weighted = total > 0 ? alts.reduce((t, a) => t + (a.balance || 0) * benchmarkReturn(a.kind), 0) / total : null;
   return {
     count: alts.length,
     totalValue: (total),
     blendedReturn: (weighted),
-    estAnnualGrowth: (total * weighted),
+    estAnnualGrowth: (total * (weighted ?? 0)),
   };
 }

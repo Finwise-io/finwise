@@ -44,7 +44,7 @@ test('none of them takes its own essentials figure any more', () => {
 test('THE DEFECT ITSELF: a person who logged nothing gets the typed plan, not zero', () => {
   const c = theEmergencyFund({ accounts: [], expenses: [], profile: { monthlySpending: 4000, monthlyEssentials: 4000 } });
   expect(c.essentialsMonthly).toBe(4000);        // Job safety used to show 0 here
-  expect(c.targetFor(6).target).toBe(24000);     // and a target of $0, so the gap read $0
+  expect(c.targetFor(6)!.target).toBe(24000);     // and a target of $0, so the gap read $0
 });
 
 test('WHAT YOU CANNOT STOP PAYING is in both figures (founder, 2026-09-28)', () => {

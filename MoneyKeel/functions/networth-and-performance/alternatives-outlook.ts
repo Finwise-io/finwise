@@ -19,7 +19,7 @@ export interface AlternativesOutlook {
   /** How many alternatives are held. */
   count: number;
   /** The blended yearly rate — each holding's benchmark, weighted by what it is worth. */
-  expectedReturn: number;
+  expectedReturn: number | null;   // null = nothing held, so no figure (MK-NW-M-051)
   /** That rate in money, over a year. Null when nothing is held: zero would read as a forecast. */
   estimatedGrowthPerYear: number | null;
   /** The TOTAL the rows add to — the figure above them on the screen. */

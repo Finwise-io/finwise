@@ -12,7 +12,7 @@
 import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
-import { cashTotal } from '../../../src/domain/assets';
+import { cashTotal, assetClassOf, realEstateUseOf } from '../../../src/domain/assets';
 import { emergencyTest, monthlyEssentials, plannedMonthlySpend } from '../../../src/domain/budget';
 import { requiredPayment, type Debt } from '../../../src/domain/debt';
 import { essentialsMonthly } from '../cashflow/essentials';
@@ -34,9 +34,9 @@ export interface EmergencyFund {
   /** How many months the cash covers. Null when there is no essentials figure to divide by. */
   monthsCovered: number | null;
   /** What a target of N months costs, and how far off it is. */
-  targetFor: (months: number) => { target: number; gap: number };
+  targetFor: (months: number) => { target: number; gap: number } | null;
   /** A sudden hit: what is left, and how long that would then last. */
-  afterAShock: (shock: number) => { cashAfter: number; monthsAfter: number; coversIt: boolean };
+  afterAShock: (shock: number) => { cashAfter: number; monthsAfter: number | null; coversIt: boolean };
   /** WHEN THE TWO MORTGAGE FIGURES DISAGREE (founder, 2026-09-29: "Yes, ask User to correct, if not
    *  input from user, use the budget."). A mortgage can be entered twice — as the Rent / Mortgage
    *  budget line and as a Mortgage debt — and the door uses the BUDGET figure so the home is not
@@ -66,13 +66,13 @@ export interface EmergencyFund {
  *     cats = input.profile.spend cats   if array.is array(input.profile.spend cats)
  *     []   otherwise
  *     housing budgeted = cats.some((c: any) => id = 'rent' and number(amount) > 0)
- *     kind = string(debt type ?? type ?? '').to upper case()
- *     t   when housing budgeted and kind = 'MORTGAGE'
- *     the answer = t + required payment(d)
+ *     is mortgage = (d: any) => string(debt type ?? type ?? '').to upper case() = 'MORTGAGE'
+ *     property = input.accounts (or none when missing) where asset class of(each) = 'real_estate'
+ *     rents their home = property.length > 0 and !property.some((a) => real estate use of(a) = 'primary')
+ *     debt minimums = debts.reduce((t: number, d: any) => (d = home mortgage ? t : t + required payment(d)), 0)
  *     ess = essentials monthly(input.expenses ?? [], monthly essentials(input.profile))
  *     monthly = (ess.monthly ?? 0) + debt minimums
  *     planned = planned monthly spend(input.profile) + debt minimums
- *     kind = string(debt type ?? type ?? '').to upper case()
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-079 EF
@@ -123,14 +123,24 @@ export function theEmergencyFund(input: {
   const debts = input.debts ?? [];
   const cats = Array.isArray(input.profile?.spendCats) ? input.profile.spendCats : [];
   const housingBudgeted = cats.some((c: any) => c?.id === 'rent' && Number(c?.amount) > 0);
-  const debtMinimums = debts.reduce((t: number, d: any) => {
-    // the field is `debt_type`, and its values are upper case ('MORTGAGE'). Written as `type ===
-    // 'mortgage'` the guard matched nothing, so the fixture's $2,400 mortgage was counted BOTH as the
-    // $2,300 Rent / Mortgage category and again as a debt — caught by the pinned figure, not by reading.
-    const kind = String(d?.debt_type ?? d?.type ?? '').toUpperCase();
-    if (housingBudgeted && kind === 'MORTGAGE') return t;   // the category already carries it
-    return t + requiredPayment(d);
-  }, 0);
+  const housingBudgeted$ = cats.reduce((t: number, c: any) => (c?.id === 'rent' ? t + (Number(c?.amount) || 0) : t), 0);
+  // the field is `debt_type`, and its values are upper case ('MORTGAGE'). Written as `type ===
+  // 'mortgage'` the guard matched nothing, so the fixture's $2,400 mortgage was counted BOTH as the
+  // $2,300 Rent / Mortgage category and again as a debt — caught by the pinned figure, not by reading.
+  const isMortgage = (d: any) => String(d?.debt_type ?? d?.type ?? '').toUpperCase() === 'MORTGAGE';
+  // ONLY THE HOME'S MORTGAGE IS THE ONE THE CATEGORY CARRIES (outside review, 2026-10-04). Every
+  // mortgage used to be left out the moment any housing amount was budgeted — so a renter who also
+  // owes a mortgage on a rental house had a payment they cannot stop dropped from both figures (1.9
+  // months too long in the reviewer's case), and their rent was "compared" with another property's
+  // mortgage. One mortgage is the home's: the one nearest the budgeted amount. And where the only
+  // property on record is not lived in (rental, second home, land), the housing line is rent and no
+  // mortgage is left out at all.
+  const property = (input.accounts ?? []).filter((a) => assetClassOf(a) === 'real_estate');
+  const rentsTheirHome = property.length > 0 && !property.some((a) => realEstateUseOf(a) === 'primary');
+  const homeMortgage: any = !housingBudgeted || rentsTheirHome ? null
+    : debts.filter(isMortgage).sort((x: any, y: any) =>
+        Math.abs(requiredPayment(x) - housingBudgeted$) - Math.abs(requiredPayment(y) - housingBudgeted$))[0] ?? null;
+  const debtMinimums = debts.reduce((t: number, d: any) => (d === homeMortgage ? t : t + requiredPayment(d)), 0);
   // ONE essentials figure, his ruling G21 — the logged average first, the typed plan as the fallback
   const ess = essentialsMonthly(input.expenses ?? [], monthlyEssentials(input.profile));
   const monthly = (ess?.monthly ?? 0) + debtMinimums;
@@ -139,11 +149,7 @@ export function theEmergencyFund(input: {
 
   // THE TWO FIGURES, COMPARED (his ruling, 2026-09-29). The budget line is what the door uses; this
   // says whether the debt record disagrees with it, so the screen can ask rather than stay silent.
-  const mortgageOwed = debts.reduce((t: number, d: any) => {
-    const kind = String(d?.debt_type ?? d?.type ?? '').toUpperCase();
-    return kind === 'MORTGAGE' ? t + requiredPayment(d) : t;
-  }, 0);
-  const housingBudgeted$ = cats.reduce((t: number, c: any) => (c?.id === 'rent' ? t + (Number(c?.amount) || 0) : t), 0);
+  const mortgageOwed = homeMortgage ? requiredPayment(homeMortgage) : 0;   // the home's, and only the home's
   // reported only where BOTH exist — one of them missing is not a disagreement, it is a gap, and the
   // person would be asked to reconcile a figure they never entered
   const housingDisagreement = (housingBudgeted && mortgageOwed > 0 && housingBudgeted$ !== mortgageOwed)
@@ -160,13 +166,15 @@ export function theEmergencyFund(input: {
     essentialsBasis: ess?.label ?? '',
     // never divided by nothing: with no essentials figure there is no runway to state
     monthsCovered: monthly > 0 ? cash / monthly : null,
+    // NO ESSENTIALS FIGURE, NO TARGET AND NO MONTHS — a target of $0 reads as "you are covered" (outside review)
     targetFor: (months: number) => {
+      if (!(monthly > 0)) return null;
       const target = monthly * months;
       return { target, gap: Math.max(0, target - cash) };
     },
     afterAShock: (shock: number) => {
       const t = emergencyTest(input.profile, cash, shock, monthly);
-      return { cashAfter: t.cashAfter, monthsAfter: t.runwayAfter, coversIt: t.coversIt };
+      return { cashAfter: t.cashAfter, monthsAfter: monthly > 0 ? t.runwayAfter : null, coversIt: t.coversIt };
     },
   };
 }
@@ -345,7 +353,7 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: '6 months of essentials is $20,820 ($3,470/month)',
-      run: () => `6 months of essentials is ${formatMoney(EF().targetFor(6).target)} (${formatMoney(EF().essentialsMonthly)}/month)`,
+      run: () => `6 months of essentials is ${formatMoney(EF().targetFor(6)!.target)} (${formatMoney(EF().essentialsMonthly)}/month)`,
     },
   },
   'MK-MN-M-021': {
@@ -385,7 +393,7 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: "You'd have $13,000 left — about 3.7 months of essentials",
-      run: () => `You'd have ${formatMoney(EF().afterAShock(5000).cashAfter)} left — about ${(Math.round(EF().afterAShock(5000).monthsAfter * 10) / 10).toFixed(1)} months of essentials`,
+      run: () => `You'd have ${formatMoney(EF().afterAShock(5000).cashAfter)} left — about ${(Math.round((EF().afterAShock(5000).monthsAfter as number) * 10) / 10).toFixed(1)} months of essentials`,
     },
   },
   'MK-MN-M-026': {

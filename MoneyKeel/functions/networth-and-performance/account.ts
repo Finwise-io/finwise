@@ -27,7 +27,7 @@ export interface TheAccount {
   /** What the account is worth today — the ONE figure the band, the trio and the Total row all print. */
   marketValue: number;
   /** Dividends and interest this account has actually received. Never estimated, never back-filled. */
-  income: number;
+  income: number | null;   // null = no records yet, so no figure (MK-NW-M-019)
   /** What is inside it, by class. Null for an account that is not linked: there is nothing to read. */
   inside: ClassSlice[] | null;
   /** How many records the ledger holds for it. */
@@ -59,7 +59,7 @@ export interface Itemising {
  * Answers ..... What is in this one account: what it is worth, what it holds, what each holding has paid, and its activity?
  *
  * Formula .....
- *     ledger = input.transactions (or none when missing) where string(account id) = string(account.asset id)
+ *     id = string(account.asset id)
  *     income = personal flow totals(ledger.filter((t) => type = 'DIVIDEND' or type = 'INTEREST'))
  *     breakdown = account class breakdown(account)
  *     tk = string(ticker ?? '').trim().to upper case()
@@ -102,7 +102,13 @@ export function theAccount(input: {
   transactions: any[];
 }): TheAccount {
   const { account } = input;
-  const ledger = (input.transactions ?? []).filter((t) => String(t.account_id) === String(account.asset_id));
+  // EVERY RECORD THAT TOUCHES THIS ACCOUNT — its own, and a transfer that ARRIVES in it. A transfer is
+  // one record, kept on the account the money left; this list took only the account's own records, so
+  // money that arrived by transfer was missing from the account it arrived in, and the line below
+  // that prints such a row "at the amount moved" could never run (outside review, 2026-10-04).
+  const id = String(account.asset_id);
+  const ledger = (input.transactions ?? []).filter((t) => String(t.account_id) === id
+    || ((t.type === 'TRANSFER' || t.type === 'TRANSFER_IN_KIND') && String(t.counter_account_id ?? '') === id));
   const income = personalFlowTotals(ledger.filter((t) => t.type === 'DIVIDEND' || t.type === 'INTEREST'));
 
   const breakdown = accountClassBreakdown(account);
@@ -116,7 +122,7 @@ export function theAccount(input: {
     const tk = String(ticker ?? '').trim().toUpperCase();
     // a row with no ticker names no holding, so it belongs to none of them
     const rows = !tk ? [] : ledger.filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST')
-      && !!t.ticker && String(t.ticker).toUpperCase() === tk);
+      && !!t.ticker && String(t.ticker).trim().toUpperCase() === tk);   // a broker's "VTI " is VTI
     const f = personalFlowTotals(rows);
     const dividends = f.dividends.toNumber(2);
     const interest = f.interest.toNumber(2);
@@ -130,7 +136,9 @@ export function theAccount(input: {
     accountId: String(account.asset_id),
     label: account.label,
     marketValue: account.balance || 0,
-    income: income.dividends.add(income.interest).toNumber(2),
+    // NO RECORDS, NO FIGURE (MK-NW-M-019: "it says so instead of showing zero"). $0 is an answer; with
+    // nothing recorded there is no answer yet.
+    income: ledger.length === 0 ? null : income.dividends.add(income.interest).toNumber(2),
     inside,
     activity: ledger.map((t: any) => ({
       recordId: String(t.id ?? ''),

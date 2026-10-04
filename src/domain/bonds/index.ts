@@ -3,6 +3,7 @@
 // nest egg via the existing balance machinery. These pure helpers compute the bond-specific metrics.
 import type { AssetAccount } from '../assets';
 import { assetClassOf } from '../assets';
+import { isoLocalDate } from '../_shared/dates';
 
 export interface BondInfo { face: number; couponRate: number; maturity: string; value: number; accruedInterest?: number | null; }
 
@@ -294,9 +295,12 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *     total value = Σ over list of (value)
  *     total face = Σ over list of (face)
  *     coupon = Σ over list of (annual coupon(each))
- *     avg yield = coupon ÷ total value   if total value > 0
- *     nothing   otherwise
- *     future = for each of list: maturity where boolean where the date each).get time() ≥ now.get time(, in order
+ *     clean = (b: bond info) => value − (accrued interest ?? 0)
+ *     priced = list where clean(each) > 0
+ *     clean value = Σ over priced of (clean(each))
+ *     avg yield = Σ over clean value > 0 ? priced of (annual coupon(each))÷ clean value : nothing
+ *     today = iso local date(now)
+ *     future = for each of list: maturity where boolean where string(each).slice(0, 10) > today, in order
  *     the answer:
  *     count = count of list
  *     total value = total value
@@ -304,6 +308,7 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *     annual coupon = coupon
  *     avg yield = avg yield
  *     next maturity = the first of future (or nothing when missing)
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-O-001 theBonds
  *
@@ -323,8 +328,10 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  * Reads ....... MK-XS-I-011 bond face value
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-049 bond price — what the bond is worth today
+ *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
  *
  * Decides .....
+ *     · If accrued interest is missing it uses 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-061
@@ -335,8 +342,19 @@ export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSumm
   const totalValue = (list.reduce((t, b) => t + b.value, 0));
   const totalFace = (list.reduce((t, b) => t + b.face, 0));
   const coupon = (list.reduce((t, b) => t + annualCoupon(b), 0));
-  const avgYield = totalValue > 0 ? ((coupon / totalValue)) : null;
-  const future = list.map((b) => b.maturity).filter(Boolean).filter((m) => new Date(m).getTime() >= now.getTime()).sort();
+  // THE AVERAGE YIELD IS OVER THE BONDS THAT HAVE A VALUE TODAY, ON THAT VALUE LESS ACCRUED INTEREST.
+  // Found by the outside review, 2026-10-04 (batch networth 01): a bond with no value still added its
+  // coupon to the top and nothing to the bottom, and accrued interest — which one bond's own yield
+  // subtracts when it is known (his ruling A47, 2026-08-26) — was left in. Three bonds of which one was
+  // unpriced read 6.09% where 4.22% is right.
+  const clean = (b: BondInfo) => b.value - (b.accruedInterest ?? 0);
+  const priced = list.filter((b) => clean(b) > 0);
+  const cleanValue = priced.reduce((t, b) => t + clean(b), 0);
+  const avgYield = cleanValue > 0 ? priced.reduce((t, b) => t + annualCoupon(b), 0) / cleanValue : null;
+  // NEXT TO MATURE IS THE EARLIEST DATE AFTER TODAY — by the calendar, not the clock. A bond maturing
+  // today has matured; it cannot also be next (the same review).
+  const today = isoLocalDate(now);
+  const future = list.map((b) => b.maturity).filter(Boolean).filter((m) => String(m).slice(0, 10) > today).sort();
   return { count: list.length, totalValue, totalFace, annualCoupon: coupon, avgYield, nextMaturity: future[0] ?? null };
 }
 /** Total annual coupon income across the user's INDIVIDUAL bonds (kept for the Bonds screen summary). */
@@ -475,6 +493,7 @@ function priceAtYield(b: BondInfo, y: number, now: Date): number {
  * Formula .....
  *     ytm = approx ytm(b, now)
  *     nothing   when ytm = nothing (or face ≤ 0 (or coupon rate ≤ 0 when missing or zero) when missing or zero)
+ *     step = (10)^(max(0, round down(math.log10(math.max(value, 1))) − 2))
  *     v = price at yield(b, math.max(0.0001, ytm + delta), now)
  *     the answer:
  *     rates up = move(0.01)
@@ -505,6 +524,7 @@ function priceAtYield(b: BondInfo, y: number, now: Date): number {
  * Decides .....
  *     · Applies a built-in rate of 99% to v.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Never lets value fall below 1.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-064
@@ -513,12 +533,17 @@ function priceAtYield(b: BondInfo, y: number, now: Date): number {
 export function bondRateSensitivity(b: BondInfo, now: Date = new Date()): RateSensitivity | null {
   const ytm = approxYTM(b, now);
   if (ytm == null || b.face <= 0 || b.couponRate <= 0) return null;
+  // three figures of the bond's own size: $1,000 from $100,000, $100 from $10,000, $10 below that
+  const step = Math.pow(10, Math.max(0, Math.floor(Math.log10(Math.max(b.value, 1))) - 2));
   const move = (delta: number): RateMove => {
     const v = priceAtYield(b, Math.max(0.0001, ytm + delta), now);
     return {
-      low: Math.round((v * 0.99) / 1000) * 1000,      // a rough, honest band — not a fake-precise number
-      high: Math.round((v * 1.01) / 1000) * 1000,
-      delta: Math.round((v - b.value) / 1000) * 1000,
+      // a rough, honest band — not a fake-precise number. It was rounded to the nearest $1,000 whatever
+      // the bond's size, so a $10,000 bond read "$10,000 to $10,000" whichever way rates moved (the
+      // outside review, 2026-10-04). Rounded now in proportion to the bond.
+      low: Math.round((v * 0.99) / step) * step,
+      high: Math.round((v * 1.01) / step) * step,
+      delta: Math.round((v - b.value) / step) * step,
     };
   };
   return { ratesUp: move(0.01), ratesDown: move(-0.01) };

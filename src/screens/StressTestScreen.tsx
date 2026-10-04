@@ -35,9 +35,9 @@ export default function StressTestScreen() {
   const ess = answer.essentialsMonthly;
   const essLabel = answer.essentialsBasis;
   const hit = answer.afterAShock(shock);
-  const r = { cashAfter: hit.cashAfter, runwayAfter: hit.monthsAfter, coversIt: hit.coversIt,
+  const r = { cashAfter: hit.cashAfter, runwayAfter: hit.monthsAfter ?? 0, coversIt: hit.coversIt,
               monthlyEssentials: ess, jobLossRunway: answer.monthsCovered ?? 0,
-              recommendedFund: answer.targetFor(3).target, gapToFund: answer.targetFor(3).gap, shock };
+              recommendedFund: answer.targetFor(3)?.target ?? 0, gapToFund: answer.targetFor(3)?.gap ?? 0, shock };
 
   const tone = (months: number) => (months >= 6 ? Colors.primary : months >= 3 ? Colors.amber : Colors.red);
 
