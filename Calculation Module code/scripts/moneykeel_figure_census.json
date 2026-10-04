@@ -35817,19 +35817,11 @@
     },
     {
      "k": "t",
-     "s": "Each person’s pay"
+     "s": "Your pay"
     },
     {
      "k": "a",
-     "s": "Each person’s pay: $108,000 a year"
-    },
-    {
-     "k": "t",
-     "s": "$108,000/year"
-    },
-    {
-     "k": "a",
-     "s": "You: Monthly · the same each month · take-home ≈$6,400 (calculated). Done"
+     "s": "You: Monthly · the same each month. Done"
     },
     {
      "k": "t",
@@ -35837,7 +35829,7 @@
     },
     {
      "k": "t",
-     "s": "Monthly · the same each month · take-home ≈$6,400 (calculated)"
+     "s": "Monthly · the same each month"
     },
     {
      "k": "t",
@@ -35949,7 +35941,15 @@
     },
     {
      "k": "t",
-     "s": "A share of what they put in, or a flat amount."
+     "s": "A share of what"
+    },
+    {
+     "k": "t",
+     "s": "you"
+    },
+    {
+     "k": "t",
+     "s": "put in, or a flat amount."
     },
     {
      "k": "a",
@@ -35977,11 +35977,43 @@
     },
     {
      "k": "t",
-     "s": "After tax and everything else taken out of the pay."
+     "s": "After tax and everything else taken out of your pay."
     },
     {
      "k": "a",
      "s": "Your take-home each month"
+    },
+    {
+     "k": "t",
+     "s": "We’ll calculate ≈"
+    },
+    {
+     "k": "t",
+     "s": "$6,400"
+    },
+    {
+     "k": "t",
+     "s": "/month, using your tax band read on the"
+    },
+    {
+     "k": "t",
+     "s": "$108,000"
+    },
+    {
+     "k": "t",
+     "s": "you have entered so far"
+    },
+    {
+     "k": "t",
+     "s": "— add rent, a bonus or a spouse’s wage later and the band is calculated again, so this figure moves. It knows nothing about your state or your insurance, so the ≈"
+    },
+    {
+     "k": "t",
+     "s": "$6,400"
+    },
+    {
+     "k": "t",
+     "s": "is higher than it will really be."
     },
     {
      "k": "t",
@@ -36041,6 +36073,10 @@
     },
     {
      "k": "t",
+     "s": "$9,000 gross − $1,800 tax − $800 of 401(k)s = $6,400."
+    },
+    {
+     "k": "t",
      "s": "The tax rate you want us to use"
     },
     {
@@ -36062,6 +36098,14 @@
     {
      "k": "t",
      "s": "% everywhere your take-home matters — cash flow, budget, the surplus. One-time events like a Roth conversion still use the tax tables."
+    },
+    {
+     "k": "t",
+     "s": "= Take-home"
+    },
+    {
+     "k": "t",
+     "s": "$6,400/month"
     },
     {
      "k": "a",
@@ -36139,19 +36183,11 @@
     },
     {
      "k": "t",
-     "s": "Each person’s pay"
+     "s": "Your pay"
     },
     {
      "k": "a",
-     "s": "Each person’s pay: $108,000 a year"
-    },
-    {
-     "k": "t",
-     "s": "$108,000/year"
-    },
-    {
-     "k": "a",
-     "s": "You: Monthly · the same each month · take-home ≈$6,400 (calculated). Done"
+     "s": "You: Monthly · the same each month. Done"
     },
     {
      "k": "t",
@@ -36159,7 +36195,7 @@
     },
     {
      "k": "t",
-     "s": "Monthly · the same each month · take-home ≈$6,400 (calculated)"
+     "s": "Monthly · the same each month"
     },
     {
      "k": "t",
@@ -36271,7 +36307,15 @@
     },
     {
      "k": "t",
-     "s": "A share of what they put in, or a flat amount."
+     "s": "A share of what"
+    },
+    {
+     "k": "t",
+     "s": "you"
+    },
+    {
+     "k": "t",
+     "s": "put in, or a flat amount."
     },
     {
      "k": "a",
@@ -36299,11 +36343,43 @@
     },
     {
      "k": "t",
-     "s": "After tax and everything else taken out of the pay."
+     "s": "After tax and everything else taken out of your pay."
     },
     {
      "k": "a",
      "s": "Your take-home each month"
+    },
+    {
+     "k": "t",
+     "s": "We’ll calculate ≈"
+    },
+    {
+     "k": "t",
+     "s": "$6,400"
+    },
+    {
+     "k": "t",
+     "s": "/month, using your tax band read on the"
+    },
+    {
+     "k": "t",
+     "s": "$108,000"
+    },
+    {
+     "k": "t",
+     "s": "you have entered so far"
+    },
+    {
+     "k": "t",
+     "s": "— add rent, a bonus or a spouse’s wage later and the band is calculated again, so this figure moves. It knows nothing about your state or your insurance, so the ≈"
+    },
+    {
+     "k": "t",
+     "s": "$6,400"
+    },
+    {
+     "k": "t",
+     "s": "is higher than it will really be."
     },
     {
      "k": "t",
@@ -36363,6 +36439,10 @@
     },
     {
      "k": "t",
+     "s": "$9,000 gross − $1,800 tax − $800 of 401(k)s = $6,400."
+    },
+    {
+     "k": "t",
      "s": "The tax rate you want us to use"
     },
     {
@@ -36384,6 +36464,14 @@
     {
      "k": "t",
      "s": "% everywhere your take-home matters — cash flow, budget, the surplus. One-time events like a Roth conversion still use the tax tables."
+    },
+    {
+     "k": "t",
+     "s": "= Take-home"
+    },
+    {
+     "k": "t",
+     "s": "$6,400/month"
     },
     {
      "k": "a",
@@ -36461,19 +36549,11 @@
     },
     {
      "k": "t",
-     "s": "Each person’s pay"
+     "s": "Your pay"
     },
     {
      "k": "a",
-     "s": "Each person’s pay: $0 a year"
-    },
-    {
-     "k": "t",
-     "s": "$0/year"
-    },
-    {
-     "k": "a",
-     "s": "You: Monthly · the same each month · take-home ≈$0 (calculated). Done"
+     "s": "You: Tell us how you are paid. Done"
     },
     {
      "k": "t",
@@ -36481,7 +36561,7 @@
     },
     {
      "k": "t",
-     "s": "Monthly · the same each month · take-home ≈$0 (calculated)"
+     "s": "Tell us how you are paid"
     },
     {
      "k": "t",
@@ -36593,7 +36673,15 @@
     },
     {
      "k": "t",
-     "s": "A share of what they put in, or a flat amount."
+     "s": "A share of what"
+    },
+    {
+     "k": "t",
+     "s": "you"
+    },
+    {
+     "k": "t",
+     "s": "put in, or a flat amount."
     },
     {
      "k": "a",
@@ -36621,7 +36709,7 @@
     },
     {
      "k": "t",
-     "s": "After tax and everything else taken out of the pay."
+     "s": "After tax and everything else taken out of your pay."
     },
     {
      "k": "a",
@@ -36700,6 +36788,14 @@
      "s": "% everywhere your take-home matters — cash flow, budget, the surplus. One-time events like a Roth conversion still use the tax tables."
     },
     {
+     "k": "t",
+     "s": "= Take-home"
+    },
+    {
+     "k": "t",
+     "s": "$0/month"
+    },
+    {
      "k": "a",
      "s": "Save your base pay"
     },
@@ -36775,19 +36871,11 @@
     },
     {
      "k": "t",
-     "s": "Each person’s pay"
+     "s": "Your pay"
     },
     {
      "k": "a",
-     "s": "Each person’s pay: $0 a year"
-    },
-    {
-     "k": "t",
-     "s": "$0/year"
-    },
-    {
-     "k": "a",
-     "s": "You: Monthly · the same each month · take-home ≈$0 (calculated). Done"
+     "s": "You: Tell us how you are paid. Done"
     },
     {
      "k": "t",
@@ -36795,7 +36883,7 @@
     },
     {
      "k": "t",
-     "s": "Monthly · the same each month · take-home ≈$0 (calculated)"
+     "s": "Tell us how you are paid"
     },
     {
      "k": "t",
@@ -36907,7 +36995,15 @@
     },
     {
      "k": "t",
-     "s": "A share of what they put in, or a flat amount."
+     "s": "A share of what"
+    },
+    {
+     "k": "t",
+     "s": "you"
+    },
+    {
+     "k": "t",
+     "s": "put in, or a flat amount."
     },
     {
      "k": "a",
@@ -36935,7 +37031,7 @@
     },
     {
      "k": "t",
-     "s": "After tax and everything else taken out of the pay."
+     "s": "After tax and everything else taken out of your pay."
     },
     {
      "k": "a",
@@ -37473,7 +37569,7 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1272
+   "renders": 1269
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:73",
@@ -37489,6 +37585,28 @@
     "$90.00"
    ],
    "renders": 3
+  },
+  {
+   "site": "MoneyKeel/functions/cashflow/base-pay.ts:961",
+   "routes": [
+    "/base-pay",
+    "/income-summary"
+   ],
+   "states": [
+    "/base-pay|rich",
+    "/base-pay|worker",
+    "/income-summary|rich",
+    "/income-summary|worker"
+   ],
+   "inside": "basePay",
+   "line": "const money0 = (n: number) => money(Math.round(n));",
+   "values": [
+    "$9,000",
+    "$1,800",
+    "$800",
+    "$6,400"
+   ],
+   "renders": 16
   },
   {
    "site": "src/components/DrawSteerSheet.tsx:136",

@@ -77,6 +77,28 @@ describe('what lands in the bank', () => {
   });
 });
 
+describe('a typed take-home is a MONTH, whatever the pay frequency (approved drawing v07, frames 2b and 2c)', () => {
+  // The screen asks "take-home each month" of everyone. Until 2026-10-04 the figure was scaled as if it
+  // had been typed for each pay period, so a fortnightly earner's $3,300 was shown as $7,150 — and no
+  // test said otherwise, because every example with a typed take-home was paid monthly.
+  it('THE LAW: it is used exactly as typed', () => {
+    const gross: Record<string, number> = { hourly: 45, weekly: 1700, biweekly: 3400, monthly: 7000 };
+    for (const freq of Object.keys(gross)) {
+      const e = steady({ freq, grossTypical: gross[freq], landsTypical: 5000 });
+      expect(takeHomeAsEntered(e)).toMatchObject({ monthly: 5000, estimated: false });
+      expect(deductionsFromPay(e)).toBeCloseTo(annualisedGross(e) - 800 * 12 - 5000 * 12, 6);
+    }
+  });
+  it('THE LAW: the three-figure check reads it as a month too — the household the drawing draws', () => {
+    // Sam: $2,077 a fortnight is $4,500.17 a month; less $400 into the 401(k) leaves $4,100.17
+    const sam = steady({ freq: 'biweekly', grossTypical: 2077, monthly401k: 400, landsTypical: 3300 });
+    expect(takeHomeAsEntered(sam).monthly).toBe(3300);
+    expect(payFiguresAgree(sam)).toMatchObject({ ok: true, warn: false });
+    expect(payFiguresAgree({ ...sam, landsTypical: 4200 }).ok).toBe(false);          // $99.83 more than there is
+    expect(basePay({ earners: [{ name: 'You', entry: steady() }, { name: 'Sam', entry: sam }] }).landsInBank).toBe(8300);
+  });
+});
+
 describe('the three figures reconcile', () => {
   it('THE LAW: gross − 401(k) − what lands = everything else, to the cent', () => {
     const e = steady();

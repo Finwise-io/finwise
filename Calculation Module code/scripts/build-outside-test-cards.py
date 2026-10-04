@@ -15,6 +15,15 @@ changes the fingerprint no longer matches and this build STOPS until the rule is
 
     python3 "Calculation Module code/scripts/build-outside-test-cards.py" --reread MK-CF-F-146
 
+THE PACK AS SENT IS NOT REWRITTEN IN PASSING. He feeds the files to the outside models by hand, so a
+file that changed under him would be answered against a formula he never sent. The build gate runs
+this with --check (every validation, nothing written). Each rule keeps `sent_as`, the fingerprint of
+its function when its card went out; a function that has moved since is listed on every run, and
+--supplement writes those cards, and only those, to a file of their own to send after the rest.
+
+    python3 "Calculation Module code/scripts/build-outside-test-cards.py" --check
+    python3 "Calculation Module code/scripts/build-outside-test-cards.py" --supplement
+
 Read from the code and the records on every run; nothing here is typed from memory except the
 approved-drawing households, whose sums are re-checked below, and the rules, whose numbers are traced
 back to the code below.
@@ -599,12 +608,47 @@ def main():
     assert len(cards) >= 350, f'only {len(cards)} records found in the three modules — the reader has gone blind'
 
     send_dir = os.path.join(OUT, 'to-send')
+    brief = open(BRIEF, encoding='utf8').read().rstrip()
+    tables = published_tables()
+
+    # what has moved since the pack went out — printed on every run, sent again in a file of its own
+    moved = [c for c in testable if written[c['card']['id']].get('sent_as') != written[c['card']['id']]['read_from']]
+    if moved:
+        print(f'changed since the pack was sent ({rules_file.get("pack_sent", {}).get("commit", "not recorded")}): {len(moved)} — '
+              + ', '.join(f"{c['card']['id']} {c['card']['name']}" for c in moved))
+    else:
+        print('changed since the pack was sent: none')
+    if '--supplement' in sys.argv:
+        if not moved:
+            sys.exit('nothing has changed since the pack was sent — no supplement to write')
+        lean = appendix(moved)
+        body = [brief, '', '---', '', '# The cards — batch "changed since sent 01"', '',
+                f'{len(moved)} cards, so {len(moved)} formula checks and {len(moved) * 5} cases. Put `"batch": "changed since sent 01"` in your reply.', '',
+                'These functions were corrected after their cards first went out. The formula below is the one in the app now; '
+                'judge and test it as you would any other.', ''] + tables
+        types = {}
+        for c in moved:
+            types.update(c['types'])
+        if types:
+            body += ['## The app\'s own types these cards name', '', 'What each is made of. The comments inside are the in-house author\'s.', '',
+                     '```ts', '\n\n'.join(types[t] for t in sorted(types)), '```', '']
+        body += ['## The cards', '', '```json', json.dumps([c['card'] for c in moved], indent=1, ensure_ascii=False), '```', '']
+        if lean:
+            body += ['## Formulas these cards lean on', '',
+                     f'{len(lean)} functions named by the formulas above. They are here so you can work your answers. Do not judge or test them in this batch.', '',
+                     '```json', json.dumps(lean, indent=1, ensure_ascii=False), '```', '']
+        name = 'moneykeel_audit_cards_changed-since-sent_01.md'
+        open(os.path.join(send_dir, name), 'w', encoding='utf8').write('\n'.join(body))
+        print(f'supplement written: to-send/{name} — {len(moved)} cards')
+        return
+    if '--check' in sys.argv:
+        print(f'checked, nothing written: {len(testable)} of {len(testable)} cards carry a formula read from the function as it stands · '
+              f'{figures_stated} figures stated, each traced to the code or worked by hand')
+        return
     os.makedirs(send_dir, exist_ok=True)
     os.makedirs(os.path.join(OUT, 'returned'), exist_ok=True)
     for f in os.listdir(send_dir):
         os.remove(os.path.join(send_dir, f))
-    brief = open(BRIEF, encoding='utf8').read().rstrip()
-    tables = published_tables()
 
     order = {'orchestrator': 0, '2 · DISPLAYED': 1, '3 · DEPENDENT': 2, '1 · ACTION': 3}
     index, total_cards = [], 0

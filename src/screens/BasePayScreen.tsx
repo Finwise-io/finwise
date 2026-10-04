@@ -1,6 +1,7 @@
 // YOUR BASE PAY — one full screen, one section per earner.
 //
-// Built from the approved mock: MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v05.html, frames 2a–2e.
+// Built from the approved mock: MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html, frames 2a–2e
+// — held to it word for word by src/screens/__tests__/basepay_matches_v07.test.tsx.
 //
 // ONE COMPONENT, TWO FRAMES (mock rule 2b). Onboarding pushes this same screen with a progress bar
 // and Continue; Cash flow → Income opens it with a back arrow and Save. Two copies of the same
@@ -34,6 +35,7 @@ const FREQ_WORD: Record<string, string> = {
 const PERIOD_WORD: Record<string, string> = {
   hourly: 'an hour', weekly: 'a week', biweekly: 'a fortnight', monthly: 'each month',
 };
+const PAID_WORD: Record<string, string> = { hourly: 'hourly', weekly: 'weekly', biweekly: 'fortnightly' };
 const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const monthLabel = (key: string) => {
   const [y, m] = key.split('-').map(Number);
@@ -108,15 +110,18 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
           ))}
       </View>
 
+      {/* one earner: the section is theirs and its own line carries the figure; two: the band totals both */}
       <View style={s.bandRow}>
-        <Text style={s.band}>Each person’s pay</Text>
-        <Text style={s.bandNum} accessibilityLabel={figSpoken('MK-CF-M-030', pay.grossAnnual)}>
-          {figPer('MK-CF-M-030', pay.grossAnnual)}
-        </Text>
+        <Text style={s.band}>{wages.length > 1 ? 'Each person’s pay' : wages[0]?.name === 'You' ? 'Your pay' : `${wages[0]?.name}’s pay`}</Text>
+        {wages.length > 1 && (
+          <Text style={s.bandNum} accessibilityLabel={figSpoken('MK-CF-M-030', pay.grossAnnual)}>
+            {figPer('MK-CF-M-030', pay.grossAnnual)}
+          </Text>
+        )}
       </View>
 
       {wages.map((e, i) => (
-        <EarnerSection key={e.key} name={e.name} wage={e.w} onChange={e.set}
+        <EarnerSection key={e.key} name={e.name} wage={e.w} onChange={e.set} frame={frame}
           pay={pay.earners[i]?.pay} open={open === e.key}
           onToggle={() => setOpen(open === e.key ? null : e.key)} />
       ))}
@@ -157,7 +162,8 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
             words "effective tax rate" appear nowhere: TurboTax divides by adjusted gross income, the
             textbook by taxable income, others by total income — a number a person cannot check. We
             ask for the one they can: what their payslip says comes out. */}
-        {pay.tax.estimated && pay.landsEstimated && (
+        {/* only where the whole take-home is ours (frame 2a-ii); a mixed household says it per person instead (2a-iii) */}
+        {pay.tax.estimated && pay.tax.mode === 'estimated' && (
           <View style={s.warn}>
             <Text style={s.warnT}>
               <Text style={{ fontWeight: '800' }}>The take-home above is higher than it will really be, by roughly {fig('MK-CF-M-035', pay.tax.shortBy ?? 0)}/month.</Text>{' '}
@@ -167,6 +173,9 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
           </View>
         )}
 
+        {/* ASKED ONLY WHERE NOBODY ENTERED A TAKE-HOME (frame 2a-ii). Where they did, the share is their
+            own figures and there is nothing to ask (frames 2a and 2a-iii draw no question). */}
+        {pay.tax.mode === 'estimated' && (<>
         <Text style={s.q}>The tax rate you want us to use</Text>
         <Text style={s.qsub}>
           Everything that comes out, as a share of your gross — from a payslip, add up every deduction except your
@@ -182,6 +191,10 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
             the surplus. One-time events like a Roth conversion still use the tax tables.
           </Text>
         )}
+        {op.taxMode === 'manual' && !!String(op.manualTaxRate ?? '').trim() && (
+          <Row label="= Take-home" value={figPer('MK-CF-M-031', pay.landsInBank)} strong />
+        )}
+        </>)}
       </View>
 
       {frame === 'screen' && (
@@ -206,9 +219,9 @@ function Row({ label, note, value, strong }: { label: string; note?: string | nu
   );
 }
 
-function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
+function EarnerSection({ name, wage, onChange, pay, open, onToggle, frame }: {
   name: string; wage: Record<string, any>; onChange: (u: Record<string, any>) => void;
-  pay?: EarnerPay; open: boolean; onToggle: () => void;
+  pay?: EarnerPay; open: boolean; onToggle: () => void; frame: 'screen' | 'onboarding';
 }) {
   const freq = String(wage.salaryFreq ?? 'monthly');
   const midName = name === 'Your spouse' ? 'your spouse' : name;   // lowercase mid-sentence (#6)
@@ -218,9 +231,15 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
   // reason the table is keyed by month rather than by a slot.
   const keys = useMemo(() => monthWindow(new Date(), 1, 14), []);
   const table = salaryMonths(wage as any);
-  const summary = pay
-    ? `${FREQ_WORD[freq]} · ${varies ? 'varies' : 'the same each month'} · ${pay.landsIsEstimated ? `take-home ≈${fig('MK-CF-M-031', pay.landsInBank)} (calculated)` : `take-home ${fig('MK-CF-M-031', pay.landsInBank)}`}`
-    : FREQ_WORD[freq];
+  // The closed line reads back the pattern and the take-home; a take-home is a MONTH, and says so when
+  // the person is not paid monthly. Open, the questions below say it, so the line stops at the pattern.
+  const pattern = `${FREQ_WORD[freq]} · ${varies ? 'varies' : 'the same each month'}`;
+  const perMonthWord = freq === 'monthly' ? '' : '/month';
+  const onboarding = frame === 'onboarding';
+  const summary = !pay || !(pay.grossAnnualised > 0) || (onboarding && open) ? 'Tell us how you are paid'
+    : open ? pattern
+    : `${pattern} · ${pay.landsIsEstimated ? `take-home ≈${fig('MK-CF-M-031', pay.landsInBank)}${perMonthWord} (calculated)` : `take-home ${fig('MK-CF-M-031', pay.landsInBank)}${perMonthWord}`}`;
+  const whose = name === 'You' ? 'your' : `${midName}’s`;
 
   return (
     <View style={s.section}>
@@ -260,8 +279,9 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
             ))}
           </View>
 
-          <Field label={`Gross pay ${PERIOD_WORD[freq]}`}
-            hint={varies ? 'A typical one. Every month below starts from this.' : 'Before anything comes out.'}
+          <Field label={freq === 'monthly' ? 'Gross pay each month' : `Gross ${PERIOD_WORD[freq]}`}
+            hint={varies ? 'A typical one. Every month below starts from this.'
+              : onboarding ? 'Before anything comes out. The only one we need.' : 'Before anything comes out.'}
             value={wage.baseSalary} onChangeText={(v) => set('baseSalary', v)} />
 
           {varies && (
@@ -281,12 +301,13 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
           )}
 
           <Field label={`Into ${name === 'You' ? 'your' : `${midName}’s`} 401(k) each month`}
-            hint={name === 'You' ? 'Your own contribution, not your employer’s match.'
-                                 : `${midName}’s own contribution, not their employer’s match.`}
+            hint={onboarding ? 'Leave blank if you don’t contribute.'
+              : name === 'You' ? 'Your own contribution, not your employer’s match.'
+                               : `${midName}’s own contribution, not their employer’s match.`}
             value={wage.c_401k} onChangeText={(v) => set('c_401k', v)} />
 
           <Text style={s.q}>{name === 'You' ? 'Your' : `${midName}’s`} employer’s match</Text>
-          <Text style={s.qsub}>A share of what they put in, or a flat amount.</Text>
+          <Text style={s.qsub}>A share of what {name === 'You' ? 'you' : 'they'} put in, or a flat amount.</Text>
           <View style={s.segRow}>
             {([['pct', '% of theirs'], ['dollar', 'A set amount']] as [string, string][]).map(([v, label]) => (
               <TouchableOpacity key={v} accessibilityRole="radio" accessibilityState={{ selected: (wage.employerMatchMode ?? 'pct') === v }}
@@ -300,14 +321,35 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
             a11y={`${name} employer match amount`} />
 
           <Field label={`${name === 'You' ? 'Your' : `${midName}’s`} take-home each month`}
-            hint="After tax and everything else taken out of the pay."
+            hint={onboarding ? 'Leave blank and we’ll calculate it.'
+              : `After tax and everything else taken out of ${name === 'You' ? 'your' : 'their'} pay.`}
             value={wage.landsTypical} onChangeText={(v) => set('landsTypical', v)} />
 
-          {pay && pay.everythingElseMonthly != null && (
+          {/* a take-home is asked for as a MONTH even of someone paid by the fortnight (frame 2c) */}
+          {varies && freq !== 'monthly' && (
+            <Text style={s.qsub}>
+              The months are shown as months even though {name === 'You' ? 'you are' : `${midName} is`} paid {PAID_WORD[freq]} — a {PAID_WORD[freq]} figure
+              typed into a monthly box is the mistake this prevents.
+            </Text>
+          )}
+
+          {/* nothing entered: say what we will calculate, on what, and what it cannot see (frame 2e) */}
+          {pay && pay.landsIsEstimated && pay.grossAnnualised > 0 && (
+            <Text style={s.qsub}>
+              {pay.monthly401k > 0 ? '' : <><Text style={{ fontWeight: '800' }}>Nothing is taken out for a 401(k)</Text>, because you have not entered one. </>}
+              We’ll calculate ≈{fig('MK-CF-M-031', pay.landsInBank)}/month, using your tax band read on
+              the <Text style={{ fontWeight: '800' }}>{fig('MK-CF-M-030', pay.grossAnnualised)} you have entered so far</Text> — add rent, a bonus or a
+              spouse’s wage later and the band is calculated again, so this figure moves. It knows nothing about your state or
+              your insurance, so the ≈{fig('MK-CF-M-031', pay.landsInBank)} is higher than it will really be.
+            </Text>
+          )}
+
+          {/* only while the three figures agree — a share worked from figures that cannot all be right is not a figure */}
+          {pay && pay.everythingElseMonthly != null && pay.verdict.ok && (
             <>
               <Row label="Everything else taken out" value={figPer('MK-CF-M-036', pay.everythingElseMonthly)} />
               <Text style={s.qsub}>
-                {Math.round(((pay.everythingElse ?? 0) / (pay.grossAnnualised || 1)) * 100)}% of the gross. Tax,
+                {Math.round(((pay.everythingElse ?? 0) / (pay.grossAnnualised || 1)) * 100)}% of {whose} gross. Tax,
                 medical cover and anything else bought through work — we do not need to ask about each.
               </Text>
             </>

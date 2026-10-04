@@ -1,6 +1,7 @@
 // HOW DO YOU FILE YOUR TAXES? — the question the app never asked.
 //
-// Built from the approved mock: MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v05.html, frames 4a–4c.
+// Built from the approved mock: MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html, frames 4a–4c
+// (phones 13 to 15) — held to it word for word by src/screens/__tests__/filing_matches_v07.test.tsx.
 //
 // The code has always read a filing status, found nothing, and fallen back to SINGLE — for everyone,
 // including the couple who had just said they have a spouse. Five surfaces depend on it: every
@@ -15,8 +16,9 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { taxOwedFor, type FilingStatus } from '../domain/income/tax';
+import { taxOwedFor, TAX_TABLES, type FilingStatus } from '../domain/income/tax';
 import { taxableAnnual, stateRateOf } from '../domain/income';
+import { hasTwoEarners } from '../domain/income/earners';
 import { money } from '../domain/_shared/num';
 
 const OPTIONS: { v: FilingStatus; label: string }[] = [
@@ -75,7 +77,7 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
           <Text style={s.h1}>That changes your take-home</Text>
           <Text style={s.sub}>On the {money(gross)} you entered</Text>
           <View style={s.card}>
-            <Row label="Taxed as single" note="what we were assuming" value={`${money(asSingle)}/year`} />
+            <Row label="Taxed as single" value={`${money(asSingle)}/year — what we were assuming`} />
             <Row label={OPTIONS.find((o) => o.v === status)?.label ?? ''} value={`${money(asChosen)}/year`} />
             {status === 'married' && (
               <Row label="…and both of you over 65" value={`${money(asChosenBoth65)}/year`} />
@@ -83,9 +85,16 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
             <Text style={s.big}>{money((asSingle - asChosen) / 12)}/month more</Text>
             <Text style={s.note}>
               take-home than we were showing you — {money((asSingle - asChosenBoth65) / 12)} if you are
-              both over 65. Federal only: it knows nothing about your state.
+              both over 65.
             </Text>
           </View>
+          {/* SAY WHOSE INCOME THE BRACKET CAME FROM (founder, 2026-08-27) — true only while one wage is entered */}
+          {(status === 'married' || status === 'mfs') && !hasTwoEarners(op) && (
+            <>
+              <Text style={s.whoseT}>Your tax bracket is calculated from your income only.</Text>
+              <Text style={s.note}>Add your spouse’s income if you want it to be accurate.</Text>
+            </>
+          )}
         </>
       )}
 
@@ -124,7 +133,7 @@ export function FilingStatusQuestions({ op, status, onStatus, over65, onOver65 }
       <Text style={s.why}>
         Set to <Text style={s.whyB}>{OPTIONS.find((o) => o.v === suggested)?.label}</Text>
         {partner
-          ? ` because you entered about ${partnerName || 'your spouse'}.`
+          ? ` because you entered ${partnerName || 'a spouse'}.`
           : ' because you entered it is just you. Change it if that is not right.'}
       </Text>
 
@@ -136,13 +145,15 @@ export function FilingStatusQuestions({ op, status, onStatus, over65, onOver65 }
               <TouchableOpacity key={v} accessibilityRole="radio" accessibilityState={{ selected: over65 === v }}
                 accessibilityLabel={label} style={[s.seg, over65 === v && s.segOn]} onPress={() => onOver65(v)}>
                 <Text style={[s.segT, over65 === v && s.segTOn]}>{label}</Text>
+                {v === 'me' && iAmOver65 && (
+                  <Text style={s.segSub}>You are {new Date().getFullYear() - Number(op.birthYear)}, so we have you already.</Text>
+                )}
               </TouchableOpacity>
             ))}
           </View>
           <Text style={s.note}>
-            {iAmOver65 ? 'You are 65 or older, so we have you already. ' : ''}
-            Being 65 or older adds to your standard deduction — $1,650 each on a joint return. We know
-            your age from your birth year; we have never asked about your spouse’s.
+            Being 65 or older adds to your standard deduction — {money(TAX_TABLES.married.over65Add)} each on a joint return. We know
+            your age from your birth year; we have never asked about {partnerName ? `${partnerName}’s` : 'your spouse’s'}.
           </Text>
         </>
       )}
@@ -182,6 +193,8 @@ const s = StyleSheet.create({
   segT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   segTOn: { color: Colors.primaryDark, fontWeight: '800' },
   note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, marginTop: 10 },
+  segSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 2, textAlign: 'center' },
+  whoseT: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginTop: 14 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.base, marginTop: 8, borderWidth: 1, borderColor: Colors.border },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },
   rowL: { fontSize: 15, color: Colors.textPrimary, fontWeight: '600' },

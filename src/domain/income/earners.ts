@@ -120,7 +120,7 @@ export function earnerWages(op: OnboardingProfile | null): EarnerWage[] {
 }
 
 /** Does this household have a second wage on record? */
-/* ─ MK-CF-F-174 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-174 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * hasTwoEarners
  *
  * Answers ..... Does this household have a second wage on record?

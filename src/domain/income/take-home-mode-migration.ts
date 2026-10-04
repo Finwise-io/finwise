@@ -85,6 +85,9 @@ export function needsTakeHomeConversion(op: OnboardingProfile | null): boolean {
  * Reads ....... MK-XS-I-039 how often each income arrives
  *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
  *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *
  * Formula also on the master file · functions_from_code · MK-CF-F-186
  * Changed ..... not in git yet (—)
  */
@@ -97,7 +100,7 @@ export function convertTakeHomeMode<T extends Record<string, any>>(op: T): T {
   return {
     ...op,
     baseSalary: String((grossAnnual / periods)),   // gross, as every other screen assumes
-    landsTypical: String(netPerPeriod),                  // what they actually told us
+    landsTypical: String(netAnnual / 12),                // what they told us, as the month every screen now asks for
     salaryMode: 'gross',
   };
 }

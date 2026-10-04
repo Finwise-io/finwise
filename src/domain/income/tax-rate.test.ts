@@ -74,6 +74,17 @@ test('THE LAW: when they told us what lands, EVERY screen says the same number',
   }
 });
 
+test('THE LAW: a typed take-home is a MONTH at every pay frequency — the year is twelve of it', () => {
+  // approved drawing income-end-to-end v07, frame 2c: paid fortnightly, "Sam’s take-home each month" $3,300
+  for (const freq of ['hourly', 'weekly', 'biweekly', 'monthly']) {
+    const op: any = { baseSalary: freq === 'hourly' ? '26' : freq === 'weekly' ? '1040' : freq === 'biweekly' ? '2077' : '4500',
+                      salaryFreq: freq, c_401k: '400', landsTypical: '3300' };
+    expect(enteredLandsAnnual(op)).toBe(39_600);
+    expect(basePay({ earners: [{ name: 'You', entry: entryFromWage(op) }], profile: op }).landsInBank).toBe(3300);
+    expect(incomeMonthlyGrid(op, 'available').reduce((t, g) => t + g.amount, 0) / 12).toBeCloseTo(3300, 2);
+  }
+});
+
 test('THE LAW: a rate of gross is applied to gross — the 401(k) does not shrink it', () => {
   // same wage, same take-home, different contribution: the tax the grid charges must not move
   const a: any = { baseSalary: '7000', salaryFreq: 'monthly', c_401k: '0',    taxMode: 'manual', manualTaxRate: '20' };

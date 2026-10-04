@@ -26,9 +26,6 @@ import { earnerWages, type EarnerWage } from './earners';
 import { salaryAnnual, taxableAnnual, filingStatusOf, stateRateOf, over65CountOf } from './onboarding';
 import { effectiveRateOnGrossFor } from './tax';
 
-/** Periods in a year, by how someone is paid. Mirrors SALARY_PERIODS; kept local so this file can
- *  read a wage block without depending on the base-pay code, which depends on this. */
-const PERIODS: Record<string, number> = { hourly: 12, weekly: 52, biweekly: 26, monthly: 12 };
 
 export type RateSource = 'typed' | 'implied' | 'estimated';
 
@@ -69,10 +66,10 @@ export interface RateInForce {
  *               … and 55 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-039 how often each income arrives
  *
  * Decides .....
  *     · Uses a built-in total of 0.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-180
  * Changed ..... not in git yet (—)
@@ -84,7 +81,7 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
   for (const w of wages as EarnerWage[]) {
     const v = toNum((w as any).landsTypical);
     if (!(v > 0)) return null;                       // one silence and the household figure is a guess
-    total += v * (PERIODS[String(w.salaryFreq ?? 'monthly')] ?? 12);
+    total += v * 12;   // the take-home is typed EACH MONTH at every pay frequency (approved drawing v07, frame 2c)
   }
   return (total);
 }

@@ -32,7 +32,7 @@ export interface BasePayEntry {
   grossTypical: any;                          // per period, as typed
   grossByMonth?: Record<string, any>;         // 'YYYY-MM' → amount, when pay varies
   monthly401k: any;                           // their own contribution, per month
-  landsTypical?: any;                         // per period, as typed — OPTIONAL
+  landsTypical?: any;                         // EACH MONTH, whatever the pay frequency — the screen asks "take-home each month" (approved drawing v07, frames 2b and 2c) — OPTIONAL
   landsByMonth?: Record<string, any>;
   hoursPerWeek?: any;
   /** THE BAND IS NOT BASE PAY'S TO WORK OUT. A tax band is set by everything the household is taxed
@@ -90,8 +90,7 @@ const periodsAYear = (e: BasePayEntry): number => PAY_PERIODS[String(e.freq)] ??
  *     (n × (to num(hours per week) or 40) × 52) ÷ 12   when string(freq) = 'hourly'
  *     the answer = (n × periods ayear(e)) ÷ 12
  *
- * Called by ... MK-CF-F-128 grossByMonth · MK-CF-F-144 takeHomeAsEntered
- *               MK-CF-F-146 payFiguresAgree
+ * Called by ... MK-CF-F-128 grossByMonth
  *
  * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
@@ -300,7 +299,11 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
   }
   const entered = e.landsTypical;
   if (entered != null && String(entered).trim() !== '' && toNum(entered) > 0) {
-    return { monthly: (perMonth(entered, e)), estimated: false,
+    // The screen asks for the take-home EACH MONTH at every pay frequency (approved drawing v07:
+    // "Sam’s take-home each month — $3,300", for someone paid fortnightly). It was being scaled as
+    // though it were typed for each pay period, which turned $3,300 into $7,150 (found 2026-10-04
+    // holding the screen to its drawing). Used exactly as typed.
+    return { monthly: toNum(entered), estimated: false,
              why: 'the take-home you entered' };
   }
   const gross = annualisedGross(e);
@@ -402,7 +405,7 @@ export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
  *     gm = gross by month(e)
  *     lands = a lookup of lm
  *     landed = lands.get(key) as number   if lands.has(key)
- *     per month(lands typical, e)   otherwise
+ *     lands typical read as a number (0 when it is not one)   otherwise
  *     left = gross − k401 − landed
  *     when = ''   if key = 'typical'
  *     ` in ${key}`   otherwise
@@ -446,11 +449,11 @@ export function payFiguresAgree(e: BasePayEntry): PayVerdict {
   const gm = grossByMonth(e);
   const lm = e.varies && e.landsByMonth
     ? monthsOf(e.landsByMonth)
-    : gm.map(([k]) => [k, (perMonth(e.landsTypical, e))] as [string, number]);
+    : gm.map(([k]) => [k, toNum(e.landsTypical)] as [string, number]);
   const lands = new Map(lm);
 
   for (const [key, gross] of gm) {
-    const landed = lands.has(key) ? (lands.get(key) as number) : (perMonth(e.landsTypical, e));
+    const landed = lands.has(key) ? (lands.get(key) as number) : toNum(e.landsTypical);
     const left = gross - k401 - landed;
     if (left < -AGREE_TOLERANCE) {
       const when = key === 'typical' ? '' : ` in ${key}`;
@@ -633,7 +636,7 @@ const EXAMPLE_EARNERS = [
   { name: 'Sam’s pay', entry: { freq: 'monthly', varies: false, grossTypical: 5000, monthly401k: 400 } },
 ];
 const EXAMPLE_EARNERS_WITH_LANDS = [
-  { name: 'Your pay', entry: { freq: 'biweekly', varies: false, grossTypical: 4200, landsTypical: 2700, monthly401k: 1200 } },
+  { name: 'Your pay', entry: { freq: 'biweekly', varies: false, grossTypical: 4200, landsTypical: 5850, monthly401k: 1200 } },
   { name: 'Sam’s pay', entry: { freq: 'monthly', varies: false, grossTypical: 5000, landsTypical: 3400, monthly401k: 400 } },
 ];
 const WAGES =
@@ -641,7 +644,7 @@ const WAGES =
   + 'paying $1,200 and $400/month into their 401(k)s — $14,100/month of wages in all. ';
 const GIVEN = WAGES + 'They have typed their tax rate: 22%.';
 const GIVEN_NOTHING_TOLD = WAGES + 'They have told us no tax rate and no take-home, so the take-home shown is ours.';
-const GIVEN_LANDS_TYPED = WAGES + 'Each has typed what actually lands: $2,700 a period and $3,400/month.';
+const GIVEN_LANDS_TYPED = WAGES + 'Each has typed their take-home each month: $5,850 and $3,400.';
 const GIVEN_LAW =
   'The payroll-tax figures Congress publishes for the 2026 tax year — not a calculation, and not '
   + 'ours to choose; they are read back so the sentence on screen can be checked against the law.';
@@ -891,6 +894,7 @@ export const FIGURES = declareFigures({
  *     · If over65 is missing it uses 0.
  *     · If gross annualised is missing it uses 0.
  *     · Uses a built-in f i c a s h a r e of 7.65%.
+ *     · Treats a year as twelve equal months.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-001
@@ -921,7 +925,7 @@ export function basePay(h: HouseholdPayInput): BasePay {
     const wrong = ((grossAnnual * bandOnOneWage) / 12);
     const right = ((grossAnnual * bandOnEveryWage) / 12);
     bandNote = `Filing ${status === 'married' ? 'jointly' : 'as you do'}, the band comes from what you earn together. `
-      + `On one wage alone we would have read ${Math.round(bandOnOneWage * 100)}% and shown about `
+      + `On your pay alone we would have read ${Math.round(bandOnOneWage * 100)}% and shown about `
       + `${money(right - wrong)}/month more than your real take-home.`;
   }
 
@@ -971,6 +975,18 @@ export function basePay(h: HouseholdPayInput): BasePay {
       ? `${e.name === 'You' ? 'Your' : `${e.name}’s`} take-home: ≈${money0(e.pay.landsInBank)} (${how})`
       : `${e.name === 'You' ? 'Your' : `${e.name}’s`} take-home: ${money0(e.pay.landsInBank)} (${e.name === 'You' ? 'you' : e.name} entered)`;
     landsNote = earners.map(line).join('\n');
+  } else if (mode === 'estimated' && grossAnnual > 0) {
+    // THE CARD SAYS ITS OWN SUM (approved drawing v07, frame 2a-ii): gross − tax − 401(k)s = take-home
+    const k401 = earners.reduce((t, e) => t + e.pay.monthly401k, 0);
+    landsNote = `${money0(grossAnnual / 12)} gross − ${money0(monthlyTax)} tax`
+      + `${k401 > 0 ? ` − ${money0(k401)} of 401(k)s` : ''} = ${money0(landsInBank)}.`;
+  }
+  // THE BAND IS EXPLAINED ONLY BESIDE FIGURES THEY ENTERED (frame 2a) — it speaks of "your real
+  // take-home", which exists only once they have given one, and it says whose the share is. Where we
+  // calculate the take-home the bracket row says what it assumed instead (frames 2a-ii and 2a-iii).
+  if (mode !== 'entered') bandNote = null;
+  if (bandNote) {
+    bandNote += ` The ${Math.round(inForce.rate * 100)}% is your own figures — tax, Social Security, Medicare, everything.`;
   }
 
   return {

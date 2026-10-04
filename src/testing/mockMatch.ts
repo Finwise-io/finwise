@@ -59,3 +59,19 @@ export function firstDifference(drawn: string, built: string): string {
   if (i === x.length && i === y.length) return '';
   return `at word ${i} of ${x.length} drawn / ${y.length} built:\n  DRAWN … ${x.slice(Math.max(0, i - 10), i + 16).join(' ')}\n  BUILT … ${y.slice(Math.max(0, i - 10), i + 16).join(' ')}`;
 }
+
+/** For a drawing that shows only PART of a screen: are the drawn words in the built screen, in order
+ *  and unbroken? '' when they are; otherwise where the longest run parts, with the words either side.
+ *  What this does not hold, and the caller must say so: the built words before and after the run. */
+export function firstBreakInside(drawn: string, built: string): string {
+  const x = drawn.split(' '), y = built.split(' ');
+  let best = -1, bestAt = 0;
+  for (let start = 0; start < y.length; start += 1) {
+    if (y[start] !== x[0]) continue;
+    let i = 0; while (i < x.length && start + i < y.length && x[i] === y[start + i]) i += 1;
+    if (i === x.length) return '';
+    if (i > best) { best = i; bestAt = start; }
+  }
+  if (best < 0) return `the first drawn word "${x[0]}" is nowhere on the built screen:\n  DRAWN … ${x.slice(0, 20).join(' ')}\n  BUILT … ${y.slice(0, 30).join(' ')}`;
+  return `the run breaks at word ${best} of ${x.length} drawn:\n  DRAWN … ${x.slice(Math.max(0, best - 10), best + 16).join(' ')}\n  BUILT … ${y.slice(Math.max(0, bestAt + best - 10), bestAt + best + 16).join(' ')}`;
+}

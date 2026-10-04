@@ -60,7 +60,7 @@ test('2b — a section opens on its own, and closed it is one line', () => {
 test('2c — a fortnightly earner is asked for a FORTNIGHT, and the months are still months', () => {
   setProfile({ ...ME, salaryFreq: 'biweekly', salaryMonthMode: 'months' });
   render(<BasePayScreen />);
-  expect(screen.getByText('Gross pay a fortnight')).toBeOnTheScreen();
+  expect(screen.getByText('Gross a fortnight')).toBeOnTheScreen();   // the drawing's words (v07, frame 2c)
   expect(screen.getByText('A typical one. Every month below starts from this.')).toBeOnTheScreen();
 });
 

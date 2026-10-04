@@ -1,5 +1,5 @@
 /**
- * HOW DO YOU FILE YOUR TAXES? — the screen, against the approved mock (income-v5, frames 4a–4c).
+ * HOW DO YOU FILE YOUR TAXES? — the screen, against the approved mock (income-end-to-end v07, frames 4a–4c).
  *
  * The app read a filing status, found nothing, and taxed everyone as a single filer — including the
  * couple who had just said they have a spouse. It COULD be set, but only from three chips buried in
@@ -35,7 +35,7 @@ test('4b — a spouse: pre-answered as jointly, names them, and asks who is 65 o
   set(COUPLE);
   render(<FilingStatusScreen />);
   expect(screen.getByLabelText('Married filing jointly').props.accessibilityState.selected).toBe(true);
-  expect(screen.getByText(/because you entered about Sam/)).toBeOnTheScreen();
+  expect(screen.getByText(/because you entered Sam\./)).toBeOnTheScreen();
   expect(screen.getByText('Is either of you 65 or older?')).toBeOnTheScreen();
   expect(screen.getByText(/\$1,650 each on a joint return/)).toBeOnTheScreen();
 });

@@ -44,6 +44,12 @@ test('THE LAW: every pay frequency converts on its own period', () => {
   }
 });
 
+test('THE LAW: what they typed is kept as the MONTH every screen now asks for', () => {
+  // $1,500 a fortnight, typed the old way, is $3,250 a month
+  const out: any = convertTakeHomeMode({ baseSalary: '1500', salaryMode: 'takehome', salaryFreq: 'biweekly' });
+  expect(Number(out.landsTypical)).toBeCloseTo((1500 * 26) / 12, 6);
+});
+
 test('nothing to convert when there is no salary', () => {
   expect(needsTakeHomeConversion({ salaryMode: 'takehome' } as any)).toBe(false);
   expect(needsTakeHomeConversion({} as any)).toBe(false);
