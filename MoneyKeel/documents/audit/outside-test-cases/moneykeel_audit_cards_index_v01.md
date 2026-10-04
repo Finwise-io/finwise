@@ -11,8 +11,9 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 ## What is in the pack
 
 - Read from the code: 222 files, 361 function and orchestrator records in Net worth, Performance and Cash flow.
-- To be tested: **319 cards in 25 files — 1595 cases from each model.**
-- Left out, each for a stated reason: 42 (listed at the foot).
+- To be judged and tested: **318 cards in 25 files — 318 formula checks and 1,590 cases from each model.**
+- Every card carries its formula in words: 318 of 318. Figures stated in those formulas: 463, each traced to the function it describes or checked by hand and recorded.
+- Left out, each for a stated reason: 43 (listed at the foot).
 
 | File | Batch | Cards | Cases | First and last card |
 |---|---|---|---|---|
@@ -25,7 +26,7 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 | `moneykeel_audit_cards_performance_01-of-04.md` | performance 01 | 2 | 10 | MK-NW-O-007 theLookBack … MK-NW-O-008 thePerformance |
 | `moneykeel_audit_cards_performance_02-of-04.md` | performance 02 | 15 | 75 | MK-NW-F-084 categoryEarnings … MK-PF-F-020 portfolioBenchReturn |
 | `moneykeel_audit_cards_performance_03-of-04.md` | performance 03 | 15 | 75 | MK-PF-F-033 quantityWithUnit … MK-PF-F-023 lookBack |
-| `moneykeel_audit_cards_performance_04-of-04.md` | performance 04 | 11 | 55 | MK-PF-F-024 userFlows … MK-NW-F-085 PERF_ONE |
+| `moneykeel_audit_cards_performance_04-of-04.md` | performance 04 | 10 | 50 | MK-PF-F-024 userFlows … MK-PF-F-034 closeOnOrBefore |
 | `moneykeel_audit_cards_cashflow_01-of-15.md` | cashflow 01 | 6 | 30 | MK-CF-O-001 basePay … MK-CF-O-006 theCreditLine |
 | `moneykeel_audit_cards_cashflow_02-of-15.md` | cashflow 02 | 6 | 30 | MK-CF-O-007 theTaxOrganizer … MK-CF-O-018 theDebts |
 | `moneykeel_audit_cards_cashflow_03-of-15.md` | cashflow 03 | 15 | 75 | MK-CF-F-002 plannedMonthlySpend … MK-CF-F-027 totalDebtBalance |
@@ -77,6 +78,7 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 | MK-NW-F-081 LB | an example helper — it runs another function on a worked example |
 | MK-NW-F-082 NW | an example helper — it runs another function on a worked example |
 | MK-NW-F-083 PERF | an example helper — it runs another function on a worked example |
+| MK-NW-F-085 PERF_ONE | an example helper — it runs another function on a worked example |
 | MK-NW-F-086 CATS | an example helper — it runs another function on a worked example |
 | MK-NW-F-087 CAT | an example helper — it runs another function on a worked example |
 | MK-NW-F-088 BENCH | an example helper — it runs another function on a worked example |

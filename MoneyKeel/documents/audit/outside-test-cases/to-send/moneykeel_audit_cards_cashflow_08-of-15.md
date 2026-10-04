@@ -1,6 +1,6 @@
-# Brief — write the test cases, from outside
+# Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v02 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -12,18 +12,24 @@ Those functions already have tests, and the tests pass. Five of the functions we
 reason: the person who wrote each function also wrote its test, from the same understanding. A wrong
 rule produced a wrong example that agreed with it.
 
-**Your job is to write test cases that do not share that understanding.** You are the outside judge.
+**You are the outside judge. You have two jobs for every function:**
+
+1. **Check the formula.** Each function comes with its formula written out in words. Decide whether
+   that is the right way to get the answer the function is for.
+2. **Write five test cases**, with the answer worked out by hand.
+
+Afterwards a script runs every one of your cases against the app. The owner is then shown, side by
+side: your answer, the answer of a second model working separately, and the app's answer.
 
 ## The one rule that matters
 
 **You are not shown the code inside any function, the existing tests, or any answer the app gives. Do
 not ask for them.**
 
-If you saw them you would start to agree with them. Work only from what a function is *for*, the
-owner's written decisions, and ordinary arithmetic and finance.
+If you saw them you would start to agree with them. Work from what a function is *for*, its formula
+in words, the owner's written decisions, published sources, and ordinary arithmetic and finance.
 
-You are also working alone. Another model is doing the same job separately. Do not try to guess what
-it will write. Where your answer, its answer and the app's answer differ, the owner sees all three.
+You are also working alone. Do not try to guess what the other model will write.
 
 ## What you are given
 
@@ -31,30 +37,74 @@ Below this brief is a batch of **cards**, one for each function or orchestrator.
 
 | Field | What it is |
 |---|---|
-| `id`, `name` | Its identifier and name. Quote the `id` exactly in every case you write. |
+| `id`, `name` | Its identifier and name. Quote the `id` exactly in everything you write. |
 | `kind` | `orchestrator` or `function`. |
 | `what_it_is_for` | The question it answers, in one sentence. |
+| `formula_in_words` | **How it gets its answer — every step and every number.** Written by the in-house author from the function as it stands today. This is the thing you are judging. |
 | `handed` | What it is given, as the code names it. Type names are the app's own; they are spelled out once, above the cards. |
-| `gives_back` | What it returns. |
 | `inputs_it_reads` | The registered inputs behind it, each with a plain name. |
 | `figures_it_feeds` | The numbers on screen it produces: the words beside each, its unit, what it answers, and when it must refuse to give a number. |
-| `rules` | The rules it must follow, each marked with **who said it**. |
+| `rules` | Rules it must follow, each marked with **who said it**. |
 | `approved_drawing` | On a few orchestrators: a worked household the owner approved, with numbers that add up. |
+
+A formula often names another function in brackets, for example `(perMonth)`. When that function's
+card is not in your batch, its formula is printed under **Formulas these cards lean on**, after the
+cards. Use it to work your answers. You are not asked to judge or test those.
+
+Batches for Cash flow also carry **the published amounts the app uses** — tax bands, deductions,
+contribution limits. Check them against their published source.
 
 ### Who said a rule — read this before you use one
 
 - `"said_by": "owner"` — the owner's decision, in his own words, with its number and date. **Settled.**
-- `"said_by": "author"` — the in-house author's record of how the function behaves. **A claim, not a
-  fact.** Use it to understand what is intended. If it looks wrong, or contradicts an owner rule, an
-  approved drawing or ordinary arithmetic, do not follow it — write the case the way you believe is
-  right and say so in `notes`.
+  A formula that goes against an owner rule is wrong.
+- `"said_by": "author"` — the in-house author's record. **A claim, not a fact.**
 
-Comments inside `handed`, and inside the types above the cards, are the author's too — the same
-caution applies.
+`formula_in_words`, the comments inside `handed`, and the comments inside the types are all the
+author's. Treat every one as a claim to be checked.
 
-A card has no formula on it and no worked answer from the app. That is deliberate.
+## Job 1 — check the formula
 
-## What to write
+For every card, read `what_it_is_for`, then `formula_in_words`, and give one verdict:
+
+| Verdict | When |
+|---|---|
+| `RIGHT` | The formula is a correct way to get what the function is for, and it covers the cases it needs to. |
+| `WRONG` | The formula gives a wrong answer for some input a real household could have. Say which input, and what the answer should be. |
+| `INCOMPLETE` | The formula is right as far as it goes but is silent, or vague, on a case that changes the answer. Say which case. |
+| `CANNOT TELL` | The card does not say enough about what the function is for to judge. Say what is missing. |
+
+Judge it against, in this order:
+
+1. **The owner's rules** on the card, and the **approved drawing** where there is one.
+2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
+   source and the year. A wrong amount is a `WRONG` formula.
+3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
+4. **Ordinary arithmetic, and whether it agrees with itself.**
+
+Look hard for these, because they are the shapes the five known errors took:
+
+- A rule applied to money it should not touch — for example a payslip rate applied to rent.
+- Two formulas that describe the same thing differently — for example one function counting an hourly
+  worker's year one way and another counting it a different way. Name both cards.
+- A line on the wrong side — "above 60%" where "60% or more" is meant; "after one year" where "one
+  year or more" is meant.
+- A yearly rate made from a period of a year or less, or a period total shown for a longer one.
+- A percent given when the starting value was never really known.
+- Something missing counted as zero, or a default number invented where the honest answer is "no
+  answer".
+- Parts that do not add up to the whole they are shown beside.
+- A number rounded before the end.
+
+For `WRONG` and `INCOMPLETE`, write **what the formula should be**, in words, and what you rest that
+on. Give a `severity`: `high` when a household would see a wrong number, `medium` when it happens only
+in an unusual case, `low` when it changes no number a person sees.
+
+Many cards are small — they tidy a word, pick a label, copy a record. Judge those too; one line is
+enough.
+
+## Job 2 — write five test cases
 
 **Five cases for every card: two easy, two complex, one edge.**
 
@@ -62,15 +112,14 @@ A card has no formula on it and no worked answer from the app. That is deliberat
 |---|---|
 | **Easy** (2) | One thing happening. Round numbers. A person can check the answer in their head in under a minute. The two must test different things, not the same thing with different numbers. |
 | **Complex** (2) | At least three inputs that all change the answer, with unround, lifelike amounts and dates. Things interacting the way they do in a real household: two earners and rent and a bonus; money added halfway through a period; one account linked and one entered by hand. |
-| **Edge** (1) | The place where a rule changes, or where something is missing. Zero. Nothing entered. A negative. A date exactly on a boundary. An amount exactly at a threshold. A record that starts after the period asked about. |
+| **Edge** (1) | The place where the formula changes, or where something is missing. Zero. Nothing entered. A negative. A date exactly on a boundary. An amount exactly at a threshold. A record that starts after the period asked about. |
 
 A small function still gets five. For one that only answers yes or no, or tidies a word, "complex"
 means the awkward inputs: mixed capitals, stray spaces, a value on each side of the line.
 
 ### Go where the mistakes were
 
-Each of the five errors sat in a case nobody had tried. Across your cases for a batch, make sure these
-shapes appear wherever a card's inputs allow them:
+Across your cases for a batch, make sure these shapes appear wherever a card's inputs allow them:
 
 1. Rent, or interest and dividends, **together with** a wage whose take-home the person typed in.
 2. A holding described the way a broker link describes it, not the way a person types it.
@@ -82,31 +131,38 @@ shapes appear wherever a card's inputs allow them:
 8. A debt paid this month, a debt not yet paid, and a debt with no payment required.
 9. Nothing entered at all.
 
-## How to work out the expected answer
+### How to work out the expected answer
 
-1. **By hand, from the rule, showing every step.** A reader must be able to follow your arithmetic
-   line by line without trusting you.
-2. **Keep full precision until the end.** Then give two values: the exact one (at least four decimal
+1. **By hand, showing every step.** A reader must be able to follow your arithmetic line by line
+   without trusting you.
+2. **`expected` is the answer you believe is RIGHT.** Where you judged the formula `RIGHT`, that is
+   the formula's answer. Where you judged it `WRONG` or `INCOMPLETE`, at least one of your five cases
+   must be one where the two differ — and that case carries both: `expected` (the right answer) and
+   `formula_gives` (what the formula as written produces). Leave `formula_gives` out when the two are
+   the same.
+3. **Keep full precision until the end.** Then give two values: the exact one (at least four decimal
    places) and the one a person would see — whole dollars for totals and balances, two decimals for
    prices, expenses and percentages.
-3. **"No answer" is a valid answer.** Where an input is missing or a rule cannot honestly produce a
-   number, the right result is a refusal — the app shows a dash and says why. Write
+4. **"No answer" is a valid answer.** Where an input is missing or the formula cannot honestly produce
+   a number, the right result is a refusal — the app shows a dash and says why. Write
    `"expected": "REFUSES"` and the reason. Never invent a default number.
-4. **If the card does not settle the answer, do not guess.** Mark the case `RULE UNCLEAR`, write
-   each reading you can see, and give the answer under each. An unclear rule is a finding, and one of
-   the most useful things you can send back.
-5. **If you cannot tell what a function is for, do not write cases for it.** List it under
+5. **Some functions cannot be worked by hand** — a simulation of a thousand futures, a search for a
+   rate. Test what can be: when it must refuse, what it gives at zero, which of two inputs must give
+   the larger answer. Say so in `notes`.
+6. **If the card does not settle the answer, do not guess.** Mark the case `RULE UNCLEAR`, write each
+   reading you can see, and give the answer under each.
+7. **If you cannot tell what a function is for, do not write cases for it.** List it under
    `could_not_test` with what is missing from the card.
-6. **Cite the rule.** Every case names what its answer rests on: an owner decision number, the
-   approved drawing, or — for tax and contribution limits — the published table and its year.
+8. **Say what the answer rests on**: the formula in words, an owner decision number, the approved
+   drawing, or the published table and its year.
 
-## Orchestrators — two more things to check
+### Orchestrators — two more things to check
 
 An orchestrator's answer has parts. For each orchestrator, at least one complex case must state, as
 separate expected values:
 
-- **The parts add up to the whole.** Every row shown is a row in the total. If the answer is a list
-  of rows and a total, give each row and the total, and show that they sum.
+- **The parts add up to the whole.** If the answer is a list of rows and a total, give each row and
+  the total, and show that they sum.
 - **The same input gives the same number everywhere it is used.** Where `figures_it_feeds` shows a
   figure on more than one screen, say so in the case, so the two can be compared.
 
@@ -120,10 +176,32 @@ for inputs; do not invent code names. They will be mapped onto the app afterward
 will not be changed in the mapping** — a case that cannot be mapped goes back to the owner, not into
 a drawer.
 
+The first formula check below is an invented example of the shape, not a real card.
+
 ```json
 {
   "batch": "cashflow 01",
   "written_by": "claude | gemini",
+  "formula_checks": [
+    {
+      "id": "MK-XX-F-000",
+      "name": "exampleOnly",
+      "verdict": "WRONG",
+      "why": "For pay every two weeks the formula divides the yearly amount by 52. There are 26 such pay days in a year, so each one comes out at half its real size.",
+      "should_be": "Pay every two weeks = the yearly amount ÷ 26.",
+      "rests_on": "Ordinary arithmetic: 52 weeks ÷ 2.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-O-004",
+      "name": "incomeSummary",
+      "verdict": "RIGHT",
+      "why": "The rows shown are the rows added, and a typed take-home is used as typed.",
+      "should_be": "",
+      "rests_on": "Approved drawing income-end-to-end v07, frame 16.",
+      "severity": ""
+    }
+  ],
   "cases": [
     {
       "id": "MK-CF-O-004",
@@ -153,7 +231,7 @@ a drawer.
         "Take-home in a usual month = 5,000 + 3,300 + 1,200 = 9,500",
         "Check: the three rows sum to the total, 9,500"
       ],
-      "rule": "Approved drawing income-end-to-end v07, frame 16; its rule 5: the take-home someone enters IS the take-home",
+      "rests_on": "Approved drawing income-end-to-end v07, frame 16; its rule 5: the take-home someone enters IS the take-home",
       "confidence": "high",
       "notes": ""
     }
@@ -164,14 +242,17 @@ a drawer.
 }
 ```
 
-`kind` is one of `easy`, `complex`, `edge`. `confidence` is `high`, `medium` or `low`; anything
-below `high` needs a sentence in `notes` saying why.
+`verdict` is one of `RIGHT`, `WRONG`, `INCOMPLETE`, `CANNOT TELL`. `kind` is one of `easy`,
+`complex`, `edge`. `confidence` is `high`, `medium` or `low`; anything below `high` needs a sentence
+in `notes` saying why.
 
 ## Before you send
 
+- One formula check for every card in the batch.
 - Five cases for every card you could test — two easy, two complex, one edge — and every other card
   listed under `could_not_test`.
-- Every case quotes its card's `id` exactly.
+- Every card judged `WRONG` or `INCOMPLETE` has a case that shows the difference, with `formula_gives`.
+- Everything quotes its card's `id` exactly.
 - Every case shows its working, and the working reaches the expected value.
 - Every list of rows sums to its total.
 - No two cases for one card are the same case with different numbers.
@@ -181,7 +262,28 @@ below `high` needs a sentence in `notes` saying why.
 
 # The cards — batch "cashflow 08"
 
-15 cards, so 75 cases. Put `"batch": "cashflow 08"` in your reply.
+15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 08"` in your reply.
+
+## The published 2026 amounts the app uses
+
+Read from the app. **Check each against its published source and say so in `formula_checks` when one is wrong.**
+
+**Federal income tax, 2026 — each slice of taxable income at its own rate.** Taxable income = income − the deduction.
+
+| Filing status | Standard deduction | Added for each person 65 or over | Bands: up to … at … |
+|---|---|---|---|
+| Single | $16,100 | $2,050 | $12,400 at 10% · $50,400 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $640,600 at 35% · above that at 37% |
+| Married filing jointly | $32,200 | $1,650 | $24,800 at 10% · $100,800 at 12% · $211,400 at 22% · $403,550 at 24% · $512,450 at 32% · $768,700 at 35% · above that at 37% |
+| Married filing separately | $16,100 | $1,650 | $12,400 at 10% · $50,400 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $384,350 at 35% · above that at 37% |
+| Head of household | $24,150 | $2,050 | $17,700 at 10% · $67,450 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $640,600 at 35% · above that at 37% |
+
+**Senior deduction, tax years 2025 to 2028:** $6,000 for each person 65 or over, less 6% of income above $75,000 (single, head of household) or $150,000 (married filing jointly). Not given when married filing separately.
+
+**Long-term capital gains, 2026** — 0% up to the first amount of taxable income, 15% up to the second, 20% above: Single $49,450 and $545,500 · Married filing jointly $98,900 and $613,700 · Married filing separately $49,450 and $306,850 · Head of household $66,200 and $579,600.
+
+**Contribution limits, 2026:** 401(k) $24,500, plus $8,000 at 50 or over, or plus $11,250 instead at ages 60 to 63. IRA $7,500, plus $1,100 at 50 or over. HSA $4,400 self-only or $8,750 family, plus $1,000 at 55 or over.
+
+**Social Security and Medicare, 2026:** 6.2% of wages up to $184,500; 1.45% of all wages; 0.9% more on wages above $200,000.
 
 ## The app's own types these cards name
 
@@ -226,6 +328,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "actualDebtPayment",
   "kind": "function",
   "what_it_is_for": "Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account.",
+  "formula_in_words": "The same as totalDebtMonthly: requiredPayment added over the debts.",
   "handed": "export function actualDebtPayment(debts: Debt[]): number"
  },
  {
@@ -233,6 +336,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "creditUtilization",
   "kind": "function",
   "what_it_is_for": "How much of a credit limit is in use, as a share, and whether that is good (30% or less), a caution (up to 50%) or high.",
+  "formula_in_words": "Share = balance ÷ limit (0 when the limit is zero or less). Good at 30% or under; caution above 30% up to 50%; high above 50% — judged before rounding. The share is then rounded to three decimals.",
   "handed": "export function creditUtilization(balance: number, limit: number): CreditUtil",
   "inputs_it_reads": [
    "MK-XS-I-001 account balance"
@@ -243,6 +347,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "inferDebtType",
   "kind": "function",
   "what_it_is_for": "The kind of debt, judged from its name: a home-equity credit line, a mortgage, a car loan, a student loan, a credit card, a medical debt, a personal loan or something else.",
+  "formula_in_words": "From the debt's name, capitals ignored, first match wins: heloc or home equity → home-equity line; mortgage or home loan → mortgage; auto, car loan or vehicle → auto; student or tuition → student loan; credit card, visa, mastercard or amex → credit card; medical, hospital or dental → medical; personal → personal; anything else → other.",
   "handed": "export function inferDebtType(label: string | undefined): DebtType"
  },
  {
@@ -250,6 +355,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "debtsFromOnboarding",
   "kind": "function",
   "what_it_is_for": "What debts should exist from the setup answers?",
+  "formula_in_words": "One debt when the balance entered at sign-up is above zero: its name (Debt when blank), its kind from the name (inferDebtType), the balance, yearly rate = the percent entered ÷ 100, and the minimum payment. None otherwise.",
   "handed": "export function debtsFromOnboarding(uid: UserId, op: Record<string, any> | null): DebtDoc",
   "inputs_it_reads": [
    "MK-XS-I-014 debt balance",
@@ -262,6 +368,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "getDebtState",
   "kind": "function",
   "what_it_is_for": "Reads a person's saved debts and returns their totals, or nothing when none are saved.",
+  "formula_in_words": "Loads the stored debts and gives buildDebtState of them; nothing when none are stored.",
   "handed": "export async function getDebtState(uid: UserId)"
  },
  {
@@ -269,6 +376,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "annualNet",
   "kind": "function",
   "what_it_is_for": "Annual NET contribution of a source: jobs use gross; rentals net out operating expenses.",
+  "formula_in_words": "The amount each period — for rent, rent less running costs each period — × the periods in a year: weekly 52, every two weeks 26, monthly 12, quarterly 4, yearly 1, one-off 1.",
   "handed": "export function annualNet(s: IncomeSource): number",
   "inputs_it_reads": [
    "MK-XS-I-039 how often each income arrives"
@@ -279,6 +387,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "grossAnnualBaseline",
   "kind": "function",
   "what_it_is_for": "Gross annual baseline = jobs (gross) + rentals (gross − expenses), all annualized.",
+  "formula_in_words": "annualNet added over every source.",
   "handed": "export function grossAnnualBaseline(sources: IncomeSource[]): number"
  },
  {
@@ -286,6 +395,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "employerMatchAnnual",
   "kind": "function",
   "what_it_is_for": "The employer's 401(k) match for a year, added up across every job.",
+  "formula_in_words": "Each source's employer match each period × its periods in a year, added.",
   "handed": "export function employerMatchAnnual(sources: IncomeSource[]): number",
   "inputs_it_reads": [
    "MK-XS-I-039 how often each income arrives"
@@ -296,6 +406,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "effectiveTaxRate",
   "kind": "function",
   "what_it_is_for": "The share of gross income that goes to tax: the person's own rate where they gave one, otherwise the calculated federal rate for the way they file.",
+  "formula_in_words": "With the person's own rate switched on: that rate, held between 0 and 1. Otherwise federal income tax on the yearly gross ÷ the yearly gross, by filing status (single when none), with no state tax (effectiveRateOnGrossFor).",
   "handed": "export function effectiveTaxRate(grossAnnual: number, tax: TaxProfile): number",
   "inputs_it_reads": [
    "MK-XS-I-030 tax filing status and age"
@@ -306,6 +417,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "getIncomeState",
   "kind": "function",
   "what_it_is_for": "The public read-model (spec IncomeState): totals, effective rate, monthly grid.",
+  "formula_in_words": "Loads the stored income and gives buildIncomeState of it; nothing when none is stored.",
   "handed": "export async function getIncomeState(uid: UserId): Promise<IncomeState | null>"
  },
  {
@@ -313,6 +425,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "annualHsaLimit",
   "kind": "function",
   "what_it_is_for": "How much can this person put into a health savings account this year?",
+  "formula_in_words": "0 when enrolled in Medicare. Otherwise, 2026: $4,400 for self-only cover or $8,750 for family cover; + $1,000 at age 55 or over.",
   "handed": "export function annualHsaLimit(age: number | null, family = false, medicareEnrolled: boolean | null = null): number",
   "figures_it_feeds": [
    {
@@ -355,6 +468,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "annualizedEnteredSalary",
   "kind": "function",
   "what_it_is_for": "Annual amount of what the user ENTERED (not grossed up) — for display.",
+  "formula_in_words": "Hourly: base pay × hours a week (40 when none) × 52. Otherwise base pay × the periods in a year: weekly 52, every two weeks 26, monthly 12, yearly 1 — monthly when no frequency is given.",
   "handed": "export function annualizedEnteredSalary(op: OnboardingProfile | null): number",
   "inputs_it_reads": [
    "MK-XS-I-039 how often each income arrives",
@@ -366,6 +480,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "salaryGrossByMonth",
   "kind": "function",
   "what_it_is_for": "Per-month GROSS base salary, Jan→Dec.",
+  "formula_in_words": "Each earner's twelve months of gross pay (wageGrossByMonth), added month by month.",
   "handed": "export function salaryGrossByMonth(op: OnboardingProfile | null): number[]"
  },
  {
@@ -373,6 +488,7 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "grossSalaryMonthly",
   "kind": "function",
   "what_it_is_for": "A representative full-month GROSS salary (the highest month — undiluted by $0 gap months).",
+  "formula_in_words": "The LARGEST of the twelve monthly gross salary figures (salaryGrossByMonth).",
   "handed": "export function grossSalaryMonthly(op: OnboardingProfile | null): number"
  },
  {
@@ -380,11 +496,99 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "name": "equityRowValue",
   "kind": "function",
   "what_it_is_for": "Value of one vesting-schedule row.",
+  "formula_in_words": "An option: shares × (market price − strike price), never below 0. Any other grant: shares × price.",
   "handed": "export function equityRowValue(row: any, type: string, strike?: any, market?: any): number",
   "inputs_it_reads": [
    "MK-XS-I-004 holding quantity (shares)",
    "MK-XS-I-034 option positions — contracts, strike, expiry, put or call"
   ]
+ }
+]
+```
+
+## Formulas these cards lean on
+
+13 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+
+```json
+[
+ {
+  "id": "MK-CF-F-023",
+  "name": "requiredPayment",
+  "what_it_is_for": "The payment reserved/required each month for a debt (planned payment, else the minimum).",
+  "formula_in_words": "0 for a debt due in full. Otherwise the larger of the minimum monthly payment and the payment the person says they make."
+ },
+ {
+  "id": "MK-CF-F-024",
+  "name": "totalDebtMonthly",
+  "what_it_is_for": "Total monthly debt obligation across all debts (override-aware).",
+  "formula_in_words": "requiredPayment added over the debts."
+ },
+ {
+  "id": "MK-CF-F-025",
+  "name": "minimumDebtService",
+  "what_it_is_for": "The minimum payments every debt requires in a month, added up, leaving out any debt due in one lump on a date.",
+  "formula_in_words": "Each debt's minimum monthly payment added; a debt due in full counts 0."
+ },
+ {
+  "id": "MK-CF-F-036",
+  "name": "buildDebtState",
+  "what_it_is_for": "What is the whole debt picture?",
+  "formula_in_words": "Total = the balances added. Minimum in a month = minimumDebtService. Actual payment in a month = actualDebtPayment. Highest-rate debt = the one with the largest yearly rate, the first of equals. High-cost debt = the balances of the debts whose rate is ABOVE 7%, added."
+ },
+ {
+  "id": "MK-CF-F-049",
+  "name": "buildIncomeState",
+  "what_it_is_for": "The income picture for a year: gross, tax rate and take-home, and the gross, tax and take-home of each of the twelve months.",
+  "formula_in_words": "Yearly gross = grossAnnualBaseline. Rate = effectiveTaxRate. Yearly after-tax = gross × (1 − rate); monthly after-tax = that ÷ 12. Month grid: each source's gross laid on the calendar (monthlyGrossOfSource), added by month. Tax each month = that month's gross × the rate, when the person's own rate is on; otherwise the federal tax on the year's running total up to and including that month, minus the tax up to the month before — worked AS A SINGLE FILER, with no state tax. After-tax that month = gross − tax. Employer match for the year = employerMatchAnnual."
+ },
+ {
+  "id": "MK-CF-F-099",
+  "name": "deductionFor",
+  "what_it_is_for": "The amount of income that is free of tax before the brackets start: the standard deduction for the way the person files, plus the extra amounts for anyone 65 or older.",
+  "formula_in_words": "The standard deduction for the filing status + the age-65 addition × the number of people 65 or over (2 at most) + the senior deduction (seniorDeductionFor). The amounts are in the 2026 table above the cards."
+ },
+ {
+  "id": "MK-CF-F-100",
+  "name": "taxableIncomeFor",
+  "what_it_is_for": "What income is taxed, given how this person files?",
+  "formula_in_words": "Gross − the deduction (deductionFor, with the gross itself used as the income for the senior deduction's phase-out); never below 0."
+ },
+ {
+  "id": "MK-CF-F-101",
+  "name": "taxOwedFor",
+  "what_it_is_for": "Federal tax owed under a filing status, plus an optional user-set FLAT state rate applied to TAXABLE income (E10) — states differ wildly, so one honest user-entered percent beats fifty guessed tables, and it never taxes the deduction.",
+  "formula_in_words": "Taxable income (taxableIncomeFor) taxed band by band on the filing status's 2026 table — each slice at its own rate — plus taxable income × the state rate (held between 0 and 15%)."
+ },
+ {
+  "id": "MK-CF-F-102",
+  "name": "effectiveRateOnGrossFor",
+  "what_it_is_for": "What share of my income actually goes in tax?",
+  "formula_in_words": "taxOwedFor ÷ gross; 0 when the gross is zero or less."
+ },
+ {
+  "id": "MK-CF-F-130",
+  "name": "enteredMonthlyRaw",
+  "what_it_is_for": "A single entered base amount expressed per month, before tax gross-up (hourly/weekly/… → monthly).",
+  "formula_in_words": "Hourly: base pay × hours a week (40 when none) × 52 ÷ 12. Otherwise base pay × the periods in a year ÷ 12 (weekly 52, every two weeks 26, monthly 12, yearly 1)."
+ },
+ {
+  "id": "MK-CF-F-161",
+  "name": "monthlyGrossOfSource",
+  "what_it_is_for": "The gross amount one income source brings in each of the twelve months, with rent taken after its running costs and lump payments placed in the months they arrive.",
+  "formula_in_words": "Twelve calendar months; rent is taken after running costs. Monthly: the amount every month. Weekly: amount × 52 ÷ 12 every month. Every two weeks: amount × 26 ÷ 12 every month. Quarterly: the amount in March, June, September and December. Yearly: the amount in its month (December when none) — or split across its months by their shares. One-off: the amount in its month (January when none)."
+ },
+ {
+  "id": "MK-CF-F-177",
+  "name": "wageGrossByMonth",
+  "what_it_is_for": "ONE person's wage, month by month, January first.",
+  "formula_in_words": "With a month table: this calendar year's twelve months from the table, any month not in it taking the typical monthly figure. With none: the typical monthly figure (enteredMonthlyRaw) in every month."
+ },
+ {
+  "id": "MK-CF-F-187",
+  "name": "seniorDeductionFor",
+  "what_it_is_for": "How much of the $6,000-per-person senior deduction does this return get?",
+  "formula_in_words": "0 outside tax years 2025 to 2028; when filing separately; when nobody is 65 or over; or when the income is not known. Otherwise $6,000 × the people 65 or over (2 at most), less 6% of the income above $75,000 (single, head of household) or $150,000 (married); never below 0."
  }
 ]
 ```

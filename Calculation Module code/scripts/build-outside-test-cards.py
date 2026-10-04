@@ -4,15 +4,25 @@
 Why this exists (founder, 2026-10-04): the functions passed every test I wrote and five were still
 wrong, because the tests came from the same understanding as the code. The cases have to come from
 outside. This prints what an outside model needs to write them — what each function is FOR, what it
-is handed, the figures it feeds and the rules it must follow — and deliberately nothing of how it
-works: no function body, no formula, no worked answer.
+is handed, the figures it feeds, the rules it must follow, and THE FORMULA IN WORDS: how the function
+gets its answer, every number included, so the outside model can judge whether that is the right way
+and work its expected answers by hand. Never the code itself, and never an answer the app gives.
+
+The formula in words (founder, 2026-10-04: "How outside AI will even test it if you do not give them
+the rule?") lives in moneykeel_function_rules.json, one entry a function, written by reading the
+function. Each entry carries a fingerprint of the function it was read from; when the function
+changes the fingerprint no longer matches and this build STOPS until the rule is read again:
+
+    python3 "Calculation Module code/scripts/build-outside-test-cards.py" --reread MK-CF-F-146
 
 Read from the code and the records on every run; nothing here is typed from memory except the
-approved-drawing households, whose sums are re-checked below.
+approved-drawing households, whose sums are re-checked below, and the rules, whose numbers are traced
+back to the code below.
 
     python3 "Calculation Module code/scripts/build-outside-test-cards.py"
 """
 import collections
+import hashlib
 import json
 import os
 import re
@@ -21,10 +31,12 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
 OUT = os.path.join(ROOT, 'MoneyKeel', 'documents', 'audit', 'outside-test-cases')
-BRIEF = os.path.join(OUT, 'moneykeel_audit_brief_outside-test-cases_v02.md')
+BRIEF = os.path.join(OUT, 'moneykeel_audit_brief_outside-test-cases_v03.md')
 CODE_ROOTS = ['src', 'MoneyKeel/functions', 'Calculation Module code/engines']
 FAMILIES = ('NW', 'PF', 'CF')                      # the three modules of this build (his scope, 2026-10-03)
 PER_BATCH = {'orchestrator': 6, 'function': 15}    # a reply is five cases a card; these keep it inside one answer
+
+RULES = os.path.join(HERE, 'moneykeel_function_rules.json')
 
 J = lambda name: json.load(open(os.path.join(HERE, name), encoding='utf8'))
 
@@ -236,8 +248,190 @@ def types_named(sig, lines):
     return out
 
 
+def body_of(lines, at):
+    """The whole of one function, comments removed — used ONLY for its fingerprint and to trace the
+    numbers in its rule. It never goes on a card (the leak check below would stop the build).
+
+    Read character by character, because a function ends where its brackets close and an apostrophe
+    in a comment or a "}" in a string must not be mistaken for code."""
+    text = '\n'.join(lines[at:at + 400])
+    out, depth, i, seen = [], 0, 0, False
+    stack = []                       # where we are: a quote character, or the bracket depth a ${ opened at
+    while i < len(text):
+        ch, two = text[i], text[i:i + 2]
+        mode = stack[-1] if stack and isinstance(stack[-1], str) else ''
+        if mode in ('"', "'"):
+            if ch == '\\':
+                out.append(two); i += 2; continue
+            if ch == mode or ch == '\n':
+                stack.pop()
+        elif mode == '`':
+            if ch == '\\':
+                out.append(two); i += 2; continue
+            if ch == '`':
+                stack.pop()
+            elif two == '${':
+                stack.append(depth)
+                out.append(two); i += 2; continue
+        else:
+            if two == '/*':
+                e = text.find('*/', i + 2)
+                i = len(text) if e == -1 else e + 2
+                continue
+            if two == '//':
+                e = text.find('\n', i)
+                i = len(text) if e == -1 else e
+                continue
+            if ch in '\'"`':
+                stack.append(ch)
+            elif ch in '({[':
+                depth += 1
+                seen = True
+            elif ch in ')}]':
+                if ch == '}' and stack and stack[-1] == depth:      # the } that closes a ${ in a template
+                    stack.pop()
+                    out.append(ch); i += 1; continue
+                depth -= 1
+                if depth == 0 and ch == '}':
+                    rest = text[i + 1:].lstrip()
+                    if rest[:1] not in ('{', '>', '|', '&', '[', ',', ')') and not rest.startswith('=>'):
+                        out.append(ch)
+                        break
+            elif ch == ';' and depth == 0 and seen:
+                out.append(ch)
+                break
+        out.append(ch)
+        i += 1
+    return '\n'.join(l.rstrip() for l in ''.join(out).split('\n') if l.strip())
+
+
+def fingerprint(body):
+    return hashlib.sha1(body.encode('utf8')).hexdigest()[:10]
+
+
+_CONST = {}
+_FUNC = {}
+
+
+def constants_named(body, file_text):
+    """The value of every NAMED_CONSTANT a function uses, so a number in its rule can be traced to it."""
+    if not _CONST:
+        for root in CODE_ROOTS:
+            for dp, _dn, fn in os.walk(os.path.join(ROOT, root)):
+                if 'node_modules' in dp or '__tests__' in dp:
+                    continue
+                for f in fn:
+                    if f.endswith(('.ts', '.tsx')) and '.test.' not in f:
+                        t = open(os.path.join(dp, f), encoding='utf8').read()
+                        for m in re.finditer(r'^(?:export )?const ([A-Z][A-Za-z0-9_]{2,})\b[^=\n]*=', t, re.M):
+                            j, depth = m.end(), 0
+                            while j < len(t) and not (t[j] == ';' and depth == 0) and j - m.end() < 4000:
+                                depth += t[j] in '{(['
+                                depth -= t[j] in '})]'
+                                j += 1
+                            _CONST.setdefault(m.group(1), []).append(t[m.end():j])
+                        # every function the code declares, so a figure held by a function this one calls is found too
+                        lines = t.split('\n')
+                        for k, ln in enumerate(lines):
+                            m = (re.match(r'(?:export )?(?:default )?(?:async )?function\s+([A-Za-z0-9_]+)', ln)
+                                 or re.match(r'(?:export )?const\s+([a-z][A-Za-z0-9_]*)\s*(?::[^=]+)?=\s*(?:async\s*)?(?:<[^>(]*>)?\s*\(', ln))
+                            if m:
+                                _FUNC.setdefault(m.group(1), []).append(body_of(lines, k))
+    # only what the function really reaches: a function it CALLS (name followed by a bracket) and a
+    # constant it names (a capital first letter) — following every word would find any number anywhere
+    words = lambda t: set(re.findall(r'\b([A-Za-z_][A-Za-z0-9_]{2,})\s*\(', t)) | set(re.findall(r'\b[A-Z][A-Za-z0-9_]{2,}\b', t))
+    out, todo, done = [], words(body), set()
+    while todo:
+        n = todo.pop()
+        if n in done:
+            continue
+        done.add(n)
+        for v in _CONST.get(n, []) + _FUNC.get(n, []):
+            out.append(v)
+            todo |= words(v)
+    return '\n'.join(out)
+
+
+FIGURE = re.compile(r'(?<![\w.])\$?(\d[\d,]*(?:\.\d+)?)(%?)')
+NOT_FIGURES = re.compile(r'\(\d\)|401\(k\)|\b529\b|\b\d{4}-\d{2}(?:-\d{2})?\b')   # (1) (2) are list marks; 401(k), 529 and a sample date are names
+
+
+def numbers_not_in_code(rule, code):
+    """Every figure a rule states — $184,500, 6.2%, 60%, 2,080 — must be a figure the code holds.
+    A percent may sit in the code as a share (60% as 0.6). Returns the ones that could not be found."""
+    held = set()
+    for n in re.findall(r'\d[\d_]*\.?\d*(?:e-?\d+)?', code):
+        n = n.replace('_', '').rstrip('.')
+        try:
+            held.add(round(float(n), 9))
+        except ValueError:
+            pass
+    missing = []
+    for m in re.finditer(FIGURE, NOT_FIGURES.sub(' ', rule)):
+        v = float(m.group(1).replace(',', '').rstrip('.'))
+        ok = round(v, 9) in held or (m.group(2) and (round(v / 100, 9) in held or round(1 - v / 100, 9) in held))
+        if not ok:
+            missing.append(m.group(0).rstrip(','))
+    return missing
+
+
+def published_tables():
+    """The published 2026 amounts the Cash flow functions use, READ FROM THE CODE so the pack and the
+    app cannot say different things — and so the outside model can check them against the source."""
+    tax = open(os.path.join(ROOT, 'src/domain/income/tax.ts'), encoding='utf8').read()
+    lim = open(os.path.join(ROOT, 'src/domain/income/limits.ts'), encoding='utf8').read()
+    pay = open(os.path.join(ROOT, 'MoneyKeel/functions/cashflow/base-pay.ts'), encoding='utf8').read()
+    num = lambda x: float('inf') if x == 'Infinity' else float(x.replace('_', ''))
+    money = lambda v: f'${v:,.0f}'
+    pairs = lambda t: [(num(a), float(b)) for a, b in re.findall(r'\[\s*([\d_]+|Infinity)\s*,\s*([\d.]+)\s*\]', t)]
+    year = int(re.search(r'export const TAX_YEAR = (\d+)', tax).group(1))
+    single_ded = num(re.search(r'export const STANDARD_DEDUCTION = ([\d_]+)', tax).group(1))
+    single = pairs(re.search(r'export const TAX_BRACKETS[^=]*=\s*\[([\s\S]*?)\];', tax).group(1))
+    table = re.search(r'export const TAX_TABLES[^=]*=\s*\{([\s\S]*?)\n\};', tax).group(1)
+    names = {'single': 'Single', 'married': 'Married filing jointly', 'mfs': 'Married filing separately', 'hoh': 'Head of household'}
+    rows = {}
+    for key in names:
+        m = re.search(key + r':\s*\{([\s\S]*?)\n?\s*\},', table)
+        blk = m.group(1)
+        br = single if 'TAX_BRACKETS' in blk else pairs(blk)
+        ded = single_ded if 'STANDARD_DEDUCTION' in blk else num(re.search(r'deduction:\s*([\d_]+)', blk).group(1))
+        add = num(re.search(r'over65Add:\s*([\d_]+)', blk).group(1))
+        rows[key] = (br, ded, add)
+    assert all(len(r[0]) == 7 for r in rows.values()), 'a tax table did not read as seven bands'
+    ltcg = dict((k, (num(a), num(b))) for k, a, b in re.findall(r'(\w+):\s*\[([\d_]+),\s*([\d_]+)\]', re.search(r'const LTCG[^=]*=\s*\{([\s\S]*?)\};', tax).group(1)))
+    sd = re.search(r'export const SENIOR_DEDUCTION = \{([\s\S]*?)\} as const', tax).group(1)
+    L = dict((k, num(v)) for k, v in re.findall(r'(\w+):\s*([\d_]+)', re.search(r'export const IRS_LIMITS = \{([\s\S]*?)\} as const', lim).group(1)))
+    assert len(ltcg) == 4 and len(L) >= 9, 'the gains thresholds or the contribution limits did not read whole'
+    wage_base = num(re.search(r'export const SS_WAGE_BASE = ([\d_]+)', pay).group(1))
+    medicare = num(re.search(r'export const MEDICARE_ADDITIONAL_THRESHOLD = ([\d_]+)', pay).group(1))
+    out = [f'## The published {year} amounts the app uses', '',
+           'Read from the app. **Check each against its published source and say so in `formula_checks` when one is wrong.**', '',
+           f'**Federal income tax, {year} — each slice of taxable income at its own rate.** Taxable income = income − the deduction.', '',
+           '| Filing status | Standard deduction | Added for each person 65 or over | Bands: up to … at … |', '|---|---|---|---|']
+    for key, label in names.items():
+        br, ded, add = rows[key]
+        bands = ' · '.join((f'{money(top)} at {rate * 100:g}%' if top != float('inf') else f'above that at {rate * 100:g}%') for top, rate in br)
+        out.append(f'| {label} | {money(ded)} | {money(add)} | {bands} |')
+    g = lambda k: num(re.search(k + r':\s*([\d_.]+)', sd).group(1))
+    starts = dict((k, num(v)) for k, v in re.findall(r'(\w+):\s*([\d_]+)', re.search(r'phaseOutStart:\s*\{([^}]*)\}', sd).group(1)))
+    out += ['',
+            f"**Senior deduction, tax years {g('firstYear'):.0f} to {g('lastYear'):.0f}:** {money(g('amount'))} for each person 65 or over, less "
+            f"{g('phaseOutRate') * 100:g}% of income above {money(starts['single'])} (single, head of household) or {money(starts['married'])} "
+            '(married filing jointly). Not given when married filing separately.', '',
+            f'**Long-term capital gains, {year}** — 0% up to the first amount of taxable income, 15% up to the second, 20% above: '
+            + ' · '.join(f'{names[k]} {money(ltcg[k][0])} and {money(ltcg[k][1])}' for k in names) + '.', '',
+            f"**Contribution limits, {L['year']:.0f}:** 401(k) {money(L['elective_deferral_401k'])}, plus {money(L['catch_up_50'])} at 50 or over, "
+            f"or plus {money(L['super_catch_up_60_63'])} instead at ages 60 to 63. IRA {money(L['ira'])}, plus {money(L['ira_catch_up_50'])} at 50 or over. "
+            f"HSA {money(L['hsa_self'])} self-only or {money(L['hsa_family'])} family, plus {money(L['hsa_catch_up_55'])} at 55 or over.", '',
+            f'**Social Security and Medicare, {year}:** 6.2% of wages up to {money(wage_base)}; 1.45% of all wages; 0.9% more on wages above {money(medicare)}.', '']
+    return out
+
+
 def main():
     headers, files = live_headers()
+    rules_file = json.load(open(RULES, encoding='utf8')) if os.path.exists(RULES) else {'rules': {}}
+    written = rules_file['rules']
+    reread = set(sys.argv[sys.argv.index('--reread') + 1:]) if '--reread' in sys.argv else set()
     figures = J('moneykeel_figures.json')['figures']
     decisions = {r['id']: r for r in J('moneykeel_decisions.json')['rows']}
 
@@ -289,7 +483,7 @@ def main():
         module = ('performance' if h['family'] == 'PF' or os.path.basename(h['path']) in ('performance.ts', 'look-back.ts')
                   or '/performance/' in h['path'] else 'cashflow' if h['family'] == 'CF' else 'networth')
         card = {'id': h['id'], 'name': h['name'], 'kind': 'orchestrator' if is_orch else 'function',
-                'what_it_is_for': purpose, 'handed': sig}
+                'what_it_is_for': purpose, 'formula_in_words': (written.get(h['id']) or {}).get('rule', ''), 'handed': sig}
         types = types_named(sig, h['lines'])
         if reads:
             card['inputs_it_reads'] = [f'{i} {n.strip()}' for i, n in reads]
@@ -300,11 +494,97 @@ def main():
         if h['id'] in DRAWINGS:
             d = DRAWINGS[h['id']]
             card['approved_drawing'] = {'drawing': d['drawing'], 'household': d['household'], 'drawn': d['drawn']}
-        cards.append({'card': card, 'module': module, 'category': h['category'], 'types': types,
+        body = body_of(h['lines'], h['decl_at'])
+        cards.append({'card': card, 'module': module, 'category': h['category'], 'types': types, 'path': h['path'],
+                      'body': body, 'file_text': '\n'.join(h['lines']),
                       'skip': 'an example helper — it runs another function on a worked example' if example_only
                       else 'storage only — it reads or saves and does no arithmetic' if storage_only else ''})
 
-    # NOTHING OF HOW IT WORKS MAY LEAVE: a card that carries a statement of code stops the build
+    # ── EVERY CARD CARRIES ITS FORMULA IN WORDS, READ FROM THE FUNCTION AS IT STANDS TODAY ──────────
+    testable = [c for c in cards if not c['skip']]
+    for c in testable:
+        if c['card']['id'] in reread and c['card']['id'] in written:
+            written[c['card']['id']]['read_from'] = fingerprint(c['body'])
+    if reread:
+        json.dump(rules_file, open(RULES, 'w', encoding='utf8'), indent=1, ensure_ascii=False)
+    no_rule = [c['card']['id'] for c in testable if not c['card']['formula_in_words'].strip()]
+    if no_rule:
+        sys.exit(f'STOPPED: {len(no_rule)} function(s) have no formula in words in moneykeel_function_rules.json — an outside '
+                 f'model cannot judge or test them: {no_rule[:15]}')
+    changed = [c['card']['id'] for c in testable if written[c['card']['id']].get('read_from') != fingerprint(c['body'])]
+    if changed:
+        sys.exit(f'STOPPED: {len(changed)} function(s) have changed since their formula in words was written. Read each one again, '
+                 f'correct its entry in moneykeel_function_rules.json, then run with --reread <ids>: {changed[:15]}')
+    stale = sorted(set(written) - {c['card']['id'] for c in testable})
+    if stale:
+        sys.exit(f'STOPPED: {len(stale)} rule(s) are written for a function that is no longer tested or no longer exists: {stale[:15]}')
+    for c in testable:
+        c['card']['name'] == written[c['card']['id']].get('name') or sys.exit(
+            f"STOPPED: the rule for {c['card']['id']} was written for {written[c['card']['id']].get('name')}, and that id is now {c['card']['name']}")
+    # every figure a rule states is a figure the code holds (briefs are code); the ones that cannot be
+    # traced are listed, and their number may only fall
+    figures_stated, untraced = 0, []
+    for c in testable:
+        rule = c['card']['formula_in_words']
+        figures_stated += len(FIGURE.findall(NOT_FIGURES.sub(' ', rule)))
+        code = c['body'] + '\n' + constants_named(c['body'], c['file_text'])
+        for n in numbers_not_in_code(rule, code):
+            if n not in (written[c['card']['id']].get('figures_checked_by_hand') or {}):
+                untraced.append(f"{c['card']['id']} {c['card']['name']}: {n}")
+    # a figure checked by hand that is a sum or a product says so — "24,500 + 8,000" — and is worked again here
+    for c in testable:
+        for fig, how in (written[c['card']['id']].get('figures_checked_by_hand') or {}).items():
+            m = re.match(r'^\$?([\d,.]+)%? ([+×]) \$?([\d,.]+)%?$', how)
+            if m:
+                x, y = float(m.group(1).replace(',', '')), float(m.group(3).replace(',', ''))
+                got = x + y if m.group(2) == '+' else x * y
+                if abs(got - float(fig.strip('$%').replace(',', ''))) > 1e-9:
+                    sys.exit(f"STOPPED: {c['card']['id']} states {fig}, checked by hand as {how} — and that comes to {got:g}")
+    if untraced:
+        sys.exit(f'STOPPED: {len(untraced)} figure(s) stated in a rule are not in the function they describe. Correct the rule, or '
+                 'record where the figure comes from under "figures_checked_by_hand" on its entry:\n   ' + '\n   '.join(untraced))
+    CODE_IN_WORDS = re.compile(r'=>|===|!==|&&|\|\||\?\.|\?\?|\b\w+\.\w+\(|\bconst \w+ =')
+    coded = [c['card']['id'] for c in testable if CODE_IN_WORDS.search(c['card']['formula_in_words'])]
+    if coded:
+        sys.exit(f'STOPPED: {len(coded)} rule(s) are written in code, not in words: {coded[:15]}')
+    for c in cards:
+        if c['skip']:
+            c['card'].pop('formula_in_words', None)
+
+    # a formula names the functions it leans on; each name must be a real function, and its own formula
+    # travels with the batch so no card depends on one the reader was not given
+    by_name = collections.defaultdict(list)
+    for c in testable:
+        by_name[c['card']['name']].append(c)
+
+    def leans_on(c):
+        rule = c['card']['formula_in_words']
+        named = set(re.findall(r'\b[a-z][a-z0-9]*[A-Z]\w*\b', rule))
+        for inside in re.findall(r'\(([^()]*)\)', rule):
+            named |= {w for w in re.findall(r'[A-Za-z_]\w*', inside) if w in by_name and w.islower() and inside.strip() == w}
+        return named - {c['card']['name']}
+
+    unknown = sorted({f"{c['card']['id']}: {n}" for c in testable for n in leans_on(c) if n not in by_name})
+    if unknown:
+        sys.exit(f'STOPPED: {len(unknown)} formula(s) name a function that is not among the tested ones:\n   ' + '\n   '.join(unknown))
+
+    def nearest(name, c):
+        same = [x for x in by_name[name] if x['path'] == c['path']] or [x for x in by_name[name] if x['module'] == c['module']]
+        return (same or by_name[name])[0]
+
+    def appendix(batch):
+        mine, out, todo = {c['card']['id'] for c in batch}, {}, [(n, c) for c in batch for n in leans_on(c)]
+        while todo:
+            name, frm = todo.pop()
+            x = nearest(name, frm)
+            if x['card']['id'] in mine or x['card']['id'] in out:
+                continue
+            out[x['card']['id']] = {'id': x['card']['id'], 'name': name, 'what_it_is_for': x['card']['what_it_is_for'],
+                                    'formula_in_words': x['card']['formula_in_words']}
+            todo += [(n, x) for n in leans_on(x)]
+        return [out[k] for k in sorted(out)]
+
+    # NOTHING OF THE CODE ITSELF MAY LEAVE: a card that carries a statement of code stops the build
     # (a STATEMENT of code — "return" as a word is everywhere in a finance app's comments)
     STATEMENT = re.compile(r'^\s*(return\b|if \(|for \(|while \(|const \w+ =|let \w+ =)|\bfunction \w+\(.*\)\s*\{\s*\S', re.M)
     leaked = [c['card']['id'] for c in cards
@@ -324,6 +604,7 @@ def main():
     for f in os.listdir(send_dir):
         os.remove(os.path.join(send_dir, f))
     brief = open(BRIEF, encoding='utf8').read().rstrip()
+    tables = published_tables()
 
     order = {'orchestrator': 0, '2 · DISPLAYED': 1, '3 · DEPENDENT': 2, '1 · ACTION': 3}
     index, total_cards = [], 0
@@ -342,12 +623,21 @@ def main():
             for c in batch:
                 types.update(c['types'])
             body = [brief, '', '---', '', f'# The cards — batch "{label}"', '',
-                    f'{len(batch)} cards, so {len(batch) * 5} cases. Put `"batch": "{label}"` in your reply.', '']
+                    f'{len(batch)} cards, so {len(batch)} formula checks and {len(batch) * 5} cases. Put `"batch": "{label}"` in your reply.', '']
+            lean = appendix(batch)
+            # the published amounts travel with every Cash flow batch, and with any other batch whose formulas use them
+            if module == 'cashflow' or any('2026' in x['formula_in_words'] for x in lean + [c['card'] for c in batch]):
+                body += tables
             if types:
                 body += ['## The app\'s own types these cards name', '',
                          'What each is made of. The comments inside are the in-house author\'s.', '',
                          '```ts', '\n\n'.join(types[t] for t in sorted(types)), '```', '']
             body += ['## The cards', '', '```json', json.dumps([c['card'] for c in batch], indent=1, ensure_ascii=False), '```', '']
+            if lean:
+                body += ['## Formulas these cards lean on', '',
+                         f'{len(lean)} functions named by the formulas above whose own cards are in another batch. '
+                         'They are here so you can work your answers. Do not judge or test them in this batch.', '',
+                         '```json', json.dumps(lean, indent=1, ensure_ascii=False), '```', '']
             open(os.path.join(send_dir, name), 'w', encoding='utf8').write('\n'.join(body))
             index.append((name, label, batch))
             total_cards += len(batch)
@@ -361,7 +651,8 @@ def main():
          '3. Save each reply, unchanged, in `returned/` as `<the batch file\'s name>_claude.json` or `…_gemini.json`.', '',
          f'## What is in the pack', '',
          f'- Read from the code: {files} files, {len(cards)} function and orchestrator records in Net worth, Performance and Cash flow.',
-         f'- To be tested: **{total_cards} cards in {len(index)} files — {total_cards * 5} cases from each model.**',
+         f'- To be judged and tested: **{total_cards} cards in {len(index)} files — {total_cards} formula checks and {total_cards * 5:,} cases from each model.**',
+         f'- Every card carries its formula in words: {total_cards} of {total_cards}. Figures stated in those formulas: {figures_stated}, each traced to the function it describes or checked by hand and recorded.',
          f'- Left out, each for a stated reason: {len(skipped)} (listed at the foot).', '',
          '| File | Batch | Cards | Cases | First and last card |', '|---|---|---|---|---|']
     for name, label, batch in index:
@@ -375,7 +666,10 @@ def main():
     with_owner = sum(1 for c in cards if not c['skip'] and any(r['said_by'] == 'owner' for r in c['card'].get('rules', [])))
     with_any = sum(1 for c in cards if not c['skip'] and c['card'].get('rules'))
     print(f'read {files} files · {len(cards)} records · by family {dict(ids)}')
-    print(f'to be tested: {total_cards} cards in {len(index)} files ({total_cards * 5} cases from each model)')
+    print(f'to be tested: {total_cards} cards in {len(index)} files ({total_cards} formula checks and {total_cards * 5} cases from each model)')
+    by_hand = sum(len(written[c['card']['id']].get('figures_checked_by_hand') or {}) for c in testable)
+    print(f'formula in words: {len(testable)} of {len(testable)} cards · every one read from the function as it stands today · '
+          f'{figures_stated} figures stated, {by_hand} of them checked by hand, the rest traced to the code')
     print(f'left out: {len(skipped)} — ' + ', '.join(f'{n} {k}' for k, n in collections.Counter(c["skip"].split(" — ")[0] for c in skipped).items()))
     print(f'cards carrying an owner decision: {with_owner} · carrying any rule: {with_any} · carrying an approved drawing: '
           f'{sum(1 for c in cards if c["card"].get("approved_drawing"))}')

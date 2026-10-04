@@ -711,7 +711,8 @@ const QUIET_PERF = () => thePerformance(QUIET);
  */
 const PERF = () => thePerformance(EXAMPLE);
 
-/** PER ACCOUNT (Performance pass 1, 2026-09-30). The same window, asked of ONE account rather than
+/** Example only: runs thePerformance for chosen accounts of the worked example and calculates nothing of its own.
+ *  PER ACCOUNT (Performance pass 1, 2026-09-30): the same window, asked of ONE account rather than
  *  all of them. The door is the same one — that is the point: an account's ending value and the
  *  all-accounts total come from ONE calculation, so a per-account walk and the total beneath it
  *  cannot tell different stories. Asking it of a second account with no records gives $0 without
@@ -719,7 +720,7 @@ const PERF = () => thePerformance(EXAMPLE);
 /* ─ MK-NW-F-085 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * PERF_ONE
  *
- * Answers ..... PER ACCOUNT (Performance pass 1, 2026-09-30).
+ * Answers ..... Example only: runs thePerformance for chosen accounts of the worked example and calculates nothing of its own.
  *
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.

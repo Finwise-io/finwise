@@ -8,6 +8,9 @@
  *
  *  This reads every record in the code and holds two things:
  *    · the three modules of this build carry NO record without a description — none may return;
+ *    · every one of them that calculates anything carries its FORMULA IN WORDS — how it gets its
+ *      answer, every number included — because that is what an outside model judges and tests from
+ *      (founder, same day: "How outside AI will even test it if you do not give them the rule?");
  *    · the other modules carry a debt, counted truly, and it may only fall.
  */
 import * as fs from 'fs';
@@ -50,6 +53,20 @@ test('Net worth, Performance and Cash flow: every function and orchestrator says
   const mine = records().filter((r) => THIS_BUILD.includes(r.family));
   expect(mine.filter(missing).map((r) => `${r.id} in ${r.file}`)).toEqual([]);
   expect(mine.filter(stock).map((r) => `${r.id} in ${r.file}`)).toEqual([]);
+});
+
+test('Net worth, Performance and Cash flow: every function that calculates anything has its formula written in words', () => {
+  const rules = JSON.parse(fs.readFileSync(path.join(ROOT, 'Calculation Module code/scripts/moneykeel_function_rules.json'), 'utf8')).rules as
+    Record<string, { name: string; rule: string; read_from: string }>;
+  // an example helper and a function that only reads or saves are not tested from outside, and say so in their description
+  const tested = records().filter((r) => THIS_BUILD.includes(r.family)
+    && !r.answers.startsWith('Example only') && !r.answers.includes('calculates nothing'));
+  expect(tested.length).toBeGreaterThanOrEqual(315);           // the guard looked
+  expect(tested.filter((r) => !(rules[r.id]?.rule?.trim().length >= 10)).map((r) => r.id)).toEqual([]);
+  expect(tested.filter((r) => !/^[0-9a-f]{10}$/.test(rules[r.id]?.read_from ?? '')).map((r) => r.id)).toEqual([]);
+  // and no rule is left behind for a function that is gone
+  const ids = new Set(tested.map((r) => r.id));
+  expect(Object.keys(rules).filter((id) => !ids.has(id))).toEqual([]);
 });
 
 test('one record a function: no stale copy of a record is left behind in the code', () => {

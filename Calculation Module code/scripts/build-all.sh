@@ -55,6 +55,13 @@ step "B6 · every decision he approved is in the rulings ledger"
 python3 "Calculation Module code/scripts/check-changelog-anchored.py"
 python3 "Calculation Module code/scripts/pfs-sweep.py"
 
+# The formula in words for every function an outside model judges (founder, 2026-10-04: "How outside
+# AI will even test it if you do not give them the rule?"). Each was written by reading its function
+# and carries that function's fingerprint — so a function that changes without its rule being read
+# again stops here, and so does a figure in a rule that the function does not hold.
+step "B7 · every tested function has its formula in words, read from the function as it stands"
+python3 "Calculation Module code/scripts/build-outside-test-cards.py"
+
 echo "── the working plan and the orchestrator map are printed from their sources (hand edits die)"
 python3 "Calculation Module code/scripts/build-workplan.py"   # the script has already moved to the repo root (line 12), so the path is written from there
 python3 "Calculation Module code/scripts/build-orchestrator-map.py"

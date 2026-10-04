@@ -1,0 +1,1608 @@
+{
+ "what_this_is": "The formula in words for every function an outside model is asked to judge and test: how the function gets its answer, every number included. Written by reading the function. read_from is the fingerprint of the function it was read from; build-outside-test-cards.py stops when a function changes until its rule is read again (--reread <id>).",
+ "rules": {
+  "MK-CF-F-001": {
+   "name": "buildBudgetState",
+   "rule": "Projected to save = monthly take-home − monthly planned expenses (0 when none is stored).",
+   "read_from": "6d9df8a389"
+  },
+  "MK-CF-F-002": {
+   "name": "plannedMonthlySpend",
+   "rule": "The larger of two figures: the budget categories added up (spendBuckets), and the single monthly figure the person typed.",
+   "read_from": "50702a1907"
+  },
+  "MK-CF-F-003": {
+   "name": "categoryMonthly",
+   "rule": "0 when the amount is zero or less. A dollar category: the amount, per month — a once-a-year (non-monthly) category is the yearly amount ÷ 12. A percent category: that percent of the average monthly take-home (pctBaseMonthly) — for a non-monthly one the same, worked as a yearly amount and ÷ 12.",
+   "read_from": "33542c0853"
+  },
+  "MK-CF-F-004": {
+   "name": "spendBuckets",
+   "rule": "With categories: each category's monthly amount (categoryMonthly) is added into fixed, non-monthly or flexible — any other bucket counts as flexible; rows of zero are skipped. With no categories: the three typed bucket totals. Monthly total = the three added.",
+   "read_from": "168cd63538"
+  },
+  "MK-CF-F-005": {
+   "name": "actualMonthFlow",
+   "rule": "Rows, in this order. Actual inflow = the monthly take-home handed in. One row for each debt with a required payment above zero: minus what was logged as paid against it this month (0 when nothing was), marked paid or not. Other debt payments = debt payments logged this month that match no debt on record, when above zero. Expenses entered by hand = minus the month's logged expenses that were not imported, debt payments left out. Expenses imported from your card = minus the imported ones, shown only when there are any. Debts on the big-ticket radar (cards, lines of credit, debts due in full) are moved to the end. Surplus = every row added up.",
+   "read_from": "82804f690b"
+  },
+  "MK-CF-F-006": {
+   "name": "allocatableThisMonth",
+   "rule": "Surplus − what has already been set aside this month; never below 0.",
+   "read_from": "d42dc796bb"
+  },
+  "MK-CF-F-007": {
+   "name": "nonMonthlyBasis",
+   "rule": "True, with the percents added and rounded to a whole number, only when there is at least one non-monthly category above zero and every one of them is entered as a percent. Otherwise false and 0.",
+   "read_from": "270b79dc30"
+  },
+  "MK-CF-F-008": {
+   "name": "spendByMonth",
+   "rule": "Twelve calendar months. Each monthly category adds its monthly amount to every month (a percent category = that percent of the average monthly take-home). Each non-monthly category adds its yearly amount spread evenly over the months it names — over all twelve when it names none (a percent one = percent × average monthly take-home × 12). With no categories: the three typed buckets' total, every month. Then, when the single typed monthly figure is larger than the categories' monthly total, the difference is added to every month.",
+   "read_from": "11c9ca8480"
+  },
+  "MK-CF-F-009": {
+   "name": "monthlyEssentials",
+   "rule": "With no categories: the planned monthly expenses (plannedMonthlySpend). With categories: the monthly categories marked as needs — every one except those marked flexible, a category with no mark counting as flexible, and non-monthly ones left out — added up (a percent one = percent of the average monthly take-home), plus the amount by which the typed monthly figure exceeds the categories' total.",
+   "read_from": "478be6d343"
+  },
+  "MK-CF-F-010": {
+   "name": "emergencyTest",
+   "rule": "Essentials = the figure handed in when above zero, otherwise monthlyEssentials. Cash after = cash − the shock. Months of cover after the shock = cash after (never below 0) ÷ essentials. Months of cover with no shock = cash ÷ essentials. Both are 0 when essentials are 0. Covers it when cash after is zero or more. Recommended fund = essentials × 3. Gap = recommended fund − cash, never below 0.",
+   "read_from": "ddeab9cf38"
+  },
+  "MK-CF-F-011": {
+   "name": "savingsByMonth",
+   "rule": "For each calendar month: the take-home that month (incomeMonthlyGrid, take-home) − the planned expenses that month (spendByMonth).",
+   "read_from": "563d958a3c"
+  },
+  "MK-CF-F-012": {
+   "name": "annualCashflow",
+   "rule": "Gross for the year, after-tax for the year and take-home for the year = the twelve months of incomeMonthlyGrid in each of its three modes, added. Expenses for the year = spendByMonth added. Tax = gross − after-tax. 401(k) = after-tax − take-home. Saved = take-home − expenses.",
+   "read_from": "469a83aad9"
+  },
+  "MK-CF-F-013": {
+   "name": "budgetFromOnboarding",
+   "rule": "The stored budget: monthly expenses = plannedMonthlySpend; fixed, non-monthly and flexible from spendBuckets.",
+   "read_from": "ef0232e7b5"
+  },
+  "MK-CF-F-014": {
+   "name": "budgetVsActual",
+   "rule": "This calendar month's logged expenses, leaving out the category Debt payment, added into fixed, non-monthly or flexible by each expense's category. For each bucket: planned (spendBuckets), spent, remaining = planned − spent. The totals the same way.",
+   "read_from": "8daa6ebb12"
+  },
+  "MK-CF-F-017": {
+   "name": "publishSurplus",
+   "rule": "Announces the projected-to-save figure to the rest of the app, unchanged.",
+   "read_from": "16e459276b"
+  },
+  "MK-CF-F-018": {
+   "name": "equityByMonth",
+   "rule": "Each vesting row's value (equityRowValue) goes to the month in its date — December when it has no date. The year's vesting (rsuAnnual) is then split across the twelve months in proportion to those values. All zero when no row has a value.",
+   "read_from": "f499fde8b6"
+  },
+  "MK-CF-F-019": {
+   "name": "upcomingBills",
+   "rule": "Bills = each non-monthly budget category, once for every month it names (January when it names none): amount = its yearly amount ÷ the number of months named (a percent one = percent × monthly income after tax × 12), on its due day (the 1st when none), at its next date on or after today. Only bills due from today to the horizon (365 days when none is given) are returned, soonest first. Need-by date = due date − 2 days; ask-by date = need-by − 10 days. Money available by the need-by date = starting balance + steady daily net × the days from today + one-off inflows (yearly scholarships, loans) dated on or before it − other bills dated on or before it. Steady daily net = (steady monthly in − steady monthly out) × 12 ÷ 365. Steady in = the LARGEST month of gross salary, tips, retirement income and net rent ÷ 12, each × (1 − the rate in force), plus support, benefits for the year ÷ 12 and monthly scholarships untaxed. Steady out = fixed + flexible budget + the part of the typed monthly figure above the categories. Shortfall = bill − available, never below 0.",
+   "read_from": "04ca49aef7"
+  },
+  "MK-CF-F-020": {
+   "name": "cashflowYear",
+   "rule": "Twelve months starting with the current one. Taxed income each month = that calendar month's gross salary + tips (only in months with salary) + self-employment + net rent ÷ 12 + interest and dividends ÷ 12 + other income when taxable + that month's stock vesting + retirement income; plus the bonus in its month (December when none is set); a signing bonus in the first month; one-off other income in its month. Untaxed = benefits in their months + support + untaxed other income + scholarships (monthly, or in their months, or ÷ 12 when they name none) + loans in their months (the first month when they name none). Inflow = taxed × (1 − the rate in force) + untaxed. Outflow = the planned expenses for that calendar month (spendByMonth). The balance starts at the starting balance and each month adds inflow − outflow. Short months = those ending below zero. Lowest balance = the smallest month-end. Dated items that fall outside the twelve months are counted, not included.",
+   "read_from": "b40bf60283"
+  },
+  "MK-CF-F-021": {
+   "name": "defaultPaymentType",
+   "rule": "A credit card or a home-equity line: revolving. Every other kind of debt: instalment.",
+   "read_from": "7c6e231a45"
+  },
+  "MK-CF-F-022": {
+   "name": "paymentShape",
+   "rule": "The payment type recorded on the debt; when none is recorded, defaultPaymentType.",
+   "read_from": "0c4456cdb7"
+  },
+  "MK-CF-F-023": {
+   "name": "requiredPayment",
+   "rule": "0 for a debt due in full. Otherwise the larger of the minimum monthly payment and the payment the person says they make.",
+   "read_from": "f0a9cc1a8e"
+  },
+  "MK-CF-F-024": {
+   "name": "totalDebtMonthly",
+   "rule": "requiredPayment added over the debts.",
+   "read_from": "26a7d2f3b0"
+  },
+  "MK-CF-F-025": {
+   "name": "minimumDebtService",
+   "rule": "Each debt's minimum monthly payment added; a debt due in full counts 0.",
+   "read_from": "2e9da7ee91"
+  },
+  "MK-CF-F-026": {
+   "name": "actualDebtPayment",
+   "rule": "The same as totalDebtMonthly: requiredPayment added over the debts.",
+   "read_from": "f047624763"
+  },
+  "MK-CF-F-027": {
+   "name": "totalDebtBalance",
+   "rule": "The balances added.",
+   "read_from": "109dc81b26"
+  },
+  "MK-CF-F-028": {
+   "name": "loanPayment",
+   "rule": "Months = years × 12, rounded to a whole number; monthly rate = the yearly percent ÷ 100 ÷ 12. All zero when the amount borrowed or the months are zero or less. Payment = amount × monthly rate ÷ (1 − (1 + monthly rate) to the power −months); with no interest, amount ÷ months. Total paid = payment × months. Total interest = total paid − amount.",
+   "read_from": "4a92efff86"
+  },
+  "MK-CF-F-029": {
+   "name": "monthsToClear",
+   "rule": "0 when nothing is owed. No answer when the payment is zero or less, or when it does not exceed the first month's interest (balance × yearly rate ÷ 12) — the debt would never clear. With no interest: balance ÷ payment, rounded up. Otherwise log(payment ÷ (payment − balance × monthly rate)) ÷ log(1 + monthly rate), rounded up to a whole month.",
+   "read_from": "d8b15f0606"
+  },
+  "MK-CF-F-030": {
+   "name": "paymentToClearBy",
+   "rule": "0 when nothing is owed or the months are zero or less. Payment = balance × monthly rate ÷ (1 − (1 + monthly rate) to the power −months), monthly rate = yearly rate ÷ 12; with no interest, balance ÷ months. Rounded UP to the cent.",
+   "read_from": "89414fe2bd"
+  },
+  "MK-CF-F-031": {
+   "name": "creditUtilization",
+   "rule": "Share = balance ÷ limit (0 when the limit is zero or less). Good at 30% or under; caution above 30% up to 50%; high above 50% — judged before rounding. The share is then rounded to three decimals.",
+   "read_from": "a0bd3955b1"
+  },
+  "MK-CF-F-032": {
+   "name": "creditScoreBand",
+   "rule": "800 and above Excellent; 740 and above Very good; 670 and above Good; 580 and above Fair; below 580 Poor. Good, Very good and Excellent count as good.",
+   "read_from": "cabae19819"
+  },
+  "MK-CF-F-033": {
+   "name": "debtToIncome",
+   "rule": "Share = monthly debt payments ÷ monthly gross income (0 when the income is zero or less). Guideline: 36% for a homeowner, 20% otherwise. Good at or under the guideline; caution up to 1.4 × the guideline (50.4% for a homeowner, 28% otherwise); high above that. The share is rounded to three decimals after it is judged.",
+   "read_from": "e7149ff69d",
+   "figures_checked_by_hand": {
+    "50.4%": "36% × 1.4",
+    "28%": "20% × 1.4"
+   }
+  },
+  "MK-CF-F-034": {
+   "name": "payoffPlan",
+   "rule": "Only debts with a balance above zero. A debt due in full is paid in its due month (never earlier than month 1; month 1 when it has no date), with interest = balance × ((1 + yearly rate ÷ 12) to the power of the months until then − 1). The others are walked month by month, for at most 600 months. Each month: every balance grows by balance × yearly rate ÷ 12; the money to pay = the minimums of every debt whose payments have started — including debts already cleared, whose minimums roll on — plus the extra; each debt first gets its minimum (never more than it owes); what is left goes to one debt at a time, highest rate first (avalanche) or smallest balance first (snowball). A debt is cleared when it owes a cent or less. A debt whose first payment date is in the future is not paid until that month, and grows meanwhile. Months = the month the last debt is cleared (or the last lump-sum month, when later); total interest = all the interest charged; it never pays off when anything is still owed at month 600. Order = each debt with the month it is cleared and the interest it cost, earliest first.",
+   "read_from": "848a2523cd"
+  },
+  "MK-CF-F-035": {
+   "name": "debtKind",
+   "rule": "The label and icon recorded for a kind of debt; nothing for a kind that is not on the list.",
+   "read_from": "2d42fe94f8"
+  },
+  "MK-CF-F-036": {
+   "name": "buildDebtState",
+   "rule": "Total = the balances added. Minimum in a month = minimumDebtService. Actual payment in a month = actualDebtPayment. Highest-rate debt = the one with the largest yearly rate, the first of equals. High-cost debt = the balances of the debts whose rate is ABOVE 7%, added.",
+   "read_from": "02fe16c5e4"
+  },
+  "MK-CF-F-037": {
+   "name": "inferDebtType",
+   "rule": "From the debt's name, capitals ignored, first match wins: heloc or home equity → home-equity line; mortgage or home loan → mortgage; auto, car loan or vehicle → auto; student or tuition → student loan; credit card, visa, mastercard or amex → credit card; medical, hospital or dental → medical; personal → personal; anything else → other.",
+   "read_from": "be9d17cb3c"
+  },
+  "MK-CF-F-038": {
+   "name": "debtsFromOnboarding",
+   "rule": "One debt when the balance entered at sign-up is above zero: its name (Debt when blank), its kind from the name (inferDebtType), the balance, yearly rate = the percent entered ÷ 100, and the minimum payment. None otherwise.",
+   "read_from": "1895905e99"
+  },
+  "MK-CF-F-041": {
+   "name": "getDebtState",
+   "rule": "Loads the stored debts and gives buildDebtState of them; nothing when none are stored.",
+   "read_from": "c2c4c364a5"
+  },
+  "MK-CF-F-042": {
+   "name": "mortgageOddsEffect",
+   "rule": "Nothing when the extra is zero or less, or when the mortgage would never clear at either payment (monthsToClear). Payoff year = this year + the whole years in (months − 1) ÷ 12 — worked for the present payment and for payment + extra. Before = the retirement projection's chance of success with the present payment running through its payoff year. After = the chance with payment + extra running through the earlier payoff year, the yearly saving lowered by extra × 12 until then, and raised by (payment + extra) × 12 from the year after.",
+   "read_from": "e2e838e344"
+  },
+  "MK-CF-F-043": {
+   "name": "compareMortgageToTreasury",
+   "rule": "Nothing unless the balance, the rate and the payment are all above zero. Gap = (mortgage rate − Treasury yield) in percentage points, to two decimals. Too close to call when the gap is under 0.25 points either way; otherwise paying down wins when the gap is positive and Treasuries win when it is negative. Yearly difference = (mortgage rate − Treasury yield) × balance. Lifetime difference — only with an extra above zero and a mortgage that clears both ways — = what (payment + extra) a month grows to at the Treasury yield over the months freed by clearing early, minus what the extra a month grows to at the Treasury yield over all the months the mortgage would otherwise run (futureValue, amortise).",
+   "read_from": "7f3c78f49e"
+  },
+  "MK-CF-F-044": {
+   "name": "annualNet",
+   "rule": "The amount each period — for rent, rent less running costs each period — × the periods in a year: weekly 52, every two weeks 26, monthly 12, quarterly 4, yearly 1, one-off 1.",
+   "read_from": "9ee1a88ffa"
+  },
+  "MK-CF-F-045": {
+   "name": "grossAnnualBaseline",
+   "rule": "annualNet added over every source.",
+   "read_from": "1ee167946d"
+  },
+  "MK-CF-F-046": {
+   "name": "employerMatchAnnual",
+   "rule": "Each source's employer match each period × its periods in a year, added.",
+   "read_from": "9664123398"
+  },
+  "MK-CF-F-048": {
+   "name": "effectiveTaxRate",
+   "rule": "With the person's own rate switched on: that rate, held between 0 and 1. Otherwise federal income tax on the yearly gross ÷ the yearly gross, by filing status (single when none), with no state tax (effectiveRateOnGrossFor).",
+   "read_from": "c74afea949"
+  },
+  "MK-CF-F-049": {
+   "name": "buildIncomeState",
+   "rule": "Yearly gross = grossAnnualBaseline. Rate = effectiveTaxRate. Yearly after-tax = gross × (1 − rate); monthly after-tax = that ÷ 12. Month grid: each source's gross laid on the calendar (monthlyGrossOfSource), added by month. Tax each month = that month's gross × the rate, when the person's own rate is on; otherwise the federal tax on the year's running total up to and including that month, minus the tax up to the month before — worked AS A SINGLE FILER, with no state tax. After-tax that month = gross − tax. Employer match for the year = employerMatchAnnual.",
+   "read_from": "7897adcab8"
+  },
+  "MK-CF-F-052": {
+   "name": "getIncomeState",
+   "rule": "Loads the stored income and gives buildIncomeState of it; nothing when none is stored.",
+   "read_from": "f7734a2293"
+  },
+  "MK-CF-F-053": {
+   "name": "annual401kLimit",
+   "rule": "2026: $24,500. At age 50 or over, + $8,000. Ages 60 to 63 get + $11,250 INSTEAD of the $8,000. So $32,500 at ages 50 to 59 and from 64 on, and $35,750 at 60 to 63. With no age: $24,500.",
+   "read_from": "c36fbfab56",
+   "figures_checked_by_hand": {
+    "$32,500": "24,500 + 8,000",
+    "$35,750": "24,500 + 11,250",
+    "59": "the last age before 60",
+    "64": "the first age after 63"
+   }
+  },
+  "MK-CF-F-054": {
+   "name": "annualIraLimit",
+   "rule": "2026: $7,500; + $1,100 at age 50 or over. With no age: $7,500.",
+   "read_from": "492b3567ec"
+  },
+  "MK-CF-F-055": {
+   "name": "annualHsaLimit",
+   "rule": "0 when enrolled in Medicare. Otherwise, 2026: $4,400 for self-only cover or $8,750 for family cover; + $1,000 at age 55 or over.",
+   "read_from": "188f6b6d6e"
+  },
+  "MK-CF-F-056": {
+   "name": "k401Headroom",
+   "rule": "Limit = annual401kLimit. Used = the year's contribution (below zero counts 0), never more than the limit. Room = limit − the contribution, never below 0. Catch-up flag at 50 or over.",
+   "read_from": "944108ba10"
+  },
+  "MK-CF-F-057": {
+   "name": "rothVsTraditional",
+   "rule": "Top tax band now at 12% or under: lean Roth. Band now at 24% or over AND the band expected in retirement lower than now: lean Traditional. Anything else: either.",
+   "read_from": "8a202af850"
+  },
+  "MK-CF-F-058": {
+   "name": "rothConversionWindow",
+   "rule": "True when the age is at or past the retirement age AND below the earlier of age 73 and the Social Security claiming age (73 when there is no claiming age).",
+   "read_from": "018f91c3a0"
+  },
+  "MK-CF-F-059": {
+   "name": "annualizedEnteredSalary",
+   "rule": "Hourly: base pay × hours a week (40 when none) × 52. Otherwise base pay × the periods in a year: weekly 52, every two weeks 26, monthly 12, yearly 1 — monthly when no frequency is given.",
+   "read_from": "42bcfc40bd"
+  },
+  "MK-CF-F-060": {
+   "name": "salaryGrossByMonth",
+   "rule": "Each earner's twelve months of gross pay (wageGrossByMonth), added month by month.",
+   "read_from": "94658555de"
+  },
+  "MK-CF-F-061": {
+   "name": "grossSalaryMonthly",
+   "rule": "The LARGEST of the twelve monthly gross salary figures (salaryGrossByMonth).",
+   "read_from": "852bcad463"
+  },
+  "MK-CF-F-062": {
+   "name": "equityRowValue",
+   "rule": "An option: shares × (market price − strike price), never below 0. Any other grant: shares × price.",
+   "read_from": "48fa216838"
+  },
+  "MK-CF-F-063": {
+   "name": "rowVestYear",
+   "rule": "The first four-digit year in the row's date; this year when it has none.",
+   "read_from": "dac7869e12"
+  },
+  "MK-CF-F-064": {
+   "name": "equityCashFlow",
+   "rule": "The value of each vesting row (equityRowValue) added by vesting year; rows of zero or less are left out; earliest year first.",
+   "read_from": "0759f8a71d"
+  },
+  "MK-CF-F-065": {
+   "name": "equityVestWeights",
+   "rule": "Each row's value goes to the month in its date (December when it has none); each month's share = its value ÷ the total. Nothing when no row has a value.",
+   "read_from": "a2d992151c"
+  },
+  "MK-CF-F-066": {
+   "name": "rsuAnnual",
+   "rule": "With vesting rows: their total value ÷ the number of different years in which rows with a value vest (at least 1). With none: shares × price, as typed.",
+   "read_from": "7cf9e4d0c5"
+  },
+  "MK-CF-F-067": {
+   "name": "rentalList",
+   "rule": "Each rental with rent or running costs above zero: long-term unless marked short-term, its monthly rent and its monthly running costs. With no list: the single typed rental, when its rent is above zero.",
+   "read_from": "172e664839"
+  },
+  "MK-CF-F-068": {
+   "name": "rentalNetAnnual",
+   "rule": "(Monthly rent − monthly running costs) added over the rentals, × 12. A rental that loses money pulls the total down.",
+   "read_from": "bf712a6383"
+  },
+  "MK-CF-F-069": {
+   "name": "benefitActiveMonths",
+   "rule": "The months, 1 to 12, in which the benefit is paid, in order; all twelve when none are named.",
+   "read_from": "b29abab9e4"
+  },
+  "MK-CF-F-070": {
+   "name": "benefitAnnual",
+   "rule": "The monthly benefit × the number of months it is paid (benefitActiveMonths).",
+   "read_from": "5f24f1095e"
+  },
+  "MK-CF-F-071": {
+   "name": "extraIncome",
+   "rule": "Taxed in a month = self-employment (yearly ÷ 12, or the monthly figure) + interest and dividends ÷ 12 + other income when taxable (yearly ÷ 12, or the monthly figure). Untaxed in a month = benefits for the year ÷ 12 + support + scholarships (monthly, or yearly ÷ 12) + other income when marked not taxable. One-off other income goes to one-off taxed or one-off untaxed. Reinvested in a month = interest and dividends ÷ 12, unless they are paid to the bank — then 0.",
+   "read_from": "e714d04b18"
+  },
+  "MK-CF-F-072": {
+   "name": "currentRetirementIncomeMonthly",
+   "rule": "0 when the person's chosen income sources are listed and retirement income is not among them; otherwise retirementIncomeMonthly.",
+   "read_from": "4dcad6a29a"
+  },
+  "MK-CF-F-073": {
+   "name": "otherIncomeMonth",
+   "rule": "The month typed for the other income, held between 1 and 12; January when none.",
+   "read_from": "cba9f7762b"
+  },
+  "MK-CF-F-074": {
+   "name": "tipsAnnual",
+   "rule": "Monthly tips × the number of months with any salary (salaryActiveMonths).",
+   "read_from": "15e498ab85"
+  },
+  "MK-CF-F-075": {
+   "name": "retirementIncomeMonthly",
+   "rule": "Social Security, pension, withdrawals, required distributions, annuities and other, each turned into a month — monthly as it is, quarterly ÷ 3, yearly ÷ 12 — and added.",
+   "read_from": "3285457a1c"
+  },
+  "MK-CF-F-076": {
+   "name": "guaranteedOutsideStreams",
+   "rule": "Social Security, pension, annuity and other, each as a monthly amount (quarterly ÷ 3, yearly ÷ 12), only those above zero. Rises with prices: Social Security yes, the others no — unless the person said otherwise. Withdrawals and required distributions are not here.",
+   "read_from": "790a5a7886"
+  },
+  "MK-CF-F-077": {
+   "name": "scholarshipByCalendarMonth",
+   "rule": "Twelve months. A monthly scholarship adds its amount every month. A yearly one is split evenly over the months it names, or over all twelve when it names none. With no list: the single typed amount — monthly, or ÷ 12.",
+   "read_from": "7ef743cdf9"
+  },
+  "MK-CF-F-078": {
+   "name": "employerMatchMonthly",
+   "rule": "Each earner's match in a month (wageMatchMonthly), added.",
+   "read_from": "dbef44567a"
+  },
+  "MK-CF-F-079": {
+   "name": "incomeFromOnboarding",
+   "rule": "Builds the stored income list from the sign-up answers, one source for each amount above zero: base salary = yearly salary ÷ 12, monthly, with the employer match; the bonus, yearly, in its month (December when none); stock vesting, yearly, split by vesting month; a signing bonus, once, in January; each rental, monthly, with its running costs; tips = yearly tips ÷ 12, monthly; retirement income, monthly; self-employment, monthly or yearly; interest and dividends, yearly; benefits = the year ÷ 12, monthly; support, monthly; each scholarship; other income with its frequency and month. Tax: the person's own rate (percent ÷ 100, held between 0 and 1) when they chose to type one; otherwise calculated.",
+   "read_from": "a85357e7f9"
+  },
+  "MK-CF-F-080": {
+   "name": "jobActiveMonth",
+   "rule": "True when that calendar month's gross salary is above zero.",
+   "read_from": "841d9fa7fc"
+  },
+  "MK-CF-F-081": {
+   "name": "salaryActiveMonths",
+   "rule": "How many of the twelve months have gross salary above zero.",
+   "read_from": "59b882aad6"
+  },
+  "MK-CF-F-082": {
+   "name": "salaryAnnual",
+   "rule": "The twelve months of gross salary (salaryGrossByMonth) added.",
+   "read_from": "f749868e4c"
+  },
+  "MK-CF-F-083": {
+   "name": "totalGrossAnnual",
+   "rule": "Salary for the year + tips for the year + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + untaxed extra in a month × 12 + one-off taxed + one-off untaxed + retirement income in a month × 12.",
+   "read_from": "35c6cadd7f"
+  },
+  "MK-CF-F-084": {
+   "name": "taxableAnnual",
+   "rule": "totalGrossAnnual WITHOUT the untaxed parts: salary + tips + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + one-off taxed + retirement income in a month × 12. The 401(k) is NOT taken off here.",
+   "read_from": "1518eea8fe"
+  },
+  "MK-CF-F-085": {
+   "name": "filingStatusOf",
+   "rule": "The filing status the person chose: married, married filing separately or head of household; anything else, single. When none is chosen: married when there is a spouse or the spouse earns; single otherwise.",
+   "read_from": "5a1b334b53"
+  },
+  "MK-CF-F-086": {
+   "name": "stateRateOf",
+   "rule": "The state rate typed, as a percent ÷ 100, held between 0 and 15%.",
+   "read_from": "4d07faceac"
+  },
+  "MK-CF-F-087": {
+   "name": "monthlyTaxRates",
+   "rule": "Twelve rates. When the rate in force is the person's own (typed, or implied by a typed take-home): that one rate, every month. Otherwise, for each month with taxed income: (the federal tax on the year's running total up to that month − the tax up to the month before, plus state tax on the same slice) ÷ that month's taxed income, held between 0 and 60%. A month with no taxed income gets the flat rate in force.",
+   "read_from": "01fcea1c2b"
+  },
+  "MK-CF-F-088": {
+   "name": "taxableByCalendarMonth",
+   "rule": "For each calendar month: gross salary + tips (only in months with salary) + net rent ÷ 12 + that month's stock vesting + taxed extra in a month + retirement income; + the bonus in its month (December when none); + the signing bonus in January; + one-off taxed other income in its month; − the household's 401(k) that month. Never below 0.",
+   "read_from": "559e8f3664"
+  },
+  "MK-CF-F-089": {
+   "name": "over65CountOf",
+   "rule": "Married filing jointly with the question answered: both → 2, neither → 0, one → 1. Otherwise from the person's own birth year: 1 when this year − birth year is 65 or more, else 0; 0 with no birth year.",
+   "read_from": "613657d17a"
+  },
+  "MK-CF-F-090": {
+   "name": "effectiveRate",
+   "rule": "The rate in force (rateInForce).",
+   "read_from": "e8e81cc8a6"
+  },
+  "MK-CF-F-091": {
+   "name": "userCapGainsRates",
+   "rule": "On the household's total yearly income (totalGrossAnnual), by filing status: long-term rate = the federal long-term gains rate (0%, 15% or 20%) + the state rate; short-term rate = the top federal band + the state rate.",
+   "read_from": "2fef6761c1"
+  },
+  "MK-CF-F-092": {
+   "name": "incomeMonthlyGrid",
+   "rule": "For each calendar month. Earned before 401(k) = that month's taxed income (taxableByCalendarMonth) + that month's 401(k). Untaxed = support + that month's scholarships + benefits in their months + one-off untaxed income in its month. Gross = earned before 401(k) + untaxed − reinvested interest and dividends. Tax: when the rate is the person's own, (earned before 401(k) − the month's rent and interest and dividends, which are not on a payslip) × the rate; when the app calculates it, that month's taxed income × that month's rate (monthlyTaxRates). After-tax = gross − tax. Take-home = gross − tax − 401(k).",
+   "read_from": "552eafa8dd"
+  },
+  "MK-CF-F-097": {
+   "name": "grossFromNet",
+   "rule": "0 when the take-home is zero or less. Otherwise it searches between the take-home and three times it, halving the range 50 times, for the gross at which gross − federal tax (taxOwedFor, no state tax) equals the take-home.",
+   "read_from": "e5f512c733"
+  },
+  "MK-CF-F-098": {
+   "name": "progressiveMonthlyTax",
+   "rule": "For each month in order: the federal tax on the year's running total up to and including that month − the federal tax on the running total before it; plus state tax = the rise in taxable income over the same step × the state rate (held between 0 and 15%). A negative month counts 0.",
+   "read_from": "2ed5b0666f"
+  },
+  "MK-CF-F-099": {
+   "name": "deductionFor",
+   "rule": "The standard deduction for the filing status + the age-65 addition × the number of people 65 or over (2 at most) + the senior deduction (seniorDeductionFor). The amounts are in the 2026 table above the cards.",
+   "read_from": "f790605724"
+  },
+  "MK-CF-F-100": {
+   "name": "taxableIncomeFor",
+   "rule": "Gross − the deduction (deductionFor, with the gross itself used as the income for the senior deduction's phase-out); never below 0.",
+   "read_from": "3e7bf9d849"
+  },
+  "MK-CF-F-101": {
+   "name": "taxOwedFor",
+   "rule": "Taxable income (taxableIncomeFor) taxed band by band on the filing status's 2026 table — each slice at its own rate — plus taxable income × the state rate (held between 0 and 15%).",
+   "read_from": "47b0b48d28"
+  },
+  "MK-CF-F-102": {
+   "name": "effectiveRateOnGrossFor",
+   "rule": "taxOwedFor ÷ gross; 0 when the gross is zero or less.",
+   "read_from": "30463c797e"
+  },
+  "MK-CF-F-103": {
+   "name": "marginalBracketFor",
+   "rule": "The rate of the band the taxable income falls in; income exactly on a band's top belongs to that band.",
+   "read_from": "d2feab9728"
+  },
+  "MK-CF-F-104": {
+   "name": "ltcgRateFor",
+   "rule": "On taxable income (taxableIncomeFor): 0% up to the first threshold, 15% up to the second, 20% above. 2026 thresholds — single $49,450 and $545,500; married $98,900 and $613,700; married filing separately $49,450 and $306,850; head of household $66,200 and $579,600. Income exactly on a threshold takes the lower rate.",
+   "read_from": "92c9be6be6"
+  },
+  "MK-CF-F-105": {
+   "name": "guaranteedRows",
+   "rule": "Nothing when the person's chosen income sources are listed without retirement income. Otherwise, over the twelve months starting with the current one, for Social Security, pension, annuity and other retirement income with an amount above zero: monthly → the amount in every month; quarterly → the amount in four months, three apart, starting at its named month (the current month when none); yearly → the amount once, in its named month (the current month when none). The amount is the amount of EACH PAYMENT.",
+   "read_from": "da83bfca30"
+  },
+  "MK-CF-F-106": {
+   "name": "solveSafeDraw",
+   "rule": "0 when the savings are zero or less. Otherwise the largest monthly draw from the savings, on top of the guaranteed income, at which the retirement simulation (1,000 futures, fixed seed 42) still lasts to the horizon in at least 80 of 100. It is tried first at twice (savings ÷ years ÷ 12), $100 at least; then narrowed by halving 12 times; then rounded DOWN to the nearest $5.",
+   "read_from": "06c6f17b16"
+  },
+  "MK-CF-F-107": {
+   "name": "buildPaycheckYear",
+   "rule": "Guaranteed rows from guaranteedRows; savings = the figure given, otherwise the accounts set aside for retirement. Safe draw = solveSafeDraw, with average guaranteed income in a month = the rows' total ÷ 12. Draw flag: high when safe draw × 12 ÷ savings is above 4.5%; ok otherwise; none with no savings or no draw. For each of twelve months from the current one: guaranteed total = that month's rows; bills = that month's big bills, everyday expenses left out; safe to spend = guaranteed total + safe draw − bills. This year = the twelve added.",
+   "read_from": "78e54bc318"
+  },
+  "MK-CF-F-108": {
+   "name": "isMoneyOut",
+   "rule": "True for a withdrawal, a fee, or a transfer with no receiving account on record.",
+   "read_from": "5728e10201"
+  },
+  "MK-CF-F-109": {
+   "name": "reviewTransactions",
+   "rule": "Flags, in this order; a record is flagged once. (1) Possible duplicate — any new money-out above zero that has an earlier one on the same account with the same amount (within half a cent) and the same payee, 2 days apart or less. (2) For money-out from a LINKED account only — unusually large: with 5 or more money-outs on that account within 90 days of it, at least 3 × their middle value AND at least $500; with fewer than 5, at least $1,000. (3) Otherwise first-time payee — a payee not seen on that account in those 90 days and not on the known list, for $250 or more. (4) Odd pattern — 3 or more money-outs from one account on one day (the new unflagged ones plus earlier ones that day) adding to $1,000 or more.",
+   "read_from": "5f4519befb"
+  },
+  "MK-CF-F-110": {
+   "name": "flagComparisonText",
+   "rule": "The sentence for a flag. Unusually large, with a typical figure: it names the typical amount in whole dollars and how many times larger this one is, rounded to a whole number; with none: it says anything over $1,000 is looked at twice. First-time payee and possible duplicate each have a fixed sentence. Several in one day: it names how many and their total in whole dollars.",
+   "read_from": "fd02797ff7"
+  },
+  "MK-CF-F-111": {
+   "name": "applyTransaction",
+   "rule": "What one record does to the accounts. Adjustment: nothing. Opening position: adds the shares at their price as a purchase. Opening cash: sets the account's cash to the amount. Deposit: cash up by the amount. Withdrawal or fee: cash down by the amount. Buy: cash down by shares × price, and the shares added as a purchase. Sale with shares: sells at most the shares held — cash up by the shares sold × price, earliest purchases reduced first; a sale with no shares but an amount lowers the balance by the amount, never below 0. Transfer: cash down on the sending account, and up on the receiving one when there is one. Transfer of a holding: the whole holding moves to the other account. Dividend, interest or coupon: when reinvested with shares and a price, a purchase is added to a holding already there; otherwise cash up by the amount.",
+   "read_from": "9cc9d56992"
+  },
+  "MK-CF-F-112": {
+   "name": "makeTransaction",
+   "rule": "The record as given, with its ticker in capitals, a new id and the time it was made.",
+   "read_from": "181de7dfab"
+  },
+  "MK-CF-F-113": {
+   "name": "affectedAccountIds",
+   "rule": "The record's account, and the receiving account when there is one.",
+   "read_from": "d92ed6c377"
+  },
+  "MK-CF-F-114": {
+   "name": "undoSnapshot",
+   "rule": "A full copy of each account the record touches, as it stands before the record is applied.",
+   "read_from": "983787e728"
+  },
+  "MK-CF-F-115": {
+   "name": "restoreUndo",
+   "rule": "Each account the record touched is put back to the copy saved with it; the other accounts are unchanged.",
+   "read_from": "76d27f43bf"
+  },
+  "MK-CF-F-116": {
+   "name": "inverseOf",
+   "rule": "The record that undoes one. A deposit → a withdrawal; a withdrawal or a fee → a deposit; a transfer between two accounts → the same transfer the other way; a transfer out with no receiving account → a deposit; a dividend, interest or coupon paid in cash → a withdrawal; an adjustment → itself. Nothing for a buy, a sale, an opening record, a transfer of a holding or a reinvested payment.",
+   "read_from": "38882b08ef"
+  },
+  "MK-CF-F-117": {
+   "name": "txnLabel",
+   "rule": "The plain name for a kind of record; the kind's own code when it has none.",
+   "read_from": "bdcec18ead"
+  },
+  "MK-CF-F-118": {
+   "name": "cashEffect",
+   "rule": "The change in cash from one record. Deposit: + amount. Sale: + shares × price — the amount, when that product is zero. Dividend, interest, coupon: + amount; 0 when reinvested. Withdrawal or fee: − amount. Buy: − shares × price. Transfer: − amount. Anything else: 0.",
+   "read_from": "5f5a83103f"
+  },
+  "MK-CF-F-119": {
+   "name": "investmentIncomeAnnual",
+   "rule": "Dividends, interest and coupons dated within the last year (on or after the same date a year ago), not reinvested, added.",
+   "read_from": "eb87a7e126"
+  },
+  "MK-CF-F-120": {
+   "name": "pctBaseMonthly",
+   "rule": "The twelve months of take-home (incomeMonthlyGrid, take-home) added ÷ 12.",
+   "read_from": "6844f7361a"
+  },
+  "MK-CF-F-121": {
+   "name": "zero12",
+   "rule": "Twelve zeros.",
+   "read_from": "774128cbf0"
+  },
+  "MK-CF-F-122": {
+   "name": "addDays",
+   "rule": "The date moved by that many whole days.",
+   "read_from": "325a313467"
+  },
+  "MK-CF-F-124": {
+   "name": "nextOccurrence",
+   "rule": "With a year given: that month and day in that year. Otherwise that month and day (the 1st when no day) this year — or next year, when this year's date is already before now.",
+   "read_from": "ebaba82c32"
+  },
+  "MK-CF-F-125": {
+   "name": "amortise",
+   "rule": "Never clears — infinite months and interest — when the payment does not exceed the first month's interest. Otherwise month by month, for at most 1,200: interest = balance × yearly rate ÷ 12; balance = balance + interest − payment; until the balance is zero or less. Gives the months, and the interest added up.",
+   "read_from": "ea6147ad93"
+  },
+  "MK-CF-F-126": {
+   "name": "futureValue",
+   "rule": "0 when the months or the monthly amount are zero or less. Otherwise monthly amount × ((1 + yearly rate ÷ 12) to the power months − 1) ÷ (yearly rate ÷ 12).",
+   "read_from": "b93c91cafa"
+  },
+  "MK-CF-F-127": {
+   "name": "isRental",
+   "rule": "True for a long-term rental or a short-term rental.",
+   "read_from": "c72fb6dfbf"
+  },
+  "MK-CF-F-128": {
+   "name": "grossByMonth",
+   "rule": "When the pay varies and a month-by-month table has been filled: the table, one row a month, in month order. Otherwise one row, called typical = the typical gross pay turned into a month (perMonth).",
+   "read_from": "181a328a2b"
+  },
+  "MK-CF-F-129": {
+   "name": "round4",
+   "rule": "The number unchanged.",
+   "read_from": "12f2b3a281"
+  },
+  "MK-CF-F-130": {
+   "name": "enteredMonthlyRaw",
+   "rule": "Hourly: base pay × hours a week (40 when none) × 52 ÷ 12. Otherwise base pay × the periods in a year ÷ 12 (weekly 52, every two weeks 26, monthly 12, yearly 1).",
+   "read_from": "63215298dc"
+  },
+  "MK-CF-F-131": {
+   "name": "normPayee",
+   "rule": "The payee note trimmed and lower-cased; empty when there is none.",
+   "read_from": "f2efbccf8b"
+  },
+  "MK-CF-F-132": {
+   "name": "map",
+   "rule": "The list of accounts with one change applied to the account named, and the rest untouched.",
+   "read_from": "fc3dd22c66"
+  },
+  "MK-CF-F-133": {
+   "name": "cashOf",
+   "rule": "The account's cash; 0 when none is recorded.",
+   "read_from": "33fa4d2114"
+  },
+  "MK-CF-F-134": {
+   "name": "usesSleeve",
+   "rule": "True for an investment account (not a cash or property account) whose balance is worked out from its holdings, or that records a cash figure of its own.",
+   "read_from": "b375341be1"
+  },
+  "MK-CF-F-135": {
+   "name": "availableCash",
+   "rule": "For such an account (usesSleeve): its cash. For any other: its balance.",
+   "read_from": "457ccc5545"
+  },
+  "MK-CF-F-136": {
+   "name": "bumpCash",
+   "rule": "For an account that keeps its own cash (usesSleeve): the cash changes by the amount. For an investment account with holdings that does not: both the cash and the balance change by the amount. For any other account: the balance changes by the amount.",
+   "read_from": "03d0915a2f"
+  },
+  "MK-CF-F-137": {
+   "name": "findPos",
+   "rule": "The holding in the account with the record's holding id, or else with the record's ticker (the record's ticker read in capitals).",
+   "read_from": "d2e4e75a12"
+  },
+  "MK-CF-F-138": {
+   "name": "addLot",
+   "rule": "Adds a purchase (shares, cost per share, the record's date) to the holding the record names; when the account has no such holding, a new holding with that one purchase.",
+   "read_from": "005e326da1"
+  },
+  "MK-CF-F-139": {
+   "name": "removeShares",
+   "rule": "Takes the shares out of the holding's purchases in the order they are stored, earliest first; a purchase left with nothing is dropped; a holding left with no purchases is removed. Unchanged when the account has no such holding.",
+   "read_from": "a7e7727059"
+  },
+  "MK-CF-F-140": {
+   "name": "periodsAYear",
+   "rule": "Pay periods in a year: hourly 2,080, weekly 52, every two weeks 26, monthly 12, yearly 1. Any other frequency: 12.",
+   "read_from": "cabd8559c5"
+  },
+  "MK-CF-F-141": {
+   "name": "perMonth",
+   "rule": "Hourly: amount × hours a week (40 when none is entered) × 52 ÷ 12. Any other frequency: amount × pay periods in a year ÷ 12.",
+   "read_from": "c9c22102ad"
+  },
+  "MK-CF-F-142": {
+   "name": "monthsOf",
+   "rule": "The table's rows as (month, amount) pairs, sorted by month; a blank amount counts as 0; empty when there is no table.",
+   "read_from": "d9d33a0dc3"
+  },
+  "MK-CF-F-143": {
+   "name": "annualisedGross",
+   "rule": "The average of the monthly gross rows (grossByMonth) × 12. 0 when there are no rows.",
+   "read_from": "32a55789e5"
+  },
+  "MK-CF-F-144": {
+   "name": "takeHomeAsEntered",
+   "rule": "In this order. (1) The pay varies and a month-by-month take-home table is filled: the average of its months; not calculated. (2) A typical take-home above zero was entered: that amount turned into a month (perMonth); not calculated. (3) Otherwise it is calculated, and marked so. With a household rate supplied: (yearly gross × (1 − rate) − monthly 401(k) × 12) ÷ 12. With none: (yearly gross − 401(k) for the year − federal income tax on the yearly gross less the 401(k), by the filing status given — single when none) ÷ 12. That federal tax has no state tax in it.",
+   "read_from": "afb91afd57"
+  },
+  "MK-CF-F-145": {
+   "name": "deductionsFromPay",
+   "rule": "Nothing when the take-home is calculated. Otherwise yearly gross − monthly 401(k) × 12 − monthly take-home × 12: everything else that came out of pay in the year.",
+   "read_from": "bf90154cef"
+  },
+  "MK-CF-F-146": {
+   "name": "payFiguresAgree",
+   "rule": "It passes with no check when the take-home is calculated. Otherwise, for each month of gross pay in order: left = gross − monthly 401(k) − the take-home for that month (the month's own figure when a take-home table is filled, otherwise the typical take-home as a month). When left is below −$5: it FAILS, with a sentence naming the month and how much more the take-home is than there is. Otherwise, when gross is above zero and left ÷ gross is above 60%: it passes WITH A WARNING that gives that share as a whole percent. The first month to fail or warn decides. Exactly $5 short still passes; exactly 60% does not warn.",
+   "read_from": "a2b82079f4"
+  },
+  "MK-CF-F-148": {
+   "name": "inMonth",
+   "rule": "True when the expense's date begins with the year-month asked for.",
+   "read_from": "5496874a75"
+  },
+  "MK-CF-F-149": {
+   "name": "recurringDebtPayments",
+   "rule": "One row for each debt whose payment is the same every month (an instalment loan): its name and its required monthly payment (requiredPayment). Rows of zero are dropped. Cards, lines of credit and debts due in full are not here.",
+   "read_from": "8ac5d39e64"
+  },
+  "MK-CF-F-150": {
+   "name": "debtPaymentsCountedAsExpenses",
+   "rule": "For each debt that is NOT an instalment loan, and whose purchases are not already imported from a linked card: the payments logged this month under the category Debt payment whose payee matches the debt's name (capitals and outer spaces ignored), added up. A row only when that is above zero, named after the debt with the word payment.",
+   "read_from": "eb0c959662"
+  },
+  "MK-CF-F-151": {
+   "name": "actualSpending",
+   "rule": "The month's logged expenses, leaving out the category Debt payment, newest first — all of them, or only those entered by hand, or only those imported. Shown = the first 5. Hidden = how many more. Total = all of them added. Hidden total = total − the 5 shown.",
+   "read_from": "11bf945ea6"
+  },
+  "MK-CF-F-152": {
+   "name": "isRadarItem",
+   "rule": "An instalment loan: not a radar item. A debt due in full: a lump-sum item. Any other debt (a card, a line of credit): a revolving item.",
+   "read_from": "8d89e43bf4"
+  },
+  "MK-CF-F-153": {
+   "name": "radar",
+   "rule": "For each debt that is a radar item (isRadarItem): amount = what was logged as paid against it this month when that is above zero, otherwise its required payment; dropped when the amount is zero or less. It counts as an expense unless its purchases are already imported from a linked card. Then every big bill of $500 or more, with its due date, each counted as an expense. Debts first, bills after.",
+   "read_from": "16b07623e0"
+  },
+  "MK-CF-F-155": {
+   "name": "cash",
+   "rule": "The number unchanged, except that negative zero becomes zero.",
+   "read_from": "4e1bb5c073"
+  },
+  "MK-CF-F-156": {
+   "name": "plannedMonthFlow",
+   "rule": "Rows, in this order. Inflow = the monthly take-home handed in. One row for each instalment debt with a required payment above zero: minus that payment. Expenses = minus the budget when one is set (above zero); otherwise 0, marked not set. Then one row for each radar debt (a card, a line of credit) with a required payment above zero: minus that payment. Surplus = every row added up.",
+   "read_from": "523f2aaf6c"
+  },
+  "MK-CF-F-157": {
+   "name": "debtPaymentsByDebt",
+   "rule": "For each expense logged this month in the category Debt payment whose payee matches a debt's name (capitals and outer spaces ignored): its amount is added to that debt. Payments that match no debt are left out.",
+   "read_from": "9b3e554496"
+  },
+  "MK-CF-F-159": {
+   "name": "isRecurringDebt",
+   "rule": "True for an instalment loan (paymentShape).",
+   "read_from": "515a084512"
+  },
+  "MK-CF-F-160": {
+   "name": "daysBetweenDates",
+   "rule": "The second date − the first, in days, rounded to the nearest whole day.",
+   "read_from": "c23c8845db"
+  },
+  "MK-CF-F-161": {
+   "name": "monthlyGrossOfSource",
+   "rule": "Twelve calendar months; rent is taken after running costs. Monthly: the amount every month. Weekly: amount × 52 ÷ 12 every month. Every two weeks: amount × 26 ÷ 12 every month. Quarterly: the amount in March, June, September and December. Yearly: the amount in its month (December when none) — or split across its months by their shares. One-off: the amount in its month (January when none).",
+   "read_from": "3093a82621"
+  },
+  "MK-CF-F-162": {
+   "name": "daysApart",
+   "rule": "The gap between two dates in days, never negative.",
+   "read_from": "e8c43056b0"
+  },
+  "MK-CF-F-163": {
+   "name": "monthKey",
+   "rule": "A date written as year-month, for example 2026-08.",
+   "read_from": "5f19fa23ad"
+  },
+  "MK-CF-F-164": {
+   "name": "monthWindow",
+   "rule": "A run of year-months: it starts that many months back from the given date and holds that many months.",
+   "read_from": "7ae21151af"
+  },
+  "MK-CF-F-165": {
+   "name": "salaryMonths",
+   "rule": "The stored month table as year-month → amount. A table kept as twelve plain figures is read as January to December of this year. Rows whose key is not a year-month are dropped. Empty when there is none.",
+   "read_from": "abaa8dbbd9"
+  },
+  "MK-CF-F-166": {
+   "name": "hasMonthlySalaryTable",
+   "rule": "True when salaryMonths holds any row.",
+   "read_from": "45825bc825"
+  },
+  "MK-CF-F-167": {
+   "name": "salaryCalendarYear",
+   "rule": "January to December of the year asked for: the table's figure where it has that month, otherwise the fallback.",
+   "read_from": "2e322380bd"
+  },
+  "MK-CF-F-168": {
+   "name": "salaryWindow",
+   "rule": "For each year-month asked for: the table's figure where it has it, otherwise the fallback.",
+   "read_from": "c10bb1bb82"
+  },
+  "MK-CF-F-169": {
+   "name": "withSalaryMonth",
+   "rule": "The table with that one month set to the amount (a blank counts 0); every other month unchanged.",
+   "read_from": "f29e6596ba"
+  },
+  "MK-CF-F-170": {
+   "name": "salaryYearFromCells",
+   "rule": "The first twelve figures, as January to December of the year given.",
+   "read_from": "1c196b4061"
+  },
+  "MK-CF-F-171": {
+   "name": "earnerPay",
+   "rule": "One earner's pay figures together: gross in a month = yearly gross ÷ 12; yearly gross (annualisedGross); the monthly 401(k); the take-home, whether it is calculated and why (takeHomeAsEntered); everything else taken out, for the year and ÷ 12 for the month — nothing when the take-home is calculated; the verdict (payFiguresAgree); and the monthly gross rows.",
+   "read_from": "b6fbc0c8d6"
+  },
+  "MK-CF-F-172": {
+   "name": "hasWage",
+   "rule": "True when a wage record has a base salary above zero, or a month table with any row.",
+   "read_from": "ce59135479"
+  },
+  "MK-CF-F-173": {
+   "name": "earnerWages",
+   "rule": "Who earns = both: the person's own wage record, plus the spouse's when it has a wage. Who earns = the spouse, and the spouse's record has a wage: the spouse's only. Otherwise the person's own only.",
+   "read_from": "b2fd5e1619"
+  },
+  "MK-CF-F-174": {
+   "name": "hasTwoEarners",
+   "rule": "True when earnerWages gives more than one.",
+   "read_from": "a8a3342a40"
+  },
+  "MK-CF-F-175": {
+   "name": "sumOverEarners",
+   "rule": "The chosen figure worked for each earner and added; a missing figure counts 0.",
+   "read_from": "2e0462905d"
+  },
+  "MK-CF-F-176": {
+   "name": "sumMonthsOverEarners",
+   "rule": "The chosen twelve-month row worked for each earner and added month by month.",
+   "read_from": "3855e06ba1"
+  },
+  "MK-CF-F-177": {
+   "name": "wageGrossByMonth",
+   "rule": "With a month table: this calendar year's twelve months from the table, any month not in it taking the typical monthly figure. With none: the typical monthly figure (enteredMonthlyRaw) in every month.",
+   "read_from": "5ac987edff"
+  },
+  "MK-CF-F-178": {
+   "name": "wageMatchMonthly",
+   "rule": "A match typed as a percent: monthly 401(k) × that percent ÷ 100. Typed as dollars: that amount.",
+   "read_from": "435ccc4eb1"
+  },
+  "MK-CF-F-179": {
+   "name": "entryFromWage",
+   "rule": "Turns a stored wage record into the pay entry: frequency (monthly when none); varies = the record says month-by-month, or its month table holds any row; typical gross = the base salary; the month table, only when it varies; the monthly 401(k); the typed take-home; hours a week.",
+   "read_from": "7ec327657d"
+  },
+  "MK-CF-F-180": {
+   "name": "enteredLandsAnnual",
+   "rule": "Nothing unless EVERY earner typed a take-home above zero. Otherwise each earner's typed take-home × their periods in a year (weekly 52, every two weeks 26, monthly 12, hourly counted as 12), added.",
+   "read_from": "a75feff68b"
+  },
+  "MK-CF-F-181": {
+   "name": "rateInForce",
+   "rule": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) ÷ that income, by filing status, with the standard deduction.",
+   "read_from": "dcf7659181"
+  },
+  "MK-CF-F-182": {
+   "name": "asPercent",
+   "rule": "A rate × 100, followed by a percent sign.",
+   "read_from": "42061ea5f9"
+  },
+  "MK-CF-F-183": {
+   "name": "paidOutByAccount",
+   "rule": "Dividends, interest and coupons dated within the last year (on or after the same date last year), not reinvested, added by account.",
+   "read_from": "d6cca1a39c"
+  },
+  "MK-CF-F-184": {
+   "name": "incomeFromAccounts",
+   "rule": "For each account, the first that applies. (1) It paid out more than zero over the last year (paidOutByAccount): that amount. (2) A bond: coupon rate × face value when both are above zero; else rate × balance when a rate is entered; else $0, marked as assumed. (3) Cash with a rate above zero: rate × balance. (4) Any other account with a balance above zero is named as not counted; foreign currency is skipped. Yearly income = the rows added.",
+   "read_from": "3ee4764d27"
+  },
+  "MK-CF-F-185": {
+   "name": "needsTakeHomeConversion",
+   "rule": "True when the pay was stored the old way — as take-home — and is above zero.",
+   "read_from": "3e121e94fc"
+  },
+  "MK-CF-F-186": {
+   "name": "convertTakeHomeMode",
+   "rule": "Unchanged unless it needs converting (needsTakeHomeConversion). Otherwise: yearly take-home = the stored figure × the periods in a year (weekly 52, every two weeks 26, monthly 12, hourly counted as 12); yearly gross = the gross whose federal tax leaves exactly that take-home (grossFromNet); the stored base pay becomes yearly gross ÷ periods; the typed take-home becomes the original figure; the mode becomes gross.",
+   "read_from": "3fe1793096"
+  },
+  "MK-CF-F-187": {
+   "name": "seniorDeductionFor",
+   "rule": "0 outside tax years 2025 to 2028; when filing separately; when nobody is 65 or over; or when the income is not known. Otherwise $6,000 × the people 65 or over (2 at most), less 6% of the income above $75,000 (single, head of household) or $150,000 (married); never below 0.",
+   "read_from": "18ef33c11d"
+  },
+  "MK-CF-F-188": {
+   "name": "householdPreTaxContributionsAnnual",
+   "rule": "Each earner's monthly 401(k) added, × 12.",
+   "read_from": "14c839b02a"
+  },
+  "MK-CF-F-189": {
+   "name": "essentialsFromLoggedSpending",
+   "rule": "Adds the logged expenses by calendar month. Looks at the 12 months BEFORE the current month. When at least one of those months holds any expense: average = their total ÷ the number of months that hold any — empty months are not counted as zero — labelled N month average. When none does: if the current month holds any, that month's total so far, labelled as one month; otherwise nothing.",
+   "read_from": "3f5eb9e052"
+  },
+  "MK-CF-F-190": {
+   "name": "essentialsMonthly",
+   "rule": "The logged average (essentialsFromLoggedSpending) when there is one; otherwise the typed figure when it is above zero, labelled you entered; otherwise nothing.",
+   "read_from": "fbd4631738"
+  },
+  "MK-CF-F-191": {
+   "name": "ym",
+   "rule": "A date written as year-month, for example 2026-08.",
+   "read_from": "13c293c530"
+  },
+  "MK-CF-F-192": {
+   "name": "inflowLabel",
+   "rule": "The prefix, then the source words in brackets joined by a plus sign — each word once, in the order given. With no sources: income (take-home).",
+   "read_from": "56530a6cc6"
+  },
+  "MK-CF-F-193": {
+   "name": "inflowSourceWord",
+   "rule": "The source lower-cased and trimmed. Starting with salary, base salary or paycheck → income (take-home). Starting with rental, or exactly rent → rent. Starting with social security → Social Security. Anything else → itself, with a trailing bracketed part removed.",
+   "read_from": "89660ab081"
+  },
+  "MK-CF-F-194": {
+   "name": "monthOutflow",
+   "rule": "With a stored record for the month: its expenses + its debt paid. With none: what has been logged so far.",
+   "read_from": "7729349fa3"
+  },
+  "MK-CF-F-195": {
+   "name": "monthsLeftInYear",
+   "rule": "12 − the number of months already finished this year: 12 in January, 1 in December. The current month counts as left.",
+   "read_from": "772f5411ca"
+  },
+  "MK-CF-F-196": {
+   "name": "perMonthToFill",
+   "rule": "Room left ÷ the months left in the year (monthsLeftInYear), rounded to the nearest $100.",
+   "read_from": "9d43529e76"
+  },
+  "MK-CF-F-197": {
+   "name": "ageAttainedInYear",
+   "rule": "This calendar year − the birth year. Nothing when the birth year is missing or before 1900.",
+   "read_from": "b3a89d3bc6"
+  },
+  "MK-CF-F-198": {
+   "name": "payrollTaxWithheld",
+   "rule": "On a year's wages (below zero counts as 0): 6.2% of the wages up to $184,500, plus 1.45% of all the wages, plus 0.9% of the wages above $200,000.",
+   "read_from": "810559e35e"
+  },
+  "MK-CF-F-206": {
+   "name": "householdK401ByMonth",
+   "rule": "For each earner: their monthly 401(k) in every month they have gross pay, and 0 in months they do not. Added over the earners, month by month.",
+   "read_from": "1de53aede4"
+  },
+  "MK-CF-F-210": {
+   "name": "annualOfSource",
+   "rule": "A source stated per month: amount × 12. Per year: as it is. A salary row (stated as entered): the household's yearly salary (salaryAnnual), or the row's own amount when that is zero.",
+   "read_from": "09b94d9a25"
+  },
+  "MK-CF-F-212": {
+   "name": "receivedInMonth",
+   "rule": "The income records whose date begins with the year-month asked for, newest first.",
+   "read_from": "2e69e99871"
+  },
+  "MK-CF-O-001": {
+   "name": "basePay",
+   "rule": "Runs earnerPay for each earner with the household's filing status (single when none), the number of people 65 or over, and the household's rate in force (rateInForce). Yearly gross = the earners' yearly gross added up. Take-home = their monthly take-homes added up. Tax band = the federal band on ALL the earners' wages together, by filing status; the band on the first earner's wage alone is also worked out, and when there are two or more earners and the two bands differ a note says so. Tax in a month = yearly gross × the rate in force ÷ 12. Mode: entered when every earner typed a take-home; calculated when none did; mixed otherwise. When the rate in force is the calculated one, short-by = Social Security and Medicare on each earner's yearly gross (payrollTaxWithheld), added up, ÷ 12; nothing otherwise. Every figure agrees only when every earner's check passes (payFiguresAgree). Monthly 401(k) = added up over the earners. Other taken in a month = each earner's everything-else added up; nothing when any earner's take-home is calculated.",
+   "read_from": "c673000e26"
+  },
+  "MK-CF-O-002": {
+   "name": "expenses",
+   "rule": "Recurring debt rows (recurringDebtPayments) and their total. Planned rows by category, as handed in, and their total. Actual expenses for the month — all, entered by hand, and imported (actualSpending). The debt payments that count as expenses (debtPaymentsCountedAsExpenses). Actual total = the actual expenses total + those debt payments. And the radar (radar).",
+   "read_from": "dd0d163d72"
+  },
+  "MK-CF-O-003": {
+   "name": "thisMonth",
+   "rule": "The planned block (plannedMonthFlow) and the actual block (actualMonthFlow), side by side.",
+   "read_from": "384693a3eb"
+  },
+  "MK-CF-O-004": {
+   "name": "incomeSummary",
+   "rule": "TAKE-HOME rows: one for each earner whose take-home is above zero (from basePay), plus Rent = rent after running costs for the year ÷ 12, when above zero. Usual month = the middle one of the twelve monthly take-home figures of the year (incomeMonthlyGrid, take-home) put in order — the 7th smallest. Standout month = the largest month, shown only when it is more than $1 above the usual month; its note reads with the bonus when a bonus is entered and that is the bonus month (December when no month is set). TAXED rows, each only when above zero: each earner's yearly gross; rent, net, for the year; interest and dividends for the year; the bonus. Yearly taxed total = taxableAnnual. Band = the federal band on that total, by filing status. Tax = that total × the rate in force (rateInForce). Taxed but not received = interest and dividends in a month, unless they are paid to the bank. Ready when there is any salary or any taxed income.",
+   "read_from": "94b31566db"
+  },
+  "MK-CF-O-005": {
+   "name": "theContributionRoom",
+   "rule": "Age = this calendar year − birth year; nothing with no birth year. 401(k): limit by age (annual401kLimit); used = monthly 401(k) × 12, never more than the limit; room = limit − used, never below 0. IRA: limit by age (annualIraLimit); used = monthly Roth IRA × 12, never more than the limit; room = limit − used. HSA: the self-only limit by age (annualHsaLimit), 0 when enrolled in Medicare; used = monthly HSA × 12, never more than the limit; room = limit − used. Catch-up flags: 401(k) and IRA at 50 or over; HSA at 55 or over. Months left = 12 − the months already finished this year (January 12, December 1). Per month to fill the 401(k) = room ÷ months left, to the nearest $100.",
+   "read_from": "441f6c70a7"
+  },
+  "MK-CF-O-006": {
+   "name": "theCreditLine",
+   "rule": "With no limit, or a limit of zero or less: no share used and no status. Otherwise share used = balance ÷ limit, rounded to three decimals; status good at 30% or under, caution above 30% up to 50%, high above 50%.",
+   "read_from": "bdeba80388"
+  },
+  "MK-CF-O-007": {
+   "name": "theTaxOrganizer",
+   "rule": "Interest, dividends and coupons the accounts paid out over the last year (incomeFromAccounts), rounded to whole dollars, are handed with the profile, the accounts, the debts and the year (this year when none is given) to the tax organiser, whose answer is returned unchanged.",
+   "read_from": "ce501c9b0c"
+  },
+  "MK-CF-O-008": {
+   "name": "whatsComing",
+   "rule": "The upcoming bills (upcomingBills) from the starting balance, today and the horizon given (365 days when none), soonest first; and the first of them as the next one — nothing when there are none.",
+   "read_from": "e498d41702"
+  },
+  "MK-CF-O-010": {
+   "name": "theMonth",
+   "rule": "The planned and actual blocks (thisMonth); the Expenses tab (expenses); committed = the monthly amounts of the goals added up; free = planned surplus − committed.",
+   "read_from": "f61ccf23bb"
+  },
+  "MK-CF-O-016": {
+   "name": "incomeSources",
+   "rule": "One row for each of these, only when its amount is above zero: every earner with a base salary or a month table (steady or varies; named You or the spouse when there are two); self-employment (monthly or yearly, as entered); the bonus for the year, with its month; stock vesting for the year (rsuAnnual); rental property = net rent for the year ÷ 12, per month; Social Security and pension together, per month (retirementIncomeMonthly).",
+   "read_from": "c1fe9309b2"
+  },
+  "MK-CF-O-017": {
+   "name": "futurePaycheck",
+   "rule": "Nothing when the age is unknown; when the person is at or past the retirement age (the plan's, else the profile's target, else 67); when the savings are zero or less; or when the projection gives nothing. Otherwise: the retirement projection is run to the retirement age and gives the projected savings at that age; the monthly draw those savings can support comes from buildPaycheckYear (solveSafeDraw); monthly paycheck = guaranteed income (Social Security, pension, annuity, other — guaranteedOutsideStreams) + that draw, each rounded to whole dollars.",
+   "read_from": "034f03a9ff"
+  },
+  "MK-CF-O-018": {
+   "name": "theDebts",
+   "rule": "Counts only debts with a balance above zero. Total = their balances added. Minimum in a month = each debt's minimum payment added, a debt due in full counting 0. Payments in a month = each debt's required payment added (requiredPayment). Interest in a month = balance × yearly rate ÷ 12, added over the debts. Plan in a month = the minimums + the extra. Progress: paid down = the debt at the start of the year − the total now; share = paid down ÷ the start-of-year debt; given only when the start-of-year debt and the paid-down amount are both above zero. The payoff plan is payoffPlan, with the extra and the method chosen (highest rate first when none is).",
+   "read_from": "80c828df96"
+  },
+  "MK-NW-F-001": {
+   "name": "isAlternative",
+   "rule": "True when the account's kind is crypto, private equity, hedge funds, commodities, annuities, options or other; AND it has no maturity date; AND it is not property.",
+   "read_from": "ef9b5955b6"
+  },
+  "MK-NW-F-002": {
+   "name": "alternativesSummary",
+   "rule": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total (0 when the total is 0); growth in a year = total × blended rate.",
+   "read_from": "4eeda56b57"
+  },
+  "MK-NW-F-003": {
+   "name": "valueFreshness",
+   "rule": "No answer for an account whose balance is built from its holdings, or one with no value date. Otherwise months old = whole calendar months from the value date's month to this month, never below zero; stale when 6 months or more.",
+   "read_from": "27c6858965"
+  },
+  "MK-NW-F-004": {
+   "name": "portfolioActualReturn",
+   "rule": "Over accounts that are not property, that have an actual return for the last twelve months on record, and that have some amount earmarked for retirement: those returns averaged, each weighted by its earmarked amount. No answer when the earmarked total is zero.",
+   "read_from": "5d6260d396"
+  },
+  "MK-NW-F-005": {
+   "name": "accountAllowsTicker",
+   "rule": "False for property, for cash accounts, for a 529, for checking and savings, and for accounts classed as Bonds & CDs or Alternatives. True for everything else.",
+   "read_from": "4953fbda7b"
+  },
+  "MK-NW-F-006": {
+   "name": "isCashKind",
+   "rule": "True when the kind is a cash kind: checking, savings, high-yield savings, money market, CD, cash management or foreign currency.",
+   "read_from": "47ed1adbcd"
+  },
+  "MK-NW-F-007": {
+   "name": "assetKind",
+   "rule": "Looks a kind up by its id in the app's list of account kinds and returns its entry (name, section, tax bucket, typical yearly return), or nothing when the id is not in the list.",
+   "read_from": "ab74faf80b"
+  },
+  "MK-NW-F-008": {
+   "name": "incomeBearingClassOf",
+   "rule": "From the account's name, capitals ignored, first match wins. The words sweep or settlement → cash. Money market (also mmkt, mmf, or the ticker of a money-market fund) → Stocks / Funds. The ticker of a Treasury-bill fund → Bonds & CDs. An option — an option code, a dated option, or the words put or call → Alternatives. Crypto — a coin's ticker, or the words bitcoin, ethereum or crypto → Alternatives. A commodity fund's ticker, or the words gold, silver, platinum, palladium or commodity unless the name is a company's → Alternatives. The words currency or forex, or the tickers FXE or FXY → Alternatives. The words CD, certificate of deposit, T-bill, Treasury bill, bond, note, treasury, muni, debenture or coupon — or a percent followed by the word due or a year → Bonds & CDs. Otherwise nothing: the name gives no evidence.",
+   "read_from": "bb843812cc"
+  },
+  "MK-NW-F-009": {
+   "name": "maturityClass",
+   "rule": "Bonds & CDs when a maturity date is given; cash when none is.",
+   "read_from": "79490b70d3"
+  },
+  "MK-NW-F-010": {
+   "name": "wrapperAccount",
+   "rule": "401(k) → kind 401(k), pre-tax. Traditional IRA → pre-tax. Roth → Roth IRA, Roth. HSA → pre-tax. Anything else, or nothing chosen → brokerage, taxable.",
+   "read_from": "c4c48969ee"
+  },
+  "MK-NW-F-011": {
+   "name": "assetClassOf",
+   "rule": "The first of these that applies. (1) The class stated on the account. (2) The class its name is evidence for. (3) Bonds & CDs if it has a maturity date. (4) The class of its kind: checking, savings, high-yield savings, cash management and foreign currency are cash; money market and stocks are Stocks / Funds; CD and fixed income are Bonds & CDs; private equity, hedge funds, commodities, crypto, annuities, options and other are Alternatives; home is Real estate; vehicle is Personal property. (5) Stocks / Funds if it lists holdings. (6) Cash if it is a cash account. (7) Real estate if it is property. (8) Otherwise Unclassified.",
+   "read_from": "0440597b60"
+  },
+  "MK-NW-F-012": {
+   "name": "taxTreatmentOf",
+   "rule": "The tax treatment stated on the account; otherwise tax-deferred for a pre-tax account, tax-free for a Roth account, and taxable for anything else.",
+   "read_from": "ca7cbb9fb0"
+  },
+  "MK-NW-F-013": {
+   "name": "realEstateUseOf",
+   "rule": "The use stated for a property; primary home when none is stated.",
+   "read_from": "036545ad7c"
+  },
+  "MK-NW-F-014": {
+   "name": "isRealAsset",
+   "rule": "True when the account's class (assetClassOf) is Real estate or Personal property.",
+   "read_from": "d9edf1e7f5"
+  },
+  "MK-NW-F-015": {
+   "name": "totalAssets",
+   "rule": "Every account's balance added up; a missing balance counts as zero.",
+   "read_from": "def8ba03e1"
+  },
+  "MK-NW-F-016": {
+   "name": "cashTotal",
+   "rule": "For a linked account: the cash part of its class breakdown (accountClassBreakdown). For any other account: its whole balance when its class is cash, otherwise nothing. Added up over every account.",
+   "read_from": "107dc0dcdf"
+  },
+  "MK-NW-F-017": {
+   "name": "equitiesTotal",
+   "rule": "The balances of the accounts whose class (assetClassOf) is Stocks / Funds, added up. An account counts whole, under its one class.",
+   "read_from": "b8f35ceaaf"
+  },
+  "MK-NW-F-018": {
+   "name": "fixedIncomeTotal",
+   "rule": "The balances of the accounts whose class (assetClassOf) is Bonds & CDs, added up.",
+   "read_from": "eb85ad2c06"
+  },
+  "MK-NW-F-019": {
+   "name": "alternativesTotal",
+   "rule": "The balances of the accounts whose class (assetClassOf) is Alternatives, added up.",
+   "read_from": "eeb60ae32c"
+  },
+  "MK-NW-F-020": {
+   "name": "realEstateTotal",
+   "rule": "The balances of the accounts whose class (assetClassOf) is Real estate, added up.",
+   "read_from": "ac64a323db"
+  },
+  "MK-NW-F-021": {
+   "name": "investmentsTotal",
+   "rule": "The balances of the accounts whose class (assetClassOf) is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified, added up. An account counts whole, so cash sitting inside an investment account is included.",
+   "read_from": "0bdb899d99"
+  },
+  "MK-NW-F-022": {
+   "name": "investableAssets",
+   "rule": "The balances of every account that is not a real asset (isRealAsset), added up.",
+   "read_from": "33f7b18423"
+  },
+  "MK-NW-F-023": {
+   "name": "wrapperWord",
+   "rule": "The word for a kind: checking → Checking; savings → Savings; high-yield savings; money market; CD; cash management; brokerage, stocks, fixed income, crypto, private equity, hedge funds, commodities, options and other → Brokerage; annuities → Annuity; 401(k); Traditional IRA; Roth IRA; HSA; 529; Home; Vehicle. Nothing for an unknown kind or none.",
+   "read_from": "a4bb825280"
+  },
+  "MK-NW-F-024": {
+   "name": "accountLastFour",
+   "rule": "From the account's mask, or failing that its account number: drop everything but digits; if four or more digits remain, the last four; otherwise nothing.",
+   "read_from": "550c4ed7a5"
+  },
+  "MK-NW-F-025": {
+   "name": "accountDisplayName",
+   "rule": "With an institution: a tax-advantaged account that has a kind word reads Institution + kind word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
+   "read_from": "0509b9c53f"
+  },
+  "MK-NW-F-026": {
+   "name": "accountDisplayNames",
+   "rule": "Each account gets its display name (accountDisplayName). Where two or more accounts end up with the same name, each gets · 1, · 2 and so on added, in order of account id.",
+   "read_from": "1cbfd710b6"
+  },
+  "MK-NW-F-027": {
+   "name": "accountClassBreakdown",
+   "rule": "Only for a linked account; any other gets no answer. Cash = its cash balance. Each holding's value = shares × last price (0 with no price), filed under the class its name is evidence for unless that is cash, otherwise under its own class: bond → Bonds & CDs, other → Alternatives, cash → cash, anything else → Stocks / Funds. Options go to Alternatives. If the parts do not add up to the balance: a gap no bigger than the larger of $1 or 1% of the balance is added to cash when positive, or taken off the largest class when negative; a bigger gap is put under the account's own class.",
+   "read_from": "3977913591"
+  },
+  "MK-NW-F-028": {
+   "name": "classPortionLabel",
+   "rule": "The words for one class inside one account. Cash: cash in this account. Bonds: counts the holdings whose name says CD, those whose name says Treasury, and the rest as bonds — for example 3 CDs & 1 Treasury in this account — or bonds & CDs in this account when none are listed. Stocks: N holdings in this account, or stocks & funds in this account when none are listed. Alternatives: N options & N holdings in this account, or alternatives in this account. Any other class: unpriced portion of this account.",
+   "read_from": "c44857c275",
+   "figures_checked_by_hand": {
+    "3": "a count in the example label, not a figure of the formula"
+   }
+  },
+  "MK-NW-F-029": {
+   "name": "assetAllocation",
+   "rule": "The value in each asset class across every account. A linked account is split by its class breakdown (accountClassBreakdown); any other account counts whole under its one class (assetClassOf).",
+   "read_from": "364aed7329"
+  },
+  "MK-NW-F-030": {
+   "name": "earmarkDefault",
+   "rule": "The share of an account counted towards retirement by default: 0% for a 529, for a primary home and for the primary car; 100% for everything else.",
+   "read_from": "94cc5cca0d"
+  },
+  "MK-NW-F-031": {
+   "name": "primaryCarIdOf",
+   "rule": "Among the accounts whose kind is vehicle or whose class is Personal property: the one with the largest balance, ties going to the lowest account id. Nothing when there are none.",
+   "read_from": "558fb0ed1a"
+  },
+  "MK-NW-F-032": {
+   "name": "earmarkedAmount",
+   "rule": "Balance × the share earmarked for retirement. The share is the one stated on the account, held between 0% and 100%, or the default (earmarkDefault) when none is stated.",
+   "read_from": "e3ff4b78f4"
+  },
+  "MK-NW-F-033": {
+   "name": "retirementEarmarkedValue",
+   "rule": "Every account's earmarked amount (earmarkedAmount) added up, with the primary car found by primaryCarIdOf.",
+   "read_from": "9ebbf6e41d"
+  },
+  "MK-NW-F-034": {
+   "name": "benchmarkReturn",
+   "rule": "The person's own yearly rate for that kind where they set one. Otherwise the app's typical yearly return for the kind: checking 0.5%, savings 2.4%, high-yield savings 4.2%, money market 4.5%, CD 4.2%, cash management 3.5%, foreign currency 0%, brokerage 8%, stocks and funds 10.4%, fixed income 4.2%, crypto 8%, private equity 13%, hedge funds 6%, gold and commodities 8.2%, options 5%, annuities 4.5%, 529 7%, other 5%, 401(k), IRA, Roth IRA and HSA 7.9%, home 4.5%, vehicle −5%. 6% for a kind that is unknown or missing.",
+   "read_from": "fb9c6531ca"
+  },
+  "MK-NW-F-035": {
+   "name": "blendedVolatility",
+   "rule": "Over accounts that are not property: each account's volatility — the person's own figure for its kind, else the app's figure for the kind, else 12% — averaged, weighted by its earmarked amount. 12% when nothing is earmarked.",
+   "read_from": "7666b801c9"
+  },
+  "MK-NW-F-036": {
+   "name": "benchmarkInfo",
+   "rule": "The rate from benchmarkReturn, with where it came from: Your custom estimate when the person set it; otherwise the source and period on record for that kind; Generic blended estimate for a kind with none on record.",
+   "read_from": "831903f76b"
+  },
+  "MK-NW-F-037": {
+   "name": "blendedReturn",
+   "rule": "Over accounts that are not property: the benchmark yearly rate of each account's kind (benchmarkReturn), averaged, weighted by its earmarked amount. 6% when nothing is earmarked.",
+   "read_from": "f900a328b0"
+  },
+  "MK-NW-F-038": {
+   "name": "earmarkedKinds",
+   "rule": "The distinct kinds among accounts that are not property and have an earmarked amount above zero. An account with no kind counts as other.",
+   "read_from": "45381def0e"
+  },
+  "MK-NW-F-039": {
+   "name": "buildAssetsState",
+   "rule": "Total = balances added up. Each account's share = its balance ÷ total × 100, or 0 when the total is 0. Average target return = each account's target return weighted by its balance, or 7% when the total is 0.",
+   "read_from": "ce4459f8e0"
+  },
+  "MK-NW-F-040": {
+   "name": "assetsFromOnboarding",
+   "rule": "Makes up to four accounts from the setup answers, skipping an answer left blank or below zero (a typed 0 is kept): traditional retirement savings → a pre-tax 401(k); Roth retirement savings → a Roth IRA; investment holdings → taxable stocks and funds; savings or portfolio → taxable stocks and funds. Each gets a target return of 7%.",
+   "read_from": "cf5ea1ede7"
+  },
+  "MK-NW-F-041": {
+   "name": "monthlyContributionsFromOnboarding",
+   "rule": "The monthly amounts entered for the 401(k), the Roth, investing and property, added up, plus the employer's match for a month.",
+   "read_from": "e4d1e8d69e"
+  },
+  "MK-NW-F-044": {
+   "name": "getAssetsState",
+   "rule": "Reads the saved accounts and returns buildAssetsState of them; nothing when none are saved.",
+   "read_from": "f8babeca59"
+  },
+  "MK-NW-F-045": {
+   "name": "sourceWording",
+   "rule": "Linked account: Linked — or Linked · how long ago when its last update is 4 or more days old, or unknown. Imported account: Imported — or Imported · how long ago, by the same 4-day test. Anything else: By hand · you update it.",
+   "read_from": "42407a87b2"
+  },
+  "MK-NW-F-046": {
+   "name": "historyCoverage",
+   "rule": "Entered by hand: a sentence saying it has no activity records. Linked with no history start on record: a sentence saying none has been shared yet. History starting on or before the period's first day: nothing to say. Otherwise: months covered = months from the history start to today, to one decimal; the sentence says N years when that is 12 months or more (rounded to whole years), N months when 1 or more, otherwise a few days, and names the start date.",
+   "read_from": "7b1e1e5ad0"
+  },
+  "MK-NW-F-047": {
+   "name": "uberGroupOf",
+   "rule": "Cash → Cash. Stocks / Funds, Bonds & CDs, Alternatives and Unclassified → Investments. Real estate and Personal property → Personal property.",
+   "read_from": "3f2c095afe"
+  },
+  "MK-NW-F-048": {
+   "name": "uberGroupRows",
+   "rule": "Sorts the class rows into the three groups, in the order Cash, Investments, Personal property. A group's total = its classes' totals added up. A group with no classes is left out.",
+   "read_from": "e7946021e8"
+  },
+  "MK-NW-F-049": {
+   "name": "itemizedTotal",
+   "rule": "The values of the listed holdings added up; a missing value counts as zero.",
+   "read_from": "6c5e043400"
+  },
+  "MK-NW-F-050": {
+   "name": "itemizeRemainder",
+   "rule": "The entered balance less the listed holdings' values added up (itemizedTotal). Positive: some is still unexplained. Negative: the holdings add up to more than was entered.",
+   "read_from": "cc5462029f"
+  },
+  "MK-NW-F-051": {
+   "name": "itemizedResultTotal",
+   "rule": "The account's total after itemising. When the remainder is above zero and is kept as cash: holdings + remainder, which equals the entered total. Otherwise: the holdings added up — so when they come to more than the entered total, the total rises to their sum.",
+   "read_from": "dce672bcdc"
+  },
+  "MK-NW-F-052": {
+   "name": "buildItemizedAccounts",
+   "rule": "One account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket; balance = its value; class as given; a bond also carries its rate and maturity date, with face value = its value. When the remainder is above zero and is kept as cash, one more account named institution + cash holds it.",
+   "read_from": "102a91ae82"
+  },
+  "MK-NW-F-053": {
+   "name": "correctClassOf",
+   "rule": "The class an account SHOULD have, or nothing when there is no correction to make: the class its name is evidence for; else Bonds & CDs if it has a maturity date; else Stocks / Funds for a money market account; else Bonds & CDs for a CD.",
+   "read_from": "15d782f46b"
+  },
+  "MK-NW-F-054": {
+   "name": "reclassifyAccounts",
+   "rule": "For each account: if correctClassOf gives a class different from the one it carries, it takes that class (a cash tax bucket becomes taxable unless the new class is cash). For each holding inside it: if its name is evidence for bonds it becomes a bond; if for any other class except cash, a stock or fund. Returns the accounts and how many changes were made.",
+   "read_from": "c48e5489ed"
+  },
+  "MK-NW-F-055": {
+   "name": "isBond",
+   "rule": "True when the account's class (assetClassOf) is Bonds & CDs.",
+   "read_from": "a4d7ddc581"
+  },
+  "MK-NW-F-056": {
+   "name": "bondInfo",
+   "rule": "Reads a bond's facts off its account: face value, yearly rate, maturity date, value (the balance), and accrued interest, kept as not entered when it was not entered. A missing figure counts as zero.",
+   "read_from": "5a6cacedd3"
+  },
+  "MK-NW-F-057": {
+   "name": "annualCoupon",
+   "rule": "Face value × yearly interest rate.",
+   "read_from": "2dde5e7273"
+  },
+  "MK-NW-F-058": {
+   "name": "yearsToMaturity",
+   "rule": "(Maturity date − today) in days ÷ 365.25, never below zero. Nothing when there is no valid date.",
+   "read_from": "8118b711d5"
+  },
+  "MK-NW-F-059": {
+   "name": "currentYield",
+   "rule": "Interest paid in a year ÷ (value − accrued interest, where entered). Nothing when that divisor is zero or less.",
+   "read_from": "976c554970"
+  },
+  "MK-NW-F-060": {
+   "name": "approxYTM",
+   "rule": "(Yearly interest + (face − value) ÷ years left) ÷ ((face + value) ÷ 2). Nothing when there is no maturity date, the bond has matured, or its value is zero or less.",
+   "read_from": "a0c4e87be3"
+  },
+  "MK-NW-F-061": {
+   "name": "bondSummary",
+   "rule": "Count = how many bonds. Total value and total face value = each added up. Interest in a year = face × rate, added up. Average yield = that interest ÷ total value; nothing when the total value is zero. Next maturity = the earliest maturity date that has not passed.",
+   "read_from": "95c273f536"
+  },
+  "MK-NW-F-062": {
+   "name": "couponIncomeAnnual",
+   "rule": "Over the accounts that are bonds or CDs: face × yearly rate, added up.",
+   "read_from": "19b9de3d12"
+  },
+  "MK-NW-F-063": {
+   "name": "interestIncomeAnnual",
+   "rule": "For a bond or CD: face × rate when both are set; otherwise balance × rate when a rate is set; otherwise nothing. For a cash account that states a rate: balance × rate. Nothing for anything else. Added up over every account.",
+   "read_from": "0772b3b134"
+  },
+  "MK-NW-F-064": {
+   "name": "bondRateSensitivity",
+   "rule": "Nothing when the yield to maturity is unknown, or the face value or rate is zero or less. For rates one percentage point UP and one DOWN: the new price is priceAtYield at the yield to maturity plus or minus one point (never below 0.01%). It gives a range from 1% under to 1% over that price, and the change against today's value, each rounded to the nearest $1,000.",
+   "read_from": "de92efd74a"
+  },
+  "MK-NW-F-065": {
+   "name": "buildNetWorth",
+   "rule": "Net worth = total assets − total debt, returned with both totals.",
+   "read_from": "604ebc9625"
+  },
+  "MK-NW-F-066": {
+   "name": "sumWhere",
+   "rule": "The balances of the accounts that pass the given test, added up; a missing balance counts as zero.",
+   "read_from": "d32f255d8b"
+  },
+  "MK-NW-F-067": {
+   "name": "plural",
+   "rule": "The count followed by the noun: the singular for exactly 1, otherwise the plural (the noun with s unless another plural is given).",
+   "read_from": "34baa1b4c1"
+  },
+  "MK-NW-F-068": {
+   "name": "prettyDay",
+   "rule": "Turns a date written year-month-day, such as 2026-08-04, into the short month name, the day without a leading zero, a comma and the year.",
+   "read_from": "9f2006da6a"
+  },
+  "MK-NW-F-069": {
+   "name": "priceAtYield",
+   "rule": "Years = years to maturity rounded to a whole number, at least 1. Price = each year's interest ÷ (1 + yield) to the power of that year, added up, plus face ÷ (1 + yield) to the power of years. With no maturity date: the current value.",
+   "read_from": "c459c9a051"
+  },
+  "MK-NW-F-070": {
+   "name": "accruedInterestCaveat",
+   "rule": "When accrued interest was not entered: the note accrued interest not entered — the yield uses the price as you entered it. When it was entered: nothing.",
+   "read_from": "843f845929"
+  },
+  "MK-NW-F-071": {
+   "name": "isCertificateOfDeposit",
+   "rule": "True when the account's name or its institution contains the whole word CD, or the words certificate of deposit, in any capitals.",
+   "read_from": "543f37b88f"
+  },
+  "MK-NW-F-072": {
+   "name": "rowOf",
+   "rule": "One row for one bond: face value, yearly interest rate, interest paid in a year (face × rate), maturity date, years left, current yield, approximate yield to maturity, value, whether it is a CD, and the accrued-interest note. The institution shown is the account's institution, or the account's name when none is set.",
+   "read_from": "4cc586d060"
+  },
+  "MK-NW-F-073": {
+   "name": "itemising",
+   "rule": "Returns three figures. Keep-total-at = the balance the account was entered at. Itemised = the values of the listed holdings added up. Remainder = the entered balance less that sum.",
+   "read_from": "b2bc7b5cca"
+  },
+  "MK-NW-F-084": {
+   "name": "categoryEarnings",
+   "rule": "Uses the dividend and interest records dated on or after the period's first day, amounts taken as positive. A record that names a ticker goes to that holding's category: bond → Bonds & CDs; cash → Cash in this account; anything else → Stocks / Funds; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend, Cash in this account for interest. A category's return = its holdings' period returns averaged, weighted by market value, counting only holdings with a return and a value above zero; nothing when there are none. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding. On day one all three categories are returned with no return; any other day only the categories that earned more than zero.",
+   "read_from": "f1c50cadca"
+  },
+  "MK-NW-F-090": {
+   "name": "windowStartKey",
+   "rule": "Since: the day after the earliest recorded day, but never later than today; today when nothing is recorded. This year: 1 January of today's year. 1M, 3M, 6M, 1Y and 2Y: today moved back 1, 3, 6, 12 or 24 months. Any other label: 12 months back.",
+   "read_from": "95c12d8442"
+  },
+  "MK-NW-F-091": {
+   "name": "pricedGainOf",
+   "rule": "For a holding bought inside the period: its whole gain (value − cost). For any other holding with a period return and a value above zero: value × (1 − 1 ÷ (1 + return)), which is today's value less its value when the period opened. Nothing for the rest. Added up.",
+   "read_from": "69db06700f"
+  },
+  "MK-NW-F-092": {
+   "name": "investmentAccountIdsOf",
+   "rule": "The ids of the accounts whose class is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified. Cash and property accounts are left out.",
+   "read_from": "a6616f370d"
+  },
+  "MK-NW-F-094": {
+   "name": "ledgerGroups",
+   "rule": "Groups the accounts by asset-class label, or by institution (an account with no institution goes under No institution set). A group's total = its accounts' balances added up. When grouped by institution, each group also lists the classes inside it with their totals, largest first.",
+   "read_from": "75306e7a08"
+  },
+  "MK-NW-F-102": {
+   "name": "rateWhereItRefuses",
+   "rule": "Nothing when the beginning value is zero or less. Treats the beginning value as money put in on the day it is read for, adds each deposit and withdrawal of the period on its own date, and solves for the yearly rate at which those grow into the ending value (moneyWeightedReturn). Nothing when no rate can be found or the span is under 30 days.",
+   "read_from": "278d1a8dde"
+  },
+  "MK-NW-F-103": {
+   "name": "investmentRecordDates",
+   "rule": "The dates of the recorded days that hold a value for at least one of the named accounts, oldest first. Empty when no accounts are named.",
+   "read_from": "49ff0ca2a9"
+  },
+  "MK-NW-O-001": {
+   "name": "theBonds",
+   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = years left is zero or less; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures.",
+   "read_from": "ac38213b75"
+  },
+  "MK-NW-O-002": {
+   "name": "theAccount",
+   "rule": "Uses only the records whose account is this account. Market value = the account's balance. Income = dividends + interest in those records, to the cent. Inside = for a linked account, the value in each asset class that is not zero (accountClassBreakdown); for any other account, nothing. Activity = every record with its date, type, ticker and amount: the amount is the record's effect on cash, except a transfer INTO this account, which shows the amount moved; a record counts as the person's own unless it came through the link. Income of one holding = dividends and interest whose record names that holding's ticker, capitals ignored; a record naming no ticker belongs to no holding.",
+   "read_from": "6d973197e7"
+  },
+  "MK-NW-O-003": {
+   "name": "theNetWorth",
+   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = investmentsTotal. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment; monthly debt payments = those added up. The percent change on cash + investments is measured from the daily record since the given start day and returned as a share; no figure when there is no record.",
+   "read_from": "93975a41df"
+  },
+  "MK-NW-O-004": {
+   "name": "theEmergencyFund",
+   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Debt minimums = the required monthly payment of every debt added up, leaving out a mortgage when the budget already carries an amount for rent or housing. Essentials for a month = essential expenses (from logged expenses where there are enough, otherwise from the profile) + debt minimums. Months covered = cash ÷ essentials; no figure when essentials are zero. Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ planned; no figure when zero. Housing disagreement: when housing is budgeted, a mortgage payment exists and the two amounts differ, it gives both and the difference. Target for N months = essentials × N; gap = target − cash, never below zero.",
+   "read_from": "aca43cd91b"
+  },
+  "MK-NW-O-005": {
+   "name": "theAlternativesOutlook",
+   "rule": "Count, total value and blended rate are over the accounts that pass isAlternative (alternativesSummary). Growth in a year = total value × blended rate, given only when there is at least one such account and the total is above zero; otherwise no figure. Rows = every account whose class is Alternatives (assetClassOf), each with its value and the benchmark yearly rate for its kind. Note the totals and the rows use two different tests of what an alternative is.",
+   "read_from": "d0fb7728cb"
+  },
+  "MK-NW-O-006": {
+   "name": "theHolding",
+   "rule": "Shares = shares of every purchase added up. Total paid = shares × cost per share over every purchase. With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = value − total paid; return on cost = gain ÷ total paid (no figure when nothing was paid). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = total paid ÷ shares (0 with no shares). Closed = shares zero or less. Day change = last close − the close before, and that ÷ the close before; none with fewer than two closes. Dividends = dividend records that name this ticker: the last 365 days, and all time. Realised gain = from the sale records of this ticker in this account.",
+   "read_from": "b5f1daf09f"
+  },
+  "MK-NW-O-007": {
+   "name": "theLookBack",
+   "rule": "Passes the amount, the two price histories, the number of months and today to lookBack and returns its answer unchanged.",
+   "read_from": "859c7e6631"
+  },
+  "MK-NW-O-008": {
+   "name": "thePerformance",
+   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Return = (ending − beginning − net money added) ÷ (beginning + each amount added or taken out × the share of the period it was there), the share being (days in the period − days since it opened) ÷ days in the period, both end days counted. It REFUSES — no percent, a sentence instead — when that divisor is zero or less, or when the answer with all the money moved on the first day and the answer with all of it moved on the last day differ by more than the smaller of 1 percentage point and 20% of the rate. Money that moved with no date on it: when it nets to more than 1% of the beginning value it refuses; otherwise every movement is counted as there for half the period. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1. Where it refused, the stand-in is the yearly rate from rateWhereItRefuses.",
+   "read_from": "4afbd2f788"
+  },
+  "MK-PF-F-001": {
+   "name": "totalShares",
+   "rule": "The shares of every purchase added up; a missing figure counts as zero.",
+   "read_from": "69e838f8a2"
+  },
+  "MK-PF-F-002": {
+   "name": "costBasis",
+   "rule": "Shares × cost per share, added up over every purchase, × the contract multiplier (100 for an option unless the holding states its own, otherwise 1).",
+   "read_from": "dfe8497bd7"
+  },
+  "MK-PF-F-003": {
+   "name": "avgCost",
+   "rule": "Cost (costBasis) ÷ shares held; 0 when no shares are held. For an option the cost already includes the contract multiplier.",
+   "read_from": "d9d43ace24"
+  },
+  "MK-PF-F-004": {
+   "name": "marketValue",
+   "rule": "Shares × price × the contract multiplier; 0 when there is no price.",
+   "read_from": "03259fdbf9"
+  },
+  "MK-PF-F-005": {
+   "name": "unrealizedGain",
+   "rule": "Market value − cost; 0 when there is no price.",
+   "read_from": "7ea4c22fee"
+  },
+  "MK-PF-F-006": {
+   "name": "capGains",
+   "rule": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise; a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum. The contract multiplier is not applied here.",
+   "read_from": "c6a551aec2"
+  },
+  "MK-PF-F-007": {
+   "name": "totalROI",
+   "rule": "Unrealised gain ÷ cost. Nothing when there is no price or the cost is zero or less.",
+   "read_from": "a2024ab003"
+  },
+  "MK-PF-F-008": {
+   "name": "startDateFor",
+   "rule": "1M, 3M and 6M: today moved back that many months. 1Y and 2Y: today moved back that many years. This year: 1 January of today's year.",
+   "read_from": "a967566da9"
+  },
+  "MK-PF-F-009": {
+   "name": "latestClose",
+   "rule": "The close of the last price on record; nothing when there are no prices.",
+   "read_from": "c4c3f36626"
+  },
+  "MK-PF-F-010": {
+   "name": "periodReturn",
+   "rule": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate: (end ÷ start) to the power one half, − 1. Nothing when there are no prices or the start close is zero or less.",
+   "read_from": "5eb4560806"
+  },
+  "MK-PF-F-011": {
+   "name": "periodReturnSince",
+   "rule": "The same as periodReturn but measured from a given date: latest close ÷ the last close on or before that date (or the first close on record when all are later), − 1. Never turned into a yearly rate.",
+   "read_from": "c750a6a886"
+  },
+  "MK-PF-F-012": {
+   "name": "earliestPurchaseDate",
+   "rule": "The earliest purchase date among the holding's purchases that carry a valid date; nothing when none does.",
+   "read_from": "42d7e79e17"
+  },
+  "MK-PF-F-013": {
+   "name": "benchmarkTicker",
+   "rule": "The market yardstick for a kind of holding: stocks and funds → SPY; fixed income and annuities → AGG; private equity → PSP; hedge funds → QAI; commodities → GLD; crypto → BTC; 529 → AOR; anything else or none → SPY.",
+   "read_from": "3c953971d0"
+  },
+  "MK-PF-F-014": {
+   "name": "buildPerformance",
+   "rule": "For each holding: price = latest close; market value, cost, unrealised gain and return on cost from the functions above. Bought = its earliest purchase date, or the date supplied when it has none. If it was bought AFTER the period's start it is capped: its period return is its return on cost, and the yardstick is measured since the purchase date. Otherwise its period return is the price return over the period, and the yardstick is measured over the same period. Beat-by = the holding's return − the yardstick's; nothing when either is missing.",
+   "read_from": "9339f7757d"
+  },
+  "MK-PF-F-015": {
+   "name": "topHoldingConcentration",
+   "rule": "Nothing when total value is zero or less or there are fewer than two holdings. Otherwise the holding with the largest value and its share of the total, rounded to a whole percent — reported only when that share is 25% or more.",
+   "read_from": "99a8bb22f4"
+  },
+  "MK-PF-F-016": {
+   "name": "attribution",
+   "rule": "For each holding with a period return and a value above zero: weight = its value ÷ the total value of all holdings; contribution = weight × its period return. Sorted, largest contribution first. Empty when the total is zero or less.",
+   "read_from": "f4c8197608"
+  },
+  "MK-PF-F-017": {
+   "name": "allocation",
+   "rule": "Value by kind of holding (a holding with no kind counts as other), plus cash when above zero. Share = value ÷ total, as a percent rounded to one decimal. Sorted, largest first. Empty when the total is zero or less.",
+   "read_from": "8aa48fe556"
+  },
+  "MK-PF-F-018": {
+   "name": "portfolioTrend",
+   "rule": "Thirteen evenly spaced dates from the period's start to today. Value at each date = TODAY'S share count × the close on or before that date, added over the holdings (a holding with no price counts as zero). Yardstick line = the starting value × (yardstick close ÷ its close at the start); it equals the value line where the yardstick has no price. Empty with no holdings.",
+   "read_from": "5373cc4f04"
+  },
+  "MK-PF-F-019": {
+   "name": "portfolioPeriodReturn",
+   "rule": "Over the holdings that have a period return and a value above zero: their returns averaged, weighted by market value. Nothing when there are none.",
+   "read_from": "4d46fcdf7c"
+  },
+  "MK-PF-F-020": {
+   "name": "portfolioBenchReturn",
+   "rule": "Over the holdings that have a yardstick return and a value above zero: the yardstick returns averaged, weighted by market value. Nothing when there are none.",
+   "read_from": "71bb44ba1a"
+  },
+  "MK-PF-F-021": {
+   "name": "periodDollarDelta",
+   "rule": "The dollars a return stands for: today's total × return ÷ (1 + return), rounded to whole dollars. 0 when either input is not a number or the return is −100% or worse.",
+   "read_from": "d83dc9f940"
+  },
+  "MK-PF-F-022": {
+   "name": "factorOverMonths",
+   "rule": "Nothing with fewer than two prices. Cut-off = today moved back the given number of months. Nothing when the first price on record is later than the cut-off — the record does not reach back that far. Start = the last price on or before the cut-off. Factor = latest close ÷ start close; nothing when the start close is zero or less.",
+   "read_from": "e7de150283"
+  },
+  "MK-PF-F-023": {
+   "name": "lookBack",
+   "rule": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1), as a percent to one decimal. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value.",
+   "read_from": "0243077ca8"
+  },
+  "MK-PF-F-024": {
+   "name": "userFlows",
+   "rule": "The money the person put into or took out of the named accounts, each with its date. Opening cash, opening positions (shares × price) and deposits count as money in, written as negative; withdrawals as money out, positive. A transfer counts only when the other side is outside the named accounts: out when it leaves, in when it arrives. Amounts under half a cent are dropped. Sorted by date.",
+   "read_from": "98aa4c89cc"
+  },
+  "MK-PF-F-025": {
+   "name": "historyIsComplete",
+   "rule": "True only when every named account has at least one record and its earliest record is opening cash, an opening position or a deposit.",
+   "read_from": "a21e0cf8a7"
+  },
+  "MK-PF-F-026": {
+   "name": "moneyWeightedReturn",
+   "rule": "No answer, reason no history, unless the history is complete (historyIsComplete) and there is at least one amount of money put in. Reason too short when fewer than 30 days have passed since the first movement. Otherwise it solves, by halving the range between −95% and +1,000% a year up to 100 times, for the yearly rate at which the dated movements and the current value net to zero (npv). Reason no solution when no rate in that range does.",
+   "read_from": "7d349b312b"
+  },
+  "MK-PF-F-027": {
+   "name": "isMoneyWeighted",
+   "rule": "True when the answer from moneyWeightedReturn carries a rate; false when it carries a reason instead.",
+   "read_from": "49273769e5"
+  },
+  "MK-PF-F-028": {
+   "name": "realizedFromLedger",
+   "rule": "Uses buy, opening-position and sale records that name a ticker, with shares above zero and a price, for the ticker and account asked for, in date order. A sale is matched to the earliest purchases first, within one account and one ticker. Gain on a sale = matched shares × sale price − what those shares cost. All-time = every sale; this year = sales dated in today's calendar year. A sale of more shares than the purchases on record counts only the matched part and is tallied as a sale without a cost on record.",
+   "read_from": "d9a38128b3"
+  },
+  "MK-PF-F-029": {
+   "name": "closeAsOf",
+   "rule": "The close of the last price dated on or before the target date. When every price on record is later than the target, the FIRST close on record. Nothing with no prices.",
+   "read_from": "49a06b3853"
+  },
+  "MK-PF-F-030": {
+   "name": "npv",
+   "rule": "Each money movement ÷ (1 + rate) to the power of (days since the first movement ÷ 365), added up, plus the ending value divided the same way for the end date.",
+   "read_from": "148234f724"
+  },
+  "MK-PF-F-031": {
+   "name": "contractMultiplier",
+   "rule": "The holding's own multiplier when it states one above zero; otherwise 100 for an option and 1 for everything else.",
+   "read_from": "afd31bd634"
+  },
+  "MK-PF-F-032": {
+   "name": "quantityUnit",
+   "rule": "The person's own unit where they entered one; otherwise coins for crypto, contracts for options, ounces for commodities, and shares for everything else.",
+   "read_from": "17039885ca"
+  },
+  "MK-PF-F-033": {
+   "name": "quantityWithUnit",
+   "rule": "The quantity followed by its unit (quantityUnit); the unit loses its final s when the quantity is exactly 1.",
+   "read_from": "8142a5a387"
+  },
+  "MK-PF-F-034": {
+   "name": "closeOnOrBefore",
+   "rule": "The close of the last price dated on or before the given day. Nothing when there is none, when there are no prices, or when the day is not written as year-month-day.",
+   "read_from": "af06794918"
+  }
+ }
+}
