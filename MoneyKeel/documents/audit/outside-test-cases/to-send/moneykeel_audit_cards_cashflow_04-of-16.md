@@ -260,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 09"
+# The cards — batch "cashflow 04"
 
-15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 09"` in your reply.
+15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 04"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -290,7 +290,54 @@ Read from the app. **Check each against its published source and say so in `form
 What each is made of. The comments inside are the in-house author's.
 
 ```ts
-export type FilingStatus = 'single' | 'married' | 'mfs' | 'hoh';
+export interface BudgetVsActual {
+  month: string;            // 'YYYY-MM'
+  planned_total: number;    // planned monthly budget (from onboarding)
+  spent_total: number;      // month-to-date actual
+  remaining: number;        // planned − spent
+  buckets: BucketActual[];
+}
+
+export interface Debt {
+  debt_id: EntityId;
+  label: string;                   // account name, e.g. "Chase Sapphire"
+  institution?: string;
+  debt_type: DebtType;
+  remaining_balance: number;
+  interest_rate_apr: number;       // decimal
+  minimum_monthly_payment: number;
+  monthly_payment?: number;        // what you actually pay each month (≥ minimum); defaults to minimum
+  due_day?: number;                // day of month the payment is due (1–31)
+  first_payment_date?: string;     // 'YYYY-MM-DD' — payments START here (deferred/future-start loans);
+                                   // absent = already paying. Interest accrues from now either way (F2).
+  // #17 / Term #9 / B47 finding 11 — payment shape (drives DTI bucket + how cash flow shows it):
+  payoff_date?: string;            // 'YYYY-MM-DD' final payoff / loan maturity (term loans);
+                                   // for due_in_full this IS the due date of the lump sum
+  payment_frequency?: 'monthly' | 'annual';     // default monthly
+  payment_type?: 'installment' | 'revolving' | 'due_in_full';   // fixed loan payment vs revolving
+                                   // minimum (cards) vs one lump sum on a date; defaults by debt_type
+  origin?: 'onboarding';           // seeded from onboarding answers; re-seeding replaces ONLY these
+                                   // rows (absent = user-created, never touched by seeding/restart)
+}
+
+export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | 'AUTO' | 'PERSONAL' | 'MEDICAL' | 'OTHER';
+
+export interface MonthBlock { lines: Line[]; surplus: number;
+  /** False on the PLANNED side when no budget is set: there is no planned surplus, and the screen
+   *  prints an em-dash rather than a figure built on a guess. Always true on the actual side. */
+  planSet: boolean; }
+
+export interface MonthInput {
+  ym: string;                    // 'YYYY-MM' — the month being shown
+  takeHomeMonthly: number;       // from basePay — the take-home
+  inflowSources?: string[];      // the sources inside takeHomeMonthly, by name — the inflow line prints them (cluster #5 ruling, 2026-09-10)
+  debts: Debt[];
+  plannedExpenses: number;       // from plannedMonthlySpend — the ONE canonical planned figure; 0 = no budget set
+  expenses: LoggedExpense[];     // everything logged, debt payments included
+  /** WHAT THE PLAN HAS ALREADY PROMISED to goals, per month. The hero figure on This month is the
+   *  surplus LESS these, because money already committed to a goal is not free (F11). */
+  commitments?: { label: string; monthlyAmount: number }[];
+}
 ```
 
 ## The cards
@@ -298,146 +345,182 @@ export type FilingStatus = 'single' | 'married' | 'mfs' | 'hoh';
 ```json
 [
  {
-  "id": "MK-CF-F-063",
-  "name": "rowVestYear",
+  "id": "MK-CF-F-002",
+  "name": "plannedMonthlySpend",
   "kind": "function",
-  "what_it_is_for": "Calendar year a row vests (first 4 digits of its date; this year if blank).",
-  "formula_in_words": "The first four-digit year in the row's date; this year when it has none.",
-  "handed": "export function rowVestYear(row: any): number"
+  "what_it_is_for": "The single canonical \"planned monthly spend\": the itemized buckets OR the stated total, whichever is larger (the stated total can include an uncategorized remainder the buckets don't capture).",
+  "formula_in_words": "The larger of two figures: the budget categories added up (spendBuckets), and the single monthly figure the person typed.",
+  "handed": "export function plannedMonthlySpend(op: OnboardingProfile | null): number"
  },
  {
-  "id": "MK-CF-F-065",
-  "name": "equityVestWeights",
+  "id": "MK-CF-F-003",
+  "name": "categoryMonthly",
   "kind": "function",
-  "what_it_is_for": "Vest-month weights (Jan→Dec, summing to 1) from the equity grant rows — THE one placement rule.",
-  "formula_in_words": "Each row's value goes to the month in its date (December when it has none); each month's share = its value ÷ the total. Nothing when no row has a value.",
-  "handed": "export function equityVestWeights(op: OnboardingProfile | null): number[] | null"
- },
- {
-  "id": "MK-CF-F-067",
-  "name": "rentalList",
-  "kind": "function",
-  "what_it_is_for": "Normalized list of rental properties.",
-  "formula_in_words": "Each rental with rent or running costs above zero: long-term unless marked short-term, its monthly rent and its monthly running costs. With no list: the single typed rental, when its rent is above zero.",
-  "handed": "export function rentalList(op: OnboardingProfile | null): { type: 'long' | 'short'; income: number; expenses: number }[]",
+  "what_it_is_for": "Canonical per-category planned $/month — the ONE conversion the buckets AND the Budget screen share, so a category's on-screen line item ALWAYS reconciles with its bucket total (build-34 #3).",
+  "formula_in_words": "0 when the amount is zero or less. A dollar category: the amount, per month — a once-a-year (non-monthly) category is the yearly amount ÷ 12. A percent category: that percent of the average monthly take-home (pctBaseMonthly) — for a non-monthly one the same, worked as a yearly amount and ÷ 12.",
+  "handed": "export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: string } | null | undefined, op: OnboardingProfile | null): number",
   "inputs_it_reads": [
-   "MK-XS-I-024 logged expenses"
+   "MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units"
   ]
  },
  {
-  "id": "MK-CF-F-069",
-  "name": "benefitActiveMonths",
+  "id": "MK-CF-F-004",
+  "name": "spendBuckets",
   "kind": "function",
-  "what_it_is_for": "Calendar months (1-12) benefits are received — e.g.",
-  "formula_in_words": "The months, 1 to 12, in which the benefit is paid, in order; all twelve when none are named.",
-  "handed": "export function benefitActiveMonths(op: OnboardingProfile | null): number[]"
- },
- {
-  "id": "MK-CF-F-073",
-  "name": "otherIncomeMonth",
-  "kind": "function",
-  "what_it_is_for": "Calendar month (1-12) a one-time \"other income\" lands in (default January).",
-  "formula_in_words": "The month typed for the other income, held between 1 and 12; January when none.",
-  "handed": "export function otherIncomeMonth(op: OnboardingProfile | null): number"
- },
- {
-  "id": "MK-CF-F-074",
-  "name": "tipsAnnual",
-  "kind": "function",
-  "what_it_is_for": "Tips are part of employment income — they only count in the months the job is active, and the annual figure is prorated like salary (a temp job that ends stops the tips too).",
-  "formula_in_words": "Monthly tips × the number of months with any salary (salaryActiveMonths).",
-  "handed": "export function tipsAnnual(op: OnboardingProfile | null, now: Date = new Date()): number",
+  "what_it_is_for": "Roll the per-category expenses up into the three monthly-normalized buckets.",
+  "formula_in_words": "With categories: each category's monthly amount (categoryMonthly) is added into fixed, non-monthly or flexible — any other bucket counts as flexible; rows of zero are skipped. With no categories: the three typed bucket totals. Monthly total = the three added.",
+  "handed": "export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non_monthly: number; flexible: number; monthly_total: number }",
   "inputs_it_reads": [
-   "MK-XS-I-023 salary and other income",
-   "MK-XS-I-039 how often each income arrives"
+   "MK-XS-I-032 expenses categories the person set up"
   ]
  },
  {
-  "id": "MK-CF-F-077",
-  "name": "scholarshipByCalendarMonth",
+  "id": "MK-CF-F-005",
+  "name": "actualMonthFlow",
   "kind": "function",
-  "what_it_is_for": "Scholarships/grants placed in the calendar months they actually land (Jan→Dec) — NOT averaged.",
-  "formula_in_words": "Twelve months. A monthly scholarship adds its amount every month. A yearly one is split evenly over the months it names, or over all twelve when it names none. With no list: the single typed amount — monthly, or ÷ 12.",
-  "handed": "export function scholarshipByCalendarMonth(op: OnboardingProfile | null): number[]"
- },
- {
-  "id": "MK-CF-F-080",
-  "name": "jobActiveMonth",
-  "kind": "function",
-  "what_it_is_for": "Is base salary present in calendar month i (0-11)?",
-  "formula_in_words": "True when that calendar month's gross salary is above zero.",
-  "handed": "export function jobActiveMonth(op: OnboardingProfile | null, i: number, _now: Date = new Date()): boolean"
- },
- {
-  "id": "MK-CF-F-081",
-  "name": "salaryActiveMonths",
-  "kind": "function",
-  "what_it_is_for": "How many months of the year you draw a salary.",
-  "formula_in_words": "How many of the twelve months have gross salary above zero.",
-  "handed": "export function salaryActiveMonths(op: OnboardingProfile | null, _now: Date = new Date()): number"
- },
- {
-  "id": "MK-CF-F-088",
-  "name": "taxableByCalendarMonth",
-  "kind": "function",
-  "what_it_is_for": "The calendar-year TAXABLE profile (Jan→Dec) — the same placement rules incomeMonthlyGrid uses, extracted so the rate vector and the grid can never drift apart.",
-  "formula_in_words": "For each calendar month: gross salary + tips (only in months with salary) + net rent ÷ 12 + that month's stock vesting + taxed extra in a month + retirement income; + the bonus in its month (December when none); + the signing bonus in January; + one-off taxed other income in its month; − the household's 401(k) that month. Never below 0.",
-  "handed": "export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date = new Date()): number[]",
+  "what_it_is_for": "WHAT HAS ACTUALLY HAPPENED: what landed, less only the debts confirmed paid, less what was really spent.",
+  "formula_in_words": "Rows, in this order. Actual inflow = the monthly take-home handed in. One row for each debt with a required payment above zero: minus what was logged as paid against it this month (0 when nothing was), marked paid or not. Other debt payments = debt payments logged this month that match no debt on record, when above zero. Expenses entered by hand = minus the month's logged expenses that were not imported, debt payments left out. Expenses imported from your card = minus the imported ones, shown only when there are any. Debts on the big-ticket radar (cards, lines of credit, debts due in full) are moved to the end. Surplus = every row added up.",
+  "handed": "export function actualMonthFlow(m: MonthInput): MonthBlock",
   "inputs_it_reads": [
-   "MK-XS-I-023 salary and other income",
-   "MK-XS-I-059 the month a bonus lands"
+   "MK-XS-I-024 logged expenses",
+   "MK-XS-I-052 the day of the month a debt payment is due",
+   "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
   ]
  },
  {
-  "id": "MK-CF-F-090",
-  "name": "effectiveRate",
+  "id": "MK-CF-F-006",
+  "name": "allocatableThisMonth",
   "kind": "function",
-  "what_it_is_for": "The one tax rate in force for the household, as a share of gross: their own figure where they gave one, otherwise the calculated rate.",
-  "formula_in_words": "The rate in force (rateInForce).",
-  "handed": "export function effectiveRate(op: OnboardingProfile | null): number"
+  "what_it_is_for": "What's LEFT of this month's surplus to put to work = surplus − already-allocated this month (never < 0).",
+  "formula_in_words": "Surplus − what has already been set aside this month; never below 0.",
+  "handed": "export function allocatableThisMonth(surplus: number, allocatedThisMonth: number | undefined): number"
  },
  {
-  "id": "MK-CF-F-091",
-  "name": "userCapGainsRates",
+  "id": "MK-CF-F-007",
+  "name": "nonMonthlyBasis",
   "kind": "function",
-  "what_it_is_for": "The person's own capital-gains tax rates, long-term and short-term, each with their state rate added.",
-  "formula_in_words": "On the household's total yearly income (totalGrossAnnual), by filing status: long-term rate = the federal long-term gains rate (0%, 15% or 20%) + the state rate; short-term rate = the top federal band + the state rate.",
-  "handed": "export function userCapGainsRates(op: OnboardingProfile | null): { lt: number; st: number }",
+  "what_it_is_for": "Label basis for the non-monthly bucket (e.g.",
+  "formula_in_words": "True, with the percents added and rounded to a whole number, only when there is at least one non-monthly category above zero and every one of them is entered as a percent. Otherwise false and 0.",
+  "handed": "export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean; pct: number }",
   "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-032 expenses categories the person set up",
+   "MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units"
   ]
  },
  {
-  "id": "MK-CF-F-097",
-  "name": "grossFromNet",
+  "id": "MK-CF-F-011",
+  "name": "savingsByMonth",
   "kind": "function",
-  "what_it_is_for": "Invert the schedule: the gross income whose take-home equals `net` (bisection).",
-  "formula_in_words": "0 when the take-home is zero or less. Otherwise it searches between the take-home and three times it, halving the range 50 times, for the gross at which gross − federal tax (taxOwedFor, no state tax) equals the take-home.",
-  "handed": "export function grossFromNet(net: number, status: FilingStatus = 'single', over65 = 0): number",
+  "what_it_is_for": "Discretionary amount free to save each month = take-home that month (after tax & 401k) minus the expenses due that month.",
+  "formula_in_words": "For each calendar month: the take-home that month (incomeMonthlyGrid, take-home) − the planned expenses that month (spendByMonth).",
+  "handed": "export function savingsByMonth(op: OnboardingProfile | null): { label: string; amount: number }[]"
+ },
+ {
+  "id": "MK-CF-F-012",
+  "name": "annualCashflow",
+  "kind": "function",
+  "what_it_is_for": "ONE annual cash-flow roll-up, derived entirely from the per-month income grid + spendByMonth — the SAME bases the savings-plan and budget already use.",
+  "formula_in_words": "Gross for the year, after-tax for the year and take-home for the year = the twelve months of incomeMonthlyGrid in each of its three modes, added. Expenses for the year = spendByMonth added. Tax = gross − after-tax. 401(k) = after-tax − take-home. Saved = take-home − expenses.",
+  "handed": "export function annualCashflow(op: OnboardingProfile | null): {\n  grossYr: number; taxYr: number; netYr: number; k401Yr: number; availableYr: number; spendYr: number; saveYr: number;\n}"
+ },
+ {
+  "id": "MK-CF-F-014",
+  "name": "budgetVsActual",
+  "kind": "function",
+  "what_it_is_for": "Month-to-date actual expenses vs the planned budget, bucketed.",
+  "formula_in_words": "This calendar month's logged expenses, leaving out the category Debt payment, added into fixed, non-monthly or flexible by each expense's category. For each bucket: planned (spendBuckets), spent, remaining = planned − spent. The totals the same way.",
+  "handed": "export function budgetVsActual(expenses: any[], op: OnboardingProfile | null, now: Date = new Date()): BudgetVsActual",
   "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-024 logged expenses",
+   "MK-XS-I-032 expenses categories the person set up"
   ]
  },
  {
-  "id": "MK-CF-F-098",
-  "name": "progressiveMonthlyTax",
+  "id": "MK-CF-F-021",
+  "name": "defaultPaymentType",
   "kind": "function",
-  "what_it_is_for": "The tax taken in each of the twelve months when the brackets fill as the year's income builds up, so a month with a bonus is taxed higher and the twelve add up to the year's tax exactly.",
-  "formula_in_words": "For each month in order: the federal tax on the year's running total up to and including that month − the federal tax on the running total before it; plus state tax = the rise in taxable income over the same step × the state rate (held between 0 and 15%). A negative month counts 0.",
-  "handed": "export function progressiveMonthlyTax(taxableByMonth: number[], status: FilingStatus = 'single', stateRate = 0, over65 = 0): number[]",
+  "what_it_is_for": "How a kind of debt is normally repaid: a card or a credit line revolves, and every other kind is a loan paid in fixed instalments.",
+  "formula_in_words": "A credit card or a home-equity line: revolving. Every other kind of debt: instalment.",
+  "handed": "export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type']>",
   "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-042 how a stream is paid — monthly, yearly or one lump"
   ]
  },
  {
-  "id": "MK-CF-F-099",
-  "name": "deductionFor",
+  "id": "MK-CF-F-022",
+  "name": "paymentShape",
   "kind": "function",
-  "what_it_is_for": "The amount of income that is free of tax before the brackets start: the standard deduction for the way the person files, plus the extra amounts for anyone 65 or older.",
-  "formula_in_words": "The standard deduction for the filing status + the age-65 addition × the number of people 65 or over (2 at most) + the senior deduction (seniorDeductionFor). The amounts are in the 2026 table above the cards.",
-  "handed": "export function deductionFor(status: FilingStatus = 'single', over65 = 0, magi: number | null = null): number",
+  "what_it_is_for": "How this debt is repaid: the way the person said, or the normal way for its kind when they did not say.",
+  "formula_in_words": "The payment type recorded on the debt; when none is recorded, defaultPaymentType.",
+  "handed": "export function paymentShape(d: Debt): NonNullable<Debt['payment_type']>",
   "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-042 how a stream is paid — monthly, yearly or one lump"
+  ]
+ },
+ {
+  "id": "MK-CF-F-023",
+  "name": "requiredPayment",
+  "kind": "function",
+  "what_it_is_for": "The payment reserved/required each month for a debt (planned payment, else the minimum).",
+  "formula_in_words": "0 for a debt due in full. Otherwise the larger of the minimum monthly payment and the payment the person says they make.",
+  "handed": "export function requiredPayment(d: Debt): number",
+  "inputs_it_reads": [
+   "MK-XS-I-016 debt minimum payment",
+   "MK-XS-I-041 the payment the person chose to make on a debt",
+   "MK-XS-I-042 how a stream is paid — monthly, yearly or one lump"
+  ]
+ },
+ {
+  "id": "MK-CF-F-024",
+  "name": "totalDebtMonthly",
+  "kind": "function",
+  "what_it_is_for": "Total monthly debt obligation across all debts (override-aware).",
+  "formula_in_words": "requiredPayment added over the debts.",
+  "handed": "export function totalDebtMonthly(debts: Debt[]): number",
+  "figures_it_feeds": [
+   {
+    "id": "MK-NW-M-012",
+    "words_on_screen": "Monthly debt payments",
+    "unit": "money",
+    "per": "month",
+    "what_it_answers": "What all your debts require of you in a month, together.",
+    "when_it_refuses": "No debts entered.",
+    "shown_on": [
+     "/analytics",
+     "/home"
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "said_by": "owner",
+    "decision": "DEC-0641",
+    "date": "2026-09-30",
+    "words": "Q53 - what actually leaves."
+   }
+  ]
+ },
+ {
+  "id": "MK-CF-F-025",
+  "name": "minimumDebtService",
+  "kind": "function",
+  "what_it_is_for": "The minimum payments every debt requires in a month, added up, leaving out any debt due in one lump on a date.",
+  "formula_in_words": "Each debt's minimum monthly payment added; a debt due in full counts 0.",
+  "handed": "export function minimumDebtService(debts: Debt[]): number",
+  "inputs_it_reads": [
+   "MK-XS-I-016 debt minimum payment",
+   "MK-XS-I-042 how a stream is paid — monthly, yearly or one lump"
+  ]
+ },
+ {
+  "id": "MK-CF-F-027",
+  "name": "totalDebtBalance",
+  "kind": "function",
+  "what_it_is_for": "Σ outstanding debt BALANCE — what you still owe (not a monthly payment).",
+  "formula_in_words": "The balances added.",
+  "handed": "export function totalDebtBalance(debts: Debt[]): number",
+  "inputs_it_reads": [
+   "MK-XS-I-014 debt balance"
   ]
  }
 ]
@@ -445,10 +528,16 @@ export type FilingStatus = 'single' | 'married' | 'mfs' | 'hoh';
 
 ## Formulas these cards lean on
 
-6 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+8 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
+ {
+  "id": "MK-CF-F-008",
+  "name": "spendByMonth",
+  "what_it_is_for": "Expenses placed in the calendar months it's actually due (Jan→Dec) — NOT averaged.",
+  "formula_in_words": "Twelve calendar months. Each monthly category adds its monthly amount to every month (a percent category = that percent of the average monthly take-home). Each non-monthly category adds its yearly amount spread evenly over the months it names — over all twelve when it names none (a percent one = percent × average monthly take-home × 12). With no categories: the three typed buckets' total, every month. Then, when the single typed monthly figure is larger than the categories' monthly total, the difference is added to every month."
+ },
  {
   "id": "MK-CF-F-083",
   "name": "totalGrossAnnual",
@@ -462,28 +551,34 @@ export type FilingStatus = 'single' | 'married' | 'mfs' | 'hoh';
   "formula_in_words": "totalGrossAnnual WITHOUT the untaxed parts: salary + tips + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + one-off taxed + retirement income in a month × 12. The 401(k) is NOT taken off here."
  },
  {
-  "id": "MK-CF-F-100",
-  "name": "taxableIncomeFor",
-  "what_it_is_for": "What income is taxed, given how this person files?",
-  "formula_in_words": "Gross − the deduction (deductionFor, with the gross itself used as the income for the senior deduction's phase-out); never below 0."
+  "id": "MK-CF-F-087",
+  "name": "monthlyTaxRates",
+  "what_it_is_for": "The tax rate for each of the twelve months, as a share: the one rate in force in every month — the person's own where they gave one, otherwise the calculated rate.",
+  "formula_in_words": "Twelve rates, all the same: the rate in force (rateInForce) — the person's own, or the calculated one. A steady income is taxed the same in every month."
  },
  {
-  "id": "MK-CF-F-101",
-  "name": "taxOwedFor",
-  "what_it_is_for": "Federal tax owed under a filing status, plus an optional user-set FLAT state rate applied to TAXABLE income (E10) — states differ wildly, so one honest user-entered percent beats fifty guessed tables, and it never taxes the deduction.",
-  "formula_in_words": "Taxable income (taxableIncomeFor) taxed band by band on the filing status's 2026 table — each slice at its own rate — plus taxable income × the state rate (held between 0 and 15%)."
+  "id": "MK-CF-F-088",
+  "name": "taxableByCalendarMonth",
+  "what_it_is_for": "The calendar-year TAXABLE profile (Jan→Dec) — the same placement rules incomeMonthlyGrid uses, extracted so the rate vector and the grid can never drift apart.",
+  "formula_in_words": "For each calendar month: gross salary + tips (only in months with salary) + net rent ÷ 12 + that month's stock vesting + taxed extra in a month + retirement income; + the bonus in its month (December when none); + the signing bonus in January; + one-off taxed other income in its month; − the household's 401(k) that month. Never below 0."
+ },
+ {
+  "id": "MK-CF-F-092",
+  "name": "incomeMonthlyGrid",
+  "what_it_is_for": "A representative 12-month cash-flow grid (Jan→Dec) that honors lumpiness: salary & net rental are steady every month; the annual bonus lands in December; the signing bonus is one-time (January); equity is the level annual vesting spread across the month-of-year its vest dates fall on (so quarterly vesting shows up as quarterly spikes).",
+  "formula_in_words": "For each calendar month. Earned before 401(k) = that month's taxed income (taxableByCalendarMonth) + that month's 401(k). Untaxed = support + that month's scholarships + benefits in their months + one-off untaxed income in its month. Gross = earned before 401(k) + untaxed − reinvested interest and dividends. Tax = tax on the wages + tax on the rest. The wages, earner by earner: an earner who typed a take-home is taxed at their own share — (their yearly gross − their 401(k) for the year − 12 × the typed take-home) ÷ their yearly gross, held between 0 and 1 — so they land exactly what they typed; any other earner's wage × the rate in force (monthlyTaxRates). The rest (earned before 401(k) − the wages) × the rate in force — except that when the rate is the person's own, the month's rent and interest and dividends are left out, because they are not on a payslip. After-tax = gross − tax. Take-home = gross − tax − 401(k)."
+ },
+ {
+  "id": "MK-CF-F-120",
+  "name": "pctBaseMonthly",
+  "what_it_is_for": "A-1: the %-of-income base = true take-home (after tax AND 401k) — the SAME base the expenses-plan screen uses (modules.tsx SpendingEditor → takeHomeMonthly).",
+  "formula_in_words": "The twelve months of take-home (incomeMonthlyGrid, take-home) added ÷ 12."
  },
  {
   "id": "MK-CF-F-181",
   "name": "rateInForce",
   "what_it_is_for": "THE ONE ANSWER every screen reads.",
-  "formula_in_words": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) ÷ that income, by filing status, with the standard deduction."
- },
- {
-  "id": "MK-CF-F-187",
-  "name": "seniorDeductionFor",
-  "what_it_is_for": "How much of the $6,000-per-person senior deduction does this return get?",
-  "formula_in_words": "0 outside tax years 2025 to 2028; when filing separately; when nobody is 65 or over; or when the income is not known. Otherwise $6,000 × the people 65 or over (2 at most), less 6% of the income above $75,000 (single, head of household) or $150,000 (married); never below 0."
+  "formula_in_words": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) LESS the household's 401(k) contributions for the year — they come off before tax — ÷ the yearly taxed income, by filing status, with the standard deduction. 0 when there is no taxed income."
  }
 ]
 ```

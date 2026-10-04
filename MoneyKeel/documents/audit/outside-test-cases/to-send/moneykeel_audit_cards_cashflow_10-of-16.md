@@ -260,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 15"
+# The cards — batch "cashflow 10"
 
-6 cards, so 6 formula checks and 30 cases. Put `"batch": "cashflow 15"` in your reply.
+15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 10"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -285,84 +285,202 @@ Read from the app. **Check each against its published source and say so in `form
 
 **Social Security and Medicare, 2026:** 6.2% of wages up to $184,500; 1.45% of all wages; 0.9% more on wages above $200,000.
 
+## The app's own types these cards name
+
+What each is made of. The comments inside are the in-house author's.
+
+```ts
+export type FilingStatus = 'single' | 'married' | 'mfs' | 'hoh';
+```
+
 ## The cards
 
 ```json
 [
  {
-  "id": "MK-CF-F-155",
-  "name": "cash",
+  "id": "MK-CF-F-067",
+  "name": "rentalList",
   "kind": "function",
-  "what_it_is_for": "Negating zero in JavaScript gives NEGATIVE zero, which formats as \"−$0\" — and a person looking at \"−$0\" beside an unpaid car loan reasonably wonders what it means.",
-  "formula_in_words": "The number unchanged, except that negative zero becomes zero.",
-  "handed": "export const cash = (n: number): number"
- },
- {
-  "id": "MK-CF-F-159",
-  "name": "isRecurringDebt",
-  "kind": "function",
-  "what_it_is_for": "Is this debt one that repeats unchanged every month?",
-  "formula_in_words": "True for an instalment loan (paymentShape).",
-  "handed": "export const isRecurringDebt = (d: Debt): boolean",
+  "what_it_is_for": "Normalized list of rental properties.",
+  "formula_in_words": "Each rental with rent or running costs above zero: long-term unless marked short-term, its monthly rent and its monthly running costs. With no list: the single typed rental, when its rent is above zero.",
+  "handed": "export function rentalList(op: OnboardingProfile | null): { type: 'long' | 'short'; income: number; expenses: number }[]",
   "inputs_it_reads": [
-   "MK-XS-I-042 how a stream is paid — monthly, yearly or one lump"
+   "MK-XS-I-024 logged expenses"
   ]
  },
  {
-  "id": "MK-CF-F-162",
-  "name": "daysApart",
+  "id": "MK-CF-F-069",
+  "name": "benefitActiveMonths",
   "kind": "function",
-  "what_it_is_for": "How many days lie between two dates, whichever comes first.",
-  "formula_in_words": "The gap between two dates in days, never negative.",
-  "handed": "const daysApart = (a: string, b: string)"
+  "what_it_is_for": "Calendar months (1-12) benefits are received — e.g.",
+  "formula_in_words": "The months, 1 to 12, in which the benefit is paid, in order; all twelve when none are named.",
+  "handed": "export function benefitActiveMonths(op: OnboardingProfile | null): number[]"
  },
  {
-  "id": "MK-CF-F-172",
-  "name": "hasWage",
+  "id": "MK-CF-F-073",
+  "name": "otherIncomeMonth",
   "kind": "function",
-  "what_it_is_for": "Whether a person has a wage on record: a base salary above zero, or a month-by-month pay table.",
-  "formula_in_words": "True when a wage record has a base salary above zero, or a month table with any row.",
-  "handed": "const hasWage = (w: any): boolean",
+  "what_it_is_for": "Calendar month (1-12) a one-time \"other income\" lands in (default January).",
+  "formula_in_words": "The month typed for the other income, held between 1 and 12; January when none.",
+  "handed": "export function otherIncomeMonth(op: OnboardingProfile | null): number"
+ },
+ {
+  "id": "MK-CF-F-074",
+  "name": "tipsAnnual",
+  "kind": "function",
+  "what_it_is_for": "Tips are part of employment income — they only count in the months the job is active, and the annual figure is prorated like salary (a temp job that ends stops the tips too).",
+  "formula_in_words": "Monthly tips × the number of months with any salary (salaryActiveMonths).",
+  "handed": "export function tipsAnnual(op: OnboardingProfile | null, now: Date = new Date()): number",
   "inputs_it_reads": [
-   "MK-XS-I-023 salary and other income"
+   "MK-XS-I-023 salary and other income",
+   "MK-XS-I-039 how often each income arrives"
   ]
  },
  {
-  "id": "MK-CF-F-182",
-  "name": "asPercent",
+  "id": "MK-CF-F-077",
+  "name": "scholarshipByCalendarMonth",
   "kind": "function",
-  "what_it_is_for": "A rate as the person would say it: 3.8%, not 0.038.",
-  "formula_in_words": "A rate × 100, followed by a percent sign.",
-  "handed": "const asPercent = (r: number)"
+  "what_it_is_for": "Scholarships/grants placed in the calendar months they actually land (Jan→Dec) — NOT averaged.",
+  "formula_in_words": "Twelve months. A monthly scholarship adds its amount every month. A yearly one is split evenly over the months it names, or over all twelve when it names none. With no list: the single typed amount — monthly, or ÷ 12.",
+  "handed": "export function scholarshipByCalendarMonth(op: OnboardingProfile | null): number[]"
  },
  {
-  "id": "MK-CF-F-191",
-  "name": "ym",
+  "id": "MK-CF-F-080",
+  "name": "jobActiveMonth",
   "kind": "function",
-  "what_it_is_for": "Writes a date as its year and month: 2026-08.",
-  "formula_in_words": "A date written as year-month, for example 2026-08.",
-  "handed": "const ym = (d: Date)"
+  "what_it_is_for": "Is base salary present in calendar month i (0-11)?",
+  "formula_in_words": "True when that calendar month's gross salary is above zero.",
+  "handed": "export function jobActiveMonth(op: OnboardingProfile | null, i: number, _now: Date = new Date()): boolean"
+ },
+ {
+  "id": "MK-CF-F-081",
+  "name": "salaryActiveMonths",
+  "kind": "function",
+  "what_it_is_for": "How many months of the year you draw a salary.",
+  "formula_in_words": "How many of the twelve months have gross salary above zero.",
+  "handed": "export function salaryActiveMonths(op: OnboardingProfile | null, _now: Date = new Date()): number"
+ },
+ {
+  "id": "MK-CF-F-087",
+  "name": "monthlyTaxRates",
+  "kind": "function",
+  "what_it_is_for": "The tax rate for each of the twelve months, as a share: the one rate in force in every month — the person's own where they gave one, otherwise the calculated rate.",
+  "formula_in_words": "Twelve rates, all the same: the rate in force (rateInForce) — the person's own, or the calculated one. A steady income is taxed the same in every month.",
+  "handed": "export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Date()): number[]"
+ },
+ {
+  "id": "MK-CF-F-088",
+  "name": "taxableByCalendarMonth",
+  "kind": "function",
+  "what_it_is_for": "The calendar-year TAXABLE profile (Jan→Dec) — the same placement rules incomeMonthlyGrid uses, extracted so the rate vector and the grid can never drift apart.",
+  "formula_in_words": "For each calendar month: gross salary + tips (only in months with salary) + net rent ÷ 12 + that month's stock vesting + taxed extra in a month + retirement income; + the bonus in its month (December when none); + the signing bonus in January; + one-off taxed other income in its month; − the household's 401(k) that month. Never below 0.",
+  "handed": "export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date = new Date()): number[]",
+  "inputs_it_reads": [
+   "MK-XS-I-023 salary and other income",
+   "MK-XS-I-059 the month a bonus lands"
+  ]
+ },
+ {
+  "id": "MK-CF-F-090",
+  "name": "effectiveRate",
+  "kind": "function",
+  "what_it_is_for": "The one tax rate in force for the household, as a share of gross: their own figure where they gave one, otherwise the calculated rate.",
+  "formula_in_words": "The rate in force (rateInForce).",
+  "handed": "export function effectiveRate(op: OnboardingProfile | null): number"
+ },
+ {
+  "id": "MK-CF-F-091",
+  "name": "userCapGainsRates",
+  "kind": "function",
+  "what_it_is_for": "The person's own capital-gains tax rates, long-term and short-term, each with their state rate added.",
+  "formula_in_words": "On the household's total yearly income (totalGrossAnnual), by filing status: long-term rate = the federal long-term gains rate (0%, 15% or 20%) + the state rate; short-term rate = the top federal band + the state rate.",
+  "handed": "export function userCapGainsRates(op: OnboardingProfile | null): { lt: number; st: number }",
+  "inputs_it_reads": [
+   "MK-XS-I-030 tax filing status and age"
+  ]
+ },
+ {
+  "id": "MK-CF-F-097",
+  "name": "grossFromNet",
+  "kind": "function",
+  "what_it_is_for": "Invert the schedule: the gross income whose take-home equals `net` (bisection).",
+  "formula_in_words": "0 when the take-home is zero or less. Otherwise it searches between the take-home and three times it, halving the range 50 times, for the gross at which gross − federal tax (taxOwedFor, no state tax) equals the take-home.",
+  "handed": "export function grossFromNet(net: number, status: FilingStatus = 'single', over65 = 0): number",
+  "inputs_it_reads": [
+   "MK-XS-I-030 tax filing status and age"
+  ]
+ },
+ {
+  "id": "MK-CF-F-098",
+  "name": "progressiveMonthlyTax",
+  "kind": "function",
+  "what_it_is_for": "The tax taken in each of the twelve months when the brackets fill as the year's income builds up, so a month with a bonus is taxed higher and the twelve add up to the year's tax exactly.",
+  "formula_in_words": "For each month in order: the federal tax on the year's running total up to and including that month − the federal tax on the running total before it; plus state tax = the rise in taxable income over the same step × the state rate (held between 0 and 15%). A negative month counts 0.",
+  "handed": "export function progressiveMonthlyTax(taxableByMonth: number[], status: FilingStatus = 'single', stateRate = 0, over65 = 0): number[]",
+  "inputs_it_reads": [
+   "MK-XS-I-030 tax filing status and age"
+  ]
+ },
+ {
+  "id": "MK-CF-F-099",
+  "name": "deductionFor",
+  "kind": "function",
+  "what_it_is_for": "The amount of income that is free of tax before the brackets start: the standard deduction for the way the person files, plus the extra amounts for anyone 65 or older.",
+  "formula_in_words": "The standard deduction for the filing status + the age-65 addition × the number of people 65 or over (2 at most) + the senior deduction (seniorDeductionFor). The amounts are in the 2026 table above the cards.",
+  "handed": "export function deductionFor(status: FilingStatus = 'single', over65 = 0, magi: number | null = null): number",
+  "inputs_it_reads": [
+   "MK-XS-I-030 tax filing status and age"
+  ]
+ },
+ {
+  "id": "MK-CF-F-100",
+  "name": "taxableIncomeFor",
+  "kind": "function",
+  "what_it_is_for": "What income is taxed, given how this person files?",
+  "formula_in_words": "Gross − the deduction (deductionFor, with the gross itself used as the income for the senior deduction's phase-out); never below 0.",
+  "handed": "export function taxableIncomeFor(gross: number, status: FilingStatus = 'single', over65 = 0): number",
+  "inputs_it_reads": [
+   "MK-XS-I-030 tax filing status and age"
+  ]
  }
 ]
 ```
 
 ## Formulas these cards lean on
 
-2 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+5 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
  {
-  "id": "MK-CF-F-021",
-  "name": "defaultPaymentType",
-  "what_it_is_for": "How a kind of debt is normally repaid: a card or a credit line revolves, and every other kind is a loan paid in fixed instalments.",
-  "formula_in_words": "A credit card or a home-equity line: revolving. Every other kind of debt: instalment."
+  "id": "MK-CF-F-083",
+  "name": "totalGrossAnnual",
+  "what_it_is_for": "Total annual income across every inflow (salary for months worked + bonus + signing + equity + net rental + self-employment/investment/benefits/support/scholarship/other).",
+  "formula_in_words": "Salary for the year + tips for the year + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + untaxed extra in a month × 12 + one-off taxed + one-off untaxed + retirement income in a month × 12."
  },
  {
-  "id": "MK-CF-F-022",
-  "name": "paymentShape",
-  "what_it_is_for": "How this debt is repaid: the way the person said, or the normal way for its kind when they did not say.",
-  "formula_in_words": "The payment type recorded on the debt; when none is recorded, defaultPaymentType."
+  "id": "MK-CF-F-084",
+  "name": "taxableAnnual",
+  "what_it_is_for": "Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates.",
+  "formula_in_words": "totalGrossAnnual WITHOUT the untaxed parts: salary + tips + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + one-off taxed + retirement income in a month × 12. The 401(k) is NOT taken off here."
+ },
+ {
+  "id": "MK-CF-F-101",
+  "name": "taxOwedFor",
+  "what_it_is_for": "Federal tax owed under a filing status, plus an optional user-set FLAT state rate applied to TAXABLE income (E10) — states differ wildly, so one honest user-entered percent beats fifty guessed tables, and it never taxes the deduction.",
+  "formula_in_words": "Taxable income (taxableIncomeFor) taxed band by band on the filing status's 2026 table — each slice at its own rate — plus taxable income × the state rate (held between 0 and 15%)."
+ },
+ {
+  "id": "MK-CF-F-181",
+  "name": "rateInForce",
+  "what_it_is_for": "THE ONE ANSWER every screen reads.",
+  "formula_in_words": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) LESS the household's 401(k) contributions for the year — they come off before tax — ÷ the yearly taxed income, by filing status, with the standard deduction. 0 when there is no taxed income."
+ },
+ {
+  "id": "MK-CF-F-187",
+  "name": "seniorDeductionFor",
+  "what_it_is_for": "How much of the $6,000-per-person senior deduction does this return get?",
+  "formula_in_words": "0 outside tax years 2025 to 2028; when filing separately; when nobody is 65 or over; or when the income is not known. Otherwise $6,000 × the people 65 or over (2 at most), less 6% of the income above $75,000 (single, head of household) or $150,000 (married); never below 0."
  }
 ]
 ```

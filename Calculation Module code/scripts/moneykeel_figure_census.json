@@ -1183,7 +1183,11 @@
     },
     {
      "k": "t",
-     "s": "essentials —"
+     "s": "essentials"
+    },
+    {
+     "k": "t",
+     "s": "—"
     },
     {
      "k": "t",
@@ -1501,7 +1505,11 @@
     },
     {
      "k": "t",
-     "s": "essentials —"
+     "s": "essentials"
+    },
+    {
+     "k": "t",
+     "s": "—"
     },
     {
      "k": "t",
@@ -1963,7 +1971,11 @@
     },
     {
      "k": "t",
-     "s": "essentials —"
+     "s": "essentials"
+    },
+    {
+     "k": "t",
+     "s": "—"
     },
     {
      "k": "t",
@@ -2473,7 +2485,11 @@
     },
     {
      "k": "t",
-     "s": "essentials —"
+     "s": "essentials"
+    },
+    {
+     "k": "t",
+     "s": "—"
     },
     {
      "k": "t",
@@ -2771,7 +2787,11 @@
     },
     {
      "k": "t",
-     "s": "essentials —"
+     "s": "essentials"
+    },
+    {
+     "k": "t",
+     "s": "—"
     },
     {
      "k": "t",
@@ -3021,7 +3041,11 @@
     },
     {
      "k": "t",
-     "s": "essentials —"
+     "s": "essentials"
+    },
+    {
+     "k": "t",
+     "s": "—"
     },
     {
      "k": "t",
@@ -28096,7 +28120,11 @@
     },
     {
      "k": "t",
-     "s": "/month) — your"
+     "s": "/month"
+    },
+    {
+     "k": "t",
+     "s": ") — your"
     },
     {
      "k": "t",
@@ -28338,7 +28366,11 @@
     },
     {
      "k": "t",
-     "s": "/month) — your"
+     "s": "/month"
+    },
+    {
+     "k": "t",
+     "s": ") — your"
     },
     {
      "k": "t",
@@ -28580,7 +28612,11 @@
     },
     {
      "k": "t",
-     "s": "/month) — your"
+     "s": "/month"
+    },
+    {
+     "k": "t",
+     "s": ") — your"
     },
     {
      "k": "t",
@@ -33667,7 +33703,11 @@
     },
     {
      "k": "t",
-     "s": ") with no paycheck coming in. 3–6 months of essentials is the range most planners use."
+     "s": ") with no paycheck coming in"
+    },
+    {
+     "k": "t",
+     "s": ". 3–6 months of essentials is the range most planners use."
     },
     {
      "k": "t",
@@ -33675,7 +33715,11 @@
     },
     {
      "k": "t",
-     "s": "3 months of essentials is"
+     "s": "3 months of essentials"
+    },
+    {
+     "k": "t",
+     "s": "is"
     },
     {
      "k": "t",
@@ -33773,7 +33817,11 @@
     },
     {
      "k": "t",
-     "s": ") with no paycheck coming in. 3–6 months of essentials is the range most planners use."
+     "s": ") with no paycheck coming in"
+    },
+    {
+     "k": "t",
+     "s": ". 3–6 months of essentials is the range most planners use."
     },
     {
      "k": "t",
@@ -33875,7 +33923,11 @@
     },
     {
      "k": "t",
-     "s": ") with no paycheck coming in. 3–6 months of essentials is the range most planners use."
+     "s": ") with no paycheck coming in"
+    },
+    {
+     "k": "t",
+     "s": ". 3–6 months of essentials is the range most planners use."
     },
     {
      "k": "t",
@@ -33883,7 +33935,11 @@
     },
     {
      "k": "t",
-     "s": "3 months of essentials is"
+     "s": "3 months of essentials"
+    },
+    {
+     "k": "t",
+     "s": "is"
     },
     {
      "k": "t",
@@ -37810,20 +37866,35 @@
   {
    "site": "MoneyKeel/functions/cashflow/base-pay.ts:962",
    "routes": [
+    "/analytics",
     "/base-pay",
     "/cashflow",
+    "/home",
     "/income-manager",
-    "/income-summary"
+    "/income-summary",
+    "/insights",
+    "/jobsafety",
+    "/stress-test"
    ],
    "states": [
+    "/analytics|rich",
+    "/analytics|worker",
     "/base-pay|rich",
     "/base-pay|worker",
     "/cashflow|rich",
     "/cashflow|worker",
+    "/home|rich",
+    "/home|worker",
     "/income-manager|rich",
     "/income-manager|worker",
     "/income-summary|rich",
-    "/income-summary|worker"
+    "/income-summary|worker",
+    "/insights|rich",
+    "/insights|worker",
+    "/jobsafety|rich",
+    "/jobsafety|worker",
+    "/stress-test|rich",
+    "/stress-test|worker"
    ],
    "inside": "basePay",
    "line": "const money0 = (n: number) => money(Math.round(n));",
@@ -37833,7 +37904,7 @@
     "$800",
     "$6,400"
    ],
-   "renders": 32
+   "renders": 92
   },
   {
    "site": "src/components/DrawSteerSheet.tsx:136",
@@ -39027,7 +39098,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:169",
+   "site": "src/screens/InsightsScreen.tsx:172",
    "routes": [
     "/home",
     "/insights"
@@ -39048,7 +39119,7 @@
    "renders": 15
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:172",
+   "site": "src/screens/InsightsScreen.tsx:175",
    "routes": [
     "/home",
     "/insights"
@@ -39066,7 +39137,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:174",
+   "site": "src/screens/InsightsScreen.tsx:177",
    "routes": [
     "/home",
     "/insights"
@@ -39233,7 +39304,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:105",
+   "site": "src/screens/JobSafetyScreen.tsx:115",
    "routes": [
     "/jobsafety"
    ],
@@ -39252,7 +39323,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:107",
+   "site": "src/screens/JobSafetyScreen.tsx:117",
    "routes": [
     "/jobsafety"
    ],
@@ -39262,7 +39333,7 @@
     "/jobsafety|worker"
    ],
    "inside": "JobSafetyScreen",
-   "line": "{months} months of essentials is {money(target)} ({money(ess)}/month) — your {basisWord} cover {money(Math.min(available, target))} of it.",
+   "line": "{months} months of essentials is {money(target)} ({money(ess)}/month{rent > 0 ? ` − ${figPer('MK-NW-M-064', rent)} rent from your property, which keeps arriving` : ''}) — your {basisWord} cover {money",
    "values": [
     "$3,600",
     "$600",
@@ -39275,7 +39346,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:110",
+   "site": "src/screens/JobSafetyScreen.tsx:120",
    "routes": [
     "/jobsafety"
    ],
@@ -39294,7 +39365,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:153",
+   "site": "src/screens/JobSafetyScreen.tsx:163",
    "routes": [
     "/jobsafety"
    ],
@@ -40151,7 +40222,24 @@
    "renders": 9
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:66",
+   "site": "src/screens/StressTestScreen.tsx:107",
+   "routes": [
+    "/stress-test"
+   ],
+   "states": [
+    "/stress-test|retiree",
+    "/stress-test|worker"
+   ],
+   "inside": "StressTestScreen",
+   "line": "<Text style={styles.fundTxt}>3 months of essentials{rent > 0 ? ', less the rent that keeps arriving,' : ''} is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.",
+   "values": [
+    "$1,800",
+    "$9,300"
+   ],
+   "renders": 4
+  },
+  {
+   "site": "src/screens/StressTestScreen.tsx:72",
    "routes": [
     "/stress-test"
    ],
@@ -40169,7 +40257,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:70",
+   "site": "src/screens/StressTestScreen.tsx:76",
    "routes": [
     "/stress-test"
    ],
@@ -40177,7 +40265,7 @@
     "/stress-test|rich"
    ],
    "inside": "StressTestScreen",
-   "line": "? `You'd have ${money(r.cashAfter)} left — about ${r.runwayAfter.toFixed(1)} months of essentials (${money(ess)}/month — ${essLabel}).`",
+   "line": "? `You'd have ${money(r.cashAfter)} left${rentPaysForIt ? ', and rent from your property pays for your essentials' : ` — about ${r.runwayAfter.toFixed(1)} months of essentials`} (${money(ess)}/month —",
    "values": [
     "$17,000",
     "$3,500"
@@ -40185,7 +40273,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:71",
+   "site": "src/screens/StressTestScreen.tsx:77",
    "routes": [
     "/stress-test"
    ],
@@ -40202,7 +40290,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:85",
+   "site": "src/screens/StressTestScreen.tsx:93",
    "routes": [
     "/stress-test"
    ],
@@ -40212,7 +40300,7 @@
     "/stress-test|worker"
    ],
    "inside": "StressTestScreen",
-   "line": "<Text style={styles.note}>Covering your {money(ess)}/month of essentials ({essLabel}) with no paycheck coming in. 3–6 months of essentials is the range most planners use.</Text>",
+   "line": "<Text style={styles.note}>Covering your {money(ess)}/month of essentials ({essLabel}) with no paycheck coming in{rentLine ? `, counting ${rentLine} of rent from your property, which keeps arriving` : ",
    "values": [
     "$600",
     "$3,500",
@@ -40221,7 +40309,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:89",
+   "site": "src/screens/StressTestScreen.tsx:97",
    "routes": [
     "/stress-test"
    ],
@@ -40234,23 +40322,6 @@
     "$0"
    ],
    "renders": 1
-  },
-  {
-   "site": "src/screens/StressTestScreen.tsx:99",
-   "routes": [
-    "/stress-test"
-   ],
-   "states": [
-    "/stress-test|retiree",
-    "/stress-test|worker"
-   ],
-   "inside": "StressTestScreen",
-   "line": "<Text style={styles.fundTxt}>3 months of essentials is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.bold, { color: Colors.amber }]}>{money(r.gapToFund)}</Te",
-   "values": [
-    "$1,800",
-    "$9,300"
-   ],
-   "renders": 4
   },
   {
    "site": "src/screens/TaxOrganizerScreen.tsx:107",

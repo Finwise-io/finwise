@@ -53,6 +53,31 @@ Where a window's return is refused and the exact rate stands in its place (Q52),
 yearly rate by its nature and carries "/year" whatever the window's length.
 
 
+## Every return is a time-weighted return
+
+**Owner decision, 2026-10-04 (DEC-1669):** *"All return should be True Weighted Return and not Dietz
+return."* Not a Modified Dietz return, not a money-weighted return, and not a change in balance.
+
+How it is worked out:
+1. Split the period at every deposit, withdrawal or transfer into or out of the money being measured.
+2. For each piece: the value just before the next money movement ÷ the value just after the last one.
+   The first piece starts from the value on the start day; the last ends at the value on the end day.
+3. Multiply the pieces together and take 1 off.
+
+When it shows no figure, and never another method in its place:
+- the start day is not recorded;
+- money moved and the value just before it was not recorded;
+- a piece starts at nothing — the period then starts at the first deposit.
+
+A yearly rate is made only for a period longer than a year — (1 + the return)^(365 ÷ days) − 1 — and
+the section above still decides how it is shown. "Return on cost" on one holding answers a different
+question (am I ahead on what I paid) and keeps that name; it is never called "return" alone.
+
+**Status on 2026-10-04: RULED, not built.** Performance still uses Modified Dietz with a money-weighted
+rate where it refuses, and Net worth's return on cash + investments is still a balance change. The
+tracker carries the build. Source: `MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_note_to_claude_code_TWR.md`.
+
+
 ## What this changes for the file
 
 - The functions tab no longer carries "rounds the answer to …" lines except where a rounding is the rule.

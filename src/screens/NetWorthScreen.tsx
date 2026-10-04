@@ -201,6 +201,10 @@ export default function NetWorthScreen() {
   const monthlySpend = emergencyFund.essentialsMonthly;
   const runwayMonths = emergencyFund.monthsCovered;
   const runwayAtPlannedSpend = emergencyFund.monthsCoveredAtPlannedSpend;
+  // RENT FROM A PROPERTY KEEPS ARRIVING (founder, 2026-10-04: "add it to the cash as losing job does
+  // not mean loosing rental income too"). With none, every line below reads exactly as drawn (v08).
+  const rentArriving = emergencyFund.rentalIncomeMonthly;
+  const lessRent = rentArriving > 0 ? ` − ${figPer('MK-NW-M-064', rentArriving)} rent from your property` : '';
 
   const nw = { gross_assets: worth.assets, gross_debt: worth.debts, net_worth: worth.netWorth };
 
@@ -970,22 +974,34 @@ export default function NetWorthScreen() {
                   backgroundColor: shownMonths < 3 ? Colors.amber : Colors.gainText,
                 }]} />
               </View>
-              <Text style={styles.cushionMath}>of essentials covered by your cash — {fig('MK-NW-M-005', Math.round(cashOnHand))} cash ÷ {figPer('MK-NW-M-048', Math.round(monthlySpend))} essentials — {essentials?.label}</Text>
+              <Text style={styles.cushionMath}>of essentials covered by your cash — {fig('MK-NW-M-005', Math.round(cashOnHand))} cash ÷ {lessRent ? '(' : ''}{figPer('MK-NW-M-048', Math.round(monthlySpend))} essentials{lessRent}{lessRent ? ')' : ''} — {essentials?.label}</Text>
               {/* BOTH NUMBERS (founder, 2026-09-28). The figure above is what you could not stop paying;
                   this one is the life you plan to live. Neither is the whole truth on its own. */}
               {runwayAtPlannedSpend != null && (
                 <Text style={styles.cushionMath}>
-                  {fig('MK-NW-M-046', runwayAtPlannedSpend)} at your planned spend — {fig('MK-NW-M-005', cashOnHand)} cash ÷ {figPer('MK-NW-M-048', emergencyFund.plannedSpendMonthly)}
+                  {fig('MK-NW-M-046', runwayAtPlannedSpend)} at your planned spend — {fig('MK-NW-M-005', cashOnHand)} cash ÷ {lessRent ? '(' : ''}{figPer('MK-NW-M-048', emergencyFund.plannedSpendMonthly)}{lessRent}{lessRent ? ')' : ''}
                 </Text>
               )}
               {emergencyFund.debtMinimums > 0 && (
                 <Text style={styles.cushionMath}>Both include {figPer('MK-NW-M-047', emergencyFund.debtMinimums)} of debt payments you cannot stop.</Text>
               )}
+              {rentArriving > 0 && (
+                <Text style={styles.cushionMath}>Both count {figPer('MK-NW-M-064', rentArriving)} of rent from your property, which keeps arriving if your pay stops.</Text>
+              )}
               <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
             </View>
           </View>
           );
-        })() : cashOnHand > 0 ? (
+        })() : emergencyFund.rentCoversEssentials ? (
+          // THE RENT PAYS FOR THE WHOLE MONTH: there is no count of months to state, and the door to
+          // "tell us your expenses" below would be the wrong thing to say to someone who has
+          <View>
+            <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
+            <View style={styles.ledgerPad}>
+              <Text style={styles.cushionMath}>Rent from your property ({figPer('MK-NW-M-064', rentArriving)}) pays for your essentials ({figPer('MK-NW-M-048', Math.round(monthlySpend))}), so your cash is not drawn on if your pay stops.</Text>
+            </View>
+          </View>
+        ) : cashOnHand > 0 ? (
           <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/cashflow')}
             accessibilityLabel={`Emergency fund: your cash is ${figSaid('MK-NW-M-005', Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
             <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />

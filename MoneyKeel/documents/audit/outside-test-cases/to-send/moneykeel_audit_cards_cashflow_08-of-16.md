@@ -260,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 07"
+# The cards — batch "cashflow 08"
 
-15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 07"` in your reply.
+15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 08"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -303,7 +303,7 @@ export interface BasePayEntry {
   grossTypical: any;                          // per period, as typed
   grossByMonth?: Record<string, any>;         // 'YYYY-MM' → amount, when pay varies
   monthly401k: any;                           // their own contribution, per month
-  landsTypical?: any;                         // per period, as typed — OPTIONAL
+  landsTypical?: any;                         // EACH MONTH, whatever the pay frequency — the screen asks "take-home each month" (approved drawing v07, frames 2b and 2c) — OPTIONAL
   landsByMonth?: Record<string, any>;
   hoursPerWeek?: any;
   /** THE BAND IS NOT BASE PAY'S TO WORK OUT. A tax band is set by everything the household is taxed
@@ -345,18 +345,28 @@ export interface CashflowYear {
   beyondWindow: number;       // dated items (scholarships/loans) that fall outside the next 12 months
 }
 
-export interface EarnerWage {
-  baseSalary?: Money;
-  salaryFreq?: 'hourly' | 'weekly' | 'biweekly' | 'monthly';
-  salaryMode?: 'gross' | 'takehome';
-  hoursPerWeek?: Money;
-  salaryByMonth?: Record<string, Money> | Money[];
-  salaryMonthMode?: 'same' | 'months';
-  c_401k?: Money;
-  employerMatchValue?: Money;
-  employerMatchMode?: 'pct' | 'dollar';
-  /** The take-home they enter, per period. Used as typed — never grossed up. */
-  landsTypical?: Money;
+export interface CreditUtil { ratio: number; status: 'good' | 'caution' | 'high'; }
+
+export interface Debt {
+  debt_id: EntityId;
+  label: string;                   // account name, e.g. "Chase Sapphire"
+  institution?: string;
+  debt_type: DebtType;
+  remaining_balance: number;
+  interest_rate_apr: number;       // decimal
+  minimum_monthly_payment: number;
+  monthly_payment?: number;        // what you actually pay each month (≥ minimum); defaults to minimum
+  due_day?: number;                // day of month the payment is due (1–31)
+  first_payment_date?: string;     // 'YYYY-MM-DD' — payments START here (deferred/future-start loans);
+                                   // absent = already paying. Interest accrues from now either way (F2).
+  // #17 / Term #9 / B47 finding 11 — payment shape (drives DTI bucket + how cash flow shows it):
+  payoff_date?: string;            // 'YYYY-MM-DD' final payoff / loan maturity (term loans);
+                                   // for due_in_full this IS the due date of the lump sum
+  payment_frequency?: 'monthly' | 'annual';     // default monthly
+  payment_type?: 'installment' | 'revolving' | 'due_in_full';   // fixed loan payment vs revolving
+                                   // minimum (cards) vs one lump sum on a date; defaults by debt_type
+  origin?: 'onboarding';           // seeded from onboarding answers; re-seeding replaces ONLY these
+                                   // rows (absent = user-created, never touched by seeding/restart)
 }
 
 export interface ShockResult {
@@ -388,22 +398,6 @@ export interface UpcomingBill {
 
 ```json
 [
- {
-  "id": "MK-CF-F-173",
-  "name": "earnerWages",
-  "kind": "function",
-  "what_it_is_for": "The wages this household actually has, in the order the screen shows them.",
-  "formula_in_words": "Who earns = both: the person's own wage record, plus the spouse's when it has a wage. Who earns = the spouse, and the spouse's record has a wage: the spouse's only. Otherwise the person's own only.",
-  "handed": "export function earnerWages(op: OnboardingProfile | null): EarnerWage[]"
- },
- {
-  "id": "MK-CF-F-177",
-  "name": "wageGrossByMonth",
-  "kind": "function",
-  "what_it_is_for": "ONE person's wage, month by month, January first.",
-  "formula_in_words": "With a month table: this calendar year's twelve months from the table, any month not in it taking the typical monthly figure. With none: the typical monthly figure (enteredMonthlyRaw) in every month.",
-  "handed": "export function wageGrossByMonth(w: Record<string, any> | null): number[]"
- },
  {
   "id": "MK-CF-F-179",
   "name": "entryFromWage",
@@ -607,13 +601,32 @@ export interface UpcomingBill {
    "MK-XS-I-039 how often each income arrives",
    "MK-XS-I-059 the month a bonus lands"
   ]
+ },
+ {
+  "id": "MK-CF-F-026",
+  "name": "actualDebtPayment",
+  "kind": "function",
+  "what_it_is_for": "Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account.",
+  "formula_in_words": "The same as totalDebtMonthly: requiredPayment added over the debts.",
+  "handed": "export function actualDebtPayment(debts: Debt[]): number"
+ },
+ {
+  "id": "MK-CF-F-031",
+  "name": "creditUtilization",
+  "kind": "function",
+  "what_it_is_for": "How much of a credit limit is in use, as a share, and whether that is good (30% or less), a caution (up to 50%) or high.",
+  "formula_in_words": "Share = balance ÷ limit (0 when the limit is zero or less). Good at 30% or under; caution above 30% up to 50%; high above 50% — judged before rounding. The share is then rounded to three decimals.",
+  "handed": "export function creditUtilization(balance: number, limit: number): CreditUtil",
+  "inputs_it_reads": [
+   "MK-XS-I-001 account balance"
+  ]
  }
 ]
 ```
 
 ## Formulas these cards lean on
 
-11 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+15 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
@@ -636,6 +649,18 @@ export interface UpcomingBill {
   "formula_in_words": "With categories: each category's monthly amount (categoryMonthly) is added into fixed, non-monthly or flexible — any other bucket counts as flexible; rows of zero are skipped. With no categories: the three typed bucket totals. Monthly total = the three added."
  },
  {
+  "id": "MK-CF-F-023",
+  "name": "requiredPayment",
+  "what_it_is_for": "The payment reserved/required each month for a debt (planned payment, else the minimum).",
+  "formula_in_words": "0 for a debt due in full. Otherwise the larger of the minimum monthly payment and the payment the person says they make."
+ },
+ {
+  "id": "MK-CF-F-024",
+  "name": "totalDebtMonthly",
+  "what_it_is_for": "Total monthly debt obligation across all debts (override-aware).",
+  "formula_in_words": "requiredPayment added over the debts."
+ },
+ {
   "id": "MK-CF-F-062",
   "name": "equityRowValue",
   "what_it_is_for": "Value of one vesting-schedule row.",
@@ -648,10 +673,22 @@ export interface UpcomingBill {
   "formula_in_words": "With vesting rows: their total value ÷ the number of different years in which rows with a value vest (at least 1). With none: shares × price, as typed."
  },
  {
+  "id": "MK-CF-F-083",
+  "name": "totalGrossAnnual",
+  "what_it_is_for": "Total annual income across every inflow (salary for months worked + bonus + signing + equity + net rental + self-employment/investment/benefits/support/scholarship/other).",
+  "formula_in_words": "Salary for the year + tips for the year + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + untaxed extra in a month × 12 + one-off taxed + one-off untaxed + retirement income in a month × 12."
+ },
+ {
+  "id": "MK-CF-F-084",
+  "name": "taxableAnnual",
+  "what_it_is_for": "Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates.",
+  "formula_in_words": "totalGrossAnnual WITHOUT the untaxed parts: salary + tips + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + one-off taxed + retirement income in a month × 12. The 401(k) is NOT taken off here."
+ },
+ {
   "id": "MK-CF-F-087",
   "name": "monthlyTaxRates",
-  "what_it_is_for": "The tax rate for each of the twelve months, as a share: the person's own rate in every month where they gave one, otherwise a calculated rate that is higher in a month with a bonus.",
-  "formula_in_words": "Twelve rates. When the rate in force is the person's own (typed, or implied by a typed take-home): that one rate, every month. Otherwise, for each month with taxed income: (the federal tax on the year's running total up to that month − the tax up to the month before, plus state tax on the same slice) ÷ that month's taxed income, held between 0 and 60%. A month with no taxed income gets the flat rate in force."
+  "what_it_is_for": "The tax rate for each of the twelve months, as a share: the one rate in force in every month — the person's own where they gave one, otherwise the calculated rate.",
+  "formula_in_words": "Twelve rates, all the same: the rate in force (rateInForce) — the person's own, or the calculated one. A steady income is taxed the same in every month."
  },
  {
   "id": "MK-CF-F-088",
@@ -663,7 +700,7 @@ export interface UpcomingBill {
   "id": "MK-CF-F-092",
   "name": "incomeMonthlyGrid",
   "what_it_is_for": "A representative 12-month cash-flow grid (Jan→Dec) that honors lumpiness: salary & net rental are steady every month; the annual bonus lands in December; the signing bonus is one-time (January); equity is the level annual vesting spread across the month-of-year its vest dates fall on (so quarterly vesting shows up as quarterly spikes).",
-  "formula_in_words": "For each calendar month. Earned before 401(k) = that month's taxed income (taxableByCalendarMonth) + that month's 401(k). Untaxed = support + that month's scholarships + benefits in their months + one-off untaxed income in its month. Gross = earned before 401(k) + untaxed − reinvested interest and dividends. Tax: when the rate is the person's own, (earned before 401(k) − the month's rent and interest and dividends, which are not on a payslip) × the rate; when the app calculates it, that month's taxed income × that month's rate (monthlyTaxRates). After-tax = gross − tax. Take-home = gross − tax − 401(k)."
+  "formula_in_words": "For each calendar month. Earned before 401(k) = that month's taxed income (taxableByCalendarMonth) + that month's 401(k). Untaxed = support + that month's scholarships + benefits in their months + one-off untaxed income in its month. Gross = earned before 401(k) + untaxed − reinvested interest and dividends. Tax = tax on the wages + tax on the rest. The wages, earner by earner: an earner who typed a take-home is taxed at their own share — (their yearly gross − their 401(k) for the year − 12 × the typed take-home) ÷ their yearly gross, held between 0 and 1 — so they land exactly what they typed; any other earner's wage × the rate in force (monthlyTaxRates). The rest (earned before 401(k) − the wages) × the rate in force — except that when the rate is the person's own, the month's rent and interest and dividends are left out, because they are not on a payslip. After-tax = gross − tax. Take-home = gross − tax − 401(k)."
  },
  {
   "id": "MK-CF-F-120",
@@ -672,10 +709,10 @@ export interface UpcomingBill {
   "formula_in_words": "The twelve months of take-home (incomeMonthlyGrid, take-home) added ÷ 12."
  },
  {
-  "id": "MK-CF-F-130",
-  "name": "enteredMonthlyRaw",
-  "what_it_is_for": "A single entered base amount expressed per month, before tax gross-up (hourly/weekly/… → monthly).",
-  "formula_in_words": "Hourly: base pay × hours a week (40 when none) × 52 ÷ 12. Otherwise base pay × the periods in a year ÷ 12 (weekly 52, every two weeks 26, monthly 12, yearly 1)."
+  "id": "MK-CF-F-181",
+  "name": "rateInForce",
+  "what_it_is_for": "THE ONE ANSWER every screen reads.",
+  "formula_in_words": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) LESS the household's 401(k) contributions for the year — they come off before tax — ÷ the yearly taxed income, by filing status, with the standard deduction. 0 when there is no taxed income."
  },
  {
   "id": "MK-CF-F-183",

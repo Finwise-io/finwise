@@ -373,11 +373,12 @@ export interface TrendPoint { date: string; value: number; bench: number; }
   "name": "capGains",
   "kind": "function",
   "what_it_is_for": "If I sold this today, how much of the gain is long-term and how much short-term?",
-  "formula_in_words": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise; a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum. The contract multiplier is not applied here.",
+  "formula_in_words": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share) × the contract multiplier (100 for an option unless the holding states its own, otherwise 1). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise; a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum.",
   "handed": "export function capGains(p: Position, price: number | null | undefined, now: Date = new Date()): CapGains",
   "inputs_it_reads": [
    "MK-XS-I-004 holding quantity (shares)",
-   "MK-XS-I-007 purchase price and date (per lot)"
+   "MK-XS-I-007 purchase price and date (per lot)",
+   "MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise"
   ]
  },
  {
@@ -396,7 +397,7 @@ export interface TrendPoint { date: string; value: number; bench: number; }
   "name": "periodReturn",
   "kind": "function",
   "what_it_is_for": "Price return of a ticker over a period (decimal).",
-  "formula_in_words": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate: (end ÷ start) to the power one half, − 1. Nothing when there are no prices or the start close is zero or less.",
+  "formula_in_words": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate. When the prices reach back two years: (end ÷ start) to the power one half, − 1. When they do not: the yearly rate over the span the prices do cover — (end ÷ start) to the power 1 ÷ years, − 1, where years = the days from the first price to the last ÷ 365.25 — and only when that span is more than one year; a span of a year or less keeps its own total. Nothing when there are no prices or the start close is zero or less.",
   "handed": "export function periodReturn(series: PriceSeries | null | undefined, period: Period, now = new Date()): number | null",
   "inputs_it_reads": [
    "MK-XS-I-005 holding price"
@@ -477,7 +478,7 @@ export interface TrendPoint { date: string; value: number; bench: number; }
   "name": "lookBack",
   "kind": "function",
   "what_it_is_for": "What if I had moved this money?",
-  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1), as a percent to one decimal. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value.",
+  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1) × 100, at full precision. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value.",
   "handed": "export function lookBack(amount: number, fromSeries: PriceSeries | null | undefined, toSeries: PriceSeries | null | undefined, months: number, now: Date = new Date()): LookBackResult | null"
  }
 ]

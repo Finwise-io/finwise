@@ -905,7 +905,7 @@ export interface WindowFigures {
   "id": "MK-PF-F-023",
   "name": "lookBack",
   "what_it_is_for": "What if I had moved this money?",
-  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1), as a percent to one decimal. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value."
+  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1) × 100, at full precision. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value."
  },
  {
   "id": "MK-PF-F-025",

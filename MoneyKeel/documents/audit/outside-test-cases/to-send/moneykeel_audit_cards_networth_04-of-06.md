@@ -269,7 +269,9 @@ in `notes` saying why.
 What each is made of. The comments inside are the in-house author's.
 
 ```ts
-export interface AltSummary { count: number; totalValue: number; blendedReturn: number; estAnnualGrowth: number; }
+export interface AltSummary { count: number; totalValue: number;
+  /** Null when nothing is held: 0% would read as a forecast. */
+  blendedReturn: number | null; estAnnualGrowth: number; }
 
 export interface AssetAccount {
   asset_id: EntityId;
@@ -397,7 +399,7 @@ export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
   "name": "alternativesSummary",
   "kind": "function",
   "what_it_is_for": "Adds up the alternative investments: how many there are, what they are worth together, their blended yearly growth rate and the growth in dollars that rate gives over a year.",
-  "formula_in_words": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total (0 when the total is 0); growth in a year = total × blended rate.",
+  "formula_in_words": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total (no figure when the total is 0); growth in a year = total × blended rate (0 when there is no rate).",
   "handed": "export function alternativesSummary(accounts: AssetAccount[]): AltSummary",
   "inputs_it_reads": [
    "MK-XS-I-001 account balance",
@@ -518,7 +520,7 @@ export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
   "id": "MK-NW-F-001",
   "name": "isAlternative",
   "what_it_is_for": "Is this account an \"other investment\" — an alternative held at a manual value (not a bond, not cash/property)?",
-  "formula_in_words": "True when the account's kind is crypto, private equity, hedge funds, commodities, annuities, options or other; AND it has no maturity date; AND it is not property."
+  "formula_in_words": "True when the account's class (assetClassOf) is Alternatives."
  },
  {
   "id": "MK-NW-F-011",

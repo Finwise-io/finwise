@@ -395,11 +395,12 @@ export interface PriceSeries { ticker: string; points: { date: string; close: nu
   "name": "avgCost",
   "kind": "function",
   "what_it_is_for": "The average price paid per share of a holding: its total cost divided by the shares held, or zero when no shares are held.",
-  "formula_in_words": "Cost (costBasis) ÷ shares held; 0 when no shares are held. For an option the cost already includes the contract multiplier.",
+  "formula_in_words": "Cost (costBasis) ÷ (shares held × the contract multiplier); 0 when no shares are held. The cost carries an option's multiplier, so it is taken back out: the answer is per share, the unit a price is quoted in.",
   "handed": "export function avgCost(p: Position): number",
   "inputs_it_reads": [
    "MK-XS-I-004 holding quantity (shares)",
-   "MK-XS-I-007 purchase price and date (per lot)"
+   "MK-XS-I-007 purchase price and date (per lot)",
+   "MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise"
   ],
   "figures_it_feeds": [
    {
@@ -517,7 +518,7 @@ export interface PriceSeries { ticker: string; points: { date: string; close: nu
   "id": "MK-PF-F-010",
   "name": "periodReturn",
   "what_it_is_for": "Price return of a ticker over a period (decimal).",
-  "formula_in_words": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate: (end ÷ start) to the power one half, − 1. Nothing when there are no prices or the start close is zero or less."
+  "formula_in_words": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate. When the prices reach back two years: (end ÷ start) to the power one half, − 1. When they do not: the yearly rate over the span the prices do cover — (end ÷ start) to the power 1 ÷ years, − 1, where years = the days from the first price to the last ÷ 365.25 — and only when that span is more than one year; a span of a year or less keeps its own total. Nothing when there are no prices or the start close is zero or less."
  }
 ]
 ```

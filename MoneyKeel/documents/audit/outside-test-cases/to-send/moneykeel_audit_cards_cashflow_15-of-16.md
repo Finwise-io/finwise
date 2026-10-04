@@ -260,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 14"
+# The cards — batch "cashflow 15"
 
-15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 14"` in your reply.
+15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 15"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -296,7 +296,7 @@ export interface BasePayEntry {
   grossTypical: any;                          // per period, as typed
   grossByMonth?: Record<string, any>;         // 'YYYY-MM' → amount, when pay varies
   monthly401k: any;                           // their own contribution, per month
-  landsTypical?: any;                         // per period, as typed — OPTIONAL
+  landsTypical?: any;                         // EACH MONTH, whatever the pay frequency — the screen asks "take-home each month" (approved drawing v07, frames 2b and 2c) — OPTIONAL
   landsByMonth?: Record<string, any>;
   hoursPerWeek?: any;
   /** THE BAND IS NOT BASE PAY'S TO WORK OUT. A tax band is set by everything the household is taxed

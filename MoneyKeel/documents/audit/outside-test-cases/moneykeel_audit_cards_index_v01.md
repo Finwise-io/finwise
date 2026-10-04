@@ -10,9 +10,9 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 
 ## What is in the pack
 
-- Read from the code: 222 files, 361 function and orchestrator records in Net worth, Performance and Cash flow.
-- To be judged and tested: **318 cards in 25 files — 318 formula checks and 1,590 cases from each model.**
-- Every card carries its formula in words: 318 of 318. Figures stated in those formulas: 463, each traced to the function it describes or checked by hand and recorded.
+- Read from the code: 222 files, 362 function and orchestrator records in Net worth, Performance and Cash flow.
+- To be judged and tested: **319 cards in 26 files — 319 formula checks and 1,595 cases from each model.**
+- Every card carries its formula in words: 319 of 319. Figures stated in those formulas: 478, each traced to the function it describes or checked by hand and recorded.
 - Left out, each for a stated reason: 43 (listed at the foot).
 
 | File | Batch | Cards | Cases | First and last card |
@@ -27,21 +27,22 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 | `moneykeel_audit_cards_performance_02-of-04.md` | performance 02 | 15 | 75 | MK-NW-F-084 categoryEarnings … MK-PF-F-020 portfolioBenchReturn |
 | `moneykeel_audit_cards_performance_03-of-04.md` | performance 03 | 15 | 75 | MK-PF-F-033 quantityWithUnit … MK-PF-F-023 lookBack |
 | `moneykeel_audit_cards_performance_04-of-04.md` | performance 04 | 10 | 50 | MK-PF-F-024 userFlows … MK-PF-F-034 closeOnOrBefore |
-| `moneykeel_audit_cards_cashflow_01-of-15.md` | cashflow 01 | 6 | 30 | MK-CF-O-001 basePay … MK-CF-O-006 theCreditLine |
-| `moneykeel_audit_cards_cashflow_02-of-15.md` | cashflow 02 | 6 | 30 | MK-CF-O-007 theTaxOrganizer … MK-CF-O-018 theDebts |
-| `moneykeel_audit_cards_cashflow_03-of-15.md` | cashflow 03 | 15 | 75 | MK-CF-F-002 plannedMonthlySpend … MK-CF-F-027 totalDebtBalance |
-| `moneykeel_audit_cards_cashflow_04-of-15.md` | cashflow 04 | 15 | 75 | MK-CF-F-028 loanPayment … MK-CF-F-057 rothVsTraditional |
-| `moneykeel_audit_cards_cashflow_05-of-15.md` | cashflow 05 | 15 | 75 | MK-CF-F-058 rothConversionWindow … MK-CF-F-085 filingStatusOf |
-| `moneykeel_audit_cards_cashflow_06-of-15.md` | cashflow 06 | 15 | 75 | MK-CF-F-086 stateRateOf … MK-CF-F-166 hasMonthlySalaryTable |
-| `moneykeel_audit_cards_cashflow_07-of-15.md` | cashflow 07 | 15 | 75 | MK-CF-F-173 earnerWages … MK-CF-F-020 cashflowYear |
-| `moneykeel_audit_cards_cashflow_08-of-15.md` | cashflow 08 | 15 | 75 | MK-CF-F-026 actualDebtPayment … MK-CF-F-062 equityRowValue |
-| `moneykeel_audit_cards_cashflow_09-of-15.md` | cashflow 09 | 15 | 75 | MK-CF-F-063 rowVestYear … MK-CF-F-099 deductionFor |
-| `moneykeel_audit_cards_cashflow_10-of-15.md` | cashflow 10 | 15 | 75 | MK-CF-F-100 taxableIncomeFor … MK-CF-F-120 pctBaseMonthly |
-| `moneykeel_audit_cards_cashflow_11-of-15.md` | cashflow 11 | 15 | 75 | MK-CF-F-121 zero12 … MK-CF-F-146 payFiguresAgree |
-| `moneykeel_audit_cards_cashflow_12-of-15.md` | cashflow 12 | 15 | 75 | MK-CF-F-149 recurringDebtPayments … MK-CF-F-174 hasTwoEarners |
-| `moneykeel_audit_cards_cashflow_13-of-15.md` | cashflow 13 | 15 | 75 | MK-CF-F-175 sumOverEarners … MK-CF-F-195 monthsLeftInYear |
-| `moneykeel_audit_cards_cashflow_14-of-15.md` | cashflow 14 | 15 | 75 | MK-CF-F-196 perMonthToFill … MK-CF-F-148 inMonth |
-| `moneykeel_audit_cards_cashflow_15-of-15.md` | cashflow 15 | 6 | 30 | MK-CF-F-155 cash … MK-CF-F-191 ym |
+| `moneykeel_audit_cards_cashflow_01-of-16.md` | cashflow 01 | 6 | 30 | MK-CF-O-001 basePay … MK-CF-O-006 theCreditLine |
+| `moneykeel_audit_cards_cashflow_02-of-16.md` | cashflow 02 | 6 | 30 | MK-CF-O-007 theTaxOrganizer … MK-CF-O-018 theDebts |
+| `moneykeel_audit_cards_cashflow_03-of-16.md` | cashflow 03 | 1 | 5 | MK-CF-O-019 theIncomeManager … MK-CF-O-019 theIncomeManager |
+| `moneykeel_audit_cards_cashflow_04-of-16.md` | cashflow 04 | 15 | 75 | MK-CF-F-002 plannedMonthlySpend … MK-CF-F-027 totalDebtBalance |
+| `moneykeel_audit_cards_cashflow_05-of-16.md` | cashflow 05 | 15 | 75 | MK-CF-F-028 loanPayment … MK-CF-F-057 rothVsTraditional |
+| `moneykeel_audit_cards_cashflow_06-of-16.md` | cashflow 06 | 15 | 75 | MK-CF-F-058 rothConversionWindow … MK-CF-F-085 filingStatusOf |
+| `moneykeel_audit_cards_cashflow_07-of-16.md` | cashflow 07 | 15 | 75 | MK-CF-F-086 stateRateOf … MK-CF-F-173 earnerWages |
+| `moneykeel_audit_cards_cashflow_08-of-16.md` | cashflow 08 | 15 | 75 | MK-CF-F-179 entryFromWage … MK-CF-F-031 creditUtilization |
+| `moneykeel_audit_cards_cashflow_09-of-16.md` | cashflow 09 | 15 | 75 | MK-CF-F-037 inferDebtType … MK-CF-F-065 equityVestWeights |
+| `moneykeel_audit_cards_cashflow_10-of-16.md` | cashflow 10 | 15 | 75 | MK-CF-F-067 rentalList … MK-CF-F-100 taxableIncomeFor |
+| `moneykeel_audit_cards_cashflow_11-of-16.md` | cashflow 11 | 15 | 75 | MK-CF-F-105 guaranteedRows … MK-CF-F-121 zero12 |
+| `moneykeel_audit_cards_cashflow_12-of-16.md` | cashflow 12 | 15 | 75 | MK-CF-F-124 nextOccurrence … MK-CF-F-149 recurringDebtPayments |
+| `moneykeel_audit_cards_cashflow_13-of-16.md` | cashflow 13 | 15 | 75 | MK-CF-F-150 debtPaymentsCountedAsExpenses … MK-CF-F-175 sumOverEarners |
+| `moneykeel_audit_cards_cashflow_14-of-16.md` | cashflow 14 | 15 | 75 | MK-CF-F-176 sumMonthsOverEarners … MK-CF-F-195 monthsLeftInYear |
+| `moneykeel_audit_cards_cashflow_15-of-16.md` | cashflow 15 | 15 | 75 | MK-CF-F-196 perMonthToFill … MK-CF-F-148 inMonth |
+| `moneykeel_audit_cards_cashflow_16-of-16.md` | cashflow 16 | 6 | 30 | MK-CF-F-155 cash … MK-CF-F-191 ym |
 
 ## Left out of the pack
 

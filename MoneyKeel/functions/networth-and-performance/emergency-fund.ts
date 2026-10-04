@@ -16,6 +16,7 @@ import { cashTotal, assetClassOf, realEstateUseOf } from '../../../src/domain/as
 import { emergencyTest, monthlyEssentials, plannedMonthlySpend } from '../../../src/domain/budget';
 import { requiredPayment, type Debt } from '../../../src/domain/debt';
 import { essentialsMonthly } from '../cashflow/essentials';
+import { incomeSummary } from '../cashflow/income-summary';
 
 export interface EmergencyFund {
   /** The money that could actually be spent this month. */
@@ -31,7 +32,17 @@ export interface EmergencyFund {
   essentialsMonthly: number;
   /** Where that figure came from, in the words the screen shows ("4 month average"). */
   essentialsBasis: string;
-  /** How many months the cash covers. Null when there is no essentials figure to divide by. */
+  /** RENT FROM A PROPERTY, a month — the Income summary's own Rent row, so the two screens can never
+   *  show two figures for it. It keeps arriving when pay stops (founder, 2026-10-04), so each month
+   *  it is added to the cash before the month is paid for. 0 with no rental. */
+  rentalIncomeMonthly: number;
+  /** What the cash itself must find each month: essentials less that rent, never below zero. */
+  fromCashMonthly: number;
+  /** True when the rent alone pays for the month, so the cash is not drawn on and no count of
+   *  months exists to state. */
+  rentCoversEssentials: boolean;
+  /** How many months the cash covers. Null when there is no essentials figure to divide by, and
+   *  null when the rent covers the month by itself. */
   monthsCovered: number | null;
   /** What a target of N months costs, and how far off it is. */
   targetFor: (months: number) => { target: number; gap: number } | null;
@@ -71,8 +82,8 @@ export interface EmergencyFund {
  *     rents their home = property.length > 0 and !property.some((a) => real estate use of(a) = 'primary')
  *     debt minimums = debts.reduce((t: number, d: any) => (d = home mortgage ? t : t + required payment(d)), 0)
  *     ess = essentials monthly(input.expenses ?? [], monthly essentials(input.profile))
- *     monthly = (ess.monthly ?? 0) + debt minimums
  *     planned = planned monthly spend(input.profile) + debt minimums
+ *     rent = max(0, income summary(input.profile ?? {}).lands.rent monthly)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-079 EF
@@ -80,7 +91,7 @@ export interface EmergencyFund {
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
  *               MK-NW-F-079 EF
  *
- * Serves ...... MK-NW-M-046 · MK-NW-M-047 · MK-NW-M-048
+ * Serves ...... MK-NW-M-046 · MK-NW-M-047 · MK-NW-M-048 · MK-NW-M-064
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-014 debt balance
@@ -95,6 +106,7 @@ export interface EmergencyFund {
  *
  * Decides .....
  *     · If monthly is missing it uses 0.
+ *     · Never lets cash after fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-004
  * Changed ..... not in git yet (—)
@@ -109,6 +121,9 @@ export function theEmergencyFund(input: {
    *  editable, so the door takes what they typed and answers about that — the arithmetic is the same
    *  question, asked of a number they chose. Absent, the answer is about the cash they actually have. */
   cashOverride?: number;
+  /** Job safety lets a person TYPE what a typical month of essentials comes to. Given, it stands in
+   *  for the whole month — exactly as it did when that screen multiplied it out for itself. */
+  essentialsOverride?: number;
 }): EmergencyFund {
   const cash = input.cashOverride != null ? input.cashOverride : cashTotal(input.accounts ?? []);
 
@@ -143,9 +158,20 @@ export function theEmergencyFund(input: {
   const debtMinimums = debts.reduce((t: number, d: any) => (d === homeMortgage ? t : t + requiredPayment(d)), 0);
   // ONE essentials figure, his ruling G21 — the logged average first, the typed plan as the fallback
   const ess = essentialsMonthly(input.expenses ?? [], monthlyEssentials(input.profile));
-  const monthly = (ess?.monthly ?? 0) + debtMinimums;
+  const monthly = input.essentialsOverride != null && input.essentialsOverride > 0
+    ? input.essentialsOverride : (ess?.monthly ?? 0) + debtMinimums;
 
   const planned = plannedMonthlySpend(input.profile) + debtMinimums;
+
+  // RENT FROM A PROPERTY KEEPS ARRIVING (founder, 2026-10-04: "add it to the cash as losing job does
+  // not mean loosing rental income too"). It arrives EVERY month, so it is added to the cash every
+  // month: after N months the cash is cash + N × rent, and it has paid for N × the month. The two
+  // meet at cash ÷ (the month − the rent). Added once instead, a year of rent would count as a
+  // single month of it and the fund would read shorter than it is.
+  const rent = Math.max(0, incomeSummary(input.profile ?? {}).lands.rentMonthly);
+  const fromCash = Math.max(0, monthly - rent);
+  const plannedFromCash = Math.max(0, planned - rent);
+  const rentCovers = monthly > 0 && rent >= monthly;
 
   // THE TWO FIGURES, COMPARED (his ruling, 2026-09-29). The budget line is what the door uses; this
   // says whether the debt record disagrees with it, so the screen can ask rather than stay silent.
@@ -161,20 +187,25 @@ export function theEmergencyFund(input: {
     housingDisagreement,
     debtMinimums,
     plannedSpendMonthly: planned,
-    monthsCoveredAtPlannedSpend: planned > 0 ? cash / planned : null,
+    monthsCoveredAtPlannedSpend: plannedFromCash > 0 ? cash / plannedFromCash : null,
     essentialsMonthly: monthly,
     essentialsBasis: ess?.label ?? '',
-    // never divided by nothing: with no essentials figure there is no runway to state
-    monthsCovered: monthly > 0 ? cash / monthly : null,
-    // NO ESSENTIALS FIGURE, NO TARGET AND NO MONTHS — a target of $0 reads as "you are covered" (outside review)
+    rentalIncomeMonthly: rent,
+    fromCashMonthly: fromCash,
+    rentCoversEssentials: rentCovers,
+    // never divided by nothing: with no essentials figure, or with the rent paying for the whole
+    // month, there is no count of months to state
+    monthsCovered: fromCash > 0 ? cash / fromCash : null,
+    // NO ESSENTIALS FIGURE, NO TARGET AND NO MONTHS — a target of $0 reads as "you are covered" (outside
+    // review). Where the rent pays for the month the target IS $0, and that is the true answer.
     targetFor: (months: number) => {
       if (!(monthly > 0)) return null;
-      const target = monthly * months;
+      const target = fromCash * months;
       return { target, gap: Math.max(0, target - cash) };
     },
     afterAShock: (shock: number) => {
       const t = emergencyTest(input.profile, cash, shock, monthly);
-      return { cashAfter: t.cashAfter, monthsAfter: monthly > 0 ? t.runwayAfter : null, coversIt: t.coversIt };
+      return { cashAfter: t.cashAfter, monthsAfter: fromCash > 0 ? Math.max(0, t.cashAfter) / fromCash : null, coversIt: t.coversIt };
     },
   };
 }
@@ -260,10 +291,14 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
   'MK-NW-M-013': {
     label: 'EMERGENCY FUND — X.X months', unit: 'months', screens: ['/analytics', '/jobsafety'],
     answers: 'How many months your cash would cover, if your income stopped tomorrow.',
-    formula: 'your cash ÷ what a month of essentials costs',
+    formula: 'your cash ÷ (what a month of essentials costs − the rent from a property that keeps arriving each month)',
     inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-001 your logged expenses'],
-    decisions: ['ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged.'],
-    refusal: 'No essentials figure yet — it says so rather than dividing by nothing.',
+    decisions: [
+      'ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged.',
+      'FOUNDER 2026-10-04: "add it to the cash as losing job does not mean loosing rental income too." Rent arrives every month, '
+      + 'so it is added to the cash every month — which is the cash ÷ (the month − the rent).',
+    ],
+    refusal: 'No essentials figure yet — it says so rather than dividing by nothing. And no count of months where the rent pays for the whole month: the cash is then not drawn on.',
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
@@ -276,7 +311,7 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     label: 'at your planned spend', unit: 'months', screens: ['/analytics'],
     grain: 'the household',
     answers: 'How many months your cash would cover if you carried on living exactly as you plan to.',
-    formula: 'your cash ÷ (everything you budget for a month + the debt payments you cannot stop)',
+    formula: 'your cash ÷ (everything you budget for a month + the debt payments you cannot stop − the rent from a property that keeps arriving)',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-002 your debts', 'MK-CF-I-001 your logged expenses'],
     decisions: [
       'FOUNDER 2026-09-28: "give both numbers." The figure above it is what you could not stop paying; '
@@ -346,7 +381,7 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
   'MK-MN-M-020': {
     label: 'N months of essentials is $X ($Y/month)', unit: 'words', screens: ['/jobsafety'],
     answers: 'What the emergency fund you are aiming for actually costs.',
-    formula: 'what a month of essentials costs × the number of months you chose',
+    formula: '(what a month of essentials costs − the rent from a property that keeps arriving) × the number of months you chose',
     inputs: ['MK-CF-I-001 your logged expenses'],
     refusal: 'No essentials figure yet.',
     ruled: '2026-09-27',
@@ -386,7 +421,7 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
   'MK-MN-M-025': {
     label: "You'd have $X left — about N months of essentials", unit: 'words', screens: ['/stress-test'],
     answers: 'What would be left after the hit, and how long that would last.',
-    formula: '(your cash − the hit) ÷ what a month of essentials costs, never below zero',
+    formula: '(your cash − the hit) ÷ (what a month of essentials costs − the rent from a property that keeps arriving), never below zero',
     inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-001 your logged expenses'],
     refusal: 'No essentials figure — the months are not stated rather than guessed.',
     ruled: '2026-09-27',
@@ -394,6 +429,24 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
       given: GIVEN,
       answer: "You'd have $13,000 left — about 3.7 months of essentials",
       run: () => `You'd have ${formatMoney(EF().afterAShock(5000).cashAfter)} left — about ${(Math.round((EF().afterAShock(5000).monthsAfter as number) * 10) / 10).toFixed(1)} months of essentials`,
+    },
+  },
+  'MK-NW-M-064': {
+    label: 'rent from your property, which keeps arriving', unit: 'money', per: 'month',
+    screens: ['/analytics', '/insights', '/stress-test', '/jobsafety'], grain: 'the household',
+    answers: 'The rent that would still arrive each month if your pay stopped.',
+    formula: 'the Rent row of your Income summary: rent less what the property costs to run, less the calculated tax when the tax rate is calculated',
+    inputs: ['MK-CF-I-007 rental income'],
+    decisions: [
+      'FOUNDER 2026-10-04: "add it to the cash as losing job does not mean loosing rental income too."',
+      'It is the same figure as the Income summary\'s Rent row, read from that function, so the two screens cannot show two rents.',
+    ],
+    refusal: 'No rental entered — the line does not appear at all.',
+    ruled: '2026-10-04',
+    worked: {
+      given: GIVEN + ' And a rental house: $2,000/month of rent, $500/month to run, less $190/year of calculated tax on it, which is $15.83/month.',
+      answer: '$1,484/month',
+      run: () => theEmergencyFund({ ...EXAMPLE, profile: { ...EXAMPLE.profile, rentals: [{ type: 'long', income: 2000, expenses: 500 }] } }).rentalIncomeMonthly,
     },
   },
   'MK-MN-M-026': {

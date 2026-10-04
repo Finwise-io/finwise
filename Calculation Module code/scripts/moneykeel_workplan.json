@@ -2485,10 +2485,10 @@
    "status": "IN PROGRESS — 28 of the 30 cases pass against the app (6 failed before the fixes). STILL TO DO: the two cases on the return of cash + investments, which wait on his decision of the same day that every return is a time-weighted return — its own row.",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_networth01_claude.json · MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
    "date": "2026-10-04",
-   "comments": "",
+   "comments": "MEASURED 2026-10-04 at his question (\"are these 6 findings not in file?\"): the test file run against the app as it stood before the fixes (cd9f0b8) — 13 of 32 failed; against the fixes — 0 fail. All six of its findings were real. Still open: the return (its finding 2 — the app still shows 42.32% where 10.97% is right) and \"no figure when the record does not reach back\".",
    "_written": {
     "status": "IN PROGRESS — 28 of the 30 cases pass against the app (6 failed before the fixes). STILL TO DO: the two cases on the return of cash + investments, which wait on his decision of the same day that every return is a time-weighted return — its own row.",
-    "comments": ""
+    "comments": "MEASURED 2026-10-04 at his question (\"are these 6 findings not in file?\"): the test file run against the app as it stood before the fixes (cd9f0b8) — 13 of 32 failed; against the fixes — 0 fail. All six of its findings were real. Still open: the return (its finding 2 — the app still shows 42.32% where 10.97% is right) and \"no figure when the record does not reach back\"."
    }
   },
   {
@@ -2501,6 +2501,18 @@
    "_written": {
     "status": "TO DO — mine, next.",
     "comments": ""
+   }
+  },
+  {
+   "task": "The emergency fund counts rent from a property — his ruling, 2026-10-04",
+   "todo": "HIS WORDS, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" DEC-1668. Asked while reading the outside review of MK-NW-O-004 theEmergencyFund with him (a renter who owns a rented-out house). APPLIED: rent arrives every month, so it is added to the cash every month — months = cash ÷ (a month of essentials − the rent). Added once, a year of rent would count as one month of it (3.8 months where 4.6 is right on the reviewer's renter with $1,200/month of rent). The rent is the Income summary's own Rent row, so two screens cannot show two rents. WHERE: MK-NW-M-013 the months, MK-NW-M-046 the months at planned spend, the target and the months after a hit; new figure MK-NW-M-064. SCREENS, each naming the rent beside its figure: Net worth, Insights, Stress test, Job safety (which now asks the function for its target instead of multiplying it out). Where the rent pays for the whole month there is no count of months and the screen says the cash is not drawn on. NOT DRAWN: the Net worth card's new words are on no drawing — v08's household has no rental, so v08 still matches word for word; the rental state needs drawing on its next version. KNOWN: the Rent entry's hint lists mortgage interest among running costs; where that mortgage is also in Debts, its interest is taken off twice and the months read short, never long.",
+   "status": "DONE",
+   "ref": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts",
+   "date": "2026-10-04",
+   "comments": "Tests: emergency_fund_rent.test.ts (7, with a day-by-day walk that uses no formula) · emergency_fund_rent.test.tsx (5, the screens). To reverse to rent counted once: one line in MK-NW-O-004.",
+   "_written": {
+    "status": "DONE",
+    "comments": "Tests: emergency_fund_rent.test.ts (7, with a day-by-day walk that uses no formula) · emergency_fund_rent.test.tsx (5, the screens). To reverse to rent counted once: one line in MK-NW-O-004."
    }
   }
  ]

@@ -3,7 +3,7 @@
   "CF-M": 75,
   "HM-M": 4,
   "MN-M": 30,
-  "NW-M": 63,
+  "NW-M": 64,
   "PF-M": 20,
   "PL-M": 37,
   "XS-I": 48,
@@ -300,7 +300,8 @@
   "XS|M|YOUR INVESTMENTS · 📈 INVESTMENTS|investTotal": "MK-XS-M-003",
   "XS|M|▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN|youReturn / shownReturn": "MK-XS-M-004",
   "CF|M|declared|paid down since <month>": "MK-CF-M-074",
-  "CF|M|declared|% of where you started": "MK-CF-M-075"
+  "CF|M|declared|% of where you started": "MK-CF-M-075",
+  "NW|M|declared|rent from your property, which keeps arriving": "MK-NW-M-064"
  },
  "note": "A metric identifier is issued once against its key and never re-pointed. A number here is never handed to a different figure, even if the figure it was issued to is deleted — the retired block keeps it with the reason. | 2026-09-14: identifiers whose key begins \"declared\" are DECLARED IN THE CODE (founder rule 11) — the door owns them; they are listed here only so no other row is issued the same number.",
  "retired": {

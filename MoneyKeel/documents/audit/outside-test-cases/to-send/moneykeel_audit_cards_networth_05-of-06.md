@@ -465,12 +465,13 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
   "name": "bondSummary",
   "kind": "function",
   "what_it_is_for": "Adds up every bond and CD held: how many there are, what they are worth, their face value, the interest they pay in a year, their average yield and the next one to mature.",
-  "formula_in_words": "Count = how many bonds. Total value and total face value = each added up. Interest in a year = face × rate, added up. Average yield = that interest ÷ total value; nothing when the total value is zero. Next maturity = the earliest maturity date that has not passed.",
+  "formula_in_words": "Count = how many bonds. Total value and total face value = each added up. Interest in a year = face × rate, added up. Average yield is over the bonds that have a value today only: their interest in a year ÷ their value today less accrued interest where that is known; nothing when no bond has a value. A bond with no value today is left out of both. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next.",
   "handed": "export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSummary",
   "inputs_it_reads": [
    "MK-XS-I-011 bond face value",
    "MK-XS-I-013 bond maturity date",
-   "MK-XS-I-049 bond price — what the bond is worth today"
+   "MK-XS-I-049 bond price — what the bond is worth today",
+   "MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon"
   ]
  },
  {
@@ -499,7 +500,7 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
   "name": "bondRateSensitivity",
   "kind": "function",
   "what_it_is_for": "What happens to this bond if interest rates move?",
-  "formula_in_words": "Nothing when the yield to maturity is unknown, or the face value or rate is zero or less. For rates one percentage point UP and one DOWN: the new price is priceAtYield at the yield to maturity plus or minus one point (never below 0.01%). It gives a range from 1% under to 1% over that price, and the change against today's value, each rounded to the nearest $1,000.",
+  "formula_in_words": "Nothing when the yield to maturity is unknown, or the face value or rate is zero or less. For rates one percentage point UP and one DOWN: the new price is priceAtYield at the yield to maturity plus or minus one point (never below 0.01%). It gives a range from 1% under to 1% over that price, and the change against today's value, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
   "handed": "export function bondRateSensitivity(b: BondInfo, now: Date = new Date()): RateSensitivity | null",
   "inputs_it_reads": [
    "MK-XS-I-011 bond face value",

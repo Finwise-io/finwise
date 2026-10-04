@@ -12,6 +12,7 @@ import { useStore } from '../store/useStore';
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
 import { Disclaimer } from '../components/Disclaimer';
 import { money } from '../domain/_shared/num';
+import { figPer } from '../components/figure';
 import { Colors, Spacing, Radii } from '../utils/theme';
 
 type RiskLevel = 'low' | 'medium' | 'high';
@@ -52,7 +53,16 @@ export default function JobSafetyScreen() {
   // Honest baseline: what the user typed, else what their logs show — never a silent default.
   const ess = num(customExpenses) || monthSpend || 0;
   const available = basis === 'savings' ? totalSavings : totalSavings + totalInvestments;
-  const target = ess * months;
+  // THE TARGET IS THE FUNCTION'S (MK-NW-O-004), asked about the figure this person typed when they
+  // typed one. It counts the rent from a property that keeps arriving (founder, 2026-10-04: "add it
+  // to the cash as losing job does not mean loosing rental income too") — this screen multiplied the
+  // month out for itself, so the ruling would have reached Net worth and Stress test and not here.
+  const asked = num(customExpenses) > 0 ? theEmergencyFund({
+    accounts: store.assetAccounts ?? [], expenses: store.expenses ?? [], profile: store.onboardingProfile ?? {}, debts: store.liabilities ?? [],
+    essentialsOverride: num(customExpenses),
+  }) : emergencyFund;
+  const rent = asked.rentalIncomeMonthly;
+  const target = asked.targetFor(months)?.target ?? 0;
   const gap = Math.max(0, target - available);
   const covered = ess > 0 && gap <= 0;
   const monthsToClose = gap > 0 ? Math.ceil(gap / EXAMPLE_PACE) : 0;
@@ -104,7 +114,7 @@ export default function JobSafetyScreen() {
           <>
             <Text style={[s.hero, { color: covered ? Colors.gainText : Colors.amber }]}>{covered ? '✓ Covered' : money(gap)}</Text>
             <Text style={s.heroLine}>
-              {months} months of essentials is {money(target)} ({money(ess)}/month) — your {basisWord} cover {money(Math.min(available, target))} of it.
+              {months} months of essentials is {money(target)} ({money(ess)}/month{rent > 0 ? ` − ${figPer('MK-NW-M-064', rent)} rent from your property, which keeps arriving` : ''}) — your {basisWord} cover {money(Math.min(available, target))} of it.
             </Text>
             {monthSpend > 0 && !customExpenses && (
               <Text style={s.baselineNote}>Using {money(monthSpend)}/month — {emergencyFund.essentialsBasis} of your logged expenses — type your own if a typical month differs.</Text>

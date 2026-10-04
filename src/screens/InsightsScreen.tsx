@@ -164,6 +164,9 @@ export function useInsights(limit?: number): Insight[] {
                      // these two are MK-NW-M-047 and MK-NW-M-048, already declared on the door
                      { label: 'Debt minimums/month', value: fig('MK-NW-M-047', ef.debtMinimums) },
                      { label: 'Needed each month', value: fig('MK-NW-M-048', monthlySpending) },
+                     // the rent that keeps arriving is named too (founder, 2026-10-04), or the months
+                     // below could not be followed by hand from the rows above them
+                     ...(ef.rentalIncomeMonthly > 0 ? [{ label: 'Rent from your property each month', value: fig('MK-NW-M-064', ef.rentalIncomeMonthly) }] : []),
                      { label: 'Months covered', value: ef.monthsCovered != null ? ef.monthsCovered.toFixed(1) : '—' }],
       'k401-room': () => { const h = k401Headroom(age, num(op.c_401k) * 12); return [
         { label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: "You've contributed", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },

@@ -27,6 +27,9 @@ export interface Line { label: string; note?: string; amount: number;
 export interface IncomeSummary {
   /** What reaches the bank, per month — the money that can be spent. */
   lands: { lines: Line[]; usualMonth: number;
+    /** The Rent row's own amount — 0 with no rental. Named so another function can ask for the rent
+     *  that arrives without finding a row by its label (the emergency fund counts it, 2026-10-04). */
+    rentMonthly: number;
     /** The words on the total — his one wording for money arriving: "Inflow (income (take-home) + rent)". */
     totalLabel: string;
     /** The month that stands apart, named in full, with why: "December · with the bonus". */
@@ -546,20 +549,24 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *     self employed = to num(se amount) ÷ 12   if se freq = 'annual'
  *     se amount read as a number (0 when it is not one)   otherwise
  *     rent = rental net annual(op as any) ÷ 12
+ *     rent arriving = rent   if theirs
+ *     after tax(rent)   otherwise   if rent > 0
+ *     0   otherwise
  *     inv monthly = to num(inv annual) ÷ 12
- *     guaranteed = current retirement income monthly(op as any)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-201 INCOME · MK-CF-F-210 annualOfSource
+ *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-CF-F-036 buildDebtState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
- *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
- *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
+ *               MK-CF-O-018 theDebts · MK-NW-O-004 theEmergencyFund
  *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
  *
  * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-009
@@ -614,9 +621,9 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   const selfEmployed = a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount);
   if (selfEmployed > 0) landsLines.push({ label: 'Self-employment', note: 'after tax', amount: afterTax(selfEmployed) });
   const rent = (rentalNetAnnual(op as any) / 12);
+  const rentArriving = rent > 0 ? (theirs ? rent : afterTax(rent)) : 0;
   if (rent > 0) {
-    landsLines.push(theirs ? { label: 'Rent', note: 'after running costs', amount: rent }
-                           : { label: 'Rent', note: 'after running costs and calculated tax', amount: afterTax(rent) });
+    landsLines.push({ label: 'Rent', note: theirs ? 'after running costs' : 'after running costs and calculated tax', amount: rentArriving });
   }
   const invMonthly = toNum(a.invAnnual) / 12;
   if (invMonthly > 0 && a.invPaidToBank === 'yes') {
@@ -674,6 +681,7 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
 
   return {
     lands: { lines: landsLines, usualMonth: usual, standoutMonth: standout,
+             rentMonthly: rentArriving,
              totalLabel: `= ${inflowLabel('Inflow', ['income (take-home)',
                ...landsLines.filter((l) => l.amount > 0 && !pay.earners.some((e) => e.name === l.label)).map((l) => l.label)])}` },
     taxed: {

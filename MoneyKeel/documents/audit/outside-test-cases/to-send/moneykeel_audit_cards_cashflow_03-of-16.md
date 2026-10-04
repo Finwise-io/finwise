@@ -260,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 11"
+# The cards — batch "cashflow 03"
 
-15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 11"` in your reply.
+1 cards, so 1 formula checks and 5 cases. Put `"batch": "cashflow 03"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -290,55 +290,14 @@ Read from the app. **Check each against its published source and say so in `form
 What each is made of. The comments inside are the in-house author's.
 
 ```ts
-export interface BasePayEntry {
-  freq: keyof typeof PAY_PERIODS | string;
-  varies: boolean;
-  grossTypical: any;                          // per period, as typed
-  grossByMonth?: Record<string, any>;         // 'YYYY-MM' → amount, when pay varies
-  monthly401k: any;                           // their own contribution, per month
-  landsTypical?: any;                         // per period, as typed — OPTIONAL
-  landsByMonth?: Record<string, any>;
-  hoursPerWeek?: any;
-  /** THE BAND IS NOT BASE PAY'S TO WORK OUT. A tax band is set by everything the household is taxed
-   *  on together — both wages, the rent kept, the bonus, the dividends — so it is produced ONCE, by
-   *  MK-CF-F-084 taxable annual feeding MK-CF-F-090 effective rate, and handed in here. Base pay
-   *  reads it. Absent means single, which is what the whole app assumed before the filing-status
-   *  question existed, so leaving it out changes no number. Founder ruling 2026-08-27. */
-  filingStatus?: FilingStatus;
-  over65?: number;
-  /** The HOUSEHOLD rate to estimate with, 0–1 of gross — injected by the orchestrator from the one
-   *  rate in force. Build 54 let each estimated earner run the federal schedule alone, so each was
-   *  granted the FULL joint deduction and the card's own rows disagreed: gross − tax − 401(k)s did
-   *  not equal the lands it printed. One rate, applied per earner, makes the identity exact. */
-  estRate?: number;
-}
-
-export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
-
-export interface TakeHome { monthly: number; estimated: boolean; why: string; }
-
-export interface Transaction {
-  id: EntityId;
-  date: string;              // 'YYYY-MM-DD' — when it happened (user-set)
-  type: TxnType;
-  account_id: EntityId;
-  counter_account_id?: EntityId;  // for TRANSFER / TRANSFER_IN_KIND
-  ticker?: string;
-  position_id?: EntityId;
-  assetClass?: 'stock_etf' | 'bond' | 'other';
-  kind?: string;             // instrument kind (benchmark mapping) for new positions
-  shares?: number;
-  price?: number;            // per share
-  amount?: number;           // cash amount (deposit/withdraw/transfer/dividend-as-cash/fee)
-  reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
-  note?: string;
-  source?: 'manual' | 'connected';  // F10: only connected-account rows are ever reviewed for a
-                                    // "worth a look" flag — hand-typed entries are NEVER questioned.
-                                    // Absent = manual (every row recorded before F1 sync exists).
-  created_at: string;        // ISO — when it was entered (audit)
-  undo_prev?: AssetAccount[]; // pre-apply copies of the touched accounts — lets a delete reverse
-                              // this row's balance effect exactly (P0: ledger and balances must
-                              // never drift; rows recorded before this field use inverseOf()).
+export interface IncomeManager {
+  /** The sources that have an amount, in the picker's order. */
+  entered: ManagedSource[];
+  /** The rest — one tap away, never hidden behind the picker they said no to. */
+  notEntered: ManagedSource[];
+  /** A bonus and stock belong to a job, so they are reached from the job's row: what is entered for
+   *  the year and the words after it. Null while there is no job to attach them to. */
+  bonusAndStock: { amount: number; tail: string } | null;
 }
 ```
 
@@ -347,162 +306,111 @@ export interface Transaction {
 ```json
 [
  {
-  "id": "MK-CF-F-121",
-  "name": "zero12",
-  "kind": "function",
-  "what_it_is_for": "Twelve zeros: an empty year, one slot for each month.",
-  "formula_in_words": "Twelve zeros.",
-  "handed": "function zero12(): number[]"
- },
- {
-  "id": "MK-CF-F-124",
-  "name": "nextOccurrence",
-  "kind": "function",
-  "what_it_is_for": "The next time (month, day) occurs on/after `now`, unless an explicit year is given.",
-  "formula_in_words": "With a year given: that month and day in that year. Otherwise that month and day (the 1st when no day) this year — or next year, when this year's date is already before now.",
-  "handed": "function nextOccurrence(month1to12: number, day: number, now: Date, year?: number): Date"
- },
- {
-  "id": "MK-CF-F-125",
-  "name": "amortise",
-  "kind": "function",
-  "what_it_is_for": "Months to clear a balance at a given payment, and the total interest paid getting there.",
-  "formula_in_words": "Never clears — infinite months and interest — when the payment does not exceed the first month's interest. Otherwise month by month, for at most 1,200: interest = balance × yearly rate ÷ 12; balance = balance + interest − payment; until the balance is zero or less. Gives the months, and the interest added up.",
-  "handed": "function amortise(balance: number, annualRate: number, payment: number): { months: number; interest: number }",
+  "id": "MK-CF-O-019",
+  "name": "theIncomeManager",
+  "kind": "orchestrator",
+  "what_it_is_for": "Which of the ten sources of income has this household entered, what does each one's line say, and which are still one tap away?",
+  "formula_in_words": "Takes the ten sources in the picker's order — a job, self-employment, rent, interest and dividends, retirement income, benefits, support, scholarships, student loans, something else — gives each one figure, and splits them into entered (a figure above zero) and not entered. A job: the household's monthly take-home (basePay) over the earners who have a wage, named after those earners, and marked as calculated when any part of it is. Self-employment: the amount as entered, per month or per year. Rent: rent after running costs for the year (rentalNetAnnual) ÷ 12, per month, with how many properties. Interest and dividends: the yearly amount, marked reinvested or paid to the bank. Retirement income: the monthly total (retirementIncomeMonthly). Benefits: the monthly benefit, saying how many months when fewer than 12. Support: the monthly amount. Scholarships: monthly ones × 12 plus yearly ones, per year. Student loans: each loan × the number of months it arrives in (1 when it names none), per year. Something else: the amount as entered — per month, per year or one-time. Bonus and stock, only when there is a job: the yearly bonus + the stock that vests in a year (rsuAnnual), and the month the bonus is paid (December when none is set).",
+  "handed": "export function theIncomeManager(op: Record<string, any> | null): IncomeManager",
   "inputs_it_reads": [
-   "MK-XS-I-001 account balance"
-  ]
- },
- {
-  "id": "MK-CF-F-126",
-  "name": "futureValue",
-  "kind": "function",
-  "what_it_is_for": "Future value of a monthly contribution earning `rate`, contributed at the end of each month.",
-  "formula_in_words": "0 when the months or the monthly amount are zero or less. Otherwise monthly amount × ((1 + yearly rate ÷ 12) to the power months − 1) ÷ (yearly rate ÷ 12).",
-  "handed": "function futureValue(monthly: number, rate: number, months: number): number"
- },
- {
-  "id": "MK-CF-F-128",
-  "name": "grossByMonth",
-  "kind": "function",
-  "what_it_is_for": "GROSS pay for each month the table covers, or twelve identical months when pay is steady.",
-  "formula_in_words": "When the pay varies and a month-by-month table has been filled: the table, one row a month, in month order. Otherwise one row, called typical = the typical gross pay turned into a month (perMonth).",
-  "handed": "export function grossByMonth(e: BasePayEntry): [string, number][]"
- },
- {
-  "id": "MK-CF-F-130",
-  "name": "enteredMonthlyRaw",
-  "kind": "function",
-  "what_it_is_for": "A single entered base amount expressed per month, before tax gross-up (hourly/weekly/… → monthly).",
-  "formula_in_words": "Hourly: base pay × hours a week (40 when none) × 52 ÷ 12. Otherwise base pay × the periods in a year ÷ 12 (weekly 52, every two weeks 26, monthly 12, yearly 1).",
-  "handed": "function enteredMonthlyRaw(a: Record<string, any>): number",
-  "inputs_it_reads": [
+   "MK-XS-I-023 salary and other income",
+   "MK-XS-I-030 tax filing status and age",
    "MK-XS-I-039 how often each income arrives",
-   "MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly"
+   "MK-XS-I-059 the month a bonus lands"
   ]
- },
- {
-  "id": "MK-CF-F-136",
-  "name": "bumpCash",
-  "kind": "function",
-  "what_it_is_for": "Adds cash to an account, or takes it out, in the right place: the uninvested cash of an investment account, or the balance of a bank account.",
-  "formula_in_words": "For an account that keeps its own cash (usesSleeve): the cash changes by the amount. For an investment account with holdings that does not: both the cash and the balance change by the amount. For any other account: the balance changes by the amount.",
-  "handed": "function bumpCash(a: AssetAccount, delta: number): AssetAccount",
-  "inputs_it_reads": [
-   "MK-XS-I-001 account balance",
-   "MK-XS-I-002 account type (taxable, pre-tax, Roth)"
-  ]
- },
- {
-  "id": "MK-CF-F-138",
-  "name": "addLot",
-  "kind": "function",
-  "what_it_is_for": "Add shares to a position (creating it if needed) at a cost basis — used by BUY and reinvested dividends.",
-  "formula_in_words": "Adds a purchase (shares, cost per share, the record's date) to the holding the record names; when the account has no such holding, a new holding with that one purchase.",
-  "handed": "function addLot(a: AssetAccount, t: Transaction, shares: number, costPerShare: number): AssetAccount",
-  "inputs_it_reads": [
-   "MK-XS-I-004 holding quantity (shares)",
-   "MK-XS-I-007 purchase price and date (per lot)",
-   "MK-XS-I-009 transaction date",
-   "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
-  ]
- },
- {
-  "id": "MK-CF-F-139",
-  "name": "removeShares",
-  "kind": "function",
-  "what_it_is_for": "Remove `shares` from a position FIFO (oldest lots first); returns updated account.",
-  "formula_in_words": "Takes the shares out of the holding's purchases in the order they are stored, earliest first; a purchase left with nothing is dropped; a holding left with no purchases is removed. Unchanged when the account has no such holding.",
-  "handed": "function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAccount",
-  "inputs_it_reads": [
-   "MK-XS-I-004 holding quantity (shares)"
-  ]
- },
- {
-  "id": "MK-CF-F-141",
-  "name": "perMonth",
-  "kind": "function",
-  "what_it_is_for": "One period of pay expressed as a month.",
-  "formula_in_words": "Hourly: amount × hours a week (40 when none is entered) × 52 ÷ 12. Any other frequency: amount × pay periods in a year ÷ 12.",
-  "handed": "function perMonth(amount: any, e: BasePayEntry): number"
- },
- {
-  "id": "MK-CF-F-142",
-  "name": "monthsOf",
-  "kind": "function",
-  "what_it_is_for": "The months the person filled in, in order.",
-  "formula_in_words": "The table's rows as (month, amount) pairs, sorted by month; a blank amount counts as 0; empty when there is no table.",
-  "handed": "function monthsOf(table: Record<string, any> | undefined): [string, number][]"
- },
- {
-  "id": "MK-CF-F-143",
-  "name": "annualisedGross",
-  "kind": "function",
-  "what_it_is_for": "GROSS PAY ANNUALISED — the figure a tax bracket is read from.",
-  "formula_in_words": "The average of the monthly gross rows (grossByMonth) × 12. 0 when there are no rows.",
-  "handed": "export function annualisedGross(e: BasePayEntry): number"
- },
- {
-  "id": "MK-CF-F-144",
-  "name": "takeHomeAsEntered",
-  "kind": "function",
-  "what_it_is_for": "A person's monthly take-home exactly as they entered it, averaged over their month-by-month table when their pay varies, or a calculated figure marked as calculated when they entered none.",
-  "formula_in_words": "In this order. (1) The pay varies and a month-by-month take-home table is filled: the average of its months; not calculated. (2) A typical take-home above zero was entered: that amount turned into a month (perMonth); not calculated. (3) Otherwise it is calculated, and marked so. With a household rate supplied: (yearly gross × (1 − rate) − monthly 401(k) × 12) ÷ 12. With none: (yearly gross − 401(k) for the year − federal income tax on the yearly gross less the 401(k), by the filing status given — single when none) ÷ 12. That federal tax has no state tax in it.",
-  "handed": "export function takeHomeAsEntered(e: BasePayEntry): TakeHome",
-  "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
-  ]
- },
- {
-  "id": "MK-CF-F-145",
-  "name": "deductionsFromPay",
-  "kind": "function",
-  "what_it_is_for": "EVERYTHING ELSE TAKEN OUT — gross, less the 401(k), less the take-home.",
-  "formula_in_words": "Nothing when the take-home is calculated. Otherwise yearly gross − monthly 401(k) × 12 − monthly take-home × 12: everything else that came out of pay in the year.",
-  "handed": "export function deductionsFromPay(e: BasePayEntry): number | null"
- },
- {
-  "id": "MK-CF-F-146",
-  "name": "payFiguresAgree",
-  "kind": "function",
-  "what_it_is_for": "Checks month by month that gross pay, less the 401(k), is enough to leave the take-home the person entered, and says in words when it is not or when an unusually large share goes elsewhere.",
-  "formula_in_words": "It passes with no check when the take-home is calculated. Otherwise, for each month of gross pay in order: left = gross − monthly 401(k) − the take-home for that month (the month's own figure when a take-home table is filled, otherwise the typical take-home as a month). When left is below −$5: it FAILS, with a sentence naming the month and how much more the take-home is than there is. Otherwise, when gross is above zero and left ÷ gross is above 60%: it passes WITH A WARNING that gives that share as a whole percent. The first month to fail or warn decides. Exactly $5 short still passes; exactly 60% does not warn.",
-  "handed": "export function payFiguresAgree(e: BasePayEntry): PayVerdict"
  }
 ]
 ```
 
 ## Formulas these cards lean on
 
-1 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+14 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
  {
-  "id": "MK-CF-F-134",
-  "name": "usesSleeve",
-  "what_it_is_for": "Where an account's spendable cash lives: investment accounts use the cash_balance SLEEVE; cash accounts (checking/savings) and property hold their money in `balance`.",
-  "formula_in_words": "True for an investment account (not a cash or property account) whose balance is worked out from its holdings, or that records a cash figure of its own."
+  "id": "MK-CF-F-066",
+  "name": "rsuAnnual",
+  "what_it_is_for": "Annual equity-comp run-rate: total scheduled value spread over the years it vests across (a level annual figure for the income estimate).",
+  "formula_in_words": "With vesting rows: their total value ÷ the number of different years in which rows with a value vest (at least 1). With none: shares × price, as typed."
+ },
+ {
+  "id": "MK-CF-F-068",
+  "name": "rentalNetAnnual",
+  "what_it_is_for": "Total net rental income per year, across all properties (income − operating expenses).",
+  "formula_in_words": "(Monthly rent − monthly running costs) added over the rentals, × 12. A rental that loses money pulls the total down."
+ },
+ {
+  "id": "MK-CF-F-075",
+  "name": "retirementIncomeMonthly",
+  "what_it_is_for": "Retirement income (Social Security, pension, withdrawals, RMDs, annuities) per month — taxable.",
+  "formula_in_words": "Social Security, pension, withdrawals, required distributions, annuities and other, each turned into a month — monthly as it is, quarterly ÷ 3, yearly ÷ 12 — and added."
+ },
+ {
+  "id": "MK-CF-F-083",
+  "name": "totalGrossAnnual",
+  "what_it_is_for": "Total annual income across every inflow (salary for months worked + bonus + signing + equity + net rental + self-employment/investment/benefits/support/scholarship/other).",
+  "formula_in_words": "Salary for the year + tips for the year + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + untaxed extra in a month × 12 + one-off taxed + one-off untaxed + retirement income in a month × 12."
+ },
+ {
+  "id": "MK-CF-F-084",
+  "name": "taxableAnnual",
+  "what_it_is_for": "Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates.",
+  "formula_in_words": "totalGrossAnnual WITHOUT the untaxed parts: salary + tips + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + one-off taxed + retirement income in a month × 12. The 401(k) is NOT taken off here."
+ },
+ {
+  "id": "MK-CF-F-128",
+  "name": "grossByMonth",
+  "what_it_is_for": "GROSS pay for each month the table covers, or twelve identical months when pay is steady.",
+  "formula_in_words": "When the pay varies and a month-by-month table has been filled: the table, one row a month, in month order. Otherwise one row, called typical = the typical gross pay turned into a month (perMonth)."
+ },
+ {
+  "id": "MK-CF-F-141",
+  "name": "perMonth",
+  "what_it_is_for": "One period of pay expressed as a month.",
+  "formula_in_words": "Hourly: amount × hours a week (40 when none is entered) × 52 ÷ 12. Any other frequency: amount × pay periods in a year ÷ 12."
+ },
+ {
+  "id": "MK-CF-F-143",
+  "name": "annualisedGross",
+  "what_it_is_for": "GROSS PAY ANNUALISED — the figure a tax bracket is read from.",
+  "formula_in_words": "The average of the monthly gross rows (grossByMonth) × 12. 0 when there are no rows."
+ },
+ {
+  "id": "MK-CF-F-144",
+  "name": "takeHomeAsEntered",
+  "what_it_is_for": "A person's monthly take-home exactly as they entered it, averaged over their month-by-month table when their pay varies, or a calculated figure marked as calculated when they entered none.",
+  "formula_in_words": "In this order. (1) The pay varies and a month-by-month take-home table is filled: the average of its months; not calculated. (2) A take-home above zero was typed: that amount exactly as typed — it is asked for as a MONTH, whatever the pay frequency; not calculated. (3) Otherwise it is calculated, and marked so. With a household rate supplied: (yearly gross × (1 − rate) − monthly 401(k) × 12) ÷ 12. With none: (yearly gross − 401(k) for the year − federal income tax on the yearly gross less the 401(k), by the filing status given — single when none) ÷ 12. That federal tax has no state tax in it."
+ },
+ {
+  "id": "MK-CF-F-146",
+  "name": "payFiguresAgree",
+  "what_it_is_for": "Checks month by month that gross pay, less the 401(k), is enough to leave the take-home the person entered, and says in words when it is not or when an unusually large share goes elsewhere.",
+  "formula_in_words": "It passes with no check when the take-home is calculated. Otherwise, for each month of gross pay in order: left = gross − monthly 401(k) − the take-home for that month (the month's own figure when a take-home table is filled, otherwise the typed take-home, which is a monthly figure at every pay frequency). When left is below −$5: it FAILS, with a sentence naming the month and how much more the take-home is than there is. Otherwise, when gross is above zero and left ÷ gross is above 60%: it passes WITH A WARNING that gives that share as a whole percent. The first month to fail or warn decides. Exactly $5 short still passes; exactly 60% does not warn."
+ },
+ {
+  "id": "MK-CF-F-171",
+  "name": "earnerPay",
+  "what_it_is_for": "One earner's pay: gross for a month and for a year, their 401(k), their take-home and whether it was entered or calculated, and everything else taken out.",
+  "formula_in_words": "One earner's pay figures together: gross in a month = yearly gross ÷ 12; yearly gross (annualisedGross); the monthly 401(k); the take-home, whether it is calculated and why (takeHomeAsEntered); everything else taken out, for the year and ÷ 12 for the month — nothing when the take-home is calculated; the verdict (payFiguresAgree); and the monthly gross rows."
+ },
+ {
+  "id": "MK-CF-F-181",
+  "name": "rateInForce",
+  "what_it_is_for": "THE ONE ANSWER every screen reads.",
+  "formula_in_words": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) LESS the household's 401(k) contributions for the year — they come off before tax — ÷ the yearly taxed income, by filing status, with the standard deduction. 0 when there is no taxed income."
+ },
+ {
+  "id": "MK-CF-F-198",
+  "name": "payrollTaxWithheld",
+  "what_it_is_for": "Social Security and Medicare tax on a year's wages: 6.2% up to the wage cap, 1.45% of all of it, and 0.9% more above the higher-earner threshold.",
+  "formula_in_words": "On a year's wages (below zero counts as 0): 6.2% of the wages up to $184,500, plus 1.45% of all the wages, plus 0.9% of the wages above $200,000."
+ },
+ {
+  "id": "MK-CF-O-001",
+  "name": "basePay",
+  "what_it_is_for": "What does this household's base pay come to: each earner's pay, and the household's gross, tax bracket, tax, 401(k)s and take-home for a month?",
+  "formula_in_words": "Runs earnerPay for each earner with the household's filing status (single when none), the number of people 65 or over, and the household's rate in force (rateInForce). Yearly gross = the earners' yearly gross added up. Take-home = their monthly take-homes added up. Tax band = the federal band on ALL the earners' wages together, by filing status; the band on the first earner's wage alone is also worked out, and when there are two or more earners, the two bands differ, and every earner typed a take-home, a note says so. When nobody typed a take-home the card states its own sum in words: gross in a month − tax − 401(k)s = take-home. Tax in a month = yearly gross × the rate in force ÷ 12. Mode: entered when every earner typed a take-home; calculated when none did; mixed otherwise. When the rate in force is the calculated one, short-by = Social Security and Medicare on each earner's yearly gross (payrollTaxWithheld), added up, ÷ 12; nothing otherwise. Every figure agrees only when every earner's check passes (payFiguresAgree). Monthly 401(k) = added up over the earners. Other taken in a month = each earner's everything-else added up; nothing when any earner's take-home is calculated."
  }
 ]
 ```

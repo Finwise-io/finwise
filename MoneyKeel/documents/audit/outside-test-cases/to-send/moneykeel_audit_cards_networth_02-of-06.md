@@ -333,13 +333,8 @@ export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
   "name": "isAlternative",
   "kind": "function",
   "what_it_is_for": "Is this account an \"other investment\" — an alternative held at a manual value (not a bond, not cash/property)?",
-  "formula_in_words": "True when the account's kind is crypto, private equity, hedge funds, commodities, annuities, options or other; AND it has no maturity date; AND it is not property.",
-  "handed": "export function isAlternative(a: AssetAccount): boolean",
-  "inputs_it_reads": [
-   "MK-XS-I-002 account type (taxable, pre-tax, Roth)",
-   "MK-XS-I-013 bond maturity date",
-   "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
-  ]
+  "formula_in_words": "True when the account's class (assetClassOf) is Alternatives.",
+  "handed": "export function isAlternative(a: AssetAccount): boolean"
  },
  {
   "id": "MK-NW-F-003",
@@ -457,7 +452,7 @@ export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
   "name": "investmentsTotal",
   "kind": "function",
   "what_it_is_for": "The total value of everything invested: stocks and funds, bonds and CDs, alternatives and accounts holding a mix, in whatever kind of account they sit, with cash and property left out.",
-  "formula_in_words": "The balances of the accounts whose class (assetClassOf) is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified, added up. An account counts whole, so cash sitting inside an investment account is included.",
+  "formula_in_words": "The balances of the accounts whose class (assetClassOf) is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified, added up. An account counts whole, so cash sitting inside an investment account is included. This is the figure Performance measures; it is not the Investments line on Net worth.",
   "handed": "export function investmentsTotal(accounts: AssetAccount[]): number"
  },
  {

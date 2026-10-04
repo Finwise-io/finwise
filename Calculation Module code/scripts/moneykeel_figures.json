@@ -1840,15 +1840,16 @@
     "/jobsafety"
    ],
    "answers": "How many months your cash would cover, if your income stopped tomorrow.",
-   "formula": "your cash ÷ what a month of essentials costs",
+   "formula": "your cash ÷ (what a month of essentials costs − the rent from a property that keeps arriving each month)",
    "inputs": [
     "MK-NW-I-001 your accounts",
     "MK-CF-I-001 your logged expenses"
    ],
    "decisions": [
-    "ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged."
+    "ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged.",
+    "FOUNDER 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" Rent arrives every month, so it is added to the cash every month — which is the cash ÷ (the month − the rent)."
    ],
-   "refusal": "No essentials figure yet — it says so rather than dividing by nothing.",
+   "refusal": "No essentials figure yet — it says so rather than dividing by nothing. And no count of months where the rent pays for the whole month: the cash is then not drawn on.",
    "ruled": "2026-09-27",
    "worked": {
     "given": "$18,000 in checking. A $2,400/month mortgage, entered both as the Rent / Mortgage budget line and as a Mortgage debt — the same $2,400, not two different numbers. Plus $700 groceries (an essential) and $400 eating out (not). Also a car loan at $250/month and a Visa at $120/month. Nothing logged yet.",
@@ -1864,7 +1865,7 @@
    ],
    "grain": "the household",
    "answers": "How many months your cash would cover if you carried on living exactly as you plan to.",
-   "formula": "your cash ÷ (everything you budget for a month + the debt payments you cannot stop)",
+   "formula": "your cash ÷ (everything you budget for a month + the debt payments you cannot stop − the rent from a property that keeps arriving)",
    "inputs": [
     "MK-NW-I-001 your accounts",
     "MK-NW-I-002 your debts",
@@ -1957,7 +1958,7 @@
     "/jobsafety"
    ],
    "answers": "What the emergency fund you are aiming for actually costs.",
-   "formula": "what a month of essentials costs × the number of months you chose",
+   "formula": "(what a month of essentials costs − the rent from a property that keeps arriving) × the number of months you chose",
    "inputs": [
     "MK-CF-I-001 your logged expenses"
    ],
@@ -2017,7 +2018,7 @@
     "/stress-test"
    ],
    "answers": "What would be left after the hit, and how long that would last.",
-   "formula": "(your cash − the hit) ÷ what a month of essentials costs, never below zero",
+   "formula": "(your cash − the hit) ÷ (what a month of essentials costs − the rent from a property that keeps arriving), never below zero",
    "inputs": [
     "MK-NW-I-001 your accounts",
     "MK-CF-I-001 your logged expenses"
@@ -2027,6 +2028,34 @@
    "worked": {
     "given": "$18,000 in checking. A $2,400/month mortgage, entered both as the Rent / Mortgage budget line and as a Mortgage debt — the same $2,400, not two different numbers. Plus $700 groceries (an essential) and $400 eating out (not). Also a car loan at $250/month and a Visa at $120/month. Nothing logged yet.",
     "answer": "You'd have $13,000 left — about 3.7 months of essentials"
+   },
+   "door": "MK-NW-O-004 theEmergencyFund"
+  },
+  "MK-NW-M-064": {
+   "label": "rent from your property, which keeps arriving",
+   "unit": "money",
+   "per": "month",
+   "screens": [
+    "/analytics",
+    "/insights",
+    "/stress-test",
+    "/jobsafety"
+   ],
+   "grain": "the household",
+   "answers": "The rent that would still arrive each month if your pay stopped.",
+   "formula": "the Rent row of your Income summary: rent less what the property costs to run, less the calculated tax when the tax rate is calculated",
+   "inputs": [
+    "MK-CF-I-007 rental income"
+   ],
+   "decisions": [
+    "FOUNDER 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\"",
+    "It is the same figure as the Income summary's Rent row, read from that function, so the two screens cannot show two rents."
+   ],
+   "refusal": "No rental entered — the line does not appear at all.",
+   "ruled": "2026-10-04",
+   "worked": {
+    "given": "$18,000 in checking. A $2,400/month mortgage, entered both as the Rent / Mortgage budget line and as a Mortgage debt — the same $2,400, not two different numbers. Plus $700 groceries (an essential) and $400 eating out (not). Also a car loan at $250/month and a Visa at $120/month. Nothing logged yet. And a rental house: $2,000/month of rent, $500/month to run, less $190/year of calculated tax on it, which is $15.83/month.",
+    "answer": "$1,484/month"
    },
    "door": "MK-NW-O-004 theEmergencyFund"
   },

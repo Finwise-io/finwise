@@ -35,6 +35,10 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ 'add it to the cash as losing job does not mean loosing rental income too.':
+  "The emergency fund counts rent from a property you own, because it keeps arriving when your pay stops. Each month the rent is added to your cash, so the months are your cash divided by a month of essentials less the rent.",
+ 'All return should be True Weighted Return and not Dietz return.':
+  "Every return the app shows is a time-weighted return: the period is split at each deposit or withdrawal, each piece's growth is measured, and the pieces are multiplied. Money you add is never counted as earned. Where a value is missing, it shows no figure.",
  '#2 - Add AGG, GLD, BTS, AOR.':
   "Look back offers what you hold, the stock market (SPY), and four more yardsticks: bonds (AGG), gold (GLD), bitcoin (BTC) and a balanced fund (AOR). BTS is read as BTC; the app has no BTS.",
  '#4 - remove second sentence.':

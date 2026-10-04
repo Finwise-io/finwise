@@ -7,6 +7,7 @@ import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
+import { figPer } from '../components/figure';
 // ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5 ruled 2026-09-27: "Yes."). The emergency fund on Net
 // worth, Job safety and this screen ask one question under three names; they read one answer now.
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
@@ -35,6 +36,11 @@ export default function StressTestScreen() {
   const ess = answer.essentialsMonthly;
   const essLabel = answer.essentialsBasis;
   const hit = answer.afterAShock(shock);
+  // RENT FROM A PROPERTY KEEPS ARRIVING (founder, 2026-10-04) — the function counts it, and every
+  // sentence below that states months names it, so the months can be followed by hand
+  const rent = answer.rentalIncomeMonthly;
+  const rentPaysForIt = answer.rentCoversEssentials;
+  const rentLine = rent > 0 ? figPer('MK-NW-M-064', rent) : '';   // "$1,000/month", with its identifier
   const r = { cashAfter: hit.cashAfter, runwayAfter: hit.monthsAfter ?? 0, coversIt: hit.coversIt,
               monthlyEssentials: ess, jobLossRunway: answer.monthsCovered ?? 0,
               recommendedFund: answer.targetFor(3)?.target ?? 0, gapToFund: answer.targetFor(3)?.gap ?? 0, shock };
@@ -67,7 +73,7 @@ export default function StressTestScreen() {
         </Text>
         <Text style={styles.vSub}>
           {r.coversIt
-            ? `You'd have ${money(r.cashAfter)} left — about ${r.runwayAfter.toFixed(1)} months of essentials (${money(ess)}/month — ${essLabel}).`
+            ? `You'd have ${money(r.cashAfter)} left${rentPaysForIt ? ', and rent from your property pays for your essentials' : ` — about ${r.runwayAfter.toFixed(1)} months of essentials`} (${money(ess)}/month — ${essLabel}${rentLine ? (rentPaysForIt ? `; the rent is ${rentLine}` : `, less ${rentLine} rent from your property`) : ''}).`
             : `You'd need ${money(Math.abs(r.cashAfter))} more to absorb it without borrowing.`}
         </Text>
         {cash === 0 && <EmptyNote door="accounts" />}   {/* Q48 (MK-MN-M-024/025): no cash account entered */}
@@ -76,13 +82,15 @@ export default function StressTestScreen() {
       {/* job loss */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>If you lost your income</Text>
-        {ess > 0 ? (
+        {rentPaysForIt ? (
+          <Text style={styles.note}>Rent from your property ({rentLine}) pays for your {figPer('MK-MN-M-026', ess)} of essentials ({essLabel}), so your cash would not be drawn on.</Text>
+        ) : ess > 0 ? (
           <>
             <View style={styles.bigRow}>
               <Text style={[styles.big, { color: tone(r.jobLossRunway) }]}>{r.jobLossRunway.toFixed(1)}</Text>
               <Text style={styles.bigUnit}>months your cash would last</Text>
             </View>
-            <Text style={styles.note}>Covering your {money(ess)}/month of essentials ({essLabel}) with no paycheck coming in. 3–6 months of essentials is the range most planners use.</Text>
+            <Text style={styles.note}>Covering your {money(ess)}/month of essentials ({essLabel}) with no paycheck coming in{rentLine ? `, counting ${rentLine} of rent from your property, which keeps arriving` : ''}. 3–6 months of essentials is the range most planners use.</Text>
           </>
         ) : (
           <>
@@ -96,7 +104,7 @@ export default function StressTestScreen() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Your emergency fund</Text>
         {r.gapToFund > 0 ? (
-          <Text style={styles.fundTxt}>3 months of essentials is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.bold, { color: Colors.amber }]}>{money(r.gapToFund)}</Text> short of it today — a goal can track it, if you want one.</Text>
+          <Text style={styles.fundTxt}>3 months of essentials{rent > 0 ? ', less the rent that keeps arriving,' : ''} is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.bold, { color: Colors.amber }]}>{money(r.gapToFund)}</Text> short of it today — a goal can track it, if you want one.</Text>
         ) : (
           <Text style={styles.fundTxt}>✓ You already have at least 3 months of essentials set aside. A strong emergency fund — some stretch toward 6 months — your call.</Text>
         )}
