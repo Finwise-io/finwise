@@ -35,6 +35,14 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ "unless rental income is added on the income screen, assume property is":
+  "A property is a second or vacation home unless rental income is entered for it on the Income screen. With rental income entered, it is a rental.",
+ "Once user enters mortgage or any debt - the app deduct it directly to ":
+  "A mortgage or any debt is taken from Debts, by the app, wherever a planned figure needs it — surplus, the emergency fund, anywhere. The person does not add it to planned expenses. On the actual side nothing is assumed paid: a debt counts only when its payment is logged.",
+ "11 - mortgage should not costs to run. We should ask to add monthly mo":
+  "On Rent from a property, a mortgage is never part of what the property costs to run. The screen asks for the monthly mortgage payment on that property, if there is one, and the app adds that mortgage to Debts by itself.",
+ "Properties, mortgages, and debt we should ask user to name. App should":
+  "Every property, mortgage and debt has a name the person gives it. Each mortgage is matched to a property in Net worth. A property can have no mortgage; a mortgage cannot be without a property. So there are never more mortgages than properties: three properties, three mortgages or fewer.",
  '#1 - remove langage to include interest on mortgage in maintenance expenses, as that is not standard practice.':
   "On the Rent from a property screen, the hint for what the property costs to run no longer lists mortgage interest. It reads: Tax, insurance, repairs, management. A mortgage on the property belongs in Debts, where its whole payment is counted once.",
  'add it to the cash as losing job does not mean loosing rental income too.':
