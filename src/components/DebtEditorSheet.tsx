@@ -69,7 +69,8 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
   // mortgage is not offered: one mortgage to a property.
   const [propertyId, setPropertyId] = useState<string>('');
   const allDebts = ((store as any).liabilities ?? []) as Debt[];
-  const properties = (((store as any).assetAccounts ?? []) as any[]).filter((a) => assetClassOf(a) === 'real_estate')
+  const everyProperty = (((store as any).assetAccounts ?? []) as any[]).filter((a) => assetClassOf(a) === 'real_estate');
+  const properties = everyProperty
     .filter((a) => !allDebts.some((d) => d.debt_type === 'MORTGAGE' && d !== editing && d.debt_id !== editing?.debt_id && String(d.property_id ?? '') === String(a.asset_id)));
 
   useEffect(() => {
@@ -166,9 +167,13 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
         <>
           <Text style={sh.lbl}>Which property is it on?</Text>
           {properties.length === 0 ? (
-            <Text style={sh.lbl}>{kind === 'MORTGAGE'
-              ? 'A mortgage is always on a property. Add the property in Net worth first, then add its mortgage.'
-              : 'No property in Net worth yet.'}</Text>
+            /* HIS WORDS, 2026-10-05: "display the message when they try to enter mortgage on debt screen - add
+               property first on NW page." It shows the moment Mortgage is picked, in the warning colour. */
+            <Text style={[sh.lbl, { color: Colors.amber }]} accessibilityRole="alert">{kind !== 'MORTGAGE'
+              ? 'No property in Net worth yet.'
+              : everyProperty.length === 0
+                ? 'Add the property first, on the Net worth page. A mortgage is always on a property, so this one cannot be saved until its property is there.'
+                : 'Every property in Net worth already has a mortgage. Add the property this one is on first, on the Net worth page.'}</Text>
           ) : (
             <View style={sh.chips}>
               {properties.map((a) => (
@@ -178,6 +183,9 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
                 </TouchableOpacity>
               ))}
             </View>
+          )}
+          {kind === 'MORTGAGE' && properties.length > 0 && propertyId === '' && (
+            <Text style={[sh.lbl, { color: Colors.amber }]}>Pick the property this mortgage is on to save it.</Text>
           )}
         </>
       )}

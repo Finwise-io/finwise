@@ -289,7 +289,9 @@ export function mortgagesByProperty(accounts: AssetAccount[], debts: Debt[]): Mo
   const unmatched = (mortgages as any[]).filter((d) => !placed.has(d)).map((d) => ({ id: String(d.debt_id), label: String(d.label ?? 'Mortgage') }));
   const sentence = unmatched.length === 0 ? ''
     : unmatched.length === 1
-      ? `${unmatched[0].label} is not on a property. A mortgage is always on a property — open it and say which one.`
+      // the name alone read as a riddle ("Chase is not on a property" — his question, 2026-10-05: "what is
+      // chase?"). It is whatever the person called the mortgage, so the sentence says it is a mortgage.
+      ? `Your mortgage “${unmatched[0].label}” is not on a property. A mortgage is always on a property — open it and say which one.`
       : `${unmatched.length} mortgages are not on a property. A mortgage is always on a property — open each and say which one.`;
   return {
     properties: properties.length,

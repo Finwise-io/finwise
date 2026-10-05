@@ -1913,7 +1913,7 @@
   "MK-NW-F-106": {
    "name": "mortgagesByProperty",
    "rule": "Properties = the accounts whose class is real estate. Mortgages = the debts whose type is mortgage. Owner rule, 2026-10-04: \"It is feasible to have property without mortgage but no mortgage without property. So check should be 3 properties in NW - 3 or less mortgage.\" A mortgage is on the property it names, when that property exists and has no mortgage placed on it yet. A mortgage that names no property is placed only where there is one answer: first, on the one property without a mortgage whose name its own name begins with; then, when exactly one property is still without a mortgage and exactly one mortgage is still without a property, on that property. Every other mortgage is listed as on no property — including a second mortgage that names a property already taken. It gives: the count of properties and of mortgages; for each property its mortgage (or none) and that mortgage's required monthly payment; the mortgages on no property; whether there are none of those; and the sentence to show when there are.",
-   "read_from": "42aab1a22c",
+   "read_from": "001e56b0f9",
    "sent_as": ""
   }
  },
@@ -1969,6 +1969,13 @@
     "MK-NW-O-001": "e469bdf2d1",
     "MK-NW-O-004": "b121c51f4b",
     "MK-NW-O-008": "bdd89e805d"
+   }
+  },
+  {
+   "file": "moneykeel_audit_cards_changed-since-sent_04.md",
+   "cards": {
+    "MK-NW-O-003": "d559364955",
+    "MK-NW-F-106": "001e56b0f9"
    }
   }
  ]

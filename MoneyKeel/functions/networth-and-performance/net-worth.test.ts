@@ -225,7 +225,7 @@ describe('mortgagesByProperty', () => {
     const c = mortgagesByProperty(THREE, [mortgage('m1', 'A', 1, 'p1'), mortgage('m2', 'B', 1, 'p2'), mortgage('m3', 'C', 1, 'p3'), mortgage('m4', 'Extra loan', 1)]);
     expect(c.ok).toBe(false);
     expect(c.unmatched).toEqual([{ id: 'm4', label: 'Extra loan' }]);
-    expect(c.sentence).toBe('Extra loan is not on a property. A mortgage is always on a property — open it and say which one.');
+    expect(c.sentence).toBe('Your mortgage “Extra loan” is not on a property. A mortgage is always on a property — open it and say which one.');
   });
 
   test('a mortgage with no property at all in Net worth is on no property', () => {
@@ -236,7 +236,7 @@ describe('mortgagesByProperty', () => {
   test('two mortgages naming one property: the second is not placed — one mortgage to a property', () => {
     const c = mortgagesByProperty(THREE, [mortgage('m1', 'First', 1, 'p1'), mortgage('m2', 'Second', 1, 'p1')]);
     expect(c.unmatched).toEqual([{ id: 'm2', label: 'Second' }]);
-    expect(c.sentence).toMatch(/^Second is not on a property/);
+    expect(c.sentence).toMatch(/^Your mortgage “Second” is not on a property/);
   });
 
   test('mortgages stored before the rule name no property: placed only where there is one honest answer', () => {

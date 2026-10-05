@@ -27,7 +27,8 @@ describe('the debt editor', () => {
     render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
     fireEvent.press(screen.getByLabelText('Mortgage'));
     expect(screen.getByText('Which property is it on?')).toBeOnTheScreen();
-    expect(screen.getByText('A mortgage is always on a property. Add the property in Net worth first, then add its mortgage.')).toBeOnTheScreen();
+    // his words, 2026-10-05: "display the message when they try to enter mortgage on debt screen - add property first on NW page"
+    expect(screen.getByText('Add the property first, on the Net worth page. A mortgage is always on a property, so this one cannot be saved until its property is there.')).toBeOnTheScreen();
     fireEvent.changeText(screen.getByPlaceholderText('0'), '250000');
     fireEvent.press(screen.getByLabelText('Add debt'));
     expect(state().liabilities).toHaveLength(0);
@@ -41,7 +42,9 @@ describe('the debt editor', () => {
     fireEvent.changeText(screen.getByPlaceholderText('0'), '250000');
     fireEvent.press(screen.getByLabelText('Add debt'));
     expect(state().liabilities).toHaveLength(0);                       // not until it says which property
+    expect(screen.getByText('Pick the property this mortgage is on to save it.')).toBeOnTheScreen();
     fireEvent.press(screen.getByLabelText('On Lake house'));
+    expect(screen.queryByText('Pick the property this mortgage is on to save it.')).toBeNull();
     fireEvent.press(screen.getByLabelText('Add debt'));
     expect(state().liabilities).toHaveLength(1);
     expect(state().liabilities[0]).toMatchObject({ label: 'Chase', debt_type: 'MORTGAGE', property_id: 'p2' });
@@ -55,6 +58,12 @@ describe('the debt editor', () => {
     fireEvent.press(screen.getByLabelText('Mortgage'));
     expect(screen.queryByLabelText('On Home')).toBeNull();
     expect(screen.getByLabelText('On Lake house')).toBeOnTheScreen();
+    // …and when every property already has one, the form says so rather than "add the property"
+    screen.unmount();
+    useStore.setState({ assetAccounts: [home('p1', 'Home')] } as any);
+    render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
+    fireEvent.press(screen.getByLabelText('Mortgage'));
+    expect(screen.getByText('Every property in Net worth already has a mortgage. Add the property this one is on first, on the Net worth page.')).toBeOnTheScreen();
   });
 });
 
@@ -82,7 +91,8 @@ describe('Net worth', () => {
   test('a mortgage on no property is named under the debts; with every mortgage placed the line is gone', () => {
     useStore.setState({ assetAccounts: [home('p1', 'Home'), home('p2', 'Lake house')], liabilities: [mortgage('m1', 'Chase')] } as any);
     const first = render(<NetWorth />);
-    expect(screen.getByText('Chase is not on a property. A mortgage is always on a property — open it and say which one.')).toBeOnTheScreen();
+    // "Chase" is the name the person gave the mortgage; the sentence says it is a mortgage (his question: "what is chase?")
+    expect(screen.getByText('Your mortgage “Chase” is not on a property. A mortgage is always on a property — open it and say which one.')).toBeOnTheScreen();
     first.unmount();
     useStore.setState({ liabilities: [mortgage('m1', 'Chase', 'p2')] } as any);
     render(<NetWorth />);
