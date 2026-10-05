@@ -17,7 +17,7 @@ import { valueOn } from '../../Calculation Module code/engines/snapshots';
 import { Colors, Spacing, Radii, Shadows, ClassMarkColors } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
+import { ASSET_KINDS, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { isBond } from '../domain/bonds';
 import { isAlternative } from '../domain/alternatives';
@@ -103,7 +103,6 @@ export default function PerformanceScreen() {
   const resolvedNwAccounts = resolveNetWorthRows(
     store.user?.uid ?? 'local', store.onboardingProfile, store.nwSeeded ?? false, accounts, store.liabilities ?? [],
   ).accounts;
-  const investTotalAll = investmentsTotal(resolvedNwAccounts);
   const investedValue = rows.reduce((t, r) => t + r.marketValue, 0);
   const totalValue = investedValue + cashTotal;
   // WINNERS, LAGGARDS AND THE LIST MODE ARE GONE (2026-09-30). The approved mock v14 removed those
@@ -157,7 +156,7 @@ export default function PerformanceScreen() {
     const pricedDollar = pricedGainOf(priced as any);
     const answer = thePerformance({
       windowStart, windowLabel: phraseFor(p), today: todayKey,
-      ending: investTotalAll, pricedGain: pricedDollar,
+      pricedGain: pricedDollar,
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investIds,
@@ -170,7 +169,7 @@ export default function PerformanceScreen() {
     const out: Record<string, ReturnType<typeof figuresFor>> = {};
     for (const w of WINDOWS) out[w.key] = figuresFor(w.key);
     return out;
-  }, [store.transactions, store.snapshotDays, investTotalAll, owned, priceCache, period, sinceWords]);
+  }, [store.transactions, store.snapshotDays, resolvedNwAccounts, owned, priceCache, period, sinceWords]);
   // THE VALUE LINE (mock v14 mark 11). It is read from the daily record — which a linked account's
   // rebuild now fills backwards from its own transactions — between the window's start and today.
   // What it will never do again is take TODAY's share count and price it at past dates: that drew a
@@ -197,7 +196,7 @@ export default function PerformanceScreen() {
   // The screen has something to say whenever there ARE investments — a balance-only 401(k) with no
   // itemised holdings is still money, and gating on priced rows alone left that person staring at an
   // empty screen while Home showed their total (agreement pin 1).
-  const hasInvestments = rows.length > 0 || investTotalAll > 0;
+  const hasInvestments = rows.length > 0 || (windowFigures[period]?.walk.ending ?? 0) > 0;
   // WHERE THE HISTORY CAME FROM (mock v14 mark 13). A rebuilt line is not an observation, so the
   // screen names its source and its first day — and says plainly what could not be rebuilt.
   const rebuilt = useMemo(() => {
@@ -213,7 +212,7 @@ export default function PerformanceScreen() {
   const bondAccts = accounts.filter(isBond);
   const altAccts = accounts.filter(isAlternative);
   // investment ACCOUNTS without tickers (a balance-only 401(k)/brokerage) still belong on this
-  // tab — they're inside investmentsTotal, so hiding them would break the Home=Invest pin
+  // tab — they're inside the ending value, so hiding them would break the Home=Invest pin
   const untracked = accounts.filter((a) => !isBond(a) && !isAlternative(a)
     && (a.positions?.length ?? 0) === 0
     && !['cash', 'real_estate', 'personal_property'].includes(assetClassOf(a)));
@@ -368,7 +367,7 @@ export default function PerformanceScreen() {
             .reduce((t, r) => t + rowGain(r), 0);
           const one = thePerformance({
             windowStart: now.windowStart, windowLabel: phraseFor(period), today: todayKey,
-            ending: acct.balance || 0, pricedGain: gain,
+            pricedGain: gain,
             // every record: the function keeps this account's own, and the cash that arrived in it by transfer
             transactions: (store.transactions ?? []) as any[],
             snapshotDays: (store as any).snapshotDays ?? [],

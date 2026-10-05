@@ -324,7 +324,8 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  *               MK-PF-M-007 · MK-PF-M-008 · MK-PF-M-013 · MK-PF-M-014
  *               MK-PF-M-015 · MK-PF-M-016 · MK-PF-M-017 · MK-PF-M-018
  *               MK-PF-M-019 · MK-PF-M-020 · MK-XS-M-004
- * Reads ....... MK-XS-I-009 transaction date
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  * Ruled by .... DEC-0008 · DEC-0015 · DEC-0046 · DEC-0056 · DEC-0063 · DEC-0064
  *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
@@ -338,6 +339,8 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
+ *     · If ending is missing it uses 0.
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Treats a year as 365 days.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-008
@@ -349,8 +352,9 @@ export function thePerformance(input: {
   /** The words for that window, as the screen says them ("since Jul 19"). */
   windowLabel: string;
   today: string;
-  /** What the investments are worth now. */
-  ending: number;
+  /** What the measured accounts are worth now — used ONLY when no accounts are handed over. With
+   *  accounts, the function reads it from them, so no two screens can hand it two different figures. */
+  ending?: number;
   /** Every record, unfiltered — the door takes the window's own. */
   transactions: any[];
   /** The daily record, and which accounts count as investments. */
@@ -368,7 +372,16 @@ export function thePerformance(input: {
    *  as arriving today, not as a gain. */
   accounts?: any[];
 }): WindowFigures {
-  const { windowStart, today, ending } = input;
+  const { windowStart, today } = input;
+  // WHAT THE MEASURED ACCOUNTS ARE WORTH TODAY IS READ HERE, not handed in (2026-10-05). Each account
+  // counts WHOLE — the cash sitting uninvested inside it included — because that is what its daily
+  // record holds and what money paid in first becomes. Home used to hand in the Investments line of
+  // Net worth, which leaves that cash to the Cash line: the walk then began with the cash in and
+  // ended with it out, and Home's dollars for the month came out lower than Performance's by exactly
+  // that cash, a tap apart.
+  const ending = input.accounts
+    ? input.accounts.reduce((t: number, a: any) => t + (input.investmentAccountIds.has(String(a?.asset_id)) ? (a?.balance || 0) : 0), 0)
+    : (input.ending ?? 0);
   // THE MEASURED ACCOUNTS' OWN RECORDS, and no others. A record on some other account — a deposit
   // into a savings account — is not money put into these investments. A record that names no
   // account is kept, as it always was.

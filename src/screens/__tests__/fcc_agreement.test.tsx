@@ -70,13 +70,20 @@ describe('pin 1 — investments: Home hero = Invest header, to the dollar', () =
   });
 
   test('both screens use the ONE answer over the ONE row resolver (source pin)', () => {
-    // 2026-09-27: the pin's purpose is unchanged — Home and Performance must take this figure from
-    // ONE place. That place is now the door (MK-NW-O-003 theNetWorth, Q-NW-1), which is what
-    // investmentsTotal was standing in for before the question had one.
+    // The pin's purpose is unchanged — Home and Performance must take this figure from ONE place.
+    // 2026-10-05: that place is MK-NW-O-008 thePerformance, which reads what the measured accounts are
+    // worth from the accounts handed to it. Until then each screen handed in an ending of its own —
+    // Home the Investments line of Net worth, Performance the accounts counted whole — and with cash
+    // sitting uninvested in a linked account the two differed by that cash. The fixture above has no
+    // such cash, so the rendered test could not see it; src/screens/__tests__/outside_networth_02.test.tsx
+    // renders both screens in that state.
     const fs = require('fs'); const path = require('path');
     for (const f of ['HomeScreen.tsx', 'PerformanceScreen.tsx']) {
       const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-      expect(src).toMatch(/theNetWorth\(|investmentsTotal\(/);
+      expect(src).toMatch(/thePerformance\(/);
+      expect(src).toMatch(/walk\.ending/);
+      expect(src).not.toMatch(/investmentsTotal\(/);
+      expect(src).not.toMatch(/^\s*ending:/m);                 // no screen hands the function an ending of its own
       expect(src).toMatch(/resolveNetWorthRows\(/);
     }
   });

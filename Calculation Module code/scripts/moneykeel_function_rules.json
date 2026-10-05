@@ -1213,20 +1213,20 @@
   },
   "MK-NW-F-003": {
    "name": "valueFreshness",
-   "rule": "No answer for an account whose balance is built from its holdings, or one with no value date. Otherwise months old = whole calendar months from the value date's month to this month, never below zero; stale when 6 months or more.",
-   "read_from": "27c6858965",
+   "rule": "No answer for an account whose balance is built from its holdings, or one with no value date. Otherwise months old = the whole months that have fully passed since the value date: (years apart × 12 + calendar months apart), less 1 when today's day of the month is before the day the value was set — unless today is the last day of its month, which completes the month for a value set on a day that month does not have (a value set on the last day of January is one month old on the last day of February). A value dated by its month alone counts from the 1st. Never below zero. Stale when 6 or more.",
+   "read_from": "1af0a8f4ee",
    "sent_as": "27c6858965"
   },
   "MK-NW-F-004": {
    "name": "portfolioActualReturn",
-   "rule": "Over accounts that are not property, that have an actual return for the last twelve months on record, and that have some amount earmarked for retirement: those returns averaged, each weighted by its earmarked amount. No answer when the earmarked total is zero.",
+   "rule": "What the money set aside for retirement returned over the last twelve months — not the return of everything invested. Over accounts that are not property, that have a return for the last twelve months reported by the person (a reported 0 counts; one not reported is left out, never read as 0), and that have some amount set aside for retirement: those returns averaged, each weighted by the amount set aside for retirement (balance × the share set aside). An account with nothing set aside for retirement is not in it. No answer when that total is zero. It is weighted the same way as the plan's benchmark (blendedReturn), because the two are compared.",
    "read_from": "5d6260d396",
    "sent_as": "5d6260d396"
   },
   "MK-NW-F-005": {
    "name": "accountAllowsTicker",
-   "rule": "False for property, for cash accounts, for a 529, for checking and savings, and for accounts classed as Bonds & CDs or Alternatives. True for everything else.",
-   "read_from": "4953fbda7b",
+   "rule": "False for property, for cash accounts, for a 529, and for checking and savings. Otherwise true when the account already lists holdings. Otherwise false for an account classed as Bonds & CDs or Alternatives (it is itself one bond, CD or alternative holding typed by hand), and true for everything else.",
+   "read_from": "d8433a2f41",
    "sent_as": "4953fbda7b"
   },
   "MK-NW-F-006": {
@@ -1237,7 +1237,7 @@
   },
   "MK-NW-F-007": {
    "name": "assetKind",
-   "rule": "Looks a kind up by its id in the app's list of account kinds and returns its entry (name, section, tax bucket, typical yearly return), or nothing when the id is not in the list.",
+   "rule": "Looks a kind up by its id in the app's list of account kinds and returns its entry (name, section, tax bucket, typical yearly return), or nothing when the id is not in the list. The id is matched exactly — capitals and spaces count — because only the app writes these ids; no id, or one typed another way, finds nothing.",
    "read_from": "ab74faf80b",
    "sent_as": "ab74faf80b"
   },
@@ -1249,26 +1249,26 @@
   },
   "MK-NW-F-009": {
    "name": "maturityClass",
-   "rule": "Bonds & CDs when a maturity date is given; cash when none is.",
+   "rule": "Bonds & CDs when a maturity date is given; cash when none is. An empty or blank date counts as none. It does not look at whether the date has passed.",
    "read_from": "79490b70d3",
    "sent_as": "79490b70d3"
   },
   "MK-NW-F-010": {
    "name": "wrapperAccount",
-   "rule": "401(k) → kind 401(k), pre-tax. Traditional IRA → pre-tax. Roth → Roth IRA, Roth. HSA → pre-tax. Anything else, or nothing chosen → brokerage, taxable.",
-   "read_from": "c4c48969ee",
+   "rule": "401(k) → kind 401(k), pre-tax. Traditional IRA → kind Traditional IRA, pre-tax. Roth IRA → kind Roth IRA, Roth. Roth 401(k) → kind 401(k), Roth. HSA → kind HSA, pre-tax. Anything else, or nothing chosen → kind brokerage, taxable.",
+   "read_from": "d3dc061aff",
    "sent_as": "c4c48969ee"
   },
   "MK-NW-F-011": {
    "name": "assetClassOf",
-   "rule": "The first of these that applies. (1) The class stated on the account. (2) The class its name is evidence for. (3) Bonds & CDs if it has a maturity date. (4) The class of its kind: checking, savings, high-yield savings, cash management and foreign currency are cash; money market and stocks are Stocks / Funds; CD and fixed income are Bonds & CDs; private equity, hedge funds, commodities, crypto, annuities, options and other are Alternatives; home is Real estate; vehicle is Personal property. (5) Stocks / Funds if it lists holdings. (6) Cash if it is a cash account. (7) Real estate if it is property. (8) Otherwise Unclassified.",
-   "read_from": "0440597b60",
+   "rule": "The first of these that applies. (1) The class stated on the account. (2) Bonds & CDs if it has a maturity date (owner rule, 2026-08-04: any maturity-dated instrument is a bond) — whatever its name says. (3) The class its name is evidence for. (4) The class of its kind: checking, savings, high-yield savings, cash management and foreign currency are cash; money market and stocks are Stocks / Funds; CD and fixed income are Bonds & CDs; private equity, hedge funds, commodities, crypto, annuities, options and other are Alternatives; home and real estate are Real estate; vehicle is Personal property. (5) Stocks / Funds if it lists holdings. (6) Cash if it is a cash account. (7) If it is property: Real estate when no kind is recorded or its use (lived in, rented, second home, land) is recorded; Personal property for any other kind. (8) Otherwise Unclassified.",
+   "read_from": "c7cee89f70",
    "sent_as": "0440597b60"
   },
   "MK-NW-F-012": {
    "name": "taxTreatmentOf",
-   "rule": "The tax treatment stated on the account; otherwise tax-deferred for a pre-tax account, tax-free for a Roth account, and taxable for anything else.",
-   "read_from": "ca7cbb9fb0",
+   "rule": "The tax treatment stated on the account. Otherwise tax-free for a 529 (what it earns comes out untaxed when used for education). Otherwise tax-deferred for a pre-tax account — an HSA included: it goes in untaxed, and how it comes out depends on its use, which taxWordsOf says in words — tax-free for a Roth account, and taxable for anything else.",
+   "read_from": "c86cd5f888",
    "sent_as": "ca7cbb9fb0"
   },
   "MK-NW-F-013": {
@@ -1291,38 +1291,38 @@
   },
   "MK-NW-F-016": {
    "name": "cashTotal",
-   "rule": "For a linked account: the cash part of its class breakdown (accountClassBreakdown). For any other account: its whole balance when its class is cash, otherwise nothing. Added up over every account.",
+   "rule": "For an account that has a class split (accountClassBreakdown): the cash part of it — a linked account's uninvested cash, or the uninvested cash an account built by hand records for itself. For any other account: its whole balance when its class is cash, otherwise nothing. Added up over every account.",
    "read_from": "107dc0dcdf",
    "sent_as": "107dc0dcdf"
   },
   "MK-NW-F-017": {
    "name": "equitiesTotal",
-   "rule": "The balances of the accounts whose class (assetClassOf) is Stocks / Funds, added up. An account counts whole, under its one class.",
-   "read_from": "b8f35ceaaf",
+   "rule": "The Stocks / Funds line of the class split (assetAllocation): everything classed as Stocks / Funds, wherever it sits. An account holding several classes gives only its Stocks / Funds part.",
+   "read_from": "417edcaa6d",
    "sent_as": "b8f35ceaaf"
   },
   "MK-NW-F-018": {
    "name": "fixedIncomeTotal",
-   "rule": "The balances of the accounts whose class (assetClassOf) is Bonds & CDs, added up.",
-   "read_from": "eb85ad2c06",
+   "rule": "The Bonds & CDs line of the class split (assetAllocation): everything classed as Bonds & CDs, wherever it sits. An account holding several classes gives only its Bonds & CDs part.",
+   "read_from": "51b1cca5c6",
    "sent_as": "eb85ad2c06"
   },
   "MK-NW-F-019": {
    "name": "alternativesTotal",
-   "rule": "The balances of the accounts whose class (assetClassOf) is Alternatives, added up.",
-   "read_from": "eeb60ae32c",
+   "rule": "The Alternatives line of the class split (assetAllocation): everything classed as Alternatives, wherever it sits. An account holding several classes gives only its Alternatives part.",
+   "read_from": "ec929ead32",
    "sent_as": "eeb60ae32c"
   },
   "MK-NW-F-020": {
    "name": "realEstateTotal",
-   "rule": "The balances of the accounts whose class (assetClassOf) is Real estate, added up.",
-   "read_from": "ac64a323db",
+   "rule": "The Real estate line of the class split (assetAllocation): everything classed as Real estate.",
+   "read_from": "48072667ca",
    "sent_as": "ac64a323db"
   },
   "MK-NW-F-021": {
    "name": "investmentsTotal",
-   "rule": "The balances of the accounts whose class (assetClassOf) is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified, added up. An account counts whole, so cash sitting inside an investment account is included. This is the figure Performance measures; it is not the Investments line on Net worth.",
-   "read_from": "0bdb899d99",
+   "rule": "The Investments line on Net worth: the Stocks / Funds, Bonds & CDs, Alternatives and Unclassified lines of the class split (assetAllocation), added up. Cash sitting uninvested inside an investment account is on the Cash line (cashTotal), not here; a CD inside a cash account is here. Always: cashTotal + investmentsTotal = investableAssets.",
+   "read_from": "067d15dc18",
    "sent_as": "0bdb899d99"
   },
   "MK-NW-F-022": {
@@ -1345,26 +1345,29 @@
   },
   "MK-NW-F-025": {
    "name": "accountDisplayName",
-   "rule": "With an institution: a tax-advantaged account that has a kind word reads Institution + kind word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
-   "read_from": "0509b9c53f",
+   "rule": "The kind word is the account kind's own word (401(k), Traditional IRA, Roth IRA, HSA, 529, Brokerage, Checking and so on); for a tax-advantaged account whose kind says only Brokerage, it is Roth when the account is tax-free and 401(k) / IRA when it is tax-deferred — a tax-advantaged account always shows what it is. With an institution: a tax-advantaged account that has a kind word reads Institution + kind word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
+   "read_from": "b80a695f0e",
    "sent_as": "0509b9c53f"
   },
   "MK-NW-F-026": {
    "name": "accountDisplayNames",
-   "rule": "Each account gets its display name (accountDisplayName). Where two or more accounts end up with the same name, each gets · 1, · 2 and so on added, in order of account id.",
-   "read_from": "1cbfd710b6",
+   "rule": "Each account gets its display name (accountDisplayName). Where two or more accounts end up with the same name, each gets · 1, · 2 and so on added, in the order of their account ids read as text (an id is made by the app from the moment the account was created, so that is the order they were made). A numbered name that is already another account's name is skipped, so no two accounts are ever shown by the same name.",
+   "read_from": "d0c2a84d9c",
    "sent_as": "1cbfd710b6"
   },
   "MK-NW-F-027": {
    "name": "accountClassBreakdown",
-   "rule": "Only for a linked account; any other gets no answer. Cash = its cash balance. Each holding's value = shares × last price (0 with no price). Owner rule, 2026-09-30: when nothing says what a holding is, \"Refuse the line and ask\" — so a holding marked as asked, and not yet answered by the person, is filed under Unclassified and under no other class. Every other holding is filed under the class its name is evidence for unless that is cash, otherwise under its own class: bond → Bonds & CDs, other → Alternatives, cash → cash, anything else → Stocks / Funds. Options go to Alternatives. If the parts do not add up to the balance: a gap no bigger than the larger of $1 or 1% of the balance is added to cash when positive, or taken off the largest class when negative; a bigger gap is put under the account's own class.",
-   "read_from": "fd8789d75f",
-   "sent_as": "3977913591"
+   "rule": "LINKED ACCOUNT. Cash = its cash balance. Each holding with a price = shares × last price, filed under its class (holdingClassOf). Each option = its value as synced, under Alternatives (an option is valued when it is synced, at contracts × price per share × 100 — owner, 2026-08-26). If the parts come to less than the balance and one or more holdings have NO price: the whole difference is filed under the unpriced holdings' class when they share one, and under Unclassified when they span classes — never under cash. Otherwise, if the parts do not add up to the balance: a difference no bigger than the larger of $1 or 1% of the balance is added to cash when positive (owner rule, 2026-08-11), or taken off the largest class when negative; a bigger one is put under the account's own class (assetClassOf). ACCOUNT BUILT BY HAND (its balance is built from its own records, it is not a cash or property account, and it records uninvested cash above zero): cash = that uninvested cash, never more than the balance; the rest of the balance stays whole under the account's own class. ANY OTHER ACCOUNT — a typed balance, a bank account, a recorded cash figure of zero or below — gets no answer. The parts always add up to the balance.",
+   "read_from": "a07955d275",
+   "sent_as": "3977913591",
+   "figures_checked_by_hand": {
+    "100": "the option contract size, applied where an option is synced (src/services/sync/snaptrade.ts: price × contracts × multiplier, multiplier 100) — owner ruling Q06, 2026-08-26. This function reads the value that results."
+   }
   },
   "MK-NW-F-028": {
    "name": "classPortionLabel",
-   "rule": "The words for one class inside one account. Cash: cash in this account. Bonds: counts the holdings whose name says CD, those whose name says Treasury, and the rest as bonds — for example 3 CDs & 1 Treasury in this account — or bonds & CDs in this account when none are listed. Stocks: N holdings in this account, or stocks & funds in this account when none are listed. Alternatives: N options & N holdings in this account, or alternatives in this account. Any other class: unpriced portion of this account.",
-   "read_from": "c44857c275",
+   "rule": "The words for one class inside one account, counting the holdings of that class (holdingClassOf — the same test the dollars beside the words were split by). Cash: cash in this account. Bonds: counts the holdings whose name has the whole word CD (or certificate of deposit), those whose name has the whole word Treasury (or T-bill, T-note, government), capitals ignored, and the rest as bonds; a count of one is singular, a count of zero is left out, two parts are joined with &, three as A, B & C — for example 3 CDs & 1 Treasury in this account, or 1 CD, 1 Treasury & 2 bonds in this account — or bonds & CDs in this account when none are listed. Stocks: N holdings in this account (1 holding), or stocks & funds in this account when none are listed. Alternatives: N options & N holdings in this account, each part left out when its count is zero (an option is one option position, however many contracts), or alternatives in this account. Any other class: unpriced portion of this account.",
+   "read_from": "8e9a7abe42",
    "figures_checked_by_hand": {
     "3": "a count in the example label, not a figure of the formula"
    },
@@ -1680,13 +1683,13 @@
   "MK-NW-O-002": {
    "name": "theAccount",
    "rule": "Uses the records whose account is this account, and any transfer that arrives in it from another account. Market value = the account's balance. Income = dividends + interest in those records, to the cent — and NO FIGURE when the account has no records at all. Inside = for a linked account, the value in each asset class that is not zero (accountClassBreakdown); for any other account, nothing. Activity = every record with its date, type, ticker and amount: the amount is the record's effect on cash, except a transfer INTO this account, which shows the amount moved; a record counts as the person's own unless it came through the link. Income of one holding = dividends and interest whose record names that holding's ticker, capitals ignored; a record naming no ticker belongs to no holding.",
-   "read_from": "6663ca8691",
+   "read_from": "52b813a43d",
    "sent_as": "6d973197e7"
   },
   "MK-NW-O-003": {
    "name": "theNetWorth",
-   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. Return on cash + investments = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\") over every account that is not property: the period from the day compared from to today is split at every day money moved in or out; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off; returned as a share. A month given without a day is read as its first day. Cash earns only interest: any other change in a cash account's balance is money moving, counted on the day the record first shows it. For the other accounts, money moving = deposits, withdrawals and cash transferred between accounts. Today's value is read from the accounts as they stand. No figure when no day is given, when no recorded day on or before the day compared from holds the accounts, when money moved on a day with no recorded value, or when shares were moved in or out. It also hands out the match of mortgages to properties (mortgagesByProperty). It also names the holdings nothing could class and the person has not yet answered about (account, holding), and the sentence that asks.",
-   "read_from": "06ad6d4865",
+   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = investmentsTotal: the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. Return on cash + investments = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\") over every account that is not property: the period from the day compared from to today is split at every day money moved in or out; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off; returned as a share. A month given without a day is read as its first day. Cash earns only interest: any other change in a cash account's balance is money moving, counted on the day the record first shows it. For the other accounts, money moving = deposits, withdrawals and cash transferred between accounts. Today's value is read from the accounts as they stand. No figure when no day is given, when no recorded day on or before the day compared from holds the accounts, when money moved on a day with no recorded value, or when shares were moved in or out. It also hands out the match of mortgages to properties (mortgagesByProperty). It also names the holdings nothing could class and the person has not yet answered about (account, holding), and the sentence that asks.",
+   "read_from": "62e2994cbc",
    "sent_as": "93975a41df"
   },
   "MK-NW-O-004": {
@@ -1715,8 +1718,8 @@
   },
   "MK-NW-O-008": {
    "name": "thePerformance",
-   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and the first recorded value of an account that joined the record inside the period (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Today's value is read from the accounts as they stand; with no accounts handed in, the ending handed in closes the record. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out and the record does not say which way or what they were worth; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
-   "read_from": "bdd89e805d",
+   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and the first recorded value of an account that joined the record inside the period (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Ending = what the measured accounts are worth today, each counted whole (its balance, uninvested cash inside it included), read from the accounts handed in — a figure handed in beside them is not used, so no two screens can give two endings; with no accounts handed in, the ending handed in is used and closes the record. Today's value for the return is read from the same accounts. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out and the record does not say which way or what they were worth; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
+   "read_from": "96a883521c",
    "sent_as": "4afbd2f788"
   },
   "MK-PF-F-001": {
@@ -1927,6 +1930,18 @@
    "rule": "Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" The home = the property read as HOME (propertyUses). Its mortgage = the mortgage matched to that property (mortgagesByProperty). When the home has a mortgage in Debts AND the budget's Rent / Mortgage line holds an amount: that line is counted as nothing, the one typed monthly total (when there is one) is lowered by the same amount, never below zero, and the sentence says the line is not counted and names the mortgage. Otherwise — a renter, a home with no mortgage, a mortgage on another property, or no amount on the line — the budget is counted exactly as typed. It also names the home's mortgage when there is one. What the person typed is never changed; this is the budget as it is counted.",
    "read_from": "db9f756819",
    "sent_as": ""
+  },
+  "MK-NW-F-108": {
+   "name": "taxWordsOf",
+   "rule": "The words for how an account is taxed, shown on its page. Where no treatment is stated on the account: a 529 reads tax-free for education; an HSA reads pre-tax — tax-free for medical costs. Otherwise by its treatment (taxTreatmentOf): tax-deferred reads pre-tax — taxed when it comes out; tax-free reads tax-free (Roth); taxable reads taxable.",
+   "read_from": "0c1f7fd10e",
+   "sent_as": ""
+  },
+  "MK-NW-F-109": {
+   "name": "holdingClassOf",
+   "rule": "The class of one holding inside an account. (1) If the person said what it is, their answer. (2) If it is marked as asked — nothing could class it and the person has not answered — Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (3) The class its ticker and name are evidence for, unless that is cash: a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker sent (owner rule, 2026-08-04: cash means cash only). (4) Otherwise the class stored when it arrived: bond → Bonds & CDs, other → Alternatives, cash → cash, anything else → Stocks / Funds.",
+   "read_from": "9aae46ef0b",
+   "sent_as": ""
   }
  },
  "pack_sent": {
@@ -2003,6 +2018,30 @@
    "cards": {
     "MK-NW-F-027": "fd8789d75f",
     "MK-NW-O-003": "06ad6d4865"
+   }
+  },
+  {
+   "file": "moneykeel_audit_cards_changed-since-sent_07.md",
+   "cards": {
+    "MK-NW-F-003": "1af0a8f4ee",
+    "MK-NW-F-005": "d8433a2f41",
+    "MK-NW-F-010": "d3dc061aff",
+    "MK-NW-F-011": "c7cee89f70",
+    "MK-NW-F-012": "c86cd5f888",
+    "MK-NW-F-108": "0c1f7fd10e",
+    "MK-NW-F-017": "417edcaa6d",
+    "MK-NW-F-018": "51b1cca5c6",
+    "MK-NW-F-019": "ec929ead32",
+    "MK-NW-F-020": "48072667ca",
+    "MK-NW-F-021": "067d15dc18",
+    "MK-NW-F-025": "b80a695f0e",
+    "MK-NW-F-026": "d0c2a84d9c",
+    "MK-NW-F-109": "9aae46ef0b",
+    "MK-NW-F-027": "a07955d275",
+    "MK-NW-F-028": "8e9a7abe42",
+    "MK-NW-O-002": "52b813a43d",
+    "MK-NW-O-003": "62e2994cbc",
+    "MK-NW-O-008": "96a883521c"
    }
   }
  ],

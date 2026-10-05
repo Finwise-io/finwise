@@ -173,8 +173,13 @@ export function ingestSync(
     // positions (options are display detail on the account, never re-added to totals)
     const mapped = (p.positions ?? []).map(mapPosition).filter((m): m is NonNullable<typeof m> => !!m);
     const optionRows = (p.optionPositions ?? []).map((o) => mapOptionHolding(o)).filter((m): m is NonNullable<typeof m> => !!m);
+    // A MONEY-MARKET FUND THE BROKER FLAGS AS "cash equivalent" IS A HOLDING, LIKE ANY OTHER (owner,
+    // DEC-0051: cash means cash only; a money-market fund is Stocks / Funds). It used to be dropped
+    // from this list while MK-XS-F-110 netCashSleeve also took it out of the cash — so it was in
+    // neither, the account was marked as not adding up to the broker's total by exactly its value,
+    // and a small one was swept into Cash by the rounding rule (found 2026-10-05, on the outside
+    // review of MK-NW-F-027). It stays in the list; the cash beside it is still net of it.
     const positions = mapped
-      .filter((m) => !m.cashEquivalent)                          // money-market lives in the sleeve
       .map((m, i) => {
         const priorPos = prior?.positions?.find((x: any) => x.ticker === m.ticker);
         const prevCls = priorPos?.asset_class == null ? null

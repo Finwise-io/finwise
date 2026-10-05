@@ -1339,6 +1339,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "holdingClassOf": {
+  "id": "MK-NW-F-109",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
  "holdingId": {
   "id": "MK-ST-F-026",
   "file": "Calculation Module code/engines/snapshots.ts",
@@ -1472,7 +1477,7 @@
  "investmentsTotal": {
   "id": "MK-NW-F-021",
   "file": "src/domain/assets/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "isAlternative": {
   "id": "MK-NW-F-001",
@@ -3031,6 +3036,11 @@
  },
  "taxTreatmentOf": {
   "id": "MK-NW-F-012",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "taxWordsOf": {
+  "id": "MK-NW-F-108",
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },

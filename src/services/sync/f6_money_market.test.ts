@@ -28,18 +28,35 @@ test('and the cash sleeve nets it out, so the same money is never counted twice'
   expect(netCashSleeve(60_000, [m])).toBe(10_000);
 });
 
-test('THE DEFECT: the two rules together make the money vanish from the breakdown', () => {
-  const m = mapPosition(VMFXX)!;
-  // ingest.ts drops every cash-equivalent position: `.filter((m) => !m.cashEquivalent)`
-  const shownAsHoldings = [m].filter((x) => !x.cashEquivalent);
-  const sleeve = netCashSleeve(60_000, [m]);
-  // so $50,000 is subtracted from cash AND never appears as a holding
-  expect(shownAsHoldings).toHaveLength(0);
-  expect(sleeve).toBe(10_000);
-  const accountedFor = sleeve + shownAsHoldings.reduce((t, x) => t + x.price! * x.shares, 0);
-  expect(accountedFor).toBe(10_000);
-  // …against a real $60,000 of money. The $50,000 is in neither place.
-  expect(60_000 - accountedFor).toBe(50_000);
+// THE DEFECT, AS IT STOOD UNTIL 2026-10-05, and the proof it is closed. The sync dropped every holding
+// the broker flags as cash-equivalent (`.filter((m) => !m.cashEquivalent)`) while the cash figure was
+// also made net of it — so the fund was in neither place. This test used to act that out with the two
+// helpers; it now runs the sync itself, for a large fund and for one small enough that the rounding
+// rule swept it into Cash.
+import { ingestSync } from './ingest';
+import { accountClassBreakdown, cashTotal } from '../../domain/assets';
+
+test.each([[50_000], [900]])('a money-market fund the broker flags as cash-equivalent ($%d) is a holding under Stocks / Funds, and the account adds up', (fund) => {
+  const NOW = '2026-10-05T12:00:00Z';
+  const total = 100_000 + fund + 1_000;                                    // VTI + the fund + uninvested cash
+  const r = ingestSync([], {}, [{
+    account: { id: 'acc-1', name: 'Vanguard Brokerage', number: '****7665', institution_name: 'Vanguard',
+      balance: { total: { amount: total, currency: 'USD' } }, meta: { type: 'INDIVIDUAL' }, sync_status: { holdings: { last_successful_sync: NOW } } },
+    balancesCash: 1_000 + fund,                                            // the broker counts the fund inside its cash figure
+    positions: [
+      { symbol: { symbol: { id: 'u-vti', raw_symbol: 'VTI', symbol: 'VTI', description: 'Vanguard Total', type: { code: 'et' } } }, units: 400, price: 250, average_purchase_price: 200 },
+      { ...VMFXX, units: fund },
+    ],
+    activities: [],
+  } as any], NOW);
+  const a = r.accounts[0];
+  expect(a.positions!.map((x: any) => x.ticker)).toEqual(['VTI', 'VMFXX']);   // it used to be dropped from the list
+  expect(a.cash_balance).toBe(1_000);                                      // and the cash is still net of it — counted once
+  expect(a.recon_break).toBeUndefined();                                   // it used to read "does not add up" by exactly the fund
+  const b = accountClassBreakdown(a)!;
+  expect(b.cash).toBe(1_000);                                              // a $900 fund used to make this $1,900
+  expect(b.stocks_etf).toBe(100_000 + fund);
+  expect(cashTotal([a])).toBe(1_000);                                      // so the emergency fund does not count the fund as cash
 });
 
 // ── THE SECOND CONTRADICTION, and the one that puts it on screen under Cash ──────────────────────

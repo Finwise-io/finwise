@@ -2598,6 +2598,90 @@
     "status": "DONE — except Q10, which waits on him: his two rulings disagree.",
     "comments": "The gate that printed \"PFS pending: 2 files\" is clear. check-questions-answered: every answer of his reaches the master, and none is still being asked."
    }
+  },
+  {
+   "task": "Outside review, returned file by file — Net worth file 2 (Claude): fifteen functions, 75 cases",
+   "todo": "HIS INSTRUCTION, 2026-10-04: \"We will run one at a time to make sure you are actually correcting them.\" He handed over file 2 on 2026-10-05. THE FILE judged fifteen functions: 7 WRONG, 5 INCOMPLETE, 3 RIGHT. MEASURED: its 75 answers run against the app as it stood (commit c78d0de) — the app disagreed with 14; against the fixes — it disagrees with 2, both held on purpose (MK-NW-F-004, its own row below). FIXED, each by name. (1) MK-NW-F-003 valueFreshness: counted month names crossed, so \"still right?\" came up to a month early; it counts months fully passed. (2) MK-NW-F-005 accountAllowsTicker: an account that already lists holdings can take a ticker, whatever its class. (3) MK-NW-F-010 wrapperAccount: a Roth 401(k) has its own choice (a 401(k) by kind, Roth by tax); the card's words now name every kind. (4) MK-NW-F-011 assetClassOf: a maturity date outranks the name (his rule of 2026-08-04); a property whose kind is not a house is Personal property. (5) MK-NW-F-012 taxTreatmentOf: a 529 is tax-free; new MK-NW-F-108 taxWordsOf gives a 529 and an HSA their own words on the account page. (6) MK-NW-F-016 cashTotal and MK-NW-F-027 accountClassBreakdown: cash an account built by hand records for itself is cash; a holding with no price is filed under its class, never as cash. (7) MK-NW-F-021 investmentsTotal: it is the Investments line of Net worth, read from the class split, and MK-NW-O-003 theNetWorth calls it; cash + investments = cash and investments together, always. MK-NW-F-017 to F-020 (the four class totals) read the same split. (8) MK-NW-F-026 accountDisplayNames: no two accounts are ever shown by the same name; the order is the same on every device. (9) MK-NW-F-028 classPortionLabel: three kinds read \"1 CD, 1 Treasury & 2 bonds\"; it counts by new MK-NW-F-109 holdingClassOf, the same test the dollars are split by. ALREADY FIXED with file 1: MK-NW-F-001 isAlternative. RIGHT, nothing changed: MK-NW-F-007 assetKind, MK-NW-F-009 maturityClass, MK-NW-F-022 investableAssets. WHERE IT WROTE \"RULE UNCLEAR\", decided without asking: a private-equity stake with an end date is a bond (his rule of 2026-08-04; no screen can give a stake a maturity date); a kind is matched exactly (only the app writes kinds); accounts with one name are numbered in the order of their ids read as text.",
+   "status": "DONE — 73 of its 75 answers are the app's; 2 are held at the app's answer and named on the next row.",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_networth02_claude.json · MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts (75) · outside_networth_02_found.test.ts (23) · src/screens/__tests__/outside_networth_02.test.tsx (6)",
+   "date": "2026-10-05",
+   "comments": "Not pushed. The two drawings carry the changes at their top, in a second table marked as not his rulings: Net worth v08 (8 lines), Performance v17 (5 lines).",
+   "_written": {
+    "status": "DONE — 73 of its 75 answers are the app's; 2 are held at the app's answer and named on the next row.",
+    "comments": "Not pushed. The two drawings carry the changes at their top, in a second table marked as not his rulings: Net worth v08 (8 lines), Performance v17 (5 lines)."
+   }
+  },
+  {
+   "task": "MK-NW-F-004 portfolioActualReturn — the outside reviewer called it WRONG; kept as it is, and why",
+   "todo": "THE REVIEWER'S POINT: the card said \"value-weighted\", and the function weighs each account by the amount set aside for retirement — so a brokerage saved for a house deposit (0% for retirement) that lost 4.2% is not in \"your return\". DECIDED BY ME, NOT ASKED: kept. The function is what the money set aside for retirement returned; the Retirement plan grows that money and nothing else, and compares it with a benchmark weighted the same way (MK-NW-F-037 blendedReturn). Weighing whole accounts would grow the retirement money at the return of money that is not in it. WHAT WAS WRONG was the card's words: they now say \"what the money set aside for retirement returned\". The two cases that rest on whole-account weights are held at the app's answer in the test file, each with its sum written out: 9.18% (its answer 10.07%) and 5.95% (its answer 3.51%). ITS OTHER TWO POINTS HOLD ALREADY: a reported return of 0 counts; one not reported is left out. TO REVERSE: one line in MK-NW-F-004 (weigh by balance) — and the benchmark beside it would have to change the same way. STILL OPEN, FOR THE MENU BUILD: Insights prints this figure as \"Your 12-mo return\" beside \"Benchmark\"; both are the retirement money's, and the label does not say so.",
+   "status": "DONE — kept by my decision; one line reverses it. The Insights label is open for the Menu build.",
+   "ref": "src/domain/assets/index.ts (MK-NW-F-004) · src/screens/InsightsScreen.tsx (the behind-benchmark insight) · MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+   "date": "2026-10-05",
+   "comments": "",
+   "_written": {
+    "status": "DONE — kept by my decision; one line reverses it. The Insights label is open for the Menu build.",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Home's investments figure and Performance's \"Ending value\" differed by the cash sitting uninvested in a linked account",
+   "todo": "FOUND 2026-10-05 while fixing MK-NW-F-021. On 2026-10-04 the Investments line of Net worth was corrected to leave a linked account's uninvested cash to the Cash line (the approved drawing: $354,314). Home read that line for its investments figure AND handed it to the performance function as today's value, while Performance handed in the accounts counted whole ($355,152). For the drawing's household: two figures $838 apart, a tap apart, and Home's dollars earned for the month were $838 lower than Performance's. FIXED: MK-NW-O-008 thePerformance reads what the measured accounts are worth from the accounts handed to it, so no screen can hand it a figure of its own; Home prints that figure. Net worth's Investments line is unchanged. The test that pinned Home to Performance used a household with no such cash, so it could not see this; a second test renders both screens in that state.",
+   "status": "DONE",
+   "ref": "MoneyKeel/functions/networth-and-performance/performance.ts (MK-NW-O-008) · src/screens/HomeScreen.tsx · src/screens/PerformanceScreen.tsx · src/screens/__tests__/outside_networth_02.test.tsx · src/screens/__tests__/fcc_agreement.test.tsx",
+   "date": "2026-10-05",
+   "comments": "DECIDED BY ME: Home's figure is the one Performance shows, not Net worth's Investments line — it sits beside Performance's return and opens Performance. To reverse: one line in HomeScreen.tsx.",
+   "_written": {
+    "status": "DONE",
+    "comments": "DECIDED BY ME: Home's figure is the one Performance shows, not Net worth's Investments line — it sits beside Performance's return and opens Performance. To reverse: one line in HomeScreen.tsx."
+   }
+  },
+  {
+   "task": "A money-market fund the broker marks as \"cash equivalent\" was in neither the holdings nor the cash",
+   "todo": "FOUND 2026-10-05 while checking the reviewer's point that MK-NW-F-027's card still said money market goes under cash. The classifier has filed a money-market fund under Stocks / Funds since his rule of 2026-08-04 (DEC-0051) — but the sync dropped every holding the broker flags as cash-equivalent, and took it out of the cash as well. Run through the real sync: a $50,000 fund was in no holdings list, and the account was marked as not adding up to the broker's total by $50,000; a $900 fund was counted as $900 of cash, which the emergency fund then counted; where the broker sent no total, the balance worked out by the app left the fund out. A test from 2026-08-14 acted the defect out and passed. FIXED: the fund stays in the holdings (Stocks / Funds); the cash is still net of it, so it is counted once. HIS OWN ACCOUNTS: his brokers do not set this flag (recorded 2026-07-19), so his figures do not move.",
+   "status": "DONE",
+   "ref": "src/services/sync/ingest.ts (MK-XS-F-102 ingestSync) · src/services/sync/f6_money_market.test.ts · src/services/sync/ingest.test.ts",
+   "date": "2026-10-05",
+   "comments": "",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "An account added by hand as Roth or 401(k) / IRA was shown as \"Brokerage\"",
+   "todo": "FOUND 2026-10-05 while checking the reviewer's point on MK-NW-F-010 (the kind must follow the tax wrapper). The by-hand form asks \"Taxable · 401(k) / IRA · Roth\" and records the answer as the tax bucket on a plain brokerage kind, so a Roth at Vanguard read \"Vanguard Brokerage\" — against his naming rule of 2026-08-11 (a tax-advantaged account always shows what it is). FIXED in MK-NW-F-025 accountDisplayName: where the kind says only Brokerage, the word is the tax answer — \"Vanguard Roth\", \"Fidelity 401(k) / IRA\". DECIDED BY ME: the two words are the form's own. To reverse or reword: one line. NOT DONE: the form has one choice for a 401(k) and an IRA, so nothing later can tell which of the two such an account is.",
+   "status": "DONE for the name. OPEN: the by-hand form has one choice for 401(k) and IRA.",
+   "ref": "src/domain/assets/index.ts (MK-NW-F-025) · src/screens/AddAccountScreen.tsx · MoneyKeel/functions/networth-and-performance/outside_networth_02_found.test.ts",
+   "date": "2026-10-05",
+   "comments": "",
+   "_written": {
+    "status": "DONE for the name. OPEN: the by-hand form has one choice for 401(k) and IRA.",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Three more found on file 2, each fixed: the person's own class answer, the account page's class test, a 529's name",
+   "todo": "FOUND 2026-10-05. (1) The split of a linked account let a holding's NAME outrank the class the person gave it: GLD they had classed as Stocks / Funds was still counted under Alternatives. Their answer now wins (new MK-NW-F-109 holdingClassOf). (2) The class of a holding was worked out three ways — in the split, in the words under the account, and on the account's page — so a CD the broker tags as cash was in the Bonds & CDs dollars and missing from the words and the page list. All three ask the one function. A holding nobody has classed shows under an Unclassified band on its account's page, only when there is one. (3) A 529 at an institution read \"Vanguard -1234\"; it reads \"Vanguard 529 -1234\".",
+   "status": "DONE",
+   "ref": "src/domain/assets/index.ts (MK-NW-F-109, MK-NW-F-027, MK-NW-F-028, MK-NW-F-012) · src/screens/AccountPortfolioScreen.tsx",
+   "date": "2026-10-05",
+   "comments": "",
+   "_written": {
+    "status": "DONE",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Plan and the tax on money coming out — an HSA is treated as a 401(k), a 529 as taxable",
+   "todo": "FROM THE OUTSIDE REVIEW of MK-NW-F-010 and MK-NW-F-012 (file 2). The account page now says in words what makes a 529 and an HSA tax-free. NOT DONE, and not in this build: the Retirement plan reads an account's tax bucket, where an HSA is pre-tax (taxed when it comes out, like a 401(k)) and a 529 is taxable. Money taken from an HSA for medical costs is not taxed (IRS Publication 969), so a plan that draws on an HSA overstates its tax. It belongs with the Plan build.",
+   "status": "OPEN — mine, for the Plan build.",
+   "ref": "src/domain/assets/index.ts (MK-NW-F-012, MK-NW-F-108) · src/domain/decumulation · src/domain/retirement",
+   "date": "2026-10-05",
+   "comments": "",
+   "_written": {
+    "status": "OPEN — mine, for the Plan build.",
+    "comments": ""
+   }
   }
  ]
 }

@@ -15,7 +15,7 @@ import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
-  buildAssetsState, cashTotal, investableAssets, assetAllocation, isRealAsset, assetClassOf,
+  buildAssetsState, cashTotal, investableAssets, investmentsTotal, assetAllocation, isRealAsset, assetClassOf,
   type AssetClass,
 } from '../../../src/domain/assets';
 import { buildDebtState, requiredPayment, type Debt } from '../../../src/domain/debt';
@@ -116,10 +116,7 @@ export interface TheNetWorth {
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
- *     · If stocks etf is missing it uses 0.
- *     · If bonds is missing it uses 0.
  *     · If alternatives is missing it uses 0.
- *     · If mixed is missing it uses 0.
  *     · If remaining balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
@@ -166,8 +163,9 @@ export function theNetWorth(input: {
     // linked account's uninvested cash out of the account; this used to count the same account WHOLE,
     // so that cash was in both lines — the approved drawing's household (Net worth v08, state A) read
     // $355,152 where it draws $354,314, and Cash + Investments + property came to $838 more than
-    // What you own. Summed from the same class split the screen's rows are printed from.
-    investments: (byClass.stocks_etf ?? 0) + (byClass.bonds ?? 0) + (byClass.alternatives ?? 0) + (byClass.mixed ?? 0),
+    // What you own. One function for it since 2026-10-05 (MK-NW-F-021 investmentsTotal), read from the
+    // same class split the screen's rows are printed from.
+    investments: investmentsTotal(accounts),
     investable,
     byClass,
     alternatives: byClass.alternatives ?? 0,

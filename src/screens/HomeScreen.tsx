@@ -169,8 +169,6 @@ export default function HomeScreen() {
   }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──
-  // the same investments total the Net worth tab shows — one answer (Q-NW-1)
-  const investTotal = theNetWorth({ uid, accounts: resolvedRows.accounts, debts: resolvedRows.liabilities }).investments;
   const hasIncomeEntered = salaryAnnual(op) > 0 || (store.incomes ?? []).length > 0 || currentRetirementIncomeMonthly(op) > 0;   // Q48: a real $0 income is not "nothing entered"
   const positions: Position[] = useMemo(
     () => (store.assetAccounts ?? []).flatMap((a: any) => a.positions ?? []),
@@ -188,13 +186,18 @@ export default function HomeScreen() {
     return thePerformance({
       windowStart: windowStartKey('1M', Object.keys((store.invDaily ?? {}) as Record<string, number>), today),
       windowLabel: 'past month', today,
-      ending: investTotal, pricedGain: pricedGainOf(perfRows as any),
+      pricedGain: pricedGainOf(perfRows as any),
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investmentAccountIdsOf(resolvedRows.accounts as any, assetClassOf),
       accounts: resolvedRows.accounts as any[],
     });
-  }, [store.transactions, store.snapshotDays, store.invDaily, investTotal, perfRows, resolvedRows.accounts]);
+  }, [store.transactions, store.snapshotDays, store.invDaily, perfRows, resolvedRows.accounts]);
+  // THE FIGURE PERFORMANCE SHOWS AS "Ending value", from the same answer as the return beside it
+  // (2026-10-05): what the investment accounts are worth, each counted whole. It was read from Net
+  // worth's Investments line, which leaves a linked account's uninvested cash to the Cash line — so
+  // this figure and the one a tap away on Performance differed by that cash.
+  const investTotal = oneMonth.walk.ending;
   const youReturn = oneMonth.ret;                               // the door's 1M figure, the one Performance prints
   const youDollar = oneMonth.walk.wealthGenerated;              // and the dollars behind it — never re-derived from the %
   const marketReturn = useMemo(() => portfolioBenchReturn(perfRows), [perfRows]);   // the ONE shared formula (walk row 5)

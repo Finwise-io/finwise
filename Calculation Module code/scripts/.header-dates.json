@@ -742,5 +742,7 @@
 "MoneyKeel/functions/networth-and-performance/net-worth.ts::mortgagesByProperty": "2026-10-04|dd8557a",
 "MoneyKeel/functions/cashflow/budget-counted.ts::theBudgetCounted": "2026-10-05|50cafc5",
 "MoneyKeel/functions/networth-and-performance/net-worth.ts::propertyUses": "2026-10-05|50cafc5",
-"src/services/sync/ingest.ts::theirCost": "not in git yet|\u2014"
+"src/services/sync/ingest.ts::theirCost": "not in git yet|\u2014",
+"src/domain/assets/index.ts::holdingClassOf": "not in git yet|\u2014",
+"src/domain/assets/index.ts::taxWordsOf": "not in git yet|\u2014"
 }

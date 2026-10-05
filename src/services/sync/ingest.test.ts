@@ -25,12 +25,13 @@ const payload = (over: Partial<AccountSyncPayload> = {}): AccountSyncPayload => 
   ...over,
 });
 
-test('the broker total IS the balance; the sleeve nets out money-market; positions carry the mark', () => {
+test('the broker total IS the balance; the cash is net of the money-market fund, which is a holding; positions carry the mark', () => {
   const r = ingestSync([], {}, [payload()], NOW);
   const a = r.accounts.find((x) => x.asset_id === stAssetId('acc-1'))!;
   expect(a.balance).toBe(50000);                    // authority rule — never recomputed from parts
-  expect(a.cash_balance).toBe(1000);                // 1200 cash − 200 SPAXX (money-market held as sleeve)
-  expect(a.positions).toHaveLength(1);              // SPAXX is NOT a position row (it lives in the sleeve)
+  expect(a.cash_balance).toBe(1000);                // 1200 cash − 200 SPAXX: the broker counts the fund inside its cash figure
+  expect(a.positions!.map((x) => x.ticker)).toEqual(['VTI', 'SPAXX']);   // the fund is a holding (owner, DEC-0051) — it used to be dropped
+  expect(a.positions![1].asset_class).toBe('stock_etf');
   expect(a.positions![0].ticker).toBe('VTI');
   expect(a.positions![0].last_price).toBe(250);
   expect(a.source).toBe('connected');
@@ -184,7 +185,7 @@ describe('audit fixes', () => {
     const mine = first.accounts.map((a) => a.asset_id !== id ? a : { ...a, positions: [...a.positions!, added as any] });
     const next = ingestSync(mine, first.seenKeys, [payload()], NOW);
     const tickers = next.accounts.find((a) => a.asset_id === id)!.positions!.map((p) => p.ticker);
-    expect(tickers).toEqual(['VTI', 'PRIVCO']);
+    expect(tickers).toEqual(['VTI', 'SPAXX', 'PRIVCO']);   // SPAXX: a money-market fund is a holding (2026-10-05)
     // a broker holding that is simply gone is still dropped: sold out, and a stale row would lie
     const soldOut = ingestSync(mine, first.seenKeys, [payload({ positions: [] })], NOW);
     expect(soldOut.accounts.find((a) => a.asset_id === id)!.positions!.map((p) => p.ticker)).toEqual(['PRIVCO']);
@@ -242,9 +243,10 @@ describe('missing broker total (Vanguard class)', () => {
       account: acct({ id: 'acc-vg', institution_name: 'Vanguard', name: 'Vanguard Brokerage', balance: { total: null } }),
     })], NOW);
     const a = r.accounts.find((x) => x.asset_id === stAssetId('acc-vg'))!;
-    // VTI 100 × $250 = 25,000 · + sleeve 1,000 (1200 − 200 SPAXX) + SPAXX 200 in cash math = derived
+    // VTI 100 × $250 = 25,000 · SPAXX 200 × $1 = 200 · uninvested cash 1,000 (the broker's 1,200 less the fund).
+    // It read 26,000 until 2026-10-05: the fund was dropped from the holdings AND taken out of the cash, so it was in neither.
     expect(a.balance).toBeGreaterThan(0);
-    expect(a.balance).toBeCloseTo(25000 + 1000, 0);
+    expect(a.balance).toBeCloseTo(25000 + 200 + 1000, 0);
   });
   test('total reported as ZERO with real positions → derived wins (a $132k account never reads $0)', () => {
     const r = ingestSync([], {}, [payload({

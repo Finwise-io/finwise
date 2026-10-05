@@ -1095,7 +1095,7 @@ const ADD_ACCT_PICKS = [
 ];
 const WRAPPER_OPTS: { key: AddWrapper; label: string }[] = [
   { key: 'taxable', label: 'Taxable' }, { key: '401k', label: '401(k)' },
-  { key: 'trad_ira', label: 'Trad. IRA' }, { key: 'roth', label: 'Roth IRA' }, { key: 'hsa', label: 'HSA' },
+  { key: 'trad_ira', label: 'Trad. IRA' }, { key: 'roth', label: 'Roth IRA' }, { key: 'roth_401k', label: 'Roth 401(k)' }, { key: 'hsa', label: 'HSA' },
 ];
 const RET_OPTS: { key: AddWrapper; label: string }[] = WRAPPER_OPTS.filter((w) => w.key !== 'taxable');
 const CASH_OPTS = ['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt', 'foreign_currency'];

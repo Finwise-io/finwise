@@ -12,7 +12,7 @@ import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a f
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 import { periodReturnSince, buildPerformance, startDateFor, type Period, type Position } from '../domain/performance';
-import { historyCoverage, assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
+import { historyCoverage, assetClassOf, taxWordsOf, holdingClassOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
 import { windowStartKey, thePerformance, categoryEarnings, pricedGainOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
@@ -26,11 +26,6 @@ import TopBar from '../components/TopBar';
 // Performance screen calls, so an account's figures and the portfolio's can never disagree.
 import { valueOn } from '../../Calculation Module code/engines/snapshots';
 
-const TAX_WORDS: Record<string, string> = {
-  taxable: 'taxable',
-  tax_deferred: 'pre-tax — taxed when it comes out',
-  tax_free: 'tax-free (Roth)',
-};
 import { isoLocalDate as iso, dateShown } from '../domain/_shared/dates';
 
 type ActionType = 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'DIVIDEND' | 'INTEREST' | 'COUPON';
@@ -136,7 +131,9 @@ export default function AccountPortfolioScreen() {
   // account holds. The question is asked once now, and both findings it carries (an untickered
   // record names no holding; a hand-entered lump has no inside) live in the door, not in a screen.
   const answer = theAccount({ account, transactions: (store.transactions ?? []) as any[] });
-  const breakdown = accountClassBreakdown(account);
+  // what is inside, holding by holding, is drawn for a LINKED account: its holdings carry the broker's
+  // prices. An account built by hand keeps its page as it was (its prices are looked up, not stored).
+  const breakdown = account.source === 'connected' ? accountClassBreakdown(account) : null;
   const breakdownClasses = breakdown ? (Object.keys(breakdown) as (keyof typeof breakdown)[]).filter((k) => breakdown[k] !== 0) : [];
   const ledger = ((store.transactions ?? []) as any[]).filter((t) => t.account_id === account.asset_id);
   const incomeOf = (rw: any): string => {
@@ -176,7 +173,6 @@ export default function AccountPortfolioScreen() {
       windowStart: start,
       windowLabel: p === 'SINCE' ? (dataStart ? `since ${dateShown(dataStart)}` : 'since today') : (PHRASE[p] ?? 'this window'),
       today: todayKey,
-      ending: account.balance || 0,
       pricedGain: pricedGainOf(priced as any),
       transactions: ledger,
       snapshotDays: days,
@@ -226,7 +222,7 @@ export default function AccountPortfolioScreen() {
     ...((account.positions ?? []) as any[]).map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
       const value = p.last_price != null ? Math.round(sh * p.last_price * 100) / 100 : 0;
-      const cls2 = p.asset_class === 'bond' ? 'bonds' : p.asset_class === 'other' ? 'alternatives' : p.asset_class === 'cash' ? 'cash' : 'stocks_etf';
+      const cls2 = holdingClassOf(p);   // the one test — the same one the class figure above these rows was split by
       return {
         key: p.position_id ?? p.ticker,
         posId: p.position_id,
@@ -488,7 +484,7 @@ export default function AccountPortfolioScreen() {
       {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called what it
           is — "Mixed holdings" — and its tax treatment is said beside it. v17 frame 2 is drawn for the
           portfolio, where there is no one treatment to name; on one account the line keeps its home. */}
-      <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
+      <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {taxWordsOf(account)}</Text>
 
       {/* ── WHAT EACH CATEGORY EARNED ──────────────────────────────────────────────────────── */}
       {cats.length > 0 && (
@@ -556,7 +552,9 @@ export default function AccountPortfolioScreen() {
             <Text style={[s.colHdr, s.colValW]}>MARKET VALUE</Text>
             <Text style={[s.colHdr, s.colRetW]}>RETURN</Text>
           </View>
-          {(['stocks_etf', 'bonds', 'cash', 'alternatives'] as const).map((k) => {
+          {/* the four classes the drawing shows, always; and Unclassified only when this account holds
+              something nobody has classed yet — it is counted there on Net worth, so it is listed there here */}
+          {([...(['stocks_etf', 'bonds', 'cash', 'alternatives'] as const), ...(insideRows.some((rw: any) => rw.cls === 'mixed') ? (['mixed'] as const) : [])]).map((k) => {
             const inClass = insideRows.filter((rw: any) => rw.cls === k);
             const total = inClass.reduce((t: number, rw: any) => t + (rw.value || 0), 0);
             return (
