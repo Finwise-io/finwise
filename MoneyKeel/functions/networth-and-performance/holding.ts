@@ -240,7 +240,7 @@ export const HOLDING_FIGURES = declareFigures({
   },
   'MK-NW-M-060': {
     label: 'up', unit: 'money-cents', screens: ['/holding-detail'], grain: 'one holding',
-    answers: 'What this holding moved since the previous close, in money.',
+    answers: 'How much ONE SHARE of this holding moved since the previous close, in money — it sits under the price of one share.',
     formula: 'the last close \u2212 the close before it',
     inputs: ['MK-XS-I-006 price fetched at'],
     decisions: [
@@ -376,7 +376,7 @@ export const HOLDING_FIGURES = declareFigures({
     },
   },
   'MK-NW-M-037': {
-    label: 'Gain — short-term (under 1 yr)', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
+    label: 'Gain — short-term (held 1 yr or less)', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
     answers: 'The gain on shares held under a year — the part taxed as ordinary income.',
     formula: 'for each lot bought within the year: shares × (today’s price − what you paid)',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],

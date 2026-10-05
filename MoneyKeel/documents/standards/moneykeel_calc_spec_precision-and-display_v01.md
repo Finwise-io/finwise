@@ -90,8 +90,8 @@ day, so there is no figure across that day.
 **Status on 2026-10-04: BUILT AND TESTED.** One function works out every return
 (`Calculation Module code/engines/time-weighted-return.ts`). MK-NW-O-008 thePerformance (Performance,
 each account's page, Home) and MK-NW-O-003 theNetWorth (return on cash + investments) both ask it. The
-Modified Dietz function, the money-weighted rate and the balance change are called by nothing;
-`src/__tests__/guard_every_return_is_time_weighted.test.ts` fails the build if one is called again.
+Modified Dietz function, the money-weighted rate and the balance change were removed from the code the
+same day; `src/__tests__/guard_every_return_is_time_weighted.test.ts` fails the build if one comes back.
 Source of the decision: `MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_note_to_claude_code_TWR.md`.
 
 

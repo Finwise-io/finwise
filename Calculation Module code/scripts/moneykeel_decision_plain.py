@@ -35,6 +35,8 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ '#1 - remove langage to include interest on mortgage in maintenance expenses, as that is not standard practice.':
+  "On the Rent from a property screen, the hint for what the property costs to run no longer lists mortgage interest. It reads: Tax, insurance, repairs, management. A mortgage on the property belongs in Debts, where its whole payment is counted once.",
  'add it to the cash as losing job does not mean loosing rental income too.':
   "The emergency fund counts rent from a property you own, because it keeps arriving when your pay stops. Each month the rent is added to your cash, so the months are your cash divided by a month of essentials less the rent.",
  'All return should be True Weighted Return and not Dietz return.':

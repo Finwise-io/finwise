@@ -25,7 +25,7 @@ import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../../Calculation Module code/engines/window-return';
-import { valueOn, covers as snapshotCovers, buildDayFromAccounts, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
+import { valueOn, covers as snapshotCovers, buildDayFromAccounts, accountValuesOn, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
 import { timeWeightedReturn, movementsOf, type TimeWeightedVerdict } from '../../../Calculation Module code/engines/time-weighted-return';
 import { dateShown } from '../../../src/domain/_shared/dates';
 
@@ -299,20 +299,18 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  * Answers ..... How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return?
  *
  * Formula .....
- *     flows = personal flow totals(ledger)
- *     contributions = flows.contributions.to number(2)
- *     withdrawals = flows.withdrawals.to number(2)
- *     dividends = flows.dividends.to number(2)
- *     interest = flows.interest.to number(2)
  *     bounds = window bounds(window start, today)   if window start
  *     nothing   otherwise
  *     days = input.snapshot days (or none when missing)
- *     priced gain = 0   if window start = today
- *     input.priced gain   otherwise
- *     beginning = measured (or ending − priced gain − contributions + withdrawals when missing)
- *     years = bounds.days ÷ 365   if bounds
- *     0   otherwise
- *     moved = movements of(theirs, input.investment account ids)
+ *     joined = new map<string, { date: string; value: number }>()
+ *     seen = new set<string>()
+ *     j = joined.get(string(account id ?? ''))
+ *     the answer = the first 10) ≤ date of not (j and string(date ?? '')
+ *     flows = personal flow totals(counted)
+ *     transferred in = 0, transferred out = 0
+ *     net = Σ over movements of([t], input.investment account ids).flows of (amount)
+ *     joined value = Σ over [...joined.values()] of (value)
+ *     contributions = flows.contributions.to number(2) + transferred in + joined value
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
@@ -379,12 +377,6 @@ export function thePerformance(input: {
     || (t?.counter_account_id != null && input.investmentAccountIds.has(String(t.counter_account_id))));
   const ledger = theirs.filter(
     (t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
-  const flows = personalFlowTotals(ledger);
-  const contributions = flows.contributions.toNumber(2);
-  const withdrawals = flows.withdrawals.toNumber(2);
-  const dividends = flows.dividends.toNumber(2);
-  const interest = flows.interest.toNumber(2);
-
   const bounds = windowStart ? windowBounds(windowStart, today) : null;
   const days = input.snapshotDays ?? [];
   // READ, never back-filled (B-98)
@@ -392,6 +384,52 @@ export function thePerformance(input: {
   // otherwise read EVERY account — the home and the bank balance included)
   const measured = bounds && input.investmentAccountIds.size > 0 && snapshotCovers(days, bounds.beginningAsOf)
     ? valueOn(days, input.investmentAccountIds, bounds.beginningAsOf) : null;
+  // today's values, read the way every recorded day was read. A caller that hands over no accounts
+  // and no record of today has still said what the investments are worth now (`ending`): that
+  // figure closes the record, on the accounts the latest recorded day holds.
+  const record = input.accounts
+    ? recordDay(days.filter((d: any) => d?.date !== today), buildDayFromAccounts(input.accounts, today, `${today}T00:00:00Z`))
+    : days.some((d: any) => d?.date === today) ? days : closedWith(days, input.investmentAccountIds, today, ending);
+
+  // AN ACCOUNT THAT JOINED THE RECORD INSIDE THE WINDOW ARRIVED AS MONEY PUT IN — at its first recorded
+  // value. The beginning does not hold it and the ending does, so until 2026-10-04 its whole value
+  // landed in "change in investment value": adding an account by hand read as a gain. The return
+  // already treats it as money in; the walk now says the same thing in dollars. Its own records up
+  // to that day are inside that value, so they are not counted a second time.
+  const joined = new Map<string, { date: string; value: number }>();
+  if (bounds && measured != null) {
+    const seen = new Set<string>();
+    for (const d of [...record].sort((x: any, y: any) => String(x.date).localeCompare(String(y.date)))) {
+      if (String(d.date) > today) break;
+      for (const [id, value] of accountValuesOn(d, (x) => input.investmentAccountIds.has(x))) {
+        if (seen.has(id)) continue;
+        seen.add(id);
+        if (String(d.date) > bounds.beginningAsOf) joined.set(id, { date: String(d.date), value });
+      }
+    }
+  }
+  const counted = ledger.filter((t: any) => {
+    const j = joined.get(String(t?.account_id ?? ''));
+    return !(j && String(t?.date ?? '').slice(0, 10) <= j.date);
+  });
+  const flows = personalFlowTotals(counted);
+  // CASH OR SHARES TRANSFERRED IN FROM OUTSIDE ARE MONEY PUT IN, and transferred out are money taken
+  // out — the return counts them so, and the walk left them in "change in investment value". A
+  // transfer between two of the measured accounts is neither.
+  let transferredIn = 0, transferredOut = 0;
+  for (const t of counted as any[]) {
+    if (t?.type !== 'TRANSFER' && t?.type !== 'TRANSFER_IN_KIND') continue;
+    // the one rule for what a transfer moved (the return reads the same function): cash at its
+    // amount, shares at what they were worth — and nothing where the record does not say
+    const net = movementsOf([t], input.investmentAccountIds).flows.reduce((sum, f) => sum + f.amount, 0);
+    if (net > 0) transferredIn += net; else transferredOut -= net;
+  }
+  const joinedValue = [...joined.values()].reduce((t, j) => t + j.value, 0);
+  const contributions = flows.contributions.toNumber(2) + transferredIn + joinedValue;
+  const withdrawals = flows.withdrawals.toNumber(2) + transferredOut;
+  const dividends = flows.dividends.toNumber(2);
+  const interest = flows.interest.toNumber(2);
+
   // A WINDOW THAT OPENS TODAY has seen no price move: "your value is real, your return starts
   // measuring from today" (Performance v17, phone 4). What the holdings gained before today is not
   // this window's gain, so it is not taken off the beginning.
@@ -415,12 +453,6 @@ export function thePerformance(input: {
   // that day's money moved, so "just before" is that day's value less the movement. Where a piece
   // cannot be measured there is NO figure and a sentence saying why — never another method.
   const moved = movementsOf(theirs, input.investmentAccountIds);
-  // today's values, read the way every recorded day was read. A caller that hands over no accounts
-  // and no record of today has still said what the investments are worth now (`ending`): that
-  // figure closes the record, on the accounts the latest recorded day holds.
-  const record = input.accounts
-    ? recordDay(days.filter((d: any) => d?.date !== today), buildDayFromAccounts(input.accounts, today, `${today}T00:00:00Z`))
-    : days.some((d: any) => d?.date === today) ? days : closedWith(days, input.investmentAccountIds, today, ending);
   const verdict = bounds && measured != null ? timeWeightedReturn({
     days: record, accountIds: input.investmentAccountIds,
     flows: moved.flows, sharesMoved: moved.sharesMoved,
@@ -846,8 +878,8 @@ const BENCH = () => portfolioBenchReturn([
  *  bisection \u2014 is now reached by no screen at all, only by tests. A row for a figure nobody reads is
  *  a wrong row, so the row is gone and the function is left where it is, correct and unused.
  *
- *  SETTLED 2026-10-04 (DEC-1669): the Return the screen shows is TIME-WEIGHTED. Neither the XIRR nor
- *  the Modified Dietz function is called by anything any more; both are still in the files, unused.
+ *  SETTLED 2026-10-04 (DEC-1669): the Return the screen shows is TIME-WEIGHTED. The XIRR and the
+ *  Modified Dietz function were both removed the same day.
  */
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */

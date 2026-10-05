@@ -11,7 +11,8 @@ import { toLedgerRow, totalOf, unclassified, personalFlowTotals, importKey, type
 import { classifyHoldingClass, type HoldingClass } from '../engines/holding-class';
 import { reconcileAccountTotal, reconcileLedgerIdentity } from '../engines/reconcile';
 import { rmdStartAge, rmdDivisor } from '../engines/rmd';
-import { windowBounds, modifiedDietzOverWindow, type ExternalFlow } from '../engines/window-return';
+import { windowBounds } from '../engines/window-return';
+import { timeWeightedReturn } from '../engines/time-weighted-return';
 import { fullRetirementAge, fraLabel, ssClaimFactorFor, ssBenefitAt, ssLifetimeTotal } from '../../src/domain/retirement/ssTiming';
 import { taxOwedFor, taxableIncomeFor, deductionFor, effectiveRateOnGrossFor, marginalBracketFor, ltcgRateFor, TAX_YEAR, type FilingStatus } from '../../src/domain/income/tax';
 import { capGains, type Position } from '../../src/domain/performance';
@@ -311,31 +312,38 @@ export const CARDS: Card[] = [
 
   {
     id: 'return', title: 'The return on your money, or an honest refusal',
-    engine: 'MONEY_WEIGHTED_RETURN (D3 window rules · D4 thresholds)',
-    what: 'Modified Dietz: each flow weighted by how long it was at work. Both boundary days inside the window; the beginning is the close of the day before. When timing would drive the answer, the rate REFUSES and says why — the dollar walk is the honest figure then.',
+    engine: 'TIME_WEIGHTED_RETURN (owner decision 2026-10-04: every return is time-weighted)',
+    what: 'Time-weighted: the window is split at every day money moved in or out; each piece is the value just before the next movement ÷ the value just after the last; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken AFTER that day\'s money moved, so each line below gives the value at the close of the day the money moved. With no value for that day the return REFUSES and says why — it never falls back to another method.',
     fields: [
-      { key: 'beginning', label: 'Beginning value (close of the day before the start)', type: 'number', default: 100000 },
-      { key: 'ending', label: 'Ending value', type: 'number', default: 104500 },
-      { key: 'start', label: 'Window start (YYYY-MM-DD)', type: 'text', default: '2026-07-01' },
-      { key: 'end', label: 'Window end', type: 'text', default: '2026-07-31' },
-      { key: 'flows', label: 'External flows — one per line: date | amount (+ in, − out; date blank if unknown)', type: 'textarea', wide: true, default: '2026-07-10 | 500' },
+      { key: 'beginning', label: 'Beginning value (close of the day before the start)', type: 'number', default: 200000 },
+      { key: 'ending', label: 'Ending value', type: 'number', default: 284630 },
+      { key: 'start', label: 'Window start (YYYY-MM-DD)', type: 'text', default: '2025-10-05' },
+      { key: 'end', label: 'Window end', type: 'text', default: '2026-10-04' },
+      { key: 'flows', label: 'Money moved — one per line: date | amount (+ in, − out) | value at the close of that day (leave blank if not recorded)', type: 'textarea', wide: true, default: '2026-04-15 | 60000 | 272400' },
     ],
     compute(v) {
-      const flows: ExternalFlow[] = String(v.flows ?? '').split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
-        const p = l.split('|').map((s) => s.trim());
-        const hasDate = /^\d{4}-\d{2}-\d{2}$/.test(p[0]);
-        return { date: hasDate ? p[0] : null, amount: Dec.parse(hasDate ? p[1] : p[0]) ?? Dec.ZERO };
-      });
       const w = windowBounds(v.start, v.end);
-      const r = modifiedDietzOverWindow({ beginning: Dec.parse(v.beginning) ?? Dec.ZERO, ending: Dec.parse(v.ending) ?? Dec.ZERO, flows, start: v.start, end: v.end });
-      const out: ResultRow[] = [
+      const ONE = 'the-account';
+      const day = (date: string, value: number) => ({ date, origin: 'observed' as const, writtenAt: date, holdings: [],
+        accounts: [{ date, accountId: ONE, cash: 0, statedTotal: null, typedValue: value, currency: 'USD' }] });
+      const lines = String(v.flows ?? '').split('\n').map((l) => l.trim()).filter(Boolean).map((l) => l.split('|').map((x) => x.trim()));
+      const flows = lines.map((p) => ({ date: /^\d{4}-\d{2}-\d{2}$/.test(p[0]) ? p[0] : '', accountId: ONE, amount: Number(p[1]) || 0 }));
+      const days = [day(w.beginningAsOf, Number(v.beginning) || 0),
+        ...lines.filter((p) => /^\d{4}-\d{2}-\d{2}$/.test(p[0]) && p[2] !== undefined && p[2] !== '' && p[0] !== v.end).map((p) => day(p[0], Number(p[2]) || 0)),
+        day(v.end, Number(v.ending) || 0)];
+      const r = timeWeightedReturn({ days, accountIds: new Set([ONE]), flows, start: w.beginningAsOf, end: v.end });
+      const why: Record<string, string> = {
+        START_NOT_RECORDED: 'no value is recorded for the start', END_NOT_RECORDED: 'no value is recorded for the end',
+        MOVEMENT_HAS_NO_DATE: 'a movement has no date', MOVEMENT_DAY_NOT_RECORDED: `money moved on ${r.day ?? ''} and no value is recorded for that day`,
+        SHARES_MOVED: 'shares were moved in or out', VALUE_BELOW_MONEY_ADDED: `the value on ${r.day ?? ''} is less than the money added that day`,
+        NOTHING_INVESTED: 'nothing was invested',
+      };
+      return [
         { label: 'Window', value: `${w.days} days, beginning measured at the close of ${w.beginningAsOf}` },
         r.rate == null
-          ? { label: 'Return', value: 'REFUSED — ' + (r.refused ?? ''), note: r.sentence, bad: true }
-          : { label: 'Return', value: pctTxt(r.rate, 2), note: r.sentence, good: true },
-      ];
-      if (r.band) out.push({ label: 'Timing sensitivity', value: `${pctTxt(r.band.allAtStart, 2)} if every flow were at the start · ${pctTxt(r.band.allAtEnd, 2)} if at the end`, note: `band width ${pctTxt(r.band.width, 2)} — refused when it exceeds 20% of the figure or 1 point, whichever is tighter` });
-      return out;
+          ? { label: 'Return', value: 'REFUSED — ' + (r.refused ?? ''), note: why[r.refused ?? ''] ?? '', bad: true }
+          : { label: 'Return', value: pctTxt(r.rate, 2), note: 'Time-weighted: money added is never counted as earned.', good: true },
+      ] as ResultRow[];
     },
   },
 

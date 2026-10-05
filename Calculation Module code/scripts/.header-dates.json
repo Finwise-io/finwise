@@ -737,5 +737,6 @@
 "Calculation Module code/engines/time-weighted-return.ts::isDay": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/performance.ts::closedWith": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/performance.ts::whyNoReturn": "not in git yet|\u2014",
-"Calculation Module code/engines/snapshots.ts::accountValuesOn": "not in git yet|\u2014"
+"Calculation Module code/engines/snapshots.ts::accountValuesOn": "not in git yet|\u2014",
+"Calculation Module code/engines/rebuild-history.ts::fillBetweenObservations": "2026-10-04|3345e43"
 }

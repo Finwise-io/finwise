@@ -1,0 +1,1434 @@
+# Brief — check the formula, then write the test cases, from outside
+
+MoneyKeel · calculation audit · v04 · 2026-10-04
+
+## What this is
+
+MoneyKeel is a personal-finance app. Every number it shows comes from a small function, and groups of
+functions are run by an **orchestrator** — the one function a screen asks for a whole answer (for
+example, "how are my investments doing").
+
+Those functions already have tests, and the tests pass. Five of the functions were still wrong. The
+reason: the person who wrote each function also wrote its test, from the same understanding. A wrong
+rule produced a wrong example that agreed with it.
+
+**You are the outside judge. You have two jobs for every function:**
+
+1. **Check the formula.** Each function comes with its formula written out in words. Decide whether
+   that is the right way to get the answer the function is for.
+2. **Write five test cases**, with the answer worked out by hand.
+
+Afterwards a script runs every one of your cases against the app. The owner is then shown, side by
+side: your answer, the answer of a second model working separately, and the app's answer.
+
+## The one rule that matters
+
+**You are not shown the code inside any function, the existing tests, or any answer the app gives. Do
+not ask for them.**
+
+If you saw them you would start to agree with them. Work from what a function is *for*, its formula
+in words, the owner's written decisions, published sources, and ordinary arithmetic and finance.
+
+You are also working alone. Do not try to guess what the other model will write.
+
+## What you are given
+
+Below this brief is a batch of **cards**, one for each function or orchestrator. A card holds:
+
+| Field | What it is |
+|---|---|
+| `id`, `name` | Its identifier and name. Quote the `id` exactly in everything you write. |
+| `kind` | `orchestrator` or `function`. |
+| `what_it_is_for` | The question it answers, in one sentence. |
+| `formula_in_words` | **How it gets its answer — every step and every number.** Written by the in-house author from the function as it stands today. This is the thing you are judging. |
+| `handed` | What it is given, as the code names it. Type names are the app's own; they are spelled out once, above the cards. |
+| `inputs_it_reads` | The registered inputs behind it, each with a plain name. |
+| `figures_it_feeds` | The numbers on screen it produces: the words beside each, its unit, what it answers, and when it must refuse to give a number. |
+| `rules` | Rules it must follow, each marked with **who said it**. |
+| `approved_drawing` | On a few orchestrators: a worked household the owner approved, with numbers that add up. |
+
+A formula often names another function in brackets, for example `(perMonth)`. When that function's
+card is not in your batch, its formula is printed under **Formulas these cards lean on**, after the
+cards. Use it to work your answers. You are not asked to judge or test those.
+
+Batches for Cash flow also carry **the published amounts the app uses** — tax bands, deductions,
+contribution limits. Check them against their published source.
+
+### Who said a rule — read this before you use one
+
+- `"said_by": "owner"` — the owner's decision, in his own words, with its number and date. **Settled.**
+  A formula that goes against an owner rule is wrong.
+- `"said_by": "author"` — the in-house author's record. **A claim, not a fact.**
+
+`formula_in_words`, the comments inside `handed`, and the comments inside the types are all the
+author's. Treat every one as a claim to be checked.
+
+## Job 1 — check the formula
+
+For every card, read `what_it_is_for`, then `formula_in_words`, and give one verdict:
+
+| Verdict | When |
+|---|---|
+| `RIGHT` | The formula is a correct way to get what the function is for, and it covers the cases it needs to. |
+| `WRONG` | The formula gives a wrong answer for some input a real household could have. Say which input, and what the answer should be. |
+| `INCOMPLETE` | The formula is right as far as it goes but is silent, or vague, on a case that changes the answer. Say which case. |
+| `CANNOT TELL` | The card does not say enough about what the function is for to judge. Say what is missing. |
+
+Judge it against, in this order:
+
+1. **The owner's rules** on the card, and the **approved drawing** where there is one.
+   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
+2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
+   source and the year. A wrong amount is a `WRONG` formula.
+3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
+   method (for example, the time-weighted return; the standard loan-payment formula).
+4. **Ordinary arithmetic, and whether it agrees with itself.**
+
+Look hard for these, because they are the shapes the five known errors took:
+
+- A rule applied to money it should not touch — for example a payslip rate applied to rent.
+- Two formulas that describe the same thing differently — for example one function counting an hourly
+  worker's year one way and another counting it a different way. Name both cards.
+- A line on the wrong side — "above 60%" where "60% or more" is meant; "after one year" where "one
+  year or more" is meant.
+- A yearly rate made from a period of a year or less, or a period total shown for a longer one.
+- A percent given when the starting value was never really known.
+- Something missing counted as zero, or a default number invented where the honest answer is "no
+  answer".
+- Parts that do not add up to the whole they are shown beside.
+- A number rounded before the end.
+
+For `WRONG` and `INCOMPLETE`, write **what the formula should be**, in words, and what you rest that
+on. Give a `severity`: `high` when a household would see a wrong number, `medium` when it happens only
+in an unusual case, `low` when it changes no number a person sees.
+
+Many cards are small — they tidy a word, pick a label, copy a record. Judge those too; one line is
+enough.
+
+## Job 2 — write five test cases
+
+**Five cases for every card: two easy, two complex, one edge.**
+
+| Kind | What it is |
+|---|---|
+| **Easy** (2) | One thing happening. Round numbers. A person can check the answer in their head in under a minute. The two must test different things, not the same thing with different numbers. |
+| **Complex** (2) | At least three inputs that all change the answer, with unround, lifelike amounts and dates. Things interacting the way they do in a real household: two earners and rent and a bonus; money added halfway through a period; one account linked and one entered by hand. |
+| **Edge** (1) | The place where the formula changes, or where something is missing. Zero. Nothing entered. A negative. A date exactly on a boundary. An amount exactly at a threshold. A record that starts after the period asked about. |
+
+A small function still gets five. For one that only answers yes or no, or tidies a word, "complex"
+means the awkward inputs: mixed capitals, stray spaces, a value on each side of the line.
+
+### Go where the mistakes were
+
+Across your cases for a batch, make sure these shapes appear wherever a card's inputs allow them:
+
+1. Rent, or interest and dividends, **together with** a wage whose take-home the person typed in.
+2. A holding described the way a broker link describes it, not the way a person types it.
+3. An account holding **cash as well as** investments.
+4. A period that reaches back **further than the record does**.
+5. A period of **exactly** one year, and exactly two years, to the day.
+6. Money added or taken out **inside** the period, large against what was already there.
+7. Two people in the household, earning differently.
+8. A debt paid this month, a debt not yet paid, and a debt with no payment required.
+9. Nothing entered at all.
+
+### How to work out the expected answer
+
+1. **By hand, showing every step.** A reader must be able to follow your arithmetic line by line
+   without trusting you.
+2. **`expected` is the answer you believe is RIGHT.** Where you judged the formula `RIGHT`, that is
+   the formula's answer. Where you judged it `WRONG` or `INCOMPLETE`, at least one of your five cases
+   must be one where the two differ — and that case carries both: `expected` (the right answer) and
+   `formula_gives` (what the formula as written produces). Leave `formula_gives` out when the two are
+   the same.
+3. **Keep full precision until the end.** Then give two values: the exact one (at least four decimal
+   places) and the one a person would see — whole dollars for totals and balances, two decimals for
+   prices, expenses and percentages.
+4. **"No answer" is a valid answer.** Where an input is missing or the formula cannot honestly produce
+   a number, the right result is a refusal — the app shows a dash and says why. Write
+   `"expected": "REFUSES"` and the reason. Never invent a default number.
+5. **Some functions cannot be worked by hand** — a simulation of a thousand futures, a search for a
+   rate. Test what can be: when it must refuse, what it gives at zero, which of two inputs must give
+   the larger answer. Say so in `notes`.
+6. **If the card does not settle the answer, do not guess.** Mark the case `RULE UNCLEAR`, write each
+   reading you can see, and give the answer under each.
+7. **If you cannot tell what a function is for, do not write cases for it.** List it under
+   `could_not_test` with what is missing from the card.
+8. **Say what the answer rests on**: the formula in words, an owner decision number, the approved
+   drawing, or the published table and its year.
+
+### Orchestrators — two more things to check
+
+An orchestrator's answer has parts. For each orchestrator, at least one complex case must state, as
+separate expected values:
+
+- **The parts add up to the whole.** If the answer is a list of rows and a total, give each row and
+  the total, and show that they sum.
+- **The same input gives the same number everywhere it is used.** Where `figures_it_feeds` shows a
+  figure on more than one screen, say so in the case, so the two can be compared.
+
+Where a card carries an `approved_drawing`, one of your cases must be that household exactly as
+drawn. Your other four must be your own.
+
+## What to send back
+
+One JSON reply for the batch, exactly in this shape and nothing outside it. Use your own plain names
+for inputs; do not invent code names. They will be mapped onto the app afterwards, and **your numbers
+will not be changed in the mapping** — a case that cannot be mapped goes back to the owner, not into
+a drawer.
+
+The first formula check below is an invented example of the shape, not a real card.
+
+```json
+{
+  "batch": "cashflow 01",
+  "written_by": "claude | gemini",
+  "formula_checks": [
+    {
+      "id": "MK-XX-F-000",
+      "name": "exampleOnly",
+      "verdict": "WRONG",
+      "why": "For pay every two weeks the formula divides the yearly amount by 52. There are 26 such pay days in a year, so each one comes out at half its real size.",
+      "should_be": "Pay every two weeks = the yearly amount ÷ 26.",
+      "rests_on": "Ordinary arithmetic: 52 weeks ÷ 2.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-O-004",
+      "name": "incomeSummary",
+      "verdict": "RIGHT",
+      "why": "The rows shown are the rows added, and a typed take-home is used as typed.",
+      "should_be": "",
+      "rests_on": "Approved drawing income-end-to-end v07, frame 16.",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-CF-O-004",
+      "name": "incomeSummary",
+      "kind": "complex",
+      "title": "Two earners who typed in their take-home, with rent and reinvested dividends",
+      "given": "Earner 1 enters take-home $5,000/month. Earner 2 enters take-home $3,300/month. Rent received $1,800/month; running costs $600/month. Dividends $3,000/year, left where they are earned.",
+      "inputs": {
+        "earner_1_take_home_monthly": 5000,
+        "earner_2_take_home_monthly": 3300,
+        "rent_received_monthly": 1800,
+        "rent_running_costs_monthly": 600,
+        "dividends_yearly": 3000,
+        "dividends_paid_to_bank": false
+      },
+      "expected": {
+        "take_home_usual_month": { "exact": 9500.0000, "shown": "$9,500" },
+        "rows": [
+          { "label": "Earner 1 pay", "exact": 5000.0000 },
+          { "label": "Earner 2 pay", "exact": 3300.0000 },
+          { "label": "Rent after running costs", "exact": 1200.0000 }
+        ]
+      },
+      "working": [
+        "Rent after running costs = 1,800 - 600 = 1,200",
+        "Dividends are left where they are earned, so they do not reach the bank: 0 in the month",
+        "Take-home in a usual month = 5,000 + 3,300 + 1,200 = 9,500",
+        "Check: the three rows sum to the total, 9,500"
+      ],
+      "rests_on": "Approved drawing income-end-to-end v07, frame 16; its rule 5: the take-home someone enters IS the take-home",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "could_not_test": [
+    { "id": "MK-XX-F-000", "missing": "What is missing from the card." }
+  ]
+}
+```
+
+`verdict` is one of `RIGHT`, `WRONG`, `INCOMPLETE`, `CANNOT TELL`. `kind` is one of `easy`,
+`complex`, `edge`. `confidence` is `high`, `medium` or `low`; anything below `high` needs a sentence
+in `notes` saying why.
+
+## Before you send
+
+- One formula check for every card in the batch.
+- Five cases for every card you could test — two easy, two complex, one edge — and every other card
+  listed under `could_not_test`.
+- Every card judged `WRONG` or `INCOMPLETE` has a case that shows the difference, with `formula_gives`.
+- Everything quotes its card's `id` exactly.
+- Every case shows its working, and the working reaches the expected value.
+- Every list of rows sums to its total.
+- No two cases for one card are the same case with different numbers.
+- No answer was taken from, or adjusted towards, anything the app produces.
+
+---
+
+# The cards — batch "changed since sent 03"
+
+4 cards, so 4 formula checks and 20 cases. Put `"batch": "changed since sent 03"` in your reply.
+
+These functions were corrected after their cards first went out. The formula below is the one in the app now; judge and test it as you would any other.
+
+## The published 2026 amounts the app uses
+
+Read from the app. **Check each against its published source and say so in `formula_checks` when one is wrong.**
+
+**Federal income tax, 2026 — each slice of taxable income at its own rate.** Taxable income = income − the deduction.
+
+| Filing status | Standard deduction | Added for each person 65 or over | Bands: up to … at … |
+|---|---|---|---|
+| Single | $16,100 | $2,050 | $12,400 at 10% · $50,400 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $640,600 at 35% · above that at 37% |
+| Married filing jointly | $32,200 | $1,650 | $24,800 at 10% · $100,800 at 12% · $211,400 at 22% · $403,550 at 24% · $512,450 at 32% · $768,700 at 35% · above that at 37% |
+| Married filing separately | $16,100 | $1,650 | $12,400 at 10% · $50,400 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $384,350 at 35% · above that at 37% |
+| Head of household | $24,150 | $2,050 | $17,700 at 10% · $67,450 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $640,600 at 35% · above that at 37% |
+
+**Senior deduction, tax years 2025 to 2028:** $6,000 for each person 65 or over, less 6% of income above $75,000 (single, head of household) or $150,000 (married filing jointly). Not given when married filing separately.
+
+**Long-term capital gains, 2026** — 0% up to the first amount of taxable income, 15% up to the second, 20% above: Single $49,450 and $545,500 · Married filing jointly $98,900 and $613,700 · Married filing separately $49,450 and $306,850 · Head of household $66,200 and $579,600.
+
+**Contribution limits, 2026:** 401(k) $24,500, plus $8,000 at 50 or over, or plus $11,250 instead at ages 60 to 63. IRA $7,500, plus $1,100 at 50 or over. HSA $4,400 self-only or $8,750 family, plus $1,000 at 55 or over.
+
+**Social Security and Medicare, 2026:** 6.2% of wages up to $184,500; 1.45% of all wages; 0.9% more on wages above $200,000.
+
+## The app's own types these cards name
+
+What each is made of. The comments inside are the in-house author's.
+
+```ts
+export interface Bonds {
+  count: number;
+  totalValue: number;
+  totalFace: number;
+  couponPerYear: number;
+  avgYield: number | null;
+  /** The bonds the average yield leaves out, by name: the ones with no value today. A screen that
+   *  shows the average names them, so nobody reads it as an average of every bond listed. */
+  leftOutOfAverage: string[];
+  /** The soonest maturity date among them, so the screen need not sort for itself. */
+  nextMaturity: string | null;
+  rows: BondRow[];
+  /** Present only when an account was named. */
+  one: OneBond | null;
+}
+
+export interface BondsInput {
+  accounts: AssetAccount[];
+  /** The account whose own page is open, when one is. */
+  accountId?: string;
+  today?: Date;
+}
+
+export interface EmergencyFund {
+  /** The money that could actually be spent this month. */
+  cash: number;
+  /** What you must keep paying on your debts each month — the minimums. You cannot stop paying a car
+   *  loan or a card because your income stopped, so this belongs in BOTH figures below. */
+  debtMinimums: number;
+  /** The whole month, at the life you plan to live: everything you budget, plus the debt minimums. */
+  plannedSpendMonthly: number;
+  /** The same, cut back to what you could not stop: essentials plus the debt minimums. */
+  monthsCoveredAtPlannedSpend: number | null;
+  /** What a month of essentials costs — ONE figure, on all three screens. */
+  essentialsMonthly: number;
+  /** Where that figure came from, in the words the screen shows ("4 month average"). */
+  essentialsBasis: string;
+  /** RENT FROM A PROPERTY, a month — the Income summary's own Rent row, so the two screens can never
+   *  show two figures for it. It keeps arriving when pay stops (founder, 2026-10-04), so each month
+   *  it is added to the cash before the month is paid for. 0 with no rental. */
+  rentalIncomeMonthly: number;
+  /** What the cash itself must find each month: essentials less that rent, never below zero. */
+  fromCashMonthly: number;
+  /** True when the rent alone pays for the month, so the cash is not drawn on and no count of
+   *  months exists to state. */
+  rentCoversEssentials: boolean;
+  /** How many months the cash covers. Null when there is no essentials figure to divide by, and
+   *  null when the rent covers the month by itself. */
+  monthsCovered: number | null;
+  /** What a target of N months costs, and how far off it is. */
+  targetFor: (months: number) => { target: number; gap: number } | null;
+  /** A sudden hit: what is left, and how long that would then last. */
+  afterAShock: (shock: number) => { cashAfter: number; monthsAfter: number | null; coversIt: boolean };
+  /** WHEN THE TWO MORTGAGE FIGURES DISAGREE (founder, 2026-09-29: "Yes, ask User to correct, if not
+   *  input from user, use the budget."). A mortgage can be entered twice — as the Rent / Mortgage
+   *  budget line and as a Mortgage debt — and the door uses the BUDGET figure so the home is not
+   *  counted twice. Where the two differ, that choice quietly costs the person the difference: he
+   *  budgets $2,300 for a mortgage that takes $2,400 and both runways read $100/month light.
+   *
+   *  His ruling is that the app SAYS SO and asks them to correct it, and until they answer the budget
+   *  figure stands. So nothing in the arithmetic moves; what changes is that the screen can now tell
+   *  them. Null when there is no disagreement to report. */
+  housingDisagreement: { budgeted: number; owed: number; difference: number } | null;
+}
+
+export interface Transaction {
+  id: EntityId;
+  date: string;              // 'YYYY-MM-DD' — when it happened (user-set)
+  type: TxnType;
+  account_id: EntityId;
+  counter_account_id?: EntityId;  // for TRANSFER / TRANSFER_IN_KIND
+  ticker?: string;
+  position_id?: EntityId;
+  assetClass?: 'stock_etf' | 'bond' | 'other';
+  kind?: string;             // instrument kind (benchmark mapping) for new positions
+  shares?: number;
+  price?: number;            // per share
+  amount?: number;           // cash amount (deposit/withdraw/transfer/dividend-as-cash/fee)
+  reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
+  direction?: 'IN' | 'OUT';  // TRANSFER_IN_KIND from a broker: which way the shares went. The type
+                             // alone does not say, and without it a return cannot be measured
+                             // across the day (stored since 2026-10-04; older rows carry none).
+  note?: string;
+  source?: 'manual' | 'connected';  // F10: only connected-account rows are ever reviewed for a
+                                    // "worth a look" flag — hand-typed entries are NEVER questioned.
+                                    // Absent = manual (every row recorded before F1 sync exists).
+  created_at: string;        // ISO — when it was entered (audit)
+  undo_prev?: AssetAccount[]; // pre-apply copies of the touched accounts — lets a delete reverse
+                              // this row's balance effect exactly (P0: ledger and balances must
+                              // never drift; rows recorded before this field use inverseOf()).
+}
+
+export interface WindowFigures {
+  /** The first day of the window, or null for "since the record began". */
+  windowStart: string | null;
+  /** The records inside the window. */
+  ledger: any[];
+  /** How the beginning became the ending, line by line — the rows always sum to the ending. */
+  walk: ChangeWalk;
+  /** The beginning as READ from the daily record, or null when the record cannot reach back. */
+  measured: number | null;
+  /** Whether the record reaches back to the window's first day. False → every percent here is null. */
+  covered: boolean;
+  /** The day the beginning value is read for — the record's first day for "since". Null on day one. */
+  beginningAsOf: string | null;
+  /** What the window shows: the yearly rate over a year, otherwise the total. Null when it refuses. */
+  ret: number | null;
+  /** The total over the window, and the yearly rate — both, always, so the screen can label them. */
+  cumulative: number | null;
+  perYear: number | null;
+  years: number;
+  /** Why a refusal, in words. Empty when nothing is refused. */
+  sentence: string;
+}
+```
+
+## The cards
+
+```json
+[
+ {
+  "id": "MK-CF-F-139",
+  "name": "removeShares",
+  "kind": "function",
+  "what_it_is_for": "Remove `shares` from a position FIFO (oldest lots first); returns updated account.",
+  "formula_in_words": "Takes the shares out of the holding's purchases oldest purchase date first (a purchase with no date goes last), whatever order they are stored in; a purchase left with nothing is dropped; a holding left with no purchases is removed. Unchanged when the account has no such holding.",
+  "handed": "function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAccount",
+  "inputs_it_reads": [
+   "MK-XS-I-004 holding quantity (shares)",
+   "MK-XS-I-007 purchase price and date (per lot)"
+  ]
+ },
+ {
+  "id": "MK-NW-O-001",
+  "name": "theBonds",
+  "kind": "orchestrator",
+  "what_it_is_for": "What bonds and CDs do I hold, what do they pay, and when do they mature?",
+  "formula_in_words": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures. It also names the bonds the average yield leaves out — those with no value today after accrued interest — so a screen can say which.",
+  "handed": "export function theBonds(input: BondsInput): Bonds",
+  "inputs_it_reads": [
+   "MK-XS-I-001 account balance",
+   "MK-XS-I-002 account type (taxable, pre-tax, Roth)",
+   "MK-XS-I-003 institution name",
+   "MK-XS-I-011 bond face value",
+   "MK-XS-I-012 bond coupon rate",
+   "MK-XS-I-013 bond maturity date",
+   "MK-XS-I-028 assumed return",
+   "MK-XS-I-049 bond price — what the bond is worth today"
+  ],
+  "figures_it_feeds": [
+   {
+    "id": "MK-NW-M-023",
+    "words_on_screen": "Face value",
+    "unit": "money",
+    "what_it_answers": "What this bond pays back on the day it matures.",
+    "when_it_refuses": "Not entered, so nothing is shown.",
+    "shown_on": [
+     "/account-detail"
+    ]
+   },
+   {
+    "id": "MK-NW-M-024",
+    "words_on_screen": "Interest payments",
+    "unit": "words",
+    "what_it_answers": "The rate it pays, and what that comes to in a year.",
+    "when_it_refuses": "No coupon rate entered.",
+    "shown_on": [
+     "/account-detail"
+    ]
+   },
+   {
+    "id": "MK-NW-M-025",
+    "words_on_screen": "Matures",
+    "unit": "words",
+    "what_it_answers": "The day it pays back, and how long that is away.",
+    "when_it_refuses": "No maturity date entered — the yields refuse rather than guess one.",
+    "shown_on": [
+     "/account-detail"
+    ]
+   },
+   {
+    "id": "MK-NW-M-026",
+    "words_on_screen": "Yield if held to maturity",
+    "unit": "percent-2dp",
+    "what_it_answers": "What it earns a year if you hold it to the end, counting the gap between its price and its face value.",
+    "when_it_refuses": "Matured, or no maturity date — it refuses rather than divide by nothing.",
+    "shown_on": [
+     "/account-detail"
+    ]
+   },
+   {
+    "id": "MK-NW-M-027",
+    "words_on_screen": "Yield on today's value",
+    "unit": "percent-2dp",
+    "what_it_answers": "What the interest comes to against what the bond is worth today.",
+    "when_it_refuses": "No value today.",
+    "shown_on": [
+     "/account-detail"
+    ]
+   },
+   {
+    "id": "MK-NW-M-028",
+    "words_on_screen": "Rates rise 1% → value roughly $X–$Y",
+    "unit": "words",
+    "what_it_answers": "Roughly what this bond would be worth if interest rates moved one percent either way.",
+    "when_it_refuses": "Refused for a CD, for a matured bond, and for anything with no coupon or no maturity — and for a CD it says plainly why nothing happens.",
+    "shown_on": [
+     "/account-detail"
+    ]
+   },
+   {
+    "id": "MK-NW-M-041",
+    "words_on_screen": "total value of your bonds",
+    "unit": "money",
+    "what_it_answers": "What every bond and CD you hold is worth today, added up.",
+    "when_it_refuses": "No bonds entered yet, so it says so rather than showing $0.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-042",
+    "words_on_screen": "n bonds · face $X",
+    "unit": "words",
+    "what_it_answers": "How many you hold, and what they pay back at maturity in total.",
+    "when_it_refuses": "Nothing entered yet.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-043",
+    "words_on_screen": "COUPON",
+    "unit": "money",
+    "per": "year",
+    "what_it_answers": "The interest all your bonds pay in a year, in money.",
+    "when_it_refuses": "Nothing entered yet.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-044",
+    "words_on_screen": "AVG YIELD",
+    "unit": "percent-2dp",
+    "what_it_answers": "What your bonds yield on what they are worth today, weighted by value.",
+    "when_it_refuses": "A bond with no price today is left out rather than counted at zero.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-045",
+    "words_on_screen": "each bond — face, coupon, yield",
+    "unit": "words",
+    "what_it_answers": "One line per bond: what it pays back, what it pays you, and what that is worth today.",
+    "when_it_refuses": "A bond fund has no face value or maturity, so it shows none.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-053",
+    "words_on_screen": "face",
+    "unit": "money",
+    "what_it_answers": "The face value of every bond and CD added up — what they pay back at maturity, which is not what they are worth today.",
+    "when_it_refuses": "No bonds entered yet, so no face total either.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-054",
+    "words_on_screen": "one bond’s value",
+    "unit": "money",
+    "what_it_answers": "What this one bond or CD is worth today.",
+    "when_it_refuses": "— the row is not drawn at all when there is no bond.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-055",
+    "words_on_screen": "one bond’s face",
+    "unit": "money",
+    "what_it_answers": "What this one bond pays back at maturity.",
+    "when_it_refuses": "Falls back to the value entered, and the row says face with that figure.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-056",
+    "words_on_screen": "coupon",
+    "unit": "money",
+    "per": "year",
+    "what_it_answers": "What this one bond pays in a year, in cash.",
+    "when_it_refuses": "No coupon rate entered — the figure is left out rather than shown as $0.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-057",
+    "words_on_screen": "yield",
+    "unit": "percent-2dp",
+    "what_it_answers": "What this bond pays in a year as a share of what it is worth today.",
+    "when_it_refuses": "— when there is no coupon rate or no value to divide by.",
+    "shown_on": [
+     "/bonds"
+    ]
+   },
+   {
+    "id": "MK-NW-M-058",
+    "words_on_screen": "Yield to maturity",
+    "unit": "percent-2dp",
+    "what_it_answers": "What this bond would earn a year if held to maturity, counting the gain or loss between what it is worth now and what it pays back.",
+    "when_it_refuses": "— with no maturity date there are no years to spread the difference over.",
+    "shown_on": [
+     "/bonds"
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "said_by": "owner",
+    "decision": "DEC-0108",
+    "date": "2026-08-11",
+    "words": "Update master PRD document. Go to master list of what"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0280",
+    "date": "2026-08-26",
+    "words": "subtract accrued interest when known; say so when not"
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-026",
+    "words": "An approximation, and labelled an estimate on screen."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-028",
+    "words": "An estimate, and it wears the estimate label."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-028",
+    "words": "FOUNDER 2026-09-27: a CD gets no estimate. It is not traded, so its value does not move with rates; the screen says that instead. KEEP — the app does not ask whether a CD is a bank one or a brokered one."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-053",
+    "words": "FACE AND VALUE ARE SHOWN SIDE BY SIDE because they differ, and the difference is the whole point: a bond bought below face pays back more than it is worth today."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-056",
+    "words": "IT IS PAID ON FACE, NOT ON VALUE. A $25,000 bond worth $24,200 still pays 4.5% of $25,000 — computing it on the market value understates the income."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-057",
+    "words": "WHERE ACCRUED INTEREST WAS NOT ENTERED the row says so beneath the figures rather than quietly leaving it in the price (his ruling, DEC-0280)."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-058",
+    "words": "AN ESTIMATE, and the foot of the screen says so in those words."
+   }
+  ]
+ },
+ {
+  "id": "MK-NW-O-004",
+  "name": "theEmergencyFund",
+  "kind": "orchestrator",
+  "what_it_is_for": "How many months of essential expenses would my cash cover?",
+  "formula_in_words": "Cash = all cash (cashTotal), or the amount handed in when one is given. Debt minimums = the required monthly payment of every debt added up, leaving out ONE mortgage — the home's — when the budget already carries an amount for rent or housing: the mortgage whose payment is nearest that budgeted amount. No mortgage is left out when the only property on record is not lived in (a rental, a second home, land), because the housing line is then rent. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. A payment logged against a debt (an expense in the category Debt payment, named for that debt) is left out of that average whenever the debt's required payment is counted in debt minimums, so it is not counted twice; the home's mortgage is the one debt left out of debt minimums, so its logged payments stay in. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Housing disagreement: when housing is budgeted, a mortgage payment exists and the two amounts differ, it gives both and the difference. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A housing disagreement is reported only between the budget line and that one mortgage. A target, and the months left after a shock, are given only when there is an essentials figure.",
+  "handed": "export function theEmergencyFund(input: {\n  accounts: AssetAccount[];\n  expenses: any[];\n  profile: any;\n  /** The debts, so their minimums are counted. Missing means none entered, not none owed. */\n  debts?: Debt[];\n  /** Stress test lets a person TRY a cash figure of their own. It is seeded from their real cash and\n   *  editable, so the door takes what they typed and answers about that — the arithmetic is the same\n   *  question, asked of a number they chose. Absent, the answer is about the cash they actually have. */\n  cashOverride?: number;\n  /** Job safety lets a person TYPE what a typical month of essentials comes to. Given, it stands in\n   *  for the whole month — exactly as it did when that screen multiplied it out for itself. */\n  essentialsOverride?: number;\n}): EmergencyFund",
+  "inputs_it_reads": [
+   "MK-XS-I-001 account balance",
+   "MK-XS-I-002 account type (taxable, pre-tax, Roth)",
+   "MK-XS-I-014 debt balance",
+   "MK-XS-I-015 debt interest rate",
+   "MK-XS-I-016 debt minimum payment",
+   "MK-XS-I-024 logged expenses",
+   "MK-XS-I-025 typical monthly essentials",
+   "MK-XS-I-028 assumed return"
+  ],
+  "figures_it_feeds": [
+   {
+    "id": "MK-MN-M-020",
+    "words_on_screen": "N months of essentials is $X ($Y/month)",
+    "unit": "words",
+    "what_it_answers": "What the emergency fund you are aiming for actually costs.",
+    "when_it_refuses": "No essentials figure yet.",
+    "shown_on": [
+     "/jobsafety"
+    ]
+   },
+   {
+    "id": "MK-MN-M-021",
+    "words_on_screen": "Using $X/month from your logged expenses",
+    "unit": "words",
+    "what_it_answers": "Where the essentials figure came from, and how many months it stands on.",
+    "when_it_refuses": "Nothing logged — it says the plan you entered is being used instead.",
+    "shown_on": [
+     "/jobsafety"
+    ]
+   },
+   {
+    "id": "MK-MN-M-024",
+    "words_on_screen": "You could cover a $X hit",
+    "unit": "money",
+    "what_it_answers": "Whether your cash would absorb a sudden cost.",
+    "when_it_refuses": "No cash entered.",
+    "shown_on": [
+     "/stress-test"
+    ]
+   },
+   {
+    "id": "MK-MN-M-025",
+    "words_on_screen": "You'd have $X left — about N months of essentials",
+    "unit": "words",
+    "what_it_answers": "What would be left after the hit, and how long that would last.",
+    "when_it_refuses": "No essentials figure — the months are not stated rather than guessed.",
+    "shown_on": [
+     "/stress-test"
+    ]
+   },
+   {
+    "id": "MK-MN-M-026",
+    "words_on_screen": "your $X/month of essentials",
+    "unit": "money",
+    "per": "month",
+    "what_it_answers": "What one month of the things you cannot skip costs.",
+    "when_it_refuses": "Nothing logged and no plan set.",
+    "shown_on": [
+     "/stress-test"
+    ]
+   },
+   {
+    "id": "MK-NW-M-013",
+    "words_on_screen": "EMERGENCY FUND — X.X months",
+    "unit": "months",
+    "what_it_answers": "How many months your cash would cover, if your income stopped tomorrow.",
+    "when_it_refuses": "No essentials figure yet — it says so rather than dividing by nothing. And no count of months where the rent pays for the whole month: the cash is then not drawn on.",
+    "shown_on": [
+     "/analytics",
+     "/jobsafety"
+    ]
+   },
+   {
+    "id": "MK-NW-M-014",
+    "words_on_screen": "of essentials covered by your cash — $X cash ÷ $Y/month essentials",
+    "unit": "words",
+    "what_it_answers": "The sum written out, so the months figure can be checked by eye.",
+    "when_it_refuses": "Nothing logged and no plan set.",
+    "shown_on": [
+     "/analytics"
+    ]
+   },
+   {
+    "id": "MK-NW-M-046",
+    "words_on_screen": "at your planned spend",
+    "unit": "months",
+    "what_it_answers": "How many months your cash would cover if you carried on living exactly as you plan to.",
+    "when_it_refuses": "No expense figure yet — it shows nothing rather than dividing by nothing.",
+    "shown_on": [
+     "/analytics"
+    ]
+   },
+   {
+    "id": "MK-NW-M-047",
+    "words_on_screen": "Both include $X/month of debt payments you cannot stop",
+    "unit": "money",
+    "per": "month",
+    "what_it_answers": "What your debts require of you each month, which neither runway can leave out.",
+    "when_it_refuses": "No debts entered — the line does not appear at all.",
+    "shown_on": [
+     "/analytics",
+     "/insights"
+    ]
+   },
+   {
+    "id": "MK-NW-M-048",
+    "words_on_screen": "cash ÷ planned spend",
+    "unit": "money",
+    "per": "month",
+    "what_it_answers": "What a month costs at the life you plan to live, including what your debts require.",
+    "when_it_refuses": "No expense figure yet.",
+    "shown_on": [
+     "/analytics",
+     "/insights"
+    ]
+   },
+   {
+    "id": "MK-NW-M-064",
+    "words_on_screen": "rent from your property, which keeps arriving",
+    "unit": "money",
+    "per": "month",
+    "what_it_answers": "The rent that would still arrive each month if your pay stopped.",
+    "when_it_refuses": "No rental entered — the line does not appear at all.",
+    "shown_on": [
+     "/analytics",
+     "/insights",
+     "/stress-test",
+     "/jobsafety"
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "said_by": "owner",
+    "decision": "DEC-0103",
+    "date": "2026-08-11",
+    "words": "Uncertain — retire at 65 with ~$1,607,000, lasting past 90 with ~$2,402,000 to spare — what does uncertain mean?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0158",
+    "date": "2026-08-14",
+    "words": "It is too harsh."
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0260",
+    "date": "2026-09-09",
+    "words": "the screen shows $0 with a sentence explaining nothing is entered, and the door; the sentence approved; one mock of the pattern on one screen"
+   },
+   {
+    "said_by": "author",
+    "about": "MK-MN-M-021",
+    "words": "The label names the basis so nobody has to guess whether it is one month or a year (his ruling G21)."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-013",
+    "words": "ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-013",
+    "words": "FOUNDER 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" Rent arrives every month, so it is added to the cash every month — which is the cash ÷ (the month − the rent)."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-046",
+    "words": "FOUNDER 2026-09-28: \"give both numbers.\" The figure above it is what you could not stop paying; this one is the life you plan to live. Neither is the whole truth alone, so the screen shows both."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-047",
+    "words": "FOUNDER 2026-09-28: \"What about credit card debt, HELOC, car loan?\" They were in NEITHER figure. You can skip dinner out; you cannot skip a car payment."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-047",
+    "words": "A mortgage is never counted twice: where the Rent / Mortgage budget carries it, its minimum is left out."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-064",
+    "words": "FOUNDER 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\""
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-064",
+    "words": "It is the same figure as the Income summary's Rent row, read from that function, so the two screens cannot show two rents."
+   }
+  ]
+ },
+ {
+  "id": "MK-NW-O-008",
+  "name": "thePerformance",
+  "kind": "orchestrator",
+  "what_it_is_for": "How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return?",
+  "formula_in_words": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and the first recorded value of an account that joined the record inside the period (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Today's value is read from the accounts as they stand; with no accounts handed in, the ending handed in closes the record. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out and the record does not say which way or what they were worth; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
+  "handed": "export function thePerformance(input: {\n  /** The window's first day, or null for \"since the record began\". */\n  windowStart: string | null;\n  /** The words for that window, as the screen says them (\"since Jul 19\"). */\n  windowLabel: string;\n  today: string;\n  /** What the investments are worth now. */\n  ending: number;\n  /** Every record, unfiltered — the door takes the window's own. */\n  transactions: any[];\n  /** The daily record, and which accounts count as investments. */\n  snapshotDays: any[];\n  investmentAccountIds: Set<string>;\n  /** What the priced holdings gained over the window — used ONLY to derive a beginning the record\n   *  cannot reach. It never becomes the return. */\n  pricedGain: number;\n  /** True for \"Since\" — the whole record. Its return is the window's OWN total and is never turned\n   *  into a yearly rate (Performance v17, phone 3: \"Since Jun 3, 2024 +16.24% … not a yearly rate\").\n   *  A fixed window longer than a year (2Y) still shows the yearly rate. */\n  wholeRecord?: boolean;\n  /** The accounts as they stand now. Today's values are read from them, so the last day of the\n   *  return is measured the same way every recorded day was — and an account added today is seen\n   *  as arriving today, not as a gain. */\n  accounts?: any[];\n}): WindowFigures",
+  "inputs_it_reads": [
+   "MK-XS-I-009 transaction date",
+   "MK-XS-I-024 logged expenses"
+  ],
+  "figures_it_feeds": [
+   {
+    "id": "MK-PF-M-001",
+    "words_on_screen": "Ending value",
+    "unit": "money",
+    "what_it_answers": "What your investments are worth at the end of the window you picked.",
+    "when_it_refuses": "Nothing invested yet.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-002",
+    "words_on_screen": "Wealth generated",
+    "unit": "money",
+    "what_it_answers": "What the money itself made in the window — not what you added to it.",
+    "when_it_refuses": "The record cannot reach the start of this window, so there is nothing honest to subtract from.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-003",
+    "words_on_screen": "HOW $X BECAME $Y · ALL ACCOUNTS",
+    "unit": "words",
+    "what_it_answers": "Every line that took the beginning to the ending, so it can be checked by eye.",
+    "when_it_refuses": "No beginning to walk from.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-004",
+    "words_on_screen": "Ending market value (per account)",
+    "unit": "money",
+    "what_it_answers": "What one account is worth at the end of the window.",
+    "when_it_refuses": "Nothing in it.",
+    "shown_on": [
+     "/invest",
+     "/account-detail"
+    ]
+   },
+   {
+    "id": "MK-PF-M-005",
+    "words_on_screen": "each account and its ending value",
+    "unit": "money",
+    "what_it_answers": "One line per account, and what it is worth — the parts that sum to the whole above.",
+    "when_it_refuses": "One account only — the whole walk above already says it.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-006",
+    "words_on_screen": "WHAT EACH CATEGORY EARNED — RETURN",
+    "unit": "percent-signed",
+    "what_it_answers": "What each kind of holding returned over the window you picked.",
+    "when_it_refuses": "An em-dash — no holding in that class can be priced over this window.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-007",
+    "words_on_screen": "All categories",
+    "unit": "money",
+    "what_it_answers": "What you actually received, in dividends and interest, over the window — by kind.",
+    "when_it_refuses": "The table does not appear — nothing was received in this window.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-008",
+    "words_on_screen": "market +X%",
+    "unit": "percent-2dp",
+    "what_it_answers": "What the market did over the SAME days, matched to what you actually hold.",
+    "when_it_refuses": "No benchmark can be priced over this window, so none is shown.",
+    "shown_on": [
+     "/home"
+    ]
+   },
+   {
+    "id": "MK-PF-M-013",
+    "words_on_screen": "Beginning market value",
+    "unit": "money",
+    "what_it_answers": "What this one account was worth on the day the window opens, READ from the record — never back-solved from today.",
+    "when_it_refuses": "The record does not reach back that far, so the walk is not drawn at all rather than started from a guess.",
+    "shown_on": [
+     "/account-detail",
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-014",
+    "words_on_screen": "Wealth generated",
+    "unit": "money",
+    "what_it_answers": "What this one account earned over the window — what is left after the money you put in and took out is accounted for.",
+    "when_it_refuses": "No beginning to measure from — the line shows nothing rather than a change.",
+    "shown_on": [
+     "/account-detail"
+    ]
+   },
+   {
+    "id": "MK-PF-M-015",
+    "words_on_screen": "one line of the walk",
+    "unit": "money",
+    "what_it_answers": "One step that took this account from its beginning to its ending — money in, money out, or the change in what the holdings are worth.",
+    "when_it_refuses": "No flows recorded — the line is not drawn.",
+    "shown_on": [
+     "/account-detail",
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-016",
+    "words_on_screen": "Return",
+    "unit": "percent-signed",
+    "what_it_answers": "How much this one account grew over the window you picked, with money you added or took out left out. Shown per year when the window is longer than a year.",
+    "when_it_refuses": "No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.",
+    "shown_on": [
+     "/account-detail",
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-017",
+    "words_on_screen": "Return",
+    "unit": "percent-signed",
+    "what_it_answers": "How much all your investments grew over the window you picked, with money you added or took out left out. Per year when the window is longer than a year.",
+    "when_it_refuses": "No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-018",
+    "words_on_screen": "Beginning market value",
+    "unit": "money",
+    "what_it_answers": "What all your investments were worth on the day the window opens, READ from the daily record.",
+    "when_it_refuses": "No recorded value that far back — the walk starts the day the record does, and says so.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-019",
+    "words_on_screen": "one line of the walk",
+    "unit": "money",
+    "what_it_answers": "One line of how the beginning became the ending, over every account: contributions, withdrawals, dividends, interest, or the change in investment value.",
+    "when_it_refuses": "A real $0 — a line with nothing in it still prints, so the structure never changes.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-PF-M-020",
+    "words_on_screen": "Available cash",
+    "unit": "money",
+    "what_it_answers": "The cash in this account that a buy, a withdrawal or a transfer can use right now.",
+    "when_it_refuses": "No account picked — the line is not shown.",
+    "shown_on": [
+     "/invest"
+    ]
+   },
+   {
+    "id": "MK-XS-M-004",
+    "words_on_screen": "▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN",
+    "unit": "percent-2dp",
+    "what_it_answers": "What your investments earned over the window you picked — dividends and interest included.",
+    "when_it_refuses": "Nothing is shown, and the walk beneath says in words why — either the record cannot reach the beginning, or money moved on a day with no recorded value.",
+    "shown_on": [
+     "/invest",
+     "/home"
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "said_by": "owner",
+    "decision": "DEC-0046",
+    "date": "2026-08-04",
+    "words": "\"yes\" — DEC-0046, confirmed as written: The Invest tab is renamed PERFORMANCE (founder pick: Net worth · Performance) — one TAB_META change sweeps the bottom ba"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0065",
+    "date": "2026-08-10",
+    "words": "complete fully building NW and perf section"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0084",
+    "date": "2026-08-11",
+    "words": "Your retirement plan - it says See your plan. That is not what I approved. Is it stale code?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0093",
+    "date": "2026-08-11",
+    "words": "make all $$ same size and make totals bold. different size for dollar amount makes number not right aligned... are these tables or how are you ensuring they are right aligned?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0112",
+    "date": "2026-08-12",
+    "words": "s not say Uncertain — 60% odds of lasting to age 90. uncertain and giving it 60% probability does not make sense. it should be either or. Let"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0126",
+    "date": "2026-08-13",
+    "words": "s paycheck on the Plan tab rendered two bare amounts with NO NAMES beside them — a bill with the line items blanked out — directly above a note reading"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0135",
+    "date": "2026-08-13",
+    "words": "under cashflow I don"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0142",
+    "date": "2026-08-13",
+    "words": "info dot should be the same size as text. Can we do that?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0143",
+    "date": "2026-08-14",
+    "words": "s constraint, stated plainly:"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0160",
+    "date": "2026-08-14",
+    "words": "one critical factor is whether the current mortgage rate is higher or lower than the return on investment or the 10-year yield — if a person pays off the mortgage versus keeping money in a 10-year Treasury, what would be the net saving or cost?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0165",
+    "date": "2026-08-14",
+    "words": "how to avoid this in the next brief?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0173",
+    "date": "2026-08-14",
+    "words": "Not counting loan or mortgage payments — we add those ourselves, from your loans, for as long as they run."
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0182",
+    "date": "2026-08-27",
+    "words": "for orchestrator use O instead of F to make it easy to identify."
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0192",
+    "date": "2026-08-28",
+    "words": "s number was its POSITION in a list — nid() counted up as it walked them — so inserting a row silently renumbered every metric after it in that family. 93 audit findings are keyed to those numbers, as are the founder"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0229",
+    "date": "2026-09-25",
+    "words": "\"Yes\" — DEC-0229, confirmed as written: Mock v11 drawn from v10 with the founder’s four changes: (10) the window chips sit on ONE row in 10.5-point type with th"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0230",
+    "date": "2026-09-25",
+    "words": "We never back-fill a year we didn"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0255",
+    "date": "2026-09-08",
+    "words": "ok — the dependency column from the live function registry; a check that no row cites a retired identifier"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0257",
+    "date": "2026-09-08",
+    "words": "ok — inputs' reach and the reconciliation by identifier, all inputs; then: the code's record beside each row's claim, he approves rows in batches, the gate compares approved against the code"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0322",
+    "date": "2026-08-20",
+    "words": "status disagreements, work-list generation, engine counts, tab references, the PINNED word — all in the old metrics deliverable"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0323",
+    "date": "2026-08-20",
+    "words": "\"money-weighted\" names two things — rename PORTFOLIO_RETURN to value-weighted; reserve money-weighted for the IRR"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0357",
+    "date": "2026-09-25",
+    "words": "why income when % is calculated using wealth generated?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0368",
+    "date": "2026-09-26",
+    "words": "go with (a) the sentence becomes “+7.30%/year” — canon-literal"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0382",
+    "date": "2026-09-02",
+    "words": "“Always use same words to describe same thing in the app. There is no score for creative writing use different terms to describe same thing.” Made an app-wide standing order the same day."
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0402",
+    "date": "2026-09-14",
+    "words": "go ahead and execute on step 1, 2, 3"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0445",
+    "date": "2026-06-30",
+    "words": "If user is in plan section and plan something such SS starting age, or RMDs or other scenarios, can they select Use this once satisfied and would that feed inputs to NW, invest, and cashflow modules?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0479",
+    "date": "2026-07-01",
+    "words": "Total return captures both realized and unrealized gains? Is there any place we display realized P/L, unrealized P/L, total dividend, and total interest separately?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0482",
+    "date": "2026-07-01",
+    "words": "How do we evaluate if something is saved towards retirement or some other goals? In other words is NW = Retire or Retire = Assets - Primary home - primary car?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0490",
+    "date": "2026-06-30",
+    "words": "Is it one time pull, daily, or initiated by user? What if user is hesitant to connects account in the beginning?"
+   },
+   {
+    "said_by": "owner",
+    "decision": "DEC-0498",
+    "date": "2026-06-30",
+    "words": "How about a scenario do I have enough to support my parents with $2500 per month, and still save for kids college, pay mortgage, and save for retirement? How will it impact by retirement paycheck or date?"
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-002",
+    "words": "ONE MEANING OF RETURN (B-97, 2026-09-25): dividends and interest are part of this, so the return beside it counts them too."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-003",
+    "words": "Whatever the records cannot explain lands in the change-in-value line rather than being silently dropped."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-005",
+    "words": "Named by ACCOUNT, not by institution — two accounts at one broker must be tellable apart (founder screenshot, 2026-08-17)."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-006",
+    "words": "A class with no holding we can price shows an em-dash, never a 0% — a zero reads as \"it returned nothing\", which is a different claim."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-006",
+    "words": "MOVED OFF THE SCREEN 2026-09-30: this was calculated inside PerformanceScreen, so it had no row, no example and nothing able to check it (his rule: a screen computes nothing)."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-007",
+    "words": "LEDGER ONLY: what was actually RECEIVED, never a rate applied to a balance."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-007",
+    "words": "A record with no ticker is classed by what it IS — a dividend comes from a fund, interest from a bond."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-007",
+    "words": "A class that received nothing is not shown at all; where nothing was received the table does not appear."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-008",
+    "words": "The benchmark runs over the SAME DATES as your return — including where your window is cut short at your own purchase date. Comparing your three months against the market's twelve is not a comparison."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-008",
+    "words": "Weighted by what each holding is worth, so the blend answers \"the market, matched to my mix\" rather than a plain average of indices."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-013",
+    "words": "IT IS READ, NOT BACK-SOLVED. Working it out from today’s value less the flows would make the walk add up by construction and prove nothing (his ruling behind MK-NW-F-090)."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-013",
+    "words": "THE DAY BEFORE THE WINDOW OPENS, not the day it opens — B-115, found 2026-09-30."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-014",
+    "words": "MONEY YOU ADDED IS NOT WEALTH YOU GENERATED. That is the whole distinction this figure exists to draw, and it is why a balance going up is not the same as having earned anything."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-014",
+    "words": "A DIVIDEND IS INSIDE IT, because it was earned by the holding rather than added by you."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-015",
+    "words": "THE LINES ALWAYS SUM TO THE ENDING, by construction. Whatever the records cannot explain lands in the change-in-value line rather than being silently dropped — a walk that does not add up is worse than no walk."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-016",
+    "words": "TWO DECIMALS AND ITS SIGN, always (Q49): +6.67%, −0.57% — never +6.7%, never a bare 6.67%."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-016",
+    "words": "EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): \"All return should be True Weighted Return and not Dietz return.\""
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-016",
+    "words": "WHERE IT CANNOT BE MEASURED IT SHOWS NO PERCENT, and never another method in its place."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-016",
+    "words": "ONE METHOD WITH THE PORTFOLIO: the same door the Performance tab calls, asked for this one account."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-017",
+    "words": "TWO DECIMALS AND ITS SIGN, always (Q49)."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-017",
+    "words": "EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669). Where it cannot be measured it shows no percent, and never another method in its place."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-017",
+    "words": "AN ACCOUNT THAT JOINS THE RECORD inside the window counts as money in, at its first recorded value — nothing it was already worth is earned."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-017",
+    "words": "THE SAME DOOR AS ONE ACCOUNT’S RETURN (MK-PF-M-016), asked for every account at once — one method, never two."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-018",
+    "words": "READ, NEVER BACK-SOLVED: with no recorded value the walk says so instead of inventing a start."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-019",
+    "words": "THE LINES ALWAYS ADD UP TO THE ENDING — the change in investment value is what is left, so nothing is lost between the lines."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-PF-M-020",
+    "words": "A BUY OR WITHDRAWAL BIGGER THAN THIS IS REFUSED on the sheet, with the words to deposit or transfer cash in first."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-XS-M-004",
+    "words": "ONE MEANING OF RETURN (B-97, 2026-09-25): dividends and interest are in it, because \"Wealth generated\" beside it counts them."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-XS-M-004",
+    "words": "A RATE NEEDS SOMETHING TO STAND ON: with no beginning read from the record and no movement to point at, it shows nothing rather than a confident +0.00%."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-XS-M-004",
+    "words": "IT IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): \"All return should be True Weighted Return and not Dietz return.\" Where a piece cannot be measured it shows nothing, and never another method."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-XS-M-004",
+    "words": "OVER A YEAR IT IS A YEARLY RATE and the screen says so (his ruling, 2026-08-18, restated 2026-09-25)."
+   }
+  ],
+  "approved_drawing": {
+   "drawing": "Performance v17, phone 1 (approved 2026-10-01)",
+   "household": "Two linked accounts, record beginning Oct 1, 2025, read on Sep 30, 2026. All accounts: beginning market value $100,000; contributions $15,000; withdrawals $0; dividends $1,800; interest $400; change in investment value $5,800. Vanguard alone: beginning $80,000, contributions $15,000, wealth generated $6,000, ending $101,000. E*TRADE alone: beginning $20,000, nothing added or taken out, wealth generated $2,000, ending $22,000.",
+   "drawn": {
+    "Wealth generated, all accounts": 8000,
+    "Ending market value, all accounts": 123000,
+    "E*TRADE return": "+10.00%",
+    "note": "The drawing shows a yearly rate of 7.46% for all accounts and 6.88% for Vanguard, but does not give the dates the $15,000 went in, so those two rates cannot be used as expected values."
+   }
+  }
+ }
+]
+```
+
+## Formulas these cards lean on
+
+5 functions named by the formulas above. They are here so you can work your answers. Do not judge or test them in this batch.
+
+```json
+[
+ {
+  "id": "MK-NW-F-016",
+  "name": "cashTotal",
+  "what_it_is_for": "All the cash a person has: every bank account, plus the uninvested cash sitting inside investment accounts.",
+  "formula_in_words": "For a linked account: the cash part of its class breakdown (accountClassBreakdown). For any other account: its whole balance when its class is cash, otherwise nothing. Added up over every account."
+ },
+ {
+  "id": "MK-NW-F-027",
+  "name": "accountClassBreakdown",
+  "what_it_is_for": "APPROVED v6 (2026-07-19): a CONNECTED account splits across the asset classes it actually holds — CDs under bonds, money market + sleeve under cash, options under alternatives, stocks under stocks — with the slices summing EXACTLY to the broker's authoritative balance.",
+  "formula_in_words": "Only for a linked account; any other gets no answer. Cash = its cash balance. Each holding's value = shares × last price (0 with no price), filed under the class its name is evidence for unless that is cash, otherwise under its own class: bond → Bonds & CDs, other → Alternatives, cash → cash, anything else → Stocks / Funds. Options go to Alternatives. If the parts do not add up to the balance: a gap no bigger than the larger of $1 or 1% of the balance is added to cash when positive, or taken off the largest class when negative; a bigger gap is put under the account's own class."
+ },
+ {
+  "id": "MK-NW-F-061",
+  "name": "bondSummary",
+  "what_it_is_for": "Adds up every bond and CD held: how many there are, what they are worth, their face value, the interest they pay in a year, their average yield and the next one to mature.",
+  "formula_in_words": "Count = how many bonds. Total value and total face value = each added up. Interest in a year = face × rate, added up. Average yield is over the bonds that have a value today only: their interest in a year ÷ their value today less accrued interest where that is known; nothing when no bond has a value. A bond with no value today is left out of both. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next."
+ },
+ {
+  "id": "MK-NW-F-064",
+  "name": "bondRateSensitivity",
+  "what_it_is_for": "What happens to this bond if interest rates move?",
+  "formula_in_words": "Nothing when the yield to maturity is unknown, or the face value or rate is zero or less. For rates one percentage point UP and one DOWN: the new price is priceAtYield at the yield to maturity plus or minus one point (never below 0.01%). It gives a range from 1% under to 1% over that price, and the change against today's value, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down."
+ },
+ {
+  "id": "MK-NW-F-069",
+  "name": "priceAtYield",
+  "what_it_is_for": "Price the bond's future cash flows at a given annual yield (yearly approximation).",
+  "formula_in_words": "Years = years to maturity rounded to a whole number, at least 1. Price = each year's interest ÷ (1 + yield) to the power of that year, added up, plus face ÷ (1 + yield) to the power of years. With no maturity date: the current value."
+ }
+]
+```

@@ -49,6 +49,10 @@
  *     Look back draws its two percents to one decimal ("+2.5%"); the standard prints a percent to two.
  * 13. HIS RULING, 2026-10-04: "$0 — nothing sold" stays. The drawing prints "$0.00" and, under it, the
  *     line about how sales are matched — a line the build keeps for when there is a sale.
+ * 14. The short-term gain row. The drawing reads "Gain — short-term (under 1 yr)"; the build reads
+ *     "Gain — short-term (held 1 yr or less)". The outside review (2026-10-04) found that "over 1 yr"
+ *     and "under 1 yr" leave a holding held exactly one year in neither row; the tax rule puts it in
+ *     short-term, and the function always did. Fixed on his instruction the same day to fix its findings.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -327,7 +331,8 @@ describe('Holding detail v02', () => {
       transactions: [{ id: 'd1', account_id: 'fid', type: 'DIVIDEND', ticker: 'AAPL', amount: 134.4, date: day(60) }],
     }, { account: 'fid', position: 'p1' });
     const want = norm(upTo(P[0], /^Activity$/))
-      .replace('realized from sales $# from your recorded buys and sells (oldest shares sold first).', 'realized from sales $# — nothing sold');   // 13
+      .replace('realized from sales $# from your recorded buys and sells (oldest shares sold first).', 'realized from sales $# — nothing sold')   // 13
+      .replace('gain — short-term (under # yr)', 'gain — short-term (held # yr or less)');                                                    // 14
     expect(want.split(' ').length).toBeGreaterThan(110);
     expect(firstDifference(want, norm(built))).toBe('');
     // 12: the drawing's own arithmetic, in the standard's precision
@@ -357,4 +362,19 @@ describe('Holding detail v02', () => {
     expect(built).toContain('Prices for this holding go back 14 months, so the 2-year figure covers 14 months — not two years.');
     expect(built).toContain('▼ down $0.06 (4.05%) today');                             // $1.42 against $1.48
   });
+});
+
+// A BOND WITH NO VALUE TODAY IS LEFT OUT OF THE AVERAGE YIELD, AND THE SCREEN SAYS WHICH (outside review,
+// 2026-10-04). The drawing's three bonds all have a value, so its phones do not show this line.
+test('Bonds · the summary names a bond the average yield leaves out, and says nothing when there is none', () => {
+  const Bonds = require('../BondsScreen').default;
+  const bondAt = (id: string, label: string, balance: number) => ({ asset_id: id, label, kind: 'bond', tax_bucket: 'TAXABLE', balance, face_value: 10000, coupon_rate: 0.04, maturity_date: '2031-06-15' });
+  useStore.getState().resetAll();
+  useStore.setState({ hideBalances: false, onboardingComplete: true, assetAccounts: [bondAt('a', 'Treasury note', 10000), bondAt('b', 'Muni bond', 0)] } as any);
+  const first = render(<Bonds />);
+  expect(screen.getByText('Average yield leaves out Muni bond — no value today.')).toBeOnTheScreen();
+  first.unmount();
+  useStore.setState({ assetAccounts: [bondAt('a', 'Treasury note', 10000)] } as any);
+  render(<Bonds />);
+  expect(screen.queryByText(/Average yield leaves out/)).toBeNull();
 });

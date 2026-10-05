@@ -96,7 +96,7 @@ test('the gains card: long + short gains SUM to the header gain (estimated-tax l
   const cg = capGains(NVDA_POS, row.price);
   expect(Math.round(cg.longGain + cg.shortGain)).toBe(Math.round(row.gain));   // the identity the card relies on
   expect(screen.getByText('Gain — long-term (held over 1 yr)')).toBeOnTheScreen();
-  expect(screen.getByText('Gain — short-term (under 1 yr)')).toBeOnTheScreen();
+  expect(screen.getByText('Gain — short-term (held 1 yr or less)')).toBeOnTheScreen();
   expect(screen.queryByText(/~ Tax at your own rate/)).toBeNull();   // the cut line stays gone
 });
 

@@ -246,7 +246,8 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-024 logged expenses
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-082
  * Changed ..... not in git yet (—)
@@ -266,11 +267,22 @@ export function movementsOf(transactions: any[], ids: Set<string>): { flows: Dat
         if (ids.has(acc)) flows.push({ date, accountId: acc, amount: -amount });
         if (ids.has(other)) flows.push({ date, accountId: other, amount });
         break;
-      // shares between accounts: inside the measured set nothing arrived or left; across its edge the
-      // record does not say what they were worth, so the day is named and the return refuses there
-      case 'TRANSFER_IN_KIND':
-        if (ids.has(acc) !== ids.has(other)) sharesMoved.push(date);
+      // SHARES MOVED. Between two measured accounts nothing arrived or left. Across the edge of the
+      // measured accounts they are money in or out AT WHAT THEY WERE WORTH — when the record says
+      // which way they went and what they were worth (the amount, or shares × price). A move made
+      // in the app names both accounts: the shares leave the first and arrive in the second. A
+      // broker's row names one account and carries its direction. Where the direction or the worth
+      // is not recorded, the day is named and the return refuses there rather than guess.
+      case 'TRANSFER_IN_KIND': {
+        const inFirst = ids.has(acc), inSecond = ids.has(other);
+        if (other ? inFirst === inSecond : !inFirst) break;
+        const target = other ? (inSecond ? other : acc) : acc;
+        const way = other ? (inSecond ? 'IN' : 'OUT') : t.direction;
+        const worth = amount > 0 ? amount : (Number(t?.shares) || 0) * (Number(t?.price) || 0);
+        if ((way === 'IN' || way === 'OUT') && worth > 0) flows.push({ date, accountId: target, amount: way === 'IN' ? worth : -worth });
+        else sharesMoved.push(date);
         break;
+      }
       case 'INTEREST':
         if (ids.has(acc) && !t.reinvested) interest.push({ date, accountId: acc, amount });
         break;

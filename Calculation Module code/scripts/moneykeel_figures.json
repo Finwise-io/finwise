@@ -2113,7 +2113,7 @@
     "/holding-detail"
    ],
    "grain": "one holding",
-   "answers": "What this holding moved since the previous close, in money.",
+   "answers": "How much ONE SHARE of this holding moved since the previous close, in money — it sits under the price of one share.",
    "formula": "the last close − the close before it",
    "inputs": [
     "MK-XS-I-006 price fetched at"
@@ -2330,7 +2330,7 @@
    "door": "MK-NW-O-006 theHolding"
   },
   "MK-NW-M-037": {
-   "label": "Gain — short-term (under 1 yr)",
+   "label": "Gain — short-term (held 1 yr or less)",
    "unit": "money",
    "screens": [
     "/holding-detail"

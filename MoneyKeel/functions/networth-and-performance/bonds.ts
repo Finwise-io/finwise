@@ -92,6 +92,9 @@ export interface Bonds {
   totalFace: number;
   couponPerYear: number;
   avgYield: number | null;
+  /** The bonds the average yield leaves out, by name: the ones with no value today. A screen that
+   *  shows the average names them, so nobody reads it as an average of every bond listed. */
+  leftOutOfAverage: string[];
   /** The soonest maturity date among them, so the screen need not sort for itself. */
   nextMaturity: string | null;
   rows: BondRow[];
@@ -203,12 +206,13 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-028 assumed return
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-049 bond price — what the bond is worth today
  * Ruled by .... DEC-0108 · DEC-0280
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
+ *     · If accrued interest is missing it uses 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-001
@@ -261,6 +265,8 @@ export function theBonds(input: BondsInput): Bonds {
     totalFace: sum.totalFace,
     couponPerYear: sum.annualCoupon,
     avgYield: sum.avgYield,
+    // the same test the average itself uses: a value today, after accrued interest, above zero
+    leftOutOfAverage: held.filter((a) => { const b = bondInfo(a); return !(b.value - (b.accruedInterest ?? 0) > 0); }).map((a) => a.label),
     nextMaturity: (sum as any).nextMaturity ?? null,
     rows,
     one,

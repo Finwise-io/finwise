@@ -81,9 +81,9 @@ export interface EmergencyFund {
  *     property = input.accounts (or none when missing) where asset class of(each) = 'real_estate'
  *     rents their home = property.length > 0 and !property.some((a) => real estate use of(a) = 'primary')
  *     debt minimums = debts.reduce((t: number, d: any) => (d = home mortgage ? t : t + required payment(d)), 0)
- *     ess = essentials monthly(input.expenses ?? [], monthly essentials(input.profile))
- *     planned = planned monthly spend(input.profile) + debt minimums
- *     rent = max(0, income summary(input.profile ?? {}).lands.rent monthly)
+ *     logged = (input.expenses ?? []) as any[]
+ *     counted debts = a list with no repeats of debts where d ! = home mortgagefor each of : string(label)
+ *     counted = logged where not (category = 'debt payment' and counted debts.has(string(store ?? '')))
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-079 EF
@@ -156,8 +156,17 @@ export function theEmergencyFund(input: {
     : debts.filter(isMortgage).sort((x: any, y: any) =>
         Math.abs(requiredPayment(x) - housingBudgeted$) - Math.abs(requiredPayment(y) - housingBudgeted$))[0] ?? null;
   const debtMinimums = debts.reduce((t: number, d: any) => (d === homeMortgage ? t : t + requiredPayment(d)), 0);
+  // A DEBT PAYMENT THAT WAS LOGGED AS AN EXPENSE IS NOT COUNTED TWICE (outside review, 2026-10-04: "whether
+  // logged expenses that already contain debt payments are de-duplicated against debt minimums" — they
+  // were not). Logging a payment on a debt writes an expense in the category "Debt payment", named for
+  // that debt, so it sat in the logged average AND came back as the debt's required payment. Every
+  // debt whose required payment is counted above has its logged payments left out of the average. The
+  // home's mortgage is the one debt NOT counted above, so its logged payments stay in.
+  const logged = (input.expenses ?? []) as any[];
+  const countedDebts = new Set(debts.filter((d: any) => d !== homeMortgage).map((d: any) => String(d.label)));
+  const counted = logged.filter((e) => !(e?.category === 'Debt payment' && countedDebts.has(String(e?.store ?? ''))));
   // ONE essentials figure, his ruling G21 — the logged average first, the typed plan as the fallback
-  const ess = essentialsMonthly(input.expenses ?? [], monthlyEssentials(input.profile));
+  const ess = essentialsMonthly(counted, monthlyEssentials(input.profile));
   const monthly = input.essentialsOverride != null && input.essentialsOverride > 0
     ? input.essentialsOverride : (ess?.monthly ?? 0) + debtMinimums;
 

@@ -46,7 +46,7 @@ const stock = (r: { answers: string }) => /^── ORCHESTRATOR/.test(r.answers)
 test('the guard looked: it read every record in the code', () => {
   const all = records();
   expect(all.length).toBeGreaterThanOrEqual(690);
-  expect(all.filter((r) => THIS_BUILD.includes(r.family)).length).toBeGreaterThanOrEqual(360);
+  expect(all.filter((r) => THIS_BUILD.includes(r.family)).length).toBeGreaterThanOrEqual(358);   // 358, not 360 (2026-10-04): the money-weighted rate and its helpers were removed (DEC-1669), and two functions were added
 });
 
 test('Net worth, Performance and Cash flow: every function and orchestrator says what it is for', () => {
@@ -77,7 +77,7 @@ test('one record a function: no stale copy of a record is left behind in the cod
 
 test('the other modules: the functions still without a description are counted, and the count may only fall', () => {
   const debt = records().filter((r) => !THIS_BUILD.includes(r.family) && missing(r)).length;
-  const OWED = 97;   // the true number on 2026-10-04: Shared 49 · Storage 26 · Plan 20 · Home 2
+  const OWED = 96;   // the true number on 2026-10-04, after the Modified Dietz function (no description) was removed
   expect(debt).toBeLessThanOrEqual(OWED);
   // lower the number when it falls, so it cannot creep back up
   if (debt < OWED) throw new Error(`the debt is down to ${debt} — lower OWED in this test to hold it there`);

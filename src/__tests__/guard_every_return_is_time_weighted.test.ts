@@ -3,10 +3,9 @@
  *  Owner decision, 2026-10-04 (DEC-1669): "All return should be True Weighted Return and not Dietz
  *  return." Not a Modified Dietz return, not a money-weighted return, not a change in balance.
  *
- *  The three old calculations are still in the files, unused (removing them is its own task, on the
- *  tracker). This guard reads every function a screen can ask and every screen, and fails the build
- *  if one of them calls an old method again. It counts what it read, so it cannot pass by reading
- *  nothing.
+ *  The three old calculations were removed the same day. This guard reads every function a screen can
+ *  ask, every screen and the engines, and fails the build if one of them is written or called again.
+ *  It counts what it read, so it cannot pass by reading nothing.
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -25,13 +24,10 @@ const OLD: [name: string, call: RegExp][] = [
   ['the money-weighted rate (moneyWeightedReturn)', /\bmoneyWeightedReturn\s*\(/],
   ['the change in balance (investableChangePct from history)', /\binvestableChangePct\s*\(/],
 ];
-// where each old method is still DEFINED — the only files allowed to name it as a call
-const HOME = ['Calculation Module code/engines/window-return.ts', 'src/domain/performance/moneyWeighted.ts', 'src/domain/history.ts'];
-
 test('no function a screen can ask, and no screen, works out a return any other way', () => {
   const files = [...filesUnder(path.join(ROOT, 'MoneyKeel', 'functions')), ...filesUnder(path.join(ROOT, 'src', 'screens')),
-    ...filesUnder(path.join(ROOT, 'src', 'components')), ...filesUnder(path.join(ROOT, 'src', 'domain'))]
-    .filter((f) => !HOME.includes(path.relative(ROOT, f)));
+    ...filesUnder(path.join(ROOT, 'src', 'components')), ...filesUnder(path.join(ROOT, 'src', 'domain')),
+    ...filesUnder(path.join(ROOT, 'Calculation Module code', 'engines'))];
   expect(files.length).toBeGreaterThanOrEqual(150);                       // the guard proves it looked
   const offences: string[] = [];
   for (const f of files) for (const [name, call] of OLD) if (call.test(code(f))) offences.push(`${path.relative(ROOT, f)} calls ${name}`);
@@ -42,6 +38,12 @@ test('the two functions that hand out a return both ask the time-weighted engine
   for (const f of ['MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/net-worth.ts']) {
     expect(code(path.join(ROOT, f))).toMatch(/\btimeWeightedReturn\s*\(/);
   }
+});
+
+test('the files that held the old methods no longer hold them', () => {
+  expect(fs.existsSync(path.join(ROOT, 'src', 'domain', 'performance', 'moneyWeighted.ts'))).toBe(false);
+  expect(fs.readFileSync(path.join(ROOT, 'Calculation Module code', 'engines', 'window-return.ts'), 'utf8')).not.toMatch(/export function modifiedDietzOverWindow/);
+  expect(fs.readFileSync(path.join(ROOT, 'src', 'domain', 'history.ts'), 'utf8')).not.toMatch(/export function investableChangePct/);
 });
 
 test('the guard fires: a line that calls an old method is caught, and a comment that names one is not', () => {

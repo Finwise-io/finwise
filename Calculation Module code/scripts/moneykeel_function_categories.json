@@ -1134,6 +1134,11 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "2 · DISPLAYED"
  },
+ "fillBetweenObservations": {
+  "id": "MK-ST-F-084",
+  "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "3 · DEPENDENT"
+ },
  "findCol": {
   "id": "MK-XS-F-126",
   "file": "src/domain/import/holdingsImport.ts",
@@ -1334,11 +1339,6 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
- "historyIsComplete": {
-  "id": "MK-PF-F-025",
-  "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "holdingId": {
   "id": "MK-ST-F-026",
   "file": "Calculation Module code/engines/snapshots.ts",
@@ -1454,11 +1454,6 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
- "investableChangePct": {
-  "id": "MK-XS-F-010",
-  "file": "src/domain/history.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "investmentAccountIdsOf": {
   "id": "MK-NW-F-092",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
@@ -1528,11 +1523,6 @@
   "id": "MK-CF-F-108",
   "file": "src/domain/transactions/flags.ts",
   "category": "3 · DEPENDENT"
- },
- "isMoneyWeighted": {
-  "id": "MK-PF-F-027",
-  "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "isMonthEnd": {
   "id": "MK-ST-F-061",
@@ -1834,11 +1824,6 @@
   "file": "src/domain/debt/index.ts",
   "category": "2 · DISPLAYED"
  },
- "modifiedDietzOverWindow": {
-  "id": "MK-ST-F-064",
-  "file": "Calculation Module code/engines/window-return.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "money": {
   "id": "MK-ST-F-053",
   "file": "src/domain/_shared/num.ts",
@@ -1858,11 +1843,6 @@
   "id": "MK-ST-F-051",
   "file": "src/domain/_shared/money.ts",
   "category": "2 · DISPLAYED"
- },
- "moneyWeightedReturn": {
-  "id": "MK-PF-F-026",
-  "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "monthKey": {
   "id": "MK-CF-F-163",
@@ -2018,11 +1998,6 @@
   "id": "MK-XS-F-008",
   "file": "src/domain/history.ts",
   "category": "3 · DEPENDENT"
- },
- "npv": {
-  "id": "MK-PF-F-030",
-  "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "numOrNaN": {
   "id": "MK-XS-F-171",
@@ -3337,11 +3312,6 @@
  "userCapGainsRates": {
   "id": "MK-CF-F-091",
   "file": "src/domain/income/onboarding.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
- "userFlows": {
-  "id": "MK-PF-F-024",
-  "file": "src/domain/performance/moneyWeighted.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
  "usesSleeve": {

@@ -96,3 +96,42 @@ test('a typed month of essentials (Job safety) stands in for the whole month, an
   // nothing typed → the function's own figure
   expect(theEmergencyFund({ ...RENTER, profile: withRental(2400, 1200), essentialsOverride: 0 }).essentialsMonthly).toBeCloseTo(5760.1, 4);
 });
+
+/** A DEBT PAYMENT LOGGED AS AN EXPENSE IS NOT COUNTED TWICE (outside review, 2026-10-04). Logging a payment
+ *  on a debt writes an expense in the category "Debt payment", named for the debt. It sat in the logged
+ *  average and came back as the debt's required payment. */
+describe('a debt payment that was logged as an expense', () => {
+  const month = (k: number) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - k); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-10`; };
+  const log = (k: number, amount: number, category: string, store = 'x') => ({ id: `${k}${category}${store}`, date: month(k), amount, category, store });
+  const groceries = [1, 2, 3].map((k) => log(k, 3000, 'Groceries'));
+  const carPaid = [1, 2, 3].map((k) => log(k, 250, 'Debt payment', 'car loan'));
+  const base = { accounts: [cashAt('c', 'checking', 32500)], profile: {} };
+
+  test('is counted once: $3,000 of expenses + the $250 the car loan requires — not $3,500', () => {
+    const e = theEmergencyFund({ ...base, expenses: [...groceries, ...carPaid], debts: [debt('car loan', 'AUTO', 250)] });
+    expect(e.debtMinimums).toBe(250);
+    expect(e.essentialsMonthly).toBeCloseTo(3250, 6);          // it read 3,500: the payment in the average and again as a debt
+    expect(e.monthsCovered).toBeCloseTo(10, 6);
+    // the same household that never logged the payment gets the same answer
+    expect(theEmergencyFund({ ...base, expenses: groceries, debts: [debt('car loan', 'AUTO', 250)] }).essentialsMonthly).toBeCloseTo(3250, 6);
+  });
+
+  test('with no debt entered, a logged payment is the only record of it and stays in', () => {
+    const e = theEmergencyFund({ ...base, expenses: [...groceries, ...carPaid], debts: [] });
+    expect(e.essentialsMonthly).toBeCloseTo(3250, 6);
+  });
+
+  test('a payment logged against a debt that is NOT entered stays in — nothing else stands for it', () => {
+    const e = theEmergencyFund({ ...base, expenses: [...groceries, ...[1, 2, 3].map((k) => log(k, 100, 'Debt payment', 'loan from a friend'))], debts: [debt('car loan', 'AUTO', 250)] });
+    expect(e.essentialsMonthly).toBeCloseTo(3000 + 100 + 250, 6);
+  });
+
+  test('the home’s mortgage is the one debt the budget carries, so its logged payments stay in the average', () => {
+    const profile = { spendCats: [{ id: 'rent', label: 'Rent / Mortgage', amount: 2000, bucket: 'fixed', tier: 'critical' }] };
+    const paid = [1, 2, 3].map((k) => log(k, 2000, 'Debt payment', 'home mortgage'));
+    const e = theEmergencyFund({ accounts: [cashAt('c', 'checking', 30000), { asset_id: 'h', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 400000 }] as any,
+      profile, expenses: [...groceries, ...paid, ...carPaid], debts: [debt('home mortgage', 'MORTGAGE', 2000), debt('car loan', 'AUTO', 250)] });
+    expect(e.debtMinimums).toBe(250);                          // the mortgage's required payment is left out, as before
+    expect(e.essentialsMonthly).toBeCloseTo(3000 + 2000 + 250, 6);   // … and its logged payments carry it: once
+  });
+});

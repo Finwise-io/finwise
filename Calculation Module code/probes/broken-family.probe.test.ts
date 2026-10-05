@@ -8,7 +8,7 @@
 // This file covers the family behind the founder's F15: how a broker's activity becomes a
 // transaction, how a change is worked out, and how a return is measured. It is the family where
 // the app told the founder $1.4m arrived in an account where Vanguard says nothing moved.
-import { buildChangeWalk, investableChangePct, trendPoints, normalizeSnapshot, readHistory } from '../../src/domain/history';
+import { buildChangeWalk, trendPoints, normalizeSnapshot, readHistory } from '../../src/domain/history';
 import { mapPosition, mapActivityType, netCashSleeve, activityKey, dedupeActivities } from '../../src/services/sync/snaptrade';
 import { periodReturn, portfolioPeriodReturn } from '../../src/domain/performance';
 
@@ -54,26 +54,8 @@ describe('NW_CHANGE_WALK', () => {
 // DERIVATION RULE: baseline = the EARLIEST daily point on or after the change line's own baseline
 // date. Property is excluded because it only moves when someone retypes it.
 // ════════════════════════════════════════════════════════════════════════════════════════════════
-describe('NW_CHANGE_PCT', () => {
-  test('it measures against the earliest daily point at or after the baseline date', () => {
-    const daily = { '2026-07-15': 100_000, '2026-08-01': 200_000, '2026-08-10': 300_000 };
-    expect(investableChangePct(daily, 220_000, '2026-08-01')).toBe(10);   // vs 200,000, not 100,000
-  });
-
-  test('no history → NO percent. It is never back-guessed', () => {
-    expect(investableChangePct({}, 220_000, '2026-08-01')).toBeNull();
-    expect(investableChangePct({ '2026-07-01': 100 }, 220_000, '2026-08-01')).toBeNull();
-    expect(investableChangePct(null, 220_000, '2026-08-01')).toBeNull();
-  });
-
-  test('WHY THE FOUNDER SAW +2.0% ON A LOSING YEAR: the baseline is whatever day the app was opened', () => {
-    // if the only stored point was written AFTER the fall, the fall is invisible and the small
-    // recovery since shows as a gain. The percent is honest about its own baseline and nothing else.
-    const afterTheFall = { '2026-08-01': 355_000 };
-    // full precision (Q49): 1.9969…% — the screen prints +2.00% (two decimals, founder 2026-09-14)
-    expect(investableChangePct(afterTheFall, 362_089, '2026-08-01')).toBeCloseTo(1.9969, 4);
-  });
-});
+// The change percent on cash + investments was probed here as a balance change. That function was removed on
+// 2026-10-04 (owner decision DEC-1669: every return is time-weighted).
 
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 // INGEST_POSITION_CLASS  ·  src/services/sync/snaptrade.ts:116

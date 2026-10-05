@@ -310,7 +310,7 @@ export default function HoldingDetailScreen() {
         <View style={s.card}>
           <SectionBand inCard inset={20} title="IF YOU SOLD TODAY" />
           <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain >= 0 ? '+' : '−'}{fig('MK-NW-M-036', Math.abs(cg.longGain))}</Text></View>
-          {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (under 1 yr)</Text><Text style={s.tV}>{cg.shortGain >= 0 ? '+' : '−'}{fig('MK-NW-M-037', Math.abs(cg.shortGain))}</Text></View>}
+          {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (held 1 yr or less)</Text><Text style={s.tV}>{cg.shortGain >= 0 ? '+' : '−'}{fig('MK-NW-M-037', Math.abs(cg.shortGain))}</Text></View>}
         </View>
       )}
 

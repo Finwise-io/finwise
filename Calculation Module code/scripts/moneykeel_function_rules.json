@@ -769,8 +769,8 @@
   },
   "MK-CF-F-139": {
    "name": "removeShares",
-   "rule": "Takes the shares out of the holding's purchases in the order they are stored, earliest first; a purchase left with nothing is dropped; a holding left with no purchases is removed. Unchanged when the account has no such holding.",
-   "read_from": "a7e7727059",
+   "rule": "Takes the shares out of the holding's purchases oldest purchase date first (a purchase with no date goes last), whatever order they are stored in; a purchase left with nothing is dropped; a holding left with no purchases is removed. Unchanged when the account has no such holding.",
+   "read_from": "9167ceb5f2",
    "sent_as": "a7e7727059"
   },
   "MK-CF-F-140": {
@@ -1673,8 +1673,8 @@
   },
   "MK-NW-O-001": {
    "name": "theBonds",
-   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures.",
-   "read_from": "8122f43c12",
+   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures. It also names the bonds the average yield leaves out — those with no value today after accrued interest — so a screen can say which.",
+   "read_from": "e469bdf2d1",
    "sent_as": "ac38213b75"
   },
   "MK-NW-O-002": {
@@ -1691,8 +1691,8 @@
   },
   "MK-NW-O-004": {
    "name": "theEmergencyFund",
-   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Debt minimums = the required monthly payment of every debt added up, leaving out ONE mortgage — the home's — when the budget already carries an amount for rent or housing: the mortgage whose payment is nearest that budgeted amount. No mortgage is left out when the only property on record is not lived in (a rental, a second home, land), because the housing line is then rent. Essentials for a month = essential expenses (from logged expenses where there are enough, otherwise from the profile) + debt minimums. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Housing disagreement: when housing is budgeted, a mortgage payment exists and the two amounts differ, it gives both and the difference. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A housing disagreement is reported only between the budget line and that one mortgage. A target, and the months left after a shock, are given only when there is an essentials figure.",
-   "read_from": "43c9a6b113",
+   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Debt minimums = the required monthly payment of every debt added up, leaving out ONE mortgage — the home's — when the budget already carries an amount for rent or housing: the mortgage whose payment is nearest that budgeted amount. No mortgage is left out when the only property on record is not lived in (a rental, a second home, land), because the housing line is then rent. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. A payment logged against a debt (an expense in the category Debt payment, named for that debt) is left out of that average whenever the debt's required payment is counted in debt minimums, so it is not counted twice; the home's mortgage is the one debt left out of debt minimums, so its logged payments stay in. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Housing disagreement: when housing is budgeted, a mortgage payment exists and the two amounts differ, it gives both and the difference. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A housing disagreement is reported only between the budget line and that one mortgage. A target, and the months left after a shock, are given only when there is an essentials figure.",
+   "read_from": "b121c51f4b",
    "sent_as": "aca43cd91b"
   },
   "MK-NW-O-005": {
@@ -1703,7 +1703,7 @@
   },
   "MK-NW-O-006": {
    "name": "theHolding",
-   "rule": "Shares = shares of every purchase added up. Total paid = shares × cost per share over every purchase (× 100 for an option contract unless the holding states its own multiplier). With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = value − total paid; return on cost = gain ÷ total paid (no figure when nothing was paid). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = total paid ÷ (shares × that multiplier), so it is in the unit the price is quoted in (0 with no shares). Closed = shares zero or less. Day change = last close − the close before, and that ÷ the close before; none with fewer than two closes. Dividends = dividend records that name this ticker: the last 365 days, and all time. Realised gain = from the sale records of this ticker in this account.",
+   "rule": "Shares = shares of every purchase still held, added up; a sale has already taken its shares from the purchases, oldest purchase date first (a purchase with no date last). Total paid = shares × cost per share over every purchase (× 100 for an option contract unless the holding states its own multiplier). With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = value − total paid; return on cost = gain ÷ total paid (no figure when nothing was paid). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = total paid ÷ (shares × that multiplier), so it is in the unit the price is quoted in (0 with no shares). Closed = shares zero or less. Day change = last close − the close before, for ONE share (it is shown under the price of one share, not multiplied by shares held), and that ÷ the close before; none with fewer than two closes. Gain if sold today is split by purchase: long-term = purchases held MORE than one year; a purchase held exactly one year or less is short-term. Dividends = dividend records that name this ticker: the last 365 days, and all time. Realised gain = from the sale records of this ticker in this account.",
    "read_from": "c5ff5711b9",
    "sent_as": "b5f1daf09f"
   },
@@ -1715,8 +1715,8 @@
   },
   "MK-NW-O-008": {
    "name": "thePerformance",
-   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), and cash transferred between accounts (out of the first, into the second). Today's value is read from the accounts as they stand; with no accounts handed in, the ending handed in closes the record. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out of the accounts; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
-   "read_from": "d09f023830",
+   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and the first recorded value of an account that joined the record inside the period (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Today's value is read from the accounts as they stand; with no accounts handed in, the ending handed in closes the record. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out and the record does not say which way or what they were worth; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
+   "read_from": "bdd89e805d",
    "sent_as": "4afbd2f788"
   },
   "MK-PF-F-001": {
@@ -1857,30 +1857,6 @@
    "read_from": "365946ef93",
    "sent_as": "0243077ca8"
   },
-  "MK-PF-F-024": {
-   "name": "userFlows",
-   "rule": "The money the person put into or took out of the named accounts, each with its date. Opening cash, opening positions (shares × price) and deposits count as money in, written as negative; withdrawals as money out, positive. A transfer counts only when the other side is outside the named accounts: out when it leaves, in when it arrives. Amounts under half a cent are dropped. Sorted by date.",
-   "read_from": "98aa4c89cc",
-   "sent_as": "98aa4c89cc"
-  },
-  "MK-PF-F-025": {
-   "name": "historyIsComplete",
-   "rule": "True only when every named account has at least one record and its earliest record is opening cash, an opening position or a deposit.",
-   "read_from": "a21e0cf8a7",
-   "sent_as": "a21e0cf8a7"
-  },
-  "MK-PF-F-026": {
-   "name": "moneyWeightedReturn",
-   "rule": "No answer, reason no history, unless the history is complete (historyIsComplete) and there is at least one amount of money put in. Reason too short when fewer than 30 days have passed since the first movement. Otherwise it solves, by halving the range between −95% and +1,000% a year up to 100 times, for the yearly rate at which the dated movements and the current value net to zero (npv). Reason no solution when no rate in that range does.",
-   "read_from": "7d349b312b",
-   "sent_as": "7d349b312b"
-  },
-  "MK-PF-F-027": {
-   "name": "isMoneyWeighted",
-   "rule": "True when the answer from moneyWeightedReturn carries a rate; false when it carries a reason instead.",
-   "read_from": "49273769e5",
-   "sent_as": "49273769e5"
-  },
   "MK-PF-F-028": {
    "name": "realizedFromLedger",
    "rule": "Uses buy, opening-position and sale records that name a ticker, with shares above zero and a price, for the ticker and account asked for, in date order. A sale is matched to the earliest purchases first, within one account and one ticker. Gain on a sale = matched shares × sale price − what those shares cost. All-time = every sale; this year = sales dated in today's calendar year. A sale of more shares than the purchases on record counts only the matched part and is tallied as a sale without a cost on record.",
@@ -1892,12 +1868,6 @@
    "rule": "The close of the last price dated on or before the target date. When every price on record is later than the target, the FIRST close on record. Nothing with no prices.",
    "read_from": "49a06b3853",
    "sent_as": "49a06b3853"
-  },
-  "MK-PF-F-030": {
-   "name": "npv",
-   "rule": "Each money movement ÷ (1 + rate) to the power of (days since the first movement ÷ 365), added up, plus the ending value divided the same way for the end date.",
-   "read_from": "148234f724",
-   "sent_as": "148234f724"
   },
   "MK-PF-F-031": {
    "name": "contractMultiplier",
@@ -1984,6 +1954,15 @@
     "MK-NW-F-104": "15b5ce0de6",
     "MK-NW-O-008": "d09f023830",
     "MK-CF-O-004": "30c9b86317"
+   }
+  },
+  {
+   "file": "moneykeel_audit_cards_changed-since-sent_03.md",
+   "cards": {
+    "MK-CF-F-139": "9167ceb5f2",
+    "MK-NW-O-001": "e469bdf2d1",
+    "MK-NW-O-004": "b121c51f4b",
+    "MK-NW-O-008": "bdd89e805d"
    }
   }
  ]

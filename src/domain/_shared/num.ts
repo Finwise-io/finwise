@@ -82,10 +82,9 @@ export const toNum = (v: any): number => {
  *               MK-NW-F-078 ONE · MK-NW-F-081 LB
  *               MK-PF-F-013 benchmarkTicker · MK-PF-F-014 buildPerformance
  *               MK-PL-F-030 onCourseSentence · MK-ST-F-012 toLedgerRow
- *               MK-ST-F-044 setMoneyFormat · MK-ST-F-064 modifiedDietzOverWindow
- *               MK-XS-F-004 buildDatedGrid
+ *               MK-ST-F-044 setMoneyFormat · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 136 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 135 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
@@ -95,7 +94,7 @@ export const toNum = (v: any): number => {
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 118 more — the full list is on functions_from_code
+ *               … and 117 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -78,7 +78,7 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
 import { ingestSync as ingestSyncPure, type AccountSyncPayload } from '../services/sync/ingest';
 import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, dailyWindowStart, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
-import { rebuildDays } from '../../Calculation Module code/engines/rebuild-history';
+import { rebuildDays, fillBetweenObservations } from '../../Calculation Module code/engines/rebuild-history';
 import { newEntityId } from '../domain/_shared/ids';
 import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
@@ -1004,6 +1004,9 @@ export const useStore = create<AppState>()(
         const observed = new Set(((s.snapshotDays ?? []) as SnapshotDay[]).filter((d) => d.origin === 'observed').map((d) => d.date));
         let days: SnapshotDay[] = s.snapshotDays ?? [];
         for (const d of out.days) if (!observed.has(d.date)) days = recordSnapshotDay(days, d);
+        // a hand-entered account that held the same things on the two observed days either side of a
+        // rebuilt day is given its value on that day, so the day can speak for every account together
+        days = fillBetweenObservations(days, (key: string, day: string) => closeOnOrBefore(s.priceCache?.[key.toUpperCase()], day));
         return { snapshotDays: pruneSnapshots(days, today), rebuiltFrom: out.startByAccount, rebuiltAt: new Date().toISOString() };
       }),
       setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),

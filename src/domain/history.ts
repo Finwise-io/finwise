@@ -155,7 +155,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-131 toInt
  *               MK-XS-F-171 numOrNaN · MK-XS-F-175 uid
  *
- * Reaches ..... 314 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 313 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -165,7 +165,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               … and 296 more — the full list is on functions_from_code
+ *               … and 295 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -289,48 +289,10 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
     .sort((a, b) => (a.month < b.month ? -1 : 1));
 }
 
-/** FOUNDER RULE 2026-08-04: the NW change PERCENT is measured on cash + investments only —
- *  property values move only when someone retypes them, so a total-net-worth percent is noise.
- *  Baseline = the earliest invDaily point on/after the change line's own baseline date; the
- *  percent exists ONLY when that history exists (never back-guessed). Returns % (1dp) or null. */
-/* ─ MK-XS-F-010 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * investableChangePct
- *
- * Answers ..... FOUNDER RULE 2026-08-04: the NW change PERCENT is measured on cash + investments only — property values move only when someone retypes them, so a total-net-worth percent is noise.
- *
- * Formula .....
- *     nothing   when since key is missing (or not (current investable > 0) when missing or zero)
- *     base = (inv daily as any)[base key]   if base key ≠ nothing
- *     nothing   otherwise
- *     nothing   when base is not a number (or not (base > 0) when missing or zero)
- *     the answer = ((current investable − base) ÷ base) × 100
- *
- * Called by ... MK-NW-F-101 PLAN
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-XS-F-010
- * Changed ..... 2026-08-05 (db8f3c8)
- */
-export function investableChangePct(
-  invDaily: Record<string, unknown> | null | undefined,
-  currentInvestable: number,
-  sinceKey: string | null | undefined,
-): number | null {
-  if (!sinceKey || !(currentInvestable > 0)) return null;
-  // a daily key compares lexically against either baseline form ('YYYY-MM' or 'YYYY-MM-DD')
-  const baseKey = Object.keys(invDaily ?? {})
-    .filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k) && k >= sinceKey)
-    .sort()[0];
-  const base = baseKey != null ? (invDaily as any)[baseKey] : null;
-  if (typeof base !== 'number' || !(base > 0)) return null;
-  // Q49 (2026-09-09): full precision here — it used to round to one decimal INSIDE the function, so the
-  // screen's two decimals (founder 2026-09-14) printed +0.50% for a real +0.53%. Rounding happens at display.
-  return ((currentInvestable - base) / base) * 100;
-}
+// THE NET WORTH CHANGE PERCENT IS NOT WORKED OUT HERE ANY MORE. It was a change in balance on cash +
+// investments (founder rule 2026-08-04: never on total net worth, because property moves only when
+// retyped). Owner decision, 2026-10-04 (DEC-1669): every return is time-weighted — MK-NW-O-003
+// theNetWorth works it out from the daily record, and the balance-change function was removed.
 
 /** THE CHANGE WALK (founder-approved final mock, 2026-08-04) — what drove the net-worth change,
  *  in the founder's structure. The rows ALWAYS sum to the ending value, by construction:

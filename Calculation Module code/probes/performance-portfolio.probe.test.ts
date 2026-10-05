@@ -6,7 +6,6 @@
 //
 // The personal return is the most honest engine in the app: it refuses to answer rather than guess,
 // in four separate ways. It is worth documenting precisely because its refusals are the feature.
-import { moneyWeightedReturn, isMoneyWeighted, historyIsComplete, userFlows } from '../../src/domain/performance/moneyWeighted';
 import { attribution, allocation, topHoldingConcentration, benchmarkTicker } from '../../src/domain/performance';
 import { factorOverMonths, lookBack } from '../../src/domain/performance/lookBack';
 
@@ -15,65 +14,8 @@ const txn = (o: any) => ({ txn_id: 't', account_id: 'a', date: '2025-01-01', typ
 const IDS = new Set(['a']);
 const NOW = Date.parse('2026-08-17T12:00:00Z');
 
-// ════════════════════════════════════════════════════════════════════════════════════════════════
-// PERSONAL_RETURN  ·  and its four refusals
-// DERIVATION RULE: only money CROSSING THE BOUNDARY counts as a flow. A buy or a sell moves money
-// inside the account and must never be counted — the same rule that broke Vanguard, one layer up.
-// ════════════════════════════════════════════════════════════════════════════════════════════════
-describe('PERSONAL_RETURN', () => {
-  test('a buy or a sell is NOT a flow — only money in and out of the account is', () => {
-    const flows = userFlows([
-      txn({ type: 'DEPOSIT', amount: 10_000 }),
-      txn({ type: 'BUY', amount: 9_000 }), txn({ type: 'SELL', amount: 4_000 }),
-      txn({ type: 'DIVIDEND', amount: 120 }), txn({ type: 'INTEREST', amount: 5 }),
-      txn({ type: 'WITHDRAWAL', amount: 2_000 }),
-    ], IDS);
-    expect(flows).toHaveLength(2);                      // the deposit and the withdrawal, nothing else
-  });
-
-  test('money IN is negative and money OUT positive — the investor convention, and easy to invert', () => {
-    expect(userFlows([txn({ type: 'DEPOSIT', amount: 10_000 })], IDS)[0].amount).toBe(-10_000);
-    expect(userFlows([txn({ type: 'WITHDRAWAL', amount: 2_000 })], IDS)[0].amount).toBe(2_000);
-  });
-
-  test('a transfer BETWEEN two measured accounts cancels; one crossing the edge is real', () => {
-    const both = new Set(['a', 'b']);
-    expect(userFlows([txn({ type: 'TRANSFER', amount: 500, counter_account_id: 'b' })], both)).toHaveLength(0);
-    expect(userFlows([txn({ type: 'TRANSFER', amount: 500, counter_account_id: 'z' })], IDS)).toHaveLength(1);
-  });
-
-  test('REFUSAL 1 — a balance older than its ledger cannot be reconstructed, so it is not', () => {
-    // the first row must be an opening or a deposit; a SELL first means the story starts mid-way
-    expect(historyIsComplete([txn({ type: 'SELL', amount: 100 })], [acct('a')], IDS)).toBe(false);
-    expect(historyIsComplete([], [acct('a')], IDS)).toBe(false);
-    expect(historyIsComplete([txn({ type: 'OPENING_CASH', amount: 100 })], [acct('a')], IDS)).toBe(true);
-    expect((moneyWeightedReturn([txn({ type: 'SELL' })], [acct('a')], IDS, 1000, NOW) as any).reason).toBe('no_history');
-  });
-
-  test('REFUSAL 2 — under 30 days is noise once annualised, so it declines to annualise it', () => {
-    const r = moneyWeightedReturn([txn({ type: 'DEPOSIT', amount: 1000, date: '2026-08-01' })], [acct('a')], IDS, 1100, NOW);
-    expect((r as any).reason).toBe('too_short');
-  });
-
-  test('it answers when the history genuinely supports it, and the answer is a yearly rate', () => {
-    const r = moneyWeightedReturn(
-      [txn({ type: 'OPENING_CASH', amount: 100_000, date: '2025-08-17' })], [acct('a')], IDS, 110_000, NOW);
-    expect(isMoneyWeighted(r)).toBe(true);
-    if (isMoneyWeighted(r)) {
-      expect(r.ratePerYear).toBeCloseTo(0.10, 2);       // 100k → 110k over a year
-      expect(r.flows).toBe(1);
-      expect(r.sinceDays).toBe(365);
-    }
-  });
-
-  test('TIMING SHOWS UP, which is the whole point of this measure', () => {
-    // Same money, same ending value — but added later, so it worked for less time and earns MORE
-    // per year. A price-based return cannot see this; a personal return must.
-    const early = moneyWeightedReturn([txn({ type: 'OPENING_CASH', amount: 50_000, date: '2024-08-17' })], [acct('a')], IDS, 60_000, NOW);
-    const late  = moneyWeightedReturn([txn({ type: 'OPENING_CASH', amount: 50_000, date: '2025-08-17' })], [acct('a')], IDS, 60_000, NOW);
-    expect((late as any).ratePerYear).toBeGreaterThan((early as any).ratePerYear);
-  });
-});
+// PERSONAL_RETURN — the money-weighted rate (src/domain/performance/moneyWeighted.ts) — was probed here.
+// The function was removed on 2026-10-04 (owner decision DEC-1669: every return is time-weighted).
 
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 // ATTRIBUTION · ALLOCATION · CONCENTRATION

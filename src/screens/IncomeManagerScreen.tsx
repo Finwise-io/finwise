@@ -298,7 +298,7 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
             </View>
             <View style={s.card}>
               <Money label="Rent you receive each month" value={r.income} onChangeText={(v) => write(i, { income: v })} a11y={`Rent you receive each month, property ${i + 1}`} />
-              <Money label="What it costs to run each month" hint="Mortgage interest, tax, insurance, repairs, management."
+              <Money label="What it costs to run each month" hint="Tax, insurance, repairs, management."
                 value={r.expenses} onChangeText={(v) => write(i, { expenses: v })} a11y={`What it costs to run each month, property ${i + 1}`} />
               <Row label="= You keep" value={`${fig('MK-CF-M-010', keep)}/month`} strong />
               <Text style={s.note}>

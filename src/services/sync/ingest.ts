@@ -277,6 +277,10 @@ export function ingestSync(
         // the function layer, where every total now runs exact.
         amount: row.amount.isZero() ? undefined : row.amount.toNumber(2),
         reinvested: row.reinvested,
+        // WHICH WAY THE SHARES WENT. "Transferred in" and "transferred out" both become TRANSFER_IN_KIND,
+        // so the type alone cannot say — and a return across that day counted the shares as gained or
+        // lost. The row already knows the direction; it is written down here so it is not lost.
+        direction: row.event === 'SECURITIES_IN' ? 'IN' : row.event === 'SECURITIES_OUT' ? 'OUT' : undefined,
         note: [row.note, row.recognised ? undefined : `broker word: ${row.sourceWord}`]
           .filter(Boolean).join(' · ') || undefined,
         source: 'connected',

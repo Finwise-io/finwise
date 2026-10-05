@@ -2,7 +2,8 @@
 // one history"). The test the whole feature stands on: the shares on a past day are whatever the
 // RECORDS say they were — never today's share count priced at an old date, which is what the old
 // back-fill did and why the app disagreed with the broker's own statement.
-import { rebuildDays, rebuildableFrom, rebuiltSentence, type RebuildTxn } from '../rebuild-history';
+import { rebuildDays, rebuildableFrom, rebuiltSentence, fillBetweenObservations, type RebuildTxn } from '../rebuild-history';
+import { timeWeightedReturn } from '../time-weighted-return';
 import { valueOn } from '../snapshots';
 
 const ACC = 'et1';
@@ -42,6 +43,17 @@ describe('where a rebuilt line may start', () => {
 });
 
 describe('the walk backwards', () => {
+  test('shares that were transferred OUT are put back; shares that came IN are taken back out (2026-10-04)', () => {
+    const txns: RebuildTxn[] = [
+      { date: '2026-08-01', type: 'TRANSFER_IN_KIND', account_id: ACC, ticker: 'LCTX', shares: 30, direction: 'OUT' },
+      { date: '2026-07-25', type: 'TRANSFER_IN_KIND', account_id: ACC, ticker: 'LCTX', shares: 50, direction: 'IN' },
+      { date: '2026-07-20', type: 'DEPOSIT', account_id: ACC, amount: 1 },
+    ];
+    const out = rebuildDays({ ...base, accounts: [account(100, 0)] as any, transactions: txns, priceOn: flat });
+    const unitsOn = (d: string) => out.days.find((x) => x.date === d)!.holdings.reduce((t, h) => t + h.units, 0);
+    expect(unitsOn('2026-07-31')).toBe(130);        // before 30 went out there were 130 — it used to say 70
+    expect(unitsOn('2026-07-24')).toBe(80);         // and before 50 came in, 80
+  });
   test('a purchase is undone: before the buy there were fewer shares and more cash', () => {
     const txns: RebuildTxn[] = [
       { date: '2026-08-01', type: 'BUY', account_id: ACC, ticker: 'LCTX', shares: 40, price: 10 },
@@ -140,5 +152,64 @@ describe('what the screen says about it', () => {
   });
   test('no rebuilt history, no sentence', () => {
     expect(rebuiltSentence('E*TRADE', null)).toBe('');
+  });
+});
+
+/** A HAND-ENTERED ACCOUNT ON THE DAYS BETWEEN TWO OBSERVATIONS (2026-10-04). A rebuilt day holds linked
+ *  accounts only, so it could not speak for a household that also has a hand-entered account — and
+ *  money moving in the linked account on such a day left the combined return unmeasurable. */
+describe('fillBetweenObservations', () => {
+  const seen = (date: string, hand: { units: number; price: number | null; cash?: number }, linked: number) => ({
+    date, origin: 'observed', writtenAt: 'x',
+    holdings: [{ date, accountId: 'hand', securityKey: 'ABC', units: hand.units, price: hand.price, value: hand.units * (hand.price ?? 10), currency: 'USD' },
+               { date, accountId: 'linked', securityKey: 'VTI', units: 1, price: linked, value: linked, currency: 'USD' }],
+    accounts: [{ date, accountId: 'hand', cash: hand.cash ?? 0, statedTotal: null, currency: 'USD' }, { date, accountId: 'linked', cash: 0, statedTotal: null, currency: 'USD' }],
+  }) as any;
+  const rebuilt = (date: string, linked: number) => ({
+    date, origin: 'reconstructed', writtenAt: 'x',
+    holdings: [{ date, accountId: 'linked', securityKey: 'VTI', units: 1, price: linked, value: linked, currency: 'USD' }],
+    accounts: [{ date, accountId: 'linked', cash: 0, statedTotal: null, currency: 'USD' }],
+  }) as any;
+  const closes: Record<string, number> = { '2026-03-02': 21, '2026-03-03': 22 };
+  const priceOn = (key: string, day: string) => (key === 'ABC' ? closes[day] ?? null : null);
+  const handOn = (days: any[], date: string) => days.find((d) => d.date === date)!.holdings.find((h: any) => h.accountId === 'hand');
+
+  test('the same shares and cash on both sides: the days between get those shares at each day’s close', () => {
+    const days = fillBetweenObservations([seen('2026-03-01', { units: 100, price: 20 }, 50_000), rebuilt('2026-03-02', 51_000), rebuilt('2026-03-03', 52_000), seen('2026-03-04', { units: 100, price: 23 }, 53_000)], priceOn);
+    expect(handOn(days, '2026-03-02')).toMatchObject({ units: 100, price: 21, value: 2_100 });
+    expect(handOn(days, '2026-03-03')).toMatchObject({ units: 100, price: 22, value: 2_200 });
+    expect(days.find((d) => d.date === '2026-03-02')!.origin).toBe('reconstructed');        // a rebuilt day stays marked as one
+  });
+
+  test('different shares on the two sides: something changed on a day nobody saw, so nothing is filled', () => {
+    const days = fillBetweenObservations([seen('2026-03-01', { units: 100, price: 20 }, 50_000), rebuilt('2026-03-02', 51_000), seen('2026-03-04', { units: 150, price: 23 }, 53_000)], priceOn);
+    expect(handOn(days, '2026-03-02')).toBeUndefined();
+    // …and the same for cash that moved
+    const cash = fillBetweenObservations([seen('2026-03-01', { units: 100, price: 20, cash: 0 }, 50_000), rebuilt('2026-03-02', 51_000), seen('2026-03-04', { units: 100, price: 23, cash: 500 }, 53_000)], priceOn);
+    expect(handOn(cash, '2026-03-02')).toBeUndefined();
+  });
+
+  test('no price for a day leaves that day without the account; a holding never priced keeps its entered value', () => {
+    const gap = fillBetweenObservations([seen('2026-03-01', { units: 100, price: 20 }, 50_000), rebuilt('2026-03-05', 51_000), seen('2026-03-08', { units: 100, price: 23 }, 53_000)], priceOn);
+    expect(handOn(gap, '2026-03-05')).toBeUndefined();
+    const unpriced = fillBetweenObservations([seen('2026-03-01', { units: 100, price: null }, 50_000), rebuilt('2026-03-02', 51_000), seen('2026-03-04', { units: 100, price: null }, 53_000)], priceOn);
+    expect(handOn(unpriced, '2026-03-02')).toMatchObject({ units: 100, price: null, value: 1_000 });
+  });
+
+  test('nothing is filled before the account was first observed, and an observed day is never touched', () => {
+    const input = [rebuilt('2026-02-27', 49_000), seen('2026-03-01', { units: 100, price: 20 }, 50_000), rebuilt('2026-03-02', 51_000), seen('2026-03-04', { units: 100, price: 23 }, 53_000)];
+    const days = fillBetweenObservations(input, priceOn);
+    expect(handOn(days, '2026-02-27')).toBeUndefined();
+    expect(days.find((d) => d.date === '2026-03-01')).toBe(input[1]);
+  });
+
+  test('so money that moved in the linked account on a day the app was not opened can be measured for the two together', () => {
+    const record = [seen('2026-03-01', { units: 100, price: 20 }, 50_000), rebuilt('2026-03-02', 61_000), seen('2026-03-04', { units: 100, price: 23 }, 62_220)];
+    const ask = (days: any[]) => timeWeightedReturn({ days, accountIds: new Set(['hand', 'linked']), start: '2026-03-01', end: '2026-03-04',
+      flows: [{ date: '2026-03-02', accountId: 'linked', amount: 10_000 }] });
+    expect(ask(record)).toMatchObject({ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: '2026-03-02' });   // before: no figure
+    const v = ask(fillBetweenObservations(record, priceOn));
+    // 2 Mar: 61,000 + 2,100 = 63,100, of which 10,000 arrived that day → 53,100 on 52,000; then 64,520 on 63,100
+    expect(v.rate).toBeCloseTo((53_100 / 52_000) * (64_520 / 63_100) - 1, 12);
   });
 });

@@ -19,7 +19,8 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-CF-O-017 futurePaycheck · MK-NW-O-003 theNetWorth
  *               MK-PL-F-004 withdrawalOrder · MK-PL-F-036 weighGoals
  *               MK-PL-F-082 taxableIncomeSteps · MK-ST-F-049 formatMoney
- *               MK-ST-F-081 timeWeightedReturn · MK-XS-F-183 writeFigure
+ *               MK-ST-F-073 rebuildDays · MK-ST-F-081 timeWeightedReturn
+ *               MK-XS-F-183 writeFigure
  *
  * Reaches ..... 155 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING

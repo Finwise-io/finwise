@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v03 · 2026-10-04
+MoneyKeel · calculation audit · v04 · 2026-10-04
 
 ## What this is
 
@@ -77,10 +77,11 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
+   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the Modified Dietz method; the standard loan-payment formula).
+   method (for example, the time-weighted return; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -311,6 +312,9 @@ export interface Bonds {
   totalFace: number;
   couponPerYear: number;
   avgYield: number | null;
+  /** The bonds the average yield leaves out, by name: the ones with no value today. A screen that
+   *  shows the average names them, so nobody reads it as an average of every bond listed. */
+  leftOutOfAverage: string[];
   /** The soonest maturity date among them, so the screen need not sort for itself. */
   nextMaturity: string | null;
   rows: BondRow[];
@@ -461,7 +465,7 @@ export interface TheNetWorth {
   "name": "theBonds",
   "kind": "orchestrator",
   "what_it_is_for": "What bonds and CDs do I hold, what do they pay, and when do they mature?",
-  "formula_in_words": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures.",
+  "formula_in_words": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures. It also names the bonds the average yield leaves out — those with no value today after accrued interest — so a screen can say which.",
   "handed": "export function theBonds(input: BondsInput): Bonds",
   "inputs_it_reads": [
    "MK-XS-I-001 account balance",
@@ -471,7 +475,7 @@ export interface TheNetWorth {
    "MK-XS-I-012 bond coupon rate",
    "MK-XS-I-013 bond maturity date",
    "MK-XS-I-028 assumed return",
-   "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
+   "MK-XS-I-049 bond price — what the bond is worth today"
   ],
   "figures_it_feeds": [
    {
@@ -968,8 +972,8 @@ export interface TheNetWorth {
     "id": "MK-NW-M-002",
     "words_on_screen": "Return on cash + investments",
     "unit": "percent-2dp",
-    "what_it_answers": "How much your money that is not a house or a car has moved, since the day you are comparing against.",
-    "when_it_refuses": "The record does not reach back that far, so it shows nothing rather than a made-up change.",
+    "what_it_answers": "How much your cash and investments have grown since the day you are comparing against, with money you added or took out left out.",
+    "when_it_refuses": "No figure: the record does not reach back to the day compared from, or money moved on a day with no recorded value.",
     "shown_on": [
      "/analytics"
     ]
@@ -1416,7 +1420,17 @@ export interface TheNetWorth {
    {
     "said_by": "author",
     "about": "MK-NW-M-002",
-    "words": "No recorded day on or after the baseline → no figure. A movement from a day nobody recorded is not a movement."
+    "words": "EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): \"All return should be True Weighted Return and not Dietz return.\" It was a change in balance, so money paid in read as money earned."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-002",
+    "words": "THE DAY COMPARED FROM MUST BE ON RECORD. A comparison from before the record begins gives no figure — never one quietly measured from a later day."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-002",
+    "words": "CASH EARNS ONLY INTEREST. A paycheck arriving or a bill being paid is money moving, counted on the day the record first shows it."
    },
    {
     "said_by": "author",
@@ -1527,7 +1541,7 @@ export interface TheNetWorth {
   "name": "theEmergencyFund",
   "kind": "orchestrator",
   "what_it_is_for": "How many months of essential expenses would my cash cover?",
-  "formula_in_words": "Cash = all cash (cashTotal), or the amount handed in when one is given. Debt minimums = the required monthly payment of every debt added up, leaving out ONE mortgage — the home's — when the budget already carries an amount for rent or housing: the mortgage whose payment is nearest that budgeted amount. No mortgage is left out when the only property on record is not lived in (a rental, a second home, land), because the housing line is then rent. Essentials for a month = essential expenses (from logged expenses where there are enough, otherwise from the profile) + debt minimums. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Housing disagreement: when housing is budgeted, a mortgage payment exists and the two amounts differ, it gives both and the difference. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A housing disagreement is reported only between the budget line and that one mortgage. A target, and the months left after a shock, are given only when there is an essentials figure.",
+  "formula_in_words": "Cash = all cash (cashTotal), or the amount handed in when one is given. Debt minimums = the required monthly payment of every debt added up, leaving out ONE mortgage — the home's — when the budget already carries an amount for rent or housing: the mortgage whose payment is nearest that budgeted amount. No mortgage is left out when the only property on record is not lived in (a rental, a second home, land), because the housing line is then rent. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. A payment logged against a debt (an expense in the category Debt payment, named for that debt) is left out of that average whenever the debt's required payment is counted in debt minimums, so it is not counted twice; the home's mortgage is the one debt left out of debt minimums, so its logged payments stay in. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Housing disagreement: when housing is budgeted, a mortgage payment exists and the two amounts differ, it gives both and the difference. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A housing disagreement is reported only between the budget line and that one mortgage. A target, and the months left after a shock, are given only when there is an essentials figure.",
   "handed": "export function theEmergencyFund(input: {\n  accounts: AssetAccount[];\n  expenses: any[];\n  profile: any;\n  /** The debts, so their minimums are counted. Missing means none entered, not none owed. */\n  debts?: Debt[];\n  /** Stress test lets a person TRY a cash figure of their own. It is seeded from their real cash and\n   *  editable, so the door takes what they typed and answers about that — the arithmetic is the same\n   *  question, asked of a number they chose. Absent, the answer is about the cash they actually have. */\n  cashOverride?: number;\n  /** Job safety lets a person TYPE what a typical month of essentials comes to. Given, it stands in\n   *  for the whole month — exactly as it did when that screen multiplied it out for itself. */\n  essentialsOverride?: number;\n}): EmergencyFund",
   "inputs_it_reads": [
    "MK-XS-I-001 account balance",
@@ -1803,7 +1817,7 @@ export interface TheNetWorth {
   "name": "theHolding",
   "kind": "orchestrator",
   "what_it_is_for": "How is this one holding doing: its value, its cost, and its gains realised and not yet realised?",
-  "formula_in_words": "Shares = shares of every purchase added up. Total paid = shares × cost per share over every purchase (× 100 for an option contract unless the holding states its own multiplier). With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = value − total paid; return on cost = gain ÷ total paid (no figure when nothing was paid). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = total paid ÷ (shares × that multiplier), so it is in the unit the price is quoted in (0 with no shares). Closed = shares zero or less. Day change = last close − the close before, and that ÷ the close before; none with fewer than two closes. Dividends = dividend records that name this ticker: the last 365 days, and all time. Realised gain = from the sale records of this ticker in this account.",
+  "formula_in_words": "Shares = shares of every purchase still held, added up; a sale has already taken its shares from the purchases, oldest purchase date first (a purchase with no date last). Total paid = shares × cost per share over every purchase (× 100 for an option contract unless the holding states its own multiplier). With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = value − total paid; return on cost = gain ÷ total paid (no figure when nothing was paid). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = total paid ÷ (shares × that multiplier), so it is in the unit the price is quoted in (0 with no shares). Closed = shares zero or less. Day change = last close − the close before, for ONE share (it is shown under the price of one share, not multiplied by shares held), and that ÷ the close before; none with fewer than two closes. Gain if sold today is split by purchase: long-term = purchases held MORE than one year; a purchase held exactly one year or less is short-term. Dividends = dividend records that name this ticker: the last 365 days, and all time. Realised gain = from the sale records of this ticker in this account.",
   "handed": "export function theHolding(input: {\n  position: Position;\n  accountId: string;\n  price: number | null;\n  transactions: any[];\n  now?: Date;\n  /** The recent daily closes, oldest first. Two are enough for the day's change. */\n  recentCloses?: number[];\n}): HoldingAnswer",
   "inputs_it_reads": [
    "MK-XS-I-004 holding quantity (shares)",

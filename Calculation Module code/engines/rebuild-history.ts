@@ -34,6 +34,8 @@ export interface RebuildTxn {
   price?: number;               // per share
   amount?: number;              // cash amount
   reinvested?: boolean;
+  /** A broker's share transfer: which way the shares went. Absent on rows stored before 2026-10-04. */
+  direction?: 'IN' | 'OUT';
 }
 
 /** A holding's state on a day, as the records leave it. */
@@ -248,6 +250,8 @@ export function rebuildableFrom(txns: RebuildTxn[], accountId: string): string |
  *     cash = (id: string, by: number) => cash of.set(id, (cash of.get(id) ?? 0) + by)
  *     m = `${id}|${k}`
  *     cur = held.get(m) (or units = 0 when missing)
+ *     came = -1   if direction = 'OUT'
+ *     1   otherwise
  *
  * Called by ... MK-ST-F-073 rebuildDays
  *
@@ -302,10 +306,14 @@ function undo(t: RebuildTxn, held: Map<string, Held>, cashOf: Map<string, number
       cash(acc, amountOf(t.amount));
       if (t.counter_account_id) cash(t.counter_account_id, -amountOf(t.amount));
       break;
-    case 'TRANSFER_IN_KIND':
-      units(acc, key, -amountOf(t.shares));
-      if (t.counter_account_id) units(t.counter_account_id, key, amountOf(t.shares));
+    case 'TRANSFER_IN_KIND': {
+      // shares that came IN are taken back out; shares that went OUT are put back. A row that does
+      // not say which way is read as it always was — as shares that came in.
+      const came = t.direction === 'OUT' ? -1 : 1;
+      units(acc, key, -came * amountOf(t.shares));
+      if (t.counter_account_id) units(t.counter_account_id, key, came * amountOf(t.shares));
       break;
+    }
     case 'DIVIDEND':
     case 'INTEREST':
     case 'COUPON':
@@ -375,7 +383,7 @@ export interface RebuildResult {
  *     symbol of = new map<string, string>()
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-XS-F-175 uid
+ * Called by ... MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
  *
  * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
@@ -493,6 +501,85 @@ export function rebuildDays(input: RebuildInput): RebuildResult {
 
   days.reverse();                                       // oldest first, the way the record reads
   return { days, startByAccount, skipped };
+}
+
+/** A hand-entered account's value on the rebuilt days between two days it was observed on, when it held exactly the same things on both. */
+/* ─ MK-ST-F-084 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * fillBetweenObservations
+ *
+ * Answers ..... A hand-entered account's value on the rebuilt days between two days it was observed on, when it held exactly the same things on both.
+ *
+ * Formula .....
+ *     out = [...(days ?? [])].sort((x, y) => date.locale compare(date))
+ *     observed = out where origin = 'observed'
+ *     ids = a list with no repeats of observed.flat map((d) => (holdings ?? []).map((h) => account id))
+ *     a = observed[k], b = observed[k + 1]
+ *     ha = holdings where account id = id, hb = holdings where account id = id
+ *     ra = accounts.find((r) => account id = id), rb = accounts.find((r) => account id = id)
+ *     the answer = out
+ *
+ * Called by ... MK-XS-F-175 uid
+ *
+ * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               … and 39 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *               MK-XS-I-031 daily and monthly snapshots
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-084
+ * Changed ..... 2026-10-04 (3345e43)
+ */
+export function fillBetweenObservations(days: SnapshotDay[], priceOn: (securityKey: string, day: string) => number | null): SnapshotDay[] {
+  // WHY (2026-10-04, the time-weighted return). A rebuilt day holds linked accounts only. A
+  // hand-entered account with holdings had no value on it, so the day could not speak for the two
+  // together — and money that moved in the linked account on a day the app was not opened left the
+  // combined return unmeasurable. But between two days the app WAS opened, an account that held
+  // exactly the same shares and the same cash on both held them on every day in between: nothing
+  // was bought, sold, paid in or taken out. Its value on those days is those shares at each day's
+  // close. That is read from two observations, not guessed.
+  //   · Different shares or cash on the two sides → something changed in between on a day nobody
+  //     saw. Nothing is filled.
+  //   · A day with no price for one of its holdings is left without the account, as a day we cannot
+  //     price always is. A holding that has never had a price keeps the value it was entered at.
+  //   · Nothing is filled before the account was first observed: its past stays unknown.
+  const out = [...(days ?? [])].sort((x, y) => x.date.localeCompare(y.date));
+  const observed = out.filter((d) => d.origin === 'observed');
+  const ids = new Set(observed.flatMap((d) => (d.holdings ?? []).map((h) => h.accountId)));
+  for (const id of ids) {
+    for (let k = 0; k + 1 < observed.length; k += 1) {
+      const a = observed[k], b = observed[k + 1];
+      const ha = a.holdings.filter((h) => h.accountId === id), hb = b.holdings.filter((h) => h.accountId === id);
+      const ra = a.accounts.find((r) => r.accountId === id), rb = b.accounts.find((r) => r.accountId === id);
+      if (!ha.length || !ra || !rb) continue;
+      const same = ha.length === hb.length
+        && ha.every((h) => hb.some((x) => x.securityKey === h.securityKey && x.units === h.units))
+        && ra.cash === rb.cash && (ra.typedValue ?? null) === (rb.typedValue ?? null);
+      if (!same) continue;
+      for (let i = 0; i < out.length; i += 1) {
+        const d = out[i];
+        if (d.date <= a.date || d.date >= b.date || d.origin !== 'reconstructed') continue;
+        if (d.holdings.some((h) => h.accountId === id) || d.accounts.some((r) => r.accountId === id)) continue;
+        const priced = ha.map((h) => ({ h, close: h.price == null ? null : priceOn(h.securityKey, d.date) }));
+        if (priced.some((x) => x.h.price != null && x.close == null)) continue;
+        out[i] = {
+          ...d,
+          holdings: [...d.holdings, ...priced.map(({ h, close }) => ({ ...h, date: d.date, price: close, value: close == null ? h.value : h.units * close }))],
+          accounts: [...d.accounts, { ...ra, date: d.date, statedTotal: null }],
+        };
+      }
+    }
+  }
+  return out;
 }
 
 /** The one sentence the screen says about a rebuilt line: where it came from and where it starts. */

@@ -133,6 +133,17 @@ describe('audit fixes', () => {
     expect((t.shares ?? 0) * (t.price ?? 0)).toBe(1300);             // ledger math shows the true cash
   });
 
+  test('shares transferred in or out keep which way they went — the type alone cannot say (2026-10-04)', () => {
+    const r = ingestSync([], {}, [payload({ activities: [
+      { id: 'x1', type: 'EXTERNAL_ASSET_TRANSFER_IN', trade_date: '2026-06-02', units: 100, price: 120, amount: 0, symbol: { id: 'u-vti', raw_symbol: 'VTI' } as any },
+      { id: 'x2', type: 'EXTERNAL_ASSET_TRANSFER_OUT', trade_date: '2026-06-09', units: -40, price: 125, amount: 0, symbol: { id: 'u-vti', raw_symbol: 'VTI' } as any },
+    ] })], NOW);
+    const moved = r.newTransactions.filter((x) => x.type === 'TRANSFER_IN_KIND');
+    expect(moved.map((t) => [t.date, t.direction, t.shares])).toEqual([['2026-06-02', 'IN', 100], ['2026-06-09', 'OUT', 40]]);
+    // every other kind of row carries none
+    expect(r.newTransactions.filter((x) => x.type !== 'TRANSFER_IN_KIND').every((t) => t.direction == null)).toBe(true);
+  });
+
   // ── LIVE-VERIFIED against a real E*TRADE connection, 2026-07-19 ─────────────────────────────
   test('broker sells carry NEGATIVE units — the ledger stores positive shares or realized P/L never sees a single connected sale', () => {
     const r = ingestSync([], {}, [payload({ activities: [

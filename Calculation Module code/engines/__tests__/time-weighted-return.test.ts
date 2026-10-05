@@ -149,3 +149,26 @@ describe('movementsOf — which records are money moving', () => {
     expect(movementsOf([t('INTEREST', 'a', 12), t('INTEREST', 'a', 7, { reinvested: true })], ids).interest).toEqual([{ date: '2026-02-02', accountId: 'a', amount: 12 }]);
   });
 });
+
+describe('shares moved in or out are money in or out at what they were worth — when the record says so', () => {
+  const ids = new Set(['a', 'b']);
+  const moved = (more: Record<string, any>) => ({ type: 'TRANSFER_IN_KIND', account_id: 'a', date: '2026-02-02', ...more });
+  test('a broker’s row that says which way, with an amount or with shares and a price', () => {
+    expect(movementsOf([moved({ direction: 'IN', amount: 50_000 })], ids)).toMatchObject({ flows: [{ date: '2026-02-02', accountId: 'a', amount: 50_000 }], sharesMoved: [] });
+    expect(movementsOf([moved({ direction: 'OUT', shares: 100, price: 120 })], ids)).toMatchObject({ flows: [{ accountId: 'a', amount: -12_000 }], sharesMoved: [] });
+  });
+  test('a move made in the app names both accounts: out of the first, into the second', () => {
+    expect(movementsOf([moved({ counter_account_id: 'z', shares: 10, price: 30 })], ids).flows).toEqual([{ date: '2026-02-02', accountId: 'a', amount: -300 }]);
+    expect(movementsOf([moved({ account_id: 'z', counter_account_id: 'b', shares: 10, price: 30 })], ids).flows).toEqual([{ date: '2026-02-02', accountId: 'b', amount: 300 }]);
+  });
+  test('no direction, or no worth: the day is named and nothing is guessed', () => {
+    expect(movementsOf([moved({ amount: 50_000 })], ids)).toMatchObject({ flows: [], sharesMoved: ['2026-02-02'] });          // an older row: which way?
+    expect(movementsOf([moved({ direction: 'IN', shares: 100 })], ids)).toMatchObject({ flows: [], sharesMoved: ['2026-02-02'] });   // worth what?
+  });
+  test('the return across the day: $50,000 of shares arriving is not a $50,000 gain', () => {
+    const days = [day('2026-01-01', [['a', 100_000]]), day('2026-02-02', [['a', 155_000]]), day('2026-03-01', [['a', 162_750]])];
+    const m = movementsOf([moved({ direction: 'IN', amount: 50_000 })], new Set(['a']));
+    const v = timeWeightedReturn({ days, accountIds: new Set(['a']), flows: m.flows, sharesMoved: m.sharesMoved, start: '2026-01-01', end: '2026-03-01' });
+    expect(v.rate).toBeCloseTo(1.05 * 1.05 - 1, 12);              // 105,000 ÷ 100,000, then 162,750 ÷ 155,000
+  });
+});

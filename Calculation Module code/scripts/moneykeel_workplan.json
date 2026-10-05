@@ -2518,36 +2518,60 @@
   {
    "task": "The three old return calculations are still in the files, unused — remove them",
    "todo": "After DEC-1669 nothing calls MK-ST-F-064 modifiedDietzOverWindow (window-return.ts), MK-PF-F-026 moneyWeightedReturn and its helpers (src/domain/performance/moneyWeighted.ts) or MK-XS-F-010 investableChangePct (src/domain/history.ts). A guard fails the build if one is called again. Removing them touches the function register, the formula-in-words file, the function trace test, the bench page and about twenty record files, so it is its own task. MK-NW-F-102 rateWhereItRefuses IS removed (number retired).",
-   "status": "TO DO — mine.",
+   "status": "DONE",
    "ref": "src/__tests__/guard_every_return_is_time_weighted.test.ts",
    "date": "2026-10-04",
-   "comments": "",
+   "comments": "REMOVED 2026-10-04 on his instruction (\"work on fixing all 5+4 findings\"): modifiedDietzOverWindow (window-return.ts), moneyWeighted.ts whole (5 functions), investableChangePct (history.ts); their tests and probes; seven function numbers retired. The bench page's return card is now time-weighted and was rebuilt. The guard reads the engines too and fails the build if one comes back.",
    "_written": {
-    "status": "TO DO — mine.",
-    "comments": ""
+    "status": "DONE",
+    "comments": "REMOVED 2026-10-04 on his instruction (\"work on fixing all 5+4 findings\"): modifiedDietzOverWindow (window-return.ts), moneyWeighted.ts whole (5 functions), investableChangePct (history.ts); their tests and probes; seven function numbers retired. The bench page's return card is now time-weighted and was rebuilt. The guard reads the engines too and fails the build if one comes back."
    }
   },
   {
    "task": "Time-weighted return — what it cannot measure yet, and one place the dollar walk still disagrees with it",
    "todo": "KNOWN LIMITS, 2026-10-04, each shown on screen as no percent with a sentence: (1) SHARES MOVED IN OR OUT of an account (a broker \"transfer in kind\", an exchange of one fund for another): the record does not say what they were worth that day, so any window containing that day shows no return. Building it means valuing the shares at that day's price and settling which way they moved — the stored record keeps the size but not always the direction. (2) A HAND-ENTERED ACCOUNT WITH HOLDINGS has a value only on days the app was opened, so money that moved in a LINKED account on a day the app was not opened cannot be measured for the two together. (3) THE DOLLAR WALK does not yet count cash transferred in from another account, or an account that joined the record inside the window, as money put in — it lands in \"change in investment value\". The return treats both as money in, so on those households the walk and the percent tell different stories. (4) A balance typed back-dated: the record assumes each day's value already holds that day's money.",
-   "status": "TO DO — mine.",
+   "status": "PARTLY DONE — 3 of 4 fixed; one limit left, below.",
    "ref": "Calculation Module code/engines/time-weighted-return.ts",
    "date": "2026-10-04",
-   "comments": "",
+   "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money.",
    "_written": {
-    "status": "TO DO — mine.",
-    "comments": ""
+    "status": "PARTLY DONE — 3 of 4 fixed; one limit left, below.",
+    "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money."
    }
   },
   {
    "task": "A rental’s mortgage interest can be taken off twice — once in its running costs, once in Debts",
    "todo": "HIS QUESTION, 2026-10-04: \"explain this\". The Rent entry (income-end-to-end v07, phone 10) asks \"What it costs to run each month\" with the hint \"Mortgage interest, tax, insurance, repairs, management.\" So the rent that arrives is rent less running costs, mortgage interest included. If the same mortgage is also entered in Debts, its whole payment (interest + principal) is counted there too. Example: rent $2,400; running costs $1,200, of which $700 is mortgage interest; the mortgage in Debts at $1,980/month. The property really brings in 2,400 − 500 − 1,980 = −$80/month. The app counts 1,200 of rent and 1,980 of debt = −$780/month — $700 too little, every month. WHERE: MK-NW-M-013 the emergency fund (it reads short, never long), and Cash flow, which takes the same two figures. NOT FIXED. The interest belongs in running costs for the tax figure and in the payment for the cash figure, so the Rent entry needs to know whether that mortgage is in Debts — a change to an approved screen, which needs drawing first.",
-   "status": "TO DO — mine: draw the Rent entry change.",
+   "status": "DONE",
    "ref": "src/screens/IncomeManagerScreen.tsx",
+   "date": "2026-10-04",
+   "comments": "HIS RULING, 2026-10-04 (DEC-1859): \"remove langage to include interest on mortgage in maintenance expenses, as that is not standard practice.\" The hint on Rent from a property reads \"Tax, insurance, repairs, management.\" The drawing (income-end-to-end v07) carries the ruling at its top; the drawing test names the difference from phone 10. A person who already typed interest into running costs still has it there until they change it.",
+   "_written": {
+    "status": "DONE",
+    "comments": "HIS RULING, 2026-10-04 (DEC-1859): \"remove langage to include interest on mortgage in maintenance expenses, as that is not standard practice.\" The hint on Rent from a property reads \"Tax, insurance, repairs, management.\" The drawing (income-end-to-end v07) carries the ruling at its top; the drawing test names the difference from phone 10. A person who already typed interest into running costs still has it there until they change it."
+   }
+  },
+  {
+   "task": "The five smaller points of the outside review, Net worth file 1 — fixed",
+   "todo": "HIS INSTRUCTION, 2026-10-04: \"work on fixing all 5+4 findings.\" (1) MK-NW-O-004 theEmergencyFund: a payment logged against a debt (an expense in the category \"Debt payment\", named for the debt) sat in the logged average AND came back as the debt's required payment. Now left out of the average whenever that debt's required payment is counted; the home's mortgage, the one debt not counted, keeps its logged payments. (2) MK-NW-O-001 theBonds: the function names the bonds its average yield leaves out, and the Bonds screen says \"Average yield leaves out <name> — no value today.\" (3) MK-NW-M-060: its description said \"what this holding moved\"; it is one share's move, and says so. (4) Sales: a sale took shares from whichever purchase was stored first; it now takes the oldest purchase date first, as the Holding drawing says (\"oldest shares sold first\"). (5) The row \"Gain — short-term (under 1 yr)\" reads \"(held 1 yr or less)\".",
+   "status": "DONE",
+   "ref": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
+   "date": "2026-10-04",
+   "comments": "Tests: emergency_fund_rent.test.ts (the four logged-debt cases) · sale_takes_oldest_first.test.ts (4) · kept_editors_match (Bonds line) · outside_networth_01 (bonds named). Drawings Bonds v02 and Holding detail v02 carry a note at the top.",
+   "_written": {
+    "status": "DONE",
+    "comments": "Tests: emergency_fund_rent.test.ts (the four logged-debt cases) · sale_takes_oldest_first.test.ts (4) · kept_editors_match (Bonds line) · outside_networth_01 (bonds named). Drawings Bonds v02 and Holding detail v02 carry a note at the top."
+   }
+  },
+  {
+   "task": "Emergency fund on the logged average: a home whose housing cost is budgeted but never logged is counted nowhere",
+   "todo": "FOUND 2026-10-04 while fixing the logged-debt double count; NOT FIXED. When essentials come from LOGGED expenses, the Rent / Mortgage budget line is not in the figure. The home's mortgage is still left out of debt payments because the budget \"carries\" it. So a person who logs groceries and bills but never logs the mortgage, and has both a budget line and the mortgage in Debts, has their housing in neither part: the months read LONG — the dangerous direction. Fixing it means the two lines on the card (essentials, and planned level) would need different debt figures, and the card says \"Both include $X\". That is a change to what the card says.",
+   "status": "TO DO — mine: needs the card's words decided.",
+   "ref": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts",
    "date": "2026-10-04",
    "comments": "",
    "_written": {
-    "status": "TO DO — mine: draw the Rent entry change.",
+    "status": "TO DO — mine: needs the card's words decided.",
     "comments": ""
    }
   }

@@ -189,3 +189,50 @@ describe('the return is time-weighted — and nothing stands in for it', () => {
     expect(a.ret).toBeCloseTo(0.10, 10);
   });
 });
+
+/** THE DOLLAR WALK AND THE RETURN TELL ONE STORY (2026-10-04). The return counted a transfer in and a
+ *  newly added account as money put in; the walk left both in "change in investment value", so the
+ *  dollars said "gained" where the percent said "added". */
+describe('the walk counts what the return counts as money put in', () => {
+  const day = (d: string, rows: [string, number][]) => ({
+    date: d, origin: 'observed', writtenAt: 'x',
+    holdings: rows.map(([accountId, v]) => ({ accountId, securityKey: 'X', units: 1, price: v, value: v })),
+    accounts: rows.map(([accountId]) => ({ date: d, accountId, cash: 0, statedTotal: null, currency: 'USD' })),
+  });
+  const acct = (id: string, value: number) => ({ asset_id: id, label: id, kind: 'brokerage', tax_bucket: 'TAXABLE', balance: value,
+    positions: [{ position_id: `p${id}`, ticker: 'X', last_price: value, lots: [{ lot_id: 'l', shares: 1, cost_per_share: 1, purchase_date: '2024-01-02' }] }] });
+  const base = { windowStart: '2026-01-02', windowLabel: 'since Jan 1', today: '2026-09-30', pricedGain: 0 };
+
+  test('cash transferred in from a bank account is money put in — not a gain', () => {
+    const a = thePerformance({ ...base, ending: 126_000, investmentAccountIds: new Set(['b']), accounts: [acct('b', 126_000)],
+      snapshotDays: [day('2026-01-01', [['b', 100_000]]), day('2026-04-01', [['b', 120_000]])] as any,
+      transactions: [{ id: 't', type: 'TRANSFER', account_id: 'checking', counter_account_id: 'b', amount: 15_000, date: '2026-04-01' }] });
+    expect(a.walk.contributions).toBe(15_000);                       // it read $0, and the $15,000 sat in "change in investment value"
+    expect(a.walk.wealthGenerated).toBeCloseTo(11_000, 6);           // 126,000 − 100,000 − 15,000
+    expect(a.ret).toBeCloseTo((105_000 / 100_000) * (126_000 / 120_000) - 1, 10);   // +10.25%, and the walk agrees it was not +26%
+  });
+
+  test('cash transferred out is money taken out; between two measured accounts it is neither', () => {
+    const out = thePerformance({ ...base, ending: 90_000, investmentAccountIds: new Set(['b']), accounts: [acct('b', 90_000)],
+      snapshotDays: [day('2026-01-01', [['b', 100_000]]), day('2026-04-01', [['b', 90_000]])] as any,
+      transactions: [{ id: 't', type: 'TRANSFER', account_id: 'b', counter_account_id: 'checking', amount: 10_000, date: '2026-04-01' }] });
+    expect(out.walk.withdrawals).toBe(10_000);
+    expect(out.walk.wealthGenerated).toBeCloseTo(0, 6);
+    const between = thePerformance({ ...base, ending: 200_000, investmentAccountIds: new Set(['b', 'c']), accounts: [acct('b', 90_000), acct('c', 110_000)],
+      snapshotDays: [day('2026-01-01', [['b', 100_000], ['c', 100_000]]), day('2026-04-01', [['b', 90_000], ['c', 110_000]])] as any,
+      transactions: [{ id: 't', type: 'TRANSFER', account_id: 'b', counter_account_id: 'c', amount: 10_000, date: '2026-04-01' }] });
+    expect([between.walk.contributions, between.walk.withdrawals]).toEqual([0, 0]);
+    expect(between.ret).toBeCloseTo(0, 10);
+  });
+
+  test('an account added inside the window arrives as money put in, at its first recorded value', () => {
+    const a = thePerformance({ ...base, ending: 110_000 + 52_000, investmentAccountIds: new Set(['b', 'c']), accounts: [acct('b', 110_000), acct('c', 52_000)],
+      snapshotDays: [day('2026-01-01', [['b', 100_000]]), day('2026-06-01', [['b', 105_000], ['c', 50_000]])] as any,
+      // its own opening deposit is inside that first value, so it is not counted a second time
+      transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'c', amount: 50_000, date: '2026-06-01' }] });
+    expect(a.walk.beginning).toBe(100_000);
+    expect(a.walk.contributions).toBe(50_000);                       // it read as a $50,000 gain
+    expect(a.walk.wealthGenerated).toBeCloseTo(12_000, 6);           // b made $10,000, c made $2,000
+    expect(a.ret).toBeCloseTo(1.05 * (162_000 / 155_000) - 1, 10);
+  });
+});

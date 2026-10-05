@@ -48,13 +48,8 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-PF-F-021', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-022', 'src/domain/performance/lookBack.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
   ['MK-PF-F-023', 'src/domain/performance/lookBack.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
-  ['MK-PF-F-024', 'src/domain/performance/moneyWeighted.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
-  ['MK-PF-F-025', 'src/domain/performance/moneyWeighted.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
-  ['MK-PF-F-026', 'src/domain/performance/moneyWeighted.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
-  ['MK-PF-F-027', 'src/domain/performance/moneyWeighted.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
   ['MK-PF-F-028', 'src/domain/performance/realized.ts', 'src/domain/performance/realized.test.ts'],
   ['MK-PF-F-029', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-PF-F-030', 'src/domain/performance/moneyWeighted.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
   ['MK-PF-F-031', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-032', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-033', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
@@ -63,7 +58,8 @@ const FUNCTIONS: [string, string, string][] = [
 
 describe('every Performance function traces to its proof in one hop (step 3.c)', () => {
   it('the table covers every Performance function in the code — and says how many', () => {
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(34);
+    // 29, not 34 (2026-10-04): the five functions of the money-weighted rate were removed with it (DEC-1669)
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(29);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
   });
 

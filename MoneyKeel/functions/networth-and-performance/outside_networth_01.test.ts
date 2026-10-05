@@ -458,3 +458,14 @@ describe('MK-NW-O-006 theHolding — five cases', () => {
     expect(h.capitalGains!.shortGain).toBeCloseTo(300, 4);
   });
 });
+
+/** ITS SMALLER POINTS, fixed on his instruction of 2026-10-04 ("work on fixing all 5+4 findings"). */
+describe('the smaller points of the same review', () => {
+  test('MK-NW-O-001 theBonds · a bond with no value today is left out of the average, and the function names it', () => {
+    const b = theBonds({ accounts: [bond('a', 'Priced bond', 10000, 0.04, 10000, '2028-10-04', { accrued_interest: 0 }),
+      bond('b', 'Unpriced bond', 10000, 0.08, null, '2029-10-04', { source: 'connected' })], today: TODAY });
+    expect(b.avgYield).toBeCloseTo(0.04, 6);
+    expect(b.leftOutOfAverage).toEqual(['Unpriced bond']);
+    expect(theBonds({ accounts: [bond('a', 'Priced bond', 10000, 0.04, 10000, '2028-10-04')], today: TODAY }).leftOutOfAverage).toEqual([]);
+  });
+});

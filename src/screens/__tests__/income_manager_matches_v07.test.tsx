@@ -22,6 +22,10 @@
  *     year, and says so.
  *  7. Phone 11 says dividends "never land in your bank account"; the build says "never reach", the
  *     word the Income summary already uses for the same fact (canon: one word a concept).
+ *  8. Phone 10's hint under "What it costs to run each month" reads "Mortgage interest, tax, insurance,
+ *     repairs, management." HIS RULING, 2026-10-04 (DEC-1859): "remove langage to include interest on
+ *     mortgage in maintenance expenses, as that is not standard practice." The build reads "Tax,
+ *     insurance, repairs, management." — a mortgage belongs in Debts, where its whole payment is counted.
  *  8. Phone 1 lists all ten sources. The picker offers the ones that fit the person's situation, in an
  *     order of its own (eight for someone employed) — the onboarding design, which this drawing calls
  *     "unchanged". Held: the question, its line, and every offered source's words exactly as drawn.
@@ -111,7 +115,8 @@ test('phone 9 · Bonus and stock — who, how much, which month, and what Decemb
 
 test('phone 10 · Rent from a property — two figures, and what is kept', () => {
   show('rental');
-  const want = drawn(10, /^Add another property$/).replace('by half.', 'by $#/month.');                      // 4
+  const want = drawn(10, /^Add another property$/).replace('by half.', 'by $#/month.')                       // 4
+    .replace('mortgage interest, tax, insurance, repairs, management.', 'tax, insurance, repairs, management.');   // 8
   expect(want.split(' ').length).toBeGreaterThan(55);
   expect(firstDifference(want, built())).toBe('');
   const lines = builtLines(screen.toJSON());

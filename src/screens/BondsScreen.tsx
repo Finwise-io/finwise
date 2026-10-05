@@ -62,6 +62,10 @@ export default function BondsScreen() {
               <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-044', summary.avgYield)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>NEXT MATURITY</Text><Text style={styles.sumCellV}>{summary.nextMaturity ? new Date(summary.nextMaturity).getFullYear() : '—'}</Text></View>
             </View>
+            {/* a bond with no value today is not in the average, and the screen says which (outside review, 2026-10-04) */}
+            {summary.leftOutOfAverage.length > 0 && (
+              <Text style={styles.sumLab}>Average yield leaves out {summary.leftOutOfAverage.join(', ')} — no value today.</Text>
+            )}
           </View>
 
           {bonds.map((r) => {
