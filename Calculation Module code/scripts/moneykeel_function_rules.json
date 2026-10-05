@@ -1965,6 +1965,26 @@
     "MK-PF-F-023": "365946ef93",
     "MK-CF-O-019": "9616a8a545"
    }
+  },
+  {
+   "file": "moneykeel_audit_cards_changed-since-sent_02.md",
+   "cards": {
+    "MK-NW-F-061": "f22a4fd99f",
+    "MK-NW-F-064": "c0fa8f1daa",
+    "MK-NW-F-001": "298c87a6b7",
+    "MK-NW-F-002": "a684e74732",
+    "MK-PF-F-003": "d1c356c817",
+    "MK-PF-F-006": "adf3d3fbfb",
+    "MK-NW-O-002": "6663ca8691",
+    "MK-NW-O-001": "8122f43c12",
+    "MK-NW-O-004": "43c9a6b113",
+    "MK-NW-O-006": "c5ff5711b9",
+    "MK-NW-O-003": "0b0ac501d2",
+    "MK-NW-F-105": "de50121352",
+    "MK-NW-F-104": "15b5ce0de6",
+    "MK-NW-O-008": "d09f023830",
+    "MK-CF-O-004": "30c9b86317"
+   }
   }
  ]
 }

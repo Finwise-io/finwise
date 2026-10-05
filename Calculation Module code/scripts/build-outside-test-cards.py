@@ -40,7 +40,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
 OUT = os.path.join(ROOT, 'MoneyKeel', 'documents', 'audit', 'outside-test-cases')
-BRIEF = os.path.join(OUT, 'moneykeel_audit_brief_outside-test-cases_v03.md')
+BRIEF = os.path.join(OUT, 'moneykeel_audit_brief_outside-test-cases_v04.md')
 CODE_ROOTS = ['src', 'MoneyKeel/functions', 'Calculation Module code/engines']
 FAMILIES = ('NW', 'PF', 'CF')                      # the three modules of this build (his scope, 2026-10-03)
 PER_BATCH = {'orchestrator': 6, 'function': 15}    # a reply is five cases a card; these keep it inside one answer
