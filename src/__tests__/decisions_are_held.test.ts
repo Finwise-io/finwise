@@ -560,10 +560,11 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(onCourseSentence({ ...args, chance: null } as any)).toBeNull();
   });
 
-  // ── DEC-0471 ───────────────────────────────────────────────────────────────────────────────
-  test('DEC-0471 — "ask User to correct, if not input from user, use the budget": the app says the two mortgage figures disagree', () => {
-    const household = (budget: number, owed: number) => ({
-      accounts: [{ asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE', balance: 18000, target_return: 0, asset_class: 'cash' }] as any,
+  // ── DEC-1923, which replaced DEC-0471 ("ask User to correct, if not input from user, use the budget") ──
+  test('DEC-1923 — "Once user enters mortgage or any debt - the app deduct it directly": the mortgage is counted from Debts, and the budget line stands down', () => {
+    const household = (budget: number, owed: number, withHome = true) => ({
+      accounts: [{ asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE', balance: 18000, target_return: 0, asset_class: 'cash' },
+        ...(withHome ? [{ asset_id: 'h1', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 450000, target_return: 0 }] : [])] as any,
       expenses: [],
       profile: { monthlySpending: 0, spendCats: [
         { id: 'rent', label: 'Rent / Mortgage', amount: budget, bucket: 'fixed', tier: 'need' },
@@ -572,22 +573,24 @@ describe('the decisions in the log are held by something that executes', () => {
                 interest_rate_apr: 0.0625, minimum_monthly_payment: owed }] as any,
     });
 
-    // THEY DISAGREE: it is reported, with both figures and the gap, so the screen can ask
+    // DEBTS WINS: the $2,400 the mortgage requires is counted, and the $2,300 budget line is not —
+    // essentials = $700 groceries + $2,400. It used to be $2,300 + $700, with the mortgage left out.
     const off = theEmergencyFund(household(2300, 2400));
-    expect(off.housingDisagreement).toEqual({ budgeted: 2300, owed: 2400, difference: 100 });
+    expect(off.debtMinimums).toBe(2400);
+    expect(off.essentialsMonthly).toBeCloseTo(3100, 2);
+    expect(off.rentLineInDebts).toEqual({ budgeted: 2300, mortgage: 'Mortgage' });
+    expect(off.budgetSentence).toBe('Your Rent / Mortgage budget line is not counted here: your home’s mortgage, Mortgage, is in Debts and is counted from there.');
 
-    // AND THE BUDGET STILL WINS, which is the second half of his ruling: nothing in the arithmetic
-    // moves until the person answers. Essentials = the $2,300 budget + $700 groceries, and the
-    // mortgage's own $2,400 is NOT added on top — that would count the home twice.
-    expect(off.essentialsMonthly).toBeCloseTo(3000, 2);
+    // A RENTER — no mortgage in Debts — keeps the line: it is their rent
+    const renter = theEmergencyFund({ ...household(2300, 2400), debts: [] as any });
+    expect(renter.rentLineInDebts).toBeNull();
+    expect(renter.essentialsMonthly).toBeCloseTo(3000, 2);
 
-    // THEY AGREE: nothing to ask about, so nothing is said
-    expect(theEmergencyFund(household(2400, 2400)).housingDisagreement).toBeNull();
-
-    // ONE OF THEM MISSING is a GAP, not a disagreement — asking somebody to reconcile a figure they
-    // never entered is a worse question than no question
-    const noDebt = theEmergencyFund({ ...household(2300, 2400), debts: [] as any });
-    expect(noDebt.housingDisagreement).toBeNull();
+    // A MORTGAGE ON NO PROPERTY cannot be told from another property's, so nothing is stood down:
+    // both are counted, the months read short, and Net worth names the mortgage for the person to fix
+    const unplaced = theEmergencyFund(household(2300, 2400, false));
+    expect(unplaced.rentLineInDebts).toBeNull();
+    expect(unplaced.essentialsMonthly).toBeCloseTo(2300 + 700 + 2400, 2);
   });
 
   // ══ NET WORTH, the decisions the compliance run of 2026-10-01 found unconfirmed ══════════════

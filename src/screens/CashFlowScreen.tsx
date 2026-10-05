@@ -6,6 +6,7 @@
 // Every number is a door's — this screen computes NOTHING of its own.
 import { monthOutflow, type Line as MonthLine } from '../../MoneyKeel/functions/cashflow/this-month';
 import { fig, figSaid } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { theBudgetCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';
 import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';
 import { futurePaycheck } from '../../MoneyKeel/functions/cashflow/future-paycheck';
 import { receivedInMonth } from '../../MoneyKeel/functions/cashflow/whats-coming';
@@ -56,7 +57,11 @@ export default function CashFlowScreen() {
   // the ONE model — the same cells the hero card, month rows and month detail read
   const { lens, year, grid } = useCashflowModel();
 
-  const bva = useMemo(() => budgetVsActual(expenses, op, now), [expenses, op]);
+  // the budget as it is counted: a mortgage in Debts is taken from Debts, so the Rent / Mortgage line
+  // stands down (his rule, 2026-10-04, DEC-1923) — and the screen says so wherever the plan is shown
+  const budget = useMemo(() => theBudgetCounted({ profile: op, accounts: store.assetAccounts ?? [], debts: liabilities }),
+    [op, store.assetAccounts, liabilities]);
+  const bva = useMemo(() => budgetVsActual(expenses, budget.profile, now), [expenses, budget]);
   const { accounts } = useMemo(
     () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []),
     [uid, op, store.nwSeeded, store.assetAccounts, store.liabilities]);
@@ -131,7 +136,7 @@ export default function CashFlowScreen() {
         lens === 'retired' ? (
           <RetiredMain year={year} accounts={accounts} bva={bva} onWhyOrder={() => { setWhyOrder(true); (useStore.getState() as any).setTransitionCheck?.('drawOrder', true); }} />
         ) : (
-          <WorkingMain grid={grid} bva={bva} op={op} liabilities={liabilities} store={store} />
+          <WorkingMain grid={grid} bva={bva} op={op} liabilities={liabilities} store={store} budgetSentence={budget.sentence} />
         )
       ) : (
         <OtherMonthCard offset={surfOffset} ym={selYm} label={selLabel} grid={grid} store={store} onSpending={() => setSurfTab('Expenses')} />
@@ -144,7 +149,7 @@ export default function CashFlowScreen() {
       )}
 
       {surfTab === 'Expenses' && (
-        <ExpensesTab ym={selYm} liabilities={liabilities} bva={bva} expenses={expenses} onLog={() => setSheet(true)} />
+        <ExpensesTab ym={selYm} liabilities={liabilities} bva={bva} expenses={expenses} onLog={() => setSheet(true)} budgetSentence={budget.sentence} />
       )}
 
       {surfTab === 'Debts' && (
@@ -366,7 +371,7 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
  *  of the screen never changes — only what is in it". */
 const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const BUCKET_WORDS: Record<string, string> = { fixed: 'Bills & fixed', nonmonthly: 'Once in a while', flexible: 'Everyday expenses' };
-function ExpensesTab({ ym, liabilities, bva, expenses, onLog }: { ym: string; liabilities: any[]; bva: any; expenses: any[]; onLog: () => void }) {
+function ExpensesTab({ ym, liabilities, bva, expenses, onLog, budgetSentence }: { ym: string; liabilities: any[]; bva: any; expenses: any[]; onLog: () => void; budgetSentence?: string }) {
   const [allTxns, setAllTxns] = useState(false);
   const [importing, setImporting] = useState(false);
   const [budgetOpen, setBudgetOpen] = useState(false);
@@ -420,6 +425,7 @@ function ExpensesTab({ ym, liabilities, bva, expenses, onLog }: { ym: string; li
 
       <View style={styles.card}>
         <SectionBand inCard inset={16} title="PLANNED EXPENSES" value={x.plannedTotal > 0 ? fig('MK-CF-M-001', Math.round(x.plannedTotal)) : '—'} />
+        {!!budgetSentence && <Text style={[styles.note, { paddingHorizontal: 16 }]}>{budgetSentence}</Text>}
         {x.plannedTotal > 0 ? (
           <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} onPress={() => setBudgetOpen(true)} accessibilityLabel="Planned expenses, by category. Opens your budget.">
             {x.planned.map((c) => (
@@ -650,7 +656,7 @@ function MonthRow({ line, onPress }: { line: MonthLine; onPress?: () => void }) 
     : body;
 }
 
-function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: any; op: any; liabilities: any[]; store: any }) {
+function WorkingMain({ grid, bva, op, liabilities, store, budgetSentence }: { grid: any; bva: any; op: any; liabilities: any[]; store: any; budgetSentence?: string }) {
   const router = useRouter();
   const cell = grid.cells[0];
   const inflow = cell?.inflow ?? 0;
@@ -701,6 +707,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
         {planned.lines.map((l, i) => (
           <MonthRow key={`p-${l.label}-${i}`} line={l} onPress={l.kind === 'spend' && !l.notSet ? () => setBudgetOpen(true) : undefined} />
         ))}
+        {!!budgetSentence && <Text style={[styles.note, { paddingHorizontal: 16 }]}>{budgetSentence}</Text>}
         {planned.planSet ? (
           <>
             <View style={[styles.mRow, styles.mTotal]}>

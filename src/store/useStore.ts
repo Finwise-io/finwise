@@ -510,6 +510,7 @@ const DEFAULT_BADGES: Badge[] = [
  *
  * Formula .....
  *     math.random().to string(36).slice(2, 10) + date.now().to string(36)
+ *     t   when type ! = 'TRANSFER_IN_KIND' (or direction when missing or zero)
  *     {}   when f is missing
  *     {}   when goals seeded
  *     goals seeded = true   when count of fresh is missing
@@ -520,7 +521,6 @@ const DEFAULT_BADGES: Badge[] = [
  *     rebuilt from = out.start by account
  *     rebuilt at = the date ).to isostring(   when count of out.days is missing
  *     {}   when prev is missing
- *     r   when active is missing
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
@@ -566,9 +566,9 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-006 price fetched at
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-009 transaction date
  *               MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-018 retirement age
- *               MK-XS-I-020 Social Security monthly amount
  *
  * Decides .....
  *     · If length is missing it uses 0.
@@ -758,7 +758,13 @@ export const useStore = create<AppState>()(
         const r = ingestSyncPure(s.assetAccounts, s.snaptradeSeenKeys ?? {}, payloads);
         return {
           assetAccounts: r.accounts,
-          transactions: [...r.newTransactions, ...s.transactions],
+          // an older share transfer that carries no direction takes the one the broker reports for it
+          transactions: [...r.newTransactions, ...s.transactions.map((t: any) => {
+            if (t.type !== 'TRANSFER_IN_KIND' || t.direction) return t;
+            const d = (r.directionOf ?? []).find((x) => x.account_id === String(t.account_id) && x.date === String(t.date).slice(0, 10)
+              && (x.ticker ?? '') === (t.ticker ?? '') && (x.shares ?? null) === (t.shares ?? null));
+            return d ? { ...t, direction: d.direction } : t;
+          })],
           snaptradeSeenKeys: r.seenKeys,
           snaptradeConnections: connections,
           snaptradeLastSyncAt: new Date().toISOString(),

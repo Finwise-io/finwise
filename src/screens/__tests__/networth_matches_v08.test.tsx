@@ -80,7 +80,10 @@ const DATA = (over: any = {}) => ({
 });
 const setup = (over: any = {}) => { useStore.getState().resetAll(); useStore.setState(DATA(over) as any); };
 /** The two lines his ruling of 2026-09-28 added under the emergency fund (see the header). */
-const KNOWN = (built: string) => built.replace(/ # months at your planned spend — \$# cash ÷ \$#\/month both include \$#\/month of debt payments you cannot stop\./, '');
+const KNOWN = (built: string) => built.replace(/ # months at your planned spend — \$# cash ÷ \$#\/month both include \$#\/month of debt payments you cannot stop\./, '')
+  // HIS RULE, 2026-10-04 (DEC-1923): the drawn household owns its home with the mortgage in Debts and a
+  // Rent / Mortgage budget line, so the mortgage is counted from Debts and the card says the line is not.
+  .replace(" your rent / mortgage budget line is not counted here: your home's mortgage, home mortgage, is in debts and is counted from there.", '');
 const compare = (_name: string, drawn: string[], built: string[], minWords = 35) => {
   const want = norm(drawn), got = KNOWN(norm(built));
   expect(want.split(' ').length).toBeGreaterThanOrEqual(minWords);   // a state that read as empty would match anything

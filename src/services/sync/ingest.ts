@@ -31,6 +31,9 @@ export interface SyncResult {
   newTransactions: Transaction[];        // history-only rows to APPEND (never applied)
   seenKeys: Record<string, true>;        // updated dedupe registry (persist me)
   needsWrapperConfirm: string[];         // asset_ids whose tax wrapper the UI must ask about
+  /** Share transfers the broker reported again that are already stored: which way each one went, so
+   *  a row stored before 2026-10-04 (with no direction) can be given it. */
+  directionOf: { account_id: string; date: string; ticker?: string; shares?: number; direction: 'IN' | 'OUT' }[];
 }
 
 /* ─ MK-XS-F-101 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -63,6 +66,7 @@ export const stAssetId = (snapTradeAccountId: string) => `st-${snapTradeAccountI
  *     seen keys = { ...existing seen keys }
  *     new transactions = []
  *     needs wrapper confirm = []
+ *     direction of = []
  *     st = account
  *     guess = map account type(st.raw type, st.account category)
  *     tail = string(st.number).slice(-4)   if st.number
@@ -71,7 +75,6 @@ export const stAssetId = (snapTradeAccountId: string) => `st-${snapTradeAccountI
  *     undefined   otherwise
  *     inst = st.institution name.trim().to lower case()
  *     asset id = prior.asset id (or st asset id(st.id) when missing)
- *     mapped = for each of positions (or none when missing): map position where (m): m is non nullable<typeof m> => !!m
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -109,6 +112,7 @@ export function ingestSync(
   const seenKeys: Record<string, true> = { ...existingSeenKeys };
   const newTransactions: Transaction[] = [];
   const needsWrapperConfirm: string[] = [];
+  const directionOf: SyncResult['directionOf'] = [];
 
   for (const p of payloads) {
     const st = p.account;
@@ -242,7 +246,19 @@ export function ingestSync(
     // activities → history-only ledger rows (dedupe survives SnapTrade id churn)
     for (const act of p.activities ?? []) {
       const k = activityKey(st.id, act);
-      if (seenKeys[k]) continue;
+      if (seenKeys[k]) {
+        // A SHARE TRANSFER STORED BEFORE 2026-10-04 CARRIES NO DIRECTION, and a return cannot be
+        // measured across it. The broker still reports the activity, so the direction is read again
+        // here and handed back for the stored row — the row itself is never imported twice.
+        const again = toLedgerRow({ word: act.type, amount: act.amount, units: act.units, price: act.price,
+          date: act.trade_date ?? act.settlement_date ?? nowIso, ticker: act.symbol?.raw_symbol ?? act.symbol?.symbol,
+          description: act.description, isOption: !!act.option_symbol || !!act.option_type }, 'NEGATIVE_IS_OUT');
+        if (again.type === 'TRANSFER_IN_KIND' && (again.event === 'SECURITIES_IN' || again.event === 'SECURITIES_OUT')) {
+          directionOf.push({ account_id: String(assetId), date: again.date ?? '', ticker: again.ticker, shares: again.shares,
+            direction: again.event === 'SECURITIES_IN' ? 'IN' : 'OUT' });
+        }
+        continue;
+      }
       seenKeys[k] = true;
       // THE CALCULATION MODULE decides what this row is and which way its money went. The old code
       // guessed an unrecognised word from the sign of the amount, which put $1,064,493 of
@@ -288,7 +304,7 @@ export function ingestSync(
       } as Transaction);
     }
   }
-  return { accounts, newTransactions, seenKeys, needsWrapperConfirm };
+  return { accounts, newTransactions, seenKeys, needsWrapperConfirm, directionOf };
 }
 
 /** Mark an account's wrapper as USER-CONFIRMED — future syncs never override it. */

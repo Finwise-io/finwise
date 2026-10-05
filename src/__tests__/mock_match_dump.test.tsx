@@ -302,7 +302,9 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     };
     walk(screen.toJSON());
     expect(fills.length).toBeGreaterThan(0);                       // 2.0 of 6 months → an amber part-bar
-    expect(fills[fills.length - 1].width).toBe('40%');   // 2.4 months of the 6-month guide (2026-09-28)
+    // 2.3 months of the 6-month guide: since 2026-10-04 the mortgage's own $2,400 is counted from Debts and
+    // the $2,300 budget line is not (DEC-1923), so the drawn household reads 2.3 where the drawing says 2.4
+    expect(parseFloat(fills[fills.length - 1].width)).toBeCloseTo((2.3 / 6) * 100, 6);
     expect(screen.getByText('Tight ⚠')).toBeOnTheScreen();         // the word carries it too
   });
 
@@ -346,6 +348,8 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     // test looked for the bare number with 'months' beside it. The emergency fund prints through its
     // own tag (MK-NW-M-013), which writes the unit with the number — so the screen says "2.4 months"
     // as one string and the unit can no longer drift from the figure it belongs to.
-    expect(strings).toContain('2.4 months');
+    // HIS RULE OF 2026-10-04 (DEC-1923) MOVED IT TO 2.3: every debt is taken from Debts, so the mortgage's own
+    // $2,400 is counted and the $2,300 Rent / Mortgage line is not — 8,838 ÷ (1,300 + 2,400 + 150) = 2.3.
+    expect(strings).toContain('2.3 months');
   });
 });

@@ -126,12 +126,16 @@ describe('a debt payment that was logged as an expense', () => {
     expect(e.essentialsMonthly).toBeCloseTo(3000 + 100 + 250, 6);
   });
 
-  test('the home’s mortgage is the one debt the budget carries, so its logged payments stay in the average', () => {
+  test('the home’s mortgage is counted from Debts like every other debt, so its logged payments are left out too (DEC-1923)', () => {
     const profile = { spendCats: [{ id: 'rent', label: 'Rent / Mortgage', amount: 2000, bucket: 'fixed', tier: 'critical' }] };
     const paid = [1, 2, 3].map((k) => log(k, 2000, 'Debt payment', 'home mortgage'));
-    const e = theEmergencyFund({ accounts: [cashAt('c', 'checking', 30000), { asset_id: 'h', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 400000 }] as any,
-      profile, expenses: [...groceries, ...paid, ...carPaid], debts: [debt('home mortgage', 'MORTGAGE', 2000), debt('car loan', 'AUTO', 250)] });
-    expect(e.debtMinimums).toBe(250);                          // the mortgage's required payment is left out, as before
-    expect(e.essentialsMonthly).toBeCloseTo(3000 + 2000 + 250, 6);   // … and its logged payments carry it: once
+    const asHousing = [1, 2, 3].map((k) => log(k, 2000, 'Rent / Mortgage'));
+    const accounts = [cashAt('c', 'checking', 30000), { asset_id: 'h', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 400000 }] as any;
+    const debts = [debt('home mortgage', 'MORTGAGE', 2000), debt('car loan', 'AUTO', 250)];
+    for (const logs of [paid, asHousing, []]) {            // logged as a payment, logged as housing, or never logged
+      const e = theEmergencyFund({ accounts, profile, expenses: [...groceries, ...logs, ...carPaid], debts });
+      expect(e.debtMinimums).toBe(2250);                       // both debts, from Debts
+      expect(e.essentialsMonthly).toBeCloseTo(3000 + 2250, 6); // the home once, however — or whether — it was logged
+    }
   });
 });

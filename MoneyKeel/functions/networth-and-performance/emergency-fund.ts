@@ -12,9 +12,10 @@
 import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
-import { cashTotal, assetClassOf, realEstateUseOf } from '../../../src/domain/assets';
+import { cashTotal } from '../../../src/domain/assets';
 import { emergencyTest, monthlyEssentials, plannedMonthlySpend } from '../../../src/domain/budget';
-import { requiredPayment, type Debt } from '../../../src/domain/debt';
+import { paymentShape, type Debt } from '../../../src/domain/debt';
+import { theBudgetCounted } from '../cashflow/budget-counted';
 import { essentialsMonthly } from '../cashflow/essentials';
 import { incomeSummary } from '../cashflow/income-summary';
 
@@ -48,16 +49,13 @@ export interface EmergencyFund {
   targetFor: (months: number) => { target: number; gap: number } | null;
   /** A sudden hit: what is left, and how long that would then last. */
   afterAShock: (shock: number) => { cashAfter: number; monthsAfter: number | null; coversIt: boolean };
-  /** WHEN THE TWO MORTGAGE FIGURES DISAGREE (founder, 2026-09-29: "Yes, ask User to correct, if not
-   *  input from user, use the budget."). A mortgage can be entered twice — as the Rent / Mortgage
-   *  budget line and as a Mortgage debt — and the door uses the BUDGET figure so the home is not
-   *  counted twice. Where the two differ, that choice quietly costs the person the difference: he
-   *  budgets $2,300 for a mortgage that takes $2,400 and both runways read $100/month light.
-   *
-   *  His ruling is that the app SAYS SO and asks them to correct it, and until they answer the budget
-   *  figure stands. So nothing in the arithmetic moves; what changes is that the screen can now tell
-   *  them. Null when there is no disagreement to report. */
-  housingDisagreement: { budgeted: number; owed: number; difference: number } | null;
+  /** Set when the Rent / Mortgage budget line is NOT counted, because the home's mortgage is in Debts
+   *  and is counted from there (his rule, 2026-10-04, DEC-1923). It replaces the old comparison of the
+   *  budget line with the mortgage (DEC-0441, "use the budget"): Debts wins now, so there is nothing to
+   *  reconcile — only something to say. Null for a renter and for a home with no mortgage. */
+  rentLineInDebts: { budgeted: number; mortgage: string } | null;
+  /** The sentence the screen shows when that line is not counted. Empty when it is. */
+  budgetSentence: string;
 }
 
 /** How many months of essential expenses would my cash cover?
@@ -74,16 +72,15 @@ export interface EmergencyFund {
  *     cash = input.cash override   if input.cash override ≠ nothing
  *     cash total(input.accounts ?? [])   otherwise
  *     debts = input.debts (or none when missing)
- *     cats = input.profile.spend cats   if array.is array(input.profile.spend cats)
- *     []   otherwise
- *     housing budgeted = cats.some((c: any) => id = 'rent' and number(amount) > 0)
- *     is mortgage = (d: any) => string(debt type ?? type ?? '').to upper case() = 'MORTGAGE'
- *     property = input.accounts (or none when missing) where asset class of(each) = 'real_estate'
- *     rents their home = property.length > 0 and !property.some((a) => real estate use of(a) = 'primary')
- *     debt minimums = debts.reduce((t: number, d: any) => (d = home mortgage ? t : t + required payment(d)), 0)
- *     logged = (input.expenses ?? []) as any[]
- *     counted debts = a list with no repeats of debts where d ! = home mortgagefor each of : string(label)
- *     counted = logged where not (category = 'debt payment' and counted debts.has(string(store ?? '')))
+ *     budget = the budget counted({ profile: input.profile, accounts: input.accounts ?? [], debts })
+ *     profile = budget.profile
+ *     minimum of = (d: any) => (payment shape(d) = 'due_in_full' ? 0 : math.max(0, number(minimum monthly payment) or 0))
+ *     debt minimums = debts.reduce((t: number, d: any) => t + minimum of(d), 0)
+ *     named = a list with no repeats of for each of debts: string(label)
+ *     ess = essentials monthly(counted, monthly essentials(profile))
+ *     planned = planned monthly spend(profile) + debt minimums
+ *     rent = max(0, income summary(input.profile ?? {}).lands.rent monthly)
+ *     from cash = max(0, monthly − rent)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-079 EF
@@ -136,41 +133,33 @@ export function theEmergencyFund(input: {
   // Mortgage" expense category and once as a Mortgage debt. Where both exist the category already
   // carries it, so the mortgage's minimum is left out. Every other debt is added.
   const debts = input.debts ?? [];
-  const cats = Array.isArray(input.profile?.spendCats) ? input.profile.spendCats : [];
-  const housingBudgeted = cats.some((c: any) => c?.id === 'rent' && Number(c?.amount) > 0);
-  const housingBudgeted$ = cats.reduce((t: number, c: any) => (c?.id === 'rent' ? t + (Number(c?.amount) || 0) : t), 0);
-  // the field is `debt_type`, and its values are upper case ('MORTGAGE'). Written as `type ===
-  // 'mortgage'` the guard matched nothing, so the fixture's $2,400 mortgage was counted BOTH as the
-  // $2,300 Rent / Mortgage category and again as a debt — caught by the pinned figure, not by reading.
-  const isMortgage = (d: any) => String(d?.debt_type ?? d?.type ?? '').toUpperCase() === 'MORTGAGE';
-  // ONLY THE HOME'S MORTGAGE IS THE ONE THE CATEGORY CARRIES (outside review, 2026-10-04). Every
-  // mortgage used to be left out the moment any housing amount was budgeted — so a renter who also
-  // owes a mortgage on a rental house had a payment they cannot stop dropped from both figures (1.9
-  // months too long in the reviewer's case), and their rent was "compared" with another property's
-  // mortgage. One mortgage is the home's: the one nearest the budgeted amount. And where the only
-  // property on record is not lived in (rental, second home, land), the housing line is rent and no
-  // mortgage is left out at all.
-  const property = (input.accounts ?? []).filter((a) => assetClassOf(a) === 'real_estate');
-  const rentsTheirHome = property.length > 0 && !property.some((a) => realEstateUseOf(a) === 'primary');
-  const homeMortgage: any = !housingBudgeted || rentsTheirHome ? null
-    : debts.filter(isMortgage).sort((x: any, y: any) =>
-        Math.abs(requiredPayment(x) - housingBudgeted$) - Math.abs(requiredPayment(y) - housingBudgeted$))[0] ?? null;
-  const debtMinimums = debts.reduce((t: number, d: any) => (d === homeMortgage ? t : t + requiredPayment(d)), 0);
-  // A DEBT PAYMENT THAT WAS LOGGED AS AN EXPENSE IS NOT COUNTED TWICE (outside review, 2026-10-04: "whether
-  // logged expenses that already contain debt payments are de-duplicated against debt minimums" — they
-  // were not). Logging a payment on a debt writes an expense in the category "Debt payment", named for
-  // that debt, so it sat in the logged average AND came back as the debt's required payment. Every
-  // debt whose required payment is counted above has its logged payments left out of the average. The
-  // home's mortgage is the one debt NOT counted above, so its logged payments stay in.
-  const logged = (input.expenses ?? []) as any[];
-  const countedDebts = new Set(debts.filter((d: any) => d !== homeMortgage).map((d: any) => String(d.label)));
-  const counted = logged.filter((e) => !(e?.category === 'Debt payment' && countedDebts.has(String(e?.store ?? ''))));
+  // EVERY DEBT IS TAKEN FROM DEBTS — the home's mortgage included (his rule, 2026-10-04, DEC-1923:
+  // "Once user enters mortgage or any debt - the app deduct it directly to calculate surplus,
+  // emergency fund, and any other place instead of leaving it for user to add it to planned
+  // expenses."). Until then the home's mortgage was LEFT OUT here whenever a Rent / Mortgage amount
+  // was budgeted, so the budget line stood for it — which counted a home in neither part when the
+  // figure came from logged expenses and the mortgage had never been logged. Now Debts stands for
+  // every debt, and the budget line stands down (MK-CF-O-020 theBudgetCounted).
+  //
+  // WHAT A DEBT REQUIRES HERE IS ITS MINIMUM — what cannot be stopped. A payment a person chooses to
+  // make above it can be stopped, and a balance due in one lump has no monthly payment.
+  const budget = theBudgetCounted({ profile: input.profile, accounts: input.accounts ?? [], debts });
+  const profile = budget.profile;
+  const minimumOf = (d: any) => (paymentShape(d) === 'due_in_full' ? 0 : Math.max(0, Number(d?.minimum_monthly_payment) || 0));
+  const debtMinimums = debts.reduce((t: number, d: any) => t + minimumOf(d), 0);
+  // WHAT WAS LOGGED IS NOT COUNTED A SECOND TIME. A payment logged against a debt (an expense in the
+  // category "Debt payment", named for the debt) and, where the home's mortgage is in Debts, anything
+  // logged under "Rent / Mortgage", are payments on debts already counted above.
+  const named = new Set(debts.map((d: any) => String(d.label)));
+  const counted = ((input.expenses ?? []) as any[]).filter((e) =>
+    !(e?.category === 'Debt payment' && named.has(String(e?.store ?? '')))
+    && !(budget.homeMortgage != null && e?.category === 'Rent / Mortgage'));
   // ONE essentials figure, his ruling G21 — the logged average first, the typed plan as the fallback
-  const ess = essentialsMonthly(counted, monthlyEssentials(input.profile));
+  const ess = essentialsMonthly(counted, monthlyEssentials(profile));
   const monthly = input.essentialsOverride != null && input.essentialsOverride > 0
     ? input.essentialsOverride : (ess?.monthly ?? 0) + debtMinimums;
 
-  const planned = plannedMonthlySpend(input.profile) + debtMinimums;
+  const planned = plannedMonthlySpend(profile) + debtMinimums;
 
   // RENT FROM A PROPERTY KEEPS ARRIVING (founder, 2026-10-04: "add it to the cash as losing job does
   // not mean loosing rental income too"). It arrives EVERY month, so it is added to the cash every
@@ -182,18 +171,10 @@ export function theEmergencyFund(input: {
   const plannedFromCash = Math.max(0, planned - rent);
   const rentCovers = monthly > 0 && rent >= monthly;
 
-  // THE TWO FIGURES, COMPARED (his ruling, 2026-09-29). The budget line is what the door uses; this
-  // says whether the debt record disagrees with it, so the screen can ask rather than stay silent.
-  const mortgageOwed = homeMortgage ? requiredPayment(homeMortgage) : 0;   // the home's, and only the home's
-  // reported only where BOTH exist — one of them missing is not a disagreement, it is a gap, and the
-  // person would be asked to reconcile a figure they never entered
-  const housingDisagreement = (housingBudgeted && mortgageOwed > 0 && housingBudgeted$ !== mortgageOwed)
-    ? { budgeted: housingBudgeted$, owed: mortgageOwed, difference: mortgageOwed - housingBudgeted$ }
-    : null;
-
   return {
     cash,
-    housingDisagreement,
+    rentLineInDebts: budget.rentLineInDebts,
+    budgetSentence: budget.sentence,
     debtMinimums,
     plannedSpendMonthly: planned,
     monthsCoveredAtPlannedSpend: plannedFromCash > 0 ? cash / plannedFromCash : null,
@@ -245,7 +226,9 @@ export function theEmergencyFund(input: {
  */
 const EXAMPLE = {
   accounts: [{ asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE',
-               balance: 18000, target_return: 0, asset_class: 'cash' }] as any[],
+               balance: 18000, target_return: 0, asset_class: 'cash' },
+             // the home the mortgage is on — a mortgage is always on a property (DEC-1925)
+             { asset_id: 'h1', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 450000, target_return: 0 }] as any[],
   expenses: [] as any[],
   profile: {
     monthlySpending: 0,
@@ -265,9 +248,9 @@ const EXAMPLE = {
   ] as any[],
 };
 const GIVEN =
-  '$18,000 in checking. A $2,400/month mortgage, entered both as the Rent / Mortgage budget line and as a '
-  + 'Mortgage debt — the same $2,400, not two different numbers. Plus $700 groceries (an essential) and $400 '
-  + 'eating out (not). Also a car loan at $250/month and a Visa at $120/month. Nothing logged yet.';
+  '$18,000 in checking, and a home. A $2,400/month mortgage on it, entered both as the Rent / Mortgage budget line and as a '
+  + 'Mortgage debt — the same $2,400. It is counted once, from Debts; the budget line stands down. Plus $700 groceries (an '
+  + 'essential) and $400 eating out (not). Also a car loan at $250/month and a Visa at $120/month. Nothing logged yet.';
 
 /** Example only: runs theEmergencyFund on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-079 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -281,7 +264,8 @@ const GIVEN =
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-025 typical monthly essentials
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -341,19 +325,21 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     label: 'Both include $X/month of debt payments you cannot stop', unit: 'money', per: 'month',
     screens: ['/analytics', '/insights'],
     answers: 'What your debts require of you each month, which neither runway can leave out.',
-    formula: 'the required payment on every debt — except a mortgage, when a Rent / Mortgage budget already carries it',
+    formula: 'the minimum monthly payment of every debt, the home’s mortgage included; a balance due in one lump has none',
     inputs: ['MK-NW-I-002 your debts'],
     decisions: [
       'FOUNDER 2026-09-28: "What about credit card debt, HELOC, car loan?" They were in NEITHER figure. '
       + 'You can skip dinner out; you cannot skip a car payment.',
-      'A mortgage is never counted twice: where the Rent / Mortgage budget carries it, its minimum is left out.',
+      'FOUNDER 2026-10-04 (DEC-1923): "Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, '
+      + 'emergency fund, and any other place instead of leaving it for user to add it to planned expenses." So the home’s mortgage is '
+      + 'counted here from Debts, and the Rent / Mortgage budget line stands down — the home is in the figure once.',
+      'IT IS THE MINIMUM: a payment a person chooses to make above it can be stopped.',
     ],
     refusal: 'No debts entered — the line does not appear at all.',
-    ruled: '2026-09-28',
-    note: 'WHEN THE TWO MORTGAGE FIGURES DISAGREE (founder, 2026-09-28: "when budget is $2,300 rent / mortgage, why is debt $2,400/month for mortgage?"). A mortgage can be entered twice — as the Rent / Mortgage budget line and as a Mortgage debt — and this figure leaves the mortgage out so the home is not counted twice. That means the door takes the BUDGET figure and ignores the debt\'s own minimum, so someone who budgets $2,300 for a mortgage that costs $2,400 is read $100/month light on both runways. Counting both would overstate the whole payment, which is far worse, so the choice stands — but the app does not yet TELL them the two disagree. WAITING ON YOU: should the screen say so, and which figure should win?',
+    ruled: '2026-10-04',
     worked: {
       given: GIVEN,
-      answer: '$370/month',
+      answer: '$2,770/month',
       run: () => EF().debtMinimums,
     },
   },

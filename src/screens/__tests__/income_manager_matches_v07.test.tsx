@@ -29,6 +29,10 @@
  *  8. Phone 1 lists all ten sources. The picker offers the ones that fit the person's situation, in an
  *     order of its own (eight for someone employed) — the onboarding design, which this drawing calls
  *     "unchanged". Held: the question, its line, and every offered source's words exactly as drawn.
+ *  9. Phone 10 gains a question the drawing does not have: "Which property is it?" — and, once a
+ *     property is picked, "Monthly mortgage payment on this property, if any". HIS RULINGS, 2026-10-04
+ *     (DEC-1924: "mortgage should not costs to run. We should ask to add monthly mortgage payment …
+ *     And automatically add it to debt"; DEC-1925: "no mortgage without property").
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -118,7 +122,10 @@ test('phone 10 · Rent from a property — two figures, and what is kept', () =>
   const want = drawn(10, /^Add another property$/).replace('by half.', 'by $#/month.')                       // 4
     .replace('mortgage interest, tax, insurance, repairs, management.', 'tax, insurance, repairs, management.');   // 8
   expect(want.split(' ').length).toBeGreaterThan(55);
-  expect(firstDifference(want, built())).toBe('');
+  // 9: HIS RULINGS, 2026-10-04 (DEC-1924, DEC-1925) — each rent entry says which property it is, so its
+  // mortgage can be asked for and sent to Debts. The drawn household has no property in Net worth, so
+  // the screen says to add it first.
+  expect(firstDifference(want, built().replace(' which property is it? add this property first, on the net worth page. then its mortgage can be recorded here.', ''))).toBe('');
   const lines = builtLines(screen.toJSON());
   expect(lines).toContain('$1,200/month net');
   expect(lines).toContain('$1,200/month');

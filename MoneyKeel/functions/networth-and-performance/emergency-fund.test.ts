@@ -87,18 +87,23 @@ describe('debt minimums belong in both figures', () => {
     expect(a.monthsCovered!).toBeGreaterThan(a.monthsCoveredAtPlannedSpend!);
   });
 
-  test('a mortgage is never counted twice', () => {
+  test('a mortgage is never counted twice — and since 2026-10-04 it is counted from Debts, not from the budget line (DEC-1923)', () => {
     const withMortgage = [...DEBTS, { debt_id: 'd4', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 300000, minimum_monthly_payment: 2000 }] as any;
-    // "Rent / Mortgage" is budgeted at $2,000, so the mortgage debt's minimum is already carried
-    const budgeted = theEmergencyFund({ accounts: CASH9K, expenses: [], profile: BUDGET, debts: withMortgage });
-    expect(budgeted.debtMinimums).toBe(570);
-    // with no housing category, nothing carries it, so it counts
+    const withHome = [...CASH9K, { asset_id: 'h1', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 400000 }] as any;
+    // the home is in Net worth and its mortgage in Debts: every debt counts ($570 + $2,000) and the
+    // $2,000 "Rent / Mortgage" budget line does not — so the home is in the figure once
+    const budgeted = theEmergencyFund({ accounts: withHome, expenses: [], profile: BUDGET, debts: withMortgage });
+    expect(budgeted.debtMinimums).toBe(2570);
+    expect(budgeted.rentLineInDebts).toEqual({ budgeted: 2000, mortgage: 'Mortgage' });
+    expect(budgeted.essentialsMonthly).toBe(3600 - 2000 + 2570);
+    // with no housing line budgeted there is nothing to stand down, and the mortgage still counts
     const noHousing = theEmergencyFund({
-      accounts: CASH9K, expenses: [],
+      accounts: withHome, expenses: [],
       profile: { ...BUDGET, spendCats: BUDGET.spendCats.filter((c: any) => c.id !== 'rent') },
       debts: withMortgage,
     });
     expect(noHousing.debtMinimums).toBe(2570);
+    expect(noHousing.rentLineInDebts).toBeNull();
   });
 
   test('no debts entered → the figures are what they were', () => {

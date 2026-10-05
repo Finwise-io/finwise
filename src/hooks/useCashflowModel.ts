@@ -1,6 +1,7 @@
 // The ONE place the F5 paycheck function and F2 dated grid are invoked with live store state.
 // Every paycheck surface (Home hero card, Cash flow main, month rows, month detail) reads THIS,
 // so "hero = bar = month-detail total" is true by construction — one cell, four surfaces.
+import { theBudgetCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';
 import { useMemo } from 'react';
 import { useStore } from '../store/useStore';
 import { buildPaycheckYear, type PaycheckYear } from '../domain/paycheck';
@@ -17,9 +18,13 @@ export interface CashflowModel {
 /** Same sim convention as the Retirement cockpit: assumptions adopted from Plan, seeded, deterministic. */
 export function useCashflowModel(): CashflowModel {
   const store = useStore() as any;
-  const op = store.onboardingProfile ?? null;
   const accounts = store.assetAccounts ?? [];
   const liabilities = store.liabilities ?? [];
+  // THE BUDGET AS IT IS COUNTED (his rule, 2026-10-04, DEC-1923): a mortgage in Debts is taken from
+  // Debts, so the Rent / Mortgage budget line stands down — or the planned month would count it twice.
+  const typed = store.onboardingProfile ?? null;
+  const op = useMemo(() => (typed ? theBudgetCounted({ profile: typed, accounts, debts: liabilities }).profile : null),
+    [typed, accounts, liabilities]);
   const A = store.retirementAssumptions ?? {};
   const lens = resolveLens(op, store.lensOverride);
 

@@ -23,7 +23,8 @@ import { EmptyNote } from '../components/UI';
 import { fig } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { theIncomeManager, incomeSummary, type ManagedSource } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { incomeFromAccounts } from '../domain/income/from-accounts';
-import { historyCoverage } from '../domain/assets';
+import { historyCoverage, assetClassOf } from '../domain/assets';
+import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { RsuEditor, renderStep } from '../onboarding/modules';
 import type { StepCtx } from '../onboarding/modules';
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -283,11 +284,33 @@ const sumOfStock = (op: any) => theIncomeManager(op).bonusAndStock ? Math.max(0,
 // ── 3b · RENT FROM A PROPERTY (phone 10) ─────────────────────────────────────────────────────────
 // Two figures, not one: rent received is not income; what is left after running the place is.
 function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => void; onDone: () => void }) {
-  const list: { type?: string; income: any; expenses: any }[] = Array.isArray(op.rentals) && op.rentals.length
+  const store = useStore() as any;
+  const list: { type?: string; income: any; expenses: any; property_id?: string; mortgage?: any }[] = Array.isArray(op.rentals) && op.rentals.length
     ? op.rentals : [{ type: op.rentalType, income: op.rentalIncome ?? '', expenses: op.rentalExpenses ?? '' }];
   const write = (i: number, patch: Record<string, any>) => set({ rentals: list.map((r, k) => (k === i ? { ...r, ...patch } : r)) });
+  // HIS RULINGS, 2026-10-04. DEC-1924: "mortgage should not costs to run. We should ask to add monthly
+  // mortgage payment if any mortgage on second property. And automatically add it to debt." DEC-1925:
+  // "no mortgage without property" — so each rent entry says which property in Net worth it is for,
+  // and that is also what makes the property a rental rather than a second home (DEC-1926).
+  const properties = ((store.assetAccounts ?? []) as any[]).filter((a) => assetClassOf(a) === 'real_estate');
+  const onProperty = theNetWorth({ uid: 'local', accounts: store.assetAccounts ?? [], debts: store.liabilities ?? [] }).mortgageCheck.byProperty;
+  const mortgageOn = (id: any) => onProperty.find((p) => p.propertyId === String(id ?? ''))?.mortgage ?? null;
+  /** Leaving the screen: a payment typed for a property with no mortgage is added to Debts, on that property. */
+  const leave = () => {
+    let sent = false;
+    for (const r of list) {
+      const p = properties.find((a) => String(a.asset_id) === String(r.property_id ?? ''));
+      if (!p || !(num(r.mortgage) > 0) || mortgageOn(p.asset_id)) continue;
+      store.addLiability?.({ label: `${p.label} mortgage`, debt_type: 'MORTGAGE', remaining_balance: 0, interest_rate_apr: 0,
+        minimum_monthly_payment: num(r.mortgage), monthly_payment: num(r.mortgage), payment_type: 'installment', property_id: p.asset_id });
+      sent = true;
+    }
+    // the payment lives in Debts from here on, so it is not kept a second time on the rent entry
+    if (sent) set({ rentals: list.map((r) => ({ ...r, mortgage: '' })) });
+    onDone();
+  };
   return (
-    <Frame title="Rent from a property" sub="What you keep, after what it costs to run" onDone={onDone} save={false}>
+    <Frame title="Rent from a property" sub="What you keep, after what it costs to run" onDone={leave} save={false}>
       {list.map((r, i) => {
         const keep = num(r.income) - num(r.expenses);
         return (
@@ -305,6 +328,28 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
                 {fig('MK-CF-M-027', keep * 12)}/year. This is the figure every other screen uses
                 {num(r.expenses) > 0 ? ` — the rent alone would overstate what reaches you by ${fig('MK-CF-M-027', num(r.expenses))}/month.` : '.'}
               </Text>
+              <Text style={s.q}>Which property is it?</Text>
+              {properties.length === 0 ? (
+                <Text style={[s.qsub, { color: Colors.amber }]}>Add this property first, on the Net worth page. Then its mortgage can be recorded here.</Text>
+              ) : (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                  {properties.map((a) => {
+                    const on = String(r.property_id ?? '') === String(a.asset_id);
+                    return (
+                      <TouchableOpacity key={String(a.asset_id)} accessibilityRole="button" accessibilityState={{ selected: on }}
+                        accessibilityLabel={`Property ${i + 1} is ${a.label}`} onPress={() => write(i, { property_id: String(a.asset_id) })}
+                        style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 12, borderRadius: Radii.md, borderWidth: 1,
+                          borderColor: on ? Colors.primary : Colors.border, backgroundColor: on ? Colors.primaryLight : Colors.bgSecondary }}>
+                        <Text style={s.qsub}>{on ? '✓ ' : ''}🏠 {a.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+              {properties.some((a) => String(a.asset_id) === String(r.property_id ?? '')) && (mortgageOn(r.property_id)
+                ? <Text style={s.note}>Its mortgage is in Debts: {mortgageOn(r.property_id)}. It is counted from there, not in the costs above.</Text>
+                : <Money label="Monthly mortgage payment on this property, if any" hint="It is added to Debts for you — not to the costs above."
+                    value={r.mortgage} onChangeText={(v) => write(i, { mortgage: v })} a11y={`Monthly mortgage payment, property ${i + 1}`} />)}
             </View>
           </View>
         );

@@ -2289,6 +2289,11 @@
   "file": "src/domain/retirement/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "propertyUses": {
+  "id": "MK-NW-F-107",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "3 · DEPENDENT"
+ },
  "prune": {
   "id": "MK-ST-F-029",
   "file": "Calculation Module code/engines/snapshots.ts",
@@ -3067,6 +3072,11 @@
  "theBonds": {
   "id": "MK-NW-O-001",
   "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "theBudgetCounted": {
+  "id": "MK-CF-O-020",
+  "file": "MoneyKeel/functions/cashflow/budget-counted.ts",
   "category": "2 · DISPLAYED"
  },
  "theContributionRoom": {

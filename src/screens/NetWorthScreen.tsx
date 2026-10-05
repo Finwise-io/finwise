@@ -998,6 +998,7 @@ export default function NetWorthScreen() {
               {rentArriving > 0 && (
                 <Text style={styles.cushionMath}>Both count {figPer('MK-NW-M-064', rentArriving)} of rent from your property, which keeps arriving if your pay stops.</Text>
               )}
+              {!!emergencyFund.budgetSentence && <Text style={styles.cushionMath}>{emergencyFund.budgetSentence}</Text>}
               <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
             </View>
           </View>

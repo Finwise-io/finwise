@@ -59,10 +59,12 @@ test('WHAT YOU CANNOT STOP PAYING is in both figures (founder, 2026-09-28)', () 
     { debt_id: 'd3', label: 'HELOC', debt_type: 'HELOC', remaining_balance: 40000, minimum_monthly_payment: 200 },
     { debt_id: 'd4', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 300000, minimum_monthly_payment: 2000 },
   ] as any;
-  const a = theEmergencyFund({ accounts: [], expenses: [], profile: budget, debts });
-  // the car loan, the card and the HELOC count; the mortgage does not, because the Rent / Mortgage
-  // category already carries it — otherwise it would be counted twice
-  expect(a.debtMinimums).toBe(570);
+  const home = [{ asset_id: 'h1', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 400000 }] as any;
+  const a = theEmergencyFund({ accounts: home, expenses: [], profile: budget, debts });
+  // EVERY debt counts — the mortgage too, from Debts (his rule, 2026-10-04, DEC-1923). It used to be
+  // left out because the Rent / Mortgage category carried it; now that category stands down instead,
+  // so the home is still counted once: 4,500 − the 2,000 line + 2,570 of debts.
+  expect(a.debtMinimums).toBe(2570);
   expect(a.essentialsMonthly).toBeGreaterThan(0);
-  expect(a.plannedSpendMonthly).toBe(4500 + 570);
+  expect(a.plannedSpendMonthly).toBe(4500 - 2000 + 2570);
 });

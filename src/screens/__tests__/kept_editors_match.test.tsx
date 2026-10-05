@@ -57,6 +57,9 @@
  *     mortgage without property." On Add an account, Real estate, the drawn "Debt balance (optional)" reads
  *     "Mortgage balance (optional)"; once a balance is typed the form also asks the monthly payment
  *     (not drawn, and not in this frame, which types none), and the mortgage is written on that property.
+ * 16. HIS RULE, 2026-10-04 (DEC-1926): "unless rental income is added on the income screen, assume
+ *     property is second or vacation home." So Add an account, Real estate, asks one thing the drawing
+ *     does not: "Is this the home you live in?" — Yes or No. Nothing else about a property's use is asked.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -182,7 +185,9 @@ describe('Add an account, by hand v02', () => {
       fireEvent.press(screen.getAllByText(kind)[0]);
       const want = norm(upTo(P[k], /^Save$/)).replace('debt balance (optional)', 'mortgage balance (optional)');   // 15
       expect(want.split(' ').length).toBeGreaterThan(20);
-      expect(firstDifference(want, norm(builtLines(screen.toJSON())))).toBe('');
+      // 16: HIS RULE, 2026-10-04 (DEC-1926) — the form asks the one thing nothing else can tell it: which
+      // property is the home lived in. Everything else about a property's use is read from the rent entered.
+      expect(firstDifference(want, norm(builtLines(screen.toJSON())).replace(' is this the home you live in? yes no', ''))).toBe('');
     });
 });
 

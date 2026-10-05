@@ -1,9 +1,9 @@
 {
  "highest": {
   "CF": 215,
-  "CF-O": 19,
+  "CF-O": 20,
   "HM": 6,
-  "NW": 106,
+  "NW": 107,
   "NW-O": 9,
   "PF": 34,
   "PL": 85,
@@ -474,6 +474,7 @@
   "profileFromOnboarding": "MK-XS-F-026",
   "progressiveMonthlyTax": "MK-CF-F-098",
   "projectNestEgg": "MK-PL-F-055",
+  "propertyUses": "MK-NW-F-107",
   "prune": "MK-ST-F-029",
   "pruneDaily": "MK-XS-F-006",
   "publishSurplus": "MK-CF-F-017",
@@ -630,6 +631,7 @@
   "theAccount": "MK-NW-O-002",
   "theAlternativesOutlook": "MK-NW-O-005",
   "theBonds": "MK-NW-O-001",
+  "theBudgetCounted": "MK-CF-O-020",
   "theContributionRoom": "MK-CF-O-005",
   "theCreditLine": "MK-CF-O-006",
   "theDebts": "MK-CF-O-018",

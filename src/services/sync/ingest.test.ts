@@ -144,6 +144,15 @@ describe('audit fixes', () => {
     expect(r.newTransactions.filter((x) => x.type !== 'TRANSFER_IN_KIND').every((t) => t.direction == null)).toBe(true);
   });
 
+  test('a share transfer synced BEFORE the direction was stored gets it on the next sync — and is not imported twice', () => {
+    const activity = { id: 'x1', type: 'EXTERNAL_ASSET_TRANSFER_OUT', trade_date: '2026-06-09', units: -40, price: 125, amount: 0, symbol: { id: 'u-vti', raw_symbol: 'VTI' } as any };
+    const first = ingestSync([], {}, [payload({ activities: [activity] })], NOW);
+    expect(first.directionOf).toEqual([]);                           // new rows carry their own direction
+    const again = ingestSync(first.accounts, first.seenKeys, [payload({ activities: [activity] })], NOW);
+    expect(again.newTransactions).toHaveLength(0);                   // already stored
+    expect(again.directionOf).toEqual([{ account_id: String(first.newTransactions[0].account_id), date: '2026-06-09', ticker: 'VTI', shares: 40, direction: 'OUT' }]);
+  });
+
   // ── LIVE-VERIFIED against a real E*TRADE connection, 2026-07-19 ─────────────────────────────
   test('broker sells carry NEGATIVE units — the ledger stores positive shares or realized P/L never sees a single connected sale', () => {
     const r = ingestSync([], {}, [payload({ activities: [

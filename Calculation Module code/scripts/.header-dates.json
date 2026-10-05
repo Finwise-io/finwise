@@ -739,5 +739,7 @@
 "MoneyKeel/functions/networth-and-performance/performance.ts::whyNoReturn": "not in git yet|\u2014",
 "Calculation Module code/engines/snapshots.ts::accountValuesOn": "not in git yet|\u2014",
 "Calculation Module code/engines/rebuild-history.ts::fillBetweenObservations": "2026-10-04|3345e43",
-"MoneyKeel/functions/networth-and-performance/net-worth.ts::mortgagesByProperty": "2026-10-04|dd8557a"
+"MoneyKeel/functions/networth-and-performance/net-worth.ts::mortgagesByProperty": "2026-10-04|dd8557a",
+"MoneyKeel/functions/cashflow/budget-counted.ts::theBudgetCounted": "2026-10-05|50cafc5",
+"MoneyKeel/functions/networth-and-performance/net-worth.ts::propertyUses": "2026-10-05|50cafc5"
 }

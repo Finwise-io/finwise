@@ -9,6 +9,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Platform } 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { assetClassOf } from '../domain/assets';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { typedAmount } from '../components/useMoney';
@@ -57,6 +58,15 @@ export default function AddAccountScreen() {
   const [altType, setAltType] = useState<string>(existing?.kind && ALT_TYPES.some(([k]) => k === existing.kind) ? existing.kind : 'crypto');
   const [owe, setOwe] = useState<string>('');
   const [owePay, setOwePay] = useState<string>('');   // the mortgage's monthly payment (his rule, 2026-10-04)
+  // WHICH PROPERTY IS THE HOME LIVED IN. Nobody is asked what a property is "for": one with rent
+  // entered on the Income screen is a rental, and any other is a second or vacation home (his rule,
+  // 2026-10-04, DEC-1926). The one thing that cannot be read from anything else is which property
+  // the person lives in — so the form asks that, and only that. The first property is the home
+  // unless they say otherwise.
+  const otherProperties = ((store.assetAccounts ?? []) as any[]).filter((a) => assetClassOf(a) === 'real_estate' && a.asset_id !== existing?.asset_id);
+  const [livedIn, setLivedIn] = useState<boolean>(editMode
+    ? existing?.re_use === 'primary' || (existing?.re_use == null && otherProperties.length === 0)
+    : otherProperties.length === 0);
   // bond fields
   const [face, setFace] = useState<string>(existing?.face_value != null ? String(existing.face_value) : '');
   const [coupon, setCoupon] = useState<string>(existing?.coupon_rate != null ? String(existing.coupon_rate * 100) : '');
@@ -92,6 +102,11 @@ export default function AddAccountScreen() {
     };
     if (cls === 'bonds') { base.asset_class = 'bonds'; base.face_value = num(face) || undefined; base.coupon_rate = num(coupon) > 0 ? num(coupon) / 100 : undefined; base.maturity_date = maturity.trim() || undefined; }
     if (cls === 'alts') base.asset_class = 'alternatives';
+    if (cls === 'property') {
+      base.re_use = livedIn ? 'primary' : 'secondary';
+      // one home: marking this one takes the mark off any other
+      if (livedIn) for (const a of otherProperties) if (a.re_use !== 'rental' && a.re_use !== 'secondary') store.updateAsset?.(a.asset_id, { re_use: 'secondary' });
+    }
     if (isInvestment && earmark.trim() !== '') base.retirement_pct = Math.max(0, Math.min(100, num(earmark)));
     if (cls === 'cash' && num(rate) > 0) base.target_return = num(rate) / 100;
     if (editMode) store.updateAsset?.(existing.asset_id, base);
@@ -184,6 +199,19 @@ export default function AddAccountScreen() {
         </>
       )}
 
+      {cls === 'property' && (
+        <>
+          <Text style={s.fieldL}>Is this the home you live in?</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+            {([[true, 'Yes'], [false, 'No']] as const).map(([v, label]) => (
+              <TouchableOpacity key={label} style={[s.chip, livedIn === v && s.chipOn]} accessibilityRole="button" accessibilityState={{ selected: livedIn === v }}
+                accessibilityLabel={v ? 'This is the home I live in' : 'This is not the home I live in'} onPress={() => setLivedIn(v)}>
+                <Text style={[s.chipTxt, livedIn === v && { color: Colors.primaryDark }]}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </>
+      )}
       {cls === 'property' && !editMode && field('Mortgage balance (optional)', owe, setOwe, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
       {cls === 'property' && !editMode && num(owe) > 0 && field('Monthly mortgage payment', owePay, setOwePay, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Monthly mortgage payment' })}
       {cls === 'debt' && (

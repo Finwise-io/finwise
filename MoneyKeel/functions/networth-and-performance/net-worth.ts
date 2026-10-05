@@ -242,11 +242,13 @@ export interface MortgageCheck {
  *     d = on.get(string(asset id))
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-O-003 theNetWorth
+ * Called by ... MK-CF-O-020 theBudgetCounted · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-CF-O-020 theBudgetCounted · MK-NW-O-004 theEmergencyFund
+ *               MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -304,6 +306,69 @@ export function mortgagesByProperty(accounts: AssetAccount[], debts: Debt[]): Mo
     ok: unmatched.length === 0,
     sentence,
   };
+}
+
+export type PropertyUse = 'home' | 'rental' | 'second';
+
+/** What each property is used for: the home lived in, a rental, or a second or vacation home. */
+/* ─ MK-NW-F-107 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * propertyUses
+ *
+ * Answers ..... What each property is used for: the home lived in, a rental, or a second or vacation home.
+ *
+ * Formula .....
+ *     amount = (v: any) => number(string(v ?? '').replace( ÷ [^0 − 9.-] ÷ g, '')) (or 0 when missing or zero)
+ *     properties = accounts (or none when missing) where asset class of(each) = 'real_estate'
+ *     entries = rentals (or none when missing) where amount(income) > 0 (or amount(expenses) > 0 when missing or zero)
+ *     named = a list with no repeats of entries where property id ≠ nothing and property id ! = ''for each of : string(property id)
+ *     out = new map<string, property use>()
+ *     rest = properties where !out.has(string(asset id))
+ *     marked = rest.find((a) => (a as any).re use = 'primary')
+ *     home = marked (or undefined   if rest.some((a) => (a as any).re use ≠ nothing)
+ *     rest[rest.length − 1]   otherwise when missing)
+ *     others = rest where each ! = home
+ *     unnamed rent = entries.some((r) => property id = nothing or property id = '')
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-O-020 theBudgetCounted
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-O-020 theBudgetCounted
+ *               MK-NW-O-004 theEmergencyFund
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-107
+ * Changed ..... 2026-10-05 (50cafc5)
+ */
+export function propertyUses(accounts: AssetAccount[], rentals: { income?: any; expenses?: any; property_id?: any }[] | null | undefined): Map<string, PropertyUse> {
+  // HIS RULE, 2026-10-04 (DEC-1926): "unless rental income is added on the income screen, assume
+  // property is second or vacation home." So nobody is asked what a property is for:
+  //   · RENTAL — rent is entered for it on the Income screen (the rent entry names the property).
+  //   · HOME — the one property the person marked as the home they live in.
+  //   · SECOND — every other property: a second or vacation home.
+  // Two things stored before the rule are read where there is one honest answer, and not otherwise:
+  //   · rent entered that names no property belongs to the one property that is not the home, when
+  //     there is exactly one;
+  //   · with no property marked as the home, the property entered first is the home — every
+  //     property used to be read as "the home", and a household with one property has one home.
+  const amount = (v: any) => Number(String(v ?? '').replace(/[^0-9.-]/g, '')) || 0;
+  const properties = (accounts ?? []).filter((a) => assetClassOf(a) === 'real_estate');
+  const entries = (rentals ?? []).filter((r) => amount(r?.income) > 0 || amount(r?.expenses) > 0);
+  const named = new Set(entries.filter((r) => r?.property_id != null && r.property_id !== '').map((r) => String(r.property_id)));
+  const out = new Map<string, PropertyUse>();
+  for (const a of properties) if (named.has(String(a.asset_id)) || (a as any).re_use === 'rental') out.set(String(a.asset_id), 'rental');
+  const rest = properties.filter((a) => !out.has(String(a.asset_id)));
+  const marked = rest.find((a) => (a as any).re_use === 'primary');
+  // addAsset puts the newest first, so the property entered first is the last one
+  const home = marked ?? (rest.some((a) => (a as any).re_use != null) ? undefined : rest[rest.length - 1]);
+  if (home) out.set(String(home.asset_id), 'home');
+  const others = rest.filter((a) => a !== home);
+  const unnamedRent = entries.some((r) => r?.property_id == null || r.property_id === '');
+  for (const a of others) out.set(String(a.asset_id), unnamedRent && others.length === 1 ? 'rental' : 'second');
+  return out;
 }
 
 /** THE GROUPED LEDGER — the bands a person reads under WHAT YOU OWN, and what each one holds.

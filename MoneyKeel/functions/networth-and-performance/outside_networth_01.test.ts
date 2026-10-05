@@ -301,17 +301,26 @@ describe('MK-NW-O-004 theEmergencyFund — five cases', () => {
       debts: [debt('car loan', 'AUTO', 412.37), debt('credit card', 'CREDIT_CARD', 95), debt('home mortgage', 'MORTGAGE', 2400)],
     });
     expect(e.cash).toBeCloseTo(42458.75, 4);                               // the CD and the money-market fund are not cash (DEC-0051)
-    expect(e.debtMinimums).toBeCloseTo(507.37, 4);                         // the home mortgage is left out: the budget carries it
-    expect(e.essentialsMonthly).toBeCloseTo(4607.37, 4);
-    expect(e.monthsCovered).toBeCloseTo(9.215398, 5);
-    expect(e.plannedSpendMonthly).toBeCloseTo(6357.37, 4);
-    expect(e.monthsCoveredAtPlannedSpend).toBeCloseTo(6.678666, 5);
-    expect(e.housingDisagreement).toEqual({ budgeted: 2300, owed: 2400, difference: 100 });
-    expect(e.targetFor(6)!.target).toBeCloseTo(27644.22, 4);
+    // THE OWNER CHANGED THE RULE AFTER THIS CASE WAS WRITTEN (DEC-1923, 2026-10-04): "Once user enters
+    // mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any
+    // other place instead of leaving it for user to add it to planned expenses." The case was worked
+    // from the card as sent, which left the home's mortgage OUT because the budget line carried it.
+    // Its numbers under that rule, unchanged, for the record:
+    //   debt minimums 507.37 · essentials 4,607.37 · months 9.215398 · planned 6,357.37 · months at
+    //   planned 6.678666 · housing 2,300 against 2,400 reported · six months 27,644.22 · after the
+    //   hit 7.044963 months.
+    // Under his rule the mortgage's $2,400 is counted from Debts and the $2,300 budget line is not:
+    expect(e.debtMinimums).toBeCloseTo(412.37 + 95 + 2400, 4);
+    expect(e.essentialsMonthly).toBeCloseTo(4100 + 2907.37, 4);
+    expect(e.monthsCovered).toBeCloseTo(42458.75 / 7007.37, 6);            // 6.06 months
+    expect(e.plannedSpendMonthly).toBeCloseTo(5850 - 2300 + 2907.37, 4);
+    expect(e.monthsCoveredAtPlannedSpend).toBeCloseTo(42458.75 / 6457.37, 6);
+    expect(e.rentLineInDebts).toEqual({ budgeted: 2300, mortgage: 'home mortgage' });
+    expect(e.targetFor(6)!.target).toBeCloseTo(7007.37 * 6, 4);
     expect(e.targetFor(6)!.gap).toBe(0);
     const hit = e.afterAShock(10000);
     expect(hit.cashAfter).toBeCloseTo(32458.75, 4);
-    expect(hit.monthsAfter).toBeCloseTo(7.044963, 5);
+    expect(hit.monthsAfter).toBeCloseTo(32458.75 / 7007.37, 6);
     expect(hit.coversIt).toBe(true);
   });
 
@@ -327,7 +336,7 @@ describe('MK-NW-O-004 theEmergencyFund — five cases', () => {
     expect(e.debtMinimums).toBeCloseTo(2234.5, 4);                         // the formula as sent gave $254.50 — the mortgage dropped
     expect(e.essentialsMonthly).toBeCloseTo(5760.1667, 3);
     expect(e.monthsCovered).toBeCloseTo(3.618104, 5);                      // it read 5.5 months — 1.9 too long
-    expect(e.housingDisagreement).toBeNull();                              // their rent is not compared with another property's mortgage
+    expect(e.rentLineInDebts).toBeNull();                                  // their rent is rent: the rental house's mortgage does not stand it down
   });
 
   test('edge · cash but nothing logged, no plan and no debts entered', () => {
