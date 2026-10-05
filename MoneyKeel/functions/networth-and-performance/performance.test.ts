@@ -130,61 +130,62 @@ describe('B-115 — the Since window opens where the record can answer', () => {
   });
 });
 
-/* ── HIS Q52 RULING, BUILT (mock v17 marks 16 and 18, approved 2026-09-30) ────────────────────────
- *
- *  Where the window return refuses, the EXACT rate per year stands in its place instead of an em-dash.
- *  His words: "use option B", then "v17 approved".
- *
- *  THE RATE IS THE WINDOW'S, NEVER THE WHOLE RECORD'S. MK-PF-F-026 solves from the first flow it is
- *  given, so it is given this window: the beginning as an opening amount on the day before the window
- *  opens, then the window's own money in and out. Handing it the whole record would answer about a
- *  different period than the label above it names, which is the class of error this review exists to
- *  remove.
+/** EVERY RETURN IS TIME-WEIGHTED (owner decision, 2026-10-04, DEC-1669: "All return should be True
+ *  Weighted Return and not Dietz return."). Mark 16 of Performance v17 — a money-weighted rate per
+ *  year standing in where the old return refused — is gone with the method it stood in for: nothing
+ *  stands in for a time-weighted return. Where it cannot be measured there is no percent, and a
+ *  sentence saying why.
  */
-describe('mark 16 — the exact rate where the window return refuses', () => {
+describe('the return is time-weighted — and nothing stands in for it', () => {
   const day = (d: string, v: number) => ({
     date: d, origin: 'observed', writtenAt: 'x',
     holdings: [{ accountId: 'a1', securityKey: 'X', units: 1, price: v, value: v }],
     accounts: [{ date: d, accountId: 'a1', cash: 0, statedTotal: v, currency: 'USD' }],
   });
   const dep = (amount: number, date: string) => [{ txn_id: 'c', account_id: 'a1', type: 'DEPOSIT', amount, date }];
-  const ask = (beg: number, end: number, txns: any[] = []) => thePerformance({
+  const ask = (days: any[], end: number, txns: any[] = []) => thePerformance({
     windowStart: '2025-10-02', windowLabel: 'since Oct 1', today: '2026-09-30',
     ending: end, pricedGain: 0, transactions: txns,
-    snapshotDays: [day('2025-10-01', beg)] as any, investmentAccountIds: new Set(['a1']),
+    snapshotDays: days as any, investmentAccountIds: new Set(['a1']),
   });
 
-  test("it stands in ONLY where the window return refused — one return is visible at a time", () => {
-    const refuses = ask(100_000, 123_000, dep(15_000, '2026-04-01'));
-    expect(refuses.ret).toBeNull();                    // $15,000 into $100,000: timing would decide it
-    expect(refuses.refusedRate).toBeCloseTo(0.0746, 4);
-
-    const answers = ask(20_000, 22_000);               // nothing added, so nothing is in doubt
-    expect(answers.ret).toBeCloseTo(0.10, 6);
-    expect(answers.refusedRate).toBeNull();            // and the rate does NOT also appear
+  test('money paid in is never counted as earned: $100,000 → $108,000, +$15,000 in, → $129,150 is +13.40%', () => {
+    // worth $123,000 at the close of the day the $15,000 arrived, so $108,000 just before it
+    const a = ask([day('2025-10-01', 100_000), day('2026-04-01', 123_000)], 129_150, dep(15_000, '2026-04-01'));
+    expect(a.ret).toBeCloseTo((108_000 / 100_000) * (129_150 / 123_000) - 1, 10);   // 1.08 × 1.05 − 1
+    expect(a.ret).toBeCloseTo(0.134, 10);
+    expect(a.sentence).toBe('');
+    expect('refusedRate' in a).toBe(false);            // the stand-in rate does not exist any more
   });
 
-  test('it is the WINDOW\'s rate — the same figures the approved mock prints', () => {
-    expect(ask(100_000, 123_000, dep(15_000, '2026-04-01')).refusedRate!).toBeCloseTo(0.0746, 4);
-    expect(ask(80_000, 101_000, dep(15_000, '2026-04-01')).refusedRate!).toBeCloseTo(0.0688, 4);
+  test('money moved on a day with no recorded value: no percent, and the sentence names the day', () => {
+    const a = ask([day('2025-10-01', 100_000)], 123_000, dep(15_000, '2026-04-01'));
+    expect(a.ret).toBeNull();
+    expect(a.cumulative).toBeNull();
+    expect(a.sentence).toBe('Money moved in or out on Apr 1, 2026 and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right.');
+    expect(a.walk.contributions).toBe(15_000);         // the dollar walk still answers
   });
 
-  test('and it keeps its own honesty rule: under 30 days there is no yearly rate to state', () => {
-    const short = thePerformance({
-      windowStart: '2026-09-20', windowLabel: 'since', today: '2026-09-30',
-      ending: 123_000, pricedGain: 0, transactions: dep(15_000, '2026-09-25'),
-      snapshotDays: [day('2026-09-19', 100_000)] as any, investmentAccountIds: new Set(['a1']),
-    });
-    expect(short.ret).toBeNull();
-    expect(short.refusedRate).toBeNull();              // nothing invented to fill the gap
+  test('nothing moved: the plain growth', () => {
+    const a = ask([day('2025-10-01', 20_000)], 22_000);
+    expect(a.ret).toBeCloseTo(0.10, 10);
+    expect(a.sentence).toBe('');
   });
 
-  test('with no beginning to stand on, there is no rate either', () => {
+  test('with no beginning to stand on, there is no return', () => {
     const noRecord = thePerformance({
       windowStart: '2025-10-02', windowLabel: 'since', today: '2026-09-30',
       ending: 0, pricedGain: 0, transactions: [], snapshotDays: [],
       investmentAccountIds: new Set(['a1']),
     });
-    expect(noRecord.refusedRate).toBeNull();
+    expect(noRecord.ret).toBeNull();
+    expect(noRecord.covered).toBe(false);
+  });
+
+  test('a record on some other account is not money put into these investments', () => {
+    const other = [{ txn_id: 's', account_id: 'savings', type: 'DEPOSIT', amount: 9_000, date: '2026-04-01' }];
+    const a = ask([day('2025-10-01', 20_000)], 22_000, other);
+    expect(a.walk.contributions).toBe(0);
+    expect(a.ret).toBeCloseTo(0.10, 10);
   });
 });

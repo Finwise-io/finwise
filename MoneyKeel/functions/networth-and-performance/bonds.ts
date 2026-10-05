@@ -327,8 +327,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-F-102 rateWhereItRefuses
- *               MK-NW-O-003 theNetWorth
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-O-003 theNetWorth
  *
  * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING

@@ -523,7 +523,7 @@ export interface RateInForce {
     "words_on_screen": "EMERGENCY FUND — X.X months",
     "unit": "months",
     "what_it_answers": "How many months your cash would cover, if your income stopped tomorrow.",
-    "when_it_refuses": "No essentials figure yet — it says so rather than dividing by nothing.",
+    "when_it_refuses": "No essentials figure yet — it says so rather than dividing by nothing. And no count of months where the rent pays for the whole month: the cash is then not drawn on.",
     "shown_on": [
      "/analytics",
      "/jobsafety"
@@ -551,6 +551,11 @@ export interface RateInForce {
     "said_by": "author",
     "about": "MK-NW-M-013",
     "words": "ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-013",
+    "words": "FOUNDER 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" Rent arrives every month, so it is added to the cash every month — which is the cash ÷ (the month − the rent)."
    }
   ]
  },

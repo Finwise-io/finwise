@@ -192,6 +192,7 @@ export default function HomeScreen() {
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investmentAccountIdsOf(resolvedRows.accounts as any, assetClassOf),
+      accounts: resolvedRows.accounts as any[],
     });
   }, [store.transactions, store.snapshotDays, store.invDaily, investTotal, perfRows, resolvedRows.accounts]);
   const youReturn = oneMonth.ret;                               // the door's 1M figure, the one Performance prints

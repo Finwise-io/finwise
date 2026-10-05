@@ -213,16 +213,19 @@ describe('MK-PF-M-016 Return — one account, the window picked', () => {
     expect(writeFigure(spec, -0.0057)).toBe('\u22120.57%');
     expect(writeFigure(spec, null)).toBe(spec.refusal);
   });
-  test('a quiet window measures; a window where WHEN money moved would decide it refuses, and the rate per year stands in (Q52, mark 16)', () => {
+  test('a quiet window measures; money paid in is split around, never counted as earned; and where the day it moved has no recorded value there is no percent (owner, 2026-10-04: every return is time-weighted)', () => {
     const days = [recordDay('2025-12-31', 30_000, 'a1')] as any;
     const quiet = ask({ ending: 32_000, snapshotDays: days, investmentAccountIds: new Set(['a1']) });
     expect(quiet.ret).toBeCloseTo(2_000 / 30_000, 6);
     expect(quiet.sentence).toBe('');
-    const heavy = ask({ ending: 46_600, snapshotDays: days, investmentAccountIds: new Set(['a1']),
-      transactions: [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1', amount: 6_000, created_at: 'x' }] as any });
-    expect(heavy.ret).toBeNull();                       // the figure refuses …
-    expect(heavy.sentence.length).toBeGreaterThan(20);  // … and says why
-    expect(heavy.refusedRate).not.toBeNull();           // … with the exact rate per year standing in
+    const paidIn = [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1', amount: 6_000, created_at: 'x' }] as any;
+    // the day the $6,000 arrived is on record at $38,400, so $32,400 just before it
+    const measured = ask({ ending: 46_600, snapshotDays: [...days, recordDay('2026-04-01', 38_400, 'a1')] as any, investmentAccountIds: new Set(['a1']), transactions: paidIn });
+    expect(measured.ret).toBeCloseTo((32_400 / 30_000) * (46_600 / 38_400) - 1, 8);
+    const unrecorded = ask({ ending: 46_600, snapshotDays: days, investmentAccountIds: new Set(['a1']), transactions: paidIn });
+    expect(unrecorded.ret).toBeNull();                       // no figure …
+    expect(unrecorded.sentence).toMatch(/no value was recorded that day/);  // … and it says why
+    expect('refusedRate' in unrecorded).toBe(false);         // … with nothing standing in
   });
 });
 
@@ -323,14 +326,14 @@ describe('MK-XS-M-004 ▲ up/▼ down $X (Y%) this month · Return · YOUR RETUR
     expect(a.ret).toBeNull();
     expect(a.ret).not.toBe(0);
   });
-  test('IT REFUSES WHEN TIMING WOULD DRIVE IT — the dollar walk is the honest answer instead', () => {
-    // $6,000 into a $30,000 account is a fifth of it: when it arrived would decide the percentage
+  test('IT IS TIME-WEIGHTED, AND NEVER ANOTHER METHOD — money moved on a day with no recorded value gives no percent, and the dollar walk still answers', () => {
+    // $6,000 arrived on 1 April and nobody recorded what the account was worth that day
     const a = ask({
       ending: 46_600,
       transactions: [{ txn_id: 'c', account_id: 'a1', type: 'DEPOSIT', amount: 6_000, date: '2026-04-01' }],
     });
     expect(a.ret).toBeNull();
-    expect(a.sentence).toMatch(/the dollar walk below is the honest answer/);
+    expect(a.sentence).toMatch(/Money moved in or out on Apr 1, 2026 and no value was recorded that day/);
     expect(a.walk.ending).toBe(46_600);        // and the walk is still there, and still closes
   });
   test('OVER A YEAR IT IS A YEARLY RATE, and both figures are kept so the screen can label them', () => {

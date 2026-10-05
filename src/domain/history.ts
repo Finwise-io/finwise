@@ -155,7 +155,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-131 toInt
  *               MK-XS-F-171 numOrNaN · MK-XS-F-175 uid
  *
- * Reaches ..... 316 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 314 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -165,7 +165,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               … and 298 more — the full list is on functions_from_code
+ *               … and 296 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -293,7 +293,7 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
  *  property values move only when someone retypes them, so a total-net-worth percent is noise.
  *  Baseline = the earliest invDaily point on/after the change line's own baseline date; the
  *  percent exists ONLY when that history exists (never back-guessed). Returns % (1dp) or null. */
-/* ─ MK-XS-F-010 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-XS-F-010 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * investableChangePct
  *
  * Answers ..... FOUNDER RULE 2026-08-04: the NW change PERCENT is measured on cash + investments only — property values move only when someone retypes them, so a total-net-worth percent is noise.
@@ -305,11 +305,10 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
  *     nothing   when base is not a number (or not (base > 0) when missing or zero)
  *     the answer = ((current investable − base) ÷ base) × 100
  *
- * Called by ... MK-NW-F-101 PLAN · MK-NW-O-003 theNetWorth
+ * Called by ... MK-NW-F-101 PLAN
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

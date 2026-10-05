@@ -5,10 +5,11 @@
 // one question, so the return on Home's card and the return on Performance can never disagree.
 //
 // THIS DOOR CARRIES FOUR RULINGS THAT WERE EACH PAID FOR ONCE:
-//   · ONE MEANING OF RETURN (B-97, 2026-09-25). Every return here is wealth generated ÷ the money
-//     working in the window — money-weighted, so money added mid-window does not read as a gain. The
-//     screen once showed a price-only return beside a "wealth generated" that counted dividends too:
-//     two meanings of return on one card.
+//   · ONE MEANING OF RETURN, AND IT IS TIME-WEIGHTED (owner decision, 2026-10-04, DEC-1669: "All
+//     return should be True Weighted Return and not Dietz return."). The window is split every time
+//     money moves in or out, each piece's growth is measured, and the pieces are multiplied — so
+//     money added never reads as a gain. Before this it was Modified Dietz, with a money-weighted
+//     rate standing in where that refused; neither is used any more.
 //   · THE BEGINNING IS READ, NEVER BACK-FILLED (B-98). It comes from the daily record — which reaches
 //     back through a linked account's own transactions — and is only derived when the record cannot
 //     reach. Today's share count priced at past dates is a line that never happened.
@@ -20,15 +21,13 @@
 import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures } from '../_figure-spec';
 import { portfolioBenchReturn } from '../../../src/domain/performance';
-// MK-PF-F-026 is on a screen again (his Q52 ruling, 2026-09-30): it answers where the window return
-// refuses. It had been reached by nothing since mock v14 removed its own card on 2026-09-25.
-import { moneyWeightedReturn } from '../../../src/domain/performance/moneyWeighted';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
-import { windowBounds, modifiedDietzOverWindow } from '../../../Calculation Module code/engines/window-return';
-import { valueOn, covers as snapshotCovers } from '../../../Calculation Module code/engines/snapshots';
-import { Dec } from '../../../Calculation Module code/engines/decimal';
+import { windowBounds } from '../../../Calculation Module code/engines/window-return';
+import { valueOn, covers as snapshotCovers, buildDayFromAccounts, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
+import { timeWeightedReturn, movementsOf, type TimeWeightedVerdict } from '../../../Calculation Module code/engines/time-weighted-return';
+import { dateShown } from '../../../src/domain/_shared/dates';
 
 export interface WindowFigures {
   /** The first day of the window, or null for "since the record began". */
@@ -51,12 +50,6 @@ export interface WindowFigures {
   years: number;
   /** Why a refusal, in words. Empty when nothing is refused. */
   sentence: string;
-  /** THE EXACT RATE PER YEAR, and ONLY where the window return refused (his ruling on Q52, 2026-09-30:
-   *  "use option B"). It is the rate that makes this window's own beginning and its own dated flows
-   *  grow into the ending — the window's rate, never the whole record's, because the label above it
-   *  names the window. Null where the window return answered (one return is visible at a time), and
-   *  null where even this refuses: under 30 days there is not enough window to state a yearly rate. */
-  refusedRate: number | null;
 }
 
 /** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
@@ -194,82 +187,6 @@ export function pricedGainOf(
   }, 0);
 }
 
-/** THE EXACT RATE PER YEAR, FOR ONE WINDOW — what stands in where the window return refuses.
- *
- *  His ruling on Q52 (2026-09-30, "use option B"), drawn as mock v17 mark 16 and approved. The window
- *  return divides the gain once by a straight-line average of the money at work and refuses the moment
- *  that shortcut could be off by more than a percentage point. This does not divide at all: it compounds
- *  each amount over the days it was actually there and solves for the rate.
- *
- *  IT IS THE WINDOW'S RATE, NEVER THE WHOLE RECORD'S. MK-PF-F-026 solves from the first flow it is
- *  given, so it is given THIS window: the beginning as an opening amount on the day before the window
- *  opens, then the window's own money in and out. Handed the whole record it would answer about a
- *  different period than the label above it names, which is the class of error this review exists to
- *  remove.
- *
- *  It lives here and not on a screen because BOTH the Performance tab and an account's own page show
- *  it, and two copies of one rule is how two screens come to disagree. The D1 guard said so the moment
- *  the account page tried to calculate it for itself.
- *
- *  Null where there is nothing honest to say: no beginning to stand on, or under 30 days, where there
- *  is not enough window to state a yearly rate at all.
- */
-/* ─ MK-NW-F-102 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
- * rateWhereItRefuses
- *
- * Answers ..... THE EXACT RATE PER YEAR, FOR ONE WINDOW — what stands in where the window return refuses.
- *
- * Formula .....
- *     nothing   when not (input.beginning > 0)
- *     one = 'the − window'
- *     the answer:
- *     rate per year   if 'ratePerYear' in r
- *     nothing   otherwise
- *
- * Called by ... MK-NW-O-008 thePerformance
- *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-008 transaction amount
- *               MK-XS-I-009 transaction date
- *               MK-XS-I-024 logged expenses
- *
- * Decides .....
- *     · Never lets ending fall below 0.
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-102
- * Changed ..... not in git yet (—)
- */
-export function rateWhereItRefuses(input: {
-  beginning: number;
-  /** The window's own records, already filtered to it. */
-  windowLedger: any[];
-  ending: number;
-  /** The day the beginning is read at — the day before the window opens. */
-  beginningAsOf: string;
-  today: string;
-}): number | null {
-  if (!(input.beginning > 0)) return null;
-  const ONE = 'the-window';
-  const txns: any[] = [
-    { txn_id: 'open', account_id: ONE, type: 'OPENING_CASH', amount: input.beginning, date: input.beginningAsOf },
-    ...(input.windowLedger ?? [])
-      .filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
-      .map((t: any, i: number) => ({
-        txn_id: `f${i}`, account_id: ONE, type: t.type,
-        amount: Math.abs(Number(t.amount) || 0), date: String(t.date ?? '').slice(0, 10),
-      })),
-  ];
-  const r = moneyWeightedReturn(
-    txns, [{ asset_id: ONE }] as any, new Set([ONE]),
-    Math.max(0, input.ending), Date.parse(`${input.today}T12:00:00Z`));
-  return 'ratePerYear' in r ? r.ratePerYear : null;
-}
-
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
  *  investments, and an account left out here is an account whose dividends never reach the return. */
 
@@ -298,17 +215,84 @@ export function investmentAccountIdsOf(
   return new Set((accounts ?? []).filter((a) => invested.has(classOf(a))).map((a) => String(a.asset_id)));
 }
 
-/** ── ORCHESTRATOR ─────────────────────────────────────────────────────────────────────
+/** WHY A RETURN CANNOT BE MEASURED, in words a person reads. One sentence per reason, written once,
+ *  so the Performance tab, an account's own page and Home say the same thing about the same refusal.
+ *  A time-weighted return is never replaced by another kind of figure (owner, 2026-10-04): where it
+ *  cannot be measured the screen shows no percent and this sentence, and the dollar figures stand. */
+/* ─ MK-NW-F-105 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * whyNoReturn
+ *
+ * Answers ..... WHY A RETURN CANNOT BE MEASURED, in words a person reads.
+ *
+ * Formula .....
+ *     ''   when v is missing (or rate ≠ nothing when missing or zero)
+ *     on = date shown(day)   if day
+ *     ''   otherwise
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-105
+ * Changed ..... not in git yet (—)
+ */
+export function whyNoReturn(v: TimeWeightedVerdict | null): string {
+  if (!v || v.rate != null) return '';
+  const on = v.day ? dateShown(v.day) : '';
+  switch (v.refused) {
+    case 'MOVEMENT_DAY_NOT_RECORDED': return `Money moved in or out on ${on} and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right.`;
+    case 'MOVEMENT_HAS_NO_DATE': return 'A deposit or withdrawal in your records has no date, so a return cannot be measured. The dollar figures here are still right.';
+    case 'SHARES_MOVED': return `Shares were moved in or out on ${on}, and your records do not say what they were worth that day, so a return cannot be measured across it. The dollar figures here are still right.`;
+    case 'VALUE_BELOW_MONEY_ADDED': return `The value recorded on ${on} is less than the money added that day, so a return cannot be measured across it. The dollar figures here are still right.`;
+    case 'NOTHING_INVESTED': return 'Nothing was invested over this period, so there is no return to state.';
+    case 'END_NOT_RECORDED': return 'Today’s value is not in your records yet, so a return cannot be measured.';
+    default: return '';
+  }
+}
+
+/** The daily record with today added to it, worth what the caller says the measured accounts are worth now. */
+/* ─ MK-NW-F-104 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * closedWith
+ *
+ * Answers ..... The daily record with today added to it, worth what the caller says the measured accounts are worth now.
+ *
+ * Formula .....
+ *     last = [...days] where date < today.sort((x, y) => string(date).locale compare(string(date))).pop()
+ *     days   when last is missing
+ *     members = [...new set([...(last.holdings ?? []), ...(last.accounts ?? [])].map((r: any) => string(account id)).filter((id) => ids.size = 0 or ids.has(id)))]
+ *     days   when count of members is missing
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-104
+ * Changed ..... not in git yet (—)
+ */
+function closedWith(days: any[], ids: Set<string>, today: string, ending: number): any[] {
+  const last = [...days].filter((d) => d?.date < today).sort((x, y) => String(x.date).localeCompare(String(y.date))).pop();
+  if (!last) return days;
+  const members = [...new Set([...(last.holdings ?? []), ...(last.accounts ?? [])].map((r: any) => String(r.accountId)).filter((id) => ids.size === 0 || ids.has(id)))];
+  if (!members.length) return days;
+  return [...days, { date: today, origin: 'observed', writtenAt: `${today}T00:00:00Z`, holdings: [],
+    accounts: members.map((accountId, i) => ({ date: today, accountId, cash: 0, statedTotal: null, typedValue: i === 0 ? ending : 0, currency: 'USD' })) }];
+}
+
+/** How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return?
+ *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
  *  header generator owns the plain block comment below and rewrites it on every build, which is how
  *  all twelve doors lost this marker once and two were typed F instead of O (2026-09-28). */
-/** MARK 16 (Performance v17, approved): where the window return refuses, the exact rate per year stands
- *  in its place and THESE words say what it is. One sentence, printed by the Performance tab and the
- *  Account portfolio alike — the test "the same figure, the same words" holds the two together. */
-export const RATE_STANDS_IN_WORDS =
-  'Money moved in and out in amounts where WHEN it moved would decide a window return, so this is your rate per year, counting when you added money';
-
-/** How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return? */
 /* ─ MK-NW-O-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * thePerformance
  *
@@ -328,7 +312,7 @@ export const RATE_STANDS_IN_WORDS =
  *     beginning = measured (or ending − priced gain − contributions + withdrawals when missing)
  *     years = bounds.days ÷ 365   if bounds
  *     0   otherwise
- *     covered = measured ≠ nothing
+ *     moved = movements of(theirs, input.investment account ids)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
@@ -342,8 +326,7 @@ export const RATE_STANDS_IN_WORDS =
  *               MK-PF-M-007 · MK-PF-M-008 · MK-PF-M-013 · MK-PF-M-014
  *               MK-PF-M-015 · MK-PF-M-016 · MK-PF-M-017 · MK-PF-M-018
  *               MK-PF-M-019 · MK-PF-M-020 · MK-XS-M-004
- * Reads ....... MK-XS-I-008 transaction amount
- *               MK-XS-I-009 transaction date
+ * Reads ....... MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  * Ruled by .... DEC-0008 · DEC-0015 · DEC-0046 · DEC-0056 · DEC-0063 · DEC-0064
  *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
@@ -358,7 +341,6 @@ export const RATE_STANDS_IN_WORDS =
  *
  * Decides .....
  *     · Treats a year as 365 days.
- *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-008
  * Changed ..... not in git yet (—)
@@ -383,9 +365,19 @@ export function thePerformance(input: {
    *  into a yearly rate (Performance v17, phone 3: "Since Jun 3, 2024 +16.24% … not a yearly rate").
    *  A fixed window longer than a year (2Y) still shows the yearly rate. */
   wholeRecord?: boolean;
+  /** The accounts as they stand now. Today's values are read from them, so the last day of the
+   *  return is measured the same way every recorded day was — and an account added today is seen
+   *  as arriving today, not as a gain. */
+  accounts?: any[];
 }): WindowFigures {
   const { windowStart, today, ending } = input;
-  const ledger = (input.transactions ?? []).filter(
+  // THE MEASURED ACCOUNTS' OWN RECORDS, and no others. A record on some other account — a deposit
+  // into a savings account — is not money put into these investments. A record that names no
+  // account is kept, as it always was.
+  const theirs = (input.transactions ?? []).filter((t: any) => t?.account_id == null || input.investmentAccountIds.size === 0
+    || input.investmentAccountIds.has(String(t.account_id))
+    || (t?.counter_account_id != null && input.investmentAccountIds.has(String(t.counter_account_id))));
+  const ledger = theirs.filter(
     (t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
   const flows = personalFlowTotals(ledger);
   const contributions = flows.contributions.toNumber(2);
@@ -411,42 +403,34 @@ export function thePerformance(input: {
     contributions, withdrawals, dividends, interest,
   });
 
-  const verdict = bounds ? modifiedDietzOverWindow({
-    // money enters the decimal arithmetic at cents — a derived beginning is a float with a long tail
-    beginning: Dec.of(beginning.toFixed(2)), ending: Dec.of(ending.toFixed(2)),
-    flows: ledger.filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
-      .map((t: any) => ({ date: String(t.date ?? '').slice(0, 10) || null,
-        amount: (Dec.parse(t.amount) ?? Dec.ZERO).mul(t.type === 'WITHDRAWAL' ? Dec.of('-1') : Dec.of('1')) })),
-    start: windowStart!, end: today,
-  }) : null;
-
   const years = bounds ? bounds.days / 365 : 0;
   // A WINDOW THE RECORD CANNOT COVER ANSWERS NOTHING (Performance v17, approved 2026-10-01: "a window
   // the record cannot cover is greyed to — … nothing on this page shows a figure for a window its
-  // record cannot cover"). A rate stood on a beginning READ from the record, or — until now — on a
-  // beginning worked backwards from today's prices whenever those prices had moved. The second is a
-  // back-filled beginning wearing a percent sign, and it is the one thing B-98 forbids. So a rate
-  // needs a beginning that was read. The dollar walk still answers; only the percent is withheld.
-  const covered = measured != null;
-  const refused = covered && verdict != null && verdict.rate == null;
-  const cumulative = covered ? verdict?.rate ?? null : null;
-  // "Since" is the whole record: its figure is the window's own total, said with its two dates
-  const perYear = cumulative != null && years > 1 && !input.wholeRecord ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
-
-  // WHERE THE WINDOW RETURN REFUSES, THE EXACT RATE STANDS IN ITS PLACE (his ruling on Q52, 2026-09-30,
-  // drawn as mock v17 mark 16 and approved). The window return divides the gain once by a straight-line
-  // average of the money at work, and refuses the moment that shortcut could be off by more than a
-  // percentage point. This does not divide at all: it compounds each amount over the days it was
-  // actually there and solves for the rate. Measured, the two agree to 0.018 of a point wherever the
-  // window return answers — so this fills the gap the refusal leaves and never contradicts it.
+  // record cannot cover"). A return needs a beginning that was READ from the record (B-98); the
+  // dollar walk still answers, and only the percent is withheld.
   //
-  // IT IS THE WINDOW'S RATE. MK-PF-F-026 solves from the first flow it is given, so it is given THIS
-  // window: the beginning as an opening amount on the day before the window opens, then the window's
-  // own money in and out. Handing it the whole record would answer about a different period than the
-  // label above it names, which is the class of error this whole review exists to remove.
-  const refusedRate = !refused || !bounds ? null : rateWhereItRefuses({
-    beginning, windowLedger: ledger, ending, beginningAsOf: bounds.beginningAsOf, today,
-  });
+  // THE RETURN IS TIME-WEIGHTED (owner decision, 2026-10-04, DEC-1669). The window is split at every
+  // day money moved in or out; each piece is the value just before the next movement ÷ the value
+  // just after the last; the pieces are multiplied. The record holds one value a day, taken after
+  // that day's money moved, so "just before" is that day's value less the movement. Where a piece
+  // cannot be measured there is NO figure and a sentence saying why — never another method.
+  const moved = movementsOf(theirs, input.investmentAccountIds);
+  // today's values, read the way every recorded day was read. A caller that hands over no accounts
+  // and no record of today has still said what the investments are worth now (`ending`): that
+  // figure closes the record, on the accounts the latest recorded day holds.
+  const record = input.accounts
+    ? recordDay(days.filter((d: any) => d?.date !== today), buildDayFromAccounts(input.accounts, today, `${today}T00:00:00Z`))
+    : days.some((d: any) => d?.date === today) ? days : closedWith(days, input.investmentAccountIds, today, ending);
+  const verdict = bounds && measured != null ? timeWeightedReturn({
+    days: record, accountIds: input.investmentAccountIds,
+    flows: moved.flows, sharesMoved: moved.sharesMoved,
+    start: bounds.beginningAsOf, end: today,
+  }) : null;
+  const covered = measured != null && verdict?.refused !== 'START_NOT_RECORDED';
+  const cumulative = covered ? verdict?.rate ?? null : null;
+  // a yearly rate only for a window longer than a year: (1 + the return)^(365 ÷ days) − 1. "Since" is
+  // the whole record: its figure is the window's own total, said with its two dates.
+  const perYear = cumulative != null && years > 1 && !input.wholeRecord ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
 
   return {
     windowStart, ledger, walk, measured,
@@ -459,8 +443,7 @@ export function thePerformance(input: {
     beginningAsOf: bounds ? bounds.beginningAsOf : null,
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
-    sentence: refused ? verdict!.sentence : '',
-    refusedRate,
+    sentence: covered ? whyNoReturn(verdict) : '',
   };
 }
 
@@ -522,6 +505,7 @@ export interface CategoryEarned {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-005 holding price
  *               MK-XS-I-008 transaction amount
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-024 logged expenses
@@ -629,10 +613,11 @@ export function categoryEarnings(input: {
  *  of cash — worth $46,600 on 28 September 2026, with $6,000 paid in on 1 April and $825 of dividends
  *  along the way. Every figure runs `thePerformance`, the real door.
  *
- *  IT IS THE CASE WHERE THE PERCENTAGE IS REFUSED, deliberately. The $6,000 is a fifth of what was
- *  there at the start, so WHEN it arrived would drive any rate more than the investing did, and the
- *  door says so in words instead of printing one (his ruling: one meaning of return, or none).
- *  The dollar walk still answers: $30,000 + $6,000 paid in + $10,600 generated = $46,600.
+ *  IT IS THE CASE WITH MONEY PAID IN, deliberately — the one a return gets wrong when it counts the
+ *  deposit as earned. Time-weighted (owner decision, 2026-10-04): the account was worth $38,400 at the
+ *  close of 1 April, so $32,400 just before the $6,000 arrived. $30,000 grew to $32,400 (× 1.08), then
+ *  $38,400 grew to $46,600 (× 1.213542): 1.08 × 1.213542 − 1 = +31.06%.
+ *  The dollar walk says the same story in dollars: $30,000 + $6,000 paid in + $10,600 generated = $46,600.
  */
 const EXAMPLE = {
   windowStart: '2026-01-01', windowLabel: 'since Jan 1', today: '2026-09-28', ending: 46600,
@@ -644,23 +629,33 @@ const EXAMPLE = {
     { date: '2025-12-31', origin: 'observed', writtenAt: '2025-12-31T00:00:00Z',
       holdings: [{ accountId: 'a2', holdingId: 'VTI', ticker: 'VTI', units: 100, price: 260, value: 26000 }],
       accounts: [{ date: '2025-12-31', accountId: 'a2', cash: 4000, statedTotal: null, currency: 'USD' }] },
+    // the day the $6,000 arrived, valued after it arrived: 100 VTI at $284 plus $10,000 cash
+    { date: '2026-04-01', origin: 'observed', writtenAt: '2026-04-01T00:00:00Z',
+      holdings: [{ accountId: 'a2', holdingId: 'VTI', ticker: 'VTI', units: 100, price: 284, value: 28400 }],
+      accounts: [{ date: '2026-04-01', accountId: 'a2', cash: 10000, statedTotal: null, currency: 'USD' }] },
+    { date: '2026-09-28', origin: 'observed', writtenAt: '2026-09-28T00:00:00Z',
+      holdings: [{ accountId: 'a2', holdingId: 'VTI', ticker: 'VTI', units: 100, price: 357.75, value: 35775 }],
+      accounts: [{ date: '2026-09-28', accountId: 'a2', cash: 10825, statedTotal: null, currency: 'USD' }] },
   ] as any[],
   investmentAccountIds: new Set(['a2']),
   pricedGain: 0,
 };
 const GIVEN =
-  'An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $46,600 on 28 Sep 2026, '
-  + 'with $6,000 paid in on 1 Apr and $825 of dividends received.';
+  'An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash), $38,400 at the close of 1 Apr — '
+  + 'the day $6,000 was paid in — and $46,600 on 28 Sep 2026, with $825 of dividends received.';
 
-/** THE SAME ACCOUNT WITH NOTHING PAID IN (Performance pass 2, 2026-09-30). The canonical example
- *  above REFUSES to show a percentage — $6,000 into a $30,000 account is a fifth of it, so when the
- *  money arrived would drive the figure more than the investing did, and the door says so rather
- *  than print a number. That refusal is the ruling working, which is why it is kept. But it leaves
- *  the screen's headline figure — Return — with no example that produces one, so here is the same
- *  account with no money paid in: $30,000 became $32,000, of which $825 arrived as dividends. */
+/** THE SAME ACCOUNT WITH NOTHING PAID IN (Performance pass 2, 2026-09-30) — the plainest return
+ *  there is, so a person can check the headline figure with one division: $30,000 became $32,000,
+ *  of which $825 arrived as dividends. $32,000 ÷ $30,000 − 1 = +6.67%. */
 const QUIET = {
   ...EXAMPLE,
   ending: 32000,
+  snapshotDays: [
+    EXAMPLE.snapshotDays[0],
+    { date: '2026-09-28', origin: 'observed', writtenAt: '2026-09-28T00:00:00Z',
+      holdings: [{ accountId: 'a2', holdingId: 'VTI', ticker: 'VTI', units: 100, price: 271.75, value: 27175 }],
+      accounts: [{ date: '2026-09-28', accountId: 'a2', cash: 4825, statedTotal: null, currency: 'USD' }] },
+  ] as any[],
   transactions: [
     { txn_id: 'd1', account_id: 'a2', ticker: 'VTI', type: 'DIVIDEND', amount: 825, date: '2026-06-20' },
   ] as any[],
@@ -830,6 +825,7 @@ const BENCH_GIVEN =
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-003 institution name
+ *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -850,9 +846,8 @@ const BENCH = () => portfolioBenchReturn([
  *  bisection \u2014 is now reached by no screen at all, only by tests. A row for a figure nobody reads is
  *  a wrong row, so the row is gone and the function is left where it is, correct and unused.
  *
- *  ONE WORD, TWO FUNCTIONS (finding A13), worth saying plainly: the Return the screen DOES show
- *  calls itself money-weighted too, and is a different calculation \u2014 Modified Dietz. FOR HIM:
- *  delete the XIRR, or give it a screen.
+ *  SETTLED 2026-10-04 (DEC-1669): the Return the screen shows is TIME-WEIGHTED. Neither the XIRR nor
+ *  the Modified Dietz function is called by anything any more; both are still in the files, unused.
  */
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
@@ -916,21 +911,18 @@ export const PERFORMANCE_FIGURES = declareFigures({
   // return — a different figure. This is the account's own.
   'MK-PF-M-016': {
     label: 'Return', unit: 'percent-signed', screens: ['/account-detail', '/invest'], grain: 'one account',
-    answers: 'What this one account returned over the window you picked \u2014 wealth generated \u00f7 the money '
-      + 'that was working in it, counting when money moved in or out. Shown per year when the window is '
-      + 'longer than a year.',
-    formula: '(ending \u2212 beginning \u2212 net flows) \u00f7 (beginning + \u03a3 each flow \u00d7 the share of the window it was '
-      + 'invested for) \u2014 Modified Dietz; a window longer than a year is turned into a yearly rate',
+    answers: 'How much this one account grew over the window you picked, with money you added or took out left out. '
+      + 'Shown per year when the window is longer than a year.',
+    formula: 'split the window at every day money moved in or out; each piece = the value just before the next movement \u00f7 the value just after the last one (the record holds one value a day, taken after that day\u2019s money moved, so just before = that day\u2019s value \u2212 the movement); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
     inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
     decisions: [
       'TWO DECIMALS AND ITS SIGN, always (Q49): +6.67%, \u22120.57% \u2014 never +6.7%, never a bare 6.67%.',
-      'WHEN MONEY MOVED WOULD DECIDE THE FIGURE, IT REFUSES (Q52): the screen shows \u2014 and the exact rate '
-      + 'per year stands in its place, with a sentence saying why.',
+      'EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): "All return should be True Weighted Return and not Dietz return."',
+      'WHERE IT CANNOT BE MEASURED IT SHOWS NO PERCENT, and never another method in its place.',
       'ONE METHOD WITH THE PORTFOLIO: the same door the Performance tab calls, asked for this one account.',
     ],
-    refusal: 'Money moved in and out in amounts where WHEN it moved would decide a window return, so none is '
-      + 'shown; the rate per year stands in its place.',
-    ruled: '2026-10-01',
+    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.',
+    ruled: '2026-10-04',
     // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
     worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },
   },
@@ -939,18 +931,18 @@ export const PERFORMANCE_FIGURES = declareFigures({
   // which is why they are not the one-account rows above (MK-PF-M-013 to 016).
   'MK-PF-M-017': {
     label: 'Return', unit: 'percent-signed', screens: ['/invest'], grain: 'every account together',
-    answers: 'What all your investments returned over the window you picked \u2014 wealth generated \u00f7 the money '
-      + 'that was working, counting when money moved in or out. Per year when the window is longer than a year.',
-    formula: '(ending \u2212 beginning \u2212 net flows) \u00f7 (beginning + \u03a3 each flow \u00d7 the share of the window it was '
-      + 'invested for) \u2014 Modified Dietz over every investment account; a window longer than a year becomes a yearly rate',
+    answers: 'How much all your investments grew over the window you picked, with money you added or took out left out. '
+      + 'Per year when the window is longer than a year.',
+    formula: 'over every investment account together: split the window at every day money moved in or out; each piece = the value just before the next movement \u00f7 the value just after the last one (the record holds one value a day, taken after that day\u2019s money moved, so just before = that day\u2019s value \u2212 the movement); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
     inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
     decisions: [
       'TWO DECIMALS AND ITS SIGN, always (Q49).',
-      'WHEN MONEY MOVED WOULD DECIDE THE FIGURE, IT REFUSES (Q52) and the exact rate per year stands in its place (mark 16, v17).',
+      'EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669). Where it cannot be measured it shows no percent, and never another method in its place.',
+      'AN ACCOUNT THAT JOINS THE RECORD inside the window counts as money in, at its first recorded value \u2014 nothing it was already worth is earned.',
       'THE SAME DOOR AS ONE ACCOUNT\u2019S RETURN (MK-PF-M-016), asked for every account at once \u2014 one method, never two.',
     ],
-    refusal: 'Money moved in and out in amounts where WHEN it moved would decide a window return, so none is shown; the rate per year stands in its place.',
-    ruled: '2026-10-01',
+    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.',
+    ruled: '2026-10-04',
     // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
     worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },
   },
@@ -1046,16 +1038,17 @@ export const PERFORMANCE_FIGURES = declareFigures({
     label: '\u25b2 up/\u25bc down $X (Y%) this month \u00b7 Return \u00b7 YOUR RETURN', unit: 'percent-2dp', screens: ['/invest', '/home'],
     answers: 'What your investments earned over the window you picked \u2014 dividends and interest included.',
     formula:
-      'wealth generated \u00f7 the money that was working in the window, counting each contribution for the part '
-      + 'of the window it was there; over a window longer than a year it is shown as a yearly rate',
+      'the time-weighted return of every investment account together: the window split at every day money moved in or out, '
+      + 'each piece = the value just before the next movement \u00f7 the value just after the last one, the pieces multiplied, less 1; '
+      + 'over a window longer than a year it is shown as a yearly rate',
     inputs: ['MK-XS-I-020 the records of money movements', 'MK-NW-I-001 your accounts', 'MK-XS-I-006 the price fetched at'],
     decisions: [
       'ONE MEANING OF RETURN (B-97, 2026-09-25): dividends and interest are in it, because "Wealth generated" beside it counts them.',
       'A RATE NEEDS SOMETHING TO STAND ON: with no beginning read from the record and no movement to point at, it shows nothing rather than a confident +0.00%.',
-      'IT REFUSES WHEN TIMING WOULD DRIVE IT: where money moved in or out in amounts large enough that WHEN it moved decides the percentage, the screen shows the dollar walk instead.',
+      'IT IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): "All return should be True Weighted Return and not Dietz return." Where a piece cannot be measured it shows nothing, and never another method.',
       'OVER A YEAR IT IS A YEARLY RATE and the screen says so (his ruling, 2026-08-18, restated 2026-09-25).',
     ],
-    refusal: 'Nothing is shown, and the walk beneath says in words why \u2014 either the record cannot reach the beginning, or money moved in amounts that would decide the percentage.',
+    refusal: 'Nothing is shown, and the walk beneath says in words why \u2014 either the record cannot reach the beginning, or money moved on a day with no recorded value.',
     worked: {
       given: QUIET_GIVEN,
       answer: '6.67%',

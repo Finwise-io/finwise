@@ -58,7 +58,7 @@ describe('PERFORMANCE: A WINDOW THE RECORD CANNOT COVER SHOWS NOTHING AND CANNOT
   test('the door answers no percent for it — even when prices moved', () => {
     const past = ask('2025-09-30');                      // a year back, on a record four months long
     expect(past.covered).toBe(false);
-    expect([past.ret, past.cumulative, past.perYear, past.refusedRate]).toEqual([null, null, null, null]);
+    expect([past.ret, past.cumulative, past.perYear]).toEqual([null, null, null]);
     const inside = ask('2026-07-01');                    // a window the record does reach
     expect(inside.covered).toBe(true);
     expect(inside.ret).not.toBeNull();
@@ -103,24 +103,17 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     expect(covers(days, '2026-06-29')).toBe(false);          // and June's is honestly not
   });
 
-  test('the D4 return refusals are wired — and since v17 a refusal shows the EXACT RATE, not its sentence', () => {
+  test('the return is time-weighted, a refusal speaks its own sentence, and nothing stands in for it (owner, 2026-10-04)', () => {
     const src = door();
-    expect(src).toContain("engines/window-return");
-    // the refusal is carried on the window's own figures (one set per window, 2026-09-25) and only a
-    // REAL refusal speaks: having no record yet is an em-dash, not a sentence
-    expect(src).toMatch(/const refused = covered && verdict != null && verdict\.rate == null;/);
-    expect(src).toMatch(/sentence: refused \? verdict!\.sentence : ''/);
-    // HIS RULING ON Q52, built as mock v17 mark 16 and approved 2026-09-30: where the window return
-    // refuses, the exact rate per year stands in its place and the note says WHAT THE FIGURE IS. So the
-    // screen no longer prints the refusal sentence when a rate could be stated — it prints it only when
-    // even the rate refuses. This assertion is inverted rather than deleted, so the old behaviour
-    // cannot creep back.
+    // the one method: the time-weighted engine, and neither of the two it replaced
+    expect(src).toContain("engines/time-weighted-return");
+    expect(src).not.toMatch(/modifiedDietzOverWindow\(|moneyWeightedReturn\(/);
+    // only a REAL refusal speaks: having no record yet is an em-dash, not a sentence
+    expect(src).toMatch(/sentence: covered \? whyNoReturn\(verdict\) : ''/);
+    // mock v17's mark 16 — a money-weighted rate per year standing in — is gone from the door and the screen
     const screen = read('PerformanceScreen.tsx');
-    expect(src).toMatch(/refusedRate/);                                  // the door hands it out
-    expect(screen).toMatch(/now\.refusedRate != null \? \(/);            // the screen prefers the rate
-    // the words live in the door (RATE_STANDS_IN_WORDS, 2026-10-01) and both screens print that one constant
-    expect(src).toMatch(/this is your rate per year, counting when you added money/);
-    expect(screen).toMatch(/RATE_STANDS_IN_WORDS/);
-    expect(screen.indexOf('now.refusedRate != null ? (')).toBeLessThan(screen.indexOf('now.sentence ? ('));   // …and asks for it first
+    expect(src).not.toMatch(/refusedRate|RATE_STANDS_IN_WORDS/);
+    expect(screen).not.toMatch(/refusedRate|RATE_STANDS_IN_WORDS|money-weighted, so money you added/);
+    expect(screen).toMatch(/now\.sentence \? \(/);                      // the screen prints the reason
   });
 });

@@ -133,7 +133,7 @@ export interface ReturnVerdict {
   sentence: string;
 }
 
-/* ─ MK-ST-F-064 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-ST-F-064 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * modifiedDietzOverWindow
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -152,12 +152,7 @@ export interface ReturnVerdict {
  *     rate = rate with((f) => weight of(date!))
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-O-008 thePerformance
- *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -152,7 +152,7 @@ describe('the summary and the value walk', () => {
     expect(screen.getAllByText('Wealth generated').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Return').length).toBeGreaterThan(0);          // the trio, and each open account's own
     expect(screen.getByText(/not a yearly rate/)).toBeOnTheScreen();
-    expect(screen.getByText('money-weighted, so money you added never counts as return')).toBeOnTheScreen();
+    expect(screen.getByText('time-weighted, so money you added never counts as return')).toBeOnTheScreen();
   });
 
   test('every percentage on the screen carries two decimals (Q49)', () => {

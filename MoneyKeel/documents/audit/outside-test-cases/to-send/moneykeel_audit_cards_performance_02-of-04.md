@@ -327,6 +327,7 @@ export interface PriceSeries { ticker: string; points: { date: string; close: nu
   "handed": "export function categoryEarnings(input: {\n  /** every record, unfiltered — this takes the window’s own */\n  transactions: any[];\n  /** the window’s first day, or null for \"since the record began\" */\n  windowStart: string | null;\n  /** each holding with its class and its own return, as buildPerformance produces them */\n  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; marketValue?: number }[];\n  /** Every bond or CD held as its own account: what it is worth and the yearly rate it states. */\n  bonds?: { balance?: number; coupon_rate?: number }[];\n  /** DAY ONE: every category is shown at $0 — \"every line fills in as days pass, the structure never\n   *  changes\" (Performance v17, phones 4 and 5). Any other day, a category that received nothing is\n   *  left out. */\n  dayOne?: boolean;\n}): CategoryEarned[]",
   "inputs_it_reads": [
    "MK-XS-I-001 account balance",
+   "MK-XS-I-005 holding price",
    "MK-XS-I-008 transaction amount",
    "MK-XS-I-012 bond coupon rate",
    "MK-XS-I-024 logged expenses",

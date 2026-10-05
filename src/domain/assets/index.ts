@@ -441,8 +441,8 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-NW-F-021 investmentsTotal · MK-NW-F-027 accountClassBreakdown
  *               MK-NW-F-029 assetAllocation · MK-NW-F-030 earmarkDefault
  *               MK-NW-F-031 primaryCarIdOf · MK-NW-F-055 isBond
- *               MK-NW-F-063 interestIncomeAnnual · MK-NW-O-004 theEmergencyFund
- *               MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-F-063 interestIncomeAnnual · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-004 theEmergencyFund · MK-NW-O-005 theAlternativesOutlook
  *
  * Reaches ..... 121 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
@@ -559,7 +559,7 @@ export function realEstateUseOf(a: AssetAccount): RealEstateUse {
  *     c = asset class of(a)
  *     the answer = c = 'real_estate' (or c = 'personal_property' when missing or zero)
  *
- * Called by ... MK-NW-F-022 investableAssets
+ * Called by ... MK-NW-F-022 investableAssets · MK-NW-O-003 theNetWorth
  *
  * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN

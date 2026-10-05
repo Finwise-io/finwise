@@ -390,8 +390,8 @@ export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
    "MK-XS-I-014 debt balance",
    "MK-XS-I-015 debt interest rate",
    "MK-XS-I-016 debt minimum payment",
-   "MK-XS-I-028 assumed return",
-   "MK-XS-I-048 the person’s own asset-class answer"
+   "MK-XS-I-024 logged expenses",
+   "MK-XS-I-028 assumed return"
   ]
  },
  {

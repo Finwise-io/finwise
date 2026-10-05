@@ -53,17 +53,17 @@ export interface RateInForce {
  *
  * Called by ... MK-CF-F-181 rateInForce
  *
- * Reaches ..... 74 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               … and 56 more — the full list is on functions_from_code
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -106,17 +106,17 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  * Called by ... MK-CF-F-090 effectiveRate · MK-CF-F-092 incomeMonthlyGrid
  *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               … and 55 more — the full list is on functions_from_code
+ * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
+ *               … and 61 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income

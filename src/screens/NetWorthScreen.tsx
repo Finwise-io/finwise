@@ -676,7 +676,7 @@ export default function NetWorthScreen() {
     // asked of the door, with the baseline day this screen has just calculated. The door hands a
     // RATE (0…1); this line has always printed a percentage, so it multiplies once, here.
     const invRate = janPoint
-      ? theNetWorth({ uid, accounts: assets, debts: liabilities, investableDaily: store.invDaily, since: janPoint.month }).investableChangePct
+      ? theNetWorth({ uid, accounts: assets, debts: liabilities, snapshotDays: (store as any).snapshotDays, transactions: store.transactions, since: janPoint.month }).investableChangePct
       : null;
     const invPct = invRate == null ? null : invRate * 100;
     // Founder wording 2026-08-10: the two halves are NAMED — the dollar move is the change in net

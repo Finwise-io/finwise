@@ -6,6 +6,7 @@
  *  and the exact odds (10) are pinned beside their functions. */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
+import { recordedDay } from '../../testing/recordedDay';
 import { useStore } from '../../store/useStore';
 import { employedPartner } from '../../testing/personas';
 import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../../constants/doors';
@@ -67,11 +68,14 @@ describe('with accounts', () => {
       onboardingProfile: { ...employedPartner, monthlySpending: '4500' },
       assetAccounts: [
         { asset_id: 'chk', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 8000, target_return: 0, source: 'connected', last_synced: `${today}T09:00:00Z` },
-        { asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 355152, target_return: 0.07, source: 'connected', last_synced: `${today}T09:00:00Z` },
+        { asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 355152, target_return: 0.07, source: 'connected', last_synced: `${today}T09:00:00Z`,
+          // a linked account's value is its holdings: the daily record reads them, so the return has something to measure
+          positions: [{ position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 355152, lots: [{ lot_id: 'l1', shares: 1, cost_per_share: 300000, purchase_date: '2024-01-02' }] }] },
       ],
       liabilities: [],
       nwDaily: { '2026-08-03': 361242, [today]: 363152 },
-      invDaily: { '2026-08-03': 361242, [today]: 363152 },
+      // the day the return is measured from: $8,000 checking + $353,242 brokerage = $361,242
+      snapshotDays: [recordedDay('2026-08-03', [['chk', 8000, 'cash'], ['van', 353242]])],
     } as any);
   });
 

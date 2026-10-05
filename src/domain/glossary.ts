@@ -10,10 +10,10 @@ export type GlossaryTerm =
   // shows wherever these appear (Net Worth classes, holdings, Income).
   | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
   | 'grossIncome' | 'contributionRoom' | 'capitalGains'
-  | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate' | 'moneyWeighted' | 'benchmark'
+  | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate' | 'timeWeighted' | 'benchmark'
   | 'investments' | 'yourReturn' | 'nestEggMath' | 'priceReturn' | 'howReturnsWork'
   // Performance (mock v17): one entry per ⓘ the approved drawing carries
-  | 'performanceSummary' | 'windowReturn' | 'moneyAddedIsNotReturn' | 'rateStandsIn' | 'rebuiltHistory'
+  | 'performanceSummary' | 'windowReturn' | 'moneyAddedIsNotReturn' | 'rebuiltHistory'
   | 'dayOne' | 'cashInAccount' | 'earnedInWindow' | 'yearlyPace'
   | 'debt';   // cluster #10 ruling (2026-09-10): "Debt is the amount you owe" — the types stay
 
@@ -56,12 +56,11 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   guaranteedIncome: { title: 'Guaranteed income', body: 'Money that arrives no matter what markets do — Social Security, a pension, an annuity. The foundation of a retirement paycheck.\n\nNOT counted here: your own withdrawals and required minimum distributions. The plan computes those — typing them in as income would let the pot fund itself, and the odds would rise the more you spend.\n\nSocial Security rises with inflation. A pension is counted flat — most private pensions do not rise.' },
   rateSensitivity: { title: 'Rate sensitivity', body: 'How much a bond’s market value moves if interest rates move. Rates up, existing bonds down — but held to maturity, a bond still returns its face value.' },
   provenance: { title: 'Where this number came from', body: 'Every figure shows its source — connected from your bank, imported from a file, or entered by you — and how fresh it is. You can always trace a number.' },
-  moneyWeighted: { title: 'Your money-weighted return', body: 'The yearly rate your OWN dollars actually earned, counting when you put money in and took it out. Different from a fund’s posted return — timing matters. Computed from your recorded activity; an estimate.' },
+  timeWeighted: { title: 'Your time-weighted return', body: 'How much each dollar grew while it was invested. The period is split every time you put money in or took it out, each piece is measured, and the pieces are multiplied together. Money you add is never counted as earned. Worked out from your recorded activity.' },
   // ── Performance (mock v17): one entry per ⓘ the approved drawing carries ──
   performanceSummary: { title: 'Summary', body: 'Ending value is what your investments are worth today. Wealth generated is what they made or lost for you between the dates shown — dividends, interest and changes in price. Return is that gain as a percent of the money that was invested.' },
-  windowReturn: { title: 'Return for the window you picked', body: 'The gain between the two dates shown, as a percent of the money that was invested over that time. It is the total for those dates — not a rate for one year.' },
-  moneyAddedIsNotReturn: { title: 'Money you add is not return', body: 'When you put $1,000 in, your balance goes up by $1,000 — but your investments did not earn it. So money you add or take out is left out of the gain, and each amount counts only for the days it was actually invested.' },
-  rateStandsIn: { title: 'Your rate per year', body: 'You added or took out a large amount between these dates. A plain percent would then depend mostly on WHEN the money moved, not on how the investments did. So this shows the yearly rate your money earned, counting each amount from the day it went in.' },
+  windowReturn: { title: 'Return for the window you picked', body: 'How much your money grew between the two dates shown, with money you added or took out left out. It is the total for those dates — not a rate for one year.' },
+  moneyAddedIsNotReturn: { title: 'Money you add is not return', body: 'When you put $1,000 in, your balance goes up by $1,000 — but your investments did not earn it. So the return is measured between the days money moved, and those pieces are multiplied together. Money you add or take out is never part of the gain.' },
   rebuiltHistory: { title: 'Rebuilt from the institution’s records', body: 'A linked account shares its past buys, sales, deposits and dividends. The app walks those records back, one day at a time, to work out what the account was worth on each day — as far back as the records go.' },
   dayOne: { title: 'Day one', body: 'A return can only be measured from the first day the app saw your accounts. Today’s value is real. The gain starts counting from today and fills in as days pass — nothing earlier is guessed.' },
   cashInAccount: { title: 'Cash in this account', body: 'Money sitting in an investment account that is not invested in anything yet. The interest it pays you is shown on this line.' },

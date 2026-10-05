@@ -177,7 +177,7 @@ describe('state contract (FCC-state-contract.md)', () => {
 
   test('UX Type r7 — every FCC-mandated glossary term exists with plain-English body', () => {
     const { GLOSSARY } = require('../domain/glossary');
-    for (const term of ['safeDraw', 'guaranteedIncome', 'rateSensitivity', 'provenance', 'estimate', 'moneyWeighted', 'capitalGains', 'rmd']) {
+    for (const term of ['safeDraw', 'guaranteedIncome', 'rateSensitivity', 'provenance', 'estimate', 'timeWeighted', 'capitalGains', 'rmd']) {
       expect(GLOSSARY[term]?.title?.length).toBeGreaterThan(2);
       expect(GLOSSARY[term]?.body?.length).toBeGreaterThan(40);
       expect(GLOSSARY[term].body).not.toMatch(/\b(HYSA|TTM|SWR)\b/);   // no bare acronyms in the definitions

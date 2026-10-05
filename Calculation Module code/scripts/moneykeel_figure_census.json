@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04",
+ "generated": "2026-10-05",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -17282,7 +17282,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -17318,7 +17318,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -17692,7 +17692,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -17728,7 +17728,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -18190,7 +18190,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -18226,7 +18226,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -18684,7 +18684,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -18720,7 +18720,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -19082,7 +19082,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -19118,7 +19118,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -19488,7 +19488,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -19524,7 +19524,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -20054,7 +20054,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -20090,7 +20090,7 @@
     },
     {
      "k": "a",
-     "s": "What is Your money-weighted return?"
+     "s": "What is Your time-weighted return?"
     },
     {
      "k": "t",
@@ -38800,7 +38800,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HomeScreen.tsx:295",
+   "site": "src/screens/HomeScreen.tsx:296",
    "routes": [
     "/home"
    ],
@@ -38817,7 +38817,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:300",
+   "site": "src/screens/HomeScreen.tsx:301",
    "routes": [
     "/home"
    ],
@@ -38834,7 +38834,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:409",
+   "site": "src/screens/HomeScreen.tsx:410",
    "routes": [
     "/home"
    ],
@@ -38853,7 +38853,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:412",
+   "site": "src/screens/HomeScreen.tsx:413",
    "routes": [
     "/home"
    ],
@@ -38872,7 +38872,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:494",
+   "site": "src/screens/HomeScreen.tsx:495",
    "routes": [
     "/home"
    ],
@@ -38891,7 +38891,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:507",
+   "site": "src/screens/HomeScreen.tsx:508",
    "routes": [
     "/home"
    ],
@@ -38909,7 +38909,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:508",
+   "site": "src/screens/HomeScreen.tsx:509",
    "routes": [
     "/home"
    ],
@@ -38926,7 +38926,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:511",
+   "site": "src/screens/HomeScreen.tsx:512",
    "routes": [
     "/home"
    ],

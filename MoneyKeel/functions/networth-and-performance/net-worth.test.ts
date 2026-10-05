@@ -41,19 +41,40 @@ test('each debt carries what it costs a month, and the total is their sum', () =
   expect(a.monthlyDebtPayments).toBe(2250);
 });
 
-test('NO BASELINE, NO CHANGE — a movement from a day nobody recorded is not a movement', () => {
+const recorded = (date: string, rows: [string, number, ('cash' | 'typed')?][]) => ({
+  date, origin: 'observed', writtenAt: `${date}T00:00:00Z`, holdings: [],
+  accounts: rows.map(([accountId, v, kind]) => ({ date, accountId, cash: kind === 'cash' ? v : 0, statedTotal: null, typedValue: kind === 'cash' ? null : v, currency: 'USD' })),
+});
+
+test('NO BASELINE, NO RETURN — a movement from a day nobody recorded is not a movement', () => {
   const a = theNetWorth({ uid: 'u', accounts: ACCOUNTS, debts: [], since: null });
   expect(a.investableChangePct).toBeNull();
-  const b = theNetWorth({ uid: 'u', accounts: ACCOUNTS, debts: [], investableDaily: {}, since: '2026-01-01' });
+  const b = theNetWorth({ uid: 'u', accounts: ACCOUNTS, debts: [], snapshotDays: [], since: '2026-01-01', today: '2026-09-28' });
   expect(b.investableChangePct).toBeNull();
 });
 
-test('with a recorded day, the return is measured against it', () => {
+test('THE DAY COMPARED FROM MUST BE ON RECORD — a record that begins later gives no figure, never one measured from the later day', () => {
+  const later: [string, number, ('cash' | 'typed')?][] = [['c1', 8000, 'cash'], ['s1', 52000], ['x1', 6000]];
+  const a = theNetWorth({ uid: 'u', accounts: ACCOUNTS, debts: [], snapshotDays: [recorded('2026-01-02', later)], since: '2026-01-01', today: '2026-09-28' });
+  expect(a.investableChangePct).toBeNull();
+  // the same record, compared from the day it has: an answer
+  const b = theNetWorth({ uid: 'u', accounts: ACCOUNTS, debts: [], snapshotDays: [recorded('2026-01-02', later)], since: '2026-01-02', today: '2026-09-28' });
+  expect(b.investableChangePct).toBeCloseTo(0, 10);       // nothing has changed since that day
+});
+
+test('THE RETURN ON CASH + INVESTMENTS IS TIME-WEIGHTED — money paid in is not counted as earned, and a paycheck is not a return', () => {
+  // 2 Jan: $8,000 checking, $40,000 brokerage, $6,000 bitcoin = $54,000.
+  // 1 Jun: $10,000 was paid into the brokerage (worth $44,000 just before, $54,000 after); checking is up $3,000 from pay.
+  const days = [recorded('2026-01-02', [['c1', 5000, 'cash'], ['s1', 40000], ['x1', 6000]]),
+                recorded('2026-06-01', [['c1', 8000, 'cash'], ['s1', 54000], ['x1', 6000]])];
   const a = theNetWorth({
-    uid: 'u', accounts: ACCOUNTS, debts: [],
-    investableDaily: { '2026-01-02': 60000 }, since: '2026-01-01',
+    uid: 'u', accounts: ACCOUNTS, debts: [], snapshotDays: days, since: '2026-01-02', today: '2026-09-28',
+    transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 's1', amount: 10000, date: '2026-06-01' }],
   });
-  expect(a.investableChangePct).toBeCloseTo((66000 - 60000) / 60000, 6);
+  // piece 1: (68,000 − 10,000 paid in − 3,000 of pay) ÷ 51,000 · piece 2: 66,000 ÷ 68,000
+  expect(a.investableChangePct).toBeCloseTo((55000 / 51000) * (66000 / 68000) - 1, 10);
+  // a balance change would have said (66,000 − 51,000) ÷ 51,000 = 29.4%
+  expect(a.investableChangePct as number).toBeLessThan(0.05);
 });
 
 test('nothing entered → zero, and no invented movement', () => {

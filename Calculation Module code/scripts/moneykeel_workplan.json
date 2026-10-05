@@ -2494,13 +2494,13 @@
   {
    "task": "Every return the app shows is a time-weighted return — his decision, 2026-10-04",
    "todo": "HIS WORDS, in the note that came back with Net worth file 1: \"All return should be True Weighted Return and not Dietz return.\" Not a Modified Dietz return, not a money-weighted return, not a change in balance. The method: split the period at every deposit or withdrawal; each piece's growth = value just before the next one ÷ value just after the last; multiply the pieces and take 1 off. No figure when the start day is not recorded, or when a deposit is recorded and the value that day is not. A yearly rate only for a period longer than a year. WHERE IT APPLIES: MK-NW-O-008 thePerformance (the Performance tab and each account's return — Modified Dietz today, with a money-weighted rate standing in where it refuses); MK-NW-O-003 theNetWorth (the return on cash + investments — a change in balance today, so a deposit reads as earned: 42.32% where 10.97% is right in the reviewer's case). ONE FACT HE ASKED TO BE TOLD: the app records one value a day, taken after that day's deposits. So the value just before a deposit is that day's value less the deposit; where no value was recorded on the day, there is no figure.",
-   "status": "TO DO — mine, next.",
+   "status": "DONE",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_note_to_claude_code_TWR.md",
    "date": "2026-10-04",
-   "comments": "",
+   "comments": "BUILT 2026-10-04 (DEC-1669). One function works out every return (time-weighted-return.ts). MK-NW-O-008 thePerformance (Performance, each account page, Home) and MK-NW-O-003 theNetWorth (return on cash + investments) both ask it. His own case gives 10.97% (was 42.32%); a comparison from before the record begins gives no figure. Mock v17 mark 16 (the money-weighted rate standing in) is gone; the screens say \"time-weighted\". WHERE IT SHOWS NO FIGURE, with a sentence saying why: money moved on a day with no recorded value; a movement with no date; shares moved in or out; the value that day is less than the money added. ALSO FOUND AND FIXED: a linked account that reports only a balance read as worth $0 in the daily record (a return to today read −100%); a record on another account counted as money put into the investments; a Performance test that failed after 5pm Pacific. Tests: time-weighted-return.test.ts (22) · outside_networth_01 cases 13 and 14 · guard_every_return_is_time_weighted (3) · perf_v17_marks (4) · the drawing tests.",
    "_written": {
-    "status": "TO DO — mine, next.",
-    "comments": ""
+    "status": "DONE",
+    "comments": "BUILT 2026-10-04 (DEC-1669). One function works out every return (time-weighted-return.ts). MK-NW-O-008 thePerformance (Performance, each account page, Home) and MK-NW-O-003 theNetWorth (return on cash + investments) both ask it. His own case gives 10.97% (was 42.32%); a comparison from before the record begins gives no figure. Mock v17 mark 16 (the money-weighted rate standing in) is gone; the screens say \"time-weighted\". WHERE IT SHOWS NO FIGURE, with a sentence saying why: money moved on a day with no recorded value; a movement with no date; shares moved in or out; the value that day is less than the money added. ALSO FOUND AND FIXED: a linked account that reports only a balance read as worth $0 in the daily record (a return to today read −100%); a record on another account counted as money put into the investments; a Performance test that failed after 5pm Pacific. Tests: time-weighted-return.test.ts (22) · outside_networth_01 cases 13 and 14 · guard_every_return_is_time_weighted (3) · perf_v17_marks (4) · the drawing tests."
    }
   },
   {
@@ -2513,6 +2513,42 @@
    "_written": {
     "status": "DONE",
     "comments": "Tests: emergency_fund_rent.test.ts (7, with a day-by-day walk that uses no formula) · emergency_fund_rent.test.tsx (5, the screens). To reverse to rent counted once: one line in MK-NW-O-004."
+   }
+  },
+  {
+   "task": "The three old return calculations are still in the files, unused — remove them",
+   "todo": "After DEC-1669 nothing calls MK-ST-F-064 modifiedDietzOverWindow (window-return.ts), MK-PF-F-026 moneyWeightedReturn and its helpers (src/domain/performance/moneyWeighted.ts) or MK-XS-F-010 investableChangePct (src/domain/history.ts). A guard fails the build if one is called again. Removing them touches the function register, the formula-in-words file, the function trace test, the bench page and about twenty record files, so it is its own task. MK-NW-F-102 rateWhereItRefuses IS removed (number retired).",
+   "status": "TO DO — mine.",
+   "ref": "src/__tests__/guard_every_return_is_time_weighted.test.ts",
+   "date": "2026-10-04",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — mine.",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Time-weighted return — what it cannot measure yet, and one place the dollar walk still disagrees with it",
+   "todo": "KNOWN LIMITS, 2026-10-04, each shown on screen as no percent with a sentence: (1) SHARES MOVED IN OR OUT of an account (a broker \"transfer in kind\", an exchange of one fund for another): the record does not say what they were worth that day, so any window containing that day shows no return. Building it means valuing the shares at that day's price and settling which way they moved — the stored record keeps the size but not always the direction. (2) A HAND-ENTERED ACCOUNT WITH HOLDINGS has a value only on days the app was opened, so money that moved in a LINKED account on a day the app was not opened cannot be measured for the two together. (3) THE DOLLAR WALK does not yet count cash transferred in from another account, or an account that joined the record inside the window, as money put in — it lands in \"change in investment value\". The return treats both as money in, so on those households the walk and the percent tell different stories. (4) A balance typed back-dated: the record assumes each day's value already holds that day's money.",
+   "status": "TO DO — mine.",
+   "ref": "Calculation Module code/engines/time-weighted-return.ts",
+   "date": "2026-10-04",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — mine.",
+    "comments": ""
+   }
+  },
+  {
+   "task": "A rental’s mortgage interest can be taken off twice — once in its running costs, once in Debts",
+   "todo": "HIS QUESTION, 2026-10-04: \"explain this\". The Rent entry (income-end-to-end v07, phone 10) asks \"What it costs to run each month\" with the hint \"Mortgage interest, tax, insurance, repairs, management.\" So the rent that arrives is rent less running costs, mortgage interest included. If the same mortgage is also entered in Debts, its whole payment (interest + principal) is counted there too. Example: rent $2,400; running costs $1,200, of which $700 is mortgage interest; the mortgage in Debts at $1,980/month. The property really brings in 2,400 − 500 − 1,980 = −$80/month. The app counts 1,200 of rent and 1,980 of debt = −$780/month — $700 too little, every month. WHERE: MK-NW-M-013 the emergency fund (it reads short, never long), and Cash flow, which takes the same two figures. NOT FIXED. The interest belongs in running costs for the tax figure and in the payment for the cash figure, so the Rent entry needs to know whether that mortgage is in Debts — a change to an approved screen, which needs drawing first.",
+   "status": "TO DO — mine: draw the Rent entry change.",
+   "ref": "src/screens/IncomeManagerScreen.tsx",
+   "date": "2026-10-04",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — mine: draw the Rent entry change.",
+    "comments": ""
    }
   }
  ]

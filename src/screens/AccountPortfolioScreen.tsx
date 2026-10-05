@@ -15,7 +15,7 @@ import { periodReturnSince, buildPerformance, startDateFor, type Period, type Po
 import { historyCoverage, assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
-import { windowStartKey, thePerformance, categoryEarnings, pricedGainOf, RATE_STANDS_IN_WORDS } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, thePerformance, categoryEarnings, pricedGainOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { ValueGraph } from '../components/ValueGraph';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
@@ -181,6 +181,7 @@ export default function AccountPortfolioScreen() {
       transactions: ledger,
       snapshotDays: days,
       investmentAccountIds: ids,
+      accounts: [account] as any[],
       wholeRecord: p === 'SINCE',   // "Since" is the window's own total, never a yearly rate (v17, phone 3)
     });
   };  const byWindow: Record<string, ReturnType<typeof figuresFor>> = {};
@@ -216,8 +217,8 @@ export default function AccountPortfolioScreen() {
   /** How far back this account's own records reach — said only when the window asks for more. */
   const coverage = historyCoverage(account, now?.windowStart ?? todayKey, new Date());
   // the Total row of BY CATEGORY & HOLDING carries the account's own return — the window's, from the
-  // door above, never a second method; where the window return refuses, the exact yearly rate stands in
-  const acctReturnText = pct2(now?.ret ?? now?.refusedRate ?? null);
+  // door above, never a second method; where it cannot be measured there is no figure
+  const acctReturnText = pct2(now?.ret ?? null);
   // ONE string for this account's market value: the band, the trio and the Total row all print it,
   // so three places on one screen can never show three different roundings of the same figure.
   const marketValueText = fig('MK-NW-M-018', account.balance || 0);
@@ -363,8 +364,7 @@ export default function AccountPortfolioScreen() {
       <View style={p.segRow}>
         {WINDOW_KEYS.map((k) => {
           const on = k === period;
-          // mark 16 (v17): where the window return refuses, the exact rate per year stands in its place
-          const r = byWindow[k]?.ret ?? byWindow[k]?.refusedRate ?? null;
+          const r = byWindow[k]?.ret ?? null;
           const label = k === 'SINCE'
             ? (dayOne || !since ? 'Since today' : `Since ${dateShown(since)}`)
             : WINDOW_WORDS[k];
@@ -386,7 +386,7 @@ export default function AccountPortfolioScreen() {
 
       {/* ── SUMMARY · the trio ON ONE ROW ──────────────────────────────────────────────────── */}
       <View style={s.card}>
-        <SectionBand inCard title={`SUMMARY · ${windowWords.toUpperCase()}`} infoTerm="moneyWeighted" />
+        <SectionBand inCard title={`SUMMARY · ${windowWords.toUpperCase()}`} infoTerm="timeWeighted" />
         <View style={p.trio}>
           <View style={p.trioCell}>
             <Text style={p.trioL}>Ending value</Text>
@@ -398,8 +398,8 @@ export default function AccountPortfolioScreen() {
           </View>
           <View style={p.trioCell}>
             <Text style={p.trioL}>Return</Text>
-            <Text style={[p.trioV, (now?.ret ?? now?.refusedRate ?? 0) < 0 && { color: Colors.red }]}>
-              {(now?.ret ?? now?.refusedRate) == null ? '—' : fig('MK-PF-M-016', now?.ret ?? now?.refusedRate ?? null)}
+            <Text style={[p.trioV, (now?.ret ?? 0) < 0 && { color: Colors.red }]}>
+              {now?.ret == null ? '—' : fig('MK-PF-M-016', now.ret)}
             </Text>
           </View>
         </View>
@@ -413,16 +413,13 @@ export default function AccountPortfolioScreen() {
               : walk == null
               /* a refusal is an answer (D4): no daily record reaching back, so no beginning — say so */
               ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
-              : now?.refusedRate != null
-              /* mark 16: the rate per year stands in, so the words say what the figure IS */
-              ? RATE_STANDS_IN_WORDS
               : now?.sentence
               || (now?.measured == null
                 /* no recorded value on the first day: the beginning is read back from the records, so no return is measured */
                 ? `Your daily record does not reach back to ${sinceWords} yet, so the beginning is read back from your activity records and no return is measured.`
-                : `Return is for the window you picked (${sinceWords} → ${dateShown(todayKey)}) — not a yearly rate · money-weighted`)}
+                : `Return is for the window you picked (${sinceWords} → ${dateShown(todayKey)}) — not a yearly rate · time-weighted`)}
           </Text>
-          <InfoDot term="moneyWeighted" />
+          <InfoDot term="timeWeighted" />
         </View>
         {/* where the figures came from, and the first day that source can speak for */}
         {account.source === 'connected' && dataStart && (

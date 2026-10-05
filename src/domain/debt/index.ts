@@ -45,17 +45,17 @@ export interface Debt {
  *
  * Called by ... MK-CF-F-022 paymentShape
  *
- * Reaches ..... 124 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
- *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 106 more — the full list is on functions_from_code
+ * Reaches ..... 130 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-207 SOURCE
+ *               … and 112 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -81,17 +81,17 @@ export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type'
  *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-152 isRadarItem
  *               MK-CF-F-159 isRecurringDebt · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 123 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
- *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 105 more — the full list is on functions_from_code
+ * Reaches ..... 129 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-207 SOURCE
+ *               … and 111 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -120,17 +120,17 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
  *               MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 117 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-207 SOURCE
- *               MK-CF-F-202 TAX · MK-NW-F-100 TREND
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-005 actualMonthFlow
- *               … and 99 more — the full list is on functions_from_code
+ * Reaches ..... 123 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-207 SOURCE
+ *               … and 105 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-016 debt minimum payment

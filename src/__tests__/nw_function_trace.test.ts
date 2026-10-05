@@ -124,7 +124,9 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-099', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/net-worth.test.ts'],
   ['MK-NW-F-100', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/net-worth.test.ts'],
   ['MK-NW-F-101', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/net-worth.test.ts'],
-  ['MK-NW-F-102', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'Calculation Module code/probes/broken-family.probe.test.ts'],
+  // MK-NW-F-102 rateWhereItRefuses is retired (2026-10-04, DEC-1669: every return is time-weighted and nothing stands in for one)
+  ['MK-NW-F-104', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/performance.test.ts'],
+  ['MK-NW-F-105', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/performance.test.ts'],
 ];
 
 describe('every Net worth function traces to its proof in one hop (step 3.c)', () => {

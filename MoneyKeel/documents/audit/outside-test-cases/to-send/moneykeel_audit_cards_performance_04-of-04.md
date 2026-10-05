@@ -262,13 +262,20 @@ in `notes` saying why.
 
 # The cards — batch "performance 04"
 
-10 cards, so 10 formula checks and 50 cases. Put `"batch": "performance 04"` in your reply.
+11 cards, so 11 formula checks and 55 cases. Put `"batch": "performance 04"` in your reply.
 
 ## The app's own types these cards name
 
 What each is made of. The comments inside are the in-house author's.
 
 ```ts
+export interface LookBackResult {
+  stayed: LookBackLeg;      // left where it was
+  moved: LookBackLeg;       // moved to the other holding
+  difference: number;       // moved.endValue − stayed.endValue (signed: negative = the move would have LOST)
+  months: number;
+}
+
 export interface MoneyWeighted {
   ratePerYear: number;          // decimal, e.g. 0.072 = +7.2%/year
   flows: number;                // how many dated user flows it stands on
@@ -307,6 +314,14 @@ export interface RealizedResult {
 
 ```json
 [
+ {
+  "id": "MK-PF-F-023",
+  "name": "lookBack",
+  "kind": "function",
+  "what_it_is_for": "What if I had moved this money?",
+  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1) × 100, at full precision. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value.",
+  "handed": "export function lookBack(amount: number, fromSeries: PriceSeries | null | undefined, toSeries: PriceSeries | null | undefined, months: number, now: Date = new Date()): LookBackResult | null"
+ },
  {
   "id": "MK-PF-F-024",
   "name": "userFlows",
@@ -419,6 +434,21 @@ export interface RealizedResult {
   "inputs_it_reads": [
    "MK-XS-I-005 holding price"
   ]
+ }
+]
+```
+
+## Formulas these cards lean on
+
+1 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+
+```json
+[
+ {
+  "id": "MK-PF-F-022",
+  "name": "factorOverMonths",
+  "what_it_is_for": "Price factor over the trailing window: last close ÷ the close at (now − months).",
+  "formula_in_words": "Nothing with fewer than two prices. Cut-off = today moved back the given number of months. Nothing when the first price on record is later than the cut-off — the record does not reach back that far. Start = the last price on or before the cut-off. Factor = latest close ÷ start close; nothing when the start close is zero or less."
  }
 ]
 ```

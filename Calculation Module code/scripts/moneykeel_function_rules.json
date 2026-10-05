@@ -1665,12 +1665,6 @@
    "read_from": "75306e7a08",
    "sent_as": "75306e7a08"
   },
-  "MK-NW-F-102": {
-   "name": "rateWhereItRefuses",
-   "rule": "Nothing when the beginning value is zero or less. Treats the beginning value as money put in on the day it is read for, adds each deposit and withdrawal of the period on its own date, and solves for the yearly rate at which those grow into the ending value (moneyWeightedReturn). Nothing when no rate can be found or the span is under 30 days.",
-   "read_from": "278d1a8dde",
-   "sent_as": "278d1a8dde"
-  },
   "MK-NW-F-103": {
    "name": "investmentRecordDates",
    "rule": "The dates of the recorded days that hold a value for at least one of the named accounts, oldest first. Empty when no accounts are named.",
@@ -1691,8 +1685,8 @@
   },
   "MK-NW-O-003": {
    "name": "theNetWorth",
-   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. The percent change on cash + investments is measured from the daily record since the given start day and returned as a share; no figure when there is no record.",
-   "read_from": "2eec17307b",
+   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. Return on cash + investments = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\") over every account that is not property: the period from the day compared from to today is split at every day money moved in or out; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off; returned as a share. A month given without a day is read as its first day. Cash earns only interest: any other change in a cash account's balance is money moving, counted on the day the record first shows it. For the other accounts, money moving = deposits, withdrawals and cash transferred between accounts. Today's value is read from the accounts as they stand. No figure when no day is given, when no recorded day on or before the day compared from holds the accounts, when money moved on a day with no recorded value, or when shares were moved in or out.",
+   "read_from": "0b0ac501d2",
    "sent_as": "93975a41df"
   },
   "MK-NW-O-004": {
@@ -1721,8 +1715,8 @@
   },
   "MK-NW-O-008": {
    "name": "thePerformance",
-   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Return = (ending − beginning − net money added) ÷ (beginning + each amount added or taken out × the share of the period it was there), the share being (days in the period − days since it opened) ÷ days in the period, both end days counted. It REFUSES — no percent, a sentence instead — when that divisor is zero or less, or when the answer with all the money moved on the first day and the answer with all of it moved on the last day differ by more than the smaller of 1 percentage point and 20% of the rate. Money that moved with no date on it: when it nets to more than 1% of the beginning value it refuses; otherwise every movement is counted as there for half the period. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1. Where it refused, the stand-in is the yearly rate from rateWhereItRefuses.",
-   "read_from": "4afbd2f788",
+   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), and cash transferred between accounts (out of the first, into the second). Today's value is read from the accounts as they stand; with no accounts handed in, the ending handed in closes the record. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out of the accounts; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
+   "read_from": "d09f023830",
    "sent_as": "4afbd2f788"
   },
   "MK-PF-F-001": {
@@ -1933,6 +1927,18 @@
    "name": "theIncomeManager",
    "rule": "Takes the ten sources in the picker's order — a job, self-employment, rent, interest and dividends, retirement income, benefits, support, scholarships, student loans, something else — gives each one figure, and splits them into entered (a figure above zero) and not entered. A job: the household's monthly take-home (basePay) over the earners who have a wage, named after those earners, and marked as calculated when any part of it is. Self-employment: the amount as entered, per month or per year. Rent: rent after running costs for the year (rentalNetAnnual) ÷ 12, per month, with how many properties. Interest and dividends: the yearly amount, marked reinvested or paid to the bank. Retirement income: the monthly total (retirementIncomeMonthly). Benefits: the monthly benefit, saying how many months when fewer than 12. Support: the monthly amount. Scholarships: monthly ones × 12 plus yearly ones, per year. Student loans: each loan × the number of months it arrives in (1 when it names none), per year. Something else: the amount as entered — per month, per year or one-time. Bonus and stock, only when there is a job: the yearly bonus + the stock that vests in a year (rsuAnnual), and the month the bonus is paid (December when none is set).",
    "read_from": "9616a8a545"
+  },
+  "MK-NW-F-105": {
+   "name": "whyNoReturn",
+   "rule": "The sentence shown where a time-weighted return cannot be measured; empty when it was measured. Money moved on a day with no recorded value: names the day and says a return cannot be measured across it. A movement with no date: says so. Shares moved in or out: names the day and says the records do not say what they were worth. The value recorded on a day is less than the money added that day: names the day. Nothing invested over the period: says there is no return to state. Today's value not on record: says so. A beginning that cannot be read has no sentence here — the period is shown as not covered instead.",
+   "read_from": "de50121352",
+   "sent_as": ""
+  },
+  "MK-NW-F-104": {
+   "name": "closedWith",
+   "rule": "The daily record with today added: one row per account that the latest earlier recorded day holds (of the accounts named), carrying between them the ending value handed in. The record is returned unchanged when there is no earlier day or it holds none of those accounts. It adds no arithmetic: it lets a return be measured to today when the caller gave an ending value and no accounts.",
+   "read_from": "15b5ce0de6",
+   "sent_as": ""
   }
  },
  "pack_sent": {

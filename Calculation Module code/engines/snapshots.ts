@@ -88,12 +88,13 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
  * Formula .....
  *     the answer = date | account id
  *
- * Called by ... MK-NW-O-001 theBonds · MK-ST-F-031 valueOn
+ * Called by ... MK-NW-F-104 closedWith · MK-NW-O-001 theBonds
+ *               MK-ST-F-081 timeWeightedReturn · MK-ST-F-083 accountValuesOn
  *               MK-XS-F-108 activityKey · MK-XS-F-109 dedupeActivities
  *               MK-XS-F-147 call · MK-XS-F-149 allActivities
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 188 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 190 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -103,7 +104,7 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 170 more — the full list is on functions_from_code
+ *               … and 172 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -157,19 +158,20 @@ export interface AccountLike {
  *     origin = 'observed'
  *     written at = written at
  *
- * Called by ... MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
+ * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ * Reaches ..... 62 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               … and 39 more — the full list is on functions_from_code
+ *               … and 44 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -342,8 +344,8 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *
  * Called by ... MK-CF-F-211 DEBTS · MK-NW-F-075 ACC
  *               MK-NW-F-084 categoryEarnings · MK-NW-O-002 theAccount
- *               MK-NW-O-008 thePerformance · MK-PF-F-010 periodReturn
- *               MK-XS-F-174 recomputeBalances
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-PF-F-010 periodReturn · MK-XS-F-174 recomputeBalances
  *
  * Reaches ..... 71 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
@@ -381,10 +383,10 @@ export function record(days: SnapshotDay[], day: SnapshotDay): SnapshotDay[] {
  *     day = on or before(days, date)
  *     nothing   when day is missing
  *     in set = (id: string) => account ids.size = 0 (or account ids.has(id) when missing or zero)
- *     holdings = Σ over day.holdings where in set(account id) of (value)
- *     cash = Σ over day.accounts where in set(account id) of (cash + (typed value ?? 0))
- *     nothing   when !day.holdings.some((h) => in set(account id)) and !day.accounts.some((a) => in set(account id))
- *     the answer = holdings + cash
+ *     each = account values on(day, in set)
+ *     nothing   when each.size = 0
+ *     total = 0; for (const v of each.values()) total += v
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-NW-F-103 investmentRecordDates · MK-NW-O-008 thePerformance
  *
@@ -400,7 +402,7 @@ export function record(days: SnapshotDay[], day: SnapshotDay): SnapshotDay[] {
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
- *     · If typed value is missing it uses 0.
+ *     · Uses a built-in total of 0.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-031
  * Changed ..... 2026-08-20 (9f201fb)
@@ -409,10 +411,61 @@ export function valueOn(days: SnapshotDay[], accountIds: Set<string>, date: stri
   const day = onOrBefore(days, date);
   if (!day) return null;
   const inSet = (id: string) => accountIds.size === 0 || accountIds.has(id);
-  const holdings = day.holdings.filter((h) => inSet(h.accountId)).reduce((t, h) => t + h.value, 0);
-  const cash = day.accounts.filter((a) => inSet(a.accountId)).reduce((t, a) => t + a.cash + (a.typedValue ?? 0), 0);
-  if (!day.holdings.some((h) => inSet(h.accountId)) && !day.accounts.some((a) => inSet(a.accountId))) return null;
-  return (holdings + cash);
+  const each = accountValuesOn(day, inSet);
+  if (each.size === 0) return null;
+  let total = 0; for (const v of each.values()) total += v;
+  return total;
+}
+
+/** What each account was worth on one recorded day: its holdings, its cash and its typed balance added up — and, for an account the record holds nothing else for, the broker's own stated total. */
+/* ─ MK-ST-F-083 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * accountValuesOn
+ *
+ * Answers ..... What each account was worth on one recorded day: its holdings, its cash and its typed balance added up — and, for an account the record holds nothing else for, the broker's own stated total.
+ *
+ * Formula .....
+ *     out = new map<string, number>()
+ *     held = new set<string>()
+ *     own = cash + (typed value ?? 0)
+ *     value = stated total as number   if !held.has(account id) and own = 0 and (stated total ?? 0) > 0
+ *     own   otherwise
+ *     the answer = out
+ *
+ * Called by ... MK-ST-F-031 valueOn · MK-ST-F-081 timeWeightedReturn
+ *
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-100 TREND · MK-NW-F-103 investmentRecordDates
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-ST-F-081 timeWeightedReturn · MK-ST-F-031 valueOn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-031 daily and monthly snapshots
+ *
+ * Decides .....
+ *     · If typed value is missing it uses 0.
+ *     · If stated total is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-083
+ * Changed ..... not in git yet (—)
+ */
+export function accountValuesOn(day: SnapshotDay, wanted: (accountId: string) => boolean): Map<string, number> {
+  const out = new Map<string, number>();
+  const held = new Set<string>();
+  for (const h of day.holdings ?? []) if (wanted(h.accountId)) { out.set(h.accountId, (out.get(h.accountId) ?? 0) + h.value); held.add(h.accountId); }
+  for (const a of day.accounts ?? []) {
+    if (!wanted(a.accountId)) continue;
+    const own = a.cash + (a.typedValue ?? 0);
+    // A LINKED ACCOUNT THAT REPORTS A BALANCE AND NOTHING ELSE (found 2026-10-04, building the
+    // time-weighted return). Some institutions send no holdings and no cash figure — only the total.
+    // The record then held cash 0 and no holdings, so the account read as worth $0 on every day, and
+    // a return measured to today read −100%. Its value is the total the broker stated.
+    const value = !held.has(a.accountId) && own === 0 && (a.statedTotal ?? 0) > 0 ? (a.statedTotal as number) : own;
+    out.set(a.accountId, (out.get(a.accountId) ?? 0) + value);
+  }
+  return out;
 }
 
 /** How many units of one holding were held on a date — what the trend chart needs and never had.
@@ -564,17 +617,17 @@ export function covers(days: SnapshotDay[], from: string): boolean {
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth · MK-XS-F-028 surplusByMonth
  *
- * Reaches ..... 89 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-101 PLAN · MK-CF-F-202 TAX
- *               MK-NW-F-100 TREND · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-005 actualMonthFlow · MK-CF-F-012 annualCashflow
- *               … and 71 more — the full list is on functions_from_code
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots

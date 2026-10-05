@@ -24,7 +24,7 @@ const DAY = 86400000;
 
 /** The user's dated flows for a measured set of accounts, investor-sign convention:
  *  money the user PUT IN is negative, money TAKEN OUT is positive. */
-/* ─ MK-PF-F-024 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-024 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * userFlows
  *
  * Answers ..... The user's dated flows for a measured set of accounts, investor-sign convention: money the user PUT IN is negative, money TAKEN OUT is positive.
@@ -38,11 +38,8 @@ const DAY = 86400000;
  *
  * Called by ... MK-PF-F-026 moneyWeightedReturn
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-026 moneyWeightedReturn · MK-NW-F-102 rateWhereItRefuses
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-026 moneyWeightedReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -91,7 +88,7 @@ export function userFlows(transactions: Transaction[], accountIds: Set<string>):
 }
 
 /** True iff every measured account's story begins IN the ledger (openable honestly). */
-/* ─ MK-PF-F-025 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-025 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * historyIsComplete
  *
  * Answers ..... True iff every measured account's story begins IN the ledger (openable honestly).
@@ -104,11 +101,8 @@ export function userFlows(transactions: Transaction[], accountIds: Set<string>):
  *
  * Called by ... MK-PF-F-026 moneyWeightedReturn
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-026 moneyWeightedReturn · MK-NW-F-102 rateWhereItRefuses
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-026 moneyWeightedReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -129,7 +123,7 @@ export function historyIsComplete(transactions: Transaction[], accounts: AssetAc
 }
 
 /** The value today of a set of dated money movements plus an ending value, at a given yearly rate; the money-weighted return is the rate that makes this come to zero. */
-/* ─ MK-PF-F-030 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-030 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * npv
  *
  * Answers ..... The value today of a set of dated money movements plus an ending value, at a given yearly rate; the money-weighted return is the rate that makes this come to zero.
@@ -141,11 +135,8 @@ export function historyIsComplete(transactions: Transaction[], accounts: AssetAc
  *
  * Called by ... MK-PF-F-026 moneyWeightedReturn
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-026 moneyWeightedReturn · MK-NW-F-102 rateWhereItRefuses
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-026 moneyWeightedReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -163,7 +154,7 @@ function npv(rate: number, flows: { date: number; amount: number }[], endValue: 
 }
 
 /** XIRR via bisection — deterministic, no derivative games. */
-/* ─ MK-PF-F-026 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-PF-F-026 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * moneyWeightedReturn
  *
  * Answers ..... XIRR via bisection — deterministic, no derivative games.
@@ -183,12 +174,7 @@ function npv(rate: number, flows: { date: number; amount: number }[], endValue: 
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-102 rateWhereItRefuses
- *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-102 rateWhereItRefuses · MK-NW-O-008 thePerformance
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses

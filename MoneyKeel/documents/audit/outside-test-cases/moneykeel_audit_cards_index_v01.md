@@ -10,9 +10,9 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 
 ## What is in the pack
 
-- Read from the code: 222 files, 362 function and orchestrator records in Net worth, Performance and Cash flow.
-- To be judged and tested: **319 cards in 26 files — 319 formula checks and 1,595 cases from each model.**
-- Every card carries its formula in words: 319 of 319. Figures stated in those formulas: 478, each traced to the function it describes or checked by hand and recorded.
+- Read from the code: 224 files, 363 function and orchestrator records in Net worth, Performance and Cash flow.
+- To be judged and tested: **320 cards in 26 files — 320 formula checks and 1,600 cases from each model.**
+- Every card carries its formula in words: 320 of 320. Figures stated in those formulas: 476, each traced to the function it describes or checked by hand and recorded.
 - Left out, each for a stated reason: 43 (listed at the foot).
 
 | File | Batch | Cards | Cases | First and last card |
@@ -25,8 +25,8 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 | `moneykeel_audit_cards_networth_06-of-06.md` | networth 06 | 12 | 60 | MK-NW-F-066 sumWhere … MK-NW-F-067 plural |
 | `moneykeel_audit_cards_performance_01-of-04.md` | performance 01 | 2 | 10 | MK-NW-O-007 theLookBack … MK-NW-O-008 thePerformance |
 | `moneykeel_audit_cards_performance_02-of-04.md` | performance 02 | 15 | 75 | MK-NW-F-084 categoryEarnings … MK-PF-F-020 portfolioBenchReturn |
-| `moneykeel_audit_cards_performance_03-of-04.md` | performance 03 | 15 | 75 | MK-PF-F-033 quantityWithUnit … MK-PF-F-023 lookBack |
-| `moneykeel_audit_cards_performance_04-of-04.md` | performance 04 | 10 | 50 | MK-PF-F-024 userFlows … MK-PF-F-034 closeOnOrBefore |
+| `moneykeel_audit_cards_performance_03-of-04.md` | performance 03 | 15 | 75 | MK-PF-F-033 quantityWithUnit … MK-PF-F-022 factorOverMonths |
+| `moneykeel_audit_cards_performance_04-of-04.md` | performance 04 | 11 | 55 | MK-PF-F-023 lookBack … MK-PF-F-034 closeOnOrBefore |
 | `moneykeel_audit_cards_cashflow_01-of-16.md` | cashflow 01 | 6 | 30 | MK-CF-O-001 basePay … MK-CF-O-006 theCreditLine |
 | `moneykeel_audit_cards_cashflow_02-of-16.md` | cashflow 02 | 6 | 30 | MK-CF-O-007 theTaxOrganizer … MK-CF-O-018 theDebts |
 | `moneykeel_audit_cards_cashflow_03-of-16.md` | cashflow 03 | 1 | 5 | MK-CF-O-019 theIncomeManager … MK-CF-O-019 theIncomeManager |

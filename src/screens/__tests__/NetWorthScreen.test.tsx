@@ -8,6 +8,7 @@ import NetWorthScreen, { assetSheetReady } from '../NetWorthScreen';
 import { useStore } from '../../store/useStore';
 import { employedPartner } from '../../testing/personas';
 import { isoLocalDate } from '../../domain/_shared/dates';
+import { recordedDay } from '../../testing/recordedDay';
 
 beforeEach(() => {
   useStore.getState().resetAll();
@@ -269,7 +270,8 @@ describe('walk row 8: the grouping pills (v7 FINAL)', () => {
 });
 
 // FOUNDER RULE 2026-08-04: the change % is measured on cash + investments (never total NW —
-// property moves only when retyped). The percent appears ONLY once invDaily history exists.
+// property moves only when retyped). The percent is a TIME-WEIGHTED return (owner, 2026-10-04) and
+// appears only once the daily record holds the day it is measured from.
 test('change line: % on cash + investments, from real history — never total-NW, never invented', () => {
   const today = isoLocalDate(new Date());
   const past = '2026-01-02';
@@ -281,7 +283,8 @@ test('change line: % on cash + investments, from real history — never total-NW
     ],
     liabilities: [],
     nwDaily: { [past]: 390000, [today]: 410000 },
-    invDaily: { [past]: 400000 },                    // baseline cash+investments
+    // the baseline day on record: $10,000 checking + $390,000 brokerage = $400,000, and nothing paid in since
+    snapshotDays: [recordedDay(past, [['a1', 10000, 'cash'], ['a2', 390000, 'typed']])],
   } as any);
   render(<NetWorthScreen />);
   // current investable = 410,000 vs baseline 400,000 → +2.5%. Founder wording 2026-08-10: both halves

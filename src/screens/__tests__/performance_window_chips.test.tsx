@@ -11,7 +11,9 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn(), setParams: jest.fn() }),
   useLocalSearchParams: () => ({}), router: { push: jest.fn() }, useSegments: () => [],
 }));
-const iso = (d: Date) => d.toISOString().slice(0, 10);
+// the screen's own day (local), not the UTC day: after 5pm Pacific the two differ, and this test then
+// built its record on tomorrow's date and looked for words the screen never prints (found 2026-10-04)
+const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const START = iso(new Date(Date.now() - 16 * 86400000)), TODAY = iso(new Date());
 
 beforeEach(() => {

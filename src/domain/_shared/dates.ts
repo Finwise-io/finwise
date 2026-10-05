@@ -15,7 +15,8 @@
  *
  * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-183 paidOutByAccount
  *               MK-NW-F-061 bondSummary · MK-NW-O-001 theBonds
- *               MK-PF-F-022 factorOverMonths · MK-XS-F-175 uid
+ *               MK-NW-O-003 theNetWorth · MK-PF-F-022 factorOverMonths
+ *               MK-XS-F-175 uid
  *
  * Reaches ..... 135 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
@@ -55,7 +56,12 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
  *     `${MONTH_SHORT[(m or 1) − 1]} ${d}, ${y}`   if y
  *     ''   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-105 whyNoReturn
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance · MK-NW-F-105 whyNoReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

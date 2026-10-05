@@ -43,6 +43,14 @@ function daily(start: string, lines: [string, string, number, number, number][])
   }
   return out;
 }
+/** Money paid in (or taken out) shows in the record from that day on — the record holds each day's value AFTER its money moved. */
+function paidIn(days: any[], accountId: string, key: string, from: string, amount: number): any[] {
+  return days.map((d) => (d.date < from ? d : {
+    ...d,
+    holdings: d.holdings.map((h: any) => (h.accountId === accountId && h.securityKey === key ? { ...h, value: h.value + amount, price: (h.value + amount) / h.units } : h)),
+    accounts: d.accounts.map((a: any) => (a.accountId === accountId && key === 'CASH' ? { ...a, cash: a.cash + amount } : a)),
+  }));
+}
 const monthsAgo = (m: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setMonth(d.getMonth() - m); return isoLocalDate(d); };
 const acct = (id: string, institution: string, label: string, balance: number, source: string | undefined, positions: any[], cash = 0) => ({
   asset_id: id, label, institution, kind: 'brokerage', tax_bucket: 'TAXABLE', balance, target_return: 0.05, source, cash_balance: cash,
@@ -51,7 +59,7 @@ const acct = (id: string, institution: string, label: string, balance: number, s
 const pos = (id: string, ticker: string, shares: number, price: number, cost: number, date: string, cls = 'stock_etf') => ({ position_id: id, ticker, asset_class: cls, last_price: price, lots: [{ lot_id: `${id}l`, shares, cost_per_share: cost, purchase_date: date }] });
 
 const STATES: Record<number, () => void> = {
-  // phone 1 — two linked accounts, a record that begins 1 Oct 2025, money added: the window return refuses
+  // phone 1 — two linked accounts, a record that begins 1 Oct 2025, money added
   1: () => useStore.setState({
     assetAccounts: [acct('van', 'Vanguard', 'BROKERAGE', 101_000, 'connected', [pos('p1', 'VTI', 300, 330, 260, monthsAgo(11))], 2_000),
                     acct('etr', 'E*TRADE', 'ACCOUNT 1', 22_000, 'connected', [pos('p2', 'VOO', 40, 550, 500, monthsAgo(11))], 0)],
@@ -62,7 +70,8 @@ const STATES: Record<number, () => void> = {
       { id: 'v2', date: monthsAgo(3), type: 'DIVIDEND', account_id: 'etr', ticker: 'VOO', amount: 300, created_at: 'x', source: 'connected' },
       { id: 'i2', date: monthsAgo(3), type: 'INTEREST', account_id: 'etr', amount: 200, created_at: 'x', source: 'connected' },
     ],
-    snapshotDays: daily(monthsAgo(11), [['van', 'VTI', 300, 78_000, 99_000], ['van', 'CASH', 1, 2_000, 2_000], ['etr', 'VOO', 40, 20_000, 22_000]]),
+    // the $15,000 paid in ten months ago is in the record from that day: $78,000 grew to $84,000, and the $15,000 makes it $99,000
+    snapshotDays: paidIn(daily(monthsAgo(11), [['van', 'VTI', 300, 78_000, 84_000], ['van', 'CASH', 1, 2_000, 2_000], ['etr', 'VOO', 40, 20_000, 22_000]]), 'van', 'VTI', monthsAgo(10), 15_000),
     invDaily: { [monthsAgo(11)]: 100_000, [TODAY]: 123_000 },
     priceCache: { VTI: series('VTI', 260, 330, monthsAgo(11)), VOO: series('VOO', 500, 550, monthsAgo(11)) }, pricesFetchedAt: new Date().toISOString(),
   } as any),
@@ -76,7 +85,9 @@ const STATES: Record<number, () => void> = {
       { id: 'b1', date: monthsAgo(8), type: 'INTEREST', account_id: 'etr', ticker: 'US TREASURY 4.25%', amount: 300, created_at: 'x', source: 'connected' },
       { id: 'i1', date: monthsAgo(6), type: 'INTEREST', account_id: 'etr', amount: 220, created_at: 'x', source: 'connected' },
     ],
-    snapshotDays: daily(monthsAgo(26), [['etr', 'VTI', 100, 26_000, 40_000], ['etr', 'US TREASURY 4.25%', 7000, 7_000, 7_000], ['etr', 'CASH', 1, 5_000, 5_704]]),
+    // the $900 paid in and the $120 taken out are in the cash from their own days on
+    snapshotDays: paidIn(paidIn(daily(monthsAgo(26), [['etr', 'VTI', 100, 26_000, 40_000], ['etr', 'US TREASURY 4.25%', 7000, 7_000, 7_000], ['etr', 'CASH', 1, 5_000, 4_924]]),
+      'etr', 'CASH', monthsAgo(20), 900), 'etr', 'CASH', monthsAgo(14), -120),
     invDaily: { [monthsAgo(26)]: 38_000, [TODAY]: 52_704 }, rebuiltFrom: { etr: monthsAgo(26) },
     priceCache: { VTI: series('VTI', 260, 400, monthsAgo(26)) }, pricesFetchedAt: new Date().toISOString(),
   } as any),
@@ -101,7 +112,7 @@ const norm = (lines: string[]) => lines.join(' ').toLowerCase()
   .replace(/[−-]?\$[\d,]+(\.\d+)?/g, '$#').replace(/[+−-]?\d+(\.\d+)?%/g, '#%').replace(/\d+/g, '#')
   .replace(/\s+/g, ' ').trim();
 
-/** THE THREE KNOWN DIFFERENCES — each is a decision, written where the comparison is made.
+/** THE KNOWN DIFFERENCES — each is a decision, written where the comparison is made.
  *  1. A yearly rate on a category row. The drawing prints one for cash and for bonds ("2.50%/year").
  *     The app holds no interest rate for cash, and a bond inside a linked account states none, so the
  *     screen prints an em-dash rather than a rate nobody gave it. A bond held as its own account
@@ -109,10 +120,28 @@ const norm = (lines: string[]) => lines.join(' ').toLowerCase()
  *  2. The closed account line. Phone 1 reads "Linked · wealth generated $2,000 · return +10.00%";
  *     phone 3 reads "Linked · wealth generated $6,904 since Jun 3, 2024". One line cannot be worded
  *     two ways; phone 1's is the one v17 marks as new, so it is the one built.
- *  3. The graph's axis on phones 1 and 3 (see the header). */
+ *  3. The graph's axis on phones 1 and 3 (see the header).
+ *
+ *  AND THE OWNER'S DECISION OF 2026-10-04 (DEC-1669), newer than this drawing: "All return should be
+ *  True Weighted Return and not Dietz return." The drawing was made for the method before it, so the
+ *  app differs from the drawing in these four places, each by that decision:
+ *  4. The word. The drawing says "money-weighted, so money you added never counts as return"; the
+ *     app says "time-weighted, so …".
+ *  5. Mark 16 is gone. Phone 1 draws a money-weighted rate per year standing in where the old return
+ *     refused, with the sentence "Money moved in and out in amounts where WHEN it moved would decide a
+ *     window return, so this is your rate per year, counting when you added money". A time-weighted
+ *     return does not refuse because money was added, so the summary reads the ordinary note …
+ *  6. … and the same sentence under the open account's source line is not shown at all.
+ *  7. With no stand-in there is no "/year" on the Since figure or on the open account's Return row.
+ *     ("/year" on a category's yearly rate stays — that is difference 1's line, a different figure.) */
+const MARK_16 = 'money moved in and out in amounts where when it moved would decide a window return, so this is your rate per year, counting when you added money';
 const KNOWN = (s: string) => s
   .replace(/(bonds & cds|cash in this account) \$# (#%\/year|—)/g, '$1 $# <rate or dash>')
-  .replace(/linked wealth generated \$# since <date>/g, 'linked wealth generated $# return #%');
+  .replace(/linked wealth generated \$# since <date>/g, 'linked wealth generated $# return #%')
+  .replace(/money-weighted, so money you added/g, 'time-weighted, so money you added')                                                        // 4
+  .replace(MARK_16, 'return is for the window you picked (<date> → <date>) — not a yearly rate time-weighted, so money you added never counts as return')   // 5 — the first, in the summary
+  .replace(new RegExp(` ${MARK_16.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`), '')                                                          // 6 — the second, in the account's walk
+  .replace(/since <date> #%\/year/g, 'since <date> #%').replace(/\breturn #%\/year/g, 'return #%');                                        // 7
 
 const CHROME = new Set(['9:41', '▦ Menu', 'Money', 'Keel', '◉', '⚙', '🏠', 'Home', '💎', 'Net worth', '📈', '💵', 'Cash flow', '🧭', 'Plan']);
 function drawn(n: number): string[] {
@@ -152,7 +181,7 @@ describe('the Performance tab says what Performance v17 draws, word for word', (
   // the graph's axis dates sit under a drawn line on phones 1 and 3 only
   const AXIS: Record<number, RegExp | null> = { 1: /<date> ?<date> (?=how \$# became)/, 3: /<date> ?<date> (?=how \$# became)/, 4: null, 5: null };
   test.each([
-    [1, 'two linked accounts, money added: the window return refuses and the yearly rate stands in'],
+    [1, 'two linked accounts, money added: the return is time-weighted, and the money added is not in it'],
     [3, 'one linked account with 26 months of rebuilt record: every window answers'],
     [4, 'day one, two accounts entered by hand'],
     [5, 'no accounts yet'],

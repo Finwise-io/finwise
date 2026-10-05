@@ -73,9 +73,26 @@ A yearly rate is made only for a period longer than a year — (1 + the return)^
 the section above still decides how it is shown. "Return on cost" on one holding answers a different
 question (am I ahead on what I paid) and keeps that name; it is never called "return" alone.
 
-**Status on 2026-10-04: RULED, not built.** Performance still uses Modified Dietz with a money-weighted
-rate where it refuses, and Net worth's return on cash + investments is still a balance change. The
-tracker carries the build. Source: `MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_note_to_claude_code_TWR.md`.
+What the app's record holds, and the four rules that follow from it:
+- **One value a day per account, taken after that day's money moved.** So the value just before a
+  movement is that day's value less the movement. Money that moved on a day with no recorded value
+  cannot be measured across: no figure.
+- **An account that joins the record inside the period counts as money in**, at its first recorded
+  value. Nothing it was already worth is earned.
+- **A recorded day that is missing an account is not used.** A typed balance or a cash balance has no
+  price, so its last recorded value stands until the next one.
+- **Cash earns only interest.** Any other change in a cash balance is money moving, counted on the day
+  the record first shows it. A paycheck arriving is not a return.
+
+Shares moved in or out of the measured accounts: the record does not say what they were worth that
+day, so there is no figure across that day.
+
+**Status on 2026-10-04: BUILT AND TESTED.** One function works out every return
+(`Calculation Module code/engines/time-weighted-return.ts`). MK-NW-O-008 thePerformance (Performance,
+each account's page, Home) and MK-NW-O-003 theNetWorth (return on cash + investments) both ask it. The
+Modified Dietz function, the money-weighted rate and the balance change are called by nothing;
+`src/__tests__/guard_every_return_is_time_weighted.test.ts` fails the build if one is called again.
+Source of the decision: `MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_note_to_claude_code_TWR.md`.
 
 
 ## What this changes for the file

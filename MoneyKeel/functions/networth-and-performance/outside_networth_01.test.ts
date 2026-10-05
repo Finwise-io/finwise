@@ -225,6 +225,49 @@ describe('MK-NW-O-003 theNetWorth — five cases', () => {
     expect(n.debtLines.map((d) => [d.label, d.balance])).toEqual([['mortgage', 318400], ['credit card', 1912.33], ['family loan', 8000]]);
     expect(n.monthlyDebtMinimum).toBeCloseTo(2225, 4);
   });
+
+  // THE RETURN, time-weighted (owner decision 2026-10-04, in the note returned with this file: "All
+  // return should be True Weighted Return and not Dietz return."). Its "recorded cash + investments"
+  // is drawn here as a brokerage account and a savings account that add to its totals on each day.
+  const recordedDay = (date: string, brokerage: number, savings: number) => ({
+    date, origin: 'observed', writtenAt: `${date}T00:00:00Z`,
+    holdings: [{ date, accountId: 'b', securityKey: 'VTI', units: 1, price: brokerage, value: brokerage, currency: 'USD' }],
+    accounts: [{ date, accountId: 'b', cash: 0, statedTotal: null, currency: 'USD' }, { date, accountId: 's', cash: savings, statedTotal: null, currency: 'USD' }],
+  });
+  const household = (brokerage: number, savings: number) => [
+    { asset_id: 'b', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: brokerage,
+      positions: [{ position_id: 'p', ticker: 'VTI', last_price: brokerage, lots: [{ lot_id: 'l', shares: 1, cost_per_share: 100000, purchase_date: '2024-01-02' }] }] },
+    { asset_id: 's', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: savings }] as any;
+
+  test('complex · the return on cash + investments with a large deposit mid-year: 10.97%, not 42.32%', () => {
+    // $200,000 on 2025-10-04; $212,400 just before a $60,000 deposit on 2026-04-15; $284,630 on 2026-10-04
+    for (const where of ['paid into the brokerage', 'paid into savings'] as const) {
+      const intoBrokerage = where === 'paid into the brokerage';
+      const n = theNetWorth({
+        uid: 'u', debts: [], since: '2025-10-04', today: '2026-10-04',
+        accounts: intoBrokerage ? household(264630, 20000) : household(204630, 80000),
+        snapshotDays: [recordedDay('2025-10-04', 180000, 20000),
+          intoBrokerage ? recordedDay('2026-04-15', 252400, 20000) : recordedDay('2026-04-15', 192400, 80000)],
+        // the inheritance is a recorded deposit when it lands in the brokerage; in savings, the balance itself shows it
+        transactions: intoBrokerage ? [{ id: 'd', type: 'DEPOSIT', account_id: 'b', amount: 60000, date: '2026-04-15' }] : [],
+      });
+      expect(n.investable).toBeCloseTo(284630, 4);
+      expect(n.investableChangePct).toBeCloseTo(0.109681, 6);              // its figure: 1.062000 × 1.0448972 − 1
+      expect(n.investableChangePct).not.toBeCloseTo(0.42315, 3);           // what the formula as sent gave
+    }
+  });
+
+  test('edge · comparison day before the record begins: no figure, never a made-up change', () => {
+    // the record begins 2026-03-01 at $142,000; today $151,300; the person compares from 2026-01-01
+    const n = theNetWorth({ uid: 'u', debts: [], since: '2026-01-01', today: '2026-10-04', accounts: household(131300, 20000),
+      snapshotDays: [recordedDay('2026-03-01', 122000, 20000)], transactions: [] });
+    expect(n.investable).toBeCloseTo(151300, 4);
+    expect(n.investableChangePct).toBeNull();                              // REFUSES — the record does not reach back
+    // the same record compared from its own first day does answer, so the refusal is about the DAY
+    const from = theNetWorth({ uid: 'u', debts: [], since: '2026-03-01', today: '2026-10-04', accounts: household(131300, 20000),
+      snapshotDays: [recordedDay('2026-03-01', 122000, 20000)], transactions: [] });
+    expect(from.investableChangePct).toBeCloseTo(151300 / 142000 - 1, 8);
+  });
 });
 
 describe('MK-NW-O-004 theEmergencyFund — five cases', () => {

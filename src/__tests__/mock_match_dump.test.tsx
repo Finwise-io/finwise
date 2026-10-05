@@ -5,6 +5,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import * as fs from 'fs';
 import { useStore } from '../store/useStore';
+import { recordedDay } from '../testing/recordedDay';
 import { employedPartner } from '../testing/personas';
 import { isoLocalDate } from '../domain/_shared/dates';
 
@@ -50,7 +51,9 @@ const REAL_DATA = {
     { account_id: 'etr', type: 'INTEREST', amount: 430, date: today },
   ],
   nwDaily: { '2026-08-03': 393042, [today]: 395152 },
-  invDaily: { '2026-08-03': 361242, [today]: 363152 },
+  // the day the return on cash + investments is measured from (time-weighted since 2026-10-04):
+  // $8,000 checking, Vanguard $838 cash + $346,585 of VTI, $5,819 of bonds = $361,242
+  snapshotDays: [recordedDay('2026-08-03', [['chk', 8000, 'cash'], ['van', 838, 'cash'], ['van', 346585], ['etr', 5819, 'typed']])],
 };
 
 const dumpStrings = (): string[] => {

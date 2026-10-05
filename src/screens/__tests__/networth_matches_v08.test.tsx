@@ -13,6 +13,7 @@
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
+import { recordedDay } from '../../testing/recordedDay';
 import { useStore } from '../../store/useStore';
 import { employedPartner } from '../../testing/personas';
 import { isoLocalDate } from '../../domain/_shared/dates';
@@ -72,7 +73,9 @@ const DATA = (over: any = {}) => ({
     { id: 'i', account_id: 'etr', type: 'INTEREST', amount: 430, date: today },
   ],
   nwDaily: { [daysAgo(8)]: 393042, [today]: 395152 },
-  invDaily: { [daysAgo(8)]: 361242, [today]: 363152 },
+  // the day the return is measured from (time-weighted since 2026-10-04): $8,000 checking, Vanguard
+  // $838 cash + $346,585 of VTI, $5,819 of bonds = $361,242 — so $363,152 today is +0.53%
+  snapshotDays: [recordedDay(daysAgo(8), [['chk', 8000, 'cash'], ['van', 838, 'cash'], ['van', 346585], ['etr', 5819, 'typed']])],
   ...over,
 });
 const setup = (over: any = {}) => { useStore.getState().resetAll(); useStore.setState(DATA(over) as any); };
@@ -97,7 +100,8 @@ const through = (lines: string[], last: RegExp) => { const i = lines.findIndex((
 test('A — with data, by category', () => { setup(); render(<NetWorth />); compare('A', phone(1), builtLines(screen.toJSON())); });
 test('A2 — by institution', () => { setup(); render(<NetWorth />); fireEvent.press(screen.getByText('By institution')); compare('A2', phone(2), builtLines(screen.toJSON())); });
 test('B — all collapsed, and the down case', () => {
-  setup({ nwDaily: { [daysAgo(8)]: 396632, [today]: 395152 }, invDaily: { [daysAgo(8)]: 364632, [today]: 363152 } });
+  setup({ nwDaily: { [daysAgo(8)]: 396632, [today]: 395152 },   // the down case: Vanguard's VTI was worth $349,975 that day, $364,632 in all
+    snapshotDays: [recordedDay(daysAgo(8), [['chk', 8000, 'cash'], ['van', 838, 'cash'], ['van', 349975], ['etr', 5819, 'typed']])] });
   render(<NetWorth />); collapseAll(); compare('B', phone(3), builtLines(screen.toJSON()));
 });
 test('C — first day', () => { useStore.getState().resetAll(); useStore.getState().setOnboardingProfile(employedPartner as any); render(<NetWorth />); compare('C', phone(4), builtLines(screen.toJSON())); });

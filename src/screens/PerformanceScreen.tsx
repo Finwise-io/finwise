@@ -9,7 +9,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip, sourceWords } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf, investmentRecordDates, RATE_STANDS_IN_WORDS } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf, investmentRecordDates } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -139,14 +139,14 @@ export default function PerformanceScreen() {
     { key: '1M', label: '1M' }, { key: 'YTD', label: 'This year' }, { key: '1Y', label: '1Y' }, { key: '2Y', label: '2Y' },
   ];
   // ONE MEANING OF RETURN on this screen (founder, 2026-09-25 — he caught the same disagreement on
-  // the account page). It is wealth generated ÷ the money that was working in the window, counting
-  // each contribution for the part of the window it was there (Modified Dietz). The old figure came
-  // from PRICE CHANGE only, weighted by holding, so it silently disagreed with "Wealth generated"
-  // standing beside it, which counts dividends and interest. Same function for the window selector,
-  // the summary and the walk, so no two figures on this screen can tell different stories.
+  // the account page), and since 2026-10-04 it is TIME-WEIGHTED (owner decision, DEC-1669): the window
+  // split at every day money moved, each piece measured, the pieces multiplied — so money added never
+  // reads as a gain, and dividends and interest are in it, as they are in "Wealth generated" beside
+  // it. Same function for the window selector, the summary and the walk, so no two figures on this
+  // screen can tell different stories.
   // ONE DOOR (MK-NW-O-008 thePerformance, Q-PF-1 ruled 2026-09-27: "yes"). This screen worked the
   // whole answer out for itself — the window's records, the flows, the beginning, the walk, the
-  // money-weighted return and the yearly-rate rule — while Home printed a return of its own. The
+  // return and the yearly-rate rule — while Home printed a return of its own. The
   // four rulings it carries (one meaning of return · the beginning is READ, never back-filled · a
   // rate needs something to stand on · over a year, show both) now live in the door, where a screen
   // cannot lose them.
@@ -161,6 +161,7 @@ export default function PerformanceScreen() {
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investIds,
+      accounts: resolvedNwAccounts as any[],
       wholeRecord: p === 'SINCE',   // "Since" shows the window's own total, never a yearly rate (v17, phone 3)
     });
     return { ...answer, led: answer.ledger, bounds: windowStart ? windowBounds(windowStart, todayKey) : null };
@@ -237,7 +238,7 @@ export default function PerformanceScreen() {
   const { walk } = now;
   const beginWords = dayOne ? 'today' : dateShown(now.beginningAsOf);
   const endWords = dayOne ? 'today' : dateShown(todayKey);
-  const shownReturn = now.ret ?? now.refusedRate;
+  const shownReturn = now.ret;
   const yearsWord = now.years >= 1.9 && now.years < 2.1 ? 'two years' : `${now.years.toFixed(1)} years`;
   const stale = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
   /** One walk, drawn the same way for every account together and for each account alone. */
@@ -309,11 +310,9 @@ export default function PerformanceScreen() {
           <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />
         ) : dayOne ? (
           <Note term="dayOne">Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</Note>
-        ) : now.refusedRate != null ? (
-          /* mark 16: the refusal sentence is replaced by what the figure IS. A person reading a rate
-             has to be told it is a yearly one, counted from when the money went in. */
-          <Note term="rateStandsIn">{RATE_STANDS_IN_WORDS}</Note>
         ) : now.sentence ? (
+          /* a return that cannot be measured shows no percent and says why (owner, 2026-10-04: every
+             return is time-weighted, and nothing stands in for one) */
           <Text style={styles.sumNote}>{now.sentence}</Text>
         ) : now.perYear != null && now.cumulative != null ? (
           <>
@@ -322,12 +321,12 @@ export default function PerformanceScreen() {
             <Text style={styles.sumNote}>
               {fig('MK-PF-M-017', now.cumulative)} over the {yearsWord}, which is {fig('MK-PF-M-017', now.perYear)}/year — a yearly rate, so it sits fairly beside a one-year window.
             </Text>
-            <Note term="moneyAddedIsNotReturn">money-weighted, so money you added never counts as return</Note>
+            <Note term="moneyAddedIsNotReturn">time-weighted, so money you added never counts as return</Note>
           </>
         ) : (
           <>
             <Note term="windowReturn">Return is for the window you picked ({beginWords} → {endWords}) — not a yearly rate</Note>
-            <Note term="moneyAddedIsNotReturn">money-weighted, so money you added never counts as return</Note>
+            <Note term="moneyAddedIsNotReturn">time-weighted, so money you added never counts as return</Note>
           </>
         )}
         {/* WHERE THE HISTORY CAME FROM (mock v14 mark 13): a rebuilt line names its source and first day */}
@@ -370,9 +369,11 @@ export default function PerformanceScreen() {
           const one = thePerformance({
             windowStart: now.windowStart, windowLabel: phraseFor(period), today: todayKey,
             ending: acct.balance || 0, pricedGain: gain,
-            transactions: ((store.transactions ?? []) as any[]).filter((t) => String(t.account_id) === id),
+            // every record: the function keeps this account's own, and the cash that arrived in it by transfer
+            transactions: (store.transactions ?? []) as any[],
             snapshotDays: (store as any).snapshotDays ?? [],
             investmentAccountIds: new Set([id]),
+            accounts: resolvedNwAccounts as any[],
             wholeRecord: (period as string) === 'SINCE',
           });
           const w = one.walk;
@@ -380,8 +381,7 @@ export default function PerformanceScreen() {
           // closed (phone 3); on day one every walk is open and there is nothing to collapse (phone 4)
           const isOpen = dayOne || (openAcctWalk[id] ?? (i === 0 && list.length > 1));
           const src = sourceWords(acct);
-          const oneReturn = one.ret != null ? fig('MK-PF-M-016', one.ret)
-            : one.refusedRate != null ? `${fig('MK-PF-M-016', one.refusedRate)}/year` : null;
+          const oneReturn = one.ret != null ? fig('MK-PF-M-016', one.ret) : null;
           return (
             <View key={id} style={styles.card}>
               <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} disabled={dayOne}
@@ -399,7 +399,7 @@ export default function PerformanceScreen() {
               ) : (
                 <>
                   <View style={styles.walkChip}><SourceChip account={acct} /></View>
-                  {!dayOne && one.refusedRate != null && <Note term="rateStandsIn">{RATE_STANDS_IN_WORDS}</Note>}
+                  {!dayOne && !!one.sentence && <Text style={styles.sumNote}>{one.sentence}</Text>}
                   {walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' })}
                   {dayOne ? (
                     <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
@@ -407,7 +407,7 @@ export default function PerformanceScreen() {
                     <>
                       <View style={[styles.walkRow, styles.walkTotal]}>
                         <Text style={styles.walkL}>Return</Text>
-                        <Text style={[styles.walkV, { color: oneReturn == null ? Colors.textTertiary : (one.ret ?? one.refusedRate ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{oneReturn ?? '—'}</Text>
+                        <Text style={[styles.walkV, { color: oneReturn == null ? Colors.textTertiary : (one.ret ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{oneReturn ?? '—'}</Text>
                       </View>
                       {/* printed because both taps are real: the arrow collapses, the name opens the account */}
                       <Text style={styles.sumNote}>Tap ▾ to collapse · tap the name to open this account's portfolio ›</Text>
@@ -716,21 +716,19 @@ function Note({ term, children }: { term: GlossaryTerm; children: React.ReactNod
 function WindowSelector({ windows, chosen, figures, onPick }: {
   windows: { key: string; label: string }[];
   chosen: string;
-  figures: Record<string, { ret: number | null; perYear?: number | null; refusedRate?: number | null; covered?: boolean }>;
+  figures: Record<string, { ret: number | null; perYear?: number | null; covered?: boolean }>;
   onPick: (key: string) => void;
 }) {
   return (
     <View style={styles.segBar}>
       {windows.map((w, i) => {
         const on = w.key === chosen;
-        // MARK 16 + 18 (mock v17, approved 2026-09-30). Where the window return refused, the segment
-        // carries the EXACT rate per year in its place — and it is always a yearly rate, so it reads
-        // "+7.46%/year". This is where the yearly rate lives; the summary trio prints the plain percent
-        // so its three cells fit one row.
-        const windowRet = figures[w.key]?.ret ?? null;
-        const stoodIn = figures[w.key]?.refusedRate ?? null;
-        const ret = windowRet ?? stoodIn;
-        const perYear = figures[w.key]?.perYear != null || (windowRet == null && stoodIn != null);
+        // MARK 18 (mock v17, approved 2026-09-30): a window longer than a year reads "+7.30%/year" here.
+        // This is where the yearly rate lives; the summary trio prints the plain percent so its three
+        // cells fit one row. A window whose return cannot be measured shows an em-dash — nothing stands
+        // in for a time-weighted return (owner, 2026-10-04; mark 16's stand-in rate is gone).
+        const ret = figures[w.key]?.ret ?? null;
+        const perYear = figures[w.key]?.perYear != null;
         // A WINDOW THE RECORD CANNOT COVER IS GREYED TO AN EM-DASH AND CANNOT BE PICKED (v17: "the
         // screen states nothing rather than a guess"). Picking it would open a walk whose beginning
         // nobody recorded.
@@ -743,11 +741,11 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
               style={[styles.seg, w.key === 'SINCE' && styles.segWide, on && styles.segOn]}
               disabled={uncovered}
               accessibilityRole="button" accessibilityState={{ selected: on, disabled: uncovered }}
-              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${fig('MK-PF-M-017', ret)}${perYear ? ' a year' : ''}${windowRet == null ? ', counting when you added money' : ''}`}`}
+              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${fig('MK-PF-M-017', ret)}${perYear ? ' a year' : ''}`}`}
               onPress={() => onPick(w.key)}>
               <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segRest]}>{w.label}</Text>
               <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>
-                {ret == null ? '—' : `${fig('MK-PF-M-017', ret)}${windowRet == null ? '/year' : ''}`}
+                {ret == null ? '—' : fig('MK-PF-M-017', ret)}
               </Text>
             </TouchableOpacity>
           </React.Fragment>

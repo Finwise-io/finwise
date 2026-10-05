@@ -86,9 +86,10 @@ const SECTIONS: [string, RegExp][] = [
   ['the window selector, one control with a rate per segment', /\b1M\b/],
   ['the summary band, naming the window', /SUMMARY · SINCE/i],
   ['the trio on ONE row — ending value, wealth generated, return', /Wealth generated/i],
-  // the drawing shows this line two ways: the note when a rate is given (frame 2), and the refusal
-  // in its place when the timing of money in and out drives the percentage (frame 1, his Q52)
-  ['the note that the return is for the window picked, not a yearly rate', /not a yearly rate|drives the percentage|rate per year, counting when you added money/i],
+  // this line has two states: the note when a return is given (frame 2), and — since every return is
+  // time-weighted (owner, 2026-10-04) — the reason in its place when it cannot be measured. This
+  // household's deposits fall on days the record holds no value for, so it reads the reason.
+  ['the note that the return is for the window picked, not a yearly rate', /not a yearly rate|a return cannot be measured/i],
   ['the line saying the figures were rebuilt from the broker’s own records', /Rebuilt from/i],
   // the graph draws only once it knows its width, which a test render never tells it; its wrapper
   // says how many recorded days it holds, and that is what can be checked here

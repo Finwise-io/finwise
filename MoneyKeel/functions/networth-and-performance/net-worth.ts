@@ -15,13 +15,16 @@ import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
-  buildAssetsState, cashTotal, investableAssets, assetAllocation,
+  buildAssetsState, cashTotal, investableAssets, assetAllocation, isRealAsset, assetClassOf,
   type AssetClass,
 } from '../../../src/domain/assets';
 import { buildDebtState, requiredPayment, type Debt } from '../../../src/domain/debt';
 import { projectNestEgg } from '../../../src/domain/retirement';
 import { buildNetWorth } from '../../../src/domain/networth';
-import { trendPoints, investableChangePct, type TrendPoint } from '../../../src/domain/history';
+import { trendPoints, type TrendPoint } from '../../../src/domain/history';
+import { buildDayFromAccounts, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
+import { timeWeightedReturn, movementsOf } from '../../../Calculation Module code/engines/time-weighted-return';
+import { isoLocalDate } from '../../../src/domain/_shared/dates';
 
 export interface DebtLine { id: string; label: string; balance: number; minimumMonthly: number; }
 
@@ -70,10 +73,12 @@ export interface TheNetWorth {
  *     nw = build net worth(input.uid, a state.total asset value, d state.total debt balance)
  *     by class = asset allocation(accounts)
  *     investable = investable assets(accounts)
- *     as percent = investable change pct(input.investable daily, investable, input.since)
- *     the answer:
- *     nothing   if as percent = nothing
- *     as percent ÷ 100   otherwise
+ *     nothing   when input.since is missing
+ *     today = input.today (or iso local date(new date()) when missing)
+ *     start = `${input.since}-01`   if input.since.length = 7
+ *     input.since   otherwise
+ *     measured = accounts where !is real asset(each)
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-082 NW · MK-NW-F-100 TREND
  *               MK-NW-F-101 PLAN
@@ -89,6 +94,7 @@ export interface TheNetWorth {
  *               MK-XS-M-001 · MK-XS-M-003
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-014 debt balance
+ *               MK-XS-I-024 logged expenses
  * Ruled by .... DEC-0008 · DEC-0010 · DEC-0023 · DEC-0047 · DEC-0048 · DEC-0051
  *               DEC-0052 · DEC-0054 · DEC-0060 · DEC-0061 · DEC-0066 · DEC-0069
  *               DEC-0070 · DEC-0072 · DEC-0074 · DEC-0089 · DEC-0090 · DEC-0091
@@ -107,6 +113,7 @@ export interface TheNetWorth {
  *     · If alternatives is missing it uses 0.
  *     · If mixed is missing it uses 0.
  *     · If remaining balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-003
  * Changed ..... not in git yet (—)
@@ -118,9 +125,14 @@ export function theNetWorth(input: {
   /** The recorded history, for the line and the return. */
   monthlyHistory?: Record<string, unknown> | null;
   dailyNetWorth?: Record<string, unknown> | null;
-  investableDaily?: Record<string, unknown> | null;
+  /** The daily record of what each account was worth, and every record of money moving — what the
+   *  return on cash + investments is measured from. */
+  snapshotDays?: any[] | null;
+  transactions?: any[] | null;
   /** The day a change is measured FROM. With none, the change figures refuse. */
   since?: string | null;
+  /** Today, as a day. The screen's own day when it gives one. */
+  today?: string;
 }): TheNetWorth {
   const accounts = input.accounts ?? [];
   const debts = input.debts ?? [];
@@ -163,10 +175,30 @@ export function theNetWorth(input: {
     monthlyDebtMinimum: dState.total_monthly_debt_service,
     monthlyDebtPayments: debtLines.reduce((t, d) => t + d.minimumMonthly, 0),
     trend: trendPoints(input.monthlyHistory, input.dailyNetWorth),
-    // never invented: with no baseline day, there is no change to state
+    // THE RETURN ON CASH + INVESTMENTS IS TIME-WEIGHTED (owner decision, 2026-10-04, DEC-1669: "All
+    // return should be True Weighted Return and not Dietz return."). It was a change in balance:
+    // today's total ÷ the first total on record, less 1 — so $60,000 paid in read as $60,000 earned
+    // (42.32% where 10.97% is right, the outside review's case). Now the period is split at every day
+    // money moved, each piece measured, the pieces multiplied.
+    //   · Cash earns only interest: any other change in a cash balance is money moving, counted on
+    //     the day the record first shows it — a paycheck arriving is not a return.
+    //   · The day compared from must be on record. A comparison from before the record begins gives
+    //     no figure, never a figure quietly measured from a later day.
     investableChangePct: (() => {
-      const asPercent = investableChangePct(input.investableDaily, investable, input.since);
-      return asPercent == null ? null : asPercent / 100;
+      if (!input.since) return null;
+      const today = input.today ?? isoLocalDate(new Date());
+      const start = input.since.length === 7 ? `${input.since}-01` : input.since;
+      const measured = accounts.filter((a) => !isRealAsset(a));
+      const ids = new Set(measured.map((a) => String(a.asset_id)));
+      if (!ids.size) return null;
+      const moved = movementsOf(input.transactions ?? [], ids);
+      return timeWeightedReturn({
+        days: recordDay(((input.snapshotDays ?? []) as any[]).filter((d) => d?.date !== today), buildDayFromAccounts(accounts as any, today, `${today}T00:00:00Z`)),
+        accountIds: ids,
+        cashIds: new Set(measured.filter((a) => assetClassOf(a) === 'cash').map((a) => String(a.asset_id))),
+        flows: moved.flows, interest: moved.interest, sharesMoved: moved.sharesMoved,
+        start, end: today,
+      }).rate;
     })(),
   };
 }
@@ -230,8 +262,8 @@ export interface LedgerGroup {
  *               MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-028 assumed return
- *               MK-XS-I-048 the person’s own asset-class answer
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -286,13 +318,25 @@ const EXAMPLE = {
     { debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400 },
     { debt_id: 'd2', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250 },
   ] as any[],
-  investableDaily: { '2026-01-02': 180000 },
-  since: '2026-01-01',
+  // the one baseline day on record: the same four accounts, worth $180,000 between them
+  snapshotDays: [{
+    date: '2026-01-02', origin: 'observed', writtenAt: '2026-01-02T00:00:00Z', holdings: [],
+    accounts: [
+      { date: '2026-01-02', accountId: 'a1', cash: 18000, statedTotal: null, currency: 'USD' },
+      { date: '2026-01-02', accountId: 'a2', cash: 0, statedTotal: null, typedValue: 130000, currency: 'USD' },
+      { date: '2026-01-02', accountId: 'a3', cash: 0, statedTotal: null, typedValue: 23000, currency: 'USD' },
+      { date: '2026-01-02', accountId: 'a5', cash: 0, statedTotal: null, typedValue: 9000, currency: 'USD' },
+    ],
+  }] as any[],
+  transactions: [] as any[],
+  since: '2026-01-02',
+  today: '2026-09-28',
 };
 const GIVEN =
   '$18,000 checking, $142,000 brokerage, a $24,200 Treasury, a $310,000 rental and $9,000 of gold; '
   + 'against a $228,000 mortgage at $2,400/month and a $14,000 car loan at $250/month. '
-  + 'Cash + investments stood at $180,000 on 2 Jan 2026.';
+  + 'Cash + investments stood at $180,000 on 2 Jan 2026 ($18,000 checking, $130,000 brokerage, a $23,000 Treasury, $9,000 of gold), '
+  + 'and no money has been added or taken out since.';
 
 /** Example only: runs theNetWorth on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-082 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -676,12 +720,18 @@ export const NET_WORTH_FIGURES = declareFigures({
   },
   'MK-NW-M-002': {
     label: 'Return on cash + investments', unit: 'percent-2dp', screens: ['/analytics'],
-    answers: 'How much your money that is not a house or a car has moved, since the day you are comparing against.',
-    formula: 'today’s investable total ÷ the first investable figure recorded on or after that day, minus 1',
-    inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-003 the recorded history'],
-    decisions: ['No recorded day on or after the baseline → no figure. A movement from a day nobody recorded is not a movement.'],
-    refusal: 'The record does not reach back that far, so it shows nothing rather than a made-up change.',
-    ruled: '2026-09-27',
+    answers: 'How much your cash and investments have grown since the day you are comparing against, with money you added or took out left out.',
+    formula: 'a time-weighted return over your cash and investment accounts: split the period at every day money moved in or out; '
+      + 'each piece = the value just before the next movement ÷ the value just after the last one; multiply the pieces and take 1 off. '
+      + 'Cash earns only interest, so any other change in a cash balance is money moving, not a gain',
+    inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
+    decisions: [
+      'EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): "All return should be True Weighted Return and not Dietz return." It was a change in balance, so money paid in read as money earned.',
+      'THE DAY COMPARED FROM MUST BE ON RECORD. A comparison from before the record begins gives no figure — never one quietly measured from a later day.',
+      'CASH EARNS ONLY INTEREST. A paycheck arriving or a bill being paid is money moving, counted on the day the record first shows it.',
+    ],
+    refusal: 'No figure: the record does not reach back to the day compared from, or money moved on a day with no recorded value.',
+    ruled: '2026-10-04',
     worked: {
       given: GIVEN,
       answer: '7.33%',

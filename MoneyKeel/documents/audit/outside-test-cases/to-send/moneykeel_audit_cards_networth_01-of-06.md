@@ -936,11 +936,12 @@ export interface TheNetWorth {
   "name": "theNetWorth",
   "kind": "orchestrator",
   "what_it_is_for": "What am I worth: everything I own, less everything I owe, and how each breaks down?",
-  "formula_in_words": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. The percent change on cash + investments is measured from the daily record since the given start day and returned as a share; no figure when there is no record.",
-  "handed": "export function theNetWorth(input: {\n  uid: string;\n  accounts: AssetAccount[];\n  debts: Debt[];\n  /** The recorded history, for the line and the return. */\n  monthlyHistory?: Record<string, unknown> | null;\n  dailyNetWorth?: Record<string, unknown> | null;\n  investableDaily?: Record<string, unknown> | null;\n  /** The day a change is measured FROM. With none, the change figures refuse. */\n  since?: string | null;\n}): TheNetWorth",
+  "formula_in_words": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. Return on cash + investments = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\") over every account that is not property: the period from the day compared from to today is split at every day money moved in or out; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off; returned as a share. A month given without a day is read as its first day. Cash earns only interest: any other change in a cash account's balance is money moving, counted on the day the record first shows it. For the other accounts, money moving = deposits, withdrawals and cash transferred between accounts. Today's value is read from the accounts as they stand. No figure when no day is given, when no recorded day on or before the day compared from holds the accounts, when money moved on a day with no recorded value, or when shares were moved in or out.",
+  "handed": "export function theNetWorth(input: {\n  uid: string;\n  accounts: AssetAccount[];\n  debts: Debt[];\n  /** The recorded history, for the line and the return. */\n  monthlyHistory?: Record<string, unknown> | null;\n  dailyNetWorth?: Record<string, unknown> | null;\n  /** The daily record of what each account was worth, and every record of money moving — what the\n   *  return on cash + investments is measured from. */\n  snapshotDays?: any[] | null;\n  transactions?: any[] | null;\n  /** The day a change is measured FROM. With none, the change figures refuse. */\n  since?: string | null;\n  /** Today, as a day. The screen's own day when it gives one. */\n  today?: string;\n}): TheNetWorth",
   "inputs_it_reads": [
    "MK-XS-I-001 account balance",
-   "MK-XS-I-014 debt balance"
+   "MK-XS-I-014 debt balance",
+   "MK-XS-I-024 logged expenses"
   ],
   "figures_it_feeds": [
    {
@@ -1595,7 +1596,7 @@ export interface TheNetWorth {
     "words_on_screen": "EMERGENCY FUND — X.X months",
     "unit": "months",
     "what_it_answers": "How many months your cash would cover, if your income stopped tomorrow.",
-    "when_it_refuses": "No essentials figure yet — it says so rather than dividing by nothing.",
+    "when_it_refuses": "No essentials figure yet — it says so rather than dividing by nothing. And no count of months where the rent pays for the whole month: the cash is then not drawn on.",
     "shown_on": [
      "/analytics",
      "/jobsafety"
@@ -1644,6 +1645,20 @@ export interface TheNetWorth {
      "/analytics",
      "/insights"
     ]
+   },
+   {
+    "id": "MK-NW-M-064",
+    "words_on_screen": "rent from your property, which keeps arriving",
+    "unit": "money",
+    "per": "month",
+    "what_it_answers": "The rent that would still arrive each month if your pay stopped.",
+    "when_it_refuses": "No rental entered — the line does not appear at all.",
+    "shown_on": [
+     "/analytics",
+     "/insights",
+     "/stress-test",
+     "/jobsafety"
+    ]
    }
   ],
   "rules": [
@@ -1677,6 +1692,11 @@ export interface TheNetWorth {
    },
    {
     "said_by": "author",
+    "about": "MK-NW-M-013",
+    "words": "FOUNDER 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" Rent arrives every month, so it is added to the cash every month — which is the cash ÷ (the month − the rent)."
+   },
+   {
+    "said_by": "author",
     "about": "MK-NW-M-046",
     "words": "FOUNDER 2026-09-28: \"give both numbers.\" The figure above it is what you could not stop paying; this one is the life you plan to live. Neither is the whole truth alone, so the screen shows both."
    },
@@ -1689,6 +1709,16 @@ export interface TheNetWorth {
     "said_by": "author",
     "about": "MK-NW-M-047",
     "words": "A mortgage is never counted twice: where the Rent / Mortgage budget carries it, its minimum is left out."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-064",
+    "words": "FOUNDER 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\""
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-064",
+    "words": "It is the same figure as the Income summary's Rent row, read from that function, so the two screens cannot show two rents."
    }
   ]
  },

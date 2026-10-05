@@ -194,6 +194,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "accountValuesOn": {
+  "id": "MK-ST-F-083",
+  "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "3 · DEPENDENT"
+ },
  "accruedInterestCaveat": {
   "id": "MK-NW-F-070",
   "file": "src/domain/bonds/index.ts",
@@ -692,6 +697,11 @@
  "closeOnOrBefore": {
   "id": "MK-PF-F-034",
   "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "closedWith": {
+  "id": "MK-NW-F-104",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "3 · DEPENDENT"
  },
  "colFactor": {
@@ -1327,7 +1337,7 @@
  "historyIsComplete": {
   "id": "MK-PF-F-025",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "holdingId": {
   "id": "MK-ST-F-026",
@@ -1447,7 +1457,7 @@
  "investableChangePct": {
   "id": "MK-XS-F-010",
   "file": "src/domain/history.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "investmentAccountIdsOf": {
   "id": "MK-NW-F-092",
@@ -1487,6 +1497,11 @@
  "isCertificateOfDeposit": {
   "id": "MK-NW-F-071",
   "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "isDay": {
+  "id": "MK-ST-F-080",
+  "file": "Calculation Module code/engines/time-weighted-return.ts",
   "category": "3 · DEPENDENT"
  },
  "isDayKey": {
@@ -1822,7 +1837,7 @@
  "modifiedDietzOverWindow": {
   "id": "MK-ST-F-064",
   "file": "Calculation Module code/engines/window-return.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "money": {
   "id": "MK-ST-F-053",
@@ -1847,7 +1862,7 @@
  "moneyWeightedReturn": {
   "id": "MK-PF-F-026",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "monthKey": {
   "id": "MK-CF-F-163",
@@ -1923,6 +1938,11 @@
   "id": "MK-CF-F-042",
   "file": "src/domain/debt/mortgageOdds.ts",
   "category": "2 · DISPLAYED"
+ },
+ "movementsOf": {
+  "id": "MK-ST-F-082",
+  "file": "Calculation Module code/engines/time-weighted-return.ts",
+  "category": "3 · DEPENDENT"
  },
  "mulberry32": {
   "id": "MK-PL-F-072",
@@ -2002,7 +2022,7 @@
  "npv": {
   "id": "MK-PF-F-030",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "numOrNaN": {
   "id": "MK-XS-F-171",
@@ -2327,11 +2347,6 @@
  "rateInForce": {
   "id": "MK-CF-F-181",
   "file": "src/domain/income/tax-rate.ts",
-  "category": "3 · DEPENDENT"
- },
- "rateWhereItRefuses": {
-  "id": "MK-NW-F-102",
-  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "3 · DEPENDENT"
  },
  "readFileString": {
@@ -3134,6 +3149,11 @@
   "file": "MoneyKeel/functions/cashflow/this-month.ts",
   "category": "3 · DEPENDENT"
  },
+ "timeWeightedReturn": {
+  "id": "MK-ST-F-081",
+  "file": "Calculation Module code/engines/time-weighted-return.ts",
+  "category": "3 · DEPENDENT"
+ },
  "tipsAnnual": {
   "id": "MK-CF-F-074",
   "file": "src/domain/income/onboarding.ts",
@@ -3322,7 +3342,7 @@
  "userFlows": {
   "id": "MK-PF-F-024",
   "file": "src/domain/performance/moneyWeighted.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "usesSleeve": {
   "id": "MK-CF-F-134",
@@ -3378,6 +3398,11 @@
   "id": "MK-CF-O-008",
   "file": "MoneyKeel/functions/cashflow/whats-coming.ts",
   "category": "2 · DISPLAYED"
+ },
+ "whyNoReturn": {
+  "id": "MK-NW-F-105",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT"
  },
  "willItLastInputs": {
   "id": "MK-PL-F-067",
