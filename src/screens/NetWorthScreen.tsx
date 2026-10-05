@@ -948,6 +948,16 @@ export default function NetWorthScreen() {
             </TouchableOpacity>
           ))}
 
+        {/* EVERY MORTGAGE IS ON A PROPERTY (his rule, 2026-10-04, DEC-1925). One that is on none is named
+            here, and a tap opens it so the person can say which property it is on. */}
+        {!worth.mortgageCheck.ok && (
+          <TouchableOpacity accessibilityRole="button" style={styles.ledgerPad}
+            accessibilityLabel={`${worth.mortgageCheck.sentence} Opens that mortgage.`}
+            onPress={() => { const d = liabilities.find((x: any) => String(x.debt_id) === worth.mortgageCheck.unmatched[0]?.id); if (d) setDebtSheet({ open: true, edit: d }); }}>
+            <Text style={[styles.cushionMath, { color: Colors.amber }]}>{worth.mortgageCheck.sentence}</Text>
+          </TouchableOpacity>
+        )}
+
         {/* EMERGENCY FUND (mock approved 2026-07-31): cash ÷ monthly essentials, the math on the
             card, word + icon always; no expenses captured → a door, never a made-up number */}
         {monthlySpend > 0 && runwayMonths != null ? (() => {

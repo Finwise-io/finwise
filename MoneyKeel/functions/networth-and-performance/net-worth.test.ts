@@ -204,3 +204,61 @@ describe('MK-NW-M-012 — the two monthly debt figures, both named', () => {
     expect(screen).not.toMatch(/Monthly debt payments[\s\S]{0,220}worth\.monthlyDebtMinimum/);
   });
 });
+
+/** EVERY MORTGAGE IS ON A PROPERTY (his rule, 2026-10-04, DEC-1925): "It is feasible to have property
+ *  without mortgage but no mortgage without property. So check should be 3 properties in NW - 3 or less
+ *  mortgage." */
+describe('mortgagesByProperty', () => {
+  const { mortgagesByProperty } = require('./net-worth');
+  const home = (id: string, label: string) => ({ asset_id: id, label, kind: 'home', tax_bucket: 'PROPERTY', balance: 400000 });
+  const mortgage = (id: string, label: string, pay: number, property_id?: string) =>
+    ({ debt_id: id, label, debt_type: 'MORTGAGE', remaining_balance: 200000, interest_rate_apr: 0.06, minimum_monthly_payment: pay, property_id });
+  const THREE = [home('p1', 'Home'), home('p2', 'Lake house'), home('p3', 'Condo')];
+
+  test('three properties, two mortgages that say which property: fine, and a property with none is fine', () => {
+    const c = mortgagesByProperty(THREE, [mortgage('m1', 'Chase', 2400, 'p1'), mortgage('m2', 'Wells Fargo', 1500, 'p3')]);
+    expect([c.properties, c.mortgages, c.ok, c.sentence]).toEqual([3, 2, true, '']);
+    expect(c.byProperty.map((r: any) => [r.property, r.mortgage, r.payment])).toEqual([['Home', 'Chase', 2400], ['Lake house', null, 0], ['Condo', 'Wells Fargo', 1500]]);
+  });
+
+  test('three properties, FOUR mortgages: the fourth is on no property, and it is named', () => {
+    const c = mortgagesByProperty(THREE, [mortgage('m1', 'A', 1, 'p1'), mortgage('m2', 'B', 1, 'p2'), mortgage('m3', 'C', 1, 'p3'), mortgage('m4', 'Extra loan', 1)]);
+    expect(c.ok).toBe(false);
+    expect(c.unmatched).toEqual([{ id: 'm4', label: 'Extra loan' }]);
+    expect(c.sentence).toBe('Extra loan is not on a property. A mortgage is always on a property — open it and say which one.');
+  });
+
+  test('a mortgage with no property at all in Net worth is on no property', () => {
+    const c = mortgagesByProperty([], [mortgage('m1', 'Home mortgage', 2000)]);
+    expect([c.ok, c.unmatched.length]).toEqual([false, 1]);
+  });
+
+  test('two mortgages naming one property: the second is not placed — one mortgage to a property', () => {
+    const c = mortgagesByProperty(THREE, [mortgage('m1', 'First', 1, 'p1'), mortgage('m2', 'Second', 1, 'p1')]);
+    expect(c.unmatched).toEqual([{ id: 'm2', label: 'Second' }]);
+    expect(c.sentence).toMatch(/^Second is not on a property/);
+  });
+
+  test('mortgages stored before the rule name no property: placed only where there is one honest answer', () => {
+    // by its own name — the name the app gives a mortgage typed with a property
+    expect(mortgagesByProperty(THREE, [mortgage('m1', 'Lake house mortgage', 1500)]).byProperty[1].mortgage).toBe('Lake house mortgage');
+    // the one mortgage left and the one property left
+    expect(mortgagesByProperty([home('p1', 'Home')], [mortgage('m1', 'Chase', 2400)]).ok).toBe(true);
+    // two properties free and one unnamed mortgage: not guessed
+    const c = mortgagesByProperty([home('p1', 'Home'), home('p2', 'Condo')], [mortgage('m1', 'Chase', 2400)]);
+    expect([c.ok, c.unmatched.map((u: any) => u.label)]).toEqual([false, ['Chase']]);
+    // two of them: the sentence counts
+    expect(mortgagesByProperty(THREE, [mortgage('m1', 'A', 1), mortgage('m2', 'B', 1)]).sentence).toBe('2 mortgages are not on a property. A mortgage is always on a property — open each and say which one.');
+  });
+
+  test('a card or a car loan is not a mortgage and is never asked for a property', () => {
+    const c = mortgagesByProperty([], [{ debt_id: 'c', label: 'Visa', debt_type: 'CREDIT_CARD', remaining_balance: 900, interest_rate_apr: 0.2, minimum_monthly_payment: 40 }] as any);
+    expect([c.mortgages, c.ok]).toEqual([0, true]);
+  });
+
+  test('theNetWorth hands the same answer to the screen', () => {
+    const n = theNetWorth({ uid: 'u', accounts: THREE as any, debts: [mortgage('m1', 'Chase', 2400, 'p1')] as any });
+    expect(n.mortgageCheck.ok).toBe(true);
+    expect(n.mortgageCheck.byProperty[0]).toMatchObject({ property: 'Home', mortgage: 'Chase' });
+  });
+});

@@ -496,8 +496,11 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
   test('installment: entering the payment computes the paid-off-by date (and saves BOTH)', () => {
     const { fireEvent } = require('@testing-library/react-native');
     const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
+    // a mortgage is always on a property (his rule, 2026-10-04, DEC-1925), so the household has its home
+    useStore.setState({ assetAccounts: [{ asset_id: 'h1', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 450000, target_return: 0 }] } as any);
     render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
     fireEvent.press(screen.getByLabelText('Mortgage'));
+    fireEvent.press(screen.getByLabelText('On Home'));
     fireEvent.changeText(screen.getByPlaceholderText('0'), '412000');
     fireEvent.changeText(screen.getByPlaceholderText('6.5'), '6.25');
     fireEvent.changeText(screen.getByPlaceholderText('$0'), '2850');

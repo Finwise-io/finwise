@@ -15,6 +15,7 @@ import {
 import { KeyboardAwareSheet } from './KeyboardAwareSheet';
 import { maskedMoney as money } from './useMoney';
 import { currencySymbol } from '../domain/_shared/money';
+import { assetClassOf } from '../domain/assets';
 
 const num = (s: string) => { const n = parseFloat(String(s).replace(/[^0-9.\-]/g, '')); return Number.isFinite(n) ? n : 0; };
 
@@ -63,6 +64,13 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
   const [dueDate, setDueDate] = useState('');                // due_in_full: the lump's date
   const [startsOn, setStartsOn] = useState('');              // installment: payments START here (deferred loans)
   const [drives, setDrives] = useState<'payment' | 'date'>('payment');   // which field the user entered last
+  // HIS RULE, 2026-10-04 (DEC-1925): "no mortgage without property". A mortgage says which property in
+  // Net worth it is on, and cannot be saved without one. A property that already carries another
+  // mortgage is not offered: one mortgage to a property.
+  const [propertyId, setPropertyId] = useState<string>('');
+  const allDebts = ((store as any).liabilities ?? []) as Debt[];
+  const properties = (((store as any).assetAccounts ?? []) as any[]).filter((a) => assetClassOf(a) === 'real_estate')
+    .filter((a) => !allDebts.some((d) => d.debt_type === 'MORTGAGE' && d !== editing && d.debt_id !== editing?.debt_id && String(d.property_id ?? '') === String(a.asset_id)));
 
   useEffect(() => {
     if (!state.open) return;
@@ -77,6 +85,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     const fp = editing?.first_payment_date?.match(/^(\d{4})-(\d{2})/);
     setStartsOn(fp ? `${fp[2]}/${fp[1]}` : '');
     setDrives('payment');
+    setPropertyId(editing?.property_id != null ? String(editing.property_id) : '');
   }, [state.open]);
 
   const pickKind = (k: DebtType) => { setKind(k); if (!shapeTouched) setShape(defaultPaymentType(k)); };
@@ -110,13 +119,15 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
   const dueIso = parseMonthYear(dueDate);
   const startIso = parseMonthYear(startsOn);
   const monthsToDue = dueIso ? Math.max(0, monthsFromNow(dueIso, now)) : null;
-  const ready = amt > 0 && (shape !== 'due_in_full' || !!dueIso);
+  const onAProperty = kind === 'MORTGAGE' || kind === 'HELOC';
+  const ready = amt > 0 && (shape !== 'due_in_full' || !!dueIso) && (kind !== 'MORTGAGE' || propertyId !== '');
 
   const save = () => {
     if (!ready) return;
     const label = inst.trim() || debtKind(kind)?.label || 'Debt';
     const dd = Math.min(31, Math.max(0, Math.round(num(due)))) || undefined;
-    const base = { label, institution: inst.trim(), debt_type: kind, remaining_balance: amt, interest_rate_apr: aprDec, payment_type: shape };
+    const base = { label, institution: inst.trim(), debt_type: kind, remaining_balance: amt, interest_rate_apr: aprDec, payment_type: shape,
+      property_id: onAProperty && propertyId !== '' ? propertyId : undefined };
     const patch =
       shape === 'due_in_full'
         // a lump has NO monthly payment — it lands as a dated big-ticket in cash flow instead
@@ -151,6 +162,25 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
         ))}
       </View>
       <TextInput style={sh.input} placeholder="Lender / name (e.g. Chase Sapphire)" placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
+      {onAProperty && (
+        <>
+          <Text style={sh.lbl}>Which property is it on?</Text>
+          {properties.length === 0 ? (
+            <Text style={sh.lbl}>{kind === 'MORTGAGE'
+              ? 'A mortgage is always on a property. Add the property in Net worth first, then add its mortgage.'
+              : 'No property in Net worth yet.'}</Text>
+          ) : (
+            <View style={sh.chips}>
+              {properties.map((a) => (
+                <TouchableOpacity key={String(a.asset_id)} style={[sh.chip, propertyId === String(a.asset_id) && sh.chipOn]} accessibilityRole="button"
+                  accessibilityState={{ selected: propertyId === String(a.asset_id) }} accessibilityLabel={`On ${a.label}`} onPress={() => setPropertyId(String(a.asset_id))}>
+                  <Text style={sh.chipTxt}>🏠 {a.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </>
+      )}
       <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
 
       <Text style={sh.lbl}>How is it repaid?</Text>

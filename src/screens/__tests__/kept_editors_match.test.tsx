@@ -53,6 +53,10 @@
  *     "Gain — short-term (held 1 yr or less)". The outside review (2026-10-04) found that "over 1 yr"
  *     and "under 1 yr" leave a holding held exactly one year in neither row; the tax rule puts it in
  *     short-term, and the function always did. Fixed on his instruction the same day to fix its findings.
+ * 15. HIS RULING, 2026-10-04 (DEC-1925): "Properties, mortgages, and debt we should ask user to name … no
+ *     mortgage without property." On Add an account, Real estate, the drawn "Debt balance (optional)" reads
+ *     "Mortgage balance (optional)"; once a balance is typed the form also asks the monthly payment
+ *     (not drawn, and not in this frame, which types none), and the mortgage is written on that property.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -176,7 +180,7 @@ describe('Add an account, by hand v02', () => {
     'phone %#: %s — the questions that kind asks, and no others', (kind, k) => {
       show(AddAccountScreen, { assetAccounts: [] });
       fireEvent.press(screen.getAllByText(kind)[0]);
-      const want = norm(upTo(P[k], /^Save$/));
+      const want = norm(upTo(P[k], /^Save$/)).replace('debt balance (optional)', 'mortgage balance (optional)');   // 15
       expect(want.split(' ').length).toBeGreaterThan(20);
       expect(firstDifference(want, norm(builtLines(screen.toJSON())))).toBe('');
     });

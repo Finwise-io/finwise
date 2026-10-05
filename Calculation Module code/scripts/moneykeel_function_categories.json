@@ -1919,6 +1919,11 @@
   "file": "src/domain/debt/mortgageOdds.ts",
   "category": "2 · DISPLAYED"
  },
+ "mortgagesByProperty": {
+  "id": "MK-NW-F-106",
+  "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "3 · DEPENDENT"
+ },
  "movementsOf": {
   "id": "MK-ST-F-082",
   "file": "Calculation Module code/engines/time-weighted-return.ts",

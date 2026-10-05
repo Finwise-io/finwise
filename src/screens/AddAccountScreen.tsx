@@ -56,6 +56,7 @@ export default function AddAccountScreen() {
   const [earmark, setEarmark] = useState<string>(existing?.retirement_pct != null ? String(existing.retirement_pct) : '');
   const [altType, setAltType] = useState<string>(existing?.kind && ALT_TYPES.some(([k]) => k === existing.kind) ? existing.kind : 'crypto');
   const [owe, setOwe] = useState<string>('');
+  const [owePay, setOwePay] = useState<string>('');   // the mortgage's monthly payment (his rule, 2026-10-04)
   // bond fields
   const [face, setFace] = useState<string>(existing?.face_value != null ? String(existing.face_value) : '');
   const [coupon, setCoupon] = useState<string>(existing?.coupon_rate != null ? String(existing.coupon_rate * 100) : '');
@@ -95,9 +96,14 @@ export default function AddAccountScreen() {
     if (cls === 'cash' && num(rate) > 0) base.target_return = num(rate) / 100;
     if (editMode) store.updateAsset?.(existing.asset_id, base);
     else store.addAsset?.(base);
-    // real estate can carry what-you-owe: one honest mortgage row, not a hidden net
+    // real estate can carry what-you-owe: one honest mortgage row, not a hidden net. HIS RULE,
+    // 2026-10-04 (DEC-1925): the mortgage is ON this property and carries its monthly payment — it
+    // used to be written with no payment at all, so it counted as nothing in every calculation.
     if (cls === 'property' && num(owe) > 0 && !editMode) {
-      store.addLiability?.({ label: `${name.trim()} mortgage`, debt_type: 'MORTGAGE', remaining_balance: num(owe), interest_rate_apr: 0, minimum_monthly_payment: 0 });
+      const added = (useStore.getState() as any).assetAccounts?.[0];   // addAsset puts the new one first
+      store.addLiability?.({ label: `${name.trim()} mortgage`, debt_type: 'MORTGAGE', remaining_balance: num(owe), interest_rate_apr: 0,
+        minimum_monthly_payment: num(owePay), monthly_payment: num(owePay) > 0 ? num(owePay) : undefined,
+        property_id: added && added.label === base.label ? added.asset_id : undefined });
     }
     router.back();
   };
@@ -178,7 +184,8 @@ export default function AddAccountScreen() {
         </>
       )}
 
-      {cls === 'property' && !editMode && field('Debt balance (optional)', owe, setOwe, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
+      {cls === 'property' && !editMode && field('Mortgage balance (optional)', owe, setOwe, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
+      {cls === 'property' && !editMode && num(owe) > 0 && field('Monthly mortgage payment', owePay, setOwePay, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Monthly mortgage payment' })}
       {cls === 'debt' && (
         <>
           {field('Interest rate % *', apr, setApr, { placeholder: '7.0', keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}

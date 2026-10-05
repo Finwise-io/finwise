@@ -53,6 +53,8 @@ export interface TheNetWorth {
    *  converts once, here, rather than leaving four screens to remember which form they were handed. */
   trend: TrendPoint[];
   investableChangePct: number | null;
+  /** Which mortgage is on which property, and which are on none (his rule, 2026-10-04, DEC-1925). */
+  mortgageCheck: MortgageCheck;
 }
 
 /** What am I worth: everything I own, less everything I owe, and how each breaks down?
@@ -175,6 +177,7 @@ export function theNetWorth(input: {
     monthlyDebtMinimum: dState.total_monthly_debt_service,
     monthlyDebtPayments: debtLines.reduce((t, d) => t + d.minimumMonthly, 0),
     trend: trendPoints(input.monthlyHistory, input.dailyNetWorth),
+    mortgageCheck: mortgagesByProperty(accounts, debts),
     // THE RETURN ON CASH + INVESTMENTS IS TIME-WEIGHTED (owner decision, 2026-10-04, DEC-1669: "All
     // return should be True Weighted Return and not Dietz return."). It was a change in balance:
     // today's total ÷ the first total on record, less 1 — so $60,000 paid in read as $60,000 earned
@@ -200,6 +203,104 @@ export function theNetWorth(input: {
         start, end: today,
       }).rate;
     })(),
+  };
+}
+
+export interface MortgageCheck {
+  /** How many properties Net worth holds, and how many mortgages Debts holds. */
+  properties: number;
+  mortgages: number;
+  /** One row for each property: the mortgage on it, or none. */
+  byProperty: { propertyId: string; property: string; mortgageId: string | null; mortgage: string | null; payment: number }[];
+  /** Mortgages that are on no property. Each one is the person's to fix. */
+  unmatched: { id: string; label: string }[];
+  /** True when every mortgage is on a property of its own. */
+  ok: boolean;
+  /** What the screen says when it is not. Empty when it is. */
+  sentence: string;
+}
+
+/** Which mortgage is on which property, and which mortgages are on none. */
+/* ─ MK-NW-F-106 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * mortgagesByProperty
+ *
+ * Answers ..... Which mortgage is on which property, and which mortgages are on none.
+ *
+ * Formula .....
+ *     properties = accounts (or none when missing) where asset class of(each) = 'real_estate'
+ *     mortgages = debts (or none when missing) where string(debt type ?? '').to upper case() = 'MORTGAGE'
+ *     on = new map<string, any>()
+ *     placed = new set<any>()
+ *     place = (d: any, property id: string) => { on.set(property id, d); placed.add(d); }
+ *     id = string(property id)   if property id ≠ nothing
+ *     ''   otherwise
+ *     name = string(label ?? '').trim().to lower case()
+ *     free = properties where !on.has(string(asset id))
+ *     loose = mortgages as any[] where !placed.has(each) and property id = nothing
+ *     unmatched = mortgages as any[] where !placed.has(each)for each of : id = string(debt id)
+ *     label = string(label ?? 'Mortgage')
+ *     d = on.get(string(asset id))
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-NW-O-003 theNetWorth
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-106
+ * Changed ..... 2026-10-04 (dd8557a)
+ */
+export function mortgagesByProperty(accounts: AssetAccount[], debts: Debt[]): MortgageCheck {
+  // HIS RULE, 2026-10-04 (DEC-1925): "App should map properties included in networth against
+  // mortgages. It is feasible to have property without mortgage but no mortgage without property. So
+  // check should be 3 properties in NW - 3 or less mortgage."
+  //
+  // A mortgage is on the property it NAMES. Mortgages stored before that day name none, so each is
+  // placed only where there is one honest answer:
+  //   1. the property whose name its own name begins with — "Lake house mortgage" is the Lake
+  //      house's (that is the name the app itself gives a mortgage typed with a property);
+  //   2. failing that, the one property still without a mortgage, when it is the one mortgage still
+  //      without a property.
+  // Anything else is not guessed: the mortgage is listed as on no property, for the person to fix.
+  // One mortgage to a property: a second one naming the same property is listed the same way.
+  const properties = (accounts ?? []).filter((a) => assetClassOf(a) === 'real_estate');
+  const mortgages = (debts ?? []).filter((d: any) => String(d?.debt_type ?? '').toUpperCase() === 'MORTGAGE');
+  const on = new Map<string, any>();                    // property id → its mortgage
+  const placed = new Set<any>();
+  const place = (d: any, propertyId: string) => { on.set(propertyId, d); placed.add(d); };
+  for (const d of mortgages as any[]) {
+    const id = d.property_id != null ? String(d.property_id) : '';
+    if (id && properties.some((a) => String(a.asset_id) === id) && !on.has(id)) place(d, id);
+  }
+  for (const d of mortgages as any[]) {
+    if (placed.has(d) || d.property_id != null) continue;
+    const name = String(d.label ?? '').trim().toLowerCase();
+    const mine = properties.filter((a) => !on.has(String(a.asset_id)) && String(a.label ?? '').trim() !== ''
+      && name.startsWith(String(a.label).trim().toLowerCase()));
+    if (mine.length === 1) place(d, String(mine[0].asset_id));
+  }
+  const free = properties.filter((a) => !on.has(String(a.asset_id)));
+  const loose = (mortgages as any[]).filter((d) => !placed.has(d) && d.property_id == null);
+  if (free.length === 1 && loose.length === 1) place(loose[0], String(free[0].asset_id));
+
+  const unmatched = (mortgages as any[]).filter((d) => !placed.has(d)).map((d) => ({ id: String(d.debt_id), label: String(d.label ?? 'Mortgage') }));
+  const sentence = unmatched.length === 0 ? ''
+    : unmatched.length === 1
+      ? `${unmatched[0].label} is not on a property. A mortgage is always on a property — open it and say which one.`
+      : `${unmatched.length} mortgages are not on a property. A mortgage is always on a property — open each and say which one.`;
+  return {
+    properties: properties.length,
+    mortgages: mortgages.length,
+    byProperty: properties.map((a) => {
+      const d = on.get(String(a.asset_id));
+      return { propertyId: String(a.asset_id), property: String(a.label ?? ''), mortgageId: d ? String(d.debt_id) : null, mortgage: d ? String(d.label ?? '') : null, payment: d ? requiredPayment(d) : 0 };
+    }),
+    unmatched,
+    ok: unmatched.length === 0,
+    sentence,
   };
 }
 
