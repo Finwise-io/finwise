@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -466,13 +465,12 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
   "name": "bondSummary",
   "kind": "function",
   "what_it_is_for": "Adds up every bond and CD held: how many there are, what they are worth, their face value, the interest they pay in a year, their average yield and the next one to mature.",
-  "formula_in_words": "Count = how many bonds. Total value and total face value = each added up. Interest in a year = face × rate, added up. Average yield is over the bonds that have a value today only: their interest in a year ÷ their value today less accrued interest where that is known; nothing when no bond has a value. A bond with no value today is left out of both. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next.",
+  "formula_in_words": "Count = how many bonds. Total value and total face value = each added up. Interest in a year = face × rate, added up. Average yield = that interest ÷ total value; nothing when the total value is zero. Next maturity = the earliest maturity date that has not passed.",
   "handed": "export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSummary",
   "inputs_it_reads": [
    "MK-XS-I-011 bond face value",
    "MK-XS-I-013 bond maturity date",
-   "MK-XS-I-049 bond price — what the bond is worth today",
-   "MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon"
+   "MK-XS-I-049 bond price — what the bond is worth today"
   ]
  },
  {
@@ -501,7 +499,7 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
   "name": "bondRateSensitivity",
   "kind": "function",
   "what_it_is_for": "What happens to this bond if interest rates move?",
-  "formula_in_words": "Nothing when the yield to maturity is unknown, or the face value or rate is zero or less. For rates one percentage point UP and one DOWN: the new price is priceAtYield at the yield to maturity plus or minus one point (never below 0.01%). It gives a range from 1% under to 1% over that price, and the change against today's value, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
+  "formula_in_words": "Nothing when the yield to maturity is unknown, or the face value or rate is zero or less. For rates one percentage point UP and one DOWN: the new price is priceAtYield at the yield to maturity plus or minus one point (never below 0.01%). It gives a range from 1% under to 1% over that price, and the change against today's value, each rounded to the nearest $1,000.",
   "handed": "export function bondRateSensitivity(b: BondInfo, now: Date = new Date()): RateSensitivity | null",
   "inputs_it_reads": [
    "MK-XS-I-011 bond face value",

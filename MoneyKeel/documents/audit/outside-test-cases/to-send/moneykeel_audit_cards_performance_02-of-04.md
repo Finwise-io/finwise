@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -328,7 +327,6 @@ export interface PriceSeries { ticker: string; points: { date: string; close: nu
   "handed": "export function categoryEarnings(input: {\n  /** every record, unfiltered — this takes the window’s own */\n  transactions: any[];\n  /** the window’s first day, or null for \"since the record began\" */\n  windowStart: string | null;\n  /** each holding with its class and its own return, as buildPerformance produces them */\n  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; marketValue?: number }[];\n  /** Every bond or CD held as its own account: what it is worth and the yearly rate it states. */\n  bonds?: { balance?: number; coupon_rate?: number }[];\n  /** DAY ONE: every category is shown at $0 — \"every line fills in as days pass, the structure never\n   *  changes\" (Performance v17, phones 4 and 5). Any other day, a category that received nothing is\n   *  left out. */\n  dayOne?: boolean;\n}): CategoryEarned[]",
   "inputs_it_reads": [
    "MK-XS-I-001 account balance",
-   "MK-XS-I-005 holding price",
    "MK-XS-I-008 transaction amount",
    "MK-XS-I-012 bond coupon rate",
    "MK-XS-I-024 logged expenses",
@@ -397,12 +395,11 @@ export interface PriceSeries { ticker: string; points: { date: string; close: nu
   "name": "avgCost",
   "kind": "function",
   "what_it_is_for": "The average price paid per share of a holding: its total cost divided by the shares held, or zero when no shares are held.",
-  "formula_in_words": "Cost (costBasis) ÷ (shares held × the contract multiplier); 0 when no shares are held. The cost carries an option's multiplier, so it is taken back out: the answer is per share, the unit a price is quoted in.",
+  "formula_in_words": "Cost (costBasis) ÷ shares held; 0 when no shares are held. For an option the cost already includes the contract multiplier.",
   "handed": "export function avgCost(p: Position): number",
   "inputs_it_reads": [
    "MK-XS-I-004 holding quantity (shares)",
-   "MK-XS-I-007 purchase price and date (per lot)",
-   "MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise"
+   "MK-XS-I-007 purchase price and date (per lot)"
   ],
   "figures_it_feeds": [
    {
@@ -520,7 +517,7 @@ export interface PriceSeries { ticker: string; points: { date: string; close: nu
   "id": "MK-PF-F-010",
   "name": "periodReturn",
   "what_it_is_for": "Price return of a ticker over a period (decimal).",
-  "formula_in_words": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate. When the prices reach back two years: (end ÷ start) to the power one half, − 1. When they do not: the yearly rate over the span the prices do cover — (end ÷ start) to the power 1 ÷ years, − 1, where years = the days from the first price to the last ÷ 365.25 — and only when that span is more than one year; a span of a year or less keeps its own total. Nothing when there are no prices or the start close is zero or less."
+  "formula_in_words": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate: (end ÷ start) to the power one half, − 1. Nothing when there are no prices or the start close is zero or less."
  }
 ]
 ```

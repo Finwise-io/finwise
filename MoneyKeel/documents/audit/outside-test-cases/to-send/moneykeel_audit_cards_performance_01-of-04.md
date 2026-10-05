@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -265,27 +264,6 @@ in `notes` saying why.
 
 2 cards, so 2 formula checks and 10 cases. Put `"batch": "performance 01"` in your reply.
 
-## The published 2026 amounts the app uses
-
-Read from the app. **Check each against its published source and say so in `formula_checks` when one is wrong.**
-
-**Federal income tax, 2026 — each slice of taxable income at its own rate.** Taxable income = income − the deduction.
-
-| Filing status | Standard deduction | Added for each person 65 or over | Bands: up to … at … |
-|---|---|---|---|
-| Single | $16,100 | $2,050 | $12,400 at 10% · $50,400 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $640,600 at 35% · above that at 37% |
-| Married filing jointly | $32,200 | $1,650 | $24,800 at 10% · $100,800 at 12% · $211,400 at 22% · $403,550 at 24% · $512,450 at 32% · $768,700 at 35% · above that at 37% |
-| Married filing separately | $16,100 | $1,650 | $12,400 at 10% · $50,400 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $384,350 at 35% · above that at 37% |
-| Head of household | $24,150 | $2,050 | $17,700 at 10% · $67,450 at 12% · $105,700 at 22% · $201,775 at 24% · $256,225 at 32% · $640,600 at 35% · above that at 37% |
-
-**Senior deduction, tax years 2025 to 2028:** $6,000 for each person 65 or over, less 6% of income above $75,000 (single, head of household) or $150,000 (married filing jointly). Not given when married filing separately.
-
-**Long-term capital gains, 2026** — 0% up to the first amount of taxable income, 15% up to the second, 20% above: Single $49,450 and $545,500 · Married filing jointly $98,900 and $613,700 · Married filing separately $49,450 and $306,850 · Head of household $66,200 and $579,600.
-
-**Contribution limits, 2026:** 401(k) $24,500, plus $8,000 at 50 or over, or plus $11,250 instead at ages 60 to 63. IRA $7,500, plus $1,100 at 50 or over. HSA $4,400 self-only or $8,750 family, plus $1,000 at 55 or over.
-
-**Social Security and Medicare, 2026:** 6.2% of wages up to $184,500; 1.45% of all wages; 0.9% more on wages above $200,000.
-
 ## The app's own types these cards name
 
 What each is made of. The comments inside are the in-house author's.
@@ -312,6 +290,12 @@ export interface WindowFigures {
   years: number;
   /** Why a refusal, in words. Empty when nothing is refused. */
   sentence: string;
+  /** THE EXACT RATE PER YEAR, and ONLY where the window return refused (his ruling on Q52, 2026-09-30:
+   *  "use option B"). It is the rate that makes this window's own beginning and its own dated flows
+   *  grow into the ending — the window's rate, never the whole record's, because the label above it
+   *  names the window. Null where the window return answered (one return is visible at a time), and
+   *  null where even this refuses: under 30 days there is not enough window to state a yearly rate. */
+  refusedRate: number | null;
 }
 ```
 
@@ -385,9 +369,10 @@ export interface WindowFigures {
   "name": "thePerformance",
   "kind": "orchestrator",
   "what_it_is_for": "How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return?",
-  "formula_in_words": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and the first recorded value of an account that joined the record inside the period (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Today's value is read from the accounts as they stand; with no accounts handed in, the ending handed in closes the record. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out and the record does not say which way or what they were worth; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
-  "handed": "export function thePerformance(input: {\n  /** The window's first day, or null for \"since the record began\". */\n  windowStart: string | null;\n  /** The words for that window, as the screen says them (\"since Jul 19\"). */\n  windowLabel: string;\n  today: string;\n  /** What the investments are worth now. */\n  ending: number;\n  /** Every record, unfiltered — the door takes the window's own. */\n  transactions: any[];\n  /** The daily record, and which accounts count as investments. */\n  snapshotDays: any[];\n  investmentAccountIds: Set<string>;\n  /** What the priced holdings gained over the window — used ONLY to derive a beginning the record\n   *  cannot reach. It never becomes the return. */\n  pricedGain: number;\n  /** True for \"Since\" — the whole record. Its return is the window's OWN total and is never turned\n   *  into a yearly rate (Performance v17, phone 3: \"Since Jun 3, 2024 +16.24% … not a yearly rate\").\n   *  A fixed window longer than a year (2Y) still shows the yearly rate. */\n  wholeRecord?: boolean;\n  /** The accounts as they stand now. Today's values are read from them, so the last day of the\n   *  return is measured the same way every recorded day was — and an account added today is seen\n   *  as arriving today, not as a gain. */\n  accounts?: any[];\n}): WindowFigures",
+  "formula_in_words": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Return = (ending − beginning − net money added) ÷ (beginning + each amount added or taken out × the share of the period it was there), the share being (days in the period − days since it opened) ÷ days in the period, both end days counted. It REFUSES — no percent, a sentence instead — when that divisor is zero or less, or when the answer with all the money moved on the first day and the answer with all of it moved on the last day differ by more than the smaller of 1 percentage point and 20% of the rate. Money that moved with no date on it: when it nets to more than 1% of the beginning value it refuses; otherwise every movement is counted as there for half the period. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1. Where it refused, the stand-in is the yearly rate from rateWhereItRefuses.",
+  "handed": "export function thePerformance(input: {\n  /** The window's first day, or null for \"since the record began\". */\n  windowStart: string | null;\n  /** The words for that window, as the screen says them (\"since Jul 19\"). */\n  windowLabel: string;\n  today: string;\n  /** What the investments are worth now. */\n  ending: number;\n  /** Every record, unfiltered — the door takes the window's own. */\n  transactions: any[];\n  /** The daily record, and which accounts count as investments. */\n  snapshotDays: any[];\n  investmentAccountIds: Set<string>;\n  /** What the priced holdings gained over the window — used ONLY to derive a beginning the record\n   *  cannot reach. It never becomes the return. */\n  pricedGain: number;\n  /** True for \"Since\" — the whole record. Its return is the window's OWN total and is never turned\n   *  into a yearly rate (Performance v17, phone 3: \"Since Jun 3, 2024 +16.24% … not a yearly rate\").\n   *  A fixed window longer than a year (2Y) still shows the yearly rate. */\n  wholeRecord?: boolean;\n}): WindowFigures",
   "inputs_it_reads": [
+   "MK-XS-I-008 transaction amount",
    "MK-XS-I-009 transaction date",
    "MK-XS-I-024 logged expenses"
   ],
@@ -509,8 +494,8 @@ export interface WindowFigures {
     "id": "MK-PF-M-016",
     "words_on_screen": "Return",
     "unit": "percent-signed",
-    "what_it_answers": "How much this one account grew over the window you picked, with money you added or took out left out. Shown per year when the window is longer than a year.",
-    "when_it_refuses": "No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.",
+    "what_it_answers": "What this one account returned over the window you picked — wealth generated ÷ the money that was working in it, counting when money moved in or out. Shown per year when the window is longer than a year.",
+    "when_it_refuses": "Money moved in and out in amounts where WHEN it moved would decide a window return, so none is shown; the rate per year stands in its place.",
     "shown_on": [
      "/account-detail",
      "/invest"
@@ -520,8 +505,8 @@ export interface WindowFigures {
     "id": "MK-PF-M-017",
     "words_on_screen": "Return",
     "unit": "percent-signed",
-    "what_it_answers": "How much all your investments grew over the window you picked, with money you added or took out left out. Per year when the window is longer than a year.",
-    "when_it_refuses": "No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.",
+    "what_it_answers": "What all your investments returned over the window you picked — wealth generated ÷ the money that was working, counting when money moved in or out. Per year when the window is longer than a year.",
+    "when_it_refuses": "Money moved in and out in amounts where WHEN it moved would decide a window return, so none is shown; the rate per year stands in its place.",
     "shown_on": [
      "/invest"
     ]
@@ -561,7 +546,7 @@ export interface WindowFigures {
     "words_on_screen": "▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN",
     "unit": "percent-2dp",
     "what_it_answers": "What your investments earned over the window you picked — dividends and interest included.",
-    "when_it_refuses": "Nothing is shown, and the walk beneath says in words why — either the record cannot reach the beginning, or money moved on a day with no recorded value.",
+    "when_it_refuses": "Nothing is shown, and the walk beneath says in words why — either the record cannot reach the beginning, or money moved in amounts that would decide the percentage.",
     "shown_on": [
      "/invest",
      "/home"
@@ -826,12 +811,7 @@ export interface WindowFigures {
    {
     "said_by": "author",
     "about": "MK-PF-M-016",
-    "words": "EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): \"All return should be True Weighted Return and not Dietz return.\""
-   },
-   {
-    "said_by": "author",
-    "about": "MK-PF-M-016",
-    "words": "WHERE IT CANNOT BE MEASURED IT SHOWS NO PERCENT, and never another method in its place."
+    "words": "WHEN MONEY MOVED WOULD DECIDE THE FIGURE, IT REFUSES (Q52): the screen shows — and the exact rate per year stands in its place, with a sentence saying why."
    },
    {
     "said_by": "author",
@@ -846,12 +826,7 @@ export interface WindowFigures {
    {
     "said_by": "author",
     "about": "MK-PF-M-017",
-    "words": "EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669). Where it cannot be measured it shows no percent, and never another method in its place."
-   },
-   {
-    "said_by": "author",
-    "about": "MK-PF-M-017",
-    "words": "AN ACCOUNT THAT JOINS THE RECORD inside the window counts as money in, at its first recorded value — nothing it was already worth is earned."
+    "words": "WHEN MONEY MOVED WOULD DECIDE THE FIGURE, IT REFUSES (Q52) and the exact rate per year stands in its place (mark 16, v17)."
    },
    {
     "said_by": "author",
@@ -886,7 +861,7 @@ export interface WindowFigures {
    {
     "said_by": "author",
     "about": "MK-XS-M-004",
-    "words": "IT IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): \"All return should be True Weighted Return and not Dietz return.\" Where a piece cannot be measured it shows nothing, and never another method."
+    "words": "IT REFUSES WHEN TIMING WOULD DRIVE IT: where money moved in or out in amounts large enough that WHEN it moved decides the percentage, the screen shows the dollar walk instead."
    },
    {
     "said_by": "author",
@@ -910,10 +885,16 @@ export interface WindowFigures {
 
 ## Formulas these cards lean on
 
-2 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+6 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
+ {
+  "id": "MK-NW-F-102",
+  "name": "rateWhereItRefuses",
+  "what_it_is_for": "THE EXACT RATE PER YEAR, FOR ONE WINDOW — what stands in where the window return refuses.",
+  "formula_in_words": "Nothing when the beginning value is zero or less. Treats the beginning value as money put in on the day it is read for, adds each deposit and withdrawal of the period on its own date, and solves for the yearly rate at which those grow into the ending value (moneyWeightedReturn). Nothing when no rate can be found or the span is under 30 days."
+ },
  {
   "id": "MK-PF-F-022",
   "name": "factorOverMonths",
@@ -924,7 +905,25 @@ export interface WindowFigures {
   "id": "MK-PF-F-023",
   "name": "lookBack",
   "what_it_is_for": "What if I had moved this money?",
-  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1) × 100, at full precision. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value."
+  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1), as a percent to one decimal. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value."
+ },
+ {
+  "id": "MK-PF-F-025",
+  "name": "historyIsComplete",
+  "what_it_is_for": "True iff every measured account's story begins IN the ledger (openable honestly).",
+  "formula_in_words": "True only when every named account has at least one record and its earliest record is opening cash, an opening position or a deposit."
+ },
+ {
+  "id": "MK-PF-F-026",
+  "name": "moneyWeightedReturn",
+  "what_it_is_for": "XIRR via bisection — deterministic, no derivative games.",
+  "formula_in_words": "No answer, reason no history, unless the history is complete (historyIsComplete) and there is at least one amount of money put in. Reason too short when fewer than 30 days have passed since the first movement. Otherwise it solves, by halving the range between −95% and +1,000% a year up to 100 times, for the yearly rate at which the dated movements and the current value net to zero (npv). Reason no solution when no rate in that range does."
+ },
+ {
+  "id": "MK-PF-F-030",
+  "name": "npv",
+  "what_it_is_for": "The value today of a set of dated money movements plus an ending value, at a given yearly rate; the money-weighted return is the rate that makes this come to zero.",
+  "formula_in_words": "Each money movement ÷ (1 + rate) to the power of (days since the first movement ÷ 365), added up, plus the ending value divided the same way for the end date."
  }
 ]
 ```

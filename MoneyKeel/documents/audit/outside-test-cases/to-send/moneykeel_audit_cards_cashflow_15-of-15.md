@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -261,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 16"
+# The cards — batch "cashflow 15"
 
-6 cards, so 6 formula checks and 30 cases. Put `"batch": "cashflow 16"` in your reply.
+6 cards, so 6 formula checks and 30 cases. Put `"batch": "cashflow 15"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -333,7 +332,7 @@ Read from the app. **Check each against its published source and say so in `form
   "name": "asPercent",
   "kind": "function",
   "what_it_is_for": "A rate as the person would say it: 3.8%, not 0.038.",
-  "formula_in_words": "A rate × 100, to two decimals at most, followed by a percent sign.",
+  "formula_in_words": "A rate × 100, followed by a percent sign.",
   "handed": "const asPercent = (r: number)"
  },
  {

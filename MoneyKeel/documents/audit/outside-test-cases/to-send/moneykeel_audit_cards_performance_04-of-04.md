@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -263,19 +262,20 @@ in `notes` saying why.
 
 # The cards — batch "performance 04"
 
-6 cards, so 6 formula checks and 30 cases. Put `"batch": "performance 04"` in your reply.
+10 cards, so 10 formula checks and 50 cases. Put `"batch": "performance 04"` in your reply.
 
 ## The app's own types these cards name
 
 What each is made of. The comments inside are the in-house author's.
 
 ```ts
-export interface LookBackResult {
-  stayed: LookBackLeg;      // left where it was
-  moved: LookBackLeg;       // moved to the other holding
-  difference: number;       // moved.endValue − stayed.endValue (signed: negative = the move would have LOST)
-  months: number;
+export interface MoneyWeighted {
+  ratePerYear: number;          // decimal, e.g. 0.072 = +7.2%/year
+  flows: number;                // how many dated user flows it stands on
+  sinceDays: number;
 }
+
+export interface MoneyWeightedMiss { reason: 'no_history' | 'too_short' | 'no_solution' }
 
 export interface Position {
   position_id: EntityId;
@@ -308,12 +308,48 @@ export interface RealizedResult {
 ```json
 [
  {
-  "id": "MK-PF-F-023",
-  "name": "lookBack",
+  "id": "MK-PF-F-024",
+  "name": "userFlows",
   "kind": "function",
-  "what_it_is_for": "What if I had moved this money?",
-  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1) × 100, at full precision. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value.",
-  "handed": "export function lookBack(amount: number, fromSeries: PriceSeries | null | undefined, toSeries: PriceSeries | null | undefined, months: number, now: Date = new Date()): LookBackResult | null"
+  "what_it_is_for": "The user's dated flows for a measured set of accounts, investor-sign convention: money the user PUT IN is negative, money TAKEN OUT is positive.",
+  "formula_in_words": "The money the person put into or took out of the named accounts, each with its date. Opening cash, opening positions (shares × price) and deposits count as money in, written as negative; withdrawals as money out, positive. A transfer counts only when the other side is outside the named accounts: out when it leaves, in when it arrives. Amounts under half a cent are dropped. Sorted by date.",
+  "handed": "export function userFlows(transactions: Transaction[], accountIds: Set<string>): { date: number; amount: number }[]",
+  "inputs_it_reads": [
+   "MK-XS-I-004 holding quantity (shares)",
+   "MK-XS-I-008 transaction amount",
+   "MK-XS-I-009 transaction date",
+   "MK-XS-I-024 logged expenses"
+  ]
+ },
+ {
+  "id": "MK-PF-F-025",
+  "name": "historyIsComplete",
+  "kind": "function",
+  "what_it_is_for": "True iff every measured account's story begins IN the ledger (openable honestly).",
+  "formula_in_words": "True only when every named account has at least one record and its earliest record is opening cash, an opening position or a deposit.",
+  "handed": "export function historyIsComplete(transactions: Transaction[], accounts: AssetAccount[], accountIds: Set<string>): boolean",
+  "inputs_it_reads": [
+   "MK-XS-I-024 logged expenses"
+  ]
+ },
+ {
+  "id": "MK-PF-F-026",
+  "name": "moneyWeightedReturn",
+  "kind": "function",
+  "what_it_is_for": "XIRR via bisection — deterministic, no derivative games.",
+  "formula_in_words": "No answer, reason no history, unless the history is complete (historyIsComplete) and there is at least one amount of money put in. Reason too short when fewer than 30 days have passed since the first movement. Otherwise it solves, by halving the range between −95% and +1,000% a year up to 100 times, for the yearly rate at which the dated movements and the current value net to zero (npv). Reason no solution when no rate in that range does.",
+  "handed": "export function moneyWeightedReturn(\n  transactions: Transaction[],\n  accounts: AssetAccount[],\n  accountIds: Set<string>,\n  currentValue: number,\n  now: number = Date.now(),\n): MoneyWeighted | MoneyWeightedMiss",
+  "inputs_it_reads": [
+   "MK-XS-I-024 logged expenses"
+  ]
+ },
+ {
+  "id": "MK-PF-F-027",
+  "name": "isMoneyWeighted",
+  "kind": "function",
+  "what_it_is_for": "Did the personal return produce a number, or a reason it could not?",
+  "formula_in_words": "True when the answer from moneyWeightedReturn carries a rate; false when it carries a reason instead.",
+  "handed": "export function isMoneyWeighted(r: MoneyWeighted | MoneyWeightedMiss): r is MoneyWeighted"
  },
  {
   "id": "MK-PF-F-028",
@@ -338,6 +374,14 @@ export interface RealizedResult {
   "inputs_it_reads": [
    "MK-XS-I-005 holding price"
   ]
+ },
+ {
+  "id": "MK-PF-F-030",
+  "name": "npv",
+  "kind": "function",
+  "what_it_is_for": "The value today of a set of dated money movements plus an ending value, at a given yearly rate; the money-weighted return is the rate that makes this come to zero.",
+  "formula_in_words": "Each money movement ÷ (1 + rate) to the power of (days since the first movement ÷ 365), added up, plus the ending value divided the same way for the end date.",
+  "handed": "function npv(rate: number, flows: { date: number; amount: number }[], endValue: number, endDate: number, t0: number): number"
  },
  {
   "id": "MK-PF-F-031",
@@ -375,21 +419,6 @@ export interface RealizedResult {
   "inputs_it_reads": [
    "MK-XS-I-005 holding price"
   ]
- }
-]
-```
-
-## Formulas these cards lean on
-
-1 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
-
-```json
-[
- {
-  "id": "MK-PF-F-022",
-  "name": "factorOverMonths",
-  "what_it_is_for": "Price factor over the trailing window: last close ÷ the close at (now − months).",
-  "formula_in_words": "Nothing with fewer than two prices. Cut-off = today moved back the given number of months. Nothing when the first price on record is later than the cut-off — the record does not reach back that far. Start = the last price on or before the cut-off. Factor = latest close ÷ start close; nothing when the start close is zero or less."
  }
 ]
 ```

@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -274,6 +273,13 @@ export interface AllocSlice { key: string; value: number; pct: number; }
 
 export interface CapGains { longGain: number; shortGain: number; totalGain: number; }
 
+export interface LookBackResult {
+  stayed: LookBackLeg;      // left where it was
+  moved: LookBackLeg;       // moved to the other holding
+  difference: number;       // moved.endValue − stayed.endValue (signed: negative = the move would have LOST)
+  months: number;
+}
+
 export interface PerformanceRow {
   position: Position;
   price: number | null;
@@ -327,20 +333,17 @@ export interface TrendPoint { date: string; value: number; bench: number; }
   ]
  },
  {
-  "id": "MK-NW-F-104",
-  "name": "closedWith",
+  "id": "MK-NW-F-102",
+  "name": "rateWhereItRefuses",
   "kind": "function",
-  "what_it_is_for": "The daily record with today added to it, worth what the caller says the measured accounts are worth now.",
-  "formula_in_words": "The daily record with today added: one row per account that the latest earlier recorded day holds (of the accounts named), carrying between them the ending value handed in. The record is returned unchanged when there is no earlier day or it holds none of those accounts. It adds no arithmetic: it lets a return be measured to today when the caller gave an ending value and no accounts.",
-  "handed": "function closedWith(days: any[], ids: Set<string>, today: string, ending: number): any[]"
- },
- {
-  "id": "MK-NW-F-105",
-  "name": "whyNoReturn",
-  "kind": "function",
-  "what_it_is_for": "WHY A RETURN CANNOT BE MEASURED, in words a person reads.",
-  "formula_in_words": "The sentence shown where a time-weighted return cannot be measured; empty when it was measured. Money moved on a day with no recorded value: names the day and says a return cannot be measured across it. A movement with no date: says so. Shares moved in or out: names the day and says the records do not say what they were worth. The value recorded on a day is less than the money added that day: names the day. Nothing invested over the period: says there is no return to state. Today's value not on record: says so. A beginning that cannot be read has no sentence here — the period is shown as not covered instead.",
-  "handed": "export function whyNoReturn(v: TimeWeightedVerdict | null): string"
+  "what_it_is_for": "THE EXACT RATE PER YEAR, FOR ONE WINDOW — what stands in where the window return refuses.",
+  "formula_in_words": "Nothing when the beginning value is zero or less. Treats the beginning value as money put in on the day it is read for, adds each deposit and withdrawal of the period on its own date, and solves for the yearly rate at which those grow into the ending value (moneyWeightedReturn). Nothing when no rate can be found or the span is under 30 days.",
+  "handed": "export function rateWhereItRefuses(input: {\n  beginning: number;\n  /** The window's own records, already filtered to it. */\n  windowLedger: any[];\n  ending: number;\n  /** The day the beginning is read at — the day before the window opens. */\n  beginningAsOf: string;\n  today: string;\n}): number | null",
+  "inputs_it_reads": [
+   "MK-XS-I-008 transaction amount",
+   "MK-XS-I-009 transaction date",
+   "MK-XS-I-024 logged expenses"
+  ]
  },
  {
   "id": "MK-PF-F-004",
@@ -370,12 +373,11 @@ export interface TrendPoint { date: string; value: number; bench: number; }
   "name": "capGains",
   "kind": "function",
   "what_it_is_for": "If I sold this today, how much of the gain is long-term and how much short-term?",
-  "formula_in_words": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share) × the contract multiplier (100 for an option unless the holding states its own, otherwise 1). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise; a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum.",
+  "formula_in_words": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise; a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum. The contract multiplier is not applied here.",
   "handed": "export function capGains(p: Position, price: number | null | undefined, now: Date = new Date()): CapGains",
   "inputs_it_reads": [
    "MK-XS-I-004 holding quantity (shares)",
-   "MK-XS-I-007 purchase price and date (per lot)",
-   "MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise"
+   "MK-XS-I-007 purchase price and date (per lot)"
   ]
  },
  {
@@ -394,7 +396,7 @@ export interface TrendPoint { date: string; value: number; bench: number; }
   "name": "periodReturn",
   "kind": "function",
   "what_it_is_for": "Price return of a ticker over a period (decimal).",
-  "formula_in_words": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate. When the prices reach back two years: (end ÷ start) to the power one half, − 1. When they do not: the yearly rate over the span the prices do cover — (end ÷ start) to the power 1 ÷ years, − 1, where years = the days from the first price to the last ÷ 365.25 — and only when that span is more than one year; a span of a year or less keeps its own total. Nothing when there are no prices or the start close is zero or less.",
+  "formula_in_words": "End = the latest close. Start = the last close on or before the period's start date — or, when every price on record is later than that date, the FIRST close on record. Return = end ÷ start − 1. For 2Y it is given as a yearly rate: (end ÷ start) to the power one half, − 1. Nothing when there are no prices or the start close is zero or less.",
   "handed": "export function periodReturn(series: PriceSeries | null | undefined, period: Period, now = new Date()): number | null",
   "inputs_it_reads": [
    "MK-XS-I-005 holding price"
@@ -469,16 +471,42 @@ export interface TrendPoint { date: string; value: number; bench: number; }
   "inputs_it_reads": [
    "MK-XS-I-005 holding price"
   ]
+ },
+ {
+  "id": "MK-PF-F-023",
+  "name": "lookBack",
+  "kind": "function",
+  "what_it_is_for": "What if I had moved this money?",
+  "formula_in_words": "Nothing unless the amount is above zero and both funds have a factor (factorOverMonths). Stayed: end value = amount × the factor of the fund it was in; change = end value − amount; percent = (factor − 1), as a percent to one decimal. Moved: the same with the other fund's factor. Difference = moved end value − stayed end value.",
+  "handed": "export function lookBack(amount: number, fromSeries: PriceSeries | null | undefined, toSeries: PriceSeries | null | undefined, months: number, now: Date = new Date()): LookBackResult | null"
  }
 ]
 ```
 
 ## Formulas these cards lean on
 
-1 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+4 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
+ {
+  "id": "MK-PF-F-025",
+  "name": "historyIsComplete",
+  "what_it_is_for": "True iff every measured account's story begins IN the ledger (openable honestly).",
+  "formula_in_words": "True only when every named account has at least one record and its earliest record is opening cash, an opening position or a deposit."
+ },
+ {
+  "id": "MK-PF-F-026",
+  "name": "moneyWeightedReturn",
+  "what_it_is_for": "XIRR via bisection — deterministic, no derivative games.",
+  "formula_in_words": "No answer, reason no history, unless the history is complete (historyIsComplete) and there is at least one amount of money put in. Reason too short when fewer than 30 days have passed since the first movement. Otherwise it solves, by halving the range between −95% and +1,000% a year up to 100 times, for the yearly rate at which the dated movements and the current value net to zero (npv). Reason no solution when no rate in that range does."
+ },
+ {
+  "id": "MK-PF-F-030",
+  "name": "npv",
+  "what_it_is_for": "The value today of a set of dated money movements plus an ending value, at a given yearly rate; the money-weighted return is the rate that makes this come to zero.",
+  "formula_in_words": "Each money movement ÷ (1 + rate) to the power of (days since the first movement ÷ 365), added up, plus the ending value divided the same way for the end date."
+ },
  {
   "id": "MK-PF-F-032",
   "name": "quantityUnit",

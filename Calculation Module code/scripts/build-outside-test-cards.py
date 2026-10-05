@@ -650,10 +650,35 @@ def main():
         json.dump(rules_file, open(RULES, 'w', encoding='utf8'), indent=1, ensure_ascii=False)
         print(f'supplement written: to-send/{name} — {len(moved)} cards')
         return
-    if '--check' in sys.argv:
-        print(f'checked, nothing written: {len(testable)} of {len(testable)} cards carry a formula read from the function as it stands · '
+    # THE PACK AS SENT IS NEVER REWRITTEN IN PASSING — and until 2026-10-04 `--reread` did exactly that:
+    # it re-stamped the functions it was given and then fell through to the full write below, which
+    # empties to-send/ and prints the whole pack again. Three runs that day replaced all 26 files he
+    # had been sending from and deleted two supplements. `--reread` now stops here, like `--check`.
+    # And every run compares the pack on disk with the pack as it went out, and stops if they differ.
+    sent_commit = rules_file.get('pack_sent', {}).get('commit')
+    if sent_commit and '--rewrite-the-pack' not in sys.argv:
+        import subprocess
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        listed = subprocess.run(['git', '-C', root, 'ls-tree', '-r', '--name-only', sent_commit, '--', os.path.relpath(send_dir, root)],
+                                capture_output=True, text=True).stdout.split('\n')
+        pack = [f for f in listed if f.strip()]
+        assert len(pack) >= 25, f'only {len(pack)} pack files found at {sent_commit} — the check has gone blind'
+        changed = []
+        for rel in pack:
+            was = subprocess.run(['git', '-C', root, 'show', f'{sent_commit}:{rel}'], capture_output=True).stdout
+            now_path = os.path.join(root, rel)
+            if not os.path.exists(now_path) or open(now_path, 'rb').read() != was:
+                changed.append(os.path.basename(rel))
+        if changed:
+            sys.exit(f'STOPPED: {len(changed)} of the {len(pack)} files of the pack as sent ({sent_commit}) have been rewritten or removed: '
+                     f'{changed[:6]}. Restore them with: git checkout {sent_commit} -- "{os.path.relpath(send_dir, root)}"')
+        print(f'the pack as sent ({sent_commit}): all {len(pack)} files are as they went out')
+    if '--check' in sys.argv or '--reread' in sys.argv:
+        print(f'checked, the pack not written: {len(testable)} of {len(testable)} cards carry a formula read from the function as it stands · '
               f'{figures_stated} figures stated, each traced to the code or worked by hand')
         return
+    if '--rewrite-the-pack' not in sys.argv:
+        sys.exit('STOPPED: writing the whole pack again replaces every file in to-send/. Say so on purpose with --rewrite-the-pack.')
     os.makedirs(send_dir, exist_ok=True)
     os.makedirs(os.path.join(OUT, 'returned'), exist_ok=True)
     for f in os.listdir(send_dir):

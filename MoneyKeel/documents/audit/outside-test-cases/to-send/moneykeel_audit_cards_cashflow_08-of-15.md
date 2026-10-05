@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -261,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 15"
+# The cards — batch "cashflow 08"
 
-15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 15"` in your reply.
+15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 08"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -291,72 +290,33 @@ Read from the app. **Check each against its published source and say so in `form
 What each is made of. The comments inside are the in-house author's.
 
 ```ts
-export interface BasePayEntry {
-  freq: keyof typeof PAY_PERIODS | string;
-  varies: boolean;
-  grossTypical: any;                          // per period, as typed
-  grossByMonth?: Record<string, any>;         // 'YYYY-MM' → amount, when pay varies
-  monthly401k: any;                           // their own contribution, per month
-  landsTypical?: any;                         // EACH MONTH, whatever the pay frequency — the screen asks "take-home each month" (approved drawing v07, frames 2b and 2c) — OPTIONAL
-  landsByMonth?: Record<string, any>;
-  hoursPerWeek?: any;
-  /** THE BAND IS NOT BASE PAY'S TO WORK OUT. A tax band is set by everything the household is taxed
-   *  on together — both wages, the rent kept, the bonus, the dividends — so it is produced ONCE, by
-   *  MK-CF-F-084 taxable annual feeding MK-CF-F-090 effective rate, and handed in here. Base pay
-   *  reads it. Absent means single, which is what the whole app assumed before the filing-status
-   *  question existed, so leaving it out changes no number. Founder ruling 2026-08-27. */
-  filingStatus?: FilingStatus;
-  over65?: number;
-  /** The HOUSEHOLD rate to estimate with, 0–1 of gross — injected by the orchestrator from the one
-   *  rate in force. Build 54 let each estimated earner run the federal schedule alone, so each was
-   *  granted the FULL joint deduction and the card's own rows disagreed: gross − tax − 401(k)s did
-   *  not equal the lands it printed. One rate, applied per earner, makes the identity exact. */
-  estRate?: number;
+export interface CreditUtil { ratio: number; status: 'good' | 'caution' | 'high'; }
+
+export interface Debt {
+  debt_id: EntityId;
+  label: string;                   // account name, e.g. "Chase Sapphire"
+  institution?: string;
+  debt_type: DebtType;
+  remaining_balance: number;
+  interest_rate_apr: number;       // decimal
+  minimum_monthly_payment: number;
+  monthly_payment?: number;        // what you actually pay each month (≥ minimum); defaults to minimum
+  due_day?: number;                // day of month the payment is due (1–31)
+  first_payment_date?: string;     // 'YYYY-MM-DD' — payments START here (deferred/future-start loans);
+                                   // absent = already paying. Interest accrues from now either way (F2).
+  // #17 / Term #9 / B47 finding 11 — payment shape (drives DTI bucket + how cash flow shows it):
+  payoff_date?: string;            // 'YYYY-MM-DD' final payoff / loan maturity (term loans);
+                                   // for due_in_full this IS the due date of the lump sum
+  payment_frequency?: 'monthly' | 'annual';     // default monthly
+  payment_type?: 'installment' | 'revolving' | 'due_in_full';   // fixed loan payment vs revolving
+                                   // minimum (cards) vs one lump sum on a date; defaults by debt_type
+  origin?: 'onboarding';           // seeded from onboarding answers; re-seeding replaces ONLY these
+                                   // rows (absent = user-created, never touched by seeding/restart)
 }
 
-export interface IncomeSource {
-  /** The words the screen prints, exactly. */
-  label: string;
-  /** The quieter second line — what makes this source what it is. */
-  note: string;
-  /** The amount, and the period it is stated in. Never converted silently. */
-  amount: number;
-  per: 'month' | 'year' | 'as entered';
-  /** Which kind it is, for the row that opens its editor. */
-  kind: 'salary' | 'self-employment' | 'bonus' | 'equity' | 'rental' | 'guaranteed';
-}
+export interface DebtDoc { user_id: UserId; debts: Debt[]; last_updated?: any; }
 
-export interface LoggedExpense { amount: any; category: string; store?: string; date: string;
-                                 /** absent = the person typed it; 'imported' = it came from a card
-                                  *  or a file. The approved mock draws the two apart. */
-                                 origin?: 'imported'; }
-
-export interface Transaction {
-  id: EntityId;
-  date: string;              // 'YYYY-MM-DD' — when it happened (user-set)
-  type: TxnType;
-  account_id: EntityId;
-  counter_account_id?: EntityId;  // for TRANSFER / TRANSFER_IN_KIND
-  ticker?: string;
-  position_id?: EntityId;
-  assetClass?: 'stock_etf' | 'bond' | 'other';
-  kind?: string;             // instrument kind (benchmark mapping) for new positions
-  shares?: number;
-  price?: number;            // per share
-  amount?: number;           // cash amount (deposit/withdraw/transfer/dividend-as-cash/fee)
-  reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
-  direction?: 'IN' | 'OUT';  // TRANSFER_IN_KIND from a broker: which way the shares went. The type
-                             // alone does not say, and without it a return cannot be measured
-                             // across the day (stored since 2026-10-04; older rows carry none).
-  note?: string;
-  source?: 'manual' | 'connected';  // F10: only connected-account rows are ever reviewed for a
-                                    // "worth a look" flag — hand-typed entries are NEVER questioned.
-                                    // Absent = manual (every row recorded before F1 sync exists).
-  created_at: string;        // ISO — when it was entered (audit)
-  undo_prev?: AssetAccount[]; // pre-apply copies of the touched accounts — lets a delete reverse
-                              // this row's balance effect exactly (P0: ledger and balances must
-                              // never drift; rows recorded before this field use inverseOf()).
-}
+export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | 'AUTO' | 'PERSONAL' | 'MEDICAL' | 'OTHER';
 ```
 
 ## The cards
@@ -364,12 +324,109 @@ export interface Transaction {
 ```json
 [
  {
-  "id": "MK-CF-F-196",
-  "name": "perMonthToFill",
+  "id": "MK-CF-F-026",
+  "name": "actualDebtPayment",
   "kind": "function",
-  "what_it_is_for": "What to put in each remaining month to use the room left this year, rounded to $100 for display.",
-  "formula_in_words": "Room left ÷ the months left in the year (monthsLeftInYear), rounded to the nearest $100.",
-  "handed": "export function perMonthToFill(roomLeft: number, now: Date = new Date()): number",
+  "what_it_is_for": "Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account.",
+  "formula_in_words": "The same as totalDebtMonthly: requiredPayment added over the debts.",
+  "handed": "export function actualDebtPayment(debts: Debt[]): number"
+ },
+ {
+  "id": "MK-CF-F-031",
+  "name": "creditUtilization",
+  "kind": "function",
+  "what_it_is_for": "How much of a credit limit is in use, as a share, and whether that is good (30% or less), a caution (up to 50%) or high.",
+  "formula_in_words": "Share = balance ÷ limit (0 when the limit is zero or less). Good at 30% or under; caution above 30% up to 50%; high above 50% — judged before rounding. The share is then rounded to three decimals.",
+  "handed": "export function creditUtilization(balance: number, limit: number): CreditUtil",
+  "inputs_it_reads": [
+   "MK-XS-I-001 account balance"
+  ]
+ },
+ {
+  "id": "MK-CF-F-037",
+  "name": "inferDebtType",
+  "kind": "function",
+  "what_it_is_for": "The kind of debt, judged from its name: a home-equity credit line, a mortgage, a car loan, a student loan, a credit card, a medical debt, a personal loan or something else.",
+  "formula_in_words": "From the debt's name, capitals ignored, first match wins: heloc or home equity → home-equity line; mortgage or home loan → mortgage; auto, car loan or vehicle → auto; student or tuition → student loan; credit card, visa, mastercard or amex → credit card; medical, hospital or dental → medical; personal → personal; anything else → other.",
+  "handed": "export function inferDebtType(label: string | undefined): DebtType"
+ },
+ {
+  "id": "MK-CF-F-038",
+  "name": "debtsFromOnboarding",
+  "kind": "function",
+  "what_it_is_for": "What debts should exist from the setup answers?",
+  "formula_in_words": "One debt when the balance entered at sign-up is above zero: its name (Debt when blank), its kind from the name (inferDebtType), the balance, yearly rate = the percent entered ÷ 100, and the minimum payment. None otherwise.",
+  "handed": "export function debtsFromOnboarding(uid: UserId, op: Record<string, any> | null): DebtDoc",
+  "inputs_it_reads": [
+   "MK-XS-I-014 debt balance",
+   "MK-XS-I-015 debt interest rate",
+   "MK-XS-I-016 debt minimum payment"
+  ]
+ },
+ {
+  "id": "MK-CF-F-041",
+  "name": "getDebtState",
+  "kind": "function",
+  "what_it_is_for": "Reads a person's saved debts and returns their totals, or nothing when none are saved.",
+  "formula_in_words": "Loads the stored debts and gives buildDebtState of them; nothing when none are stored.",
+  "handed": "export async function getDebtState(uid: UserId)"
+ },
+ {
+  "id": "MK-CF-F-044",
+  "name": "annualNet",
+  "kind": "function",
+  "what_it_is_for": "Annual NET contribution of a source: jobs use gross; rentals net out operating expenses.",
+  "formula_in_words": "The amount each period — for rent, rent less running costs each period — × the periods in a year: weekly 52, every two weeks 26, monthly 12, quarterly 4, yearly 1, one-off 1.",
+  "handed": "export function annualNet(s: IncomeSource): number",
+  "inputs_it_reads": [
+   "MK-XS-I-039 how often each income arrives"
+  ]
+ },
+ {
+  "id": "MK-CF-F-045",
+  "name": "grossAnnualBaseline",
+  "kind": "function",
+  "what_it_is_for": "Gross annual baseline = jobs (gross) + rentals (gross − expenses), all annualized.",
+  "formula_in_words": "annualNet added over every source.",
+  "handed": "export function grossAnnualBaseline(sources: IncomeSource[]): number"
+ },
+ {
+  "id": "MK-CF-F-046",
+  "name": "employerMatchAnnual",
+  "kind": "function",
+  "what_it_is_for": "The employer's 401(k) match for a year, added up across every job.",
+  "formula_in_words": "Each source's employer match each period × its periods in a year, added.",
+  "handed": "export function employerMatchAnnual(sources: IncomeSource[]): number",
+  "inputs_it_reads": [
+   "MK-XS-I-039 how often each income arrives"
+  ]
+ },
+ {
+  "id": "MK-CF-F-048",
+  "name": "effectiveTaxRate",
+  "kind": "function",
+  "what_it_is_for": "The share of gross income that goes to tax: the person's own rate where they gave one, otherwise the calculated federal rate for the way they file.",
+  "formula_in_words": "With the person's own rate switched on: that rate, held between 0 and 1. Otherwise federal income tax on the yearly gross ÷ the yearly gross, by filing status (single when none), with no state tax (effectiveRateOnGrossFor).",
+  "handed": "export function effectiveTaxRate(grossAnnual: number, tax: TaxProfile): number",
+  "inputs_it_reads": [
+   "MK-XS-I-030 tax filing status and age"
+  ]
+ },
+ {
+  "id": "MK-CF-F-052",
+  "name": "getIncomeState",
+  "kind": "function",
+  "what_it_is_for": "The public read-model (spec IncomeState): totals, effective rate, monthly grid.",
+  "formula_in_words": "Loads the stored income and gives buildIncomeState of it; nothing when none is stored.",
+  "handed": "export async function getIncomeState(uid: UserId): Promise<IncomeState | null>"
+ },
+ {
+  "id": "MK-CF-F-055",
+  "name": "annualHsaLimit",
+  "kind": "function",
+  "what_it_is_for": "How much can this person put into a health savings account this year?",
+  "formula_in_words": "0 when enrolled in Medicare. Otherwise, 2026: $4,400 for self-only cover or $8,750 for family cover; + $1,000 at age 55 or over.",
+  "handed": "export function annualHsaLimit(age: number | null, family = false, medicareEnrolled: boolean | null = null): number",
   "figures_it_feeds": [
    {
     "id": "MK-MN-M-003",
@@ -391,27 +448,6 @@ export interface Transaction {
     "shown_on": [
      "/contribution-room"
     ]
-   },
-   {
-    "id": "MK-MN-M-005",
-    "words_on_screen": "about $X for the rest of the year",
-    "unit": "money",
-    "per": "month",
-    "what_it_answers": "What filling the remaining room would cost you each month.",
-    "when_it_refuses": "Nothing left to fill.",
-    "shown_on": [
-     "/contribution-room"
-    ]
-   },
-   {
-    "id": "MK-MN-M-029",
-    "words_on_screen": "each contribution and its amount",
-    "unit": "money",
-    "what_it_answers": "One line per tax-advantaged account, and what has gone into it.",
-    "when_it_refuses": "Nothing entered for that account.",
-    "shown_on": [
-     "/contribution-room"
-    ]
    }
   ],
   "rules": [
@@ -424,173 +460,111 @@ export interface Transaction {
     "said_by": "author",
     "about": "MK-MN-M-004",
     "words": "Capped at the limit: a figure above it would be describing a contribution the law does not permit."
-   },
-   {
-    "said_by": "author",
-    "about": "MK-MN-M-005",
-    "words": "THIS MONTH COUNTS (his ruling G36). Leaving it out told people to save more per month than they need to."
-   },
-   {
-    "said_by": "author",
-    "about": "MK-MN-M-029",
-    "words": "Enrolled in Medicare means NO HSA contribution is allowed at all — not a smaller one (his ruling G10, 2026-09-08)."
    }
   ]
  },
  {
-  "id": "MK-CF-F-198",
-  "name": "payrollTaxWithheld",
+  "id": "MK-CF-F-059",
+  "name": "annualizedEnteredSalary",
   "kind": "function",
-  "what_it_is_for": "Social Security and Medicare tax on a year's wages: 6.2% up to the wage cap, 1.45% of all of it, and 0.9% more above the higher-earner threshold.",
-  "formula_in_words": "On a year's wages (below zero counts as 0): 6.2% of the wages up to $184,500, plus 1.45% of all the wages, plus 0.9% of the wages above $200,000.",
-  "handed": "export function payrollTaxWithheld(wageAnnual: number): number"
- },
- {
-  "id": "MK-CF-F-206",
-  "name": "householdK401ByMonth",
-  "kind": "function",
-  "what_it_is_for": "THE HOUSEHOLD'S 401(k) CONTRIBUTIONS, MONTH BY MONTH — every earner's, in the months that earner is actually paid.",
-  "formula_in_words": "For each earner: their monthly 401(k) in every month they have gross pay, and 0 in months they do not. Added over the earners, month by month.",
-  "handed": "export function householdK401ByMonth(op: OnboardingProfile | null): number[]",
+  "what_it_is_for": "Annual amount of what the user ENTERED (not grossed up) — for display.",
+  "formula_in_words": "Hourly: base pay × hours a week (40 when none) × 52. Otherwise base pay × the periods in a year: weekly 52, every two weeks 26, monthly 12, yearly 1 — monthly when no frequency is given.",
+  "handed": "export function annualizedEnteredSalary(op: OnboardingProfile | null): number",
   "inputs_it_reads": [
-   "MK-XS-I-043 their own retirement contribution"
+   "MK-XS-I-039 how often each income arrives",
+   "MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly"
   ]
  },
  {
-  "id": "MK-CF-F-210",
-  "name": "annualOfSource",
+  "id": "MK-CF-F-060",
+  "name": "salaryGrossByMonth",
   "kind": "function",
-  "what_it_is_for": "A source's yearly amount: a monthly one × 12, a yearly one as it is, a salary from its pay period.",
-  "formula_in_words": "A source stated per month: amount × 12. Per year: as it is. A salary row (stated as entered): the household's yearly salary (salaryAnnual), or the row's own amount when that is zero.",
-  "handed": "export function annualOfSource(x: IncomeSource, op?: Record<string, any> | null): number",
+  "what_it_is_for": "Per-month GROSS base salary, Jan→Dec.",
+  "formula_in_words": "Each earner's twelve months of gross pay (wageGrossByMonth), added month by month.",
+  "handed": "export function salaryGrossByMonth(op: OnboardingProfile | null): number[]"
+ },
+ {
+  "id": "MK-CF-F-061",
+  "name": "grossSalaryMonthly",
+  "kind": "function",
+  "what_it_is_for": "A representative full-month GROSS salary (the highest month — undiluted by $0 gap months).",
+  "formula_in_words": "The LARGEST of the twelve monthly gross salary figures (salaryGrossByMonth).",
+  "handed": "export function grossSalaryMonthly(op: OnboardingProfile | null): number"
+ },
+ {
+  "id": "MK-CF-F-062",
+  "name": "equityRowValue",
+  "kind": "function",
+  "what_it_is_for": "Value of one vesting-schedule row.",
+  "formula_in_words": "An option: shares × (market price − strike price), never below 0. Any other grant: shares × price.",
+  "handed": "export function equityRowValue(row: any, type: string, strike?: any, market?: any): number",
   "inputs_it_reads": [
-   "MK-XS-I-001 account balance",
    "MK-XS-I-004 holding quantity (shares)",
-   "MK-XS-I-022 pension monthly amount",
-   "MK-XS-I-023 salary and other income",
-   "MK-XS-I-035 annuity income",
-   "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest",
-   "MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units"
+   "MK-XS-I-034 option positions — contracts, strike, expiry, put or call"
   ]
- },
- {
-  "id": "MK-CF-F-017",
-  "name": "publishSurplus",
-  "kind": "function",
-  "what_it_is_for": "Publish the authoritative surplus for Goals/Retirement to consume.",
-  "formula_in_words": "Announces the projected-to-save figure to the rest of the app, unchanged.",
-  "handed": "export function publishSurplus(uid: UserId, projectedToSave: number)"
- },
- {
-  "id": "MK-CF-F-127",
-  "name": "isRental",
-  "kind": "function",
-  "what_it_is_for": "Whether an income source is rent from a property, long-term or short-term.",
-  "formula_in_words": "True for a long-term rental or a short-term rental.",
-  "handed": "const isRental = (t: string)"
- },
- {
-  "id": "MK-CF-F-129",
-  "name": "round4",
-  "kind": "function",
-  "what_it_is_for": "Returns a number unchanged, because rounding is done once, where a figure is shown.",
-  "formula_in_words": "The number unchanged.",
-  "handed": "const round4 = (n: number)"
- },
- {
-  "id": "MK-CF-F-131",
-  "name": "normPayee",
-  "kind": "function",
-  "what_it_is_for": "Tidies a payee's name so two can be compared: trims the spaces and puts it in lower case.",
-  "formula_in_words": "The payee note trimmed and lower-cased; empty when there is none.",
-  "handed": "const normPayee = (note?: string | null)"
- },
- {
-  "id": "MK-CF-F-132",
-  "name": "map",
-  "kind": "function",
-  "what_it_is_for": "Applies one change to the one account named and leaves every other account as it was.",
-  "formula_in_words": "The list of accounts with one change applied to the account named, and the rest untouched.",
-  "handed": "const map = (accs: AssetAccount[], id: EntityId, fn: (a: AssetAccount) => AssetAccount)"
- },
- {
-  "id": "MK-CF-F-133",
-  "name": "cashOf",
-  "kind": "function",
-  "what_it_is_for": "The uninvested cash held inside an account, or zero when none is recorded.",
-  "formula_in_words": "The account's cash; 0 when none is recorded.",
-  "handed": "const cashOf = (a: AssetAccount)",
-  "inputs_it_reads": [
-   "MK-XS-I-001 account balance"
-  ]
- },
- {
-  "id": "MK-CF-F-134",
-  "name": "usesSleeve",
-  "kind": "function",
-  "what_it_is_for": "Where an account's spendable cash lives: investment accounts use the cash_balance SLEEVE; cash accounts (checking/savings) and property hold their money in `balance`.",
-  "formula_in_words": "True for an investment account (not a cash or property account) whose balance is worked out from its holdings, or that records a cash figure of its own.",
-  "handed": "const usesSleeve = (a: AssetAccount)",
-  "inputs_it_reads": [
-   "MK-XS-I-001 account balance",
-   "MK-XS-I-002 account type (taxable, pre-tax, Roth)"
-  ]
- },
- {
-  "id": "MK-CF-F-135",
-  "name": "availableCash",
-  "kind": "function",
-  "what_it_is_for": "The cash an account can spend right now: the uninvested cash inside an investment account, or the whole balance of a bank account.",
-  "formula_in_words": "For such an account (usesSleeve): its cash. For any other: its balance.",
-  "handed": "const availableCash = (a: AssetAccount)",
-  "inputs_it_reads": [
-   "MK-XS-I-001 account balance"
-  ]
- },
- {
-  "id": "MK-CF-F-137",
-  "name": "findPos",
-  "kind": "function",
-  "what_it_is_for": "Finds the holding a transaction refers to, by the holding's own identifier or by its ticker.",
-  "formula_in_words": "The holding in the account with the record's holding id, or else with the record's ticker (the record's ticker read in capitals).",
-  "handed": "const findPos = (a: AssetAccount, t: Transaction)"
- },
- {
-  "id": "MK-CF-F-140",
-  "name": "periodsAYear",
-  "kind": "function",
-  "what_it_is_for": "How many pay periods a year a pay frequency has, taken as 12 when it is monthly or not stated.",
-  "formula_in_words": "Pay periods in a year: hourly 2,080, weekly 52, every two weeks 26, monthly 12, yearly 1. Any other frequency: 12.",
-  "handed": "const periodsAYear = (e: BasePayEntry): number"
- },
- {
-  "id": "MK-CF-F-148",
-  "name": "inMonth",
-  "kind": "function",
-  "what_it_is_for": "Does this logged expense fall in the month `ym` (\"2026-08\")?",
-  "formula_in_words": "True when the expense's date begins with the year-month asked for.",
-  "handed": "export const inMonth = (e: LoggedExpense, ym: string): boolean"
  }
 ]
 ```
 
 ## Formulas these cards lean on
 
-5 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+13 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
  {
-  "id": "MK-CF-F-060",
-  "name": "salaryGrossByMonth",
-  "what_it_is_for": "Per-month GROSS base salary, Jan→Dec.",
-  "formula_in_words": "Each earner's twelve months of gross pay (wageGrossByMonth), added month by month."
+  "id": "MK-CF-F-023",
+  "name": "requiredPayment",
+  "what_it_is_for": "The payment reserved/required each month for a debt (planned payment, else the minimum).",
+  "formula_in_words": "0 for a debt due in full. Otherwise the larger of the minimum monthly payment and the payment the person says they make."
  },
  {
-  "id": "MK-CF-F-082",
-  "name": "salaryAnnual",
-  "what_it_is_for": "Salary income for the year = sum of the per-month gross salary.",
-  "formula_in_words": "The twelve months of gross salary (salaryGrossByMonth) added."
+  "id": "MK-CF-F-024",
+  "name": "totalDebtMonthly",
+  "what_it_is_for": "Total monthly debt obligation across all debts (override-aware).",
+  "formula_in_words": "requiredPayment added over the debts."
+ },
+ {
+  "id": "MK-CF-F-025",
+  "name": "minimumDebtService",
+  "what_it_is_for": "The minimum payments every debt requires in a month, added up, leaving out any debt due in one lump on a date.",
+  "formula_in_words": "Each debt's minimum monthly payment added; a debt due in full counts 0."
+ },
+ {
+  "id": "MK-CF-F-036",
+  "name": "buildDebtState",
+  "what_it_is_for": "What is the whole debt picture?",
+  "formula_in_words": "Total = the balances added. Minimum in a month = minimumDebtService. Actual payment in a month = actualDebtPayment. Highest-rate debt = the one with the largest yearly rate, the first of equals. High-cost debt = the balances of the debts whose rate is ABOVE 7%, added."
+ },
+ {
+  "id": "MK-CF-F-049",
+  "name": "buildIncomeState",
+  "what_it_is_for": "The income picture for a year: gross, tax rate and take-home, and the gross, tax and take-home of each of the twelve months.",
+  "formula_in_words": "Yearly gross = grossAnnualBaseline. Rate = effectiveTaxRate. Yearly after-tax = gross × (1 − rate); monthly after-tax = that ÷ 12. Month grid: each source's gross laid on the calendar (monthlyGrossOfSource), added by month. Tax each month = that month's gross × the rate, when the person's own rate is on; otherwise the federal tax on the year's running total up to and including that month, minus the tax up to the month before — worked AS A SINGLE FILER, with no state tax. After-tax that month = gross − tax. Employer match for the year = employerMatchAnnual."
+ },
+ {
+  "id": "MK-CF-F-099",
+  "name": "deductionFor",
+  "what_it_is_for": "The amount of income that is free of tax before the brackets start: the standard deduction for the way the person files, plus the extra amounts for anyone 65 or older.",
+  "formula_in_words": "The standard deduction for the filing status + the age-65 addition × the number of people 65 or over (2 at most) + the senior deduction (seniorDeductionFor). The amounts are in the 2026 table above the cards."
+ },
+ {
+  "id": "MK-CF-F-100",
+  "name": "taxableIncomeFor",
+  "what_it_is_for": "What income is taxed, given how this person files?",
+  "formula_in_words": "Gross − the deduction (deductionFor, with the gross itself used as the income for the senior deduction's phase-out); never below 0."
+ },
+ {
+  "id": "MK-CF-F-101",
+  "name": "taxOwedFor",
+  "what_it_is_for": "Federal tax owed under a filing status, plus an optional user-set FLAT state rate applied to TAXABLE income (E10) — states differ wildly, so one honest user-entered percent beats fifty guessed tables, and it never taxes the deduction.",
+  "formula_in_words": "Taxable income (taxableIncomeFor) taxed band by band on the filing status's 2026 table — each slice at its own rate — plus taxable income × the state rate (held between 0 and 15%)."
+ },
+ {
+  "id": "MK-CF-F-102",
+  "name": "effectiveRateOnGrossFor",
+  "what_it_is_for": "What share of my income actually goes in tax?",
+  "formula_in_words": "taxOwedFor ÷ gross; 0 when the gross is zero or less."
  },
  {
   "id": "MK-CF-F-130",
@@ -599,16 +573,22 @@ export interface Transaction {
   "formula_in_words": "Hourly: base pay × hours a week (40 when none) × 52 ÷ 12. Otherwise base pay × the periods in a year ÷ 12 (weekly 52, every two weeks 26, monthly 12, yearly 1)."
  },
  {
+  "id": "MK-CF-F-161",
+  "name": "monthlyGrossOfSource",
+  "what_it_is_for": "The gross amount one income source brings in each of the twelve months, with rent taken after its running costs and lump payments placed in the months they arrive.",
+  "formula_in_words": "Twelve calendar months; rent is taken after running costs. Monthly: the amount every month. Weekly: amount × 52 ÷ 12 every month. Every two weeks: amount × 26 ÷ 12 every month. Quarterly: the amount in March, June, September and December. Yearly: the amount in its month (December when none) — or split across its months by their shares. One-off: the amount in its month (January when none)."
+ },
+ {
   "id": "MK-CF-F-177",
   "name": "wageGrossByMonth",
   "what_it_is_for": "ONE person's wage, month by month, January first.",
   "formula_in_words": "With a month table: this calendar year's twelve months from the table, any month not in it taking the typical monthly figure. With none: the typical monthly figure (enteredMonthlyRaw) in every month."
  },
  {
-  "id": "MK-CF-F-195",
-  "name": "monthsLeftInYear",
-  "what_it_is_for": "Months left in the year INCLUDING the current one — December counts as 1, never 0.",
-  "formula_in_words": "12 − the number of months already finished this year: 12 in January, 1 in December. The current month counts as left."
+  "id": "MK-CF-F-187",
+  "name": "seniorDeductionFor",
+  "what_it_is_for": "How much of the $6,000-per-person senior deduction does this return get?",
+  "formula_in_words": "0 outside tax years 2025 to 2028; when filing separately; when nobody is 65 or over; or when the income is not known. Otherwise $6,000 × the people 65 or over (2 at most), less 6% of the income above $75,000 (single, head of household) or $150,000 (married); never below 0."
  }
 ]
 ```

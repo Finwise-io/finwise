@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -261,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 09"
+# The cards — batch "cashflow 05"
 
-15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 09"` in your reply.
+15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 05"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -291,9 +290,7 @@ Read from the app. **Check each against its published source and say so in `form
 What each is made of. The comments inside are the in-house author's.
 
 ```ts
-export interface DebtDoc { user_id: UserId; debts: Debt[]; last_updated?: any; }
-
-export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | 'AUTO' | 'PERSONAL' | 'MEDICAL' | 'OTHER';
+export interface GuaranteedStream { kind: 'ss' | 'pension' | 'annuity' | 'other'; monthly: number; inflates: boolean }
 ```
 
 ## The cards
@@ -301,250 +298,241 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
 ```json
 [
  {
-  "id": "MK-CF-F-037",
-  "name": "inferDebtType",
+  "id": "MK-CF-F-058",
+  "name": "rothConversionWindow",
   "kind": "function",
-  "what_it_is_for": "The kind of debt, judged from its name: a home-equity credit line, a mortgage, a car loan, a student loan, a credit card, a medical debt, a personal loan or something else.",
-  "formula_in_words": "From the debt's name, capitals ignored, first match wins: heloc or home equity → home-equity line; mortgage or home loan → mortgage; auto, car loan or vehicle → auto; student or tuition → student loan; credit card, visa, mastercard or amex → credit card; medical, hospital or dental → medical; personal → personal; anything else → other.",
-  "handed": "export function inferDebtType(label: string | undefined): DebtType"
- },
- {
-  "id": "MK-CF-F-038",
-  "name": "debtsFromOnboarding",
-  "kind": "function",
-  "what_it_is_for": "What debts should exist from the setup answers?",
-  "formula_in_words": "One debt when the balance entered at sign-up is above zero: its name (Debt when blank), its kind from the name (inferDebtType), the balance, yearly rate = the percent entered ÷ 100, and the minimum payment. None otherwise.",
-  "handed": "export function debtsFromOnboarding(uid: UserId, op: Record<string, any> | null): DebtDoc",
+  "what_it_is_for": "Are you in the low-income \"Roth conversion window\" (retired, before RMDs/SS push income up)?",
+  "formula_in_words": "True when the age is at or past the retirement age AND below the earlier of age 73 and the Social Security claiming age (73 when there is no claiming age).",
+  "handed": "export function rothConversionWindow(age: number, retireAge: number, claimAge: number, rmdAge = 73): boolean",
   "inputs_it_reads": [
-   "MK-XS-I-014 debt balance",
-   "MK-XS-I-015 debt interest rate",
-   "MK-XS-I-016 debt minimum payment"
+   "MK-XS-I-018 retirement age",
+   "MK-XS-I-021 Social Security claim age"
   ]
  },
  {
-  "id": "MK-CF-F-041",
-  "name": "getDebtState",
+  "id": "MK-CF-F-064",
+  "name": "equityCashFlow",
   "kind": "function",
-  "what_it_is_for": "Reads a person's saved debts and returns their totals, or nothing when none are saved.",
-  "formula_in_words": "Loads the stored debts and gives buildDebtState of them; nothing when none are stored.",
-  "handed": "export async function getDebtState(uid: UserId)"
+  "what_it_is_for": "Per-calendar-year vesting cash flow across all schedule rows — drives the chart & table.",
+  "formula_in_words": "The value of each vesting row (equityRowValue) added by vesting year; rows of zero or less are left out; earliest year first.",
+  "handed": "export function equityCashFlow(op: OnboardingProfile | null): { year: number; amount: number }[]"
  },
  {
-  "id": "MK-CF-F-044",
-  "name": "annualNet",
+  "id": "MK-CF-F-066",
+  "name": "rsuAnnual",
   "kind": "function",
-  "what_it_is_for": "Annual NET contribution of a source: jobs use gross; rentals net out operating expenses.",
-  "formula_in_words": "The amount each period — for rent, rent less running costs each period — × the periods in a year: weekly 52, every two weeks 26, monthly 12, quarterly 4, yearly 1, one-off 1.",
-  "handed": "export function annualNet(s: IncomeSource): number",
+  "what_it_is_for": "Annual equity-comp run-rate: total scheduled value spread over the years it vests across (a level annual figure for the income estimate).",
+  "formula_in_words": "With vesting rows: their total value ÷ the number of different years in which rows with a value vest (at least 1). With none: shares × price, as typed.",
+  "handed": "export function rsuAnnual(op: OnboardingProfile | null): number"
+ },
+ {
+  "id": "MK-CF-F-068",
+  "name": "rentalNetAnnual",
+  "kind": "function",
+  "what_it_is_for": "Total net rental income per year, across all properties (income − operating expenses).",
+  "formula_in_words": "(Monthly rent − monthly running costs) added over the rentals, × 12. A rental that loses money pulls the total down.",
+  "handed": "export function rentalNetAnnual(op: OnboardingProfile | null): number",
+  "inputs_it_reads": [
+   "MK-XS-I-024 logged expenses"
+  ]
+ },
+ {
+  "id": "MK-CF-F-070",
+  "name": "benefitAnnual",
+  "kind": "function",
+  "what_it_is_for": "Annual benefits = monthly amount × the months it's actually received.",
+  "formula_in_words": "The monthly benefit × the number of months it is paid (benefitActiveMonths).",
+  "handed": "export function benefitAnnual(op: OnboardingProfile | null): number"
+ },
+ {
+  "id": "MK-CF-F-071",
+  "name": "extraIncome",
+  "kind": "function",
+  "what_it_is_for": "Extra income sources beyond salary/rental/equity (self-employment, investment, benefits, support, scholarship, other), split into taxable vs non-taxable steady monthly amounts + a one-time Jan amount.",
+  "formula_in_words": "Taxed in a month = self-employment (yearly ÷ 12, or the monthly figure) + interest and dividends ÷ 12 + other income when taxable (yearly ÷ 12, or the monthly figure). Untaxed in a month = benefits for the year ÷ 12 + support + scholarships (monthly, or yearly ÷ 12) + other income when marked not taxable. One-off other income goes to one-off taxed or one-off untaxed. Reinvested in a month = interest and dividends ÷ 12, unless they are paid to the bank — then 0.",
+  "handed": "export function extraIncome(op: OnboardingProfile | null): {\n  taxableMonthly: number; nontaxMonthly: number; onetimeTaxable: number; onetimeNontax: number;\n  reinvestedMonthly: number;\n}",
   "inputs_it_reads": [
    "MK-XS-I-039 how often each income arrives"
   ]
  },
  {
-  "id": "MK-CF-F-045",
-  "name": "grossAnnualBaseline",
+  "id": "MK-CF-F-072",
+  "name": "currentRetirementIncomeMonthly",
   "kind": "function",
-  "what_it_is_for": "Gross annual baseline = jobs (gross) + rentals (gross − expenses), all annualized.",
-  "formula_in_words": "annualNet added over every source.",
-  "handed": "export function grossAnnualBaseline(sources: IncomeSource[]): number"
- },
- {
-  "id": "MK-CF-F-046",
-  "name": "employerMatchAnnual",
-  "kind": "function",
-  "what_it_is_for": "The employer's 401(k) match for a year, added up across every job.",
-  "formula_in_words": "Each source's employer match each period × its periods in a year, added.",
-  "handed": "export function employerMatchAnnual(sources: IncomeSource[]): number",
+  "what_it_is_for": "Retirement income (ri_*) counts as CURRENT income only when the user actually receives it now — i.e.",
+  "formula_in_words": "0 when the person's chosen income sources are listed and retirement income is not among them; otherwise retirementIncomeMonthly.",
+  "handed": "export function currentRetirementIncomeMonthly(op: OnboardingProfile | null): number",
   "inputs_it_reads": [
-   "MK-XS-I-039 how often each income arrives"
+   "MK-XS-I-020 Social Security monthly amount",
+   "MK-XS-I-022 pension monthly amount",
+   "MK-XS-I-035 annuity income",
+   "MK-XS-I-036 other guaranteed income",
+   "MK-XS-I-039 how often each income arrives",
+   "MK-XS-I-040 whether a stream is already being received"
   ]
  },
  {
-  "id": "MK-CF-F-048",
-  "name": "effectiveTaxRate",
+  "id": "MK-CF-F-075",
+  "name": "retirementIncomeMonthly",
   "kind": "function",
-  "what_it_is_for": "The share of gross income that goes to tax: the person's own rate where they gave one, otherwise the calculated federal rate for the way they file.",
-  "formula_in_words": "With the person's own rate switched on: that rate, held between 0 and 1. Otherwise federal income tax on the yearly gross ÷ the yearly gross, by filing status (single when none), with no state tax (effectiveRateOnGrossFor).",
-  "handed": "export function effectiveTaxRate(grossAnnual: number, tax: TaxProfile): number",
+  "what_it_is_for": "Retirement income (Social Security, pension, withdrawals, RMDs, annuities) per month — taxable.",
+  "formula_in_words": "Social Security, pension, withdrawals, required distributions, annuities and other, each turned into a month — monthly as it is, quarterly ÷ 3, yearly ÷ 12 — and added.",
+  "handed": "export function retirementIncomeMonthly(op: OnboardingProfile | null): number",
   "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-020 Social Security monthly amount",
+   "MK-XS-I-022 pension monthly amount",
+   "MK-XS-I-035 annuity income",
+   "MK-XS-I-036 other guaranteed income",
+   "MK-XS-I-037 required-withdrawal income stream (ri_rmd)",
+   "MK-XS-I-038 withdrawal income stream (ri_withdrawals)",
+   "MK-XS-I-039 how often each income arrives",
+   "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
   ]
  },
  {
-  "id": "MK-CF-F-052",
-  "name": "getIncomeState",
+  "id": "MK-CF-F-076",
+  "name": "guaranteedOutsideStreams",
   "kind": "function",
-  "what_it_is_for": "The public read-model (spec IncomeState): totals, effective rate, monthly grid.",
-  "formula_in_words": "Loads the stored income and gives buildIncomeState of it; nothing when none is stored.",
-  "handed": "export async function getIncomeState(uid: UserId): Promise<IncomeState | null>"
- },
- {
-  "id": "MK-CF-F-055",
-  "name": "annualHsaLimit",
-  "kind": "function",
-  "what_it_is_for": "How much can this person put into a health savings account this year?",
-  "formula_in_words": "0 when enrolled in Medicare. Otherwise, 2026: $4,400 for self-only cover or $8,750 for family cover; + $1,000 at age 55 or over.",
-  "handed": "export function annualHsaLimit(age: number | null, family = false, medicareEnrolled: boolean | null = null): number",
+  "what_it_is_for": "The guaranteed income that comes from outside the person's own savings, one row for each source that pays anything: Social Security, a pension, an annuity or another, each as a monthly amount with whether it rises with prices.",
+  "formula_in_words": "Social Security, pension, annuity and other, each as a monthly amount (quarterly ÷ 3, yearly ÷ 12), only those above zero. Rises with prices: Social Security yes, the others no — unless the person said otherwise. Withdrawals and required distributions are not here.",
+  "handed": "export function guaranteedOutsideStreams(op: OnboardingProfile | null): GuaranteedStream[]",
+  "inputs_it_reads": [
+   "MK-XS-I-020 Social Security monthly amount",
+   "MK-XS-I-022 pension monthly amount",
+   "MK-XS-I-035 annuity income",
+   "MK-XS-I-036 other guaranteed income",
+   "MK-XS-I-039 how often each income arrives",
+   "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
+  ],
   "figures_it_feeds": [
    {
-    "id": "MK-MN-M-003",
-    "words_on_screen": "$X left / up to $Y",
+    "id": "MK-CF-M-022",
+    "words_on_screen": "YOUR FUTURE PAYCHECK — At <age>: ~$X/month",
     "unit": "money",
-    "what_it_answers": "How much more you can still put into this account this year.",
-    "when_it_refuses": "No birth year entered — the catch-up cannot be judged, so the limit says it is the base one.",
+    "per": "month",
+    "what_it_answers": "About what a month would bring at retirement: the guaranteed income plus a level draw from the projected pot.",
+    "when_it_refuses": "No pot to project from, or retirement age already reached — the card is not drawn.",
     "shown_on": [
-     "/contribution-room",
-     "/home"
+     "/cashflow"
     ]
    },
    {
-    "id": "MK-MN-M-004",
-    "words_on_screen": "about $X of the $Y limit",
+    "id": "MK-CF-M-023",
+    "words_on_screen": "YOUR FUTURE PAYCHECK — Social Security · pension",
     "unit": "money",
-    "what_it_answers": "What has gone in so far, against what the law allows.",
-    "when_it_refuses": "Nothing entered yet.",
+    "per": "month",
+    "what_it_answers": "The guaranteed part of that future month: Social Security, pension, annuity, other.",
+    "when_it_refuses": "No pot to project from, or retirement age already reached — the card is not drawn.",
     "shown_on": [
-     "/contribution-room"
+     "/cashflow"
     ]
    }
   ],
   "rules": [
    {
     "said_by": "author",
-    "about": "MK-MN-M-003",
-    "words": "The age tested is the age ATTAINED IN THE YEAR (his ruling G1) — someone turning 50 in December gets the catch-up for the whole year."
+    "about": "MK-CF-M-022",
+    "words": "AN ESTIMATE, SAID TO BE ONE on the screen — never a promise."
    },
    {
     "said_by": "author",
-    "about": "MK-MN-M-004",
-    "words": "Capped at the limit: a figure above it would be describing a contribution the law does not permit."
+    "about": "MK-CF-M-022",
+    "words": "NOTHING BEFORE THERE IS A POT: with no accounts, or past retirement age, the card is not drawn."
    }
   ]
  },
  {
-  "id": "MK-CF-F-059",
-  "name": "annualizedEnteredSalary",
+  "id": "MK-CF-F-078",
+  "name": "employerMatchMonthly",
   "kind": "function",
-  "what_it_is_for": "Annual amount of what the user ENTERED (not grossed up) — for display.",
-  "formula_in_words": "Hourly: base pay × hours a week (40 when none) × 52. Otherwise base pay × the periods in a year: weekly 52, every two weeks 26, monthly 12, yearly 1 — monthly when no frequency is given.",
-  "handed": "export function annualizedEnteredSalary(op: OnboardingProfile | null): number",
+  "what_it_is_for": "Employer match resolved to $/month.",
+  "formula_in_words": "Each earner's match in a month (wageMatchMonthly), added.",
+  "handed": "export function employerMatchMonthly(op: OnboardingProfile | null): number"
+ },
+ {
+  "id": "MK-CF-F-079",
+  "name": "incomeFromOnboarding",
+  "kind": "function",
+  "what_it_is_for": "Turns the income answers given during setup into the list of income sources the app stores.",
+  "formula_in_words": "Builds the stored income list from the sign-up answers, one source for each amount above zero: base salary = yearly salary ÷ 12, monthly, with the employer match; the bonus, yearly, in its month (December when none); stock vesting, yearly, split by vesting month; a signing bonus, once, in January; each rental, monthly, with its running costs; tips = yearly tips ÷ 12, monthly; retirement income, monthly; self-employment, monthly or yearly; interest and dividends, yearly; benefits = the year ÷ 12, monthly; support, monthly; each scholarship; other income with its frequency and month. Tax: the person's own rate (percent ÷ 100, held between 0 and 1) when they chose to type one; otherwise calculated.",
+  "handed": "export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null): IncomeDoc",
   "inputs_it_reads": [
+   "MK-XS-I-023 salary and other income",
+   "MK-XS-I-024 logged expenses",
    "MK-XS-I-039 how often each income arrives",
-   "MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly"
+   "MK-XS-I-059 the month a bonus lands"
   ]
  },
  {
-  "id": "MK-CF-F-060",
-  "name": "salaryGrossByMonth",
+  "id": "MK-CF-F-082",
+  "name": "salaryAnnual",
   "kind": "function",
-  "what_it_is_for": "Per-month GROSS base salary, Jan→Dec.",
-  "formula_in_words": "Each earner's twelve months of gross pay (wageGrossByMonth), added month by month.",
-  "handed": "export function salaryGrossByMonth(op: OnboardingProfile | null): number[]"
- },
- {
-  "id": "MK-CF-F-061",
-  "name": "grossSalaryMonthly",
-  "kind": "function",
-  "what_it_is_for": "A representative full-month GROSS salary (the highest month — undiluted by $0 gap months).",
-  "formula_in_words": "The LARGEST of the twelve monthly gross salary figures (salaryGrossByMonth).",
-  "handed": "export function grossSalaryMonthly(op: OnboardingProfile | null): number"
- },
- {
-  "id": "MK-CF-F-062",
-  "name": "equityRowValue",
-  "kind": "function",
-  "what_it_is_for": "Value of one vesting-schedule row.",
-  "formula_in_words": "An option: shares × (market price − strike price), never below 0. Any other grant: shares × price.",
-  "handed": "export function equityRowValue(row: any, type: string, strike?: any, market?: any): number",
+  "what_it_is_for": "Salary income for the year = sum of the per-month gross salary.",
+  "formula_in_words": "The twelve months of gross salary (salaryGrossByMonth) added.",
+  "handed": "export function salaryAnnual(op: OnboardingProfile | null, _now: Date = new Date()): number",
   "inputs_it_reads": [
-   "MK-XS-I-004 holding quantity (shares)",
-   "MK-XS-I-034 option positions — contracts, strike, expiry, put or call"
+   "MK-XS-I-023 salary and other income"
   ]
  },
  {
-  "id": "MK-CF-F-063",
-  "name": "rowVestYear",
+  "id": "MK-CF-F-083",
+  "name": "totalGrossAnnual",
   "kind": "function",
-  "what_it_is_for": "Calendar year a row vests (first 4 digits of its date; this year if blank).",
-  "formula_in_words": "The first four-digit year in the row's date; this year when it has none.",
-  "handed": "export function rowVestYear(row: any): number"
+  "what_it_is_for": "Total annual income across every inflow (salary for months worked + bonus + signing + equity + net rental + self-employment/investment/benefits/support/scholarship/other).",
+  "formula_in_words": "Salary for the year + tips for the year + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + untaxed extra in a month × 12 + one-off taxed + one-off untaxed + retirement income in a month × 12.",
+  "handed": "export function totalGrossAnnual(op: OnboardingProfile | null, now: Date = new Date()): number",
+  "inputs_it_reads": [
+   "MK-XS-I-023 salary and other income"
+  ]
  },
  {
-  "id": "MK-CF-F-065",
-  "name": "equityVestWeights",
+  "id": "MK-CF-F-084",
+  "name": "taxableAnnual",
   "kind": "function",
-  "what_it_is_for": "Vest-month weights (Jan→Dec, summing to 1) from the equity grant rows — THE one placement rule.",
-  "formula_in_words": "Each row's value goes to the month in its date (December when it has none); each month's share = its value ÷ the total. Nothing when no row has a value.",
-  "handed": "export function equityVestWeights(op: OnboardingProfile | null): number[] | null"
+  "what_it_is_for": "Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates.",
+  "formula_in_words": "totalGrossAnnual WITHOUT the untaxed parts: salary + tips + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + one-off taxed + retirement income in a month × 12. The 401(k) is NOT taken off here.",
+  "handed": "export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date()): number",
+  "inputs_it_reads": [
+   "MK-XS-I-023 salary and other income"
+  ]
+ },
+ {
+  "id": "MK-CF-F-085",
+  "name": "filingStatusOf",
+  "kind": "function",
+  "what_it_is_for": "Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on taxable income.",
+  "formula_in_words": "The filing status the person chose: married, married filing separately or head of household; anything else, single. When none is chosen: married when there is a spouse or the spouse earns; single otherwise.",
+  "handed": "export function filingStatusOf(op: OnboardingProfile | null): import('./tax').FilingStatus",
+  "inputs_it_reads": [
+   "MK-XS-I-030 tax filing status and age"
+  ]
  }
 ]
 ```
 
 ## Formulas these cards lean on
 
-14 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+6 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
  {
-  "id": "MK-CF-F-023",
-  "name": "requiredPayment",
-  "what_it_is_for": "The payment reserved/required each month for a debt (planned payment, else the minimum).",
-  "formula_in_words": "0 for a debt due in full. Otherwise the larger of the minimum monthly payment and the payment the person says they make."
+  "id": "MK-CF-F-060",
+  "name": "salaryGrossByMonth",
+  "what_it_is_for": "Per-month GROSS base salary, Jan→Dec.",
+  "formula_in_words": "Each earner's twelve months of gross pay (wageGrossByMonth), added month by month."
  },
  {
-  "id": "MK-CF-F-024",
-  "name": "totalDebtMonthly",
-  "what_it_is_for": "Total monthly debt obligation across all debts (override-aware).",
-  "formula_in_words": "requiredPayment added over the debts."
+  "id": "MK-CF-F-062",
+  "name": "equityRowValue",
+  "what_it_is_for": "Value of one vesting-schedule row.",
+  "formula_in_words": "An option: shares × (market price − strike price), never below 0. Any other grant: shares × price."
  },
  {
-  "id": "MK-CF-F-025",
-  "name": "minimumDebtService",
-  "what_it_is_for": "The minimum payments every debt requires in a month, added up, leaving out any debt due in one lump on a date.",
-  "formula_in_words": "Each debt's minimum monthly payment added; a debt due in full counts 0."
- },
- {
-  "id": "MK-CF-F-026",
-  "name": "actualDebtPayment",
-  "what_it_is_for": "Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account.",
-  "formula_in_words": "The same as totalDebtMonthly: requiredPayment added over the debts."
- },
- {
-  "id": "MK-CF-F-036",
-  "name": "buildDebtState",
-  "what_it_is_for": "What is the whole debt picture?",
-  "formula_in_words": "Total = the balances added. Minimum in a month = minimumDebtService. Actual payment in a month = actualDebtPayment. Highest-rate debt = the one with the largest yearly rate, the first of equals. High-cost debt = the balances of the debts whose rate is ABOVE 7%, added."
- },
- {
-  "id": "MK-CF-F-049",
-  "name": "buildIncomeState",
-  "what_it_is_for": "The income picture for a year: gross, tax rate and take-home, and the gross, tax and take-home of each of the twelve months.",
-  "formula_in_words": "Yearly gross = grossAnnualBaseline. Rate = effectiveTaxRate. Yearly after-tax = gross × (1 − rate); monthly after-tax = that ÷ 12. Month grid: each source's gross laid on the calendar (monthlyGrossOfSource), added by month. Tax each month = that month's gross × the rate, when the person's own rate is on; otherwise the federal tax on the year's running total up to and including that month, minus the tax up to the month before — worked AS A SINGLE FILER, with no state tax. After-tax that month = gross − tax. Employer match for the year = employerMatchAnnual."
- },
- {
-  "id": "MK-CF-F-099",
-  "name": "deductionFor",
-  "what_it_is_for": "The amount of income that is free of tax before the brackets start: the standard deduction for the way the person files, plus the extra amounts for anyone 65 or older.",
-  "formula_in_words": "The standard deduction for the filing status + the age-65 addition × the number of people 65 or over (2 at most) + the senior deduction (seniorDeductionFor). The amounts are in the 2026 table above the cards."
- },
- {
-  "id": "MK-CF-F-100",
-  "name": "taxableIncomeFor",
-  "what_it_is_for": "What income is taxed, given how this person files?",
-  "formula_in_words": "Gross − the deduction (deductionFor, with the gross itself used as the income for the senior deduction's phase-out); never below 0."
- },
- {
-  "id": "MK-CF-F-101",
-  "name": "taxOwedFor",
-  "what_it_is_for": "Federal tax owed under a filing status, plus an optional user-set FLAT state rate applied to TAXABLE income (E10) — states differ wildly, so one honest user-entered percent beats fifty guessed tables, and it never taxes the deduction.",
-  "formula_in_words": "Taxable income (taxableIncomeFor) taxed band by band on the filing status's 2026 table — each slice at its own rate — plus taxable income × the state rate (held between 0 and 15%)."
- },
- {
-  "id": "MK-CF-F-102",
-  "name": "effectiveRateOnGrossFor",
-  "what_it_is_for": "What share of my income actually goes in tax?",
-  "formula_in_words": "taxOwedFor ÷ gross; 0 when the gross is zero or less."
+  "id": "MK-CF-F-069",
+  "name": "benefitActiveMonths",
+  "what_it_is_for": "Calendar months (1-12) benefits are received — e.g.",
+  "formula_in_words": "The months, 1 to 12, in which the benefit is paid, in order; all twelve when none are named."
  },
  {
   "id": "MK-CF-F-130",
@@ -553,22 +541,16 @@ export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | '
   "formula_in_words": "Hourly: base pay × hours a week (40 when none) × 52 ÷ 12. Otherwise base pay × the periods in a year ÷ 12 (weekly 52, every two weeks 26, monthly 12, yearly 1)."
  },
  {
-  "id": "MK-CF-F-161",
-  "name": "monthlyGrossOfSource",
-  "what_it_is_for": "The gross amount one income source brings in each of the twelve months, with rent taken after its running costs and lump payments placed in the months they arrive.",
-  "formula_in_words": "Twelve calendar months; rent is taken after running costs. Monthly: the amount every month. Weekly: amount × 52 ÷ 12 every month. Every two weeks: amount × 26 ÷ 12 every month. Quarterly: the amount in March, June, September and December. Yearly: the amount in its month (December when none) — or split across its months by their shares. One-off: the amount in its month (January when none)."
- },
- {
   "id": "MK-CF-F-177",
   "name": "wageGrossByMonth",
   "what_it_is_for": "ONE person's wage, month by month, January first.",
   "formula_in_words": "With a month table: this calendar year's twelve months from the table, any month not in it taking the typical monthly figure. With none: the typical monthly figure (enteredMonthlyRaw) in every month."
  },
  {
-  "id": "MK-CF-F-187",
-  "name": "seniorDeductionFor",
-  "what_it_is_for": "How much of the $6,000-per-person senior deduction does this return get?",
-  "formula_in_words": "0 outside tax years 2025 to 2028; when filing separately; when nobody is 65 or over; or when the income is not known. Otherwise $6,000 × the people 65 or over (2 at most), less 6% of the income above $75,000 (single, head of household) or $150,000 (married); never below 0."
+  "id": "MK-CF-F-178",
+  "name": "wageMatchMonthly",
+  "what_it_is_for": "ONE person's employer match: a share of their own contribution, or a flat amount.",
+  "formula_in_words": "A match typed as a percent: monthly 401(k) × that percent ÷ 100. Typed as dollars: that amount."
  }
 ]
 ```

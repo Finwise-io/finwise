@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -261,9 +260,9 @@ in `notes` saying why.
 
 ---
 
-# The cards — batch "cashflow 07"
+# The cards — batch "cashflow 13"
 
-15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 07"` in your reply.
+15 cards, so 15 formula checks and 75 cases. Put `"batch": "cashflow 13"` in your reply.
 
 ## The published 2026 amounts the app uses
 
@@ -305,47 +304,27 @@ export interface EarnerWage {
   landsTypical?: Money;
 }
 
-export type FilingStatus = 'single' | 'married' | 'mfs' | 'hoh';
-
-export interface Transaction {
-  id: EntityId;
-  date: string;              // 'YYYY-MM-DD' — when it happened (user-set)
-  type: TxnType;
-  account_id: EntityId;
-  counter_account_id?: EntityId;  // for TRANSFER / TRANSFER_IN_KIND
-  ticker?: string;
-  position_id?: EntityId;
-  assetClass?: 'stock_etf' | 'bond' | 'other';
-  kind?: string;             // instrument kind (benchmark mapping) for new positions
-  shares?: number;
-  price?: number;            // per share
-  amount?: number;           // cash amount (deposit/withdraw/transfer/dividend-as-cash/fee)
-  reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
-  direction?: 'IN' | 'OUT';  // TRANSFER_IN_KIND from a broker: which way the shares went. The type
-                             // alone does not say, and without it a return cannot be measured
-                             // across the day (stored since 2026-10-04; older rows carry none).
-  note?: string;
-  source?: 'manual' | 'connected';  // F10: only connected-account rows are ever reviewed for a
-                                    // "worth a look" flag — hand-typed entries are NEVER questioned.
-                                    // Absent = manual (every row recorded before F1 sync exists).
-  created_at: string;        // ISO — when it was entered (audit)
-  undo_prev?: AssetAccount[]; // pre-apply copies of the touched accounts — lets a delete reverse
-                              // this row's balance effect exactly (P0: ledger and balances must
-                              // never drift; rows recorded before this field use inverseOf()).
+export interface EssentialsAverage {
+  monthly: number;          // the average over the months counted
+  monthsCounted: number;    // calendar months with at least one logged entry, inside the window
+  label: string;            // "7 month average" — the words the screen prints beside the figure
+  from: string;             // first month counted, 'YYYY-MM'
+  to: string;               // last month counted, 'YYYY-MM'
 }
 
-export type TxnType =
-  | 'OPENING_POSITION'   // first-time capture of a holding you already own (no cash counterparty)
-  | 'OPENING_CASH'       // first-time capture of cash in an account
-  | 'BUY'                // account cash ↓, position ↑
-  | 'SELL'               // position ↓, account cash ↑
-  | 'DEPOSIT'            // external cash in (paycheck, contribution)
-  | 'WITHDRAWAL'         // cash out (spend)
-  | 'TRANSFER'           // cash between accounts
-  | 'TRANSFER_IN_KIND'   // whole position moved between accounts
-  | 'DIVIDEND' | 'INTEREST' | 'COUPON'   // income on a holding/account (cash or reinvested)
-  | 'FEE'
-  | 'ADJUSTMENT';
+export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered'; label: string; logged: EssentialsAverage | null }
+
+export type FilingStatus = 'single' | 'married' | 'mfs' | 'hoh';
+
+export interface LoggedSpend { amount: any; date: string; category?: string }
+
+export interface RateInForce {
+  rate: number;          // 0–1, of gross
+  source: RateSource;
+  mine: boolean;         // true when it is the person's own figure, not ours
+  label: string;         // what a screen prints beside the number
+  covers: string;        // what the rate includes, in words
+}
 ```
 
 ## The cards
@@ -353,159 +332,327 @@ export type TxnType =
 ```json
 [
  {
-  "id": "MK-CF-F-086",
-  "name": "stateRateOf",
+  "id": "MK-CF-F-175",
+  "name": "sumOverEarners",
   "kind": "function",
-  "what_it_is_for": "The state income tax rate the person entered, as a share, held between 0% and 15%.",
-  "formula_in_words": "The state rate typed, as a percent ÷ 100, held between 0 and 15%.",
-  "handed": "export function stateRateOf(op: OnboardingProfile | null): number"
+  "what_it_is_for": "Adds up one figure across every earner in the household.",
+  "formula_in_words": "The chosen figure worked for each earner and added; a missing figure counts 0.",
+  "handed": "export function sumOverEarners(op: OnboardingProfile | null, of: (w: EarnerWage) => number): number"
  },
  {
-  "id": "MK-CF-F-089",
-  "name": "over65CountOf",
+  "id": "MK-CF-F-176",
+  "name": "sumMonthsOverEarners",
   "kind": "function",
-  "what_it_is_for": "How many people on the tax return are 65 or older: none, one or two.",
-  "formula_in_words": "Married filing jointly with the question answered: both → 2, neither → 0, one → 1. Otherwise from the person's own birth year: 1 when this year − birth year is 65 or more, else 0; 0 with no birth year.",
-  "handed": "export function over65CountOf(op: OnboardingProfile | null): number",
+  "what_it_is_for": "Add up twelve numbers per earner, month by month.",
+  "formula_in_words": "The chosen twelve-month row worked for each earner and added month by month.",
+  "handed": "export function sumMonthsOverEarners(\n  op: OnboardingProfile | null, of: (w: EarnerWage) => number[],\n): number[]"
+ },
+ {
+  "id": "MK-CF-F-178",
+  "name": "wageMatchMonthly",
+  "kind": "function",
+  "what_it_is_for": "ONE person's employer match: a share of their own contribution, or a flat amount.",
+  "formula_in_words": "A match typed as a percent: monthly 401(k) × that percent ÷ 100. Typed as dollars: that amount.",
+  "handed": "export function wageMatchMonthly(w: Record<string, any> | null): number",
   "inputs_it_reads": [
-   "MK-XS-I-017 birth year",
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-043 their own retirement contribution",
+   "MK-XS-I-046 how the employer match is expressed — percent or dollars"
   ]
  },
  {
-  "id": "MK-CF-F-092",
-  "name": "incomeMonthlyGrid",
+  "id": "MK-CF-F-180",
+  "name": "enteredLandsAnnual",
   "kind": "function",
-  "what_it_is_for": "A representative 12-month cash-flow grid (Jan→Dec) that honors lumpiness: salary & net rental are steady every month; the annual bonus lands in December; the signing bonus is one-time (January); equity is the level annual vesting spread across the month-of-year its vest dates fall on (so quarterly vesting shows up as quarterly spikes).",
-  "formula_in_words": "For each calendar month. Earned before 401(k) = that month's taxed income (taxableByCalendarMonth) + that month's 401(k). Untaxed = support + that month's scholarships + benefits in their months + one-off untaxed income in its month. Gross = earned before 401(k) + untaxed − reinvested interest and dividends. Tax = tax on the wages + tax on the rest. The wages, earner by earner: an earner who typed a take-home is taxed at their own share — (their yearly gross − their 401(k) for the year − 12 × the typed take-home) ÷ their yearly gross, held between 0 and 1 — so they land exactly what they typed; any other earner's wage × the rate in force (monthlyTaxRates). The rest (earned before 401(k) − the wages) × the rate in force — except that when the rate is the person's own, the month's rent and interest and dividends are left out, because they are not on a payslip. After-tax = gross − tax. Take-home = gross − tax − 401(k).",
-  "handed": "export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 'net' | 'available' = 'available', now: Date = new Date()): { label: string; amount: number }[]",
+  "what_it_is_for": "Every earner’s entered take-home, a year — or null when any of them did not say.",
+  "formula_in_words": "Nothing unless EVERY earner typed a take-home above zero. Otherwise each earner's typed take-home × their periods in a year (weekly 52, every two weeks 26, monthly 12, hourly counted as 12), added.",
+  "handed": "export function enteredLandsAnnual(op: OnboardingProfile | null): number | null",
+  "inputs_it_reads": [
+   "MK-XS-I-039 how often each income arrives"
+  ]
+ },
+ {
+  "id": "MK-CF-F-181",
+  "name": "rateInForce",
+  "kind": "function",
+  "what_it_is_for": "THE ONE ANSWER every screen reads.",
+  "formula_in_words": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) ÷ that income, by filing status, with the standard deduction.",
+  "handed": "export function rateInForce(op: OnboardingProfile | null): RateInForce",
   "inputs_it_reads": [
    "MK-XS-I-023 salary and other income",
-   "MK-XS-I-043 their own retirement contribution",
-   "MK-XS-I-059 the month a bonus lands"
+   "MK-XS-I-043 their own retirement contribution"
   ]
  },
  {
-  "id": "MK-CF-F-101",
-  "name": "taxOwedFor",
+  "id": "MK-CF-F-183",
+  "name": "paidOutByAccount",
   "kind": "function",
-  "what_it_is_for": "Federal tax owed under a filing status, plus an optional user-set FLAT state rate applied to TAXABLE income (E10) — states differ wildly, so one honest user-entered percent beats fifty guessed tables, and it never taxes the deduction.",
-  "formula_in_words": "Taxable income (taxableIncomeFor) taxed band by band on the filing status's 2026 table — each slice at its own rate — plus taxable income × the state rate (held between 0 and 15%).",
-  "handed": "export function taxOwedFor(gross: number, status: FilingStatus = 'single', stateRate = 0, over65 = 0): number",
+  "what_it_is_for": "What each account actually PAID OUT in the last year, by account.",
+  "formula_in_words": "Dividends, interest and coupons dated within the last year (on or after the same date last year), not reinvested, added by account.",
+  "handed": "function paidOutByAccount(txns: any[] | null | undefined, now: Date): Map<string, number>",
+  "inputs_it_reads": [
+   "MK-XS-I-008 transaction amount",
+   "MK-XS-I-024 logged expenses"
+  ]
+ },
+ {
+  "id": "MK-CF-F-185",
+  "name": "needsTakeHomeConversion",
+  "kind": "function",
+  "what_it_is_for": "True when this profile still holds a pre-2026-08-28 take-home entry.",
+  "formula_in_words": "True when the pay was stored the old way — as take-home — and is above zero.",
+  "handed": "export function needsTakeHomeConversion(op: OnboardingProfile | null): boolean",
+  "inputs_it_reads": [
+   "MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly"
+  ]
+ },
+ {
+  "id": "MK-CF-F-186",
+  "name": "convertTakeHomeMode",
+  "kind": "function",
+  "what_it_is_for": "Convert it. What they typed becomes what LANDS; the gross is worked back once and stored.",
+  "formula_in_words": "Unchanged unless it needs converting (needsTakeHomeConversion). Otherwise: yearly take-home = the stored figure × the periods in a year (weekly 52, every two weeks 26, monthly 12, hourly counted as 12); yearly gross = the gross whose federal tax leaves exactly that take-home (grossFromNet); the stored base pay becomes yearly gross ÷ periods; the typed take-home becomes the original figure; the mode becomes gross.",
+  "handed": "export function convertTakeHomeMode<T extends Record<string, any>>(op: T): T {",
+  "inputs_it_reads": [
+   "MK-XS-I-039 how often each income arrives",
+   "MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly"
+  ]
+ },
+ {
+  "id": "MK-CF-F-187",
+  "name": "seniorDeductionFor",
+  "kind": "function",
+  "what_it_is_for": "How much of the $6,000-per-person senior deduction does this return get?",
+  "formula_in_words": "0 outside tax years 2025 to 2028; when filing separately; when nobody is 65 or over; or when the income is not known. Otherwise $6,000 × the people 65 or over (2 at most), less 6% of the income above $75,000 (single, head of household) or $150,000 (married); never below 0.",
+  "handed": "export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, magi: number | null = null): number",
   "inputs_it_reads": [
    "MK-XS-I-030 tax filing status and age"
   ]
  },
  {
-  "id": "MK-CF-F-102",
-  "name": "effectiveRateOnGrossFor",
+  "id": "MK-CF-F-188",
+  "name": "householdPreTaxContributionsAnnual",
   "kind": "function",
-  "what_it_is_for": "What share of my income actually goes in tax?",
-  "formula_in_words": "taxOwedFor ÷ gross; 0 when the gross is zero or less.",
-  "handed": "export function effectiveRateOnGrossFor(gross: number, status: FilingStatus = 'single', stateRate = 0, over65 = 0): number",
+  "what_it_is_for": "The household's pre-tax 401(k) contributions for the year — every earner's, added up.",
+  "formula_in_words": "Each earner's monthly 401(k) added, × 12.",
+  "handed": "export function householdPreTaxContributionsAnnual(op: OnboardingProfile | null): number",
   "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-043 their own retirement contribution"
   ]
  },
  {
-  "id": "MK-CF-F-103",
-  "name": "marginalBracketFor",
+  "id": "MK-CF-F-189",
+  "name": "essentialsFromLoggedSpending",
   "kind": "function",
-  "what_it_is_for": "Which federal band does this person's last dollar fall in?",
-  "formula_in_words": "The rate of the band the taxable income falls in; income exactly on a band's top belongs to that band.",
-  "handed": "export function marginalBracketFor(gross: number, status: FilingStatus = 'single', over65 = 0): number",
+  "what_it_is_for": "What does a month actually cost, from what has been logged?",
+  "formula_in_words": "Adds the logged expenses by calendar month. Looks at the 12 months BEFORE the current month. When at least one of those months holds any expense: average = their total ÷ the number of months that hold any — empty months are not counted as zero — labelled N month average. When none does: if the current month holds any, that month's total so far, labelled as one month; otherwise nothing.",
+  "handed": "export function essentialsFromLoggedSpending(expenses: LoggedSpend[], now: Date = new Date()): EssentialsAverage | null",
   "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-024 logged expenses"
+  ],
+  "figures_it_feeds": [
+   {
+    "id": "MK-MN-M-020",
+    "words_on_screen": "N months of essentials is $X ($Y/month)",
+    "unit": "words",
+    "what_it_answers": "What the emergency fund you are aiming for actually costs.",
+    "when_it_refuses": "No essentials figure yet.",
+    "shown_on": [
+     "/jobsafety"
+    ]
+   },
+   {
+    "id": "MK-MN-M-021",
+    "words_on_screen": "Using $X/month from your logged expenses",
+    "unit": "words",
+    "what_it_answers": "Where the essentials figure came from, and how many months it stands on.",
+    "when_it_refuses": "Nothing logged — it says the plan you entered is being used instead.",
+    "shown_on": [
+     "/jobsafety"
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "said_by": "author",
+    "about": "MK-MN-M-021",
+    "words": "The label names the basis so nobody has to guess whether it is one month or a year (his ruling G21)."
+   }
   ]
  },
  {
-  "id": "MK-CF-F-104",
-  "name": "ltcgRateFor",
+  "id": "MK-CF-F-190",
+  "name": "essentialsMonthly",
   "kind": "function",
-  "what_it_is_for": "The user's own long-term capital-gains rate, from their income + filing status (federal).",
-  "formula_in_words": "On taxable income (taxableIncomeFor): 0% up to the first threshold, 15% up to the second, 20% above. 2026 thresholds — single $49,450 and $545,500; married $98,900 and $613,700; married filing separately $49,450 and $306,850; head of household $66,200 and $579,600. Income exactly on a threshold takes the lower rate.",
-  "handed": "export function ltcgRateFor(gross: number, status: FilingStatus = 'single', over65 = 0): number",
+  "what_it_is_for": "The one essentials-a-month figure a screen divides by, and where it came from.",
+  "formula_in_words": "The logged average (essentialsFromLoggedSpending) when there is one; otherwise the typed figure when it is above zero, labelled you entered; otherwise nothing.",
+  "handed": "export function essentialsMonthly(expenses: LoggedSpend[], typed: number, now: Date = new Date()): EssentialsMonthly | null",
   "inputs_it_reads": [
-   "MK-XS-I-030 tax filing status and age"
+   "MK-XS-I-024 logged expenses"
+  ],
+  "figures_it_feeds": [
+   {
+    "id": "MK-MN-M-024",
+    "words_on_screen": "You could cover a $X hit",
+    "unit": "money",
+    "what_it_answers": "Whether your cash would absorb a sudden cost.",
+    "when_it_refuses": "No cash entered.",
+    "shown_on": [
+     "/stress-test"
+    ]
+   },
+   {
+    "id": "MK-MN-M-025",
+    "words_on_screen": "You'd have $X left — about N months of essentials",
+    "unit": "words",
+    "what_it_answers": "What would be left after the hit, and how long that would last.",
+    "when_it_refuses": "No essentials figure — the months are not stated rather than guessed.",
+    "shown_on": [
+     "/stress-test"
+    ]
+   },
+   {
+    "id": "MK-MN-M-026",
+    "words_on_screen": "your $X/month of essentials",
+    "unit": "money",
+    "per": "month",
+    "what_it_answers": "What one month of the things you cannot skip costs.",
+    "when_it_refuses": "Nothing logged and no plan set.",
+    "shown_on": [
+     "/stress-test"
+    ]
+   },
+   {
+    "id": "MK-NW-M-013",
+    "words_on_screen": "EMERGENCY FUND — X.X months",
+    "unit": "months",
+    "what_it_answers": "How many months your cash would cover, if your income stopped tomorrow.",
+    "when_it_refuses": "No essentials figure yet — it says so rather than dividing by nothing.",
+    "shown_on": [
+     "/analytics",
+     "/jobsafety"
+    ]
+   },
+   {
+    "id": "MK-NW-M-014",
+    "words_on_screen": "of essentials covered by your cash — $X cash ÷ $Y/month essentials",
+    "unit": "words",
+    "what_it_answers": "The sum written out, so the months figure can be checked by eye.",
+    "when_it_refuses": "Nothing logged and no plan set.",
+    "shown_on": [
+     "/analytics"
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "said_by": "owner",
+    "decision": "DEC-0260",
+    "date": "2026-09-09",
+    "words": "the screen shows $0 with a sentence explaining nothing is entered, and the door; the sentence approved; one mock of the pattern on one screen"
+   },
+   {
+    "said_by": "author",
+    "about": "MK-NW-M-013",
+    "words": "ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged."
+   }
   ]
  },
  {
-  "id": "MK-CF-F-117",
-  "name": "txnLabel",
+  "id": "MK-CF-F-192",
+  "name": "inflowLabel",
   "kind": "function",
-  "what_it_is_for": "What do we call this kind of row on screen?",
-  "formula_in_words": "The plain name for a kind of record; the kind's own code when it has none.",
-  "handed": "export function txnLabel(t: TxnType): string"
+  "what_it_is_for": "The inflow line names what is inside it — founder's cluster #5 ruling (2026-09-10): the words in the brackets are the sources, \"Inflow (income (take-home) + rent)\".",
+  "formula_in_words": "The prefix, then the source words in brackets joined by a plus sign — each word once, in the order given. With no sources: income (take-home).",
+  "handed": "export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow', sources?: string[]): string"
  },
  {
-  "id": "MK-CF-F-118",
-  "name": "cashEffect",
+  "id": "MK-CF-F-193",
+  "name": "inflowSourceWord",
   "kind": "function",
-  "what_it_is_for": "Signed cash effect on the primary account (for display).",
-  "formula_in_words": "The change in cash from one record. Deposit: + amount. Sale: + shares × price — the amount, when that product is zero. Dividend, interest, coupon: + amount; 0 when reinvested. Withdrawal or fee: − amount. Buy: − shares × price. Transfer: − amount. Anything else: 0.",
-  "handed": "export function cashEffect(t: Transaction): number",
-  "inputs_it_reads": [
-   "MK-XS-I-004 holding quantity (shares)",
-   "MK-XS-I-008 transaction amount"
+  "what_it_is_for": "One source of money arriving, as the bracket says it: pay is \"income (take-home)\", a rental is \"rent\", Social Security keeps its name, anything else is its own name in lower case.",
+  "formula_in_words": "The source lower-cased and trimmed. Starting with salary, base salary or paycheck → income (take-home). Starting with rental, or exactly rent → rent. Starting with social security → Social Security. Anything else → itself, with a trailing bracketed part removed.",
+  "handed": "export function inflowSourceWord(source: string): string"
+ },
+ {
+  "id": "MK-CF-F-195",
+  "name": "monthsLeftInYear",
+  "kind": "function",
+  "what_it_is_for": "Months left in the year INCLUDING the current one — December counts as 1, never 0.",
+  "formula_in_words": "12 − the number of months already finished this year: 12 in January, 1 in December. The current month counts as left.",
+  "handed": "export function monthsLeftInYear(now: Date = new Date()): number",
+  "figures_it_feeds": [
+   {
+    "id": "MK-MN-M-003",
+    "words_on_screen": "$X left / up to $Y",
+    "unit": "money",
+    "what_it_answers": "How much more you can still put into this account this year.",
+    "when_it_refuses": "No birth year entered — the catch-up cannot be judged, so the limit says it is the base one.",
+    "shown_on": [
+     "/contribution-room",
+     "/home"
+    ]
+   },
+   {
+    "id": "MK-MN-M-004",
+    "words_on_screen": "about $X of the $Y limit",
+    "unit": "money",
+    "what_it_answers": "What has gone in so far, against what the law allows.",
+    "when_it_refuses": "Nothing entered yet.",
+    "shown_on": [
+     "/contribution-room"
+    ]
+   },
+   {
+    "id": "MK-MN-M-005",
+    "words_on_screen": "about $X for the rest of the year",
+    "unit": "money",
+    "per": "month",
+    "what_it_answers": "What filling the remaining room would cost you each month.",
+    "when_it_refuses": "Nothing left to fill.",
+    "shown_on": [
+     "/contribution-room"
+    ]
+   },
+   {
+    "id": "MK-MN-M-029",
+    "words_on_screen": "each contribution and its amount",
+    "unit": "money",
+    "what_it_answers": "One line per tax-advantaged account, and what has gone into it.",
+    "when_it_refuses": "Nothing entered for that account.",
+    "shown_on": [
+     "/contribution-room"
+    ]
+   }
+  ],
+  "rules": [
+   {
+    "said_by": "author",
+    "about": "MK-MN-M-003",
+    "words": "The age tested is the age ATTAINED IN THE YEAR (his ruling G1) — someone turning 50 in December gets the catch-up for the whole year."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-MN-M-004",
+    "words": "Capped at the limit: a figure above it would be describing a contribution the law does not permit."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-MN-M-005",
+    "words": "THIS MONTH COUNTS (his ruling G36). Leaving it out told people to save more per month than they need to."
+   },
+   {
+    "said_by": "author",
+    "about": "MK-MN-M-029",
+    "words": "Enrolled in Medicare means NO HSA contribution is allowed at all — not a smaller one (his ruling G10, 2026-09-08)."
+   }
   ]
- },
- {
-  "id": "MK-CF-F-122",
-  "name": "addDays",
-  "kind": "function",
-  "what_it_is_for": "The date a given number of days after another date.",
-  "formula_in_words": "The date moved by that many whole days.",
-  "handed": "function addDays(d: Date, n: number): Date"
- },
- {
-  "id": "MK-CF-F-163",
-  "name": "monthKey",
-  "kind": "function",
-  "what_it_is_for": "'YYYY-MM' for a date, read from the local clock — never toISOString, which is UTC.",
-  "formula_in_words": "A date written as year-month, for example 2026-08.",
-  "handed": "export function monthKey(d: Date): string"
- },
- {
-  "id": "MK-CF-F-164",
-  "name": "monthWindow",
-  "kind": "function",
-  "what_it_is_for": "`count` month keys starting `back` months before `from` — the shape the base-pay table needs.",
-  "formula_in_words": "A run of year-months: it starts that many months back from the given date and holds that many months.",
-  "handed": "export function monthWindow(from: Date, back: number, count: number): string[]"
- },
- {
-  "id": "MK-CF-F-165",
-  "name": "salaryMonths",
-  "kind": "function",
-  "what_it_is_for": "THE canonical table: month key → amount, whatever shape it was stored in.",
-  "formula_in_words": "The stored month table as year-month → amount. A table kept as twelve plain figures is read as January to December of this year. Rows whose key is not a year-month are dropped. Empty when there is none.",
-  "handed": "export function salaryMonths(op: OnboardingProfile | null, now: Date = new Date()): Record<string, number>",
-  "inputs_it_reads": [
-   "MK-XS-I-023 salary and other income"
-  ]
- },
- {
-  "id": "MK-CF-F-166",
-  "name": "hasMonthlySalaryTable",
-  "kind": "function",
-  "what_it_is_for": "Did they tell us their pay varies month to month?",
-  "formula_in_words": "True when salaryMonths holds any row.",
-  "handed": "export function hasMonthlySalaryTable(op: OnboardingProfile | null): boolean"
- },
- {
-  "id": "MK-CF-F-173",
-  "name": "earnerWages",
-  "kind": "function",
-  "what_it_is_for": "The wages this household actually has, in the order the screen shows them.",
-  "formula_in_words": "Who earns = both: the person's own wage record, plus the spouse's when it has a wage. Who earns = the spouse, and the spouse's record has a wage: the spouse's only. Otherwise the person's own only.",
-  "handed": "export function earnerWages(op: OnboardingProfile | null): EarnerWage[]"
  }
 ]
 ```
 
 ## Formulas these cards lean on
 
-8 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
+6 functions named by the formulas above whose own cards are in another batch. They are here so you can work your answers. Do not judge or test them in this batch.
 
 ```json
 [
@@ -522,16 +669,10 @@ export type TxnType =
   "formula_in_words": "totalGrossAnnual WITHOUT the untaxed parts: salary + tips + bonus + signing bonus + stock vesting + net rent + taxed extra in a month × 12 + one-off taxed + retirement income in a month × 12. The 401(k) is NOT taken off here."
  },
  {
-  "id": "MK-CF-F-087",
-  "name": "monthlyTaxRates",
-  "what_it_is_for": "The tax rate for each of the twelve months, as a share: the one rate in force in every month — the person's own where they gave one, otherwise the calculated rate.",
-  "formula_in_words": "Twelve rates, all the same: the rate in force (rateInForce) — the person's own, or the calculated one. A steady income is taxed the same in every month."
- },
- {
-  "id": "MK-CF-F-088",
-  "name": "taxableByCalendarMonth",
-  "what_it_is_for": "The calendar-year TAXABLE profile (Jan→Dec) — the same placement rules incomeMonthlyGrid uses, extracted so the rate vector and the grid can never drift apart.",
-  "formula_in_words": "For each calendar month: gross salary + tips (only in months with salary) + net rent ÷ 12 + that month's stock vesting + taxed extra in a month + retirement income; + the bonus in its month (December when none); + the signing bonus in January; + one-off taxed other income in its month; − the household's 401(k) that month. Never below 0."
+  "id": "MK-CF-F-097",
+  "name": "grossFromNet",
+  "what_it_is_for": "Invert the schedule: the gross income whose take-home equals `net` (bisection).",
+  "formula_in_words": "0 when the take-home is zero or less. Otherwise it searches between the take-home and three times it, halving the range 50 times, for the gross at which gross − federal tax (taxOwedFor, no state tax) equals the take-home."
  },
  {
   "id": "MK-CF-F-099",
@@ -546,16 +687,10 @@ export type TxnType =
   "formula_in_words": "Gross − the deduction (deductionFor, with the gross itself used as the income for the senior deduction's phase-out); never below 0."
  },
  {
-  "id": "MK-CF-F-181",
-  "name": "rateInForce",
-  "what_it_is_for": "THE ONE ANSWER every screen reads.",
-  "formula_in_words": "In this order. (1) The person chose to type a rate: that percent ÷ 100, held between 0 and 1. (2) Yearly salary is above zero and every earner typed a take-home: rate = (yearly salary − 401(k) for the year − yearly take-home, never below 0) ÷ yearly salary, held between 0 and 1. Both of these count as the person's own. (3) Otherwise calculated: federal income tax plus state tax on the yearly taxed income (taxableAnnual) LESS the household's 401(k) contributions for the year — they come off before tax — ÷ the yearly taxed income, by filing status, with the standard deduction. 0 when there is no taxed income."
- },
- {
-  "id": "MK-CF-F-187",
-  "name": "seniorDeductionFor",
-  "what_it_is_for": "How much of the $6,000-per-person senior deduction does this return get?",
-  "formula_in_words": "0 outside tax years 2025 to 2028; when filing separately; when nobody is 65 or over; or when the income is not known. Otherwise $6,000 × the people 65 or over (2 at most), less 6% of the income above $75,000 (single, head of household) or $150,000 (married); never below 0."
+  "id": "MK-CF-F-101",
+  "name": "taxOwedFor",
+  "what_it_is_for": "Federal tax owed under a filing status, plus an optional user-set FLAT state rate applied to TAXABLE income (E10) — states differ wildly, so one honest user-entered percent beats fifty guessed tables, and it never taxes the deduction.",
+  "formula_in_words": "Taxable income (taxableIncomeFor) taxed band by band on the filing status's 2026 table — each slice at its own rate — plus taxable income × the state rate (held between 0 and 15%)."
  }
 ]
 ```

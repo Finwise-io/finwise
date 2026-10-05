@@ -1,6 +1,6 @@
 # Brief — check the formula, then write the test cases, from outside
 
-MoneyKeel · calculation audit · v04 · 2026-10-04
+MoneyKeel · calculation audit · v03 · 2026-10-04
 
 ## What this is
 
@@ -77,11 +77,10 @@ For every card, read `what_it_is_for`, then `formula_in_words`, and give one ver
 Judge it against, in this order:
 
 1. **The owner's rules** on the card, and the **approved drawing** where there is one.
-   Every return is a time-weighted return (owner, 2026-10-04). A return made any other way is `WRONG`.
 2. **Published sources** — for tax bands, deductions, contribution limits and thresholds. Name the
    source and the year. A wrong amount is a `WRONG` formula.
 3. **Standard finance practice** — for returns, loan payments, payoff orders, yearly rates. Name the
-   method (for example, the time-weighted return; the standard loan-payment formula).
+   method (for example, the Modified Dietz method; the standard loan-payment formula).
 4. **Ordinary arithmetic, and whether it agrees with itself.**
 
 Look hard for these, because they are the shapes the five known errors took:
@@ -270,9 +269,7 @@ in `notes` saying why.
 What each is made of. The comments inside are the in-house author's.
 
 ```ts
-export interface AltSummary { count: number; totalValue: number;
-  /** Null when nothing is held: 0% would read as a forecast. */
-  blendedReturn: number | null; estAnnualGrowth: number; }
+export interface AltSummary { count: number; totalValue: number; blendedReturn: number; estAnnualGrowth: number; }
 
 export interface AssetAccount {
   asset_id: EntityId;
@@ -391,8 +388,8 @@ export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
    "MK-XS-I-014 debt balance",
    "MK-XS-I-015 debt interest rate",
    "MK-XS-I-016 debt minimum payment",
-   "MK-XS-I-024 logged expenses",
-   "MK-XS-I-028 assumed return"
+   "MK-XS-I-028 assumed return",
+   "MK-XS-I-048 the person’s own asset-class answer"
   ]
  },
  {
@@ -400,7 +397,7 @@ export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
   "name": "alternativesSummary",
   "kind": "function",
   "what_it_is_for": "Adds up the alternative investments: how many there are, what they are worth together, their blended yearly growth rate and the growth in dollars that rate gives over a year.",
-  "formula_in_words": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total (no figure when the total is 0); growth in a year = total × blended rate (0 when there is no rate).",
+  "formula_in_words": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total (0 when the total is 0); growth in a year = total × blended rate.",
   "handed": "export function alternativesSummary(accounts: AssetAccount[]): AltSummary",
   "inputs_it_reads": [
    "MK-XS-I-001 account balance",
@@ -521,7 +518,7 @@ export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
   "id": "MK-NW-F-001",
   "name": "isAlternative",
   "what_it_is_for": "Is this account an \"other investment\" — an alternative held at a manual value (not a bond, not cash/property)?",
-  "formula_in_words": "True when the account's class (assetClassOf) is Alternatives."
+  "formula_in_words": "True when the account's kind is crypto, private equity, hedge funds, commodities, annuities, options or other; AND it has no maturity date; AND it is not property."
  },
  {
   "id": "MK-NW-F-011",
