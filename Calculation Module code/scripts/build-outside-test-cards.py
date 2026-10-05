@@ -618,6 +618,62 @@ def main():
               + ', '.join(f"{c['card']['id']} {c['card']['name']}" for c in moved))
     else:
         print('changed since the pack was sent: none')
+    if '--final-audit' in sys.argv:
+        # ONE LAST LOOK AT A BATCH, AS IT STANDS NOW (founder, 2026-10-05: "write another brief for Gemini
+        # for NW-01 to conduct one final audit before we move to NW-02"). The cards of that batch as they
+        # first went out are read for their identifiers only; what is written is each of those functions
+        # AS IT IS IN THE APP TODAY, plus any named with --also (functions added while correcting the
+        # batch, which no outside judge has seen). Nothing of an earlier review goes in: the judge works
+        # separately, and would start to agree with it. The pack as sent is not touched.
+        batch = sys.argv[sys.argv.index('--final-audit') + 1]                       # e.g. networth_01
+        who = sys.argv[sys.argv.index('--for') + 1] if '--for' in sys.argv else 'the outside judge'
+        also = sys.argv[sys.argv.index('--also') + 1].split(',') if '--also' in sys.argv else []
+        went_out = [f for f in os.listdir(send_dir) if f.startswith(f'moneykeel_audit_cards_{batch}-of-')]
+        assert len(went_out) == 1, f'{len(went_out)} files match batch {batch} — name one batch'
+        judged_then = open(os.path.join(send_dir, went_out[0]), encoding='utf8').read().split('## Formulas these cards lean on')[0]
+        wanted = list(dict.fromkeys(re.findall(r'^  "id": "(MK-[A-Z]{2}-[OF]-\d+)"', judged_then, re.M) + also))
+        chosen = [c for c in testable if c['card']['id'] in wanted]
+        missing_cards = [i for i in wanted if i not in {c['card']['id'] for c in chosen}]
+        assert not missing_cards, f'no card today for {missing_cards} — a function of this batch was removed or is not tested'
+        label = batch.replace('_', ' ') + ' final'
+        lean = appendix(chosen)
+        rulings = [r for r in (rules_file.get('final_audit_rulings') or [])]
+        body = [f'Written for: {who}, as the outside judge of batch "{label}". You have not seen any earlier review of these '
+                'functions and none is given here: judge them as if for the first time.', '',
+                brief, '', '---', '',
+                f'# The cards — batch "{label}"', '',
+                f'{len(chosen)} cards, so {len(chosen)} formula checks and {len(chosen) * 5} cases. Put `"batch": "{label}"` in your reply.', '',
+                '## Why this batch is in front of you', '',
+                'These functions were corrected after their cards were first written. The formula on each card below is the one in '
+                'the app now. Before the next batch is opened, the owner wants one more independent check that nothing in this '
+                'batch is still wrong or left unsaid.', '',
+                '## What the owner has ruled since — settled, in his words', '']
+        body += [f'{i}. {r["date"]} — "{r["words"]}" {r["about"]}' for i, r in enumerate(rulings, 1)]
+        body += ['', '## A third job, for this batch only — say whether it can be closed', '',
+                 'Do Job 1 and Job 2 for every card, exactly as the brief above describes. Then add two fields at the top level of your reply:', '',
+                 '- `"ready_to_close"`: `true` when you judged every card `RIGHT`, otherwise `false`.',
+                 '- `"still_open"`: one line for each card you judged `WRONG`, `INCOMPLETE` or `CANNOT TELL`, naming the card and what must change. An empty list when there is none.', '',
+                 'Where to look hardest, in any batch about what a household owns and owes:', '',
+                 '1. Every total against the sum of its own parts.',
+                 '2. Anything that could be counted twice, or not at all — rent, a mortgage, a debt payment that was also logged as an expense.',
+                 '3. What is shown when an input is missing: a refusal with its reason, never a zero.',
+                 '4. A date that falls exactly on a boundary — matures today, held exactly one year.',
+                 '5. Money added or taken out in the middle of a period, when the figure is a return.', ''] + tables
+        types = {}
+        for c in chosen:
+            types.update(c['types'])
+        if types:
+            body += ['## The app\'s own types these cards name', '', 'What each is made of. The comments inside are the in-house author\'s.', '',
+                     '```ts', '\n\n'.join(types[t] for t in sorted(types)), '```', '']
+        body += ['## The cards', '', '```json', json.dumps([c['card'] for c in chosen], indent=1, ensure_ascii=False), '```', '']
+        if lean:
+            body += ['## Formulas these cards lean on', '',
+                     f'{len(lean)} functions named by the formulas above. They are here so you can work your answers. Do not judge or test them in this batch.', '',
+                     '```json', json.dumps(lean, indent=1, ensure_ascii=False), '```', '']
+        name = f'moneykeel_audit_final_{batch.replace("_", "")}_for-{who.lower().replace(" ", "-")}_v01.md'
+        open(os.path.join(send_dir, name), 'w', encoding='utf8').write('\n'.join(body))
+        print(f'final audit written: to-send/{name} — {len(chosen)} cards ({len(wanted) - len(also)} of the batch as it went out, {len(also)} added since), {len(lean)} leaned on')
+        return
     if '--supplement' in sys.argv:
         # a supplement, once written, is also something he may have sent: the next one holds only what
         # has moved since the LAST file each card went out in

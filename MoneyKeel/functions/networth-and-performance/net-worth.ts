@@ -55,6 +55,10 @@ export interface TheNetWorth {
   investableChangePct: number | null;
   /** Which mortgage is on which property, and which are on none (his rule, 2026-10-04, DEC-1925). */
   mortgageCheck: MortgageCheck;
+  /** Holdings nothing could class, which the person is asked about (his ruling, 2026-09-30, master
+   *  Q11: "Refuse the line and ask") — and the sentence that asks. Empty when there are none. */
+  unclassed: { accountId: string; account: string; positionId: string; holding: string }[];
+  unclassedSentence: string;
 }
 
 /** What am I worth: everything I own, less everything I owe, and how each breaks down?
@@ -75,11 +79,11 @@ export interface TheNetWorth {
  *     nw = build net worth(input.uid, a state.total asset value, d state.total debt balance)
  *     by class = asset allocation(accounts)
  *     investable = investable assets(accounts)
+ *     the answer = { unclassed, unclassed sentence }
  *     nothing   when input.since is missing
  *     today = input.today (or iso local date(new date()) when missing)
  *     start = `${input.since}-01`   if input.since.length = 7
  *     input.since   otherwise
- *     measured = accounts where !is real asset(each)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-082 NW · MK-NW-F-100 TREND
@@ -97,6 +101,8 @@ export interface TheNetWorth {
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-014 debt balance
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-056 how a holding was classified, and by whom
  * Ruled by .... DEC-0008 · DEC-0010 · DEC-0023 · DEC-0047 · DEC-0048 · DEC-0051
  *               DEC-0052 · DEC-0054 · DEC-0060 · DEC-0061 · DEC-0066 · DEC-0069
  *               DEC-0070 · DEC-0072 · DEC-0074 · DEC-0089 · DEC-0090 · DEC-0091
@@ -178,6 +184,16 @@ export function theNetWorth(input: {
     monthlyDebtPayments: debtLines.reduce((t, d) => t + d.minimumMonthly, 0),
     trend: trendPoints(input.monthlyHistory, input.dailyNetWorth),
     mortgageCheck: mortgagesByProperty(accounts, debts),
+    ...(() => {
+      const unclassed = accounts.flatMap((a: any) => ((a.positions ?? []) as any[])
+        .filter((p) => p.class_asked && p.class_source !== 'user')
+        .map((p) => ({ accountId: String(a.asset_id), account: String(a.label ?? ''), positionId: String(p.position_id), holding: String(p.name || p.ticker || 'a holding') })));
+      const unclassedSentence = unclassed.length === 0 ? ''
+        : unclassed.length === 1
+          ? `The app cannot tell what ${unclassed[0].holding} in ${unclassed[0].account} is, so it is in no class yet. Open it and say what it is.`
+          : `The app cannot tell what ${unclassed.length} of your holdings are, so they are in no class yet. Open each and say what it is.`;
+      return { unclassed, unclassedSentence };
+    })(),
     // THE RETURN ON CASH + INVESTMENTS IS TIME-WEIGHTED (owner decision, 2026-10-04, DEC-1669: "All
     // return should be True Weighted Return and not Dietz return."). It was a change in balance:
     // today's total ÷ the first total on record, less 1 — so $60,000 paid in read as $60,000 earned

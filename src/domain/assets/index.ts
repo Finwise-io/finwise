@@ -1067,6 +1067,7 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  *               MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
  *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-056 how a holding was classified, and by whom
  *
  * Decides .....
  *     · If cash balance is missing it uses 0.
@@ -1089,6 +1090,9 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
     // (Stocks / Funds), CDs and T-bills pay interest (Bonds & CDs). This used to live ONLY in the
     // one-time migration over stored data, so a position synced AFTER the migration ran landed back
     // in Cash — the same defect as the founder's original CD-under-Cash finding, mirrored in time.
+    // HIS RULING, 2026-09-30 (master Q11: "Refuse the line and ask"): a holding nothing could class is
+    // in NO class until the person says what it is — it is Unclassified, never a guess.
+    if (p.class_asked && p.class_source !== 'user') { out.mixed += v; continue; }
     const byName = incomeBearingClassOf(`${p.ticker ?? ''} ${p.name ?? p.description ?? ''}`);
     const cls: AssetClass = byName && byName !== 'cash' ? byName
       : p.asset_class === 'bond' ? 'bonds' : p.asset_class === 'other' ? 'alternatives' : p.asset_class === 'cash' ? 'cash' : 'stocks_etf';

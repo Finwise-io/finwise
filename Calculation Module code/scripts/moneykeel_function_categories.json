@@ -3134,6 +3134,11 @@
   "file": "MoneyKeel/functions/cashflow/tax-organizer.ts",
   "category": "2 · DISPLAYED"
  },
+ "theirCost": {
+  "id": "MK-XS-F-184",
+  "file": "src/services/sync/ingest.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "thisMonth": {
   "id": "MK-CF-O-003",
   "file": "MoneyKeel/functions/cashflow/this-month.ts",

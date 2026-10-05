@@ -21,6 +21,13 @@ export interface Position {
   kind?: string;                // ASSET_KINDS id, for benchmark mapping
   asset_class?: 'stock_etf' | 'bond' | 'other' | 'cash';   // explicit class (import/sync sets it; wins over kind); 'cash' = money-market funds a broker didn't flag (live-verified 2026-07-19)
   class_source?: 'user';        // B7: the person set the class themselves — it survives every sync
+  // HIS RULING, 2026-09-30 (master Q12): "user entry stays even if it is not in the import file. If user
+  // modify cost or quantity post import/linked from institution, cost basis should not be overwritten in
+  // future sync as quantity, price and market value can change with time but not cost."
+  cost_source?: 'user';         // the person set this holding's cost: a sync keeps their cost per share
+  added_by?: 'user';            // the person added this holding to a linked account: a sync keeps it
+  // HIS RULING, 2026-09-30 (master Q11): when nothing says what a holding is — "Refuse the line and ask".
+  class_asked?: true;           // nothing said what this is: it is in no class until the person says
   class_flag?: { was: string; evidenceSays: string };   // B7: a sync wanted to move the class; kept + flagged instead
   last_price?: number;          // broker's daily mark (connected accounts — no live feed needed)
   multiplier?: number;          // Q06 (founder, 2026-08-26): an option contract is 100 shares unless the broker or the person states otherwise

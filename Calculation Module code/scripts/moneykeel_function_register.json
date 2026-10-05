@@ -8,7 +8,7 @@
   "PF": 34,
   "PL": 85,
   "ST": 84,
-  "XS": 183
+  "XS": 184
  },
  "issued": {
   "ACC": "MK-NW-F-075",
@@ -643,6 +643,7 @@
   "theNetWorth": "MK-NW-O-003",
   "thePerformance": "MK-NW-O-008",
   "theTaxOrganizer": "MK-CF-O-007",
+  "theirCost": "MK-XS-F-184",
   "thisMonth": "MK-CF-O-003",
   "timeWeightedReturn": "MK-ST-F-081",
   "tipsAnnual": "MK-CF-F-074",

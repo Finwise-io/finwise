@@ -56,6 +56,41 @@ export interface SyncResult {
  */
 export const stAssetId = (snapTradeAccountId: string) => `st-${snapTradeAccountId}`;
 
+/** The cost of one share as the person set it — their purchases' cost averaged over their shares — or nothing when they set none. */
+/* ─ MK-XS-F-184 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * theirCost
+ *
+ * Answers ..... The cost of one share as the person set it — their purchases' cost averaged over their shares — or nothing when they set none.
+ *
+ * Formula .....
+ *     nothing   when prior.cost source ! = 'user'
+ *     lots = (prior.lots ?? []) as { shares?: number; cost per share?: number }[]
+ *     shares = Σ over lots of (shares (or 0 when missing or zero))
+ *     the answer = Σ over shares > 0 ? lots of ((shares or 0) × (cost per share or 0))÷ shares : nothing
+ *
+ * Called by ... MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *
+ * Decides .....
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If cost per share is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-184
+ * Changed ..... not in git yet (—)
+ */
+function theirCost(prior: any): number | null {
+  if (prior?.cost_source !== 'user') return null;
+  const lots = (prior.lots ?? []) as { shares?: number; cost_per_share?: number }[];
+  const shares = lots.reduce((t, l) => t + (l.shares || 0), 0);
+  return shares > 0 ? lots.reduce((t, l) => t + (l.shares || 0) * (l.cost_per_share || 0), 0) / shares : null;
+}
+
 /* ─ MK-XS-F-102 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * ingestSync
  *
@@ -164,10 +199,18 @@ export function ingestSync(
           asset_class: cls === 'bonds' ? 'bond' as const : cls === 'alternatives' ? 'other' as const : cls === 'cash' ? 'cash' as const : 'stock_etf' as const,
           class_source: priorPos?.class_source,                  // the person's answer survives
           class_flag: verdict.flagged ?? priorPos?.class_flag,   // a kept flag stays until resolved
+          cost_source: priorPos?.cost_source,                    // …and so does a cost they set (below)
+          // HIS RULING, 2026-09-30 (master Q11: "Refuse the line and ask"). Where NOTHING says what this
+          // holding is, the app used to file it under Stocks / Funds and move on. It is now marked as
+          // asked: it is counted in no class (it shows as Unclassified) and Net worth asks the person.
+          class_asked: priorPos?.class_source !== 'user' && (verdict.source === 'security-default' || verdict.source === 'unlabelled') ? true as const : undefined,
           lots: m.lots.map((l) => ({
             lot_id: newEntityId('lot'),
             shares: l.shares,
-            cost_per_share: l.cost_per_share ?? 0,
+            // HIS RULING, 2026-09-30 (master Q12): "cost basis should not be overwritten in future sync as
+            // quantity, price and market value can change with time but not cost." The shares are the
+            // broker's; the cost of a share is the person's, where they set one.
+            cost_per_share: theirCost(priorPos) ?? l.cost_per_share ?? 0,
             purchase_date: l.purchase_date ?? '',
           })),
           last_price: m.price ?? undefined,                      // broker's daily mark (no live feed needed)
@@ -206,7 +249,11 @@ export function ingestSync(
         return reported ?? prior?.balance ?? 0;                              // genuinely empty stays honest
       })(),
       cash_balance: netCashSleeve(p.balancesCash, mapped),
-      positions: p.positions != null ? positions : prior?.positions,   // provided-but-empty = sold out (stale rows would lie)
+      // provided-but-empty = sold out (stale rows would lie) — but a holding the PERSON added to this
+      // account is theirs, and stays even when the broker's list does not carry it (the same ruling)
+      positions: p.positions != null
+        ? [...positions, ...((prior?.positions ?? []) as any[]).filter((x) => x.added_by === 'user' && !positions.some((y) => y.ticker === x.ticker))]
+        : prior?.positions,
       option_holdings: optionRows.length ? optionRows.map((o) => ({ label: o.label, contracts: o.contracts, value: o.value, cost_basis: o.costBasis })) : undefined,
       source: 'connected',
       connection_id: st.brokerage_authorization,

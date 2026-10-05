@@ -153,6 +153,57 @@ describe('audit fixes', () => {
     expect(again.directionOf).toEqual([{ account_id: String(first.newTransactions[0].account_id), date: '2026-06-09', ticker: 'VTI', shares: 40, direction: 'OUT' }]);
   });
 
+  // HIS RULING, 2026-09-30 (master Q12): "user entry stays even if it is not in the import file. If user modify
+  // cost or quantity post import/linked from institution, cost basis should not be overwritten in future sync
+  // as quantity, price and market value can change with time but not cost."
+  test('a cost the person set on a linked holding survives the next sync; the shares and the price are still the broker’s', () => {
+    const first = ingestSync([], {}, [payload()], NOW);
+    const id = stAssetId('acc-1');
+    const mine = first.accounts.map((a) => a.asset_id !== id ? a : { ...a, positions: a.positions!.map((p: any) =>
+      ({ ...p, cost_source: 'user', lots: [{ lot_id: 'l', shares: 100, cost_per_share: 180, purchase_date: '2024-03-01' }] })) });
+    // the broker now reports more shares at a new price, and still says the average cost was $200
+    const next = ingestSync(mine, first.seenKeys, [payload({ positions: [
+      { symbol: { id: 'u-vti', raw_symbol: 'VTI', description: 'Vanguard Total', type: { code: 'et' } } as any, units: 120, price: 260, average_purchase_price: 200 }] })], NOW);
+    const p: any = next.accounts.find((a) => a.asset_id === id)!.positions![0];
+    expect(p.lots.reduce((t: number, l: any) => t + l.shares, 0)).toBe(120);     // quantity can change with time
+    expect(p.last_price).toBe(260);                                                 // so can price
+    expect(p.lots.every((l: any) => l.cost_per_share === 180)).toBe(true);          // cost cannot: theirs, not $200
+    expect(p.cost_source).toBe('user');                                             // and it stays theirs on the sync after
+  });
+
+  test('a holding the person never touched takes the broker’s cost, as it always did', () => {
+    const first = ingestSync([], {}, [payload()], NOW);
+    const next = ingestSync(first.accounts, first.seenKeys, [payload()], NOW);
+    expect((next.accounts[0].positions![0] as any).lots[0].cost_per_share).toBe(200);
+  });
+
+  test('a holding the person added to a linked account stays when the broker’s list does not carry it', () => {
+    const first = ingestSync([], {}, [payload()], NOW);
+    const id = stAssetId('acc-1');
+    const added = { position_id: 'mine', ticker: 'PRIVCO', added_by: 'user', cost_source: 'user', lots: [{ lot_id: 'l', shares: 10, cost_per_share: 50, purchase_date: '2025-01-01' }] };
+    const mine = first.accounts.map((a) => a.asset_id !== id ? a : { ...a, positions: [...a.positions!, added as any] });
+    const next = ingestSync(mine, first.seenKeys, [payload()], NOW);
+    const tickers = next.accounts.find((a) => a.asset_id === id)!.positions!.map((p) => p.ticker);
+    expect(tickers).toEqual(['VTI', 'PRIVCO']);
+    // a broker holding that is simply gone is still dropped: sold out, and a stale row would lie
+    const soldOut = ingestSync(mine, first.seenKeys, [payload({ positions: [] })], NOW);
+    expect(soldOut.accounts.find((a) => a.asset_id === id)!.positions!.map((p) => p.ticker)).toEqual(['PRIVCO']);
+  });
+
+  // HIS RULING, 2026-09-30 (master Q11): when nothing says what a holding is — "Refuse the line and ask".
+  test('a holding nothing can class is marked as asked; one with evidence is not; the person’s answer ends the asking', () => {
+    const unknown = { symbol: { id: 'u-zz', raw_symbol: 'ZZZZ', description: '', type: { code: '' } } as any, units: 10, price: 5, average_purchase_price: 4 };
+    const first = ingestSync([], {}, [payload({ positions: [...payload().positions!, unknown] })], NOW);
+    const positions: any[] = first.accounts[0].positions as any;
+    expect(positions.find((p) => p.ticker === 'ZZZZ').class_asked).toBe(true);
+    expect(positions.find((p) => p.ticker === 'VTI').class_asked).toBeUndefined();        // the broker says it is an ETF
+    // they say what it is: the answer stays through the next sync, and nothing asks again
+    const answered = first.accounts.map((a) => ({ ...a, positions: (a.positions as any[]).map((p) => p.ticker === 'ZZZZ' ? { ...p, asset_class: 'bond', class_source: 'user', class_asked: undefined } : p) }));
+    const next = ingestSync(answered as any, first.seenKeys, [payload({ positions: [...payload().positions!, unknown] })], NOW);
+    const z: any = (next.accounts[0].positions as any[]).find((p) => p.ticker === 'ZZZZ');
+    expect([z.asset_class, z.class_source, z.class_asked]).toEqual(['bond', 'user', undefined]);
+  });
+
   // ── LIVE-VERIFIED against a real E*TRADE connection, 2026-07-19 ─────────────────────────────
   test('broker sells carry NEGATIVE units — the ledger stores positive shares or realized P/L never sees a single connected sale', () => {
     const r = ingestSync([], {}, [payload({ activities: [

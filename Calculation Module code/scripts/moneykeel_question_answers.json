@@ -16,6 +16,41 @@
    "answered": "2026-09-30",
    "his_words": "Q53 - what actually leaves.",
    "what_was_built": "The line reads “Monthly debt payments” and two amounts could go there: the minimum each debt obliges, or the money that actually goes. On a card with a  minimum paid at , it read  and now reads . HIS WORDS: “what actually leaves.” The words say payments, and what a person pays is what they pay. The minimum stays on the door for debt-to-income."
+  },
+  "Q17": {
+   "answered": "2026-09-30",
+   "his_words": "Money paid should not be counted as a gain. The formula is incorrect and should be corrected. Formula Time weighted return.",
+   "what_was_built": "The formula was wrong, not the label. Money paid in is not a gain. The return on cash + investments is a time-weighted return."
+  },
+  "Q32": {
+   "answered": "2026-09-30",
+   "his_words": "Don't understand the question - what trend are your referring to?",
+   "what_was_built": "He asked what \"trend\" meant. It is the line chart of net worth over time on the Net worth screen. The question, in plain words: on a new phone the chart comes back, but the day-by-day record of each account does not. Decided without asking again: the chart shows, and any figure that needs the daily record shows no number and says the record begins on the day this phone started keeping it."
+  },
+  "Q10": {
+   "answered": "2026-09-30",
+   "his_words": "Q10: Draft order is correct",
+   "what_was_built": "He approved the draft order. NOT BUILT, and for a reason he should see: the draft I wrote puts the institution's own class field first, which is the opposite of his own brief B7 (2026-08-20), \"name first, broker tag as fallback only\". That brief came from his Vanguard money-market fund being counted as cash because the tag overrode the name."
+  },
+  "Q11": {
+   "answered": "2026-09-30",
+   "his_words": "Q11: Refuse the line and ask",
+   "what_was_built": "When nothing says what a holding is, the app does not guess. The holding is counted in no class — it shows as Unclassified — and Net worth asks the person what it is. Their answer ends the asking and stays through every sync."
+  },
+  "Q12": {
+   "answered": "2026-09-30",
+   "his_words": "Q12: user entry stays even if it is not in the import file. If user modify cost or quantity post import/linked from institution, cost basis should not be overwritten in future sync as quantity, price and market value can change with time but not cost.",
+   "what_was_built": "What a person enters on a linked account stays. A holding they added stays even when the broker's list does not carry it. A cost they set is kept by every later sync: the shares, the price and the value follow the broker, the cost per share does not."
+  },
+  "Q13": {
+   "answered": "2026-09-30",
+   "his_words": "Q13: incomplete question",
+   "what_was_built": "The question reached him cut off. In full: is a gold fund such as GLD just a fund carrying a commodity label, and should the app hold physical metal by weight, purity and storage at launch? Decided without asking again: as built. GLD is an alternative. Physical metal is entered by hand as \"Gold / commodities\" with its value; weight, purity and storage are not asked."
+  },
+  "Q14": {
+   "answered": "2026-09-30",
+   "his_words": "Call an account by it's name - no need to label it unless it is checking or savings account.",
+   "what_was_built": "An account is called by its name. No class word is printed under it — not \"Mixed\", not \"Unclassified\"."
   }
  }
 }

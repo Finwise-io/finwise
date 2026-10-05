@@ -790,7 +790,10 @@ export const useStore = create<AppState>()(
       updateAsset:    (id, u) => set((s) => ({ assetAccounts: s.assetAccounts.map((x) => x.asset_id === id ? { ...x, ...u } : x) })),
       deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
       addPosition: (accountId, position) => set((s) => {
-        const pos = { ...position, position_id: newEntityId('pos') };
+        // a holding the person adds to a LINKED account is theirs: a sync that does not list it keeps it
+        // (his ruling, 2026-09-30, master Q12: "user entry stays even if it is not in the import file")
+        const linked = s.assetAccounts.find((a) => a.asset_id === accountId)?.source === 'connected';
+        const pos = { ...position, position_id: newEntityId('pos'), ...(linked ? { added_by: 'user' as const, cost_source: 'user' as const } : {}) };
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId ? { ...a, positions: [...(a.positions ?? []), pos] } : a);
         // log an OPENING_POSITION transaction per lot (first-time capture of holdings you already own)
         const txns = (pos.lots ?? []).map((l) => makeTransaction({ date: l.purchase_date, type: 'OPENING_POSITION', account_id: accountId, position_id: pos.position_id, ticker: pos.ticker, kind: pos.kind, shares: l.shares, price: l.cost_per_share }));
@@ -799,8 +802,12 @@ export const useStore = create<AppState>()(
       updatePosition: (accountId, positionId, patch) => set((s) => {
         // B7: a class the person sets themselves outranks every automatic rule and survives every
         // sync — stamp it, and clear any pending class-change flag (their answer resolves it).
-        const stamped = patch.asset_class != null
-          ? { ...patch, class_source: 'user' as const, class_flag: undefined } : patch;
+        const classed = patch.asset_class != null
+          ? { ...patch, class_source: 'user' as const, class_flag: undefined, class_asked: undefined } : patch;
+        // …and so does a cost they set on a linked holding: quantity, price and value can change with
+        // time, cost cannot — so the next sync keeps their cost per share (the same ruling, Q12)
+        const linked = s.assetAccounts.find((a) => a.asset_id === accountId)?.source === 'connected';
+        const stamped = linked && patch.lots != null ? { ...classed, cost_source: 'user' as const } : classed;
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId
           ? { ...a, positions: (a.positions ?? []).map((p) => p.position_id === positionId ? { ...p, ...stamped } : p) } : a);
         return { assetAccounts: recomputeBalances(accounts, s.priceCache) };

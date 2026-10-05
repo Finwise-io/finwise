@@ -459,7 +459,10 @@ export default function NetWorthScreen() {
               })()}
               <View style={styles.card}>
                 {items.map((a, i) => {
-                  const base = invGroup === 'type' ? (a.institution?.trim() || '') : classLabel(a);
+                  // HIS RULING, 2026-09-30 (master Q14): "Call an account by it's name - no need to label it unless
+                  // it is checking or savings account." An account that holds several classes carries no class
+                  // word under its name; it used to read "Unclassified".
+                  const base = invGroup === 'type' ? (a.institution?.trim() || '') : (assetClassOf(a) === 'mixed' ? '' : classLabel(a));
                   const t = withTickers(a, base);
                   // NW-15: an Unclassified account has no holdings set — invite a tap to classify it.
                   const sub = assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what\'s inside') : t;
@@ -950,6 +953,15 @@ export default function NetWorthScreen() {
 
         {/* EVERY MORTGAGE IS ON A PROPERTY (his rule, 2026-10-04, DEC-1925). One that is on none is named
             here, and a tap opens it so the person can say which property it is on. */}
+        {/* A HOLDING NOTHING COULD CLASS IS ASKED ABOUT, NOT GUESSED (his ruling, 2026-09-30, master Q11:
+            "Refuse the line and ask"). A tap opens the holding, where the person says what it is. */}
+        {worth.unclassed.length > 0 && (
+          <TouchableOpacity accessibilityRole="button" style={styles.ledgerPad}
+            accessibilityLabel={`${worth.unclassedSentence} Opens that holding.`}
+            onPress={() => router.push(`/holding-detail?account=${worth.unclassed[0].accountId}&position=${worth.unclassed[0].positionId}` as any)}>
+            <Text style={[styles.cushionMath, { color: Colors.amber }]}>{worth.unclassedSentence}</Text>
+          </TouchableOpacity>
+        )}
         {!worth.mortgageCheck.ok && (
           <TouchableOpacity accessibilityRole="button" style={styles.ledgerPad}
             accessibilityLabel={`${worth.mortgageCheck.sentence} Opens that mortgage.`}

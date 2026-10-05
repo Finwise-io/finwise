@@ -148,6 +148,162 @@
    "answers": [
     "Q52"
    ]
+  },
+  {
+   "decided": "2026-09-30",
+   "answers": [
+    "Q17"
+   ],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics",
+   "his_words": "Money paid should not be counted as a gain. The formula is incorrect and should be corrected. Formula Time weighted return.",
+   "subject": "Q17 — \"Return on cash + investments\" counted money paid in as a gain: is the label wrong, or the formula?",
+   "plain": "The formula was wrong, not the label. Money paid in is not a gain. The return on cash + investments is a time-weighted return.",
+   "means": "His answer to Q17 in the launch answer list he returned (moneykeel_calc_plan_launch-answer-list_v01-jj.xlsx, Net worth tab), folded in on 2026-10-05. It sat unfolded for five days; in that time he gave the same decision again, in the note returned with the outside review on 2026-10-04 (\"All return should be True Weighted Return and not Dietz return.\", DEC-1669), and it was built from that. This row records that he had already said it here.",
+   "governs": "MK-NW-M-002 Return on cash + investments · MoneyKeel/functions/networth-and-performance/net-worth.ts (MK-NW-O-003 theNetWorth)",
+   "changed": "MK-NW-O-003 theNetWorth works the figure out as a time-weighted return; the balance-change function is removed.",
+   "apply_steps": "1. Work the return out time-weighted. 2. Refuse where the day compared from is not on record. 3. Test it with money paid in mid-period. All done under DEC-1669 on 2026-10-04.",
+   "exceptions": "",
+   "status": "TESTED",
+   "proof": "MoneyKeel/functions/networth-and-performance/net-worth.test.ts · MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
+   "not_a_repeat_of": "DEC-1669 — the same decision in other words: said here first, on 2026-09-30, as the answer to Q17; said again on 2026-10-04 for every return in the app. DEC-1669 carries the build; this row is the record that he had already answered."
+  },
+  {
+   "decided": "2026-09-30",
+   "answers": [
+    "Q32"
+   ],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics",
+   "his_words": "Don't understand the question - what trend are your referring to?",
+   "subject": "Q32 — \"The trend survives on a new device but the walk behind it does not. Should the trend say so, or show quietly?\"",
+   "plain": "He asked what \"trend\" meant. It is the line chart of net worth over time on the Net worth screen. The question, in plain words: on a new phone the chart comes back, but the day-by-day record of each account does not. Decided without asking again: the chart shows, and any figure that needs the daily record shows no number and says the record begins on the day this phone started keeping it.",
+   "means": "His reply to Q32 in the launch answer list he returned (moneykeel_calc_plan_launch-answer-list_v01-jj.xlsx, Net worth tab), folded in on 2026-10-05. The question was mine and was not written so a person could follow it. THE ANSWER TO HIS QUESTION: \"the trend\" is MK-NW-M-003, the line of net worth over time. \"The walk behind it\" is the account-by-account daily record that the change walk and every return are measured from; that record is kept on the phone and is not yet carried to a new one. DECIDED BY ME, 2026-10-05, since nothing of his says otherwise and the screens already do it: the chart is drawn from the points that came back; a return or a change that needs the daily record refuses and says where the record starts (a period the record cannot cover shows a dash). To reverse: say the chart should carry a line of its own on a new phone.",
+   "governs": "MK-NW-M-003 the trend line · MK-NW-M-002 Return on cash + investments · MK-PF-M-017 Return",
+   "changed": "Nothing changed in the code: a figure that needs the daily record already shows no number where the record does not reach.",
+   "apply_steps": "1. Answer his question on the row. 2. Keep the chart as it is. 3. Keep the refusal on figures the record cannot cover (held by the time-weighted return tests).",
+   "exceptions": "",
+   "status": "TESTED",
+   "proof": "Calculation Module code/engines/__tests__/time-weighted-return.test.ts · src/screens/__tests__/coverage_line.test.tsx"
+  },
+  {
+   "decided": "2026-09-30",
+   "answers": [
+    "Q10"
+   ],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics",
+   "his_words": "Q10: Draft order is correct",
+   "subject": "Q10 — what order of evidence decides an asset's class? Draft: the institution's own class field, then the shape of the identifier, then words in the name, then ask you.",
+   "plain": "He approved the draft order. NOT BUILT, and for a reason he should see: the draft I wrote puts the institution's own class field first, which is the opposite of his own brief B7 (2026-08-20), \"name first, broker tag as fallback only\". That brief came from his Vanguard money-market fund being counted as cash because the tag overrode the name.",
+   "means": "His answer to Q10 in the launch answer list he returned (moneykeel_calc_plan_launch-answer-list_v01-jj.xlsx, Net worth tab), folded in on 2026-10-05. MY DRAFT CONTRADICTED AN EARLIER RULING OF HIS WITHOUT SAYING SO, and he approved the draft as it was put to him. Two rulings of his now disagree: B7 (2026-08-20: the name decides, the broker's tag is a fallback) and this one (2026-09-30: the institution's class field first). DECIDED BY ME, 2026-10-05: the code stays on B7, because building this order would bring back the defect B7 was written to remove — and the same rule is applied a second time where an account's holdings are split by class (his rule of 2026-08-04, \"cash means cash only … the name decides\"). To reverse: say the institution's field should win over the name.",
+   "governs": "Calculation Module code/engines/holding-class.ts (classifyHoldingClass) · src/domain/assets/index.ts (accountClassBreakdown) · MK-NW-M-007 class rows",
+   "changed": "Nothing: the order in the code is his brief B7 — the person's own answer, then the name, then a maturity date, then the cash-equivalent flag, then the broker's tag.",
+   "apply_steps": "1. Put the conflict to him by name: B7 against Q10. 2. On his word, reorder classifyHoldingClass and accountClassBreakdown and re-run the live-verified broker cases. 3. Until then the order is B7.",
+   "exceptions": "The person's own answer outranks everything in both orders.",
+   "status": "RULED",
+   "proof": "",
+   "not_a_repeat_of": "DEC-0299 — that one keeps an asset’s class and how quickly it can be sold as two separate fields; this one is the order of evidence that decides the class."
+  },
+  {
+   "decided": "2026-09-30",
+   "answers": [
+    "Q11"
+   ],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics",
+   "his_words": "Q11: Refuse the line and ask",
+   "subject": "Q11 — when nothing says what a holding is: refuse the line and ask, or park it as unclassified?",
+   "plain": "When nothing says what a holding is, the app does not guess. The holding is counted in no class — it shows as Unclassified — and Net worth asks the person what it is. Their answer ends the asking and stays through every sync.",
+   "means": "His answer to Q11 in the launch answer list he returned (moneykeel_calc_plan_launch-answer-list_v01-jj.xlsx, Net worth tab), folded in on 2026-10-05. Until 2026-10-05 a priced holding with no evidence was filed under Stocks / Funds and nothing was said. A sync runs in the background and cannot stop to ask, so \"refuse\" is built as: the holding is in no class until the person says, and the screen asks. Its value stays in the account, because the broker's total is still the account's value.",
+   "governs": "src/services/sync/ingest.ts (ingestSync) · src/domain/assets/index.ts (accountClassBreakdown) · MoneyKeel/functions/networth-and-performance/net-worth.ts (MK-NW-O-003 theNetWorth, unclassed) · src/screens/NetWorthScreen.tsx · MK-NW-M-007 class rows",
+   "changed": "A synced holding nothing can class is marked as asked; accountClassBreakdown counts it under Unclassified, not a guessed class; MK-NW-O-003 theNetWorth names it; Net worth prints the sentence and opens the holding; saying what it is clears the mark.",
+   "apply_steps": "1. Mark the holding at sync. 2. Count it in no class. 3. Name it on Net worth with a way to answer. 4. Clear the mark when the person answers. 5. Test each.",
+   "exceptions": "",
+   "status": "TESTED",
+   "proof": "src/services/sync/ingest.test.ts · src/screens/__tests__/pfs_rulings_2026-09-30.test.tsx",
+   "not_a_repeat_of": "DEC-2159 — that is his answer to Q10, the order of evidence; this is Q11, what happens when no evidence matches at all."
+  },
+  {
+   "decided": "2026-09-30",
+   "answers": [
+    "Q12"
+   ],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics · /holding-detail",
+   "his_words": "Q12: user entry stays even if it is not in the import file. If user modify cost or quantity post import/linked from institution, cost basis should not be overwritten in future sync as quantity, price and market value can change with time but not cost.",
+   "subject": "Q12 — does the person's own answer always win and stick, even when the next sync disagrees?",
+   "plain": "What a person enters on a linked account stays. A holding they added stays even when the broker's list does not carry it. A cost they set is kept by every later sync: the shares, the price and the value follow the broker, the cost per share does not.",
+   "means": "His answer to Q12 in the launch answer list he returned (moneykeel_calc_plan_launch-answer-list_v01-jj.xlsx, Net worth tab), folded in on 2026-10-05. A person's own CLASS already survived every sync (brief B7). Their COST did not: each sync rebuilt a holding's purchases from the broker and wrote the broker's cost over theirs, and dropped a holding they had added by hand.",
+   "governs": "src/services/sync/ingest.ts (ingestSync) · src/store/useStore.ts (addPosition, updatePosition) · src/domain/performance/index.ts (Position) · MK-NW-M-031 · MK-NW-M-032",
+   "changed": "A holding the person adds to a linked account, and a cost they set on one, are stamped as theirs; a sync keeps their cost per share on the broker's shares, and keeps a holding they added that the broker does not list.",
+   "apply_steps": "1. Stamp the holding when the person adds it or sets its cost on a linked account. 2. Keep their cost per share at sync. 3. Keep a holding they added. 4. Test all three, and that an untouched holding still takes the broker's cost.",
+   "exceptions": "A broker holding that is simply gone from the broker's list is still dropped — it was sold. On an account entered by hand nothing is stamped: there is no sync.",
+   "status": "TESTED",
+   "proof": "src/services/sync/ingest.test.ts · src/screens/__tests__/pfs_rulings_2026-09-30.test.tsx",
+   "not_a_repeat_of": "DEC-2160 — that is his answer to Q11, a holding nothing can class; this is Q12, what a sync may not write over."
+  },
+  {
+   "decided": "2026-09-30",
+   "answers": [
+    "Q13"
+   ],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics",
+   "his_words": "Q13: incomplete question",
+   "subject": "Q13 — commodities: is a fund that tracks gold (GLD) simply a fund with a commodity label, and is physical metal supported at launch?",
+   "plain": "The question reached him cut off. In full: is a gold fund such as GLD just a fund carrying a commodity label, and should the app hold physical metal by weight, purity and storage at launch? Decided without asking again: as built. GLD is an alternative. Physical metal is entered by hand as \"Gold / commodities\" with its value; weight, purity and storage are not asked.",
+   "means": "His reply to Q13 in the launch answer list he returned (moneykeel_calc_plan_launch-answer-list_v01-jj.xlsx, Net worth tab), folded in on 2026-10-05. The cell in the answer list ended mid-sentence, so he could not answer. THE QUESTION IN FULL: \"Commodities: is a fund that tracks gold (GLD) simply a fund with a commodity label for allocation, and do you want PHYSICAL metal — weight, unit, purity, storage, spot price — supported at launch?\" DECIDED BY ME, 2026-10-05, on what is already built and tested: a gold fund is classed as an alternative (the name decides); physical gold is added by hand under Alternatives as \"Gold / commodities\" with the value the person gives. To reverse: say GLD should sit with Stocks / Funds, or that the app should ask weight and purity.",
+   "governs": "Calculation Module code/engines/holding-class.ts (nameEvidence) · src/screens/AddAccountScreen.tsx (Alternatives) · MK-NW-M-007 class rows",
+   "changed": "Nothing changed in the code.",
+   "apply_steps": "1. Put the whole question on the row. 2. Keep GLD as an alternative and physical metal as a hand-entered value. 3. Held by the classifier's own test.",
+   "exceptions": "",
+   "status": "TESTED",
+   "proof": "Calculation Module code/engines/__tests__/holding-class.test.ts",
+   "not_a_repeat_of": "DEC-2160 — that is his answer to Q11, a holding nothing can class; this is Q13, whether gold funds and physical metal are supported."
+  },
+  {
+   "decided": "2026-09-30",
+   "answers": [
+    "Q14"
+   ],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics",
+   "his_words": "Call an account by it's name - no need to label it unless it is checking or savings account.",
+   "subject": "Q14 — what should a MIXED account be called on screen, when it holds several classes at once?",
+   "plain": "An account is called by its name. No class word is printed under it — not \"Mixed\", not \"Unclassified\".",
+   "means": "His answer to Q14 in the launch answer list he returned (moneykeel_calc_plan_launch-answer-list_v01-jj.xlsx, Net worth tab), folded in on 2026-10-05. The Net worth rows already read this way: an account's row is its name and where its number comes from. One older list still printed the class under the name, and printed \"Unclassified\" for an account holding several classes; it no longer does.",
+   "governs": "src/screens/NetWorthScreen.tsx · MK-NW-M-008 each account and its balance",
+   "changed": "The one list that printed a class word under an account holding several classes prints none.",
+   "apply_steps": "1. Print no class word under an account that holds several classes. 2. Test that its row is its name and its source.",
+   "exceptions": "A checking or savings account may say so, as he wrote; the app adds no such label today — the names people give those accounts already say it.",
+   "status": "TESTED",
+   "proof": "src/screens/__tests__/pfs_rulings_2026-09-30.test.tsx",
+   "not_a_repeat_of": "DEC-2160 — that is his answer to Q11, a holding nothing can class; this is Q14, what an account’s row is called on screen."
+  },
+  {
+   "decided": "2026-09-28",
+   "answers": [],
+   "tab": "cashflow",
+   "type": "RULE",
+   "screens": "/cashflow",
+   "his_words": "rise with inflation each year",
+   "subject": "Q30 — the draw from savings is shown as one figure a month: should it hold steady in today's dollars, or rise with inflation each year?",
+   "plain": "The draw from savings rises with inflation each year, so it keeps its buying power. The figure shown is what it buys today.",
+   "means": "His answer to Q30, typed on the row MK-CF-M-026 of the master file he returned on 2026-09-28 (moneykeel_calc_master_calculation-master_v01-jj.xlsx), folded in on 2026-10-05. That row's figure and screen were retired on 2026-10-02, so his answer had no row left to sit on. The same thing was decided on 2026-10-03 where the draw is declared: it is shown in today's dollars, which is the draw rising with inflation each year. The question is on no row of the master any more, so this answer names no question number there; it lives here, in the decision log.",
+   "governs": "MK-CF-M-055 · MoneyKeel/functions/cashflow/future-paycheck.ts (MK-CF-O-017 futurePaycheck)",
+   "changed": "Nothing changed in the code: the draw is declared in today's dollars.",
+   "apply_steps": "1. Record his words. 2. Confirm the draw is declared in today's dollars. Done.",
+   "exceptions": "",
+   "status": "TESTED",
+   "proof": "src/__tests__/worked_examples.test.ts"
   }
  ]
 }
