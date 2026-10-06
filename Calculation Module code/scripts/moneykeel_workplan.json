@@ -2682,6 +2682,18 @@
     "status": "OPEN — mine, for the Plan build.",
     "comments": ""
    }
+  },
+  {
+   "task": "Plan build — the retirement money the Plan grows, and the rate it grows by, checked against his words of 2026-10-06",
+   "todo": "HIS WORDS, 2026-10-06: \"Per Plan mockup - NW - primary home - car = retirement.\" and \"all return should be TWR. what is reported 12-month return?\" WHAT THE APP DOES TODAY. (1) Retirement money (MK-NW-F-033 retirementEarmarkedValue) = every account except the home lived in, the car driven and a 529, each counted whole unless a share is set — DEBTS ARE NOT TAKEN OFF. Net worth takes debts off, so if his Plan drawing starts from net worth the two differ by the debts. (2) The Plan grows that money by one of three rates chosen in the Plan: the blended benchmark (default — each kind's typical long-run return, weighted by the retirement money in it, MK-NW-F-037), 'your 12-month return' (figures the person TYPES per account as 'reported return (12 mo)', weighted the same way, MK-NW-F-004), or a scenario rate typed. No measured return feeds the Plan. MY RECOMMENDATION for the Plan build: 'your 12-month return' should be the app's own time-weighted one-year return per account (what Performance measures, MK-NW-O-008), typed figures only where the app cannot measure — so his rule that every return is time-weighted reaches the Plan. Not built: the Plan waits for the build after this one.",
+   "status": "OPEN — for the Plan build. Nothing changed.",
+   "ref": "src/domain/assets/index.ts (MK-NW-F-033, MK-NW-F-037, MK-NW-F-004) · src/domain/retirement/willItLast.ts (MK-PL-F-067) · src/screens/RetirementCockpit.tsx",
+   "date": "2026-10-06",
+   "comments": "",
+   "_written": {
+    "status": "OPEN — for the Plan build. Nothing changed.",
+    "comments": ""
+   }
   }
  ]
 }
