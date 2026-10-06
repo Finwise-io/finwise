@@ -47,6 +47,8 @@ HAND_WRITTEN = {
   "On the Rent from a property screen, the hint for what the property costs to run no longer lists mortgage interest. It reads: Tax, insurance, repairs, management. A mortgage on the property belongs in Debts, where its whole payment is counted once.",
  'add it to the cash as losing job does not mean loosing rental income too.':
   "The emergency fund counts rent from a property you own, because it keeps arriving when your pay stops. Each month the rent is added to your cash, so the months are your cash divided by a month of essentials less the rent.",
+ 'this phase of app no longer has options for Private Equity and Hedge fund.':
+  "Private equity and hedge funds cannot be added anywhere in this phase. The kinds you can add are crypto, gold and commodities, annuities and other. One saved earlier with either kind is kept as it is.",
  'All return should be True Weighted Return and not Dietz return.':
   "Every return the app shows is a time-weighted return: the period is split at each deposit or withdrawal, each piece's growth is measured, and the pieces are multiplied. Money you add is never counted as earned. Where a value is missing, it shows no figure.",
  '#2 - Add AGG, GLD, BTS, AOR.':

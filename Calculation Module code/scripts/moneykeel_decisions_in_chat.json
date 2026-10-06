@@ -304,6 +304,24 @@
    "exceptions": "",
    "status": "TESTED",
    "proof": "src/__tests__/worked_examples.test.ts"
+  },
+  {
+   "decided": "2026-10-06",
+   "answers": [],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/add-account · /other-investments",
+   "his_words": "this phase of app no longer has options for Private Equity and Hedge fund.",
+   "subject": "Which kinds of alternative investment the app offers in this phase — on every door that adds one",
+   "plain": "Private equity and hedge funds are not offered anywhere in this phase. The kinds offered are crypto, gold and commodities, annuities and other. A row saved with one of the two kinds earlier is kept as it is.",
+   "means": "Said in chat on 2026-10-06, reading the outside review of MK-NW-F-001 (a private-equity stake with an end date). His ruling of 2026-08-04 (DEC-0045) took the two out of the Net worth add sheet; the Add an account form, built later to its own drawing, still offered \"Private stake\", and the Alternatives screen's first-day sentence still named both. Both now follow the ruling.",
+   "governs": "src/screens/AddAccountScreen.tsx (the Alternatives kinds) · src/screens/OtherInvestmentsScreen.tsx (the first-day sentence) · src/domain/alternatives/index.ts (ALT_KINDS_CAPTURE) · MK-NW-M-049 · the drawings add-account-by-hand_v02 (phone 3) and alternatives_v02 (phone 2)",
+   "changed": "Add an account offers Crypto, Gold / commodities, Annuity, Other — no Private stake. The Alternatives screen's first-day sentence reads \"crypto, commodities, annuities\". A saved private-equity or hedge-fund row keeps its kind when edited.",
+   "apply_steps": "1. Remove the Private stake chip from Add an account. 2. Keep a saved row's kind when it is edited. 3. Reword the first-day sentence on Alternatives. 4. Name the difference from the two drawings in the test that holds them.",
+   "exceptions": "The data model keeps both kinds, so rows saved before this phase still show and count.",
+   "not_a_repeat_of": "DEC-0045 — that ruling trimmed the Net worth add sheet on 2026-08-04; this one, two months later, reaches the Add an account form and the Alternatives screen, which were built after it and did not follow it.",
+   "status": "TESTED",
+   "proof": "src/screens/__tests__/kept_editors_match.test.tsx"
   }
  ]
 }

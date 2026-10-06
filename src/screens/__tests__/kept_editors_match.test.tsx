@@ -60,6 +60,9 @@
  * 16. HIS RULE, 2026-10-04 (DEC-1926): "unless rental income is added on the income screen, assume
  *     property is second or vacation home." So Add an account, Real estate, asks one thing the drawing
  *     does not: "Is this the home you live in?" — Yes or No. Nothing else about a property's use is asked.
+ * 17. HIS RULING, 2026-10-06: "this phase of app no longer has options for Private Equity and Hedge
+ *     fund." Add an account's drawn "Private stake" chip is not offered; Alternatives' first-day
+ *     sentence names crypto, commodities, annuities only.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -183,7 +186,8 @@ describe('Add an account, by hand v02', () => {
     'phone %#: %s — the questions that kind asks, and no others', (kind, k) => {
       show(AddAccountScreen, { assetAccounts: [] });
       fireEvent.press(screen.getAllByText(kind)[0]);
-      const want = norm(upTo(P[k], /^Save$/)).replace('debt balance (optional)', 'mortgage balance (optional)');   // 15
+      // 17: HIS RULING, 2026-10-06 — the drawn "Private stake" chip is not offered in this phase
+      const want = norm(upTo(P[k], /^Save$/)).replace('debt balance (optional)', 'mortgage balance (optional)').replace(' private stake', '');   // 15, 17
       expect(want.split(' ').length).toBeGreaterThan(20);
       // 16: HIS RULE, 2026-10-04 (DEC-1926) — the form asks the one thing nothing else can tell it: which
       // property is the home lived in. Everything else about a property's use is read from the rent entered.
@@ -260,7 +264,8 @@ describe('Alternatives v02', () => {
 
   test('phone 2 · the first day', () => {
     const built = show(OtherInvestmentsScreen, { assetAccounts: [] }).filter((l) => l !== 'Nothing entered yet. Add an investment ›');   // 6
-    expect(firstDifference(norm(upTo(P[1], /^＋ Add an investment$/)), norm(built))).toBe('');
+    // 17: HIS RULING, 2026-10-06 — private equity and hedge funds are not offered in this phase
+    expect(firstDifference(norm(upTo(P[1], /^＋ Add an investment$/)).replace('crypto, private equity, hedge funds, commodities', 'crypto, commodities'), norm(built))).toBe('');
   });
 
   test('phone 3 · the editor — OPEN: five drawn lines are not on the form, and exactly those five', () => {

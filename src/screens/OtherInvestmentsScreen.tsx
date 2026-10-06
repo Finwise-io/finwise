@@ -58,7 +58,7 @@ export default function OtherInvestmentsScreen() {
         <View style={styles.card}>
           <View style={styles.summary}><Text style={styles.sumLab}>Total value</Text><Text style={styles.sumVal}>{fig('MK-NW-M-049', 0)}</Text></View>
           <EmptyNote door="investment" onPress={() => setAddOpen(true)} />   {/* Q48 (MK-NW-M-049/050 — re-filed from the menu family 2026-10-01) */}
-          <Text style={styles.empty}>Track alternatives — crypto, private equity, hedge funds, commodities, annuities — at a value you set. They count toward your net worth and retirement nest egg.</Text>
+          <Text style={styles.empty}>Track alternatives — crypto, commodities, annuities — at a value you set. They count toward your net worth and retirement nest egg.</Text>
           <TouchableOpacity style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add an investment</Text></TouchableOpacity>
         </View>
       ) : (

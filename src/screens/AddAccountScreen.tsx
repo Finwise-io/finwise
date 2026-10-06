@@ -29,7 +29,10 @@ const CLASSES: { id: Cls; label: string }[] = [
   { id: 'property', label: 'Real estate' }, { id: 'debt', label: 'Debt' },
 ];
 const KIND_BY_CLASS: Record<Exclude<Cls, 'debt'>, string> = { cash: 'checking', stocks: 'brokerage', bonds: 'fixed_income', alts: 'other_asset', property: 'real_estate' };
-const ALT_TYPES = [['crypto', 'Crypto'], ['commodities', 'Gold / commodities'], ['private_equity', 'Private stake'], ['annuities', 'Annuity'], ['other_asset', 'Other']] as const;
+// HIS RULING, 2026-10-06 (restating 2026-08-04): "this phase of app no longer has options for Private Equity and
+// Hedge fund." Neither is offered here; a row saved with either kind earlier keeps it.
+const ALT_TYPES = [['crypto', 'Crypto'], ['commodities', 'Gold / commodities'], ['annuities', 'Annuity'], ['other_asset', 'Other']] as const;
+const KEPT_ALT_KINDS = ['private_equity', 'hedge_funds', 'options'];   // saved earlier, kept as they are, not offered
 const WRAPPERS = [['TAXABLE', 'Taxable'], ['PRE_TAX', '401(k) / IRA'], ['ROTH', 'Roth']] as const;
 
 const classOfExisting = (a: any): Cls => {
@@ -55,7 +58,7 @@ export default function AddAccountScreen() {
   const [rate, setRate] = useState<string>('');
   const [wrapper, setWrapper] = useState<string>(existing?.tax_bucket && existing.tax_bucket !== 'CASH' && existing.tax_bucket !== 'PROPERTY' ? existing.tax_bucket : 'TAXABLE');
   const [earmark, setEarmark] = useState<string>(existing?.retirement_pct != null ? String(existing.retirement_pct) : '');
-  const [altType, setAltType] = useState<string>(existing?.kind && ALT_TYPES.some(([k]) => k === existing.kind) ? existing.kind : 'crypto');
+  const [altType, setAltType] = useState<string>(existing?.kind && (ALT_TYPES.some(([k]) => k === existing.kind) || KEPT_ALT_KINDS.includes(existing.kind)) ? existing.kind : 'crypto');
   const [owe, setOwe] = useState<string>('');
   const [owePay, setOwePay] = useState<string>('');   // the mortgage's monthly payment (his rule, 2026-10-04)
   // WHICH PROPERTY IS THE HOME LIVED IN. Nobody is asked what a property is "for": one with rent
