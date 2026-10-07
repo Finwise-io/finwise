@@ -772,6 +772,11 @@ def apply_splits(rows):
             new['screens'] = part.get('screens', new.get('screens'))
             new['type'] = part.get('type', new.get('type'))
             new['status'] = part.get('status', new.get('status'))
+            # A PART NAMES ITS OWN ROWS (2026-10-07): a batch approval split into one row per rule must not
+            # inherit the whole batch's list of functions, or every rule claims every function.
+            for fld in ('governs', 'proof', 'standard_carrier', 'decided', 'not_a_repeat_of'):
+                if part.get(fld):
+                    new[fld] = part[fld]
             new['means'] = part['subject']
             new['raw'] = ('SPLIT FROM ' + r['id'] + ', one source row holding two decisions.\n\nTHIS HALF: '
                           + part['subject'] + '\n\nTHE SOURCE ROW, WORD FOR WORD:\n' + hay)

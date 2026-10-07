@@ -25,6 +25,505 @@
      "superseded_by_phrase": "money going out in a month"
     }
    ]
+  },
+  {
+   "match": "SUBJECT: The outside review of Net worth, batches 1 and 2",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "His approval of batches 1 and 2 of the outside review of Net worth, as a whole",
+     "plain": "His approval of batches 1 and 2 of the outside review of Net worth, as a whole. Each rule it approved is its own row beside this one, so it can be found and read alone.",
+     "type": "PROCESS",
+     "status": "TESTED"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The average yield of the bonds counts only bonds that have a value today, on that value less accrued interest.",
+     "plain": "The average yield of the bonds counts only bonds that have a value today, on that value less accrued interest. Before: an unpriced bond added its interest to the top and nothing to the bottom — three bonds read 6.09% where 4.22% is right.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds",
+     "governs": "MK-NW-F-061 bondSummary",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The if-rates-move estimate on a bond is rounded in proportion to the bond’s size, not always to the nearest $1,000.",
+     "plain": "The if-rates-move estimate on a bond is rounded in proportion to the bond’s size, not always to the nearest $1,000. Before: a $10,000 bond read $10,000 to $10,000 whichever way rates moved.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-064 bondRateSensitivity",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A sale of shares takes the oldest purchase first.",
+     "plain": "A sale of shares takes the oldest purchase first. Before: the gain on a sale was worked from an average cost.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/holding-detail",
+     "governs": "MK-PF-F-006 capGains",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
+     "standard_carrier": ""
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A hand-built investment account shows its own uninvested cash inside it.",
+     "plain": "A hand-built investment account shows its own uninvested cash inside it. Before: the cash it recorded was missing from the account’s own breakdown.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-O-002 theAccount",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §3"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A typed value is called old after six whole months have passed, counted to the day.",
+     "plain": "A typed value is called old after six whole months have passed, counted to the day. Before: it counted month names crossed, so 30 April read six months old on 1 October.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-003 valueFreshness",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §7"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Any account that already lists holdings can take a recorded buy or sale.",
+     "plain": "Any account that already lists holdings can take a recorded buy or sale. Before: a fixed-income brokerage holding bond funds could not be chosen.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/add-transaction",
+     "governs": "MK-NW-F-005 accountAllowsTicker",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §5"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A Roth 401(k) is its own choice when adding an account: a 401(k) in the Roth tax bucket.",
+     "plain": "A Roth 401(k) is its own choice when adding an account: a 401(k) in the Roth tax bucket. Before: the form had no Roth 401(k).",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/add-account",
+     "governs": "MK-NW-F-010 wrapperAccount",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §5"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A maturity date makes an account Bonds & CDs before its name is read; property that is not a house is personal property.",
+     "plain": "A maturity date makes an account Bonds & CDs before its name is read; property that is not a house is personal property. Before: a CD named ‘savings’ read as cash, and a ring could be filed as real estate.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-011 assetClassOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §1"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A 529 is tax-free for education and an HSA is pre-tax but tax-free for medical costs, and their pages say so.",
+     "plain": "A 529 is tax-free for education and an HSA is pre-tax but tax-free for medical costs, and their pages say so. Before: a 529 read ‘taxable’ and an HSA read ‘taxed when it comes out’.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-012 taxTreatmentOf · MK-NW-F-108 taxWordsOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §6"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Cash a hand-built account records for itself is on the Cash line; a holding with no price is never counted as cash.",
+     "plain": "Cash a hand-built account records for itself is on the Cash line; a holding with no price is never counted as cash. Before: that cash was in no Cash line, and an unpriced holding’s value could fall into cash.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-016 cashTotal · MK-NW-F-027 accountClassBreakdown",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §3"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Investments is one function, and Cash + Investments always equals Cash and investments together.",
+     "plain": "Investments is one function, and Cash + Investments always equals Cash and investments together. Before: the Investments line was added up in more than one place.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics · /home",
+     "governs": "MK-NW-F-021 investmentsTotal",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §4"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "No two accounts show the same name: alike names are numbered · 1, · 2 in the order the accounts were made.",
+     "plain": "No two accounts show the same name: alike names are numbered · 1, · 2 in the order the accounts were made. Before: two accounts could read the same.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-026 accountDisplayNames",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §6"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A holding nobody has classed is Unclassified everywhere, and the words under an account count holdings by that same test.",
+     "plain": "A holding nobody has classed is Unclassified everywhere, and the words under an account count holdings by that same test. Before: Net worth said Unclassified and the account page said Stocks / Funds.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-109 holdingClassOf · MK-NW-F-028 classPortionLabel",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §2"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The return on the retirement money weighs each account by the money set aside for retirement.",
+     "plain": "The return on the retirement money weighs each account by the money set aside for retirement. Kept as built; the reviewer wanted a different weighting (held).",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/plan",
+     "governs": "MK-NW-F-004 portfolioActualReturn",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Home’s investments figure is Performance’s ending value, read from the accounts.",
+     "plain": "Home’s investments figure is Performance’s ending value, read from the accounts. Before: Home showed Net worth’s Investments line, lower by a linked account’s uninvested cash.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/home · /invest",
+     "governs": "MK-NW-O-008 thePerformance",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §4"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A money-market fund a broker flags is kept as a holding, not dropped.",
+     "plain": "A money-market fund a broker flags is kept as a holding, not dropped. Before: such funds vanished at sync.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-XS-F-102 ingestSync",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §1"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The person’s own answer about a holding’s class outranks what its name suggests.",
+     "plain": "The person’s own answer about a holding’s class outranks what its name suggests. Before: the name won.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-109 holdingClassOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §2"
+    }
+   ]
+  },
+  {
+   "match": "SUBJECT: The outside review of Net worth, batch 3 —",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "His approval of batch 3 of the outside review of Net worth, as a whole",
+     "plain": "His approval of batch 3 of the outside review of Net worth, as a whole. Each rule it approved is its own row beside this one, so it can be found and read alone.",
+     "type": "PROCESS",
+     "status": "TESTED",
+     "not_a_repeat_of": "DEC-2484 approved batches 1 and 2; this approves batch 3 — a different set of changes."
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Only a vehicle can be the car you drive.",
+     "plain": "Only a vehicle can be the car you drive. Before: a jewellery collection worth more than the car was taken as the car.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/plan",
+     "governs": "MK-NW-F-031 primaryCarIdOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The rate the retirement money grows at, and its spread, are blended over exactly the money set aside, with no figure when nothing is set aside.",
+     "plain": "The rate the retirement money grows at, and its spread, are blended over exactly the money set aside, with no figure when nothing is set aside. Before: an invented 6% and 12% stood in.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/plan",
+     "governs": "MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "With nothing owned there is no average return.",
+     "plain": "With nothing owned there is no average return. Before: it said 7%.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-039 buildAssetsState",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Monthly contributions: the 401(k) answer is held at the yearly legal limit for the age reached this year; property savings do not count; nothing answered gives no figure.",
+     "plain": "Monthly contributions: the 401(k) answer is held at the yearly legal limit for the age reached this year; property savings do not count; nothing answered gives no figure. Before: no limit, property savings counted, and $0 for nothing answered.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/plan",
+     "governs": "MK-NW-F-041 monthlyContributionsFromOnboarding",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "History shared is counted in months and never rounded up to a year.",
+     "plain": "History shared is counted in months and never rounded up to a year. Before: eighteen months read ‘2 years’.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-046 historyCoverage",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §11"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Itemising never lowers an account’s total; whatever is not itemised stays as cash.",
+     "plain": "Itemising never lowers an account’s total; whatever is not itemised stays as cash. Before: a part-itemised $186,442 could fall to $148,001.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/itemize",
+     "governs": "MK-NW-F-051 itemizedResultTotal",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §9"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Accounts made by itemising carry the original’s retirement share, source and wrapper; a bond’s face value is entered or left blank.",
+     "plain": "Accounts made by itemising carry the original’s retirement share, source and wrapper; a bond’s face value is entered or left blank. Before: itemising moved money out of the nest egg and gave bonds an invented face value.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/itemize",
+     "governs": "MK-NW-F-052 buildItemizedAccounts",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §9"
+    }
+   ]
+  },
+  {
+   "match": "SUBJECT: The outside review of Net worth, batch 4 —",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "His approval of batch 4 of the outside review of Net worth, as a whole",
+     "plain": "His approval of batch 4 of the outside review of Net worth, as a whole. Each rule it approved is its own row beside this one, so it can be found and read alone.",
+     "type": "PROCESS",
+     "status": "TESTED",
+     "not_a_repeat_of": "DEC-2484 and DEC-2746 approved batches 1 to 3; this approves batch 4 — a different set of changes."
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The list under the class rows uses the same split as the rows, and one institution typed two ways is one group.",
+     "plain": "The list under the class rows uses the same split as the rows, and one institution typed two ways is one group. Before: its Cash group read $8,000 while the Cash row read $8,838.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-094 ledgerGroups",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §10"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "With nothing held there is no growth figure for alternatives.",
+     "plain": "With nothing held there is no growth figure for alternatives. Before: it showed $0 growth.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/other-investments",
+     "governs": "MK-NW-F-002 alternativesSummary",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04.test.ts",
+     "standard_carrier": ""
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A money-market settlement fund is a fund, and a bond word inside a company name is not a bond.",
+     "plain": "A money-market settlement fund is a fund, and a bond word inside a company name is not a bond. Before: a settlement fund read as cash; Treasury Wine Estates read as a bond.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-008 incomeBearingClassOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §1"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "With two or more properties and no use stated, the one entered first is the home; the others count toward retirement.",
+     "plain": "With two or more properties and no use stated, the one entered first is the home; the others count toward retirement. Before: every such property was the home, so a second property fell out of the retirement money.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics · /plan",
+     "governs": "MK-NW-F-110 primaryHomeIdOf · MK-NW-F-013 realEstateUseOf · MK-NW-F-030 earmarkDefault",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The asset total does not get a count of accounts with no value (his answer: no).",
+     "plain": "The asset total does not get a count of accounts with no value (his answer: no). Not built.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-015 totalAssets",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04.test.ts",
+     "standard_carrier": ""
+    }
+   ]
+  },
+  {
+   "match": "SUBJECT: The outside review of Net worth, batch 5 —",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "His approval of batch 5 of the outside review of Net worth, as a whole",
+     "plain": "His approval of batch 5 of the outside review of Net worth, as a whole. Each rule it approved is its own row beside this one, so it can be found and read alone.",
+     "type": "PROCESS",
+     "status": "TESTED",
+     "not_a_repeat_of": "DEC-2484, DEC-2746 and DEC-2747 approved batches 1 to 4; this approves batch 5 — a different set of changes. DEC-0279 (no coupon rate counts $0) stands and is applied, not replaced."
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A bond’s face value or rate that was never entered stays blank — never $0 — and the screens say ‘not entered’.",
+     "plain": "A bond’s face value or rate that was never entered stays blank — never $0 — and the screens say ‘not entered’. Before: a CD typed by its balance showed a yield to maturity of −274%.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio",
+     "governs": "MK-NW-F-056 bondInfo · MK-NW-M-055",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A year’s interest from a bond or CD has one rule everywhere: face × rate; with no face, value × rate; with no rate, $0 and said so.",
+     "plain": "A year’s interest from a bond or CD has one rule everywhere: face × rate; with no face, value × rate; with no rate, $0 and said so. Before: the Bonds screen counted a CD at $0 while the income figure counted balance × rate.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds",
+     "governs": "MK-NW-F-112 yearlyInterest · MK-NW-F-062 couponIncomeAnnual · MK-NW-F-063 interestIncomeAnnual",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A bond or CD past its maturity date pays no more interest.",
+     "plain": "A bond or CD past its maturity date pays no more interest. Before: it kept counting a year’s coupon.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds",
+     "governs": "MK-NW-F-063 interestIncomeAnnual",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Yield to maturity uses the value less accrued interest, like the current yield.",
+     "plain": "Yield to maturity uses the value less accrued interest, like the current yield. Before: it used the value with accrued interest and read too low (3.76% where 4.57% is right).",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio",
+     "governs": "MK-NW-F-060 approxYTM",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The if-rates-move estimate measures the change between two prices worked the same way, and a CD gets no estimate.",
+     "plain": "The if-rates-move estimate measures the change between two prices worked the same way, and a CD gets no estimate. Before: a 4.4-year Treasury read down about $1,000 where about $1,700 is right; only the screen hid a CD’s figure.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-064 bondRateSensitivity",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Years to maturity count calendar days, not the time of day.",
+     "plain": "Years to maturity count calendar days, not the time of day. Before: the hour shaved part of a day off (one example moved from 5.66% to 5.65%).",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds",
+     "governs": "MK-NW-F-058 yearsToMaturity",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The sweep that corrects classes never changes an account the person confirmed.",
+     "plain": "The sweep that corrects classes never changes an account the person confirmed. Before: it could overwrite a confirmed class.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-054 reclassifyAccounts",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §1"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A saved record whose accounts were all deleted shows the first-day screen, not $0 owned.",
+     "plain": "A saved record whose accounts were all deleted shows the first-day screen, not $0 owned. Before: it showed $0 with a 7% average return.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-111 assetsStateFrom · MK-NW-F-044 getAssetsState",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §13"
+    }
+   ]
   }
  ]
 }

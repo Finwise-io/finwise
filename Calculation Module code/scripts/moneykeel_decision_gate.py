@@ -164,6 +164,13 @@ def resolved(new, prior):
     With no way to say so, the only ways to a green build were to mark a live decision superseded,
     which is a lie in the record, or to loosen the detector, which is how a gate stops working.
     """
+    # TWO PARTS OF ONE DECLARED SPLIT ARE NOT A REPEAT (2026-10-07). A batch approval split into one row
+    # per rule (moneykeel_decisions_splits.json) gives every part the same words of his, by design — the
+    # split was declared precisely because they are different decisions under one sentence.
+    base = lambda i: re.sub(r'[a-z]$', '', str(i))
+    if base(new['id']) == base(prior['id']) and (str(new.get('raw') or '').startswith('SPLIT FROM ')
+                                                 or str(prior.get('raw') or '').startswith('SPLIT FROM ')):
+        return True
     for key in ('supersedes', 'not_a_repeat_of'):
         if prior['id'] in str(new.get(key) or '') or new['id'] in str(prior.get(key) or ''):
             return True
