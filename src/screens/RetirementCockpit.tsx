@@ -21,7 +21,7 @@ import { maskedMoney } from '../components/useMoney';
 import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
 import { colFactor } from '../domain/retirement/col';
 import { ssBenefitAt } from '../domain/retirement/ssTiming';
-import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, primaryCarIdOf, primaryHomeIdOf, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisorAtAge, rmdStartAgeFor, rateBandWords } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
@@ -161,7 +161,7 @@ export default function RetirementCockpit() {
   const earmarked = assets.filter((a) => earmarkedAmount(a) > 0);
   const bySection: Record<string, { amt: number; full: boolean }> = {};
   earmarked.forEach((a) => {
-    const sec = sectionOf(a); const pct = a.retirement_pct == null ? earmarkDefault(a) : a.retirement_pct;
+    const sec = sectionOf(a); const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarIdOf(assets), primaryHomeIdOf(assets)) : a.retirement_pct;
     (bySection[sec] ||= { amt: 0, full: true }); bySection[sec].amt += earmarkedAmount(a); if (pct < 100) bySection[sec].full = false;
   });
   const segs = ASSET_SECTIONS.filter((s) => (bySection[s]?.amt ?? 0) > 0).map((s) => ({ label: s, amt: bySection[s].amt, full: bySection[s].full, color: SECTION_COLOR[s] }));
@@ -945,7 +945,7 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: 
         <ScrollView automaticallyAdjustKeyboardInsets style={{ maxHeight: 380 }} keyboardShouldPersistTaps="handled">
           {assets.map((a) => {
             const isProp = a.tax_bucket === 'PROPERTY';
-            const pct = a.retirement_pct == null ? earmarkDefault(a) : a.retirement_pct;
+            const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarIdOf(assets), primaryHomeIdOf(assets)) : a.retirement_pct;
             return (
               <View key={a.asset_id} style={[styles.acc, (isProp || pct === 0) && { opacity: 0.55 }]}>
                 <Text style={styles.accIc}>{assetKind(a.kind)?.icon ?? '💼'}</Text>

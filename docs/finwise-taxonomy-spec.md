@@ -66,7 +66,7 @@ the founder's mark in the synonym workbook.
 | **Cash** (#3) | liquid balance — CASH MEANS CASH ONLY (founder, 2026-08-04, DEC-0051) | Σ the cash parts of every account's split (checking, savings, HYSA, cash management, foreign currency, and the uninvested cash inside investment accounts). Money‑market funds are Stocks / Funds; CDs and T‑bills are Bonds & CDs. | "Checking, savings, and uninvested cash in your investment accounts." |
 | **Investments / holdings** (#4,5,6) | what you're invested in (allocation) | Σ the Stocks / Funds, Bonds & CDs, Alternatives and Unclassified parts of every account's split, **across all wrappers** — so Cash + Investments = Investable, always (2026-10-05) | "Stocks/ETFs, bonds, and alternatives across all accounts (incl. 401(k)/IRA)." |
 | **Investable assets** (#4) | liquid financial wealth | Σ `assetClass ∈ {cash, stocks_etf, bonds, alternatives}` (excl. real estate + personal property) | "Cash + investments + retirement accounts. Excludes home & personal property." |
-| **Retirement nest egg** (#7) | the 4%‑rule withdrawal portfolio | retirement accounts + retirement‑earmarked stocks/bonds; **excl. emergency fund, primary home, rental, 529** | "Invested retirement money the 4% rule draws on. Excludes home, emergency cash, and rentals (those add income instead)." |
+| **Retirement nest egg** (#7) | the money the Plan grows and draws on | every account at its share set aside — **all assets except the home lived in, the car driven and a 529** (founder, 2026-08-11, DEC-0100); a rental and a second car COUNT unless the person changes the share | "Invested retirement money the 4% rule draws on. Excludes home, emergency cash, and rentals (those add income instead)." |
 
 **Hierarchy:** `Cash ⊂ Investable assets ⊂ Net worth`; `Nest egg ⊂ Investable assets`.
 Net worth includes the primary home; investable & nest egg do **not**.
@@ -108,7 +108,7 @@ A holding's value can change two ways, and they are **different actions** the UI
 
 ## 4. Retirement (Term #7)
 - **Wrappers**: tax‑deferred = 401(k), Traditional IRA, HSA; tax‑free = Roth IRA/401(k).
-- **Nest egg** = invested retirement portfolio (see §1). Excludes emergency fund, primary home, rental, 529.
+- **Nest egg** = every account at its share set aside: all assets except the home lived in, the car driven and a 529 (founder, 2026-08-11, DEC-0100). A rental counts unless the person says otherwise; the standard `moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md` §8 holds the rule.
 - **Income added on top** (NOT in the nest egg / 4% draw): Social Security, pensions, annuities, **rental income**.
 
 ---

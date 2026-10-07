@@ -123,8 +123,9 @@ describe('THE SMALL RULES', () => {
   });
 
   test('a home is assumed to be the one you live in — the cautious answer for the nest egg', () => {
-    expect(realEstateUseOf(A({}))).toBe('primary');
-    expect(realEstateUseOf(A({ re_use: 'rental' }))).toBe('rental');
+    expect(realEstateUseOf(A({ kind: 'home', tax_bucket: 'PROPERTY' }))).toBe('primary');   // a property alone, no use stated
+    expect(realEstateUseOf(A({ kind: 'home', tax_bucket: 'PROPERTY', re_use: 'rental' }))).toBe('rental');
+    expect(realEstateUseOf(A({}))).toBeNull();                                           // not a property: no use (2026-10-07)
   });
 
   test('the screen says where a value came from, and when', () => {

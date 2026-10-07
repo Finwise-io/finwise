@@ -170,6 +170,6 @@ describe('EXPECTED_RETURN', () => {
 
   test('no accounts falls back to a stated default rather than zero', () => {
     expect(blendedReturn([])).toBeNull();            // nothing set aside, no blended return (2026-10-07) — the 6% was invented
-    expect(blendedVolatility([])).toBeGreaterThan(0);
+    expect(blendedVolatility([])).toBeNull();        // nothing set aside, no portfolio to measure (2026-10-07) — the 12% was invented
   });
 });

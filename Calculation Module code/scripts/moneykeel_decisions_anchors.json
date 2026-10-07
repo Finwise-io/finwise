@@ -420,7 +420,8 @@
   "DEC-0083": {
    "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (options, crypto, etfs, helper, saved, institution, taxable, holds, checking, tax-advantaged, naming, fidelity, chase, digits, roth, brokerage, available, vanguard); src/screens/NetWorthScreen.tsx (options, crypto, etfs, helper, saved, institution, taxable, holds, checking, chase, digits, roth, brokerage, vanguard)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §6 — what an account is called"
   },
   "DEC-0084": {
    "governs": "MK-XS-M-004",
@@ -510,7 +511,8 @@
   "DEC-0100": {
    "governs": "src/domain/assets/index.ts · src/screens/RetirementCockpit.tsx",
    "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (honestly, toward, pinned, includes, lower, term, default, property, except, selling, primary, growth, drive, household, updated, asset, sell, assumed, choice, blend, assets, legally, rental, really, excluded); src/screens/RetirementCockpit.tsx (person's, toward, pinned, includes, lower, term, default, property, except, primary, growth, asset, assumed, want, assets, minus, grow, excluded)",
-   "evidence": "searched every calculation file"
+   "evidence": "searched every calculation file",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8 — what counts toward retirement: all assets except the home lived in, the car driven and a 529"
   },
   "DEC-0101": {
    "governs": "src/screens/PlanHubScreen.tsx",

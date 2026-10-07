@@ -99,12 +99,12 @@ describe('the decisions in the log are held by something that executes', () => {
 
     // the old rule was volatility = return × 1.7, which cannot tell a savings account from shares.
     // Two portfolios on the SAME target return must still differ, because what they hold differs.
-    const allCash = blendedVolatility([acct('savings', 100000)]);
-    const allShares = blendedVolatility([acct('brokerage', 100000)]);
+    const allCash = blendedVolatility([acct('savings', 100000)])!;
+    const allShares = blendedVolatility([acct('brokerage', 100000)])!;
     expect(allShares).toBeGreaterThan(allCash);
 
     // and it is weighted by MONEY, so the blend of the two sits between them
-    const mixed = blendedVolatility([acct('savings', 100000), acct('brokerage', 100000)]);
+    const mixed = blendedVolatility([acct('savings', 100000), acct('brokerage', 100000)])!;
     expect(mixed).toBeGreaterThan(allCash);
     expect(mixed).toBeLessThan(allShares);
   });

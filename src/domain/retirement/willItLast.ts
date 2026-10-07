@@ -273,7 +273,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
     mean_return: growthRate,
     // 2026-08-11: the portfolio's OWN volatility, weighted like its return — not `return × 1.7`.
     // The scenario rule still applies when the user has typed a return with nothing held yet.
-    vol_return: (a.accounts ?? []).length ? blendedVolatility(a.accounts) : volOf(growthRate),
+    vol_return: blendedVolatility(a.accounts ?? []) ?? volOf(growthRate),   // nothing set aside → the rate's own band, chosen here
     paths: 1000, seed: 42,   // B6: at 400 draws an 85% result carries ±3.5 points
   } as RetirementInputs;
 }

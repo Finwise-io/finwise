@@ -2279,6 +2279,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "primaryHomeIdOf": {
+  "id": "MK-NW-F-110",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
  "profileFromOnboarding": {
   "id": "MK-XS-F-026",
   "file": "src/domain/profile/onboarding.ts",
@@ -2362,7 +2367,7 @@
  "realEstateUseOf": {
   "id": "MK-NW-F-013",
   "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "realizedFromLedger": {
   "id": "MK-PF-F-028",

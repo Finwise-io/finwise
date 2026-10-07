@@ -349,17 +349,17 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *               MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 180 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 184 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 162 more — the full list is on functions_from_code
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               … and 166 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -473,24 +473,25 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts · MK-NW-F-001 isAlternative
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-007 assetKind
- *               MK-NW-F-009 maturityClass · MK-NW-F-014 isRealAsset
- *               MK-NW-F-016 cashTotal · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-029 assetAllocation · MK-NW-F-030 earmarkDefault
- *               MK-NW-F-055 isBond · MK-NW-F-063 interestIncomeAnnual
- *               MK-NW-F-106 mortgagesByProperty · MK-NW-F-107 propertyUses
+ *               MK-NW-F-009 maturityClass · MK-NW-F-013 realEstateUseOf
+ *               MK-NW-F-014 isRealAsset · MK-NW-F-016 cashTotal
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-030 earmarkDefault · MK-NW-F-055 isBond
+ *               MK-NW-F-063 interestIncomeAnnual · MK-NW-F-106 mortgagesByProperty
+ *               MK-NW-F-107 propertyUses · MK-NW-F-110 primaryHomeIdOf
  *               MK-NW-O-003 theNetWorth · MK-NW-O-005 theAlternativesOutlook
  *
- * Reaches ..... 177 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 181 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 159 more — the full list is on functions_from_code
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               … and 163 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -593,35 +594,80 @@ export function taxWordsOf(a: AssetAccount): string {
 
 /** Real-estate use (primary/rental/secondary/land); only meaningful when assetClassOf === 'real_estate'.
  *  Defaults to 'primary' (the conservative nest-egg exclusion); explicit `re_use` overrides. */
-/* ─ MK-NW-F-013 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-NW-F-013 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * realEstateUseOf
  *
  * Answers ..... Real-estate use (primary/rental/secondary/land); only meaningful when assetClassOf === 'real_estate'.
  *
  * Formula .....
- *     re use (or 'primary' when missing)
+ *     nothing   when asset class of(a) ! = 'real_estate'
+ *     re use   when re use
+ *     'primary'   when accounts is missing
+ *     'primary'   if primary home id of(accounts) = asset id
+ *     'secondary'   otherwise
  *
- * Called by ... MK-NW-F-030 earmarkDefault
- *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-076 ALT · MK-NW-F-037 blendedReturn
- *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
- *               MK-XS-F-031 buildSnapshot · MK-PL-F-077 clamp
- *               MK-NW-F-030 earmarkDefault · MK-NW-F-032 earmarkedAmount
- *               MK-NW-F-038 earmarkedKinds · MK-CF-O-017 futurePaycheck
- *               MK-PL-F-026 planDoor · MK-NW-F-004 portfolioActualReturn
- *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
- *               … and 4 more — the full list is on functions_from_code
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-013
  * Changed ..... 2026-06-22 (ec4bf1f)
  */
-export function realEstateUseOf(a: AssetAccount): RealEstateUse {
-  return a.re_use ?? 'primary';
+export function realEstateUseOf(a: AssetAccount, accounts?: AssetAccount[]): RealEstateUse | null {
+  // ONLY A PROPERTY HAS A USE: a car asked this question used to be told "primary" (outside review,
+  // 2026-10-07). With nothing stated, the household decides, by the owner's rule of 2026-10-04
+  // (DEC-1926) as built in MK-NW-F-107 propertyUses: the property marked as the home lived in is the
+  // home; with none marked, the one entered first is, and every other property is a second home. Two
+  // properties with no use stated used to BOTH be the home. Asked about one account alone, with no
+  // household handed in, the old reading stands: it is the home.
+  if (assetClassOf(a) !== 'real_estate') return null;
+  if (a.re_use) return a.re_use;
+  if (!accounts) return 'primary';
+  return primaryHomeIdOf(accounts) === a.asset_id ? 'primary' : 'secondary';
+}
+
+/** Which property is the home lived in: the one marked so; with none marked and no use stated on any, the one entered first; otherwise none. */
+/* ─ MK-NW-F-110 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * primaryHomeIdOf
+ *
+ * Answers ..... Which property is the home lived in: the one marked so; with none marked and no use stated on any, the one entered first; otherwise none.
+ *
+ * Formula .....
+ *     rest = accounts (or none when missing) where asset class of(each) = 'real_estate' and re use ! = 'rental'
+ *     marked = rest.find((a) => re use = 'primary')
+ *     string(marked.asset id)   when marked
+ *     undefined   when rest.some((a) => re use ≠ nothing)
+ *     the answer:
+ *     string(rest[rest.length − 1].asset id)   if count of rest
+ *     undefined   otherwise
+ *
+ * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-033 retirementEarmarkedValue
+ *               MK-NW-F-035 blendedVolatility · MK-NW-F-037 blendedReturn
+ *
+ * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-077 clamp
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
+ *               MK-NW-F-013 realEstateUseOf · MK-NW-F-033 retirementEarmarkedValue
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-F-003 valueFreshness · MK-PL-F-065 volOf
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-110
+ * Changed ..... not in git yet (—)
+ */
+export function primaryHomeIdOf(accounts: AssetAccount[]): string | undefined {
+  // the same reading MK-NW-F-107 propertyUses makes (his rule DEC-1926); a rental is never the home
+  const rest = (accounts ?? []).filter((a) => assetClassOf(a) === 'real_estate' && a.re_use !== 'rental');
+  const marked = rest.find((a) => a.re_use === 'primary');
+  if (marked) return String(marked.asset_id);
+  if (rest.some((a) => a.re_use != null)) return undefined;
+  // addAsset puts the newest first, so the property entered first is the last one
+  return rest.length ? String(rest[rest.length - 1].asset_id) : undefined;
 }
 
 /** True when the asset is a real/physical asset (real estate or personal property) — excluded from
@@ -1142,8 +1188,9 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-067 plural
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-079 EF
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-027 accountClassBreakdown
  *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
@@ -1151,8 +1198,7 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  *               MK-XS-F-002 dataGaps · MK-NW-F-017 equitiesTotal
  *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-046 historyCoverage
  *               MK-NW-F-022 investableAssets · MK-NW-F-021 investmentsTotal
- *               MK-NW-F-067 plural · MK-NW-F-020 realEstateTotal
- *               … and 4 more — the full list is on functions_from_code
+ *               … and 7 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -1210,18 +1256,20 @@ export function holdingClassOf(p: any): AssetClass {
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-015 totalAssets · MK-NW-F-016 cashTotal
- *               MK-NW-F-029 assetAllocation · MK-NW-O-002 theAccount
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-094 ledgerGroups
+ *               MK-NW-O-002 theAccount
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-079 EF
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-019 alternativesTotal
  *               MK-NW-F-029 assetAllocation · MK-NW-F-016 cashTotal
  *               MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal
  *               MK-NW-F-022 investableAssets · MK-NW-F-021 investmentsTotal
- *               MK-NW-F-020 realEstateTotal · MK-NW-O-002 theAccount
- *               MK-NW-O-004 theEmergencyFund · MK-NW-O-003 theNetWorth
- *               MK-NW-F-015 totalAssets
+ *               MK-NW-F-094 ledgerGroups · MK-NW-F-020 realEstateTotal
+ *               MK-NW-O-002 theAccount · MK-NW-O-004 theEmergencyFund
+ *               … and 2 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -1476,9 +1524,11 @@ export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, nu
  *
  * Formula .....
  *     0   when kind = 'college_529'
- *     0   when asset class of(a) = 'real_estate' and real estate use of(a) = 'primary'
+ *     0   if re use = 'primary'
+ *     100   otherwise   when re use
+ *     0   if primary home id = nothing (or string(asset id) = primary home id when missing or zero)
+ *     100   otherwise
  *     0   when asset id = primary car id
- *     100
  *
  * Called by ... MK-NW-F-032 earmarkedAmount
  *
@@ -1500,9 +1550,14 @@ export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, nu
  * Formula also on the master file · functions_from_code · MK-NW-F-030
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function earmarkDefault(a: AssetAccount, primaryCarId?: string): number {
+export function earmarkDefault(a: AssetAccount, primaryCarId?: string, primaryHomeId?: string): number {
   if (a.kind === 'college_529') return 0;               // not the household's to spend
-  if (assetClassOf(a) === 'real_estate' && realEstateUseOf(a) === 'primary') return 0;   // the home you live in
+  if (assetClassOf(a) === 'real_estate') {
+    // the home you live in (owner, 2026-08-11, DEC-0100). Told which property that is, only it is 0;
+    // told nothing, a property with no use stated is read as the home, as it always was
+    if (a.re_use) return a.re_use === 'primary' ? 0 : 100;
+    return primaryHomeId == null || String(a.asset_id) === primaryHomeId ? 0 : 100;
+  }
   if (a.asset_id === primaryCarId) return 0;            // the car you drive
   return 100;                                           // everything else is money that could fund retirement
 }
@@ -1557,7 +1612,7 @@ export function primaryCarIdOf(accounts: AssetAccount[]): string | undefined {
  * Answers ..... The retirement-earmarked $ for one account (uses the saved % or the smart default).
  *
  * Formula .....
- *     pct = earmark default(a, primary car id)   if retirement pct = nothing
+ *     pct = earmark default(a, primary car id, primary home id)   if retirement pct = nothing
  *     retirement pct   otherwise
  *     the answer = (balance or 0) × max(0, min(100, pct)) ÷ 100
  *
@@ -1588,8 +1643,8 @@ export function primaryCarIdOf(accounts: AssetAccount[]): string | undefined {
  * Formula also on the master file · functions_from_code · MK-NW-F-032
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function earmarkedAmount(a: AssetAccount, primaryCarId?: string): number {
-  const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarId) : a.retirement_pct;
+export function earmarkedAmount(a: AssetAccount, primaryCarId?: string, primaryHomeId?: string): number {
+  const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarId, primaryHomeId) : a.retirement_pct;
   return ((a.balance || 0) * Math.max(0, Math.min(100, pct)) / 100);
 }
 /** Total nest egg = sum of each account's retirement-earmarked portion. This — not net worth — funds retirement. */
@@ -1599,8 +1654,8 @@ export function earmarkedAmount(a: AssetAccount, primaryCarId?: string): number 
  * Answers ..... Total nest egg = sum of each account's retirement-earmarked portion.
  *
  * Formula .....
- *     car = primary car id of(accounts)
- *     the answer = Σ over accounts (or none when missing) of (earmarked amount(each, car))
+ *     car = primary car id of(accounts), home = primary home id of(accounts)
+ *     the answer = Σ over accounts (or none when missing) of (earmarked amount(each, car, home))
  *
  * Called by ... MK-CF-F-107 buildPaycheckYear · MK-PL-F-026 planDoor
  *               MK-PL-F-067 willItLastInputs · MK-PL-F-068 selectWillItLast
@@ -1618,8 +1673,8 @@ export function earmarkedAmount(a: AssetAccount, primaryCarId?: string): number 
  * Changed ..... 2026-08-11 (83acb7e)
  */
 export function retirementEarmarkedValue(accounts: AssetAccount[]): number {
-  const car = primaryCarIdOf(accounts);
-  return ((accounts ?? []).reduce((t, a) => t + earmarkedAmount(a, car), 0));
+  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts);
+  return ((accounts ?? []).reduce((t, a) => t + earmarkedAmount(a, car, home), 0));
 }
 
 /** Benchmark expected annual return for an asset kind — user override if set, else the ASSET_KINDS default. */
@@ -1701,14 +1756,14 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  * Answers ..... The volatility of THIS portfolio — each account's own class volatility, weighted the way the money actually is (the same weighting `blendedReturn` uses, so the pair always describes one portfolio).
  *
  * Formula .....
- *     car = primary car id of(accounts)
+ *     car = primary car id of(accounts), home = primary home id of(accounts)
  *     items = accounts (or none when missing)
- *     total = Σ over items of (earmarked amount(each, car))
- *     0.12   when total ≤ 0
+ *     total = Σ over items of (earmarked amount(each, car, home))
+ *     nothing   when total ≤ 0
  *     v = overrides[kind]   if kind and overrides.[kind] ≠ nothing
  *     KIND_VOLATILITY[kind]   if kind
  *     undefined   otherwise   otherwise
- *     the answer = t + (v ?? 0.12) × earmarked amount(a, car)
+ *     the answer = t + (v ?? 0.12) × earmarked amount(a, car, home)
  *
  * Called by ... MK-PL-F-067 willItLastInputs · MK-PL-F-077 clamp
  *
@@ -1727,14 +1782,18 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  * Formula also on the master file · functions_from_code · MK-NW-F-035
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function blendedVolatility(accounts: AssetAccount[], overrides?: Record<string, number>): number {
-  const car = primaryCarIdOf(accounts);
+export function blendedVolatility(accounts: AssetAccount[], overrides?: Record<string, number>): number | null {
+  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts);
   const items = accounts ?? [];   // the same money the nest egg counts (2026-10-07) — see blendedReturn
-  const total = items.reduce((t, a) => t + earmarkedAmount(a, car), 0);
-  if (total <= 0) return 0.12;
+  const total = items.reduce((t, a) => t + earmarkedAmount(a, car, home), 0);
+  if (total <= 0) return null;    // nothing set aside, no portfolio to measure — the 12% here was invented (outside review, 2026-10-07)
+  // A WEIGHTED AVERAGE OF THE PARTS' VOLATILITIES, which is the portfolio's only when the parts move
+  // together. The outside review (2026-10-07) is right that a table of how the classes move together
+  // would give a lower, truer figure; the app has no such table yet, so this stays the average until
+  // the Plan build decides one (on the tracker).
   const weighted = items.reduce((t, a) => {
     const v = (a.kind && overrides?.[a.kind] != null) ? overrides[a.kind] : (a.kind ? KIND_VOLATILITY[a.kind] : undefined);
-    return t + (v ?? 0.12) * earmarkedAmount(a, car);
+    return t + (v ?? 0.12) * earmarkedAmount(a, car, home);
   }, 0);
   return ((weighted / total));
 }
@@ -1801,11 +1860,11 @@ export function benchmarkInfo(kind: string | undefined, overrides?: Record<strin
  * Answers ..... Blended expected return across the EARMARKED nest egg, weighted by each holding's share.
  *
  * Formula .....
- *     car = primary car id of(accounts)
+ *     car = primary car id of(accounts), home = primary home id of(accounts)
  *     items = accounts (or none when missing)
- *     total = Σ over items of (earmarked amount(each, car))
+ *     total = Σ over items of (earmarked amount(each, car, home))
  *     nothing   when total ≤ 0
- *     weighted = Σ over items of (benchmark return(kind, overrides) × earmarked amount(each, car))
+ *     weighted = Σ over items of (benchmark return(kind, overrides) × earmarked amount(each, car, home))
  *     the answer = weighted ÷ total
  *
  * Called by ... MK-NW-F-003 valueFreshness · MK-NW-O-005 theAlternativesOutlook
@@ -1829,11 +1888,11 @@ export function blendedReturn(accounts: AssetAccount[], overrides?: Record<strin
   // at a rate made only from the 401(k) and the savings. The home lived in and the car driven weigh
   // nothing (their default share is 0), so they fall out on their own. And with nothing set aside
   // there is no blended return: the 6% that stood here was an invented figure.
-  const car = primaryCarIdOf(accounts);
+  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts);
   const items = accounts ?? [];
-  const total = items.reduce((t, a) => t + earmarkedAmount(a, car), 0);
+  const total = items.reduce((t, a) => t + earmarkedAmount(a, car, home), 0);
   if (total <= 0) return null;
-  const weighted = items.reduce((t, a) => t + benchmarkReturn(a.kind, overrides) * earmarkedAmount(a, car), 0);
+  const weighted = items.reduce((t, a) => t + benchmarkReturn(a.kind, overrides) * earmarkedAmount(a, car, home), 0);
   return ((weighted / total));
 }
 /** Distinct investment kinds present in the earmarked nest egg (for the benchmark editor). */

@@ -46,7 +46,7 @@ const PAT_ACCOUNTS = [
 const PAT_SAVES = 12_000;                          // a year — a STATED input now, not a silent one
 const PAT = { current_age: 58, horizon_age: 90, retire_age: 65, start_balance: 909_152,
               retire_monthly_spend_today: 5200, guaranteed_monthly_income: 0, guaranteed_start_age: 67,
-              mean_return: blendedReturn(PAT_ACCOUNTS) ?? 0, vol_return: blendedVolatility(PAT_ACCOUNTS) };
+              mean_return: blendedReturn(PAT_ACCOUNTS) ?? 0, vol_return: blendedVolatility(PAT_ACCOUNTS) ?? 0.12 };
 const JUNE = { current_age: 72, horizon_age: 94, retire_age: 72, start_balance: 985_000,
                annual_contribution: 0, guaranteed_monthly_income: 4000, guaranteed_start_age: 72 };
 const RAY  = { current_age: 64, horizon_age: 92, retire_age: 67, start_balance: 500_000,

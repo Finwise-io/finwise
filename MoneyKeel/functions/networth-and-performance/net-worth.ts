@@ -15,7 +15,7 @@ import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
-  buildAssetsState, cashTotal, investableAssets, investmentsTotal, assetAllocation, isRealAsset, assetClassOf,
+  buildAssetsState, cashTotal, investableAssets, investmentsTotal, assetAllocation, isRealAsset, assetClassOf, accountClassBreakdown, ASSET_CLASS_LABEL,
   type AssetClass,
 } from '../../../src/domain/assets';
 import { buildDebtState, requiredPayment, type Debt } from '../../../src/domain/debt';
@@ -420,15 +420,14 @@ export interface LedgerGroup {
  *
  * Formula .....
  *     out = new map<string, ledger group>()
- *     label = class label of(a)   if by = 'class'
- *     string((a as any).institution ?? '').trim() (or 'no institution set' when missing or zero)   otherwise
- *     g = out.get(label) (or label = label
+ *     g = out.get(key) (or label = label
  *     total = 0
  *     account ids = []
  *     mix = [] when missing)
- *     k = class key of(a)
- *     m = mix.find((x) => key = k) (or key = k
- *     total = 0 when missing)
+ *     split = account class breakdown(a)
+ *     main = the first of [...parts].sort((x, y) => math.abs(total) − math.abs(total)) (or key = class key of(a) when missing)
+ *     shown = string((a as any).institution ?? '').trim() (or 'no institution set' when missing or zero)
+ *     g = group(shown.to lower case(), shown)
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-NW-F-097 LEDGER
@@ -459,19 +458,39 @@ export function ledgerGroups(
   classLabelOf: (a: AssetAccount) => string,
   classKeyOf: (a: AssetAccount) => string,
 ): LedgerGroup[] {
+  // THE SAME SPLIT THE CLASS ROWS USE (outside review, 2026-10-07). An account that holds several
+  // classes — a linked account, or one built by hand that records its own cash — gives each class group
+  // its part and sits, as a row, under the class most of it is in; by institution, its parts are the
+  // mix shown under the institution's name. It used to count every account whole under one class, so
+  // the Cash group here read $8,000 while the Cash row above it read $8,838, and Vanguard's mix showed
+  // one kind when it held two. Institution names are matched trimmed, capitals ignored — "Fidelity"
+  // and "fidelity " were two groups.
   const out = new Map<string, LedgerGroup>();
+  const group = (key: string, label: string) => {
+    const g = out.get(key) ?? { label, total: 0, accountIds: [], mix: [] };
+    out.set(key, g);
+    return g;
+  };
   for (const a of accounts ?? []) {
-    const label = by === 'class' ? classLabelOf(a) : (String((a as any).institution ?? '').trim() || 'No institution set');
-    const g = out.get(label) ?? { label, total: 0, accountIds: [], mix: [] };
-    g.total += (a as any).balance || 0;
-    g.accountIds.push(String((a as any).asset_id));
-    if (by === 'institution') {
-      const k = classKeyOf(a);
-      const m = g.mix.find((x) => x.key === k) ?? { key: k, total: 0 };
-      if (!g.mix.includes(m)) g.mix.push(m);
-      m.total += (a as any).balance || 0;
+    const split = accountClassBreakdown(a);
+    const parts: { key: string; total: number }[] = split
+      ? (Object.keys(split) as (keyof typeof split)[]).filter((k) => split[k] !== 0).map((k) => ({ key: String(k), total: split[k] }))
+      : [{ key: classKeyOf(a), total: (a as any).balance || 0 }];
+    if (by === 'class') {
+      for (const p of parts) group(p.key, split ? ((ASSET_CLASS_LABEL as any)[p.key] ?? classLabelOf(a)) : classLabelOf(a)).total += p.total;
+      const main = [...parts].sort((x, y) => Math.abs(y.total) - Math.abs(x.total))[0] ?? { key: classKeyOf(a) };
+      group(main.key, split ? ((ASSET_CLASS_LABEL as any)[main.key] ?? classLabelOf(a)) : classLabelOf(a)).accountIds.push(String((a as any).asset_id));
+    } else {
+      const shown = String((a as any).institution ?? '').trim() || 'No institution set';
+      const g = group(shown.toLowerCase(), shown);
+      g.total += (a as any).balance || 0;
+      g.accountIds.push(String((a as any).asset_id));
+      for (const p of parts) {
+        const m = g.mix.find((x) => x.key === p.key) ?? { key: p.key, total: 0 };
+        if (!g.mix.includes(m)) g.mix.push(m);
+        m.total += p.total;
+      }
     }
-    out.set(label, g);
   }
   for (const g of out.values()) g.mix.sort((x, y) => y.total - x.total);
   return [...out.values()];

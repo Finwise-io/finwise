@@ -41,7 +41,9 @@ export function isAlternative(a: AssetAccount): boolean {
 
 export interface AltSummary { count: number; totalValue: number;
   /** Null when nothing is held: 0% would read as a forecast. */
-  blendedReturn: number | null; estAnnualGrowth: number; }
+  blendedReturn: number | null;
+  /** The rate in money over a year; null when nothing is held — $0 would read as a forecast too (outside review, 2026-10-07). */
+  estAnnualGrowth: number | null; }
 
 /** Adds up the alternative investments: how many there are, what they are worth together, their blended yearly growth rate and the growth in dollars that rate gives over a year. */
 /* ─ MK-NW-F-002 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -64,7 +66,6 @@ export interface AltSummary { count: number; totalValue: number;
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
- *     · If weighted is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-002
@@ -78,6 +79,6 @@ export function alternativesSummary(accounts: AssetAccount[]): AltSummary {
     count: alts.length,
     totalValue: (total),
     blendedReturn: (weighted),
-    estAnnualGrowth: (total * (weighted ?? 0)),
+    estAnnualGrowth: total > 0 && weighted != null ? (total * weighted) : null,
   };
 }

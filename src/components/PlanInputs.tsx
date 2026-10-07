@@ -12,7 +12,7 @@ import { SectionBand } from './SectionBand';
 import { maskedMoney, spokenMoney } from './useMoney';
 import { useStore } from '../store/useStore';
 import { DOORS } from '../constants/doors';
-import { accountDisplayNames, earmarkedAmount, retirementEarmarkedValue, primaryCarIdOf, earmarkDefault } from '../domain/assets';
+import { accountDisplayNames, earmarkedAmount, retirementEarmarkedValue, primaryCarIdOf, primaryHomeIdOf, earmarkDefault } from '../domain/assets';
 
 export interface PlanDraft { retireAge: number; horizonAge: number; extraMonthly: number }
 
@@ -50,6 +50,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
   const bigCosts = store.bigCosts ?? [];
   const names = accountDisplayNames(accounts);
   const carId = primaryCarIdOf(accounts);
+  const homeId = primaryHomeIdOf(accounts);   // the home lived in, by the one rule (DEC-1926)
 
   const age = op.birthYear ? THIS_YEAR - Number(op.birthYear) : null;
   const [ageText, setAgeText] = useState(age != null ? String(age) : '');
@@ -147,7 +148,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
       <SectionBand title="WHAT COUNTS TOWARD RETIREMENT" value={counted > 0 ? maskedMoney(counted) : '—'} />
       <Text style={s.hint}>Everything you own counts, except the home you live in and the car you drive. Tap any row to change it.</Text>
       {accounts.map((a: any) => {
-        const counts = earmarkedAmount(a, carId) > 0 || (a.retirement_pct ?? earmarkDefault(a, carId)) > 0;
+        const counts = earmarkedAmount(a, carId, homeId) > 0 || (a.retirement_pct ?? earmarkDefault(a, carId, homeId)) > 0;
         return (
           <TouchableOpacity key={a.asset_id} style={s.row} accessibilityRole="button"
             accessibilityLabel={`${names.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance ?? 0))}. ${counts ? 'Counts toward retirement' : "Doesn't count"}. Tap to change.`}

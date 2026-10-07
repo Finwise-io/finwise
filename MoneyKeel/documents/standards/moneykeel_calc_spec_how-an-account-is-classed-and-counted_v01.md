@@ -117,10 +117,58 @@ A value typed by hand is "N months old" by the months that have fully passed —
 when the same day of the month comes round, or the month ends first. At six, the account's page asks
 "still right?" (MK-NW-F-003 valueFreshness).
 
+## 8. What counts toward retirement, and the rate it grows at
+
+The owner's rule of 2026-08-11 (DEC-0100): *"for calculating assets to count towards retirement - it
+should be all assets minus primary home and primary car. If they want they can change which asset
+should not count."*
+
+- **Counted by default:** every account at 100% — cash, a rental, a second car, valuables included —
+  except the home lived in, the car driven, and a 529 (legally someone else's). The person can set any
+  account's share (MK-NW-F-030 earmarkDefault, MK-NW-F-032 earmarkedAmount, MK-NW-F-033
+  retirementEarmarkedValue).
+- **The car driven** is the most valuable VEHICLE; nothing else can be it (MK-NW-F-031).
+- **The home lived in** is the property marked so; with none marked and no use stated on any, the
+  property entered first (MK-NW-F-110 primaryHomeIdOf — the same reading MK-NW-F-107 propertyUses makes
+  under DEC-1926). Two properties with no use stated are one home and one second home, never two homes.
+  A property's use is stated, or read this way; a car has no use (MK-NW-F-013 realEstateUseOf).
+- **The rate that money grows at** (MK-NW-F-037 blendedReturn) is each account's benchmark weighted by
+  what it has set aside — over exactly the money counted above, property included. No figure when
+  nothing is set aside; the Plan chooses its own 6% at its call site and says so there. The same for the
+  portfolio's volatility (MK-NW-F-035; still a weighted average — a table of how classes move together
+  is for the Plan build).
+- **A month's contributions** (MK-NW-F-041): the 401(k) answer held at the year's elective limit for
+  the person's age, the Roth answer as given, the investing answer, and the employer's match. Money
+  saved toward a property is not a retirement contribution. Nothing answered is no figure, not $0.
+
+## 9. Itemising a lump into holdings
+
+MK-NW-F-073 itemising, MK-NW-F-051 itemizedResultTotal, MK-NW-F-052 buildItemizedAccounts.
+
+- The total never falls below the entered total: what is not itemised stays as cash. It rises only when
+  the holdings listed come to more, and the screen shows the new total before Done.
+- Each new account carries what the lump carried — its retirement share, its source, and its wrapper
+  (401(k), IRA, Roth IRA, HSA, 529).
+- A bond's face value is entered or nothing; never today's value in its place. Without one, the
+  account's page reads "not entered" and shows no yield to maturity.
+
+## 10. The list under the class rows — by class, by institution
+
+MK-NW-F-094 ledgerGroups. The same split as §3: an account holding several classes gives each class
+group its part and sits, as a row, under the class most of it is in; by institution, its parts are the
+mix line under the institution's name. Group totals by class equal the class rows; both views add to
+What you own. Institution names are matched trimmed, capitals ignored.
+
+## 11. How much history a linked account shared
+
+MK-NW-F-046 historyCoverage. Months shared = whole months passed plus the part month by its days, to
+one decimal; the sentence says years only when the months are an exact multiple of twelve ("1 year 6
+months", never "2 years" for eighteen).
+
 ## Status and enforcement
 
-Built and tested 2026-10-05 to 2026-10-07 (the outside review of Net worth batch 2, and its two
-found-while-fixing defects). Tests: `MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts`,
+Built and tested 2026-10-05 to 2026-10-07 (the outside review of Net worth batches 2, 3 and 4, and the
+defects found while fixing them). Tests: `MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts`, `outside_networth_03.test.ts`, `outside_networth_04.test.ts`,
 `outside_networth_02_found.test.ts`, `src/screens/__tests__/outside_networth_02.test.tsx`,
 `src/domain/assets/classification.test.ts`, `src/domain/assets/selectors.test.ts`,
 `src/services/sync/f6_money_market.test.ts`, `src/__tests__/founder_2026_08_11.test.tsx`.

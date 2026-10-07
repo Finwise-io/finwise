@@ -24,7 +24,7 @@ const RAY = { current_age: 64, horizon_age: 92, retire_age: 67, start_balance: 5
 
 test('every Plan figure at 1,000 futures', () => {
   const L: string[] = [];
-  L.push(`PAT return ${((blendedReturn(PAT_ACCOUNTS) ?? 0) * 100).toFixed(2)}% vol ${(blendedVolatility(PAT_ACCOUNTS) * 100).toFixed(2)}%`);
+  L.push(`PAT return ${((blendedReturn(PAT_ACCOUNTS) ?? 0) * 100).toFixed(2)}% vol ${((blendedVolatility(PAT_ACCOUNTS) ?? 0.12) * 100).toFixed(2)}%`);
   for (const save of [12_000, 17_500, 77_500]) {
     L.push(`PAT saving ${save}: odds ${odds({ ...PAT, annual_contribution: save })} · projected ${proj({ ...PAT, annual_contribution: save })}`);
   }

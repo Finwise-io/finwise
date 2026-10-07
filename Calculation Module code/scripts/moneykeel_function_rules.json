@@ -1207,8 +1207,8 @@
   },
   "MK-NW-F-002": {
    "name": "alternativesSummary",
-   "rule": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total (no figure when the total is 0); growth in a year = total × blended rate (0 when there is no rate).",
-   "read_from": "a684e74732",
+   "rule": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total — no figure when the total is 0; growth in a year = total × blended rate, and no figure when nothing is held or the total is 0 ($0 would read as a forecast).",
+   "read_from": "231b91e46c",
    "sent_as": "4eeda56b57"
   },
   "MK-NW-F-003": {
@@ -1243,7 +1243,7 @@
   },
   "MK-NW-F-008": {
    "name": "incomeBearingClassOf",
-   "rule": "From the account's name, capitals ignored, first match wins. The words sweep or settlement → cash. Money market (also mmkt, mmf, or the ticker of a money-market fund) → Stocks / Funds. The ticker of a Treasury-bill fund → Bonds & CDs. An option — an option code, a dated option, or the words put or call → Alternatives. Crypto — a coin's ticker, or the words bitcoin, ethereum or crypto → Alternatives. A commodity fund's ticker, or the words gold, silver, platinum, palladium or commodity unless the name is a company's → Alternatives. The words currency or forex, or the tickers FXE or FXY → Alternatives. The words CD, certificate of deposit, T-bill, Treasury bill, bond, note, treasury, muni, debenture or coupon — or a percent followed by the word due or a year → Bonds & CDs. Otherwise nothing: the name gives no evidence.",
+   "rule": "From the account's name, capitals ignored, whole words only (put is not Putnam; cd is not ABCD), first match wins. Money market (also mmkt, mmf, or the ticker of a money-market fund) → Stocks / Funds — read before the sweep words, so a money-market settlement fund is the fund (the owner's rule of 2026-08-04). Then the words sweep or settlement → cash. The ticker of a Treasury-bill fund → Bonds & CDs. An option — an option code, a dated option, or the words put or call → Alternatives. Crypto — a coin's ticker, or the words bitcoin, ethereum or crypto → Alternatives. A commodity fund's ticker, or the words gold, silver, platinum, palladium or commodity unless the name is a company's → Alternatives. The words currency or forex, or the tickers FXE or FXY → Alternatives. The words CD, certificate of deposit, T-bill, Treasury bill, bond, note, treasury, muni, debenture or coupon — or a percent followed by the word due or a year → Bonds & CDs. Otherwise nothing: the name gives no evidence.",
    "read_from": "bb843812cc",
    "sent_as": "bb843812cc"
   },
@@ -1273,8 +1273,8 @@
   },
   "MK-NW-F-013": {
    "name": "realEstateUseOf",
-   "rule": "The use stated for a property; primary home when none is stated.",
-   "read_from": "036545ad7c",
+   "rule": "The use stated for a property. With none stated: the home lived in when the property is the one the household's rule names (primaryHomeIdOf — the one marked, or with none marked and no use stated on any, the one entered first), otherwise a second home; asked about one account alone, with no household to compare against, it is the home. An account that is not real estate has no use (no answer).",
+   "read_from": "5fb33a3020",
    "sent_as": "036545ad7c"
   },
   "MK-NW-F-014": {
@@ -1381,8 +1381,8 @@
   },
   "MK-NW-F-030": {
    "name": "earmarkDefault",
-   "rule": "The share of an account counted towards retirement by default: 0% for a 529, for a primary home and for the primary car; 100% for everything else.",
-   "read_from": "94cc5cca0d",
+   "rule": "The share of an account counted towards retirement by default (owner, 2026-08-11, DEC-0100: all assets minus the home lived in and the car driven): 0% for a 529, for the home lived in (the property whose use is stated as such; with none stated, the one the household's rule names, or any unstated property when no household is handed in) and for the car driven (primaryCarIdOf); 100% for everything else — a rental, a second home, a second car, valuables included.",
+   "read_from": "b574863508",
    "sent_as": "94cc5cca0d"
   },
   "MK-NW-F-031": {
@@ -1393,14 +1393,14 @@
   },
   "MK-NW-F-032": {
    "name": "earmarkedAmount",
-   "rule": "Balance × the share earmarked for retirement. The share is the one stated on the account, held between 0% and 100%, or the default (earmarkDefault) when none is stated.",
-   "read_from": "e3ff4b78f4",
+   "rule": "Balance × the share earmarked for retirement. The share is the one stated on the account, held between 0% and 100%, or the default (earmarkDefault, told which car is driven and which property is lived in) when none is stated.",
+   "read_from": "07c7c21b71",
    "sent_as": "e3ff4b78f4"
   },
   "MK-NW-F-033": {
    "name": "retirementEarmarkedValue",
-   "rule": "Every account's earmarked amount (earmarkedAmount) added up, with the primary car found by primaryCarIdOf.",
-   "read_from": "9ebbf6e41d",
+   "rule": "Every account's earmarked amount (earmarkedAmount) added up, with the car driven found by primaryCarIdOf and the home lived in by primaryHomeIdOf.",
+   "read_from": "299d3a9499",
    "sent_as": "9ebbf6e41d"
   },
   "MK-NW-F-034": {
@@ -1411,8 +1411,8 @@
   },
   "MK-NW-F-035": {
    "name": "blendedVolatility",
-   "rule": "Over exactly the accounts the nest egg counts: each account's volatility — the person's own figure for its kind, else the app's figure for the kind, else 12% — averaged, weighted by its earmarked amount. 12% when nothing is earmarked.",
-   "read_from": "4e5f1aaef6",
+   "rule": "Over exactly the accounts the nest egg counts: each account's volatility — the person's own figure for its kind, else the app's figure for the kind, else 12% — averaged, weighted by its earmarked amount. No answer when nothing is earmarked (the Plan then uses the band its growth rate implies, chosen at its call site). It is a weighted average of the parts, which is the portfolio's own volatility only when the parts move together; a table of how the classes move together is not yet built.",
+   "read_from": "57bd0554a4",
    "sent_as": "7666b801c9"
   },
   "MK-NW-F-036": {
@@ -1424,7 +1424,7 @@
   "MK-NW-F-037": {
    "name": "blendedReturn",
    "rule": "Over exactly the accounts the nest egg counts (every account, each weighted by its earmarked amount — the home lived in, the car driven and a 529 weigh nothing by default, a rental weighs its full value): the benchmark yearly rate of each account's kind (benchmarkReturn), averaged, weighted by its earmarked amount. No answer when the earmarked total is zero — the Plan then chooses its own 6% at its call site, and says so there.",
-   "read_from": "590292db92",
+   "read_from": "77b34bd362",
    "sent_as": "f900a328b0"
   },
   "MK-NW-F-038": {
@@ -1675,8 +1675,8 @@
   },
   "MK-NW-F-094": {
    "name": "ledgerGroups",
-   "rule": "Groups the accounts by asset-class label, or by institution (an account with no institution goes under No institution set). A group's total = its accounts' balances added up. When grouped by institution, each group also lists the classes inside it with their totals, largest first.",
-   "read_from": "75306e7a08",
+   "rule": "Groups the accounts for the Net worth list, by asset-class label or by institution. An account with a class split (accountClassBreakdown — a linked account, or one built by hand that records its own uninvested cash) gives each class group its part and sits, as a row, under the class most of it is in; any other account counts whole under its one class. By institution (an account with no institution goes under No institution set; names are matched trimmed, capitals ignored, and the group shows the first spelling seen): a group's total = its accounts' balances added up, and the group lists the classes inside it with their totals, from the same split, largest first. Group totals by class equal the class rows; both views add to everything owned.",
+   "read_from": "0d7806ee68",
    "sent_as": "75306e7a08"
   },
   "MK-NW-F-103": {
@@ -1952,6 +1952,12 @@
    "name": "holdingClassOf",
    "rule": "The class of one holding inside an account. (1) If the person said what it is, their answer. (2) If it is marked as asked — nothing could class it and the person has not answered — Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (3) The class its ticker and name are evidence for, unless that is cash: a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker sent (owner rule, 2026-08-04: cash means cash only). (4) Otherwise the class stored when it arrived: bond → Bonds & CDs, other → Alternatives, cash → cash, anything else → Stocks / Funds.",
    "read_from": "9aae46ef0b",
+   "sent_as": ""
+  },
+  "MK-NW-F-110": {
+   "name": "primaryHomeIdOf",
+   "rule": "Which property is the home lived in, by the household's rule (the owner's rule of 2026-10-04, as propertyUses reads it): among the real-estate accounts that are not rentals, the one whose use is stated as the home lived in; with none marked, none when any of them has a use stated, otherwise the one entered first (the app keeps the newest first, so the last in the list). Nothing when there is no property.",
+   "read_from": "60219fa768",
    "sent_as": ""
   }
  },
