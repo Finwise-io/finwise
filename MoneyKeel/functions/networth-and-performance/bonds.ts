@@ -16,7 +16,7 @@ import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
-  isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM,
+  isBond, bondInfo, yearlyInterest, yearsToMaturity, currentYield, approxYTM,
   bondSummary, accruedInterestCaveat, bondRateSensitivity,
   type BondInfo, type RateSensitivity,
 } from '../../../src/domain/bonds';
@@ -25,39 +25,28 @@ import {
 const CD_RE = /\b(cd|certificate of deposit)\b/i;
 
 /** Whether an account is a certificate of deposit, judged from its name. */
-/* ─ MK-NW-F-071 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-NW-F-071 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * isCertificateOfDeposit
  *
  * Answers ..... Whether an account is a certificate of deposit, judged from its name.
  *
  * Formula .....
- *     CD_RE.test(`${label ?? ''} ${institution ?? ''}`)
+ *     !!bond info(a as any).is cd
  *
- * Called by ... MK-NW-F-072 rowOf
- *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 62 more — the full list is on functions_from_code
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-071
  * Changed ..... not in git yet (—)
  */
-export function isCertificateOfDeposit(a: Pick<AssetAccount, 'label'> & { institution?: string }): boolean {
-  return CD_RE.test(`${a.label ?? ''} ${a.institution ?? ''}`);
+export function isCertificateOfDeposit(a: Pick<AssetAccount, 'label'> & { institution?: string; kind?: string }): boolean {
+  return !!bondInfo(a as any).isCd;   // one test, in bondInfo, so the function that reprices a bond refuses a CD itself
 }
 
 export interface BondRow {
@@ -65,9 +54,9 @@ export interface BondRow {
   label: string;
   /** What the person calls the place it is held — the row's heading on the Bonds screen. */
   institution: string;
-  face: number;
-  couponRate: number;
-  couponPerYear: number;
+  face: number | null;
+  couponRate: number | null;
+  couponPerYear: number | null;
   maturity: string;
   yearsLeft: number | null;
   currentYield: number | null;
@@ -90,11 +79,16 @@ export interface Bonds {
   count: number;
   totalValue: number;
   totalFace: number;
-  couponPerYear: number;
+  couponPerYear: number;   // the total of what is known
   avgYield: number | null;
   /** The bonds the average yield leaves out, by name: the ones with no value today. A screen that
    *  shows the average names them, so nobody reads it as an average of every bond listed. */
   leftOutOfAverage: string[];
+  /** The bonds the average yield and the year's interest leave out because no rate was entered — named
+   *  the same way (outside review, 2026-10-07: they had counted as paying 0%). */
+  leftOutNoRate: string[];
+  /** The bonds the total face value leaves out because none was entered — named, never counted as $0. */
+  faceNotEntered: string[];
   /** The soonest maturity date among them, so the screen need not sort for itself. */
   nextMaturity: string | null;
   rows: BondRow[];
@@ -151,13 +145,13 @@ const rowOf = (a: AssetAccount, now: Date): BondRow => {
     institution: (a as any).institution?.trim() || a.label,
     face: b.face,
     couponRate: b.couponRate,
-    couponPerYear: annualCoupon(b),
+    couponPerYear: yearlyInterest(b),   // face × rate; a CD by its balance, balance × rate; nothing without a rate
     maturity: b.maturity,
     yearsLeft: yearsToMaturity(b.maturity, now),
     currentYield: currentYield(b),
     yieldToMaturity: approxYTM(b, now),
     value: b.value,
-    isCD: isCertificateOfDeposit(a as any),
+    isCD: !!b.isCd,
     accruedCaveat: accruedInterestCaveat(b),
   };
 };
@@ -267,6 +261,8 @@ export function theBonds(input: BondsInput): Bonds {
     avgYield: sum.avgYield,
     // the same test the average itself uses: a value today, after accrued interest, above zero
     leftOutOfAverage: held.filter((a) => { const b = bondInfo(a); return !(b.value - (b.accruedInterest ?? 0) > 0); }).map((a) => a.label),
+    leftOutNoRate: held.filter((a) => { const b = bondInfo(a); return b.value - (b.accruedInterest ?? 0) > 0 && yearlyInterest(b) == null; }).map((a) => a.label),
+    faceNotEntered: held.filter((a) => bondInfo(a).face == null).map((a) => a.label),
     nextMaturity: (sum as any).nextMaturity ?? null,
     rows,
     one,
@@ -355,7 +351,10 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
+ *     · If face is missing it uses 0.
+ *     · If coupon per year is missing it uses 0.
  *     · If current yield is missing it uses 0.
+ *     · If coupon rate is missing it uses 0.
  *     · If years left is missing it uses 0.
  *     · Shows 2 decimal places.
  *     · Shows 1 decimal place.
@@ -502,7 +501,7 @@ export const BOND_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: 'Ally 12-month CD — face $10,000, $505/year, 5.05%',
-      run: () => (() => { const r = ALL().rows.find((r) => r.label === 'Ally 12-month CD')!; return `${r.label} — face ${formatMoney(r.face)}, ${formatMoney(r.couponPerYear)}/year, ${((r.currentYield ?? 0) * 100).toFixed(2)}%`; })(),
+      run: () => (() => { const r = ALL().rows.find((r) => r.label === 'Ally 12-month CD')!; return `${r.label} — face ${formatMoney(r.face ?? 0)}, ${formatMoney(r.couponPerYear ?? 0)}/year, ${((r.currentYield ?? 0) * 100).toFixed(2)}%`; })(),
     },
   },
   'MK-NW-M-023': {
@@ -528,7 +527,7 @@ export const BOND_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: '$1,125/year — 4.50% of $25,000 face',
-      run: () => `${formatMoney(ONE().couponPerYear)}/year — ${(ONE().couponRate * 100).toFixed(2)}% of ${formatMoney(ONE().face)} face`,
+      run: () => `${formatMoney(ONE().couponPerYear ?? 0)}/year — ${((ONE().couponRate ?? 0) * 100).toFixed(2)}% of ${formatMoney(ONE().face ?? 0)} face`,
     },
   },
   'MK-NW-M-025': {
@@ -554,7 +553,7 @@ export const BOND_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '5.66%',
+      answer: '5.65%',   // 5.66% while the hour of the day counted; whole calendar days, 1,098 of them (outside review, 2026-10-07)
       run: () => ONE().yieldToMaturity,
     },
   },

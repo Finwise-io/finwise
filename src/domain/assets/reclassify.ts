@@ -23,17 +23,17 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               … and 41 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -59,6 +59,7 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  *
  * Formula .....
  *     changed = 0
+ *     a   when wrapper confirmed
  *     want = correct class of(a)
  *     next = a
  *     ps = (next.positions ?? []) as any[]
@@ -66,22 +67,23 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               … and 39 more — the full list is on functions_from_code
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · Uses a built-in changed of 0.
@@ -92,6 +94,9 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
 export function reclassifyAccounts(accounts: AssetAccount[]): { accounts: AssetAccount[]; changed: number } {
   let changed = 0;
   const out = (accounts ?? []).map((a) => {
+    // what the person confirmed stands — the rule corrects what the app guessed, never what they said
+    // (outside review, 2026-10-07)
+    if (a.wrapper_confirmed) return a;
     const want = correctClassOf(a);
     let next = a;
     if (want && a.asset_class !== want) {

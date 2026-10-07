@@ -24,7 +24,8 @@ describe('interestIncomeAnnual', () => {
 
   test('CD interest is kept — balance × its stated rate (CDs are Bonds & CDs, founder rule 2026-08-04)', () => {
     expect(interestIncomeAnnual([
-      a({ label: 'KEY BANK CD 3.85%', maturity_date: '2026-08-24', coupon_rate: 0.0385, balance: 109992 }),
+      // a CD still running (its date was 2026-08-24, now past: a matured CD pays nothing more — outside review 2026-10-07)
+      a({ label: 'KEY BANK CD 3.85%', maturity_date: '2099-08-24', coupon_rate: 0.0385, balance: 109992 }),
     ])).toBeCloseTo(4234.69, 1);
   });
 

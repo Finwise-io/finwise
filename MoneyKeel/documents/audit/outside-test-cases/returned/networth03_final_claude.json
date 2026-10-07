@@ -1,0 +1,3844 @@
+{
+ "batch": "networth 03 final",
+ "written_by": "claude",
+ "ready_to_close": false,
+ "still_open": [
+  "MK-NW-F-060 approxYTM (WRONG, medium): Price for the yield = value - accrued interest when accrued interest is recorded and above zero, else value. Approx YTM = (face x coupon rate + (face - price) / years left) / ((face + price) / 2), with years left = days from today to maturity / 365.25. No answer when there is no maturity date, maturity is today or earlier, price is zero or less, or no face value is recorded.",
+  "MK-NW-F-030 earmarkDefault (INCOMPLETE, medium): 0% only for the one property recorded as lived in (re_use = primary). A property with rental income on the income screen is a rental: 100%. Any other property is a second or vacation home (owner rule 5): 100% unless the owner rules otherwise. 0% for a 529 and for the car primaryCarIdOf picks. 100% for everything else. State what happens when no use is recorded.",
+  "MK-NW-F-035 blendedVolatility (WRONG, medium): Same weighting as now, but no answer when the earmarked total is zero, exactly as blendedReturn. The Plan chooses and states its own fallback at the call site.",
+  "MK-NW-F-036 benchmarkInfo (INCOMPLETE, low): When edited, estimate = true (a person's own rate is an assumption, not a measured index).",
+  "MK-NW-F-041 monthlyContributionsFromOnboarding (INCOMPLETE, medium): Employer match (percent) = stated share x the 401(k) amount after it is held to the limit. When the birth year is missing: hold at $24,500/12 only if the amount is above it, and say the age is needed (or refuse that line); never assume an older age's limit.",
+  "MK-NW-F-046 historyCoverage (INCOMPLETE, medium): Build the sentence from whole months only (never from the rounded figure); round monthsCovered down, not to nearest, so 11.97 shows as 11.9; divide the part month by the length of the month in which it begins; treat an imported account with no start like a linked one.",
+  "MK-NW-F-048 uberGroupRows (WRONG, low): Label the third group 'Property' (it holds Real estate and Personal property).",
+  "MK-NW-F-052 buildItemizedAccounts (INCOMPLETE, medium): Give the remainder account asset_class = cash explicitly. State each new account's target return: the benchmark for its own class kind (benchmarkReturn), unless the person set one, so a cash remainder does not inherit a stock rate."
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "verdict": "WRONG",
+   "why": "The formula uses the bond's value as handed, but BondInfo carries accruedInterest and the field note (A47, founder 2026-08-26) says the interest earned since the last coupon is subtracted before the yield. The formula in words never subtracts it, and the card's inputs do not even list accrued interest or the coupon rate. A bond whose value includes accrued interest (a dirty price, which is what a broker statement or a person reading one usually gives) is then treated as dearer than it is: both the pull-to-par term (face - value) and the average-price denominator use the dirty price, so the yield comes out too low. It is also silent on how 'years left' is counted (days/365.25 assumed here) and on a bond maturing exactly today (years left = 0, a division by zero; it must refuse).",
+   "should_be": "Price for the yield = value - accrued interest when accrued interest is recorded and above zero, else value. Approx YTM = (face x coupon rate + (face - price) / years left) / ((face + price) / 2), with years left = days from today to maturity / 365.25. No answer when there is no maturity date, maturity is today or earlier, price is zero or less, or no face value is recorded.",
+   "rests_on": "Standard approximate yield-to-maturity formula, applied to the clean price (market convention: yields are quoted on clean price, accrued interest is settled separately); BondInfo type note A47 (founder, 2026-08-26).",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-029",
+   "name": "assetAllocation",
+   "verdict": "RIGHT",
+   "why": "Each account is either split by its own class breakdown (whose parts add exactly to its balance) or counted whole under one class, so the seven classes always add to everything owned, and the Cash class is by construction the same number as cashTotal. Nothing is counted twice or dropped.",
+   "should_be": "",
+   "rests_on": "Formula in words with accountClassBreakdown (F-027), assetClassOf (F-011) and cashTotal (F-016) as printed; ordinary arithmetic.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "verdict": "INCOMPLETE",
+   "why": "The 0% / 100% split is sensible, but the card never says how 'a primary home' is recognised. Its only listed input is the account's kind, which suggests every property of kind 'home' is taken as the home lived in. Owner rule 5 (2026-10-04) says a property is a rental when rental income is entered on the income screen, otherwise a second or vacation home; and blendedReturn's card (F-037) says 'a rental weighs its full value'. A rental or second home entered with kind 'home' would then get 0% and vanish from the nest egg, blended return and blended volatility. The card is also silent on a property with no use recorded, and on two properties both marked as lived in.",
+   "should_be": "0% only for the one property recorded as lived in (re_use = primary). A property with rental income on the income screen is a rental: 100%. Any other property is a second or vacation home (owner rule 5): 100% unless the owner rules otherwise. 0% for a 529 and for the car primaryCarIdOf picks. 100% for everything else. State what happens when no use is recorded.",
+   "rests_on": "Owner rule 5 (2026-10-04); F-037 card text ('a rental weighs its full value'); F-011 step 7 (use is recorded separately from kind).",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-031",
+   "name": "primaryCarIdOf",
+   "verdict": "RIGHT",
+   "why": "Picking the most valuable vehicle, and only vehicles, does what it is for and keeps a second car as a real asset. The tie rule is deterministic. One author claim is loose: 'lower id read as text' equals 'the one made first' only for time-ordered ids (with ids '9' and '10', '10' sorts first). That changes which of two equal-value cars is marked primary, not any total, so it is noted, not faulted.",
+   "should_be": "",
+   "rests_on": "Formula in words; ordinary arithmetic.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-032",
+   "name": "earmarkedAmount",
+   "verdict": "RIGHT",
+   "why": "Balance x share, with a stated share held to 0-100% and the default used only when none is stated, is the right way to get the earmarked dollars. A stated 0% is respected as a choice. Any fault in the default comes from earmarkDefault (F-030), not this card.",
+   "should_be": "",
+   "rests_on": "Formula in words; ordinary arithmetic.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-033",
+   "name": "retirementEarmarkedValue",
+   "verdict": "RIGHT",
+   "why": "The nest egg is the sum of each account's earmarked dollars, with the primary car found once for the whole list, so the rows always add to the total. It inherits any fault in earmarkDefault (F-030) for how a lived-in home is recognised.",
+   "should_be": "",
+   "rests_on": "Formula in words; ordinary arithmetic.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-034",
+   "name": "benchmarkReturn",
+   "verdict": "RIGHT",
+   "why": "A person's own rate wins (0 counted as set), else a fixed typical rate per kind, else 6%. The rates are planning assumptions, not published amounts, so there is no source to check them against. Private equity and hedge funds keep a rate, which owner rules 8 and 9 require because rows saved earlier are kept. Exact matching with capitals is stated plainly and is safe as long as kinds are the app's own ids.",
+   "should_be": "",
+   "rests_on": "Formula in words; owner rules 8 and 9 (2026-10-06, 2026-08-04).",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "verdict": "WRONG",
+   "why": "When nothing is earmarked it returns 12%, an invented number, where blendedReturn (F-037), whose weighting this card says it shares 'so the pair always describes one portfolio', returns no answer and leaves the call site to choose its own default and say so. With no earmarked money there is no portfolio and no volatility. A silent 12% here, next to an announced 6% return, means the Plan quietly simulates a portfolio that does not exist. (A secondary note, not the basis of the verdict: a weighted average of volatilities ignores correlation, so it overstates the spread of a mixed stock and bond portfolio. That is a disclosed simplification, not a fault.)",
+   "should_be": "Same weighting as now, but no answer when the earmarked total is zero, exactly as blendedReturn. The Plan chooses and states its own fallback at the call site.",
+   "rests_on": "Brief rule 'never invent a default number'; F-037 card (no answer on zero earmarked, call site says so); this card's own stated purpose (same weighting as blendedReturn).",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-036",
+   "name": "benchmarkInfo",
+   "verdict": "INCOMPLETE",
+   "why": "Rate, source, period and the edited flag are all stated, and the rate always agrees with benchmarkReturn. But the card returns an 'estimate' flag and never says what it is when the person set their own rate: 'estimate = whether that record is marked an assumption' sits only in the 'Otherwise' branch. A person's own figure is not a measured index, so it should read as an estimate. No dollar figure changes; only a label could.",
+   "should_be": "When edited, estimate = true (a person's own rate is an assumption, not a measured index).",
+   "rests_on": "Ordinary reading of the card's own definition of 'estimate'.",
+   "severity": "low"
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "verdict": "RIGHT",
+   "why": "An expected rate weighted by earmarked dollars, with no answer when nothing is earmarked and the fallback stated at the call site, is the right way to blend. It is an expected rate, not a measured return, so the time-weighted rule (owner 1) does not apply. It inherits the earmarkDefault (F-030) gap on recognising the lived-in home.",
+   "should_be": "",
+   "rests_on": "Formula in words; brief rule on refusing.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-039",
+   "name": "buildAssetsState",
+   "verdict": "RIGHT",
+   "why": "Total, shares and a balance-weighted average are right. Weighting by signed balances is deliberate and consistent: an overdrawn account carries a negative share and its rate acts as a cost, so the average is the yearly return on the net amount held (it can exceed every single rate when an overdraft levers it, which is true arithmetic, not an error). No answer when the net total is 0 is honest, since a return on a net of zero is undefined. I first suspected the negative weights; on working them through they are correct.",
+   "should_be": "",
+   "rests_on": "Formula in words; ordinary arithmetic (return on net equity).",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-041",
+   "name": "monthlyContributionsFromOnboarding",
+   "verdict": "INCOMPLETE",
+   "why": "The 2026 limits are right: $24,500 under 50; $32,500 at 50-59 and 64+; $35,750 at 60-63 ($24,500 + $11,250 instead of $8,000), with age attained in the year. These match IRS Notice 2025-67. Two gaps change the answer. (1) A match 'as a share of the 401(k) amount' does not say whether the share is of the amount as entered or as held to the limit. An employer can only match money that can be contributed, so it must be the held amount. (2) No rule when the birth year is missing and the 401(k) amount is above $24,500/12: the limit then depends on an age the app does not have.",
+   "should_be": "Employer match (percent) = stated share x the 401(k) amount after it is held to the limit. When the birth year is missing: hold at $24,500/12 only if the amount is above it, and say the age is needed (or refuse that line); never assume an older age's limit.",
+   "rests_on": "IRS Notice 2025-67 (2026 limits: 402(g) $24,500; catch-up $8,000; ages 60-63 $11,250); IRC 414(v); ordinary reading of an employer match on elective deferrals.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-045",
+   "name": "sourceWording",
+   "verdict": "RIGHT",
+   "why": "Three sources, a staleness line at 4 or more days, and an honest 'not updated yet' when no sync is on record cover what the wording is for. Unstated but natural: N is whole days elapsed (rounded down), which these cases assume. The inputs list says 'price fetched at' but the formula reads the last sync; the formula is what is judged.",
+   "should_be": "",
+   "rests_on": "Formula in words.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-046",
+   "name": "historyCoverage",
+   "verdict": "INCOMPLETE",
+   "why": "The sentence rules are sound, and the exact-multiple-of-twelve test correctly reads 12 months as '1 year' and 24 as '2 years'. But months covered is kept 'to one decimal', and the card does not say whether the years/months sentence is built from that rounded figure or from the whole months. History one day short of a year (11 whole months + 29/30) rounds to 12.0 and would read '1 year', which is exactly the rounding up to a year the card says never happens. The card also does not say which month's length divides the part month, and gives no rule for an imported account with no history start.",
+   "should_be": "Build the sentence from whole months only (never from the rounded figure); round monthsCovered down, not to nearest, so 11.97 shows as 11.9; divide the part month by the length of the month in which it begins; treat an imported account with no start like a linked one.",
+   "rests_on": "The card's own claim 'it never rounds up to a year'; ordinary arithmetic.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-048",
+   "name": "uberGroupRows",
+   "verdict": "WRONG",
+   "why": "The grouping and totals are right: every class lands in exactly one group, group totals add to What you own, and empty groups are dropped. But the third group, which holds Real estate, is labelled 'Personal property'. Real estate is real property, not personal property, and the group then shares its name with one of its own classes, so a house appears under 'Personal property > Real estate'. Only a label is wrong; no number changes.",
+   "should_be": "Label the third group 'Property' (it holds Real estate and Personal property).",
+   "rests_on": "Standard usage: real property (land and buildings) vs personal property (movable belongings); UberGroup id 'property'.",
+   "severity": "low"
+  },
+  {
+   "id": "MK-NW-F-051",
+   "name": "itemizedResultTotal",
+   "verdict": "RIGHT",
+   "why": "Holdings plus any positive remainder kept as cash keeps the entered total when the holdings fit inside it, and becomes the holdings' sum when they exceed it. Taking the specific holdings over the earlier lump is honest, and the person sees the new total before tapping Done. It agrees with buildItemizedAccounts (F-052): the new accounts' balances sum to this figure.",
+   "should_be": "",
+   "rests_on": "Formula in words; ordinary arithmetic.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-052",
+   "name": "buildItemizedAccounts",
+   "verdict": "INCOMPLETE",
+   "why": "The naming, the carried fields, the wrapper rule and the honest face value are right, and the new balances add to itemizedResultTotal. Two things that change numbers are left unsaid. (1) The cash remainder account's class is never stated. For a wrapper original (401(k), IRA, HSA, 529) it keeps the wrapper kind, and a 401(k)-kind account with no class and no holdings is not cash under assetClassOf's steps, so the uninvested cash in a retirement account can leave the Cash class. (2) The card reads 'assumed return' but never says what target return each new account gets (the lump's, or its own kind's), which changes buildAssetsState's average.",
+   "should_be": "Give the remainder account asset_class = cash explicitly. State each new account's target return: the benchmark for its own class kind (benchmarkReturn), unless the person set one, so a cash remainder does not inherit a stock rate.",
+   "rests_on": "F-011 assetClassOf steps (a 401(k) kind is not in the cash list); F-039 uses each account's target return.",
+   "severity": "medium"
+  }
+ ],
+ "cases": [
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "easy",
+   "title": "Bond bought at par, exactly four years left",
+   "given": "Face $1,000, coupon 5%, worth $1,000 today (no accrued interest recorded), matures 2030-10-07. Today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face_value": 1000,
+    "coupon_rate": 0.05,
+    "value_today": 1000,
+    "accrued_interest": null,
+    "maturity_date": "2030-10-07"
+   },
+   "expected": {
+    "approx_ytm": {
+     "exact": 0.05,
+     "shown": "5.00%"
+    }
+   },
+   "working": [
+    "Days left = 2026-10-07 to 2030-10-07 = 1461; years left = 1461 / 365.25 = 4.0000",
+    "Yearly interest = 1,000 x 0.05 = 50",
+    "Pull to par = (1,000 - 1,000) / 4.0000 = 0",
+    "Average price = (1,000 + 1,000) / 2 = 1,000",
+    "YTM = (50 + 0) / 1,000 = 0.0500 = 5.00%"
+   ],
+   "rests_on": "Formula in words; standard approximate YTM. A par bond yields its coupon.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "easy",
+   "title": "Zero-coupon bond at a discount",
+   "given": "Face $1,000, no coupon, worth $800 today, matures 2030-10-07 (exactly 4 years). Today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face_value": 1000,
+    "coupon_rate": 0.0,
+    "value_today": 800,
+    "accrued_interest": null,
+    "maturity_date": "2030-10-07"
+   },
+   "expected": {
+    "approx_ytm": {
+     "exact": 0.055556,
+     "shown": "5.56%"
+    }
+   },
+   "working": [
+    "Years left = 1461 / 365.25 = 4.0000",
+    "Yearly interest = 0",
+    "Pull to par = (1,000 - 800) / 4 = 50.0000",
+    "Average price = (1,000 + 800) / 2 = 900",
+    "YTM = 50.0000 / 900 = 0.055556 = 5.56%"
+   ],
+   "rests_on": "Formula in words; standard approximate YTM.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "complex",
+   "title": "Treasury note whose value includes accrued interest the person recorded",
+   "given": "Face $25,000, coupon 4.375%, the statement value $24,612.40 includes $236.98 of interest accrued since the last coupon (recorded on the bond). Matures 2031-03-15. Today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face_value": 25000,
+    "coupon_rate": 0.04375,
+    "value_today": 24612.4,
+    "accrued_interest": 236.98,
+    "maturity_date": "2031-03-15"
+   },
+   "expected": {
+    "approx_ytm": {
+     "exact": 0.050007,
+     "shown": "5.00%"
+    }
+   },
+   "formula_gives": {
+    "approx_ytm": {
+     "exact": 0.047615,
+     "shown": "4.76%"
+    }
+   },
+   "working": [
+    "Days left = 2026-10-07 to 2031-03-15 = 1620; years left = 1620/365.25 = 4.435318",
+    "Clean price = 24,612.40 - 236.98 = 24,375.42",
+    "Yearly interest = 25,000 x 0.04375 = 1,093.7500",
+    "Pull to par = (25,000 - 24,375.42) / 4.435318 = 140.8197",
+    "Average price = (25,000 + 24,375.42) / 2 = 24,687.7100",
+    "YTM = (1093.7500 + 140.8197) / 24687.7100 = 0.050007 = 5.00%",
+    "Formula as written (value not reduced by accrued): (1093.7500 + 87.3894) / 24806.2000 = 0.047615 = 4.76%"
+   ],
+   "rests_on": "BondInfo note A47 (founder 2026-08-26): accrued interest is subtracted before the yield; standard approximate YTM on clean price.",
+   "confidence": "high",
+   "notes": "Years left counted as days/365.25. With days/365 the right answer is 5.00%; the gap between right and formula is the same either way."
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "complex",
+   "title": "Premium corporate bond from a broker feed, no accrued figure",
+   "given": "Broker line: 'XYZ CORP 3.150% 05/15/2029', quantity 15 (face $1,000 each = $15,000), market value $15,412.85, accrued interest not reported. Today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face_value": 15000,
+    "coupon_rate": 0.0315,
+    "value_today": 15412.85,
+    "accrued_interest": null,
+    "maturity_date": "2029-05-15"
+   },
+   "expected": {
+    "approx_ytm": {
+     "exact": 0.020645,
+     "shown": "2.06%"
+    },
+    "sanity_ytm_below_current_yield_below_coupon": true
+   },
+   "working": [
+    "Days left = 951; years left = 951/365.25 = 2.603696",
+    "No accrued interest recorded, so price = value = 15,412.85",
+    "Yearly interest = 15,000 x 0.0315 = 472.5000",
+    "Pull to par = (15,000 - 15,412.85) / 2.603696 = -158.5631",
+    "Average price = (15,000 + 15,412.85) / 2 = 15206.4250",
+    "YTM = (472.5000 -158.5631) / 15206.4250 = 0.020645 = 2.06%",
+    "Check: current yield = 472.50 / 15,412.85 = 0.030656; a premium bond's YTM (0.0206) < current yield (0.0307) < coupon (0.0315)"
+   ],
+   "rests_on": "Standard approximate YTM; premium-bond ordering.",
+   "confidence": "high",
+   "notes": "Years left as days/365.25; with /365 the answer is 2.07%."
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "edge",
+   "title": "Bond that matures today",
+   "given": "Face $10,000, coupon 4%, value $10,000, matures 2026-10-07, which is today.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face_value": 10000,
+    "coupon_rate": 0.04,
+    "value_today": 10000,
+    "maturity_date": "2026-10-07"
+   },
+   "expected": {
+    "approx_ytm": "REFUSES",
+    "reason": "No time left to maturity: years left = 0, so the pull-to-par term divides by zero. A bond maturing today pays out at face; there is no yield to state."
+   },
+   "working": [
+    "Days left = 2026-10-07 - 2026-10-07 = 0; years left = 0",
+    "Pull to par = (10,000 - 10,000) / 0 -> undefined",
+    "So the honest answer is no answer, with the reason 'matures today'"
+   ],
+   "rests_on": "Formula in words ('nothing when ... the bond has matured'), read so that maturing today counts as matured; ordinary arithmetic.",
+   "confidence": "medium",
+   "notes": "The card says 'has matured' without saying whether maturity today counts. Any reading other than refusing divides by zero, so REFUSES is the only consistent answer."
+  },
+  {
+   "id": "MK-NW-F-029",
+   "name": "assetAllocation",
+   "kind": "easy",
+   "title": "Two bank accounts",
+   "given": "Checking $4,000 and savings $6,000, both typed in.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Checking",
+      "kind": "checking",
+      "balance": 4000
+     },
+     {
+      "name": "Savings",
+      "kind": "savings",
+      "balance": 6000
+     }
+    ]
+   },
+   "expected": {
+    "cash": {
+     "exact": 10000.0,
+     "shown": "$10,000"
+    },
+    "bonds": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "stocks_etf": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "alternatives": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "real_estate": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "personal_property": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "mixed": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "total_owned": {
+     "exact": 10000.0,
+     "shown": "$10,000"
+    }
+   },
+   "working": [
+    "Both kinds are cash (F-011 step 4); neither has a class split",
+    "Cash = 4,000 + 6,000 = 10,000",
+    "Every other class = 0",
+    "Total owned = 10,000 = sum of classes"
+   ],
+   "rests_on": "Formula in words; assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-029",
+   "name": "assetAllocation",
+   "kind": "easy",
+   "title": "A home and a car, nothing else",
+   "given": "Home lived in $500,000; car $30,000.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Home",
+      "kind": "home",
+      "use": "primary",
+      "balance": 500000
+     },
+     {
+      "name": "Car",
+      "kind": "vehicle",
+      "balance": 30000
+     }
+    ]
+   },
+   "expected": {
+    "cash": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "bonds": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "stocks_etf": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "alternatives": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "real_estate": {
+     "exact": 500000.0,
+     "shown": "$500,000"
+    },
+    "personal_property": {
+     "exact": 30000.0,
+     "shown": "$30,000"
+    },
+    "mixed": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "total_owned": {
+     "exact": 530000.0,
+     "shown": "$530,000"
+    }
+   },
+   "working": [
+    "Home -> Real estate (kind home); car -> Personal property (kind vehicle)",
+    "Real estate 500,000; Personal property 30,000; all else 0",
+    "Total owned = 530,000"
+   ],
+   "rests_on": "Formula in words; assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-029",
+   "name": "assetAllocation",
+   "kind": "complex",
+   "title": "Linked brokerage holding cash, priced funds, an option and an unpriced CD the broker tagged as cash; plus checking and home",
+   "given": "Linked brokerage reports balance $52,340.18: uninvested cash $3,210.55; VTI 120 shares at $268.42; a Treasury note the broker types 'bond', 5 at $985.40; one option synced at $1,150.00; a 12-month CD with no price that the broker tagged 'cash'. Also checking $8,412.77 (typed) and the home lived in $640,000.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Brokerage (linked)",
+      "source": "connected",
+      "balance": 52340.18,
+      "cash_balance": 3210.55,
+      "holdings": [
+       {
+        "ticker": "VTI",
+        "shares": 120,
+        "last_price": 268.42,
+        "broker_type": "equity"
+       },
+       {
+        "name": "US Treasury 4.25% 2028",
+        "units": 5,
+        "last_price": 985.4,
+        "broker_type": "bond"
+       },
+       {
+        "name": "12-month CD",
+        "last_price": null,
+        "broker_type": "cash"
+       }
+      ],
+      "options": [
+       {
+        "synced_value": 1150.0
+       }
+      ]
+     },
+     {
+      "name": "Checking",
+      "kind": "checking",
+      "balance": 8412.77
+     },
+     {
+      "name": "Home",
+      "kind": "home",
+      "use": "primary",
+      "balance": 640000.0
+     }
+    ]
+   },
+   "expected": {
+    "cash": {
+     "exact": 11623.32,
+     "shown": "$11,623"
+    },
+    "bonds": {
+     "exact": 15769.23,
+     "shown": "$15,769"
+    },
+    "stocks_etf": {
+     "exact": 32210.4,
+     "shown": "$32,210"
+    },
+    "alternatives": {
+     "exact": 1150.0,
+     "shown": "$1,150"
+    },
+    "real_estate": {
+     "exact": 640000.0,
+     "shown": "$640,000"
+    },
+    "personal_property": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "mixed": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "total_owned": {
+     "exact": 700752.95,
+     "shown": "$700,753"
+    },
+    "same_number_elsewhere": {
+     "cash_class_equals_cashTotal": {
+      "exact": 11623.32,
+      "shown": "$11,623"
+     }
+    }
+   },
+   "working": [
+    "VTI = 120 x 268.42 = 32,210.40 -> Stocks / Funds",
+    "Treasury = 5 x 985.40 = 4,927.00 -> Bonds & CDs (broker type bond)",
+    "Option = 1,150.00 -> Alternatives",
+    "Priced parts = 3,210.55 + 32,210.40 + 4,927.00 + 1,150.00 = 41,497.95",
+    "Shortfall = 52,340.18 - 41,497.95 = 10,842.23, and one holding (the CD) has no price -> whole difference filed under the CD's class",
+    "The CD's class: holdingClassOf step 3 -- a CD is Bonds & CDs whatever tag the broker sent (owner 2026-08-04), never cash",
+    "Bonds = 4,927.00 + 10,842.23 = 15,769.23",
+    "Cash = 3,210.55 (brokerage) + 8,412.77 (checking) = 11,623.32",
+    "Real estate = 640,000",
+    "Total = 11,623.32 + 32,210.40 + 15,769.23 + 1,150.00 + 640,000.00 = 700,752.95",
+    "Check: balances 52,340.18 + 8,412.77 + 640,000 = 700,752.95 = total"
+   ],
+   "rests_on": "Formula in words; accountClassBreakdown (F-027) linked-account rules; holdingClassOf (F-109) step 3; owner rule 2026-08-04.",
+   "confidence": "high",
+   "notes": "Same input, two screens: the Cash class here must equal cashTotal (F-016) shown on the cash screen."
+  },
+  {
+   "id": "MK-NW-F-029",
+   "name": "assetAllocation",
+   "kind": "complex",
+   "title": "Hand-built brokerage with its own cash, a CD with a maturity date, a 401(k), crypto and a car",
+   "given": "Brokerage built from its own holdings (balance derived): VTI 150 at $268.42, VXUS 80 at $69.33, uninvested cash $2,500.00. A bank CD $20,000.00 maturing 2027-04-30. 401(k) $88,140.09 marked Stocks / Funds by the person. Crypto wallet $3,412.56. Car $18,750.00.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Brokerage (built by hand)",
+      "kind": "brokerage",
+      "derive_balance": true,
+      "cash_balance": 2500.0,
+      "positions": [
+       {
+        "ticker": "VTI",
+        "shares": 150,
+        "price": 268.42
+       },
+       {
+        "ticker": "VXUS",
+        "shares": 80,
+        "price": 69.33
+       }
+      ]
+     },
+     {
+      "name": "Bank CD",
+      "kind": "cd",
+      "balance": 20000.0,
+      "maturity_date": "2027-04-30"
+     },
+     {
+      "name": "401(k)",
+      "kind": "401k",
+      "asset_class": "stocks_etf",
+      "balance": 88140.09
+     },
+     {
+      "name": "Crypto",
+      "kind": "crypto",
+      "balance": 3412.56
+     },
+     {
+      "name": "Car",
+      "kind": "vehicle",
+      "balance": 18750.0
+     }
+    ]
+   },
+   "expected": {
+    "cash": {
+     "exact": 2500.0,
+     "shown": "$2,500"
+    },
+    "bonds": {
+     "exact": 20000.0,
+     "shown": "$20,000"
+    },
+    "stocks_etf": {
+     "exact": 133949.49,
+     "shown": "$133,949"
+    },
+    "alternatives": {
+     "exact": 3412.56,
+     "shown": "$3,413"
+    },
+    "real_estate": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "personal_property": {
+     "exact": 18750.0,
+     "shown": "$18,750"
+    },
+    "mixed": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "total_owned": {
+     "exact": 178612.05,
+     "shown": "$178,612"
+    }
+   },
+   "working": [
+    "Brokerage balance = 2,500.00 + 150 x 268.42 (40,263.00) + 80 x 69.33 (5,546.40) = 48,309.40",
+    "Built by hand with cash above zero -> cash 2,500.00; the rest 45,809.40 stays whole under its own class (lists holdings -> Stocks / Funds)",
+    "CD has a maturity date -> Bonds & CDs 20,000.00",
+    "401(k) stated class Stocks / Funds -> 88,140.09",
+    "Crypto -> Alternatives 3,412.56; car -> Personal property 18,750.00",
+    "Stocks / Funds = 45,809.40 + 88,140.09 = 133,949.49",
+    "Total = 178,612.05; check: balances 48,309.40 + 20,000 + 88,140.09 + 3,412.56 + 18,750 = 178,612.05"
+   ],
+   "rests_on": "Formula in words; accountClassBreakdown hand-built rule; assetClassOf steps 1, 2, 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-029",
+   "name": "assetAllocation",
+   "kind": "edge",
+   "title": "Nothing entered at all",
+   "given": "The person has added no accounts.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "cash": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "bonds": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "stocks_etf": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "alternatives": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "real_estate": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "personal_property": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "mixed": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "total_owned": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "No accounts -> every class sums over nothing = 0",
+    "Total owned = 0"
+   ],
+   "rests_on": "Formula in words; ordinary arithmetic (an empty sum is 0).",
+   "confidence": "high",
+   "notes": "Zero here is a true sum, not a missing input standing in for zero: a person with no accounts owns $0 in each class. The screen may still prefer an empty state; that is presentation, not this function."
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "easy",
+   "title": "A 529 plan",
+   "given": "A 529 plan worth $40,000, no share stated.",
+   "inputs": {
+    "account": {
+     "kind": "529",
+     "balance": 40000,
+     "retirement_pct": null
+    }
+   },
+   "expected": {
+    "default_share_pct": {
+     "exact": 0,
+     "shown": "0%"
+    }
+   },
+   "working": [
+    "Kind 529 -> 0% by default (it saves for education)"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "easy",
+   "title": "A taxable brokerage",
+   "given": "Brokerage $75,000, no share stated.",
+   "inputs": {
+    "account": {
+     "kind": "brokerage",
+     "balance": 75000,
+     "retirement_pct": null
+    }
+   },
+   "expected": {
+    "default_share_pct": {
+     "exact": 100,
+     "shown": "100%"
+    }
+   },
+   "working": [
+    "Brokerage is not a 529, home or the primary car -> 100%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "complex",
+   "title": "A house kept as kind 'home' but rented out, beside the home lived in",
+   "given": "Lived-in home (kind home, use primary) $780,000. A second house, kind home, use rental, $425,000; rent of $2,400/month is entered on the income screen.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "h1",
+      "kind": "home",
+      "re_use": "primary",
+      "balance": 780000
+     },
+     {
+      "id": "h2",
+      "kind": "home",
+      "re_use": "rental",
+      "balance": 425000
+     }
+    ],
+    "income_screen": {
+     "rental_income_monthly": 2400
+    }
+   },
+   "expected": {
+    "h1_default_share_pct": {
+     "exact": 0,
+     "shown": "0%"
+    },
+    "h2_default_share_pct": {
+     "exact": 100,
+     "shown": "100%"
+    }
+   },
+   "formula_gives": {
+    "h1_default_share_pct": {
+     "exact": 0,
+     "shown": "0%"
+    },
+    "h2_default_share_pct": {
+     "exact": 0,
+     "shown": "0%"
+    }
+   },
+   "working": [
+    "h1 is recorded as lived in -> 0%",
+    "h2 has rent on the income screen -> it is a rental (owner rule 5) -> not the primary home -> 100%",
+    "F-037's own card: 'a rental weighs its full value'"
+   ],
+   "rests_on": "Owner rule 5 (2026-10-04); F-037 card text.",
+   "confidence": "medium",
+   "notes": "formula_gives assumes 'primary home' is read from kind 'home' alone, the only input the card lists. If the app reads the recorded use instead, it agrees with expected; the card must say which."
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "complex",
+   "title": "Two cars and a watch collection",
+   "given": "Car A $31,800 (picked as the primary car), Car B $19,450, valuables (watches) $26,500. No shares stated.",
+   "inputs": {
+    "primary_car_id": "carA",
+    "accounts": [
+     {
+      "id": "carA",
+      "kind": "vehicle",
+      "balance": 31800
+     },
+     {
+      "id": "carB",
+      "kind": "vehicle",
+      "balance": 19450
+     },
+     {
+      "id": "w1",
+      "kind": "valuables",
+      "balance": 26500
+     }
+    ]
+   },
+   "expected": {
+    "carA_pct": {
+     "exact": 0,
+     "shown": "0%"
+    },
+    "carB_pct": {
+     "exact": 100,
+     "shown": "100%"
+    },
+    "w1_pct": {
+     "exact": 100,
+     "shown": "100%"
+    }
+   },
+   "working": [
+    "carA is the primary car -> 0%",
+    "carB is a vehicle but not the primary car -> 100%",
+    "Valuables are never the car -> 100%"
+   ],
+   "rests_on": "Formula in words; F-031 card ('a second car stays a real asset').",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "edge",
+   "title": "A property with no use recorded and no rent entered",
+   "given": "One property, kind home, $610,000, use not recorded, no rental income on the income screen. It is the only property.",
+   "inputs": {
+    "account": {
+     "kind": "home",
+     "re_use": null,
+     "balance": 610000
+    },
+    "income_screen": {
+     "rental_income_monthly": null
+    }
+   },
+   "expected": {
+    "default_share_pct": "RULE UNCLEAR",
+    "readings": [
+     {
+      "reading": "Kind 'home' alone means the home lived in",
+      "answer": {
+       "exact": 0,
+       "shown": "0%"
+      }
+     },
+     {
+      "reading": "Owner rule 5: no rent entered -> second or vacation home, so not the primary home",
+      "answer": {
+       "exact": 100,
+       "shown": "100%"
+      }
+     }
+    ]
+   },
+   "working": [
+    "The card does not say how a primary home is recognised when no use is recorded",
+    "Owner rule 5 settles rental vs second home but not lived-in vs second home",
+    "Reading A: 0%; Reading B: 100% x 610,000 counted"
+   ],
+   "rests_on": "Owner rule 5 (2026-10-04); formula in words.",
+   "confidence": "low",
+   "notes": "The owner must say how a lived-in home is identified when no use is recorded."
+  },
+  {
+   "id": "MK-NW-F-031",
+   "name": "primaryCarIdOf",
+   "kind": "easy",
+   "title": "One car",
+   "given": "One vehicle, id a7, $22,000.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "a7",
+      "kind": "vehicle",
+      "balance": 22000
+     }
+    ]
+   },
+   "expected": {
+    "primary_car_id": "a7"
+   },
+   "working": [
+    "Only one vehicle -> a7"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-031",
+   "name": "primaryCarIdOf",
+   "kind": "easy",
+   "title": "No vehicle",
+   "given": "Checking $5,000 only.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "c1",
+      "kind": "checking",
+      "balance": 5000
+     }
+    ]
+   },
+   "expected": {
+    "primary_car_id": null
+   },
+   "working": [
+    "No account of kind vehicle -> nothing"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-031",
+   "name": "primaryCarIdOf",
+   "kind": "complex",
+   "title": "Two cars and more valuable jewellery",
+   "given": "Vehicles v-0193 $18,450.00 and v-0201 $31,275.50; valuables j-0007 $45,000.00; a boat recorded as kind other $27,900.00.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "v-0193",
+      "kind": "vehicle",
+      "balance": 18450.0
+     },
+     {
+      "id": "v-0201",
+      "kind": "vehicle",
+      "balance": 31275.5
+     },
+     {
+      "id": "j-0007",
+      "kind": "valuables",
+      "balance": 45000.0
+     },
+     {
+      "id": "b-0002",
+      "kind": "other",
+      "balance": 27900.0
+     }
+    ]
+   },
+   "expected": {
+    "primary_car_id": "v-0201"
+   },
+   "working": [
+    "Vehicles only: v-0193 (18,450.00), v-0201 (31,275.50)",
+    "Jewellery (45,000) and the boat (kind other) are never the car",
+    "Largest vehicle = v-0201"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-031",
+   "name": "primaryCarIdOf",
+   "kind": "complex",
+   "title": "Three-way tie among vehicles",
+   "given": "Vehicles v-0201, v-0188 and v-0300 each $24,000.00; v-0099 $9,500.00.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "v-0201",
+      "kind": "vehicle",
+      "balance": 24000
+     },
+     {
+      "id": "v-0188",
+      "kind": "vehicle",
+      "balance": 24000
+     },
+     {
+      "id": "v-0300",
+      "kind": "vehicle",
+      "balance": 24000
+     },
+     {
+      "id": "v-0099",
+      "kind": "vehicle",
+      "balance": 9500
+     }
+    ]
+   },
+   "expected": {
+    "primary_car_id": "v-0188"
+   },
+   "working": [
+    "Largest balance 24,000 shared by v-0201, v-0188, v-0300",
+    "Lowest as text: 'v-0188' < 'v-0201' < 'v-0300'",
+    "v-0099 is smaller and lowest as text, but the tie rule applies only among the largest -> v-0188"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-031",
+   "name": "primaryCarIdOf",
+   "kind": "edge",
+   "title": "Tie between numeric ids '9' and '10'",
+   "given": "Vehicles with ids '9' and '10', each $15,000.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "9",
+      "kind": "vehicle",
+      "balance": 15000
+     },
+     {
+      "id": "10",
+      "kind": "vehicle",
+      "balance": 15000
+     }
+    ]
+   },
+   "expected": {
+    "primary_car_id": "10"
+   },
+   "working": [
+    "Tie at 15,000",
+    "As text '10' < '9' (character '1' before '9')",
+    "-> '10'"
+   ],
+   "rests_on": "Formula in words (tie by lower id as text).",
+   "confidence": "medium",
+   "notes": "If '9' was made first, the author's '(the one made first)' does not hold here. The earmarked total is the same either way; only which car shows 0% differs."
+  },
+  {
+   "id": "MK-NW-F-032",
+   "name": "earmarkedAmount",
+   "kind": "easy",
+   "title": "Stated share",
+   "given": "Brokerage $50,000, 40% stated for retirement.",
+   "inputs": {
+    "balance": 50000,
+    "kind": "brokerage",
+    "retirement_pct": 40
+   },
+   "expected": {
+    "earmarked": {
+     "exact": 20000,
+     "shown": "$20,000"
+    }
+   },
+   "working": [
+    "50,000 x 40% = 20,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-032",
+   "name": "earmarkedAmount",
+   "kind": "easy",
+   "title": "Default share for a 529",
+   "given": "529 plan $120,000, no share stated.",
+   "inputs": {
+    "balance": 120000,
+    "kind": "529",
+    "retirement_pct": null
+   },
+   "expected": {
+    "earmarked": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "No share stated -> default for a 529 = 0%",
+    "120,000 x 0% = 0"
+   ],
+   "rests_on": "Formula in words; F-030.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-032",
+   "name": "earmarkedAmount",
+   "kind": "complex",
+   "title": "Unround IRA with a fractional share",
+   "given": "Traditional IRA $187,342.66; person says 65.5% is for retirement, the rest for a home deposit.",
+   "inputs": {
+    "balance": 187342.66,
+    "kind": "ira",
+    "retirement_pct": 65.5
+   },
+   "expected": {
+    "earmarked": {
+     "exact": 122709.4423,
+     "shown": "$122,709"
+    }
+   },
+   "working": [
+    "187,342.66 x 0.655 = 122,709.4423",
+    "Shown $122,709"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-032",
+   "name": "earmarkedAmount",
+   "kind": "complex",
+   "title": "Awkward shares: none on a second car, 135% typed, minus 20% typed",
+   "given": "Second car (not the primary) $14,325.80, no share; brokerage $64,218.37 with 135% typed; savings $9,876.54 with -20% typed.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "vehicle",
+      "is_primary_car": false,
+      "balance": 14325.8,
+      "retirement_pct": null
+     },
+     {
+      "kind": "brokerage",
+      "balance": 64218.37,
+      "retirement_pct": 135
+     },
+     {
+      "kind": "savings",
+      "balance": 9876.54,
+      "retirement_pct": -20
+     }
+    ]
+   },
+   "expected": {
+    "second_car": {
+     "exact": 14325.8,
+     "shown": "$14,326"
+    },
+    "brokerage": {
+     "exact": 64218.37,
+     "shown": "$64,218"
+    },
+    "savings": {
+     "exact": 0.0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "Second car: no share -> default 100% (not the primary car) -> 14,325.80",
+    "Brokerage: 135% held to 100% -> 64,218.37",
+    "Savings: -20% held to 0% -> 0"
+   ],
+   "rests_on": "Formula in words (held between 0% and 100%).",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-032",
+   "name": "earmarkedAmount",
+   "kind": "edge",
+   "title": "Stated 0% versus no share",
+   "given": "Brokerage $80,000 with 0% stated (the person says none of it is for retirement).",
+   "inputs": {
+    "balance": 80000,
+    "kind": "brokerage",
+    "retirement_pct": 0
+   },
+   "expected": {
+    "earmarked": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "0 is a stated share, not a missing one -> default not used",
+    "80,000 x 0% = 0",
+    "(Had nothing been stated, the default 100% would give 80,000)"
+   ],
+   "rests_on": "Formula in words ('the one stated on the account ... or the default when none is stated').",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-033",
+   "name": "retirementEarmarkedValue",
+   "kind": "easy",
+   "title": "A 401(k) and a 529",
+   "given": "401(k) $300,000 and 529 $50,000, no shares stated.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "401k",
+      "balance": 300000
+     },
+     {
+      "kind": "529",
+      "balance": 50000
+     }
+    ]
+   },
+   "expected": {
+    "nest_egg": {
+     "exact": 300000,
+     "shown": "$300,000"
+    }
+   },
+   "working": [
+    "401(k) 100% -> 300,000",
+    "529 0% -> 0",
+    "Total 300,000"
+   ],
+   "rests_on": "Formula in words; F-030.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-033",
+   "name": "retirementEarmarkedValue",
+   "kind": "easy",
+   "title": "Two cars",
+   "given": "Cars $30,000 and $12,000, no shares stated.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "c1",
+      "kind": "vehicle",
+      "balance": 30000
+     },
+     {
+      "id": "c2",
+      "kind": "vehicle",
+      "balance": 12000
+     }
+    ]
+   },
+   "expected": {
+    "nest_egg": {
+     "exact": 12000,
+     "shown": "$12,000"
+    }
+   },
+   "working": [
+    "Primary car = c1 (largest) -> 0%",
+    "c2 -> 100% = 12,000",
+    "Total 12,000"
+   ],
+   "rests_on": "Formula in words; F-031.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-033",
+   "name": "retirementEarmarkedValue",
+   "kind": "complex",
+   "title": "Household nest egg with stated and default shares",
+   "given": "401(k) $412,880.15; Roth IRA $96,410.72 (100% stated); brokerage $143,207.39 (60% stated); checking $12,644.18; home lived in $785,000; 529 $64,000; one car $27,500.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "401(k)",
+      "kind": "401k",
+      "balance": 412880.15,
+      "retirement_pct": null
+     },
+     {
+      "name": "Roth IRA",
+      "kind": "roth_ira",
+      "balance": 96410.72,
+      "retirement_pct": 100
+     },
+     {
+      "name": "Brokerage",
+      "kind": "brokerage",
+      "balance": 143207.39,
+      "retirement_pct": 60
+     },
+     {
+      "name": "Checking",
+      "kind": "checking",
+      "balance": 12644.18,
+      "retirement_pct": null
+     },
+     {
+      "name": "Home lived in",
+      "kind": "home",
+      "balance": 785000.0,
+      "retirement_pct": null,
+      "re_use": "primary"
+     },
+     {
+      "name": "529",
+      "kind": "529",
+      "balance": 64000.0,
+      "retirement_pct": null
+     },
+     {
+      "name": "Car",
+      "kind": "vehicle",
+      "balance": 27500.0,
+      "retirement_pct": null
+     }
+    ]
+   },
+   "expected": {
+    "rows": [
+     {
+      "label": "401(k)",
+      "exact": 412880.15
+     },
+     {
+      "label": "Roth IRA",
+      "exact": 96410.72
+     },
+     {
+      "label": "Brokerage",
+      "exact": 85924.434
+     },
+     {
+      "label": "Checking",
+      "exact": 12644.18
+     },
+     {
+      "label": "Home lived in",
+      "exact": 0.0
+     },
+     {
+      "label": "529",
+      "exact": 0.0
+     },
+     {
+      "label": "Car",
+      "exact": 0.0
+     }
+    ],
+    "nest_egg": {
+     "exact": 607859.484,
+     "shown": "$607,859"
+    }
+   },
+   "working": [
+    "401(k): 412,880.15 x 100% = 412,880.15",
+    "Roth IRA: 96,410.72 x 100% = 96,410.72",
+    "Brokerage: 143,207.39 x 60% = 85,924.43",
+    "Checking: 12,644.18 x 100% = 12,644.18",
+    "Home lived in: 785,000.00 x 0% = 0.00",
+    "529: 64,000.00 x 0% = 0.00",
+    "Car: 27,500.00 x 0% = 0.00",
+    "Total = 412,880.15 + 96,410.72 + 85,924.43 + 12,644.18 + 0.00 + 0.00 + 0.00 = 607,859.48",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Formula in words; F-030, F-031, F-032.",
+   "confidence": "high",
+   "notes": "Same input, several places: this total is also the weight total behind blendedReturn (F-037) and blendedVolatility (F-035) for the same accounts."
+  },
+  {
+   "id": "MK-NW-F-033",
+   "name": "retirementEarmarkedValue",
+   "kind": "complex",
+   "title": "Two earners, a brokerage holding cash, two cars",
+   "given": "Earner A 401(k) $233,415.08; Earner B IRA $58,902.44 (80% stated); Earner A HSA $21,337.10; joint brokerage $74,019.63 of which $6,000 is uninvested cash (25% stated); cars $31,800 and $19,450.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Earner A 401(k)",
+      "kind": "401k",
+      "balance": 233415.08,
+      "retirement_pct": null
+     },
+     {
+      "name": "Earner B IRA",
+      "kind": "ira",
+      "balance": 58902.44,
+      "retirement_pct": 80
+     },
+     {
+      "name": "Earner A HSA",
+      "kind": "hsa",
+      "balance": 21337.1,
+      "retirement_pct": null
+     },
+     {
+      "name": "Joint brokerage (incl. $6,000 cash)",
+      "kind": "brokerage",
+      "balance": 74019.63,
+      "retirement_pct": 25
+     },
+     {
+      "name": "Car 1",
+      "kind": "vehicle",
+      "balance": 31800.0,
+      "retirement_pct": null
+     },
+     {
+      "name": "Car 2",
+      "kind": "vehicle",
+      "balance": 19450.0,
+      "retirement_pct": null
+     }
+    ]
+   },
+   "expected": {
+    "rows": [
+     {
+      "label": "Earner A 401(k)",
+      "exact": 233415.08
+     },
+     {
+      "label": "Earner B IRA",
+      "exact": 47121.952
+     },
+     {
+      "label": "Earner A HSA",
+      "exact": 21337.1
+     },
+     {
+      "label": "Joint brokerage (incl. $6,000 cash)",
+      "exact": 18504.9075
+     },
+     {
+      "label": "Car 1",
+      "exact": 0.0
+     },
+     {
+      "label": "Car 2",
+      "exact": 19450.0
+     }
+    ],
+    "nest_egg": {
+     "exact": 339829.0395,
+     "shown": "$339,829"
+    }
+   },
+   "working": [
+    "Earner A 401(k): 233,415.08 x 100% = 233,415.08",
+    "Earner B IRA: 58,902.44 x 80% = 47,121.95",
+    "Earner A HSA: 21,337.10 x 100% = 21,337.10",
+    "Joint brokerage (incl. $6,000 cash): 74,019.63 x 25% = 18,504.91",
+    "Car 1: 31,800.00 x 0% = 0.00",
+    "Car 2: 19,450.00 x 100% = 19,450.00",
+    "Primary car = Car 1 (31,800 > 19,450) -> 0%; Car 2 -> 100%",
+    "The brokerage's cash sits inside its balance; the 25% applies to the whole balance",
+    "Total = 339,829.04; rows sum to it"
+   ],
+   "rests_on": "Formula in words; F-031, F-032.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-033",
+   "name": "retirementEarmarkedValue",
+   "kind": "edge",
+   "title": "Nothing entered",
+   "given": "No accounts.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "nest_egg": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "Sum over no accounts = 0"
+   ],
+   "rests_on": "Formula in words; ordinary arithmetic.",
+   "confidence": "high",
+   "notes": "A true empty sum. The functions that divide by this total (F-035, F-037) must refuse here; this one need not."
+  },
+  {
+   "id": "MK-NW-F-034",
+   "name": "benchmarkReturn",
+   "kind": "easy",
+   "title": "Brokerage, no override",
+   "given": "Kind brokerage, nothing set.",
+   "inputs": {
+    "kind": "brokerage",
+    "overrides": {}
+   },
+   "expected": {
+    "rate": {
+     "exact": 0.08,
+     "shown": "8.00%"
+    }
+   },
+   "working": [
+    "Table: brokerage 8%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-034",
+   "name": "benchmarkReturn",
+   "kind": "easy",
+   "title": "Override of exactly zero",
+   "given": "Kind brokerage, person set 0%.",
+   "inputs": {
+    "kind": "brokerage",
+    "overrides": {
+     "brokerage": 0
+    }
+   },
+   "expected": {
+    "rate": {
+     "exact": 0.0,
+     "shown": "0.00%"
+    }
+   },
+   "working": [
+    "Override present, 0 counts as set -> 0%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-034",
+   "name": "benchmarkReturn",
+   "kind": "complex",
+   "title": "Capitals and a stray space",
+   "given": "Three lookups with no overrides: 'checking', 'Checking', ' savings'.",
+   "inputs": {
+    "lookups": [
+     "checking",
+     "Checking",
+     " savings"
+    ],
+    "overrides": {}
+   },
+   "expected": {
+    "checking": {
+     "exact": 0.005,
+     "shown": "0.50%"
+    },
+    "Checking": {
+     "exact": 0.06,
+     "shown": "6.00%"
+    },
+    "_savings_with_space": {
+     "exact": 0.06,
+     "shown": "6.00%"
+    }
+   },
+   "working": [
+    "'checking' exact -> 0.5%",
+    "'Checking' does not match exactly (capital C) -> unknown -> 6%",
+    "' savings' with a leading space does not match -> 6%"
+   ],
+   "rests_on": "Formula in words ('matched exactly as the app writes it; capitals count').",
+   "confidence": "high",
+   "notes": "Kinds are app ids; a broker feed must be mapped to them before this is called."
+  },
+  {
+   "id": "MK-NW-F-034",
+   "name": "benchmarkReturn",
+   "kind": "complex",
+   "title": "Overrides on some kinds, table for others",
+   "given": "Overrides: vehicle -8%, home 3.5%. Lookups: vehicle, home, crypto, 401k.",
+   "inputs": {
+    "lookups": [
+     "vehicle",
+     "home",
+     "crypto",
+     "401k"
+    ],
+    "overrides": {
+     "vehicle": -0.08,
+     "home": 0.035
+    }
+   },
+   "expected": {
+    "vehicle": {
+     "exact": -0.08,
+     "shown": "-8.00%"
+    },
+    "home": {
+     "exact": 0.035,
+     "shown": "3.50%"
+    },
+    "crypto": {
+     "exact": 0.08,
+     "shown": "8.00%"
+    },
+    "401k": {
+     "exact": 0.079,
+     "shown": "7.90%"
+    }
+   },
+   "working": [
+    "vehicle: override -8%",
+    "home: override 3.5%",
+    "crypto: no override -> 8%",
+    "401(k): no override -> 7.9%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": "Kind ids written in lower case as the card names them; if the app's id for 401(k) differs, map it."
+  },
+  {
+   "id": "MK-NW-F-034",
+   "name": "benchmarkReturn",
+   "kind": "edge",
+   "title": "Kind missing",
+   "given": "No kind on the account, no overrides.",
+   "inputs": {
+    "kind": null,
+    "overrides": {}
+   },
+   "expected": {
+    "rate": {
+     "exact": 0.06,
+     "shown": "6.00%"
+    }
+   },
+   "working": [
+    "Missing kind -> 6%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "easy",
+   "title": "One account",
+   "given": "Brokerage $100,000, 100% earmarked; person's volatility for brokerage 16%.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "brokerage",
+      "balance": 100000
+     }
+    ],
+    "volatility_overrides": {
+     "brokerage": 0.16
+    }
+   },
+   "expected": {
+    "blended_volatility": {
+     "exact": 0.16,
+     "shown": "16.00%"
+    }
+   },
+   "working": [
+    "One account -> its own volatility 16%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "easy",
+   "title": "Stocks and savings",
+   "given": "Brokerage $60,000 (vol 18%), savings $40,000 (vol 1%), both 100% earmarked.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "brokerage",
+      "balance": 60000
+     },
+     {
+      "kind": "savings",
+      "balance": 40000
+     }
+    ],
+    "volatility_overrides": {
+     "brokerage": 0.18,
+     "savings": 0.01
+    }
+   },
+   "expected": {
+    "blended_volatility": {
+     "exact": 0.112,
+     "shown": "11.20%"
+    }
+   },
+   "working": [
+    "(60,000 x 0.18 + 40,000 x 0.01) / 100,000",
+    "= (10,800 + 400) / 100,000 = 0.1120 = 11.20%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "complex",
+   "title": "Partly earmarked household: zero-weight home and 529",
+   "given": "401(k) $312,450.77 (vol 15.5%); brokerage $98,310.20 with 45% stated (vol 17%); 529 $55,000 (vol 14%); home lived in $690,000 (vol 6%); checking $9,815.33 (vol 0.5%). Volatilities are the person's own figures for each kind.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "401(k)",
+      "balance": 312450.77,
+      "share": 1.0
+     },
+     {
+      "name": "Brokerage 45%",
+      "balance": 98310.2,
+      "share": 0.45
+     },
+     {
+      "name": "529",
+      "balance": 55000.0,
+      "share": 0.0
+     },
+     {
+      "name": "Home lived in",
+      "balance": 690000.0,
+      "share": 0.0
+     },
+     {
+      "name": "Checking",
+      "balance": 9815.33,
+      "share": 1.0
+     }
+    ],
+    "volatility_overrides": {
+     "401(k)": 0.155,
+     "Brokerage 45%": 0.17,
+     "529": 0.14,
+     "Home lived in": 0.06,
+     "Checking": 0.005
+    }
+   },
+   "expected": {
+    "weights": [
+     {
+      "label": "401(k)",
+      "exact": 312450.77
+     },
+     {
+      "label": "Brokerage 45%",
+      "exact": 44239.59
+     },
+     {
+      "label": "529",
+      "exact": 0.0
+     },
+     {
+      "label": "Home lived in",
+      "exact": 0.0
+     },
+     {
+      "label": "Checking",
+      "exact": 9815.33
+     }
+    ],
+    "earmarked_total": {
+     "exact": 366505.69,
+     "shown": "$366,506"
+    },
+    "blended_volatility": {
+     "exact": 0.152793,
+     "shown": "15.28%"
+    }
+   },
+   "working": [
+    "401(k): weight 312,450.77 x vol 0.155",
+    "Brokerage 45%: weight 44,239.59 x vol 0.17",
+    "529: weight 0.00 x vol 0.14",
+    "Home lived in: weight 0.00 x vol 0.06",
+    "Checking: weight 9,815.33 x vol 0.005",
+    "Weights total = 366,505.69 (529 and home weigh 0)",
+    "Weighted sum = 55,999.6763",
+    "Volatility = 55,999.6763 / 366,505.6900 = 0.152793 = 15.28%"
+   ],
+   "rests_on": "Formula in words; F-030/F-032 weights.",
+   "confidence": "high",
+   "notes": "The earmarked total here equals retirementEarmarkedValue (F-033) for the same accounts, and blendedReturn (F-037) must use the same weights."
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "complex",
+   "title": "One kind with no volatility on record",
+   "given": "An account of a kind with no volatility figure, $40,000; IRA $150,000 (person's vol 14%); HSA $18,240.55 (person's vol 10%). All 100% earmarked.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Art fund (kind with no volatility figure)",
+      "balance": 40000.0
+     },
+     {
+      "name": "IRA",
+      "balance": 150000.0
+     },
+     {
+      "name": "HSA",
+      "balance": 18240.55
+     }
+    ],
+    "volatility_overrides": {
+     "ira": 0.14,
+     "hsa": 0.1
+    }
+   },
+   "expected": {
+    "blended_volatility": {
+     "exact": 0.132655,
+     "shown": "13.27%"
+    }
+   },
+   "working": [
+    "Kind with no figure -> 12% (stated per-kind fallback)",
+    "Weighted sum = 40,000 x 0.12 + 150,000 x 0.14 + 18,240.55 x 0.10 = 27,624.0550",
+    "Total = 208,240.55",
+    "Volatility = 0.132655 = 13.27%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "medium",
+   "notes": "The per-kind 12% fallback mirrors benchmarkReturn's 6% for an unknown kind and is a stated assumption. Assumes the app has no volatility figure for this kind."
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "edge",
+   "title": "Nothing earmarked",
+   "given": "529 $80,000 and home lived in $500,000; nothing else.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "529",
+      "balance": 80000
+     },
+     {
+      "kind": "home",
+      "re_use": "primary",
+      "balance": 500000
+     }
+    ]
+   },
+   "expected": {
+    "blended_volatility": "REFUSES",
+    "reason": "Earmarked total is 0: no portfolio to describe. Same as blendedReturn, the call site chooses and states its own figure."
+   },
+   "formula_gives": {
+    "blended_volatility": {
+     "exact": 0.12,
+     "shown": "12.00%"
+    }
+   },
+   "working": [
+    "529 -> 0% earmarked; home lived in -> 0%",
+    "Earmarked total = 0",
+    "A weighted average over zero weight is undefined -> no answer"
+   ],
+   "rests_on": "F-037 card (no answer on zero); brief: never invent a default number.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-036",
+   "name": "benchmarkInfo",
+   "kind": "easy",
+   "title": "Kind with no record",
+   "given": "Kind 'art', no overrides.",
+   "inputs": {
+    "kind": "art",
+    "overrides": {}
+   },
+   "expected": {
+    "ret": {
+     "exact": 0.06,
+     "shown": "6.00%"
+    },
+    "source": "Generic blended estimate",
+    "period": "",
+    "edited": false,
+    "estimate": true
+   },
+   "working": [
+    "No record for 'art' -> rate 6% (benchmarkReturn), Generic blended estimate, period blank, estimate true, not edited"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-036",
+   "name": "benchmarkInfo",
+   "kind": "easy",
+   "title": "Known kind, not edited",
+   "given": "Kind brokerage, no overrides.",
+   "inputs": {
+    "kind": "brokerage",
+    "overrides": {}
+   },
+   "expected": {
+    "ret": {
+     "exact": 0.08,
+     "shown": "8.00%"
+    },
+    "edited": false,
+    "source": "as on record for brokerage",
+    "period": "as on record for brokerage"
+   },
+   "working": [
+    "benchmarkReturn('brokerage') = 8%",
+    "Not edited -> source and period from brokerage's record; estimate = that record's flag"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "medium",
+   "notes": "The record's source and period text are not on the card, so this case checks only rate and edited flag."
+  },
+  {
+   "id": "MK-NW-F-036",
+   "name": "benchmarkInfo",
+   "kind": "complex",
+   "title": "Person set their own home rate",
+   "given": "Kind home; the person set 3.5% for home.",
+   "inputs": {
+    "kind": "home",
+    "overrides": {
+     "home": 0.035
+    }
+   },
+   "expected": {
+    "ret": {
+     "exact": 0.035,
+     "shown": "3.50%"
+    },
+    "source": "Your custom estimate",
+    "period": "",
+    "edited": true,
+    "estimate": true
+   },
+   "formula_gives": {
+    "ret": {
+     "exact": 0.035,
+     "shown": "3.50%"
+    },
+    "source": "Your custom estimate",
+    "period": "",
+    "edited": true,
+    "estimate": "not stated by the card (may carry the home record's own flag)"
+   },
+   "working": [
+    "Override present -> rate 3.5%, edited true, source 'Your custom estimate', period blank",
+    "estimate: a person's own figure is an assumption -> true"
+   ],
+   "rests_on": "Formula in words; ordinary reading of 'estimate'.",
+   "confidence": "medium",
+   "notes": "The card does not state estimate on the edited branch; formula_gives shows that gap."
+  },
+  {
+   "id": "MK-NW-F-036",
+   "name": "benchmarkInfo",
+   "kind": "complex",
+   "title": "Override saved under a capitalised key",
+   "given": "Overrides {'checking': 0}. Lookups 'Checking' and 'checking'.",
+   "inputs": {
+    "lookups": [
+     "Checking",
+     "checking"
+    ],
+    "overrides": {
+     "checking": 0
+    }
+   },
+   "expected": {
+    "Checking": {
+     "ret": {
+      "exact": 0.06,
+      "shown": "6.00%"
+     },
+     "source": "Generic blended estimate",
+     "period": "",
+     "edited": false,
+     "estimate": true
+    },
+    "checking": {
+     "ret": {
+      "exact": 0.0,
+      "shown": "0.00%"
+     },
+     "source": "Your custom estimate",
+     "period": "",
+     "edited": true
+    }
+   },
+   "working": [
+    "'Checking' matches neither the override nor a record (capitals count) -> generic 6%",
+    "'checking' matches the override 0 -> 0%, edited"
+   ],
+   "rests_on": "Formula in words; F-034 exact matching.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-036",
+   "name": "benchmarkInfo",
+   "kind": "edge",
+   "title": "Override of exactly zero on a negative-rate kind",
+   "given": "Kind vehicle; person set 0% for vehicle.",
+   "inputs": {
+    "kind": "vehicle",
+    "overrides": {
+     "vehicle": 0
+    }
+   },
+   "expected": {
+    "ret": {
+     "exact": 0.0,
+     "shown": "0.00%"
+    },
+    "source": "Your custom estimate",
+    "period": "",
+    "edited": true
+   },
+   "working": [
+    "0 counts as set -> rate 0%, not the table's -5%",
+    "edited true, source custom, period blank"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "easy",
+   "title": "One brokerage",
+   "given": "Brokerage $100,000, 100% earmarked.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "brokerage",
+      "balance": 100000
+     }
+    ]
+   },
+   "expected": {
+    "blended_return": {
+     "exact": 0.08,
+     "shown": "8.00%"
+    }
+   },
+   "working": [
+    "One account at 8%"
+   ],
+   "rests_on": "Formula in words; F-034.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "easy",
+   "title": "Half brokerage, half savings",
+   "given": "Brokerage $50,000 and savings $50,000.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "brokerage",
+      "balance": 50000
+     },
+     {
+      "kind": "savings",
+      "balance": 50000
+     }
+    ]
+   },
+   "expected": {
+    "blended_return": {
+     "exact": 0.052,
+     "shown": "5.20%"
+    }
+   },
+   "working": [
+    "(50,000 x 8% + 50,000 x 2.4%) / 100,000",
+    "= (4,000 + 1,200) / 100,000 = 0.0520"
+   ],
+   "rests_on": "Formula in words; F-034.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "complex",
+   "title": "Same household as the volatility case, table rates",
+   "given": "401(k) $312,450.77; brokerage $98,310.20 with 45% stated; 529 $55,000; home lived in $690,000; checking $9,815.33. No overrides.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "401(k)",
+      "balance": 312450.77,
+      "share": 1.0
+     },
+     {
+      "name": "Brokerage 45%",
+      "balance": 98310.2,
+      "share": 0.45
+     },
+     {
+      "name": "529",
+      "balance": 55000.0,
+      "share": 0.0
+     },
+     {
+      "name": "Home lived in",
+      "balance": 690000.0,
+      "share": 0.0
+     },
+     {
+      "name": "Checking",
+      "balance": 9815.33,
+      "share": 1.0
+     }
+    ],
+    "overrides": {}
+   },
+   "expected": {
+    "weights": [
+     {
+      "label": "401(k)",
+      "exact": 312450.77
+     },
+     {
+      "label": "Brokerage 45%",
+      "exact": 44239.59
+     },
+     {
+      "label": "529",
+      "exact": 0.0
+     },
+     {
+      "label": "Home lived in",
+      "exact": 0.0
+     },
+     {
+      "label": "Checking",
+      "exact": 9815.33
+     }
+    ],
+    "earmarked_total": {
+     "exact": 366505.69,
+     "shown": "$366,506"
+    },
+    "blended_return": {
+     "exact": 0.077139,
+     "shown": "7.71%"
+    }
+   },
+   "working": [
+    "401(k): weight 312,450.77 x 0.079",
+    "Brokerage 45%: weight 44,239.59 x 0.08",
+    "529: weight 0.00 x 0.07",
+    "Home lived in: weight 0.00 x 0.045",
+    "Checking: weight 9,815.33 x 0.005",
+    "Weights total 366,505.69",
+    "Weighted sum 28,271.8547",
+    "Blended = 0.077139 = 7.71%"
+   ],
+   "rests_on": "Formula in words; F-034 table; F-030/F-032.",
+   "confidence": "high",
+   "notes": "Same weights, two figures: earmarked_total must equal retirementEarmarkedValue (F-033) and the weights behind blendedVolatility (F-035) for these accounts."
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "complex",
+   "title": "A second car drags the blend; an override on savings",
+   "given": "IRA $201,447.90; second car $16,880; primary car $34,200; HSA $12,905.61 with 50% stated; savings $25,330.04 with the person's rate 3.8%.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "IRA",
+      "balance": 201447.9,
+      "share": 1.0
+     },
+     {
+      "name": "Second car",
+      "balance": 16880.0,
+      "share": 1.0
+     },
+     {
+      "name": "Primary car",
+      "balance": 34200.0,
+      "share": 0.0
+     },
+     {
+      "name": "HSA 50%",
+      "balance": 12905.61,
+      "share": 0.5
+     },
+     {
+      "name": "Savings (override 3.8%)",
+      "balance": 25330.04,
+      "share": 1.0
+     }
+    ],
+    "overrides": {
+     "savings": 0.038
+    }
+   },
+   "expected": {
+    "blended_return": {
+     "exact": 0.066141,
+     "shown": "6.61%"
+    }
+   },
+   "working": [
+    "IRA: weight 201,447.90 x 0.079",
+    "Second car: weight 16,880.00 x -0.05",
+    "Primary car: weight 0.00 x -0.05",
+    "HSA 50%: weight 6,452.81 x 0.079",
+    "Savings (override 3.8%): weight 25,330.04 x 0.038",
+    "Weights total 250,110.74",
+    "Weighted sum 16,542.6972",
+    "Blended = 0.066141 = 6.61%"
+   ],
+   "rests_on": "Formula in words; F-031, F-034.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "edge",
+   "title": "Nothing earmarked",
+   "given": "529 $80,000 and home lived in $500,000 only.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "529",
+      "balance": 80000
+     },
+     {
+      "kind": "home",
+      "re_use": "primary",
+      "balance": 500000
+     }
+    ]
+   },
+   "expected": {
+    "blended_return": "REFUSES",
+    "reason": "Earmarked total is 0. The Plan picks its own 6% at its call site and says so."
+   },
+   "working": [
+    "Both weigh 0 -> earmarked total 0 -> no answer"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-039",
+   "name": "buildAssetsState",
+   "kind": "easy",
+   "title": "Two accounts",
+   "given": "Brokerage $60,000 at 7%, savings $40,000 at 2%.",
+   "inputs": {
+    "accounts": [
+     {
+      "balance": 60000,
+      "target_return": 0.07
+     },
+     {
+      "balance": 40000,
+      "target_return": 0.02
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 100000,
+     "shown": "$100,000"
+    },
+    "shares_pct": [
+     {
+      "exact": 60,
+      "shown": "60.00%"
+     },
+     {
+      "exact": 40,
+      "shown": "40.00%"
+     }
+    ],
+    "average_target_return": {
+     "exact": 0.05,
+     "shown": "5.00%"
+    }
+   },
+   "working": [
+    "Total = 100,000",
+    "Shares 60% and 40% (sum 100)",
+    "Average = (4,200 + 800) / 100,000 = 0.05"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-039",
+   "name": "buildAssetsState",
+   "kind": "easy",
+   "title": "No accounts",
+   "given": "Nothing entered.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "total": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "shares_pct": [],
+    "average_target_return": "REFUSES",
+    "reason": "Nothing held"
+   },
+   "working": [
+    "Total = 0; no shares; average -> no answer"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-039",
+   "name": "buildAssetsState",
+   "kind": "complex",
+   "title": "Three unround accounts",
+   "given": "Checking $8,412.77 at 0.5%; brokerage $143,207.39 at 8%; 401(k) $412,880.15 at 7.9%.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Checking",
+      "balance": 8412.77,
+      "target_return": 0.005
+     },
+     {
+      "name": "Brokerage",
+      "balance": 143207.39,
+      "target_return": 0.08
+     },
+     {
+      "name": "401(k)",
+      "balance": 412880.15,
+      "target_return": 0.079
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 564500.31,
+     "shown": "$564,500"
+    },
+    "rows": [
+     {
+      "label": "Checking",
+      "share_pct": 1.4903,
+      "shown": "1.49%"
+     },
+     {
+      "label": "Brokerage",
+      "share_pct": 25.3689,
+      "shown": "25.37%"
+     },
+     {
+      "label": "401(k)",
+      "share_pct": 73.1408,
+      "shown": "73.14%"
+     }
+    ],
+    "shares_sum_pct": {
+     "exact": 100.0,
+     "shown": "100.00%"
+    },
+    "average_target_return": {
+     "exact": 0.078151,
+     "shown": "7.82%"
+    }
+   },
+   "working": [
+    "Total = 564,500.31",
+    "Checking share = 8,412.77 / 564,500.31 x 100 = 1.4903%",
+    "Brokerage share = 143,207.39 / 564,500.31 x 100 = 25.3689%",
+    "401(k) share = 412,880.15 / 564,500.31 x 100 = 73.1408%",
+    "Shares sum = 100.0000%",
+    "Average = (42.0639 + 11,456.5912 + 32,617.5319) / 564,500.31 = 0.078151"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-039",
+   "name": "buildAssetsState",
+   "kind": "complex",
+   "title": "Savings beside an overdrawn checking account",
+   "given": "Savings $5,000 at 2.4%; checking overdrawn to -$990 at 0.5%.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Savings",
+      "balance": 5000.0,
+      "target_return": 0.024
+     },
+     {
+      "name": "Checking",
+      "balance": -990.0,
+      "target_return": 0.005
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 4010.0,
+     "shown": "$4,010"
+    },
+    "rows": [
+     {
+      "label": "Savings",
+      "share_pct": 124.688279
+     },
+     {
+      "label": "Checking",
+      "share_pct": -24.688279
+     }
+    ],
+    "shares_sum_pct": {
+     "exact": 100.0,
+     "shown": "100.00%"
+    },
+    "average_target_return": {
+     "exact": 0.028691,
+     "shown": "2.87%"
+    }
+   },
+   "working": [
+    "Total = 5,000 - 990 = 4,010.00",
+    "Shares 124.6883% + (-24.6883%) = 100%",
+    "Average = (5,000 x 0.024 + (-990) x 0.005) / 4,010 = (120 - 4.95) / 4,010 = 0.028691 = 2.87%",
+    "Reads as: 115.05 a year earned on 4,010 net held"
+   ],
+   "rests_on": "Formula in words; ordinary arithmetic.",
+   "confidence": "high",
+   "notes": "The average is above both rates because the overdraft levers the net amount; that is the formula's stated intent."
+  },
+  {
+   "id": "MK-NW-F-039",
+   "name": "buildAssetsState",
+   "kind": "edge",
+   "title": "Balances that net to exactly zero",
+   "given": "Savings $1,000 at 2.4%; checking overdrawn -$1,000 at 0.5%.",
+   "inputs": {
+    "accounts": [
+     {
+      "balance": 1000,
+      "target_return": 0.024
+     },
+     {
+      "balance": -1000,
+      "target_return": 0.005
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "shares_pct": [
+     {
+      "exact": 0,
+      "shown": "0.00%"
+     },
+     {
+      "exact": 0,
+      "shown": "0.00%"
+     }
+    ],
+    "average_target_return": "REFUSES",
+    "reason": "Net total is 0; a return on a net of zero is undefined."
+   },
+   "working": [
+    "Total = 1,000 - 1,000 = 0",
+    "Shares -> 0 each (card's rule for a zero total)",
+    "Average -> no answer (card's rule)"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "medium",
+   "notes": "AssetsState's note says null 'when nothing is held'; here something is held but nets to zero. The card's rule (no answer when the total is 0) is followed."
+  },
+  {
+   "id": "MK-NW-F-041",
+   "name": "monthlyContributionsFromOnboarding",
+   "kind": "easy",
+   "title": "One 401(k) amount under the limit",
+   "given": "Born 1986 (40 in 2026); 401(k) $1,000/month; nothing else answered.",
+   "inputs": {
+    "today": "2026-10-07",
+    "birth_year": 1986,
+    "k401_monthly": 1000
+   },
+   "expected": {
+    "monthly_contributions": {
+     "exact": 1000,
+     "shown": "$1,000"
+    }
+   },
+   "working": [
+    "Age 2026 - 1986 = 40 -> limit 24,500/12 = 2,041.67",
+    "1,000 < 2,041.67 -> 1,000",
+    "Total 1,000"
+   ],
+   "rests_on": "Formula in words; IRS Notice 2025-67.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-041",
+   "name": "monthlyContributionsFromOnboarding",
+   "kind": "easy",
+   "title": "No contribution question answered",
+   "given": "Onboarding saved, none of the contribution questions answered.",
+   "inputs": {
+    "today": "2026-10-07",
+    "birth_year": 1980,
+    "k401_monthly": null,
+    "roth_monthly": null,
+    "investing_monthly": null,
+    "match": null
+   },
+   "expected": {
+    "monthly_contributions": "REFUSES",
+    "reason": "No contribution question was answered."
+   },
+   "working": [
+    "All four contribution answers missing -> no answer"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-041",
+   "name": "monthlyContributionsFromOnboarding",
+   "kind": "complex",
+   "title": "Age 62, over the limit, with a percent match",
+   "given": "Born 1964 (62 in 2026). 401(k) $3,200/month; Roth $500/month; investing $750.25/month; employer matches 50% of the 401(k) amount.",
+   "inputs": {
+    "today": "2026-10-07",
+    "birth_year": 1964,
+    "k401_monthly": 3200,
+    "roth_monthly": 500,
+    "investing_monthly": 750.25,
+    "match": {
+     "type": "percent",
+     "value": 0.5
+    }
+   },
+   "expected": {
+    "rows": [
+     {
+      "label": "401(k) held",
+      "exact": 2979.1667
+     },
+     {
+      "label": "Roth",
+      "exact": 500
+     },
+     {
+      "label": "Investing",
+      "exact": 750.25
+     },
+     {
+      "label": "Employer match",
+      "exact": 1489.5833
+     }
+    ],
+    "monthly_contributions": {
+     "exact": 5719.0,
+     "shown": "$5,719"
+    }
+   },
+   "formula_gives": {
+    "monthly_contributions": {
+     "exact": 5829.416667,
+     "shown": "$5,829"
+    },
+    "employer_match": {
+     "exact": 1600.0,
+     "shown": "$1,600.00"
+    }
+   },
+   "working": [
+    "Age 2026 - 1964 = 62 -> ages 60-63 limit = 24,500 + 11,250 = 35,750",
+    "Monthly cap = 35,750 / 12 = 2979.1667",
+    "401(k) held = min(3,200, 2979.1667) = 2979.1667",
+    "Match = 50% x 2979.1667 = 1489.5833",
+    "Total = 2979.1667 + 500 + 750.25 + 1489.5833 = 5719.0000",
+    "Rows sum to the total"
+   ],
+   "rests_on": "IRS Notice 2025-67; formula in words; match on deferrals actually allowed.",
+   "confidence": "medium",
+   "notes": "The card does not say which 401(k) amount the match share applies to. formula_gives is the 'as entered' reading; under the 'held' reading the formula agrees with expected."
+  },
+  {
+   "id": "MK-NW-F-041",
+   "name": "monthlyContributionsFromOnboarding",
+   "kind": "complex",
+   "title": "Age 64 falls back to the 50+ limit; dollar match; property savings left out",
+   "given": "Born 1962 (64 in 2026). 401(k) $2,850/month; employer match $312.40/month in dollars; Roth $0; investing $1,125.60/month; saving $900/month toward a property (older question).",
+   "inputs": {
+    "today": "2026-10-07",
+    "birth_year": 1962,
+    "k401_monthly": 2850,
+    "roth_monthly": 0,
+    "investing_monthly": 1125.6,
+    "match": {
+     "type": "dollars",
+     "value": 312.4
+    },
+    "property_savings_monthly": 900
+   },
+   "expected": {
+    "rows": [
+     {
+      "label": "401(k) held",
+      "exact": 2708.3333
+     },
+     {
+      "label": "Roth",
+      "exact": 0
+     },
+     {
+      "label": "Investing",
+      "exact": 1125.6
+     },
+     {
+      "label": "Employer match",
+      "exact": 312.4
+     }
+    ],
+    "monthly_contributions": {
+     "exact": 4146.333333,
+     "shown": "$4,146"
+    }
+   },
+   "working": [
+    "Age 64 -> not 60-63 -> 50+ limit 24,500 + 8,000 = 32,500",
+    "Cap = 32,500/12 = 2708.3333",
+    "401(k) held = min(2,850, 2708.3333) = 2708.3333",
+    "Property savings 900 -> not a retirement contribution -> left out",
+    "Total = 2708.3333 + 0 + 1,125.60 + 312.40 = 4146.3333"
+   ],
+   "rests_on": "IRS Notice 2025-67 (the 60-63 amount applies only at 60-63); formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-041",
+   "name": "monthlyContributionsFromOnboarding",
+   "kind": "edge",
+   "title": "Turns 60 in December 2026",
+   "given": "Born December 1966: 59 today (2026-10-07), 60 by year end. 401(k) $3,000/month; nothing else.",
+   "inputs": {
+    "today": "2026-10-07",
+    "birth_year": 1966,
+    "k401_monthly": 3000.0
+   },
+   "expected": {
+    "monthly_contributions": {
+     "exact": 2979.166667,
+     "shown": "$2,979"
+    }
+   },
+   "working": [
+    "Age attained in 2026 = 2026 - 1966 = 60 (catch-up uses age reached by 31 December)",
+    "-> 60-63 limit 35,750",
+    "Cap = 2979.1667; held = min(3,000, 2979.1667) = 2979.1667"
+   ],
+   "rests_on": "IRC 414(v)(2)(E) and Notice 2025-67 (age attained by year end); formula in words.",
+   "confidence": "high",
+   "notes": "Using age today (59) would give the 32,500 limit = 2,708.33; the card correctly uses the age attained this year."
+  },
+  {
+   "id": "MK-NW-F-045",
+   "name": "sourceWording",
+   "kind": "easy",
+   "title": "Entered by hand",
+   "given": "Account with no source (manual).",
+   "inputs": {
+    "now": "2026-10-07T12:00Z",
+    "source": null
+   },
+   "expected": {
+    "wording": "By hand · you update it"
+   },
+   "working": [
+    "Not linked or imported -> 'By hand · you update it'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-045",
+   "name": "sourceWording",
+   "kind": "easy",
+   "title": "Linked, synced yesterday",
+   "given": "Linked account, last sync 2026-10-06T12:00Z.",
+   "inputs": {
+    "now": "2026-10-07T12:00Z",
+    "source": "connected",
+    "last_synced": "2026-10-06T12:00Z"
+   },
+   "expected": {
+    "wording": "Linked"
+   },
+   "working": [
+    "Age 1 day < 4 -> 'Linked'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-045",
+   "name": "sourceWording",
+   "kind": "complex",
+   "title": "Imported file, stale by more than two weeks",
+   "given": "Imported account, last successful update 2026-09-21T14:30Z.",
+   "inputs": {
+    "now": "2026-10-07T12:00Z",
+    "source": "imported",
+    "last_synced": "2026-09-21T14:30Z"
+   },
+   "expected": {
+    "wording": "Imported · 15 days old"
+   },
+   "working": [
+    "Age = 15.8958 days",
+    "Whole days = 15 >= 4 -> 'Imported · 15 days old'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "medium",
+   "notes": "Assumes N is whole days rounded down; the card does not say."
+  },
+  {
+   "id": "MK-NW-F-045",
+   "name": "sourceWording",
+   "kind": "complex",
+   "title": "Linked with no sync on record; linked at 3 days 23 hours; manual with a stray timestamp",
+   "given": "Three accounts: (a) linked, no last sync; (b) linked, last sync 2026-10-03T13:00Z; (c) no source, but a last-sync time is stored.",
+   "inputs": {
+    "now": "2026-10-07T12:00Z",
+    "accounts": [
+     {
+      "source": "connected",
+      "last_synced": null
+     },
+     {
+      "source": "connected",
+      "last_synced": "2026-10-03T13:00Z"
+     },
+     {
+      "source": null,
+      "last_synced": "2026-10-01T00:00Z"
+     }
+    ]
+   },
+   "expected": {
+    "a": "Linked · not updated yet",
+    "b": "Linked",
+    "c": "By hand · you update it"
+   },
+   "working": [
+    "(a) linked, no update on record -> 'Linked · not updated yet' (no age invented)",
+    "(b) age 3.9583 days < 4 -> 'Linked'",
+    "(c) not linked or imported -> 'By hand · you update it' whatever timestamp is stored"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-045",
+   "name": "sourceWording",
+   "kind": "edge",
+   "title": "Exactly four days old",
+   "given": "Linked, last sync 2026-10-03T12:00Z; now 2026-10-07T12:00Z.",
+   "inputs": {
+    "now": "2026-10-07T12:00Z",
+    "source": "connected",
+    "last_synced": "2026-10-03T12:00Z"
+   },
+   "expected": {
+    "wording": "Linked · 4 days old"
+   },
+   "working": [
+    "Age = exactly 4.0000 days",
+    "'4 or more' includes 4 -> 'Linked · 4 days old'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-046",
+   "name": "historyCoverage",
+   "kind": "easy",
+   "title": "Entered by hand",
+   "given": "Manual account; period from 2025-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "source": "manual",
+    "window_start": "2025-10-07"
+   },
+   "expected": {
+    "kind": "none",
+    "from": null,
+    "monthsCovered": null,
+    "sentence_says": "no activity records (entered by hand)"
+   },
+   "working": [
+    "Entered by hand -> the no-records sentence"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": "Exact sentence text is not on the card; the case checks its meaning."
+  },
+  {
+   "id": "MK-NW-F-046",
+   "name": "historyCoverage",
+   "kind": "easy",
+   "title": "History reaches back past the period",
+   "given": "Linked; history starts 2024-01-01; period starts 2025-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "source": "connected",
+    "history_start": "2024-01-01",
+    "window_start": "2025-10-07"
+   },
+   "expected": {
+    "result": null
+   },
+   "working": [
+    "History start 2024-01-01 is on or before 2025-10-07 -> nothing to say"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-046",
+   "name": "historyCoverage",
+   "kind": "complex",
+   "title": "Three-year question, history from mid-June last year",
+   "given": "Linked; history starts 2025-06-19; the period asked is the last 3 years (from 2023-10-07). Today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "source": "connected",
+    "history_start": "2025-06-19",
+    "window_start": "2023-10-07"
+   },
+   "expected": {
+    "kind": "partial",
+    "from": "2025-06-19",
+    "monthsCovered": {
+     "exact": 15.6,
+     "shown": "15.6"
+    },
+    "sentence_says": "since 2025-06-19 — 1 year 3 months"
+   },
+   "working": [
+    "Start after the period's first day -> partial",
+    "Whole months 2025-06-19 -> 2026-09-19 = 15",
+    "Part month: 2026-09-19 -> 2026-10-07 = 18 days; September has 30 -> 0.6",
+    "Months covered = 15.6000 -> 15.6",
+    "15 whole months >= 12, not a multiple of 12 -> '1 year 3 months'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": "With October's 31 days the part month is 0.5806 -> still 15.6."
+  },
+  {
+   "id": "MK-NW-F-046",
+   "name": "historyCoverage",
+   "kind": "complex",
+   "title": "Exactly one year and exactly two years to the day",
+   "given": "Two linked accounts, today 2026-10-07, period the last 5 years (from 2021-10-07): (a) history from 2025-10-07; (b) history from 2024-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "window_start": "2021-10-07",
+    "accounts": [
+     {
+      "source": "connected",
+      "history_start": "2025-10-07"
+     },
+     {
+      "source": "connected",
+      "history_start": "2024-10-07"
+     }
+    ]
+   },
+   "expected": {
+    "a": {
+     "kind": "partial",
+     "from": "2025-10-07",
+     "monthsCovered": {
+      "exact": 12.0,
+      "shown": "12.0"
+     },
+     "sentence_says": "1 year"
+    },
+    "b": {
+     "kind": "partial",
+     "from": "2024-10-07",
+     "monthsCovered": {
+      "exact": 24.0,
+      "shown": "24.0"
+     },
+     "sentence_says": "2 years"
+    }
+   },
+   "working": [
+    "(a) 2025-10-07 -> 2026-10-07 = 12 whole months, 0 part -> 12.0 -> multiple of 12 -> '1 year'",
+    "(b) 2024-10-07 -> 2026-10-07 = 24 whole months -> 24.0 -> '2 years'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-046",
+   "name": "historyCoverage",
+   "kind": "edge",
+   "title": "One day short of a year",
+   "given": "Linked; history starts 2025-10-08; period the last 3 years. Today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "source": "connected",
+    "history_start": "2025-10-08",
+    "window_start": "2023-10-07"
+   },
+   "expected": {
+    "kind": "partial",
+    "from": "2025-10-08",
+    "monthsCovered": {
+     "exact": 11.966667,
+     "shown": "11.9"
+    },
+    "sentence_says": "11 months"
+   },
+   "formula_gives": {
+    "monthsCovered": {
+     "exact": 11.966667,
+     "shown": "12.0"
+    },
+    "sentence_says": "1 year (if built from the one-decimal figure)"
+   },
+   "working": [
+    "Whole months 2025-10-08 -> 2026-09-08 = 11",
+    "Part: 2026-09-08 -> 2026-10-07 = 29 days; September 30 days -> 0.9667",
+    "Months covered = 11.9667; to one decimal (nearest) = 12.0; rounded down = 11.9",
+    "Sentence from whole months: 11 -> '11 months' (never rounds up to a year)"
+   ],
+   "rests_on": "The card's own claim 'it never rounds up to a year'.",
+   "confidence": "medium",
+   "notes": "Divergence depends on the rounded figure driving the sentence and on dividing by September's 30 days (29/31 = 0.9355 would round to 11.9)."
+  },
+  {
+   "id": "MK-NW-F-048",
+   "name": "uberGroupRows",
+   "kind": "easy",
+   "title": "Cash only",
+   "given": "Class rows: Cash $10,000.",
+   "inputs": {
+    "class_rows": [
+     {
+      "key": "cash",
+      "total": 10000
+     }
+    ]
+   },
+   "expected": {
+    "groups": [
+     {
+      "group": "cash",
+      "total": {
+       "exact": 10000,
+       "shown": "$10,000"
+      }
+     }
+    ],
+    "what_you_own": {
+     "exact": 10000,
+     "shown": "$10,000"
+    }
+   },
+   "working": [
+    "Only cash -> one group, Cash 10,000; Investments and Property have no classes -> left out"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-048",
+   "name": "uberGroupRows",
+   "kind": "easy",
+   "title": "Cash and stocks",
+   "given": "Cash $5,000; Stocks / Funds $20,000.",
+   "inputs": {
+    "class_rows": [
+     {
+      "key": "cash",
+      "total": 5000
+     },
+     {
+      "key": "stocks_etf",
+      "total": 20000
+     }
+    ]
+   },
+   "expected": {
+    "groups": [
+     {
+      "group": "cash",
+      "total": {
+       "exact": 5000,
+       "shown": "$5,000"
+      }
+     },
+     {
+      "group": "investments",
+      "total": {
+       "exact": 20000,
+       "shown": "$20,000"
+      }
+     }
+    ],
+    "what_you_own": {
+     "exact": 25000,
+     "shown": "$25,000"
+    }
+   },
+   "working": [
+    "Cash 5,000; Investments 20,000; sum 25,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-048",
+   "name": "uberGroupRows",
+   "kind": "complex",
+   "title": "All seven classes",
+   "given": "Cash $11,623.32; Stocks / Funds $32,210.40; Bonds & CDs $15,769.23; Alternatives $1,150.00; Unclassified $2,304.18; Real estate $640,000.00; Personal property $18,750.00.",
+   "inputs": {
+    "class_rows": [
+     {
+      "key": "cash",
+      "total": 11623.32
+     },
+     {
+      "key": "stocks_etf",
+      "total": 32210.4
+     },
+     {
+      "key": "bonds",
+      "total": 15769.23
+     },
+     {
+      "key": "alternatives",
+      "total": 1150.0
+     },
+     {
+      "key": "mixed",
+      "total": 2304.18
+     },
+     {
+      "key": "real_estate",
+      "total": 640000.0
+     },
+     {
+      "key": "personal_property",
+      "total": 18750.0
+     }
+    ]
+   },
+   "expected": {
+    "groups": [
+     {
+      "group": "cash",
+      "label": "Cash",
+      "classes": [
+       "cash"
+      ],
+      "total": {
+       "exact": 11623.32,
+       "shown": "$11,623"
+      }
+     },
+     {
+      "group": "investments",
+      "label": "Investments",
+      "classes": [
+       "stocks_etf",
+       "bonds",
+       "alternatives",
+       "mixed"
+      ],
+      "total": {
+       "exact": 51433.81,
+       "shown": "$51,434"
+      }
+     },
+     {
+      "group": "property",
+      "label": "Property",
+      "classes": [
+       "real_estate",
+       "personal_property"
+      ],
+      "total": {
+       "exact": 658750.0,
+       "shown": "$658,750"
+      }
+     }
+    ],
+    "what_you_own": {
+     "exact": 721807.13,
+     "shown": "$721,807"
+    }
+   },
+   "formula_gives": {
+    "third_group_label": "Personal property",
+    "totals": "same as expected"
+   },
+   "working": [
+    "cash: 11,623.32 = 11,623.32",
+    "investments: 32,210.40 + 15,769.23 + 1,150.00 + 2,304.18 = 51,433.81",
+    "property: 640,000.00 + 18,750.00 = 658,750.00",
+    "Groups sum = 11,623.32 + 51,433.81 + 658,750.00 = 721,807.13 = What you own 721,807.13",
+    "Third group holds Real estate -> label 'Property', not 'Personal property'"
+   ],
+   "rests_on": "Formula in words; standard usage of real vs personal property.",
+   "confidence": "high",
+   "notes": "Same input, two screens: What you own here must equal the total of assetAllocation (F-029) for the same accounts."
+  },
+  {
+   "id": "MK-NW-F-048",
+   "name": "uberGroupRows",
+   "kind": "complex",
+   "title": "Rows arrive out of order",
+   "given": "Class rows arrive as: Real estate $512,500; Unclassified $1,210.40; Cash $7,302.66; Personal property $9,400; Bonds & CDs $20,000; Stocks / Funds $45,809.40.",
+   "inputs": {
+    "class_rows": [
+     {
+      "key": "real_estate",
+      "total": 512500.0
+     },
+     {
+      "key": "mixed",
+      "total": 1210.4
+     },
+     {
+      "key": "cash",
+      "total": 7302.66
+     },
+     {
+      "key": "personal_property",
+      "total": 9400.0
+     },
+     {
+      "key": "bonds",
+      "total": 20000.0
+     },
+     {
+      "key": "stocks_etf",
+      "total": 45809.4
+     }
+    ]
+   },
+   "expected": {
+    "groups": [
+     {
+      "group": "cash",
+      "classes": [
+       "cash"
+      ],
+      "total": {
+       "exact": 7302.66,
+       "shown": "$7,303"
+      }
+     },
+     {
+      "group": "investments",
+      "classes": [
+       "mixed",
+       "bonds",
+       "stocks_etf"
+      ],
+      "total": {
+       "exact": 67019.8,
+       "shown": "$67,020"
+      }
+     },
+     {
+      "group": "property",
+      "classes": [
+       "real_estate",
+       "personal_property"
+      ],
+      "total": {
+       "exact": 521900.0,
+       "shown": "$521,900"
+      }
+     }
+    ],
+    "what_you_own": {
+     "exact": 596222.46,
+     "shown": "$596,222"
+    }
+   },
+   "working": [
+    "Groups always Cash, Investments, Property; classes inside keep the order they arrived",
+    "cash: ['cash'] -> 7,302.66",
+    "investments: ['mixed', 'bonds', 'stocks_etf'] -> 67,019.80",
+    "property: ['real_estate', 'personal_property'] -> 521,900.00",
+    "Sum = 596,222.46 = What you own 596,222.46"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-048",
+   "name": "uberGroupRows",
+   "kind": "edge",
+   "title": "No class rows",
+   "given": "Nothing owned.",
+   "inputs": {
+    "class_rows": []
+   },
+   "expected": {
+    "groups": [],
+    "what_you_own": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "No classes -> every group left out -> empty list"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-051",
+   "name": "itemizedResultTotal",
+   "kind": "easy",
+   "title": "Holdings fit, remainder becomes cash",
+   "given": "Entered total $100,000; holdings $60,000 and $30,000.",
+   "inputs": {
+    "entered_total": 100000,
+    "holdings": [
+     60000,
+     30000
+    ]
+   },
+   "expected": {
+    "result_total": {
+     "exact": 100000,
+     "shown": "$100,000"
+    },
+    "remainder_as_cash": {
+     "exact": 10000,
+     "shown": "$10,000"
+    }
+   },
+   "working": [
+    "Holdings 90,000; remainder 10,000 > 0 kept as cash",
+    "Total = 90,000 + 10,000 = 100,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-051",
+   "name": "itemizedResultTotal",
+   "kind": "easy",
+   "title": "Holdings exactly match",
+   "given": "Entered total $50,000; one holding $50,000.",
+   "inputs": {
+    "entered_total": 50000,
+    "holdings": [
+     50000
+    ]
+   },
+   "expected": {
+    "result_total": {
+     "exact": 50000,
+     "shown": "$50,000"
+    },
+    "remainder_as_cash": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "Remainder 0, not above zero -> no cash",
+    "Total 50,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-051",
+   "name": "itemizedResultTotal",
+   "kind": "complex",
+   "title": "Four holdings from a statement, cash left over",
+   "given": "Entered total $87,415.62; holdings VTI $41,882.17, BND $23,415.90, AAPL $9,077.45, Treasury note $10,012.38.",
+   "inputs": {
+    "entered_total": 87415.62,
+    "holdings": [
+     {
+      "label": "VTI",
+      "value": 41882.17
+     },
+     {
+      "label": "BND",
+      "value": 23415.9
+     },
+     {
+      "label": "AAPL",
+      "value": 9077.45
+     },
+     {
+      "label": "US Treasury 4% 2029",
+      "value": 10012.38
+     }
+    ]
+   },
+   "expected": {
+    "rows": [
+     {
+      "label": "VTI",
+      "exact": 41882.17
+     },
+     {
+      "label": "BND",
+      "exact": 23415.9
+     },
+     {
+      "label": "AAPL",
+      "exact": 9077.45
+     },
+     {
+      "label": "US Treasury 4% 2029",
+      "exact": 10012.38
+     },
+     {
+      "label": "Cash (unallocated)",
+      "exact": 3027.72
+     }
+    ],
+    "result_total": {
+     "exact": 87415.62,
+     "shown": "$87,416"
+    }
+   },
+   "working": [
+    "Holdings = 41,882.17 + 23,415.90 + 9,077.45 + 10,012.38 = 84,387.90",
+    "Remainder = 87,415.62 - 84,387.90 = 3,027.72 > 0 -> cash",
+    "Total = 84,387.90 + 3,027.72 = 87,415.62",
+    "Rows sum to the total"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-051",
+   "name": "itemizedResultTotal",
+   "kind": "complex",
+   "title": "Holdings listed come to more than the entered total",
+   "given": "Entered total $60,000 (an old estimate); holdings typed from today's statement $38,412.55 and $24,909.13.",
+   "inputs": {
+    "entered_total": 60000,
+    "holdings": [
+     {
+      "label": "Fund A",
+      "value": 38412.55
+     },
+     {
+      "label": "Fund B",
+      "value": 24909.13
+     }
+    ]
+   },
+   "expected": {
+    "result_total": {
+     "exact": 63321.68,
+     "shown": "$63,322"
+    },
+    "remainder_as_cash": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "Holdings = 63,321.68 > 60,000",
+    "Remainder = 60,000 - 63,321.68 = -3,321.68, not above zero -> no cash",
+    "Total = 63,321.68"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": "The screen must show the new total before Done; the account rises by 3,321.68."
+  },
+  {
+   "id": "MK-NW-F-051",
+   "name": "itemizedResultTotal",
+   "kind": "edge",
+   "title": "No holdings listed",
+   "given": "Entered total $25,000; nothing listed.",
+   "inputs": {
+    "entered_total": 25000,
+    "holdings": []
+   },
+   "expected": {
+    "result_total": {
+     "exact": 25000,
+     "shown": "$25,000"
+    },
+    "remainder_as_cash": {
+     "exact": 25000,
+     "shown": "$25,000"
+    }
+   },
+   "working": [
+    "Holdings 0; remainder 25,000 -> cash; total 25,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-052",
+   "name": "buildItemizedAccounts",
+   "kind": "easy",
+   "title": "Names from label, else ticker, else 'Holding'",
+   "given": "Fidelity brokerage (taxable), $100,000; holdings: label 'Total Market Fund' $70,000; no label or ticker $30,000.",
+   "inputs": {
+    "original": {
+     "institution": "Fidelity",
+     "kind": "brokerage",
+     "tax_bucket": "taxable",
+     "balance": 100000
+    },
+    "holdings": [
+     {
+      "label": "Total Market Fund",
+      "cls": "stocks_etf",
+      "value": 70000
+     },
+     {
+      "label": null,
+      "ticker": null,
+      "cls": "stocks_etf",
+      "value": 30000
+     }
+    ]
+   },
+   "expected": {
+    "accounts": [
+     {
+      "label": "Total Market Fund",
+      "balance": {
+       "exact": 70000,
+       "shown": "$70,000"
+      }
+     },
+     {
+      "label": "Holding",
+      "balance": {
+       "exact": 30000,
+       "shown": "$30,000"
+      }
+     }
+    ],
+    "remainder_account": null,
+    "sum_of_balances": {
+     "exact": 100000,
+     "shown": "$100,000"
+    }
+   },
+   "working": [
+    "Holding 1 named by label; holding 2 has neither -> 'Holding'",
+    "Remainder 100,000 - 100,000 = 0 -> no cash account",
+    "Sum 100,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-052",
+   "name": "buildItemizedAccounts",
+   "kind": "easy",
+   "title": "A bond with no face value entered",
+   "given": "Schwab brokerage; holding a bond worth $10,000 today, coupon 4.5%, maturing 2030-05-15, face value not entered.",
+   "inputs": {
+    "original": {
+     "institution": "Schwab",
+     "kind": "brokerage",
+     "balance": 10000
+    },
+    "holdings": [
+     {
+      "label": "Muni 4.5% 2030",
+      "cls": "bonds",
+      "value": 10000,
+      "couponRate": 0.045,
+      "maturityDate": "2030-05-15",
+      "faceValue": null
+     }
+    ]
+   },
+   "expected": {
+    "accounts": [
+     {
+      "label": "Muni 4.5% 2030",
+      "balance": {
+       "exact": 10000,
+       "shown": "$10,000"
+      },
+      "coupon_rate": 0.045,
+      "maturity_date": "2030-05-15",
+      "face_value": null
+     }
+    ]
+   },
+   "working": [
+    "Bond carries rate and maturity",
+    "Face not entered -> left empty, never today's 10,000 in its place"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-052",
+   "name": "buildItemizedAccounts",
+   "kind": "complex",
+   "title": "401(k) itemised, uninvested cash left over",
+   "given": "Vanguard 401(k), pre-tax, $412,880.15, 80% earmarked, entered by hand. Holdings: VTSAX $251,330.42 (stocks), VBTLX $98,145.07 (bonds), stable value $41,205.88 (bonds).",
+   "inputs": {
+    "original": {
+     "institution": "Vanguard",
+     "kind": "401k",
+     "tax_bucket": "pre_tax",
+     "retirement_pct": 80,
+     "source": "manual",
+     "balance": 412880.15
+    },
+    "holdings": [
+     {
+      "label": "VTSAX",
+      "cls": "stocks_etf",
+      "value": 251330.42
+     },
+     {
+      "label": "VBTLX",
+      "cls": "bonds",
+      "value": 98145.07
+     },
+     {
+      "label": "Stable value",
+      "cls": "bonds",
+      "value": 41205.88
+     }
+    ]
+   },
+   "expected": {
+    "accounts": [
+     {
+      "label": "VTSAX",
+      "kind": "401k",
+      "asset_class": "stocks_etf",
+      "retirement_pct": 80,
+      "balance": {
+       "exact": 251330.42,
+       "shown": "$251,330"
+      }
+     },
+     {
+      "label": "VBTLX",
+      "kind": "401k",
+      "asset_class": "bonds",
+      "retirement_pct": 80,
+      "balance": {
+       "exact": 98145.07,
+       "shown": "$98,145"
+      }
+     },
+     {
+      "label": "Stable value",
+      "kind": "401k",
+      "asset_class": "bonds",
+      "retirement_pct": 80,
+      "balance": {
+       "exact": 41205.88,
+       "shown": "$41,206"
+      }
+     },
+     {
+      "label": "Vanguard cash",
+      "kind": "401k",
+      "asset_class": "cash",
+      "retirement_pct": 80,
+      "balance": {
+       "exact": 22198.78,
+       "shown": "$22,199"
+      }
+     }
+    ],
+    "sum_of_balances": {
+     "exact": 412880.15,
+     "shown": "$412,880"
+    },
+    "cash_class_gains": {
+     "exact": 22198.78,
+     "shown": "$22,199"
+    }
+   },
+   "formula_gives": {
+    "remainder_asset_class": "not stated; kind 401k with no class and no holdings is not cash under F-011 steps 4-6, so it may fall to Unclassified",
+    "target_return_per_account": "not stated"
+   },
+   "working": [
+    "Holdings = 251,330.42 + 98,145.07 + 41,205.88 = 390,681.37",
+    "Remainder = 412,880.15 - 390,681.37 = 22,198.78 > 0 -> 'Vanguard cash'",
+    "Every new account keeps kind 401k (wrapper), pre-tax, 80%, source manual",
+    "The remainder is uninvested cash -> class cash",
+    "Sum = 390,681.37 + 22,198.78 = 412,880.15 = itemizedResultTotal"
+   ],
+   "rests_on": "Formula in words; F-011; F-051.",
+   "confidence": "medium",
+   "notes": "Target return for each new account is not stated on the card (see formula check)."
+  },
+  {
+   "id": "MK-NW-F-052",
+   "name": "buildItemizedAccounts",
+   "kind": "complex",
+   "title": "Imported brokerage, holdings above the entered total, mixed classes",
+   "given": "E*Trade brokerage, taxable, imported, no share stated, entered $35,000. Holdings: no label but ticker AAPL $18,440.25; 'Bitcoin' $7,212.90 (alternatives); 'T-bill 2027' $9,950.00 (bonds).",
+   "inputs": {
+    "original": {
+     "institution": "E*Trade",
+     "kind": "brokerage",
+     "tax_bucket": "taxable",
+     "source": "imported",
+     "retirement_pct": null,
+     "balance": 35000
+    },
+    "holdings": [
+     {
+      "label": "",
+      "ticker": "AAPL",
+      "cls": "stocks_etf",
+      "value": 18440.25
+     },
+     {
+      "label": "Bitcoin",
+      "ticker": null,
+      "cls": "alternatives",
+      "value": 7212.9
+     },
+     {
+      "label": "T-bill 2027",
+      "ticker": null,
+      "cls": "bonds",
+      "value": 9950.0
+     }
+    ]
+   },
+   "expected": {
+    "accounts": [
+     {
+      "label": "AAPL",
+      "kind": "kind for stocks_etf",
+      "source": "imported",
+      "balance": {
+       "exact": 18440.25,
+       "shown": "$18,440"
+      }
+     },
+     {
+      "label": "Bitcoin",
+      "kind": "kind for alternatives",
+      "source": "imported",
+      "balance": {
+       "exact": 7212.9,
+       "shown": "$7,213"
+      }
+     },
+     {
+      "label": "T-bill 2027",
+      "kind": "kind for bonds",
+      "source": "imported",
+      "balance": {
+       "exact": 9950.0,
+       "shown": "$9,950"
+      }
+     }
+    ],
+    "remainder_account": null,
+    "sum_of_balances": {
+     "exact": 35603.15,
+     "shown": "$35,603"
+    }
+   },
+   "working": [
+    "Empty label -> named by ticker 'AAPL'",
+    "Brokerage is not a wrapper -> each takes the kind for its class",
+    "Holdings 35,603.15 > 35,000 -> no remainder",
+    "Sum 35,603.15 = itemizedResultTotal"
+   ],
+   "rests_on": "Formula in words; F-051.",
+   "confidence": "medium",
+   "notes": "An empty-string label is read as no label."
+  },
+  {
+   "id": "MK-NW-F-052",
+   "name": "buildItemizedAccounts",
+   "kind": "edge",
+   "title": "Remainder exactly zero; bond with face entered",
+   "given": "Brokerage $20,000; a bond worth $19,600, face $20,000, coupon 3%, maturing 2028-11-01; and $400 of stock. Remainder 0.",
+   "inputs": {
+    "original": {
+     "institution": "Schwab",
+     "kind": "brokerage",
+     "balance": 20000
+    },
+    "holdings": [
+     {
+      "label": "Agency 3% 2028",
+      "cls": "bonds",
+      "value": 19600,
+      "faceValue": 20000,
+      "couponRate": 0.03,
+      "maturityDate": "2028-11-01"
+     },
+     {
+      "ticker": "VOO",
+      "cls": "stocks_etf",
+      "value": 400
+     }
+    ]
+   },
+   "expected": {
+    "accounts": [
+     {
+      "label": "Agency 3% 2028",
+      "balance": {
+       "exact": 19600,
+       "shown": "$19,600"
+      },
+      "face_value": 20000
+     },
+     {
+      "label": "VOO",
+      "balance": {
+       "exact": 400,
+       "shown": "$400"
+      }
+     }
+    ],
+    "remainder_account": null
+   },
+   "working": [
+    "Remainder = 20,000 - 19,600 - 400 = 0 -> no cash account",
+    "Face entered -> carried as 20,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  }
+ ],
+ "could_not_test": []
+}

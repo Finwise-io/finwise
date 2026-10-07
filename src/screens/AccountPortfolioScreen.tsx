@@ -791,15 +791,15 @@ function BondDetail({ account }: { account: AssetAccount }) {
   // It now asks the question once and reads the figures off the answer.
   const answer = theBonds({ accounts: [account], accountId: String(account.asset_id) });
   const one = answer.one;
-  if (!one || !(one.face > 0 && one.couponRate > 0 && one.maturity)) return null;   // a bond FUND — no honest bond math
+  if (!one || !one.maturity || one.couponRate == null) return null;   // a bond FUND — no honest bond math; a face never entered still gets its facts
   const { matured, isCD } = one;
   const years = one.yearsLeft ?? 0;
   return (
     <>
       <View style={s.card}>
         <Text style={s.cardHdr2}>BOND FACTS</Text>
-        <FactRow label="Face value" value={one.face > 0 ? fig('MK-NW-M-023', one.face) : figWords('MK-NW-M-023', 'not entered')} />
-        <FactRow label="Interest payments" value={figWords('MK-NW-M-024', `${(one.couponRate * 100).toFixed(2)}%/year · ${fig('MK-NW-M-056', one.couponPerYear)}/year`)} />
+        <FactRow label="Face value" value={one.face != null ? fig('MK-NW-M-023', one.face) : figWords('MK-NW-M-023', 'not entered')} />
+        <FactRow label="Interest payments" value={figWords('MK-NW-M-024', `${(one.couponRate * 100).toFixed(2)}%/year · ${one.couponPerYear != null ? fig('MK-NW-M-056', one.couponPerYear) : 'not entered'}/year`)} />
         <FactRow label="Matures" value={figWords('MK-NW-M-025', matured ? `${one.maturity} (matured)` : `${one.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`)} />
         {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${fig('MK-NW-M-026', one.yieldToMaturity)} · estimate`} />}
         {one.currentYield != null && <FactRow label="Yield on today's value" value={fig('MK-NW-M-027', one.currentYield)} />}
@@ -822,7 +822,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
           <EstimateTag />
           <Text style={s.bondLine}>Rates rise 1% → value roughly {fig('MK-NW-M-023', one.ratesMove.ratesUp.low)}–{fig('MK-NW-M-023', one.ratesMove.ratesUp.high)} (down about {fig('MK-NW-M-023', Math.abs(one.ratesMove.ratesUp.delta))})</Text>
           <Text style={s.bondLine}>Rates fall 1% → value roughly {fig('MK-NW-M-023', one.ratesMove.ratesDown.low)}–{fig('MK-NW-M-023', one.ratesMove.ratesDown.high)}</Text>
-          <Text style={s.bondNote}>Held to maturity, {fig('MK-NW-M-023', one.face)} comes back — if the issuer pays as promised.</Text>
+          {one.face != null && <Text style={s.bondNote}>Held to maturity, {fig('MK-NW-M-023', one.face)} comes back — if the issuer pays as promised.</Text>}
         </View>
       )}
     </>

@@ -47,7 +47,7 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-XS-F-030 effectiveAnnualContribution · MK-XS-F-031 buildSnapshot
  *               MK-XS-F-058 parseReceipt
  *
- * Reaches ..... 223 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 224 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -57,7 +57,7 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-207 SOURCE
- *               … and 205 more — the full list is on functions_from_code
+ *               … and 206 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -85,7 +85,7 @@ export const toNum = (v: any): number => {
  *               MK-ST-F-012 toLedgerRow · MK-ST-F-044 setMoneyFormat
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 139 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 140 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
@@ -95,7 +95,7 @@ export const toNum = (v: any): number => {
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 121 more — the full list is on functions_from_code
+ *               … and 122 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -138,17 +138,17 @@ export const money2 = (n: number): string => formatMoneyCents(n);
  *
  * Called by ... MK-CF-F-109 reviewTransactions · MK-PL-F-050 simulate
  *
- * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-O-017 futurePaycheck · MK-NW-F-044 getAssetsState
- *               … and 63 more — the full list is on functions_from_code
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-O-017 futurePaycheck
+ *               … and 64 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -19840,7 +19840,7 @@
     },
     {
      "k": "a",
-     "s": "Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly $9,270 to $9,460. If rates fall one percent, roughly $10,130 to $10,340. Held to maturity, $10,000 comes back if the issuer pays as promised."
+     "s": "Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly $9,280 to $9,470. If rates fall one percent, roughly $10,140 to $10,350. Held to maturity, $10,000 comes back if the issuer pays as promised."
     },
     {
      "k": "t",
@@ -19864,7 +19864,7 @@
     },
     {
      "k": "t",
-     "s": "$9,270"
+     "s": "$9,280"
     },
     {
      "k": "t",
@@ -19872,7 +19872,7 @@
     },
     {
      "k": "t",
-     "s": "$9,460"
+     "s": "$9,470"
     },
     {
      "k": "t",
@@ -19880,7 +19880,7 @@
     },
     {
      "k": "t",
-     "s": "$430"
+     "s": "$420"
     },
     {
      "k": "t",
@@ -19892,7 +19892,7 @@
     },
     {
      "k": "t",
-     "s": "$10,130"
+     "s": "$10,140"
     },
     {
      "k": "t",
@@ -19900,7 +19900,7 @@
     },
     {
      "k": "t",
-     "s": "$10,340"
+     "s": "$10,350"
     },
     {
      "k": "t",
@@ -21991,11 +21991,11 @@
     },
     {
      "k": "t",
-     "s": "· face"
+     "s": "·"
     },
     {
      "k": "t",
-     "s": "$10,000"
+     "s": "face $10,000"
     },
     {
      "k": "t",
@@ -22055,11 +22055,7 @@
     },
     {
      "k": "t",
-     "s": "$400/year"
-    },
-    {
-     "k": "t",
-     "s": "coupon"
+     "s": "$400/year coupon"
     },
     {
      "k": "t",

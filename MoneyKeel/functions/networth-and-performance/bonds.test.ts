@@ -25,8 +25,8 @@ test('the totals are the sum of the rows — the two screens read one answer', (
   expect(a.count).toBe(2);
   expect(a.rows).toHaveLength(2);
   expect(a.totalValue).toBe(a.rows.reduce((t, r) => t + r.value, 0));
-  expect(a.totalFace).toBe(a.rows.reduce((t, r) => t + r.face, 0));
-  expect(Math.round(a.couponPerYear)).toBe(Math.round(a.rows.reduce((t, r) => t + r.couponPerYear, 0)));
+  expect(a.totalFace).toBe(a.rows.reduce((t, r) => t + (r.face ?? 0), 0));
+  expect(Math.round(a.couponPerYear)).toBe(Math.round(a.rows.reduce((t, r) => t + (r.couponPerYear ?? 0), 0)));
 });
 
 test('a bond gets the rates-move estimate, and no refusal', () => {

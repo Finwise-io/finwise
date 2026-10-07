@@ -710,7 +710,7 @@ export function extraIncome(op: OnboardingProfile | null): {
  *               MK-CF-O-016 incomeSources · MK-PL-F-031 taxOrganizer
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-024 resolveLens
  *
- * Reaches ..... 138 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 139 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -720,7 +720,7 @@ export function extraIncome(op: OnboardingProfile | null): {
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-207 SOURCE
- *               … and 120 more — the full list is on functions_from_code
+ *               … and 121 more — the full list is on functions_from_code
  *
  * Serves ...... MK-PL-M-018 · MK-PL-M-032
  * Reads ....... MK-XS-I-020 Social Security monthly amount
@@ -827,7 +827,7 @@ const RI_CAD_DIV: Record<string, number> = { monthly: 1, quarterly: 3, annual: 1
  * Called by ... MK-CF-F-072 currentRetirementIncomeMonthly · MK-CF-F-210 annualOfSource
  *               MK-CF-O-016 incomeSources · MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 139 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 140 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -837,7 +837,7 @@ const RI_CAD_DIV: Record<string, number> = { monthly: 1, quarterly: 3, annual: 1
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-207 SOURCE
- *               … and 121 more — the full list is on functions_from_code
+ *               … and 122 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-020 Social Security monthly amount
@@ -1308,7 +1308,7 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
  *               MK-CF-O-019 theIncomeManager · MK-PL-F-067 willItLastInputs
  *               MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 134 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 135 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -1318,7 +1318,7 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
- *               … and 116 more — the full list is on functions_from_code
+ *               … and 117 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -1596,7 +1596,7 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
  *               MK-CF-O-019 theIncomeManager · MK-PL-F-067 willItLastInputs
  *               MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 134 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 135 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -1606,7 +1606,7 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
- *               … and 116 more — the full list is on functions_from_code
+ *               … and 117 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year

@@ -185,7 +185,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-ST-F-072 undo · MK-XS-F-031 buildSnapshot
  *               MK-XS-F-107 mapActivityType
  *
- * Reaches ..... 200 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 202 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -195,7 +195,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               … and 182 more — the full list is on functions_from_code
+ *               … and 184 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

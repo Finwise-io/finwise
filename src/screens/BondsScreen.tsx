@@ -7,7 +7,7 @@ import { SectionBand } from '../components/SectionBand';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { fig, figPer, figSpoken } from '../components/figure';   // rule 11
+import { fig, figPer, figSpoken, figWords } from '../components/figure';   // rule 11
 import { InfoDot, EmptyNote } from '../components/UI';
 import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
@@ -56,7 +56,7 @@ export default function BondsScreen() {
         <>
           <View style={styles.summary}>
             <Text style={styles.sumVal}>{fig('MK-NW-M-041', summary.totalValue)}</Text>
-            <Text style={styles.sumLab}>{summary.count} bond{summary.count > 1 ? 's' : ''} · face {fig('MK-NW-M-053', summary.totalFace)}</Text>
+            <Text style={styles.sumLab}>{summary.count} bond{summary.count > 1 ? 's' : ''} · {summary.faceNotEntered.length === summary.count ? figWords('MK-NW-M-053', 'face value not entered') : `face ${fig('MK-NW-M-053', summary.totalFace)}`}</Text>
             <View style={styles.sumRow}>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{fig('MK-NW-M-043', summary.couponPerYear)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-044', summary.avgYield)}</Text></View>
@@ -65,6 +65,12 @@ export default function BondsScreen() {
             {/* a bond with no value today is not in the average, and the screen says which (outside review, 2026-10-04) */}
             {summary.leftOutOfAverage.length > 0 && (
               <Text style={styles.sumLab}>Average yield leaves out {summary.leftOutOfAverage.join(', ')} — no value today.</Text>
+            )}
+            {summary.leftOutNoRate.length > 0 && (
+              <Text style={styles.sumLab}>Average yield leaves out {summary.leftOutNoRate.join(', ')} — no rate entered.</Text>
+            )}
+            {summary.faceNotEntered.length > 0 && summary.faceNotEntered.length < summary.count && (
+              <Text style={styles.sumLab}>Face value leaves out {summary.faceNotEntered.join(', ')} — not entered.</Text>
             )}
           </View>
 
@@ -78,9 +84,9 @@ export default function BondsScreen() {
                 accessibilityLabel={`${r.institution}, ${figSpoken('MK-NW-M-054', r.value)}, matures ${humanDate(r.maturity)}. Opens the editor.`}
                 style={styles.card} onPress={() => acct && setEdit(acct)}>
                 <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.institution}</Text><Text style={styles.bondVal}>{fig('MK-NW-M-054', r.value)}</Text></View>
-                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${fig('MK-NW-M-055', r.face)}`, `${(r.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}`]} />
+                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : figWords('MK-NW-M-055', 'coupon rate not entered'), `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}`]} />
                 <View style={styles.bondMetrics}>
-                  <Text style={styles.metric}>{figPer('MK-NW-M-056', r.couponPerYear)} coupon</Text>
+                  <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', 'coupon not entered')}</Text>
                   <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}{r.accruedCaveat ? ' *' : ''}</Text>
                   <Text style={styles.metric}>Yield to maturity: {fig('MK-NW-M-058', r.yieldToMaturity)}</Text>
                 </View>

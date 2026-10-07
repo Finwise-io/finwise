@@ -1,0 +1,3191 @@
+{
+ "batch": "networth 04 final",
+ "written_by": "claude",
+ "ready_to_close": false,
+ "still_open": [
+  "MK-NW-F-002 alternativesSummary (WRONG, medium): Total = the Alternatives part of each account's class split (the same figure as alternativesTotal); blended rate = each Alternatives part x the yearly rate for what it is (the person's own rate for the kind where set, else the benchmark), / that total; growth = total x rate; no figure when the total is 0. Kept private-equity and hedge-fund rows stay in at their benchmark (owner 2026-10-06 keeps the row).",
+  "MK-NW-F-008 incomeBearingClassOf (WRONG, high): Read put/call as option evidence only with an option shape (an OCC code, a strike or an expiry date); 'covered call', 'ETF', 'fund' or 'trust' in the name is a fund. Name evidence must not override a property or vehicle: return nothing for a property account's name (or have assetClassOf read the kind home/real estate/vehicle and the PROPERTY bucket before the name). Apply the company exemption to bond and Treasury words too.",
+  "MK-NW-F-013 realEstateUseOf (WRONG, high): Return propertyUses' answer for the property: rental when an Income-screen rent entry names it; else home when it is the one marked home (or, with no property marked as anything, the one entered first); else second home; land as stated. No household handed in is not a reason to call it the home when the rent entries say otherwise.",
+  "MK-NW-F-110 primaryHomeIdOf (WRONG, high): Take rentals from the Income-screen rent entries (propertyUses). Fall back to the first-entered property by one recorded key (created date or id order, the same key primaryCarIdOf uses), not list position. State one rule for 'a rental is marked and another property has no use' and use it in propertyUses, primaryHomeIdOf and realEstateUseOf alike.",
+  "MK-NW-F-015 totalAssets (WRONG, medium): Add every balance; when any account has no balance, give no total (a dash) and name the account(s) without a value, or show the known sum clearly marked as leaving those out. Never treat the gap as $0.",
+  "MK-NW-F-024 accountLastFour (INCOMPLETE, low): Use the mask when it yields four or more digits; otherwise use the account number when it yields four or more; otherwise nothing.",
+  "MK-NW-F-025 accountDisplayName (INCOMPLETE, low): When the account is tax-advantaged (tax treatment tax-free/tax-deferred or bucket ROTH/PRE_TAX) and its kind is missing or only 'Brokerage', derive the word from the treatment. State the no-institution branch plainly, and treat the mask as present when its digits already end the name.",
+  "MK-NW-F-030 earmarkDefault (WRONG, high): Take each property's use from propertyUses: 0% only for the property it names HOME; 100% for rental and second home. Pass 'no home in this household' distinctly from 'no household given'.",
+  "MK-NW-F-035 blendedVolatility (WRONG, medium): Portfolio volatility = sqrt(w' Sigma w) over the earmarked weights, using a stated class correlation table; until that exists, say on screen that the figure is an upper bound, and give no figure for a kind with no volatility rather than 12%.",
+  "MK-NW-F-073 itemising (INCOMPLETE, medium): Itemised = the priced holdings; when any listed holding has no value, give no remainder and say which holding needs a price. When the sum exceeds the lump, show 'holdings exceed the entered balance by X' instead of a negative unexplained amount.",
+  "MK-NW-F-094 ledgerGroups (WRONG, medium): By class, list a split account under every class it has a part in, showing that part, so each heading equals the rows beneath it; or show the account once with its whole balance and keep heading totals equal to those rows. Say which class wins a tie, and treat a blank institution as No institution set."
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-NW-F-055",
+   "name": "isBond",
+   "verdict": "RIGHT",
+   "why": "It reads the one class answer (assetClassOf), so a bond is detected by class as the spec requires; a stated class wins, a maturity date makes a bond, a CD kind makes a bond, and a money-market fund is not a bond (owner, 2026-08-04). It inherits the property-name fault recorded under MK-NW-F-008 (a home named 'Bond Street flat' would read as a bond) but has no fault of its own.",
+   "should_be": "",
+   "rests_on": "Spec §2 quoted on the card; owner rule 2026-08-04 via assetClassOf.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-002",
+   "name": "alternativesSummary",
+   "verdict": "WRONG",
+   "why": "It takes whole accounts that pass isAlternative. An alternative held inside an account of another class (options or a bitcoin ETF in a linked brokerage) is left out, and an alternatives account that records its own uninvested cash is counted whole, cash included. Its total therefore differs from the Alternatives line of the class split (MK-NW-F-019 alternativesTotal) for the same household: two formulas for the same thing. It is also handed no overrides, so a rate the person set for a kind (which blendedReturn honours) cannot reach it.",
+   "should_be": "Total = the Alternatives part of each account's class split (the same figure as alternativesTotal); blended rate = each Alternatives part x the yearly rate for what it is (the person's own rate for the kind where set, else the benchmark), / that total; growth = total x rate; no figure when the total is 0. Kept private-equity and hedge-fund rows stay in at their benchmark (owner 2026-10-06 keeps the row).",
+   "rests_on": "MK-NW-F-029/MK-NW-F-027 (the class split adds to everything owned); MK-NW-F-034 (own rate first); ordinary arithmetic.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-008",
+   "name": "incomeBearingClassOf",
+   "verdict": "WRONG",
+   "why": "The order follows the owner's 2026-08-04 rule: money market (words, mmkt/mmf, fund tickers) goes to Stocks / Funds before sweep/settlement, and Treasury-bill fund tickers go to Bonds & CDs. Two faults remain. (1) 'put or call' as whole words sends an equity ETF whose broker name carries 'covered call' (e.g. 'GLOBAL X NASDAQ 100 COVERED CALL ETF') to Alternatives. (2) The commodity and bond words fire on any name, and the company exemption covers only commodity words: a home labelled 'Silver Lake house' or 'Gold Coast condo' reads as Alternatives, and 'Bond Street flat' as Bonds & CDs. Because assetClassOf reads the name (step 3) before the kind (step 4), that house leaves Real estate (realEstateTotal, isRealAsset) and the flat becomes a bond (isBond), so a household sees a wrong number.",
+   "should_be": "Read put/call as option evidence only with an option shape (an OCC code, a strike or an expiry date); 'covered call', 'ETF', 'fund' or 'trust' in the name is a fund. Name evidence must not override a property or vehicle: return nothing for a property account's name (or have assetClassOf read the kind home/real estate/vehicle and the PROPERTY bucket before the name). Apply the company exemption to bond and Treasury words too.",
+   "rests_on": "Owner rule 2026-08-04 (DEC on cash); ordinary reading of broker security names; assetClassOf step order.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-013",
+   "name": "realEstateUseOf",
+   "verdict": "WRONG",
+   "why": "Owner rule 5 (2026-10-04) makes a property a rental only when a rent entry on the Income screen names it, and a second or vacation home otherwise; propertyUses reads it that way. This function is not handed the income entries and returns the stored use. So (a) a property stored as 'rental' with no rent entry is returned as rental, where the owner says second home; (b) a property with no use stated that a rent entry names is returned as the home when it is the household's only or first-entered property (and as the home when asked alone), so earmarkDefault gives it 0% instead of 100%; (c) a property stored as 'primary' that a rent entry names stays 'primary', where propertyUses says RENTAL. Its own summary of primaryHomeIdOf ('none marked and no use stated on any') also disagrees with primaryHomeIdOf's formula ('among the non-rentals').",
+   "should_be": "Return propertyUses' answer for the property: rental when an Income-screen rent entry names it; else home when it is the one marked home (or, with no property marked as anything, the one entered first); else second home; land as stated. No household handed in is not a reason to call it the home when the rent entries say otherwise.",
+   "rests_on": "Owner rule 5 (2026-10-04); MK-NW-F-107 propertyUses.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-110",
+   "name": "primaryHomeIdOf",
+   "verdict": "WRONG",
+   "why": "(1) It decides 'not a rental' from the stored use, not from the Income screen as owner rule 5 and propertyUses require, so a property with no use stated that a rent entry names can be returned as the home (earmark 0% instead of 100%). (2) 'Entered first' is read as the last in the list, resting on an author claim that the list is kept newest first; primaryCarIdOf reads 'made first' as the lower id. Two definitions of the same thing; if the list is ever handed in another order the home changes. (3) With one property stated rental and one with no use, it names the second as home, while propertyUses applies the first-entered fallback only when no property is marked as anything else; and realEstateUseOf's own summary says the same as propertyUses. The three cards disagree.",
+   "should_be": "Take rentals from the Income-screen rent entries (propertyUses). Fall back to the first-entered property by one recorded key (created date or id order, the same key primaryCarIdOf uses), not list position. State one rule for 'a rental is marked and another property has no use' and use it in propertyUses, primaryHomeIdOf and realEstateUseOf alike.",
+   "rests_on": "Owner rule 5 (2026-10-04); MK-NW-F-107 propertyUses; MK-NW-F-031 primaryCarIdOf.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-014",
+   "name": "isRealAsset",
+   "verdict": "RIGHT",
+   "why": "Real estate or personal property by the single class answer is what it is for. It inherits the property-name fault in MK-NW-F-008 (a home named 'Silver Lake house' reads as Alternatives) but has none of its own.",
+   "should_be": "",
+   "rests_on": "Card purpose; assetClassOf.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-015",
+   "name": "totalAssets",
+   "verdict": "WRONG",
+   "why": "Adding every balance is right, and a negative (overdrawn) balance correctly nets down. But 'a missing balance counts as zero' turns an account whose value was never entered into $0, and the total is shown as if complete: the 'missing counted as zero' shape.",
+   "should_be": "Add every balance; when any account has no balance, give no total (a dash) and name the account(s) without a value, or show the known sum clearly marked as leaving those out. Never treat the gap as $0.",
+   "rests_on": "Brief rule: 'No answer is a valid answer'; ordinary arithmetic.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "verdict": "RIGHT",
+   "why": "It is the Stocks / Funds line of the class split, so a mixed account gives only its fund part and a money-market fund counts here (owner 2026-08-04). It inherits MK-NW-F-008's covered-call fault (such an ETF would land in Alternatives) but adds none.",
+   "should_be": "",
+   "rests_on": "MK-NW-F-029 assetAllocation; owner rule 2026-08-04.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "verdict": "RIGHT",
+   "why": "It is the Bonds & CDs line of the class split; maturity-dated instruments, CDs and T-bill funds count, money-market funds do not (owner 2026-08-04). It inherits MK-NW-F-008's 'Bond Street flat' fault but adds none.",
+   "should_be": "",
+   "rests_on": "MK-NW-F-029; owner rule 2026-08-04.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "verdict": "RIGHT",
+   "why": "It is the Alternatives line of the class split, so options and crypto ETFs inside a brokerage count and an alternatives account's own cash does not. It inherits MK-NW-F-008's faults (a covered-call ETF or 'Silver Lake house' would land here) but adds none.",
+   "should_be": "",
+   "rests_on": "MK-NW-F-029; owner rules 8-9.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "verdict": "RIGHT",
+   "why": "The Real estate line of the class split, gross of mortgages, is what it is for. A REIT fund stays in Stocks / Funds; land and property with no kind count. It inherits MK-NW-F-008's 'Silver Lake house' fault but adds none.",
+   "should_be": "",
+   "rests_on": "MK-NW-F-029; assetClassOf step 7.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-024",
+   "name": "accountLastFour",
+   "verdict": "INCOMPLETE",
+   "why": "Digits-only then last four handles '••4821', dashes and spaces correctly, and gives nothing for fewer than four digits. But 'from the mask, or failing that its account number' does not say whether a mask with fewer than four digits ('x-12') counts as failing. Read literally (mask present, so the number is never read) it returns nothing although the account number holds the four digits.",
+   "should_be": "Use the mask when it yields four or more digits; otherwise use the account number when it yields four or more; otherwise nothing.",
+   "rests_on": "Card purpose: null only when we genuinely don't have them.",
+   "severity": "low"
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "verdict": "INCOMPLETE",
+   "why": "The kind word for a tax-advantaged 'Brokerage' (Roth when tax-free, 401(k) / IRA when tax-deferred) keeps the wrapper visible. But a tax-advantaged account whose kind is missing gets no kind word, so with digits it reads 'Institution -last four' and the wrapper vanishes, against the card's own 'a tax-advantaged account always shows what it is'. 'With none of those ... with the institution in front' is self-contradictory as worded (no institution, yet one in front); and 'the mask at the end only if not already there' does not say whether a name already holding the digits ('Chase Checking 4821') counts.",
+   "should_be": "When the account is tax-advantaged (tax treatment tax-free/tax-deferred or bucket ROTH/PRE_TAX) and its kind is missing or only 'Brokerage', derive the word from the treatment. State the no-institution branch plainly, and treat the mask as present when its digits already end the name.",
+   "rests_on": "The card's own stated aim; ordinary reading.",
+   "severity": "low"
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "verdict": "WRONG",
+   "why": "0% for a 529, the home lived in and the car driven, 100% for the rest follows DEC-0100. Two faults. (1) 'Any unstated property when no household is handed in' cannot be told apart from 'the household has no home': when primaryHomeIdOf returns nothing (e.g. one property stated second home, one with no use), the caller passes undefined and every unstated property gets 0%, while propertyUses and realEstateUseOf call it a second home (100%). (2) A property whose use is stated as the home but which a rent entry names is a RENTAL under owner rule 5 / propertyUses, yet gets 0%.",
+   "should_be": "Take each property's use from propertyUses: 0% only for the property it names HOME; 100% for rental and second home. Pass 'no home in this household' distinctly from 'no household given'.",
+   "rests_on": "Owner DEC-0100 (2026-08-11); owner rule 5 (2026-10-04); MK-NW-F-107.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "verdict": "WRONG",
+   "why": "It is for the volatility of this portfolio, but a weighted average of the parts' volatilities is that only when every pair moves perfectly together; otherwise portfolio volatility is sqrt(sum_i sum_j w_i w_j s_i s_j rho_ij), which is lower. The card admits this. The Plan's spread of futures is then too wide. 'Else 12%' is also an invented default for a kind the app has no figure for, and the card's purpose says 'class volatility' while its formula uses the kind's.",
+   "should_be": "Portfolio volatility = sqrt(w' Sigma w) over the earmarked weights, using a stated class correlation table; until that exists, say on screen that the figure is an upper bound, and give no figure for a kind with no volatility rather than 12%.",
+   "rests_on": "Markowitz (1952) portfolio variance; standard finance practice.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "verdict": "RIGHT",
+   "why": "An earmark-weighted average of each account's yearly rate is a correct expected return for the nest egg, and it refuses at a zero earmarked total. Its weights come from earmarkDefault, so it carries that card's fault (a second home weighted 0) until MK-NW-F-030 is fixed; an investment account's cash sleeve is rated at the account's kind rate by design.",
+   "should_be": "",
+   "rests_on": "Weighted arithmetic mean; MK-NW-F-034.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-073",
+   "name": "itemising",
+   "verdict": "INCOMPLETE",
+   "why": "Keep-total = lump, itemised = sum of holdings, remainder = lump - sum is right for ordinary cases. It is silent on two that change what is shown: a listed holding with no value (no price) is summed as if $0, overstating 'not yet explained'; and holdings worth more than the lump give a negative remainder that is not 'still not explained' but an excess.",
+   "should_be": "Itemised = the priced holdings; when any listed holding has no value, give no remainder and say which holding needs a price. When the sum exceeds the lump, show 'holdings exceed the entered balance by X' instead of a negative unexplained amount.",
+   "rests_on": "Brief: missing is not zero; parts must match the whole beside them.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-094",
+   "name": "ledgerGroups",
+   "verdict": "WRONG",
+   "why": "By class, a split account's parts go into each class total but the account sits as a row only under its majority class. The rows listed under a heading then do not sum to the heading's total: the Cash heading includes a brokerage's cash but lists only the bank account, and the Stocks heading lists the whole brokerage balance under a smaller total. By institution it is right (trimmed, capitals ignored, first spelling, mix from the same split, largest first) and both views add to everything owned. Silent on a balance split exactly 50/50 between two classes and on an institution of only spaces.",
+   "should_be": "By class, list a split account under every class it has a part in, showing that part, so each heading equals the rows beneath it; or show the account once with its whole balance and keep heading totals equal to those rows. Say which class wins a tie, and treat a blank institution as No institution set.",
+   "rests_on": "Brief: parts must add up to the whole they are shown beside; ordinary arithmetic.",
+   "severity": "medium"
+  }
+ ],
+ "cases": [
+  {
+   "id": "MK-NW-F-055",
+   "name": "isBond",
+   "kind": "easy",
+   "title": "A CD account",
+   "given": "One account of kind CD, $25,000, nothing else stated.",
+   "inputs": {
+    "kind": "cd",
+    "balance": 25000
+   },
+   "expected": {
+    "is_bond": true
+   },
+   "working": [
+    "No class stated, no maturity date, name gives no evidence",
+    "Kind CD -> Bonds & CDs (assetClassOf step 4)",
+    "Class is Bonds & CDs -> true"
+   ],
+   "rests_on": "Formula in words; assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-055",
+   "name": "isBond",
+   "kind": "easy",
+   "title": "A checking account",
+   "given": "Chase Checking, kind checking, $4,000.",
+   "inputs": {
+    "label": "Chase Checking",
+    "kind": "checking",
+    "balance": 4000
+   },
+   "expected": {
+    "is_bond": false
+   },
+   "working": [
+    "Kind checking -> Cash",
+    "Cash is not Bonds & CDs -> false"
+   ],
+   "rests_on": "Formula in words; assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-055",
+   "name": "isBond",
+   "kind": "complex",
+   "title": "Broker-link T-bill and a money-market settlement fund",
+   "given": "Two linked rows as the broker describes them: 'US TREASURY BILL 0.000% DUE 01/14/2027' with maturity date 2027-01-14, kind brokerage, $19,642.18; and 'FIDELITY GOVERNMENT MONEY MARKET (SPAXX) SETTLEMENT FUND', kind money market, $15,327.88.",
+   "inputs": {
+    "row_1": {
+     "label": "US TREASURY BILL 0.000% DUE 01/14/2027",
+     "maturity_date": "2027-01-14",
+     "kind": "brokerage",
+     "balance": 19642.18
+    },
+    "row_2": {
+     "label": "FIDELITY GOVERNMENT MONEY MARKET (SPAXX) SETTLEMENT FUND",
+     "kind": "money market",
+     "balance": 15327.88
+    }
+   },
+   "expected": {
+    "row_1_is_bond": true,
+    "row_2_is_bond": false
+   },
+   "working": [
+    "Row 1: has a maturity date -> Bonds & CDs (step 2, owner 2026-08-04) -> true",
+    "Row 2: no maturity date; name says money market, read before 'settlement' -> Stocks / Funds (owner 2026-08-04) -> false"
+   ],
+   "rests_on": "assetClassOf steps 2-3; owner rule 2026-08-04 (cash means cash only; money market is a fund).",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-055",
+   "name": "isBond",
+   "kind": "complex",
+   "title": "A stated class beats a maturity date and a bond-sounding kind",
+   "given": "A structured note the person classed herself as Stocks / Funds: label 'Barclays 5yr S&P 500 buffered note', kind fixed income, maturity date 2030-03-29, asset class stated stocks_etf, $31,480.55.",
+   "inputs": {
+    "label": "Barclays 5yr S&P 500 buffered note",
+    "kind": "fixed income",
+    "maturity_date": "2030-03-29",
+    "asset_class": "stocks_etf",
+    "balance": 31480.55
+   },
+   "expected": {
+    "is_bond": false
+   },
+   "working": [
+    "Step 1: a class is stated -> Stocks / Funds; maturity date, the word 'note' and kind fixed income are never reached",
+    "Stocks / Funds is not Bonds & CDs -> false"
+   ],
+   "rests_on": "assetClassOf step 1 (the stated class comes first).",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-055",
+   "name": "isBond",
+   "kind": "edge",
+   "title": "A bond that matured yesterday",
+   "given": "Individual bond, maturity date 2026-10-06 (one day before today 2026-10-07), face $10,000, coupon 4.5%, value still shown $10,000.",
+   "inputs": {
+    "maturity_date": "2026-10-06",
+    "face_value": 10000,
+    "coupon_rate": 0.045,
+    "balance": 10000,
+    "today": "2026-10-07"
+   },
+   "expected": {
+    "is_bond": true
+   },
+   "working": [
+    "Detection is by class, not by whether the date has passed (spec §2)",
+    "Has a maturity date -> Bonds & CDs -> true"
+   ],
+   "rests_on": "Spec §2: detected by assetClass, NOT maturity date; assetClassOf step 2.",
+   "confidence": "medium",
+   "notes": "Whether a matured bond should still be listed is another card's question; isBond only says it is a bond."
+  },
+  {
+   "id": "MK-NW-F-002",
+   "name": "alternativesSummary",
+   "kind": "easy",
+   "title": "One crypto account",
+   "given": "One crypto account, $10,000.",
+   "inputs": {
+    "crypto_balance": 10000
+   },
+   "expected": {
+    "count": 1,
+    "total": {
+     "exact": 10000.0,
+     "shown": "$10,000"
+    },
+    "blended_rate": {
+     "exact": 0.08,
+     "shown": "8.00%"
+    },
+    "growth_in_a_year": {
+     "exact": 800.0,
+     "shown": "$800"
+    }
+   },
+   "working": [
+    "count 1; total 10,000",
+    "rate = 10,000 x 8% / 10,000 = 8%",
+    "growth = 10,000 x 8% = 800.00"
+   ],
+   "rests_on": "Formula in words; benchmarkReturn crypto 8%.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-002",
+   "name": "alternativesSummary",
+   "kind": "easy",
+   "title": "Nothing held",
+   "given": "No alternative investments at all.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "count": 0,
+    "total": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "blended_rate": "REFUSES (nothing held)",
+    "growth_in_a_year": "REFUSES (nothing held; $0 would read as a forecast)"
+   },
+   "working": [
+    "No account passes isAlternative",
+    "count 0, total 0",
+    "Total 0 -> no rate and no growth figure"
+   ],
+   "rests_on": "Formula in words; AltSummary type comments.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-002",
+   "name": "alternativesSummary",
+   "kind": "complex",
+   "title": "Kept private-equity and hedge-fund rows beside crypto and gold",
+   "given": "Rows saved before the phase rule: private equity $50,000 and hedge fund $75,000. Also a crypto account $18,640.90 and a gold-and-commodities account $3,616.05. No class splits, no own rates.",
+   "inputs": {
+    "private equity (kept row)": 50000,
+    "hedge fund (kept row)": 75000,
+    "crypto": 18640.9,
+    "gold and commodities": 3616.05
+   },
+   "expected": {
+    "count": 4,
+    "total": {
+     "exact": 147256.95,
+     "shown": "$147,257"
+    },
+    "blended_rate": {
+     "exact": 0.0868,
+     "shown": "8.68%"
+    },
+    "growth_in_a_year": {
+     "exact": 12787.7881,
+     "shown": "$12,788"
+    },
+    "rows": [
+     {
+      "label": "private equity (kept row)",
+      "exact": 50000.0
+     },
+     {
+      "label": "hedge fund (kept row)",
+      "exact": 75000.0
+     },
+     {
+      "label": "crypto",
+      "exact": 18640.9
+     },
+     {
+      "label": "gold and commodities",
+      "exact": 3616.05
+     }
+    ]
+   },
+   "working": [
+    "private equity (kept row): 50,000.00 x 13.0% = 6,500.00",
+    "hedge fund (kept row): 75,000.00 x 6.0% = 4,500.00",
+    "crypto: 18,640.90 x 8.0% = 1,491.27",
+    "gold and commodities: 3,616.05 x 8.2% = 296.52",
+    "total = 50,000.00 + 75,000.00 + 18,640.90 + 3,616.05 = 147,256.95",
+    "growth = 12,787.79",
+    "rate = 12,787.79 / 147,256.95 = 0.086840",
+    "Check: the four rows sum to the total"
+   ],
+   "rests_on": "Owner rules 8 and 9 (rows kept); benchmarkReturn 13% / 6% / 8% / 8.2%.",
+   "confidence": "medium",
+   "notes": "The owner keeps the earlier rows but has not said what rate they carry; their benchmark is the only rate the app has for them."
+  },
+  {
+   "id": "MK-NW-F-002",
+   "name": "alternativesSummary",
+   "kind": "complex",
+   "title": "Options and a bitcoin ETF in a linked brokerage, plus a crypto account with its own cash",
+   "given": "Linked Schwab brokerage $70,218.61: cash $4,206.11; VTI 210 @ 287.43; IBIT 80 @ 52.31; 3 SPY calls synced at $4.85 a share. Hand-built crypto account $18,640.90 that records $1,250.00 uninvested cash.",
+   "inputs": {
+    "schwab_linked": {
+     "balance": 70218.61,
+     "cash": 4206.11,
+     "VTI": [
+      210,
+      287.43
+     ],
+     "IBIT": [
+      80,
+      52.31
+     ],
+     "options_value": 1455.0
+    },
+    "crypto_handbuilt": {
+     "balance": 18640.9,
+     "uninvested_cash": 1250.0
+    }
+   },
+   "expected": {
+    "total": {
+     "exact": 23030.7,
+     "shown": "$23,031"
+    },
+    "blended_rate": {
+     "exact": 0.0781,
+     "shown": "7.81%"
+    },
+    "growth_in_a_year": {
+     "exact": 1798.806,
+     "shown": "$1,799"
+    },
+    "count": "RULE UNCLEAR: 2 accounts hold alternatives (or 3 alternative positions); the card does not say what is counted",
+    "same_figure_elsewhere": "total must equal alternativesTotal (MK-NW-F-019) for this household"
+   },
+   "formula_gives": {
+    "count": 1,
+    "total": {
+     "exact": 18640.9,
+     "shown": "$18,641"
+    },
+    "blended_rate": {
+     "exact": 0.08,
+     "shown": "8.00%"
+    },
+    "growth_in_a_year": {
+     "exact": 1491.272,
+     "shown": "$1,491"
+    }
+   },
+   "working": [
+    "Cash part = cash balance 4,206.11",
+    "VTI 'VANGUARD TOTAL STOCK MARKET ETF': 210 x 287.43 = 60,360.30 -> stocks_etf",
+    "IBIT 'ISHARES BITCOIN TRUST ETF': 80 x 52.31 = 4,184.80 -> alternatives",
+    "SPY 2026-12-18 C 600 (3 contracts x 4.85 x 100): synced value 1,455.00 -> alternatives",
+    "Parts so far = 70,206.21; balance 70,218.61; difference = 12.40",
+    "|difference| 12.40 <= max($1, 1% x balance = 702.19) and positive -> added to cash",
+    "Parts: cash 4,218.51, stocks_etf 60,360.30, alternatives 5,639.80 = 70,218.61 = balance",
+    "Hand-built: cash = min(1,250.00, 18,640.90) = 1,250.00; rest 18,640.90 - 1,250.00 = 17,390.90 -> alternatives",
+    "Alternatives in Schwab = IBIT 4,184.80 + options 1,455.00 = 5,639.80",
+    "Alternatives in crypto account = 17,390.90",
+    "Expected total = 5,639.80 + 17,390.90 = 23,030.70",
+    "Growth = IBIT 4,184.80 x 8% + options 1,455.00 x 5% + crypto 17,390.90 x 8% = 1,798.81",
+    "Rate = 1,798.81 / 23,030.70 = 0.078105",
+    "Formula as written: Schwab's class is Stocks / Funds (it lists holdings) so it is skipped; crypto account counted whole 18,640.90 x 8% = 1,491.27"
+   ],
+   "rests_on": "MK-NW-F-027/029 class split; MK-NW-F-019; benchmarkReturn crypto 8%, options 5%.",
+   "confidence": "medium",
+   "notes": "Total is firm. The rate for a holding inside a brokerage assumes the holding is rated by what it is (bitcoin ETF as crypto, options as options); the card has no rule for that."
+  },
+  {
+   "id": "MK-NW-F-002",
+   "name": "alternativesSummary",
+   "kind": "edge",
+   "title": "An alternatives account sold down to zero",
+   "given": "One gold-and-commodities account kept on the list at $0 after a sale.",
+   "inputs": {
+    "gold_balance": 0
+   },
+   "expected": {
+    "count": 1,
+    "total": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "blended_rate": "REFUSES (total is 0)",
+    "growth_in_a_year": "REFUSES (total is 0)"
+   },
+   "working": [
+    "One account passes isAlternative -> count 1",
+    "total 0",
+    "Total 0 -> no rate, no growth (never 0%)"
+   ],
+   "rests_on": "Formula in words: no figure when the total is 0.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-008",
+   "name": "incomeBearingClassOf",
+   "kind": "easy",
+   "title": "A money-market fund name",
+   "given": "Label 'Vanguard Federal Money Market Fund'.",
+   "inputs": {
+    "label": "Vanguard Federal Money Market Fund"
+   },
+   "expected": {
+    "class": "stocks_etf"
+   },
+   "working": [
+    "'money market' matched first -> Stocks / Funds"
+   ],
+   "rests_on": "Owner rule 2026-08-04: cash means cash only; money market is a fund.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-008",
+   "name": "incomeBearingClassOf",
+   "kind": "easy",
+   "title": "A bank sweep",
+   "given": "Label 'Schwab Bank Sweep'.",
+   "inputs": {
+    "label": "Schwab Bank Sweep"
+   },
+   "expected": {
+    "class": "cash"
+   },
+   "working": [
+    "No money-market word",
+    "'sweep' -> cash"
+   ],
+   "rests_on": "Owner rule 2026-08-04: CASH = a sweep/settlement balance.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-008",
+   "name": "incomeBearingClassOf",
+   "kind": "complex",
+   "title": "Broker-link names, capitals and look-alike words",
+   "given": "Six security names as a broker link prints them.",
+   "inputs": {
+    "labels": [
+     "SPDR GOLD SHARES",
+     "PUTNAM LARGE CAP VALUE FUND CL A",
+     "US TREASURY BILL 0.000% DUE 01/14/2027",
+     "FIDELITY GOVERNMENT MONEY MARKET SETTLEMENT FUND",
+     "Goldman Sachs Marcus Savings",
+     "ABCD Holdings Inc"
+    ]
+   },
+   "expected": {
+    "classes": {
+     "SPDR GOLD SHARES": "alternatives",
+     "PUTNAM LARGE CAP VALUE FUND CL A": null,
+     "US TREASURY BILL 0.000% DUE 01/14/2027": "bonds",
+     "FIDELITY GOVERNMENT MONEY MARKET SETTLEMENT FUND": "stocks_etf",
+     "Goldman Sachs Marcus Savings": null,
+     "ABCD Holdings Inc": null
+    }
+   },
+   "working": [
+    "'SPDR GOLD SHARES': no money-market/sweep/T-bill/option/crypto word; 'gold' and not a company -> alternatives",
+    "'PUTNAM ...': whole words only, 'put' is not 'Putnam'; no other word -> no answer",
+    "'US TREASURY BILL 0.000% DUE ...': 'Treasury bill' / '% due' -> bonds",
+    "'FIDELITY GOVERNMENT MONEY MARKET SETTLEMENT FUND': money market read before 'settlement' -> stocks_etf",
+    "'Goldman Sachs Marcus Savings': 'Goldman' is not the whole word 'gold' -> no answer",
+    "'ABCD Holdings Inc': 'cd' is not 'ABCD' -> no answer"
+   ],
+   "rests_on": "Formula in words; owner rule 2026-08-04.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-008",
+   "name": "incomeBearingClassOf",
+   "kind": "complex",
+   "title": "A covered-call ETF and property names that contain commodity and bond words",
+   "given": "Four labels: 'GLOBAL X NASDAQ 100 COVERED CALL ETF' (a broker-link holding name, ticker QYLD); 'Silver Lake house' and 'Bond Street flat' (homes the person typed, kind home, $850,000 and $612,500); 'TREASURY WINE ESTATES LTD' (a company's shares).",
+   "inputs": {
+    "labels": [
+     "GLOBAL X NASDAQ 100 COVERED CALL ETF",
+     "Silver Lake house",
+     "Bond Street flat",
+     "TREASURY WINE ESTATES LTD"
+    ],
+    "house_balance": 850000,
+    "flat_balance": 612500
+   },
+   "expected": {
+    "classes": {
+     "GLOBAL X NASDAQ 100 COVERED CALL ETF": "stocks_etf",
+     "Silver Lake house": null,
+     "Bond Street flat": null,
+     "TREASURY WINE ESTATES LTD": null
+    },
+    "downstream": {
+     "realEstateTotal_for_the_two_homes": {
+      "exact": 1462500.0,
+      "shown": "$1,462,500"
+     }
+    }
+   },
+   "formula_gives": {
+    "classes": {
+     "GLOBAL X NASDAQ 100 COVERED CALL ETF": "alternatives",
+     "Silver Lake house": "alternatives",
+     "Bond Street flat": "bonds",
+     "TREASURY WINE ESTATES LTD": "bonds"
+    },
+    "downstream": {
+     "realEstateTotal_for_the_two_homes": {
+      "exact": 0.0,
+      "shown": "$0"
+     }
+    }
+   },
+   "working": [
+    "Covered-call ETF: an equity fund that writes calls; no option code, strike or expiry -> Stocks / Funds",
+    "'Silver Lake house': a place name; the name is no evidence of class -> no answer, so the kind (home) decides -> Real estate",
+    "'Bond Street flat': same -> no answer -> Real estate",
+    "'TREASURY WINE ESTATES LTD': a company -> no answer",
+    "Real estate for the two homes = 850,000 + 612,500 = 1,462,500.00",
+    "Formula as written: 'call' -> alternatives; 'silver' (not a company) -> alternatives; 'bond' -> bonds; 'treasury' -> bonds; real estate from the two homes = 0"
+   ],
+   "rests_on": "Ordinary reading of security and place names; assetClassOf step order.",
+   "confidence": "medium",
+   "notes": "That the app's assetClassOf feeds a property's own label to this function is read from its printed step order (name at step 3 before kind at step 4)."
+  },
+  {
+   "id": "MK-NW-F-008",
+   "name": "incomeBearingClassOf",
+   "kind": "edge",
+   "title": "Nothing entered",
+   "given": "No label at all; and a label of only spaces.",
+   "inputs": {
+    "labels": [
+     null,
+     "   "
+    ]
+   },
+   "expected": {
+    "classes": {
+     "(missing)": null,
+     "(spaces)": null
+    }
+   },
+   "working": [
+    "No words -> no evidence -> no answer for both"
+   ],
+   "rests_on": "Formula in words: otherwise nothing.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-013",
+   "name": "realEstateUseOf",
+   "kind": "easy",
+   "title": "A stated rental that a rent entry names",
+   "given": "Condo stated as rental; a rent entry of $2,100/month names it.",
+   "inputs": {
+    "re_use": "rental",
+    "rent_entry_names_it": true
+   },
+   "expected": {
+    "use": "rental"
+   },
+   "working": [
+    "Rent entry names it -> rental (owner rule 5)",
+    "Stated use agrees"
+   ],
+   "rests_on": "Owner rule 5; propertyUses.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-013",
+   "name": "realEstateUseOf",
+   "kind": "easy",
+   "title": "Not real estate",
+   "given": "A checking account.",
+   "inputs": {
+    "kind": "checking"
+   },
+   "expected": {
+    "use": null
+   },
+   "working": [
+    "Class is cash, not real estate -> no use"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-013",
+   "name": "realEstateUseOf",
+   "kind": "complex",
+   "title": "Three properties, one marked home",
+   "given": "A: 'Maple Ave house' stated primary, $812,450, entered first. B: 'Lake Chelan cabin' no use stated, $286,300. C: 'Capitol Hill condo' no use stated, $347,900. No rent entries.",
+   "inputs": {
+    "A": {
+     "re_use": "primary",
+     "balance": 812450
+    },
+    "B": {
+     "re_use": null,
+     "balance": 286300
+    },
+    "C": {
+     "re_use": null,
+     "balance": 347900
+    },
+    "rent_entries": []
+   },
+   "expected": {
+    "uses": {
+     "A": "primary",
+     "B": "secondary",
+     "C": "secondary"
+    }
+   },
+   "working": [
+    "A is marked home -> primary",
+    "B, C: not marked, no rent entry names them -> second home (owner rule 5)"
+   ],
+   "rests_on": "Owner rule 5; propertyUses.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-013",
+   "name": "realEstateUseOf",
+   "kind": "complex",
+   "title": "Stored as rental, but no rent on the Income screen",
+   "given": "'Capitol Hill condo' stored as rental, $347,900. Income screen has wages only ($7,450/month take-home typed) and no rent entry. Home 'Maple Ave house' stated primary.",
+   "inputs": {
+    "condo": {
+     "re_use": "rental",
+     "balance": 347900
+    },
+    "home": {
+     "re_use": "primary"
+    },
+    "income_entries": [
+     "wage take-home 7450/month"
+    ]
+   },
+   "expected": {
+    "condo_use": "secondary"
+   },
+   "formula_gives": {
+    "condo_use": "rental"
+   },
+   "working": [
+    "Owner rule 5: unless rental income is added on the Income screen, the property is a second or vacation home",
+    "No rent entry names the condo -> secondary"
+   ],
+   "rests_on": "Owner rule 5 (2026-10-04); propertyUses RENTAL definition.",
+   "confidence": "medium",
+   "notes": "The earmark is 100% either way, so this changes the label, not a dollar figure."
+  },
+  {
+   "id": "MK-NW-F-013",
+   "name": "realEstateUseOf",
+   "kind": "edge",
+   "title": "The only property, no use stated, rented out",
+   "given": "One property 'Ballard townhouse', $690,000, no use stated. Income screen: rent $2,950/month with running costs $640/month naming it.",
+   "inputs": {
+    "property": {
+     "re_use": null,
+     "balance": 690000
+    },
+    "rent_entry": {
+     "rent": 2950,
+     "running_costs": 640,
+     "names": "Ballard townhouse"
+    }
+   },
+   "expected": {
+    "use": "rental",
+    "earmark_pct_that_follows": 100
+   },
+   "formula_gives": {
+    "use": "primary",
+    "earmark_pct_that_follows": 0
+   },
+   "working": [
+    "A rent entry names it -> rental (owner rule 5; propertyUses)",
+    "So it is not the home; earmark 100%"
+   ],
+   "rests_on": "Owner rule 5; propertyUses.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-110",
+   "name": "primaryHomeIdOf",
+   "kind": "easy",
+   "title": "One property marked home",
+   "given": "'Maple Ave house' (id p1) stated primary.",
+   "inputs": {
+    "p1": {
+     "re_use": "primary"
+    }
+   },
+   "expected": {
+    "home_id": "p1"
+   },
+   "working": [
+    "p1 is marked as the home -> p1"
+   ],
+   "rests_on": "Formula in words; propertyUses.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-110",
+   "name": "primaryHomeIdOf",
+   "kind": "easy",
+   "title": "No property",
+   "given": "Only a checking and a 401(k).",
+   "inputs": {
+    "accounts": [
+     "checking",
+     "401k"
+    ]
+   },
+   "expected": {
+    "home_id": null
+   },
+   "working": [
+    "No real-estate account -> nothing"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-110",
+   "name": "primaryHomeIdOf",
+   "kind": "complex",
+   "title": "Three properties, none marked, list given newest first",
+   "given": "Ids p1 (entered 2025-02-11, 'Maple Ave house', $812,450), p2 (2025-09-03, cabin, $286,300), p3 (2026-06-20, condo, $347,900). No use stated, no rent entries. The list arrives newest first: [p3, p2, p1].",
+   "inputs": {
+    "list_order": [
+     "p3",
+     "p2",
+     "p1"
+    ],
+    "entered": {
+     "p1": "2025-02-11",
+     "p2": "2025-09-03",
+     "p3": "2026-06-20"
+    }
+   },
+   "expected": {
+    "home_id": "p1"
+   },
+   "working": [
+    "None marked, none with a use stated -> the one entered first",
+    "Entered first by date = p1; also the lowest id; also last in the newest-first list -> p1"
+   ],
+   "rests_on": "propertyUses legacy fallback (entered first is the home).",
+   "confidence": "medium",
+   "notes": "Agrees only because the list is newest first; the card's 'last in the list' is the author's claim about ordering and cannot be checked from the card. If the list were handed oldest first the formula would give p3."
+  },
+  {
+   "id": "MK-NW-F-110",
+   "name": "primaryHomeIdOf",
+   "kind": "complex",
+   "title": "One rental marked, one property with no use",
+   "given": "p1 'Capitol Hill condo' stated rental, rent $2,400/month on the Income screen naming it, $347,900, entered first. p2 'Maple Ave house', no use stated, $812,450.",
+   "inputs": {
+    "p1": {
+     "re_use": "rental",
+     "rent_entry": true
+    },
+    "p2": {
+     "re_use": null
+    }
+   },
+   "expected": {
+    "RULE UNCLEAR": {
+     "reading_A_primaryHomeIdOf_as_written": {
+      "home_id": "p2"
+     },
+     "reading_B_propertyUses_and_realEstateUseOf_summary": {
+      "home_id": null,
+      "why": "a property is marked as something else (rental), so the first-entered fallback does not apply; p2 is a second home"
+     }
+    }
+   },
+   "working": [
+    "Non-rentals: p2 only; none marked home",
+    "Reading A: none of the non-rentals has a use stated -> first entered among them -> p2",
+    "Reading B: fallback applies only with none marked as anything; p1 is marked -> no home; p2 second home (owner rule 5)"
+   ],
+   "rests_on": "MK-NW-F-107 propertyUses vs this card's formula.",
+   "confidence": "low",
+   "notes": "The cards disagree and no owner rule settles which; p2's earmark is 0% under A and 100% ($812,450) under B."
+  },
+  {
+   "id": "MK-NW-F-110",
+   "name": "primaryHomeIdOf",
+   "kind": "edge",
+   "title": "The only property is rented out, with no use stated",
+   "given": "p1 'Ballard townhouse', $690,000, no use stated; a rent entry of $2,950/month names it.",
+   "inputs": {
+    "p1": {
+     "re_use": null,
+     "rent_entry": true
+    }
+   },
+   "expected": {
+    "home_id": null
+   },
+   "formula_gives": {
+    "home_id": "p1"
+   },
+   "working": [
+    "Rent entry names p1 -> rental (owner rule 5)",
+    "No non-rental property -> nothing"
+   ],
+   "rests_on": "Owner rule 5; propertyUses.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-014",
+   "name": "isRealAsset",
+   "kind": "easy",
+   "title": "A home",
+   "given": "Kind home, $640,000.",
+   "inputs": {
+    "kind": "home"
+   },
+   "expected": {
+    "is_real_asset": true
+   },
+   "working": [
+    "Kind home -> Real estate -> true"
+   ],
+   "rests_on": "assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-014",
+   "name": "isRealAsset",
+   "kind": "easy",
+   "title": "A 401(k) of funds",
+   "given": "Kind 401k with holdings listed.",
+   "inputs": {
+    "kind": "401k",
+    "has_holdings": true
+   },
+   "expected": {
+    "is_real_asset": false
+   },
+   "working": [
+    "Kind 401k is not in the kind list; it lists holdings -> Stocks / Funds -> false"
+   ],
+   "rests_on": "assetClassOf steps 4-5.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-014",
+   "name": "isRealAsset",
+   "kind": "complex",
+   "title": "Jewellery entered as property with an unlisted kind",
+   "given": "Tax bucket PROPERTY, kind 'jewelry' (not in the kind list), no use stated, no holdings, label 'Grandmother's ring', $14,600.",
+   "inputs": {
+    "tax_bucket": "PROPERTY",
+    "kind": "jewelry",
+    "re_use": null,
+    "balance": 14600
+   },
+   "expected": {
+    "is_real_asset": true
+   },
+   "working": [
+    "No stated class, no maturity, name no evidence",
+    "Kind not listed; no holdings; not a cash account",
+    "Property with a kind recorded and no use -> Personal property (step 7) -> true"
+   ],
+   "rests_on": "assetClassOf step 7.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-014",
+   "name": "isRealAsset",
+   "kind": "complex",
+   "title": "A real-estate fund is not a physical asset",
+   "given": "Brokerage row 'VANGUARD REAL ESTATE ETF', kind stocks, 52 shares, $4,701.32, taxable.",
+   "inputs": {
+    "label": "VANGUARD REAL ESTATE ETF",
+    "kind": "stocks",
+    "balance": 4701.32
+   },
+   "expected": {
+    "is_real_asset": false
+   },
+   "working": [
+    "Name: no listed evidence word",
+    "Kind stocks -> Stocks / Funds -> false"
+   ],
+   "rests_on": "assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-014",
+   "name": "isRealAsset",
+   "kind": "edge",
+   "title": "Property with no kind recorded",
+   "given": "Tax bucket PROPERTY, no kind, no use, $210,000.",
+   "inputs": {
+    "tax_bucket": "PROPERTY",
+    "kind": null,
+    "balance": 210000
+   },
+   "expected": {
+    "is_real_asset": true
+   },
+   "working": [
+    "Property with no kind recorded -> Real estate (step 7) -> true"
+   ],
+   "rests_on": "assetClassOf step 7.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-015",
+   "name": "totalAssets",
+   "kind": "easy",
+   "title": "Three balances",
+   "given": "Checking $10,000; savings $20,000; brokerage $5,000.",
+   "inputs": {
+    "balances": [
+     10000,
+     20000,
+     5000
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 35000.0,
+     "shown": "$35,000"
+    }
+   },
+   "working": [
+    "10,000 + 20,000 + 5,000 = 35,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-015",
+   "name": "totalAssets",
+   "kind": "easy",
+   "title": "An overdrawn checking",
+   "given": "Checking -$250; savings $5,000.",
+   "inputs": {
+    "balances": [
+     -250,
+     5000
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 4750.0,
+     "shown": "$4,750"
+    }
+   },
+   "working": [
+    "-250 + 5,000 = 4,750"
+   ],
+   "rests_on": "Ordinary arithmetic.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-015",
+   "name": "totalAssets",
+   "kind": "complex",
+   "title": "Linked and typed accounts, cash inside investments, an overdraft",
+   "given": "Seven accounts: a linked brokerage holding cash and funds, a home, a 401(k), a car, a hand-built crypto account with its own cash, a typed brokerage that tracks some positions for performance only, and an overdrawn checking.",
+   "inputs": {
+    "Schwab brokerage (linked)": 70218.61,
+    "Maple Ave house": 812450,
+    "Fidelity 401(k)": 212733.42,
+    "Subaru (vehicle)": 28400,
+    "Crypto (hand-built, $1,250 cash)": 18640.9,
+    "E*Trade brokerage typed $64,200 (positions worth $30,000 tracked)": 64200,
+    "Chase checking (overdrawn)": -312.47
+   },
+   "expected": {
+    "total": {
+     "exact": 1206330.46,
+     "shown": "$1,206,330"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage (linked)",
+      "exact": 70218.61
+     },
+     {
+      "label": "Maple Ave house",
+      "exact": 812450.0
+     },
+     {
+      "label": "Fidelity 401(k)",
+      "exact": 212733.42
+     },
+     {
+      "label": "Subaru (vehicle)",
+      "exact": 28400.0
+     },
+     {
+      "label": "Crypto (hand-built, $1,250 cash)",
+      "exact": 18640.9
+     },
+     {
+      "label": "E*Trade brokerage typed $64,200 (positions worth $30,000 tracked)",
+      "exact": 64200.0
+     },
+     {
+      "label": "Chase checking (overdrawn)",
+      "exact": -312.47
+     }
+    ],
+    "same_figure_elsewhere": "Net worth 'everything owned' and the sum of both ledgerGroups views must show this same total"
+   },
+   "working": [
+    "Schwab brokerage (linked): 70,218.61",
+    "Maple Ave house: 812,450.00",
+    "Fidelity 401(k): 212,733.42",
+    "Subaru (vehicle): 28,400.00",
+    "Crypto (hand-built, $1,250 cash): 18,640.90",
+    "E*Trade brokerage typed $64,200 (positions worth $30,000 tracked): 64,200.00",
+    "Chase checking (overdrawn): -312.47",
+    "Typed brokerage counts its typed 64,200; its tracked positions do not change the balance",
+    "Sum = 1,206,330.46",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Formula in words; AssetAccount positions comment.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-015",
+   "name": "totalAssets",
+   "kind": "complex",
+   "title": "Same household as two ledger views",
+   "given": "Chase checking $9,874.22; Schwab linked brokerage $118,642.35; Vanguard CD $25,000; crypto $18,640.90 with no institution; 'Fidelity Investments' checking $2,150.",
+   "inputs": {
+    "balances": [
+     9874.22,
+     118642.35,
+     25000,
+     18640.9,
+     2150.0
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 174307.47,
+     "shown": "$174,307"
+    },
+    "same_figure_elsewhere": "equals the sum of ledgerGroups by class and by institution"
+   },
+   "working": [
+    "9,874.22 + 118,642.35 + 25,000.00 + 18,640.90 + 2,150.00 = 174,307.47"
+   ],
+   "rests_on": "Formula in words; ledgerGroups 'both views add to everything owned'.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-015",
+   "name": "totalAssets",
+   "kind": "edge",
+   "title": "A property added with no value yet",
+   "given": "Brokerage $48,920.66; checking $9,874.22; 'Lake Chelan cabin' added with no value entered.",
+   "inputs": {
+    "balances": [
+     48920.66,
+     9874.22,
+     null
+    ]
+   },
+   "expected": {
+    "total": "REFUSES: 'Lake Chelan cabin' has no value; total cannot be complete",
+    "known_part_if_shown_with_that_note": {
+     "exact": 58794.88,
+     "shown": "$58,795"
+    }
+   },
+   "formula_gives": {
+    "total": {
+     "exact": 58794.88,
+     "shown": "$58,795"
+    }
+   },
+   "working": [
+    "Known = 48,920.66 + 9,874.22 = 58,794.88",
+    "Cabin value missing -> no honest total"
+   ],
+   "rests_on": "Brief: never invent a default; no answer is a valid answer.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "easy",
+   "title": "One stock account",
+   "given": "Typed account, kind stocks, $100,000.",
+   "inputs": {
+    "stocks": 100000
+   },
+   "expected": {
+    "equities": {
+     "exact": 100000.0,
+     "shown": "$100,000"
+    }
+   },
+   "working": [
+    "Kind stocks -> Stocks / Funds -> 100,000"
+   ],
+   "rests_on": "assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "easy",
+   "title": "A money-market account counts here",
+   "given": "Money market account $20,000; checking $3,000.",
+   "inputs": {
+    "money_market": 20000,
+    "checking": 3000
+   },
+   "expected": {
+    "equities": {
+     "exact": 20000.0,
+     "shown": "$20,000"
+    }
+   },
+   "working": [
+    "Money market -> Stocks / Funds (owner 2026-08-04) -> 20,000",
+    "Checking -> cash -> 0"
+   ],
+   "rests_on": "Owner rule 2026-08-04.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "complex",
+   "title": "Linked brokerage with cash, crypto ETF and options; a money-market fund; a typed 401(k)",
+   "given": "Schwab linked $70,218.61 (cash, VTI, IBIT, SPY calls); Fidelity money market $15,327.88; Chase checking $6,250.00; Fidelity 401(k) typed $212,733.42 with no holdings listed and no class stated.",
+   "inputs": {
+    "schwab": 70218.61,
+    "money_market": 15327.88,
+    "checking": 6250.0,
+    "401k_typed": 212733.42
+   },
+   "expected": {
+    "equities": {
+     "exact": 75688.18,
+     "shown": "$75,688"
+    },
+    "class_rows": {
+     "cash": 10468.51,
+     "stocks_etf": 75688.18,
+     "alternatives": 5639.8,
+     "unclassified": 212733.42
+    },
+    "everything_owned": {
+     "exact": 304529.91,
+     "shown": "$304,530"
+    }
+   },
+   "working": [
+    "Cash part = cash balance 4,206.11",
+    "VTI 'VANGUARD TOTAL STOCK MARKET ETF': 210 x 287.43 = 60,360.30 -> stocks_etf",
+    "IBIT 'ISHARES BITCOIN TRUST ETF': 80 x 52.31 = 4,184.80 -> alternatives",
+    "SPY 2026-12-18 C 600 (3 contracts x 4.85 x 100): synced value 1,455.00 -> alternatives",
+    "Parts so far = 70,206.21; balance 70,218.61; difference = 12.40",
+    "|difference| 12.40 <= max($1, 1% x balance = 702.19) and positive -> added to cash",
+    "Parts: cash 4,218.51, stocks_etf 60,360.30, alternatives 5,639.80 = 70,218.61 = balance",
+    "Money market 15,327.88 -> Stocks / Funds",
+    "401(k) typed, kind not in list, no holdings, not cash or property -> Unclassified (asked, owner rule 2026-09-30)",
+    "Stocks / Funds = VTI 60,360.30 + money market 15,327.88 = 75,688.18",
+    "Class rows: cash 10,468.51, stocks_etf 75,688.18, alternatives 5,639.80, unclassified 212,733.42 = 304,529.91 = everything owned 304,529.91"
+   ],
+   "rests_on": "MK-NW-F-027/029; owner rules 2026-08-04 and 2026-09-30.",
+   "confidence": "medium",
+   "notes": "The 401(k) going to Unclassified follows assetClassOf as printed (401k is not in its kind list); if the app classes a 401(k) otherwise, equities would include it."
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "complex",
+   "title": "Hand-built account with cash, a linked account that does not add up, a typed account with tracked positions",
+   "given": "Fidelity hand-built brokerage $48,920.66 recording $3,500 cash; Vanguard linked $60,000 with $500 cash, BND 400 and VTI 100; E*Trade typed $64,200 (kind stocks) tracking $30,000 of positions for performance.",
+   "inputs": {
+    "fidelity_handbuilt": [
+     48920.66,
+     3500
+    ],
+    "vanguard_linked": {
+     "balance": 60000,
+     "cash": 500,
+     "BND": [
+      400,
+      72.86
+     ],
+     "VTI": [
+      100,
+      287.43
+     ]
+    },
+    "etrade_typed": 64200
+   },
+   "expected": {
+    "equities": {
+     "exact": 139976.66,
+     "shown": "$139,977"
+    }
+   },
+   "working": [
+    "Hand-built: cash = min(3,500.00, 48,920.66) = 3,500.00; rest 48,920.66 - 3,500.00 = 45,420.66 -> stocks_etf",
+    "Cash part = cash balance 500.00",
+    "BND 'VANGUARD TOTAL BOND MARKET ETF': 400 x 72.86 = 29,144.00 -> bonds",
+    "VTI: 100 x 287.43 = 28,743.00 -> stocks_etf",
+    "Parts so far = 58,387.00; balance 60,000.00; difference = 1,613.00",
+    "|difference| 1,613.00 > tolerance 600.00 -> to the account's own class stocks_etf",
+    "Parts: cash 500.00, bonds 29,144.00, stocks_etf 30,356.00 = 60,000.00 = balance",
+    "E*Trade: typed balance, no split -> whole 64,200 under Stocks / Funds",
+    "Equities = 45,420.66 + 30,356.00 + 64,200.00 = 139,976.66"
+   ],
+   "rests_on": "MK-NW-F-027 (tolerance rule, owner 2026-08-11); MK-NW-F-029.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "edge",
+   "title": "A linked account short by exactly 1% of its balance",
+   "given": "Linked account $10,000: cash $400.20, VTI 30 @ $316.66; nothing else.",
+   "inputs": {
+    "balance": 10000,
+    "cash": 400.2,
+    "VTI": [
+     30,
+     316.66
+    ]
+   },
+   "expected": {
+    "equities": {
+     "exact": 9499.8,
+     "shown": "$9,500"
+    },
+    "cash_part": {
+     "exact": 500.2,
+     "shown": "$500"
+    }
+   },
+   "working": [
+    "Cash part = cash balance 400.20",
+    "VTI: 30 x 316.66 = 9,499.80 -> stocks_etf",
+    "Parts so far = 9,900.00; balance 10,000.00; difference = 100.00",
+    "|difference| 100.00 <= max($1, 1% x balance = 100.00) and positive -> added to cash",
+    "Parts: cash 500.20, stocks_etf 9,499.80 = 10,000.00 = balance",
+    "Exactly at 1% is 'no bigger than' -> to cash; equities stay the VTI value"
+   ],
+   "rests_on": "MK-NW-F-027 tolerance (owner 2026-08-11).",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "easy",
+   "title": "One CD",
+   "given": "CD $25,000.",
+   "inputs": {
+    "cd": 25000
+   },
+   "expected": {
+    "fixed_income": {
+     "exact": 25000.0,
+     "shown": "$25,000"
+    }
+   },
+   "working": [
+    "CD -> Bonds & CDs -> 25,000"
+   ],
+   "rests_on": "assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "easy",
+   "title": "Money market is not fixed income",
+   "given": "Money market $15,000; CD $10,000.",
+   "inputs": {
+    "money_market": 15000,
+    "cd": 10000
+   },
+   "expected": {
+    "fixed_income": {
+     "exact": 10000.0,
+     "shown": "$10,000"
+    }
+   },
+   "working": [
+    "Money market -> Stocks / Funds (owner 2026-08-04)",
+    "CD -> 10,000"
+   ],
+   "rests_on": "Owner rule 2026-08-04.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "complex",
+   "title": "An individual bond, a linked account with two bond funds, a Treasury account",
+   "given": "Individual bond (maturity 2031-06-15, face $10,000, coupon 4.5%) valued $9,812.40; Vanguard linked $74,163.83 with cash $1,206.33, BND 400, SGOV 150 @ $100.47, VTI 100; TreasuryDirect account kind fixed income $18,750.25.",
+   "inputs": {
+    "bond": 9812.4,
+    "vanguard_linked": 74163.83,
+    "treasurydirect": 18750.25
+   },
+   "expected": {
+    "fixed_income": {
+     "exact": 72777.15,
+     "shown": "$72,777"
+    }
+   },
+   "working": [
+    "Bond has a maturity date -> 9,812.40",
+    "Cash part = cash balance 1,206.33",
+    "BND: 400 x 72.86 = 29,144.00 -> bonds",
+    "SGOV 'ISHARES 0-3 MONTH TREASURY BOND ETF': 150 x 100.47 = 15,070.50 -> bonds",
+    "VTI: 100 x 287.43 = 28,743.00 -> stocks_etf",
+    "Parts so far = 74,163.83; balance 74,163.83; difference = 0.00",
+    "Parts: cash 1,206.33, bonds 44,214.50, stocks_etf 28,743.00 = 74,163.83 = balance",
+    "TreasuryDirect kind fixed income -> 18,750.25",
+    "Fixed income = 9,812.40 + 44,214.50 + 18,750.25 = 72,777.15"
+   ],
+   "rests_on": "MK-NW-F-027/029; assetClassOf steps 2 and 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "complex",
+   "title": "Parts slightly over the balance; a T-bill held directly; a CD named as such",
+   "given": "Linked $50,000: cash $900, BND 300, VTI 95. Directly held T-bill maturing 2026-12-17, $19,642.18. 'Ally 11-month CD', kind savings, $12,300.",
+   "inputs": {
+    "linked": {
+     "balance": 50000,
+     "cash": 900,
+     "BND": [
+      300,
+      72.86
+     ],
+     "VTI": [
+      95,
+      287.43
+     ]
+    },
+    "tbill": 19642.18,
+    "ally_cd_kind_savings": 12300
+   },
+   "expected": {
+    "fixed_income": {
+     "exact": 53800.18,
+     "shown": "$53,800"
+    }
+   },
+   "working": [
+    "Cash part = cash balance 900.00",
+    "BND: 300 x 72.86 = 21,858.00 -> bonds",
+    "VTI: 95 x 287.43 = 27,305.85 -> stocks_etf",
+    "Parts so far = 50,063.85; balance 50,000.00; difference = -63.85",
+    "|difference| 63.85 <= tolerance 500.00 and negative -> taken off largest class stocks_etf",
+    "Parts: cash 900.00, bonds 21,858.00, stocks_etf 27,242.00 = 50,000.00 = balance",
+    "T-bill has a maturity date -> 19,642.18",
+    "'Ally 11-month CD': the word CD is name evidence, read before kind savings -> Bonds & CDs 12,300",
+    "Fixed income = 21,858.00 + 19,642.18 + 12,300.00 = 53,800.18"
+   ],
+   "rests_on": "MK-NW-F-027 (negative difference off the largest class); assetClassOf steps 2-3.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "edge",
+   "title": "Unpriced holdings that span two classes",
+   "given": "Linked $40,000: cash $2,000, BND 200, and two holdings with no price (one stored as a bond fund, one as a stock fund).",
+   "inputs": {
+    "balance": 40000,
+    "cash": 2000,
+    "BND": [
+     200,
+     72.86
+    ],
+    "unpriced": [
+     "bond fund",
+     "stock fund"
+    ]
+   },
+   "expected": {
+    "fixed_income": {
+     "exact": 14572.0,
+     "shown": "$14,572"
+    },
+    "unclassified_part": {
+     "exact": 23428.0,
+     "shown": "$23,428"
+    }
+   },
+   "working": [
+    "Cash part = cash balance 2,000.00",
+    "BND: 200 x 72.86 = 14,572.00 -> bonds",
+    "'PIMCO INCOME' (stored bond): no price",
+    "'DODGE & COX STOCK' (stored equity): no price",
+    "Parts so far = 16,572.00; balance 40,000.00; difference = 23,428.00",
+    "Unpriced holdings span classes -> difference 23,428.00 to unclassified",
+    "Parts: cash 2,000.00, bonds 14,572.00, unclassified 23,428.00 = 40,000.00 = balance",
+    "The unexplained part is not guessed into Bonds & CDs"
+   ],
+   "rests_on": "MK-NW-F-027 unpriced rule.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "easy",
+   "title": "One crypto account",
+   "given": "Crypto $12,000.",
+   "inputs": {
+    "crypto": 12000
+   },
+   "expected": {
+    "alternatives": {
+     "exact": 12000.0,
+     "shown": "$12,000"
+    }
+   },
+   "working": [
+    "Kind crypto -> Alternatives"
+   ],
+   "rests_on": "assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "easy",
+   "title": "A wallet named for bitcoin, no kind",
+   "given": "'Bitcoin wallet', no kind, $5,000; checking $3,000.",
+   "inputs": {
+    "bitcoin_wallet": 5000,
+    "checking": 3000
+   },
+   "expected": {
+    "alternatives": {
+     "exact": 5000.0,
+     "shown": "$5,000"
+    }
+   },
+   "working": [
+    "Name 'bitcoin' -> Alternatives (step 3)",
+    "Checking -> cash"
+   ],
+   "rests_on": "assetClassOf step 3.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "complex",
+   "title": "Alternatives inside a brokerage, kept PE and hedge-fund rows, a crypto account with cash",
+   "given": "Schwab linked $70,218.61 (IBIT and SPY calls inside); private-equity row $50,000 and hedge-fund row $75,000 saved before the phase rule; crypto hand-built $18,640.90 with $1,250 cash.",
+   "inputs": {
+    "schwab": 70218.61,
+    "pe_kept": 50000,
+    "hf_kept": 75000,
+    "crypto_handbuilt": 18640.9
+   },
+   "expected": {
+    "alternatives": {
+     "exact": 148030.7,
+     "shown": "$148,031"
+    },
+    "same_figure_elsewhere": "the corrected alternativesSummary total must equal this"
+   },
+   "working": [
+    "Cash part = cash balance 4,206.11",
+    "VTI 'VANGUARD TOTAL STOCK MARKET ETF': 210 x 287.43 = 60,360.30 -> stocks_etf",
+    "IBIT 'ISHARES BITCOIN TRUST ETF': 80 x 52.31 = 4,184.80 -> alternatives",
+    "SPY 2026-12-18 C 600 (3 contracts x 4.85 x 100): synced value 1,455.00 -> alternatives",
+    "Parts so far = 70,206.21; balance 70,218.61; difference = 12.40",
+    "|difference| 12.40 <= max($1, 1% x balance = 702.19) and positive -> added to cash",
+    "Parts: cash 4,218.51, stocks_etf 60,360.30, alternatives 5,639.80 = 70,218.61 = balance",
+    "Hand-built: cash = min(1,250.00, 18,640.90) = 1,250.00; rest 18,640.90 - 1,250.00 = 17,390.90 -> alternatives",
+    "Alternatives = 5,639.80 + 50,000 + 75,000 + 17,390.90 = 148,030.70"
+   ],
+   "rests_on": "MK-NW-F-027/029; owner rules 8-9 (rows kept).",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "complex",
+   "title": "Gold ETF typed by name, a bank called Goldman, an options-only account, an annuity",
+   "given": "'SPDR Gold Shares' typed, kind stocks, $3,616.05; 'Goldman Sachs Marcus Savings', kind savings, $22,400; linked options account $8,215.60 (cash $6,760.60, calls $1,455); annuity $120,000.",
+   "inputs": {
+    "gld_typed": 3616.05,
+    "marcus_savings": 22400,
+    "options_linked": 8215.6,
+    "annuity": 120000
+   },
+   "expected": {
+    "alternatives": {
+     "exact": 125071.05,
+     "shown": "$125,071"
+    }
+   },
+   "working": [
+    "'SPDR Gold Shares': 'gold' read at step 3 before kind -> Alternatives 3,616.05",
+    "'Goldman' is not 'gold' -> kind savings -> cash",
+    "Cash part = cash balance 6,760.60",
+    "3 SPY calls: synced value 1,455.00 -> alternatives",
+    "Parts so far = 8,215.60; balance 8,215.60; difference = 0.00",
+    "Parts: cash 6,760.60, alternatives 1,455.00 = 8,215.60 = balance",
+    "Annuity kind -> Alternatives 120,000",
+    "Alternatives = 3,616.05 + 1,455.00 + 120,000 = 125,071.05"
+   ],
+   "rests_on": "assetClassOf steps 3-4; MK-NW-F-027.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "edge",
+   "title": "A short call carries a negative value",
+   "given": "Linked $20,000: cash $6,258.50, VTI 50, one short call synced at -$630.",
+   "inputs": {
+    "balance": 20000,
+    "cash": 6258.5,
+    "VTI": [
+     50,
+     287.43
+    ],
+    "short_call": -630
+   },
+   "expected": {
+    "alternatives": {
+     "exact": -630.0,
+     "shown": "-$630"
+    }
+   },
+   "working": [
+    "Cash part = cash balance 6,258.50",
+    "VTI: 50 x 287.43 = 14,371.50 -> stocks_etf",
+    "1 short SPY call: synced value -630.00 -> alternatives",
+    "Parts so far = 20,000.00; balance 20,000.00; difference = 0.00",
+    "Parts: cash 6,258.50, stocks_etf 14,371.50, alternatives -630.00 = 20,000.00 = balance",
+    "Alternatives = -630; the parts still add to the balance"
+   ],
+   "rests_on": "MK-NW-F-027 options valued as synced (owner 2026-08-26).",
+   "confidence": "medium",
+   "notes": "A negative class line is arithmetic, not a fault; whether the screen should show it as a liability is not settled on the card."
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "easy",
+   "title": "One home",
+   "given": "Home $500,000.",
+   "inputs": {
+    "home": 500000
+   },
+   "expected": {
+    "real_estate": {
+     "exact": 500000.0,
+     "shown": "$500,000"
+    }
+   },
+   "working": [
+    "Home -> 500,000"
+   ],
+   "rests_on": "assetClassOf step 4.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "easy",
+   "title": "Brokerage is not real estate",
+   "given": "Home $400,000; brokerage of stocks $100,000.",
+   "inputs": {
+    "home": 400000,
+    "stocks": 100000
+   },
+   "expected": {
+    "real_estate": {
+     "exact": 400000.0,
+     "shown": "$400,000"
+    }
+   },
+   "working": [
+    "Only the home -> 400,000"
+   ],
+   "rests_on": "assetClassOf.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "complex",
+   "title": "Home, rental, land, a car and a REIT fund",
+   "given": "House $812,450; rental condo $347,900; land $63,250; car $28,400; REIT ETF $15,300.",
+   "inputs": {
+    "Maple Ave house": 812450,
+    "Capitol Hill condo (rental)": 347900,
+    "Okanogan land": 63250,
+    "Subaru": 28400,
+    "VANGUARD REAL ESTATE ETF": 15300
+   },
+   "expected": {
+    "real_estate": {
+     "exact": 1223600.0,
+     "shown": "$1,223,600"
+    },
+    "rows": [
+     {
+      "label": "Maple Ave house",
+      "exact": 812450.0
+     },
+     {
+      "label": "Capitol Hill condo (rental)",
+      "exact": 347900.0
+     },
+     {
+      "label": "Okanogan land",
+      "exact": 63250.0
+     }
+    ]
+   },
+   "working": [
+    "Maple Ave house: Real estate 812,450.00",
+    "Capitol Hill condo (rental): Real estate 347,900.00",
+    "Okanogan land: Real estate 63,250.00",
+    "Subaru: not real estate 28,400.00",
+    "VANGUARD REAL ESTATE ETF: not real estate 15,300.00",
+    "Real estate = 812,450 + 347,900 + 63,250 = 1,223,600.00"
+   ],
+   "rests_on": "assetClassOf.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "complex",
+   "title": "Property with no kind, gross of the mortgage",
+   "given": "House kind home $640,000 with a $412,000 mortgage; property with no kind, use stated land, $63,250; car $28,400.",
+   "inputs": {
+    "house": 640000,
+    "mortgage": 412000,
+    "land_no_kind": 63250,
+    "car": 28400
+   },
+   "expected": {
+    "real_estate": {
+     "exact": 703250.0,
+     "shown": "$703,250"
+    }
+   },
+   "working": [
+    "House -> 640,000 (mortgage is a debt, not subtracted here)",
+    "No kind, use land -> Real estate (step 7) 63,250",
+    "Car -> Personal property",
+    "640,000 + 63,250 = 703,250.00"
+   ],
+   "rests_on": "assetClassOf step 7; card purpose (classed amount, not equity).",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "edge",
+   "title": "No property",
+   "given": "Checking and a 401(k) only.",
+   "inputs": {
+    "accounts": [
+     "checking",
+     "401k"
+    ]
+   },
+   "expected": {
+    "real_estate": {
+     "exact": 0.0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "Nothing classed Real estate -> 0 (owns none; not a missing input)"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-024",
+   "name": "accountLastFour",
+   "kind": "easy",
+   "title": "Bank-style mask",
+   "given": "Mask '••4821'.",
+   "inputs": {
+    "mask": "••4821"
+   },
+   "expected": {
+    "last_four": "4821"
+   },
+   "working": [
+    "Digits 4821 -> '4821'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-024",
+   "name": "accountLastFour",
+   "kind": "easy",
+   "title": "Account number only",
+   "given": "No mask; account number '000123456789'.",
+   "inputs": {
+    "account_number": "000123456789"
+   },
+   "expected": {
+    "last_four": "6789"
+   },
+   "working": [
+    "Digits 000123456789 -> last four '6789'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-024",
+   "name": "accountLastFour",
+   "kind": "complex",
+   "title": "Short mask, full number with dashes",
+   "given": "Mask 'x-12'; account number '1234-5678-9012'.",
+   "inputs": {
+    "mask": "x-12",
+    "account_number": "1234-5678-9012"
+   },
+   "expected": {
+    "last_four": "9012"
+   },
+   "formula_gives": {
+    "last_four": null
+   },
+   "working": [
+    "Mask digits '12' -> fewer than four -> fall back",
+    "Number digits 123456789012 -> '9012'",
+    "Consistent with the mask ending in 12"
+   ],
+   "rests_on": "Card purpose.",
+   "confidence": "medium",
+   "notes": "The card is vague here; the formula_gives value is the literal reading."
+  },
+  {
+   "id": "MK-NW-F-024",
+   "name": "accountLastFour",
+   "kind": "complex",
+   "title": "Long mask and a number with stray spaces",
+   "given": "Mask '...04821' on one account; another with no mask and number ' 12-3456 -7890 '.",
+   "inputs": {
+    "account_1_mask": "...04821",
+    "account_2_number": " 12-3456 -7890 "
+   },
+   "expected": {
+    "account_1": "4821",
+    "account_2": "7890"
+   },
+   "working": [
+    "'...04821' digits 04821 -> '4821'",
+    "' 12-3456 -7890 ' digits 1234567890 -> '7890'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-024",
+   "name": "accountLastFour",
+   "kind": "edge",
+   "title": "Only three digits known",
+   "given": "Mask '•••482', no account number.",
+   "inputs": {
+    "mask": "•••482"
+   },
+   "expected": {
+    "last_four": null
+   },
+   "working": [
+    "Three digits -> nothing (never pad or guess)"
+   ],
+   "rests_on": "Card purpose.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "easy",
+   "title": "Checking with digits",
+   "given": "Chase, kind checking, taxable, mask '••4821'.",
+   "inputs": {
+    "institution": "Chase",
+    "kind": "checking",
+    "tax_treatment": "taxable",
+    "mask": "••4821"
+   },
+   "expected": {
+    "name": "Chase -4821"
+   },
+   "working": [
+    "Not tax-advantaged; digits known -> 'Institution -last four'"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "easy",
+   "title": "A Roth IRA",
+   "given": "Vanguard, kind Roth IRA, bucket ROTH, mask '••1234'.",
+   "inputs": {
+    "institution": "Vanguard",
+    "kind": "roth ira",
+    "tax_bucket": "ROTH",
+    "mask": "••1234"
+   },
+   "expected": {
+    "name": "Vanguard Roth IRA -1234"
+   },
+   "working": [
+    "Tax-advantaged with a kind word -> Institution + kind word + -last four"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "medium",
+   "notes": "Exact spacing of the joined parts is not given on the card."
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "complex",
+   "title": "Tax-deferred account whose kind says only Brokerage",
+   "given": "Fidelity, kind brokerage, tax treatment tax-deferred, bucket PRE_TAX, mask '••0457'.",
+   "inputs": {
+    "institution": "Fidelity",
+    "kind": "brokerage",
+    "tax_treatment": "tax_deferred",
+    "tax_bucket": "PRE_TAX",
+    "mask": "••0457"
+   },
+   "expected": {
+    "name": "Fidelity 401(k) / IRA -0457"
+   },
+   "working": [
+    "Kind Brokerage + tax-deferred -> kind word '401(k) / IRA'",
+    "Tax-advantaged with kind word -> Institution + word + -last four"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "medium",
+   "notes": "Exact spacing of the joined parts is not given on the card."
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "complex",
+   "title": "Imported holding with one position, no institution",
+   "given": "Label 'Imported holding', no institution, one position VTI, mask '••7788', taxable.",
+   "inputs": {
+    "label": "Imported holding",
+    "positions": [
+     "VTI"
+    ],
+    "mask": "••7788"
+   },
+   "expected": {
+    "name": "VTI ••7788"
+   },
+   "working": [
+    "No institution -> own name",
+    "Named Imported holding with exactly one holding -> 'VTI'",
+    "Mask not already in the name -> appended"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "medium",
+   "notes": "The joiner before the mask is not given on the card."
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "edge",
+   "title": "Roth account with no kind recorded",
+   "given": "Vanguard, kind missing, bucket ROTH, tax treatment tax-free, mask '••1234'.",
+   "inputs": {
+    "institution": "Vanguard",
+    "kind": null,
+    "tax_bucket": "ROTH",
+    "tax_treatment": "tax_free",
+    "mask": "••1234"
+   },
+   "expected": {
+    "name": "Vanguard Roth -1234"
+   },
+   "formula_gives": {
+    "name": "Vanguard -1234"
+   },
+   "working": [
+    "Tax-advantaged and tax-free -> word 'Roth' (same as the card's Brokerage rule)",
+    "-> Institution + Roth + -1234"
+   ],
+   "rests_on": "Card's own aim: a tax-advantaged account always shows what it is.",
+   "confidence": "medium",
+   "notes": "Exact word for a kind-less Roth is inferred from the card's Brokerage rule."
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "easy",
+   "title": "A 401(k)",
+   "given": "401(k) $200,000.",
+   "inputs": {
+    "kind": "401k"
+   },
+   "expected": {
+    "earmark_pct": 100
+   },
+   "working": [
+    "Not a 529, home or car -> 100%"
+   ],
+   "rests_on": "DEC-0100.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "easy",
+   "title": "A 529",
+   "given": "529 plan $38,200.",
+   "inputs": {
+    "kind": "529"
+   },
+   "expected": {
+    "earmark_pct": 0
+   },
+   "working": [
+    "529 -> 0%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "complex",
+   "title": "Home, rental, two cars and valuables",
+   "given": "House stated primary $812,450; condo stated rental with a $2,400/month rent entry $347,900; cars $28,400 (v1) and $9,750 (v2); valuables $6,000.",
+   "inputs": {
+    "Maple Ave house (stated primary)": 812450,
+    "Capitol Hill condo (rental, rent entry)": 347900,
+    "Subaru (car driven, id v1)": 28400,
+    "Honda (second car, id v2)": 9750,
+    "Valuables (kind other)": 6000
+   },
+   "expected": {
+    "earmark_pct": {
+     "Maple Ave house (stated primary)": 0,
+     "Capitol Hill condo (rental, rent entry)": 100,
+     "Subaru (car driven, id v1)": 0,
+     "Honda (second car, id v2)": 100,
+     "Valuables (kind other)": 100
+    },
+    "earmarked_dollars": {
+     "exact": 363650.0,
+     "shown": "$363,650"
+    },
+    "rows": [
+     {
+      "label": "Maple Ave house (stated primary)",
+      "exact": 0.0
+     },
+     {
+      "label": "Capitol Hill condo (rental, rent entry)",
+      "exact": 347900.0
+     },
+     {
+      "label": "Subaru (car driven, id v1)",
+      "exact": 0.0
+     },
+     {
+      "label": "Honda (second car, id v2)",
+      "exact": 9750.0
+     },
+     {
+      "label": "Valuables (kind other)",
+      "exact": 6000.0
+     }
+    ]
+   },
+   "working": [
+    "Maple Ave house (stated primary): 812,450.00 x 0% = 0.00",
+    "Capitol Hill condo (rental, rent entry): 347,900.00 x 100% = 347,900.00",
+    "Subaru (car driven, id v1): 28,400.00 x 0% = 0.00",
+    "Honda (second car, id v2): 9,750.00 x 100% = 9,750.00",
+    "Valuables (kind other): 6,000.00 x 100% = 6,000.00",
+    "Car driven = larger vehicle v1 (primaryCarIdOf)",
+    "Earmarked total = 363,650.00"
+   ],
+   "rests_on": "DEC-0100; primaryCarIdOf; owner rule 5.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "complex",
+   "title": "One property stated second home, the other with no use",
+   "given": "A 'Lake Chelan cabin' stated secondary $286,300; B 'Maple Ave house' no use stated $694,000; no rent entries. primaryHomeIdOf gives nothing (a non-rental has a use stated), so the caller passes no home id.",
+   "inputs": {
+    "A": {
+     "re_use": "secondary",
+     "balance": 286300
+    },
+    "B": {
+     "re_use": null,
+     "balance": 694000
+    },
+    "primary_home_id_passed": null
+   },
+   "expected": {
+    "earmark_pct_B": 100,
+    "earmarked_B": {
+     "exact": 694000.0,
+     "shown": "$694,000"
+    }
+   },
+   "formula_gives": {
+    "earmark_pct_B": 0,
+    "earmarked_B": {
+     "exact": 0.0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "primaryHomeIdOf: none marked home; A has a use stated -> nothing",
+    "propertyUses: a property is marked as something else -> no fallback; B is SECOND",
+    "realEstateUseOf(B, household) -> secondary",
+    "Second home -> 100% -> 694,000"
+   ],
+   "rests_on": "Owner rule 5; MK-NW-F-107; MK-NW-F-013.",
+   "confidence": "medium",
+   "notes": "Follows propertyUses as printed. If the owner means B to be the home, primaryHomeIdOf must return B instead; either way the cards must agree."
+  },
+  {
+   "id": "MK-NW-F-030",
+   "name": "earmarkDefault",
+   "kind": "edge",
+   "title": "Marked as home, but rented out",
+   "given": "'Ballard townhouse' stated primary $690,000; a rent entry of $2,950/month names it (the person moved out).",
+   "inputs": {
+    "re_use": "primary",
+    "rent_entry_names_it": true,
+    "balance": 690000
+   },
+   "expected": {
+    "earmark_pct": 100
+   },
+   "formula_gives": {
+    "earmark_pct": 0
+   },
+   "working": [
+    "Rent entry names it -> RENTAL; HOME only when not a rental (propertyUses)",
+    "Rental -> 100%"
+   ],
+   "rests_on": "Owner rule 5; MK-NW-F-107.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "easy",
+   "title": "One account",
+   "given": "401(k) $100,000, person's own volatility 15%.",
+   "inputs": {
+    "401k": 100000,
+    "vol_401k": 0.15
+   },
+   "expected": {
+    "volatility": {
+     "exact": 0.15,
+     "shown": "15.00%"
+    }
+   },
+   "working": [
+    "One part -> 15%"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "easy",
+   "title": "Weighting by earmark",
+   "given": "Brokerage $100,000 earmarked 50% (own vol 16%); 401(k) $50,000 (14%); both the same index fund, so they move together.",
+   "inputs": {
+    "brokerage": 100000,
+    "brokerage_pct": 50,
+    "401k": 50000,
+    "vol": {
+     "brokerage": 0.16,
+     "401k": 0.14
+    },
+    "correlation": 1
+   },
+   "expected": {
+    "volatility": {
+     "exact": 0.15,
+     "shown": "15.00%"
+    }
+   },
+   "working": [
+    "Weights 50,000 and 50,000",
+    "(50,000 x 16% + 50,000 x 14%) / 100,000 = 0.150000",
+    "rho = 1 -> average is exact"
+   ],
+   "rests_on": "Formula in words; portfolio variance with rho = 1.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "complex",
+   "title": "Funds, bonds and savings that do not move together",
+   "given": "All earmarked: 401(k) $412,800 (15%), brokerage $186,350 (16%), fixed income $74,500 (5%), savings $41,200 (1%). Correlations stated for the case: 401(k)-brokerage 0.95; either with fixed income 0.2; savings 0 with all.",
+   "inputs": {
+    "balances": {
+     "401k": 412800,
+     "brokerage": 186350,
+     "fixed income": 74500,
+     "savings": 41200
+    },
+    "vols": {
+     "401k": 0.15,
+     "brokerage": 0.16,
+     "fixed income": 0.05,
+     "savings": 0.01
+    },
+    "correlations": {
+     "401k~brokerage": 0.95,
+     "401k~fixed income": 0.2,
+     "brokerage~fixed income": 0.2,
+     "savings~any": 0
+    }
+   },
+   "expected": {
+    "volatility": {
+     "exact": 0.1281,
+     "shown": "12.81%"
+    }
+   },
+   "formula_gives": {
+    "volatility": {
+     "exact": 0.1341,
+     "shown": "13.41%"
+    }
+   },
+   "working": [
+    "Total 714,850.00; weights 401k 0.577464, brokerage 0.260684, fixed income 0.104218, savings 0.057634",
+    "Weighted average = 0.134116",
+    "Variance = sum w_i w_j s_i s_j rho_ij = 0.01640202",
+    "Portfolio volatility = sqrt = 0.128070"
+   ],
+   "rests_on": "Markowitz portfolio variance.",
+   "confidence": "medium",
+   "notes": "Correlations are given in the case because the app has no table; the formula_gives figure does not depend on them."
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "complex",
+   "title": "Partial earmark beside a home, a car and a 529",
+   "given": "Home lived in $812,450; car driven $28,400; 529 $38,200; 401(k) $212,733.42 (own vol 15%); brokerage $64,200 earmarked 70% (own vol 17%); the two hold the same equity index so rho = 1.",
+   "inputs": {
+    "home": 812450,
+    "car": 28400,
+    "529": 38200,
+    "401k": 212733.42,
+    "brokerage": 64200,
+    "brokerage_pct": 70
+   },
+   "expected": {
+    "volatility": {
+     "exact": 0.1535,
+     "shown": "15.35%"
+    }
+   },
+   "working": [
+    "Home, car, 529 -> earmark 0 -> weight 0",
+    "Brokerage weight = 64,200 x 70% = 44,940.00",
+    "(212,733.42 x 15% + 44,940.00 x 17%) / 257,673.42 = 0.153488",
+    "rho = 1 -> the average is the portfolio figure"
+   ],
+   "rests_on": "Formula in words; DEC-0100.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-035",
+   "name": "blendedVolatility",
+   "kind": "edge",
+   "title": "Nothing earmarked",
+   "given": "Only the home lived in ($640,000) and the car driven ($28,400).",
+   "inputs": {
+    "home": 640000,
+    "car": 28400
+   },
+   "expected": {
+    "volatility": "REFUSES (nothing earmarked)"
+   },
+   "working": [
+    "Earmarked total 0 -> no answer"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "easy",
+   "title": "One 401(k)",
+   "given": "401(k) $100,000.",
+   "inputs": {
+    "401k": 100000
+   },
+   "expected": {
+    "blended_return": {
+     "exact": 0.079,
+     "shown": "7.90%"
+    }
+   },
+   "working": [
+    "7.9%"
+   ],
+   "rests_on": "benchmarkReturn.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "easy",
+   "title": "Half in checking",
+   "given": "401(k) $100,000; checking $100,000.",
+   "inputs": {
+    "401k": 100000,
+    "checking": 100000
+   },
+   "expected": {
+    "blended_return": {
+     "exact": 0.042,
+     "shown": "4.20%"
+    }
+   },
+   "working": [
+    "(7.9% + 0.5%) / 2 = 0.042000"
+   ],
+   "rests_on": "benchmarkReturn.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "complex",
+   "title": "Home, 529, rental, 401(k), brokerage holding cash, two cars, checking",
+   "given": "Eight accounts as listed; rental named by a rent entry; brokerage is the linked Schwab account holding $4,218.51 cash.",
+   "inputs": {
+    "Maple Ave house (home)": 812450,
+    "529": 38200,
+    "Capitol Hill condo (rental)": 347900,
+    "Fidelity 401(k)": 212733.42,
+    "Schwab brokerage (with cash)": 70218.61,
+    "Subaru (car driven)": 28400,
+    "Honda (second car)": 9750,
+    "Chase checking": 6250
+   },
+   "expected": {
+    "blended_return": {
+     "exact": 0.0582,
+     "shown": "5.82%"
+    },
+    "earmarked_total": {
+     "exact": 646852.03,
+     "shown": "$646,852"
+    },
+    "rows": [
+     {
+      "label": "Maple Ave house (home)",
+      "exact": 0.0
+     },
+     {
+      "label": "529",
+      "exact": 0.0
+     },
+     {
+      "label": "Capitol Hill condo (rental)",
+      "exact": 347900.0
+     },
+     {
+      "label": "Fidelity 401(k)",
+      "exact": 212733.42
+     },
+     {
+      "label": "Schwab brokerage (with cash)",
+      "exact": 70218.61
+     },
+     {
+      "label": "Subaru (car driven)",
+      "exact": 0.0
+     },
+     {
+      "label": "Honda (second car)",
+      "exact": 9750.0
+     },
+     {
+      "label": "Chase checking",
+      "exact": 6250.0
+     }
+    ]
+   },
+   "working": [
+    "Maple Ave house (home): 812,450.00 x 0% = 0.00 at 4.5%",
+    "529: 38,200.00 x 0% = 0.00 at 7.0%",
+    "Capitol Hill condo (rental): 347,900.00 x 100% = 347,900.00 at 4.5%",
+    "Fidelity 401(k): 212,733.42 x 100% = 212,733.42 at 7.9%",
+    "Schwab brokerage (with cash): 70,218.61 x 100% = 70,218.61 at 8.0%",
+    "Subaru (car driven): 28,400.00 x 0% = 0.00 at -5.0%",
+    "Honda (second car): 9,750.00 x 100% = 9,750.00 at -5.0%",
+    "Chase checking: 6,250.00 x 100% = 6,250.00 at 0.5%",
+    "Earmarked total = 646,852.03",
+    "Sum of weight x rate = 37,622.68",
+    "Blended = 37,622.68 / 646,852.03 = 0.058163",
+    "Check: row weights sum to the earmarked total"
+   ],
+   "rests_on": "DEC-0100; benchmarkReturn.",
+   "confidence": "medium",
+   "notes": "The Schwab cash sleeve is weighted at the brokerage 8% because the formula rates by kind; noted, not judged a fault."
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "complex",
+   "title": "Own rate of exactly zero and partial earmarks",
+   "given": "Brokerage $250,000 earmarked 40%; HSA $18,400; savings $32,000 earmarked 0%; crypto $15,000 with the person's own crypto rate set to 0%.",
+   "inputs": {
+    "brokerage": [
+     250000,
+     40
+    ],
+    "hsa": 18400,
+    "savings": [
+     32000,
+     0
+    ],
+    "crypto": 15000,
+    "override_crypto": 0
+   },
+   "expected": {
+    "blended_return": {
+     "exact": 0.0709,
+     "shown": "7.09%"
+    },
+    "earmarked_total": {
+     "exact": 133400.0,
+     "shown": "$133,400"
+    }
+   },
+   "working": [
+    "Brokerage 40% earmarked: weight 100,000.00 at 8.0%",
+    "HSA: weight 18,400.00 at 7.9%",
+    "Savings earmarked 0%: weight 0.00 at 2.4%",
+    "Crypto, own rate 0: weight 15,000.00 at 0.0%",
+    "A rate of exactly 0 counts as set",
+    "Blended = 9,453.60 / 133,400.00 = 0.070867"
+   ],
+   "rests_on": "benchmarkReturn (0 counts as set).",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-037",
+   "name": "blendedReturn",
+   "kind": "edge",
+   "title": "Nothing earmarked",
+   "given": "Home lived in $640,000 and a 529 $38,200 only.",
+   "inputs": {
+    "home": 640000,
+    "529": 38200
+   },
+   "expected": {
+    "blended_return": "REFUSES (earmarked total is zero; the Plan states its own 6%)"
+   },
+   "working": [
+    "Both weigh 0 -> no answer"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-073",
+   "name": "itemising",
+   "kind": "easy",
+   "title": "Two holdings inside a lump",
+   "given": "Lump $50,000; holdings $20,000 and $10,000.",
+   "inputs": {
+    "lump": 50000,
+    "items": [
+     20000,
+     10000
+    ]
+   },
+   "expected": {
+    "keep_total_at": {
+     "exact": 50000.0,
+     "shown": "$50,000"
+    },
+    "itemised": {
+     "exact": 30000.0,
+     "shown": "$30,000"
+    },
+    "remainder": {
+     "exact": 20000.0,
+     "shown": "$20,000"
+    }
+   },
+   "working": [
+    "Itemised 20,000 + 10,000 = 30,000",
+    "Remainder 50,000 - 30,000 = 20,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-073",
+   "name": "itemising",
+   "kind": "easy",
+   "title": "Nothing itemised yet",
+   "given": "Lump $75,000, no holdings listed.",
+   "inputs": {
+    "lump": 75000,
+    "items": []
+   },
+   "expected": {
+    "keep_total_at": {
+     "exact": 75000.0,
+     "shown": "$75,000"
+    },
+    "itemised": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "remainder": {
+     "exact": 75000.0,
+     "shown": "$75,000"
+    }
+   },
+   "working": [
+    "No holdings -> itemised 0 (none listed is a real 0)",
+    "Remainder 75,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-073",
+   "name": "itemising",
+   "kind": "complex",
+   "title": "Fractional shares, a bond fund and a cash sleeve",
+   "given": "Lump $87,412.60; VTI 112.5 @ 287.43; BND 340 @ 72.86; cash $1,250.75.",
+   "inputs": {
+    "lump": 87412.6,
+    "items": [
+     [
+      "VTI",
+      112.5,
+      287.43
+     ],
+     [
+      "BND",
+      340,
+      72.86
+     ],
+     [
+      "Cash sleeve",
+      1,
+      1250.75
+     ]
+    ]
+   },
+   "expected": {
+    "keep_total_at": {
+     "exact": 87412.6,
+     "shown": "$87,413"
+    },
+    "itemised": {
+     "exact": 58359.025,
+     "shown": "$58,359"
+    },
+    "remainder": {
+     "exact": 29053.575,
+     "shown": "$29,054"
+    }
+   },
+   "working": [
+    "VTI: 112.5 x 287.43 = 32,335.88",
+    "BND: 340 x 72.86 = 24,772.40",
+    "Cash sleeve: 1 x 1,250.75 = 1,250.75",
+    "Itemised = 58,359.03",
+    "Remainder = 87,412.60 - 58,359.03 = 29,053.58"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-073",
+   "name": "itemising",
+   "kind": "complex",
+   "title": "Holdings worth more than the lump",
+   "given": "Lump $40,000 entered last year; VTI 120 and BND 100 at today's prices.",
+   "inputs": {
+    "lump": 40000,
+    "items": [
+     [
+      "VTI",
+      120,
+      287.43
+     ],
+     [
+      "BND",
+      100,
+      72.86
+     ]
+    ]
+   },
+   "expected": {
+    "keep_total_at": {
+     "exact": 40000.0,
+     "shown": "$40,000"
+    },
+    "itemised": {
+     "exact": 41777.6,
+     "shown": "$41,778"
+    },
+    "remainder": {
+     "exact": -1777.6,
+     "shown": "-$1,778"
+    },
+    "shown_as": "holdings exceed the entered balance by $1,778"
+   },
+   "formula_gives": {
+    "keep_total_at": {
+     "exact": 40000.0,
+     "shown": "$40,000"
+    },
+    "itemised": {
+     "exact": 41777.6,
+     "shown": "$41,778"
+    },
+    "remainder": {
+     "exact": -1777.6,
+     "shown": "-$1,778"
+    },
+    "shown_as": "not stated"
+   },
+   "working": [
+    "Itemised = 120 x 287.43 + 100 x 72.86 = 41,777.60",
+    "Remainder = 40,000 - 41,777.60 = -1,777.60 (negative: an excess)"
+   ],
+   "rests_on": "Ordinary arithmetic.",
+   "confidence": "medium",
+   "notes": "The number agrees with the formula; what the formula leaves unsaid is how a negative remainder is labelled."
+  },
+  {
+   "id": "MK-NW-F-073",
+   "name": "itemising",
+   "kind": "edge",
+   "title": "A listed holding with no price",
+   "given": "Lump $25,000; AAPL 50 @ $220.00; 'XYZ private placement' 40 units, no price.",
+   "inputs": {
+    "lump": 25000,
+    "items": [
+     [
+      "AAPL",
+      50,
+      220.0
+     ],
+     [
+      "XYZ",
+      40,
+      null
+     ]
+    ]
+   },
+   "expected": {
+    "keep_total_at": {
+     "exact": 25000.0,
+     "shown": "$25,000"
+    },
+    "itemised_priced": {
+     "exact": 11000.0,
+     "shown": "$11,000"
+    },
+    "remainder": "REFUSES: XYZ has no price, so how much is unexplained is unknown"
+   },
+   "formula_gives": {
+    "itemised": {
+     "exact": 11000.0,
+     "shown": "$11,000"
+    },
+    "remainder": {
+     "exact": 14000.0,
+     "shown": "$14,000"
+    }
+   },
+   "working": [
+    "AAPL 50 x 220.00 = 11,000.00",
+    "XYZ: no value -> cannot be summed",
+    "Remainder cannot be given honestly"
+   ],
+   "rests_on": "Brief: missing is not zero.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-094",
+   "name": "ledgerGroups",
+   "kind": "easy",
+   "title": "Two Chase accounts by institution",
+   "given": "Chase checking $10,000; Chase savings $5,000.",
+   "inputs": {
+    "by": "institution",
+    "chase_checking": 10000,
+    "chase_savings": 5000
+   },
+   "expected": {
+    "groups": [
+     {
+      "label": "Chase",
+      "total": {
+       "exact": 15000.0,
+       "shown": "$15,000"
+      },
+      "mix": [
+       {
+        "key": "cash",
+        "total": 15000
+       }
+      ]
+     }
+    ]
+   },
+   "working": [
+    "Both 'Chase' -> one group 15,000",
+    "Mix: cash 15,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-094",
+   "name": "ledgerGroups",
+   "kind": "easy",
+   "title": "Two classes by class",
+   "given": "Checking $10,000; stocks account $20,000.",
+   "inputs": {
+    "by": "class",
+    "checking": 10000,
+    "stocks": 20000
+   },
+   "expected": {
+    "groups": [
+     {
+      "label": "Cash",
+      "total": {
+       "exact": 10000.0,
+       "shown": "$10,000"
+      }
+     },
+     {
+      "label": "Stocks / Funds",
+      "total": {
+       "exact": 20000.0,
+       "shown": "$20,000"
+      }
+     }
+    ],
+    "everything_owned": {
+     "exact": 30000.0,
+     "shown": "$30,000"
+    }
+   },
+   "working": [
+    "Cash 10,000; Stocks / Funds 20,000; sum 30,000"
+   ],
+   "rests_on": "Formula in words.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-094",
+   "name": "ledgerGroups",
+   "kind": "complex",
+   "title": "Institution names with stray spaces and capitals, a hand-built account, no institution",
+   "given": "In this order: 'Fidelity' stocks account $212,733.42; 'FIDELITY ' hand-built brokerage $48,920.66 with $3,500 cash; ' fidelity' CD $25,000; 'Fidelity Investments' checking $2,150; crypto $18,640.90 with no institution; 'Chase' checking $9,874.22.",
+   "inputs": {
+    "by": "institution",
+    "accounts": [
+     [
+      "Fidelity",
+      212733.42
+     ],
+     [
+      "FIDELITY ",
+      48920.66
+     ],
+     [
+      " fidelity",
+      25000.0
+     ],
+     [
+      "Fidelity Investments",
+      2150.0
+     ],
+     [
+      null,
+      18640.9
+     ],
+     [
+      "Chase",
+      9874.22
+     ]
+    ]
+   },
+   "expected": {
+    "groups": [
+     {
+      "label": "Fidelity",
+      "total": {
+       "exact": 286654.08,
+       "shown": "$286,654"
+      }
+     },
+     {
+      "label": "Fidelity Investments",
+      "total": {
+       "exact": 2150.0,
+       "shown": "$2,150"
+      }
+     },
+     {
+      "label": "No institution set",
+      "total": {
+       "exact": 18640.9,
+       "shown": "$18,641"
+      }
+     },
+     {
+      "label": "Chase",
+      "total": {
+       "exact": 9874.22,
+       "shown": "$9,874"
+      }
+     }
+    ],
+    "fidelity_mix": [
+     {
+      "key": "stocks_etf",
+      "total": 258154.08
+     },
+     {
+      "key": "bonds",
+      "total": 25000.0
+     },
+     {
+      "key": "cash",
+      "total": 3500.0
+     }
+    ],
+    "everything_owned": {
+     "exact": 317319.2,
+     "shown": "$317,319"
+    },
+    "same_figure_elsewhere": "equals totalAssets for the same accounts and the by-class view's sum"
+   },
+   "working": [
+    "Hand-built: cash = min(3,500.00, 48,920.66) = 3,500.00; rest 48,920.66 - 3,500.00 = 45,420.66 -> stocks_etf",
+    "'Fidelity', 'FIDELITY ', ' fidelity' match trimmed and ignoring capitals -> 'Fidelity' (first spelling): 212,733.42 + 48,920.66 + 25,000.00 = 286,654.08",
+    "Mix largest first: stocks_etf 258,154.08, bonds 25,000.00, cash 3,500.00 = 286,654.08",
+    "'Fidelity Investments' is a different name -> own group 2,150.00",
+    "No institution -> 'No institution set' 18,640.90",
+    "Groups sum = 317,319.20"
+   ],
+   "rests_on": "Formula in words; MK-NW-F-027.",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-094",
+   "name": "ledgerGroups",
+   "kind": "complex",
+   "title": "By class, a linked brokerage holding a third of its value in cash",
+   "given": "Schwab linked $118,642.35: cash $41,360.45, VTI 260, BND 35. Chase checking $9,874.22. Vanguard CD $25,000.",
+   "inputs": {
+    "by": "class",
+    "schwab": 118642.35,
+    "chase": 9874.22,
+    "cd": 25000
+   },
+   "expected": {
+    "groups": [
+     {
+      "label": "Cash",
+      "total": {
+       "exact": 51234.67,
+       "shown": "$51,235"
+      },
+      "rows": [
+       {
+        "account": "Chase checking",
+        "exact": 9874.22
+       },
+       {
+        "account": "Schwab (cash part)",
+        "exact": 41360.45
+       }
+      ]
+     },
+     {
+      "label": "Stocks / Funds",
+      "total": {
+       "exact": 74731.8,
+       "shown": "$74,732"
+      },
+      "rows": [
+       {
+        "account": "Schwab (fund part)",
+        "exact": 74731.8
+       }
+      ]
+     },
+     {
+      "label": "Bonds & CDs",
+      "total": {
+       "exact": 27550.1,
+       "shown": "$27,550"
+      },
+      "rows": [
+       {
+        "account": "Schwab (bond part)",
+        "exact": 2550.1
+       },
+       {
+        "account": "Vanguard CD",
+        "exact": 25000.0
+       }
+      ]
+     }
+    ],
+    "everything_owned": {
+     "exact": 153516.57,
+     "shown": "$153,517"
+    }
+   },
+   "formula_gives": {
+    "groups": [
+     {
+      "label": "Cash",
+      "total": {
+       "exact": 51234.67,
+       "shown": "$51,235"
+      },
+      "accountIds": [
+       "Chase checking"
+      ],
+      "rows_listed_sum": {
+       "exact": 9874.22,
+       "shown": "$9,874"
+      }
+     },
+     {
+      "label": "Stocks / Funds",
+      "total": {
+       "exact": 74731.8,
+       "shown": "$74,732"
+      },
+      "accountIds": [
+       "Schwab"
+      ],
+      "rows_listed_sum": {
+       "exact": 118642.35,
+       "shown": "$118,642"
+      }
+     },
+     {
+      "label": "Bonds & CDs",
+      "total": {
+       "exact": 27550.1,
+       "shown": "$27,550"
+      },
+      "accountIds": [
+       "Vanguard CD"
+      ],
+      "rows_listed_sum": {
+       "exact": 25000.0,
+       "shown": "$25,000"
+      }
+     }
+    ]
+   },
+   "working": [
+    "Cash part = cash balance 41,360.45",
+    "VTI: 260 x 287.43 = 74,731.80 -> stocks_etf",
+    "BND: 35 x 72.86 = 2,550.10 -> bonds",
+    "Parts so far = 118,642.35; balance 118,642.35; difference = 0.00",
+    "Parts: cash 41,360.45, stocks_etf 74,731.80, bonds 2,550.10 = 118,642.35 = balance",
+    "Cash = 41,360.45 + 9,874.22 = 51,234.67; rows beneath sum to the same",
+    "Stocks / Funds = 74,731.80",
+    "Bonds & CDs = 2,550.10 + 25,000 = 27,550.10",
+    "All groups = 153,516.57 = everything owned 153,516.57",
+    "Formula as written: Schwab sits only under Stocks / Funds (largest part) with its balance 118,642.35 under a heading of 74,731.80; Cash heading 51,234.67 lists only Chase 9,874.22; Bonds heading 27,550.10 lists only the CD 25,000"
+   ],
+   "rests_on": "Brief: parts must add up to the whole they are shown beside.",
+   "confidence": "medium",
+   "notes": "The card does not say what amount the row shows; the fault holds if the row shows the account's balance, as an account row normally does."
+  },
+  {
+   "id": "MK-NW-F-094",
+   "name": "ledgerGroups",
+   "kind": "edge",
+   "title": "An institution typed as spaces only",
+   "given": "Checking $3,000 with institution '   '; savings $4,000 with no institution.",
+   "inputs": {
+    "by": "institution",
+    "accounts": [
+     [
+      "   ",
+      3000
+     ],
+     [
+      null,
+      4000
+     ]
+    ]
+   },
+   "expected": {
+    "RULE UNCLEAR": {
+     "reading_A_blank_is_none": {
+      "groups": [
+       {
+        "label": "No institution set",
+        "total": {
+         "exact": 7000.0,
+         "shown": "$7,000"
+        }
+       }
+      ]
+     },
+     "reading_B_blank_is_a_name": {
+      "groups": [
+       {
+        "label": "",
+        "total": {
+         "exact": 3000.0,
+         "shown": "$3,000"
+        }
+       },
+       {
+        "label": "No institution set",
+        "total": {
+         "exact": 4000.0,
+         "shown": "$4,000"
+        }
+       }
+      ]
+     }
+    }
+   },
+   "working": [
+    "Trimmed '   ' is empty",
+    "A: empty means none -> one group 3,000 + 4,000 = 7,000",
+    "B: kept as a name -> blank-labelled group 3,000 and No institution set 4,000"
+   ],
+   "rests_on": "Formula in words (silent).",
+   "confidence": "low",
+   "notes": "The card does not say whether a blank name counts as no institution; reading A is the sensible one."
+  }
+ ],
+ "could_not_test": []
+}

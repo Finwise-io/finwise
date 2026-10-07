@@ -1,0 +1,5945 @@
+{
+ "batch": "networth 02 final",
+ "written_by": "claude",
+ "ready_to_close": false,
+ "still_open": [
+  "MK-NW-F-004 portfolioActualReturn: weight each reported 12-month return by the earmarked START value (balance ÷ (1 + return)), not today's balance; equivalently Σ now ÷ Σ start − 1.",
+  "MK-NW-F-011 assetClassOf: a class written by an importer or broker tag must not outrank name evidence (owner DEC-0309/0051); only the person's own answer goes first — align with holdingClassOf.",
+  "MK-NW-F-108 taxWordsOf: 529 and HSA words must win whatever treatment is stated; '(Roth)' only for a Roth-bucket account.",
+  "MK-NW-F-017 equitiesTotal: assetAllocation must split hand-built (derive_balance) accounts too, by holdingClassOf; today their cash is also counted here.",
+  "MK-NW-F-018 fixedIncomeTotal: a T-bill or CD inside a hand-built account must land in Bonds & CDs (owner DEC-0051/0092), not under the account's own class.",
+  "MK-NW-F-019 alternativesTotal: a hand-built alternatives account's uninvested cash must not be counted here as well as in Cash (and on the Other investments Total value).",
+  "MK-NW-F-021 investmentsTotal: give only the non-cash parts of every split account so cashTotal + investmentsTotal = investableAssets holds for hand-built accounts.",
+  "MK-NW-F-025 accountDisplayName: a 401(k) in the Roth bucket must read 'Roth 401(k)'.",
+  "MK-NW-F-109 holdingClassOf: a holding with no stored class and no evidence must be Unclassified and asked about (owner rule 7), not Stocks / Funds.",
+  "MK-NW-F-027 accountClassBreakdown: split a hand-built account holding by holding (holdingClassOf), not cash + 'the rest under its own class'.",
+  "MK-NW-F-028 classPortionLabel: recognise broker Treasury wording (TREAS, TREAS BILLS, UST) as Treasury, and state plurals.",
+  "MK-NW-O-003 theNetWorth: fix the hand-built cash double count in Investments (Cash + Investments + property must equal What you own); state which monthly debt total the screen prints and how a missing minimum differs from $0; say a recorded day's value is after that day's money moved; give 'nothing entered' rather than $0.",
+  "MK-NW-O-008 thePerformance: drop the back-solved beginning (refuse wealth generated and the walk when the record cannot reach back); state the Since beginning is the record's first day; state which day the years are counted from."
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-NW-F-001",
+   "name": "isAlternative",
+   "verdict": "RIGHT",
+   "why": "An account is an alternative exactly when its class is Alternatives. The class comes from one rule (assetClassOf), so this agrees with the Alternatives line. A private-equity or hedge-fund row saved earlier stays an alternative, as owner rules 8 and 9 require.",
+   "should_be": "",
+   "rests_on": "assetClassOf step order; owner rules 8 and 9 (2026-10-06, 2026-08-04).",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-003",
+   "name": "valueFreshness",
+   "verdict": "RIGHT",
+   "why": "This is the standard whole-months-elapsed count. It handles the day-of-month boundary, the end-of-month case, a value dated by month only (counted from the 1st), a future date (never below zero) and the 'stale at 6 or more' line. An account built from its holdings has no hand-typed value to age, so no answer is right.",
+   "should_be": "",
+   "rests_on": "Ordinary calendar arithmetic.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-004",
+   "name": "portfolioActualReturn",
+   "verdict": "WRONG",
+   "why": "The formula weights each account's reported twelve-month return by its earmarked balance TODAY, after that return has already happened. That overweights the account that grew most. Here is an example. $412,600 earmarked earned +18.4%, $96,250 earned -4.75% and $60,000 earned +11.2%. The formula gives +13.72%. The earmarked money grew from $503,486.43 to $568,850.00, which is +12.98%. The card's reason is that it must be 'weighted the same way as the plan's benchmark (blendedReturn)'. That does not hold: a forward-looking expected rate is rightly weighted by today's amounts, but a past return must be weighted by what was invested when the twelve months began. A today-weighted average is also not the time-weighted return that owner rule 1 requires for every return.",
+   "should_be": "For each counted account, start value = earmarked balance ÷ (1 + reported return). Return = Σ earmarked balance ÷ Σ start value − 1. This is the same as averaging the reported returns weighted by start value. The other rules stay: property out, unreported returns left out (not read as 0), a reported 0 counted, accounts with nothing earmarked out, and no answer when the total is zero. Where money was added during the year, the reported return alone cannot recover the start value, so the screen should call the figure an estimate.",
+   "rests_on": "Standard performance-measurement practice: a portfolio's period return is the sum of its parts' returns weighted by their starting values (CFA Institute GIPS asset-weighting at beginning of period). Owner rule 1 (2026-10-04).",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-005",
+   "name": "accountAllowsTicker",
+   "verdict": "RIGHT",
+   "why": "Bank, cash, property and 529 accounts cannot take ticker buys. An account that already lists holdings can. A single bond, CD or alternative typed by hand is itself one holding, so it cannot. Everything else (brokerage, 401(k), IRA, HSA, an unclassified typed account) can. The order is right: an account that already lists holdings is allowed before the class test.",
+   "should_be": "",
+   "rests_on": "Ordinary account practice: 529 plans hold plan portfolios, not exchange tickers.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-007",
+   "name": "assetKind",
+   "verdict": "RIGHT",
+   "why": "This is an exact-id lookup of app-written ids. Returning nothing for an id that is unknown, missing or spelled differently is the honest answer. It does not guess.",
+   "should_be": "",
+   "rests_on": "Ordinary lookup.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-009",
+   "name": "maturityClass",
+   "verdict": "RIGHT",
+   "why": "This follows the owner rule of 2026-08-04 (DEC-0051, DEC-0092): any instrument with a maturity date is Bonds & CDs, whatever its maturity. A blank date counts as none. Ignoring whether the date has passed is how the owner worded the rule ('regardless of how soon it matures').",
+   "should_be": "",
+   "rests_on": "Owner rule 2026-08-04 (DEC-0051).",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-010",
+   "name": "wrapperAccount",
+   "verdict": "RIGHT",
+   "why": "Each wrapper maps to the right kind and tax bucket. A Roth 401(k) is kind 401(k) in the Roth bucket, and an HSA is in the pre-tax bucket. When nothing is chosen, a plain taxable brokerage is the natural account, not an invented figure.",
+   "should_be": "",
+   "rests_on": "IRS treatment of 401(k), IRA, Roth and HSA accounts.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-011",
+   "name": "assetClassOf",
+   "verdict": "INCOMPLETE",
+   "why": "Step (1) takes 'the class stated on the account' first, but the type comment says the CSV importer as well as the person writes that field. The card does not separate a class the PERSON gave (MK-XS-I-048) from one an importer copied from a broker tag. A CD or a money-market fund that a broker tags 'cash' can then be imported with class cash and stay cash. That breaks the owner rule (DEC-0051/0092: cash means cash only; CDs are Bonds & CDs at any maturity; money-market funds are Stocks / Funds) and DEC-0309 ('name-first classification on every road, broker tag as fallback'). It also disagrees with MK-NW-F-109 holdingClassOf, which puts a holding's name evidence above the broker's tag. Name both cards.",
+   "should_be": "(1) The class the person stated. (2) Bonds & CDs if it has a maturity date. (3) Name evidence. (4) A class written by an importer or broker, used only as a fallback. Then the remaining steps as now.",
+   "rests_on": "Owner DEC-0051, DEC-0092 (2026-08-04/11), DEC-0309 (2026-08-20); consistency with MK-NW-F-109.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-012",
+   "name": "taxTreatmentOf",
+   "verdict": "RIGHT",
+   "why": "A stated treatment wins. Otherwise a 529 is tax-free, a pre-tax account (HSA included) is tax-deferred, a Roth account is tax-free and anything else is taxable. These match the IRS treatment of each wrapper.",
+   "should_be": "",
+   "rests_on": "IRC §529, §401(k)/§408 (pre-tax), §408A (Roth), §223 (HSA).",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-108",
+   "name": "taxWordsOf",
+   "verdict": "WRONG",
+   "why": "The 529 and HSA wording is used only 'where no treatment is stated on the account'. Once a treatment is stated (the editor and importer both set it), a 529 stated tax-free reads 'tax-free (Roth)'. A 529 is not a Roth. An HSA stated tax-deferred reads 'pre-tax — taxed when it comes out', which is false for medical spending. No number changes, but the words on the account's page are false.",
+   "should_be": "Check the kind first: a 529 always reads 'tax-free for education' and an HSA always reads 'pre-tax — tax-free for medical costs'. Only then use the treatment. 'Tax-free (Roth)' should be used only for an account in the Roth bucket; any other tax-free account reads 'tax-free'.",
+   "rests_on": "IRC §529 and §223; ordinary consistency with MK-NW-F-012.",
+   "severity": "low"
+  },
+  {
+   "id": "MK-NW-F-016",
+   "name": "cashTotal",
+   "verdict": "RIGHT",
+   "why": "Cash = bank accounts whole, plus the uninvested cash inside linked and hand-built investment accounts. That is what the card says it is for, and it reproduces the approved drawing ($8,000 + $838 = $8,838). Money-market funds and CDs are not cash, per the owner rule. The fault that shows up next to it is in how the other lines handle hand-built accounts (see MK-NW-F-021).",
+   "should_be": "",
+   "rests_on": "Approved drawing Net worth v08 state A; owner DEC-0051.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "verdict": "WRONG",
+   "why": "The card says 'an account holding several classes gives only its Stocks / Funds part', but the split it reads (assetAllocation, MK-NW-F-029) splits only a LINKED account. Every other account counts whole under its one class. A hand-built brokerage (derive_balance) with $6,120.55 of uninvested cash and $63,235.20 of VTI is counted whole, $69,355.75, under Stocks / Funds. The same $6,120.55 is also on the Cash line, because cashTotal (MK-NW-F-016) takes hand-built cash. A T-bill in a hand-built account lands in Stocks too, because MK-NW-F-027 leaves the rest of a hand-built account under its own class. The two cards disagree: cashTotal splits every account that has a class split, and assetAllocation splits only linked ones.",
+   "should_be": "Stocks / Funds = for every account with a class split (linked OR hand-built), its Stocks / Funds part. The hand-built split must class each holding by holdingClassOf. Every other account counts whole.",
+   "rests_on": "Card's own stated purpose; consistency with MK-NW-F-016 and MK-NW-F-027; owner DEC-0343 (a total and the sum of its parts are pinned by an invariant).",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "verdict": "WRONG",
+   "why": "The fault is the same as in MK-NW-F-017. A T-bill or CD held in a hand-built account is filed under the account's own class (Stocks / Funds) by MK-NW-F-027, and assetAllocation does not split hand-built accounts at all. That T-bill is then missing from Bonds & CDs, which breaks the owner rule that T-bills are Bonds & CDs (DEC-0051/0092). A hand-built account whose own class is Bonds & CDs would also put its uninvested cash in this line as well as in Cash.",
+   "should_be": "Bonds & CDs = for every account with a class split (linked or hand-built), its Bonds & CDs part, with each holding classed by holdingClassOf. Every other account counts whole.",
+   "rests_on": "Owner DEC-0051, DEC-0092; consistency with MK-NW-F-016/027/109.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "verdict": "WRONG",
+   "why": "The fault is the same as in MK-NW-F-017. A hand-built crypto account (own class Alternatives) with uninvested cash is counted whole as Alternatives. Its cash is also on the Cash line. The Other investments 'Total value' (MK-NW-M-049) then overstates by that cash.",
+   "should_be": "Alternatives = for every account with a class split (linked or hand-built), its Alternatives part. Every other account counts whole.",
+   "rests_on": "Consistency with MK-NW-F-016; owner DEC-0343.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "verdict": "RIGHT",
+   "why": "Only property accounts can be Real estate: hand-built splits exclude property, and holdings are never classed Real estate by the rules on these cards. The Real estate line is therefore the whole value of every account classed Real estate, which is the right figure (gross, before any mortgage).",
+   "should_be": "",
+   "rests_on": "assetClassOf step (4)/(7).",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-021",
+   "name": "investmentsTotal",
+   "verdict": "WRONG",
+   "why": "The card says 'Always: cashTotal + investmentsTotal = investableAssets'. That fails for a hand-built investment account with uninvested cash. cashTotal counts the cash. assetAllocation counts the whole account under its own class, so investmentsTotal counts the cash again. In the example, checking $5,000 plus a hand-built Schwab ($6,120.55 cash + $63,235.20 VTI) gives cash $11,120.55 and investments $69,355.75. Those add to $80,476.30, against investable assets of $74,355.75.",
+   "should_be": "Investments = Stocks/Funds + Bonds & CDs + Alternatives + Unclassified, where every account with a class split (linked or hand-built) gives only its non-cash parts. Then cashTotal + investmentsTotal = investableAssets holds for every household.",
+   "rests_on": "Card's own invariant; owner DEC-0343; consistency with MK-NW-F-016.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-022",
+   "name": "investableAssets",
+   "verdict": "RIGHT",
+   "why": "Investable assets = the balances of all accounts that are not real estate or personal property, each counted once. This matches what it is for. An overdrawn account counts at its negative balance.",
+   "should_be": "",
+   "rests_on": "Ordinary arithmetic.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "verdict": "INCOMPLETE",
+   "why": "The card promises that 'a tax-advantaged account always shows what it is', but the kind word comes from the kind alone. A Roth 401(k) is kind 401(k) in the Roth bucket (MK-NW-F-010), so it reads 'Fidelity 401(k) -7712', the same as a pre-tax 401(k). A household with both at one employer cannot tell which is Roth. The tax-bucket override covers only a kind that says 'Brokerage'.",
+   "should_be": "When the kind is 401(k) and the account is in the Roth bucket (or tax-free), the kind word is 'Roth 401(k)'.",
+   "rests_on": "Card's own promise; MK-NW-F-010 mapping of roth_401k.",
+   "severity": "low"
+  },
+  {
+   "id": "MK-NW-F-026",
+   "name": "accountDisplayNames",
+   "verdict": "RIGHT",
+   "why": "Each account takes its own display name. Names that clash are numbered · 1, · 2 in the text order of their ids, which is creation order, and a number already used as another account's name is skipped. No two accounts can end up with the same name. Nothing here changes a number.",
+   "should_be": "",
+   "rests_on": "Ordinary arithmetic; owner DEC-0382 (same words for the same thing).",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-109",
+   "name": "holdingClassOf",
+   "verdict": "INCOMPLETE",
+   "why": "Steps (1) to (3) are right and follow the owner's rules. Step (4) sends 'anything else' to Stocks / Funds, and that includes a holding with NO stored class at all. Such a holding has no name evidence and has not been marked as asked, so nothing says what kind of asset it is. The owner ruled for exactly that case: 'Refuse the line and ask' (2026-09-30). Stocks / Funds there is an invented default.",
+   "should_be": "(4) bond → Bonds & CDs; other → Alternatives; cash → cash; a recognised equity or fund tag → Stocks / Funds. NO stored class and no evidence → Unclassified, and the holding is marked as asked.",
+   "rests_on": "Owner rule 7 (2026-09-30, master Q11).",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-027",
+   "name": "accountClassBreakdown",
+   "verdict": "WRONG",
+   "why": "The linked-account branch is right: cash, priced holdings by holdingClassOf, options in Alternatives, an unpriced remainder never put in cash, and the owner's $1/1% tolerance. The hand-built branch is not. It leaves 'the rest of the balance whole under the account's own class', so a hand-built account holding VTI and a US T-bill files the T-bill under Stocks / Funds. That breaks owner DEC-0051/0092, which makes T-bills Bonds & CDs. It also breaks the card's own goal of 'how much of one account sits in each class', and the promise of MK-NW-F-109 and MK-NW-F-028 that the split, the words and the page all use one rule. A hand-built account's balance is cash plus Σ(shares × price), so its holdings can be split exactly.",
+   "should_be": "Hand-built account: cash = recorded uninvested cash, capped at the balance. Each holding = shares × price under holdingClassOf. Any remainder is handled as for a linked account. The parts still add to the balance.",
+   "rests_on": "Owner DEC-0051, DEC-0092; MK-NW-F-109 'the one rule the split, the words under it and the account's page all use'.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-028",
+   "name": "classPortionLabel",
+   "verdict": "INCOMPLETE",
+   "why": "The counting is right. It uses the same class test as the dollars (holdingClassOf). It names CDs and Treasuries as the owner asked (DEC-0090), drops zero counts and joins parts with '&' and 'A, B & C'. 'CDW Corp' rightly does not count as a CD. Two gaps change the words a person reads. (1) A Treasury described the way a broker sends it ('UNITED STATES TREAS BILLS 0% 01/15/27', 'US TREAS NT') has none of the whole words Treasury, T-bill, T-note or government, so it is counted as a bond. The words then read '1 CD & 1 bond' for an account holding a CD and a T-bill. (2) The plural of Treasury is not given ('2 Treasuries' or '2 Treasurys').",
+   "should_be": "Count as Treasury any holding whose name has Treasury, Treas, UST, T-bill, T-bills, Bill(s) with a US Treasury issuer, T-note or T-bond (capitals ignored, whole words). Plurals: CDs, Treasuries, bonds.",
+   "rests_on": "Owner DEC-0090 (2026-08-11); ordinary broker description formats.",
+   "severity": "low"
+  },
+  {
+   "id": "MK-NW-O-003",
+   "name": "theNetWorth",
+   "verdict": "WRONG",
+   "why": "(a) Investments double-count the uninvested cash of a hand-built account (see MK-NW-F-021). The card promises 'Cash + Investments + property comes to everything owned', but for a hand-built account it adds to more than Assets. The same wrong number reaches /home and /analytics (YOUR INVESTMENTS) and /insights (Total invested), so all three agree with each other and are all wrong. (b) Debts: each line uses 'the larger of the minimum and the payment set', but the card does not say which monthly total is printed as 'Monthly debt payments' (MK-NW-M-012) on /analytics and /home. That figure answers 'what all your debts REQUIRE', which is the minimum, while the type comment says the screen prints the minimum and the line rule prints the larger. The card is also silent on a debt whose minimum was never entered (M-011 refuses) as against one that genuinely requires $0. (c) The return is correctly time-weighted (owner rule 1), but the card does not say that a recorded day's value is taken AFTER that day's money moved. MK-NW-O-008 says so, and the rule is needed to work out 'the value just before the next movement'. Name both cards. (d) With nothing entered, the formula adds nothing up and gives Net worth $0, Cash $0 and Investments $0. The TheNetWorth type has no empty value, yet MK-XS-M-001 must say 'Nothing entered yet' rather than 'showing $0 as a fact'. The card does not say how the orchestrator tells 'nothing entered' from a real $0. The approved drawing reproduces exactly, provided the Vanguard account is linked.",
+   "should_be": "Investments = the non-cash parts of every account with a class split (linked or hand-built) + every other investment account whole, so Cash + Investments + Real estate + Personal property = Assets. Monthly debt payments: state which total the screen prints. A debt with no minimum entered is refused on its line and named in the total's footnote, never added as $0. Return: say that a recorded day's value is taken after that day's money moved, the same way as MK-NW-O-008. With no accounts and no debts, hand back 'nothing entered' (null figures), never $0.",
+   "rests_on": "Card's own invariant; owner DEC-0343; owner rule 1 (2026-10-04); approved drawing Net worth v08 state A.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "verdict": "WRONG",
+   "why": "(a) When the record cannot reach the beginning, the formula BACK-SOLVES one: beginning = ending − priced gain − contributions + withdrawals. Wealth generated then equals the priced gain. Both are shown as if they were measured. That contradicts what the card's own figures say they must do. Wealth generated (MK-PF-M-002) refuses: 'nothing honest to subtract from'. Beginning market value (MK-PF-M-013) says 'the walk is not drawn at all rather than started from a guess'. It also contradicts owner DEC-0230 ('We never back-fill …'). It is the 'invented default where the honest answer is no answer' shape. (b) Read literally, the beginning is read 'at the day BEFORE the period opens', and only when the record's first day is on or before that day. A Since window opens on the record's first day, so every Since figure would refuse. The type (WindowFigures.beginningAsOf) says Since reads the record's first day, so the card is silent on its own most-used window. (c) It does not say which day the yearly-rate test counts days from: the window's first day or the beginning day (the day before). For a window that opens exactly two years ago, the yearly rate is +10.00% counted one way and +10.01% the other. The TWR pieces themselves, the walk and the ending are right, and they reproduce the approved drawing.",
+   "should_be": "When the record cannot reach the window's beginning: no beginning and no wealth generated. Either the walk is not drawn, or it starts on the record's first day and says so. No percent either way, and never a back-solved start. For Since: the beginning is the record's first recorded day. Years = days from the window's first day to today ÷ 365. A window of exactly one year (365 days) is then shown as its total, and exactly two years (730 days) gives years = 2. The card should say this.",
+   "rests_on": "MK-PF-M-002/013/018 refusal rules; owner DEC-0230; owner rule 1 (2026-10-04); approved drawing Performance v17 phone 1.",
+   "severity": "high"
+  }
+ ],
+ "cases": [
+  {
+   "id": "MK-NW-F-001",
+   "name": "isAlternative",
+   "kind": "easy",
+   "title": "Crypto account typed by hand",
+   "given": "A Coinbase account of kind crypto, typed at $8,400, no class stated.",
+   "inputs": {
+    "kind": "crypto",
+    "balance": 8400,
+    "class_stated": null,
+    "holdings_listed": 0
+   },
+   "expected": {
+    "is_alternative": true
+   },
+   "working": [
+    "assetClassOf: no stated class, no maturity date, no name evidence; step (4) kind crypto → Alternatives",
+    "Class is Alternatives → true"
+   ],
+   "rests_on": "MK-NW-F-001 formula (class = Alternatives) over MK-NW-F-011 assetClassOf steps",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-001",
+   "name": "isAlternative",
+   "kind": "easy",
+   "title": "Brokerage that lists its holdings",
+   "given": "A Vanguard brokerage, kind brokerage, listing VTI and BND.",
+   "inputs": {
+    "kind": "brokerage",
+    "holdings_listed": 2,
+    "class_stated": null
+   },
+   "expected": {
+    "is_alternative": false
+   },
+   "working": [
+    "assetClassOf: brokerage is not in step (4)'s list; step (5) it lists holdings → Stocks / Funds",
+    "Not Alternatives → false"
+   ],
+   "rests_on": "MK-NW-F-001 formula (class = Alternatives) over MK-NW-F-011 assetClassOf steps",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-001",
+   "name": "isAlternative",
+   "kind": "complex",
+   "title": "Private-equity row saved before the phase-1 cut, beside a structured note with a maturity date",
+   "given": "Account A: kind private_equity, typed $150,000, saved 2026-07-02 (before owner rules 8/9 removed the option). Account B: kind other, named 'Goldman Sachs Buffered Note', maturity 2028-03-15, $25,000. Account C: kind gold and commodities, stated class by the person = Stocks / Funds (it is a GLD position typed by hand), $12,000.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "A",
+      "kind": "private_equity",
+      "balance": 150000,
+      "saved": "2026-07-02"
+     },
+     {
+      "name": "B",
+      "kind": "other",
+      "label": "Goldman Sachs Buffered Note",
+      "maturity_date": "2028-03-15",
+      "balance": 25000
+     },
+     {
+      "name": "C",
+      "kind": "commodities",
+      "class_stated_by_person": "stocks_etf",
+      "balance": 12000
+     }
+    ]
+   },
+   "expected": {
+    "A": true,
+    "B": false,
+    "C": false
+   },
+   "working": [
+    "A: no stated class, no maturity date; step (4) private equity → Alternatives → true. Owner rules 8/9: a row saved earlier is kept, so it is still classed",
+    "B: step (2) maturity date given → Bonds & CDs, before step (4) 'other → Alternatives' → false",
+    "C: step (1) the person's stated class Stocks / Funds wins over kind → false"
+   ],
+   "rests_on": "assetClassOf step order; owner rules 8 and 9; owner DEC-0051 (maturity-dated = bond)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-001",
+   "name": "isAlternative",
+   "kind": "complex",
+   "title": "Hedge-fund row and an options account with holdings",
+   "given": "Account D: kind hedge_funds, typed $80,000, saved 2026-05-11 (before the phase-1 cut). Account E: kind options, linked, listing 3 option positions. Account F: kind annuities, typed $64,210.33.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "D",
+      "kind": "hedge_funds",
+      "balance": 80000,
+      "saved": "2026-05-11"
+     },
+     {
+      "name": "E",
+      "kind": "options",
+      "linked": true,
+      "option_positions": 3
+     },
+     {
+      "name": "F",
+      "kind": "annuities",
+      "balance": 64210.33
+     }
+    ]
+   },
+   "expected": {
+    "D": true,
+    "E": true,
+    "F": true
+   },
+   "working": [
+    "D: step (4) hedge funds → Alternatives → true (owner rule 8: the saved row is kept)",
+    "E: step (4) options → Alternatives (step 4 comes before step 5 'lists holdings') → true",
+    "F: step (4) annuities → Alternatives → true"
+   ],
+   "rests_on": "assetClassOf step (4); owner rules 8 and 9",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-001",
+   "name": "isAlternative",
+   "kind": "edge",
+   "title": "Nothing recorded on the account at all",
+   "given": "An account with no kind, no stated class, no maturity date, no holdings, not cash, not property, typed at $5,000.",
+   "inputs": {
+    "kind": null,
+    "class_stated": null,
+    "maturity_date": null,
+    "holdings_listed": 0,
+    "cash_account": false,
+    "property": false,
+    "balance": 5000
+   },
+   "expected": {
+    "is_alternative": false,
+    "class": "Unclassified"
+   },
+   "working": [
+    "assetClassOf steps (1)–(7) do not apply; step (8) → Unclassified",
+    "Unclassified is not Alternatives → false (it is not guessed into Alternatives)"
+   ],
+   "rests_on": "MK-NW-F-001 formula (class = Alternatives) over MK-NW-F-011 assetClassOf steps",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-003",
+   "name": "valueFreshness",
+   "kind": "easy",
+   "title": "Value set three months ago to the day",
+   "given": "Home value typed on 2026-07-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "value_date": "2026-07-07",
+    "balance_built_from_holdings": false
+   },
+   "expected": {
+    "as_of": "2026-07-07",
+    "months_old": 3,
+    "stale": false
+   },
+   "working": [
+    "years apart × 12 + months apart = (2026−2026)×12 + (10−7) = 3",
+    "today's day 7 ≥ value day 7 → no change → 3",
+    "3 < 6 → stale = False"
+   ],
+   "rests_on": "MK-NW-F-003 formula: whole months = years×12 + months − (1 if today's day < value day), floor 0; stale at 6 or more",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-003",
+   "name": "valueFreshness",
+   "kind": "easy",
+   "title": "Brokerage whose balance is built from its holdings",
+   "given": "A brokerage with derive_balance true and a value date of 2025-01-15.",
+   "inputs": {
+    "today": "2026-10-07",
+    "balance_built_from_holdings": true,
+    "value_date": "2025-01-15"
+   },
+   "expected": "REFUSES",
+   "working": [
+    "Balance is built from holdings and refreshed from prices → nothing hand-typed to age → no answer (null)"
+   ],
+   "rests_on": "MK-NW-F-003 formula: whole months = years×12 + months − (1 if today's day < value day), floor 0; stale at 6 or more",
+   "confidence": "high",
+   "notes": "Expected is no answer (null): there is no hand-typed value to age."
+  },
+  {
+   "id": "MK-NW-F-003",
+   "name": "valueFreshness",
+   "kind": "complex",
+   "title": "Value dated by its month only",
+   "given": "A car value typed as '2026-04' (month only), on a typed vehicle account.",
+   "inputs": {
+    "today": "2026-10-07",
+    "value_date": "2026-04",
+    "balance_built_from_holdings": false,
+    "value_dated_by_month_only": true
+   },
+   "expected": {
+    "as_of": "2026-04-01",
+    "months_old": 6,
+    "stale": true
+   },
+   "working": [
+    "Month-only date → counts from the 1st: 2026-04-01",
+    "years apart × 12 + months apart = (2026−2026)×12 + (10−4) = 6",
+    "today's day 7 ≥ value day 1 → no change → 6",
+    "6 ≥ 6 → stale = True"
+   ],
+   "rests_on": "MK-NW-F-003 formula: whole months = years×12 + months − (1 if today's day < value day), floor 0; stale at 6 or more",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-003",
+   "name": "valueFreshness",
+   "kind": "complex",
+   "title": "One day short of six months",
+   "given": "A Fundrise holding typed 2026-04-08; today the 7th.",
+   "inputs": {
+    "today": "2026-10-07",
+    "value_date": "2026-04-08",
+    "balance_built_from_holdings": false
+   },
+   "expected": {
+    "as_of": "2026-04-08",
+    "months_old": 5,
+    "stale": false
+   },
+   "working": [
+    "years apart × 12 + months apart = (2026−2026)×12 + (10−4) = 6",
+    "today's day 7 < value day 8 → less 1 → 5",
+    "5 < 6 → stale = False"
+   ],
+   "rests_on": "MK-NW-F-003 formula: whole months = years×12 + months − (1 if today's day < value day), floor 0; stale at 6 or more",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-003",
+   "name": "valueFreshness",
+   "kind": "edge",
+   "title": "Exactly six months to the day",
+   "given": "An art piece valued on 2026-04-07; today 2026-10-07 — the stale line exactly.",
+   "inputs": {
+    "today": "2026-10-07",
+    "value_date": "2026-04-07",
+    "balance_built_from_holdings": false
+   },
+   "expected": {
+    "as_of": "2026-04-07",
+    "months_old": 6,
+    "stale": true
+   },
+   "working": [
+    "years apart × 12 + months apart = (2026−2026)×12 + (10−4) = 6",
+    "today's day 7 ≥ value day 7 → no change → 6",
+    "6 ≥ 6 → stale = True"
+   ],
+   "rests_on": "MK-NW-F-003 formula: whole months = years×12 + months − (1 if today's day < value day), floor 0; stale at 6 or more",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-004",
+   "name": "portfolioActualReturn",
+   "kind": "easy",
+   "title": "One account fully set aside for retirement",
+   "given": "Fidelity 401(k) $100,000, all set aside for retirement, reported +8% over twelve months.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Fidelity 401(k)",
+      "bal": 100000,
+      "pct": 100,
+      "ttm": 0.08
+     }
+    ]
+   },
+   "expected": {
+    "return": {
+     "exact": 0.08,
+     "exact_percent": 8.0,
+     "shown": "+8.00%"
+    }
+   },
+   "working": [
+    "Fidelity 401(k): earmarked = 100,000.00; reported return 8.0000%; start value = 100,000.00 ÷ 1.0800 = 92,592.59",
+    "Σ earmarked now = 100,000.00; Σ start values = 92,592.59",
+    "Right (start-weighted) = 100,000.00 ÷ 92,592.59 − 1 = 0.080000 = 8.0000%",
+    "Formula as written (today-weighted) = Σ(earmarked × return) ÷ Σ earmarked = 8,000.00 ÷ 100,000.00 = 0.080000 = 8.0000%",
+    "One account: both weightings give the same"
+   ],
+   "rests_on": "Start-of-period weighting of component returns (CFA Institute GIPS); owner rule 1 (2026-10-04); MK-NW-F-004 inclusion rules",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-004",
+   "name": "portfolioActualReturn",
+   "kind": "easy",
+   "title": "An account with no return reported is left out, not read as 0",
+   "given": "Vanguard IRA $50,000 reported +10%; Schwab brokerage $50,000 with no return reported; both fully set aside.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Vanguard IRA",
+      "bal": 50000,
+      "pct": 100,
+      "ttm": 0.1
+     },
+     {
+      "name": "Schwab brokerage",
+      "bal": 50000,
+      "pct": 100,
+      "ttm": null
+     }
+    ]
+   },
+   "expected": {
+    "return": {
+     "exact": 0.1,
+     "exact_percent": 10.0,
+     "shown": "+10.00%"
+    }
+   },
+   "working": [
+    "Schwab: no return reported → left out (not 0%)",
+    "Vanguard IRA: earmarked = 50,000.00; reported return 10.0000%; start value = 50,000.00 ÷ 1.1000 = 45,454.55",
+    "Σ earmarked now = 50,000.00; Σ start values = 45,454.55",
+    "Right (start-weighted) = 50,000.00 ÷ 45,454.55 − 1 = 0.100000 = 10.0000%",
+    "Formula as written (today-weighted) = Σ(earmarked × return) ÷ Σ earmarked = 5,000.00 ÷ 50,000.00 = 0.100000 = 10.0000%"
+   ],
+   "rests_on": "Start-of-period weighting of component returns (CFA Institute GIPS); owner rule 1 (2026-10-04); MK-NW-F-004 inclusion rules",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-004",
+   "name": "portfolioActualReturn",
+   "kind": "complex",
+   "title": "Three accounts, partly set aside, returns far apart",
+   "given": "Fidelity 401(k) $412,600, 100% set aside, +18.40%. Vanguard brokerage $192,500, 50% set aside, −4.75%. Fidelity HSA $80,000, 75% set aside, +11.20%. Home $612,400 (reported +6%). Chase Checking $14,206.15, 0% set aside, no return. No money added in the year.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Fidelity 401(k)",
+      "bal": 412600,
+      "pct": 100,
+      "ttm": 0.184
+     },
+     {
+      "name": "Vanguard brokerage",
+      "bal": 192500,
+      "pct": 50,
+      "ttm": -0.0475
+     },
+     {
+      "name": "Fidelity HSA",
+      "bal": 80000,
+      "pct": 75,
+      "ttm": 0.112
+     },
+     {
+      "name": "Home",
+      "bal": 612400,
+      "pct": 100,
+      "ttm": 0.06,
+      "property": true
+     },
+     {
+      "name": "Chase Checking",
+      "bal": 14206.15,
+      "pct": 0,
+      "ttm": null
+     }
+    ],
+    "money_added_in_year": 0
+   },
+   "expected": {
+    "return": {
+     "exact": 0.1298,
+     "exact_percent": 12.9822,
+     "shown": "+12.98%"
+    }
+   },
+   "formula_gives": {
+    "return": {
+     "exact": 0.1372,
+     "exact_percent": 13.7236,
+     "shown": "+13.72%"
+    }
+   },
+   "working": [
+    "Home: property → out",
+    "Checking: nothing set aside and no return → out",
+    "Fidelity 401(k): earmarked = 412,600.00; reported return 18.4000%; start value = 412,600.00 ÷ 1.1840 = 348,479.73",
+    "Vanguard brokerage: earmarked = 96,250.00; reported return -4.7500%; start value = 96,250.00 ÷ 0.9525 = 101,049.87",
+    "Fidelity HSA: earmarked = 60,000.00; reported return 11.2000%; start value = 60,000.00 ÷ 1.1120 = 53,956.83",
+    "Σ earmarked now = 568,850.00; Σ start values = 503,486.43",
+    "Right (start-weighted) = 568,850.00 ÷ 503,486.43 − 1 = 0.129822 = 12.9822%",
+    "Formula as written (today-weighted) = Σ(earmarked × return) ÷ Σ earmarked = 78,066.52 ÷ 568,850.00 = 0.137236 = 13.7236%",
+    "The earmarked money really grew from the sum of start values to the sum now, so the start-weighted figure is what it returned"
+   ],
+   "rests_on": "Start-of-period weighting of component returns (CFA Institute GIPS); owner rule 1 (2026-10-04); MK-NW-F-004 inclusion rules",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-004",
+   "name": "portfolioActualReturn",
+   "kind": "complex",
+   "title": "A reported 0%, an account with nothing set aside, and a rental",
+   "given": "Schwab Roth IRA $73,418.22, all set aside, reported 0.00%. E*TRADE brokerage $41,250.00, 0% set aside, reported +25%. Vanguard 401(k) $128,904.60, all set aside, +9.15%. Rental condo $348,750 reported +6%.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Schwab Roth IRA",
+      "bal": 73418.22,
+      "pct": 100,
+      "ttm": 0.0
+     },
+     {
+      "name": "E*TRADE brokerage",
+      "bal": 41250.0,
+      "pct": 0,
+      "ttm": 0.25
+     },
+     {
+      "name": "Vanguard 401(k)",
+      "bal": 128904.6,
+      "pct": 100,
+      "ttm": 0.0915
+     },
+     {
+      "name": "Rental condo",
+      "bal": 348750,
+      "pct": 100,
+      "ttm": 0.06,
+      "property": true
+     }
+    ]
+   },
+   "expected": {
+    "return": {
+     "exact": 0.0564,
+     "exact_percent": 5.6423,
+     "shown": "+5.64%"
+    }
+   },
+   "formula_gives": {
+    "return": {
+     "exact": 0.0583,
+     "exact_percent": 5.8297,
+     "shown": "+5.83%"
+    }
+   },
+   "working": [
+    "Roth IRA: a reported 0 counts",
+    "E*TRADE: nothing set aside → out",
+    "Rental condo: property → out",
+    "Schwab Roth IRA: earmarked = 73,418.22; reported return 0.0000%; start value = 73,418.22 ÷ 1.0000 = 73,418.22",
+    "Vanguard 401(k): earmarked = 128,904.60; reported return 9.1500%; start value = 128,904.60 ÷ 1.0915 = 118,098.58",
+    "Σ earmarked now = 202,322.82; Σ start values = 191,516.80",
+    "Right (start-weighted) = 202,322.82 ÷ 191,516.80 − 1 = 0.056423 = 5.6423%",
+    "Formula as written (today-weighted) = Σ(earmarked × return) ÷ Σ earmarked = 11,794.77 ÷ 202,322.82 = 0.058297 = 5.8297%"
+   ],
+   "rests_on": "Start-of-period weighting of component returns (CFA Institute GIPS); owner rule 1 (2026-10-04); MK-NW-F-004 inclusion rules",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-004",
+   "name": "portfolioActualReturn",
+   "kind": "edge",
+   "title": "Returns reported but nothing set aside for retirement",
+   "given": "Two accounts, Schwab brokerage $60,000 reported +7% and Ally savings $20,000 reported +4.1%, each with 0% set aside for retirement.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Schwab brokerage",
+      "bal": 60000,
+      "pct": 0,
+      "ttm": 0.07
+     },
+     {
+      "name": "Ally savings",
+      "bal": 20000,
+      "pct": 0,
+      "ttm": 0.041
+     }
+    ]
+   },
+   "expected": "REFUSES",
+   "working": [
+    "Earmarked amounts: 60,000 × 0% = 0; 20,000 × 0% = 0",
+    "Total set aside = 0 → no answer (never 6% or 0%)"
+   ],
+   "rests_on": "Start-of-period weighting of component returns (CFA Institute GIPS); owner rule 1 (2026-10-04); MK-NW-F-004 inclusion rules",
+   "confidence": "high",
+   "notes": "Reason: nothing is set aside for retirement, so there is no retirement money to have a return."
+  },
+  {
+   "id": "MK-NW-F-005",
+   "name": "accountAllowsTicker",
+   "kind": "easy",
+   "title": "Checking account",
+   "given": "Chase Checking.",
+   "inputs": {
+    "kind": "checking",
+    "holdings_listed": 0
+   },
+   "expected": {
+    "allows_ticker": false
+   },
+   "working": [
+    "Checking → false (first test)"
+   ],
+   "rests_on": "MK-NW-F-005 formula, in its stated order",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-005",
+   "name": "accountAllowsTicker",
+   "kind": "easy",
+   "title": "Empty brokerage",
+   "given": "A new Schwab brokerage with no holdings yet, class not yet known.",
+   "inputs": {
+    "kind": "brokerage",
+    "holdings_listed": 0
+   },
+   "expected": {
+    "allows_ticker": true
+   },
+   "working": [
+    "Not property, cash, 529, checking or savings",
+    "No holdings listed",
+    "Class is not Bonds & CDs or Alternatives → true"
+   ],
+   "rests_on": "MK-NW-F-005 formula, in its stated order",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-005",
+   "name": "accountAllowsTicker",
+   "kind": "complex",
+   "title": "529 with holdings, typed CD, crypto account, tax-advantaged accounts",
+   "given": "Four accounts: a 529 that lists two plan portfolios; an Ally CD (kind CD, no holdings); a crypto account with no holdings; a Fidelity HSA with no holdings.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "529",
+      "kind": "529",
+      "holdings_listed": 2
+     },
+     {
+      "name": "Ally CD",
+      "kind": "cd",
+      "holdings_listed": 0
+     },
+     {
+      "name": "Crypto",
+      "kind": "crypto",
+      "holdings_listed": 0
+     },
+     {
+      "name": "HSA",
+      "kind": "hsa",
+      "tax_bucket": "PRE_TAX",
+      "holdings_listed": 0
+     }
+    ]
+   },
+   "expected": {
+    "529": false,
+    "Ally CD": false,
+    "Crypto": false,
+    "HSA": true
+   },
+   "working": [
+    "529 → false, before the holdings test",
+    "Ally CD: no holdings; class Bonds & CDs → false",
+    "Crypto: no holdings; class Alternatives → false",
+    "HSA: no holdings; class is not Bonds & CDs or Alternatives → true"
+   ],
+   "rests_on": "MK-NW-F-005 formula, in its stated order",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-005",
+   "name": "accountAllowsTicker",
+   "kind": "complex",
+   "title": "Cash-management, savings, home and unclassified account",
+   "given": "A Fidelity cash-management account (kind cash management), an Ally savings, a home, and a hand-typed account with no kind recorded.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "CMA",
+      "kind": "cash_management"
+     },
+     {
+      "name": "Savings",
+      "kind": "savings"
+     },
+     {
+      "name": "Home",
+      "kind": "home",
+      "tax_bucket": "PROPERTY"
+     },
+     {
+      "name": "Unknown",
+      "kind": null,
+      "holdings_listed": 0
+     }
+    ]
+   },
+   "expected": {
+    "CMA": false,
+    "Savings": false,
+    "Home": false,
+    "Unknown": true
+   },
+   "working": [
+    "CMA: class cash (cash account) → false",
+    "Savings → false",
+    "Home: property → false",
+    "Unknown: none of the false tests; no holdings; class Unclassified (not Bonds/Alternatives) → true"
+   ],
+   "rests_on": "MK-NW-F-005 formula, in its stated order",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-005",
+   "name": "accountAllowsTicker",
+   "kind": "edge",
+   "title": "Bonds account that already lists holdings",
+   "given": "An E*TRADE bond ladder account classed Bonds & CDs that already lists three Treasuries.",
+   "inputs": {
+    "kind": "fixed_income",
+    "holdings_listed": 3
+   },
+   "expected": {
+    "allows_ticker": true
+   },
+   "working": [
+    "Not property/cash/529/checking/savings",
+    "Already lists holdings → true, before the Bonds & CDs test"
+   ],
+   "rests_on": "MK-NW-F-005 formula, in its stated order",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-007",
+   "name": "assetKind",
+   "kind": "easy",
+   "title": "Known id",
+   "given": "Id 'checking'.",
+   "inputs": {
+    "id": "checking"
+   },
+   "expected": {
+    "found": true,
+    "typical_yearly_return": 0.005
+   },
+   "working": [
+    "'checking' is in the list → its entry; typical yearly return 0.5% (MK-NW-F-034)"
+   ],
+   "rests_on": "MK-NW-F-007 formula (exact id match); typical yearly returns from MK-NW-F-034",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-007",
+   "name": "assetKind",
+   "kind": "easy",
+   "title": "Same word, different capitals",
+   "given": "Id 'Checking'.",
+   "inputs": {
+    "id": "Checking"
+   },
+   "expected": {
+    "found": false
+   },
+   "working": [
+    "Match is exact; 'Checking' ≠ 'checking' → nothing"
+   ],
+   "rests_on": "MK-NW-F-007 formula (exact id match); typical yearly returns from MK-NW-F-034",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-007",
+   "name": "assetKind",
+   "kind": "complex",
+   "title": "Stray spaces and the right ids side by side",
+   "given": "Ids ' brokerage', 'brokerage', 'brokerage '.",
+   "inputs": {
+    "ids": [
+     " brokerage",
+     "brokerage",
+     "brokerage "
+    ]
+   },
+   "expected": {
+    " brokerage": {
+     "found": false
+    },
+    "brokerage": {
+     "found": true,
+     "typical_yearly_return": 0.08
+    },
+    "brokerage ": {
+     "found": false
+    }
+   },
+   "working": [
+    "Leading or trailing space → not an exact match → nothing",
+    "'brokerage' → entry, typical 8%"
+   ],
+   "rests_on": "MK-NW-F-007 formula (exact id match); typical yearly returns from MK-NW-F-034",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-007",
+   "name": "assetKind",
+   "kind": "complex",
+   "title": "Wrapper ids typed the person's way",
+   "given": "Ids '401k', '401(k)', 'home', 'HOME'.",
+   "inputs": {
+    "ids": [
+     "401k",
+     "401(k)",
+     "home",
+     "HOME"
+    ]
+   },
+   "expected": {
+    "401k": {
+     "found": true,
+     "typical_yearly_return": 0.079
+    },
+    "401(k)": {
+     "found": false
+    },
+    "home": {
+     "found": true,
+     "typical_yearly_return": 0.045
+    },
+    "HOME": {
+     "found": false
+    }
+   },
+   "working": [
+    "'401k' → entry, 7.9%",
+    "'401(k)' is the display word, not the id → nothing",
+    "'home' → entry, 4.5%",
+    "'HOME' → nothing"
+   ],
+   "rests_on": "MK-NW-F-007 formula (exact id match); typical yearly returns from MK-NW-F-034",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-007",
+   "name": "assetKind",
+   "kind": "edge",
+   "title": "No id at all",
+   "given": "Id absent; and id ''.",
+   "inputs": {
+    "ids": [
+     null,
+     ""
+    ]
+   },
+   "expected": {
+    "absent": {
+     "found": false
+    },
+    "empty": {
+     "found": false
+    }
+   },
+   "working": [
+    "No id → nothing",
+    "Empty text → nothing (no default kind is invented)"
+   ],
+   "rests_on": "MK-NW-F-007 formula (exact id match); typical yearly returns from MK-NW-F-034",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-009",
+   "name": "maturityClass",
+   "kind": "easy",
+   "title": "A CD with a maturity date",
+   "given": "Maturity 2027-03-15.",
+   "inputs": {
+    "maturity_date": "2027-03-15"
+   },
+   "expected": {
+    "class": "bonds"
+   },
+   "working": [
+    "Date given → Bonds & CDs"
+   ],
+   "rests_on": "MK-NW-F-009 formula; owner DEC-0051 (2026-08-04): any maturity-dated instrument is a bond",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-009",
+   "name": "maturityClass",
+   "kind": "easy",
+   "title": "No maturity date",
+   "given": "Maturity absent.",
+   "inputs": {
+    "maturity_date": null
+   },
+   "expected": {
+    "class": "cash"
+   },
+   "working": [
+    "None → cash"
+   ],
+   "rests_on": "MK-NW-F-009 formula; owner DEC-0051 (2026-08-04): any maturity-dated instrument is a bond",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-009",
+   "name": "maturityClass",
+   "kind": "complex",
+   "title": "Past date, blank text and month-only date",
+   "given": "Three instruments: maturity '2025-06-30' (already matured, still on file), '   ' (spaces), '2026-11' (month only).",
+   "inputs": {
+    "maturity_dates": [
+     "2025-06-30",
+     "   ",
+     "2026-11"
+    ]
+   },
+   "expected": {
+    "2025-06-30": "bonds",
+    "   ": "cash",
+    "2026-11": "bonds"
+   },
+   "working": [
+    "'2025-06-30': a date is given; whether it has passed is not looked at → bonds",
+    "'   ': blank counts as none → cash",
+    "'2026-11': a date is given → bonds"
+   ],
+   "rests_on": "MK-NW-F-009 formula; owner DEC-0051 (2026-08-04): any maturity-dated instrument is a bond",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-009",
+   "name": "maturityClass",
+   "kind": "complex",
+   "title": "Six-week T-bill and a 30-year bond",
+   "given": "A 6-week T-bill maturing 2026-11-18 and a Treasury bond maturing 2056-08-15; plus an empty string from an import.",
+   "inputs": {
+    "maturity_dates": [
+     "2026-11-18",
+     "2056-08-15",
+     ""
+    ]
+   },
+   "expected": {
+    "2026-11-18": "bonds",
+    "2056-08-15": "bonds",
+    "": "cash"
+   },
+   "working": [
+    "Both dated → bonds, regardless of how soon (the owner rule supersedes the old 12-month split)",
+    "'' → none → cash"
+   ],
+   "rests_on": "MK-NW-F-009 formula; owner DEC-0051 (2026-08-04): any maturity-dated instrument is a bond",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-009",
+   "name": "maturityClass",
+   "kind": "edge",
+   "title": "Matures today",
+   "given": "A CD maturing 2026-10-07, today 2026-10-07.",
+   "inputs": {
+    "maturity_date": "2026-10-07",
+    "today": "2026-10-07"
+   },
+   "expected": {
+    "class": "bonds"
+   },
+   "working": [
+    "A date is given; the function does not look at whether it has passed → bonds"
+   ],
+   "rests_on": "MK-NW-F-009 formula; owner DEC-0051 (2026-08-04): any maturity-dated instrument is a bond",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-010",
+   "name": "wrapperAccount",
+   "kind": "easy",
+   "title": "401(k)",
+   "given": "Wrapper 401k.",
+   "inputs": {
+    "wrapper": "401k"
+   },
+   "expected": {
+    "kind": "401k",
+    "tax_bucket": "PRE_TAX"
+   },
+   "working": [
+    "401(k) → kind 401(k), pre-tax"
+   ],
+   "rests_on": "MK-NW-F-010 formula; IRS wrapper treatment",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-010",
+   "name": "wrapperAccount",
+   "kind": "easy",
+   "title": "Nothing chosen",
+   "given": "No wrapper.",
+   "inputs": {
+    "wrapper": null
+   },
+   "expected": {
+    "kind": "brokerage",
+    "tax_bucket": "TAXABLE"
+   },
+   "working": [
+    "Nothing chosen → brokerage, taxable"
+   ],
+   "rests_on": "MK-NW-F-010 formula; IRS wrapper treatment",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-010",
+   "name": "wrapperAccount",
+   "kind": "complex",
+   "title": "Roth 401(k) beside a Roth IRA",
+   "given": "Wrappers roth_401k and roth.",
+   "inputs": {
+    "wrappers": [
+     "roth_401k",
+     "roth"
+    ]
+   },
+   "expected": {
+    "roth_401k": {
+     "kind": "401k",
+     "tax_bucket": "ROTH"
+    },
+    "roth": {
+     "kind": "roth_ira",
+     "tax_bucket": "ROTH"
+    }
+   },
+   "working": [
+    "Roth 401(k) → kind 401(k), Roth bucket",
+    "Roth IRA → kind Roth IRA, Roth bucket"
+   ],
+   "rests_on": "MK-NW-F-010 formula; IRS wrapper treatment",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-010",
+   "name": "wrapperAccount",
+   "kind": "complex",
+   "title": "HSA, Traditional IRA and taxable",
+   "given": "Wrappers hsa, trad_ira, taxable.",
+   "inputs": {
+    "wrappers": [
+     "hsa",
+     "trad_ira",
+     "taxable"
+    ]
+   },
+   "expected": {
+    "hsa": {
+     "kind": "hsa",
+     "tax_bucket": "PRE_TAX"
+    },
+    "trad_ira": {
+     "kind": "trad_ira",
+     "tax_bucket": "PRE_TAX"
+    },
+    "taxable": {
+     "kind": "brokerage",
+     "tax_bucket": "TAXABLE"
+    }
+   },
+   "working": [
+    "HSA → HSA, pre-tax",
+    "Traditional IRA → Traditional IRA, pre-tax",
+    "taxable → anything else → brokerage, taxable"
+   ],
+   "rests_on": "MK-NW-F-010 formula; IRS wrapper treatment",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-010",
+   "name": "wrapperAccount",
+   "kind": "edge",
+   "title": "A wrapper the list does not have",
+   "given": "Wrapper 'ISA' (a UK wrapper an import might carry).",
+   "inputs": {
+    "wrapper": "ISA"
+   },
+   "expected": {
+    "kind": "brokerage",
+    "tax_bucket": "TAXABLE"
+   },
+   "working": [
+    "Not one of the five named wrappers → anything else → brokerage, taxable"
+   ],
+   "rests_on": "MK-NW-F-010 formula; IRS wrapper treatment",
+   "confidence": "medium",
+   "notes": "Taxable is the honest US default for an unknown wrapper here, but an ISA is tax-free in the UK; the app is US-only on the evidence of the tax tables, so taxable stands."
+  },
+  {
+   "id": "MK-NW-F-011",
+   "name": "assetClassOf",
+   "kind": "easy",
+   "title": "Checking account",
+   "given": "Kind checking, nothing stated.",
+   "inputs": {
+    "kind": "checking"
+   },
+   "expected": {
+    "class": "cash"
+   },
+   "working": [
+    "Step (4): checking → cash"
+   ],
+   "rests_on": "MK-NW-F-011 steps (1)–(8); owner DEC-0051/0092/0309",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-011",
+   "name": "assetClassOf",
+   "kind": "easy",
+   "title": "Car",
+   "given": "Kind vehicle, property bucket.",
+   "inputs": {
+    "kind": "vehicle",
+    "tax_bucket": "PROPERTY"
+   },
+   "expected": {
+    "class": "personal_property"
+   },
+   "working": [
+    "Step (4): vehicle → Personal property"
+   ],
+   "rests_on": "MK-NW-F-011 steps (1)–(8); owner DEC-0051/0092/0309",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-011",
+   "name": "assetClassOf",
+   "kind": "complex",
+   "title": "Savings kind holding a CD, a rental, and a person's own answer",
+   "given": "Account A: kind savings, named 'Ally 12-month CD', maturity 2027-04-22, $15,000. Account B: kind home, use rental (rent is on the income screen), $348,750. Account C: kind savings, but the person answered 'Stocks / Funds' for it.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "A",
+      "kind": "savings",
+      "label": "Ally 12-month CD",
+      "maturity_date": "2027-04-22",
+      "balance": 15000
+     },
+     {
+      "name": "B",
+      "kind": "home",
+      "re_use": "rental",
+      "balance": 348750
+     },
+     {
+      "name": "C",
+      "kind": "savings",
+      "class_stated_by": "person",
+      "class_stated": "stocks_etf"
+     }
+    ]
+   },
+   "expected": {
+    "A": "bonds",
+    "B": "real_estate",
+    "C": "stocks_etf"
+   },
+   "working": [
+    "A: no stated class; step (2) maturity date → Bonds & CDs, before step (4) savings → cash",
+    "B: step (4) home → Real estate",
+    "C: step (1) the person's own answer wins"
+   ],
+   "rests_on": "MK-NW-F-011 steps (1)–(8); owner DEC-0051/0092/0309",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-011",
+   "name": "assetClassOf",
+   "kind": "complex",
+   "title": "Money-market fund imported with the broker's 'cash' tag",
+   "given": "A CSV import creates an account named 'Fidelity Government Money Market (SPAXX)', kind not set, and the importer writes class = cash from the broker's tag. The person has not answered anything.",
+   "inputs": {
+    "label": "Fidelity Government Money Market (SPAXX)",
+    "kind": null,
+    "class_stated": "cash",
+    "class_stated_by": "importer (broker tag)",
+    "person_answer": null
+   },
+   "expected": {
+    "class": "stocks_etf"
+   },
+   "formula_gives": {
+    "class": "cash"
+   },
+   "working": [
+    "The stated class was written by the importer from the broker's tag, not by the person",
+    "Owner DEC-0309: name-first on every road, broker tag as fallback; DEC-0051/0092: money-market funds are Stocks / Funds",
+    "Name evidence 'Money Market' → Stocks / Funds"
+   ],
+   "rests_on": "Owner DEC-0051, DEC-0092, DEC-0309; MK-NW-F-109 step (3) treats the same tag the same way",
+   "confidence": "medium",
+   "notes": "The card does not say whether the importer may write the stated-class field. The type comment says it does. If only the person can write it, the formula and expected agree."
+  },
+  {
+   "id": "MK-NW-F-011",
+   "name": "assetClassOf",
+   "kind": "edge",
+   "title": "Nothing known about the account",
+   "given": "No kind, no stated class, no maturity date, no holdings, not cash, not property.",
+   "inputs": {
+    "kind": null,
+    "class_stated": null,
+    "maturity_date": null,
+    "holdings_listed": 0,
+    "cash_account": false,
+    "property": false
+   },
+   "expected": {
+    "class": "unclassified"
+   },
+   "working": [
+    "Steps (1)–(7) do not apply → (8) Unclassified, never a guessed class"
+   ],
+   "rests_on": "MK-NW-F-011 steps (1)–(8); owner DEC-0051/0092/0309",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-012",
+   "name": "taxTreatmentOf",
+   "kind": "easy",
+   "title": "Roth IRA",
+   "given": "Bucket ROTH, nothing stated.",
+   "inputs": {
+    "tax_bucket": "ROTH",
+    "kind": "roth_ira"
+   },
+   "expected": {
+    "treatment": "tax_free"
+   },
+   "working": [
+    "Roth → tax-free"
+   ],
+   "rests_on": "MK-NW-F-012 formula; IRC §529, §401(k)/§408, §408A, §223",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-012",
+   "name": "taxTreatmentOf",
+   "kind": "easy",
+   "title": "529 plan",
+   "given": "Kind 529, bucket TAXABLE, nothing stated.",
+   "inputs": {
+    "kind": "529",
+    "tax_bucket": "TAXABLE"
+   },
+   "expected": {
+    "treatment": "tax_free"
+   },
+   "working": [
+    "529 → tax-free, before the bucket test"
+   ],
+   "rests_on": "MK-NW-F-012 formula; IRC §529, §401(k)/§408, §408A, §223",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-012",
+   "name": "taxTreatmentOf",
+   "kind": "complex",
+   "title": "HSA, brokerage, and a stated treatment that overrides its bucket",
+   "given": "Fidelity HSA (bucket PRE_TAX); Vanguard brokerage (TAXABLE); an old 401(k) whose stated treatment is 'taxable' (the person moved it out and kept the row) though its bucket still says PRE_TAX.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "HSA",
+      "kind": "hsa",
+      "tax_bucket": "PRE_TAX"
+     },
+     {
+      "name": "Brokerage",
+      "kind": "brokerage",
+      "tax_bucket": "TAXABLE"
+     },
+     {
+      "name": "Old 401k",
+      "kind": "401k",
+      "tax_bucket": "PRE_TAX",
+      "tax_treatment_stated": "taxable"
+     }
+    ]
+   },
+   "expected": {
+    "HSA": "tax_deferred",
+    "Brokerage": "taxable",
+    "Old 401k": "taxable"
+   },
+   "working": [
+    "HSA: pre-tax → tax-deferred",
+    "Brokerage: anything else → taxable",
+    "Old 401k: stated treatment wins → taxable"
+   ],
+   "rests_on": "MK-NW-F-012 formula; IRC §529, §401(k)/§408, §408A, §223",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-012",
+   "name": "taxTreatmentOf",
+   "kind": "complex",
+   "title": "Cash, property and a Roth 401(k)",
+   "given": "Chase Checking (CASH), Home (PROPERTY), Fidelity Roth 401(k) (kind 401k, bucket ROTH).",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Checking",
+      "tax_bucket": "CASH"
+     },
+     {
+      "name": "Home",
+      "tax_bucket": "PROPERTY"
+     },
+     {
+      "name": "Roth 401k",
+      "kind": "401k",
+      "tax_bucket": "ROTH"
+     }
+    ]
+   },
+   "expected": {
+    "Checking": "taxable",
+    "Home": "taxable",
+    "Roth 401k": "tax_free"
+   },
+   "working": [
+    "CASH → anything else → taxable",
+    "PROPERTY → taxable",
+    "ROTH → tax-free (the kind 401k does not matter)"
+   ],
+   "rests_on": "MK-NW-F-012 formula; IRC §529, §401(k)/§408, §408A, §223",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-012",
+   "name": "taxTreatmentOf",
+   "kind": "edge",
+   "title": "Stated treatment on a 529",
+   "given": "A 529 imported with stated treatment tax_deferred.",
+   "inputs": {
+    "kind": "529",
+    "tax_treatment_stated": "tax_deferred"
+   },
+   "expected": {
+    "treatment": "tax_deferred"
+   },
+   "working": [
+    "The stated treatment is checked first → tax-deferred"
+   ],
+   "rests_on": "MK-NW-F-012 formula; IRC §529, §401(k)/§408, §408A, §223",
+   "confidence": "medium",
+   "notes": "This follows the formula as written: a stated treatment wins. Whether an importer should be allowed to state a 529 is tax-deferred is outside this card."
+  },
+  {
+   "id": "MK-NW-F-108",
+   "name": "taxWordsOf",
+   "kind": "easy",
+   "title": "Roth IRA",
+   "given": "Bucket ROTH.",
+   "inputs": {
+    "tax_bucket": "ROTH"
+   },
+   "expected": {
+    "words": "tax-free (Roth)"
+   },
+   "working": [
+    "No stated treatment; not 529/HSA; tax-free → 'tax-free (Roth)'"
+   ],
+   "rests_on": "MK-NW-F-108 formula; IRC §529 and §223",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-108",
+   "name": "taxWordsOf",
+   "kind": "easy",
+   "title": "Brokerage",
+   "given": "Bucket TAXABLE.",
+   "inputs": {
+    "tax_bucket": "TAXABLE"
+   },
+   "expected": {
+    "words": "taxable"
+   },
+   "working": [
+    "taxable → 'taxable'"
+   ],
+   "rests_on": "MK-NW-F-108 formula; IRC §529 and §223",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-108",
+   "name": "taxWordsOf",
+   "kind": "complex",
+   "title": "HSA, 401(k) and 529, nothing stated",
+   "given": "Three accounts, no treatment stated.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "HSA",
+      "kind": "hsa",
+      "tax_bucket": "PRE_TAX"
+     },
+     {
+      "name": "401k",
+      "kind": "401k",
+      "tax_bucket": "PRE_TAX"
+     },
+     {
+      "name": "529",
+      "kind": "529"
+     }
+    ]
+   },
+   "expected": {
+    "HSA": "pre-tax — tax-free for medical costs",
+    "401k": "pre-tax — taxed when it comes out",
+    "529": "tax-free for education"
+   },
+   "working": [
+    "HSA, none stated → 'pre-tax — tax-free for medical costs'",
+    "401k → tax-deferred → 'pre-tax — taxed when it comes out'",
+    "529, none stated → 'tax-free for education'"
+   ],
+   "rests_on": "MK-NW-F-108 formula; IRC §529 and §223",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-108",
+   "name": "taxWordsOf",
+   "kind": "complex",
+   "title": "529 and HSA with a treatment stated by the editor",
+   "given": "A 529 whose stated treatment is tax_free, and an HSA whose stated treatment is tax_deferred (both set by the editor).",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "529",
+      "kind": "529",
+      "tax_treatment_stated": "tax_free"
+     },
+     {
+      "name": "HSA",
+      "kind": "hsa",
+      "tax_bucket": "PRE_TAX",
+      "tax_treatment_stated": "tax_deferred"
+     }
+    ]
+   },
+   "expected": {
+    "529": "tax-free for education",
+    "HSA": "pre-tax — tax-free for medical costs"
+   },
+   "formula_gives": {
+    "529": "tax-free (Roth)",
+    "HSA": "pre-tax — taxed when it comes out"
+   },
+   "working": [
+    "A 529 is not a Roth; its words must say what it is → 'tax-free for education'",
+    "An HSA used for medical costs is not taxed when it comes out → 'pre-tax — tax-free for medical costs'"
+   ],
+   "rests_on": "IRC §529, §223; consistency with the same card's no-treatment words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-108",
+   "name": "taxWordsOf",
+   "kind": "edge",
+   "title": "A taxable account of municipal bonds stated tax-free",
+   "given": "A brokerage of municipal bonds, bucket TAXABLE, stated treatment tax_free.",
+   "inputs": {
+    "kind": "brokerage",
+    "tax_bucket": "TAXABLE",
+    "tax_treatment_stated": "tax_free"
+   },
+   "expected": {
+    "words": "tax-free"
+   },
+   "formula_gives": {
+    "words": "tax-free (Roth)"
+   },
+   "working": [
+    "Stated tax-free, but it is not a Roth account → 'tax-free'"
+   ],
+   "rests_on": "IRC §103 (municipal interest); ordinary meaning",
+   "confidence": "medium",
+   "notes": "Whether the app means to let a taxable account be stated tax-free is not settled; if it can, '(Roth)' is false."
+  },
+  {
+   "id": "MK-NW-F-016",
+   "name": "cashTotal",
+   "kind": "easy",
+   "title": "Two bank accounts",
+   "given": "Chase Checking $3,000; Ally savings $2,000.",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "balance": 3000
+     },
+     {
+      "account": "Ally savings",
+      "balance": 2000
+     }
+    ]
+   },
+   "expected": {
+    "cash_total": {
+     "exact": 5000,
+     "shown": "$5,000"
+    }
+   },
+   "working": [
+    "3,000 + 2,000 = 5,000"
+   ],
+   "rests_on": "MK-NW-F-016 formula; owner DEC-0051 (cash = cash only); approved drawing Net worth v08 state A",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-016",
+   "name": "cashTotal",
+   "kind": "easy",
+   "title": "Uninvested cash inside a linked brokerage",
+   "given": "Linked Vanguard $349,333, of which $838 uninvested cash.",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Vanguard brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 349333.0,
+      "uninvested_cash": 838.0,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 1,
+        "price": 348495.0,
+        "cls": "stocks_etf"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "cash_total": {
+     "exact": 838,
+     "shown": "$838"
+    }
+   },
+   "working": [
+    "Linked → its cash part = 838; the stocks are not cash"
+   ],
+   "rests_on": "MK-NW-F-016 formula; owner DEC-0051 (cash = cash only); approved drawing Net worth v08 state A",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-016",
+   "name": "cashTotal",
+   "kind": "complex",
+   "title": "Bank accounts, a CD in a savings kind, and a linked brokerage holding a money-market fund",
+   "given": "Chase Checking (bank, class cash): $14,206.15; Ally high-yield savings (bank, class cash): $24,906.18; Ally 12-month CD (typed, class bonds): $15,000.00; Fidelity brokerage (linked, balance $91,417.01): cash $1,247.55; FIDELITY GOVERNMENT MONEY MARKET (SPAXX) 18330.1 × $1.00 = $18,330.10 (stocks_etf); VTI 145 × $288.88 = $41,887.46 (stocks_etf); UNITED STATES TREAS BILLS 0% 03/19/27 10 × $986.13 = $9,861.30 (bonds); CAPITAL ONE NA CD 4.25% 03/18/27 20 × $1,004.53 = $20,090.60 (bonds)",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 14206.15
+     },
+     {
+      "account": "Ally high-yield savings",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 24906.18
+     },
+     {
+      "account": "Ally 12-month CD",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 15000.0,
+      "kind": "savings",
+      "note": "maturity 2027-04-22 → Bonds & CDs (assetClassOf step 2)"
+     },
+     {
+      "account": "Fidelity brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 91417.01,
+      "uninvested_cash": 1247.55,
+      "holdings": [
+       {
+        "name": "FIDELITY GOVERNMENT MONEY MARKET (SPAXX)",
+        "qty": 18330.1,
+        "price": 1.0,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "VTI",
+        "qty": 145,
+        "price": 288.879,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "UNITED STATES TREAS BILLS 0% 03/19/27",
+        "qty": 10,
+        "price": 986.13,
+        "cls": "bonds"
+       },
+       {
+        "name": "CAPITAL ONE NA CD 4.25% 03/18/27",
+        "qty": 20,
+        "price": 1004.53,
+        "cls": "bonds"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "cash_total": {
+     "exact": 40359.885,
+     "shown": "$40,360"
+    },
+    "rows": [
+     {
+      "label": "Chase Checking",
+      "exact": 14206.15
+     },
+     {
+      "label": "Ally high-yield savings",
+      "exact": 24906.18
+     },
+     {
+      "label": "Ally 12-month CD",
+      "exact": 0.0
+     },
+     {
+      "label": "Fidelity brokerage",
+      "exact": 1247.555
+     }
+    ]
+   },
+   "working": [
+    "Chase Checking: cash part = 14,206.15",
+    "Ally high-yield savings: cash part = 24,906.18",
+    "Ally 12-month CD: cash part = 0.00",
+    "Fidelity brokerage: cash part = 1,247.55",
+    "Ally CD: maturity date → Bonds & CDs, not cash (owner DEC-0051)",
+    "Fidelity: SPAXX is a money-market fund → Stocks / Funds, not cash; T-bill and CD → Bonds & CDs",
+    "Cash = 14,206.15 + 24,906.18 + 0.00 + 1,247.56 = 40,359.88",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-016 formula; owner DEC-0051 (cash = cash only); approved drawing Net worth v08 state A",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-016",
+   "name": "cashTotal",
+   "kind": "complex",
+   "title": "Overdrawn checking, an account built by hand with cash, a typed 401(k)",
+   "given": "Chase Checking (bank, class cash): $-312.40; Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $6,120.55; VTI 240 × $263.48 = $63,235.20 (stocks_etf); balance $69,355.75; Fidelity 401(k) (typed, class unclassified): $277,845.43",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": -312.4
+     },
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 6120.55,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 240,
+        "price": 263.48,
+        "cls": "stocks_etf"
+       }
+      ]
+     },
+     {
+      "account": "Fidelity 401(k)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "unclassified",
+      "balance": 277845.43,
+      "kind": "401k",
+      "note": "typed balance, no holdings listed → Unclassified (assetClassOf step 8)"
+     }
+    ]
+   },
+   "expected": {
+    "cash_total": {
+     "exact": 5808.15,
+     "shown": "$5,808"
+    },
+    "rows": [
+     {
+      "label": "Chase Checking",
+      "exact": -312.4
+     },
+     {
+      "label": "Schwab brokerage",
+      "exact": 6120.55
+     },
+     {
+      "label": "Fidelity 401(k)",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Chase Checking: cash part = -312.40",
+    "Schwab brokerage: cash part = 6,120.55",
+    "Fidelity 401(k): cash part = 0.00",
+    "Overdrawn checking counts at its negative balance",
+    "Schwab is built by hand with uninvested cash above zero → its cash part",
+    "401(k) typed → class Unclassified → 0 cash",
+    "Cash = -312.40 + 6,120.55 + 0.00 = 5,808.15"
+   ],
+   "rests_on": "MK-NW-F-016 formula; owner DEC-0051 (cash = cash only); approved drawing Net worth v08 state A",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-016",
+   "name": "cashTotal",
+   "kind": "edge",
+   "title": "Recorded uninvested cash larger than what the account is built to",
+   "given": "Schwab built by hand with recorded uninvested cash $4,500.00 and holdings of $0, so its balance is $4,500.00; a second reading with cash recorded as $0.",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 4500.0,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 0,
+        "price": 289.33,
+        "cls": "stocks_etf"
+       }
+      ]
+     }
+    ],
+    "second_reading_uninvested_cash": 0
+   },
+   "expected": {
+    "cash_total": {
+     "exact": 4500.0,
+     "shown": "$4,500"
+    },
+    "second_reading_cash_total": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "Balance = 4,500.00 + 0 = 4,500.00; cash part = 4,500.00 (never more than the balance)",
+    "Second reading: recorded cash 0 is not above zero → no split; its class is Stocks / Funds (it lists a holding) → 0 cash"
+   ],
+   "rests_on": "MK-NW-F-016 formula; owner DEC-0051 (cash = cash only); approved drawing Net worth v08 state A",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "easy",
+   "title": "Stocks account typed by hand",
+   "given": "Vanguard stocks (typed, class stocks_etf): $50,000.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Vanguard stocks",
+      "how_valued": "value typed by hand",
+      "class_of_account": "stocks_etf",
+      "balance": 50000.0,
+      "kind": "stocks"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 50000.0,
+     "shown": "$50,000"
+    },
+    "rows": [
+     {
+      "label": "Vanguard stocks",
+      "exact": 50000.0
+     }
+    ]
+   },
+   "working": [
+    "Vanguard stocks: Stocks / Funds part = 50,000.00",
+    "Total = 50,000.00 = 50,000.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Card's own purpose (only the Stocks / Funds part of a several-class account); MK-NW-F-109; owner DEC-0051/0092",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "easy",
+   "title": "Linked account: only its fund part",
+   "given": "Vanguard brokerage (linked, balance $10,000.00): cash $1,000.00; VTI 30 × $300.00 = $9,000.00 (stocks_etf)",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Vanguard brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 10000.0,
+      "uninvested_cash": 1000.0,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 30,
+        "price": 300.0,
+        "cls": "stocks_etf"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 9000.0,
+     "shown": "$9,000"
+    },
+    "rows": [
+     {
+      "label": "Vanguard brokerage",
+      "exact": 9000.0
+     }
+    ]
+   },
+   "working": [
+    "Vanguard brokerage: Stocks / Funds part = 9,000.00",
+    "Total = 9,000.00 = 9,000.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Card's own purpose (only the Stocks / Funds part of a several-class account); MK-NW-F-109; owner DEC-0051/0092",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "complex",
+   "title": "Account built by hand with cash, a linked broker and a money-market fund",
+   "given": "Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $6,120.55; VTI 240 × $263.48 = $63,235.20 (stocks_etf); balance $69,355.75; Fidelity brokerage (linked, balance $91,417.01): cash $1,247.55; FIDELITY GOVERNMENT MONEY MARKET (SPAXX) 18330.1 × $1.00 = $18,330.10 (stocks_etf); VTI 145 × $288.88 = $41,887.46 (stocks_etf); UNITED STATES TREAS BILLS 0% 03/19/27 10 × $986.13 = $9,861.30 (bonds); CAPITAL ONE NA CD 4.25% 03/18/27 20 × $1,004.53 = $20,090.60 (bonds); Chase Checking (bank, class cash): $14,206.15",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 6120.55,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 240,
+        "price": 263.48,
+        "cls": "stocks_etf"
+       }
+      ]
+     },
+     {
+      "account": "Fidelity brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 91417.01,
+      "uninvested_cash": 1247.55,
+      "holdings": [
+       {
+        "name": "FIDELITY GOVERNMENT MONEY MARKET (SPAXX)",
+        "qty": 18330.1,
+        "price": 1.0,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "VTI",
+        "qty": 145,
+        "price": 288.879,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "UNITED STATES TREAS BILLS 0% 03/19/27",
+        "qty": 10,
+        "price": 986.13,
+        "cls": "bonds"
+       },
+       {
+        "name": "CAPITAL ONE NA CD 4.25% 03/18/27",
+        "qty": 20,
+        "price": 1004.53,
+        "cls": "bonds"
+       }
+      ]
+     },
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 14206.15
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 123452.755,
+     "shown": "$123,453"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage",
+      "exact": 63235.2
+     },
+     {
+      "label": "Fidelity brokerage",
+      "exact": 60217.555
+     },
+     {
+      "label": "Chase Checking",
+      "exact": 0.0
+     }
+    ]
+   },
+   "formula_gives": {
+    "total": {
+     "exact": 129573.305,
+     "shown": "$129,573"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage",
+      "exact": 69355.75
+     },
+     {
+      "label": "Fidelity brokerage",
+      "exact": 60217.555
+     },
+     {
+      "label": "Chase Checking",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Schwab brokerage: Stocks / Funds part = 63,235.20",
+    "Fidelity brokerage: Stocks / Funds part = 60,217.56",
+    "Chase Checking: Stocks / Funds part = 0.00",
+    "Schwab's $6,120.55 cash is already on the Cash line (cashTotal), so it is not Stocks / Funds",
+    "Fidelity: SPAXX (money market) is Stocks / Funds; the T-bill and CD are not",
+    "Total = 63,235.20 + 60,217.56 + 0.00 = 123,452.76",
+    "Check: rows sum to the total",
+    "Formula as written (assetAllocation splits only linked accounts; others count whole under their one class): 129,573.30"
+   ],
+   "rests_on": "Card's own purpose (only the Stocks / Funds part of a several-class account); MK-NW-F-109; owner DEC-0051/0092",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "complex",
+   "title": "Account built by hand holding a T-bill and a money-market fund, beside a typed 401(k)",
+   "given": "Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $2,410.18; VTI 131 × $289.33 = $37,902.23 (stocks_etf); UNITED STATES TREAS BILLS 0% 01/15/27 10 × $986.13 = $9,861.30 (bonds); SCHWAB VALUE ADVANTAGE MONEY FUND (SWVXX) 62465.8 × $1.00 = $62,465.80 (stocks_etf); balance $112,639.51; Fidelity 401(k) (typed, class unclassified): $277,845.43; Ally 12-month CD (typed, class bonds): $15,000.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 2410.18,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 131,
+        "price": 289.33,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "UNITED STATES TREAS BILLS 0% 01/15/27",
+        "qty": 10,
+        "price": 986.13,
+        "cls": "bonds"
+       },
+       {
+        "name": "SCHWAB VALUE ADVANTAGE MONEY FUND (SWVXX)",
+        "qty": 62465.8,
+        "price": 1.0,
+        "cls": "stocks_etf"
+       }
+      ]
+     },
+     {
+      "account": "Fidelity 401(k)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "unclassified",
+      "balance": 277845.43,
+      "kind": "401k",
+      "note": "typed balance, no holdings listed → Unclassified (assetClassOf step 8)"
+     },
+     {
+      "account": "Ally 12-month CD",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 15000.0,
+      "kind": "savings",
+      "note": "maturity 2027-04-22 → Bonds & CDs (assetClassOf step 2)"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 100368.03,
+     "shown": "$100,368"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage",
+      "exact": 100368.03
+     },
+     {
+      "label": "Fidelity 401(k)",
+      "exact": 0.0
+     },
+     {
+      "label": "Ally 12-month CD",
+      "exact": 0.0
+     }
+    ]
+   },
+   "formula_gives": {
+    "total": {
+     "exact": 112639.51,
+     "shown": "$112,640"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage",
+      "exact": 112639.51
+     },
+     {
+      "label": "Fidelity 401(k)",
+      "exact": 0.0
+     },
+     {
+      "label": "Ally 12-month CD",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Schwab brokerage: Stocks / Funds part = 100,368.03",
+    "Fidelity 401(k): Stocks / Funds part = 0.00",
+    "Ally 12-month CD: Stocks / Funds part = 0.00",
+    "The typed 401(k) is Unclassified (no holdings, kind not in step 4), so it is not in this line",
+    "The T-bill is Bonds & CDs, not Stocks / Funds",
+    "Total = 100,368.03 + 0.00 + 0.00 = 100,368.03",
+    "Check: rows sum to the total",
+    "Formula as written (assetAllocation splits only linked accounts; others count whole under their one class): 112,639.51"
+   ],
+   "rests_on": "Card's own purpose (only the Stocks / Funds part of a several-class account); MK-NW-F-109; owner DEC-0051/0092",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-017",
+   "name": "equitiesTotal",
+   "kind": "edge",
+   "title": "Account built by hand whose recorded cash is exactly zero",
+   "given": "Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $0.00; VTI 100 × $289.33 = $28,933.00 (stocks_etf); balance $28,933.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 0.0,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 100,
+        "price": 289.33,
+        "cls": "stocks_etf"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 28933.0,
+     "shown": "$28,933"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage",
+      "exact": 28933.0
+     }
+    ]
+   },
+   "working": [
+    "Schwab brokerage: Stocks / Funds part = 28,933.00",
+    "Recorded cash 0 is not above zero → no split; the whole account is Stocks / Funds",
+    "Total = 28,933.00 = 28,933.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Card's own purpose (only the Stocks / Funds part of a several-class account); MK-NW-F-109; owner DEC-0051/0092",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "easy",
+   "title": "One CD typed by hand",
+   "given": "Marcus CD (typed, class bonds): $10,000.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Marcus CD",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 10000.0,
+      "kind": "cd"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 10000.0,
+     "shown": "$10,000"
+    },
+    "rows": [
+     {
+      "label": "Marcus CD",
+      "exact": 10000.0
+     }
+    ]
+   },
+   "working": [
+    "Marcus CD: Bonds & CDs part = 10,000.00",
+    "Total = 10,000.00 = 10,000.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Owner DEC-0051/0092 (CDs and T-bills are Bonds & CDs at any maturity); MK-NW-F-109; card's own purpose",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "easy",
+   "title": "Linked account: a T-bill the broker tagged cash",
+   "given": "Fidelity brokerage (linked, balance $7,000.00): cash $2,000.00; UNITED STATES TREAS BILLS 0% 01/15/27 5 × $1,000.00 = $5,000.00 (bonds)",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Fidelity brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 7000.0,
+      "uninvested_cash": 2000.0,
+      "holdings": [
+       {
+        "name": "UNITED STATES TREAS BILLS 0% 01/15/27",
+        "qty": 5,
+        "price": 1000.0,
+        "cls": "bonds"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 5000.0,
+     "shown": "$5,000"
+    },
+    "rows": [
+     {
+      "label": "Fidelity brokerage",
+      "exact": 5000.0
+     }
+    ]
+   },
+   "working": [
+    "Fidelity brokerage: Bonds & CDs part = 5,000.00",
+    "The T-bill's name is evidence of a T-bill → Bonds & CDs whatever the broker's tag (holdingClassOf step 3)",
+    "Total = 5,000.00 = 5,000.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Owner DEC-0051/0092 (CDs and T-bills are Bonds & CDs at any maturity); MK-NW-F-109; card's own purpose",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "complex",
+   "title": "T-bill inside an account built by hand, a CD in a savings kind, and a typed bond account",
+   "given": "Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $2,410.18; VTI 131 × $289.33 = $37,902.23 (stocks_etf); UNITED STATES TREAS BILLS 0% 01/15/27 10 × $986.13 = $9,861.30 (bonds); SCHWAB VALUE ADVANTAGE MONEY FUND (SWVXX) 62465.8 × $1.00 = $62,465.80 (stocks_etf); balance $112,639.51; Ally 12-month CD (typed, class bonds): $15,000.00; E*TRADE bonds (typed, class bonds): $5,819.44",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 2410.18,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 131,
+        "price": 289.33,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "UNITED STATES TREAS BILLS 0% 01/15/27",
+        "qty": 10,
+        "price": 986.13,
+        "cls": "bonds"
+       },
+       {
+        "name": "SCHWAB VALUE ADVANTAGE MONEY FUND (SWVXX)",
+        "qty": 62465.8,
+        "price": 1.0,
+        "cls": "stocks_etf"
+       }
+      ]
+     },
+     {
+      "account": "Ally 12-month CD",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 15000.0,
+      "kind": "savings",
+      "note": "maturity 2027-04-22 → Bonds & CDs (assetClassOf step 2)"
+     },
+     {
+      "account": "E*TRADE bonds",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 5819.44,
+      "kind": "fixed_income"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 30680.74,
+     "shown": "$30,681"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage",
+      "exact": 9861.3
+     },
+     {
+      "label": "Ally 12-month CD",
+      "exact": 15000.0
+     },
+     {
+      "label": "E*TRADE bonds",
+      "exact": 5819.44
+     }
+    ]
+   },
+   "formula_gives": {
+    "total": {
+     "exact": 20819.44,
+     "shown": "$20,819"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage",
+      "exact": 0.0
+     },
+     {
+      "label": "Ally 12-month CD",
+      "exact": 15000.0
+     },
+     {
+      "label": "E*TRADE bonds",
+      "exact": 5819.44
+     }
+    ]
+   },
+   "working": [
+    "Schwab brokerage: Bonds & CDs part = 9,861.30",
+    "Ally 12-month CD: Bonds & CDs part = 15,000.00",
+    "E*TRADE bonds: Bonds & CDs part = 5,819.44",
+    "Schwab's T-bill (10 × 986.13) is Bonds & CDs; it must not be left under the account's own class",
+    "Total = 9,861.30 + 15,000.00 + 5,819.44 = 30,680.74",
+    "Check: rows sum to the total",
+    "Formula as written (assetAllocation splits only linked accounts; others count whole under their one class): 20,819.44"
+   ],
+   "rests_on": "Owner DEC-0051/0092 (CDs and T-bills are Bonds & CDs at any maturity); MK-NW-F-109; card's own purpose",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "complex",
+   "title": "Linked broker with a CD and a T-bill, and a CD maturing today",
+   "given": "Fidelity brokerage (linked, balance $91,417.01): cash $1,247.55; FIDELITY GOVERNMENT MONEY MARKET (SPAXX) 18330.1 × $1.00 = $18,330.10 (stocks_etf); VTI 145 × $288.88 = $41,887.46 (stocks_etf); UNITED STATES TREAS BILLS 0% 03/19/27 10 × $986.13 = $9,861.30 (bonds); CAPITAL ONE NA CD 4.25% 03/18/27 20 × $1,004.53 = $20,090.60 (bonds); Synchrony CD (typed, class bonds): $20,412.66",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Fidelity brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 91417.01,
+      "uninvested_cash": 1247.55,
+      "holdings": [
+       {
+        "name": "FIDELITY GOVERNMENT MONEY MARKET (SPAXX)",
+        "qty": 18330.1,
+        "price": 1.0,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "VTI",
+        "qty": 145,
+        "price": 288.879,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "UNITED STATES TREAS BILLS 0% 03/19/27",
+        "qty": 10,
+        "price": 986.13,
+        "cls": "bonds"
+       },
+       {
+        "name": "CAPITAL ONE NA CD 4.25% 03/18/27",
+        "qty": 20,
+        "price": 1004.53,
+        "cls": "bonds"
+       }
+      ]
+     },
+     {
+      "account": "Synchrony CD",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 20412.66,
+      "kind": "cd",
+      "note": "matures 2026-10-07 (today); still Bonds & CDs (MK-NW-F-009)"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 50364.56,
+     "shown": "$50,365"
+    },
+    "rows": [
+     {
+      "label": "Fidelity brokerage",
+      "exact": 29951.9
+     },
+     {
+      "label": "Synchrony CD",
+      "exact": 20412.66
+     }
+    ]
+   },
+   "working": [
+    "Fidelity brokerage: Bonds & CDs part = 29,951.90",
+    "Synchrony CD: Bonds & CDs part = 20,412.66",
+    "Fidelity: T-bill 10 × 986.13 and CD 20 × 1,004.53 → Bonds & CDs; SPAXX is not",
+    "Synchrony CD matures today: maturity-dated → Bonds & CDs (whether it has passed is not looked at)",
+    "Total = 29,951.90 + 20,412.66 = 50,364.56",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Owner DEC-0051/0092 (CDs and T-bills are Bonds & CDs at any maturity); MK-NW-F-109; card's own purpose",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-018",
+   "name": "fixedIncomeTotal",
+   "kind": "edge",
+   "title": "Account built by hand whose own class is Bonds & CDs, with uninvested cash",
+   "given": "TreasuryDirect ladder (built by hand from its holdings, own class bonds): uninvested cash $1,500.00; US Treasury Note 4.25% 2029 20 × $1,003.10 = $20,062.00 (bonds); balance $21,562.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "TreasuryDirect ladder",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "bonds",
+      "uninvested_cash": 1500.0,
+      "holdings": [
+       {
+        "name": "US Treasury Note 4.25% 2029",
+        "qty": 20,
+        "price": 1003.1,
+        "cls": "bonds"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 20062.0,
+     "shown": "$20,062"
+    },
+    "rows": [
+     {
+      "label": "TreasuryDirect ladder",
+      "exact": 20062.0
+     }
+    ]
+   },
+   "formula_gives": {
+    "total": {
+     "exact": 21562.0,
+     "shown": "$21,562"
+    },
+    "rows": [
+     {
+      "label": "TreasuryDirect ladder",
+      "exact": 21562.0
+     }
+    ]
+   },
+   "working": [
+    "TreasuryDirect ladder: Bonds & CDs part = 20,062.00",
+    "The $1,500.00 uninvested cash is on the Cash line already; Bonds & CDs is only the note: 20 × 1,003.10 = 20,062.00",
+    "Total = 20,062.00 = 20,062.00",
+    "Check: rows sum to the total",
+    "Formula as written (assetAllocation splits only linked accounts; others count whole under their one class): 21,562.00"
+   ],
+   "rests_on": "Owner DEC-0051/0092 (CDs and T-bills are Bonds & CDs at any maturity); MK-NW-F-109; card's own purpose",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "easy",
+   "title": "Crypto typed by hand",
+   "given": "Coinbase (typed, class alternatives): $8,400.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Coinbase",
+      "how_valued": "value typed by hand",
+      "class_of_account": "alternatives",
+      "balance": 8400.0,
+      "kind": "crypto"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 8400.0,
+     "shown": "$8,400"
+    },
+    "rows": [
+     {
+      "label": "Coinbase",
+      "exact": 8400.0
+     }
+    ]
+   },
+   "working": [
+    "Coinbase: Alternatives part = 8,400.00",
+    "Total = 8,400.00 = 8,400.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Card's own purpose; owner rules 8 and 9 (a private-equity row saved earlier is kept); consistency with MK-NW-F-016 and MK-NW-M-049",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "easy",
+   "title": "Linked account: an option synced",
+   "given": "Robinhood (linked, balance $10,000.00): cash $1,000.00; AAPL 25 × $230.00 = $5,750.00 (stocks_etf); option AAPL 2027-01-15 250 C ×5 synced $3,250.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Robinhood",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 10000.0,
+      "uninvested_cash": 1000.0,
+      "holdings": [
+       {
+        "name": "AAPL",
+        "qty": 25,
+        "price": 230.0,
+        "cls": "stocks_etf"
+       }
+      ],
+      "options": [
+       {
+        "name": "AAPL 2027-01-15 250 C ×5",
+        "value": 3250.0
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 3250.0,
+     "shown": "$3,250"
+    },
+    "rows": [
+     {
+      "label": "Robinhood",
+      "exact": 3250.0
+     }
+    ]
+   },
+   "working": [
+    "Robinhood: Alternatives part = 3,250.00",
+    "Total = 3,250.00 = 3,250.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Card's own purpose; owner rules 8 and 9 (a private-equity row saved earlier is kept); consistency with MK-NW-F-016 and MK-NW-M-049",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "complex",
+   "title": "Crypto account built by hand with cash, a private-equity row kept from before the cut, art",
+   "given": "Coinbase (built by hand from its holdings, own class alternatives): uninvested cash $1,906.40; BTC 0.37 × $112,907.65 = $41,775.83 (alternatives); ETH 3.1 × $4,065.84 = $12,604.10 (alternatives); balance $56,286.33; Acme Growth Fund III (private equity, saved 2026-07-02) (typed, class alternatives): $150,000.00; Masterworks art share (typed, class alternatives): $12,500.00; Chase Checking (bank, class cash): $14,206.15",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Coinbase",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "alternatives",
+      "uninvested_cash": 1906.4,
+      "holdings": [
+       {
+        "name": "BTC",
+        "qty": 0.37,
+        "price": 112907.65,
+        "cls": "alternatives"
+       },
+       {
+        "name": "ETH",
+        "qty": 3.1,
+        "price": 4065.84,
+        "cls": "alternatives"
+       }
+      ]
+     },
+     {
+      "account": "Acme Growth Fund III (private equity, saved 2026-07-02)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "alternatives",
+      "balance": 150000.0,
+      "kind": "private_equity"
+     },
+     {
+      "account": "Masterworks art share",
+      "how_valued": "value typed by hand",
+      "class_of_account": "alternatives",
+      "balance": 12500.0,
+      "kind": "other"
+     },
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 14206.15
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 216879.9345,
+     "shown": "$216,880"
+    },
+    "rows": [
+     {
+      "label": "Coinbase",
+      "exact": 54379.9345
+     },
+     {
+      "label": "Acme Growth Fund III (private equity, saved 2026-07-02)",
+      "exact": 150000.0
+     },
+     {
+      "label": "Masterworks art share",
+      "exact": 12500.0
+     },
+     {
+      "label": "Chase Checking",
+      "exact": 0.0
+     }
+    ]
+   },
+   "formula_gives": {
+    "total": {
+     "exact": 218786.3345,
+     "shown": "$218,786"
+    },
+    "rows": [
+     {
+      "label": "Coinbase",
+      "exact": 56286.3345
+     },
+     {
+      "label": "Acme Growth Fund III (private equity, saved 2026-07-02)",
+      "exact": 150000.0
+     },
+     {
+      "label": "Masterworks art share",
+      "exact": 12500.0
+     },
+     {
+      "label": "Chase Checking",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Coinbase: Alternatives part = 54,379.93",
+    "Acme Growth Fund III (private equity, saved 2026-07-02): Alternatives part = 150,000.00",
+    "Masterworks art share: Alternatives part = 12,500.00",
+    "Chase Checking: Alternatives part = 0.00",
+    "Coinbase's $1,906.40 cash is on the Cash line; it is not an alternative",
+    "Private equity saved 2026-07-02: kept (owner rules 8/9), so it counts",
+    "Same figure on two screens: Other investments 'Total value' (MK-NW-M-049) must equal the Alternatives line on Net worth",
+    "Total = 54,379.93 + 150,000.00 + 12,500.00 + 0.00 = 216,879.93",
+    "Check: rows sum to the total",
+    "Formula as written (assetAllocation splits only linked accounts; others count whole under their one class): 218,786.33"
+   ],
+   "rests_on": "Card's own purpose; owner rules 8 and 9 (a private-equity row saved earlier is kept); consistency with MK-NW-F-016 and MK-NW-M-049",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "complex",
+   "title": "Linked account with an option and an unpriced private placement",
+   "given": "Robinhood (linked, balance $30,000.00): cash $2,000.00; AAPL 10 × $230.50 = $2,305.00 (stocks_etf); XYZ PRIVATE PLACEMENT LP NO PRICE (alternatives); option SPY 2026-12-18 650 C ×1 synced $1,450.00; Masterworks art share (typed, class alternatives): $12,500.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Robinhood",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 30000.0,
+      "uninvested_cash": 2000.0,
+      "holdings": [
+       {
+        "name": "AAPL",
+        "qty": 10,
+        "price": 230.5,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "XYZ PRIVATE PLACEMENT LP",
+        "qty": 100,
+        "price": null,
+        "cls": "alternatives"
+       }
+      ],
+      "options": [
+       {
+        "name": "SPY 2026-12-18 650 C ×1",
+        "value": 1450.0
+       }
+      ]
+     },
+     {
+      "account": "Masterworks art share",
+      "how_valued": "value typed by hand",
+      "class_of_account": "alternatives",
+      "balance": 12500.0,
+      "kind": "other"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 38195.0,
+     "shown": "$38,195"
+    },
+    "rows": [
+     {
+      "label": "Robinhood",
+      "exact": 25695.0
+     },
+     {
+      "label": "Masterworks art share",
+      "exact": 12500.0
+     }
+    ]
+   },
+   "working": [
+    "Robinhood: Alternatives part = 25,695.00",
+    "Masterworks art share: Alternatives part = 12,500.00",
+    "Robinhood: option 1,450.00 + the unpriced difference 24,245.00 under XYZ's class (Alternatives) = 25,695.00",
+    "Total = 25,695.00 + 12,500.00 = 38,195.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "Card's own purpose; owner rules 8 and 9 (a private-equity row saved earlier is kept); consistency with MK-NW-F-016 and MK-NW-M-049",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-019",
+   "name": "alternativesTotal",
+   "kind": "edge",
+   "title": "Nothing entered",
+   "given": "No accounts at all.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "total": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "total_value_screen": "REFUSES"
+   },
+   "working": [
+    "Sum over no accounts = 0",
+    "Other investments 'Total value' (MK-NW-M-049) shows 'None entered yet' rather than $0 as a fact"
+   ],
+   "rests_on": "MK-NW-M-049 refusal rule",
+   "confidence": "high",
+   "notes": "The function's sum is 0. The screen beside it must say 'None entered yet' instead of showing $0."
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "easy",
+   "title": "One home",
+   "given": "Home (typed, class real_estate): $450,000.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Home",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 450000.0,
+      "kind": "home"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 450000.0,
+     "shown": "$450,000"
+    },
+    "rows": [
+     {
+      "label": "Home",
+      "exact": 450000.0
+     }
+    ]
+   },
+   "working": [
+    "Home: Real estate = 450,000.00",
+    "Total = 450,000.00 = 450,000.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-020 formula; assetClassOf steps (4) and (7); owner rule 5 (rental vs second home is a use, not a class)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "easy",
+   "title": "A car is not real estate",
+   "given": "Toyota RAV4 (typed, class personal_property): $28,900.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Toyota RAV4",
+      "how_valued": "value typed by hand",
+      "class_of_account": "personal_property",
+      "balance": 28900.0,
+      "kind": "vehicle"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "rows": [
+     {
+      "label": "Toyota RAV4",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Toyota RAV4: Real estate = 0.00",
+    "Vehicle → Personal property → 0 here",
+    "Total = 0.00 = 0.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-020 formula; assetClassOf steps (4) and (7); owner rule 5 (rental vs second home is a use, not a class)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "complex",
+   "title": "Home, rental, second home, land and a car, with mortgages",
+   "given": "Home (typed, class real_estate): $612,400.00; Rental condo (typed, class real_estate): $348,750.00; Lake cabin (typed, class real_estate): $289,000.00; Wenatchee lot (typed, class real_estate): $75,500.00; Toyota RAV4 (typed, class personal_property): $28,900.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Home",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 612400.0,
+      "kind": "home",
+      "re_use": "primary"
+     },
+     {
+      "account": "Rental condo",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 348750.0,
+      "kind": "home",
+      "re_use": "rental"
+     },
+     {
+      "account": "Lake cabin",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 289000.0,
+      "kind": "home",
+      "re_use": "secondary",
+      "note": "no rent on the income screen → second home (owner rule 5)"
+     },
+     {
+      "account": "Wenatchee lot",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 75500.0,
+      "kind": "real_estate",
+      "re_use": "land"
+     },
+     {
+      "account": "Toyota RAV4",
+      "how_valued": "value typed by hand",
+      "class_of_account": "personal_property",
+      "balance": 28900.0,
+      "kind": "vehicle"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 1325650.0,
+     "shown": "$1,325,650"
+    },
+    "rows": [
+     {
+      "label": "Home",
+      "exact": 612400.0
+     },
+     {
+      "label": "Rental condo",
+      "exact": 348750.0
+     },
+     {
+      "label": "Lake cabin",
+      "exact": 289000.0
+     },
+     {
+      "label": "Wenatchee lot",
+      "exact": 75500.0
+     },
+     {
+      "label": "Toyota RAV4",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Home: Real estate = 612,400.00",
+    "Rental condo: Real estate = 348,750.00",
+    "Lake cabin: Real estate = 289,000.00",
+    "Wenatchee lot: Real estate = 75,500.00",
+    "Toyota RAV4: Real estate = 0.00",
+    "Mortgages ($401,212.88 and $236,940.10) are debts; they do not reduce this line",
+    "Use (lived in, rented, second home, land) does not change the class",
+    "Total = 612,400.00 + 348,750.00 + 289,000.00 + 75,500.00 + 0.00 = 1,325,650.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-020 formula; assetClassOf steps (4) and (7); owner rule 5 (rental vs second home is a use, not a class)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "complex",
+   "title": "Property with no kind, a boat, and a REIT fund",
+   "given": "Inherited house (no kind recorded) (typed, class real_estate): $318,275.00; Boat (typed, class personal_property): $41,600.00; Vanguard REIT fund (VNQ) (typed, class stocks_etf): $22,914.37",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Inherited house (no kind recorded)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 318275.0,
+      "kind": null,
+      "note": "property bucket, no kind → Real estate (step 7)"
+     },
+     {
+      "account": "Boat",
+      "how_valued": "value typed by hand",
+      "class_of_account": "personal_property",
+      "balance": 41600.0,
+      "kind": "boat",
+      "note": "property bucket, kind not real estate → Personal property (step 7)"
+     },
+     {
+      "account": "Vanguard REIT fund (VNQ)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "stocks_etf",
+      "balance": 22914.37,
+      "kind": "stocks"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 318275.0,
+     "shown": "$318,275"
+    },
+    "rows": [
+     {
+      "label": "Inherited house (no kind recorded)",
+      "exact": 318275.0
+     },
+     {
+      "label": "Boat",
+      "exact": 0.0
+     },
+     {
+      "label": "Vanguard REIT fund (VNQ)",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Inherited house (no kind recorded): Real estate = 318,275.00",
+    "Boat: Real estate = 0.00",
+    "Vanguard REIT fund (VNQ): Real estate = 0.00",
+    "A REIT fund is Stocks / Funds, not Real estate",
+    "Total = 318,275.00 + 0.00 + 0.00 = 318,275.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-020 formula; assetClassOf steps (4) and (7); owner rule 5 (rental vs second home is a use, not a class)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-020",
+   "name": "realEstateTotal",
+   "kind": "edge",
+   "title": "Nothing entered",
+   "given": "No accounts.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "total": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "Sum over no accounts = 0; the band keeps its heading and says nothing is entered"
+   ],
+   "rests_on": "MK-NW-F-020 formula; assetClassOf steps (4) and (7); owner rule 5 (rental vs second home is a use, not a class)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-021",
+   "name": "investmentsTotal",
+   "kind": "easy",
+   "title": "A stocks account and a checking account",
+   "given": "Vanguard stocks (typed, class stocks_etf): $50,000.00; Chase Checking (bank, class cash): $5,000.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Vanguard stocks",
+      "how_valued": "value typed by hand",
+      "class_of_account": "stocks_etf",
+      "balance": 50000.0,
+      "kind": "stocks"
+     },
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 5000.0
+     }
+    ]
+   },
+   "expected": {
+    "investments_total": {
+     "exact": 50000.0,
+     "shown": "$50,000"
+    },
+    "rows": [
+     {
+      "label": "Vanguard stocks",
+      "exact": 50000.0
+     },
+     {
+      "label": "Chase Checking",
+      "exact": 0.0
+     }
+    ],
+    "cash_total": {
+     "exact": 5000.0,
+     "shown": "$5,000"
+    },
+    "investable_assets": {
+     "exact": 55000.0,
+     "shown": "$55,000"
+    },
+    "check_cash_plus_investments_equals_investable": true
+   },
+   "working": [
+    "Vanguard stocks: investment part = 50,000.00",
+    "Chase Checking: investment part = 0.00",
+    "Investments = 50,000.00 + 0.00 = 50,000.00",
+    "Cash = 5,000.00; investable = 55,000.00; 5,000.00 + 50,000.00 = 55,000.00 = investable ✓"
+   ],
+   "rests_on": "Card's own invariant (cashTotal + investmentsTotal = investableAssets); owner DEC-0343; MK-NW-F-016",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-021",
+   "name": "investmentsTotal",
+   "kind": "easy",
+   "title": "A typed 401(k) not yet classed still counts",
+   "given": "Fidelity 401(k) (typed, class unclassified): $100,000.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Fidelity 401(k)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "unclassified",
+      "balance": 100000.0,
+      "kind": "401k"
+     }
+    ]
+   },
+   "expected": {
+    "investments_total": {
+     "exact": 100000.0,
+     "shown": "$100,000"
+    },
+    "rows": [
+     {
+      "label": "Fidelity 401(k)",
+      "exact": 100000.0
+     }
+    ],
+    "cash_total": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "investable_assets": {
+     "exact": 100000.0,
+     "shown": "$100,000"
+    },
+    "check_cash_plus_investments_equals_investable": true
+   },
+   "working": [
+    "Fidelity 401(k): investment part = 100,000.00",
+    "Unclassified is one of the four investment lines",
+    "Investments = 100,000.00 = 100,000.00",
+    "Cash = 0.00; investable = 100,000.00; 0.00 + 100,000.00 = 100,000.00 = investable ✓"
+   ],
+   "rests_on": "Card's own invariant (cashTotal + investmentsTotal = investableAssets); owner DEC-0343; MK-NW-F-016",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-021",
+   "name": "investmentsTotal",
+   "kind": "complex",
+   "title": "Account built by hand with cash, beside checking and a typed 401(k)",
+   "given": "Chase Checking (bank, class cash): $5,000.00; Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $6,120.55; VTI 240 × $263.48 = $63,235.20 (stocks_etf); balance $69,355.75; Fidelity 401(k) (typed, class unclassified): $277,845.43",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 5000.0
+     },
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 6120.55,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 240,
+        "price": 263.48,
+        "cls": "stocks_etf"
+       }
+      ]
+     },
+     {
+      "account": "Fidelity 401(k)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "unclassified",
+      "balance": 277845.43,
+      "kind": "401k",
+      "note": "typed balance, no holdings listed → Unclassified (assetClassOf step 8)"
+     }
+    ]
+   },
+   "expected": {
+    "investments_total": {
+     "exact": 341080.63,
+     "shown": "$341,081"
+    },
+    "rows": [
+     {
+      "label": "Chase Checking",
+      "exact": 0.0
+     },
+     {
+      "label": "Schwab brokerage",
+      "exact": 63235.2
+     },
+     {
+      "label": "Fidelity 401(k)",
+      "exact": 277845.43
+     }
+    ],
+    "cash_total": {
+     "exact": 11120.55,
+     "shown": "$11,121"
+    },
+    "investable_assets": {
+     "exact": 352201.18,
+     "shown": "$352,201"
+    },
+    "check_cash_plus_investments_equals_investable": true
+   },
+   "formula_gives": {
+    "investments_total": {
+     "exact": 347201.18,
+     "shown": "$347,201"
+    },
+    "cash_total": {
+     "exact": 11120.55,
+     "shown": "$11,121"
+    },
+    "cash_plus_investments": {
+     "exact": 358321.73,
+     "shown": "$358,322"
+    },
+    "investable_assets": {
+     "exact": 352201.18,
+     "shown": "$352,201"
+    },
+    "check_cash_plus_investments_equals_investable": false
+   },
+   "working": [
+    "Chase Checking: investment part = 0.00",
+    "Schwab brokerage: investment part = 63,235.20",
+    "Fidelity 401(k): investment part = 277,845.43",
+    "Schwab's uninvested $6,120.55 is Cash (cashTotal), so investments take only its VTI",
+    "Investments = 0.00 + 63,235.20 + 277,845.43 = 341,080.63",
+    "Cash = 11,120.55; investable = 352,201.18; 11,120.55 + 341,080.63 = 352,201.18 = investable ✓",
+    "Formula as written: investments 347,201.18; cash 11,120.55; sum 358,321.73 ≠ investable 352,201.18 — the hand-built cash is counted twice"
+   ],
+   "rests_on": "Card's own invariant (cashTotal + investmentsTotal = investableAssets); owner DEC-0343; MK-NW-F-016",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-021",
+   "name": "investmentsTotal",
+   "kind": "complex",
+   "title": "Linked broker with a money-market fund, a CD in a savings kind, crypto and a home",
+   "given": "Fidelity brokerage (linked, balance $91,417.01): cash $1,247.55; FIDELITY GOVERNMENT MONEY MARKET (SPAXX) 18330.1 × $1.00 = $18,330.10 (stocks_etf); VTI 145 × $288.88 = $41,887.46 (stocks_etf); UNITED STATES TREAS BILLS 0% 03/19/27 10 × $986.13 = $9,861.30 (bonds); CAPITAL ONE NA CD 4.25% 03/18/27 20 × $1,004.53 = $20,090.60 (bonds); Ally 12-month CD (typed, class bonds): $15,000.00; Ally high-yield savings (bank, class cash): $24,906.18; Coinbase (typed, class alternatives): $8,400.00; Home (typed, class real_estate): $612,400.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Fidelity brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 91417.01,
+      "uninvested_cash": 1247.55,
+      "holdings": [
+       {
+        "name": "FIDELITY GOVERNMENT MONEY MARKET (SPAXX)",
+        "qty": 18330.1,
+        "price": 1.0,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "VTI",
+        "qty": 145,
+        "price": 288.879,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "UNITED STATES TREAS BILLS 0% 03/19/27",
+        "qty": 10,
+        "price": 986.13,
+        "cls": "bonds"
+       },
+       {
+        "name": "CAPITAL ONE NA CD 4.25% 03/18/27",
+        "qty": 20,
+        "price": 1004.53,
+        "cls": "bonds"
+       }
+      ]
+     },
+     {
+      "account": "Ally 12-month CD",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 15000.0,
+      "kind": "savings",
+      "note": "maturity 2027-04-22 → Bonds & CDs (assetClassOf step 2)"
+     },
+     {
+      "account": "Ally high-yield savings",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 24906.18
+     },
+     {
+      "account": "Coinbase",
+      "how_valued": "value typed by hand",
+      "class_of_account": "alternatives",
+      "balance": 8400.0,
+      "kind": "crypto"
+     },
+     {
+      "account": "Home",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 612400.0,
+      "kind": "home",
+      "re_use": "primary"
+     }
+    ]
+   },
+   "expected": {
+    "investments_total": {
+     "exact": 113569.455,
+     "shown": "$113,569"
+    },
+    "rows": [
+     {
+      "label": "Fidelity brokerage",
+      "exact": 90169.455
+     },
+     {
+      "label": "Ally 12-month CD",
+      "exact": 15000.0
+     },
+     {
+      "label": "Ally high-yield savings",
+      "exact": 0.0
+     },
+     {
+      "label": "Coinbase",
+      "exact": 8400.0
+     },
+     {
+      "label": "Home",
+      "exact": 0.0
+     }
+    ],
+    "cash_total": {
+     "exact": 26153.735,
+     "shown": "$26,154"
+    },
+    "investable_assets": {
+     "exact": 139723.19,
+     "shown": "$139,723"
+    },
+    "check_cash_plus_investments_equals_investable": true
+   },
+   "working": [
+    "Fidelity brokerage: investment part = 90,169.46",
+    "Ally 12-month CD: investment part = 15,000.00",
+    "Ally high-yield savings: investment part = 0.00",
+    "Coinbase: investment part = 8,400.00",
+    "Home: investment part = 0.00",
+    "Home is property → not investable, not an investment",
+    "Fidelity's $1,247.55 cash is Cash only; its SPAXX, VTI, T-bill and CD are investments",
+    "Ally CD is an investment (Bonds & CDs) though its kind says savings",
+    "Investments = 90,169.46 + 15,000.00 + 0.00 + 8,400.00 + 0.00 = 113,569.46",
+    "Cash = 26,153.73; investable = 139,723.19; 26,153.73 + 113,569.46 = 139,723.19 = investable ✓"
+   ],
+   "rests_on": "Card's own invariant (cashTotal + investmentsTotal = investableAssets); owner DEC-0343; MK-NW-F-016",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-021",
+   "name": "investmentsTotal",
+   "kind": "edge",
+   "title": "Account built by hand with recorded cash of exactly zero",
+   "given": "Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $0.00; VTI 100 × $289.33 = $28,933.00 (stocks_etf); balance $28,933.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 0.0,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 100,
+        "price": 289.33,
+        "cls": "stocks_etf"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "investments_total": {
+     "exact": 28933.0,
+     "shown": "$28,933"
+    },
+    "rows": [
+     {
+      "label": "Schwab brokerage",
+      "exact": 28933.0
+     }
+    ],
+    "cash_total": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "investable_assets": {
+     "exact": 28933.0,
+     "shown": "$28,933"
+    },
+    "check_cash_plus_investments_equals_investable": true
+   },
+   "working": [
+    "Schwab brokerage: investment part = 28,933.00",
+    "Cash 0 → no split → the whole account under Stocks / Funds; nothing to double-count",
+    "Investments = 28,933.00 = 28,933.00",
+    "Cash = 0.00; investable = 28,933.00; 0.00 + 28,933.00 = 28,933.00 = investable ✓"
+   ],
+   "rests_on": "Card's own invariant (cashTotal + investmentsTotal = investableAssets); owner DEC-0343; MK-NW-F-016",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-022",
+   "name": "investableAssets",
+   "kind": "easy",
+   "title": "Checking and a 401(k)",
+   "given": "Chase Checking (bank, class cash): $5,000.00; Fidelity 401(k) (typed, class unclassified): $100,000.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 5000.0
+     },
+     {
+      "account": "Fidelity 401(k)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "unclassified",
+      "balance": 100000.0,
+      "kind": "401k"
+     }
+    ]
+   },
+   "expected": {
+    "investable_assets": {
+     "exact": 105000.0,
+     "shown": "$105,000"
+    },
+    "rows": [
+     {
+      "label": "Chase Checking",
+      "exact": 5000.0
+     },
+     {
+      "label": "Fidelity 401(k)",
+      "exact": 100000.0
+     }
+    ]
+   },
+   "working": [
+    "Chase Checking: counted 5,000.00",
+    "Fidelity 401(k): counted 100,000.00",
+    "Investable = 5,000.00 + 100,000.00 = 105,000.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-022 formula; MK-NW-F-014 isRealAsset",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-022",
+   "name": "investableAssets",
+   "kind": "easy",
+   "title": "A home is left out",
+   "given": "Home (typed, class real_estate): $450,000.00; Ally savings (bank, class cash): $20,000.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Home",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 450000.0,
+      "kind": "home"
+     },
+     {
+      "account": "Ally savings",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 20000.0
+     }
+    ]
+   },
+   "expected": {
+    "investable_assets": {
+     "exact": 20000.0,
+     "shown": "$20,000"
+    },
+    "rows": [
+     {
+      "label": "Home",
+      "exact": 0.0
+     },
+     {
+      "label": "Ally savings",
+      "exact": 20000.0
+     }
+    ]
+   },
+   "working": [
+    "Home: real asset → left out",
+    "Ally savings: counted 20,000.00",
+    "Investable = 0.00 + 20,000.00 = 20,000.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-022 formula; MK-NW-F-014 isRealAsset",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-022",
+   "name": "investableAssets",
+   "kind": "complex",
+   "title": "Overdrawn checking, an account built by hand, linked broker, rental, car",
+   "given": "Chase Checking (bank, class cash): $-312.40; Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $6,120.55; VTI 240 × $263.48 = $63,235.20 (stocks_etf); balance $69,355.75; Fidelity brokerage (linked, balance $91,417.01): cash $1,247.55; FIDELITY GOVERNMENT MONEY MARKET (SPAXX) 18330.1 × $1.00 = $18,330.10 (stocks_etf); VTI 145 × $288.88 = $41,887.46 (stocks_etf); UNITED STATES TREAS BILLS 0% 03/19/27 10 × $986.13 = $9,861.30 (bonds); CAPITAL ONE NA CD 4.25% 03/18/27 20 × $1,004.53 = $20,090.60 (bonds); Rental condo (typed, class real_estate): $348,750.00; Toyota RAV4 (typed, class personal_property): $28,900.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": -312.4
+     },
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 6120.55,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 240,
+        "price": 263.48,
+        "cls": "stocks_etf"
+       }
+      ]
+     },
+     {
+      "account": "Fidelity brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 91417.01,
+      "uninvested_cash": 1247.55,
+      "holdings": [
+       {
+        "name": "FIDELITY GOVERNMENT MONEY MARKET (SPAXX)",
+        "qty": 18330.1,
+        "price": 1.0,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "VTI",
+        "qty": 145,
+        "price": 288.879,
+        "cls": "stocks_etf"
+       },
+       {
+        "name": "UNITED STATES TREAS BILLS 0% 03/19/27",
+        "qty": 10,
+        "price": 986.13,
+        "cls": "bonds"
+       },
+       {
+        "name": "CAPITAL ONE NA CD 4.25% 03/18/27",
+        "qty": 20,
+        "price": 1004.53,
+        "cls": "bonds"
+       }
+      ]
+     },
+     {
+      "account": "Rental condo",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 348750.0,
+      "kind": "home",
+      "re_use": "rental"
+     },
+     {
+      "account": "Toyota RAV4",
+      "how_valued": "value typed by hand",
+      "class_of_account": "personal_property",
+      "balance": 28900.0,
+      "kind": "vehicle"
+     }
+    ]
+   },
+   "expected": {
+    "investable_assets": {
+     "exact": 160460.36,
+     "shown": "$160,460"
+    },
+    "rows": [
+     {
+      "label": "Chase Checking",
+      "exact": -312.4
+     },
+     {
+      "label": "Schwab brokerage",
+      "exact": 69355.75
+     },
+     {
+      "label": "Fidelity brokerage",
+      "exact": 91417.01
+     },
+     {
+      "label": "Rental condo",
+      "exact": 0.0
+     },
+     {
+      "label": "Toyota RAV4",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Chase Checking: counted -312.40",
+    "Schwab brokerage: counted 69,355.75",
+    "Fidelity brokerage: counted 91,417.01",
+    "Rental condo: real asset → left out",
+    "Toyota RAV4: real asset → left out",
+    "An overdraft counts at its negative balance",
+    "Each investment account counts once, whole, cash included",
+    "Investable = -312.40 + 69,355.75 + 91,417.01 + 0.00 + 0.00 = 160,460.36",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-022 formula; MK-NW-F-014 isRealAsset",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-022",
+   "name": "investableAssets",
+   "kind": "complex",
+   "title": "Crypto built by hand, private equity kept from before the cut, CD, art, land",
+   "given": "Coinbase (built by hand from its holdings, own class alternatives): uninvested cash $1,906.40; BTC 0.37 × $112,907.65 = $41,775.83 (alternatives); ETH 3.1 × $4,065.84 = $12,604.10 (alternatives); balance $56,286.33; Acme Growth Fund III (private equity, saved 2026-07-02) (typed, class alternatives): $150,000.00; Ally 12-month CD (typed, class bonds): $15,000.00; Masterworks art share (typed, class alternatives): $12,500.00; Wenatchee lot (typed, class real_estate): $75,500.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Coinbase",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "alternatives",
+      "uninvested_cash": 1906.4,
+      "holdings": [
+       {
+        "name": "BTC",
+        "qty": 0.37,
+        "price": 112907.65,
+        "cls": "alternatives"
+       },
+       {
+        "name": "ETH",
+        "qty": 3.1,
+        "price": 4065.84,
+        "cls": "alternatives"
+       }
+      ]
+     },
+     {
+      "account": "Acme Growth Fund III (private equity, saved 2026-07-02)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "alternatives",
+      "balance": 150000.0,
+      "kind": "private_equity"
+     },
+     {
+      "account": "Ally 12-month CD",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 15000.0,
+      "kind": "savings",
+      "note": "maturity 2027-04-22 → Bonds & CDs (assetClassOf step 2)"
+     },
+     {
+      "account": "Masterworks art share",
+      "how_valued": "value typed by hand",
+      "class_of_account": "alternatives",
+      "balance": 12500.0,
+      "kind": "other"
+     },
+     {
+      "account": "Wenatchee lot",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 75500.0,
+      "kind": "real_estate",
+      "re_use": "land"
+     }
+    ]
+   },
+   "expected": {
+    "investable_assets": {
+     "exact": 233786.3345,
+     "shown": "$233,786"
+    },
+    "rows": [
+     {
+      "label": "Coinbase",
+      "exact": 56286.3345
+     },
+     {
+      "label": "Acme Growth Fund III (private equity, saved 2026-07-02)",
+      "exact": 150000.0
+     },
+     {
+      "label": "Ally 12-month CD",
+      "exact": 15000.0
+     },
+     {
+      "label": "Masterworks art share",
+      "exact": 12500.0
+     },
+     {
+      "label": "Wenatchee lot",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Coinbase: counted 56,286.33",
+    "Acme Growth Fund III (private equity, saved 2026-07-02): counted 150,000.00",
+    "Ally 12-month CD: counted 15,000.00",
+    "Masterworks art share: counted 12,500.00",
+    "Wenatchee lot: real asset → left out",
+    "Investable = 56,286.33 + 150,000.00 + 15,000.00 + 12,500.00 + 0.00 = 233,786.33",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-022 formula; MK-NW-F-014 isRealAsset",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-022",
+   "name": "investableAssets",
+   "kind": "edge",
+   "title": "Only property entered",
+   "given": "Home (typed, class real_estate): $612,400.00; Toyota RAV4 (typed, class personal_property): $28,900.00",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Home",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 612400.0,
+      "kind": "home",
+      "re_use": "primary"
+     },
+     {
+      "account": "Toyota RAV4",
+      "how_valued": "value typed by hand",
+      "class_of_account": "personal_property",
+      "balance": 28900.0,
+      "kind": "vehicle"
+     }
+    ]
+   },
+   "expected": {
+    "investable_assets": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "rows": [
+     {
+      "label": "Home",
+      "exact": 0.0
+     },
+     {
+      "label": "Toyota RAV4",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Home: real asset → left out",
+    "Toyota RAV4: real asset → left out",
+    "Nothing investable → 0 (a true zero: there are accounts and none is investable)",
+    "Investable = 0.00 + 0.00 = 0.00",
+    "Check: rows sum to the total"
+   ],
+   "rests_on": "MK-NW-F-022 formula; MK-NW-F-014 isRealAsset",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "easy",
+   "title": "Bank account with institution and digits",
+   "given": "Chase, kind checking, mask ••4821, bucket CASH.",
+   "inputs": {
+    "institution": "Chase",
+    "kind": "checking",
+    "mask": "••4821",
+    "tax_bucket": "CASH",
+    "label": "TOTAL CHECKING"
+   },
+   "expected": {
+    "name": "Chase -4821"
+   },
+   "working": [
+    "Not tax-advantaged; institution and digits → 'Institution -last four'"
+   ],
+   "rests_on": "MK-NW-F-025 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "easy",
+   "title": "Brokerage with institution, no digits",
+   "given": "Vanguard, kind brokerage, no mask.",
+   "inputs": {
+    "institution": "Vanguard",
+    "kind": "brokerage",
+    "mask": null,
+    "tax_bucket": "TAXABLE"
+   },
+   "expected": {
+    "name": "Vanguard Brokerage"
+   },
+   "working": [
+    "No digits → 'Institution + kind word'"
+   ],
+   "rests_on": "MK-NW-F-025 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "complex",
+   "title": "Tax-advantaged accounts at one broker",
+   "given": "Fidelity account kind brokerage, treatment tax_free, mask ••7712; Fidelity account kind 401k, bucket PRE_TAX, no mask.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "A",
+      "institution": "Fidelity",
+      "kind": "brokerage",
+      "tax_treatment": "tax_free",
+      "mask": "••7712"
+     },
+     {
+      "name": "B",
+      "institution": "Fidelity",
+      "kind": "401k",
+      "tax_bucket": "PRE_TAX",
+      "mask": null
+     }
+    ]
+   },
+   "expected": {
+    "A": "Fidelity Roth -7712",
+    "B": "Fidelity 401(k)"
+   },
+   "working": [
+    "A: tax-advantaged, kind says Brokerage, tax-free → word 'Roth'; with digits → 'Fidelity Roth -7712'",
+    "B: tax-advantaged, word '401(k)', no digits → 'Fidelity 401(k)'"
+   ],
+   "rests_on": "MK-NW-F-025 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "complex",
+   "title": "Roth 401(k) beside a pre-tax 401(k) at one employer",
+   "given": "Fidelity, kind 401k, bucket ROTH, mask ••3390; and Fidelity, kind 401k, bucket PRE_TAX, mask ••3391.",
+   "inputs": {
+    "accounts": [
+     {
+      "name": "Roth",
+      "institution": "Fidelity",
+      "kind": "401k",
+      "tax_bucket": "ROTH",
+      "mask": "••3390"
+     },
+     {
+      "name": "Pre-tax",
+      "institution": "Fidelity",
+      "kind": "401k",
+      "tax_bucket": "PRE_TAX",
+      "mask": "••3391"
+     }
+    ]
+   },
+   "expected": {
+    "Roth": "Fidelity Roth 401(k) -3390",
+    "Pre-tax": "Fidelity 401(k) -3391"
+   },
+   "formula_gives": {
+    "Roth": "Fidelity 401(k) -3390",
+    "Pre-tax": "Fidelity 401(k) -3391"
+   },
+   "working": [
+    "A tax-advantaged account always shows what it is (the card's own promise)",
+    "The Roth one must say Roth: 'Fidelity Roth 401(k) -3390'",
+    "The pre-tax one: 'Fidelity 401(k) -3391'"
+   ],
+   "rests_on": "The card's own promise; MK-NW-F-010 maps roth_401k to kind 401(k), bucket Roth",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-025",
+   "name": "accountDisplayName",
+   "kind": "edge",
+   "title": "Imported holding with exactly one holding, no institution",
+   "given": "Label 'Imported holding', no institution, no mask, one position VTI.",
+   "inputs": {
+    "label": "Imported holding",
+    "institution": null,
+    "mask": null,
+    "positions": [
+     {
+      "ticker": "VTI"
+     }
+    ]
+   },
+   "expected": {
+    "name": "VTI"
+   },
+   "working": [
+    "No institution, no kind word, no digits → own name",
+    "Named 'Imported holding' with exactly one holding → its ticker 'VTI'"
+   ],
+   "rests_on": "MK-NW-F-025 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-026",
+   "name": "accountDisplayNames",
+   "kind": "easy",
+   "title": "No clash",
+   "given": "Ids a1 'Savings', a2 'Checking'.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "a1",
+      "name": "Savings"
+     },
+     {
+      "id": "a2",
+      "name": "Checking"
+     }
+    ]
+   },
+   "expected": {
+    "a1": "Savings",
+    "a2": "Checking"
+   },
+   "working": [
+    "Names differ → unchanged"
+   ],
+   "rests_on": "MK-NW-F-026 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-026",
+   "name": "accountDisplayNames",
+   "kind": "easy",
+   "title": "Two alike",
+   "given": "Ids a1, a2 both 'Savings'.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "a1",
+      "name": "Savings"
+     },
+     {
+      "id": "a2",
+      "name": "Savings"
+     }
+    ]
+   },
+   "expected": {
+    "a1": "Savings · 1",
+    "a2": "Savings · 2"
+   },
+   "working": [
+    "Clash → numbered in id text order a1, a2"
+   ],
+   "rests_on": "MK-NW-F-026 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-026",
+   "name": "accountDisplayNames",
+   "kind": "complex",
+   "title": "Three alike, ids out of creation order, beside one other",
+   "given": "Ids '1727000000000-b', '1690000000000-a', '1727000000000-a' all named 'Vanguard Brokerage'; id '1700000000000-z' named 'Chase -4821'.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "1727000000000-b",
+      "name": "Vanguard Brokerage"
+     },
+     {
+      "id": "1690000000000-a",
+      "name": "Vanguard Brokerage"
+     },
+     {
+      "id": "1727000000000-a",
+      "name": "Vanguard Brokerage"
+     },
+     {
+      "id": "1700000000000-z",
+      "name": "Chase -4821"
+     }
+    ]
+   },
+   "expected": {
+    "1690000000000-a": "Vanguard Brokerage · 1",
+    "1727000000000-a": "Vanguard Brokerage · 2",
+    "1727000000000-b": "Vanguard Brokerage · 3",
+    "1700000000000-z": "Chase -4821"
+   },
+   "working": [
+    "Text order: '1690000000000-a' < '1727000000000-a' < '1727000000000-b'",
+    "Number 1, 2, 3 in that order; Chase unchanged"
+   ],
+   "rests_on": "MK-NW-F-026 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-026",
+   "name": "accountDisplayNames",
+   "kind": "complex",
+   "title": "A numbered name already taken",
+   "given": "Ids a 'Savings', b 'Savings', c 'Savings · 1'.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "a",
+      "name": "Savings"
+     },
+     {
+      "id": "b",
+      "name": "Savings"
+     },
+     {
+      "id": "c",
+      "name": "Savings · 1"
+     }
+    ]
+   },
+   "expected": {
+    "a": "Savings · 2",
+    "b": "Savings · 3",
+    "c": "Savings · 1"
+   },
+   "working": [
+    "a and b clash; 'Savings · 1' is c's name → skipped",
+    "a → 'Savings · 2', b → 'Savings · 3'; c keeps its name"
+   ],
+   "rests_on": "MK-NW-F-026 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-026",
+   "name": "accountDisplayNames",
+   "kind": "edge",
+   "title": "Ids that sort differently as text than as numbers",
+   "given": "Ids '9' and '10', both 'Ally Savings'.",
+   "inputs": {
+    "accounts": [
+     {
+      "id": "9",
+      "name": "Ally Savings"
+     },
+     {
+      "id": "10",
+      "name": "Ally Savings"
+     }
+    ]
+   },
+   "expected": {
+    "10": "Ally Savings · 1",
+    "9": "Ally Savings · 2"
+   },
+   "working": [
+    "Read as text, '10' < '9' → '10' gets · 1"
+   ],
+   "rests_on": "MK-NW-F-026 formula",
+   "confidence": "medium",
+   "notes": "This follows the card as written (text order). The app's ids are timestamps of equal length, so in practice text and number order agree."
+  },
+  {
+   "id": "MK-NW-F-109",
+   "name": "holdingClassOf",
+   "kind": "easy",
+   "title": "Person's own answer",
+   "given": "AAPL, broker tag stock, the person answered Alternatives.",
+   "inputs": {
+    "ticker": "AAPL",
+    "stored_tag": "stock",
+    "person_answer": "alternatives"
+   },
+   "expected": {
+    "class": "alternatives"
+   },
+   "working": [
+    "Step (1): the person's answer wins"
+   ],
+   "rests_on": "MK-NW-F-109 steps (1)–(4); owner DEC-0051/0092, rule 7 (2026-09-30)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-109",
+   "name": "holdingClassOf",
+   "kind": "easy",
+   "title": "Plain equity ETF",
+   "given": "VTI, tag stock.",
+   "inputs": {
+    "ticker": "VTI",
+    "name": "VANGUARD TOTAL STOCK MARKET ETF",
+    "stored_tag": "stock"
+   },
+   "expected": {
+    "class": "stocks_etf"
+   },
+   "working": [
+    "Step (3): evidence → Stocks / Funds"
+   ],
+   "rests_on": "MK-NW-F-109 steps (1)–(4); owner DEC-0051/0092, rule 7 (2026-09-30)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-109",
+   "name": "holdingClassOf",
+   "kind": "complex",
+   "title": "Holdings as a broker link describes them",
+   "given": "Four holdings synced from Fidelity, all tagged 'cash' by the broker: 'FIDELITY GOVERNMENT MONEY MARKET (SPAXX)', 'UNITED STATES TREAS BILLS 0.000% 01/15/2027', 'CAPITAL ONE NA CD 4.25% 03/18/27', 'USD CASH'.",
+   "inputs": {
+    "holdings": [
+     {
+      "name": "FIDELITY GOVERNMENT MONEY MARKET (SPAXX)",
+      "stored_tag": "cash"
+     },
+     {
+      "name": "UNITED STATES TREAS BILLS 0.000% 01/15/2027",
+      "stored_tag": "cash"
+     },
+     {
+      "name": "CAPITAL ONE NA CD 4.25% 03/18/27",
+      "stored_tag": "cash"
+     },
+     {
+      "name": "USD CASH",
+      "stored_tag": "cash"
+     }
+    ]
+   },
+   "expected": {
+    "SPAXX": "stocks_etf",
+    "T-bill": "bonds",
+    "CD": "bonds",
+    "USD CASH": "cash"
+   },
+   "working": [
+    "SPAXX: name is evidence of a money-market fund → Stocks / Funds, whatever the tag",
+    "T-bill: evidence → Bonds & CDs",
+    "CD: evidence → Bonds & CDs",
+    "USD CASH: evidence is cash → step (3) skips it; step (4) tag cash → cash"
+   ],
+   "rests_on": "MK-NW-F-109 steps (1)–(4); owner DEC-0051/0092, rule 7 (2026-09-30)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-109",
+   "name": "holdingClassOf",
+   "kind": "complex",
+   "title": "Asked holdings, answered and not",
+   "given": "'XYZ PRIVATE PLACEMENT LP' marked asked, tag stock, no answer; 'ACME 5.5% 2031' marked asked, person answered Bonds; 'Fundrise eREIT', tag other.",
+   "inputs": {
+    "holdings": [
+     {
+      "name": "XYZ PRIVATE PLACEMENT LP",
+      "marked_asked": true,
+      "stored_tag": "stock",
+      "person_answer": null
+     },
+     {
+      "name": "ACME 5.5% 2031",
+      "marked_asked": true,
+      "person_answer": "bonds"
+     },
+     {
+      "name": "Fundrise eREIT",
+      "stored_tag": "other"
+     }
+    ]
+   },
+   "expected": {
+    "XYZ PRIVATE PLACEMENT LP": "unclassified",
+    "ACME 5.5% 2031": "bonds",
+    "Fundrise eREIT": "alternatives"
+   },
+   "working": [
+    "XYZ: no answer, marked asked → step (2) Unclassified (owner rule 7)",
+    "ACME: step (1) the person's answer → Bonds & CDs",
+    "Fundrise: no evidence; step (4) tag other → Alternatives"
+   ],
+   "rests_on": "MK-NW-F-109 steps (1)–(4); owner DEC-0051/0092, rule 7 (2026-09-30)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-109",
+   "name": "holdingClassOf",
+   "kind": "edge",
+   "title": "Holding with no stored class and no evidence",
+   "given": "'ACME HOLDINGS 2021-A', no ticker, no tag stored, not marked asked, no answer.",
+   "inputs": {
+    "name": "ACME HOLDINGS 2021-A",
+    "ticker": null,
+    "stored_tag": null,
+    "marked_asked": false,
+    "person_answer": null
+   },
+   "expected": {
+    "class": "unclassified",
+    "asks_the_person": true
+   },
+   "formula_gives": {
+    "class": "stocks_etf"
+   },
+   "working": [
+    "Nothing says what kind of asset it is",
+    "Owner rule 7 (2026-09-30): 'Refuse the line and ask' → Unclassified, and it is asked about"
+   ],
+   "rests_on": "Owner rule 7 (2026-09-30, master Q11)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-027",
+   "name": "accountClassBreakdown",
+   "kind": "easy",
+   "title": "Linked account: cash and one fund",
+   "given": "Linked Vanguard, balance $4,000: cash $1,000; 10 VTI at $300.",
+   "inputs": {
+    "account": {
+     "account": "Vanguard brokerage",
+     "how_valued": "linked to the broker",
+     "class_of_account": "stocks_etf",
+     "balance": 4000.0,
+     "uninvested_cash": 1000.0,
+     "holdings": [
+      {
+       "name": "VTI",
+       "qty": 10,
+       "price": 300.0,
+       "cls": "stocks_etf"
+      }
+     ]
+    }
+   },
+   "expected": {
+    "split": {
+     "cash": {
+      "exact": 1000.0,
+      "shown": "$1,000"
+     },
+     "stocks_etf": {
+      "exact": 3000.0,
+      "shown": "$3,000"
+     }
+    },
+    "sum_of_parts": {
+     "exact": 4000.0,
+     "shown": "$4,000"
+    }
+   },
+   "working": [
+    "Cash = 1,000.00",
+    "VTI = 10 × 300.00 = 3,000.00 → Stocks / Funds",
+    "Parts = 1,000.00 + 3,000.00 = 4,000.00 = balance; no difference"
+   ],
+   "rests_on": "MK-NW-F-027 linked-account rules; owner rule 2026-08-11 ($1/1% to cash); owner DEC-0051/0092 (T-bills are Bonds & CDs; money-market funds are Stocks / Funds)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-027",
+   "name": "accountClassBreakdown",
+   "kind": "easy",
+   "title": "Typed balance gets no split",
+   "given": "Merrill brokerage, balance typed by hand at $25,000, no holdings records.",
+   "inputs": {
+    "account": {
+     "account": "Merrill brokerage",
+     "how_valued": "value typed by hand",
+     "balance": 25000
+    }
+   },
+   "expected": "REFUSES",
+   "working": [
+    "Not linked; not built by hand → 'any other account' → no answer (null); it counts whole under its class elsewhere"
+   ],
+   "rests_on": "MK-NW-F-027 linked-account rules; owner rule 2026-08-11 ($1/1% to cash); owner DEC-0051/0092 (T-bills are Bonds & CDs; money-market funds are Stocks / Funds)",
+   "confidence": "high",
+   "notes": "No split is the formula's answer and the right one: a typed total says nothing about what is inside it."
+  },
+  {
+   "id": "MK-NW-F-027",
+   "name": "accountClassBreakdown",
+   "kind": "complex",
+   "title": "Linked account with an option and an unpriced private placement",
+   "given": "Robinhood (linked, balance $30,000.00): cash $2,000.00; AAPL 10 × $230.50 = $2,305.00 (stocks_etf); XYZ PRIVATE PLACEMENT LP NO PRICE (alternatives); option SPY 2026-12-18 650 C ×1 synced $1,450.00. XYZ is tagged 'other' (Alternatives) and has no price.",
+   "inputs": {
+    "account": {
+     "account": "Robinhood",
+     "how_valued": "linked to the broker",
+     "class_of_account": "stocks_etf",
+     "balance": 30000.0,
+     "uninvested_cash": 2000.0,
+     "holdings": [
+      {
+       "name": "AAPL",
+       "qty": 10,
+       "price": 230.5,
+       "cls": "stocks_etf"
+      },
+      {
+       "name": "XYZ PRIVATE PLACEMENT LP",
+       "qty": 100,
+       "price": null,
+       "cls": "alternatives"
+      }
+     ],
+     "options": [
+      {
+       "name": "SPY 2026-12-18 650 C ×1",
+       "value": 1450.0
+      }
+     ]
+    }
+   },
+   "expected": {
+    "split": {
+     "cash": {
+      "exact": 2000.0,
+      "shown": "$2,000"
+     },
+     "stocks_etf": {
+      "exact": 2305.0,
+      "shown": "$2,305"
+     },
+     "alternatives": {
+      "exact": 25695.0,
+      "shown": "$25,695"
+     }
+    },
+    "sum_of_parts": {
+     "exact": 30000.0,
+     "shown": "$30,000"
+    }
+   },
+   "working": [
+    "Cash = 2,000.00",
+    "AAPL = 10 × 230.50 = 2,305.00 → Stocks / Funds",
+    "Option SPY call = 1,450.00 as synced → Alternatives",
+    "Parts priced = 5,755.00; balance 30,000.00; short by 24,245.00",
+    "Unpriced holdings: only XYZ (Alternatives) → whole difference to Alternatives (never to cash)",
+    "Alternatives = 1,450.00 + 24,245.00 = 25,695.00",
+    "Check: 2,000.00 + 2,305.00 + 25,695.00 = 30,000.00 = balance"
+   ],
+   "rests_on": "MK-NW-F-027 linked-account rules; owner rule 2026-08-11 ($1/1% to cash); owner DEC-0051/0092 (T-bills are Bonds & CDs; money-market funds are Stocks / Funds)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-027",
+   "name": "accountClassBreakdown",
+   "kind": "complex",
+   "title": "Account built by hand holding a fund, a T-bill and a money-market fund",
+   "given": "Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $2,410.18; VTI 131 × $289.33 = $37,902.23 (stocks_etf); UNITED STATES TREAS BILLS 0% 01/15/27 10 × $986.13 = $9,861.30 (bonds); SCHWAB VALUE ADVANTAGE MONEY FUND (SWVXX) 62465.8 × $1.00 = $62,465.80 (stocks_etf); balance $112,639.51",
+   "inputs": {
+    "account": {
+     "account": "Schwab brokerage",
+     "how_valued": "built by hand from its own holdings (derive_balance)",
+     "class_of_account": "stocks_etf",
+     "uninvested_cash": 2410.18,
+     "holdings": [
+      {
+       "name": "VTI",
+       "qty": 131,
+       "price": 289.33,
+       "cls": "stocks_etf"
+      },
+      {
+       "name": "UNITED STATES TREAS BILLS 0% 01/15/27",
+       "qty": 10,
+       "price": 986.13,
+       "cls": "bonds"
+      },
+      {
+       "name": "SCHWAB VALUE ADVANTAGE MONEY FUND (SWVXX)",
+       "qty": 62465.8,
+       "price": 1.0,
+       "cls": "stocks_etf"
+      }
+     ]
+    }
+   },
+   "expected": {
+    "split": {
+     "cash": {
+      "exact": 2410.18,
+      "shown": "$2,410"
+     },
+     "bonds": {
+      "exact": 9861.3,
+      "shown": "$9,861"
+     },
+     "stocks_etf": {
+      "exact": 100368.03,
+      "shown": "$100,368"
+     }
+    },
+    "sum_of_parts": {
+     "exact": 112639.51,
+     "shown": "$112,640"
+    }
+   },
+   "formula_gives": {
+    "split": {
+     "cash": {
+      "exact": 2410.18,
+      "shown": "$2,410"
+     },
+     "stocks_etf": {
+      "exact": 110229.33,
+      "shown": "$110,229"
+     }
+    }
+   },
+   "working": [
+    "Balance = cash + Σ holdings = 112,639.51",
+    "Cash = 2,410.18 (not above the balance)",
+    "VTI = 131 × 289.33 = 37,902.23 → Stocks / Funds",
+    "T-bill = 10 × 986.13 = 9,861.30 → Bonds & CDs (owner DEC-0051/0092; holdingClassOf step 3)",
+    "SWVXX = 62,465.80 → Stocks / Funds (money-market fund)",
+    "Stocks / Funds = 37,902.23 + 62,465.80 = 100,368.03",
+    "Check: 2,410.18 + 100,368.03 + 9,861.30 = 112,639.51 = balance",
+    "Formula as written: cash 2,410.18; the rest 110,229.33 whole under the account's own class (Stocks / Funds) — the T-bill lost from Bonds & CDs"
+   ],
+   "rests_on": "MK-NW-F-027 linked-account rules; owner rule 2026-08-11 ($1/1% to cash); owner DEC-0051/0092 (T-bills are Bonds & CDs; money-market funds are Stocks / Funds); MK-NW-F-109 'the one rule the split … all use'",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-027",
+   "name": "accountClassBreakdown",
+   "kind": "edge",
+   "title": "Difference exactly at 1% of the balance, and one cent over",
+   "given": "Linked E*TRADE, balance $100,000.00: cash $3,000.00; 160 VOO at $600.00 = $96,000.00; every holding priced. Second reading: same holdings, balance $100,000.01.",
+   "inputs": {
+    "account": {
+     "account": "E*TRADE brokerage",
+     "how_valued": "linked to the broker",
+     "class_of_account": "stocks_etf",
+     "balance": 100000.0,
+     "uninvested_cash": 3000.0,
+     "holdings": [
+      {
+       "name": "VOO",
+       "qty": 160,
+       "price": 600.0,
+       "cls": "stocks_etf"
+      }
+     ]
+    },
+    "second_balance": 100000.01
+   },
+   "expected": {
+    "at_line": {
+     "split": {
+      "cash": {
+       "exact": 4000.0,
+       "shown": "$4,000"
+      },
+      "stocks_etf": {
+       "exact": 96000.0,
+       "shown": "$96,000"
+      }
+     }
+    },
+    "one_cent_over": {
+     "split": {
+      "cash": {
+       "exact": 3000.0,
+       "shown": "$3,000"
+      },
+      "stocks_etf": {
+       "exact": 97000.01,
+       "shown": "$97,000"
+      }
+     }
+    }
+   },
+   "working": [
+    "Parts = 3,000.00 + 96,000.00 = 99,000.00; difference = 1,000.00",
+    "Tolerance = larger of $1 or 1% × 100,000.00 = 1,000.00; 1,000.00 is no bigger than it → added to cash → cash 4,000.00",
+    "One cent over: balance 100,000.01; difference 1,000.01; tolerance 1,000.0001 → bigger → to the account's own class (Stocks / Funds): 96,000.00 + 1,000.01 = 97,000.01",
+    "Both readings: parts add to the balance"
+   ],
+   "rests_on": "MK-NW-F-027 linked-account rules; owner rule 2026-08-11 ($1/1% to cash); owner DEC-0051/0092 (T-bills are Bonds & CDs; money-market funds are Stocks / Funds)",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-028",
+   "name": "classPortionLabel",
+   "kind": "easy",
+   "title": "Three CDs and a Treasury",
+   "given": "Bonds class: 'Ally CD 4.1%', 'Marcus CD 4.0%', 'Synchrony CD 3.9%', 'US Treasury Note 4.25% 2029'.",
+   "inputs": {
+    "class": "bonds",
+    "holdings": [
+     "Ally CD 4.1%",
+     "Marcus CD 4.0%",
+     "Synchrony CD 3.9%",
+     "US Treasury Note 4.25% 2029"
+    ]
+   },
+   "expected": {
+    "words": "3 CDs & 1 Treasury in this account"
+   },
+   "working": [
+    "CD: 3; Treasury: 1; bonds: 0 (left out)",
+    "Two parts → joined with &"
+   ],
+   "rests_on": "MK-NW-F-028 formula; owner DEC-0090",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-028",
+   "name": "classPortionLabel",
+   "kind": "easy",
+   "title": "Cash",
+   "given": "Cash class.",
+   "inputs": {
+    "class": "cash"
+   },
+   "expected": {
+    "words": "cash in this account"
+   },
+   "working": [
+    "Cash → 'cash in this account'"
+   ],
+   "rests_on": "MK-NW-F-028 formula; owner DEC-0090",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-028",
+   "name": "classPortionLabel",
+   "kind": "complex",
+   "title": "Whole-word tests on awkward names",
+   "given": "Bonds class: 'CDW CORP 3.25% 2029', 'certificate of deposit ALLY 4.1%', 't-bill 26wk', 'Apple Inc 2.4% 2030'.",
+   "inputs": {
+    "class": "bonds",
+    "holdings": [
+     "CDW CORP 3.25% 2029",
+     "certificate of deposit ALLY 4.1%",
+     "t-bill 26wk",
+     "Apple Inc 2.4% 2030"
+    ]
+   },
+   "expected": {
+    "words": "1 CD, 1 Treasury & 2 bonds in this account"
+   },
+   "working": [
+    "'CDW' is not the whole word CD → bond",
+    "'certificate of deposit' (capitals ignored) → CD",
+    "'t-bill' → Treasury",
+    "Apple → bond",
+    "1 CD, 1 Treasury, 2 bonds → 'A, B & C'"
+   ],
+   "rests_on": "MK-NW-F-028 formula; owner DEC-0090",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-028",
+   "name": "classPortionLabel",
+   "kind": "complex",
+   "title": "Options and holdings under Alternatives, and one stock holding",
+   "given": "Alternatives: 2 option positions (5 contracts and 1 contract) and 'Fundrise eREIT'. Stocks: one holding VTI.",
+   "inputs": {
+    "alternatives": {
+     "option_positions": [
+      {
+       "contracts": 5
+      },
+      {
+       "contracts": 1
+      }
+     ],
+     "holdings": [
+      "Fundrise eREIT"
+     ]
+    },
+    "stocks": {
+     "holdings": [
+      "VTI"
+     ]
+    }
+   },
+   "expected": {
+    "alternatives": "2 options & 1 holding in this account",
+    "stocks": "1 holding in this account"
+   },
+   "working": [
+    "An option is one position however many contracts → 2 options",
+    "1 holding, singular",
+    "Stocks: 1 holding, singular"
+   ],
+   "rests_on": "MK-NW-F-028 formula; owner DEC-0090",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-028",
+   "name": "classPortionLabel",
+   "kind": "edge",
+   "title": "A CD and a T-bill as the broker names them",
+   "given": "Bonds class: 'CAPITAL ONE NA CD 4.25% 03/18/27', 'UNITED STATES TREAS BILLS 0% 01/15/27'.",
+   "inputs": {
+    "class": "bonds",
+    "holdings": [
+     "CAPITAL ONE NA CD 4.25% 03/18/27",
+     "UNITED STATES TREAS BILLS 0% 01/15/27"
+    ]
+   },
+   "expected": {
+    "words": "1 CD & 1 Treasury in this account"
+   },
+   "formula_gives": {
+    "words": "1 CD & 1 bond in this account"
+   },
+   "working": [
+    "The second is a US Treasury bill (the owner's own example counts a 'treasury bond')",
+    "1 CD, 1 Treasury"
+   ],
+   "rests_on": "Owner DEC-0090; ordinary broker description formats",
+   "confidence": "medium",
+   "notes": "The formula's whole-word test (Treasury, T-bill, T-note, government) does not match 'TREAS BILLS', so it falls to 'bond'."
+  },
+  {
+   "id": "MK-NW-O-003",
+   "name": "theNetWorth",
+   "kind": "easy",
+   "title": "One bank account, one stocks account, one card debt",
+   "given": "Chase Checking $10,000; Vanguard stocks typed $40,000; Chase Visa owing $3,000 (minimum $100).",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 10000.0
+     },
+     {
+      "account": "Vanguard stocks",
+      "how_valued": "value typed by hand",
+      "class_of_account": "stocks_etf",
+      "balance": 40000.0,
+      "kind": "stocks"
+     }
+    ],
+    "debts": [
+     {
+      "debt": "Chase Visa",
+      "balance": 3000.0,
+      "minimum": 100.0,
+      "payment_set": null
+     }
+    ]
+   },
+   "expected": {
+    "assets": {
+     "exact": 50000.0,
+     "shown": "$50,000"
+    },
+    "debts": {
+     "exact": 3000.0,
+     "shown": "$3,000"
+    },
+    "net_worth": {
+     "exact": 47000.0,
+     "shown": "$47,000"
+    },
+    "cash": {
+     "exact": 10000.0,
+     "shown": "$10,000"
+    },
+    "investments": {
+     "exact": 40000.0,
+     "shown": "$40,000"
+    },
+    "monthly_debt_payments": {
+     "exact": 100,
+     "shown": "$100"
+    },
+    "monthly_debt_minimum": {
+     "exact": 100,
+     "shown": "$100"
+    }
+   },
+   "working": [
+    "Assets = 10,000 + 40,000 = 50,000",
+    "Debts = 3,000",
+    "Net worth = 50,000 − 3,000 = 47,000",
+    "Cash 10,000 + Investments 40,000 = 50,000 = Assets",
+    "Monthly: larger of minimum 100 and payment set (none) = 100"
+   ],
+   "rests_on": "MK-NW-O-003 formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-O-003",
+   "name": "theNetWorth",
+   "kind": "easy",
+   "title": "Return with no money moved",
+   "given": "Compared from 2026-07-01. The record holds 2026-07-01: Vanguard brokerage $100,000 (the only account that is not property). No money moved. Today (2026-10-07) the account stands at $104,000.",
+   "inputs": {
+    "since": "2026-07-01",
+    "today": "2026-10-07",
+    "record": [
+     {
+      "day": "2026-07-01",
+      "Vanguard": 100000
+     }
+    ],
+    "money_moved": [],
+    "today_value": 104000
+   },
+   "expected": {
+    "return_on_cash_and_investments": {
+     "exact": 0.04,
+     "exact_percent": 4.0,
+     "shown": "+4.00%"
+    }
+   },
+   "working": [
+    "No movement → one piece = 104,000 ÷ 100,000 = 1.04",
+    "Return = 1.04 − 1 = 0.04 → +4.00%"
+   ],
+   "rests_on": "Owner rule 1 (2026-10-04): time-weighted return",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-O-003",
+   "name": "theNetWorth",
+   "kind": "complex",
+   "title": "Approved drawing: Net worth, Quiet Instrument v08, state A — exactly as drawn",
+   "given": "Chase Checking $8,000 (a bank account). Vanguard Brokerage $349,333, of which $838 is uninvested cash and $348,495 is stocks and funds (linked). E*TRADE bonds and CDs $5,819. Home $450,000. Debts: home mortgage $412,000, Chase Visa $6,000.",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 8000.0
+     },
+     {
+      "account": "Vanguard Brokerage",
+      "how_valued": "linked to the broker",
+      "class_of_account": "stocks_etf",
+      "balance": 349333.0,
+      "uninvested_cash": 838.0,
+      "holdings": [
+       {
+        "name": "stocks and funds (as drawn)",
+        "qty": 1,
+        "price": 348495.0,
+        "cls": "stocks_etf"
+       }
+      ]
+     },
+     {
+      "account": "E*TRADE bonds and CDs",
+      "how_valued": "value typed by hand",
+      "class_of_account": "bonds",
+      "balance": 5819.0
+     },
+     {
+      "account": "Home",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 450000.0,
+      "kind": "home"
+     }
+    ],
+    "debts": [
+     {
+      "debt": "Home mortgage",
+      "balance": 412000.0
+     },
+     {
+      "debt": "Chase Visa",
+      "balance": 6000.0
+     }
+    ]
+   },
+   "expected": {
+    "cash": {
+     "exact": 8838.0,
+     "shown": "$8,838"
+    },
+    "investments": {
+     "exact": 354314.0,
+     "shown": "$354,314"
+    },
+    "property_band (drawn as 'Personal property')": {
+     "exact": 450000.0,
+     "shown": "$450,000"
+    },
+    "by_class": {
+     "cash": {
+      "exact": 8838.0,
+      "shown": "$8,838"
+     },
+     "stocks_etf": {
+      "exact": 348495.0,
+      "shown": "$348,495"
+     },
+     "bonds": {
+      "exact": 5819.0,
+      "shown": "$5,819"
+     },
+     "real_estate": {
+      "exact": 450000.0,
+      "shown": "$450,000"
+     },
+     "personal_property": {
+      "exact": 0,
+      "shown": "$0"
+     }
+    },
+    "what_you_own": {
+     "exact": 813152.0,
+     "shown": "$813,152"
+    },
+    "debts": {
+     "exact": 418000.0,
+     "shown": "$418,000"
+    },
+    "net_worth": {
+     "exact": 395152.0,
+     "shown": "$395,152"
+    },
+    "investable": {
+     "exact": 363152.0,
+     "shown": "$363,152"
+    },
+    "check_parts_sum": "8,838 + 354,314 + 450,000 = 813,152 = What you own; 813,152 − 418,000 = 395,152"
+   },
+   "working": [
+    "Cash = Chase 8,000 + Vanguard uninvested 838 = 8,838.00",
+    "Investments = Vanguard stocks and funds 348,495 + E*TRADE 5,819 = 354,314.00",
+    "Home 450,000 → class Real estate",
+    "What you own = 8,000 + 349,333 + 5,819 + 450,000 = 813,152.00",
+    "Parts: 8,838.00 + 354,314.00 + 450,000.00 = 813,152.00 = What you own ✓",
+    "Debts = 412,000 + 6,000 = 418,000.00",
+    "Net worth = 813,152.00 − 418,000.00 = 395,152.00",
+    "Investable = 8,000 + 349,333 + 5,819 = 363,152.00 = Cash + Investments ✓",
+    "Same figure on several screens: Net worth on /home and /analytics (MK-XS-M-001); Investments on /home and /analytics (MK-XS-M-003) and /insights 'Total invested' (MK-MN-M-016); Cash on /analytics and /insights (MK-NW-M-005, MK-MN-M-016). Each must show the one value given here."
+   ],
+   "rests_on": "Approved drawing Net worth, Quiet Instrument v08, state A (2026-09-14)",
+   "confidence": "medium",
+   "notes": "The numbers reproduce the drawing exactly. The drawing labels the $450,000 Home band 'Personal property', but by the card's own class rules a home is Real estate (MK-NW-M-006 says the Personal property band holds vehicles and valuables). The figure is the same either way; the band label needs the owner's word. This assumes Vanguard is linked; if it were hand-built, the formula as written would double-count the $838."
+  },
+  {
+   "id": "MK-NW-O-003",
+   "name": "theNetWorth",
+   "kind": "complex",
+   "title": "Account built by hand with cash, two properties with mortgages, three kinds of debt, a year with a large bonus in and tuition out",
+   "given": "Chase Checking (bank, class cash): $14,206.15; Schwab brokerage (built by hand from its holdings, own class stocks_etf): uninvested cash $6,120.55; VTI 240 × $263.48 = $63,235.20 (stocks_etf); balance $69,355.75; Fidelity 401(k) (typed, class unclassified): $277,845.43; Home (typed, class real_estate): $612,400.00; Rental condo (typed, class real_estate): $348,750.00; Toyota RAV4 (typed, class personal_property): $28,900.00. Debts: home mortgage $401,212.88 (minimum $2,846.17, paid this month); rental condo mortgage $236,940.10 (minimum $1,702.55, the person pays $2,000.00, not yet paid this month); Chase Visa $6,418.92 (minimum $64.00, not yet paid); federal student loan $18,300.00 in deferment (no payment required, $0 minimum entered). Rent from the condo is on the income screen. Return: compared from 2025-10-07 (exactly one year before today, 2026-10-07). The record of the accounts that are not property (checking, Schwab, 401(k)) holds 2025-10-07: $290,000.00. 2026-03-16: a $60,000.00 bonus lands in checking from outside; recorded total that day $362,450.18. 2026-07-01: $25,000.00 taken out of Schwab to pay tuition; recorded total $346,118.04 (checking earned $41.20 interest in between — earned, not money moving). Today the accounts stand as listed.",
+   "inputs": {
+    "accounts": [
+     {
+      "account": "Chase Checking",
+      "how_valued": "bank account",
+      "class_of_account": "cash",
+      "balance": 14206.15
+     },
+     {
+      "account": "Schwab brokerage",
+      "how_valued": "built by hand from its own holdings (derive_balance)",
+      "class_of_account": "stocks_etf",
+      "uninvested_cash": 6120.55,
+      "holdings": [
+       {
+        "name": "VTI",
+        "qty": 240,
+        "price": 263.48,
+        "cls": "stocks_etf"
+       }
+      ]
+     },
+     {
+      "account": "Fidelity 401(k)",
+      "how_valued": "value typed by hand",
+      "class_of_account": "unclassified",
+      "balance": 277845.43,
+      "kind": "401k",
+      "note": "typed balance, no holdings listed → Unclassified (assetClassOf step 8)"
+     },
+     {
+      "account": "Home",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 612400.0,
+      "kind": "home",
+      "re_use": "primary"
+     },
+     {
+      "account": "Rental condo",
+      "how_valued": "value typed by hand",
+      "class_of_account": "real_estate",
+      "balance": 348750.0,
+      "kind": "home",
+      "re_use": "rental"
+     },
+     {
+      "account": "Toyota RAV4",
+      "how_valued": "value typed by hand",
+      "class_of_account": "personal_property",
+      "balance": 28900.0,
+      "kind": "vehicle"
+     }
+    ],
+    "debts": [
+     {
+      "debt": "Home mortgage",
+      "type": "mortgage",
+      "names_property": "Home",
+      "balance": 401212.88,
+      "minimum": 2846.17,
+      "payment_set": null,
+      "paid_this_month": true
+     },
+     {
+      "debt": "Rental condo mortgage",
+      "type": "mortgage",
+      "names_property": "Rental condo",
+      "balance": 236940.1,
+      "minimum": 1702.55,
+      "payment_set": 2000.0,
+      "paid_this_month": false
+     },
+     {
+      "debt": "Chase Visa",
+      "type": "credit_card",
+      "balance": 6418.92,
+      "minimum": 64.0,
+      "payment_set": null,
+      "paid_this_month": false
+     },
+     {
+      "debt": "Federal student loan (in deferment)",
+      "type": "student_loan",
+      "balance": 18300.0,
+      "minimum": 0.0,
+      "payment_set": null,
+      "paid_this_month": false
+     }
+    ],
+    "since": "2025-10-07",
+    "today": "2026-10-07",
+    "record_not_property": [
+     {
+      "day": "2025-10-07",
+      "total": 290000.0
+     },
+     {
+      "day": "2026-03-16",
+      "total": 362450.18
+     },
+     {
+      "day": "2026-07-01",
+      "total": 346118.04
+     }
+    ],
+    "money_moved": [
+     {
+      "day": "2026-03-16",
+      "amount": 60000.0,
+      "into": "Chase Checking",
+      "from": "outside"
+     },
+     {
+      "day": "2026-07-01",
+      "amount": -25000.0,
+      "out_of": "Schwab",
+      "to": "outside"
+     }
+    ],
+    "rent_on_income_screen": "Rental condo"
+   },
+   "expected": {
+    "by_class": {
+     "cash": {
+      "exact": 20326.7,
+      "shown": "$20,327"
+     },
+     "stocks_etf": {
+      "exact": 63235.2,
+      "shown": "$63,235"
+     },
+     "real_estate": {
+      "exact": 961150.0,
+      "shown": "$961,150"
+     },
+     "personal_property": {
+      "exact": 28900.0,
+      "shown": "$28,900"
+     },
+     "unclassified": {
+      "exact": 277845.43,
+      "shown": "$277,845"
+     }
+    },
+    "cash": {
+     "exact": 20326.7,
+     "shown": "$20,327"
+    },
+    "investments": {
+     "exact": 341080.63,
+     "shown": "$341,081"
+    },
+    "real_estate": {
+     "exact": 961150.0,
+     "shown": "$961,150"
+    },
+    "personal_property": {
+     "exact": 28900.0,
+     "shown": "$28,900"
+    },
+    "what_you_own": {
+     "exact": 1351457.33,
+     "shown": "$1,351,457"
+    },
+    "check_cash_plus_investments_plus_property_equals_what_you_own": true,
+    "investable": {
+     "exact": 361407.33,
+     "shown": "$361,407"
+    },
+    "debts": {
+     "exact": 662871.9,
+     "shown": "$662,872"
+    },
+    "net_worth": {
+     "exact": 688585.43,
+     "shown": "$688,585"
+    },
+    "debt_lines": [
+     {
+      "debt": "Home mortgage",
+      "balance": {
+       "exact": 401212.88,
+       "shown": "$401,213"
+      },
+      "required_monthly": {
+       "exact": 2846.17,
+       "shown": "$2,846.17"
+      }
+     },
+     {
+      "debt": "Rental condo mortgage",
+      "balance": {
+       "exact": 236940.1,
+       "shown": "$236,940"
+      },
+      "required_monthly": {
+       "exact": 2000.0,
+       "shown": "$2,000.00"
+      }
+     },
+     {
+      "debt": "Chase Visa",
+      "balance": {
+       "exact": 6418.92,
+       "shown": "$6,419"
+      },
+      "required_monthly": {
+       "exact": 64.0,
+       "shown": "$64.00"
+      }
+     },
+     {
+      "debt": "Federal student loan (in deferment)",
+      "balance": {
+       "exact": 18300.0,
+       "shown": "$18,300"
+      },
+      "required_monthly": {
+       "exact": 0.0,
+       "shown": "$0.00"
+      }
+     }
+    ],
+    "monthly_debt_payments": {
+     "exact": 4910.17,
+     "shown": "$4,910.17"
+    },
+    "monthly_debt_minimum": {
+     "exact": 4612.72,
+     "shown": "$4,612.72"
+    },
+    "mortgage_check": {
+     "properties": 2,
+     "mortgages": 2,
+     "Home": "Home mortgage ($2,846.17/month)",
+     "Rental condo": "Rental condo mortgage ($2,000.00/month)",
+     "mortgages_on_no_property": []
+    },
+    "return_pieces": [
+     1.0429,
+     1.0239,
+     1.0442
+    ],
+    "return_on_cash_and_investments": {
+     "exact": 0.115,
+     "exact_percent": 11.5045,
+     "shown": "+11.50%"
+    },
+    "rule_unclear": {
+     "status": "RULE UNCLEAR",
+     "question": "Which total the 'Monthly debt payments' figure (MK-NW-M-012, /analytics and /home) prints",
+     "reading_A_required_larger_of_minimum_and_payment_set": {
+      "exact": 4910.17,
+      "shown": "$4,910.17"
+     },
+     "reading_B_minimums_only": {
+      "exact": 4612.72,
+      "shown": "$4,612.72"
+     }
+    }
+   },
+   "formula_gives": {
+    "cash": {
+     "exact": 14206.15,
+     "shown": "$14,206"
+    },
+    "investments": {
+     "exact": 347201.18,
+     "shown": "$347,201"
+    },
+    "cash_plus_investments_plus_property": {
+     "exact": 1351457.33,
+     "shown": "$1,351,457"
+    },
+    "what_you_own": {
+     "exact": 1351457.33,
+     "shown": "$1,351,457"
+    },
+    "net_worth": {
+     "exact": 688585.43,
+     "shown": "$688,585"
+    }
+   },
+   "working": [
+    "Chase 14,206.15 → Cash",
+    "Schwab built by hand: cash 6,120.55; VTI 240 × 263.48 = 63,235.20; balance 69,355.75",
+    "Fidelity 401(k) typed, no holdings → Unclassified (an investment line)",
+    "Cash = 14,206.15 + 6,120.55 = 20,326.70",
+    "Investments = VTI 63,235.20 + 401(k) 277,845.43 = 341,080.63",
+    "Real estate = 612,400.00 + 348,750.00 = 961,150.00; Personal property = 28,900.00",
+    "What you own = Σ balances = 1,351,457.33",
+    "Parts: 20,326.70 + 341,080.63 + 961,150.00 + 28,900.00 = 1,351,457.33 = What you own ✓",
+    "Investable = 361,407.33 = Cash + Investments ✓",
+    "Debts = 401,212.88 + 236,940.10 + 6,418.92 + 18,300.00 = 662,871.90",
+    "Net worth = 1,351,457.33 − 662,871.90 = 688,585.43",
+    "Required monthly: home max(2,846.17, none) = 2,846.17 (paid this month: still required, counted once); condo max(1,702.55, 2,000.00) = 2,000.00; Visa 64.00 (not yet paid: still counted); student loan 0.00 (a real $0 required, not a missing minimum)",
+    "Monthly debt payments = 4,910.17; monthly debt minimum = 2,846.17 + 1,702.55 + 64.00 + 0.00 = 4,612.72",
+    "Mortgages are counted from the debt list only, not from logged expenses (owner rule 3), so the home payment logged as an expense is not added again",
+    "Mortgage check: each mortgage names an existing property with no mortgage yet → placed; 2 mortgages ≤ 2 properties (owner rule 4)",
+    "Return: today's value of the accounts that are not property = 361,407.33 (read from the accounts as they stand, Schwab whole with its cash)",
+    "Piece 1 = (362,450.18 − 60,000.00) ÷ 290,000.00 = 1.04293166",
+    "Piece 2 = (346,118.04 + 25,000.00) ÷ 362,450.18 = 1.02391462",
+    "Piece 3 = 361,407.33 ÷ 346,118.04 = 1.04417363",
+    "Return = product − 1 = 0.11504480 → +11.50% (exactly one year: total and yearly rate coincide)",
+    "Formula as written: assetAllocation counts Schwab whole (69,355.75) under Stocks / Funds while cashTotal also takes its 6,120.55 → Investments 347,201.18; Cash + Investments + property = 1,351,457.33 ≠ What you own 1,351,457.33",
+    "Same figure on several screens: Net worth on /home and /analytics (MK-XS-M-001); Investments on /home and /analytics (MK-XS-M-003) and /insights 'Total invested' (MK-MN-M-016); Cash on /analytics and /insights (MK-NW-M-005, MK-MN-M-016). Each must show the one value given here."
+   ],
+   "rests_on": "Card's own invariant 'Cash + Investments + property comes to everything owned'; owner DEC-0343; owner rules 1, 3 and 4 (2026-10-04); MK-NW-F-106",
+   "confidence": "medium",
+   "notes": "The card does not say which monthly total MK-NW-M-012 prints, 'Monthly debt payments' (what leaves the account) or the minimum. Both are given here. The return takes a recorded day's value as after that day's money moved; MK-NW-O-003 does not say so, and MK-NW-O-008 does. The investments double count is certain."
+  },
+  {
+   "id": "MK-NW-O-003",
+   "name": "theNetWorth",
+   "kind": "edge",
+   "title": "Nothing entered at all",
+   "given": "No accounts, no debts, no record, no day to compare from.",
+   "inputs": {
+    "accounts": [],
+    "debts": [],
+    "since": null,
+    "record": []
+   },
+   "expected": {
+    "net_worth": "REFUSES",
+    "what_you_own": "REFUSES",
+    "cash": "REFUSES",
+    "investments": "REFUSES",
+    "debts": "REFUSES",
+    "monthly_debt_payments": "REFUSES",
+    "return_on_cash_and_investments": "REFUSES",
+    "mortgage_check": {
+     "properties": 0,
+     "mortgages": 0,
+     "mortgages_on_no_property": []
+    },
+    "unclassed": []
+   },
+   "formula_gives": {
+    "net_worth": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "what_you_own": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "cash": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "investments": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "debts": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "monthly_debt_payments": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "return_on_cash_and_investments": "REFUSES"
+   },
+   "working": [
+    "No accounts and no debts → nothing entered",
+    "MK-XS-M-001: 'Nothing entered yet — it says so and offers the door, rather than showing $0 as a fact'",
+    "MK-NW-M-004/005/009/012 and MK-XS-M-003 each refuse on 'nothing entered'",
+    "No day compared from → return refuses"
+   ],
+   "rests_on": "Figures' own refusal rules (MK-XS-M-001, MK-NW-M-004, -005, -009, -012, MK-XS-M-003)",
+   "confidence": "medium",
+   "notes": "The card's formula adds up nothing and gives zeros. Its type has no 'nothing entered' value. Whether the refusal belongs in the orchestrator or the screen is not said, so this records that the orchestrator gives the screen no way to tell 'nothing entered' from a real $0."
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "easy",
+   "title": "A window of exactly one year, nothing added or taken out",
+   "given": "One linked Vanguard account. Window opens 2025-10-07; today 2026-10-07. The record holds 2025-10-06 (the day before the window opens): $50,000.00. No money moved. Today the account stands at $54,100.00.",
+   "inputs": {
+    "window_start": "2025-10-07",
+    "today": "2026-10-07",
+    "record": [
+     {
+      "day": "2025-10-06",
+      "Vanguard": 50000.0
+     }
+    ],
+    "money_moved": [],
+    "today_value": 54100.0
+   },
+   "expected": {
+    "beginning": {
+     "exact": 50000.0,
+     "shown": "$50,000"
+    },
+    "ending": {
+     "exact": 54100.0,
+     "shown": "$54,100"
+    },
+    "wealth_generated": {
+     "exact": 4100.0,
+     "shown": "$4,100"
+    },
+    "return": {
+     "exact": 0.082,
+     "exact_percent": 8.2,
+     "shown": "+8.20%"
+    },
+    "shown_as": "total (not a yearly rate)",
+    "rule_unclear": {
+     "status": "RULE UNCLEAR",
+     "question": "Which day the 'days ÷ 365 above 1' test counts from",
+     "reading_A_from_window_first_day": {
+      "days": 365,
+      "shown": "total",
+      "return": {
+       "exact": 0.082,
+       "exact_percent": 8.2,
+       "shown": "+8.20%"
+      }
+     },
+     "reading_B_from_beginning_day_2025-10-06": {
+      "days": 366,
+      "years": 1.00274,
+      "shown": "yearly rate",
+      "return": {
+       "exact": 0.0818,
+       "exact_percent": 8.1767,
+       "shown": "+8.18%"
+      }
+     }
+    }
+   },
+   "working": [
+    "Beginning read on 2025-10-06 = 50,000.00",
+    "One piece = 54,100.00 ÷ 50,000.00 = 1.082000",
+    "Return = 0.082000 → +8.20%",
+    "Days in the window = 2026-10-07 − 2025-10-07 = 365; 365 ÷ 365 = 1.0000, not above 1 → the total is shown",
+    "Wealth generated = 54,100.00 − 50,000.00 − 0 + 0 = 4,100.00",
+    "Reading B: years = 366 ÷ 365 = 1.002740; yearly = (1.082)^(1 ÷ 1.002740) − 1 = 0.08176704 → +8.18%"
+   ],
+   "rests_on": "Owner rule 1 (time-weighted); MK-NW-O-008 'days ÷ 365 above 1'",
+   "confidence": "medium",
+   "notes": "The days are counted from the window's first day. Counting from the beginning day (2025-10-06) gives 366 days, which is above 1, and the yearly rate +8.18% would be shown instead. The card does not say which day to count from."
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "easy",
+   "title": "One deposit inside the window",
+   "given": "One linked Fidelity account. Window opens 2026-07-07; today 2026-10-07. Record on 2026-07-06: $100,000.00. On 2026-08-15 $20,000.00 is deposited; the record that day shows $130,000.00. Today $132,600.00.",
+   "inputs": {
+    "window_start": "2026-07-07",
+    "today": "2026-10-07",
+    "record": [
+     {
+      "day": "2026-07-06",
+      "value": 100000.0
+     },
+     {
+      "day": "2026-08-15",
+      "value": 130000.0
+     }
+    ],
+    "money_moved": [
+     {
+      "day": "2026-08-15",
+      "amount": 20000.0
+     }
+    ],
+    "today_value": 132600.0
+   },
+   "expected": {
+    "return": {
+     "exact": 0.122,
+     "exact_percent": 12.2,
+     "shown": "+12.20%"
+    },
+    "wealth_generated": {
+     "exact": 12600.0,
+     "shown": "$12,600"
+    },
+    "walk": [
+     {
+      "label": "Beginning market value",
+      "exact": 100000.0
+     },
+     {
+      "label": "Contributions",
+      "exact": 20000.0
+     },
+     {
+      "label": "Withdrawals",
+      "exact": 0
+     },
+     {
+      "label": "Dividends",
+      "exact": 0
+     },
+     {
+      "label": "Interest",
+      "exact": 0
+     },
+     {
+      "label": "Change in investment value",
+      "exact": 12600.0
+     }
+    ],
+    "ending": {
+     "exact": 132600.0,
+     "shown": "$132,600"
+    }
+   },
+   "working": [
+    "Piece 1 = (130,000.00 − 20,000.00) ÷ 100,000.00 = 1.100000",
+    "Piece 2 = 132,600.00 ÷ 130,000.00 = 1.020000",
+    "Return = 1.100000 × 1.020000 − 1 = 0.122000 → +12.20%",
+    "Wealth generated = 132,600.00 − 100,000.00 − 20,000.00 = 12,600.00",
+    "Walk: 100,000.00 + 20,000.00 + 12,600.00 = 132,600.00 ✓",
+    "92 days → total shown"
+   ],
+   "rests_on": "Owner rule 1 (2026-10-04): time-weighted return",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "complex",
+   "title": "Approved drawing: Performance v17, phone 1 — exactly as drawn",
+   "given": "Two linked accounts, record beginning Oct 1, 2025, read on Sep 30, 2026. All accounts: beginning market value $100,000; contributions $15,000; withdrawals $0; dividends $1,800; interest $400; change in investment value $5,800. Vanguard alone: beginning $80,000, contributions $15,000, wealth generated $6,000, ending $101,000. E*TRADE alone: beginning $20,000, nothing added or taken out, wealth generated $2,000, ending $22,000.",
+   "inputs": {
+    "window": "since the record began (2025-10-01)",
+    "read_on": "2026-09-30",
+    "all_accounts": {
+     "beginning": 100000,
+     "contributions": 15000,
+     "withdrawals": 0,
+     "dividends": 1800,
+     "interest": 400
+    },
+    "Vanguard": {
+     "beginning": 80000,
+     "contributions": 15000,
+     "ending": 101000
+    },
+    "E*TRADE": {
+     "beginning": 20000,
+     "contributions": 0,
+     "withdrawals": 0,
+     "ending": 22000
+    }
+   },
+   "expected": {
+    "wealth_generated_all": {
+     "exact": 8000,
+     "shown": "$8,000"
+    },
+    "ending_all": {
+     "exact": 123000,
+     "shown": "$123,000"
+    },
+    "walk_all": [
+     {
+      "label": "Beginning market value",
+      "exact": 100000
+     },
+     {
+      "label": "Contributions",
+      "exact": 15000
+     },
+     {
+      "label": "Withdrawals",
+      "exact": 0
+     },
+     {
+      "label": "Dividends",
+      "exact": 1800
+     },
+     {
+      "label": "Interest",
+      "exact": 400
+     },
+     {
+      "label": "Change in investment value",
+      "exact": 5800
+     }
+    ],
+    "per_account_endings": [
+     {
+      "label": "Vanguard",
+      "exact": 101000.0
+     },
+     {
+      "label": "E*TRADE",
+      "exact": 22000.0
+     }
+    ],
+    "check_accounts_sum_to_ending": "101,000 + 22,000 = 123,000",
+    "Vanguard_wealth_generated": {
+     "exact": 6000,
+     "shown": "$6,000"
+    },
+    "E*TRADE_wealth_generated": {
+     "exact": 2000,
+     "shown": "$2,000"
+    },
+    "E*TRADE_return": {
+     "exact": 0.1,
+     "exact_percent": 10.0,
+     "shown": "+10.00%"
+    },
+    "all_accounts_return": "not computed — the drawing does not give the date the $15,000 went in",
+    "Vanguard_return": "not computed — same reason"
+   },
+   "working": [
+    "Walk: 100,000 + 15,000 − 0 + 1,800 + 400 + 5,800 = 123,000 ✓",
+    "Wealth generated = 123,000 − 100,000 − 15,000 + 0 = 8,000 (= 1,800 + 400 + 5,800)",
+    "Per account: 101,000 + 22,000 = 123,000 = the ending ✓",
+    "Vanguard: 101,000 − 80,000 − 15,000 = 6,000; E*TRADE: 22,000 − 20,000 = 2,000; 6,000 + 2,000 = 8,000 ✓",
+    "E*TRADE: no money moved → one piece 22,000 ÷ 20,000 = 1.10 → +10.00%",
+    "Whole-record (Since) window → shown as the window's own total, not a yearly rate",
+    "Same figure on two screens: E*TRADE return on /account-detail (MK-PF-M-016) and /invest must both read +10.00%; ending 123,000 on /invest (MK-PF-M-001)"
+   ],
+   "rests_on": "Approved drawing Performance v17, phone 1 (2026-10-01)",
+   "confidence": "medium",
+   "notes": "Read literally, the formula reads the beginning 'at the day before the period opens' and only when the record's first day is on or before that day. For a Since window that opens on the record's first day (2025-10-01) that would fail and the figures would refuse. The expected values follow the drawing and the type (beginningAsOf = the record's first day for Since)."
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "complex",
+   "title": "Exactly two years, large money in and out, a transfer between the two measured accounts, cash inside the brokerage",
+   "given": "Measured: linked Vanguard brokerage and linked Fidelity IRA. Window opens 2024-10-07; today 2026-10-07. Record on 2024-10-06: Vanguard $196,410.00, Fidelity $82,350.00. 2025-02-14: $40,000.00 deposited to Vanguard from Chase Checking (not measured); recorded total that day $302,118.90. 2025-06-30: $12,000.00 transferred from Vanguard to Fidelity (both measured). 2025-11-03: $61,920.00 rolled in as cash from an old employer 401(k) (not measured); recorded total $400,824.17. 2026-05-20: $18,275.40 withdrawn from Vanguard for a roof; recorded total $403,384.62. Dividends $7,842.30 and interest $1,216.85 were received in the measured accounts; a $50 dividend in Chase is not counted. Today: Vanguard $291,402.07 ($3,118.44 of it uninvested cash), Fidelity $145,813.45.",
+   "inputs": {
+    "window_start": "2024-10-07",
+    "today": {
+     "Vanguard": {
+      "uninvested_cash": 3118.44,
+      "invested": 288283.63
+     },
+     "Fidelity": 145813.45
+    },
+    "beginning_read_on": "2024-10-06",
+    "record": [
+     {
+      "day": "2024-10-06",
+      "Vanguard": 196410.0,
+      "Fidelity": 82350.0
+     },
+     {
+      "day": "2025-02-14",
+      "total": 302118.9
+     },
+     {
+      "day": "2025-11-03",
+      "total": 400824.17
+     },
+     {
+      "day": "2026-05-20",
+      "total": 403384.62
+     }
+    ],
+    "money_moved": [
+     {
+      "day": "2025-02-14",
+      "amount": 40000.0,
+      "from": "outside"
+     },
+     {
+      "day": "2025-06-30",
+      "amount": 12000.0,
+      "from": "Vanguard",
+      "to": "Fidelity",
+      "between_measured": true
+     },
+     {
+      "day": "2025-11-03",
+      "amount": 61920.0,
+      "from": "outside"
+     },
+     {
+      "day": "2026-05-20",
+      "amount": -18275.4,
+      "to": "outside"
+     }
+    ],
+    "dividends": 7842.3,
+    "interest": 1216.85,
+    "dividend_in_unmeasured_account": 50.0
+   },
+   "expected": {
+    "beginning": {
+     "exact": 278760.0,
+     "shown": "$278,760"
+    },
+    "ending": {
+     "exact": 437215.52,
+     "shown": "$437,216"
+    },
+    "per_account_endings": [
+     {
+      "label": "Vanguard",
+      "exact": 291402.07
+     },
+     {
+      "label": "Fidelity IRA",
+      "exact": 145813.45
+     }
+    ],
+    "walk": [
+     {
+      "label": "Beginning market value",
+      "exact": 278760.0
+     },
+     {
+      "label": "Contributions",
+      "exact": 101920.0
+     },
+     {
+      "label": "Withdrawals",
+      "exact": -18275.4
+     },
+     {
+      "label": "Dividends",
+      "exact": 7842.3
+     },
+     {
+      "label": "Interest",
+      "exact": 1216.85
+     },
+     {
+      "label": "Change in investment value",
+      "exact": 65751.77
+     }
+    ],
+    "wealth_generated": {
+     "exact": 74810.92,
+     "shown": "$74,811"
+    },
+    "pieces": [
+     0.9403,
+     1.1218,
+     1.052,
+     1.0839
+    ],
+    "return_total": {
+     "exact": 0.2027,
+     "exact_percent": 20.2684,
+     "shown": "+20.27%"
+    },
+    "return_shown_yearly": {
+     "exact": 0.0967,
+     "exact_percent": 9.667,
+     "shown": "+9.67%"
+    },
+    "rule_unclear": {
+     "status": "RULE UNCLEAR",
+     "question": "Which day the years are counted from",
+     "reading_A_from_window_first_day": {
+      "days": 730,
+      "years": 2.0,
+      "yearly_rate": {
+       "exact": 0.0967,
+       "exact_percent": 9.667,
+       "shown": "+9.67%"
+      }
+     },
+     "reading_B_from_beginning_day_2024-10-06": {
+      "days": 731,
+      "years": 2.00274,
+      "yearly_rate": {
+       "exact": 0.0965,
+       "exact_percent": 9.6531,
+       "shown": "+9.65%"
+      }
+     }
+    }
+   },
+   "working": [
+    "Beginning = 196,410.00 + 82,350.00 = 278,760.00",
+    "The 2025-06-30 transfer is between two measured accounts → neither contribution nor withdrawal; it moves no money in or out of the whole",
+    "Piece 1 = (302,118.90 − 40,000.00) ÷ 278,760.00 = 0.94030313",
+    "Piece 2 = (400,824.17 − 61,920.00) ÷ 302,118.90 = 1.12175759",
+    "Piece 3 = (403,384.62 + 18,275.40) ÷ 400,824.17 = 1.05198252",
+    "Ending = Vanguard 3,118.44 + 288,283.63 = 291,402.07 (cash inside counted) + Fidelity 145,813.45 = 437,215.52",
+    "Piece 4 = 437,215.52 ÷ 403,384.62 = 1.08386760",
+    "Total = product − 1 = 0.20268434 → +20.27%",
+    "Days = 730; years = 730 ÷ 365 = 2.0000 (above 1, not Since) → yearly rate = (1 + 0.20268434)^(1 ÷ 2.0000) − 1 = 0.09666966 → +9.67%",
+    "Contributions = 40,000.00 + 61,920.00 = 101,920.00; withdrawals = 18,275.40",
+    "Wealth generated = 437,215.52 − 278,760.00 − 101,920.00 + 18,275.40 = 74,810.92",
+    "Change in investment value = 74,810.92 − 7,842.30 − 1,216.85 = 65,751.77",
+    "Walk: 278,760.00 + 101,920.00 + -18,275.40 + 7,842.30 + 1,216.85 + 65,751.77 = 437,215.52 ✓; per account 291,402.07 + 145,813.45 = 437,215.52 ✓",
+    "Same figure on two screens: the ending here and the Investable figure on Net worth for these two accounts both read the accounts as they stand",
+    "Reading B: years = 731 ÷ 365 = 2.002740; yearly = (1 + 0.20268434)^(1 ÷ 2.002740) − 1 = 0.09653123 → +9.65%"
+   ],
+   "rests_on": "Owner rule 1 (2026-10-04): time-weighted return; MK-NW-O-008 yearly-rate rule; owner DEC-0368 ('+x%/year')",
+   "confidence": "medium",
+   "notes": "Years are counted from the window's first day (730 days, exactly 2). Counting from the beginning day would give 731 days and a yearly rate a few hundredths lower. The card does not say which."
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "edge",
+   "title": "A window that reaches back further than the record",
+   "given": "One linked Schwab account. Window 1Y: opens 2025-10-07; today 2026-10-07. The daily record begins 2026-02-02. Inside the window $10,000.00 was deposited on 2026-04-10. Priced holdings gained $5,130.25 over the window. Today the account stands at $87,412.66.",
+   "inputs": {
+    "window_start": "2025-10-07",
+    "today": "2026-10-07",
+    "record_first_day": "2026-02-02",
+    "money_moved": [
+     {
+      "day": "2026-04-10",
+      "amount": 10000.0
+     }
+    ],
+    "priced_gain": 5130.25,
+    "today_value": 87412.66
+   },
+   "expected": {
+    "beginning": "REFUSES",
+    "wealth_generated": "REFUSES",
+    "walk": "REFUSES",
+    "return": "REFUSES",
+    "ending": {
+     "exact": 87412.66,
+     "shown": "$87,413"
+    },
+    "sentence": "The record begins Feb 2, 2026, so it cannot say what this account was worth on Oct 6, 2025."
+   },
+   "formula_gives": {
+    "beginning": {
+     "exact": 72282.41,
+     "shown": "$72,282"
+    },
+    "wealth_generated": {
+     "exact": 5130.25,
+     "shown": "$5,130"
+    },
+    "return": "REFUSES",
+    "ending": {
+     "exact": 87412.66,
+     "shown": "$87,413"
+    }
+   },
+   "working": [
+    "The beginning must be read on 2025-10-06; the record's first day 2026-02-02 is after it → cannot be read",
+    "MK-PF-M-002: wealth generated refuses — 'nothing honest to subtract from'",
+    "MK-PF-M-013: the walk 'is not drawn at all rather than started from a guess'; MK-PF-M-017: no percent",
+    "Ending is still known: 87,412.66",
+    "Formula as written: beginning = 87,412.66 − 5,130.25 − 10,000.00 + 0 = 72,282.41; wealth generated = 87,412.66 − 72,282.41 − 10,000.00 = 5,130.25; no percent"
+   ],
+   "rests_on": "MK-PF-M-002, MK-PF-M-013, MK-PF-M-018 refusal rules; owner DEC-0230",
+   "confidence": "high",
+   "notes": ""
+  }
+ ],
+ "could_not_test": []
+}

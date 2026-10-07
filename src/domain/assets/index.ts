@@ -349,7 +349,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *               MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 184 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 185 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -359,7 +359,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 166 more — the full list is on functions_from_code
+ *               … and 167 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -384,17 +384,17 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *
  * Called by ... MK-NW-F-053 correctClassOf
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-NW-F-053 correctClassOf · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 41 more — the full list is on functions_from_code
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-NW-F-053 correctClassOf
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -481,7 +481,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-NW-F-107 propertyUses · MK-NW-F-110 primaryHomeIdOf
  *               MK-NW-O-003 theNetWorth · MK-NW-O-005 theAlternativesOutlook
  *
- * Reaches ..... 181 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 182 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -491,7 +491,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 163 more — the full list is on functions_from_code
+ *               … and 164 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -1944,14 +1944,14 @@ const DEFAULT_RETURN = 0.07;
  *     share of portfolio (a) = round(balance of a ÷ total × 100, 2 dp)
  *     average target return  = round(Σ(target return × balance) ÷ total, 4 dp)
  *
- * Called by ... MK-NW-F-044 getAssetsState · MK-NW-O-003 theNetWorth
+ * Called by ... MK-NW-F-111 assetsStateFrom · MK-NW-O-003 theNetWorth
  *               MK-XS-F-031 buildSnapshot
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-XS-F-031 buildSnapshot
- *               MK-NW-F-044 getAssetsState · MK-XS-F-032 snapshotFromOnboarding
- *               MK-NW-O-003 theNetWorth
+ *               MK-NW-F-100 TREND · MK-NW-F-111 assetsStateFrom
+ *               MK-XS-F-031 buildSnapshot · MK-NW-F-044 getAssetsState
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -1990,17 +1990,17 @@ export function buildAssetsState(uid: UserId, accounts: AssetAccount[]): AssetsS
  * Called by ... MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-033 resolveNetWorthRows
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               … and 39 more — the full list is on functions_from_code
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -2124,8 +2124,7 @@ export async function saveAssets(d: AssetsDoc) { await setUserDoc(COLLECTION, d.
  * Answers ..... Reads a person's saved accounts and returns their totals, or nothing when none are saved.
  *
  * Formula .....
- *     d = build assets state(uid, accounts ?? [])   if await load assets(uid); return d
- *     nothing   otherwise
+ *     assets state from(uid, await load assets(uid))
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -2135,7 +2134,31 @@ export async function saveAssets(d: AssetsDoc) { await setUserDoc(COLLECTION, d.
  * Changed ..... 2026-07-30 (a85874e)
  */
 export async function getAssetsState(uid: UserId) {
-  const d = await loadAssets(uid); return d ? buildAssetsState(uid, d.accounts ?? []) : null;
+  return assetsStateFrom(uid, await loadAssets(uid));
+}
+
+/** The saved accounts as a state to show — or nothing, when nothing is saved OR every saved account was deleted (outside review, 2026-10-07: an empty list is not a $0 total with a blended return). */
+/* ─ MK-NW-F-111 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * assetsStateFrom
+ *
+ * Answers ..... The saved accounts as a state to show — or nothing, when nothing is saved OR every saved account was deleted (outside review, 2026-10-07: an empty list is not a $0 total with a blended return).
+ *
+ * Formula .....
+ *     build assets state(uid, accounts ?? [])   if count of d and (accounts ?? [])
+ *     nothing   otherwise
+ *
+ * Called by ... MK-NW-F-044 getAssetsState
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-044 getAssetsState
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-111
+ * Changed ..... not in git yet (—)
+ */
+export function assetsStateFrom(uid: UserId, d: AssetsDoc | null | undefined): AssetsState | null {
+  return d && (d.accounts ?? []).length ? buildAssetsState(uid, d.accounts ?? []) : null;
 }
 
 /** THE source wording (Build-47 walk row 8, audit Strategy #9): one sentence per source, used by

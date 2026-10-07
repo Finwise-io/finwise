@@ -50,7 +50,7 @@ describe('MK-NW-O-001 theBonds — five cases', () => {
     expect(b.rows.reduce((t, r) => t + r.value, 0)).toBeCloseTo(b.totalValue, 6);              // the rows add to the total
     expect(b.totalFace).toBeCloseTo(48000, 4);
     expect(b.couponPerYear).toBeCloseTo(2240.5, 4);
-    expect(b.rows.reduce((t, r) => t + r.couponPerYear, 0)).toBeCloseTo(b.couponPerYear, 6);
+    expect(b.rows.reduce((t, r) => t + (r.couponPerYear ?? 0), 0)).toBeCloseTo(b.couponPerYear, 6);
     expect(b.avgYield).toBeCloseTo(0.047619, 5);
     expect(b.nextMaturity).toBe('2027-11-30');
   });

@@ -32,6 +32,9 @@ Unclassified. The first of these that applies decides (MK-NW-F-011 assetClassOf)
    recorded; Personal property for any other kind — a ring is not a house.
 8. Otherwise Unclassified: a wrapper whose contents nobody has said (a bare 401(k) or brokerage).
 
+The sweep that corrects classes the app guessed (MK-NW-F-053 correctClassOf, MK-NW-F-054
+reclassifyAccounts) never touches an account the person confirmed: what they said stands.
+
 ## 2. What a holding inside an account is
 
 One test, used wherever a holding's class matters — the split, the words under an account, the
@@ -165,11 +168,35 @@ MK-NW-F-046 historyCoverage. Months shared = whole months passed plus the part m
 one decimal; the sentence says years only when the months are an exact multiple of twelve ("1 year 6
 months", never "2 years" for eighteen).
 
+## 12. A bond's or a CD's figures
+
+MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInterest, MK-NW-O-001 theBonds.
+
+- **A figure never entered is not entered — never $0.** A face value or a rate that was not typed
+  stays blank; a typed 0 rate is a zero-coupon bond. The Bonds screen and the account's page say
+  'face value not entered' or 'coupon rate not entered', and the totals name the bonds they leave out.
+- **A year's interest, one rule everywhere** (yearlyInterest): face × rate; with no face, today's
+  value × rate (a CD typed by its balance); with no rate, nothing (owner A46, 2026-08-26). The Bonds
+  screen's total and the interest-income figure use it, so the two cannot disagree.
+- **A matured bond pays nothing more.** A maturity date before today adds no interest to a year.
+- **Years left count calendar days**, ÷ 365.25; the hour of the day does not count.
+- **Yield on today's value and yield to maturity both use the clean price**: the value less accrued
+  interest, when it is known (owner A47, 2026-08-26). Neither is given without a rate; yield to
+  maturity also needs a face value and a date still ahead.
+- **If rates move one point**: the change is measured between two prices worked the same way — at
+  the moved yield and at today's — then added to today's value. A CD is refused by the function
+  itself, not only by the screen: a CD is not traded, so its value does not move with rates.
+
+## 13. A saved record with no accounts
+
+MK-NW-F-044 getAssetsState, MK-NW-F-111 assetsStateFrom. A saved record whose accounts were all
+deleted is shown as nothing saved — the first-day screen — never as $0 owned with an average return.
+
 ## Status and enforcement
 
-Built and tested 2026-10-05 to 2026-10-07 (the outside review of Net worth batches 2, 3 and 4, and the
-defects found while fixing them). Tests: `MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts`, `outside_networth_03.test.ts`, `outside_networth_04.test.ts`,
+Built and tested 2026-10-05 to 2026-10-07 (the outside review of Net worth batches 2, 3, 4 and 5, and the
+defects found while fixing them). Tests: `MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts`, `outside_networth_03.test.ts`, `outside_networth_04.test.ts`, `outside_networth_05.test.ts`, `src/screens/__tests__/outside_networth_05.test.tsx`,
 `outside_networth_02_found.test.ts`, `src/screens/__tests__/outside_networth_02.test.tsx`,
 `src/domain/assets/classification.test.ts`, `src/domain/assets/selectors.test.ts`,
 `src/services/sync/f6_money_market.test.ts`, `src/__tests__/founder_2026_08_11.test.tsx`.
-Drawings: Net worth v08 and Performance v17 carry these changes at their top.
+Drawings: Net worth v08, Performance v17 and Bonds v02 carry these changes at their top.

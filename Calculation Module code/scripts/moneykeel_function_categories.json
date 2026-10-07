@@ -399,6 +399,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "assetsStateFrom": {
+  "id": "MK-NW-F-111",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "attribution": {
   "id": "MK-PF-F-016",
   "file": "src/domain/performance/index.ts",
@@ -1497,7 +1502,7 @@
  "isCertificateOfDeposit": {
   "id": "MK-NW-F-071",
   "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "isDay": {
   "id": "MK-ST-F-080",
@@ -3473,6 +3478,11 @@
   "id": "MK-XS-F-143",
   "file": "src/services/marketData.ts",
   "category": "4 · BRINGS DATA IN"
+ },
+ "yearlyInterest": {
+  "id": "MK-NW-F-112",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "yearsToMaturity": {
   "id": "MK-NW-F-058",

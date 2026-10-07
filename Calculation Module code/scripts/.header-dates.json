@@ -745,5 +745,7 @@
 "src/services/sync/ingest.ts::theirCost": "not in git yet|\u2014",
 "src/domain/assets/index.ts::holdingClassOf": "not in git yet|\u2014",
 "src/domain/assets/index.ts::taxWordsOf": "not in git yet|\u2014",
-"src/domain/assets/index.ts::primaryHomeIdOf": "not in git yet|\u2014"
+"src/domain/assets/index.ts::primaryHomeIdOf": "not in git yet|\u2014",
+"src/domain/assets/index.ts::assetsStateFrom": "not in git yet|\u2014",
+"src/domain/bonds/index.ts::yearlyInterest": "not in git yet|\u2014"
 }
