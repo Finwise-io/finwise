@@ -1683,7 +1683,7 @@
   "MK-NW-O-002": {
    "name": "theAccount",
    "rule": "Uses the records whose account is this account, and any transfer that arrives in it from another account. Market value = the account's balance. Income = dividends + interest in those records, to the cent — and NO FIGURE when the account has no records at all. Inside = for a linked account, the value in each asset class that is not zero (accountClassBreakdown); for any other account, nothing. Activity = every record with its date, type, ticker and amount: the amount is the record's effect on cash, except a transfer INTO this account, which shows the amount moved; a record counts as the person's own unless it came through the link. Income of one holding = dividends and interest whose record names that holding's ticker, capitals ignored; a record naming no ticker belongs to no holding.",
-   "read_from": "52b813a43d",
+   "read_from": "6663ca8691",
    "sent_as": "6d973197e7"
   },
   "MK-NW-O-003": {
@@ -1754,8 +1754,8 @@
   },
   "MK-PF-F-006": {
    "name": "capGains",
-   "rule": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share) × the contract multiplier (100 for an option unless the holding states its own, otherwise 1). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise; a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum.",
-   "read_from": "adf3d3fbfb",
+   "rule": "With no price: all zero. For each purchase with shares and a cost per share above zero: gain = shares × (price − cost per share) × the contract multiplier (100 for an option unless the holding states its own, otherwise 1). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise (a purchase on the leap day has its anniversary on the last day of February the next year, so a sale on the first of March is long-term); a purchase with no valid date counts as short-term. Returns the long-term total, the short-term total and their sum.",
+   "read_from": "564df2dd92",
    "sent_as": "c6a551aec2"
   },
   "MK-PF-F-007": {

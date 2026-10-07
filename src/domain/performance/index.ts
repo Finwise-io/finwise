@@ -371,6 +371,9 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
       // local, and mixing the two moved the line by a timezone's worth of hours
       const anniversary = new Date(bought);
       anniversary.setUTCFullYear(anniversary.getUTCFullYear() + 1);
+      // bought on 29 February: the next year has no such day, and the date rolled to 1 March, which
+      // put the line one day late. The anniversary is the last day of February (Gemini, 2026-10-05).
+      if (anniversary.getUTCMonth() !== bought.getUTCMonth()) anniversary.setUTCDate(0);
       const annKey = anniversary.toISOString().slice(0, 10);
       const p2 = (n: number) => String(n).padStart(2, '0');
       const nowKey = `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;

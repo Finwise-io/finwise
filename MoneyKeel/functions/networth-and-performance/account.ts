@@ -61,8 +61,7 @@ export interface Itemising {
  * Formula .....
  *     id = string(account.asset id)
  *     income = personal flow totals(ledger.filter((t) => type = 'DIVIDEND' or type = 'INTEREST'))
- *     breakdown = account class breakdown(account)   if account.source = 'connected'
- *     nothing   otherwise
+ *     breakdown = account class breakdown(account)
  *     tk = string(ticker ?? '').trim().to upper case()
  *     f = personal flow totals(rows)
  *     dividends = dividends.to number(2)
@@ -112,8 +111,10 @@ export function theAccount(input: {
     || ((t.type === 'TRANSFER' || t.type === 'TRANSFER_IN_KIND') && String(t.counter_account_id ?? '') === id));
   const income = personalFlowTotals(ledger.filter((t) => t.type === 'DIVIDEND' || t.type === 'INTEREST'));
 
-  // drawn holding by holding for a LINKED account only: its holdings carry the broker's prices
-  const breakdown = account.source === 'connected' ? accountClassBreakdown(account) : null;
+  // the same split Net worth counts by: a linked account's holdings, or the uninvested cash an account
+  // built by hand records for itself with the rest under its class (Gemini, 2026-10-05: say what that
+  // cash is before the account is itemised). A typed balance has no inside.
+  const breakdown = accountClassBreakdown(account);
   const inside = breakdown
     ? (Object.keys(breakdown) as (keyof typeof breakdown)[])
         .filter((k) => breakdown[k] !== 0)

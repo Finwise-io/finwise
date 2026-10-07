@@ -119,11 +119,12 @@ describe('MK-NW-F-027 accountClassBreakdown — a holding with no price, and an 
     // and a bank account is never split
     expect(accountClassBreakdown(acct({ kind: 'savings', tax_bucket: 'CASH', cash_balance: 100, balance: 9000 }))).toBeNull();
   });
-  test('the emergency fund counts that cash, and the account’s own page stays as it was', () => {
+  test('the emergency fund counts that cash, and the account’s inside says what it is', () => {
     const accounts = [acct({ asset_id: 'c', kind: 'checking', tax_bucket: 'CASH', balance: 3000 }),
       acct({ asset_id: 'b', kind: 'brokerage', derive_balance: true, cash_balance: 4000, balance: 64000, positions: [pos('VTI', 'Vanguard Total Stock Market ETF', 200, null)] })];
     expect(theEmergencyFund({ profile: { monthlySpending: '3500' }, accounts, debts: [], expenses: [], today: on('2026-10-05') } as any).cash).toBe(7000);   // it was 3,000
-    expect(theAccount({ account: accounts[1], transactions: [] }).inside).toBeNull();
+    // the same split, from the account's own function (Gemini's final audit of batch 1, 2026-10-07)
+    expect(theAccount({ account: accounts[1], transactions: [] }).inside!.map((r) => [r.key, r.value])).toEqual([['cash', 4000], ['stocks_etf', 60000]]);
   });
 });
 

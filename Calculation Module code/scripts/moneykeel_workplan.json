@@ -2706,6 +2706,18 @@
     "status": "DONE",
     "comments": ""
    }
+  },
+  {
+   "task": "Outside review — Gemini's final audit of Net worth batch 1 (returned 2026-10-05): nine issues, thirty cases",
+   "todo": "HIS INSTRUCTION, 2026-10-05: \"write another brief for Gemini for NW-01 to conduct one final audit before we move to NW-02.\" Gemini answered \"Ready to Close: No\" with nine issues. MEASURED: its thirty cases and nine issues as 36 tests (outside_networth_01_final_gemini.test.ts) — 34 passed before any change, 36 after two small fixes. REAL, FIXED: (6) MK-PF-F-006 capGains — a share bought on 29 February read short-term one day too long (the anniversary rolled to 1 March; it is the last day of February). (2) MK-NW-O-002 theAccount — the uninvested cash an account built by hand records for itself is now in its inside, with the rest under the account's class (the same split Net worth counts by since file 2). ALREADY SO, PROVED BY TEST: (1) a zero-coupon bond gets no rate-move figure and a bond with no maturity date gets no yield to maturity; (3) the time-weighted return measures from the first day something was held and gives no figure for a start below zero — no division by zero; (4) rent at or above essentials draws nothing from cash and shows no months; (5) an alternative worth $0 gives no rate and no growth. NOT SO: (9) the rate-move figure reprices the bond at the new yield — not a straight line, and closer than the duration shortcut it asked for; (7) the 2026 standard deduction $16,100 single / $32,200 married IS the IRS figure (Rev. Proc. 2025-32); (8) a mortgage is matched by its property first, then its name, then only when one property and one mortgage are left — never by balance; two alike are both flagged. Three of its nine named functions by ids that are not theirs (F-010, F-012, F-015); read as the functions it meant. One of its figures differs from the app by design: a linked checking account with a deposit and a withdrawal shows income $0, not no figure — the records are there and none is income.",
+   "status": "DONE — 36 of 36. Net worth batch 1 is closed on my side; his word closes it.",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/NW-01-gemini.md · MoneyKeel/functions/networth-and-performance/outside_networth_01_final_gemini.test.ts",
+   "date": "2026-10-07",
+   "comments": "",
+   "_written": {
+    "status": "DONE — 36 of 36. Net worth batch 1 is closed on my side; his word closes it.",
+    "comments": ""
+   }
   }
  ]
 }
