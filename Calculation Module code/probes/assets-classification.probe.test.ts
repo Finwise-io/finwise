@@ -161,7 +161,7 @@ describe('EXPECTED_RETURN', () => {
                     A({ asset_id: '2', kind: 'savings', balance: 379_152 }),
                     A({ asset_id: '3', kind: 'trad_ira', balance: 380_000 }),
                     A({ asset_id: '4', kind: 'roth_ira', balance: 60_000 })];
-    expect(blendedReturn(growth)).toBeGreaterThan(blendedReturn(cashy) + 0.02);
+    expect(blendedReturn(growth) ?? 0).toBeGreaterThan((blendedReturn(cashy) ?? 0) + 0.02);
   });
 
   test('a user override beats the default for that kind', () => {
@@ -169,7 +169,7 @@ describe('EXPECTED_RETURN', () => {
   });
 
   test('no accounts falls back to a stated default rather than zero', () => {
-    expect(blendedReturn([])).toBeGreaterThan(0);
+    expect(blendedReturn([])).toBeNull();            // nothing set aside, no blended return (2026-10-07) — the 6% was invented
     expect(blendedVolatility([])).toBeGreaterThan(0);
   });
 });

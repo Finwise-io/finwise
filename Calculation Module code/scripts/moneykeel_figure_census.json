@@ -724,7 +724,7 @@
     },
     {
      "k": "a",
-     "s": "3. Nudge up your investing. You're investing about 0% of your gross income toward retirement — even +1% compounds over time."
+     "s": "3. One thing would sharpen every number. Next: add a goal — two minutes in Plan."
     },
     {
      "k": "t",
@@ -736,11 +736,11 @@
     },
     {
      "k": "t",
-     "s": "Nudge up your investing"
+     "s": "One thing would sharpen every number"
     },
     {
      "k": "t",
-     "s": "You're investing about 0% of your gross income toward retirement — even +1% compounds over time."
+     "s": "Next: add a goal — two minutes in Plan."
     },
     {
      "k": "t",
@@ -26807,38 +26807,6 @@
     },
     {
      "k": "t",
-     "s": "📈 GROW"
-    },
-    {
-     "k": "a",
-     "s": "Nudge up your investing"
-    },
-    {
-     "k": "t",
-     "s": "📈"
-    },
-    {
-     "k": "t",
-     "s": "Nudge up your investing"
-    },
-    {
-     "k": "t",
-     "s": "You're investing about 0% of your gross income toward retirement — even +1% compounds over time."
-    },
-    {
-     "k": "a",
-     "s": "Hide the Nudge up your investing card for a while"
-    },
-    {
-     "k": "t",
-     "s": "✕"
-    },
-    {
-     "k": "t",
-     "s": "›"
-    },
-    {
-     "k": "t",
      "s": "⚙️ OPTIMIZE"
     },
     {
@@ -39141,24 +39109,6 @@
     "$14,900"
    ],
    "renders": 15
-  },
-  {
-   "site": "src/screens/InsightsScreen.tsx:175",
-   "routes": [
-    "/home",
-    "/insights"
-   ],
-   "states": [
-    "/home|retiree",
-    "/insights|retiree"
-   ],
-   "inside": "useInsights",
-   "line": "'invest-rate': () => [{ label: 'Annual contributions', value: money(monthlyContributionsFromOnboarding(op) * 12) }, { label: 'Gross income', value: money(gross) },",
-   "values": [
-    "$0",
-    "$42,000"
-   ],
-   "renders": 6
   },
   {
    "site": "src/screens/InsightsScreen.tsx:177",

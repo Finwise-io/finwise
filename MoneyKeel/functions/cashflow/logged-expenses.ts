@@ -30,7 +30,7 @@ export const DEBT_CATEGORY = 'Debt payment';
  *               MK-CF-F-151 actualSpending · MK-CF-F-153 radar
  *               MK-CF-F-157 debtPaymentsByDebt
  *
- * Reaches ..... 126 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 127 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -40,7 +40,7 @@ export const DEBT_CATEGORY = 'Debt payment';
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-207 SOURCE
- *               … and 108 more — the full list is on functions_from_code
+ *               … and 109 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

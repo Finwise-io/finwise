@@ -148,7 +148,7 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
     expect(benchmarkReturn('unknown_kind')).toBe(0.06);          // safe fallback
     expect(benchmarkReturn('brokerage', { brokerage: 0.10 })).toBe(0.10);  // user override
     expect(blendedReturn([brok, sav])).toBe(0.052);
-    expect(blendedReturn([])).toBe(0.06);                        // empty → fallback, never NaN
+    expect(blendedReturn([])).toBeNull();                        // empty → no figure (2026-10-07: 6% was invented), never NaN
     expect(portfolioActualReturn([brok, sav])).toBeNull();       // none reported → null, not fake 0%
   });
 });

@@ -1375,7 +1375,7 @@
   },
   "MK-NW-F-029": {
    "name": "assetAllocation",
-   "rule": "The value in each asset class across every account. A linked account is split by its class breakdown (accountClassBreakdown); any other account counts whole under its one class (assetClassOf).",
+   "rule": "The value in each asset class across every account. An account with a class split (accountClassBreakdown) — a linked account, or an account built by hand that records its own uninvested cash — is split by it; any other account counts whole under its one class (assetClassOf). The seven classes add to everything owned, and the Cash class is cashTotal.",
    "read_from": "364aed7329",
    "sent_as": "364aed7329"
   },
@@ -1387,8 +1387,8 @@
   },
   "MK-NW-F-031": {
    "name": "primaryCarIdOf",
-   "rule": "Among the accounts whose kind is vehicle or whose class is Personal property: the one with the largest balance, ties going to the lowest account id. Nothing when there are none.",
-   "read_from": "558fb0ed1a",
+   "rule": "Among the accounts whose kind is vehicle, and no other: the one with the largest balance; a tie goes to the lower id read as text (the one made first). Nothing when there is no vehicle. Valuables and other personal property are never the car.",
+   "read_from": "06979e37d1",
    "sent_as": "558fb0ed1a"
   },
   "MK-NW-F-032": {
@@ -1405,26 +1405,26 @@
   },
   "MK-NW-F-034": {
    "name": "benchmarkReturn",
-   "rule": "The person's own yearly rate for that kind where they set one. Otherwise the app's typical yearly return for the kind: checking 0.5%, savings 2.4%, high-yield savings 4.2%, money market 4.5%, CD 4.2%, cash management 3.5%, foreign currency 0%, brokerage 8%, stocks and funds 10.4%, fixed income 4.2%, crypto 8%, private equity 13%, hedge funds 6%, gold and commodities 8.2%, options 5%, annuities 4.5%, 529 7%, other 5%, 401(k), IRA, Roth IRA and HSA 7.9%, home 4.5%, vehicle −5%. 6% for a kind that is unknown or missing.",
+   "rule": "The person's own yearly rate for that kind where they set one — a rate of exactly 0 counts as set. Otherwise the app's typical yearly return for the kind: checking 0.5%, savings 2.4%, high-yield savings 4.2%, money market 4.5%, CD 4.2%, cash management 3.5%, foreign currency 0%, brokerage 8%, stocks and funds 10.4%, fixed income 4.2%, crypto 8%, private equity 13%, hedge funds 6%, gold and commodities 8.2%, options 5%, annuities 4.5%, 529 7%, other 5%, 401(k), IRA, Roth IRA and HSA 7.9%, home 4.5%, vehicle −5%. 6% for a kind that is unknown or missing. A kind is matched exactly as the app writes it; capitals count.",
    "read_from": "fb9c6531ca",
    "sent_as": "fb9c6531ca"
   },
   "MK-NW-F-035": {
    "name": "blendedVolatility",
-   "rule": "Over accounts that are not property: each account's volatility — the person's own figure for its kind, else the app's figure for the kind, else 12% — averaged, weighted by its earmarked amount. 12% when nothing is earmarked.",
-   "read_from": "7666b801c9",
+   "rule": "Over exactly the accounts the nest egg counts: each account's volatility — the person's own figure for its kind, else the app's figure for the kind, else 12% — averaged, weighted by its earmarked amount. 12% when nothing is earmarked.",
+   "read_from": "4e5f1aaef6",
    "sent_as": "7666b801c9"
   },
   "MK-NW-F-036": {
    "name": "benchmarkInfo",
-   "rule": "The rate from benchmarkReturn, with where it came from: Your custom estimate when the person set it; otherwise the source and period on record for that kind; Generic blended estimate for a kind with none on record.",
+   "rule": "The rate from benchmarkReturn, with where it came from. Edited = the person set a rate for that kind (0 included): then the source reads Your custom estimate and the period is blank. Otherwise the source and period on record for that kind, and estimate = whether that record is marked an assumption rather than a measured index; a kind with no record reads Generic blended estimate, period blank, estimate true.",
    "read_from": "831903f76b",
    "sent_as": "831903f76b"
   },
   "MK-NW-F-037": {
    "name": "blendedReturn",
-   "rule": "Over accounts that are not property: the benchmark yearly rate of each account's kind (benchmarkReturn), averaged, weighted by its earmarked amount. 6% when nothing is earmarked.",
-   "read_from": "f900a328b0",
+   "rule": "Over exactly the accounts the nest egg counts (every account, each weighted by its earmarked amount — the home lived in, the car driven and a 529 weigh nothing by default, a rental weighs its full value): the benchmark yearly rate of each account's kind (benchmarkReturn), averaged, weighted by its earmarked amount. No answer when the earmarked total is zero — the Plan then chooses its own 6% at its call site, and says so there.",
+   "read_from": "590292db92",
    "sent_as": "f900a328b0"
   },
   "MK-NW-F-038": {
@@ -1435,8 +1435,8 @@
   },
   "MK-NW-F-039": {
    "name": "buildAssetsState",
-   "rule": "Total = balances added up. Each account's share = its balance ÷ total × 100, or 0 when the total is 0. Average target return = each account's target return weighted by its balance, or 7% when the total is 0.",
-   "read_from": "ce4459f8e0",
+   "rule": "Total = balances added up. Each account's share = its balance ÷ total × 100, or 0 when the total is 0 (an overdrawn account has a negative share; the shares still add to 100). Average target return = each account's target return weighted by its balance; no answer when the total is 0.",
+   "read_from": "20df881e46",
    "sent_as": "ce4459f8e0"
   },
   "MK-NW-F-040": {
@@ -1447,9 +1447,20 @@
   },
   "MK-NW-F-041": {
    "name": "monthlyContributionsFromOnboarding",
-   "rule": "The monthly amounts entered for the 401(k), the Roth, investing and property, added up, plus the employer's match for a month.",
-   "read_from": "e4d1e8d69e",
-   "sent_as": "e4d1e8d69e"
+   "rule": "No answer when none of the contribution questions was answered (401(k), Roth, investing, employer match). Otherwise, a month's retirement contributions = the 401(k) amount, held at the year's elective limit for the person's age ÷ 12 (2026: $24,500 under 50, $32,500 at 50 to 59 and 64 and over, $35,750 at 60 to 63), + the Roth amount as entered (the question does not say Roth IRA or Roth 401(k), whose limits differ, so it is not held at either), + the investing amount, + the employer's match for a month (the stated share of the 401(k) amount, or the stated dollars). Money saved toward a property (an older setup question) is not a retirement contribution and is left out. The age is the one attained this year, from the birth year.",
+   "read_from": "2a11d3081f",
+   "sent_as": "e4d1e8d69e",
+   "figures_checked_by_hand": {
+    "$24,500": "IRS 2026 401(k) elective deferral limit under 50 — src/domain/income/limits.ts IRS_LIMITS.elective_deferral_401k, read by annual401kLimit",
+    "$32,500": "24,500 + the 8,000 catch-up at 50 and over — limits.ts annual401kLimit",
+    "$35,750": "24,500 + the 11,250 super catch-up at 60 to 63 (SECURE 2.0) — limits.ts annual401kLimit",
+    "50": "the catch-up age — limits.ts",
+    "59": "the last age before the super catch-up — limits.ts",
+    "60": "the first super catch-up age — limits.ts",
+    "63": "the last super catch-up age — limits.ts",
+    "64": "the first age after the super catch-up band — limits.ts",
+    "12": "months in a year"
+   }
   },
   "MK-NW-F-044": {
    "name": "getAssetsState",
@@ -1459,14 +1470,14 @@
   },
   "MK-NW-F-045": {
    "name": "sourceWording",
-   "rule": "Linked account: Linked — or Linked · how long ago when its last update is 4 or more days old, or unknown. Imported account: Imported — or Imported · how long ago, by the same 4-day test. Anything else: By hand · you update it.",
+   "rule": "Linked account: Linked — or Linked · N days old when its last successful update is 4 or more days old, and Linked · not updated yet when no update is on record (no age is invented). Imported account: Imported, by the same test. Anything else: By hand · you update it. The timestamp read is the account's last successful sync.",
    "read_from": "42407a87b2",
    "sent_as": "42407a87b2"
   },
   "MK-NW-F-046": {
    "name": "historyCoverage",
-   "rule": "Entered by hand: a sentence saying it has no activity records. Linked with no history start on record: a sentence saying none has been shared yet. History starting on or before the period's first day: nothing to say. Otherwise: months covered = months from the history start to today, to one decimal; the sentence says N years when that is 12 months or more (rounded to whole years), N months when 1 or more, otherwise a few days, and names the start date.",
-   "read_from": "7b1e1e5ad0",
+   "rule": "Entered by hand: a sentence saying it has no activity records. Linked with no history start on record: a sentence saying none has been shared yet. History starting on or before the period's first day: nothing to say. Otherwise: months covered = the whole months from the history start to today plus the part month (days ÷ the days in that month), to one decimal; the sentence names the start date and says N years only when the months are an exact multiple of twelve, N years M months when twelve or more, N months when one or more, otherwise a few days. It never rounds up to a year.",
+   "read_from": "45aeeb890e",
    "sent_as": "7b1e1e5ad0"
   },
   "MK-NW-F-047": {
@@ -1477,7 +1488,7 @@
   },
   "MK-NW-F-048": {
    "name": "uberGroupRows",
-   "rule": "Sorts the class rows into the three groups, in the order Cash, Investments, Personal property. A group's total = its classes' totals added up. A group with no classes is left out.",
+   "rule": "Sorts the class rows into the three groups, in the order Cash, Investments, Personal property: Cash ← cash; Investments ← Stocks / Funds, Bonds & CDs, Alternatives, Unclassified; Personal property (the third group, which the screen labels so) ← Real estate, Personal property. A group's total = its classes' totals added up, in the order the rows came; the groups add to What you own. A group with no classes is left out.",
    "read_from": "e7946021e8",
    "sent_as": "e7946021e8"
   },
@@ -1495,14 +1506,14 @@
   },
   "MK-NW-F-051": {
    "name": "itemizedResultTotal",
-   "rule": "The account's total after itemising. When the remainder is above zero and is kept as cash: holdings + remainder, which equals the entered total. Otherwise: the holdings added up — so when they come to more than the entered total, the total rises to their sum.",
-   "read_from": "dce672bcdc",
+   "rule": "The account's total after itemising: the holdings added up, plus what is still unallocated when that is above zero (it stays as cash) — so it is the entered total until the holdings listed come to more than the entered total, when it is their sum. The screen shows the new total before the person taps Done.",
+   "read_from": "6f6254e3b3",
    "sent_as": "dce672bcdc"
   },
   "MK-NW-F-052": {
    "name": "buildItemizedAccounts",
-   "rule": "One account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket; balance = its value; class as given; a bond also carries its rate and maturity date, with face value = its value. When the remainder is above zero and is kept as cash, one more account named institution + cash holds it.",
-   "read_from": "102a91ae82",
+   "rule": "One account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket, and what the original carried — its retirement share, its source, and its wrapper kind when the original is a 401(k), IRA, Roth IRA, HSA or 529 (otherwise the kind for the class); balance = its value; class as given. A bond also carries its rate and maturity date, and its face value only when the person entered one — never today's value in its place. What is still unallocated, when above zero, becomes one more account named institution + cash, with the same share, source and wrapper.",
+   "read_from": "2053a1a8f5",
    "sent_as": "102a91ae82"
   },
   "MK-NW-F-053": {
@@ -1549,8 +1560,8 @@
   },
   "MK-NW-F-060": {
    "name": "approxYTM",
-   "rule": "(Yearly interest + (face − value) ÷ years left) ÷ ((face + value) ÷ 2). Nothing when there is no maturity date, the bond has matured, or its value is zero or less.",
-   "read_from": "a0c4e87be3",
+   "rule": "(Yearly interest + (face − value) ÷ years left) ÷ ((face + value) ÷ 2). Nothing when there is no maturity date, the bond has matured, its value is zero or less, or no face value is on record.",
+   "read_from": "a84dd1b93e",
    "sent_as": "a0c4e87be3"
   },
   "MK-NW-F-061": {

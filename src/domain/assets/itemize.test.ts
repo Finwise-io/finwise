@@ -84,7 +84,9 @@ describe('itemize — holdings inherit institution + wrapper and carry their cla
     const treasury = created.find((a) => a.label === 'US Treasury 4% 2032')!;
     expect(treasury.coupon_rate).toBe(0.04);
     expect(treasury.maturity_date).toBe('2032-05-15');
-    expect(treasury.face_value).toBe(160_000);
+    expect(treasury.face_value).toBeUndefined();   // the face was today's value, invented (outside review, 2026-10-07); it is entered or nothing
+    const withFace = buildItemizedAccounts(lump(), items.map((h) => h.cls === 'bonds' ? { ...h, faceValue: 165_000 } : h));
+    expect(withFace.find((a) => a.label === 'US Treasury 4% 2032')!.face_value).toBe(165_000);
     expect(created.find((a) => a.label === 'QQQ Put')!.kind).toBe('options');
   });
   test('institution falls back to the lump label when institution is unset', () => {

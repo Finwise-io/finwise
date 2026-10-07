@@ -53,7 +53,7 @@ export interface RateInForce {
  *
  * Called by ... MK-CF-F-181 rateInForce
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -63,7 +63,7 @@ export interface RateInForce {
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -106,7 +106,7 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  * Called by ... MK-CF-F-090 effectiveRate · MK-CF-F-092 incomeMonthlyGrid
  *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -116,7 +116,7 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
- *               … and 61 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income

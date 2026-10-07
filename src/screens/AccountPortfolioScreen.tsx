@@ -798,7 +798,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
     <>
       <View style={s.card}>
         <Text style={s.cardHdr2}>BOND FACTS</Text>
-        <FactRow label="Face value" value={fig('MK-NW-M-023', one.face)} />
+        <FactRow label="Face value" value={one.face > 0 ? fig('MK-NW-M-023', one.face) : figWords('MK-NW-M-023', 'not entered')} />
         <FactRow label="Interest payments" value={figWords('MK-NW-M-024', `${(one.couponRate * 100).toFixed(2)}%/year · ${fig('MK-NW-M-056', one.couponPerYear)}/year`)} />
         <FactRow label="Matures" value={figWords('MK-NW-M-025', matured ? `${one.maturity} (matured)` : `${one.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`)} />
         {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${fig('MK-NW-M-026', one.yieldToMaturity)} · estimate`} />}

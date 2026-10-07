@@ -68,7 +68,7 @@ export default function RetirementCockpit() {
   // reflects what you can actually draw down. (nestEgg = what you have; spendableEgg = what you can spend.)
   const bequest = num(op.legacyTarget);
   const spendableEgg = Math.max(0, nestEgg - bequest);
-  const benchBlended = blendedReturn(assets);                          // historic blended benchmark — NOT editable
+  const benchBlended = blendedReturn(assets) ?? 0.06;                  // historic blended benchmark — NOT editable; 6% only when nothing is set aside
   const actualBlended = portfolioActualReturn(assets);                 // weighted actual TTM from per-holding entries (may be null)
   const returnBasis: 'benchmark' | 'actual' | 'scenario' = A.returnBasis ?? 'benchmark';
   // growth rate that drives the projection + heroes — user picks which basis to use
@@ -88,7 +88,7 @@ export default function RetirementCockpit() {
   const flatStreams = outside.filter((st) => st.kind !== 'ss');
   const guaranteedDefault = outside.reduce((t, st) => t + st.monthly, 0);
   const hasPension = num(op.ri_pension) > 0;
-  const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
+  const contribDefault = Math.round(monthlyContributionsFromOnboarding(op) ?? 0);
   const spendDefault = Math.round(retirementSpendMonthly(op) || num(op.monthlySpending) || 5000);
   // B-37: never default a retiree's "retire age" below their current age (an already-retired 74yo
   // must not be told the plan "assumes age 65"). Use their current age as the floor when retired.

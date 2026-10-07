@@ -30,7 +30,7 @@ test('AUDIT A — 10 calculations', () => {
   check('A1', 'accounts sum to balance', ACC.reduce((t: number, a: any) => t + a.balance, 0) === 909_152);
 
   // A2 blended return is the weighted average of the app's own per-kind rates — recomputed by hand
-  const br = blendedReturn(ACC);
+  const br = blendedReturn(ACC) ?? 0;
   check('A2', 'blended return is a real weighted average', br > 0.05 && br < 0.07, `got ${(br*100).toFixed(2)}%`);
 
   // A3 the target dial is a plain division, NOT function output

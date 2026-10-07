@@ -144,8 +144,8 @@ export function useInsights(limit?: number): Insight[] {
       topHolding,
       planPct: plan.pct,
       planNext: plan.checks.find((c: any) => !c.done)?.label ?? null,
-      beatBy: actual != null ? actual - bench : null,
-      investRate: gross > 0 ? (monthlyContributionsFromOnboarding(op) * 12) / gross : null,
+      beatBy: actual != null && bench != null ? actual - bench : null,
+      investRate: gross > 0 && monthlyContributionsFromOnboarding(op) != null ? ((monthlyContributionsFromOnboarding(op) as number) * 12) / gross : null,
     });   // unlimited — the dismissal filter slices to `limit` after
 
     // provenance: which accounts + the math behind each number (so the user can trace it).
@@ -170,10 +170,10 @@ export function useInsights(limit?: number): Insight[] {
                      { label: 'Months covered', value: ef.monthsCovered != null ? ef.monthsCovered.toFixed(1) : '—' }],
       'k401-room': () => { const h = k401Headroom(age, num(op.c_401k) * 12); return [
         { label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: "You've contributed", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },
-      'behind-bench': () => [{ label: 'Your 12-mo return', value: actual != null ? pct(actual) : '—' }, { label: 'Benchmark', value: pct(bench) },
-                             { label: 'Gap', value: actual != null ? pct(actual - bench) : '—' }],
-      'invest-rate': () => [{ label: 'Annual contributions', value: money(monthlyContributionsFromOnboarding(op) * 12) }, { label: 'Gross income', value: money(gross) },
-                            { label: 'Investing rate', value: gross > 0 ? pct((monthlyContributionsFromOnboarding(op) * 12) / gross) : '—' }],
+      'behind-bench': () => [{ label: 'Your 12-mo return', value: actual != null ? pct(actual) : '—' }, { label: 'Benchmark', value: bench != null ? pct(bench) : '—' },
+                             { label: 'Gap', value: actual != null && bench != null ? pct(actual - bench) : '—' }],
+      'invest-rate': () => [{ label: 'Annual contributions', value: money((monthlyContributionsFromOnboarding(op) ?? 0) * 12) }, { label: 'Gross income', value: money(gross) },
+                            { label: 'Investing rate', value: gross > 0 ? pct(((monthlyContributionsFromOnboarding(op) ?? 0) * 12) / gross) : '—' }],
       'toxic-debt': () => toxic ? [{ label: toxic.label, value: `${pct(toxic.interest_rate_apr)} APR` }, { label: 'Balance', value: money(toxic.remaining_balance || 0) }] : [],
       'retire-offtrack': () => [{ label: 'Chance your plan lasts', value: typeof store.lastRetireChance === 'number' ? `${store.lastRetireChance}%` : '—' }, { label: 'Healthy target', value: '60%+' }],
       'rmd-due': () => [{ label: 'Pre-tax balance', value: money(preTax) }, { label: 'Your age', value: String(age) }, { label: 'Required this year', value: money(rmdDue?.amount ?? 0) }],

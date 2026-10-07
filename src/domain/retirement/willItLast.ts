@@ -159,7 +159,7 @@ export function displayOdds(chance: number): number {
  *     nest egg = retirement earmarked value(accounts)
  *     bequest = num or zero(op.legacy target)
  *     spendable egg = max(0, nest egg − bequest)
- *     bench blended = blended return(accounts)
+ *     bench blended = blended return(accounts) (or 0.06 when missing)
  *     actual blended = portfolio actual return(accounts)
  *     return basis = A.return basis (or 'benchmark' when missing)
  *     scenario return = A.expected return (or bench blended when missing)
@@ -203,7 +203,9 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const bequest = numOrZero(op.legacyTarget);
   const spendableEgg = Math.max(0, nestEgg - bequest);
 
-  const benchBlended = blendedReturn(a.accounts);
+  // with nothing set aside for retirement there is no blended return (MK-NW-F-037); the plan still needs a
+  // rate to run on, and the generic 6% is that rate, chosen here and not inside the function
+  const benchBlended = blendedReturn(a.accounts) ?? 0.06;
   const actualBlended = portfolioActualReturn(a.accounts);
   const returnBasis: 'benchmark' | 'actual' | 'scenario' = A.returnBasis ?? 'benchmark';
   const scenarioReturn = A.expectedReturn ?? benchBlended;
@@ -217,7 +219,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const ssBase = outside.find((st) => st.kind === 'ss');
   const flatStreams = outside.filter((st) => st.kind !== 'ss');
   const outsideTotal = outside.reduce((t, st) => t + st.monthly, 0);
-  const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
+  const contribDefault = Math.round(monthlyContributionsFromOnboarding(op) ?? 0);   // not answered → the plan's own default of $0 (Plan build: say "not entered")
   const spendDefault = Math.round(retirementSpendMonthly(op) || numOrZero(op.monthlySpending) || 5000);
   const retireDefault = numOrZero(op.targetRetirementAge) || (a.employmentStatus === 'retired' ? age : 65);
   const horizon = A.horizonAge ?? (numOrZero(op.horizonAge) || 90);

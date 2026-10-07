@@ -34,7 +34,7 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-CF-F-212 receivedInMonth · MK-XS-F-008 normalizeSnapshot
  *               MK-XS-F-009 readHistory · MK-XS-F-175 uid
  *
- * Reaches ..... 176 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 177 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -44,7 +44,7 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-CF-F-207 SOURCE
- *               … and 158 more — the full list is on functions_from_code
+ *               … and 159 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -53,7 +53,7 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -63,7 +63,7 @@ export interface TheMonth {
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-100 TREND
- *               … and 57 more — the full list is on functions_from_code
+ *               … and 58 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-013
  *               MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020 · MK-CF-M-021
@@ -152,8 +152,9 @@ const GIVEN =
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-157 debtPaymentsByDebt
  *               MK-CF-F-204 line · MK-CF-F-205 COMING
  *               MK-CF-O-004 incomeSummary · MK-CF-O-010 theMonth
+ *               MK-NW-F-046 historyCoverage
  *
- * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
@@ -163,7 +164,7 @@ const GIVEN =
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-100 TREND
- *               … and 57 more — the full list is on functions_from_code
+ *               … and 58 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

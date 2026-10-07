@@ -7,6 +7,7 @@ import { toNum } from '../_shared/num';
 import { getUserDoc, setUserDoc } from '../_shared/firestore';
 import { emit } from '../_shared/eventBus';
 import { employerMatchMonthly } from '../income/onboarding';
+import { annual401kLimit, ageAttainedInYear } from '../income/limits';
 import { ageLabel, isStale } from '../_shared/freshness';
 
 export type TaxBucket = 'CASH' | 'PRE_TAX' | 'ROTH' | 'TAXABLE' | 'PROPERTY';
@@ -475,10 +476,9 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-NW-F-009 maturityClass · MK-NW-F-014 isRealAsset
  *               MK-NW-F-016 cashTotal · MK-NW-F-027 accountClassBreakdown
  *               MK-NW-F-029 assetAllocation · MK-NW-F-030 earmarkDefault
- *               MK-NW-F-031 primaryCarIdOf · MK-NW-F-055 isBond
- *               MK-NW-F-063 interestIncomeAnnual · MK-NW-F-106 mortgagesByProperty
- *               MK-NW-F-107 propertyUses · MK-NW-O-003 theNetWorth
- *               MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-F-055 isBond · MK-NW-F-063 interestIncomeAnnual
+ *               MK-NW-F-106 mortgagesByProperty · MK-NW-F-107 propertyUses
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-005 theAlternativesOutlook
  *
  * Reaches ..... 177 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
@@ -1142,17 +1142,17 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-067 plural
  *
- * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-079 EF
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-100 TREND · MK-NW-F-027 accountClassBreakdown
  *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
  *               MK-NW-F-016 cashTotal · MK-NW-F-028 classPortionLabel
- *               MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal
+ *               MK-XS-F-002 dataGaps · MK-NW-F-017 equitiesTotal
+ *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-046 historyCoverage
  *               MK-NW-F-022 investableAssets · MK-NW-F-021 investmentsTotal
  *               MK-NW-F-067 plural · MK-NW-F-020 realEstateTotal
- *               MK-NW-O-002 theAccount · MK-NW-O-004 theEmergencyFund
- *               … and 2 more — the full list is on functions_from_code
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -1322,10 +1322,11 @@ const TREASURY_RE = /\b(treasur\w*|t-?bills?|t-?notes?|govt?|government)\b/i;
  * Formula .....
  *     the answer = n + ' ' + (one   when n = 1;   many   otherwise)
  *
- * Called by ... MK-NW-F-028 classPortionLabel
+ * Called by ... MK-NW-F-028 classPortionLabel · MK-NW-F-046 historyCoverage
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-028 classPortionLabel
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
+ *               MK-NW-F-046 historyCoverage
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1514,9 +1515,9 @@ export function earmarkDefault(a: AssetAccount, primaryCarId?: string): number {
  * Answers ..... The vehicle treated as "the car you drive" — the most valuable one, so a second car stays a real asset.
  *
  * Formula .....
- *     cars = accounts (or none when missing) where kind = 'vehicle' (or asset class of(each) = 'personal_property' when missing or zero)
+ *     cars = accounts (or none when missing) where kind = 'vehicle'
  *     undefined   when count of cars is missing
- *     the answer = [...cars].sort((x, y) => (balance or 0) − (balance or 0) or string(asset id).locale compare(string(asset id)))[0].asset id
+ *     the answer = [...cars].sort((x, y) => (balance or 0) − (balance or 0) or (string(asset id) < string(asset id) ? -1 : string(asset id) > string(asset id) ? 1 : 0))[0].asset id
  *
  * Called by ... MK-NW-F-033 retirementEarmarkedValue · MK-NW-F-035 blendedVolatility
  *               MK-NW-F-037 blendedReturn
@@ -1542,9 +1543,12 @@ export function earmarkDefault(a: AssetAccount, primaryCarId?: string): number {
  * Changed ..... 2026-08-11 (83acb7e)
  */
 export function primaryCarIdOf(accounts: AssetAccount[]): string | undefined {
-  const cars = (accounts ?? []).filter((a) => a.kind === 'vehicle' || assetClassOf(a) === 'personal_property');
+  // A CAR, ONLY. This used to pick from every Personal property account, so a jewellery collection worth
+  // more than the car became "the car you drive" and the real car fell to the 100% default (outside
+  // review, 2026-10-07). Ties go to the lower id read as text — the one made first, on every device.
+  const cars = (accounts ?? []).filter((a) => a.kind === 'vehicle');
   if (!cars.length) return undefined;
-  return [...cars].sort((x, y) => (y.balance || 0) - (x.balance || 0) || String(x.asset_id).localeCompare(String(y.asset_id)))[0].asset_id;
+  return [...cars].sort((x, y) => (y.balance || 0) - (x.balance || 0) || (String(x.asset_id) < String(y.asset_id) ? -1 : String(x.asset_id) > String(y.asset_id) ? 1 : 0))[0].asset_id;
 }
 /** The retirement-earmarked $ for one account (uses the saved % or the smart default). */
 /* ─ MK-NW-F-032 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -1698,7 +1702,7 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  *
  * Formula .....
  *     car = primary car id of(accounts)
- *     items = accounts (or none when missing) where tax bucket ! = 'PROPERTY'
+ *     items = accounts (or none when missing)
  *     total = Σ over items of (earmarked amount(each, car))
  *     0.12   when total ≤ 0
  *     v = overrides[kind]   if kind and overrides.[kind] ≠ nothing
@@ -1714,8 +1718,7 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-035 annuity income
+ * Reads ....... MK-XS-I-035 annuity income
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
@@ -1726,7 +1729,7 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  */
 export function blendedVolatility(accounts: AssetAccount[], overrides?: Record<string, number>): number {
   const car = primaryCarIdOf(accounts);
-  const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY');
+  const items = accounts ?? [];   // the same money the nest egg counts (2026-10-07) — see blendedReturn
   const total = items.reduce((t, a) => t + earmarkedAmount(a, car), 0);
   if (total <= 0) return 0.12;
   const weighted = items.reduce((t, a) => {
@@ -1799,9 +1802,9 @@ export function benchmarkInfo(kind: string | undefined, overrides?: Record<strin
  *
  * Formula .....
  *     car = primary car id of(accounts)
- *     items = accounts (or none when missing) where tax bucket ! = 'PROPERTY'
+ *     items = accounts (or none when missing)
  *     total = Σ over items of (earmarked amount(each, car))
- *     0.06   when total ≤ 0
+ *     nothing   when total ≤ 0
  *     weighted = Σ over items of (benchmark return(kind, overrides) × earmarked amount(each, car))
  *     the answer = weighted ÷ total
  *
@@ -1815,17 +1818,21 @@ export function benchmarkInfo(kind: string | undefined, overrides?: Record<strin
  *               MK-NW-F-003 valueFreshness · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-037
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function blendedReturn(accounts: AssetAccount[], overrides?: Record<string, number>): number {
+export function blendedReturn(accounts: AssetAccount[], overrides?: Record<string, number>): number | null {
+  // OVER EXACTLY THE MONEY THE NEST EGG COUNTS (outside review, 2026-10-07). Property was left out here
+  // while MK-NW-F-033 retirementEarmarkedValue counts a rental at 100% — so a $520,000 rental was grown
+  // at a rate made only from the 401(k) and the savings. The home lived in and the car driven weigh
+  // nothing (their default share is 0), so they fall out on their own. And with nothing set aside
+  // there is no blended return: the 6% that stood here was an invented figure.
   const car = primaryCarIdOf(accounts);
-  const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY');
+  const items = accounts ?? [];
   const total = items.reduce((t, a) => t + earmarkedAmount(a, car), 0);
-  if (total <= 0) return 0.06;
+  if (total <= 0) return null;
   const weighted = items.reduce((t, a) => t + benchmarkReturn(a.kind, overrides) * earmarkedAmount(a, car), 0);
   return ((weighted / total));
 }
@@ -1862,7 +1869,7 @@ export interface AssetsDoc { user_id: UserId; accounts: AssetAccount[]; last_upd
 export interface AssetsState {
   user_id: UserId;
   total_asset_value: number;
-  average_target_return: number;
+  average_target_return: number | null;   // null when nothing is held
   accounts: (AssetAccount & { portfolio_percentage: number })[];
 }
 
@@ -1899,9 +1906,11 @@ export function buildAssetsState(uid: UserId, accounts: AssetAccount[]): AssetsS
   const withPct = accounts.map((a) => ({
     ...a, portfolio_percentage: total > 0 ? ((a.balance / total) * 100) : 0,
   }));
+  // no accounts, no average: the 7% that stood here was a return for a household that owns nothing
+  // (outside review, 2026-10-07)
   const avg = total > 0
     ? accounts.reduce((t, a) => t + a.target_return * a.balance, 0) / total
-    : DEFAULT_RETURN;
+    : null;
   return { user_id: uid, total_asset_value: (total), average_target_return: (avg), accounts: withPct };
 }
 
@@ -1970,7 +1979,10 @@ export function assetsFromOnboarding(uid: UserId, op: Record<string, any> | null
  *
  * Formula .....
  *     a = op (or none when missing)
- *     the answer = Σ over ['c_401k', 'c_roth', 'c_invest', 'c_property'] of (a[each] read as a number (0 when it is not one))+ employer match monthly(op)
+ *     nothing   when !['c_401k', 'c_roth', 'c_invest', 'employerMatchValue'].some((k) => string(a[k] ?? '').trim() ! = '')
+ *     age = age attained in year(to num(birth year) or nothing)
+ *     k401 = min(c 401k read as a number (0 when it is not one), annual401k limit(age) ÷ 12)
+ *     the answer = k401 + to num(c roth) + to num(c invest) + employer match monthly(op)
  *
  * Called by ... MK-PL-F-067 willItLastInputs · MK-XS-F-030 effectiveAnnualContribution
  *
@@ -1980,14 +1992,28 @@ export function assetsFromOnboarding(uid: UserId, op: Record<string, any> | null
  *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-043 their own retirement contribution
+ * Reads ....... MK-XS-I-017 birth year
+ *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-046 how the employer match is expressed — percent or dollars
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-041
  * Changed ..... 2026-06-05 (f742136)
  */
-export function monthlyContributionsFromOnboarding(op: Record<string, any> | null): number {
+export function monthlyContributionsFromOnboarding(op: Record<string, any> | null): number | null {
   const a = op ?? {};
-  return ['c_401k', 'c_roth', 'c_invest', 'c_property'].reduce((t, k) => t + toNum(a[k]), 0) + employerMatchMonthly(op);
+  // NOT ANSWERED IS NOT ZERO (outside review, 2026-10-07): with no contribution answer at all there is
+  // no figure, and the reader says so rather than projecting from $0.
+  if (!['c_401k', 'c_roth', 'c_invest', 'employerMatchValue'].some((k) => String(a[k] ?? '').trim() !== '')) return null;
+  // WHAT GOES INTO RETIREMENT, AT WHAT THE LAW ALLOWS. Property money (an older setup question —
+  // extra mortgage principal, saving toward a property) pays down a loan or buys a house; it does not
+  // enter the retirement pot and is left out. A 401(k) figure above the year's elective limit for the
+  // person's age is held at the limit ÷ 12: $2,500/month into a 401(k) at 45 projected $30,000/year
+  // where 2026 allows $24,500. The Roth answer is NOT held at the IRA limit: the question did not say
+  // Roth IRA or Roth 401(k), whose limits differ four-fold, and cutting a Roth 401(k) saver to $7,500
+  // would be the wrong figure. The employer's match is outside the elective limit and is added as entered.
+  const age = ageAttainedInYear(toNum(a.birthYear) || null);
+  const k401 = Math.min(toNum(a.c_401k), annual401kLimit(age) / 12);
+  return k401 + toNum(a.c_roth) + toNum(a.c_invest) + employerMatchMonthly(op);
 }
 
 const COLLECTION = 'assets';
@@ -2121,7 +2147,13 @@ export interface HistoryCoverage {
  *     from = the first 10 of string(history from)   if history from
  *     nothing   otherwise
  *     nothing   when the first 10 of from ≤ window start
- *     months = max(0, round((now.get full year() − fy) × 12 + (now.get month() + 1 − fm) + (now.get date() − fd) ÷ 30, 1 dp))
+ *     whole = (now.get full year() − fy) × 12 + (now.get month() + 1 − fm) − (now.get date() < fd ? 1 : 0)
+ *     days in month = the date now.get full year(), now.get month() + (now.get date() < fd ? 0 : 1), 0).get date(
+ *     part = ((now.get date() − fd + (now.get date() < fd ? days in month : 0)) % days in month) ÷ days in month
+ *     months = max(0, round(whole + part, 1 dp))
+ *     whole months = round down(months + 1e − 9)
+ *     yrs = round down(whole months ÷ 12), rem = whole months % 12
+ *     plural = (n: number, w: string) => `${n} ${w}${n = 1 ? '' : 's'}`
  *
  * Called by ... MK-XS-F-002 dataGaps
  *
@@ -2157,10 +2189,19 @@ export function historyCoverage(
       sentence: `${who} hasn't shared any activity records yet — its income lines stay empty rather than showing a false $0.` };
   }
   if (from <= windowStart.slice(0, 10)) return null;          // fully covered — say nothing
+  // WHOLE MONTHS PASSED PLUS THE PART MONTH (days ÷ the days in that month), to one decimal. The
+  // sentence never rounds up: eighteen months read "2 years" (outside review, 2026-10-07) — more
+  // coverage than there was, from the one line meant to say how little there is.
   const [fy, fm, fd] = from.split('-').map(Number);
-  const months = Math.max(0, Math.round(((now.getFullYear() - fy) * 12 + (now.getMonth() + 1 - fm) + (now.getDate() - fd) / 30) * 10) / 10);
-  const span = months >= 12 ? `${Math.round(months / 12)} year${months >= 18 ? 's' : ''}`
-    : months >= 1 ? `${Math.round(months)} month${Math.round(months) === 1 ? '' : 's'}`
+  const whole = (now.getFullYear() - fy) * 12 + (now.getMonth() + 1 - fm) - (now.getDate() < fd ? 1 : 0);
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + (now.getDate() < fd ? 0 : 1), 0).getDate();
+  const part = ((now.getDate() - fd + (now.getDate() < fd ? daysInMonth : 0)) % daysInMonth) / daysInMonth;
+  const months = Math.max(0, Math.round((whole + part) * 10) / 10);
+  const wholeMonths = Math.floor(months + 1e-9);
+  const yrs = Math.floor(wholeMonths / 12), rem = wholeMonths % 12;
+  const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  const span = months >= 12 ? (rem === 0 && Math.abs(months - wholeMonths) < 0.05 ? plural(yrs, 'year') : rem === 0 ? `${plural(yrs, 'year')} and a bit` : `${plural(yrs, 'year')} ${plural(rem, 'month')}`)
+    : months >= 1 ? plural(Math.round(months), 'month')
     : 'a few days';
   return { kind: 'partial', from, monthsCovered: months,
     sentence: `${who} shared ${span} of history (from ${prettyDay(from)}) — figures before that aren't counted.` };

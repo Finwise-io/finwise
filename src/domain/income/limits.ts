@@ -30,11 +30,14 @@ export const IRS_LIMITS = {
  *     nothing   when y is missing (or !number.is finite(y) (or y < 1900 when missing or zero) when missing or zero)
  *     the answer = now.get full year() − y
  *
- * Called by ... MK-CF-O-005 theContributionRoom · MK-PL-F-067 willItLastInputs
+ * Called by ... MK-CF-O-005 theContributionRoom · MK-NW-F-041 monthlyContributionsFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-O-017 futurePaycheck
- *               MK-PL-F-068 selectWillItLast · MK-CF-O-005 theContributionRoom
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-O-017 futurePaycheck
+ *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-O-005 theContributionRoom
  *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -120,11 +123,14 @@ export function perMonthToFill(roomLeft: number, now: Date = new Date()): number
  *     IRS_LIMITS.elective deferral 401k + IRS_LIMITS.super catch up 6063   when age ≠ nothing and age ≥ 60 and age ≤ 63
  *     IRS_LIMITS.elective deferral 401k + (age ≠ nothing and age ≥ 50 ? IRS_LIMITS.catch up 50 : 0)
  *
- * Called by ... MK-CF-F-056 k401Headroom
+ * Called by ... MK-CF-F-056 k401Headroom · MK-NW-F-041 monthlyContributionsFromOnboarding
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-F-056 k401Headroom
- *               MK-CF-O-005 theContributionRoom
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-O-017 futurePaycheck
+ *               MK-CF-F-056 k401Headroom · MK-NW-F-041 monthlyContributionsFromOnboarding
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-O-005 theContributionRoom · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

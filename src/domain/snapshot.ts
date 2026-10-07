@@ -40,7 +40,7 @@ export interface FinancialSnapshot {
  *
  * Formula .....
  *     a = op (or none when missing)
- *     stated annual = monthly contributions from onboarding(op) × 12
+ *     stated annual = (monthly contributions from onboarding(op) ?? 0) × 12
  *     has spend data = to num(monthly expenses) > 0 (or array.is array(spend cats) and spend cats.length > 0 when missing or zero)
  *     stated annual   when has spend data is missing
  *     free cash annual = Σ over savings by month(a as any) of (amount)
@@ -64,7 +64,7 @@ export interface FinancialSnapshot {
  */
 export function effectiveAnnualContribution(op: Record<string, any> | null): number {
   const a = op ?? {};
-  const statedAnnual = monthlyContributionsFromOnboarding(op) * 12;
+  const statedAnnual = (monthlyContributionsFromOnboarding(op) ?? 0) * 12;
   const hasSpendData = toNum(a.monthlySpending) > 0 || (Array.isArray(a.spendCats) && a.spendCats.length > 0);
   if (!hasSpendData) return statedAnnual;          // no cash-flow picture → take contributions at face value
   const freeCashAnnual = savingsByMonth(a as any).reduce((t, m) => t + m.amount, 0);

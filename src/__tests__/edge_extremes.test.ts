@@ -246,10 +246,10 @@ describe('Pure-function edge matrix: divide-by-zero & degenerate inputs', () => 
     expect(earmarkedAmount(acct({ balance: 1000, retirement_pct: -50 }))).toBe(0);       // <0 → 0%
   });
   test('blendedReturn / portfolioActualReturn / investableAssets on empty & all-property sets', () => {
-    expect(blendedReturn([])).toBe(0.06);                                   // empty → fallback, never NaN
+    expect(blendedReturn([])).toBeNull();                                   // empty → no figure (2026-10-07), never NaN
     expect(portfolioActualReturn([])).toBeNull();
     const home = acct({ kind: 'home', tax_bucket: 'PROPERTY', balance: 500_000 });
-    expect(blendedReturn([home])).toBe(0.06);                              // no earmarked $ → fallback
+    expect(blendedReturn([home])).toBeNull();                               // no earmarked $ → no figure
     expect(investableAssets([home])).toBe(0);                               // property is not investable
   });
 });

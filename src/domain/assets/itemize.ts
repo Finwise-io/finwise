@@ -17,6 +17,7 @@ export interface ItemHolding {
   couponRate?: number;             // bonds (decimal)
   maturityDate?: string;           // bonds ('YYYY-MM-DD')
   kind?: string;                   // alternatives sub-kind (crypto/options/…); defaults per class
+  faceValue?: number;              // bonds — what it pays back at maturity, when the person knows it; never invented
 }
 
 const KIND_FOR: Record<ItemClass, string> = {
@@ -91,7 +92,7 @@ export const itemizeRemainder = (lumpBalance: number, items: ItemHolding[]): num
  *     sum = itemized total(items)
  *     remainder = itemize remainder(lump.balance, items)
  *     the answer:
- *     sum + remainder   if keep remainder as cash and remainder > 0
+ *     sum + remainder   if remainder > 0
  *     sum   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -102,12 +103,14 @@ export const itemizeRemainder = (lumpBalance: number, items: ItemHolding[]): num
  * Formula also on the master file · functions_from_code · MK-NW-F-051
  * Changed ..... 2026-06-28 (e637ba5)
  */
-export const itemizedResultTotal = (
-  lump: Pick<AssetAccount, 'balance'>, items: ItemHolding[], keepRemainderAsCash = true,
-): number => {
+export const itemizedResultTotal = (lump: Pick<AssetAccount, 'balance'>, items: ItemHolding[]): number => {
+  // ITEMISING NEVER LOWERS WHAT AN ACCOUNT IS WORTH. What is not yet itemised stays as cash, so the
+  // total is the entered total — the screen promises "We keep the total at $X". It rises only when the
+  // holdings listed come to more than that, and the screen says the new total before Done is tapped.
+  // A "not kept as cash" path once let a part-itemised $186,442 fall to $148,001 (outside review, 2026-10-07).
   const sum = itemizedTotal(items);
   const remainder = itemizeRemainder(lump.balance, items);
-  return keepRemainderAsCash && remainder > 0 ? (sum + remainder) : sum;
+  return remainder > 0 ? (sum + remainder) : sum;
 };
 
 /** Build the new accounts to CREATE when committing an itemization. The caller then deletes the lump and
@@ -121,6 +124,8 @@ export const itemizedResultTotal = (
  * Formula .....
  *     institution = (lump.institution or lump.label or '').trim() (or undefined when missing or zero)
  *     bucket = lump.tax bucket
+ *     wrapper = lump.kind   if lump.kind and ['401k', 'trad_ira', 'roth_ira', 'hsa', 'college_529'].includes(lump.kind)
+ *     undefined   otherwise
  *     the answer = acct
  *     remainder = itemize remainder(lump.balance, items)
  *
@@ -143,38 +148,50 @@ export const itemizedResultTotal = (
  * Formula also on the master file · functions_from_code · MK-NW-F-052
  * Changed ..... 2026-06-28 (e637ba5)
  */
-export function buildItemizedAccounts(
-  lump: AssetAccount, items: ItemHolding[], keepRemainderAsCash = true,
-): Omit<AssetAccount, 'asset_id'>[] {
+export function buildItemizedAccounts(lump: AssetAccount, items: ItemHolding[]): Omit<AssetAccount, 'asset_id'>[] {
   const institution = (lump.institution || lump.label || '').trim() || undefined;
   const bucket: TaxBucket = lump.tax_bucket;
+  // WHAT THE LUMP CARRIED, EVERY NEW ACCOUNT CARRIES (outside review, 2026-10-07): its retirement share —
+  // a lump set aside 40% became accounts at the 100% default, and the nest egg jumped from itemising
+  // alone — its source, and its wrapper kind where the lump is a wrapper (a 401(k), an IRA, an HSA, a
+  // 529), so the new accounts are still named and taxed as that wrapper.
+  const wrapper = lump.kind && ['401k', 'trad_ira', 'roth_ira', 'hsa', 'college_529'].includes(lump.kind) ? lump.kind : undefined;
+  const carried: Partial<AssetAccount> = {
+    ...(lump.retirement_pct != null ? { retirement_pct: lump.retirement_pct } : {}),
+    ...(lump.source ? { source: lump.source } : {}),
+  };
   const out: Omit<AssetAccount, 'asset_id'>[] = items.map((h) => {
     const acct: Omit<AssetAccount, 'asset_id'> = {
       label: (h.label || h.ticker || 'Holding').trim(),
       institution,
       asset_class: h.cls,
-      kind: h.kind || KIND_FOR[h.cls],
+      kind: wrapper ?? h.kind ?? KIND_FOR[h.cls],
       tax_bucket: bucket,
       balance: (h.value || 0),
       target_return: 0,
+      ...carried,
     };
     if (h.cls === 'bonds') {
       acct.coupon_rate = h.couponRate || 0;
       acct.maturity_date = h.maturityDate || undefined;
-      acct.face_value = (h.value || 0);
+      // the face value is what the person entered, or nothing: today's value is not what it pays back,
+      // and a face set to it made every itemised bond look bought at par (outside review, 2026-10-07)
+      if (h.faceValue != null && h.faceValue > 0) acct.face_value = h.faceValue;
     }
     return acct;
   });
+  // what is not itemised stays as cash, always — so the balances still add up to the entered total
   const remainder = itemizeRemainder(lump.balance, items);
-  if (keepRemainderAsCash && remainder > 0) {
+  if (remainder > 0) {
     out.push({
       label: `${institution || 'Account'} cash`,
       institution,
       asset_class: 'cash',
-      kind: 'cash_mgmt',
+      kind: wrapper ?? 'cash_mgmt',
       tax_bucket: bucket,
       balance: remainder,
       target_return: 0,
+      ...carried,
     });
   }
   return out;

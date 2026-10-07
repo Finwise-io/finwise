@@ -86,7 +86,7 @@ describe('ACCOUNT_SHARE_OF_TOTAL', () => {
   test('no money at all divides by nothing — shares are 0 and a stated default return is used', () => {
     const s = buildAssetsState('u', [A({ balance: 0 })]);
     expect(s.accounts[0].portfolio_percentage).toBe(0);
-    expect(s.average_target_return).toBeGreaterThan(0);
+    expect(s.average_target_return).toBeNull();   // no money, no average (2026-10-07) — it used to say 7%
   });
 });
 

@@ -47,6 +47,7 @@ export default function ItemizeScreen() {
   const [name, setName] = useState('');
   const [val, setVal] = useState('');
   const [coupon, setCoupon] = useState('');
+  const [face, setFace] = useState('');   // what a bond pays back at maturity — entered, never invented (2026-10-07)
   const [maturity, setMaturity] = useState('');
 
   if (!lump) {
@@ -75,9 +76,9 @@ export default function ItemizeScreen() {
     if (!canAdd) return;
     const h: ItemHolding = { cls: pickDef.cls, kind: pickDef.kind, label: name.trim(), value: num(val) };
     if (pickDef.cls === 'stocks_etf') h.ticker = name.trim().toUpperCase();
-    if (pickDef.cls === 'bonds') { if (num(coupon) > 0) h.couponRate = num(coupon) / 100; if (maturity.trim()) h.maturityDate = maturity.trim(); }
+    if (pickDef.cls === 'bonds') { if (num(coupon) > 0) h.couponRate = num(coupon) / 100; if (maturity.trim()) h.maturityDate = maturity.trim(); if (num(face) > 0) h.faceValue = num(face); }
     setItems((xs) => [...xs, h]);
-    setName(''); setVal(''); setCoupon(''); setMaturity('');
+    setName(''); setVal(''); setCoupon(''); setMaturity(''); setFace('');
   };
   const removeAt = (i: number) => setItems((xs) => xs.filter((_, j) => j !== i));
 
@@ -137,6 +138,11 @@ export default function ItemizeScreen() {
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" placeholder="Coupon % (optional)" placeholderTextColor={Colors.textTertiary} value={coupon} onChangeText={setCoupon} />
           <View style={{ flex: 1 }}><DateField value={maturity} onChange={setMaturity} label="maturity date" /></View>
+        </View>
+      )}
+      {pickDef.cls === 'bonds' && (
+        <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+          <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" placeholder="Face value (optional) — what it pays back" placeholderTextColor={Colors.textTertiary} value={face} onChangeText={setFace} accessibilityLabel="Face value, optional — what the bond pays back at maturity" />
         </View>
       )}
       <View style={styles.amtRow}><Text style={styles.amtPre}>{currencySymbol()}</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={val} onChangeText={setVal} /></View>
