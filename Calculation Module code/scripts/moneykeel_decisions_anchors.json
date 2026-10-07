@@ -54,7 +54,8 @@
   },
   "DEC-0045": {
    "governs": "MK-NW-M-020 · ASSET_KINDS in src/domain/assets",
-   "why_it_governs_those": "private equity and hedge funds out of the first phase — the options you can pick, and the per-class breakdown"
+   "why_it_governs_those": "private equity and hedge funds out of the first phase — the options you can pick, and the per-class breakdown",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §5 — private equity and hedge funds are not offered"
   },
   "DEC-0046": {
    "governs": "MK-PF-M-001 · MK-PF-M-002 · MK-PF-M-003 · the bottom bar",
@@ -67,7 +68,8 @@
   },
   "DEC-0051": {
    "governs": "MK-NW-M-005 CASH · MK-NW-M-020 · assetClassOf in src/domain/assets",
-   "why_it_governs_those": "cash means cash only: a money-market fund is Stocks and funds, a CD or T-bill is not cash"
+   "why_it_governs_those": "cash means cash only: a money-market fund is Stocks and funds, a CD or T-bill is not cash",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §1 and §3 — cash means cash only; a maturity date makes a bond"
   },
   "DEC-0052": {
    "governs": "MK-NW-M-007 · MK-NW-M-008 · CompositionBar in src/screens/NetWorthScreen.tsx",
@@ -465,7 +467,8 @@
   "DEC-0092": {
    "governs": "MK-NW-M-008 · MK-NW-M-029 · MK-NW-M-021 · MK-NW-M-005",
    "why_it_governs_those": "its own words appear in these figures: MK-NW-M-008 (holds, fidelity, balance); MK-NW-M-029 (ticker, holds, stale); MK-NW-M-021 (stock, ticker); MK-NW-M-005 (funds, money-market)",
-   "evidence": "searched the figure register"
+   "evidence": "searched the figure register",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §2 — the name decides a holding before the institution’s tag"
   },
   "DEC-0093": {
    "governs": "MK-XS-M-004",
@@ -480,7 +483,8 @@
   "DEC-0095": {
    "governs": "MK-NW-M-008 · MK-NW-M-021 · MK-NW-M-019 · MK-NW-M-040",
    "why_it_governs_those": "its own words appear in these figures: MK-NW-M-008 (listed, largest, balance, biggest); MK-NW-M-021 (dividend, counted, writing); MK-NW-M-019 (dividend, received); MK-NW-M-040 (uninvested, listed)",
-   "evidence": "searched the figure register"
+   "evidence": "searched the figure register",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §3 — a small unexplained difference is cash, never more CDs"
   },
   "DEC-0096": {
    "governs": "MK-NW-M-038 · MK-NW-M-015",
@@ -1316,7 +1320,8 @@
   "DEC-0309": {
    "governs": "MK-NW-M-005",
    "why_it_governs_those": "its own words appear in these figures: MK-NW-M-005 (money-market, funds)",
-   "evidence": "searched the figure register"
+   "evidence": "searched the figure register",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §2 — name first on every road, the tag as fallback"
   },
   "DEC-0310": {
    "governs": "MK-NW-M-032",
@@ -1396,7 +1401,8 @@
   "DEC-0343": {
    "governs": "MK-NW-M-006",
    "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (pinned, computed)",
-   "evidence": "searched the figure register"
+   "evidence": "searched the figure register",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §4 — every total read from the one split; Cash + Investments = Investable"
   },
   "DEC-0344": {
    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md",
@@ -2231,6 +2237,30 @@
    "governs": "src/screens/CashFlowScreen.tsx (no door to a month or the calendar) · src/components/PaycheckCard.tsx · src/domain/insights/index.ts · app/_layout.tsx · MK-CF-M-017 · MK-CF-M-026 · MK-CF-M-064 · MK-CF-M-067 · MK-CF-M-068 (retired) · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
    "why_it_governs_those": "read, 2026-10-02: the screens retired, the links removed, the figures retired",
    "verified_by_reading": "2026-10-02 — recorded the moment he said it; held by decisions_are_held.test.ts"
+  },
+  "DEC-2160": {
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §2 — a holding nothing could class is Unclassified until the person says"
+  },
+  "DEC-2163": {
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §6 — an account is called by its name; no class word under it"
+  },
+  "DEC-1923": {
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_mortgage-rent-and-debt_v01.md §1 — every debt is counted from Debts"
+  },
+  "DEC-1924": {
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_mortgage-rent-and-debt_v01.md §2 — a mortgage is not a running cost of a rental; its payment goes to Debts"
+  },
+  "DEC-1859": {
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_mortgage-rent-and-debt_v01.md §2 — the running-costs hint names no mortgage interest"
+  },
+  "DEC-1925": {
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_mortgage-rent-and-debt_v01.md §3 — every mortgage is on a named property"
+  },
+  "DEC-1926": {
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_mortgage-rent-and-debt_v01.md §4 — what a property is for is read from the rent entered"
+  },
+  "DEC-1668": {
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_mortgage-rent-and-debt_v01.md §5 — rent keeps arriving and the emergency fund counts it"
   }
  }
 }

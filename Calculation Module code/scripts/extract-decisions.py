@@ -157,6 +157,22 @@ def sweep_changelog():
             seen_rows += 1
             if not HIS.search(who):
                 continue                          # mine, not his — counted by the B6 gate, not a decision
+            # A CHANGELOG ROW THAT NAMES ITS DECISION IS A RECORD OF IT, NOT A NEW ONE (2026-10-07). The
+            # Changelog had no row since 2026-09-26 while 52 decisions of his were made and logged; the
+            # rows were backfilled from the log, each saying "recorded in the decision log as DEC-nnnn".
+            # Minting those again would have doubled 52 decisions. The row's file is added to that
+            # decision's sources instead — the evidence of reaching a second file the confidence plan asks for.
+            named = re.search(r'recorded in the decision log as (DEC-\d{4})', who)
+            if named:
+                target = next((x for x in doc['rows'] if x.get('id') == named.group(1)), None)
+                if target is None:
+                    raise SystemExit(f'the Changelog names {named.group(1)} ({date[:10]} | {sheet[:60]}), which the decision log does not carry')
+                src = f'{os.path.basename(path)} · Changelog · {date[:10]} · {sheet[:70]}'
+                have = [x.strip() for x in str(target.get('source', '')).split(' ||| ') if x.strip()]
+                if src not in have:
+                    target['source'] = ' ||| '.join(have + [src])
+                kept += 1
+                continue
             tab, ok = TABS.classify_row(sheet, change)
             if not ok:
                 unmatched.append(f'{date[:10]} | {sheet[:60]}')

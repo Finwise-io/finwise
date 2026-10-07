@@ -321,7 +321,45 @@
    "exceptions": "The data model keeps both kinds, so rows saved before this phase still show and count.",
    "not_a_repeat_of": "DEC-0045 — that ruling trimmed the Net worth add sheet on 2026-08-04; this one, two months later, reaches the Add an account form and the Alternatives screen, which were built after it and did not follow it.",
    "status": "TESTED",
-   "proof": "src/screens/__tests__/kept_editors_match.test.tsx"
+   "proof": "src/screens/__tests__/kept_editors_match.test.tsx",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §5"
+  },
+  {
+   "decided": "2026-10-07",
+   "answers": [],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics · /account-portfolio · /bonds · /other-investments · /holding-detail · /cashflow",
+   "his_words": "NW batch one close.",
+   "subject": "Net worth batch 1 of the outside review — the six orchestrators and what was corrected on them — is closed",
+   "plain": "The first batch of the outside review of Net worth is closed. Everything corrected in it stands: every return time-weighted, rent counted in the emergency fund, every debt counted from Debts, a mortgage on a named property, and the smaller fixes to bonds, holdings and the account page.",
+   "means": "Said in chat on 2026-10-07, after Gemini's final audit of the batch (returned 2026-10-05) was run against the app: 36 of 36 held after two small fixes (a leap-day purchase, a hand-built account's cash in its inside). It closes MK-NW-O-001 theBonds, MK-NW-O-002 theAccount, MK-NW-O-003 theNetWorth, MK-NW-O-004 theEmergencyFund, MK-NW-O-005 theAlternativesOutlook, MK-NW-O-006 theHolding and the three functions added while correcting them (MK-NW-F-106 mortgagesByProperty, MK-NW-F-107 propertyUses, MK-CF-O-020 theBudgetCounted). His own rulings inside the batch are on their own rows (DEC-1668, DEC-1669, DEC-1859, DEC-1923 to DEC-1926).",
+   "governs": "MK-NW-O-001 · MK-NW-O-002 · MK-NW-O-003 · MK-NW-O-004 · MK-NW-O-005 · MK-NW-O-006 · MK-NW-F-106 · MK-NW-F-107 · MK-CF-O-020 · MK-NW-M-002 · MK-NW-M-013 · MK-NW-M-036 · MK-NW-M-044 · MK-NW-M-064 · MK-PF-M-016",
+   "changed": "Nothing further changes in the code: the batch's corrections stand as built and tested. The tracker rows for Net worth file 1 and Gemini's final audit are closed on his word.",
+   "apply_steps": "1. Mark the two tracker rows closed on his word. 2. Open Net worth batch 2 for Gemini's final audit. Done.",
+   "exceptions": "",
+   "status": "TESTED",
+   "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts · MoneyKeel/functions/networth-and-performance/outside_networth_01_final_gemini.test.ts",
+   "not_a_repeat_of": "DEC-1669 — that is his rule on returns, made inside this batch; this closes the batch."
+  },
+  {
+   "decided": "2026-10-06",
+   "answers": [],
+   "tab": "networth",
+   "type": "RULE",
+   "screens": "/analytics · /account-portfolio · /invest · /home · /add-account",
+   "his_words": "Rest I am good with.",
+   "subject": "Net worth batch 2 of the outside review — what was fixed, what was kept against the reviewer, and what is agreed but not built — approved as listed",
+   "plain": "He read three lists for the second batch — eleven errors fixed, six places where the app was kept against the reviewer, four agreed points not yet built — and approved them all, with one change made alongside: private equity and hedge funds are not offered in this phase (DEC-2334).",
+   "means": "Said in chat on 2026-10-06, after the lists of 2026-10-05 and 2026-10-06. FIXED: MK-NW-F-003 months fully passed; MK-NW-F-005 an account that lists holdings takes a ticker; MK-NW-F-010 a Roth 401(k) choice; MK-NW-F-011 a maturity date outranks the name, property that is not a house is personal property; MK-NW-F-012 a 529 is tax-free and MK-NW-F-108 says why; MK-NW-F-016 and F-027 a hand-built account's cash is cash and an unpriced holding is never cash; MK-NW-F-021 the Investments line, one function, cash + investments = investable; MK-NW-F-026 no two names alike; MK-NW-F-028 three kinds read with commas, counted by MK-NW-F-109. KEPT: MK-NW-F-004 weighs the money set aside for retirement; the reported 12-month return is the person's own, labelled so; a typed bond or CD is not a place to buy shares; an old property row with no kind stays real estate; an HSA sorts with pre-tax; a stake cannot carry a maturity date. FOUND AND FIXED ON THE WAY: Home prints Performance's ending value (MK-NW-O-008 reads it from the accounts); a broker-flagged money-market fund stays a holding; a Roth added by hand reads Roth (MK-NW-F-025); the person's class answer outranks the name. NOT BUILT, for later builds: the Insights label, HSA and 529 tax in the Plan, the Plan's typed 12-month return, the by-hand form's one 401(k) / IRA choice.",
+   "governs": "MK-NW-F-003 valueFreshness · MK-NW-F-005 accountAllowsTicker · MK-NW-F-010 wrapperAccount · MK-NW-F-011 assetClassOf · MK-NW-F-012 taxTreatmentOf · MK-NW-F-016 cashTotal · MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal · MK-NW-F-019 alternativesTotal · MK-NW-F-020 realEstateTotal · MK-NW-F-021 investmentsTotal · MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames · MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel · MK-NW-F-108 taxWordsOf · MK-NW-F-109 holdingClassOf · MK-NW-O-008 thePerformance · MK-NW-O-003 theNetWorth · MK-NW-M-005 · MK-NW-M-007 · MK-NW-M-008 · MK-NW-M-014 · MK-PF-M-001",
+   "changed": "Everything in the FIXED and FOUND lists is in the code and held by test; the KEPT list stays as built; the NOT BUILT list is on the tracker for the Menu and Plan builds and the form.",
+   "apply_steps": "1. Record his approval against each of the nineteen functions. 2. Write the final audit of batch 2 for Gemini on the functions as they stand. 3. Keep the four not-built rows open on the tracker. Done.",
+   "exceptions": "The four agreed-but-not-built points are not approved as built — they are approved as owed.",
+   "status": "TESTED",
+   "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts · outside_networth_02_found.test.ts · src/screens/__tests__/outside_networth_02.test.tsx",
+   "not_a_repeat_of": "DEC-1560 — \"Rest - keep it\" of 2026-10-04 was his word on sixteen drawing differences; this is his word on the second outside-review batch.",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §1 to §7"
   }
  ]
 }

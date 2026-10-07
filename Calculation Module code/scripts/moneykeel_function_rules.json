@@ -2080,6 +2080,16 @@
    "date": "2026-09-30",
    "words": "Refuse the line and ask",
    "about": "What happens to a holding when nothing says what kind of asset it is."
+  },
+  {
+   "date": "2026-10-06",
+   "words": "this phase of app no longer has options for Private Equity and Hedge fund.",
+   "about": "Private equity and hedge funds cannot be added anywhere in this phase; a row saved earlier with either kind is kept."
+  },
+  {
+   "date": "2026-08-04",
+   "words": "Private equity + Hedge funds OUT of phase 1 (founder: keep it simple)",
+   "about": "The same rule, first made on 2026-08-04 (DEC-0045)."
   }
  ]
 }

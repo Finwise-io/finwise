@@ -1,4 +1,6 @@
 # FinWise — Canonical Money Taxonomy Spec
+
+> **2026-10-07:** the rules for how an account is classed, split, counted and named now live in the standard `MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md`. Where this older document and that standard disagree, the standard is right.
 ### 2026-06-22 · the agreed definitions, formulas, labels, and tests for every money concept
 
 > Built term‑by‑term with the founder, each grounded in researched standards. This is the **single
@@ -51,7 +53,7 @@ the founder's mark in the synonym workbook.
 | Old (muddled) | New (canonical) |
 |---|---|
 | `kind` (mixed instrument+wrapper) | `assetClass` + `taxTreatment` (split) |
-| `tax_bucket` incl. CASH/PROPERTY | `taxTreatment` (CASH→assetClass cash, PROPERTY→assetClass real_estate) |
+| `tax_bucket` incl. CASH/PROPERTY | `taxTreatment` (CASH→assetClass cash; PROPERTY→Real estate when its use is recorded or no kind is, Personal property for any other kind, e.g. a vehicle or valuables) |
 | `section` (Cash/Investments/Retirement/Property) | derived from the two axes |
 
 ---
@@ -61,8 +63,8 @@ the founder's mark in the synonym workbook.
 | Term | Definition | Formula (by assetClass) | Caption shown to user |
 |---|---|---|---|
 | **Net worth** (#2) | everything you own − everything you owe (incl. primary home) | `totalAssets − totalDebt` | "All assets including your home, minus all debts." |
-| **Cash** (#3) | liquid balance | Σ `assetClass=cash` (checking, savings, HYSA, money‑market, CDs, T‑bills) | "Checking, savings, money‑market, CDs, T‑bills." |
-| **Investments / holdings** (#4,5,6) | what you're invested in (allocation) | Σ `assetClass ∈ {stocks_etf, bonds, alternatives}` **across all wrappers** | "Stocks/ETFs, bonds, and alternatives across all accounts (incl. 401(k)/IRA)." |
+| **Cash** (#3) | liquid balance — CASH MEANS CASH ONLY (founder, 2026-08-04, DEC-0051) | Σ the cash parts of every account's split (checking, savings, HYSA, cash management, foreign currency, and the uninvested cash inside investment accounts). Money‑market funds are Stocks / Funds; CDs and T‑bills are Bonds & CDs. | "Checking, savings, and uninvested cash in your investment accounts." |
+| **Investments / holdings** (#4,5,6) | what you're invested in (allocation) | Σ the Stocks / Funds, Bonds & CDs, Alternatives and Unclassified parts of every account's split, **across all wrappers** — so Cash + Investments = Investable, always (2026-10-05) | "Stocks/ETFs, bonds, and alternatives across all accounts (incl. 401(k)/IRA)." |
 | **Investable assets** (#4) | liquid financial wealth | Σ `assetClass ∈ {cash, stocks_etf, bonds, alternatives}` (excl. real estate + personal property) | "Cash + investments + retirement accounts. Excludes home & personal property." |
 | **Retirement nest egg** (#7) | the 4%‑rule withdrawal portfolio | retirement accounts + retirement‑earmarked stocks/bonds; **excl. emergency fund, primary home, rental, 529** | "Invested retirement money the 4% rule draws on. Excludes home, emergency cash, and rentals (those add income instead)." |
 
@@ -73,9 +75,9 @@ Net worth includes the primary home; investable & nest egg do **not**.
 
 ## 2. Asset classes — definitions
 
-- **Cash & cash equivalents** (#3): checking, savings, HYSA, money‑market, T‑bills, short CDs. *"Savings" is NOT a balance category — a savings account is just a cash instrument.* **Emergency fund** = a sized subset = **3–6 × monthly essentials**, held in cash; **0% earmarked to the nest egg** by default.
+- **Cash** (#3): checking, savings, HYSA, cash management, foreign currency, and the uninvested cash inside an investment account. NOT money‑market funds, CDs or T‑bills — those pay dividends and interest and are measured where their income lands (founder, 2026-08-04, DEC-0051). *"Savings" is NOT a balance category — a savings account is just a cash instrument.* **Emergency fund** = a sized subset = **3–6 × monthly essentials**, held in cash; **0% earmarked to the nest egg** by default.
 - **Stocks / Funds (equities)** (#5): individual stocks + equity ETFs/index/mutual funds, across all wrappers. *"Brokerage" is a taxable account wrapper, not an asset class.* Employee stock options = **income (equity comp)** → become equities on exercise; traded options = **alternatives** (future).
-- **Bonds / fixed income** (#6): individual bonds + bond funds/ETFs + Treasuries/munis/corporates. **Detected by `assetClass='bonds'`, not by maturity date.** Interest income computed for **every** holding (individual: `face × coupon`; fund: `value × yield`) — no silent $0.
+- **Bonds & CDs** (#6): individual bonds, CDs, Treasuries/munis/corporates (bond funds and ETFs are funds: Stocks / Funds). **Any maturity-dated instrument is a bond, whatever its name says** (founder, 2026-08-04); the stated class comes first, then the maturity date, then the name. Interest income computed for **every** holding (individual: `face × coupon`; fund: `value × yield`) — no silent $0.
 - **Alternatives**: crypto, commodities, private equity, hedge funds, annuities (balance), traded options.
 - **Real estate** (#8): `use ∈ {primary, rental, secondary, land}`. Always in net worth (equity = value − its linked mortgage); **never** in investable/nest egg. **Rental** → rent as income + keep‑vs‑sell toggle (below).
 - **Personal property** (#8): vehicles, valuables. Net worth only.
