@@ -153,3 +153,19 @@ if seen != len(rows) + len(skipped):
           % (seen, len(rows) + len(skipped), seen - len(rows) - len(skipped)))
     sys.exit(1)
 print('   ✓ every dated row in the sheet is accounted for — none dropped in silence.')
+
+# ── THE OTHER DIRECTION (founder, 2026-10-07, DEC-2634) ─────────────────────────────────────────
+# B6 above asks whether every Changelog row of his reaches the ledger. It never asked the reverse —
+# whether every decision of his reached the Changelog — and the Changelog had no row from 2026-09-27
+# to 2026-10-07 while 52 decisions were made. Since the one-master rule (2026-09-27) a decision is
+# recorded in the log first and the Changelog the same day; a decision whose sources name no Changelog
+# file is a decision living in one file only. Zero is the number, and the build stops above it.
+LOG = json.load(open(os.path.join(ROOT, 'Calculation Module code/scripts/moneykeel_decisions.json')))['rows']
+since = [r for r in LOG if str(r.get('decided', ''))[:10] >= '2026-09-27' and r.get('in_use') == 'IN USE']
+no_row = [r['id'] + ' (' + str(r.get('decided'))[:10] + ')' for r in since if 'Changelog' not in str(r.get('source', ''))]
+print('   decisions of his since the one-master rule (2026-09-27): %d · without a Changelog row: %d' % (len(since), len(no_row)))
+if no_row:
+    print('   BUILD STOPPED. These decisions have no Changelog row — write the row (and its anchor) the same day:')
+    for x in no_row[:20]:
+        print('     ' + x)
+    sys.exit(1)

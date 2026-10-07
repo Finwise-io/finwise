@@ -37,7 +37,7 @@ Each file below was matched to Build 53 by exact content (the same fingerprint a
 
 Rulings made after Build 53 that change these screens are in the Changelog tab of `docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-2026-08-14.xlsx`. For example: the empty-state pattern (mock approved 2026-09-12), the one-term canon ("Debts", "Emergency fund"), and screen titles at 20 points (2026-09-14).
 
-**Plan, 2026-09-26.** Three copies of `Plan.dc.html` exist in `August 14th Design/` and they DIFFER (`design_handoff_net_worth/` is the v4 one the design notes sit beside; `Claude-Design-handoff-received-2026-08-13/` and `A-instructions for claude/Plan screen/` are older). The one that counts now lives at `MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v05.html`; the raw v4 is in that folder's `archive/`. Do not read the `August 14th Design/` copies for design truth again.
+**Plan, 2026-09-26.** Three copies of `Plan.dc.html` exist in `August 14th Design/` and they DIFFER (`design_handoff_net_worth/` is the v4 one the design notes sit beside; `Claude-Design-handoff-received-2026-08-13/` and `A-instructions for claude/Plan screen/` are older). The one that counts now lives at `MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html` (v05 archived 2026-09-26, as the guard that reads this file found on 2026-10-07); the raw v4 is in that folder's `archive/`. Do not read the `August 14th Design/` copies for design truth again.
 
 ## Net worth module, 2026-10-01 — what still has no approved design
 

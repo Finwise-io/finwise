@@ -1,0 +1,2887 @@
+{
+ "batch": "networth 05",
+ "written_by": "claude",
+ "formula_checks": [
+  {
+   "id": "MK-NW-F-038",
+   "name": "earmarkedKinds",
+   "verdict": "INCOMPLETE",
+   "why": "Excluding property and keeping only accounts with an earmarked amount above zero is right, and 'no kind = other' is reasonable. But the formula never says how the earmarked amount is worked out when the person left the earmark blank. The type says a blank earmark means 'use the default share for that kind', yet the formula only says 'earmarked amount above zero'. Read literally, a blank earmark gives zero and a 401(k) the person never touched drops out of the benchmark editor.",
+   "should_be": "Earmarked amount = balance × (the person's earmark % if entered, otherwise the default share for that kind) ÷ 100. List each distinct kind among non-property accounts whose earmarked amount is above zero; an account with no kind counts as 'other'.",
+   "rests_on": "The AssetAccount type: retirement_pct null/absent = use earmarkDefault; ordinary arithmetic.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-040",
+   "name": "assetsFromOnboarding",
+   "verdict": "WRONG",
+   "why": "The 'savings or portfolio' answer is always filed as taxable stocks and funds with a 7% target return. A household that answers with its savings — cash in a bank — gets that cash projected to grow at 7% a year as if it were invested in stocks. The 7% stock assumption is applied to money it should not touch.",
+   "should_be": "Map 'savings' to a cash account with the app's cash return assumption (not 7%), and only a portfolio answer to taxable stocks and funds at 7%. If one setup question cannot tell savings from a portfolio, split it into two questions or ask which it is; do not default cash into stocks.",
+   "rests_on": "Standard practice: cash and equities carry different expected returns; the cash return assumption is far below a 7% equity assumption.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-044",
+   "name": "getAssetsState",
+   "verdict": "INCOMPLETE",
+   "why": "It returns nothing when no accounts are saved, but is silent on a saved record whose account list is empty (everything deleted). If that is passed to buildAssetsState it returns a total of 0 and an invented 7% blended return — a default number where the honest answer is 'no answer'.",
+   "should_be": "Return nothing when there is no saved record OR the saved account list is empty; otherwise return buildAssetsState of the accounts.",
+   "rests_on": "Brief: a default number invented where the honest answer is 'no answer'; buildAssetsState's 7% fallback.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-053",
+   "name": "correctClassOf",
+   "verdict": "WRONG",
+   "why": "A money market account is sent to Stocks / Funds. A bank money market deposit account is an FDIC-insured bank deposit, and a money market fund is a cash equivalent; both are cash, not stocks. Filing them as Stocks / Funds overstates the stock share of the mix and pulls the wrong return assumption onto cash.",
+   "should_be": "Name evidence first; else Bonds & CDs if it has a maturity date; else Cash for a money market account or fund; else Bonds & CDs for a CD; else nothing.",
+   "rests_on": "FDIC: money market deposit accounts are insured deposits; FASB ASC 230 treats money market funds as cash equivalents.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-054",
+   "name": "reclassifyAccounts",
+   "verdict": "INCOMPLETE",
+   "why": "Two gaps. (1) The person's own asset-class answer is one of its inputs, yet the formula overwrites any account whose class differs from correctClassOf — including one the person set themselves and confirmed. (2) It does not say what counts as one change: an account whose class and tax bucket both change, and holdings inside it, could be 1, 2 or more.",
+   "should_be": "Skip any account whose class (or tax bucket) the person set and confirmed. Count one change per account or holding whose class actually changed; say explicitly whether the tax-bucket flip is counted separately (it should not be — it is part of the same correction).",
+   "rests_on": "The card's own input MK-XS-I-048 (the person's own asset-class answer); the type's rule that a user-confirmed wrapper is never overridden.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-056",
+   "name": "bondInfo",
+   "verdict": "WRONG",
+   "why": "'A missing figure counts as zero.' A bond with no coupon rate entered then shows a 0.00% current yield instead of a dash, and a CD entered with only a balance (no face value) gets face 0, which makes approxYTM a large negative yield. Accrued interest is rightly kept as 'not entered'; face, rate and value need the same treatment.",
+   "should_be": "Copy each figure as entered; keep face value, coupon rate and maturity as 'not entered' when missing (as accrued interest already is), so that each downstream figure refuses rather than computing from an invented zero.",
+   "rests_on": "Brief: something missing counted as zero; standard yield formulas are undefined without a face value or coupon.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-057",
+   "name": "annualCoupon",
+   "verdict": "RIGHT",
+   "why": "Annual coupon is face value × coupon rate; price does not enter it. The zero-for-missing problem sits in bondInfo (MK-NW-F-056), not here.",
+   "should_be": "",
+   "rests_on": "Standard bond definition: coupon = par × coupon rate.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-058",
+   "name": "yearsToMaturity",
+   "verdict": "RIGHT",
+   "why": "Days ÷ 365.25, floored at zero, with no answer for an invalid date, is a standard approximation. A maturity exactly one year away comes out at 0.9993 rather than 1, which no person will see once shown to one decimal.",
+   "should_be": "",
+   "rests_on": "Ordinary arithmetic; actual/365.25 day count.",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-059",
+   "name": "currentYield",
+   "verdict": "RIGHT",
+   "why": "Current yield is annual coupon ÷ clean price. Subtracting accrued interest (when known) from a dirty value gives the clean price, and refusing when that is zero or less is right.",
+   "should_be": "",
+   "rests_on": "Standard definition of current yield (coupon ÷ clean market price).",
+   "severity": ""
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "verdict": "WRONG",
+   "why": "The approximation itself is the standard one. But it uses the bond's value as entered, which includes accrued interest, while currentYield (MK-NW-F-059) subtracts accrued interest first. The two yields shown for one bond are worked on different prices; with accrued interest of $412 on a $25,000 bond the YTM falls from about 4.57% to 3.76%.",
+   "should_be": "(Yearly coupon + (face − clean price) ÷ years left) ÷ ((face + clean price) ÷ 2), where clean price = value − accrued interest when entered. Refuse with no maturity date, when matured, or when clean price is zero or less.",
+   "rests_on": "Standard approximate YTM formula, priced on clean price; consistency with MK-NW-F-059.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-061",
+   "name": "bondSummary",
+   "verdict": "WRONG",
+   "why": "Average yield = total coupon ÷ total value uses dirty values (accrued interest included), while currentYield (MK-NW-F-059) uses clean value. The summary's 'average yield' therefore disagrees with the value-weighted average of the per-bond current yields it sits above. Next maturity, counts and totals are right; 'not passed' correctly keeps a bond maturing today.",
+   "should_be": "Average yield = Σ(face × rate) ÷ Σ(value − accrued interest where entered); nothing when that divisor is zero or less. Label it as an average current yield, not yield to maturity.",
+   "rests_on": "Consistency with MK-NW-F-059; value-weighted average of current yields = Σcoupon ÷ Σclean value.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-062",
+   "name": "couponIncomeAnnual",
+   "verdict": "WRONG",
+   "why": "For a bond or CD with no face value entered (a CD typed in with just its balance and rate is common), this gives face × rate = 0, while interestIncomeAnnual (MK-NW-F-063) falls back to balance × rate for the same account. Two formulas for the same interest disagree, so the Bonds screen shows less interest than the income figure.",
+   "should_be": "Over bonds and CDs: face × rate when both are set; otherwise balance × rate when a rate is set; otherwise nothing — the same per-account rule as MK-NW-F-063.",
+   "rests_on": "Consistency between MK-NW-F-062 and MK-NW-F-063.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-063",
+   "name": "interestIncomeAnnual",
+   "verdict": "INCOMPLETE",
+   "why": "The per-account rules are sensible, but the formula is silent on a bond or CD that has already matured and is still listed: it keeps counting a year's interest that will never be paid. It is also silent on the uninvested cash inside a brokerage (cash_balance), which usually earns sweep interest.",
+   "should_be": "As written, but count nothing for a bond or CD whose maturity date has passed; say explicitly whether a brokerage's cash sleeve with a stated rate is included.",
+   "rests_on": "Ordinary finance: a matured bond pays no further coupons.",
+   "severity": "medium"
+  },
+  {
+   "id": "MK-NW-F-064",
+   "name": "bondRateSensitivity",
+   "verdict": "WRONG",
+   "why": "Three faults. (1) The change is measured as priceAtYield(new yield) − today's value. priceAtYield rounds the years to a whole number, so even at the current yield it does not reproduce today's value; the 'change' then mixes the rate move with that model error (a 4.4-year discount bond shows +$2,000/−$1,000 where the rate effect is about +$1,760/−$1,680). (2) Rounding the range and the change to the nearest $1,000 erases the answer for an ordinary bond: a $10,000 bond shows '$10,000–$10,000' and a change of $0. (3) The figure must refuse for a CD (founder, 2026-09-27), but nothing in the formula checks for a CD, and BondInfo carries no kind, so a CD gets an estimate. Owner rule DEC-0071 (donut labels) has nothing to do with this figure.",
+   "should_be": "Refuse for a CD, a matured bond, no coupon, or no maturity. Let y = approximate YTM. Change for a move of ±1 point = priceAtYield(y ± 0.01) − priceAtYield(y) (both on the same whole-year grid). New value = today's value + change. Range = new value × 0.99 to × 1.01. Round to a precision that scales with the bond (e.g. nearest $10, or three significant figures), not a fixed $1,000.",
+   "rests_on": "Standard practice: measure a price change with the same model at both yields; founder 2026-09-27 on CDs; ordinary arithmetic.",
+   "severity": "high"
+  },
+  {
+   "id": "MK-NW-F-065",
+   "name": "buildNetWorth",
+   "verdict": "RIGHT",
+   "why": "Net worth = total assets − total debt, returned with both totals, is the definition.",
+   "should_be": "",
+   "rests_on": "Ordinary arithmetic; definition of net worth.",
+   "severity": ""
+  }
+ ],
+ "cases": [
+  {
+   "id": "MK-NW-F-038",
+   "name": "earmarkedKinds",
+   "kind": "easy",
+   "title": "Two investment accounts, both fully earmarked",
+   "given": "A 401(k) of $100,000 and a brokerage of $50,000, each earmarked 100% for retirement.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "401k",
+      "balance": 100000,
+      "earmark_pct": 100
+     },
+     {
+      "kind": "brokerage",
+      "balance": 50000,
+      "earmark_pct": 100
+     }
+    ]
+   },
+   "expected": {
+    "kinds": [
+     "401k",
+     "brokerage"
+    ]
+   },
+   "working": [
+    "401(k): 100,000 × 100% = 100,000 > 0 → kept",
+    "Brokerage: 50,000 × 100% = 50,000 > 0 → kept",
+    "Distinct kinds = {401k, brokerage}"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Order of the list is not specified; compare as a set."
+  },
+  {
+   "id": "MK-NW-F-038",
+   "name": "earmarkedKinds",
+   "kind": "easy",
+   "title": "Property is left out even when earmarked",
+   "given": "A home worth $500,000 earmarked 100%, and a Roth IRA of $20,000 earmarked 100%.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "home",
+      "balance": 500000,
+      "earmark_pct": 100
+     },
+     {
+      "kind": "roth_ira",
+      "balance": 20000,
+      "earmark_pct": 100
+     }
+    ]
+   },
+   "expected": {
+    "kinds": [
+     "roth_ira"
+    ]
+   },
+   "working": [
+    "Home is property → excluded regardless of earmark",
+    "Roth IRA: 20,000 × 100% > 0 → kept",
+    "Result {roth_ira}"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-038",
+   "name": "earmarkedKinds",
+   "kind": "complex",
+   "title": "Broker-linked names, a kind repeated, a zero earmark, a rental and an account with no kind",
+   "given": "Linked 'Fidelity Investments Individual - TOD' (brokerage, $87,412.55, 40% earmarked); linked 'VANGUARD 401(K) PLAN' (401k, $312,908.10, 100%); a second brokerage $22,760.04 earmarked 0% (saved for a house); a rental property $410,000 earmarked 100%; a hand-entered account with no kind, $4,210.00, 75% earmarked.",
+   "inputs": {
+    "accounts": [
+     {
+      "label": "Fidelity Investments Individual - TOD",
+      "source": "connected",
+      "kind": "brokerage",
+      "balance": 87412.55,
+      "earmark_pct": 40
+     },
+     {
+      "label": "VANGUARD 401(K) PLAN",
+      "source": "connected",
+      "kind": "401k",
+      "balance": 312908.1,
+      "earmark_pct": 100
+     },
+     {
+      "label": "House fund",
+      "kind": "brokerage",
+      "balance": 22760.04,
+      "earmark_pct": 0
+     },
+     {
+      "label": "Rental on Ashworth",
+      "kind": "rental_property",
+      "balance": 410000,
+      "earmark_pct": 100
+     },
+     {
+      "label": "Misc",
+      "kind": null,
+      "balance": 4210.0,
+      "earmark_pct": 75
+     }
+    ]
+   },
+   "expected": {
+    "kinds": [
+     "brokerage",
+     "401k",
+     "other"
+    ]
+   },
+   "working": [
+    "Fidelity: 87,412.55 × 40% = 34,965.02 > 0 → brokerage",
+    "Vanguard: 312,908.10 × 100% > 0 → 401k",
+    "House fund: × 0% = 0 → not counted (but brokerage already present)",
+    "Rental: property → excluded",
+    "Misc: 4,210.00 × 75% = 3,157.50 > 0, no kind → other",
+    "Distinct = {brokerage, 401k, other}; brokerage appears once"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Compare as a set. Assumes a rental counts as property, as 'not property' implies."
+  },
+  {
+   "id": "MK-NW-F-038",
+   "name": "earmarkedKinds",
+   "kind": "complex",
+   "title": "Blank earmark on a 401(k), and a fully earmarked IRA with nothing in it",
+   "given": "A 401(k) of $186,240.37 whose earmark the person never set; a traditional IRA with $0 in it earmarked 100%; a checking account $6,118.92 earmarked 0%.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "401k",
+      "balance": 186240.37,
+      "earmark_pct": null
+     },
+     {
+      "kind": "ira",
+      "balance": 0,
+      "earmark_pct": 100
+     },
+     {
+      "kind": "checking",
+      "balance": 6118.92,
+      "earmark_pct": 0
+     }
+    ]
+   },
+   "expected": {
+    "kinds": [
+     "401k"
+    ]
+   },
+   "formula_gives": "Under the literal reading (blank earmark = 0): [] — an empty list, so the benchmark editor shows no kinds.",
+   "working": [
+    "401(k): earmark blank → use the default share for a 401(k) (a retirement account; any default above 0 gives an amount > 0) → kept",
+    "IRA: 0 × 100% = 0 → not above zero → left out",
+    "Checking: × 0% = 0 → left out",
+    "Result {401k}"
+   ],
+   "rests_on": "AssetAccount type comment (null earmark = default share); formula in words",
+   "confidence": "medium",
+   "notes": "Expected assumes the 401(k) default share is above zero, which is what a retirement account's default should be."
+  },
+  {
+   "id": "MK-NW-F-038",
+   "name": "earmarkedKinds",
+   "kind": "edge",
+   "title": "Nothing entered",
+   "given": "No accounts at all.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "kinds": []
+   },
+   "working": [
+    "No accounts → no kinds → empty list"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-040",
+   "name": "assetsFromOnboarding",
+   "kind": "easy",
+   "title": "Only traditional retirement savings answered",
+   "given": "Setup answer: traditional retirement savings $120,000. Everything else blank.",
+   "inputs": {
+    "traditional_retirement": 120000,
+    "roth_retirement": null,
+    "investment_holdings": null,
+    "savings_or_portfolio": null
+   },
+   "expected": {
+    "accounts": [
+     {
+      "type": "401(k)",
+      "tax": "pre-tax",
+      "balance": {
+       "exact": 120000.0,
+       "shown": "$120,000"
+      },
+      "target_return": 0.07
+     }
+    ],
+    "account_count": 1
+   },
+   "working": [
+    "Traditional 120,000 → pre-tax 401(k), 7%",
+    "Others blank → skipped",
+    "1 account"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-040",
+   "name": "assetsFromOnboarding",
+   "kind": "easy",
+   "title": "A typed zero is kept, a blank is not",
+   "given": "Roth retirement savings typed as 0. Everything else blank.",
+   "inputs": {
+    "traditional_retirement": null,
+    "roth_retirement": 0,
+    "investment_holdings": null,
+    "savings_or_portfolio": null
+   },
+   "expected": {
+    "accounts": [
+     {
+      "type": "Roth IRA",
+      "tax": "Roth",
+      "balance": {
+       "exact": 0.0,
+       "shown": "$0"
+      },
+      "target_return": 0.07
+     }
+    ],
+    "account_count": 1
+   },
+   "working": [
+    "Roth = 0 typed → kept (not below zero)",
+    "Blanks skipped",
+    "1 account at $0"
+   ],
+   "rests_on": "Formula in words: 'a typed 0 is kept'",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-040",
+   "name": "assetsFromOnboarding",
+   "kind": "complex",
+   "title": "Three answers, unround amounts, the sum matches what was typed",
+   "given": "Traditional $284,350.62; Roth $41,880.15; investment holdings $63,207.90; savings or portfolio left blank.",
+   "inputs": {
+    "traditional_retirement": 284350.62,
+    "roth_retirement": 41880.15,
+    "investment_holdings": 63207.9,
+    "savings_or_portfolio": null
+   },
+   "expected": {
+    "accounts": [
+     {
+      "type": "401(k)",
+      "tax": "pre-tax",
+      "balance": {
+       "exact": 284350.62,
+       "shown": "$284,351"
+      },
+      "target_return": 0.07
+     },
+     {
+      "type": "Roth IRA",
+      "tax": "Roth",
+      "balance": {
+       "exact": 41880.15,
+       "shown": "$41,880"
+      },
+      "target_return": 0.07
+     },
+     {
+      "type": "stocks and funds",
+      "tax": "taxable",
+      "balance": {
+       "exact": 63207.9,
+       "shown": "$63,208"
+      },
+      "target_return": 0.07
+     }
+    ],
+    "account_count": 3,
+    "total_of_accounts": {
+     "exact": 389438.67,
+     "shown": "$389,439"
+    }
+   },
+   "working": [
+    "Traditional → 401(k) 284,350.62",
+    "Roth → Roth IRA 41,880.15",
+    "Investments → taxable stocks/funds 63,207.90",
+    "Savings blank → skipped",
+    "Total = 284,350.62 + 41,880.15 + 63,207.90 = 389,438.67",
+    "Every account marked as seeded from onboarding"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-040",
+   "name": "assetsFromOnboarding",
+   "kind": "complex",
+   "title": "Bank savings answered alongside retirement savings",
+   "given": "Traditional retirement $152,000; savings or portfolio $38,500, which the person says is the emergency fund in a high-yield savings account. Roth and investments blank.",
+   "inputs": {
+    "traditional_retirement": 152000,
+    "roth_retirement": null,
+    "investment_holdings": null,
+    "savings_or_portfolio": 38500,
+    "what_the_savings_is": "cash in a bank savings account"
+   },
+   "expected": {
+    "accounts": [
+     {
+      "type": "401(k)",
+      "tax": "pre-tax",
+      "balance": {
+       "exact": 152000,
+       "shown": "$152,000"
+      },
+      "target_return": 0.07
+     },
+     {
+      "type": "cash savings",
+      "asset_class": "Cash",
+      "tax": "taxable",
+      "balance": {
+       "exact": 38500,
+       "shown": "$38,500"
+      },
+      "target_return": "the app's cash assumption — not 0.07"
+     }
+    ],
+    "projected_growth_on_savings_first_year_at_7pct_would_be_wrong_by": {
+     "exact": 2695.0,
+     "shown": "$2,695 (if cash earned 0%)"
+    }
+   },
+   "formula_gives": {
+    "accounts": [
+     {
+      "type": "401(k)",
+      "balance": 152000,
+      "target_return": 0.07
+     },
+     {
+      "type": "stocks and funds",
+      "tax": "taxable",
+      "balance": 38500,
+      "target_return": 0.07
+     }
+    ]
+   },
+   "working": [
+    "401(k) as usual",
+    "Savings 38,500 is cash; it should not carry a 7% equity return",
+    "At 7%, the projection adds 38,500 × 0.07 = 2,695 in year one that cash will not earn"
+   ],
+   "rests_on": "Standard practice: cash and equity return assumptions differ",
+   "confidence": "medium",
+   "notes": "The setup question is labelled 'savings or portfolio', so the formula cannot tell which the person meant; this case states it is savings."
+  },
+  {
+   "id": "MK-NW-F-040",
+   "name": "assetsFromOnboarding",
+   "kind": "edge",
+   "title": "A negative answer is skipped, a zero answer is kept",
+   "given": "Traditional retirement typed as −5,000 (mistake); investment holdings typed 0; others blank.",
+   "inputs": {
+    "traditional_retirement": -5000,
+    "roth_retirement": null,
+    "investment_holdings": 0,
+    "savings_or_portfolio": null
+   },
+   "expected": {
+    "accounts": [
+     {
+      "type": "stocks and funds",
+      "tax": "taxable",
+      "balance": {
+       "exact": 0.0,
+       "shown": "$0"
+      },
+      "target_return": 0.07
+     }
+    ],
+    "account_count": 1
+   },
+   "working": [
+    "−5,000 is below zero → skipped",
+    "0 → kept",
+    "1 account at $0"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "With no answers at all (op null) the result should be an empty account list."
+  },
+  {
+   "id": "MK-NW-F-044",
+   "name": "getAssetsState",
+   "kind": "easy",
+   "title": "One account",
+   "given": "One saved account: $100,000 at a 7% target return.",
+   "inputs": {
+    "accounts": [
+     {
+      "balance": 100000,
+      "target_return": 0.07
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 100000,
+     "shown": "$100,000"
+    },
+    "shares_pct": [
+     {
+      "exact": 100.0,
+      "shown": "100.00%"
+     }
+    ],
+    "avg_target_return": {
+     "exact": 0.07,
+     "shown": "7.00%"
+    }
+   },
+   "working": [
+    "Total = 100,000",
+    "Share = 100,000 ÷ 100,000 × 100 = 100",
+    "Average = 0.07 × 100,000 ÷ 100,000 = 7%"
+   ],
+   "rests_on": "buildAssetsState formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-044",
+   "name": "getAssetsState",
+   "kind": "easy",
+   "title": "Nothing saved",
+   "given": "The person has never saved any accounts.",
+   "inputs": {
+    "saved_record": null
+   },
+   "expected": "REFUSES",
+   "working": [
+    "No saved accounts → nothing returned; the screen shows a dash"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Reason: no accounts saved."
+  },
+  {
+   "id": "MK-NW-F-044",
+   "name": "getAssetsState",
+   "kind": "complex",
+   "title": "Three accounts at different return assumptions",
+   "given": "401(k) $254,318.40 at 7%; Roth IRA $86,250.75 at 6.5%; bond fund $31,430.85 at 4%.",
+   "inputs": {
+    "accounts": [
+     {
+      "balance": 254318.4,
+      "target_return": 0.07
+     },
+     {
+      "balance": 86250.75,
+      "target_return": 0.065
+     },
+     {
+      "balance": 31430.85,
+      "target_return": 0.04
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 372000.0,
+     "shown": "$372,000"
+    },
+    "shares_pct": [
+     {
+      "exact": 68.3652,
+      "shown": "68.37%"
+     },
+     {
+      "exact": 23.1857,
+      "shown": "23.19%"
+     },
+     {
+      "exact": 8.4492,
+      "shown": "8.45%"
+     }
+    ],
+    "avg_target_return": {
+     "exact": 0.066306,
+     "shown": "6.63%"
+    }
+   },
+   "working": [
+    "Total = 254,318.40 + 86,250.75 + 31,430.85 = 372,000.00",
+    "Share = 254,318.40 ÷ 372,000.00 × 100 = 68.3652",
+    "Share = 86,250.75 ÷ 372,000.00 × 100 = 23.1857",
+    "Share = 31,430.85 ÷ 372,000.00 × 100 = 8.4492",
+    "Shares sum = 100.0000 (shown values 68.37+23.19+8.45 = 100.01 from display rounding only)",
+    "Weighted = 254,318.40×0.07 + 86,250.75×0.065 + 31,430.85×0.04 = 17,802.288 + 5,606.29875 + 1,257.234 = 24,665.82075",
+    "Average = 24,665.82075 ÷ 372,000.00 = 0.066306"
+   ],
+   "rests_on": "buildAssetsState formula",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-044",
+   "name": "getAssetsState",
+   "kind": "complex",
+   "title": "A home, two investment accounts and a closed account at $0",
+   "given": "Linked 401(k) $401,227.63 at 7%; brokerage $158,904.12 at 7% (cash sleeve included in its balance); home $650,000 at 3.5%; a closed account showing $0 at 7%.",
+   "inputs": {
+    "accounts": [
+     {
+      "label": "401(k)",
+      "balance": 401227.63,
+      "target_return": 0.07
+     },
+     {
+      "label": "Brokerage (cash + funds)",
+      "balance": 158904.12,
+      "target_return": 0.07
+     },
+     {
+      "label": "Home",
+      "balance": 650000,
+      "target_return": 0.035
+     },
+     {
+      "label": "Old IRA",
+      "status": "closed",
+      "balance": 0,
+      "target_return": 0.07
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 1210131.75,
+     "shown": "$1,210,132"
+    },
+    "shares_pct": [
+     {
+      "exact": 33.1557,
+      "shown": "33.16%"
+     },
+     {
+      "exact": 13.1311,
+      "shown": "13.13%"
+     },
+     {
+      "exact": 53.7132,
+      "shown": "53.71%"
+     },
+     {
+      "exact": 0.0,
+      "shown": "0.00%"
+     }
+    ],
+    "avg_target_return": {
+     "exact": 0.0512,
+     "shown": "5.12%"
+    }
+   },
+   "working": [
+    "Total = 401,227.63 + 158,904.12 + 650,000 + 0 = 1,210,131.75",
+    "Share = 401,227.63 ÷ 1,210,131.75 × 100 = 33.1557",
+    "Share = 158,904.12 ÷ 1,210,131.75 × 100 = 13.1311",
+    "Share = 650,000.00 ÷ 1,210,131.75 × 100 = 53.7132",
+    "Share = 0.00 ÷ 1,210,131.75 × 100 = 0.0000",
+    "Weighted = (401,227.63 + 158,904.12)×0.07 + 650,000×0.035 = 39,209.2225 + 22,750 = 61,959.2225",
+    "Average = 61,959.2225 ÷ 1,210,131.75 = 0.051200",
+    "The closed account is shown at 0 and moves no number"
+   ],
+   "rests_on": "buildAssetsState formula",
+   "confidence": "high",
+   "notes": "This total is the gross-assets figure used in the buildNetWorth complex case (MK-NW-F-065); the two should match."
+  },
+  {
+   "id": "MK-NW-F-044",
+   "name": "getAssetsState",
+   "kind": "edge",
+   "title": "A saved record with every account deleted",
+   "given": "The person saved accounts once, then deleted all of them; the saved record exists with an empty list.",
+   "inputs": {
+    "saved_record": {
+     "accounts": []
+    }
+   },
+   "expected": "REFUSES",
+   "formula_gives": {
+    "total": 0,
+    "shares_pct": [],
+    "avg_target_return": 0.07
+   },
+   "working": [
+    "No accounts → no total to show and no blend of returns to make"
+   ],
+   "rests_on": "Brief rule: no invented default where the honest answer is 'no answer'",
+   "confidence": "medium",
+   "notes": "Reason: no accounts. The formula's 'none saved' may or may not cover an empty saved list."
+  },
+  {
+   "id": "MK-NW-F-053",
+   "name": "correctClassOf",
+   "kind": "easy",
+   "title": "A CD with no maturity date entered",
+   "given": "Account 'Ally 12-month CD', kind CD, no maturity date.",
+   "inputs": {
+    "label": "Ally 12-month CD",
+    "kind": "cd",
+    "maturity_date": null
+   },
+   "expected": {
+    "class": "Bonds & CDs"
+   },
+   "working": [
+    "Name says CD → Bonds & CDs; failing that, the kind CD rule gives Bonds & CDs too"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-053",
+   "name": "correctClassOf",
+   "kind": "easy",
+   "title": "A maturity date with a plain name",
+   "given": "Account named 'My account', kind brokerage, maturity date 2029-05-15.",
+   "inputs": {
+    "label": "My account",
+    "kind": "brokerage",
+    "maturity_date": "2029-05-15"
+   },
+   "expected": {
+    "class": "Bonds & CDs"
+   },
+   "working": [
+    "Name gives no evidence",
+    "Has a maturity date → Bonds & CDs"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-053",
+   "name": "correctClassOf",
+   "kind": "complex",
+   "title": "Bank money market account",
+   "given": "Hand-entered 'Ally Money Market Account', kind money market, tax bucket cash, balance $24,615.08, no maturity date.",
+   "inputs": {
+    "label": "Ally Money Market Account",
+    "kind": "money_market",
+    "tax_bucket": "cash",
+    "balance": 24615.08,
+    "maturity_date": null
+   },
+   "expected": {
+    "class": "Cash"
+   },
+   "formula_gives": {
+    "class": "Stocks / Funds"
+   },
+   "working": [
+    "No maturity date",
+    "It is a bank money market deposit account — an insured deposit → Cash"
+   ],
+   "rests_on": "FDIC deposit insurance coverage of money market deposit accounts",
+   "confidence": "medium",
+   "notes": "If the name rule already treats 'money market' as evidence for Cash, the formula agrees; if not, it falls to the money-market rule below."
+  },
+  {
+   "id": "MK-NW-F-053",
+   "name": "correctClassOf",
+   "kind": "complex",
+   "title": "A Treasury described the way a broker link describes it",
+   "given": "Linked holding 'US TREASURY NOTE 4.25% 15MAY2029 912828ZT0', kind brokerage, maturity 2029-05-15, currently filed as Stocks / Funds.",
+   "inputs": {
+    "label": "US TREASURY NOTE 4.25% 15MAY2029 912828ZT0",
+    "source": "connected",
+    "kind": "brokerage",
+    "maturity_date": "2029-05-15",
+    "current_class": "Stocks / Funds"
+   },
+   "expected": {
+    "class": "Bonds & CDs"
+   },
+   "working": [
+    "Name ('TREASURY NOTE') is evidence for bonds → Bonds & CDs",
+    "Maturity date agrees"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-053",
+   "name": "correctClassOf",
+   "kind": "edge",
+   "title": "No evidence of any kind",
+   "given": "Account 'Rainy day', no kind, no maturity date.",
+   "inputs": {
+    "label": "Rainy day",
+    "kind": null,
+    "maturity_date": null
+   },
+   "expected": {
+    "class": null
+   },
+   "working": [
+    "No name evidence, no date, not money market, not a CD → nothing to correct"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-054",
+   "name": "reclassifyAccounts",
+   "kind": "easy",
+   "title": "One CD filed as stocks",
+   "given": "'Ally 12-month CD' filed as Stocks / Funds, tax bucket taxable.",
+   "inputs": {
+    "accounts": [
+     {
+      "label": "Ally 12-month CD",
+      "kind": "cd",
+      "class": "Stocks / Funds",
+      "tax_bucket": "taxable"
+     }
+    ]
+   },
+   "expected": {
+    "accounts": [
+     {
+      "label": "Ally 12-month CD",
+      "class": "Bonds & CDs",
+      "tax_bucket": "taxable"
+     }
+    ],
+    "changed": 1
+   },
+   "working": [
+    "correctClassOf → Bonds & CDs ≠ Stocks / Funds → change",
+    "Bucket already taxable → stays",
+    "1 change"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-054",
+   "name": "reclassifyAccounts",
+   "kind": "easy",
+   "title": "Nothing to change",
+   "given": "A Treasury note already filed as Bonds & CDs.",
+   "inputs": {
+    "accounts": [
+     {
+      "label": "US Treasury 2029",
+      "maturity_date": "2029-05-15",
+      "class": "Bonds & CDs",
+      "tax_bucket": "taxable"
+     }
+    ]
+   },
+   "expected": {
+    "accounts": "unchanged",
+    "changed": 0
+   },
+   "working": [
+    "correctClassOf → Bonds & CDs = current → no change",
+    "0 changes"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-054",
+   "name": "reclassifyAccounts",
+   "kind": "complex",
+   "title": "An account and its holdings all filed wrongly, broker wording",
+   "given": "Linked 'Schwab Treasury Ladder' filed as Cash with a cash tax bucket, maturity 2030-08-15. Inside it: 'ISHARES 20+ YEAR TREASURY BOND ETF' filed as stock; 'VANGUARD TOTAL STOCK MKT ETF' filed as bond; 'SCHWAB VALUE ADVANTAGE MONEY INV' (a money fund) filed as cash.",
+   "inputs": {
+    "accounts": [
+     {
+      "label": "Schwab Treasury Ladder",
+      "source": "connected",
+      "class": "Cash",
+      "tax_bucket": "cash",
+      "maturity_date": "2030-08-15",
+      "holdings": [
+       {
+        "name": "ISHARES 20+ YEAR TREASURY BOND ETF",
+        "type": "stock"
+       },
+       {
+        "name": "VANGUARD TOTAL STOCK MKT ETF",
+        "type": "bond"
+       },
+       {
+        "name": "SCHWAB VALUE ADVANTAGE MONEY INV",
+        "type": "cash"
+       }
+      ]
+     }
+    ]
+   },
+   "expected": {
+    "accounts": [
+     {
+      "label": "Schwab Treasury Ladder",
+      "class": "Bonds & CDs",
+      "tax_bucket": "taxable",
+      "holdings": [
+       {
+        "name": "ISHARES 20+ YEAR TREASURY BOND ETF",
+        "type": "bond"
+       },
+       {
+        "name": "VANGUARD TOTAL STOCK MKT ETF",
+        "type": "stock or fund"
+       },
+       {
+        "name": "SCHWAB VALUE ADVANTAGE MONEY INV",
+        "type": "cash"
+       }
+      ]
+     }
+    ],
+    "changed": "RULE UNCLEAR — reading A (each account or holding whose class changed): 3; reading B (accounts only): 1; reading C (bucket flip counted separately as well): 4"
+   },
+   "working": [
+    "Account: correctClassOf → Bonds & CDs ≠ Cash → change; bucket cash → taxable because new class is not cash",
+    "Bond ETF: name evidence bonds → bond (was stock) → change",
+    "Stock ETF: evidence stocks → stock or fund (was bond) → change",
+    "Money fund: evidence cash → left as is",
+    "Changes: 1 account + 2 holdings"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "medium",
+   "notes": "The card does not say how 'changes' are counted; reading A is the one I believe is right."
+  },
+  {
+   "id": "MK-NW-F-054",
+   "name": "reclassifyAccounts",
+   "kind": "complex",
+   "title": "The person confirmed their money fund as cash",
+   "given": "Hand-entered 'Fidelity Money Market', kind money market, filed as Cash with a cash tax bucket. The person answered the asset-class question themselves ('Cash') and confirmed it. Balance $41,906.33.",
+   "inputs": {
+    "accounts": [
+     {
+      "label": "Fidelity Money Market",
+      "kind": "money_market",
+      "class": "Cash",
+      "tax_bucket": "cash",
+      "person_answered_class": "Cash",
+      "confirmed_by_person": true,
+      "balance": 41906.33
+     }
+    ]
+   },
+   "expected": {
+    "accounts": "unchanged — class Cash, bucket cash",
+    "changed": 0
+   },
+   "formula_gives": {
+    "accounts": [
+     {
+      "label": "Fidelity Money Market",
+      "class": "Stocks / Funds",
+      "tax_bucket": "taxable"
+     }
+    ],
+    "changed": 1
+   },
+   "working": [
+    "The person's own answer stands; nothing is overwritten",
+    "0 changes"
+   ],
+   "rests_on": "Card input MK-XS-I-048; the type's rule that a user-confirmed setting is never overridden",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-054",
+   "name": "reclassifyAccounts",
+   "kind": "edge",
+   "title": "Nothing entered",
+   "given": "No accounts.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "accounts": [],
+    "changed": 0
+   },
+   "working": [
+    "Nothing to check → empty list, 0 changes"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-056",
+   "name": "bondInfo",
+   "kind": "easy",
+   "title": "A complete bond",
+   "given": "Face $10,000, rate 5%, matures 2030-10-07, balance $10,000, no accrued interest entered.",
+   "inputs": {
+    "face": 10000,
+    "coupon_rate": 0.05,
+    "maturity": "2030-10-07",
+    "balance": 10000,
+    "accrued_interest": null
+   },
+   "expected": {
+    "face": 10000,
+    "couponRate": 0.05,
+    "maturity": "2030-10-07",
+    "value": 10000,
+    "accruedInterest": "not entered (null)"
+   },
+   "working": [
+    "Copied as entered; accrued left as not entered"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-056",
+   "name": "bondInfo",
+   "kind": "easy",
+   "title": "Accrued interest entered as zero",
+   "given": "Same bond, accrued interest typed as 0 (a coupon was just paid).",
+   "inputs": {
+    "face": 10000,
+    "coupon_rate": 0.05,
+    "maturity": "2030-10-07",
+    "balance": 10000,
+    "accrued_interest": 0
+   },
+   "expected": {
+    "face": 10000,
+    "couponRate": 0.05,
+    "maturity": "2030-10-07",
+    "value": 10000,
+    "accruedInterest": 0
+   },
+   "working": [
+    "A typed 0 is entered, so it is kept as 0, not as 'not entered'"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-056",
+   "name": "bondInfo",
+   "kind": "complex",
+   "title": "Broker-reported bond with accrued interest",
+   "given": "Linked holding: face $25,000, coupon 4.375%, maturity 2028-11-15, balance (dirty value) $25,312.48, accrued interest $412.33.",
+   "inputs": {
+    "face": 25000,
+    "coupon_rate": 0.04375,
+    "maturity": "2028-11-15",
+    "balance": 25312.48,
+    "accrued_interest": 412.33,
+    "source": "connected"
+   },
+   "expected": {
+    "face": 25000,
+    "couponRate": 0.04375,
+    "maturity": "2028-11-15",
+    "value": 25312.48,
+    "accruedInterest": 412.33
+   },
+   "working": [
+    "All five copied unchanged"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-056",
+   "name": "bondInfo",
+   "kind": "complex",
+   "title": "A CD entered with only a balance and a rate",
+   "given": "Hand-entered CD: balance $20,000, rate 4.5%, matures 2027-06-30, face value not entered.",
+   "inputs": {
+    "face": null,
+    "coupon_rate": 0.045,
+    "maturity": "2027-06-30",
+    "balance": 20000,
+    "accrued_interest": null
+   },
+   "expected": {
+    "face": "not entered (null)",
+    "couponRate": 0.045,
+    "maturity": "2027-06-30",
+    "value": 20000,
+    "accruedInterest": "not entered (null)",
+    "downstream_approxYTM": "REFUSES (no face value)"
+   },
+   "formula_gives": {
+    "face": 0,
+    "couponRate": 0.045,
+    "maturity": "2027-06-30",
+    "value": 20000,
+    "accruedInterest": null,
+    "downstream_approxYTM": -2.746241
+   },
+   "working": [
+    "Face is missing → keep as not entered",
+    "If face became 0, approxYTM: coupon = 0 × 0.045 = 0 → (0 + (0 − 20,000) ÷ 0.728268) ÷ ((0 + 20,000) ÷ 2) = -2.746241, a nonsense negative yield"
+   ],
+   "rests_on": "Brief: missing must not be counted as zero",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-056",
+   "name": "bondInfo",
+   "kind": "edge",
+   "title": "No coupon rate entered",
+   "given": "Bond: face $50,000, balance $49,100, maturity 2029-01-15, coupon rate left blank.",
+   "inputs": {
+    "face": 50000,
+    "coupon_rate": null,
+    "maturity": "2029-01-15",
+    "balance": 49100,
+    "accrued_interest": null
+   },
+   "expected": {
+    "face": 50000,
+    "couponRate": "not entered (null)",
+    "maturity": "2029-01-15",
+    "value": 49100,
+    "accruedInterest": "not entered (null)",
+    "downstream_currentYield": "REFUSES (no coupon rate)"
+   },
+   "formula_gives": {
+    "face": 50000,
+    "couponRate": 0,
+    "value": 49100,
+    "downstream_currentYield": {
+     "exact": 0.0,
+     "shown": "0.00%"
+    }
+   },
+   "working": [
+    "Rate missing → not entered",
+    "So the current yield screen shows a dash, not 0.00%"
+   ],
+   "rests_on": "Brief: missing must not be counted as zero",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-057",
+   "name": "annualCoupon",
+   "kind": "easy",
+   "title": "Par bond",
+   "given": "Face $10,000, rate 5%.",
+   "inputs": {
+    "face": 10000,
+    "coupon_rate": 0.05
+   },
+   "expected": {
+    "exact": 500,
+    "shown": "$500"
+   },
+   "working": [
+    "10,000 × 0.05 = 500"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-057",
+   "name": "annualCoupon",
+   "kind": "easy",
+   "title": "Zero-coupon bond",
+   "given": "Face $20,000, rate 0%.",
+   "inputs": {
+    "face": 20000,
+    "coupon_rate": 0
+   },
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "working": [
+    "20,000 × 0 = 0"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-057",
+   "name": "annualCoupon",
+   "kind": "complex",
+   "title": "Bond held above face with accrued interest",
+   "given": "Face $25,000, rate 4.375%, value $25,312.48, accrued $412.33.",
+   "inputs": {
+    "face": 25000,
+    "coupon_rate": 0.04375,
+    "value": 25312.48,
+    "accrued": 412.33
+   },
+   "expected": {
+    "exact": 1093.75,
+    "shown": "$1,094"
+   },
+   "working": [
+    "25,000 × 0.04375 = 1,093.75",
+    "Value and accrued do not enter"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-057",
+   "name": "annualCoupon",
+   "kind": "complex",
+   "title": "Bond bought at a discount",
+   "given": "Face $50,000, rate 2.5%, value $46,180, matures 2031-03-01.",
+   "inputs": {
+    "face": 50000,
+    "coupon_rate": 0.025,
+    "value": 46180,
+    "maturity": "2031-03-01"
+   },
+   "expected": {
+    "exact": 1250,
+    "shown": "$1,250"
+   },
+   "working": [
+    "50,000 × 0.025 = 1,250 — on face, not on the 46,180 value"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-057",
+   "name": "annualCoupon",
+   "kind": "edge",
+   "title": "A defaulted bond worth nothing",
+   "given": "Face $10,000, rate 6%, value $0.",
+   "inputs": {
+    "face": 10000,
+    "coupon_rate": 0.06,
+    "value": 0
+   },
+   "expected": {
+    "exact": 600,
+    "shown": "$600"
+   },
+   "working": [
+    "10,000 × 0.06 = 600 — the stated coupon, regardless of value"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "medium",
+   "notes": "Whether a bond priced at $0 should still show its promised coupon is a product question; the formula as specified gives 600."
+  },
+  {
+   "id": "MK-NW-F-058",
+   "name": "yearsToMaturity",
+   "kind": "easy",
+   "title": "Exactly one year away, to the day",
+   "given": "Today 2026-10-07; maturity 2027-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "maturity": "2027-10-07"
+   },
+   "expected": {
+    "exact": 0.999316,
+    "shown": "1.0 years"
+   },
+   "working": [
+    "Days from 2026-10-07 to 2027-10-07 = 365",
+    "365 ÷ 365.25 = 0.999316"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-058",
+   "name": "yearsToMaturity",
+   "kind": "complex",
+   "title": "Exactly two years away, over a leap day",
+   "given": "Today 2026-10-07; maturity 2028-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "maturity": "2028-10-07"
+   },
+   "expected": {
+    "exact": 2.001369,
+    "shown": "2.0 years"
+   },
+   "working": [
+    "Days from 2026-10-07 to 2028-10-07 = 731",
+    "731 ÷ 365.25 = 2.001369"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-058",
+   "name": "yearsToMaturity",
+   "kind": "complex",
+   "title": "Unround date",
+   "given": "Today 2026-10-07; maturity 2028-11-15.",
+   "inputs": {
+    "today": "2026-10-07",
+    "maturity": "2028-11-15"
+   },
+   "expected": {
+    "exact": 2.108145,
+    "shown": "2.1 years"
+   },
+   "working": [
+    "Days from 2026-10-07 to 2028-11-15 = 770",
+    "770 ÷ 365.25 = 2.108145"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-058",
+   "name": "yearsToMaturity",
+   "kind": "easy",
+   "title": "Matures today",
+   "given": "Today and maturity both 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "maturity": "2026-10-07"
+   },
+   "expected": {
+    "exact": 0.0,
+    "shown": "0.0 years"
+   },
+   "working": [
+    "0 days ÷ 365.25 = 0"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "A date already passed also gives 0 (never below zero)."
+  },
+  {
+   "id": "MK-NW-F-058",
+   "name": "yearsToMaturity",
+   "kind": "edge",
+   "title": "No date",
+   "given": "Maturity left blank.",
+   "inputs": {
+    "today": "2026-10-07",
+    "maturity": ""
+   },
+   "expected": "REFUSES",
+   "working": [
+    "No valid date → nothing"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Reason: no maturity date."
+  },
+  {
+   "id": "MK-NW-F-059",
+   "name": "currentYield",
+   "kind": "easy",
+   "title": "Par bond",
+   "given": "Coupon $500 a year; value $10,000; no accrued.",
+   "inputs": {
+    "face": 10000,
+    "coupon_rate": 0.05,
+    "value": 10000,
+    "accrued": null
+   },
+   "expected": {
+    "exact": 0.05,
+    "shown": "5.00%"
+   },
+   "working": [
+    "500 ÷ 10,000 = 0.05"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-059",
+   "name": "currentYield",
+   "kind": "easy",
+   "title": "Value of zero",
+   "given": "Coupon $600; value $0.",
+   "inputs": {
+    "face": 10000,
+    "coupon_rate": 0.06,
+    "value": 0,
+    "accrued": null
+   },
+   "expected": "REFUSES",
+   "working": [
+    "Divisor 0 → no answer"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Reason: no value to divide by."
+  },
+  {
+   "id": "MK-NW-F-059",
+   "name": "currentYield",
+   "kind": "complex",
+   "title": "Dirty value with accrued interest",
+   "given": "Face $25,000, rate 4.375%, value $25,312.48, accrued $412.33.",
+   "inputs": {
+    "face": 25000,
+    "coupon_rate": 0.04375,
+    "value": 25312.48,
+    "accrued": 412.33
+   },
+   "expected": {
+    "exact": 0.043925,
+    "shown": "4.39%"
+   },
+   "working": [
+    "Coupon = 25,000 × 0.04375 = 1,093.75",
+    "Clean = 25,312.48 − 412.33 = 24,900.15",
+    "1,093.75 ÷ 24,900.15 = 0.043925"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-059",
+   "name": "currentYield",
+   "kind": "complex",
+   "title": "Discount bond, no accrued entered",
+   "given": "Face $50,000, rate 2.5%, value $46,180, maturity 2031-03-01.",
+   "inputs": {
+    "face": 50000,
+    "coupon_rate": 0.025,
+    "value": 46180,
+    "accrued": null
+   },
+   "expected": {
+    "exact": 0.027068,
+    "shown": "2.71%"
+   },
+   "working": [
+    "Coupon = 1,250",
+    "1,250 ÷ 46,180 = 0.027068"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-059",
+   "name": "currentYield",
+   "kind": "edge",
+   "title": "Accrued equals the whole value",
+   "given": "Face $10,000, rate 5%, value $412.33, accrued $412.33.",
+   "inputs": {
+    "face": 10000,
+    "coupon_rate": 0.05,
+    "value": 412.33,
+    "accrued": 412.33
+   },
+   "expected": "REFUSES",
+   "working": [
+    "Divisor = 412.33 − 412.33 = 0 → no answer"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Reason: clean value is zero."
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "easy",
+   "title": "Par bond, four years",
+   "given": "Face $10,000, rate 5%, value $10,000, matures 2030-10-07; today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 10000,
+    "coupon_rate": 0.05,
+    "value": 10000,
+    "maturity": "2030-10-07"
+   },
+   "expected": {
+    "exact": 0.05,
+    "shown": "5.00%"
+   },
+   "working": [
+    "Years = 1,461 ÷ 365.25 = 4.0",
+    "(500 + 0 ÷ 4) ÷ ((10,000 + 10,000) ÷ 2) = 500 ÷ 10,000 = 0.05"
+   ],
+   "rests_on": "Standard approximate YTM",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "easy",
+   "title": "Matured",
+   "given": "Face $10,000, rate 5%, value $10,000, matured 2026-09-30.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 10000,
+    "coupon_rate": 0.05,
+    "value": 10000,
+    "maturity": "2026-09-30"
+   },
+   "expected": "REFUSES",
+   "working": [
+    "Matured → no answer"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Reason: bond has matured."
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "complex",
+   "title": "Accrued interest entered",
+   "given": "Face $25,000, rate 4.375%, value $25,312.48, accrued $412.33, matures 2028-11-15; today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 25000,
+    "coupon_rate": 0.04375,
+    "value": 25312.48,
+    "accrued": 412.33,
+    "maturity": "2028-11-15"
+   },
+   "expected": {
+    "exact": 0.045736,
+    "shown": "4.57%"
+   },
+   "formula_gives": {
+    "exact": 0.037586,
+    "shown": "3.76%"
+   },
+   "working": [
+    "Years = 770 ÷ 365.25 = 2.108145",
+    "Clean = 24,900.15",
+    "(25,000 − 24,900.15) ÷ 2.108145 = 47.363912",
+    "Numerator = 1,093.75 + 47.363912 = 1141.113912",
+    "Denominator = (25,000 + 24,900.15) ÷ 2 = 24,950.075",
+    "YTM = 0.045736",
+    "Formula on dirty value: (1,093.75 + (−312.48 ÷ 2.108145)) ÷ 25,156.24 = 0.037586"
+   ],
+   "rests_on": "Standard approximate YTM on clean price; consistency with MK-NW-F-059",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "complex",
+   "title": "Discount bond",
+   "given": "Face $50,000, rate 2.5%, value $46,180, matures 2031-03-01; today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 50000,
+    "coupon_rate": 0.025,
+    "value": 46180,
+    "maturity": "2031-03-01"
+   },
+   "expected": {
+    "exact": 0.044059,
+    "shown": "4.41%"
+   },
+   "working": [
+    "Years = 1,606 ÷ 365.25 = 4.396988",
+    "(50,000 − 46,180) ÷ 4.396988 = 868.776463",
+    "Numerator = 1,250 + 868.776463 = 2118.776463",
+    "Denominator = 96,180 ÷ 2 = 48,090",
+    "YTM = 0.044059"
+   ],
+   "rests_on": "Standard approximate YTM",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-060",
+   "name": "approxYTM",
+   "kind": "edge",
+   "title": "Matures exactly today",
+   "given": "Face $10,000, rate 5%, value $10,000, maturity 2026-10-07 = today.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 10000,
+    "coupon_rate": 0.05,
+    "value": 10000,
+    "maturity": "2026-10-07"
+   },
+   "expected": "REFUSES",
+   "working": [
+    "Years left = 0 → matured; dividing by 0 years is undefined"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Reason: matures today; the formula must treat 0 years as matured, not divide by zero."
+  },
+  {
+   "id": "MK-NW-F-061",
+   "name": "bondSummary",
+   "kind": "easy",
+   "title": "One bond",
+   "given": "Face $10,000, 5%, value $10,000, matures 2030-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "bonds": [
+     {
+      "face": 10000,
+      "rate": 0.05,
+      "value": 10000,
+      "maturity": "2030-10-07"
+     }
+    ]
+   },
+   "expected": {
+    "count": 1,
+    "totalValue": {
+     "exact": 10000,
+     "shown": "$10,000"
+    },
+    "totalFace": {
+     "exact": 10000,
+     "shown": "$10,000"
+    },
+    "annualCoupon": {
+     "exact": 500,
+     "shown": "$500"
+    },
+    "avgYield": {
+     "exact": 0.05,
+     "shown": "5.00%"
+    },
+    "nextMaturity": "2030-10-07"
+   },
+   "working": [
+    "Count 1; totals 10,000",
+    "Coupon 10,000 × 0.05 = 500",
+    "Average 500 ÷ 10,000 = 0.05",
+    "Next maturity 2030-10-07"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-061",
+   "name": "bondSummary",
+   "kind": "easy",
+   "title": "No bonds",
+   "given": "Empty list.",
+   "inputs": {
+    "today": "2026-10-07",
+    "bonds": []
+   },
+   "expected": {
+    "count": 0,
+    "totalValue": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "totalFace": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "annualCoupon": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "avgYield": null,
+    "nextMaturity": null
+   },
+   "working": [
+    "Nothing to add",
+    "Average yield: total value 0 → nothing",
+    "Next maturity: none"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-061",
+   "name": "bondSummary",
+   "kind": "complex",
+   "title": "Two bonds and a CD, two with accrued interest",
+   "given": "Bond A: face $25,000, 4.375%, value $25,312.48 incl. $412.33 accrued, matures 2028-11-15. Bond B: face $50,000, 2.5%, value $46,180, matures 2031-03-01. CD: face $40,000, 4.6%, value $40,615.20 incl. $615.20 accrued, matures 2027-06-30.",
+   "inputs": {
+    "today": "2026-10-07",
+    "bonds": [
+     {
+      "face": 25000,
+      "rate": 0.04375,
+      "value": 25312.48,
+      "accrued": 412.33,
+      "maturity": "2028-11-15"
+     },
+     {
+      "face": 50000,
+      "rate": 0.025,
+      "value": 46180,
+      "accrued": null,
+      "maturity": "2031-03-01"
+     },
+     {
+      "face": 40000,
+      "rate": 0.046,
+      "value": 40615.2,
+      "accrued": 615.2,
+      "maturity": "2027-06-30"
+     }
+    ]
+   },
+   "expected": {
+    "count": 3,
+    "totalValue": {
+     "exact": 112107.68,
+     "shown": "$112,108"
+    },
+    "totalFace": {
+     "exact": 115000,
+     "shown": "$115,000"
+    },
+    "annualCoupon": {
+     "exact": 4183.75,
+     "shown": "$4,184"
+    },
+    "coupon_rows": [
+     {
+      "label": "Bond A",
+      "exact": 1093.75
+     },
+     {
+      "label": "Bond B",
+      "exact": 1250.0
+     },
+     {
+      "label": "CD",
+      "exact": 1840.0
+     }
+    ],
+    "avgYield": {
+     "exact": 0.037664,
+     "shown": "3.77%"
+    },
+    "nextMaturity": "2027-06-30"
+   },
+   "formula_gives": {
+    "avgYield": {
+     "exact": 0.037319,
+     "shown": "3.73%"
+    },
+    "other_fields": "same as expected"
+   },
+   "working": [
+    "Total value = 25,312.48 + 46,180 + 40,615.20 = 112,107.68",
+    "Total face = 25,000 + 50,000 + 40,000 = 115,000",
+    "Coupons: 1,093.75 + 1,250 + 1,840 = 4,183.75 (rows sum to total)",
+    "Clean total = 112,107.68 − 412.33 − 615.20 = 111,080.15",
+    "Average yield = 4,183.75 ÷ 111,080.15 = 0.037664",
+    "Formula on dirty total: 4,183.75 ÷ 112,107.68 = 0.037319",
+    "Earliest unpassed maturity = 2027-06-30"
+   ],
+   "rests_on": "Consistency with MK-NW-F-059",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-061",
+   "name": "bondSummary",
+   "kind": "complex",
+   "title": "A zero-coupon, a premium bond and a discount bond, no accrued",
+   "given": "Zero-coupon: face $15,000, value $13,208.40, matures 2030-05-15. Premium: face $30,000, 5.5%, value $31,890, matures 2029-04-15. Discount: face $12,500, 3.85%, value $12,371.95, matures 2027-12-01.",
+   "inputs": {
+    "today": "2026-10-07",
+    "bonds": [
+     {
+      "face": 15000,
+      "rate": 0.0,
+      "value": 13208.4,
+      "maturity": "2030-05-15"
+     },
+     {
+      "face": 30000,
+      "rate": 0.055,
+      "value": 31890,
+      "maturity": "2029-04-15"
+     },
+     {
+      "face": 12500,
+      "rate": 0.0385,
+      "value": 12371.95,
+      "maturity": "2027-12-01"
+     }
+    ]
+   },
+   "expected": {
+    "count": 3,
+    "totalValue": {
+     "exact": 57470.35,
+     "shown": "$57,470"
+    },
+    "totalFace": {
+     "exact": 57500,
+     "shown": "$57,500"
+    },
+    "annualCoupon": {
+     "exact": 2131.25,
+     "shown": "$2,131"
+    },
+    "coupon_rows": [
+     {
+      "label": "Zero-coupon",
+      "exact": 0.0
+     },
+     {
+      "label": "Premium",
+      "exact": 1650.0
+     },
+     {
+      "label": "Discount",
+      "exact": 481.25
+     }
+    ],
+    "avgYield": {
+     "exact": 0.037084,
+     "shown": "3.71%"
+    },
+    "nextMaturity": "2027-12-01"
+   },
+   "working": [
+    "Total value = 13,208.40 + 31,890 + 12,371.95 = 57,470.35",
+    "Total face = 57,500",
+    "Coupons: 0 + 30,000×0.055 = 1,650 + 12,500×0.0385 = 481.25 → 2,131.25",
+    "Average = 2,131.25 ÷ 57,470.35 = 0.037084",
+    "Earliest unpassed = 2027-12-01"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-061",
+   "name": "bondSummary",
+   "kind": "edge",
+   "title": "One matured last month, one maturing today",
+   "given": "Bond X: face $20,000, 3%, value $20,000, matured 2026-09-15 (still listed). Bond Y: face $10,000, 4%, value $10,000, matures today 2026-10-07. Bond Z: face $18,000, 4.5%, value $17,650, matures 2029-01-15.",
+   "inputs": {
+    "today": "2026-10-07",
+    "bonds": [
+     {
+      "face": 20000,
+      "rate": 0.03,
+      "value": 20000,
+      "maturity": "2026-09-15"
+     },
+     {
+      "face": 10000,
+      "rate": 0.04,
+      "value": 10000,
+      "maturity": "2026-10-07"
+     },
+     {
+      "face": 18000,
+      "rate": 0.045,
+      "value": 17650,
+      "maturity": "2029-01-15"
+     }
+    ]
+   },
+   "expected": {
+    "count": 3,
+    "totalValue": {
+     "exact": 47650,
+     "shown": "$47,650"
+    },
+    "totalFace": {
+     "exact": 48000,
+     "shown": "$48,000"
+    },
+    "annualCoupon": {
+     "exact": 1810,
+     "shown": "$1,810"
+    },
+    "avgYield": {
+     "exact": 0.037985,
+     "shown": "3.80%"
+    },
+    "nextMaturity": "2026-10-07"
+   },
+   "working": [
+    "Count 3 (all listed)",
+    "Value = 20,000 + 10,000 + 17,650 = 47,650; face = 48,000",
+    "Coupons 600 + 400 + 810 = 1,810",
+    "Average = 1,810 ÷ 47,650 = 0.037985",
+    "2026-09-15 has passed; 2026-10-07 is today → not passed → next maturity 2026-10-07"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "medium",
+   "notes": "Counting a matured bond's coupon is what the formula does; whether a matured bond still listed should count toward interest in a year is not settled by the card (see MK-NW-F-063)."
+  },
+  {
+   "id": "MK-NW-F-062",
+   "name": "couponIncomeAnnual",
+   "kind": "easy",
+   "title": "One bond",
+   "given": "Bond account: face $10,000, rate 5%.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "bond",
+      "face": 10000,
+      "rate": 0.05,
+      "balance": 10000
+     }
+    ]
+   },
+   "expected": {
+    "exact": 500,
+    "shown": "$500"
+   },
+   "working": [
+    "10,000 × 0.05 = 500"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-062",
+   "name": "couponIncomeAnnual",
+   "kind": "easy",
+   "title": "No bonds held",
+   "given": "Checking $8,000 and a brokerage $60,000; no bond fields.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "checking",
+      "balance": 8000
+     },
+     {
+      "kind": "brokerage",
+      "balance": 60000
+     }
+    ]
+   },
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "working": [
+    "No bond or CD accounts → 0"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-062",
+   "name": "couponIncomeAnnual",
+   "kind": "complex",
+   "title": "Two bonds, a CD and a savings account that pays interest",
+   "given": "Bond A face $25,000 at 4.375%; Treasury B face $50,000 at 2.5%; CD face $40,000 at 4.6%; high-yield savings $32,418.77 at 4.1% (not a bond).",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "bond",
+      "face": 25000,
+      "rate": 0.04375
+     },
+     {
+      "kind": "bond",
+      "face": 50000,
+      "rate": 0.025
+     },
+     {
+      "kind": "cd",
+      "face": 40000,
+      "rate": 0.046
+     },
+     {
+      "kind": "savings",
+      "balance": 32418.77,
+      "rate": 0.041
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 4183.75,
+     "shown": "$4,184"
+    },
+    "rows": [
+     {
+      "label": "Bond A",
+      "exact": 1093.75
+     },
+     {
+      "label": "Treasury B",
+      "exact": 1250.0
+     },
+     {
+      "label": "CD",
+      "exact": 1840.0
+     }
+    ]
+   },
+   "working": [
+    "1,093.75 + 1,250 + 1,840 = 4,183.75",
+    "Savings is not a bond or CD → excluded (it appears in interestIncomeAnnual instead)"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-062",
+   "name": "couponIncomeAnnual",
+   "kind": "complex",
+   "title": "A CD entered by balance only",
+   "given": "Treasury: face $50,000 at 2.5%. CD typed in as balance $20,000 at 4.5%, no face value. Linked brokerage $74,320.18 with no rate.",
+   "inputs": {
+    "accounts": [
+     {
+      "kind": "bond",
+      "face": 50000,
+      "rate": 0.025
+     },
+     {
+      "kind": "cd",
+      "face": null,
+      "balance": 20000,
+      "rate": 0.045
+     },
+     {
+      "kind": "brokerage",
+      "balance": 74320.18
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 2150,
+     "shown": "$2,150"
+    },
+    "rows": [
+     {
+      "label": "Treasury",
+      "exact": 1250.0
+     },
+     {
+      "label": "CD (balance × rate)",
+      "exact": 900.0
+     }
+    ],
+    "same_as": "MK-NW-F-063 on the same accounts gives 2,150"
+   },
+   "formula_gives": {
+    "exact": 1250,
+    "shown": "$1,250"
+   },
+   "working": [
+    "Treasury 50,000 × 0.025 = 1,250",
+    "CD: no face → balance × rate = 20,000 × 0.045 = 900",
+    "Total 2,150"
+   ],
+   "rests_on": "Consistency with MK-NW-F-063",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-062",
+   "name": "couponIncomeAnnual",
+   "kind": "edge",
+   "title": "Nothing entered",
+   "given": "No accounts.",
+   "inputs": {
+    "accounts": []
+   },
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "working": [
+    "No accounts → 0"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-063",
+   "name": "interestIncomeAnnual",
+   "kind": "easy",
+   "title": "One savings account",
+   "given": "High-yield savings $50,000 at 4%.",
+   "inputs": {
+    "today": "2026-10-07",
+    "accounts": [
+     {
+      "kind": "savings",
+      "balance": 50000,
+      "rate": 0.04
+     }
+    ]
+   },
+   "expected": {
+    "exact": 2000,
+    "shown": "$2,000"
+   },
+   "working": [
+    "50,000 × 0.04 = 2,000"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-063",
+   "name": "interestIncomeAnnual",
+   "kind": "easy",
+   "title": "Checking with no rate",
+   "given": "Checking $12,000, no rate stated.",
+   "inputs": {
+    "today": "2026-10-07",
+    "accounts": [
+     {
+      "kind": "checking",
+      "balance": 12000,
+      "rate": null
+     }
+    ]
+   },
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "working": [
+    "No rate → nothing"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-063",
+   "name": "interestIncomeAnnual",
+   "kind": "complex",
+   "title": "Savings, a bond and a CD typed by balance, alongside a brokerage",
+   "given": "High-yield savings $32,418.77 at 4.1%; bond face $25,000 at 4.375% (value $25,312.48); CD balance $20,000 at 4.5% with no face; brokerage $91,775.40 with no rate.",
+   "inputs": {
+    "today": "2026-10-07",
+    "accounts": [
+     {
+      "kind": "savings",
+      "balance": 32418.77,
+      "rate": 0.041
+     },
+     {
+      "kind": "bond",
+      "face": 25000,
+      "rate": 0.04375,
+      "balance": 25312.48,
+      "maturity": "2028-11-15"
+     },
+     {
+      "kind": "cd",
+      "face": null,
+      "balance": 20000,
+      "rate": 0.045,
+      "maturity": "2027-06-30"
+     },
+     {
+      "kind": "brokerage",
+      "balance": 91775.4
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 3322.9196,
+     "shown": "$3,323"
+    },
+    "rows": [
+     {
+      "label": "Savings",
+      "exact": 1329.1696
+     },
+     {
+      "label": "Bond",
+      "exact": 1093.75
+     },
+     {
+      "label": "CD",
+      "exact": 900.0
+     },
+     {
+      "label": "Brokerage",
+      "exact": 0.0
+     }
+    ]
+   },
+   "working": [
+    "Savings 32,418.77 × 0.041 = 1,329.16957",
+    "Bond 25,000 × 0.04375 = 1,093.75 (face, not value)",
+    "CD 20,000 × 0.045 = 900",
+    "Brokerage: no rate → 0",
+    "Total = 3322.91957; rows sum to total"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "The CD row should equal the same CD's interest in couponIncomeAnnual (MK-NW-F-062) on the Bonds screen."
+  },
+  {
+   "id": "MK-NW-F-063",
+   "name": "interestIncomeAnnual",
+   "kind": "complex",
+   "title": "A bond that matured last month is still listed",
+   "given": "Bond: face $20,000 at 3%, matured 2026-09-15, still on the list. Savings $50,000 at 4%. A 2-year CD face $15,000 at 4.15%, matures 2028-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "accounts": [
+     {
+      "kind": "bond",
+      "face": 20000,
+      "rate": 0.03,
+      "maturity": "2026-09-15"
+     },
+     {
+      "kind": "savings",
+      "balance": 50000,
+      "rate": 0.04
+     },
+     {
+      "kind": "cd",
+      "face": 15000,
+      "rate": 0.0415,
+      "maturity": "2028-10-07"
+     }
+    ]
+   },
+   "expected": {
+    "total": {
+     "exact": 2622.5,
+     "shown": "$2,622"
+    },
+    "rows": [
+     {
+      "label": "Matured bond",
+      "exact": 0.0
+     },
+     {
+      "label": "Savings",
+      "exact": 2000.0
+     },
+     {
+      "label": "CD",
+      "exact": 622.5
+     }
+    ]
+   },
+   "formula_gives": {
+    "exact": 3222.5,
+    "shown": "$3,222"
+   },
+   "working": [
+    "Matured bond pays no further interest → 0",
+    "Savings 50,000 × 0.04 = 2,000",
+    "CD 15,000 × 0.0415 = 622.50",
+    "Total 2,622.50"
+   ],
+   "rests_on": "Ordinary finance: a matured bond pays no further coupons",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-063",
+   "name": "interestIncomeAnnual",
+   "kind": "edge",
+   "title": "Bond with a face value but no rate",
+   "given": "Bond face $30,000, balance $29,400, rate not entered.",
+   "inputs": {
+    "today": "2026-10-07",
+    "accounts": [
+     {
+      "kind": "bond",
+      "face": 30000,
+      "balance": 29400,
+      "rate": null
+     }
+    ]
+   },
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "working": [
+    "No rate → nothing counted, as the card's purpose states"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Counting nothing is what the card is for; a separate screen should flag the missing rate."
+  },
+  {
+   "id": "MK-NW-F-064",
+   "name": "bondRateSensitivity",
+   "kind": "easy",
+   "title": "An ordinary $10,000 bond at par",
+   "given": "Face $10,000, coupon 5%, value $10,000, matures 2030-10-07 (4 years); today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 10000,
+    "coupon_rate": 0.05,
+    "value": 10000,
+    "maturity": "2030-10-07",
+    "is_cd": false
+   },
+   "expected": {
+    "rates_up_1pt": {
+     "value": {
+      "exact": 9653.4894,
+      "shown": "$9,653"
+     },
+     "range_low": {
+      "exact": 9556.9545,
+      "shown": "$9,557"
+     },
+     "range_high": {
+      "exact": 9750.0243,
+      "shown": "$9,750"
+     },
+     "change": {
+      "exact": -346.5106,
+      "shown": "-$347"
+     }
+    },
+    "rates_down_1pt": {
+     "value": {
+      "exact": 10362.9895,
+      "shown": "$10,363"
+     },
+     "range_low": {
+      "exact": 10259.3596,
+      "shown": "$10,259"
+     },
+     "range_high": {
+      "exact": 10466.6194,
+      "shown": "$10,467"
+     },
+     "change": {
+      "exact": 362.9895,
+      "shown": "$363"
+     }
+    }
+   },
+   "formula_gives": {
+    "rates_up_1pt": {
+     "range": "$10,000–$10,000",
+     "change": "$0"
+    },
+    "rates_down_1pt": {
+     "range": "$10,000–$10,000",
+     "change": "$0"
+    }
+   },
+   "working": [
+    "Years = 1461 ÷ 365.25 = 4.000000; priceAtYield rounds to 4",
+    "Approx YTM y = (500.00 + (10,000 − 10,000) ÷ 4.000000) ÷ ((10,000 + 10,000) ÷ 2) = 0.050000",
+    "priceAtYield at y = 10,000.0000 (today's value is 10,000)",
+    "rates_up_1pt: priceAtYield at 0.060000 = 9,653.4894; change = 9,653.4894 − 10,000.0000 = -346.5106; new value = 10,000 + -346.5106 = 9,653.4894; range ×0.99/×1.01 = 9,556.9545–9,750.0243",
+    "   formula as written: range 9,556.95–9,750.02 → nearest $1,000 = $10,000–$10,000; change 9,653.49 − 10,000 = -346.51 → $0",
+    "rates_down_1pt: priceAtYield at 0.040000 = 10,362.9895; change = 10,362.9895 − 10,000.0000 = 362.9895; new value = 10,000 + 362.9895 = 10,362.9895; range ×0.99/×1.01 = 10,259.3596–10,466.6194",
+    "   formula as written: range 10,259.36–10,466.62 → nearest $1,000 = $10,000–$10,000; change 10,362.99 − 10,000 = 362.99 → $0"
+   ],
+   "rests_on": "Standard bond pricing; ordinary arithmetic",
+   "confidence": "medium",
+   "notes": "Exact values are the claim; the shown rounding (whole dollars) is my proposal — the owner should set the rounding."
+  },
+  {
+   "id": "MK-NW-F-064",
+   "name": "bondRateSensitivity",
+   "kind": "easy",
+   "title": "A CD",
+   "given": "CD: face $50,000, rate 4.7%, value $50,000, matures 2027-04-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 50000,
+    "coupon_rate": 0.047,
+    "value": 50000,
+    "maturity": "2027-04-07",
+    "is_cd": true
+   },
+   "expected": "REFUSES",
+   "formula_gives": {
+    "rates_up_1pt": {
+     "range": "$49,000–$50,000",
+     "change": "$0"
+    },
+    "rates_down_1pt": {
+     "range": "$50,000–$51,000",
+     "change": "$0"
+    }
+   },
+   "working": [
+    "It is a CD → no estimate; the screen says a CD's value does not move with rates"
+   ],
+   "rests_on": "Founder 2026-09-27, recorded on the card; figure MK-NW-M-028 'when it refuses'",
+   "confidence": "high",
+   "notes": "Reason: a CD is not traded. The formula has no CD check, so it would produce an estimate."
+  },
+  {
+   "id": "MK-NW-F-064",
+   "name": "bondRateSensitivity",
+   "kind": "complex",
+   "title": "Discount Treasury, 4.4 years",
+   "given": "Face $50,000, coupon 2.5%, value $46,180, matures 2031-03-01; today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 50000,
+    "coupon_rate": 0.025,
+    "value": 46180,
+    "maturity": "2031-03-01",
+    "is_cd": false
+   },
+   "expected": {
+    "rates_up_1pt": {
+     "value": {
+      "exact": 44502.3897,
+      "shown": "$44,502"
+     },
+     "range_low": {
+      "exact": 44057.3658,
+      "shown": "$44,057"
+     },
+     "range_high": {
+      "exact": 44947.4136,
+      "shown": "$44,947"
+     },
+     "change": {
+      "exact": -1677.6103,
+      "shown": "-$1,678"
+     }
+    },
+    "rates_down_1pt": {
+     "value": {
+      "exact": 47938.8321,
+      "shown": "$47,939"
+     },
+     "range_low": {
+      "exact": 47459.4438,
+      "shown": "$47,459"
+     },
+     "range_high": {
+      "exact": 48418.2205,
+      "shown": "$48,418"
+     },
+     "change": {
+      "exact": 1758.8321,
+      "shown": "$1,759"
+     }
+    }
+   },
+   "formula_gives": {
+    "rates_up_1pt": {
+     "range": "$44,000–$45,000",
+     "change": "-$1,000"
+    },
+    "rates_down_1pt": {
+     "range": "$48,000–$49,000",
+     "change": "$2,000"
+    }
+   },
+   "working": [
+    "Years = 1606 ÷ 365.25 = 4.396988; priceAtYield rounds to 4",
+    "Approx YTM y = (1,250.00 + (50,000 − 46,180) ÷ 4.396988) ÷ ((50,000 + 46,180) ÷ 2) = 0.044059",
+    "priceAtYield at y = 46,573.8015 (today's value is 46,180)",
+    "rates_up_1pt: priceAtYield at 0.054059 = 44,896.1912; change = 44,896.1912 − 46,573.8015 = -1,677.6103; new value = 46,180 + -1,677.6103 = 44,502.3897; range ×0.99/×1.01 = 44,057.3658–44,947.4136",
+    "   formula as written: range 44,447.23–45,345.15 → nearest $1,000 = $44,000–$45,000; change 44,896.19 − 46,180 = -1,283.81 → -$1,000",
+    "rates_down_1pt: priceAtYield at 0.034059 = 48,332.6336; change = 48,332.6336 − 46,573.8015 = 1,758.8321; new value = 46,180 + 1,758.8321 = 47,938.8321; range ×0.99/×1.01 = 47,459.4438–48,418.2205",
+    "   formula as written: range 47,849.31–48,815.96 → nearest $1,000 = $48,000–$49,000; change 48,332.63 − 46,180 = 2,152.63 → $2,000"
+   ],
+   "rests_on": "Standard bond pricing; ordinary arithmetic",
+   "confidence": "medium",
+   "notes": "Rounding as above."
+  },
+  {
+   "id": "MK-NW-F-064",
+   "name": "bondRateSensitivity",
+   "kind": "complex",
+   "title": "Premium bond whose years round up",
+   "given": "Face $30,000, coupon 5.5%, value $31,890, matures 2029-04-15 (2.52 years, priced as 3); today 2026-10-07.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 30000,
+    "coupon_rate": 0.055,
+    "value": 31890,
+    "maturity": "2029-04-15",
+    "is_cd": false
+   },
+   "expected": {
+    "rates_up_1pt": {
+     "value": {
+      "exact": 31014.3394,
+      "shown": "$31,014"
+     },
+     "range_low": {
+      "exact": 30704.196,
+      "shown": "$30,704"
+     },
+     "range_high": {
+      "exact": 31324.4828,
+      "shown": "$31,324"
+     },
+     "change": {
+      "exact": -875.6606,
+      "shown": "-$876"
+     }
+    },
+    "rates_down_1pt": {
+     "value": {
+      "exact": 32799.7596,
+      "shown": "$32,800"
+     },
+     "range_low": {
+      "exact": 32471.762,
+      "shown": "$32,472"
+     },
+     "range_high": {
+      "exact": 33127.7572,
+      "shown": "$33,128"
+     },
+     "change": {
+      "exact": 909.7596,
+      "shown": "$910"
+     }
+    }
+   },
+   "formula_gives": {
+    "rates_up_1pt": {
+     "range": "$31,000–$32,000",
+     "change": "-$1,000"
+    },
+    "rates_down_1pt": {
+     "range": "$33,000–$33,000",
+     "change": "$1,000"
+    }
+   },
+   "working": [
+    "Years = 921 ÷ 365.25 = 2.521561; priceAtYield rounds to 3",
+    "Approx YTM y = (1,650.00 + (30,000 − 31,890) ÷ 2.521561) ÷ ((30,000 + 31,890) ÷ 2) = 0.029099",
+    "priceAtYield at y = 32,201.7415 (today's value is 31,890)",
+    "rates_up_1pt: priceAtYield at 0.039099 = 31,326.0809; change = 31,326.0809 − 32,201.7415 = -875.6606; new value = 31,890 + -875.6606 = 31,014.3394; range ×0.99/×1.01 = 30,704.1960–31,324.4828",
+    "   formula as written: range 31,012.82–31,639.34 → nearest $1,000 = $31,000–$32,000; change 31,326.08 − 31,890 = -563.92 → -$1,000",
+    "rates_down_1pt: priceAtYield at 0.019099 = 33,111.5011; change = 33,111.5011 − 32,201.7415 = 909.7596; new value = 31,890 + 909.7596 = 32,799.7596; range ×0.99/×1.01 = 32,471.7620–33,127.7572",
+    "   formula as written: range 32,780.39–33,442.62 → nearest $1,000 = $33,000–$33,000; change 33,111.50 − 31,890 = 1,221.50 → $1,000"
+   ],
+   "rests_on": "Standard bond pricing; ordinary arithmetic",
+   "confidence": "medium",
+   "notes": "Whole-year pricing over a 2.52-year bond is itself rough; measuring the change within one model removes most of that error."
+  },
+  {
+   "id": "MK-NW-F-064",
+   "name": "bondRateSensitivity",
+   "kind": "edge",
+   "title": "Zero-coupon bond",
+   "given": "Face $20,000, coupon 0%, value $16,400, matures 2031-06-30.",
+   "inputs": {
+    "today": "2026-10-07",
+    "face": 20000,
+    "coupon_rate": 0,
+    "value": 16400,
+    "maturity": "2031-06-30",
+    "is_cd": false
+   },
+   "expected": "REFUSES",
+   "working": [
+    "Coupon rate 0 → 'rate zero or less' → no answer",
+    "The screen's rule agrees: no coupon → refused"
+   ],
+   "rests_on": "Formula in words; figure MK-NW-M-028",
+   "confidence": "high",
+   "notes": "Reason: no coupon."
+  },
+  {
+   "id": "MK-NW-F-065",
+   "name": "buildNetWorth",
+   "kind": "easy",
+   "title": "Simple subtraction",
+   "given": "Assets $500,000; debt $200,000.",
+   "inputs": {
+    "gross_assets": 500000,
+    "gross_debt": 200000
+   },
+   "expected": {
+    "net_worth": {
+     "exact": 300000,
+     "shown": "$300,000"
+    },
+    "gross_assets": {
+     "exact": 500000,
+     "shown": "$500,000"
+    },
+    "gross_debt": {
+     "exact": 200000,
+     "shown": "$200,000"
+    }
+   },
+   "working": [
+    "500,000 − 200,000 = 300,000"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-065",
+   "name": "buildNetWorth",
+   "kind": "easy",
+   "title": "Owing more than owned",
+   "given": "Assets $40,000; debt $65,000.",
+   "inputs": {
+    "gross_assets": 40000,
+    "gross_debt": 65000
+   },
+   "expected": {
+    "net_worth": {
+     "exact": -25000,
+     "shown": "-$25,000"
+    },
+    "gross_assets": {
+     "exact": 40000,
+     "shown": "$40,000"
+    },
+    "gross_debt": {
+     "exact": 65000,
+     "shown": "$65,000"
+    }
+   },
+   "working": [
+    "40,000 − 65,000 = −25,000; shown negative, not clipped to 0"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-065",
+   "name": "buildNetWorth",
+   "kind": "complex",
+   "title": "Assets from getAssetsState, three debts",
+   "given": "Total assets $1,210,131.75 (the same accounts as getAssetsState's complex case). Debts: mortgage $412,876.30 (paid this month), car loan $18,442.91 (payment not yet made), credit card $3,105.66 (no payment due yet).",
+   "inputs": {
+    "gross_assets": 1210131.75,
+    "debts": [
+     {
+      "label": "Mortgage",
+      "balance": 412876.3
+     },
+     {
+      "label": "Car loan",
+      "balance": 18442.91
+     },
+     {
+      "label": "Credit card",
+      "balance": 3105.66
+     }
+    ]
+   },
+   "expected": {
+    "gross_debt": {
+     "exact": 434424.87,
+     "shown": "$434,425"
+    },
+    "debt_rows": [
+     {
+      "label": "Mortgage",
+      "exact": 412876.3
+     },
+     {
+      "label": "Car loan",
+      "exact": 18442.91
+     },
+     {
+      "label": "Credit card",
+      "exact": 3105.66
+     }
+    ],
+    "gross_assets": {
+     "exact": 1210131.75,
+     "shown": "$1,210,132"
+    },
+    "net_worth": {
+     "exact": 775706.88,
+     "shown": "$775,707"
+    }
+   },
+   "working": [
+    "Debt = 412,876.30 + 18,442.91 + 3,105.66 = 434,424.87 (rows sum to total)",
+    "Net worth = 1,210,131.75 − 434,424.87 = 775,706.88"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": "Gross assets must equal getAssetsState's total for the same accounts (MK-NW-F-044, $1,210,131.75); balances are as of today whether or not this month's payment has posted."
+  },
+  {
+   "id": "MK-NW-F-065",
+   "name": "buildNetWorth",
+   "kind": "complex",
+   "title": "Two people's accounts, one debt with nothing owing",
+   "given": "Earner 1's accounts total $372,000.00; earner 2's $88,415.27. Debts: student loan $27,880.14, mortgage $298,550.00, a credit card paid off ($0, no payment required).",
+   "inputs": {
+    "assets": [
+     {
+      "label": "Earner 1",
+      "total": 372000.0
+     },
+     {
+      "label": "Earner 2",
+      "total": 88415.27
+     }
+    ],
+    "debts": [
+     {
+      "label": "Student loan",
+      "balance": 27880.14
+     },
+     {
+      "label": "Mortgage",
+      "balance": 298550.0
+     },
+     {
+      "label": "Credit card",
+      "balance": 0
+     }
+    ]
+   },
+   "expected": {
+    "gross_assets": {
+     "exact": 460415.27,
+     "shown": "$460,415"
+    },
+    "gross_debt": {
+     "exact": 326430.14,
+     "shown": "$326,430"
+    },
+    "net_worth": {
+     "exact": 133985.13,
+     "shown": "$133,985"
+    }
+   },
+   "working": [
+    "Assets = 372,000.00 + 88,415.27 = 460,415.27",
+    "Debt = 27,880.14 + 298,550.00 + 0 = 326,430.14",
+    "Net worth = 460,415.27 − 326,430.14 = 133,985.13"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "high",
+   "notes": ""
+  },
+  {
+   "id": "MK-NW-F-065",
+   "name": "buildNetWorth",
+   "kind": "edge",
+   "title": "Nothing entered anywhere",
+   "given": "Assets 0, debt 0 (nothing entered).",
+   "inputs": {
+    "gross_assets": 0,
+    "gross_debt": 0
+   },
+   "expected": {
+    "net_worth": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "gross_assets": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "gross_debt": {
+     "exact": 0,
+     "shown": "$0"
+    }
+   },
+   "working": [
+    "0 − 0 = 0"
+   ],
+   "rests_on": "Formula in words",
+   "confidence": "medium",
+   "notes": "This function is handed two numbers and cannot tell 'nothing entered' from 'truly zero'; the caller should refuse (show a dash) when the person has entered nothing, rather than display $0."
+  }
+ ],
+ "could_not_test": []
+}

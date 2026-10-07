@@ -379,6 +379,25 @@
    "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts · outside_networth_01_final_gemini.test.ts · outside_networth_02.test.ts · outside_networth_02_found.test.ts · src/screens/__tests__/outside_networth_02.test.tsx",
    "not_a_repeat_of": "DEC-2440 closed batch 1 and DEC-2441 approved the lists for batch 2; this is his word on every code change in both, the choices made without asking him included.",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §1 to §7 · MoneyKeel/documents/standards/moneykeel_calc_spec_mortgage-rent-and-debt_v01.md §1 to §5"
+  },
+  {
+   "decided": "2026-10-07",
+   "answers": [],
+   "tab": "process-and-standards",
+   "type": "PROCESS",
+   "screens": "every screen the outside review of the calculations touches",
+   "his_words": "The changes we are making with this audit are also changes I am approving, and while not my direct feedback - these are findings and changes.",
+   "subject": "What Post Feedback Sync covers — every change that comes out of the outside review of the calculations, not only his own feedback files",
+   "plain": "Every change that comes out of the outside review of the calculations counts as a change he has approved, and is treated the way his own feedback is: recorded in the decision log, the Changelog, the standard it belongs to, the master file, the tracker and the drawings, the same day. Post Feedback Sync is the sweep that brings all of those level with the code — not only the folding-in of his feedback files.",
+   "means": "Said in chat on 2026-10-07, after I had reported twice that \"no feedback file of yours was waiting\" when he asked for a PFS. His point: files going out of date, two files disagreeing, nobody able to tell the latest version — the mess the one-master rule exists to prevent — happens just as easily from audit changes as from his notes. So the review's changes are his decisions: batch 3 (file 3, 2026-10-07) and batch 4 (file 4, 2026-10-07) are approved by this word, as batches 1 and 2 were by DEC-2484. In the same message he answered the one open question of file 4 with \"no\": the add-up of what is owned does NOT gain a count of accounts with no value yet. TWO GATES were added the same day so this cannot be held by my attention alone: (1) every function and file a standard names must exist and be live (src/__tests__/guard_standards_name_live_things.test.ts); (2) every decision of his since the one-master rule (2026-09-27) must have its Changelog row, or the build stops (check-changelog-anchored.py).",
+   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md § Post Feedback Sync · Calculation Module code/scripts/check-changelog-anchored.py · src/__tests__/guard_standards_name_live_things.test.ts · the batch 3 functions (MK-NW-F-031 primaryCarIdOf, MK-NW-F-035 blendedVolatility, MK-NW-F-037 blendedReturn, MK-NW-F-039 buildAssetsState, MK-NW-F-041 monthlyContributionsFromOnboarding, MK-NW-F-046 historyCoverage, MK-NW-F-051 itemizedResultTotal, MK-NW-F-052 buildItemizedAccounts, MK-NW-F-060 approxYTM) · the batch 4 functions (MK-NW-F-094 ledgerGroups, MK-NW-F-002 alternativesSummary, MK-NW-F-008 incomeBearingClassOf, MK-NW-F-013 realEstateUseOf, MK-NW-F-030 earmarkDefault, MK-NW-F-110 primaryHomeIdOf) · MK-NW-F-015 totalAssets (no count added)",
+   "changed": "Nothing further changes in the code of batches 3 and 4: their fixes stand as built and tested, now as his. The drawings' change tables for files 3 and 4 say approved under this decision. The two gates run on every build.",
+   "apply_steps": "1. Record his words. 2. Mark the batch 3 and 4 tracker rows approved; change the drawings' tables from \"not yet his rulings\" to approved. 3. Write the PFS section of the naming standard to say what PFS covers. 4. Add the two gates and make them fail on the first miss. Done.",
+   "exceptions": "A choice of mine that the review did not ask for is still reported to him by name before it is treated as approved.",
+   "status": "TESTED",
+   "proof": "src/__tests__/guard_standards_name_live_things.test.ts · Calculation Module code/scripts/check-changelog-anchored.py · MoneyKeel/functions/networth-and-performance/outside_networth_03.test.ts · outside_networth_04.test.ts",
+   "not_a_repeat_of": "DEC-2484 approved the changes of batches 1 and 2 by name; this says what the review's changes ARE — his decisions — and widens Post Feedback Sync to cover them, so no later batch waits for a separate word.",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md § Post Feedback Sync"
   }
  ]
 }

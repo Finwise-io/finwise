@@ -213,6 +213,36 @@ audit files, unless he names one — goes through these seven steps:
 7. **Report with a coverage line** — comments read, already in, newly folded, answered, files archived —
    and update the working plan.
 
+### What PFS covers since 2026-10-07 — every change, not only his feedback files (founder, DEC-2634)
+
+> *"The changes we are making with this audit are also changes I am approving, and while not my direct
+> feedback - these are findings and changes."*
+
+Twice I answered a request for PFS by saying that no feedback file of his was waiting. That was the narrow
+reading above. His point: a code change from the outside review of the calculations goes out of date in
+the files exactly as his notes do, and the mess the one-master rule prevents — two files disagreeing,
+no one able to tell the latest version — comes from either.
+
+**So a PFS is the sweep that brings every file level with the code, whatever caused the change:**
+
+1. **The decision log** — his words where he gave them; a review's changes are his decisions by DEC-2634
+   (batches 1 and 2 by DEC-2484), so each batch's changes are recorded against it when the batch is done.
+2. **The Changelog** — a row for every decision of his, the same day (the gate below stops the build
+   without it).
+3. **The standard** the rule belongs to — written or amended, and named on the decision as its carrier.
+4. **The master file** — printed from the code by the build; never hand-edited.
+5. **The formula in words** for every changed function — re-read and stamped (gate B7 stops the build
+   when a function changed and its words did not).
+6. **The tracker** — the row that says what was done, measured, and what is held.
+7. **The drawings** — a change table at the top of every drawing whose screen changed.
+8. **The outside pack** — a supplement or a final-audit file carrying the cards as they stand.
+
+**Two gates hold this, so it is not held by attention:**
+- `src/__tests__/guard_standards_name_live_things.test.ts` — every function id and every file path a
+  standard names must exist and be live; a standard that names a function that is gone is out of date.
+- `check-changelog-anchored.py` (step B6) — every decision of his since the one-master rule
+  (2026-09-27) must have its Changelog row, or the build stops.
+
 ### What PFS was missing, and now covers (founder, 2026-09-26)
 
 > *"something is broken — the whole purpose of executing PFS after every change or decision is to
