@@ -2485,10 +2485,10 @@
    "status": "CLOSED on his word, 2026-10-07: \"NW batch one close.\"",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_networth01_claude.json · MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
    "date": "2026-10-04",
-   "comments": "MEASURED 2026-10-04 at his question (\"are these 6 findings not in file?\"): the test file run against the app as it stood before the fixes (cd9f0b8) — 13 of 32 failed; against the fixes — 0 fail. All six of its findings were real. Still open: the return (its finding 2 — the app still shows 42.32% where 10.97% is right) and \"no figure when the record does not reach back\". 2026-10-05, STATE OF THIS FILE: its six findings and its five smaller points are fixed and tested; its four unclear points are decided; the return is time-weighted (10.97%). NOT CLOSED IN REAL USE — its finding on the renter who owns a rented-out house (MK-NW-O-004): the fix tells the home's mortgage from another property's, but no screen yet tells the app that a property is a rental, so the case passes only in its test. It closes with steps 2 and 3 of the row \"How a mortgage, rent and a debt are entered and counted\" (DEC-1924, DEC-1926, DEC-1923). ALSO LEFT FROM WORK THIS FILE STARTED: share transfers synced before 2026-10-04 carry no direction, so a window holding one still shows no return; a balance typed back-dated is assumed to hold that day's money. ONLY Claude's file has come back for this batch; Gemini's has not been run. 2026-10-05 — the renter who owns a rented-out house: closed. Rent entered for a property on the Income screen is what makes it a rental (DEC-1926), so the app no longer needs a field no screen could set. Its \"three places\" case was worked from the card as sent; the owner's rule of 2026-10-04 (DEC-1923) changed the formula, so the test keeps its numbers on record and asserts the answer under the rule.",
+   "comments": "MEASURED 2026-10-04 at his question (\"are these 6 findings not in file?\"): the test file run against the app as it stood before the fixes (cd9f0b8) — 13 of 32 failed; against the fixes — 0 fail. All six of its findings were real. Still open: the return (its finding 2 — the app still shows 42.32% where 10.97% is right) and \"no figure when the record does not reach back\". 2026-10-05, STATE OF THIS FILE: its six findings and its five smaller points are fixed and tested; its four unclear points are decided; the return is time-weighted (10.97%). NOT CLOSED IN REAL USE — its finding on the renter who owns a rented-out house (MK-NW-O-004): the fix tells the home's mortgage from another property's, but no screen yet tells the app that a property is a rental, so the case passes only in its test. It closes with steps 2 and 3 of the row \"How a mortgage, rent and a debt are entered and counted\" (DEC-1924, DEC-1926, DEC-1923). ALSO LEFT FROM WORK THIS FILE STARTED: share transfers synced before 2026-10-04 carry no direction, so a window holding one still shows no return; a balance typed back-dated is assumed to hold that day's money. ONLY Claude's file has come back for this batch; Gemini's has not been run. 2026-10-05 — the renter who owns a rented-out house: closed. Rent entered for a property on the Income screen is what makes it a rental (DEC-1926), so the app no longer needs a field no screen could set. Its \"three places\" case was worked from the card as sent; the owner's rule of 2026-10-04 (DEC-1923) changed the formula, so the test keeps its numbers on record and asserts the answer under the rule. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "CLOSED on his word, 2026-10-07: \"NW batch one close.\"",
-    "comments": "MEASURED 2026-10-04 at his question (\"are these 6 findings not in file?\"): the test file run against the app as it stood before the fixes (cd9f0b8) — 13 of 32 failed; against the fixes — 0 fail. All six of its findings were real. Still open: the return (its finding 2 — the app still shows 42.32% where 10.97% is right) and \"no figure when the record does not reach back\". 2026-10-05, STATE OF THIS FILE: its six findings and its five smaller points are fixed and tested; its four unclear points are decided; the return is time-weighted (10.97%). NOT CLOSED IN REAL USE — its finding on the renter who owns a rented-out house (MK-NW-O-004): the fix tells the home's mortgage from another property's, but no screen yet tells the app that a property is a rental, so the case passes only in its test. It closes with steps 2 and 3 of the row \"How a mortgage, rent and a debt are entered and counted\" (DEC-1924, DEC-1926, DEC-1923). ALSO LEFT FROM WORK THIS FILE STARTED: share transfers synced before 2026-10-04 carry no direction, so a window holding one still shows no return; a balance typed back-dated is assumed to hold that day's money. ONLY Claude's file has come back for this batch; Gemini's has not been run. 2026-10-05 — the renter who owns a rented-out house: closed. Rent entered for a property on the Income screen is what makes it a rental (DEC-1926), so the app no longer needs a field no screen could set. Its \"three places\" case was worked from the card as sent; the owner's rule of 2026-10-04 (DEC-1923) changed the formula, so the test keeps its numbers on record and asserts the answer under the rule."
+    "comments": "MEASURED 2026-10-04 at his question (\"are these 6 findings not in file?\"): the test file run against the app as it stood before the fixes (cd9f0b8) — 13 of 32 failed; against the fixes — 0 fail. All six of its findings were real. Still open: the return (its finding 2 — the app still shows 42.32% where 10.97% is right) and \"no figure when the record does not reach back\". 2026-10-05, STATE OF THIS FILE: its six findings and its five smaller points are fixed and tested; its four unclear points are decided; the return is time-weighted (10.97%). NOT CLOSED IN REAL USE — its finding on the renter who owns a rented-out house (MK-NW-O-004): the fix tells the home's mortgage from another property's, but no screen yet tells the app that a property is a rental, so the case passes only in its test. It closes with steps 2 and 3 of the row \"How a mortgage, rent and a debt are entered and counted\" (DEC-1924, DEC-1926, DEC-1923). ALSO LEFT FROM WORK THIS FILE STARTED: share transfers synced before 2026-10-04 carry no direction, so a window holding one still shows no return; a balance typed back-dated is assumed to hold that day's money. ONLY Claude's file has come back for this batch; Gemini's has not been run. 2026-10-05 — the renter who owns a rented-out house: closed. Rent entered for a property on the Income screen is what makes it a rental (DEC-1926), so the app no longer needs a field no screen could set. Its \"three places\" case was worked from the card as sent; the owner's rule of 2026-10-04 (DEC-1923) changed the formula, so the test keeps its numbers on record and asserts the answer under the rule. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2521,10 +2521,10 @@
    "status": "DONE",
    "ref": "src/__tests__/guard_every_return_is_time_weighted.test.ts",
    "date": "2026-10-04",
-   "comments": "REMOVED 2026-10-04 on his instruction (\"work on fixing all 5+4 findings\"): modifiedDietzOverWindow (window-return.ts), moneyWeighted.ts whole (5 functions), investableChangePct (history.ts); their tests and probes; seven function numbers retired. The bench page's return card is now time-weighted and was rebuilt. The guard reads the engines too and fails the build if one comes back.",
+   "comments": "REMOVED 2026-10-04 on his instruction (\"work on fixing all 5+4 findings\"): modifiedDietzOverWindow (window-return.ts), moneyWeighted.ts whole (5 functions), investableChangePct (history.ts); their tests and probes; seven function numbers retired. The bench page's return card is now time-weighted and was rebuilt. The guard reads the engines too and fails the build if one comes back. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE",
-    "comments": "REMOVED 2026-10-04 on his instruction (\"work on fixing all 5+4 findings\"): modifiedDietzOverWindow (window-return.ts), moneyWeighted.ts whole (5 functions), investableChangePct (history.ts); their tests and probes; seven function numbers retired. The bench page's return card is now time-weighted and was rebuilt. The guard reads the engines too and fails the build if one comes back."
+    "comments": "REMOVED 2026-10-04 on his instruction (\"work on fixing all 5+4 findings\"): modifiedDietzOverWindow (window-return.ts), moneyWeighted.ts whole (5 functions), investableChangePct (history.ts); their tests and probes; seven function numbers retired. The bench page's return card is now time-weighted and was rebuilt. The guard reads the engines too and fails the build if one comes back. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2533,10 +2533,10 @@
    "status": "DONE except one limit: a balance typed back-dated (item 4).",
    "ref": "Calculation Module code/engines/time-weighted-return.ts",
    "date": "2026-10-04",
-   "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money. 2026-10-05 — item 1 finished: a share transfer synced before 2026-10-04 is given its direction on the next sync, from the activity the broker reports again; it is never imported twice (ingest.test.ts). Until that sync runs, a window holding such a row still shows no return.",
+   "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money. 2026-10-05 — item 1 finished: a share transfer synced before 2026-10-04 is given its direction on the next sync, from the activity the broker reports again; it is never imported twice (ingest.test.ts). Until that sync runs, a window holding such a row still shows no return. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE except one limit: a balance typed back-dated (item 4).",
-    "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money. 2026-10-05 — item 1 finished: a share transfer synced before 2026-10-04 is given its direction on the next sync, from the activity the broker reports again; it is never imported twice (ingest.test.ts). Until that sync runs, a window holding such a row still shows no return."
+    "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money. 2026-10-05 — item 1 finished: a share transfer synced before 2026-10-04 is given its direction on the next sync, from the activity the broker reports again; it is never imported twice (ingest.test.ts). Until that sync runs, a window holding such a row still shows no return. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2557,10 +2557,10 @@
    "status": "DONE",
    "ref": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts",
    "date": "2026-10-04",
-   "comments": "Tests: emergency_fund_rent.test.ts (the four logged-debt cases) · sale_takes_oldest_first.test.ts (4) · kept_editors_match (Bonds line) · outside_networth_01 (bonds named). Drawings Bonds v02 and Holding detail v02 carry a note at the top.",
+   "comments": "Tests: emergency_fund_rent.test.ts (the four logged-debt cases) · sale_takes_oldest_first.test.ts (4) · kept_editors_match (Bonds line) · outside_networth_01 (bonds named). Drawings Bonds v02 and Holding detail v02 carry a note at the top. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE",
-    "comments": "Tests: emergency_fund_rent.test.ts (the four logged-debt cases) · sale_takes_oldest_first.test.ts (4) · kept_editors_match (Bonds line) · outside_networth_01 (bonds named). Drawings Bonds v02 and Holding detail v02 carry a note at the top."
+    "comments": "Tests: emergency_fund_rent.test.ts (the four logged-debt cases) · sale_takes_oldest_first.test.ts (4) · kept_editors_match (Bonds line) · outside_networth_01 (bonds named). Drawings Bonds v02 and Holding detail v02 carry a note at the top. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2605,10 +2605,10 @@
    "status": "DONE — 73 of 75 its answers, 2 held and approved by him (\"Rest I am good with.\", 2026-10-06). Final audit for Gemini written 2026-10-07: to-send/moneykeel_audit_final_networth02_for-gemini_v01.md (24 cards: the 15 of the batch as they stand + 9 changed or added since).",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_networth02_claude.json · MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts (75) · outside_networth_02_found.test.ts (23) · src/screens/__tests__/outside_networth_02.test.tsx (6)",
    "date": "2026-10-05",
-   "comments": "Not pushed. The two drawings carry the changes at their top, in a second table marked as not his rulings: Net worth v08 (8 lines), Performance v17 (5 lines).",
+   "comments": "Not pushed. The two drawings carry the changes at their top, in a second table marked as not his rulings: Net worth v08 (8 lines), Performance v17 (5 lines). APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE — 73 of 75 its answers, 2 held and approved by him (\"Rest I am good with.\", 2026-10-06). Final audit for Gemini written 2026-10-07: to-send/moneykeel_audit_final_networth02_for-gemini_v01.md (24 cards: the 15 of the batch as they stand + 9 changed or added since).",
-    "comments": "Not pushed. The two drawings carry the changes at their top, in a second table marked as not his rulings: Net worth v08 (8 lines), Performance v17 (5 lines)."
+    "comments": "Not pushed. The two drawings carry the changes at their top, in a second table marked as not his rulings: Net worth v08 (8 lines), Performance v17 (5 lines). APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2617,10 +2617,10 @@
    "status": "DONE — kept by my decision; one line reverses it. The Insights label is open for the Menu build.",
    "ref": "src/domain/assets/index.ts (MK-NW-F-004) · src/screens/InsightsScreen.tsx (the behind-benchmark insight) · MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts",
    "date": "2026-10-05",
-   "comments": "",
+   "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE — kept by my decision; one line reverses it. The Insights label is open for the Menu build.",
-    "comments": ""
+    "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2629,10 +2629,10 @@
    "status": "DONE",
    "ref": "MoneyKeel/functions/networth-and-performance/performance.ts (MK-NW-O-008) · src/screens/HomeScreen.tsx · src/screens/PerformanceScreen.tsx · src/screens/__tests__/outside_networth_02.test.tsx · src/screens/__tests__/fcc_agreement.test.tsx",
    "date": "2026-10-05",
-   "comments": "DECIDED BY ME: Home's figure is the one Performance shows, not Net worth's Investments line — it sits beside Performance's return and opens Performance. To reverse: one line in HomeScreen.tsx.",
+   "comments": "DECIDED BY ME: Home's figure is the one Performance shows, not Net worth's Investments line — it sits beside Performance's return and opens Performance. To reverse: one line in HomeScreen.tsx. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE",
-    "comments": "DECIDED BY ME: Home's figure is the one Performance shows, not Net worth's Investments line — it sits beside Performance's return and opens Performance. To reverse: one line in HomeScreen.tsx."
+    "comments": "DECIDED BY ME: Home's figure is the one Performance shows, not Net worth's Investments line — it sits beside Performance's return and opens Performance. To reverse: one line in HomeScreen.tsx. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2641,10 +2641,10 @@
    "status": "DONE",
    "ref": "src/services/sync/ingest.ts (MK-XS-F-102 ingestSync) · src/services/sync/f6_money_market.test.ts · src/services/sync/ingest.test.ts",
    "date": "2026-10-05",
-   "comments": "",
+   "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE",
-    "comments": ""
+    "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2653,10 +2653,10 @@
    "status": "DONE for the name. OPEN: the by-hand form has one choice for 401(k) and IRA.",
    "ref": "src/domain/assets/index.ts (MK-NW-F-025) · src/screens/AddAccountScreen.tsx · MoneyKeel/functions/networth-and-performance/outside_networth_02_found.test.ts",
    "date": "2026-10-05",
-   "comments": "",
+   "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE for the name. OPEN: the by-hand form has one choice for 401(k) and IRA.",
-    "comments": ""
+    "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2665,10 +2665,10 @@
    "status": "DONE",
    "ref": "src/domain/assets/index.ts (MK-NW-F-109, MK-NW-F-027, MK-NW-F-028, MK-NW-F-012) · src/screens/AccountPortfolioScreen.tsx",
    "date": "2026-10-05",
-   "comments": "",
+   "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "DONE",
-    "comments": ""
+    "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
@@ -2713,10 +2713,10 @@
    "status": "CLOSED on his word, 2026-10-07: \"NW batch one close.\" — 36 of 36.",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/NW-01-gemini.md · MoneyKeel/functions/networth-and-performance/outside_networth_01_final_gemini.test.ts",
    "date": "2026-10-07",
-   "comments": "",
+   "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
    "_written": {
     "status": "CLOSED on his word, 2026-10-07: \"NW batch one close.\" — 36 of 36.",
-    "comments": ""
+    "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
    }
   },
   {
