@@ -38,12 +38,12 @@ describe('MK-PF-M-002 Wealth generated', () => {
       { txn_id: 'd', account_id: 'a1', type: 'DIVIDEND', amount: 600, date: '2026-06-01' },
       { txn_id: 'i', account_id: 'a1', type: 'INTEREST', amount: 400, date: '2026-07-01' },
     ] });
-    expect(a.walk.dividends).toBe(600);
-    expect(a.walk.interest).toBe(400);
+    expect(a.walk!.dividends).toBe(600);
+    expect(a.walk!.interest).toBe(400);
     // $30,000 → $32,000 with nothing paid in: all $2,000 is wealth generated, and the
     // dividends and interest are INSIDE it, not beside it
-    expect(a.walk.wealthGenerated).toBe(2_000);
-    expect(a.walk.dividends + a.walk.interest + a.walk.marketChange).toBe(a.walk.wealthGenerated);
+    expect(a.walk!.wealthGenerated).toBe(2_000);
+    expect(a.walk!.dividends + a.walk!.interest + a.walk!.marketChange).toBe(a.walk!.wealthGenerated);
   });
 });
 
@@ -52,10 +52,10 @@ describe('MK-PF-M-003 HOW $X BECAME $Y · ALL ACCOUNTS', () => {
   test('whatever the records cannot explain lands in the change-in-value line, never silently dropped', () => {
     // the records explain $600 of the $2,000; the other $1,400 has to appear somewhere
     const a = ask({ transactions: [{ txn_id: 'd', account_id: 'a1', type: 'DIVIDEND', amount: 600, date: '2026-06-01' }] });
-    expect(a.walk.marketChange).toBe(1_400);
-    const sum = a.walk.beginning + a.walk.contributions - a.walk.withdrawals
-      + a.walk.dividends + a.walk.interest + a.walk.marketChange;
-    expect(sum).toBe(a.walk.ending);          // the walk always closes
+    expect(a.walk!.marketChange).toBe(1_400);
+    const sum = a.walk!.beginning + a.walk!.contributions - a.walk!.withdrawals
+      + a.walk!.dividends + a.walk!.interest + a.walk!.marketChange;
+    expect(sum).toBe(a.walk!.ending);          // the walk always closes
   });
 });
 
@@ -157,7 +157,7 @@ describe('MK-PF-M-007 All categories', () => {
 describe('MK-PF-M-001 Ending value and MK-PF-M-004 Ending market value (per account)', () => {
   test('the ending value a person reads IS the last line of the walk — one number, not two', () => {
     const a = ask({ ending: 32_000 });
-    expect(a.walk.ending).toBe(32_000);
+    expect(a.walk!.ending).toBe(32_000);
   });
   test('the same door, asked of ONE account, gives that account its own ending — so the parts and the total agree', () => {
     const days = [
@@ -167,7 +167,7 @@ describe('MK-PF-M-001 Ending value and MK-PF-M-004 Ending market value (per acco
     const both = ask({ ending: 55_000, snapshotDays: days, investmentAccountIds: new Set(['a1', 'a2']) });
     const one = ask({ ending: 33_000, snapshotDays: days, investmentAccountIds: new Set(['a1']) });
     const two = ask({ ending: 22_000, snapshotDays: days, investmentAccountIds: new Set(['a2']) });
-    expect(one.walk.ending + two.walk.ending).toBe(both.walk.ending);
+    expect(one.ending + two.ending).toBe(both.ending);   // the ending stands whether or not a walk can be drawn (2026-10-07)
   });
 });
 
@@ -184,9 +184,9 @@ describe('MK-PF-M-013 Beginning market value', () => {
                     investmentAccountIds: new Set(['a1']) });
     const b = ask({ ending: 50_000, snapshotDays: [recordDay('2026-01-01', 40_000, 'a1')] as any,
                     investmentAccountIds: new Set(['a1']) });
-    expect(a.walk.beginning).not.toBe(b.walk.beginning);
-    expect(a.walk.beginning).toBe(30_000);
-    expect(b.walk.beginning).toBe(40_000);
+    expect(a.walk!.beginning).not.toBe(b.walk!.beginning);
+    expect(a.walk!.beginning).toBe(30_000);
+    expect(b.walk!.beginning).toBe(40_000);
   });
 });
 
@@ -199,7 +199,7 @@ describe('MK-PF-M-014 Wealth generated', () => {
     const withPayIn = ask({ ending: 40_000, snapshotDays: days, investmentAccountIds: new Set(['a1']),
       transactions: [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1',
                        amount: 5_000, created_at: 'x' }] as any });
-    expect(alone.walk.wealthGenerated - withPayIn.walk.wealthGenerated).toBe(5_000);
+    expect(alone.walk!.wealthGenerated - withPayIn.walk!.wealthGenerated).toBe(5_000);
   });
 });
 
@@ -234,9 +234,9 @@ describe('MK-PF-M-017 Return · MK-PF-M-018 Beginning market value · MK-PF-M-01
     const days = [recordDay('2025-12-31', 30_000, 'a1')] as any;
     const a = ask({ ending: 46_600, snapshotDays: days, investmentAccountIds: new Set(['a1']),
       transactions: [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1', amount: 6_000, created_at: 'x' }] as any });
-    expect(a.walk.beginning).toBe(30_000);                                             // MK-PF-M-018, read from the record
-    const lines = a.walk.contributions - a.walk.withdrawals + a.walk.dividends + a.walk.interest + a.walk.marketChange;
-    expect(a.walk.beginning + lines).toBeCloseTo(a.walk.ending, 2);                   // MK-PF-M-019: the lines reach the ending
+    expect(a.walk!.beginning).toBe(30_000);                                             // MK-PF-M-018, read from the record
+    const lines = a.walk!.contributions - a.walk!.withdrawals + a.walk!.dividends + a.walk!.interest + a.walk!.marketChange;
+    expect(a.walk!.beginning + lines).toBeCloseTo(a.walk!.ending, 2);                   // MK-PF-M-019: the lines reach the ending
     const { PERFORMANCE_FIGURES } = require('./performance');
     expect(PERFORMANCE_FIGURES['MK-PF-M-017'].unit).toBe('percent-signed');          // MK-PF-M-017
     expect(PERFORMANCE_FIGURES['MK-PF-M-017'].grain).toBe('every account together');
@@ -259,7 +259,7 @@ describe('MK-PF-M-015 one line of the walk', () => {
       investmentAccountIds: new Set(['a1']),
       transactions: [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1',
                        amount: 6_000, created_at: 'x' }] as any });
-    const w = a.walk;
+    const w = a.walk!;
     expect(w.beginning + w.contributions - w.withdrawals + w.wealthGenerated).toBeCloseTo(w.ending, 2);
   });
 });
@@ -334,7 +334,7 @@ describe('MK-XS-M-004 ▲ up/▼ down $X (Y%) this month · Return · YOUR RETUR
     });
     expect(a.ret).toBeNull();
     expect(a.sentence).toMatch(/Money moved in or out on Apr 1, 2026 and no value was recorded that day/);
-    expect(a.walk.ending).toBe(46_600);        // and the walk is still there, and still closes
+    expect(a.walk!.ending).toBe(46_600);        // and the walk is still there, and still closes
   });
   test('OVER A YEAR IT IS A YEARLY RATE, and both figures are kept so the screen can label them', () => {
     const twoYears = thePerformance({

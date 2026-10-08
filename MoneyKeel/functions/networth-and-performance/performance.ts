@@ -34,8 +34,12 @@ export interface WindowFigures {
   windowStart: string | null;
   /** The records inside the window. */
   ledger: any[];
-  /** How the beginning became the ending, line by line — the rows always sum to the ending. */
-  walk: ChangeWalk;
+  /** How the beginning became the ending, line by line — the rows always sum to the ending. Null when
+   *  the record cannot reach the window's beginning: the walk is not drawn rather than started from a
+   *  beginning worked back from today (outside review, 2026-10-07; Performance v17). */
+  walk: ChangeWalk | null;
+  /** What the measured accounts are worth today — known whether or not the walk can be drawn. */
+  ending: number;
   /** The beginning as READ from the daily record, or null when the record cannot reach back. */
   measured: number | null;
   /** Whether the record reaches back to the window's first day. False → every percent here is null. */
@@ -447,12 +451,26 @@ export function thePerformance(input: {
   // measuring from today" (Performance v17, phone 4). What the holdings gained before today is not
   // this window's gain, so it is not taken off the beginning.
   const pricedGain = windowStart === today ? 0 : input.pricedGain;
+  // NO BEGINNING WORKED BACK FROM TODAY (outside review, 2026-10-07). Where the record cannot reach the
+  // window's first day, the beginning used to be worked back — ending less the priced gain and the money
+  // moved — and wealth generated then equalled that gain, both shown as if measured. Performance v17
+  // (approved 2026-10-01): "nothing on this page shows a figure for a window its record cannot cover";
+  // and wealth generated's own rule: nothing honest to subtract from. So no walk, and a sentence.
+  // Only where a record EXISTS and begins too late. With no daily record at all, the account page's own
+  // approved line stands: the window opens the first day money moved, the beginning is read back from the
+  // activity records, it says so, and no return is measured (AccountPortfolio, 'does not reach back … yet').
+  const theirDays = days.filter((d: any) => accountValuesOn(d, (x) => input.investmentAccountIds.has(x)).size > 0);
+  const unreachable = windowStart != null && windowStart !== today && bounds != null && measured == null && theirDays.length > 0;
   const beginning = measured ?? (ending - pricedGain - contributions + withdrawals);
 
-  const walk = buildChangeWalk({
+  const walk = unreachable ? null : buildChangeWalk({
     beginning, ending, fromLabel: input.windowLabel, toLabel: 'today',
     contributions, withdrawals, dividends, interest,
   });
+  const firstRecorded = theirDays.map((d: any) => String(d?.date ?? '')).filter(Boolean).sort()[0];
+  const cannotReach = unreachable && bounds && firstRecorded
+    ? `The record begins ${dateShown(firstRecorded)}, so it cannot say what ${input.investmentAccountIds.size === 1 ? 'this account was' : 'these accounts were'} worth on ${dateShown(bounds.beginningAsOf)}.`
+    : '';
 
   const years = bounds ? bounds.days / 365 : 0;
   // A WINDOW THE RECORD CANNOT COVER ANSWERS NOTHING (Performance v17, approved 2026-10-01: "a window
@@ -478,7 +496,7 @@ export function thePerformance(input: {
   const perYear = cumulative != null && years > 1 && !input.wholeRecord ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
 
   return {
-    windowStart, ledger, walk, measured,
+    windowStart, ledger, walk, ending, measured,
     /** Whether the record reaches back to this window's first day. Where it does not, every percent
      *  is null and the screen greys the window to an em-dash. */
     covered,
@@ -488,7 +506,7 @@ export function thePerformance(input: {
     beginningAsOf: bounds ? bounds.beginningAsOf : null,
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
-    sentence: covered ? whyNoReturn(verdict) : '',
+    sentence: covered ? whyNoReturn(verdict) : cannotReach,
   };
 }
 
@@ -916,7 +934,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     refusal: 'The record does not reach back that far, so the walk is not drawn at all rather than '
       + 'started from a guess.',
     ruled: '2026-10-01',
-    worked: { given: GIVEN, answer: '$30,000', run: () => PERF().walk.beginning },
+    worked: { given: GIVEN, answer: '$30,000', run: () => PERF().walk!.beginning },
   },
   'MK-PF-M-014': {
     label: 'Wealth generated', unit: 'money', screens: ['/account-detail'], grain: 'one account',
@@ -932,7 +950,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     refusal: 'No beginning to measure from \u2014 the line shows nothing rather than a change.',
     ruled: '2026-10-01',
     // $46,600 today, $30,000 at the start, $6,000 paid in: $46,600 − $30,000 − $6,000 = $10,600
-    worked: { given: GIVEN, answer: '$10,600', run: () => PERF().walk.wealthGenerated },
+    worked: { given: GIVEN, answer: '$10,600', run: () => PERF().walk!.wealthGenerated },
   },
   'MK-PF-M-015': {
     label: 'one line of the walk', unit: 'money', screens: ['/account-detail', '/invest'],
@@ -949,7 +967,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     refusal: 'No flows recorded \u2014 the line is not drawn.',
     ruled: '2026-10-01',
     // money paid in over the window — $6,000 on 1 April
-    worked: { given: GIVEN, answer: '$6,000', run: () => PERF().walk.contributions },
+    worked: { given: GIVEN, answer: '$6,000', run: () => PERF().walk!.contributions },
   },
   // ISSUED AND DECLARED 2026-10-01 (Account portfolio built to Performance v17 frame 2, DEC-0646). The
   // Return across the top and in the SUMMARY trio printed under MK-PF-M-008, which is the MARKET's
@@ -999,7 +1017,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     decisions: ['READ, NEVER BACK-SOLVED: with no recorded value the walk says so instead of inventing a start.'],
     refusal: 'No recorded value that far back \u2014 the walk starts the day the record does, and says so.',
     ruled: '2026-10-01',
-    worked: { given: GIVEN, answer: '$30,000', run: () => PERF().walk.beginning },
+    worked: { given: GIVEN, answer: '$30,000', run: () => PERF().walk!.beginning },
   },
   'MK-PF-M-019': {
     label: 'one line of the walk', unit: 'money', screens: ['/invest'], grain: 'every account together',
@@ -1010,7 +1028,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     refusal: 'A real $0 \u2014 a line with nothing in it still prints, so the structure never changes.',
     ruled: '2026-10-01',
     // $6,000 paid in on 1 Apr is the Contributions line
-    worked: { given: GIVEN, answer: '$6,000', run: () => PERF().walk.contributions },
+    worked: { given: GIVEN, answer: '$6,000', run: () => PERF().walk!.contributions },
   },
   'MK-PF-M-020': {
     label: 'Available cash', unit: 'money', screens: ['/invest'], grain: 'one account',
@@ -1116,7 +1134,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: '$46,600',
-      run: () => PERF().walk.ending,
+      run: () => PERF().walk!.ending,
     },
   },
   'MK-PF-M-002': {
@@ -1130,7 +1148,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: '$10,600',
-      run: () => PERF().walk.wealthGenerated,
+      run: () => PERF().walk!.wealthGenerated,
     },
   },
   'MK-PF-M-003': {
@@ -1144,7 +1162,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: 'HOW $30,000 BECAME $46,600 · ALL ACCOUNTS',
-      run: () => `HOW ${formatMoney(PERF().walk.beginning)} BECAME ${formatMoney(PERF().walk.ending)} · ALL ACCOUNTS`,
+      run: () => `HOW ${formatMoney(PERF().walk!.beginning)} BECAME ${formatMoney(PERF().walk!.ending)} · ALL ACCOUNTS`,
     },
   },
   'MK-PF-M-004': {
@@ -1159,7 +1177,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     worked: {
       given: GIVEN + ' Asked of that one account.',
       answer: '$46,600',
-      run: () => PERF_ONE(['a2']).walk.ending,
+      run: () => PERF_ONE(['a2']).walk!.ending,
     },
     ruled: '2026-09-27',
   },
@@ -1174,7 +1192,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     worked: {
       given: GIVEN + ' Each account is asked separately, from the same door as the total.',
       answer: '$46,600',
-      run: () => PERF_ONE(['a2']).walk.ending,
+      run: () => PERF_ONE(['a2']).walk!.ending,
     },
   },
 });

@@ -88,6 +88,7 @@ export interface HoldingAnswer {
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  * Ruled by .... DEC-0092 · DEC-0108 · DEC-0152 · DEC-0165 · DEC-0301 · DEC-0475
@@ -176,7 +177,8 @@ export function theHolding(input: {
  *  is not, so the gain splits $8,000 long and $1,000 short. A single-lot example would never show
  *  that the split is what the holding is FOR.
  */
-const EXAMPLE_POSITION = { position_id: 'p1', ticker: 'VTI', label: 'Vanguard Total Market', unit: 'shares',
+// a linked account's holding carries the broker's tag (ingest writes it) — without one it is Unclassified (DEC-2160)
+const EXAMPLE_POSITION = { position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', label: 'Vanguard Total Market', unit: 'shares',
   last_price: 290,
   lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 210, purchase_date: '2023-03-15' },
          { lot_id: 'l2', shares: 40, cost_per_share: 265, purchase_date: '2026-06-01' }] } as any;

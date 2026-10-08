@@ -524,6 +524,199 @@
      "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §13"
     }
    ]
+  },
+  {
+   "match": "SUBJECT: The second-round outside review of Net worth, batches 2, 3 and 4 — each change, by function, approved",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "His approval of the second-round review of Net worth batches 2, 3 and 4, as a whole",
+     "plain": "His approval of the second-round review of Net worth batches 2, 3 and 4, as a whole. Each rule it approved is its own row beside this one.",
+     "type": "PROCESS",
+     "status": "TESTED"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The retirement money’s twelve-month return weighs each account by what was set aside when the year began: Σ now ÷ Σ start − 1.",
+     "plain": "The retirement money’s twelve-month return weighs each account by what was set aside when the year began: Σ now ÷ Σ start − 1. Before: weighed by today’s amounts, 13.72% where 12.98% is right.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/plan",
+     "governs": "MK-NW-F-004 portfolioActualReturn",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A 529’s and an HSA’s tax words are fixed by what they are; ‘(Roth)’ appears only for an account in the Roth bucket.",
+     "plain": "A 529’s and an HSA’s tax words are fixed by what they are; ‘(Roth)’ appears only for an account in the Roth bucket. Before: a 529 stated tax-free read ‘tax-free (Roth)’.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-108 taxWordsOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §6"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A hand-built account is split holding by holding, so a T-bill inside it is Bonds & CDs.",
+     "plain": "A hand-built account is split holding by holding, so a T-bill inside it is Bonds & CDs. Before: everything but its cash was filed under the account’s own class.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-027 accountClassBreakdown",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §3"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A Roth 401(k) reads Roth 401(k), and a tax-advantaged account with no kind and known digits shows its tax word.",
+     "plain": "A Roth 401(k) reads Roth 401(k), and a tax-advantaged account with no kind and known digits shows its tax word. Before: ‘Fidelity 401(k)’ for both a Roth and a pre-tax 401(k); ‘Vanguard -1234’ for a Roth.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-025 accountDisplayName",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §6"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A holding with nothing stored — no tag, no kind, nothing in its name — is Unclassified, never Stocks / Funds by default.",
+     "plain": "A holding with nothing stored — no tag, no kind, nothing in its name — is Unclassified, never Stocks / Funds by default. Before: it was filed as Stocks / Funds (against DEC-2160).",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics · /account-portfolio",
+     "governs": "MK-NW-F-109 holdingClassOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §2"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Broker Treasury wording (TREAS, UST, T-bond) counts as a Treasury in the words under an account, and more than one reads Treasuries.",
+     "plain": "Broker Treasury wording (TREAS, UST, T-bond) counts as a Treasury in the words under an account, and more than one reads Treasuries. Before: a broker’s T-bill read ‘1 bond’.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-028 classPortionLabel",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §2"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A value dated by its month alone is shown as the 1st of that month.",
+     "plain": "A value dated by its month alone is shown as the 1st of that month. Before: the stored text was handed back unchanged.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-003 valueFreshness",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §7"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Performance draws no walk for a window its record exists but cannot reach; a sentence names the record’s first day.",
+     "plain": "Performance draws no walk for a window its record exists but cannot reach; a sentence names the record’s first day. Before: the beginning was worked back from today and wealth generated shown as if measured.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/invest · /account-portfolio · /home",
+     "governs": "MK-NW-O-008 thePerformance",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §5"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A rate the person set themselves is labelled an estimate.",
+     "plain": "A rate the person set themselves is labelled an estimate. Before: it took the record’s flag.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/plan",
+     "governs": "MK-NW-F-036 benchmarkInfo",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "An employer’s percent match is taken on the 401(k) figure after the yearly limit.",
+     "plain": "An employer’s percent match is taken on the 401(k) figure after the yearly limit. Before: on the figure as typed — $1,600 where $1,490 is right.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/plan",
+     "governs": "MK-NW-F-041 monthlyContributionsFromOnboarding",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "History shared is rounded down and its sentence built from whole months only.",
+     "plain": "History shared is rounded down and its sentence built from whole months only. Before: one day short of a year read ‘1 year’.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/account-portfolio",
+     "governs": "MK-NW-F-046 historyCoverage",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §11"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "Accounts made by itemising carry the typical rate for their class, never 0%, and a bond rate not entered stays blank.",
+     "plain": "Accounts made by itemising carry the typical rate for their class, never 0%, and a bond rate not entered stays blank. Before: every itemised account had a 0% rate.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/itemize",
+     "governs": "MK-NW-F-052 buildItemizedAccounts",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_03_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §9"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "The Other investments summary reads the class split, so its total is the Alternatives line’s dollars and each part is rated by what it is.",
+     "plain": "The Other investments summary reads the class split, so its total is the Alternatives line’s dollars and each part is rated by what it is. Before: whole accounts only — $18,641 where the Alternatives line read $23,031.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/other-investments",
+     "governs": "MK-NW-F-002 alternativesSummary",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §5"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "A property’s name is not read as evidence of its class; a fund that writes options is a fund.",
+     "plain": "A property’s name is not read as evidence of its class; a fund that writes options is a fund. Before: ‘Silver Lake house’ read as an alternative and a covered-call ETF as options.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics",
+     "governs": "MK-NW-F-011 assetClassOf · MK-ST-F-010 nameEvidence",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §1"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-07",
+     "subject": "What a property is for has one reading for every function; handed the rent entries, a property is a rental only when an entry names it, and a household with no home is told so.",
+     "plain": "What a property is for has one reading for every function; handed the rent entries, a property is a rental only when an entry names it, and a household with no home is told so. Before: three functions read it three ways; a rented-out house marked home counted as the home.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/analytics · /plan",
+     "governs": "MK-NW-F-117 propertyUseMap · MK-NW-F-107 propertyUses · MK-NW-F-110 primaryHomeIdOf · MK-NW-F-013 realEstateUseOf · MK-NW-F-030 earmarkDefault",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04_final.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
+    }
+   ]
   }
  ]
 }

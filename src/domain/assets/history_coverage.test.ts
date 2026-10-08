@@ -20,7 +20,8 @@ describe('historyCoverage — does the shared history cover the window a figure 
     const c = historyCoverage(a({ history_from: '2026-05-04', institution: 'E*TRADE' }), '2025-08-04', NOW)!;
     expect(c.kind).toBe('partial');
     expect(c.from).toBe('2026-05-04');
-    expect(c.sentence).toBe("E*TRADE shared 3 months of history (from May 4, 2026) — figures before that aren't counted.");
+    // whole months only — never rounded up (second-round review, 2026-10-07)
+    expect(c.sentence).toBe("E*TRADE shared 2 months of history (from May 4, 2026) — figures before that aren't counted.");
   });
 
   test('a connected account that has shared nothing says so — never a false $0', () => {

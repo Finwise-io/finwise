@@ -19,13 +19,13 @@ test('the walk always sums to the ending, by construction', () => {
     snapshotDays: [day('2025-12-31', 100000)],
     transactions: [{ id: 1, date: '2026-03-01', type: 'DEPOSIT', amount: 10000 }],
   });
-  const w = f.walk;
+  const w = f.walk!;
   expect(w.beginning + w.contributions - w.withdrawals + w.wealthGenerated).toBeCloseTo(w.ending, 4);
   expect(w.beginning).toBe(100000);        // READ from the record, not derived
   expect(f.measured).toBe(100000);
 });
 
-test('THE BEGINNING IS READ, NEVER BACK-FILLED — and when the record cannot reach, it is derived and says so', () => {
+test('THE BEGINNING IS READ, NEVER BACK-FILLED — and with no record at all, it is derived and says so', () => {
   const read = thePerformance({
     windowStart: '2026-01-01', windowLabel: 'x', today: '2026-07-01', ending: 120000, pricedGain: 5000,
     investmentAccountIds: IDS, snapshotDays: [day('2025-12-31', 100000)], transactions: [],
@@ -37,7 +37,17 @@ test('THE BEGINNING IS READ, NEVER BACK-FILLED — and when the record cannot re
     investmentAccountIds: IDS, snapshotDays: [], transactions: [],
   });
   expect(derived.measured).toBeNull();     // the record could not, and the figure admits it
-  expect(derived.walk.beginning).toBe(120000 - 5000);
+  expect(derived.walk!.beginning).toBe(120000 - 5000);   // no record at all: the account page's approved 'read back from your activity records' state
+
+  // A RECORD THAT BEGINS TOO LATE is different (second-round review, 2026-10-07; Performance v17):
+  // no walk worked back from today, and a sentence naming the record's first day
+  const late = thePerformance({
+    windowStart: '2026-01-01', windowLabel: 'x', today: '2026-07-01', ending: 120000, pricedGain: 5000,
+    investmentAccountIds: IDS, snapshotDays: [day('2026-03-02', 110000)], transactions: [],
+  });
+  expect(late.walk).toBeNull();
+  expect(late.ending).toBe(120000);
+  expect(late.sentence).toBe('The record begins Mar 2, 2026, so it cannot say what this account was worth on Dec 31, 2025.');
 });
 
 test('A RATE NEEDS SOMETHING TO STAND ON — no record and no movement means no return', () => {
@@ -58,9 +68,9 @@ test('ONE MEANING OF RETURN: dividends and interest are inside wealth generated'
       { id: 2, date: '2026-03-01', type: 'INTEREST', amount: 100 },
     ],
   });
-  expect(f.walk.dividends).toBe(400);
-  expect(f.walk.interest).toBe(100);
-  expect(f.walk.wealthGenerated).toBeCloseTo(10000, 4);   // the whole gain, income included
+  expect(f.walk!.dividends).toBe(400);
+  expect(f.walk!.interest).toBe(100);
+  expect(f.walk!.wealthGenerated).toBeCloseTo(10000, 4);   // the whole gain, income included
 });
 
 test('A WINDOW LONGER THAN A YEAR CARRIES BOTH: the total and the yearly rate', () => {
@@ -120,7 +130,7 @@ describe('B-115 — the Since window opens where the record can answer', () => {
       snapshotDays: RECORD as any, investmentAccountIds: new Set(['a1']),
     });
     expect(answer.measured).toBe(100_000);          // read — it was null before the fix
-    expect(answer.walk.beginning).toBe(100_000);    // back-solved to 130,000 before the fix
+    expect(answer.walk!.beginning).toBe(100_000);    // back-solved to 130,000 before the fix
     expect(answer.ret).toBeCloseTo(0.3, 6);         // nothing was shown at all before the fix
   });
 
@@ -163,7 +173,7 @@ describe('the return is time-weighted — and nothing stands in for it', () => {
     expect(a.ret).toBeNull();
     expect(a.cumulative).toBeNull();
     expect(a.sentence).toBe('Money moved in or out on Apr 1, 2026 and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right.');
-    expect(a.walk.contributions).toBe(15_000);         // the dollar walk still answers
+    expect(a.walk!.contributions).toBe(15_000);         // the dollar walk still answers
   });
 
   test('nothing moved: the plain growth', () => {
@@ -185,7 +195,7 @@ describe('the return is time-weighted — and nothing stands in for it', () => {
   test('a record on some other account is not money put into these investments', () => {
     const other = [{ txn_id: 's', account_id: 'savings', type: 'DEPOSIT', amount: 9_000, date: '2026-04-01' }];
     const a = ask([day('2025-10-01', 20_000)], 22_000, other);
-    expect(a.walk.contributions).toBe(0);
+    expect(a.walk!.contributions).toBe(0);
     expect(a.ret).toBeCloseTo(0.10, 10);
   });
 });
@@ -207,8 +217,8 @@ describe('the walk counts what the return counts as money put in', () => {
     const a = thePerformance({ ...base, ending: 126_000, investmentAccountIds: new Set(['b']), accounts: [acct('b', 126_000)],
       snapshotDays: [day('2026-01-01', [['b', 100_000]]), day('2026-04-01', [['b', 120_000]])] as any,
       transactions: [{ id: 't', type: 'TRANSFER', account_id: 'checking', counter_account_id: 'b', amount: 15_000, date: '2026-04-01' }] });
-    expect(a.walk.contributions).toBe(15_000);                       // it read $0, and the $15,000 sat in "change in investment value"
-    expect(a.walk.wealthGenerated).toBeCloseTo(11_000, 6);           // 126,000 − 100,000 − 15,000
+    expect(a.walk!.contributions).toBe(15_000);                       // it read $0, and the $15,000 sat in "change in investment value"
+    expect(a.walk!.wealthGenerated).toBeCloseTo(11_000, 6);           // 126,000 − 100,000 − 15,000
     expect(a.ret).toBeCloseTo((105_000 / 100_000) * (126_000 / 120_000) - 1, 10);   // +10.25%, and the walk agrees it was not +26%
   });
 
@@ -216,12 +226,12 @@ describe('the walk counts what the return counts as money put in', () => {
     const out = thePerformance({ ...base, ending: 90_000, investmentAccountIds: new Set(['b']), accounts: [acct('b', 90_000)],
       snapshotDays: [day('2026-01-01', [['b', 100_000]]), day('2026-04-01', [['b', 90_000]])] as any,
       transactions: [{ id: 't', type: 'TRANSFER', account_id: 'b', counter_account_id: 'checking', amount: 10_000, date: '2026-04-01' }] });
-    expect(out.walk.withdrawals).toBe(10_000);
-    expect(out.walk.wealthGenerated).toBeCloseTo(0, 6);
+    expect(out.walk!.withdrawals).toBe(10_000);
+    expect(out.walk!.wealthGenerated).toBeCloseTo(0, 6);
     const between = thePerformance({ ...base, ending: 200_000, investmentAccountIds: new Set(['b', 'c']), accounts: [acct('b', 90_000), acct('c', 110_000)],
       snapshotDays: [day('2026-01-01', [['b', 100_000], ['c', 100_000]]), day('2026-04-01', [['b', 90_000], ['c', 110_000]])] as any,
       transactions: [{ id: 't', type: 'TRANSFER', account_id: 'b', counter_account_id: 'c', amount: 10_000, date: '2026-04-01' }] });
-    expect([between.walk.contributions, between.walk.withdrawals]).toEqual([0, 0]);
+    expect([between.walk!.contributions, between.walk!.withdrawals]).toEqual([0, 0]);
     expect(between.ret).toBeCloseTo(0, 10);
   });
 
@@ -230,9 +240,9 @@ describe('the walk counts what the return counts as money put in', () => {
       snapshotDays: [day('2026-01-01', [['b', 100_000]]), day('2026-06-01', [['b', 105_000], ['c', 50_000]])] as any,
       // its own opening deposit is inside that first value, so it is not counted a second time
       transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'c', amount: 50_000, date: '2026-06-01' }] });
-    expect(a.walk.beginning).toBe(100_000);
-    expect(a.walk.contributions).toBe(50_000);                       // it read as a $50,000 gain
-    expect(a.walk.wealthGenerated).toBeCloseTo(12_000, 6);           // b made $10,000, c made $2,000
+    expect(a.walk!.beginning).toBe(100_000);
+    expect(a.walk!.contributions).toBe(50_000);                       // it read as a $50,000 gain
+    expect(a.walk!.wealthGenerated).toBeCloseTo(12_000, 6);           // b made $10,000, c made $2,000
     expect(a.ret).toBeCloseTo(1.05 * (162_000 / 155_000) - 1, 10);
   });
 });

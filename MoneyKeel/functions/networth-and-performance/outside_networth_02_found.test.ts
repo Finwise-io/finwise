@@ -59,7 +59,8 @@ describe('MK-NW-F-012 taxTreatmentOf and MK-NW-F-108 taxWordsOf — a 529 and an
     expect(taxWordsOf(acct({ kind: 'roth_ira', tax_bucket: 'ROTH' }))).toBe('tax-free (Roth)');
     expect(taxWordsOf(acct({ kind: '401k', tax_bucket: 'PRE_TAX' }))).toBe('pre-tax — taxed when it comes out');
     expect(taxWordsOf(acct({ kind: 'brokerage' }))).toBe('taxable');
-    expect(taxWordsOf(acct({ kind: 'college_529', tax_treatment: 'taxable' }))).toBe('taxable');             // what the person stated wins
+    // what the account IS decides its words (second-round review, 2026-10-07): a 529 is tax-free for education whatever is stated
+    expect(taxWordsOf(acct({ kind: 'college_529', tax_treatment: 'taxable' }))).toBe('tax-free for education');
   });
   test('an HSA stays pre-tax in the three-way sort; a 529 is named as a 529', () => {
     expect(taxTreatmentOf(acct({ kind: 'hsa', tax_bucket: 'PRE_TAX' }))).toBe('tax_deferred');
@@ -186,9 +187,10 @@ describe('MK-NW-O-008 thePerformance — what the measured accounts are worth to
   test('each measured account whole — its uninvested cash included — whatever a screen hands in', () => {
     // Home handed in Net worth’s Investments line ($354,314, the cash left to the Cash line); Performance
     // handed in the accounts whole ($355,152). One household, two endings, $838 apart.
-    expect(ask(354314).walk.ending).toBe(355152);
-    expect(ask(355152).walk.ending).toBe(355152);
-    expect(ask().walk.ending).toBe(355152);
+    // no record reaches the window here, so there is no walk (2026-10-07) — the ending stands on its own
+    expect(ask(354314).ending).toBe(355152);
+    expect(ask(355152).ending).toBe(355152);
+    expect(ask().ending).toBe(355152);
     expect(theNetWorth({ uid: 'u', accounts, debts: [] }).investments).toBe(354314);   // Net worth’s line is the classes, as its drawing shows
   });
 });
@@ -203,6 +205,6 @@ describe('MK-NW-F-025 accountDisplayName — an account added by hand as Roth or
   test('and nothing else moves: a taxable brokerage, and a kind that already says what it is', () => {
     expect(accountDisplayName(acct({ label: 'Joint', institution: 'Vanguard', kind: 'brokerage' }))).toBe('Vanguard Brokerage');
     expect(accountDisplayName(acct({ label: 'x', institution: 'Vanguard', kind: 'roth_ira', tax_bucket: 'ROTH', mask: '••5738' }))).toBe('Vanguard Roth IRA -5738');
-    expect(accountDisplayName(acct({ label: 'x', institution: 'Fidelity', kind: '401k', tax_bucket: 'ROTH' }))).toBe('Fidelity 401(k)');   // a Roth 401(k) is a 401(k)
+    expect(accountDisplayName(acct({ label: 'x', institution: 'Fidelity', kind: '401k', tax_bucket: 'ROTH' }))).toBe('Fidelity Roth 401(k)');   // a 401(k) in the Roth bucket says Roth (second-round review, 2026-10-07)
   });
 });

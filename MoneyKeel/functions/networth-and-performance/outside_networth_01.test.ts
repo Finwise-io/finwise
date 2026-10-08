@@ -125,9 +125,11 @@ describe('MK-NW-O-002 theAccount — five cases', () => {
   test('complex · a linked account holding cash, stocks and a Treasury, with a small gap to the broker balance', () => {
     const account: any = { asset_id: 'v', label: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', source: 'connected', balance: 186442.19, cash_balance: 1213.62,
       positions: [
-        { position_id: 'p1', ticker: 'VTI', last_price: 301.18, lots: lot(412, 200) },
+        // a linked account's holdings always carry the broker's tag (ingest writes it); since 2026-10-07 a holding
+        // with no tag, no kind and nothing in its name is Unclassified (DEC-2160), so the tag the app writes is given here
+        { position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 301.18, lots: lot(412, 200) },
         { position_id: 'p2', ticker: '', name: 'Treasury bill', last_price: 23915.08, lots: lot(1, 23000) },
-        { position_id: 'p3', ticker: 'COST', last_price: 1006.1, lots: lot(37, 800) }] };
+        { position_id: 'p3', ticker: 'COST', asset_class: 'stock_etf', last_price: 1006.1, lots: lot(37, 800) }] };
     const a = theAccount({ account, transactions: [
       { id: '1', account_id: 'v', type: 'DIVIDEND', ticker: 'VTI', amount: 486.12, date: '2026-09-01' },
       { id: '2', account_id: 'v', type: 'INTEREST', amount: 71.4, date: '2026-09-02' },

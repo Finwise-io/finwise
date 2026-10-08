@@ -6,6 +6,7 @@
 // THE INVARIANT (trust): the account total NEVER drifts. A positive remainder (lump − Σ holdings) is kept
 // as a cash sleeve at the same institution, so  Σ(itemized) + remainder  ===  the lump you started with.
 import type { AssetAccount, TaxBucket } from './index';
+import { benchmarkReturn } from './index';
 
 export type ItemClass = 'stocks_etf' | 'bonds' | 'alternatives' | 'cash';
 
@@ -143,7 +144,6 @@ export const itemizedResultTotal = (lump: Pick<AssetAccount, 'balance'>, items: 
  *
  * Decides .....
  *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If coupon rate is missing it counts as zero, so nothing recorded and a real zero look the same.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-052
  * Changed ..... 2026-06-28 (e637ba5)
@@ -168,11 +168,14 @@ export function buildItemizedAccounts(lump: AssetAccount, items: ItemHolding[]):
       kind: wrapper ?? h.kind ?? KIND_FOR[h.cls],
       tax_bucket: bucket,
       balance: (h.value || 0),
-      target_return: 0,
+      // the typical rate for what it IS, not 0 (outside review, 2026-10-07): an itemised fund at 0%
+      // pulled the household's average return down
+      target_return: benchmarkReturn(KIND_FOR[h.cls]),
       ...carried,
     };
     if (h.cls === 'bonds') {
-      acct.coupon_rate = h.couponRate || 0;
+      // a rate not entered stays blank, never 0 (his approval of batch 5, DEC-2748b)
+      if (h.couponRate != null) acct.coupon_rate = h.couponRate;
       acct.maturity_date = h.maturityDate || undefined;
       // the face value is what the person entered, or nothing: today's value is not what it pays back,
       // and a face set to it made every itemised bond look bought at par (outside review, 2026-10-07)
@@ -190,7 +193,7 @@ export function buildItemizedAccounts(lump: AssetAccount, items: ItemHolding[]):
       kind: wrapper ?? 'cash_mgmt',
       tax_bucket: bucket,
       balance: remainder,
-      target_return: 0,
+      target_return: benchmarkReturn('cash_mgmt'),
       ...carried,
     });
   }

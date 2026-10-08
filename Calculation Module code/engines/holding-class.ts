@@ -62,15 +62,15 @@ const COUPON_MATURITY_RE = /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/i;
  *     'cash'   when SWEEP_RE.test(t)
  *     'bonds'   when words.some((w) => TBILL_ETF_TICKERS.has(w))
  *     'alternatives'   when OCC_OPTION.test(replace( ÷ \s+ ÷ g, '').to upper case())
- *     'alternatives'   when DATE_STYLE_OPTION.test(t) (or ÷ \b(put|call)s?\b ÷ test(t) when missing or zero)
- *     'alternatives'   when words.some((w) => CRYPTO_TICKERS.has(w)) (or ÷ \b(bitcoin|ethereum|crypto(currenc(y|ies))?)\b ÷ test(t) when missing or zero)
- *     'alternatives'   when words.some((w) => COMMODITY_TICKERS.has(w))
- *     'alternatives'   when ÷ \b(gold|silver|platinum|palladium|commodit(y|ies))\b ÷ test(t) and !COMPANY_WORDS.test(t)
+ *     option shape = ÷ \d{4}-\d{2}-\d{2}|\d{1,2}\ ÷ \d{1,2}(\ ÷ \d{2,4})?|\$\s?\d|\b\d+(\.\d+)?\s × (c|p|call|put)s?\b ÷ test(t)
+ *     a fund = ÷ \b(etf|fund|trust|covered call)\b ÷ test(t)
+ *     'alternatives'   when DATE_STYLE_OPTION.test(t) (or ÷ \b(put|call)s?\b ÷ test(t) and option shape and !a fund when missing or zero)
+ *     'stocks_etf'   when ÷ \b(put|call)s?\b ÷ test(t) and a fund
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-008 incomeBearingClassOf · MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 191 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 194 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -80,7 +80,7 @@ const COUPON_MATURITY_RE = /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/i;
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 173 more — the full list is on functions_from_code
+ *               … and 176 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -100,7 +100,16 @@ export function nameEvidence(label?: string | null): HoldingClass | null {
   if (words.some((w) => TBILL_ETF_TICKERS.has(w))) return 'bonds';
   // options before anything — a PUT on a treasury ETF is an option, not a bond
   if (OCC_OPTION.test(t.replace(/\s+/g, '').toUpperCase())) return 'alternatives';
-  if (DATE_STYLE_OPTION.test(t) || /\b(put|call)s?\b/i.test(t)) return 'alternatives';
+  // THE WORD PUT OR CALL IS AN OPTION ONLY WITH AN OPTION'S SHAPE — an expiry date or a strike — and never
+  // in a fund's name (outside review, 2026-10-07): 'GLOBAL X NASDAQ 100 COVERED CALL ETF' is an equity
+  // fund that writes calls, and it was being filed under Alternatives.
+  const optionShape = /\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}(\/\d{2,4})?|\$\s?\d|\b\d+(\.\d+)?\s*(c|p|call|put)s?\b/i.test(t);
+  const aFund = /\b(etf|fund|trust|covered call)\b/i.test(t);
+  if (DATE_STYLE_OPTION.test(t) || (/\b(put|call)s?\b/i.test(t) && optionShape && !aFund)) return 'alternatives';
+  if (/\b(put|call)s?\b/i.test(t) && aFund) return 'stocks_etf';   // a fund that writes options is a fund
+  // A DWELLING IS NOT A SECURITY (same review): 'Silver Lake house', 'Bond Street flat' — the metal and
+  // bond words are a place's name. A name that says house, flat, condo and the like is no evidence.
+  if (/\b(house|home|flat|condo|apartment|cabin|cottage|townhouse|villa|residence)\b/i.test(t)) return null;
   if (words.some((w) => CRYPTO_TICKERS.has(w)) || /\b(bitcoin|ethereum|crypto(currenc(y|ies))?)\b/i.test(t)) return 'alternatives';
   if (words.some((w) => COMMODITY_TICKERS.has(w))) return 'alternatives';
   if (/\b(gold|silver|platinum|palladium|commodit(y|ies))\b/i.test(t) && !COMPANY_WORDS.test(t)) return 'alternatives';

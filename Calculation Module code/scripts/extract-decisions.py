@@ -162,7 +162,7 @@ def sweep_changelog():
             # rows were backfilled from the log, each saying "recorded in the decision log as DEC-nnnn".
             # Minting those again would have doubled 52 decisions. The row's file is added to that
             # decision's sources instead — the evidence of reaching a second file the confidence plan asks for.
-            named = re.search(r'recorded in the decision log as (DEC-\d{4})', who)
+            named = re.search(r'recorded in the decision log as (DEC-\d{4}[a-z]?)', who)
             if named:
                 target = next((x for x in doc['rows'] if x.get('id') == named.group(1)), None)
                 if target is None:

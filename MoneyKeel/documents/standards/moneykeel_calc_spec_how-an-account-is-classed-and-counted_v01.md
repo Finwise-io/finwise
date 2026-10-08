@@ -35,6 +35,11 @@ Unclassified. The first of these that applies decides (MK-NW-F-011 assetClassOf)
 The sweep that corrects classes the app guessed (MK-NW-F-053 correctClassOf, MK-NW-F-054
 reclassifyAccounts) never touches an account the person confirmed: what they said stands.
 
+A property's name is a place, not evidence (second-round review, 2026-10-07): for a home, real
+estate, a vehicle or anything in the property bucket, step 3 is skipped — 'Silver Lake house' is real
+estate, not an alternative. A fund that writes options ('… COVERED CALL ETF') is a fund; put or call
+means an option only with an option's shape (an expiry date or a strike).
+
 ## 2. What a holding inside an account is
 
 One test, used wherever a holding's class matters — the split, the words under an account, the
@@ -45,6 +50,11 @@ account's own page (MK-NW-F-109 holdingClassOf):
    owner's ruling of 2026-09-30, "Refuse the line and ask" (DEC-2160). Net worth asks.
 3. What its ticker and name are evidence for, unless that is cash (rule 3 above).
 4. Otherwise the class stored when it arrived.
+
+A holding with nothing stored — no broker tag, no kind picked, nothing in its name — is Unclassified
+and asked about (DEC-2160, 'Refuse the line and ask'); it is never filed as Stocks / Funds by default.
+Treasury wording from brokers ('TREAS', 'UST', 'T-bond') counts as a Treasury in the words under an
+account.
 
 ## 3. How an account's money is split across the classes
 
@@ -65,6 +75,10 @@ MK-NW-F-027 accountClassBreakdown. The parts always add up to the account's bala
 - **An account with only a typed balance** is not split. Nothing is known about what is inside it.
 - **A money-market fund the institution flags as "cash equivalent" is a holding** under Stocks /
   Funds; the cash beside it is net of it, so it is counted once.
+
+A hand-built account whose balance is built from its holdings is split holding by holding: each is
+weighed at its price, or what was paid when no price is held, and the invested part is shared out by
+those weights — so a T-bill in a hand-built brokerage is Bonds & CDs (DEC-0051), not Stocks / Funds.
 
 ## 4. How the totals are built
 
@@ -87,6 +101,15 @@ that is what their daily record holds and what money paid in first becomes. That
 MK-NW-O-008 thePerformance from the accounts handed to it, and Home prints the same one. It differs
 from Net worth's Investments line by exactly the uninvested cash inside linked accounts, and that is
 not a disagreement: the two lines answer two questions.
+
+The Other investments summary (MK-NW-F-002) reads the same split: its total is the Alternatives line's
+dollars, including a bitcoin fund or options inside a brokerage, and excluding an alternatives
+account's own uninvested cash. Each part is rated by what it is, the person's own rate first.
+
+Performance and a window the record cannot reach (second-round review, 2026-10-07; Performance v17):
+where a daily record exists but begins after the window opens, there is no walk and no wealth
+generated — a sentence names the record's first day. The ending stands on its own. With no record at
+all, the account page's approved 'read back from your activity records' state stands.
 
 ## 5. What can be added, in this phase
 
@@ -113,6 +136,10 @@ accountDisplayName, MK-NW-F-026 accountDisplayNames:
 - Two accounts that end up with the same name are numbered · 1, · 2 … in the order of their ids read
   as text (the order they were made, on every device). A number already in use as a name is skipped:
   **no two accounts are ever shown by the same name.** No class word is printed under an account.
+
+- A Roth 401(k) reads Roth 401(k); a tax-advantaged account with no kind and known digits takes its tax
+  word (Roth, or 401(k) / IRA). A 529's and an HSA's words are fixed by what they are, whatever
+  treatment is stated; '(Roth)' appears only for an account in the Roth bucket.
 
 ## 7. How long a typed value is trusted
 
@@ -144,6 +171,17 @@ should not count."*
   the person's age, the Roth answer as given, the investing answer, and the employer's match. Money
   saved toward a property is not a retirement contribution. Nothing answered is no figure, not $0.
 
+- **The retirement money's twelve-month return** (MK-NW-F-004) weighs each account by what was set
+  aside when the twelve months began — today's amount ÷ (1 + its return) — and is Σ now ÷ Σ start − 1.
+  Weighing by today's amounts counted the account that grew most twice (13.72% where 12.98% is right).
+- **An employer's percent match** is on the 401(k) figure after the yearly limit.
+- **What a property is for** has one reading (MK-NW-F-117 propertyUseMap), used by the home, the use of
+  one property, the cash-flow budget and the retirement share alike. Handed the Income screen's rent
+  entries, a property is a rental only when an entry names it (DEC-1926) — a house marked as the home
+  but rented out is a rental. A household with no home is told so (null), so an unstated property
+  beside a stated second home is a second home, counted toward retirement. NOT YET WIRED: the Plan's
+  callers do not hand in the rent entries, so there the stored use still decides (Plan build).
+
 ## 9. Itemising a lump into holdings
 
 MK-NW-F-073 itemising, MK-NW-F-051 itemizedResultTotal, MK-NW-F-052 buildItemizedAccounts.
@@ -154,6 +192,9 @@ MK-NW-F-073 itemising, MK-NW-F-051 itemizedResultTotal, MK-NW-F-052 buildItemize
   (401(k), IRA, Roth IRA, HSA, 529).
 - A bond's face value is entered or nothing; never today's value in its place. Without one, the
   account's page reads "not entered" and shows no yield to maturity.
+
+- Accounts made by itemising carry the typical yearly rate for their class, never 0%; a rate not
+  entered on an itemised bond stays blank.
 
 ## 10. The list under the class rows — by class, by institution
 
@@ -167,6 +208,9 @@ What you own. Institution names are matched trimmed, capitals ignored.
 MK-NW-F-046 historyCoverage. Months shared = whole months passed plus the part month by its days, to
 one decimal; the sentence says years only when the months are an exact multiple of twelve ("1 year 6
 months", never "2 years" for eighteen).
+
+- The sentence is built from whole months only, and months shown are rounded down: one day short of a
+  year reads 11 months, never '1 year'.
 
 ## 12. A bond's or a CD's figures
 
@@ -194,8 +238,8 @@ deleted is shown as nothing saved — the first-day screen — never as $0 owned
 
 ## Status and enforcement
 
-Built and tested 2026-10-05 to 2026-10-07 (the outside review of Net worth batches 2, 3, 4 and 5, and the
-defects found while fixing them). Tests: `MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts`, `outside_networth_03.test.ts`, `outside_networth_04.test.ts`, `outside_networth_05.test.ts`, `src/screens/__tests__/outside_networth_05.test.tsx`,
+Built and tested 2026-10-05 to 2026-10-07 (the outside review of Net worth batches 2, 3, 4 and 5, the second-round
+reviews of batches 2, 3 and 4, and the defects found while fixing them). Tests: `MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts`, `outside_networth_03.test.ts`, `outside_networth_04.test.ts`, `outside_networth_05.test.ts`, `src/screens/__tests__/outside_networth_05.test.tsx`, `outside_networth_02_final.test.ts`, `outside_networth_03_final.test.ts`, `outside_networth_04_final.test.ts`,
 `outside_networth_02_found.test.ts`, `src/screens/__tests__/outside_networth_02.test.tsx`,
 `src/domain/assets/classification.test.ts`, `src/domain/assets/selectors.test.ts`,
 `src/services/sync/f6_money_market.test.ts`, `src/__tests__/founder_2026_08_11.test.tsx`.

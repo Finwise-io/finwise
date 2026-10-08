@@ -92,9 +92,10 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-CF-F-115 restoreUndo · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-153 radar
  *               MK-CF-F-172 hasWage · MK-CF-F-189 essentialsFromLoggedSpending
- *               MK-NW-F-026 accountDisplayNames · MK-NW-F-092 investmentAccountIdsOf
+ *               MK-NW-F-013 realEstateUseOf · MK-NW-F-026 accountDisplayNames
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-092 investmentAccountIdsOf
  *               MK-NW-F-104 closedWith · MK-NW-F-106 mortgagesByProperty
- *               MK-NW-F-107 propertyUses · MK-NW-O-004 theEmergencyFund
+ *               MK-NW-F-117 propertyUseMap · MK-NW-O-004 theEmergencyFund
  *               MK-NW-O-008 thePerformance · MK-PL-F-009 rmdTakenThisYear
  *               MK-PL-F-031 taxOrganizer · MK-ST-F-010 nameEvidence
  *               MK-ST-F-024 rmdStartAge · MK-ST-F-031 valueOn
@@ -105,7 +106,7 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-XS-F-104 mapAccountType · MK-XS-F-109 dedupeActivities
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 279 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 284 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -115,7 +116,7 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 261 more — the full list is on functions_from_code
+ *               … and 266 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

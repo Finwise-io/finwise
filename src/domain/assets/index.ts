@@ -117,7 +117,8 @@ export interface AssetAccount {
  *     reached = now.get date() ≥ set on (or now.get date() = last day this month when missing or zero)
  *     months old = max(0, crossed − (reached ? 0 : 1))
  *     the answer:
- *     as of = value as of
+ *     as of = value as of   if m[3]
+ *     `${m[1]}-${m[2]}-01`   otherwise
  *     months old = months old
  *     stale = months old ≥ 6
  *
@@ -145,7 +146,8 @@ export function valueFreshness(a: AssetAccount, now: Date = new Date()): { asOf:
   const lastDayThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const reached = now.getDate() >= setOn || now.getDate() === lastDayThisMonth;
   const monthsOld = Math.max(0, crossed - (reached ? 0 : 1));
-  return { asOf: a.value_as_of, monthsOld, stale: monthsOld >= 6 };
+  // a value dated by its month alone is counted from the 1st, and said so (outside review, 2026-10-07)
+  return { asOf: m[3] ? a.value_as_of : `${m[1]}-${m[2]}-01`, monthsOld, stale: monthsOld >= 6 };
 }
 
 /** What the money set aside for retirement returned over the last twelve months, from the returns the person reported.
@@ -160,11 +162,11 @@ export function valueFreshness(a: AssetAccount, now: Date = new Date()): { asOf:
  * Answers ..... What the money set aside for retirement returned over the last twelve months, from the returns the person reported.
  *
  * Formula .....
- *     items = accounts (or none when missing) where tax bucket ! = 'PROPERTY' and actual ttm ≠ nothing and earmarked amount(each) > 0
- *     total = Σ over items of (earmarked amount(each))
- *     nothing   when total ≤ 0
- *     weighted = Σ over items of ((actual ttm as number) × earmarked amount(each))
- *     the answer = weighted ÷ total
+ *     items = accounts (or none when missing) where tax bucket ! = 'PROPERTY' and actual ttm ≠ nothing and earmarked amount(each) > 0 and (actual ttm as number) > -1
+ *     now = Σ over items of (earmarked amount(each))
+ *     start = Σ over items of (earmarked amount(each) ÷ (1 + (actual ttm as number)))
+ *     nothing   when now ≤ 0 (or start ≤ 0 when missing or zero)
+ *     the answer = now ÷ start − 1
  *
  * Called by ... MK-PL-F-067 willItLastInputs
  *
@@ -180,11 +182,16 @@ export function valueFreshness(a: AssetAccount, now: Date = new Date()): { asOf:
  * Changed ..... 2026-06-05 (1e6bbe9)
  */
 export function portfolioActualReturn(accounts: AssetAccount[]): number | null {
-  const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY' && a.actual_ttm != null && earmarkedAmount(a) > 0);
-  const total = items.reduce((t, a) => t + earmarkedAmount(a), 0);
-  if (total <= 0) return null;
-  const weighted = items.reduce((t, a) => t + (a.actual_ttm as number) * earmarkedAmount(a), 0);
-  return ((weighted / total));
+  const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY' && a.actual_ttm != null && earmarkedAmount(a) > 0 && (a.actual_ttm as number) > -1);
+  // WEIGHED BY WHAT WAS SET ASIDE WHEN THE TWELVE MONTHS BEGAN (outside review, 2026-10-07): each
+  // account's start = what is set aside today ÷ (1 + its return), and the answer is what the money set
+  // aside grew by — Σ now ÷ Σ start − 1. Weighing by today's amounts counted the account that grew most
+  // twice over: +13.72% where the money set aside grew +12.98%. Still the retirement money's return,
+  // weighed by the money set aside (his approval, DEC-2484).
+  const now = items.reduce((t, a) => t + earmarkedAmount(a), 0);
+  const start = items.reduce((t, a) => t + earmarkedAmount(a) / (1 + (a.actual_ttm as number)), 0);
+  if (now <= 0 || start <= 0) return null;
+  return ((now / start - 1));
 }
 
 /** Can a share or fund bought by its ticker be recorded in this account?
@@ -297,14 +304,14 @@ export const isCashKind = (kind?: string) => assetKind(kind)?.bucket === 'CASH';
  *
  * Called by ... MK-NW-F-006 isCashKind · MK-NW-F-034 benchmarkReturn
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-002 alternativesSummary
  *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
- *               MK-NW-F-037 blendedReturn · MK-XS-F-031 buildSnapshot
- *               MK-CF-O-017 futurePaycheck · MK-NW-F-006 isCashKind
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-NW-O-005 theAlternativesOutlook · MK-NW-F-003 valueFreshness
- *               MK-PL-F-067 willItLastInputs
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-052 buildItemizedAccounts
+ *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
+ *               MK-NW-F-006 isCashKind · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-F-003 valueFreshness · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -349,7 +356,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *               MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 185 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 188 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -359,7 +366,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 167 more — the full list is on functions_from_code
+ *               … and 170 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -460,7 +467,9 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  * Formula .....
  *     asset class   when asset class
  *     'bonds'   when maturity date and string(maturity date).trim()
- *     by label = income bearing class of(label)
+ *     is property = tax bucket = 'PROPERTY' (or kind = 'home' (or kind = 'real_estate' (or kind = 'vehicle' when missing or zero) when missing or zero) when missing or zero)
+ *     by label = nothing   if is property
+ *     income bearing class of(label)   otherwise
  *     by label   when by label
  *     by kind = KIND_TO_CLASS[kind]   if kind
  *     undefined   otherwise
@@ -470,6 +479,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *     'real_estate'   if kind is missing (or re use when missing or zero)
  *     'personal_property'   otherwise   when tax bucket = 'PROPERTY'
  *     the answer = 'mixed'
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts · MK-NW-F-001 isAlternative
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-007 assetKind
@@ -478,10 +488,10 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-029 assetAllocation
  *               MK-NW-F-030 earmarkDefault · MK-NW-F-055 isBond
  *               MK-NW-F-063 interestIncomeAnnual · MK-NW-F-106 mortgagesByProperty
- *               MK-NW-F-107 propertyUses · MK-NW-F-110 primaryHomeIdOf
- *               MK-NW-O-003 theNetWorth · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-F-117 propertyUseMap · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-005 theAlternativesOutlook
  *
- * Reaches ..... 182 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 185 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -491,7 +501,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 164 more — the full list is on functions_from_code
+ *               … and 167 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -505,7 +515,11 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
 export function assetClassOf(a: AssetAccount): AssetClass {
   if (a.asset_class) return a.asset_class;
   if (a.maturity_date && String(a.maturity_date).trim()) return 'bonds';   // founder rule 2026-08-04: ANY maturity date is a bond
-  const byLabel = incomeBearingClassOf(a.label);
+  // A PROPERTY'S NAME IS A PLACE, NOT EVIDENCE (outside review, 2026-10-07): 'Silver Lake house' read as
+  // an alternative and 'Bond Street flat' as a bond, so a home left Real estate. A home, real estate, a
+  // vehicle or anything in the property bucket skips the name.
+  const isProperty = a.tax_bucket === 'PROPERTY' || a.kind === 'home' || a.kind === 'real_estate' || a.kind === 'vehicle';
+  const byLabel = isProperty ? null : incomeBearingClassOf(a.label);
   if (byLabel) return byLabel;                         // founder rule 2026-08-04: cash = cash only
   const byKind = a.kind ? KIND_TO_CLASS[a.kind] : undefined;
   if (byKind) return byKind;
@@ -568,12 +582,13 @@ export function taxTreatmentOf(a: AssetAccount): TaxTreatment {
  * Answers ..... How an account is taxed, in the words a person reads on the account's page.
  *
  * Formula .....
- *     'tax − free for education'   when tax treatment = nothing and kind = 'college_529'
- *     'pre − tax — tax − free for medical costs'   when tax treatment = nothing and kind = 'hsa'
+ *     'tax − free for education'   when kind = 'college_529'
+ *     'pre − tax — tax − free for medical costs'   when kind = 'hsa'
  *     t = tax treatment of(a)
  *     the answer:
  *     'pre − tax — taxed when it comes out'   if t = 'tax_deferred'
- *     'tax − free (roth)'   if t = 'tax_free'
+ *     'tax − free (roth)'   if tax bucket = 'ROTH'
+ *     'tax − free'   otherwise   if t = 'tax_free'
  *     'taxable'   otherwise   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -586,10 +601,13 @@ export function taxTreatmentOf(a: AssetAccount): TaxTreatment {
  * Changed ..... not in git yet (—)
  */
 export function taxWordsOf(a: AssetAccount): string {
-  if (a.tax_treatment == null && a.kind === 'college_529') return 'tax-free for education';
-  if (a.tax_treatment == null && a.kind === 'hsa') return 'pre-tax — tax-free for medical costs';
+  // WHAT THE ACCOUNT IS DECIDES ITS WORDS FIRST (outside review, 2026-10-07): a 529 stated tax-free read
+  // 'tax-free (Roth)', and an HSA stated tax-deferred read 'taxed when it comes out' — both false.
+  if (a.kind === 'college_529') return 'tax-free for education';
+  if (a.kind === 'hsa') return 'pre-tax — tax-free for medical costs';
   const t = taxTreatmentOf(a);
-  return t === 'tax_deferred' ? 'pre-tax — taxed when it comes out' : t === 'tax_free' ? 'tax-free (Roth)' : 'taxable';
+  // '(Roth)' only for an account in the Roth bucket; any other tax-free account is simply tax-free
+  return t === 'tax_deferred' ? 'pre-tax — taxed when it comes out' : t === 'tax_free' ? (a.tax_bucket === 'ROTH' ? 'tax-free (Roth)' : 'tax-free') : 'taxable';
 }
 
 /** Real-estate use (primary/rental/secondary/land); only meaningful when assetClassOf === 'real_estate'.
@@ -601,19 +619,20 @@ export function taxWordsOf(a: AssetAccount): string {
  *
  * Formula .....
  *     nothing   when asset class of(a) ! = 'real_estate'
- *     re use   when re use
- *     'primary'   when accounts is missing
- *     'primary'   if primary home id of(accounts) = asset id
- *     'secondary'   otherwise
+ *     'land'   when re use = 'land'
+ *     'rental'   when rentals and rented ids of(rentals).has(string(asset id))
+ *     the answer = re use (or 'primary' when missing)
+ *     use = property use map(accounts, rentals).get(string(asset id))
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-013
  * Changed ..... 2026-06-22 (ec4bf1f)
  */
-export function realEstateUseOf(a: AssetAccount, accounts?: AssetAccount[]): RealEstateUse | null {
+export function realEstateUseOf(a: AssetAccount, accounts?: AssetAccount[], rentals?: RentEntry[] | null): RealEstateUse | null {
   // ONLY A PROPERTY HAS A USE: a car asked this question used to be told "primary" (outside review,
   // 2026-10-07). With nothing stated, the household decides, by the owner's rule of 2026-10-04
   // (DEC-1926) as built in MK-NW-F-107 propertyUses: the property marked as the home lived in is the
@@ -621,9 +640,168 @@ export function realEstateUseOf(a: AssetAccount, accounts?: AssetAccount[]): Rea
   // properties with no use stated used to BOTH be the home. Asked about one account alone, with no
   // household handed in, the old reading stands: it is the home.
   if (assetClassOf(a) !== 'real_estate') return null;
-  if (a.re_use) return a.re_use;
-  if (!accounts) return 'primary';
-  return primaryHomeIdOf(accounts) === a.asset_id ? 'primary' : 'secondary';
+  if (a.re_use === 'land') return 'land';
+  // THE ONE READING (outside review, 2026-10-07): this, MK-NW-F-110 primaryHomeIdOf and MK-NW-F-107
+  // propertyUses each read a property's use their own way, and disagreed. All three now read
+  // propertyUseMap. Handed the rent entries from the Income screen, a property is a rental only when an
+  // entry names it (DEC-1926); a rented-out house marked as the home is a rental.
+  if (!accounts) {
+    if (rentals && rentedIdsOf(rentals).has(String(a.asset_id))) return 'rental';
+    return a.re_use ?? 'primary';
+  }
+  const use = propertyUseMap(accounts, rentals).get(String(a.asset_id));
+  return use === 'home' ? 'primary' : use === 'rental' ? 'rental' : 'secondary';
+}
+
+/** One rent entry from the Income screen: what it brings in, what it costs, and the property it names. */
+export type RentEntry = { income?: any; expenses?: any; property_id?: any };
+/** A rent figure as a number: the digits typed, or 0 when none. */
+/* ─ MK-NW-F-114 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * rentAmount
+ *
+ * Answers ..... A rent figure as a number: the digits typed, or 0 when none.
+ *
+ * Formula .....
+ *     string(v ?? '').replace( ÷ [^0 − 9.-] ÷ g, '') read as a number (or 0 when missing or zero)
+ *
+ * Called by ... MK-NW-F-115 liveRent
+ *
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-079 EF
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-CF-O-017 futurePaycheck
+ *               MK-NW-F-115 liveRent · MK-PL-F-026 planDoor
+ *               MK-NW-F-110 primaryHomeIdOf · MK-NW-F-117 propertyUseMap
+ *               MK-NW-F-107 propertyUses · MK-NW-F-013 realEstateUseOf
+ *               MK-NW-F-116 rentedIdsOf · MK-NW-F-033 retirementEarmarkedValue
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               … and 7 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-114
+ * Changed ..... not in git yet (—)
+ */
+const rentAmount = (v: any) => Number(String(v ?? '').replace(/[^0-9.-]/g, '')) || 0;
+/** The rent entries that carry a figure: rent coming in or costs going out above zero. */
+/* ─ MK-NW-F-115 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * liveRent
+ *
+ * Answers ..... The rent entries that carry a figure: rent coming in or costs going out above zero.
+ *
+ * Formula .....
+ *     rentals (or none when missing) where rent amount(income) > 0 (or rent amount(expenses) > 0 when missing or zero)
+ *
+ * Called by ... MK-NW-F-116 rentedIdsOf · MK-NW-F-117 propertyUseMap
+ *
+ * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-079 EF
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-026 planDoor · MK-NW-F-110 primaryHomeIdOf
+ *               MK-NW-F-117 propertyUseMap · MK-NW-F-107 propertyUses
+ *               MK-NW-F-013 realEstateUseOf · MK-NW-F-116 rentedIdsOf
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 6 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-115
+ * Changed ..... not in git yet (—)
+ */
+const liveRent = (rentals: RentEntry[] | null | undefined) => (rentals ?? []).filter((r) => rentAmount(r?.income) > 0 || rentAmount(r?.expenses) > 0);
+/** Which properties the rent entries name, by their identifiers. */
+/* ─ MK-NW-F-116 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * rentedIdsOf
+ *
+ * Answers ..... Which properties the rent entries name, by their identifiers.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-117 propertyUseMap
+ *
+ * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-079 EF
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-026 planDoor · MK-NW-F-110 primaryHomeIdOf
+ *               MK-NW-F-117 propertyUseMap · MK-NW-F-107 propertyUses
+ *               MK-NW-F-013 realEstateUseOf · MK-NW-F-033 retirementEarmarkedValue
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-005 theAlternativesOutlook
+ *               … and 5 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-116
+ * Changed ..... not in git yet (—)
+ */
+const rentedIdsOf = (rentals: RentEntry[] | null | undefined) =>
+  new Set(liveRent(rentals).filter((r) => r?.property_id != null && r.property_id !== '').map((r) => String(r.property_id)));
+
+/** What each property is for — the home lived in, a rental, or a second home — by his rule DEC-1926: a rental only when a rent entry on the Income screen names it; the one marked as the home is the home; with none marked and no use stated on any, the one entered first; every other property is a second home. With no rent entries handed in at all, a property stored as a rental is read as one. */
+/* ─ MK-NW-F-117 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * propertyUseMap
+ *
+ * Answers ..... What each property is for — the home lived in, a rental, or a second home — by his rule DEC-1926: a rental only when a rent entry on the Income screen names it; the one marked as the home is the home; with none marked and no use stated on any, the one entered first; every other property is a second home.
+ *
+ * Formula .....
+ *     told = array.is array(rentals)
+ *     properties = accounts (or none when missing) where asset class of(each) = 'real_estate'
+ *     named = rented ids of(rentals)
+ *     out = new map<string, 'home' | 'rental' | 'second'>()
+ *     rest = properties where !out.has(string(asset id))
+ *     marked = rest.find((a) => re use = 'primary')
+ *     home = marked (or undefined   if rest.some((a) => re use ≠ nothing)
+ *     rest[rest.length − 1]   otherwise when missing)
+ *     others = rest where each ! = home
+ *     unnamed rent = live rent(rentals).some((r) => property id = nothing or property id = '')
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-107 propertyUses
+ *               MK-NW-F-110 primaryHomeIdOf
+ *
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-079 EF
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-026 planDoor · MK-NW-F-110 primaryHomeIdOf
+ *               MK-NW-F-107 propertyUses · MK-NW-F-013 realEstateUseOf
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-NW-O-005 theAlternativesOutlook · MK-CF-O-020 theBudgetCounted
+ *               … and 4 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-117
+ * Changed ..... not in git yet (—)
+ */
+export function propertyUseMap(accounts: AssetAccount[], rentals?: RentEntry[] | null): Map<string, 'home' | 'rental' | 'second'> {
+  const told = Array.isArray(rentals);                       // handed the Income screen's rent entries, even an empty list
+  const properties = (accounts ?? []).filter((a) => assetClassOf(a) === 'real_estate');
+  const named = rentedIdsOf(rentals);
+  const out = new Map<string, 'home' | 'rental' | 'second'>();
+  // a property is a rental when a rent entry names it; told the entries, a stored 'rental' with no
+  // entry is a second home (DEC-1926: "unless rental income is added on the income screen, assume
+  // property is second or vacation home"); not told, the stored word stands
+  for (const a of properties) if (named.has(String(a.asset_id)) || (!told && a.re_use === 'rental')) out.set(String(a.asset_id), 'rental');
+  const rest = properties.filter((a) => !out.has(String(a.asset_id)));
+  const marked = rest.find((a) => a.re_use === 'primary');
+  // addAsset puts the newest first, so the property entered first is the last one
+  const home = marked ?? (rest.some((a) => a.re_use != null) ? undefined : rest[rest.length - 1]);
+  if (home) out.set(String(home.asset_id), 'home');
+  const others = rest.filter((a) => a !== home);
+  const unnamedRent = liveRent(rentals).some((r) => r?.property_id == null || r.property_id === '');
+  for (const a of others) out.set(String(a.asset_id), unnamedRent && others.length === 1 ? 'rental' : 'second');
+  return out;
 }
 
 /** Which property is the home lived in: the one marked so; with none marked and no use stated on any, the one entered first; otherwise none. */
@@ -633,41 +811,33 @@ export function realEstateUseOf(a: AssetAccount, accounts?: AssetAccount[]): Rea
  * Answers ..... Which property is the home lived in: the one marked so; with none marked and no use stated on any, the one entered first; otherwise none.
  *
  * Formula .....
- *     rest = accounts (or none when missing) where asset class of(each) = 'real_estate' and re use ! = 'rental'
- *     marked = rest.find((a) => re use = 'primary')
- *     string(marked.asset id)   when marked
- *     undefined   when rest.some((a) => re use ≠ nothing)
- *     the answer:
- *     string(rest[rest.length − 1].asset id)   if count of rest
- *     undefined   otherwise
+ *     nothing
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
- * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-033 retirementEarmarkedValue
- *               MK-NW-F-035 blendedVolatility · MK-NW-F-037 blendedReturn
+ * Called by ... MK-NW-F-033 retirementEarmarkedValue · MK-NW-F-035 blendedVolatility
+ *               MK-NW-F-037 blendedReturn
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-037 blendedReturn
  *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
  *               MK-XS-F-031 buildSnapshot · MK-PL-F-077 clamp
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
- *               MK-NW-F-013 realEstateUseOf · MK-NW-F-033 retirementEarmarkedValue
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-005 theAlternativesOutlook
- *               MK-NW-F-003 valueFreshness · MK-PL-F-065 volOf
- *               MK-PL-F-067 willItLastInputs
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-NW-O-005 theAlternativesOutlook · MK-NW-F-003 valueFreshness
+ *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-110
  * Changed ..... not in git yet (—)
  */
-export function primaryHomeIdOf(accounts: AssetAccount[]): string | undefined {
-  // the same reading MK-NW-F-107 propertyUses makes (his rule DEC-1926); a rental is never the home
-  const rest = (accounts ?? []).filter((a) => assetClassOf(a) === 'real_estate' && a.re_use !== 'rental');
-  const marked = rest.find((a) => a.re_use === 'primary');
-  if (marked) return String(marked.asset_id);
-  if (rest.some((a) => a.re_use != null)) return undefined;
-  // addAsset puts the newest first, so the property entered first is the last one
-  return rest.length ? String(rest[rest.length - 1].asset_id) : undefined;
+export function primaryHomeIdOf(accounts: AssetAccount[], rentals?: RentEntry[] | null): string | null {
+  // the one reading (propertyUseMap, his rule DEC-1926). NO HOME IS null, not 'not given'
+  // (outside review, 2026-10-07): with one property stated a second home and another with no use, there
+  // is no home — and earmarkDefault, told nothing, read the unstated one as the home and set it at 0%.
+  for (const [id, use] of propertyUseMap(accounts, rentals)) if (use === 'home') return id;
+  return null;
 }
 
 /** True when the asset is a real/physical asset (real estate or personal property) — excluded from
@@ -1030,9 +1200,8 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *     kind word = wrapper word((a as any).kind)
  *     treatment = tax treatment of(a as asset account)
  *     tax advantaged = treatment ! = 'taxable'
- *     wrapper = 'Roth'   if treatment = 'tax_free'
- *     '401(k) ÷ IRA'   otherwise   if tax advantaged and kind word = 'Brokerage'
- *     kind word   otherwise
+ *     tax word = 'Roth'   if treatment = 'tax_free'
+ *     '401(k) ÷ IRA'   otherwise
  *     `${inst raw} ${wrapper} -${last4}`   if last4
  *     `${inst raw} ${wrapper}`   otherwise   when tax advantaged and wrapper
  *     `${inst raw} -${last4}`   when last4
@@ -1078,7 +1247,15 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
   // hand asks "Taxable · 401(k) / IRA · Roth" and records the answer as the tax bucket, on a plain
   // brokerage kind — so a Roth added there read "Vanguard Brokerage", the one word the rule exists to
   // prevent (found 2026-10-05). Where the kind says only "Brokerage", the tax answer is the word.
-  const wrapper = taxAdvantaged && kindWord === 'Brokerage' ? (treatment === 'tax_free' ? 'Roth' : '401(k) / IRA') : kindWord;
+  // And (outside review, 2026-10-07): a 401(k) in the Roth bucket is a Roth 401(k) — beside a pre-tax
+  // 401(k) at one employer both read 'Fidelity 401(k)'; and a tax-advantaged account with NO kind took no
+  // word at all, so a Roth read 'Vanguard -1234'. The tax answer supplies the word in both cases.
+  const taxWord = treatment === 'tax_free' ? 'Roth' : '401(k) / IRA';
+  // (with no kind, only where digits would otherwise stand alone — without digits the person's own
+  // label follows the institution and already says what it is: 'Fidelity 401(k)')
+  const wrapper = taxAdvantaged && (kindWord === 'Brokerage' || (!kindWord && !!last4)) ? taxWord
+    : taxAdvantaged && kindWord === '401(k)' && (a.tax_bucket === 'ROTH' || treatment === 'tax_free') ? 'Roth 401(k)'
+    : kindWord;
   if (instRaw) {
     if (taxAdvantaged && wrapper) return last4 ? `${instRaw} ${wrapper} -${last4}` : `${instRaw} ${wrapper}`;
     if (last4) return `${instRaw} -${last4}`;
@@ -1174,46 +1351,56 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  * Answers ..... What one holding inside an account is, by the one rule the split, the words under it and the account's page all use.
  *
  * Formula .....
- *     stored = 'bonds'   if asset class = 'bond'
- *     'alternatives'   if asset class = 'other'
- *     'cash'   if asset class = 'cash'
- *     'stocks_etf'   otherwise   otherwise   otherwise
- *     stored   when class source = 'user'
+ *     tag = asset class
+ *     by kind = KIND_TO_CLASS[kind]   if kind
+ *     undefined   otherwise
+ *     stored (or 'mixed' when missing)   when class source = 'user'
  *     'mixed'   when class asked
  *     by name = income bearing class of(`${ticker ?? ''} ${name ?? description ?? label ?? ''}`)
+ *     by name   when by name and by name ! = 'cash'
  *     the answer:
- *     by name   if by name and by name ! = 'cash'
- *     stored   otherwise
+ *     stored (or 'cash'   if by name = 'cash'
+ *     'mixed'   otherwise when missing)
  *
  * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
- *               MK-NW-F-067 plural
+ *               MK-NW-F-067 plural · MK-NW-F-113 altPartsOf
  *
- * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-079 EF
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
- *               MK-NW-F-016 cashTotal · MK-NW-F-028 classPortionLabel
- *               MK-XS-F-002 dataGaps · MK-NW-F-017 equitiesTotal
- *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-046 historyCoverage
- *               MK-NW-F-022 investableAssets · MK-NW-F-021 investmentsTotal
- *               … and 7 more — the full list is on functions_from_code
+ * Reaches ..... 29 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-016 cashTotal
+ *               MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
+ *               MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal
+ *               … and 11 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-056 how a holding was classified, and by whom
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-109
  * Changed ..... not in git yet (—)
  */
 export function holdingClassOf(p: any): AssetClass {
-  const stored: AssetClass = p?.asset_class === 'bond' ? 'bonds' : p?.asset_class === 'other' ? 'alternatives' : p?.asset_class === 'cash' ? 'cash' : 'stocks_etf';
-  if (p?.class_source === 'user') return stored;
+  // WHAT WAS STORED: the broker's or importer's tag, else the kind the person picked when adding it.
+  // NOTHING STORED IS NOT STOCKS / FUNDS (outside review, 2026-10-07): a holding with no tag, no kind
+  // and no evidence in its name was filed as Stocks / Funds — an invented answer where his ruling of
+  // 2026-09-30 (master Q11, DEC-2160) is 'Refuse the line and ask'. It is Unclassified now.
+  const tag = p?.asset_class;
+  const byKind = p?.kind ? KIND_TO_CLASS[p.kind] : undefined;
+  const stored: AssetClass | null = tag === 'bond' ? 'bonds' : tag === 'other' ? 'alternatives' : tag === 'cash' ? 'cash'
+    : tag ? 'stocks_etf'
+    : byKind && byKind !== 'real_estate' && byKind !== 'personal_property' ? byKind : null;
+  if (p?.class_source === 'user') return stored ?? 'mixed';
   if (p?.class_asked) return 'mixed';
   const byName = incomeBearingClassOf(`${p?.ticker ?? ''} ${p?.name ?? p?.description ?? p?.label ?? ''}`);
-  return byName && byName !== 'cash' ? byName : stored;
+  if (byName && byName !== 'cash') return byName;
+  return stored ?? (byName === 'cash' ? 'cash' : 'mixed');
 }
 
 /** How much of one account sits in each class, with the parts adding up exactly to the account's balance.
@@ -1244,44 +1431,48 @@ export function holdingClassOf(p: any): AssetClass {
  *     mixed = 0
  *     keeps its own cash = tax bucket ! = 'CASH' and tax bucket ! = 'PROPERTY' and (derive balance = true or cash balance ≠ nothing)
  *     uninvested = cash balance (or 0 when missing)
- *     nothing   when keeps its own cash is missing (or not (uninvested > 0) when missing or zero)
- *     the answer = out
- *     unpriced = new set<asset class>()
+ *     held = (derive balance = true ? (positions ?? []) : []) as any[]
  *     sh = (lots ?? []).reduce((t: number, l: any) => t + (shares or 0), 0)
+ *     paid = (lots ?? []).reduce((t: number, l: any) => t + (shares or 0) × (cost per share or 0), 0)
+ *     the answer:
  *     cls = holding class of(p)
- *     sum = Σ over object.values(out) as number[] of (each)
- *     r = (balance or 0) − sum
- *     cls = the first of [...unpriced]   if unpriced.size = 1
- *     'mixed'   otherwise
+ *     w = sh × last price   if last price ≠ nothing
+ *     paid   otherwise
+ *     classes = a list with no repeats of for each of weights: cls
+ *     splits by holding = classes.size > 1 (or classes.size = 1 and !classes.has(asset class of(a)) when missing or zero)
+ *     nothing   when !(keeps its own cash and uninvested > 0) and !splits by holding
+ *     invested = (balance or 0) − out.cash
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-015 totalAssets · MK-NW-F-016 cashTotal
  *               MK-NW-F-029 assetAllocation · MK-NW-F-094 ledgerGroups
- *               MK-NW-O-002 theAccount
+ *               MK-NW-F-113 altPartsOf · MK-NW-O-002 theAccount
  *
- * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-079 EF
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-029 assetAllocation · MK-NW-F-016 cashTotal
- *               MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal
- *               MK-NW-F-022 investableAssets · MK-NW-F-021 investmentsTotal
- *               MK-NW-F-094 ledgerGroups · MK-NW-F-020 realEstateTotal
- *               MK-NW-O-002 theAccount · MK-NW-O-004 theEmergencyFund
- *               … and 2 more — the full list is on functions_from_code
+ * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-016 cashTotal · MK-NW-F-017 equitiesTotal
+ *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-022 investableAssets
+ *               MK-NW-F-021 investmentsTotal · MK-NW-F-094 ledgerGroups
+ *               … and 6 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
+ *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
  *
  * Decides .....
  *     · If cash balance is missing it uses 0.
- *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If cost per share is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-027
@@ -1296,9 +1487,29 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
     // and not a loan — so the account stays whole.
     const keepsItsOwnCash = a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY' && (a.derive_balance === true || a.cash_balance != null);
     const uninvested = a.cash_balance ?? 0;
-    if (!keepsItsOwnCash || !(uninvested > 0)) return null;
-    out.cash = Math.min(uninvested, Math.max(0, a.balance || 0));
-    out[assetClassOf(a)] += (a.balance || 0) - out.cash;
+    // EACH HOLDING UNDER ITS OWN CLASS (outside review, 2026-10-07). A hand-built account's balance is
+    // its cash plus its holdings, so its holdings can be split exactly — the rest used to be filed whole
+    // under the account's own class, so a T-bill in a hand-built brokerage counted as Stocks / Funds
+    // (his rule DEC-0051: a T-bill is Bonds & CDs). Each holding is weighed at its price, or at what was
+    // paid when no price is held (the same fallback the balance itself uses, B-19), and the weights
+    // share out exactly what is invested — so the parts still add to the balance.
+    const held = (a.derive_balance === true ? (a.positions ?? []) : []) as any[];
+    const weights = held.map((p) => {
+      const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
+      const paid = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0) * (l.cost_per_share || 0), 0);
+      return { cls: holdingClassOf(p), w: p.last_price != null ? sh * p.last_price : paid };
+    }).filter((x) => x.w > 0);
+    const classes = new Set(weights.map((x) => x.cls));
+    const splitsByHolding = classes.size > 1 || (classes.size === 1 && !classes.has(assetClassOf(a)));
+    if (!(keepsItsOwnCash && uninvested > 0) && !splitsByHolding) return null;
+    out.cash = keepsItsOwnCash && uninvested > 0 ? Math.min(uninvested, Math.max(0, a.balance || 0)) : 0;
+    const invested = (a.balance || 0) - out.cash;
+    const totalW = weights.reduce((t, x) => t + x.w, 0);
+    if (splitsByHolding && totalW > 0) {
+      for (const x of weights) out[x.cls] += invested * (x.w / totalW);
+    } else {
+      out[assetClassOf(a)] += invested;
+    }
     return out;
   }
   out.cash += (a as any).cash_balance ?? 0;
@@ -1359,7 +1570,8 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
 }
 
 const CD_RE = /\b(cd|certificate of deposit)\b/i;
-const TREASURY_RE = /\b(treasur\w*|t-?bills?|t-?notes?|govt?|government)\b/i;
+// broker wording too — 'UNITED STATES TREAS BILLS', 'US TREAS NT', 'UST' (outside review, 2026-10-07)
+const TREASURY_RE = /\b(treasur\w*|treas|ust|t-?bills?|t-?notes?|t-?bonds?|govt?|government)\b/i;
 
 /** Writes a count with its noun, singular for one and plural otherwise: 1 CD, 3 CDs. */
 /* ─ MK-NW-F-067 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -1436,7 +1648,7 @@ export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
       const rest = inClass.length - cds - treas;
       const parts = [
         cds ? plural(cds, 'CD') : '',
-        treas ? plural(treas, 'Treasury') : '',
+        treas ? plural(treas, 'Treasury', 'Treasuries') : '',
         rest ? plural(rest, 'bond') : '',
       ].filter(Boolean);
       return parts.length ? `${joined(parts)} in this account` : 'bonds & CDs in this account';
@@ -1524,25 +1736,26 @@ export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, nu
  *
  * Formula .....
  *     0   when kind = 'college_529'
+ *     0   if string(asset id) = primary home id
+ *     100   otherwise   when primary home id ! = undefined
  *     0   if re use = 'primary'
  *     100   otherwise   when re use
- *     0   if primary home id = nothing (or string(asset id) = primary home id when missing or zero)
- *     100   otherwise
+ *     0
  *     0   when asset id = primary car id
  *
- * Called by ... MK-NW-F-032 earmarkedAmount
+ * Called by ... MK-NW-F-032 earmarkedAmount · MK-NW-F-110 primaryHomeIdOf
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-037 blendedReturn
  *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
  *               MK-XS-F-031 buildSnapshot · MK-PL-F-077 clamp
  *               MK-NW-F-032 earmarkedAmount · MK-NW-F-038 earmarkedKinds
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
- *               MK-NW-F-004 portfolioActualReturn · MK-NW-F-033 retirementEarmarkedValue
- *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-PL-F-001 taxBucketSplit · MK-NW-O-005 theAlternativesOutlook
- *               … and 3 more — the full list is on functions_from_code
+ *               MK-NW-F-004 portfolioActualReturn · MK-NW-F-110 primaryHomeIdOf
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -1550,13 +1763,15 @@ export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, nu
  * Formula also on the master file · functions_from_code · MK-NW-F-030
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function earmarkDefault(a: AssetAccount, primaryCarId?: string, primaryHomeId?: string): number {
+export function earmarkDefault(a: AssetAccount, primaryCarId?: string, primaryHomeId?: string | null): number {
   if (a.kind === 'college_529') return 0;               // not the household's to spend
   if (assetClassOf(a) === 'real_estate') {
-    // the home you live in (owner, 2026-08-11, DEC-0100). Told which property that is, only it is 0;
-    // told nothing, a property with no use stated is read as the home, as it always was
+    // the home you live in (owner, 2026-08-11, DEC-0100). Told the household's home (an id), only it is
+    // 0; told the household has none (null), none is; told nothing (undefined), the old reading of one
+    // account alone: stated use, else the home
+    if (primaryHomeId !== undefined) return String(a.asset_id) === primaryHomeId ? 0 : 100;
     if (a.re_use) return a.re_use === 'primary' ? 0 : 100;
-    return primaryHomeId == null || String(a.asset_id) === primaryHomeId ? 0 : 100;
+    return 0;
   }
   if (a.asset_id === primaryCarId) return 0;            // the car you drive
   return 100;                                           // everything else is money that could fund retirement
@@ -1643,7 +1858,7 @@ export function primaryCarIdOf(accounts: AssetAccount[]): string | undefined {
  * Formula also on the master file · functions_from_code · MK-NW-F-032
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function earmarkedAmount(a: AssetAccount, primaryCarId?: string, primaryHomeId?: string): number {
+export function earmarkedAmount(a: AssetAccount, primaryCarId?: string, primaryHomeId?: string | null): number {
   const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarId, primaryHomeId) : a.retirement_pct;
   return ((a.balance || 0) * Math.max(0, Math.min(100, pct)) / 100);
 }
@@ -1688,15 +1903,16 @@ export function retirementEarmarkedValue(accounts: AssetAccount[]): number {
  *     asset kind(kind).ret (or 0.06 when missing)
  *
  * Called by ... MK-NW-F-002 alternativesSummary · MK-NW-F-036 benchmarkInfo
- *               MK-NW-F-037 blendedReturn · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-052 buildItemizedAccounts
+ *               MK-NW-O-005 theAlternativesOutlook
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-002 alternativesSummary
  *               MK-NW-F-036 benchmarkInfo · MK-NW-F-037 blendedReturn
- *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-NW-O-005 theAlternativesOutlook · MK-NW-F-003 valueFreshness
- *               MK-PL-F-067 willItLastInputs
+ *               MK-NW-F-052 buildItemizedAccounts · MK-XS-F-031 buildSnapshot
+ *               MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-F-003 valueFreshness · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -1836,7 +2052,7 @@ export const BENCHMARK_META: Record<string, { source: string; period: string; es
  *     period = '—'   if edited
  *     meta.period   otherwise
  *     edited = edited
- *     estimate = !!meta.estimate
+ *     estimate = edited (or !!meta.estimate when missing or zero)
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -1849,7 +2065,8 @@ export const BENCHMARK_META: Record<string, { source: string; period: string; es
 export function benchmarkInfo(kind: string | undefined, overrides?: Record<string, number>): { ret: number; source: string; period: string; edited: boolean; estimate: boolean } {
   const meta = BENCHMARK_META[kind ?? ''] ?? { source: 'Generic blended estimate', period: '—', estimate: true };
   const edited = !!(kind && overrides && overrides[kind] != null);
-  return { ret: benchmarkReturn(kind, overrides), source: edited ? 'Your custom estimate' : meta.source, period: edited ? '—' : meta.period, edited, estimate: !!meta.estimate };
+  // a rate the person set is their own assumption, not a measured index — an estimate (outside review, 2026-10-07)
+  return { ret: benchmarkReturn(kind, overrides), source: edited ? 'Your custom estimate' : meta.source, period: edited ? '—' : meta.period, edited, estimate: edited || !!meta.estimate };
 }
 /** Blended expected return across the EARMARKED nest egg, weighted by each holding's share.
  *  Different asset types earn different returns — equity vs bonds vs PE vs hedge funds — so the
@@ -2041,7 +2258,9 @@ export function assetsFromOnboarding(uid: UserId, op: Record<string, any> | null
  *     nothing   when !['c_401k', 'c_roth', 'c_invest', 'employerMatchValue'].some((k) => string(a[k] ?? '').trim() ! = '')
  *     age = age attained in year(to num(birth year) or nothing)
  *     k401 = min(c 401k read as a number (0 when it is not one), annual401k limit(age) ÷ 12)
- *     the answer = k401 + to num(c roth) + to num(c invest) + employer match monthly(op)
+ *     match = (k401 × to num(employer match value)) ÷ 100   if employer match mode = 'pct'
+ *     employer match monthly(op)   otherwise
+ *     the answer = k401 + to num(c roth) + to num(c invest) + match
  *
  * Called by ... MK-PL-F-067 willItLastInputs · MK-XS-F-030 effectiveAnnualContribution
  *
@@ -2072,7 +2291,11 @@ export function monthlyContributionsFromOnboarding(op: Record<string, any> | nul
   // would be the wrong figure. The employer's match is outside the elective limit and is added as entered.
   const age = ageAttainedInYear(toNum(a.birthYear) || null);
   const k401 = Math.min(toNum(a.c_401k), annual401kLimit(age) / 12);
-  return k401 + toNum(a.c_roth) + toNum(a.c_invest) + employerMatchMonthly(op);
+  // A MATCH AS A PERCENT IS ON WHAT CAN GO IN (outside review, 2026-10-07): an employer matches money
+  // that was actually contributed, so a percent match is taken on the 401(k) figure after the limit —
+  // $3,200 held to $2,979 with a 50% match is $1,490, not $1,600. A dollar match is as entered.
+  const match = a.employerMatchMode === 'pct' ? (k401 * toNum(a.employerMatchValue)) / 100 : employerMatchMonthly(op);
+  return k401 + toNum(a.c_roth) + toNum(a.c_invest) + match;
 }
 
 const COLLECTION = 'assets';
@@ -2232,8 +2455,8 @@ export interface HistoryCoverage {
  *     whole = (now.get full year() − fy) × 12 + (now.get month() + 1 − fm) − (now.get date() < fd ? 1 : 0)
  *     days in month = the date now.get full year(), now.get month() + (now.get date() < fd ? 0 : 1), 0).get date(
  *     part = ((now.get date() − fd + (now.get date() < fd ? days in month : 0)) % days in month) ÷ days in month
- *     months = max(0, round(whole + part, 1 dp))
- *     whole months = round down(months + 1e − 9)
+ *     months = max(0, round down((whole + part) × 10 + 1e − 9) ÷ 10)
+ *     whole months = max(0, whole)
  *     yrs = round down(whole months ÷ 12), rem = whole months % 12
  *     plural = (n: number, w: string) => `${n} ${w}${n = 1 ? '' : 's'}`
  *
@@ -2250,7 +2473,7 @@ export interface HistoryCoverage {
  * Decides .....
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to 1 decimal place.
+ *     · Never lets whole fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-046
  * Changed ..... 2026-08-07 (0482964)
@@ -2278,12 +2501,14 @@ export function historyCoverage(
   const whole = (now.getFullYear() - fy) * 12 + (now.getMonth() + 1 - fm) - (now.getDate() < fd ? 1 : 0);
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + (now.getDate() < fd ? 0 : 1), 0).getDate();
   const part = ((now.getDate() - fd + (now.getDate() < fd ? daysInMonth : 0)) % daysInMonth) / daysInMonth;
-  const months = Math.max(0, Math.round((whole + part) * 10) / 10);
-  const wholeMonths = Math.floor(months + 1e-9);
+  // ROUNDED DOWN, AND THE SENTENCE FROM WHOLE MONTHS (outside review, 2026-10-07): one day short of a
+  // year was 11.97 months, rounded to 12.0 and read '1 year' — the rounding up the line exists to avoid.
+  const months = Math.max(0, Math.floor((whole + part) * 10 + 1e-9) / 10);
+  const wholeMonths = Math.max(0, whole);
   const yrs = Math.floor(wholeMonths / 12), rem = wholeMonths % 12;
   const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
-  const span = months >= 12 ? (rem === 0 && Math.abs(months - wholeMonths) < 0.05 ? plural(yrs, 'year') : rem === 0 ? `${plural(yrs, 'year')} and a bit` : `${plural(yrs, 'year')} ${plural(rem, 'month')}`)
-    : months >= 1 ? plural(Math.round(months), 'month')
+  const span = wholeMonths >= 12 ? (rem === 0 && part === 0 ? plural(yrs, 'year') : rem === 0 ? `${plural(yrs, 'year')} and a bit` : `${plural(yrs, 'year')} ${plural(rem, 'month')}`)
+    : wholeMonths >= 1 ? plural(wholeMonths, 'month')
     : 'a few days';
   return { kind: 'partial', from, monthsCovered: months,
     sentence: `${who} shared ${span} of history (from ${prettyDay(from)}) — figures before that aren't counted.` };

@@ -56,7 +56,7 @@ describe('REPORTED_RETURN', () => {
       A({ asset_id: '1', kind: 'brokerage', balance: 90_000, actual_ttm: 0.10 }),
       A({ asset_id: '2', kind: 'brokerage', balance: 10_000, actual_ttm: 0 }),
     ]);
-    expect(r).toBeCloseTo(0.09, 4);         // not 0.05
+    expect(r).toBeCloseTo(0.0891089, 6);    // not 0.05; // weighed by what was set aside when the year began (second-round review, 2026-10-07): Σ now ÷ Σ(now ÷ (1 + return)) − 1
   });
   test('nobody reported one → NOTHING, never zero', () => {
     expect(portfolioActualReturn([A({ kind: 'brokerage' })])).toBeNull();

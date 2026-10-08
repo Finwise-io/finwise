@@ -289,6 +289,11 @@
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "altPartsOf": {
+  "id": "MK-NW-F-113",
+  "file": "src/domain/alternatives/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "alternativesSummary": {
   "id": "MK-NW-F-002",
   "file": "src/domain/alternatives/index.ts",
@@ -1644,6 +1649,11 @@
   "file": "MoneyKeel/functions/cashflow/the-month.ts",
   "category": "1 · ACTION"
  },
+ "liveRent": {
+  "id": "MK-NW-F-115",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
+ },
  "load": {
   "id": "MK-XS-F-132",
   "file": "src/services/appLock.ts",
@@ -2304,6 +2314,11 @@
   "file": "src/domain/retirement/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "propertyUseMap": {
+  "id": "MK-NW-F-117",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "propertyUses": {
   "id": "MK-NW-F-107",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
@@ -2459,6 +2474,11 @@
   "file": "src/domain/transactions/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "rentAmount": {
+  "id": "MK-NW-F-114",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
+ },
  "rentalList": {
   "id": "MK-CF-F-067",
   "file": "src/domain/income/onboarding.ts",
@@ -2468,6 +2488,11 @@
   "id": "MK-CF-F-068",
   "file": "src/domain/income/onboarding.ts",
   "category": "2 · DISPLAYED"
+ },
+ "rentedIdsOf": {
+  "id": "MK-NW-F-116",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
  },
  "requestNotificationPermission": {
   "id": "MK-XS-F-084",

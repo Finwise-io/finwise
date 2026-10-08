@@ -81,7 +81,7 @@ describe('pin 1 — investments: Home hero = Invest header, to the dollar', () =
     for (const f of ['HomeScreen.tsx', 'PerformanceScreen.tsx']) {
       const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
       expect(src).toMatch(/thePerformance\(/);
-      expect(src).toMatch(/walk\.ending/);
+      expect(src).toMatch(/(oneMonth|now)\.ending/);   // the door's own ending, known whether or not a walk can be drawn (2026-10-07)
       expect(src).not.toMatch(/investmentsTotal\(/);
       expect(src).not.toMatch(/^\s*ending:/m);                 // no screen hands the function an ending of its own
       expect(src).toMatch(/resolveNetWorthRows\(/);

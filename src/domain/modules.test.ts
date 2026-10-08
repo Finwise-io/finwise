@@ -70,7 +70,7 @@ describe('assets', () => {
       { asset_id: 'a1', label: 'A', kind: 'stocks_etf', balance: 300000, actual_ttm: 0.12, ...base },
       { asset_id: 'a2', label: 'B', kind: 'fixed_income', balance: 100000, actual_ttm: 0.04, ...base },
     ];
-    expect(portfolioActualReturn(accts)).toBeCloseTo(0.10, 4);   // (0.12*3 + 0.04*1)/4
+    expect(portfolioActualReturn(accts)).toBeCloseTo(0.0988679, 6);   // weighed by what was set aside when the year began (second-round review, 2026-10-07): Σ now ÷ Σ(now ÷ (1 + return)) − 1
   });
 });
 

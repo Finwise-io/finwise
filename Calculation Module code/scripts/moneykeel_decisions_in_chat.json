@@ -452,6 +452,24 @@
    "apply_steps": "1. Fix each function. 2. Hold the batch 5 cases in outside_networth_05.test.ts and the screens in src/screens/__tests__/outside_networth_05.test.tsx. 3. Write §12 and §13 of the standard. 4. Change tables on Bonds v02 and Performance v17. 5. Tracker row. Done.",
    "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_05.test.ts · src/screens/__tests__/outside_networth_05.test.tsx",
    "not_a_repeat_of": "DEC-0279 — that rule (no coupon rate counts $0 of interest, said so) stands and is applied here, not replaced: batch 5 adds that the yields show nothing without a rate. Also DEC-2634, which says audit changes are his decisions; this records WHICH changes batch 5 made."
+  },
+  {
+   "decided": "2026-10-07",
+   "answers": [],
+   "tab": "networth",
+   "type": "RULE",
+   "status": "TESTED",
+   "screens": "/analytics · /account-portfolio · /invest · /other-investments · /itemize · /plan",
+   "his_words": "here are second round audit files for batches 2,3,4.",
+   "subject": "The second-round outside review of Net worth, batches 2, 3 and 4 — each change, by function, approved",
+   "plain": "Every change from the second-round outside review of Net worth batches 2, 3 and 4 stands as his decision under his standing word (DEC-2634). Each rule is its own row beside this one.",
+   "means": "Handed over in chat on 2026-10-07. Three files (Claude), 295 cases run against the app: 33 failed before the fixes; after, 295 of 295 pass with 11 held at the app’s answer, each named on its row.",
+   "governs": "MK-NW-F-002 · MK-NW-F-003 · MK-NW-F-004 · MK-NW-F-008 · MK-NW-F-011 · MK-NW-F-013 · MK-NW-F-025 · MK-NW-F-027 · MK-NW-F-028 · MK-NW-F-030 · MK-NW-F-036 · MK-NW-F-041 · MK-NW-F-046 · MK-NW-F-052 · MK-NW-F-107 · MK-NW-F-108 · MK-NW-F-109 · MK-NW-F-110 · MK-NW-F-117 · MK-NW-O-008",
+   "changed": "Built and tested 2026-10-07.",
+   "apply_steps": "1. Fix each function. 2. Hold the cases in the three *_final test files. 3. Write the standard. 4. Note the drawings. 5. Tracker row. Done.",
+   "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts · MoneyKeel/functions/networth-and-performance/outside_networth_03_final.test.ts · MoneyKeel/functions/networth-and-performance/outside_networth_04_final.test.ts",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+   "not_a_repeat_of": "DEC-2484, DEC-2746 and DEC-2747 approved the first round of batches 2 to 4; this is the second round — a different set of changes. DEC-2634 says audit changes are his decisions."
   }
  ]
 }

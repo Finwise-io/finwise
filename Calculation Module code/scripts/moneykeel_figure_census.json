@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-07",
+ "generated": "2026-10-08",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -38788,7 +38788,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HomeScreen.tsx:299",
+   "site": "src/screens/HomeScreen.tsx:301",
    "routes": [
     "/home"
    ],
@@ -38805,7 +38805,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:304",
+   "site": "src/screens/HomeScreen.tsx:306",
    "routes": [
     "/home"
    ],
@@ -38822,7 +38822,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:413",
+   "site": "src/screens/HomeScreen.tsx:415",
    "routes": [
     "/home"
    ],
@@ -38841,7 +38841,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:416",
+   "site": "src/screens/HomeScreen.tsx:418",
    "routes": [
     "/home"
    ],
@@ -38860,7 +38860,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:498",
+   "site": "src/screens/HomeScreen.tsx:500",
    "routes": [
     "/home"
    ],
@@ -38879,7 +38879,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:511",
+   "site": "src/screens/HomeScreen.tsx:513",
    "routes": [
     "/home"
    ],
@@ -38897,7 +38897,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:512",
+   "site": "src/screens/HomeScreen.tsx:514",
    "routes": [
     "/home"
    ],
@@ -38914,7 +38914,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:515",
+   "site": "src/screens/HomeScreen.tsx:517",
    "routes": [
     "/home"
    ],

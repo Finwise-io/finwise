@@ -180,7 +180,7 @@ export function theAccount(input: {
  *               MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-028 assumed return
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-048 the person’s own asset-class answer
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-073
  * Changed ..... not in git yet (—)
@@ -203,7 +203,8 @@ export function itemising(lumpBalance: number, items: ItemHolding[]): Itemising 
  *  somebody other than the person say what the money is in. A hand-entered lump has no breakdown and
  *  the door refuses to invent one.
  */
-const EXAMPLE_POSITION = { position_id: 'p1', ticker: 'VTI', label: 'Vanguard Total Market', unit: 'shares',
+// a linked account's holding carries the broker's tag (ingest writes it) — without one it is Unclassified (DEC-2160)
+const EXAMPLE_POSITION = { position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', label: 'Vanguard Total Market', unit: 'shares',
   last_price: 290,
   lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 210, purchase_date: '2023-03-15' },
          { lot_id: 'l2', shares: 40, cost_per_share: 265, purchase_date: '2026-06-01' }] } as any;

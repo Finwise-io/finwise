@@ -118,7 +118,7 @@ test('the missing-data banner names each account, so two Vanguard rows are not i
   expect(titles).toHaveLength(2);
   expect(new Set(titles).size).toBe(2);                       // the founder saw the SAME line twice
   expect(titles[0]).toMatch(/Vanguard -5738 last updated Aug 3/);
-  expect(titles[1]).toMatch(/Vanguard -1129 last updated Aug 3/);
+  expect(titles[1]).toMatch(/Vanguard Roth -1129 last updated Aug 3/);   // a Roth with no kind says Roth (second-round review, 2026-10-07; DEC-0083: a tax-advantaged account shows what it is)
 });
 
 // ── (1) "SYNC NOW" ACTUALLY SYNCS, AND A DEAD CONNECTION SAYS SO ───────────────────────────────

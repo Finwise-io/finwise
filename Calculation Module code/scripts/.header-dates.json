@@ -747,5 +747,10 @@
 "src/domain/assets/index.ts::taxWordsOf": "not in git yet|\u2014",
 "src/domain/assets/index.ts::primaryHomeIdOf": "not in git yet|\u2014",
 "src/domain/assets/index.ts::assetsStateFrom": "not in git yet|\u2014",
-"src/domain/bonds/index.ts::yearlyInterest": "not in git yet|\u2014"
+"src/domain/bonds/index.ts::yearlyInterest": "not in git yet|\u2014",
+"src/domain/alternatives/index.ts::altPartsOf": "not in git yet|\u2014",
+"src/domain/assets/index.ts::propertyUseMap": "not in git yet|\u2014",
+"src/domain/assets/index.ts::rentedIdsOf": "not in git yet|\u2014",
+"src/domain/assets/index.ts::liveRent": "not in git yet|\u2014",
+"src/domain/assets/index.ts::rentAmount": "not in git yet|\u2014"
 }

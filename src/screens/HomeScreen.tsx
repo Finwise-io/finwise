@@ -197,9 +197,11 @@ export default function HomeScreen() {
   // (2026-10-05): what the investment accounts are worth, each counted whole. It was read from Net
   // worth's Investments line, which leaves a linked account's uninvested cash to the Cash line — so
   // this figure and the one a tap away on Performance differed by that cash.
-  const investTotal = oneMonth.walk.ending;
+  const investTotal = oneMonth.ending;
   const youReturn = oneMonth.ret;                               // the door's 1M figure, the one Performance prints
-  const youDollar = oneMonth.walk.wealthGenerated;              // and the dollars behind it — never re-derived from the %
+  // and the dollars behind it — never re-derived from the %. Shown only beside a return, and a return
+  // exists only where the walk does (a window the record reaches), so the 0 here is never printed.
+  const youDollar = oneMonth.walk?.wealthGenerated ?? 0;
   const marketReturn = useMemo(() => portfolioBenchReturn(perfRows), [perfRows]);   // the ONE shared formula (walk row 5)
   const freshness = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
 

@@ -454,7 +454,8 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(classPortionLabel(acct([]), 'cash')).toBe('cash in this account');
 
     // a ticker alone cannot tell a share from a fund, so one honest word covers both
-    expect(classPortionLabel(acct([{ position_id: '1', ticker: 'VTI' }]), 'stocks_etf')).toMatch(/1 holding in this account/);
+    // (the holding carries the kind its editor stores; with none at all it is Unclassified — DEC-2160, 2026-10-07)
+    expect(classPortionLabel(acct([{ position_id: '1', ticker: 'VTI', kind: 'stocks_etf' }]), 'stocks_etf')).toMatch(/1 holding in this account/);
   });
 
   // ── DEC-0096 ───────────────────────────────────────────────────────────────────────────────

@@ -18,17 +18,17 @@
  *               MK-NW-O-001 theBonds · MK-NW-O-003 theNetWorth
  *               MK-PF-F-022 factorOverMonths · MK-XS-F-175 uid
  *
- * Reaches ..... 139 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-077 ALL · MK-NW-F-088 BENCH
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-081 LB · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 121 more — the full list is on functions_from_code
+ * Reaches ..... 142 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
+ *               … and 124 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -56,7 +56,7 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
  *     `${MONTH_SHORT[(m or 1) − 1]} ${d}, ${y}`   if y
  *     ''   otherwise
  *
- * Called by ... MK-NW-F-105 whyNoReturn
+ * Called by ... MK-NW-F-105 whyNoReturn · MK-NW-O-008 thePerformance
  *
  * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF

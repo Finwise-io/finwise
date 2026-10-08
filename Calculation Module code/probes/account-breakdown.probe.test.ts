@@ -32,7 +32,7 @@ describe('ACCOUNT_SPLIT', () => {
       positions: [
         P('VMFXX', 'VANGUARD FEDERAL MONEY MARKET FUND', 100, 100, 'cash'),
         P('06418AAA1', 'KEYBANK NA 4.00% CD 08/24/26', 100, 100, 'cash'),
-        P('VTI', 'VANGUARD TOTAL STOCK MARKET ETF', 100, 100),
+        P('VTI', 'VANGUARD TOTAL STOCK MARKET ETF', 100, 100, 'stock_etf'),   // the broker's tag; with none it is Unclassified (DEC-2160, 2026-10-07)
       ],
     }))!;
     expect(b.stocks_etf).toBe(20_000);      // the money-market fund AND the ETF

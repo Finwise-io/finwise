@@ -109,7 +109,10 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     expect(src).toContain("engines/time-weighted-return");
     expect(src).not.toMatch(/modifiedDietzOverWindow\(|moneyWeightedReturn\(/);
     // only a REAL refusal speaks: having no record yet is an em-dash, not a sentence
-    expect(src).toMatch(/sentence: covered \? whyNoReturn\(verdict\) : ''/);
+    // …and a record that begins too late says so, naming its first day (second-round review, 2026-10-07);
+    // with no record at all, still nothing
+    expect(src).toMatch(/sentence: covered \? whyNoReturn\(verdict\) : cannotReach/);
+    expect(src).toMatch(/measured == null && theirDays\.length > 0/);
     // mock v17's mark 16 — a money-weighted rate per year standing in — is gone from the door and the screen
     const screen = read('PerformanceScreen.tsx');
     expect(src).not.toMatch(/refusedRate|RATE_STANDS_IN_WORDS/);

@@ -2766,6 +2766,18 @@
     "status": "DONE — 75 of its 75 cases pass, 5 held at the app's answer and named. APPROVED under his standing word of 2026-10-07 (DEC-2634).",
     "comments": "Not pushed. Drawings carry the changes at their top: Bonds v02 (4 lines), Performance v17 (3). The standard 'how an account is classed, split, counted and named' gained §12 (a bond's or a CD's figures) and §13 (a saved record with no accounts), and a line in §1 on confirmed accounts. Gemini's final audit of batch 5 is in to-send/."
    }
+  },
+  {
+   "task": "Outside review, second round — Net worth batches 2, 3 and 4 (Claude): 295 cases",
+   "todo": "He handed over the three second-round files on 2026-10-07. MEASURED: 295 cases run against the app — 33 failed before the fixes; after, 295 of 295 pass, 11 held at the app's answer. FIXED (each its own decision row under DEC-3035): MK-NW-F-004 the retirement return weighs what was set aside when the year began (13.72% → 12.98% in its example); MK-NW-F-108 529/HSA words fixed, '(Roth)' only in the Roth bucket; MK-NW-F-027 a hand-built account split holding by holding (a T-bill is Bonds & CDs); MK-NW-F-025 Roth 401(k) named so; MK-NW-F-109 a holding with nothing stored is Unclassified (DEC-2160); MK-NW-F-028 broker Treasury words; MK-NW-F-003 a month-only date shown as the 1st; MK-NW-O-008 no walk for a window whose record begins too late; MK-NW-F-036 a person's own rate is an estimate; MK-NW-F-041 a percent match after the limit; MK-NW-F-046 history rounded down; MK-NW-F-052 itemised accounts carry their class's rate; MK-NW-F-002 Other investments reads the class split; MK-NW-F-011 a property's name is not read, a covered-call fund is a fund; new MK-NW-F-117 propertyUseMap — one reading of what a property is for, rent-aware (DEC-1926). HELD, by name: MK-NW-F-015 no refusal for an account with no value (his 'no', DEC-2747); MK-NW-F-019 and MK-NW-O-003 nothing entered shows $0 with 'Nothing entered yet' (DEC-0260); MK-NW-F-035 no correlation table until the Plan build; MK-NW-F-036 a period of '—' not blank (four cases; the card says '—'); MK-NW-F-048 the group label 'Personal property' (drawing v08); MK-NW-F-073 a holding with no price cannot be entered on the Itemize screen; MK-NW-F-094 an account sits under its largest class (DEC-2747b).",
+   "status": "DONE — 295 of 295 cases pass, 11 held and named. APPROVED under his standing word (DEC-2634), recorded as DEC-3035.",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/networth0{2,3,4}_final_claude.json · MoneyKeel/functions/networth-and-performance/outside_networth_0{2,3,4}_final.test.ts",
+   "date": "2026-10-07",
+   "comments": "Not pushed. OPEN FOR THE PLAN BUILD: the Plan's retirement callers do not yet hand the Income screen's rent entries to the property rule, so there the stored use still decides; the correlation table for volatility. Drawings carry the changes at their top: Performance v17 (3 lines), Net worth v08 (3), Alternatives v02 (1). Standard: §1, §2, §3, §4, §5, §6, §8, §9, §11 extended.",
+   "_written": {
+    "status": "DONE — 295 of 295 cases pass, 11 held and named. APPROVED under his standing word (DEC-2634), recorded as DEC-3035.",
+    "comments": "Not pushed. OPEN FOR THE PLAN BUILD: the Plan's retirement callers do not yet hand the Income screen's rent entries to the property rule, so there the stored use still decides; the correlation table for volatility. Drawings carry the changes at their top: Performance v17 (3 lines), Net worth v08 (3), Alternatives v02 (1). Standard: §1, §2, §3, §4, §5, §6, §8, §9, §11 extended."
+   }
   }
  ]
 }

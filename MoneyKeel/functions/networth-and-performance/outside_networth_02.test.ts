@@ -82,14 +82,16 @@ describe('MK-NW-F-004 portfolioActualReturn — five cases', () => {
   test('easy · weighted by size, not a plain average', () => {
     expect(portfolioActualReturn([
       acct({ asset_id: 'a', balance: 300000, retirement_pct: 100, actual_ttm: 0.10 }),
-      acct({ asset_id: 'b', balance: 100000, retirement_pct: 100, actual_ttm: 0.02 })])).toBeCloseTo(0.08, 6);
+      acct({ asset_id: 'b', balance: 100000, retirement_pct: 100, actual_ttm: 0.02 })])).toBeCloseTo(0.0788462, 6);
+    // HELD AT THE APP'S ANSWER SINCE 2026-10-07 — the second-round review (networth02_final) showed a past return is weighed by what was set aside WHEN THE YEAR BEGAN (today's amount ÷ (1 + its return)), not today's: Σ now ÷ Σ start − 1. This file's figure weighed by today's amounts. It gave 8.00%.
   });
   test('complex · three accounts, one only a quarter earmarked, and a house', () => {
     expect(portfolioActualReturn([
       acct({ asset_id: 'k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 412350, retirement_pct: 100, actual_ttm: 0.0912 }),
       acct({ asset_id: 'b', kind: 'brokerage', balance: 186420, retirement_pct: 25, actual_ttm: 0.1347 }),
       acct({ asset_id: 'r', kind: 'roth_ira', tax_bucket: 'ROTH', balance: 73880, retirement_pct: 100, actual_ttm: 0.0681 }),
-      acct({ asset_id: 'h', kind: 'home', tax_bucket: 'PROPERTY', balance: 650000 })])).toBeCloseTo(0.091802, 5);
+      acct({ asset_id: 'h', kind: 'home', tax_bucket: 'PROPERTY', balance: 650000 })])).toBeCloseTo(0.0915869, 5);
+    // HELD AT THE APP'S ANSWER SINCE 2026-10-07 — the second-round review (networth02_final) showed a past return is weighed by what was set aside WHEN THE YEAR BEGAN (today's amount ÷ (1 + its return)), not today's: Σ now ÷ Σ start − 1. This file's figure weighed by today's amounts. It gave 9.18%.
     // HELD AT THE APP'S ANSWER. Its answer was 10.07%, each account weighed WHOLE, from the
     // card's word "value-weighted". This function is what the money SET ASIDE FOR RETIREMENT returned —
     // the plan grows that money and nothing else — so the brokerage weighs the quarter of it that is
@@ -102,7 +104,8 @@ describe('MK-NW-F-004 portfolioActualReturn — five cases', () => {
       acct({ asset_id: 'b', kind: 'brokerage', balance: 95000, retirement_pct: 0, actual_ttm: -0.042 }),
       acct({ asset_id: 'i', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 61233.40, retirement_pct: 100, actual_ttm: 0 }),
       acct({ asset_id: 'h', kind: 'hsa', tax_bucket: 'PRE_TAX', balance: 18402.66, retirement_pct: 100 }),
-      acct({ asset_id: 'r', kind: 'home', tax_bucket: 'PROPERTY', re_use: 'rental', balance: 520000, actual_ttm: 0.05 })])).toBeCloseTo(0.059540, 5);
+      acct({ asset_id: 'r', kind: 'home', tax_bucket: 'PROPERTY', re_use: 'rental', balance: 520000, actual_ttm: 0.05 })])).toBeCloseTo(0.0586446, 5);
+    // HELD AT THE APP'S ANSWER SINCE 2026-10-07 — the second-round review (networth02_final) showed a past return is weighed by what was set aside WHEN THE YEAR BEGAN (today's amount ÷ (1 + its return)), not today's: Σ now ÷ Σ start − 1. This file's figure weighed by today's amounts. It gave 5.95%.
     // HELD AT THE APP'S ANSWER. Its answer was 3.51%, with the brokerage saved for a house
     // deposit counted in. None of that brokerage is set aside for retirement, so it is not in the
     // retirement money's return: 17,870.10 ÷ (238,905.12 + 61,233.40) = 5.95%. The two points it made

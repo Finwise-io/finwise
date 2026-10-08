@@ -196,7 +196,7 @@ export default function PerformanceScreen() {
   // The screen has something to say whenever there ARE investments — a balance-only 401(k) with no
   // itemised holdings is still money, and gating on priced rows alone left that person staring at an
   // empty screen while Home showed their total (agreement pin 1).
-  const hasInvestments = rows.length > 0 || (windowFigures[period]?.walk.ending ?? 0) > 0;
+  const hasInvestments = rows.length > 0 || (windowFigures[period]?.ending ?? 0) > 0;
   // WHERE THE HISTORY CAME FROM (mock v14 mark 13). A rebuilt line is not an observation, so the
   // screen names its source and its first day — and says plainly what could not be rebuilt.
   const rebuilt = useMemo(() => {
@@ -241,7 +241,7 @@ export default function PerformanceScreen() {
   const yearsWord = now.years >= 1.9 && now.years < 2.1 ? 'two years' : `${now.years.toFixed(1)} years`;
   const stale = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
   /** One walk, drawn the same way for every account together and for each account alone. */
-  const walkRows = (w: typeof walk, ids: { begin: string; line: string; wealth: string; end: string }) => (
+  const walkRows = (w: NonNullable<typeof walk>, ids: { begin: string; line: string; wealth: string; end: string }) => (
     <>
       {[
         { l: `Beginning market value (${beginWords})`, v: w.beginning, m: ids.begin },
@@ -292,8 +292,11 @@ export default function PerformanceScreen() {
       <View style={styles.card}>
         <SectionBand inCard title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} infoTerm="performanceSummary" />
         <View style={styles.trioRow}>
-          <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', walk.ending)}</Text></View>
-          <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: dayOne ? Colors.textTertiary : walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walk.wealthGenerated))}</Text></View>
+          <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', now.ending)}</Text></View>
+          {/* no beginning the record can read, no wealth generated — a dash, never a figure worked back from today (Performance v17) */}
+          <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text>{walk == null
+            ? <Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text>
+            : <Text style={[styles.sumValBig, { color: dayOne ? Colors.textTertiary : walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walk.wealthGenerated))}</Text>}</View>
           {/* MARKS 16 AND 18, approved as mock v17 (2026-09-30). 16: where the window return
               refuses, the EXACT rate per year stands in its place instead of an em-dash — the
               person actively adding money is the one who most needs a rate and used to get
@@ -332,7 +335,7 @@ export default function PerformanceScreen() {
         {!!rebuilt && !dayOne && <Note term="rebuiltHistory">↺ {rebuilt.sentence}</Note>}
         {/* the value graph lives INSIDE the summary card, with a Y axis (mock v14 mark 11), drawn ONLY
             from days we have a record for — never today's share count priced at old dates */}
-        <ValueGraph points={dayOne ? [] : graphPoints} dayOneValue={fig('MK-PF-M-001', walk.ending)} today={todayKey}
+        <ValueGraph points={dayOne ? [] : graphPoints} dayOneValue={fig('MK-PF-M-001', now.ending)} today={todayKey}
           dayOneNote={!dayOne ? undefined : nothingEntered ? 'your line starts with your first account' : 'your line starts today'} />
       </View>
 
@@ -342,10 +345,12 @@ export default function PerformanceScreen() {
 
       {/* THE WALK — how the beginning became the ending, every account together */}
       <View style={styles.card}>
-        {dayOne
-          ? <SectionBand inCard title="HOW TODAY'S VALUE STANDS · ALL ACCOUNTS" value={fig('MK-PF-M-001', walk.ending)} />
+        {dayOne || walk == null
+          ? <SectionBand inCard title="HOW TODAY'S VALUE STANDS · ALL ACCOUNTS" value={fig('MK-PF-M-001', now.ending)} />
           : <SectionBand inCard title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)} />}
-        {walkRows(walk, { begin: 'MK-PF-M-018', line: 'MK-PF-M-019', wealth: 'MK-PF-M-002', end: 'MK-PF-M-001' })}
+        {walk == null
+          ? <Text style={styles.sumNote}>{now.sentence}</Text>
+          : walkRows(walk, { begin: 'MK-PF-M-018', line: 'MK-PF-M-019', wealth: 'MK-PF-M-002', end: 'MK-PF-M-001' })}
         {dayOne
           ? <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
           : !!rebuilt?.who && (
@@ -393,13 +398,13 @@ export default function PerformanceScreen() {
               {!isOpen ? (
                 /* closed: where its numbers come from, what it made, and its return — one quiet line */
                 <Text style={styles.sumNote}>
-                  {src.icon} {src.text} · wealth generated {w.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-014', Math.abs(w.wealthGenerated))}{oneReturn ? ` · return ${oneReturn}` : ''}
+                  {src.icon} {src.text}{w ? ` · wealth generated ${w.wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(w.wealthGenerated))}` : ''}{oneReturn ? ` · return ${oneReturn}` : ''}
                 </Text>
               ) : (
                 <>
                   <View style={styles.walkChip}><SourceChip account={acct} /></View>
                   {!dayOne && !!one.sentence && <Text style={styles.sumNote}>{one.sentence}</Text>}
-                  {walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' })}
+                  {w && walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' })}
                   {dayOne ? (
                     <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
                   ) : (

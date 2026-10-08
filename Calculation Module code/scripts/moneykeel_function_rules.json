@@ -1207,20 +1207,20 @@
   },
   "MK-NW-F-002": {
    "name": "alternativesSummary",
-   "rule": "Over the accounts that pass isAlternative: count; total = balances added up; blended rate = each balance × the benchmark yearly rate for its kind, added up, ÷ total — no figure when the total is 0; growth in a year = total × blended rate, and no figure when nothing is held or the total is 0 ($0 would read as a forecast).",
-   "read_from": "231b91e46c",
+   "rule": "Over every account that holds alternatives, read from its class split (altPartsOf): count = how many such accounts; total = their alternatives parts added up — the same dollars as the Alternatives line; blended rate = each part × the yearly rate for its kind (the person's own rate for that kind first, else the benchmark), added up, ÷ total — no figure when the total is 0; growth in a year = total × blended rate, and no figure when nothing is held or the total is 0 ($0 would read as a forecast).",
+   "read_from": "14d5ec1f92",
    "sent_as": "4eeda56b57"
   },
   "MK-NW-F-003": {
    "name": "valueFreshness",
-   "rule": "No answer for an account whose balance is built from its holdings, or one with no value date. Otherwise months old = the whole months that have fully passed since the value date: (years apart × 12 + calendar months apart), less 1 when today's day of the month is before the day the value was set — unless today is the last day of its month, which completes the month for a value set on a day that month does not have (a value set on the last day of January is one month old on the last day of February). A value dated by its month alone counts from the 1st. Never below zero. Stale when 6 or more.",
-   "read_from": "1af0a8f4ee",
+   "rule": "No answer for an account whose balance is built from its holdings, or one with no value date. Otherwise months old = the whole months that have fully passed since the value date: (years apart × 12 + calendar months apart), less 1 when today's day of the month is before the day the value was set — unless today is the last day of its month, which completes the month for a value set on a day that month does not have (a value set on the last day of January is one month old on the last day of February). A value dated by its month alone counts from the 1st, and its date is given as the 1st of that month. Never below zero. Stale when 6 or more.",
+   "read_from": "a1d4aeaec6",
    "sent_as": "27c6858965"
   },
   "MK-NW-F-004": {
    "name": "portfolioActualReturn",
-   "rule": "What the money set aside for retirement returned over the last twelve months — not the return of everything invested. Over accounts that are not property, that have a return for the last twelve months reported by the person (a reported 0 counts; one not reported is left out, never read as 0), and that have some amount set aside for retirement: those returns averaged, each weighted by the amount set aside for retirement (balance × the share set aside). An account with nothing set aside for retirement is not in it. No answer when that total is zero. It is weighted the same way as the plan's benchmark (blendedReturn), because the two are compared.",
-   "read_from": "5d6260d396",
+   "rule": "What the money set aside for retirement returned over the last twelve months — not the return of everything invested. Over accounts that are not property, that have a return for the last twelve months reported by the person (a reported 0 counts; one not reported is left out, never read as 0; a reported loss of everything or more is left out), and that have some amount set aside for retirement: each account's start = the amount set aside today ÷ (1 + its return). The answer = the amounts set aside today added up ÷ the starts added up − 1 — what the money set aside grew by, each account weighed by what was set aside when the twelve months began. No answer when either total is zero or less.",
+   "read_from": "6934f0f4f5",
    "sent_as": "5d6260d396"
   },
   "MK-NW-F-005": {
@@ -1261,8 +1261,8 @@
   },
   "MK-NW-F-011": {
    "name": "assetClassOf",
-   "rule": "The first of these that applies. (1) The class stated on the account. (2) Bonds & CDs if it has a maturity date (owner rule, 2026-08-04: any maturity-dated instrument is a bond) — whatever its name says. (3) The class its name is evidence for. (4) The class of its kind: checking, savings, high-yield savings, cash management and foreign currency are cash; money market and stocks are Stocks / Funds; CD and fixed income are Bonds & CDs; private equity, hedge funds, commodities, crypto, annuities, options and other are Alternatives; home and real estate are Real estate; vehicle is Personal property. (5) Stocks / Funds if it lists holdings. (6) Cash if it is a cash account. (7) If it is property: Real estate when no kind is recorded or its use (lived in, rented, second home, land) is recorded; Personal property for any other kind. (8) Otherwise Unclassified.",
-   "read_from": "c7cee89f70",
+   "rule": "The first of these that applies. (1) The class stated on the account. (2) Bonds & CDs if it has a maturity date (owner rule, 2026-08-04: any maturity-dated instrument is a bond) — whatever its name says. (3) The class its name is evidence for — except for a home, real estate, a vehicle or anything in the property bucket, whose name is a place and is not read. (4) The class of its kind: checking, savings, high-yield savings, cash management and foreign currency are cash; money market and stocks are Stocks / Funds; CD and fixed income are Bonds & CDs; private equity, hedge funds, commodities, crypto, annuities, options and other are Alternatives; home and real estate are Real estate; vehicle is Personal property. (5) Stocks / Funds if it lists holdings. (6) Cash if it is a cash account. (7) If it is property: Real estate when no kind is recorded or its use (lived in, rented, second home, land) is recorded; Personal property for any other kind. (8) Otherwise Unclassified.",
+   "read_from": "507405ff10",
    "sent_as": "0440597b60"
   },
   "MK-NW-F-012": {
@@ -1273,8 +1273,8 @@
   },
   "MK-NW-F-013": {
    "name": "realEstateUseOf",
-   "rule": "The use stated for a property. With none stated: the home lived in when the property is the one the household's rule names (primaryHomeIdOf — the one marked, or with none marked and no use stated on any, the one entered first), otherwise a second home; asked about one account alone, with no household to compare against, it is the home. An account that is not real estate has no use (no answer).",
-   "read_from": "5fb33a3020",
+   "rule": "An account that is not real estate has no use (no answer). Land stated as land is land. Asked about one property alone: rental when a rent entry handed in names it, else its stated use, else the home. Asked within the household: what propertyUseMap says of it — home is the home lived in, rental is a rental, anything else is a second home.",
+   "read_from": "d1172621fb",
    "sent_as": "036545ad7c"
   },
   "MK-NW-F-014": {
@@ -1345,8 +1345,8 @@
   },
   "MK-NW-F-025": {
    "name": "accountDisplayName",
-   "rule": "The kind word is the account kind's own word (401(k), Traditional IRA, Roth IRA, HSA, 529, Brokerage, Checking and so on); for a tax-advantaged account whose kind says only Brokerage, it is Roth when the account is tax-free and 401(k) / IRA when it is tax-deferred — a tax-advantaged account always shows what it is. With an institution: a tax-advantaged account that has a kind word reads Institution + kind word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
-   "read_from": "b80a695f0e",
+   "rule": "The kind word is the account kind's own word (401(k), Traditional IRA, Roth IRA, HSA, 529, Brokerage, Checking and so on). For a tax-advantaged account: where the kind says only Brokerage — or there is no kind and the last four digits are known — the word is Roth when the account is tax-free and 401(k) / IRA when it is tax-deferred; a 401(k) in the Roth bucket or tax-free is Roth 401(k). A tax-advantaged account always shows what it is. With an institution: a tax-advantaged account that has a word reads Institution + word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
+   "read_from": "0e1cc41510",
    "sent_as": "0509b9c53f"
   },
   "MK-NW-F-026": {
@@ -1357,8 +1357,8 @@
   },
   "MK-NW-F-027": {
    "name": "accountClassBreakdown",
-   "rule": "LINKED ACCOUNT. Cash = its cash balance. Each holding with a price = shares × last price, filed under its class (holdingClassOf). Each option = its value as synced, under Alternatives (an option is valued when it is synced, at contracts × price per share × 100 — owner, 2026-08-26). If the parts come to less than the balance and one or more holdings have NO price: the whole difference is filed under the unpriced holdings' class when they share one, and under Unclassified when they span classes — never under cash. Otherwise, if the parts do not add up to the balance: a difference no bigger than the larger of $1 or 1% of the balance is added to cash when positive (owner rule, 2026-08-11), or taken off the largest class when negative; a bigger one is put under the account's own class (assetClassOf). ACCOUNT BUILT BY HAND (its balance is built from its own records, it is not a cash or property account, and it records uninvested cash above zero): cash = that uninvested cash, never more than the balance; the rest of the balance stays whole under the account's own class. ANY OTHER ACCOUNT — a typed balance, a bank account, a recorded cash figure of zero or below — gets no answer. The parts always add up to the balance.",
-   "read_from": "a07955d275",
+   "rule": "LINKED ACCOUNT. Cash = its cash balance. Each holding with a price = shares × last price, filed under its class (holdingClassOf). Each option = its value as synced, under Alternatives (an option is valued when it is synced, at contracts × price per share × 100 — owner, 2026-08-26). If the parts come to less than the balance and one or more holdings have NO price: the whole difference is filed under the unpriced holdings' class when they share one, and under Unclassified when they span classes — never under cash. Otherwise, if the parts do not add up to the balance: a difference no bigger than the larger of $1 or 1% of the balance is added to cash when positive (owner rule, 2026-08-11), or taken off the largest class when negative; a bigger one is put under the account's own class (assetClassOf). ACCOUNT BUILT BY HAND (not a cash or property account): its cash = the uninvested cash it records, above zero, never more than the balance, when its balance is built from its records or it records cash. When its balance is built from its holdings, each holding is weighed at shares × price — or what was paid, when no price is held — and the rest of the balance is shared out among the holdings' classes by those weights, so a T-bill is Bonds & CDs; if every holding is of the account's own class, the rest stays whole under that class. No answer when it records no cash and its holdings are all of its own class. ANY OTHER ACCOUNT — a typed balance, a bank account — gets no answer. The parts always add up to the balance.",
+   "read_from": "0f1f3b3098",
    "sent_as": "3977913591",
    "figures_checked_by_hand": {
     "100": "the option contract size, applied where an option is synced (src/services/sync/snaptrade.ts: price × contracts × multiplier, multiplier 100) — owner ruling Q06, 2026-08-26. This function reads the value that results."
@@ -1366,8 +1366,8 @@
   },
   "MK-NW-F-028": {
    "name": "classPortionLabel",
-   "rule": "The words for one class inside one account, counting the holdings of that class (holdingClassOf — the same test the dollars beside the words were split by). Cash: cash in this account. Bonds: counts the holdings whose name has the whole word CD (or certificate of deposit), those whose name has the whole word Treasury (or T-bill, T-note, government), capitals ignored, and the rest as bonds; a count of one is singular, a count of zero is left out, two parts are joined with &, three as A, B & C — for example 3 CDs & 1 Treasury in this account, or 1 CD, 1 Treasury & 2 bonds in this account — or bonds & CDs in this account when none are listed. Stocks: N holdings in this account (1 holding), or stocks & funds in this account when none are listed. Alternatives: N options & N holdings in this account, each part left out when its count is zero (an option is one option position, however many contracts), or alternatives in this account. Any other class: unpriced portion of this account.",
-   "read_from": "8e9a7abe42",
+   "rule": "The words for one class inside one account, counting the holdings of that class (holdingClassOf — the same test the dollars beside the words were split by). Cash: cash in this account. Bonds: counts the holdings whose name has the whole word CD (or certificate of deposit), those whose name has the whole word Treasury (or Treas, UST, T-bill, T-note, T-bond, government — the broker's wording too), capitals ignored, and the rest as bonds; a count of one is singular (Treasuries for more than one), a count of zero is left out, two parts are joined with &, three as A, B & C — for example 3 CDs & 1 Treasury in this account, or 1 CD, 1 Treasury & 2 bonds in this account — or bonds & CDs in this account when none are listed. Stocks: N holdings in this account (1 holding), or stocks & funds in this account when none are listed. Alternatives: N options & N holdings in this account, each part left out when its count is zero (an option is one option position, however many contracts), or alternatives in this account. Any other class: unpriced portion of this account.",
+   "read_from": "4af0268c0d",
    "figures_checked_by_hand": {
     "3": "a count in the example label, not a figure of the formula"
    },
@@ -1381,8 +1381,8 @@
   },
   "MK-NW-F-030": {
    "name": "earmarkDefault",
-   "rule": "The share of an account counted towards retirement by default (owner, 2026-08-11, DEC-0100: all assets minus the home lived in and the car driven): 0% for a 529, for the home lived in (the property whose use is stated as such; with none stated, the one the household's rule names, or any unstated property when no household is handed in) and for the car driven (primaryCarIdOf); 100% for everything else — a rental, a second home, a second car, valuables included.",
-   "read_from": "b574863508",
+   "rule": "The share of an account counted towards retirement by default (owner, 2026-08-11, DEC-0100: all assets minus the home lived in and the car driven): 0% for a 529, for the car driven (primaryCarIdOf), and for the home lived in. Told the household's home (its identifier, from primaryHomeIdOf), only that property is 0%; told the household has no home (null), no property is; told nothing, a property stated as the home lived in, or with no use stated, is 0%. 100% for everything else — a rental, a second home, a second car, valuables included.",
+   "read_from": "b982e3ae13",
    "sent_as": "94cc5cca0d"
   },
   "MK-NW-F-031": {
@@ -1393,8 +1393,8 @@
   },
   "MK-NW-F-032": {
    "name": "earmarkedAmount",
-   "rule": "Balance × the share earmarked for retirement. The share is the one stated on the account, held between 0% and 100%, or the default (earmarkDefault, told which car is driven and which property is lived in) when none is stated.",
-   "read_from": "07c7c21b71",
+   "rule": "Balance × the share earmarked for retirement. The share is the one stated on the account, held between 0% and 100%, or the default (earmarkDefault, told which car is driven and which property is lived in, or that there is none) when none is stated.",
+   "read_from": "4a4353a1cc",
    "sent_as": "e3ff4b78f4"
   },
   "MK-NW-F-033": {
@@ -1417,8 +1417,8 @@
   },
   "MK-NW-F-036": {
    "name": "benchmarkInfo",
-   "rule": "The rate from benchmarkReturn, with where it came from. Edited = the person set a rate for that kind (0 included): then the source reads Your custom estimate and the period is blank. Otherwise the source and period on record for that kind, and estimate = whether that record is marked an assumption rather than a measured index; a kind with no record reads Generic blended estimate, period blank, estimate true.",
-   "read_from": "831903f76b",
+   "rule": "The rate from benchmarkReturn, with where it came from. Edited = the person set a rate for that kind (0 included): then the source reads Your custom estimate, the period is blank and estimate is true (a person's own rate is an assumption). Otherwise the source and period on record for that kind, and estimate = whether that record is marked an assumption rather than a measured index; a kind with no record reads Generic blended estimate, period blank, estimate true.",
+   "read_from": "dd82a52006",
    "sent_as": "831903f76b"
   },
   "MK-NW-F-037": {
@@ -1447,8 +1447,8 @@
   },
   "MK-NW-F-041": {
    "name": "monthlyContributionsFromOnboarding",
-   "rule": "No answer when none of the contribution questions was answered (401(k), Roth, investing, employer match). Otherwise, a month's retirement contributions = the 401(k) amount, held at the year's elective limit for the person's age ÷ 12 (2026: $24,500 under 50, $32,500 at 50 to 59 and 64 and over, $35,750 at 60 to 63), + the Roth amount as entered (the question does not say Roth IRA or Roth 401(k), whose limits differ, so it is not held at either), + the investing amount, + the employer's match for a month (the stated share of the 401(k) amount, or the stated dollars). Money saved toward a property (an older setup question) is not a retirement contribution and is left out. The age is the one attained this year, from the birth year.",
-   "read_from": "2a11d3081f",
+   "rule": "No answer when none of the contribution questions was answered (401(k), Roth, investing, employer match). Otherwise, a month's retirement contributions = the 401(k) amount, held at the year's elective limit for the person's age ÷ 12 (2026: $24,500 under 50, $32,500 at 50 to 59 and 64 and over, $35,750 at 60 to 63), + the Roth amount as entered (the question does not say Roth IRA or Roth 401(k), whose limits differ, so it is not held at either), + the investing amount, + the employer's match for a month (the stated share of the 401(k) amount AFTER it is held at the limit — an employer matches only what can go in — or the stated dollars). Money saved toward a property (an older setup question) is not a retirement contribution and is left out. The age is the one attained this year, from the birth year.",
+   "read_from": "54333da2c1",
    "sent_as": "e4d1e8d69e",
    "figures_checked_by_hand": {
     "$24,500": "IRS 2026 401(k) elective deferral limit under 50 — src/domain/income/limits.ts IRS_LIMITS.elective_deferral_401k, read by annual401kLimit",
@@ -1476,8 +1476,8 @@
   },
   "MK-NW-F-046": {
    "name": "historyCoverage",
-   "rule": "Entered by hand: a sentence saying it has no activity records. Linked with no history start on record: a sentence saying none has been shared yet. History starting on or before the period's first day: nothing to say. Otherwise: months covered = the whole months from the history start to today plus the part month (days ÷ the days in that month), to one decimal; the sentence names the start date and says N years only when the months are an exact multiple of twelve, N years M months when twelve or more, N months when one or more, otherwise a few days. It never rounds up to a year.",
-   "read_from": "45aeeb890e",
+   "rule": "Entered by hand: a sentence saying it has no activity records. Linked with no history start on record: a sentence saying none has been shared yet. History starting on or before the period's first day: nothing to say. Otherwise: months covered = the whole months from the history start to today plus the part month (days ÷ the days in that month), rounded DOWN to one decimal; the sentence is built from the whole months only and names the start date: N years when the whole months are an exact multiple of twelve and there is no part month, N years and a bit when there is, N years M months when twelve or more, N months when one or more, otherwise a few days. It never rounds up.",
+   "read_from": "8d54885dfa",
    "sent_as": "7b1e1e5ad0"
   },
   "MK-NW-F-047": {
@@ -1512,8 +1512,8 @@
   },
   "MK-NW-F-052": {
    "name": "buildItemizedAccounts",
-   "rule": "One account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket, and what the original carried — its retirement share, its source, and its wrapper kind when the original is a 401(k), IRA, Roth IRA, HSA or 529 (otherwise the kind for the class); balance = its value; class as given. A bond also carries its rate and maturity date, and its face value only when the person entered one — never today's value in its place. What is still unallocated, when above zero, becomes one more account named institution + cash, with the same share, source and wrapper.",
-   "read_from": "2053a1a8f5",
+   "rule": "One account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket, and what the original carried — its retirement share, its source, and its wrapper kind when the original is a 401(k), IRA, Roth IRA, HSA or 529 (otherwise the kind for the class); balance = its value; class as given; its yearly rate = the benchmark for its class's kind (benchmarkReturn), never 0. A bond also carries its maturity date, its rate only when one was entered, and its face value only when the person entered one — never today's value in its place. What is still unallocated, when above zero, becomes one more account named institution + cash, with the same share, source and wrapper, at the cash-management benchmark rate.",
+   "read_from": "ae7a07354b",
    "sent_as": "102a91ae82"
   },
   "MK-NW-F-053": {
@@ -1729,8 +1729,8 @@
   },
   "MK-NW-O-008": {
    "name": "thePerformance",
-   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and the first recorded value of an account that joined the record inside the period (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today), and NO percent of any kind is given. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Ending = what the measured accounts are worth today, each counted whole (its balance, uninvested cash inside it included), read from the accounts handed in — a figure handed in beside them is not used, so no two screens can give two endings; with no accounts handed in, the ending handed in is used and closes the record. Today's value for the return is read from the same accounts. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out and the record does not say which way or what they were worth; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
-   "read_from": "96a883521c",
+   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and the first recorded value of an account that joined the record inside the period (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read and the record holds days for these accounts that begin after the period opens: NO walk (no beginning, no wealth generated), and a sentence: The record begins <its first day>, so it cannot say what this account was / these accounts were worth on <the day before the period>. If it cannot be read and there is no record of these accounts at all: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today). Either way NO percent of any kind is given. The ending is given on its own as well, whether or not there is a walk. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved, so the value just before a movement = that day's value − the movement. Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Ending = what the measured accounts are worth today, each counted whole (its balance, uninvested cash inside it included), read from the accounts handed in — a figure handed in beside them is not used, so no two screens can give two endings; with no accounts handed in, the ending handed in is used and closes the record. Today's value for the return is read from the same accounts. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; shares were moved in or out and the record does not say which way or what they were worth; the value on a day is less than the money added that day; or nothing was invested. For a period longer than one year (days ÷ 365 above 1), unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1.",
+   "read_from": "e845e91ac6",
    "sent_as": "4afbd2f788"
   },
   "MK-PF-F-001": {
@@ -1932,8 +1932,8 @@
   },
   "MK-NW-F-107": {
    "name": "propertyUses",
-   "rule": "For each property (an account whose class is real estate): what it is used for. Owner rule, 2026-10-04: \"unless rental income is added on the income screen, assume property is second or vacation home.\" RENTAL = a rent entry on the Income screen (one with rent or running costs typed) names this property. HOME = the one property the person marked as the home they live in, when it is not a rental. SECOND = every other property: a second or vacation home. Two things stored before the rule are read only where there is one answer: with no property marked as the home (and none marked as anything else), the property entered first is the home; and a rent entry that names no property makes the one property that is not the home a rental, when there is exactly one such property.",
-   "read_from": "f2a85d06f4",
+   "rule": "For each property: what it is used for, as propertyUseMap reads it, handed the rent entries from the Income screen (none handed in when the person has none on record). Owner rule, 2026-10-04: \"unless rental income is added on the income screen, assume property is second or vacation home.\" RENTAL = a rent entry names it — or, only when no rent entries are handed in at all, it is stored as a rental. HOME = the one marked as the home lived in; with none marked and no use stated on any, the one entered first. SECOND = every other property, except that a rent entry naming no property makes the one remaining property a rental when there is exactly one.",
+   "read_from": "361715a9bb",
    "sent_as": ""
   },
   "MK-CF-O-020": {
@@ -1944,20 +1944,20 @@
   },
   "MK-NW-F-108": {
    "name": "taxWordsOf",
-   "rule": "The words for how an account is taxed, shown on its page. Where no treatment is stated on the account: a 529 reads tax-free for education; an HSA reads pre-tax — tax-free for medical costs. Otherwise by its treatment (taxTreatmentOf): tax-deferred reads pre-tax — taxed when it comes out; tax-free reads tax-free (Roth); taxable reads taxable.",
-   "read_from": "0c1f7fd10e",
+   "rule": "The words for how an account is taxed, shown on its page. A 529 always reads tax-free for education; an HSA always reads pre-tax — tax-free for medical costs, whatever treatment is stated. Otherwise by its treatment (taxTreatmentOf): tax-deferred reads pre-tax — taxed when it comes out; tax-free reads tax-free (Roth) for an account in the Roth bucket and tax-free for any other; taxable reads taxable.",
+   "read_from": "1d87707b67",
    "sent_as": ""
   },
   "MK-NW-F-109": {
    "name": "holdingClassOf",
-   "rule": "The class of one holding inside an account. (1) If the person said what it is, their answer. (2) If it is marked as asked — nothing could class it and the person has not answered — Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (3) The class its ticker and name are evidence for, unless that is cash: a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker sent (owner rule, 2026-08-04: cash means cash only). (4) Otherwise the class stored when it arrived: bond → Bonds & CDs, other → Alternatives, cash → cash, anything else → Stocks / Funds.",
-   "read_from": "9aae46ef0b",
+   "rule": "The class of one holding inside an account. What was stored: the broker's or importer's tag (bond → Bonds & CDs, other → Alternatives, cash → cash, any other tag → Stocks / Funds), else the class of the kind picked when it was added (not real estate or personal property), else nothing. (1) If the person said what it is, their answer — the stored class, or Unclassified when nothing is stored. (2) If it is marked as asked, Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (3) The class its ticker and name are evidence for, unless that is cash: a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker sent (owner rule, 2026-08-04: cash means cash only). (4) Otherwise what was stored; with nothing stored, cash when the name says cash, else Unclassified — never a guessed Stocks / Funds.",
+   "read_from": "b628f0ce02",
    "sent_as": ""
   },
   "MK-NW-F-110": {
    "name": "primaryHomeIdOf",
-   "rule": "Which property is the home lived in, by the household's rule (the owner's rule of 2026-10-04, as propertyUses reads it): among the real-estate accounts that are not rentals, the one whose use is stated as the home lived in; with none marked, none when any of them has a use stated, otherwise the one entered first (the app keeps the newest first, so the last in the list). Nothing when there is no property.",
-   "read_from": "60219fa768",
+   "rule": "The property propertyUseMap reads as the home lived in, handed the rent entries when the caller has them. Nothing (null) when the household has no home — which is not the same as not being asked.",
+   "read_from": "5247bdf736",
    "sent_as": ""
   },
   "MK-NW-F-111": {
@@ -1969,6 +1969,31 @@
    "name": "yearlyInterest",
    "rule": "A year's interest from one bond or CD. Nothing when no rate was entered. Face value × rate when a face value was entered; otherwise today's value × rate.",
    "read_from": "733a2da652"
+  },
+  "MK-NW-F-113": {
+   "name": "altPartsOf",
+   "rule": "The alternatives inside one account, each with the kind its yearly rate is read from. An account that is itself an alternative: its alternatives part of the class split (or its whole balance when it has no split), at its own kind. Any other account: each option at its synced value, kind options; each holding classed as an alternative with a price, shares × price, kind crypto when its name says bitcoin, ethereum or crypto, commodities when it says gold, silver, platinum, palladium or commodity, otherwise other; and whatever of the account's alternatives part is left, kind other. Nothing when the account holds no alternatives.",
+   "read_from": "12ddfef9c0"
+  },
+  "MK-NW-F-114": {
+   "name": "rentAmount",
+   "rule": "A rent figure as a number: the digits typed, or 0 when none.",
+   "read_from": "484f868381"
+  },
+  "MK-NW-F-115": {
+   "name": "liveRent",
+   "rule": "The rent entries whose rent coming in or costs going out is above zero.",
+   "read_from": "23cdba9715"
+  },
+  "MK-NW-F-116": {
+   "name": "rentedIdsOf",
+   "rule": "The identifiers of the properties the live rent entries name.",
+   "read_from": "5643c2c169"
+  },
+  "MK-NW-F-117": {
+   "name": "propertyUseMap",
+   "rule": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no use stated on any, the one entered first (last in the list) is home. Every other property is a second home, except that when a rent entry names no property and exactly one other property remains, that one is a rental.",
+   "read_from": "aea036cc4c"
   }
  },
  "pack_sent": {
