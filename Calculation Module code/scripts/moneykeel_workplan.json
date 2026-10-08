@@ -2778,6 +2778,18 @@
     "status": "DONE — 295 of 295 cases pass, 11 held and named. APPROVED under his standing word (DEC-2634), recorded as DEC-3035.",
     "comments": "Not pushed. OPEN FOR THE PLAN BUILD: the Plan's retirement callers do not yet hand the Income screen's rent entries to the property rule, so there the stored use still decides; the correlation table for volatility. Drawings carry the changes at their top: Performance v17 (3 lines), Net worth v08 (3), Alternatives v02 (1). Standard: §1, §2, §3, §4, §5, §6, §8, §9, §11 extended."
    }
+  },
+  {
+   "task": "Net worth By class: each account under each class with its part (his ruling, DEC-3146)",
+   "todo": "His words, 2026-10-07: \"build it per mockup 07 where under each class you list each account Vanguard-0008 $45000, Chase - 0333 $34000.\" The main Net worth list already did this; MK-NW-F-094 ledgerGroups and the step-by-step setup list did not (a split account sat once under its largest class at its whole balance). Fixed: rows carry each account's part; the setup list prints the part under the account's name. The batch 4 rule DEC-2747b is marked replaced.",
+   "status": "DONE — test: the rows under each heading add up to it.",
+   "ref": "MoneyKeel/functions/networth-and-performance/net-worth.ts MK-NW-F-094 · src/screens/NetWorthScreen.tsx · outside_networth_04_final.test.ts",
+   "date": "2026-10-07",
+   "comments": "Not pushed. Drawing v08's batch 4 line struck through and marked replaced.",
+   "_written": {
+    "status": "DONE — test: the rows under each heading add up to it.",
+    "comments": "Not pushed. Drawing v08's batch 4 line struck through and marked replaced."
+   }
   }
  ]
 }

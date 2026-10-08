@@ -463,7 +463,9 @@ describe('MK-NW-F-094 ledgerGroups — five cases', () => {
     expect(g.reduce((t, x) => t + x.total, 0)).toBeCloseTo(153516.57, 2);
     // rows beneath each heading: a split account is listed under every class it has a part in
     expect(Object.fromEntries(g.map((x) => [x.label, [...x.accountIds].sort()]))).toEqual({
-      Cash: ['chase'], 'Stocks / Funds': ['schwab'], 'Bonds & CDs': ['cd'] });   // HELD AT THE APP'S ANSWER — his approval of batch 4 (DEC-2747b): an account holding several classes gives each group its part and sits, as a row, under the class most of it is in. The reviewer wants it listed under every class
+      Cash: ['chase', 'schwab'], 'Stocks / Funds': ['schwab'], 'Bonds & CDs': ['cd', 'schwab'] });   // his ruling 2026-10-07: under each class, each account with its part
+    // and the rows under each heading add up to it
+    for (const x of g) expect(x.rows.reduce((t, r) => t + r.amount, 0)).toBeCloseTo(x.total, 2);
   });
   test('edge · An institution typed as spaces only', () => {
     // RULE UNCLEAR: reading A blank is none (one group 7,000) or reading B blank is a name

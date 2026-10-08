@@ -198,9 +198,12 @@ MK-NW-F-073 itemising, MK-NW-F-051 itemizedResultTotal, MK-NW-F-052 buildItemize
 
 ## 10. The list under the class rows — by class, by institution
 
-MK-NW-F-094 ledgerGroups. The same split as §3: an account holding several classes gives each class
-group its part and sits, as a row, under the class most of it is in; by institution, its parts are the
-mix line under the institution's name. Group totals by class equal the class rows; both views add to
+MK-NW-F-094 ledgerGroups. The same split as §3. By class, every account that holds money in a class is
+listed under it by its name with only its part in that class — Vanguard -0008 $45,000, Chase -0333
+$34,000 — so the rows under a heading add up to the heading (his ruling, 2026-10-07, DEC-3146: "You are
+showing class total which user cannot even see how you got to it"; it replaced the batch 4 rule of one
+row under the largest class). By institution, an account is one row at its balance, its parts the mix
+line under the institution's name. Group totals by class equal the class rows; both views add to
 What you own. Institution names are matched trimmed, capitals ignored.
 
 ## 11. How much history a linked account shared

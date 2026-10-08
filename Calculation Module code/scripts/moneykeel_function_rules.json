@@ -1675,8 +1675,8 @@
   },
   "MK-NW-F-094": {
    "name": "ledgerGroups",
-   "rule": "Groups the accounts for the Net worth list, by asset-class label or by institution. An account with a class split (accountClassBreakdown — a linked account, or one built by hand that records its own uninvested cash) gives each class group its part and sits, as a row, under the class most of it is in; any other account counts whole under its one class. By institution (an account with no institution goes under No institution set; names are matched trimmed, capitals ignored, and the group shows the first spelling seen): a group's total = its accounts' balances added up, and the group lists the classes inside it with their totals, from the same split, largest first. Group totals by class equal the class rows; both views add to everything owned.",
-   "read_from": "0d7806ee68",
+   "rule": "Groups the accounts for the Net worth list, by asset-class label or by institution. By class: an account with a class split (accountClassBreakdown) is a row under EVERY class it has a part in, at that part; any other account is one row, whole, under its one class. Each group's total = its rows added up (his ruling, 2026-10-07: the rows under a heading add up to the heading). By institution (an account with no institution goes under No institution set; names are matched trimmed, capitals ignored, and the group shows the first spelling seen): each account is one row at its balance, a group's total = those balances added up, and the group lists the classes inside it with their totals, from the same split, largest first. Group totals by class equal the class rows; both views add to everything owned.",
+   "read_from": "fa59639d46",
    "sent_as": "75306e7a08"
   },
   "MK-NW-F-103": {

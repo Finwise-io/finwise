@@ -470,6 +470,24 @@
    "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts · MoneyKeel/functions/networth-and-performance/outside_networth_03_final.test.ts · MoneyKeel/functions/networth-and-performance/outside_networth_04_final.test.ts",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
    "not_a_repeat_of": "DEC-2484, DEC-2746 and DEC-2747 approved the first round of batches 2 to 4; this is the second round — a different set of changes. DEC-2634 says audit changes are his decisions."
+  },
+  {
+   "decided": "2026-10-07",
+   "answers": [],
+   "tab": "networth",
+   "type": "DESIGN",
+   "status": "TESTED",
+   "screens": "/analytics (Net worth — By class, and the step-by-step setup)",
+   "his_words": "no need for mockup. build it per mockup 07 where under each class you list each account Vanguard-0008 $45000, Chase - 0333 $34000. THe rule you changed in batch 4 does not fucking make sense. You are showing class total which user cannot even see how you got to it.",
+   "subject": "Under each class, list each account with its part in that class — so the rows add up to the class total",
+   "plain": "Under each class heading, every account that holds money in that class is listed by its name with only its part in that class (for example Vanguard -0008 $45,000, Chase -0333 $34,000), so the rows under a heading add up to the heading. It replaces the batch 4 rule that listed a split account once, under its largest class, at its whole balance.",
+   "means": "Said in chat on 2026-10-07, after I explained MK-NW-F-094. Drawing v07 (and v08) already list accounts this way; the main Net worth list did; MK-NW-F-094 ledgerGroups and the step-by-step setup list did not.",
+   "governs": "MK-NW-F-094 ledgerGroups · MK-NW-M-007 · MK-NW-M-008 · src/screens/NetWorthScreen.tsx",
+   "changed": "ledgerGroups gives each group its rows with each account's part; the setup list prints that part under the account's name, with the words saying which part.",
+   "apply_steps": "1. ledgerGroups: by class, an account is a row under every class it has a part in, at that part. 2. The setup list prints the part and the name by DEC-0083. 3. Test: the rows under each heading add to it. 4. Standard §10, drawing v08 note, tracker. Done.",
+   "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04_final.test.ts",
+   "supersedes": "DEC-2747b",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §10"
   }
  ]
 }

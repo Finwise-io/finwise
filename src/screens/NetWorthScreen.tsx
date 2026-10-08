@@ -369,7 +369,8 @@ export default function NetWorthScreen() {
 
   // ── shared section renderers (used by both the manager and the guided wizard) ──
   const curYm = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-  const assetRow = (a: AssetAccount, i: number, title: string, sub: string) => {
+  const assetRow = (a: AssetAccount, i: number, title: string, sub: string, amount?: number, rowKey?: string) => {
+    const shown = amount ?? a.balance;
     const ch = a.change_month === curYm ? (a.change_amount ?? 0) : 0;
     const up = ch > 0;
     // FCC: every row says where its number comes from and how fresh it is
@@ -377,7 +378,7 @@ export default function NetWorthScreen() {
     sub = sub ? `${sub} · ${stamp}` : stamp;
     // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
-      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${figSaid('MK-NW-M-008', a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
+      <TouchableOpacity key={rowKey ?? a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${figSaid('MK-NW-M-008', shown)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
         <Text style={styles.rowIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -386,7 +387,7 @@ export default function NetWorthScreen() {
         <View style={{ alignItems: 'flex-end' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
             {ch !== 0 && <Text style={[styles.chArrow, { color: up ? Colors.gainText : Colors.red }]}>{up ? '▲' : '▼'}</Text>}
-            <Text style={styles.rowVal}>{fig('MK-NW-M-008', a.balance)}</Text>
+            <Text style={styles.rowVal}>{fig('MK-NW-M-008', shown)}</Text>
           </View>
           {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.gainText : Colors.red }]}>{up ? '+' : '−'}{fig('MK-NW-M-001', Math.abs(ch))} this mo</Text>}
         </View>
@@ -425,10 +426,12 @@ export default function NetWorthScreen() {
       const byId = new Map(rows.map((a) => [String(a.asset_id), a]));
       const ledger = ledgerGroups(rows, invGroup === 'type' ? 'class' : 'institution', classLabel, assetClassOf);
       const groups: Record<string, AssetAccount[]> = {};
+      const amountOf: Record<string, Map<string, number>> = {};   // each account's part in this group (his ruling, 2026-10-07)
       const totalOf: Record<string, number> = {};
       const mixOf: Record<string, { key: string; total: number }[]> = {};
       for (const g of ledger) {
         groups[g.label] = g.accountIds.map((id) => byId.get(id)!).filter(Boolean);
+        amountOf[g.label] = new Map(g.rows.map((r) => [r.accountId, r.amount]));
         totalOf[g.label] = g.total;
         mixOf[g.label] = g.mix;
       }
@@ -465,8 +468,13 @@ export default function NetWorthScreen() {
                   const base = invGroup === 'type' ? (a.institution?.trim() || '') : (assetClassOf(a) === 'mixed' ? '' : classLabel(a));
                   const t = withTickers(a, base);
                   // NW-15: an Unclassified account has no holdings set — invite a tap to classify it.
-                  const sub = assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what\'s inside') : t;
-                  return assetRow(a, i, a.label, sub);
+                  const sub0 = assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what\'s inside') : t;
+                  // by class, an account in several classes shows only its part here, and says which part
+                  const part = amountOf[g]?.get(String(a.asset_id)) ?? (a.balance || 0);
+                  const isPart = invGroup === 'type' && Math.abs(part - (a.balance || 0)) > 0.005;
+                  const key = (Object.keys(ASSET_CLASS_LABEL) as AssetClass[]).find((k) => ASSET_CLASS_LABEL[k] === g);
+                  const sub = isPart && key ? classPortionLabel(a, key) : sub0;
+                  return assetRow(a, i, displayNames.get(a.asset_id) ?? a.label, sub, isPart ? part : undefined, `${a.asset_id}-${g}`);
                 })}
               </View>
             </View>

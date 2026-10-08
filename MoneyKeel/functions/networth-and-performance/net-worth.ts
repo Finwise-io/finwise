@@ -382,6 +382,9 @@ export interface LedgerGroup {
   total: number;
   /** The accounts inside it, in the order they were given. */
   accountIds: string[];
+  /** Each account's amount in THIS group — by class, only its part in that class; by institution, its
+   *  balance. The rows always add up to the group's total, so the heading can be checked by eye. */
+  rows: { accountId: string; amount: number }[];
   /** Under an institution's name, the class mix inside it, biggest first. Empty when grouped by class. */
   mix: { key: string; total: number }[];
 }
@@ -397,9 +400,9 @@ export interface LedgerGroup {
  *     g = out.get(key) (or label = label
  *     total = 0
  *     account ids = []
+ *     rows = []
  *     mix = [] when missing)
  *     split = account class breakdown(a)
- *     main = the first of [...parts].sort((x, y) => math.abs(total) − math.abs(total)) (or key = class key of(a) when missing)
  *     shown = string((a as any).institution ?? '').trim() (or 'no institution set' when missing or zero)
  *     g = group(shown.to lower case(), shown)
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
@@ -439,9 +442,13 @@ export function ledgerGroups(
   // the Cash group here read $8,000 while the Cash row above it read $8,838, and Vanguard's mix showed
   // one kind when it held two. Institution names are matched trimmed, capitals ignored — "Fidelity"
   // and "fidelity " were two groups.
+  // HIS RULING, 2026-10-07 (overruling the batch 4 rule, DEC-2747b): "build it per mockup 07 where under
+  // each class you list each account Vanguard-0008 $45000, Chase - 0333 $34000 … You are showing class
+  // total which user cannot even see how you got to it." By class, an account is listed under EVERY
+  // class it has a part in, showing that part — so the rows under a heading add up to the heading.
   const out = new Map<string, LedgerGroup>();
   const group = (key: string, label: string) => {
-    const g = out.get(key) ?? { label, total: 0, accountIds: [], mix: [] };
+    const g = out.get(key) ?? { label, total: 0, accountIds: [], rows: [], mix: [] };
     out.set(key, g);
     return g;
   };
@@ -451,14 +458,18 @@ export function ledgerGroups(
       ? (Object.keys(split) as (keyof typeof split)[]).filter((k) => split[k] !== 0).map((k) => ({ key: String(k), total: split[k] }))
       : [{ key: classKeyOf(a), total: (a as any).balance || 0 }];
     if (by === 'class') {
-      for (const p of parts) group(p.key, split ? ((ASSET_CLASS_LABEL as any)[p.key] ?? classLabelOf(a)) : classLabelOf(a)).total += p.total;
-      const main = [...parts].sort((x, y) => Math.abs(y.total) - Math.abs(x.total))[0] ?? { key: classKeyOf(a) };
-      group(main.key, split ? ((ASSET_CLASS_LABEL as any)[main.key] ?? classLabelOf(a)) : classLabelOf(a)).accountIds.push(String((a as any).asset_id));
+      for (const p of parts) {
+        const g = group(p.key, split ? ((ASSET_CLASS_LABEL as any)[p.key] ?? classLabelOf(a)) : classLabelOf(a));
+        g.total += p.total;
+        g.accountIds.push(String((a as any).asset_id));
+        g.rows.push({ accountId: String((a as any).asset_id), amount: p.total });
+      }
     } else {
       const shown = String((a as any).institution ?? '').trim() || 'No institution set';
       const g = group(shown.toLowerCase(), shown);
       g.total += (a as any).balance || 0;
       g.accountIds.push(String((a as any).asset_id));
+      g.rows.push({ accountId: String((a as any).asset_id), amount: (a as any).balance || 0 });
       for (const p of parts) {
         const m = g.mix.find((x) => x.key === p.key) ?? { key: p.key, total: 0 };
         if (!g.mix.includes(m)) g.mix.push(m);
