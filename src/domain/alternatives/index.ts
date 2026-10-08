@@ -19,7 +19,7 @@ export type AltKind = typeof ALT_KINDS[number];
  * Formula .....
  *     asset class of(a) = 'alternatives'
  *
- * Called by ... MK-NW-F-113 altPartsOf
+ * Called by ... MK-NW-F-113 altPartsOf · MK-NW-O-005 theAlternativesOutlook
  *
  * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-113 altPartsOf
@@ -104,7 +104,7 @@ export function alternativesSummary(accounts: AssetAccount[], overrides?: Record
  *     name = `${ticker ?? ''} ${name ?? label ?? ''}`
  *     rest = Σ over split.alternatives − out of (value)
  *
- * Called by ... MK-NW-F-002 alternativesSummary
+ * Called by ... MK-NW-F-002 alternativesSummary · MK-NW-O-005 theAlternativesOutlook
  *
  * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-002 alternativesSummary
@@ -124,7 +124,7 @@ export function alternativesSummary(accounts: AssetAccount[], overrides?: Record
  * Formula also on the master file · functions_from_code · MK-NW-F-113
  * Changed ..... not in git yet (—)
  */
-function altPartsOf(a: AssetAccount): { value: number; kind: string | undefined }[] {
+export function altPartsOf(a: AssetAccount): { value: number; kind: string | undefined }[] {
   const split = accountClassBreakdown(a);
   if (isAlternative(a)) {
     const v = split ? split.alternatives : (a.balance || 0);

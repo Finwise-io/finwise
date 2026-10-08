@@ -3,6 +3,7 @@
 // surface alongside Performance (stocks/ETFs) and Bonds.
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
+import { useRouter } from 'expo-router';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
@@ -35,6 +36,7 @@ const BUCKETS: { label: string; bucket: TaxBucket }[] = [
 ];
 
 export default function OtherInvestmentsScreen() {
+  const router = useRouter();
   const store = useStore() as any;
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
   // ONE DOOR (MK-NW-O-005 theAlternativesOutlook). This screen used to filter and sum the accounts
@@ -76,9 +78,9 @@ export default function OtherInvestmentsScreen() {
             // the account is found only to open the editor; every figure on the row is the door's
             const a = accounts.find((x) => String(x.asset_id) === r.accountId);
             return (
-            <TouchableOpacity key={r.accountId} accessibilityRole="button" accessibilityLabel={`Edit ${r.label}, ${figSpoken('MK-NW-M-052', r.value)}`} style={styles.card} onPress={() => a && setEdit(a)}>
+            <TouchableOpacity key={r.accountId} accessibilityRole="button" accessibilityLabel={`Edit ${r.label}, ${figSpoken('MK-NW-M-052', r.value)}`} style={styles.card} onPress={() => r.inside ? router.push(`/account-detail?id=${r.accountId}` as any) : a && setEdit(a)}>
               <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{r.label}</Text><Text style={styles.val}>{fig('MK-NW-M-052', r.value)}</Text></View>
-              <Text style={styles.sub}>{r.institution ? `${r.institution} · ` : ''}{assetKind(a?.kind)?.label ?? 'Other'} · ~{(r.benchmark * 100).toFixed(2)}%/year expected</Text>
+              <Text style={styles.sub}>{r.institution ? `${r.institution} · ` : ''}{r.inside ?? assetKind(a?.kind)?.label ?? 'Other'} · ~{(r.benchmark * 100).toFixed(2)}%/year expected</Text>
             </TouchableOpacity>
             );
           })}

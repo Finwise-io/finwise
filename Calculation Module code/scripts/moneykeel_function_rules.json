@@ -1711,8 +1711,8 @@
   },
   "MK-NW-O-005": {
    "name": "theAlternativesOutlook",
-   "rule": "Count, total value and blended rate are over the accounts whose class is Alternatives (isAlternative, alternativesSummary) — the same set the rows list and the Net worth tab's Alternatives slice counts, so the rows add up to the total. Blended rate: no figure when nothing is held. Growth in a year = total value × blended rate, given only when there is at least one such account and the total is above zero; otherwise no figure. Rows = each of those accounts with its value and the benchmark yearly rate for its kind.",
-   "read_from": "d0fb7728cb",
+   "rule": "Count, total value and blended rate come from alternativesSummary: over every account that holds alternatives, its alternatives part (altPartsOf) — the same dollars the Net worth tab's Alternatives line counts. Blended rate: no figure when nothing is held. Growth in a year = total value × blended rate, given only when there is at least one such account and the total is above zero; otherwise no figure. Rows = each account that holds alternatives, at its alternatives part, with the yearly rate of its parts weighed by value; for an account that is not itself an alternative (a brokerage holding a bitcoin fund or options), the row also says which part of it this is (classPortionLabel for Alternatives). The rows add up to the total.",
+   "read_from": "61f1b66e4a",
    "sent_as": "d0fb7728cb"
   },
   "MK-NW-O-006": {
@@ -1973,7 +1973,7 @@
   "MK-NW-F-113": {
    "name": "altPartsOf",
    "rule": "The alternatives inside one account, each with the kind its yearly rate is read from. An account that is itself an alternative: its alternatives part of the class split (or its whole balance when it has no split), at its own kind. Any other account: each option at its synced value, kind options; each holding classed as an alternative with a price, shares × price, kind crypto when its name says bitcoin, ethereum or crypto, commodities when it says gold, silver, platinum, palladium or commodity, otherwise other; and whatever of the account's alternatives part is left, kind other. Nothing when the account holds no alternatives.",
-   "read_from": "12ddfef9c0"
+   "read_from": "d0d2234457"
   },
   "MK-NW-F-114": {
    "name": "rentAmount",

@@ -489,7 +489,6 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-NW-F-030 earmarkDefault · MK-NW-F-055 isBond
  *               MK-NW-F-063 interestIncomeAnnual · MK-NW-F-106 mortgagesByProperty
  *               MK-NW-F-117 propertyUseMap · MK-NW-O-003 theNetWorth
- *               MK-NW-O-005 theAlternativesOutlook
  *
  * Reaches ..... 185 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
@@ -1584,9 +1583,10 @@ const TREASURY_RE = /\b(treasur\w*|treas|ust|t-?bills?|t-?notes?|t-?bonds?|govt?
  *
  * Called by ... MK-NW-F-028 classPortionLabel · MK-NW-F-046 historyCoverage
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
- *               MK-NW-F-046 historyCoverage
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-028 classPortionLabel
+ *               MK-XS-F-002 dataGaps · MK-NW-F-046 historyCoverage
+ *               MK-NW-O-005 theAlternativesOutlook
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1621,7 +1621,10 @@ const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? o
  *     'bonds & cds in this account'   otherwise
  *     parts = [opts ? plural(opts, 'option') : '', in class.length ? plural(in class.length, 'holding') : ''] where boolean
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-005 theAlternativesOutlook
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-O-005 theAlternativesOutlook
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-034 option positions — contracts, strike, expiry, put or call

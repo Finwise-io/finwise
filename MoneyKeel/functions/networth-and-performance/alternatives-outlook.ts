@@ -12,8 +12,8 @@
 // otherwise.
 import { declareFigures } from '../_figure-spec';
 import type { AssetAccount } from '../../../src/domain/assets';
-import { alternativesSummary } from '../../../src/domain/alternatives';
-import { assetClassOf, benchmarkReturn } from '../../../src/domain/assets';
+import { alternativesSummary, altPartsOf, isAlternative } from '../../../src/domain/alternatives';
+import { assetClassOf, benchmarkReturn, classPortionLabel } from '../../../src/domain/assets';
 
 export interface AlternativesOutlook {
   /** How many alternatives are held. */
@@ -38,6 +38,9 @@ export interface AlternativeRow {
   value: number;
   /** The benchmark for its KIND, as a rate. Not the person's own target. */
   benchmark: number;
+  /** For an account that is NOT itself an alternative (a brokerage holding a bitcoin fund or options):
+   *  the words saying which part of it this row is. Null for an alternatives account. */
+  inside: string | null;
 }
 
 /** What might my alternative investments earn in a year: the expected rate, and the money it comes to?
@@ -67,9 +70,6 @@ export interface AlternativeRow {
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
- * Decides .....
- *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *
  * Formula also on the master file · functions_from_code · MK-NW-O-005
  * Changed ..... not in git yet (—)
  */
@@ -82,15 +82,25 @@ export function theAlternativesOutlook(input: { accounts: AssetAccount[] }): Alt
     // nothing held is not a forecast of nothing — it is no forecast at all
     estimatedGrowthPerYear: s.count > 0 && s.totalValue > 0 ? s.estAnnualGrowth : null,
     totalValue: s.totalValue,
+    // THE ROWS ADD TO THE TOTAL (re-check of 2026-10-07 against his rule "can the person see how the
+    // number was made"): since the second round the total reads each account's alternatives part — a
+    // bitcoin fund or options inside a brokerage included, an alternatives account's own cash left out
+    // — but the rows still listed whole alternatives accounts, so they no longer added up to it. Each
+    // account that holds alternatives is a row now, at its alternatives part.
     rows: accounts
-      .filter((a) => assetClassOf(a) === 'alternatives')
-      .map((a) => ({
-        accountId: String(a.asset_id),
-        label: a.label || 'Other',
-        institution: (a.institution || '').trim(),
-        value: a.balance || 0,
-        benchmark: benchmarkReturn(a.kind),
-      })),
+      .map((a) => ({ a, parts: altPartsOf(a) }))
+      .filter((x) => x.parts.length > 0)
+      .map(({ a, parts }) => {
+        const value = parts.reduce((t, p) => t + p.value, 0);
+        return {
+          accountId: String(a.asset_id),
+          label: a.label || 'Other',
+          institution: (a.institution || '').trim(),
+          value,
+          benchmark: value ? parts.reduce((t, p) => t + p.value * benchmarkReturn(p.kind), 0) / value : benchmarkReturn(a.kind),
+          inside: isAlternative(a) ? null : classPortionLabel(a, 'alternatives'),
+        };
+      }),
   };
 }
 

@@ -92,8 +92,9 @@ const namesFor = (accounts: AssetAccount[]) => accountDisplayNames(accounts);
  *
  * Called by ... MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-028 classPortionLabel
+ *               MK-XS-F-002 dataGaps · MK-NW-O-005 theAlternativesOutlook
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
