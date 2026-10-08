@@ -30,6 +30,7 @@ export interface Position {
   class_asked?: true;           // nothing said what this is: it is in no class until the person says
   class_flag?: { was: string; evidenceSays: string };   // B7: a sync wanted to move the class; kept + flagged instead
   last_price?: number;          // broker's daily mark (connected accounts — no live feed needed)
+  value_now?: number;           // a hand-built holding's value at the price its account balance was last built from (2026-10-07)
   multiplier?: number;          // Q06 (founder, 2026-08-26): an option contract is 100 shares unless the broker or the person states otherwise
   unit?: QuantityUnit;          // Q09 (founder, 2026-08-26): a quantity is never shown without its unit
   lots: Lot[];

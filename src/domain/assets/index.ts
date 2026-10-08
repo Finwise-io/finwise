@@ -1436,7 +1436,8 @@ export function holdingClassOf(p: any): AssetClass {
  *     the answer:
  *     cls = holding class of(p)
  *     w = sh × last price   if last price ≠ nothing
- *     paid   otherwise
+ *     value now   if value now ≠ nothing
+ *     paid   otherwise   otherwise
  *     classes = a list with no repeats of for each of weights: cls
  *     splits by holding = classes.size > 1 (or classes.size = 1 and !classes.has(asset class of(a)) when missing or zero)
  *     nothing   when !(keeps its own cash and uninvested > 0) and !splits by holding
@@ -1496,7 +1497,8 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
     const weights = held.map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
       const paid = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0) * (l.cost_per_share || 0), 0);
-      return { cls: holdingClassOf(p), w: p.last_price != null ? sh * p.last_price : paid };
+      // today's value: the broker's mark, else the value the balance was built from, else what was paid
+      return { cls: holdingClassOf(p), w: p.last_price != null ? sh * p.last_price : p.value_now != null ? p.value_now : paid };
     }).filter((x) => x.w > 0);
     const classes = new Set(weights.map((x) => x.cls));
     const splitsByHolding = classes.size > 1 || (classes.size === 1 && !classes.has(assetClassOf(a)));

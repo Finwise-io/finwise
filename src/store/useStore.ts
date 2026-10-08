@@ -22,9 +22,11 @@ import { fetchPriceSeries } from '../services/marketData';
  *     a   when source = 'connected'
  *     ledger managed = derive balance = true (or cash balance ≠ nothing when missing or zero)
  *     a   when ledger managed is missing
- *     mv = (positions ?? []).reduce((t, p) => { const px = latest close(cache[ticker.trim().to upper case()]); return t + (px = nothing ? cost basis(p) : market value(p, px)); }, 0)
+ *     positions = for each of positions (or none when missing): const px = latest close(cache[ticker.trim().to upper case()]); return { ...each, value now: px == null ? cost basis(each) : market value(each, px) }; = const px = latest close(cache[ticker.trim().to upper case()]); return { ...each, value now: px == null ? cost basis(each) : market value(each, px) };
+ *     mv = Σ over positions of (value now)
  *     the answer:
  *     ...a = ...a
+ *     positions = positions
  *     balance = round((cash balance or 0) + mv, 2 dp)
  *
  * Called by ... MK-XS-F-175 uid
@@ -71,8 +73,11 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
     if (!ledgerManaged) return a;
     // B-19: a held position with no cached price falls back to its cost basis (what you paid),
     // not $0 — counting it as $0 silently understated net worth.
-    const mv = (a.positions ?? []).reduce((t, p) => { const px = latestClose(cache[p.ticker.trim().toUpperCase()]); return t + (px == null ? costBasis(p) : marketValue(p, px)); }, 0);
-    return { ...a, balance: round2((a.cash_balance || 0) + mv) };
+    // each holding keeps the value the balance was built from, so the split of the account across
+    // classes uses today's prices too — not what was paid (re-check of 2026-10-07)
+    const positions = (a.positions ?? []).map((p) => { const px = latestClose(cache[p.ticker.trim().toUpperCase()]); return { ...p, value_now: px == null ? costBasis(p) : marketValue(p, px) }; });
+    const mv = positions.reduce((t, p) => t + p.value_now, 0);
+    return { ...a, positions, balance: round2((a.cash_balance || 0) + mv) };
   });
 }
 import { debtsFromOnboarding, type Debt } from '../domain/debt';

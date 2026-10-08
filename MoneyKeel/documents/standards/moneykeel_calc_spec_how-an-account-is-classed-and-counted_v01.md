@@ -77,7 +77,7 @@ MK-NW-F-027 accountClassBreakdown. The parts always add up to the account's bala
   Funds; the cash beside it is net of it, so it is counted once.
 
 A hand-built account whose balance is built from its holdings is split holding by holding: each is
-weighed at its price, or what was paid when no price is held, and the invested part is shared out by
+weighed at today's value (the price its balance was built from; what was paid only when there is none), and the invested part is shared out by
 those weights — so a T-bill in a hand-built brokerage is Bonds & CDs (DEC-0051), not Stocks / Funds.
 
 ## 4. How the totals are built

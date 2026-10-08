@@ -20,3 +20,13 @@ test('Other investments: the rows add up to the total, and a brokerage holding a
   expect(schwab.inside).toMatch(/in this account$/);            // and it says which part of the account it is
   expect(o.rows.find((r: any) => r.accountId === 'c')!.inside).toBeNull();
 });
+
+import { accountClassBreakdown } from '../../../src/domain/assets';
+test('a hand-built account splits at today’s values, not at what was paid', () => {
+  // VTI bought at $100, worth $300 today; a T-bill bought and worth $1,000 — the balance was built at today's prices
+  const b = accountClassBreakdown({ asset_id: 'h', label: 'My brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', derive_balance: true, cash_balance: 0, balance: 4000,
+    positions: [{ position_id: 'v', ticker: 'VTI', kind: 'stocks_etf', value_now: 3000, lots: [{ lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2020-01-02' }] },
+      { position_id: 't', ticker: '', label: 'US Treasury bill', value_now: 1000, lots: [{ lot_id: 'b', shares: 1, cost_per_share: 1000, purchase_date: '2026-01-02' }] }] } as any)!;
+  expect(b.stocks_etf).toBeCloseTo(3000, 2);   // by what was paid it read 2,000
+  expect(b.bonds).toBeCloseTo(1000, 2);        // and 2,000
+});
