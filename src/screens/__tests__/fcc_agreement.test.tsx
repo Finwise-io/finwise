@@ -57,7 +57,7 @@ const allText = (root: any): string[] => {
   return out;
 };
 
-describe('pin 1 — investments: Home hero = Invest header, to the dollar', () => {
+describe('pin 1 — investments: Home’s YOUR INVESTMENTS and Performance’s ending value, each from its one door', () => {
   test('rendered equality on the same fixture', () => {
     seed(WORKER);
     const s = useStore.getState() as any;
@@ -69,24 +69,28 @@ describe('pin 1 — investments: Home hero = Invest header, to the dollar', () =
     expect(screen.getAllByText(expected).length).toBeGreaterThan(0);   // the Invest header
   });
 
-  test('both screens use the ONE answer over the ONE row resolver (source pin)', () => {
-    // The pin's purpose is unchanged — Home and Performance must take this figure from ONE place.
-    // 2026-10-05: that place is MK-NW-O-008 thePerformance, which reads what the measured accounts are
-    // worth from the accounts handed to it. Until then each screen handed in an ending of its own —
-    // Home the Investments line of Net worth, Performance the accounts counted whole — and with cash
-    // sitting uninvested in a linked account the two differed by that cash. The fixture above has no
-    // such cash, so the rendered test could not see it; src/screens/__tests__/outside_networth_02.test.tsx
-    // renders both screens in that state.
+  test('each figure comes from its ONE door (source pin)', () => {
+    // 2026-10-08, his definition DEC-0457 ("Investment = stock + etfs + bonds + alternatives… It does not
+    // include cash"): Home's YOUR INVESTMENTS is MK-XS-M-003, ONE figure on Home and Net worth, read from
+    // theNetWorth. Performance's "Ending value" is the investment accounts whole, their uninvested cash
+    // included, read from thePerformance — a different figure with a different name. They are equal when
+    // no cash sits uninvested (the fixture above); outside_networth_02.test.tsx renders the case where
+    // they differ ($354,314 vs $355,152). From 2026-10-05 to 2026-10-08 Home printed the Performance
+    // figure under the word investments — that was wrong.
     const fs = require('fs'); const path = require('path');
-    for (const f of ['HomeScreen.tsx', 'PerformanceScreen.tsx']) {
-      const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-      expect(src).toMatch(/thePerformance\(/);
-      expect(src).toMatch(/(oneMonth|now)\.ending/);   // the door's own ending, known whether or not a walk can be drawn (2026-10-07)
-      expect(src).not.toMatch(/investmentsTotal\(/);
+    const home = fs.readFileSync(path.join(__dirname, '..', 'HomeScreen.tsx'), 'utf8');
+    expect(home).toMatch(/const investTotal = useMemo\(\s*\(\) => theNetWorth\(/);
+    expect(home).toMatch(/\.investments,/);
+    const perf = fs.readFileSync(path.join(__dirname, '..', 'PerformanceScreen.tsx'), 'utf8');
+    expect(perf).toMatch(/thePerformance\(/);
+    expect(perf).toMatch(/now\.ending/);
+    for (const src of [home, perf]) {
+      expect(src).not.toMatch(/investmentsTotal\(/);           // no screen adds the figure up itself
       expect(src).not.toMatch(/^\s*ending:/m);                 // no screen hands the function an ending of its own
       expect(src).toMatch(/resolveNetWorthRows\(/);
     }
   });
+
 });
 
 describe('pin 2 — will-it-last: one selector, three surfaces, one percent', () => {

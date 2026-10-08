@@ -193,11 +193,14 @@ export default function HomeScreen() {
       accounts: resolvedRows.accounts as any[],
     });
   }, [store.transactions, store.snapshotDays, store.invDaily, perfRows, resolvedRows.accounts]);
-  // THE FIGURE PERFORMANCE SHOWS AS "Ending value", from the same answer as the return beside it
-  // (2026-10-05): what the investment accounts are worth, each counted whole. It was read from Net
-  // worth's Investments line, which leaves a linked account's uninvested cash to the Cash line — so
-  // this figure and the one a tap away on Performance differed by that cash.
-  const investTotal = oneMonth.ending;
+  // "YOUR INVESTMENTS" IS MK-XS-M-003 — ONE FIGURE, on Home AND Net worth: stocks, funds, bonds and
+  // alternatives, read from theNetWorth. His definition (DEC-0457): investments do not include cash.
+  // From 2026-10-05 to 2026-10-08 Home printed Performance's ending value instead — the investment
+  // ACCOUNTS whole, their uninvested cash included — so Home read $355,152 where Net worth's Investments
+  // line, the same figure by its own record, read $354,314. That was my choice against his definition.
+  const investTotal = useMemo(
+    () => theNetWorth({ uid, accounts: resolvedRows.accounts as any[], debts: resolvedRows.liabilities as any[] }).investments,
+    [uid, resolvedRows.accounts, resolvedRows.liabilities]);
   const youReturn = oneMonth.ret;                               // the door's 1M figure, the one Performance prints
   // and the dollars behind it — never re-derived from the %. Shown only beside a return, and a return
   // exists only where the walk does (a window the record reaches), so the 0 here is never printed.

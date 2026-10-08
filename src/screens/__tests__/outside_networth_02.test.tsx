@@ -40,11 +40,12 @@ const seed = (accounts: any[]) => {
 };
 beforeEach(() => { mockParams = {}; });
 
-test('1 · Home’s investments figure is Performance’s ending value, with uninvested cash inside a linked account', () => {
+test('1 · Home’s YOUR INVESTMENTS is Net worth’s Investments line (MK-XS-M-003, one figure on both) — cash not included (DEC-0457)', () => {
   seed(HOUSEHOLD);
   const home = render(<HomeScreen />);
-  expect(screen.getAllByText('$355,152').length).toBeGreaterThan(0);        // it read $354,314 — Net worth’s Investments line
-  expect(screen.queryByText('$354,314')).toBeNull();
+  // 2026-10-08: it read $355,152 — Performance's ending value, Vanguard's $838 of uninvested cash inside
+  expect(screen.getAllByText('$354,314').length).toBeGreaterThan(0);
+  expect(screen.queryByText('$355,152')).toBeNull();
   home.unmount();
   render(<PerformanceScreen />);
   expect(screen.getAllByText('$355,152').length).toBeGreaterThan(0);        // "Ending value": the two accounts, each whole

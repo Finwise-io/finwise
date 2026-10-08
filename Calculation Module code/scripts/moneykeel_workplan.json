@@ -2790,6 +2790,18 @@
     "status": "DONE — test: the rows under each heading add up to it.",
     "comments": "Not pushed. Drawing v08's batch 4 line struck through and marked replaced."
    }
+  },
+  {
+   "task": "Home's YOUR INVESTMENTS = Net worth's Investments line (DEC-0457, MK-XS-M-003)",
+   "todo": "Re-check 2026-10-08. Home printed Performance's ending value ($355,152, Vanguard's $838 uninvested cash included) under 'YOUR INVESTMENTS'; his definition DEC-0457 says investments do not include cash, and MK-XS-M-003 is one figure on Home and Net worth ($354,314). My batch 2 choice reversed; its decision row marked replaced.",
+   "status": "DONE — outside_networth_02.test.tsx renders both values; fcc_agreement pins each figure to its door.",
+   "ref": "src/screens/HomeScreen.tsx · src/screens/__tests__/outside_networth_02.test.tsx · src/screens/__tests__/fcc_agreement.test.tsx",
+   "date": "2026-10-08",
+   "comments": "Home is outside build 55's scope; fixed because the figure was wrong against his definition.",
+   "_written": {
+    "status": "DONE — outside_networth_02.test.tsx renders both values; fcc_agreement pins each figure to its door.",
+    "comments": "Home is outside build 55's scope; fixed because the figure was wrong against his definition."
+   }
   }
  ]
 }
