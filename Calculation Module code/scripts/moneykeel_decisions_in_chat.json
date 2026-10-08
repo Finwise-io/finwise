@@ -488,6 +488,24 @@
    "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_04_final.test.ts",
    "supersedes": "DEC-2747b",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §10"
+  },
+  {
+   "decided": "2026-10-08",
+   "answers": [],
+   "tab": "networth",
+   "type": "RULE",
+   "status": "TESTED",
+   "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+   "his_words": "from claude",
+   "subject": "The fix brief for Net worth batch 06 (outside review) — each change, by function, approved",
+   "plain": "Every change from the batch 06 fix brief stands as his decision under his standing word (DEC-2634). Each rule is its own row beside this one.",
+   "means": "He handed over the brief on 2026-10-08 with \"from claude\". 23 acceptance tests added as written: 22 pass; test 1 is left failing as the brief instructs and reported — the brief's own working gives 50,250.6958, not 50,250.6939; the bond priced at full precision is 50,250.6956. Two deviations from the brief, each reasoned on its row: the yield is solved on the full value (accrued included), and a CD yields its stated rate.",
+   "governs": "MK-NW-F-058 · MK-NW-F-060 · MK-NW-F-064 · MK-NW-F-069 · MK-NW-F-072 · MK-NW-F-066 · MK-NW-F-022 · MK-NW-F-049 · MK-NW-F-050 · MK-NW-F-073 · MK-NW-F-118 · MK-NW-F-023 · MK-NW-F-025 · MK-NW-F-071 · MK-NW-F-070 · MK-NW-F-068 · MK-XS-F-002",
+   "changed": "Built and tested 2026-10-08.",
+   "apply_steps": "1. Fix each function. 2. Add the brief's 23 tests. 3. Re-check moved reviewer cases by hand. 4. Standard §12. 5. Drawing note, tracker. Done.",
+   "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12",
+   "not_a_repeat_of": "DEC-2748 and DEC-3035 approved earlier batches; this is batch 06 — a different set of changes. DEC-2634 says audit changes are his decisions."
   }
  ]
 }

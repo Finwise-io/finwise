@@ -162,9 +162,9 @@ describe('MK-NW-F-057 annualCoupon — five cases', () => {
 });
 
 describe('MK-NW-F-058 yearsToMaturity — five cases', () => {
-  test('easy · exactly one year away, to the day', () => { expect(yearsToMaturity('2027-10-07', new Date('2027-10-07T00:00:00Z').getTime() ? TODAY : TODAY)).toBeCloseTo(365 / 365.25, 4); });
-  test('complex · exactly two years away, over a leap day', () => { expect(yearsToMaturity('2028-10-07', TODAY)).toBeCloseTo(731 / 365.25, 4); });
-  test('complex · an unround date', () => { expect(yearsToMaturity('2028-11-15', TODAY)).toBeCloseTo(770 / 365.25, 4); });
+  test('easy · exactly one year away, to the day', () => { expect(yearsToMaturity('2027-10-07', new Date('2027-10-07T00:00:00Z').getTime() ? TODAY : TODAY)).toBeCloseTo(1, 6); });   // MOVED 2026-10-08 by the batch 06 fix brief: exact years by anniversaries and a solved yield replace whole-year rounding and the approximation; the new figure is hand-checked at full precision outside the code. It was 365/365.25 — a bond one year away to the day has exactly one year left
+  test('complex · exactly two years away, over a leap day', () => { expect(yearsToMaturity('2028-10-07', TODAY)).toBeCloseTo(2, 6); });   // MOVED 2026-10-08 by the batch 06 fix brief: exact years by anniversaries and a solved yield replace whole-year rounding and the approximation; the new figure is hand-checked at full precision outside the code. It was 731/365.25
+  test('complex · an unround date', () => { expect(yearsToMaturity('2028-11-15', TODAY)).toBeCloseTo(2 + 39 / 365, 6); });   // MOVED 2026-10-08 by the batch 06 fix brief: exact years by anniversaries and a solved yield replace whole-year rounding and the approximation; the new figure is hand-checked at full precision outside the code. It was 770/365.25
   test('easy · matures today', () => { expect(yearsToMaturity('2026-10-07', TODAY)).toBeCloseTo(0, 2); });
   test('edge · no date', () => { expect(yearsToMaturity('', TODAY)).toBeNull(); });
 });
@@ -180,8 +180,8 @@ describe('MK-NW-F-059 currentYield — five cases', () => {
 describe('MK-NW-F-060 approxYTM — five cases', () => {
   test('easy · a par bond, four years', () => { expect(approxYTM(bond({ face: 10000, rate: 0.05, value: 10000, maturity: '2030-10-07' }), TODAY)).toBeCloseTo(0.05, 4); });
   test('easy · matured', () => { expect(approxYTM(bond({ face: 10000, rate: 0.05, value: 10000, maturity: '2026-09-30' }), TODAY)).toBeNull(); });
-  test('complex · accrued interest entered', () => { expect(approxYTM(bond({ face: 25000, rate: 0.04375, value: 25312.48, accrued: 412.33, maturity: '2028-11-15' }), TODAY)).toBeCloseTo(0.045736, 4); });   // the formula as sent gave 3.76% on the dirty value
-  test('complex · a discount bond', () => { expect(approxYTM(bond({ face: 50000, rate: 0.025, value: 46180, maturity: '2031-03-01' }), TODAY)).toBeCloseTo(0.044059, 4); });
+  test('complex · accrued interest entered', () => { expect(approxYTM(bond({ face: 25000, rate: 0.04375, value: 25312.48, accrued: 412.33, maturity: '2028-11-15' }), TODAY)).toBeCloseTo(0.0574405, 5); });   // MOVED 2026-10-08 by the batch 06 fix brief: exact years by anniversaries and a solved yield replace whole-year rounding and the approximation; the new figure is hand-checked at full precision outside the code. It was 4.57% (the approximation on the price less accrued interest); the full value, accrued included, is what the remaining payments are worth   // the formula as sent gave 3.76% on the dirty value
+  test('complex · a discount bond', () => { expect(approxYTM(bond({ face: 50000, rate: 0.025, value: 46180, maturity: '2031-03-01' }), TODAY)).toBeCloseTo(0.0485638, 4); });
   test('edge · matures exactly today', () => { expect(approxYTM(bond({ face: 10000, rate: 0.05, value: 10000, maturity: '2026-10-07' }), TODAY)).toBeNull(); });
 });
 
@@ -252,13 +252,13 @@ describe('MK-NW-F-064 bondRateSensitivity — five cases', () => {
   });
   test('complex · a discount Treasury, 4.4 years', () => {
     const r = bondRateSensitivity(bond({ face: 50000, rate: 0.025, value: 46180, maturity: '2031-03-01' }), TODAY)!;
-    near(r.ratesUp.delta, -1677.6103, 100); near(r.ratesUp.low, 44057.3658, 100); near(r.ratesUp.high, 44947.4136, 100);   // the formula as sent gave −$1,000 and $44,000–$45,000
-    near(r.ratesDown.delta, 1758.8321, 100); near(r.ratesDown.low, 47459.4438, 100); near(r.ratesDown.high, 48418.2205, 100);
+    near(r.ratesUp.delta, -1779.5836, 100); near(r.ratesUp.low, 43956.4123, 100); near(r.ratesUp.high, 44844.4206, 100);   // MOVED 2026-10-08 by the batch 06 fix brief: exact years by anniversaries and a solved yield replace whole-year rounding and the approximation; the new figure is hand-checked at full precision outside the code. It was −1,677.61 on whole years   // the formula as sent gave −$1,000 and $44,000–$45,000
+    near(r.ratesDown.delta, 1872.1114, 100); near(r.ratesDown.low, 47571.5903, 100); near(r.ratesDown.high, 48532.6325, 100);
   });
   test('complex · a premium bond whose years round up', () => {
     const r = bondRateSensitivity(bond({ face: 30000, rate: 0.055, value: 31890, maturity: '2029-04-15' }), TODAY)!;
-    near(r.ratesUp.delta, -875.6606, 100); near(r.ratesUp.low, 30704.196, 100); near(r.ratesUp.high, 31324.4828, 100);
-    near(r.ratesDown.delta, 909.7596, 100); near(r.ratesDown.low, 32471.762, 100); near(r.ratesDown.high, 33127.7572, 100);
+    near(r.ratesUp.delta, -715.3305, 100); near(r.ratesUp.low, 30862.9228, 100); near(r.ratesUp.high, 31486.4162, 100);   // MOVED 2026-10-08 by the batch 06 fix brief: exact years by anniversaries and a solved yield replace whole-year rounding and the approximation; the new figure is hand-checked at full precision outside the code. It was −875.66, its years rounded up to 3
+    near(r.ratesDown.delta, 739.5957, 100); near(r.ratesDown.low, 32303.2997, 100); near(r.ratesDown.high, 32955.8916, 100);
   });
   test('edge · a zero-coupon bond', () => { expect(bondRateSensitivity(bond({ face: 20000, rate: 0, value: 16400, maturity: '2031-06-30' }), TODAY)).toBeNull(); });
 });

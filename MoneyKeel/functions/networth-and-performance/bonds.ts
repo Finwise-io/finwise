@@ -21,8 +21,6 @@ import {
   type BondInfo, type RateSensitivity,
 } from '../../../src/domain/bonds';
 
-/** A CD is recognised by its name, the same rule the asset classifier uses (CD_RE). */
-const CD_RE = /\b(cd|certificate of deposit)\b/i;
 
 /** Whether an account is a certificate of deposit, judged from its name. */
 /* ─ MK-NW-F-071 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
@@ -137,7 +135,7 @@ export interface BondsInput {
  * Formula also on the master file · functions_from_code · MK-NW-F-072
  * Changed ..... not in git yet (—)
  */
-const rowOf = (a: AssetAccount, now: Date): BondRow => {
+export const rowOf = (a: AssetAccount, now: Date): BondRow => {
   const b: BondInfo = bondInfo(a);
   return {
     accountId: String(a.asset_id),
@@ -553,7 +551,9 @@ export const BOND_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '5.65%',   // 5.66% while the hour of the day counted; whole calendar days, 1,098 of them (outside review, 2026-10-07)
+      // 7.44%, hand-checked (2026-10-08): the yield solved exactly on the full value, the Treasury 3.0055
+      // years out with a $1,125 coupon due in two days. It read 5.65% under the approximation.
+      answer: '7.44%',
       run: () => ONE().yieldToMaturity,
     },
   },
@@ -585,7 +585,7 @@ export const BOND_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '$23,300–$23,800',
+      answer: '$23,400–$23,800',
       run: () => `${formatMoney(ONE().ratesMove!.ratesUp.low)}–${formatMoney(ONE().ratesMove!.ratesUp.high)}`,
     },
   },

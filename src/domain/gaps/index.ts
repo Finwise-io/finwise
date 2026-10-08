@@ -12,7 +12,7 @@ import type { AssetAccount } from '../assets';
 import { historyCoverage, accountDisplayNames } from '../assets';
 import { daysSince } from '../_shared/freshness';
 
-export type GapKind = 'no-price' | 'stale-account' | 'unreachable-account' | 'no-activity' | 'stale-value' | 'history-depth';
+export type GapKind = 'no-balance' | 'no-price' | 'stale-account' | 'unreachable-account' | 'no-activity' | 'stale-value' | 'history-depth';
 
 export interface DataGap {
   kind: GapKind;
@@ -132,7 +132,8 @@ const nameOf = (a: AssetAccount, names: Map<string, string>) =>
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-006 price fetched at
  *               MK-XS-I-024 logged expenses
@@ -158,6 +159,19 @@ export function dataGaps(
   const names = namesFor(accounts ?? []);   // one naming rule, the same one every screen shows
   for (const a of accounts ?? []) {
     const who = nameOf(a, names);
+
+    // 0) an account with no balance at all — a linked account that failed to sync before it ever sent
+    //    one. It is left out of every total rather than counted as $0, and said so here (outside review
+    //    batch 06, 2026-10-07; MK-NW-F-066 sumWhere reports how many were left out)
+    if (a.balance == null || !Number.isFinite(a.balance as number)) {
+      gaps.push({
+        kind: 'no-balance', accountId: a.asset_id,
+        title: `${who} has no balance`,
+        meanwhile: 'It is left out of your totals until it has one — not counted as $0.',
+        fixLabel: a.source === 'connected' ? 'Sync now' : 'Enter its value',
+        route: `/account-detail?id=${a.asset_id}`, ...(a.source === 'connected' ? { action: 'sync' as const } : {}),
+      });
+    }
 
     // 1) a holding we hold but cannot price today → we show cost, and we say so
     for (const p of (a.positions ?? []) as any[]) {

@@ -226,7 +226,18 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
   value × rate (a CD typed by its balance); with no rate, nothing (owner A46, 2026-08-26). The Bonds
   screen's total and the interest-income figure use it, so the two cannot disagree.
 - **A matured bond pays nothing more.** A maturity date before today adds no interest to a year.
-- **Years left count calendar days**, ÷ 365.25; the hour of the day does not count.
+- **Years left are exact, by anniversaries** (batch 06): whole years counted back from the maturity
+  date, plus the days to the first anniversary ÷ the days in that year — one year to the day is 1.0.
+- **A bond is priced at exact times**: the yearly coupon falls on each maturity anniversary; a matured
+  bond, or one with no date, has no price. **Yield to maturity is solved exactly** on the full value as
+  entered (accrued interest included — what the remaining payments are worth is the whole price); a CD
+  yields its stated rate. The approximation it replaced read −0.69% for a short 4% note where 5.73% is right.
+- **A missing balance or holding value is never $0**: it is left out of the total, the amber box names
+  the account, and an itemised remainder with a missing value is not final. Sums of money are exact
+  decimals. A kind that names contents (crypto, private equity, hedge funds, other) claims no
+  'Brokerage' wrapper unless the person confirmed one. 'CDs', 'certificates of deposit' and 'share
+  certificates' are CDs. The accrued-interest note shows only for a bond that pays interest. Dates are
+  read as calendar dates, never shifted by a time zone.
 - **Yield on today's value and yield to maturity both use the clean price**: the value less accrued
   interest, when it is known (owner A47, 2026-08-26). Neither is given without a rate; yield to
   maturity also needs a face value and a date still ahead.

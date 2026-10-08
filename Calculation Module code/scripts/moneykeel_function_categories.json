@@ -1594,6 +1594,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/account.ts",
   "category": "2 · DISPLAYED"
  },
+ "itemizeMissingCount": {
+  "id": "MK-NW-F-118",
+  "file": "src/domain/assets/itemize.ts",
+  "category": "1 · ACTION"
+ },
  "itemizeRemainder": {
   "id": "MK-NW-F-050",
   "file": "src/domain/assets/itemize.ts",

@@ -717,6 +717,127 @@
      "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §8"
     }
    ]
+  },
+  {
+   "match": "SUBJECT: The fix brief for Net worth batch 06 (outside review) — each change, by function, approved",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "His approval of the batch 06 fix brief, as a whole",
+     "plain": "His approval of the batch 06 fix brief, as a whole. Each rule is its own row beside this one.",
+     "type": "PROCESS",
+     "status": "TESTED"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "Years to maturity are exact, by anniversaries: one year to the day is exactly 1.",
+     "plain": "Years to maturity are exact, by anniversaries: one year to the day is exactly 1. Before: days ÷ 365.25 (0.9993 for one year).",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-058 yearsToMaturity",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "A bond is priced at exact times, its yearly coupon on each maturity anniversary; a matured bond or one with no date has no price.",
+     "plain": "A bond is priced at exact times, its yearly coupon on each maturity anniversary; a matured bond or one with no date has no price. Before: years rounded to a whole number, at least 1, so a matured bond still paid.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-069 priceAtYield",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "Yield to maturity is solved exactly on the full value as entered; a CD yields its stated rate.",
+     "plain": "Yield to maturity is solved exactly on the full value as entered; a CD yields its stated rate. Before: the textbook approximation — a short 4% note read −0.69% where 5.73% is right.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-060 approxYTM · MK-NW-F-072 rowOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "A missing balance is never $0: it is left out of the total and the amber box names the account.",
+     "plain": "A missing balance is never $0: it is left out of the total and the amber box names the account. Before: a linked account that failed to sync added 0 and the total looked complete.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-066 sumWhere · MK-NW-F-022 investableAssets · MK-XS-F-002 dataGaps",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "Itemised sums are exact decimals, a holding with no value is left out, and the remainder is then not final.",
+     "plain": "Itemised sums are exact decimals, a holding with no value is left out, and the remainder is then not final. Before: a missing value was 0 and the remainder looked complete; sums could leave a fraction of a cent.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-049 itemizedTotal · MK-NW-F-050 itemizeRemainder · MK-NW-F-073 itemising · MK-NW-F-118 itemizeMissingCount",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "A kind that names contents — crypto, private equity, hedge funds, other — claims no Brokerage wrapper unless the person confirmed one.",
+     "plain": "A kind that names contents — crypto, private equity, hedge funds, other — claims no Brokerage wrapper unless the person confirmed one. Before: ‘Coinbase Brokerage’ for a crypto wallet.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-023 wrapperWord · MK-NW-F-025 accountDisplayName",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "CDs, certificates of deposit and share certificates are recognised as CDs; ABCD Growth Fund is not.",
+     "plain": "CDs, certificates of deposit and share certificates are recognised as CDs; ABCD Growth Fund is not. Before: ‘No-Penalty CDs’ was not a CD.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-071 isCertificateOfDeposit",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "The accrued-interest note shows only for a bond that pays interest and has no accrued figure entered.",
+     "plain": "The accrued-interest note shows only for a bond that pays interest and has no accrued figure entered. Before: a zero-coupon bond got the note.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-070 accruedInterestCaveat",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-08",
+     "subject": "Dates are read as calendar dates, never shifted by a time zone; an empty date shows nothing.",
+     "plain": "Dates are read as calendar dates, never shifted by a time zone; an empty date shows nothing. Before: a midnight-UTC date could show the day before in Pacific time.",
+     "type": "RULE",
+     "status": "TESTED",
+     "screens": "/bonds · /account-portfolio · /analytics · /itemize",
+     "governs": "MK-NW-F-068 prettyDay",
+     "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+    }
+   ]
   }
  ]
 }

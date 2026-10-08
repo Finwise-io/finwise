@@ -982,7 +982,8 @@ describe('the decisions in the log are held by something that executes', () => {
 
   // ── DEC-0280 ───────────────────────────────────────────────────────────────────────────────
   test('DEC-0280 — "subtract accrued interest when known; say so when not"', () => {
-    expect(accruedInterestCaveat({ accruedInterest: null } as any)).toBe('accrued interest not entered — the yield uses the price as you entered it');
+    // on a bond that pays interest — a zero-coupon bond never accrues (batch 06, 2026-10-07)
+    expect(accruedInterestCaveat({ couponRate: 0.05, accruedInterest: null } as any)).toBe('accrued interest not entered — the yield uses the price as you entered it');
     expect(accruedInterestCaveat({ accruedInterest: 12.5 } as any)).toBeNull();
     expect(accruedInterestCaveat({ accruedInterest: 0 } as any)).toBeNull();   // zero is known; nothing is not
   });

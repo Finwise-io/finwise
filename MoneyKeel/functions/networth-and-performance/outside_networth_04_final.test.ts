@@ -408,16 +408,16 @@ describe('MK-NW-F-073 itemising — five cases', () => {
   const items = (...rows: [string, number, number | null][]) => rows.map(([label, n, p]) => ({ cls: 'stocks_etf', label, value: p == null ? (undefined as any) : n * p })) as any[];
   test('easy · Two holdings inside a lump', () => {
     const r = itemising(50000, items(['A', 1, 20000], ['B', 1, 10000]));
-    expect(r).toEqual({ keepTotalAt: 50000, itemised: expect.closeTo(30000, 2), remainder: expect.closeTo(20000, 2) });
+    expect(r).toEqual({ keepTotalAt: 50000, itemised: expect.closeTo(30000, 2), remainder: expect.closeTo(20000, 2), remainderFinal: true });
   });
-  test('easy · Nothing itemised yet', () => { expect(itemising(75000, [])).toEqual({ keepTotalAt: 75000, itemised: 0, remainder: 75000 }); });
+  test('easy · Nothing itemised yet', () => { expect(itemising(75000, [])).toEqual({ keepTotalAt: 75000, itemised: 0, remainder: 75000, remainderFinal: true }); });
   test('complex · Fractional shares, a bond fund and a cash sleeve', () => {
     const r = itemising(87412.6, items(['VTI', 112.5, 287.43], ['BND', 340, 72.86], ['Cash sleeve', 1, 1250.75]));
-    expect(r).toEqual({ keepTotalAt: 87412.6, itemised: expect.closeTo(58359.025, 2), remainder: expect.closeTo(29053.575, 2) });
+    expect(r).toEqual({ keepTotalAt: 87412.6, itemised: expect.closeTo(58359.025, 2), remainder: expect.closeTo(29053.575, 2), remainderFinal: true });
   });
   test('complex · Holdings worth more than the lump', () => {
     const r = itemising(40000, items(['VTI', 120, 287.43], ['BND', 100, 72.86]));
-    expect(r).toEqual({ keepTotalAt: 40000, itemised: expect.closeTo(41777.6, 2), remainder: expect.closeTo(-1777.6, 2) });
+    expect(r).toEqual({ keepTotalAt: 40000, itemised: expect.closeTo(41777.6, 2), remainder: expect.closeTo(-1777.6, 2), remainderFinal: true });
     // shown_as "holdings exceed the entered balance by $1,778": the words are the screen's, not the function's
     const screen = fs.readFileSync(path.join(__dirname, '../../../src/screens/ItemizeScreen.tsx'), 'utf8');
     expect(screen).toMatch(/These holdings are .* more than the .* you entered/);

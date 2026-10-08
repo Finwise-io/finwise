@@ -880,7 +880,12 @@ export function isRealAsset(a: AssetAccount): boolean {
  * Answers ..... Adds up the balances of the accounts that pass a given test.
  *
  * Formula .....
- *     Σ over accounts (or none when missing) where pred of (balance (or 0 when missing or zero))
+ *     hits = accounts (or none when missing) where pred
+ *     missing = hits where balance = nothing (or !number.is finite(balance as number) when missing or zero)
+ *     total = Σ over hits where !missing.includes(each) of (balance as number)
+ *     the answer:
+ *     total = total
+ *     missing count = count of missing
  *
  * Called by ... MK-NW-F-022 investableAssets
  *
@@ -892,14 +897,18 @@ export function isRealAsset(a: AssetAccount): boolean {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *
- * Decides .....
- *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *
  * Formula also on the master file · functions_from_code · MK-NW-F-066
  * Changed ..... not in git yet (—)
  */
-function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => boolean): number {
-  return ((accounts ?? []).filter(pred).reduce((t, a) => t + (a.balance || 0), 0));
+export function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => boolean): { total: number; missingCount: number } {
+  // A BALANCE THAT IS NOT THERE IS NOT $0 (outside review batch 06, 2026-10-07): a linked account that
+  // failed to sync was added as 0 and the total looked complete. Only the balances that exist are added,
+  // and how many were missing is said beside it — the screen's amber box names them. Negative balances
+  // (an overdraft) are real and count. Nothing passing the test is a true 0, not flagged.
+  const hits = (accounts ?? []).filter(pred);
+  const missing = hits.filter((a) => a.balance == null || !Number.isFinite(a.balance as number));
+  const total = hits.filter((a) => !missing.includes(a)).reduce((t, a) => t + (a.balance as number), 0);
+  return { total, missingCount: missing.length };
 }
 
 /** Everything owned, added up: the balance of every account. */
@@ -1090,7 +1099,7 @@ export function investmentsTotal(accounts: AssetAccount[]): number {
  * Answers ..... Everything owned except real estate and personal property: cash, investments and retirement balances.
  *
  * Formula .....
- *     sum where(accounts, (a) => !is real asset(a))
+ *     sum where(accounts, (a) => !is real asset(a)).total
  *
  * Called by ... MK-NW-O-003 theNetWorth
  *
@@ -1104,7 +1113,7 @@ export function investmentsTotal(accounts: AssetAccount[]): number {
  * Changed ..... 2026-08-11 (4975971)
  */
 export function investableAssets(accounts: AssetAccount[]): number {
-  return sumWhere(accounts, (a) => !isRealAsset(a));
+  return sumWhere(accounts, (a) => !isRealAsset(a)).total;
 }
 /** Asset value grouped by class — for the Net Worth donut (#19). Sums to totalAssets(). */
 /** THE wrapper word for a naming rule — the kind of ACCOUNT it is, not what it holds. A kind like
@@ -1113,11 +1122,13 @@ export function investableAssets(accounts: AssetAccount[]): number {
  *  "Institution + Brokerage/checking/savings/…" and "Institution + 401k/RothIRA/HSA/…"). */
 const KIND_TO_WRAPPER: Record<string, string> = {
   checking: 'Checking', savings: 'Savings', hysa: 'High-yield savings',
-  money_market: 'Money market', cd: 'CD', cash_mgmt: 'Cash management',
-  // everything held inside a taxable investment account wears the account's own word
-  brokerage: 'Brokerage', stocks_etf: 'Brokerage', fixed_income: 'Brokerage', crypto: 'Brokerage',
-  private_equity: 'Brokerage', hedge_funds: 'Brokerage', commodities: 'Brokerage',
-  options: 'Brokerage', annuities: 'Annuity', other_asset: 'Brokerage',
+  money_market: 'Money market', cd: 'CD', cash_mgmt: 'Cash management', foreign_currency: 'Foreign currency',
+  // what a taxable investment account holds wears the account's own word…
+  brokerage: 'Brokerage', stocks_etf: 'Brokerage', fixed_income: 'Brokerage',
+  commodities: 'Brokerage', options: 'Brokerage', annuities: 'Annuity',
+  // …but a kind that names CONTENTS, not an account, claims no wrapper (outside review batch 06,
+  // 2026-10-07): a crypto wallet, a private-equity stake, a hedge-fund interest or 'other' is not a
+  // brokerage account unless the person said so (see wrapperWord)
   // tax-advantaged wrappers — these ALWAYS show, because the wrapper is the tax treatment
   '401k': '401(k)', trad_ira: 'Traditional IRA', roth_ira: 'Roth IRA', hsa: 'HSA', college_529: '529',
   home: 'Home', vehicle: 'Vehicle',
@@ -1130,15 +1141,16 @@ const KIND_TO_WRAPPER: Record<string, string> = {
  * Answers ..... The plain word for the kind of account something sits in, such as 401(k) or IRA, or nothing when that kind has no such word.
  *
  * Formula .....
- *     KIND_TO_WRAPPER[kind] (or '' when missing)   if kind
- *     ''   otherwise
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-NW-F-025 accountDisplayName
+ * Called by ... MK-NW-F-022 investableAssets · MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-XS-F-002 dataGaps · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-XS-F-002 dataGaps
+ *               MK-XS-F-102 ingestSync · MK-NW-F-022 investableAssets
+ *               MK-XS-F-119 namesFor · MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -1146,7 +1158,8 @@ const KIND_TO_WRAPPER: Record<string, string> = {
  * Formula also on the master file · functions_from_code · MK-NW-F-023
  * Changed ..... 2026-08-11 (4975971)
  */
-export const wrapperWord = (kind?: string): string => (kind ? KIND_TO_WRAPPER[kind] ?? '' : '');
+export const wrapperWord = (kind?: string, a?: { wrapper_confirmed?: boolean }): string =>
+  (kind ? KIND_TO_WRAPPER[kind] ?? (a?.wrapper_confirmed && ['other_asset', 'crypto', 'private_equity', 'hedge_funds'].includes(kind) ? 'Brokerage' : '') : '');
 
 /** The last four digits of an account, or null when we genuinely don't have them. Reads the stored
  *  mask ('••4821') or an account number, and only ever returns FOUR DIGITS — E*TRADE relays a
@@ -1196,7 +1209,7 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  * Formula .....
  *     inst raw = (institution ?? '').trim()
  *     last4 = account last four(a)
- *     kind word = wrapper word((a as any).kind)
+ *     kind word = wrapper word((a as any).kind, a as any)
  *     treatment = tax treatment of(a as asset account)
  *     tax advantaged = treatment ! = 'taxable'
  *     tax word = 'Roth'   if treatment = 'tax_free'
@@ -1239,7 +1252,7 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
   // account the digits alone identify it and the wrapper adds nothing the row needs.
   const instRaw = (a.institution ?? '').trim();
   const last4 = accountLastFour(a);
-  const kindWord = wrapperWord((a as any).kind);
+  const kindWord = wrapperWord((a as any).kind, a as any);
   const treatment = taxTreatmentOf(a as AssetAccount);
   const taxAdvantaged = treatment !== 'taxable';
   // A TAX-ADVANTAGED ACCOUNT MUST SHOW WHAT IT IS (the rule above). The form for adding an account by
@@ -2527,7 +2540,10 @@ const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
  * Answers ..... Writes a date as month, day and year: Aug 4, 2026.
  *
  * Formula .....
- *     `${MONTH_ABBR[(m or 1) − 1]} ${d}, ${y}`
+ *     m = ÷ ^(\d{4}) − (\d{2}) − (\d{2}) ÷ .exec(string(iso ?? '').trim())
+ *     ''   when m is missing
+ *     ''   when mo < 1 (or mo > 12 (or d < 1 (or d > new date(date.UTC(y, mo, 0)).get utcdate() when missing or zero) when missing or zero) when missing or zero)
+ *     the answer = `${MONTH_ABBR[mo − 1]} ${d}, ${y}`
  *
  * Called by ... MK-NW-F-046 historyCoverage
  *
@@ -2539,9 +2555,14 @@ const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
  * Formula also on the master file · functions_from_code · MK-NW-F-068
  * Changed ..... not in git yet (—)
  */
-function prettyDay(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  return `${MONTH_ABBR[(m || 1) - 1]} ${d}, ${y}`;
+export function prettyDay(iso: string): string {
+  // read as a calendar date, never through a clock or a time zone; an empty or unreadable date gives
+  // nothing (the screen shows a dash), never 'Invalid Date' or a guessed month (outside review batch 06)
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso ?? '').trim());
+  if (!m) return '';
+  const [y, mo, d] = [+m[1], +m[2], +m[3]];
+  if (mo < 1 || mo > 12 || d < 1 || d > new Date(Date.UTC(y, mo, 0)).getUTCDate()) return '';
+  return `${MONTH_ABBR[mo - 1]} ${d}, ${y}`;
 }
 
 

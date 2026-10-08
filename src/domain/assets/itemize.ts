@@ -7,13 +7,14 @@
 // as a cash sleeve at the same institution, so  Σ(itemized) + remainder  ===  the lump you started with.
 import type { AssetAccount, TaxBucket } from './index';
 import { benchmarkReturn } from './index';
+import { Dec } from '../../../Calculation Module code/engines/decimal';
 
 export type ItemClass = 'stocks_etf' | 'bonds' | 'alternatives' | 'cash';
 
 export interface ItemHolding {
   cls: ItemClass;
   label: string;
-  value: number;
+  value: number | null;   // a holding listed with no value yet is null, never 0 (batch 06)
   ticker?: string;                 // stocks_etf (optional — surfaced in the label)
   couponRate?: number;             // bonds (decimal)
   maturityDate?: string;           // bonds ('YYYY-MM-DD')
@@ -44,14 +45,36 @@ const KIND_FOR: Record<ItemClass, string> = {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
- *
  * Formula also on the master file · functions_from_code · MK-NW-F-049
  * Changed ..... 2026-06-28 (e637ba5)
  */
 export const itemizedTotal = (items: ItemHolding[]): number =>
-  (items.reduce((t, h) => t + (h.value || 0), 0));
+  // DECIMAL, AND ONLY WHAT HAS A VALUE (outside review batch 06, 2026-10-07; his rule Q56): sums kept
+  // exact so 30,000.30 − 10,000.10 − 20,000.20 is 0, not a float crumb; a holding with no value is not
+  // $0 — itemizeMissingCount says how many were left out. A negative value (a short option) counts.
+  Number(items.filter((h) => h.value != null && Number.isFinite(h.value)).reduce((t, h) => t.add(Dec.of(h.value as number)), Dec.ZERO).toString());
+
+/** How many listed holdings have no value — so a remainder is said to be not final, never presented as complete. */
+/* ─ MK-NW-F-118 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * itemizeMissingCount
+ *
+ * Answers ..... How many listed holdings have no value — so a remainder is said to be not final, never presented as complete.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-073 itemising
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-073 itemising
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-118
+ * Changed ..... not in git yet (—)
+ */
+export const itemizeMissingCount = (items: ItemHolding[]): number =>
+  items.filter((h) => h.value == null || !Number.isFinite(h.value)).length;
 
 /** Lump balance − Σ holdings. Positive = still unallocated; negative = holdings exceed the entered total. */
 
@@ -80,7 +103,7 @@ export const itemizedTotal = (items: ItemHolding[]): number =>
  * Changed ..... 2026-06-28 (e637ba5)
  */
 export const itemizeRemainder = (lumpBalance: number, items: ItemHolding[]): number =>
-  ((lumpBalance || 0) - itemizedTotal(items));
+  Number(Dec.of(lumpBalance || 0).sub(Dec.of(itemizedTotal(items))).toString());
 
 /** The account total AFTER itemizing. With keep-as-cash and a non-negative remainder this equals the lump
  *  exactly (total preserved). If holdings exceed the lump, the total rises to Σ (the estimate was low). */

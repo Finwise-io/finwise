@@ -60,7 +60,9 @@ test('TAXABLE with no digits: institution + the ACCOUNT word (Brokerage / Checki
   expect(n({ kind: 'brokerage' })).toBe('Vanguard Brokerage');
   // a kind that describes the HOLDINGS still names the account it sits in
   expect(n({ kind: 'stocks_etf' })).toBe('Vanguard Brokerage');
-  expect(n({ kind: 'crypto' })).toBe('Vanguard Brokerage');
+  // …except a kind that names CONTENTS, not an account (batch 06, 2026-10-07): a crypto holding is not
+  // claimed to sit in a brokerage; the person's own name follows the institution instead
+  expect(n({ kind: 'crypto' })).toBe('Vanguard Kamala Kavadia Brokerage');
   expect(accountDisplayName({ label: 'x', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH' } as any)).toBe('Chase Checking');
   expect(accountDisplayName({ label: 'x', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH' } as any)).toBe('Ally Savings');
 });

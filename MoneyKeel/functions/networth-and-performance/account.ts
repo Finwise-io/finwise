@@ -15,7 +15,7 @@ import { declareFigures } from '../_figure-spec';
 import { cashEffect } from '../../../src/domain/transactions';
 import type { AssetAccount } from '../../../src/domain/assets';
 import { accountClassBreakdown, ASSET_CLASS_LABEL } from '../../../src/domain/assets';
-import { itemizedTotal, itemizeRemainder, type ItemHolding } from '../../../src/domain/assets/itemize';
+import { itemizedTotal, itemizeRemainder, itemizeMissingCount, type ItemHolding } from '../../../src/domain/assets/itemize';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
 
 export interface ClassSlice { key: string; label: string; value: number; }
@@ -46,6 +46,8 @@ export interface Itemising {
   keepTotalAt: number;
   itemised: number;
   remainder: number;
+  /** False when a listed holding has no value: the remainder is not final, not 'unexplained'. */
+  remainderFinal: boolean;
 }
 
 /** What is in this one account: what it is worth, what it holds, what each holding has paid, and its activity?
@@ -190,6 +192,8 @@ export function itemising(lumpBalance: number, items: ItemHolding[]): Itemising 
     keepTotalAt: lumpBalance,
     itemised: itemizedTotal(items),
     remainder: itemizeRemainder(lumpBalance, items),
+    // a listed holding with no value leaves the remainder NOT FINAL — never called unexplained (batch 06)
+    remainderFinal: itemizeMissingCount(items) === 0,
   };
 }
 

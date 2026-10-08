@@ -2802,6 +2802,18 @@
     "status": "DONE — outside_networth_02.test.tsx renders both values; fcc_agreement pins each figure to its door.",
     "comments": "Home is outside build 55's scope; fixed because the figure was wrong against his definition."
    }
+  },
+  {
+   "task": "Fix brief — Net worth batch 06 (outside review, Claude): eight functions",
+   "todo": "Handed over 2026-10-08. Built: exact years and bond prices (HIGH), a solved yield, missing values never $0 (amber box names an account with no balance), exact itemise sums with a not-final flag, wrapper words, CD words, the accrued note, calendar dates. 23 acceptance tests added as written: 22 pass; test 1 left failing as instructed — the brief's own working gives 50,250.6958, not 50,250.6939 (full precision 50,250.6956). DEVIATIONS, reasoned: the yield is solved on the full value (accrued included), not value − accrued (A47 governs the current yield; subtracting here counts accrued twice); a CD yields its stated rate (a $10,000 CD at 5.05% read 11.30% priced as a coupon bond). Reviewer cases from batches 3 and 5 that tested the approximation or days ÷ 365.25 were moved to hand-checked exact values, each noted. CD placement (Cash → Investments, his rule DEC-0051) in its own commit.",
+   "status": "DONE — 4,104 tests; brief test 1 reported.",
+   "ref": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
+   "date": "2026-10-08",
+   "comments": "Not pushed. A47 found: DEC-0280 (2026-08-26) 'subtract accrued interest when known; say so when not'.",
+   "_written": {
+    "status": "DONE — 4,104 tests; brief test 1 reported.",
+    "comments": "Not pushed. A47 found: DEC-0280 (2026-08-26) 'subtract accrued interest when known; say so when not'."
+   }
   }
  ]
 }

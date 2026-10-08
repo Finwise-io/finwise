@@ -1327,14 +1327,14 @@
   },
   "MK-NW-F-022": {
    "name": "investableAssets",
-   "rule": "The balances of every account that is not a real asset (isRealAsset), added up.",
-   "read_from": "33f7b18423",
+   "rule": "The balances of every account that is not a real asset (isRealAsset), added up by sumWhere — an account with no balance is left out, not counted as zero.",
+   "read_from": "b70ff5209f",
    "sent_as": "33f7b18423"
   },
   "MK-NW-F-023": {
    "name": "wrapperWord",
-   "rule": "The word for a kind: checking → Checking; savings → Savings; high-yield savings; money market; CD; cash management; brokerage, stocks, fixed income, crypto, private equity, hedge funds, commodities, options and other → Brokerage; annuities → Annuity; 401(k); Traditional IRA; Roth IRA; HSA; 529; Home; Vehicle. Nothing for an unknown kind or none.",
-   "read_from": "a4bb825280",
+   "rule": "The word for a kind: checking → Checking; savings → Savings; high-yield savings; money market; CD; cash management; foreign currency → Foreign currency; brokerage, stocks, fixed income, commodities and options → Brokerage; annuities → Annuity; 401(k); Traditional IRA; Roth IRA; HSA; 529; Home; Vehicle. Crypto, private equity, hedge funds and other name what is held, not an account: nothing, unless the person confirmed the account is a brokerage. Nothing for an unknown kind or none.",
+   "read_from": "8232bd9eba",
    "sent_as": "a4bb825280"
   },
   "MK-NW-F-024": {
@@ -1345,8 +1345,8 @@
   },
   "MK-NW-F-025": {
    "name": "accountDisplayName",
-   "rule": "The kind word is the account kind's own word (401(k), Traditional IRA, Roth IRA, HSA, 529, Brokerage, Checking and so on). For a tax-advantaged account: where the kind says only Brokerage — or there is no kind and the last four digits are known — the word is Roth when the account is tax-free and 401(k) / IRA when it is tax-deferred; a 401(k) in the Roth bucket or tax-free is Roth 401(k). A tax-advantaged account always shows what it is. With an institution: a tax-advantaged account that has a word reads Institution + word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
-   "read_from": "0e1cc41510",
+   "rule": "The kind word is wrapperWord for the account (401(k), Traditional IRA, Roth IRA, HSA, 529, Brokerage, Checking and so on; none for a kind that names contents, such as crypto, unless confirmed a brokerage). For a tax-advantaged account: where the kind says only Brokerage — or there is no kind and the last four digits are known — the word is Roth when the account is tax-free and 401(k) / IRA when it is tax-deferred; a 401(k) in the Roth bucket or tax-free is Roth 401(k). A tax-advantaged account always shows what it is. With an institution: a tax-advantaged account that has a word reads Institution + word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
+   "read_from": "686c444b7b",
    "sent_as": "0509b9c53f"
   },
   "MK-NW-F-026": {
@@ -1494,14 +1494,14 @@
   },
   "MK-NW-F-049": {
    "name": "itemizedTotal",
-   "rule": "The values of the listed holdings added up; a missing value counts as zero.",
-   "read_from": "6c5e043400",
+   "rule": "The values of the listed holdings that have one, added up in exact decimals; a holding with no value is left out (itemizeMissingCount counts it), never counted as zero; a negative value counts.",
+   "read_from": "9ec68aa7fd",
    "sent_as": "6c5e043400"
   },
   "MK-NW-F-050": {
    "name": "itemizeRemainder",
-   "rule": "The entered balance less the listed holdings' values added up (itemizedTotal). Positive: some is still unexplained. Negative: the holdings add up to more than was entered.",
-   "read_from": "cc5462029f",
+   "rule": "The entered balance less itemizedTotal, in exact decimals (an entered total that equals its holdings leaves exactly 0, never a stray fraction of a cent). Positive: some is still unexplained. Negative: the holdings add up to more than was entered.",
+   "read_from": "3ebe2b09e2",
    "sent_as": "cc5462029f"
   },
   "MK-NW-F-051": {
@@ -1548,8 +1548,8 @@
   },
   "MK-NW-F-058": {
    "name": "yearsToMaturity",
-   "rule": "Whole calendar days from today's date to the maturity date, ÷ 365.25, never below zero. The time of day does not count. Nothing when there is no valid date.",
-   "read_from": "e475694e4d",
+   "rule": "Exact years to maturity, by anniversaries: the whole years counted back from the maturity date while still on or after today, plus the days from today to the first of those anniversaries ÷ the days in that year. One year to the day is exactly 1. Zero when the date is today or past. By the calendar date, never the time of day. Nothing when there is no valid date.",
+   "read_from": "797bec462c",
    "sent_as": "8118b711d5"
   },
   "MK-NW-F-059": {
@@ -1560,8 +1560,8 @@
   },
   "MK-NW-F-060": {
    "name": "approxYTM",
-   "rule": "With the clean price = value − accrued interest, where entered: (face × rate + (face − clean price) ÷ years left) ÷ ((face + clean price) ÷ 2). Nothing when there is no maturity date, the bond has matured, no face value or no rate was entered, or the clean price is zero or less.",
-   "read_from": "8223818054",
+   "rule": "Nothing when there is no maturity date, the bond has matured, or no face value or no rate was entered. A CD: its stated rate (it is not bought at a market price). Otherwise nothing when its value is zero or less; else the yield y at which priceAtYield equals the value as entered — the full price, accrued interest included — found by halving the interval two hundred times.",
+   "read_from": "ea7838de7e",
    "sent_as": "a0c4e87be3"
   },
   "MK-NW-F-061": {
@@ -1584,8 +1584,8 @@
   },
   "MK-NW-F-064": {
    "name": "bondRateSensitivity",
-   "rule": "Nothing for a CD, when the yield to maturity is unknown, or when the face value or rate was not entered or is zero or less. For rates one percentage point UP and one DOWN: the change = priceAtYield at the yield to maturity plus or minus one point (never below 0.01%) less priceAtYield at the yield to maturity itself. The new price = today's value + that change. It gives a range from 1% under to 1% over the new price, and the change, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
-   "read_from": "9b3355301a",
+   "rule": "Nothing for a CD, when the yield to maturity is unknown, when the bond cannot be priced (matured or no date), or when the face value or rate was not entered or is zero or less. For rates one percentage point UP and one DOWN: the change = priceAtYield at the yield to maturity plus or minus one point (never below 0.01%) less priceAtYield at the yield to maturity itself. The new price = today's value + that change. It gives a range from 1% under to 1% over the new price, and the change, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
+   "read_from": "88ed566fc6",
    "sent_as": "de92efd74a",
    "figures_checked_by_hand": {
     "$100,000": "10 to the power 5: the step is 10 to the power (whole digits of the value − 3)",
@@ -1603,8 +1603,8 @@
   },
   "MK-NW-F-066": {
    "name": "sumWhere",
-   "rule": "The balances of the accounts that pass the given test, added up; a missing balance counts as zero.",
-   "read_from": "d32f255d8b",
+   "rule": "Over the accounts that pass the given test: the total = the balances that exist, added up (a negative balance counts), and beside it how many have no balance. A missing balance is never counted as zero. Nothing passing the test is a total of 0 with nothing missing.",
+   "read_from": "41360ea986",
    "sent_as": "d32f255d8b"
   },
   "MK-NW-F-067": {
@@ -1615,20 +1615,20 @@
   },
   "MK-NW-F-068": {
    "name": "prettyDay",
-   "rule": "Turns a date written year-month-day, such as 2026-08-04, into the short month name, the day without a leading zero, a comma and the year.",
-   "read_from": "9f2006da6a",
+   "rule": "Reads a date written year-month-day as a calendar date — never through a clock or a time zone — and writes the short month name (Jan … Dec, Sep not Sept), the day without a leading zero, a comma and the year. An empty or impossible date gives nothing.",
+   "read_from": "90e395ae0a",
    "sent_as": "9f2006da6a"
   },
   "MK-NW-F-069": {
    "name": "priceAtYield",
-   "rule": "Years = years to maturity rounded to a whole number, at least 1. Price = each year's interest (face × rate; zero when either was not entered) ÷ (1 + yield) to the power of that year, added up, plus face (zero when not entered) ÷ (1 + yield) to the power of years. With no maturity date: the current value.",
-   "read_from": "1d410ecb8b",
+   "rule": "Nothing when the bond has matured or has no maturity date. Otherwise t = yearsToMaturity, exact; the yearly coupon (face × rate; zero when either was not entered) falls on each maturity anniversary, at t, t − 1, … down to the last above zero; price = each coupon ÷ (1 + yield) to the power of its time, added up, plus face ÷ (1 + yield) to the power t.",
+   "read_from": "71fa43acf0",
    "sent_as": "c459c9a051"
   },
   "MK-NW-F-070": {
    "name": "accruedInterestCaveat",
-   "rule": "When accrued interest was not entered: the note accrued interest not entered — the yield uses the price as you entered it. When it was entered: nothing.",
-   "read_from": "843f845929",
+   "rule": "When the bond pays interest (a rate above zero) and accrued interest was not entered: the note accrued interest not entered — the yield uses the price as you entered it. When accrued interest was entered (0 included), or the bond pays no interest: nothing.",
+   "read_from": "dba2b5575a",
    "sent_as": "843f845929"
   },
   "MK-NW-F-071": {
@@ -1639,14 +1639,14 @@
   },
   "MK-NW-F-072": {
    "name": "rowOf",
-   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterest: face × rate; with no face, value × rate; with no rate, not entered), maturity date, years left, current yield, approximate yield to maturity, value, whether it is a CD, and the accrued-interest note. The institution shown is the account's institution, or the account's name when none is set.",
-   "read_from": "0f2c91ceb7",
+   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterest: face × rate; with no face, value × rate; with no rate, not entered), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, and the accrued-interest note. The heading is the institution when it is not blank after trimming, otherwise the account's name.",
+   "read_from": "6f7ded8120",
    "sent_as": "4cc586d060"
   },
   "MK-NW-F-073": {
    "name": "itemising",
-   "rule": "Returns three figures. Keep-total-at = the balance the account was entered at. Itemised = the values of the listed holdings added up. Remainder = the entered balance less that sum.",
-   "read_from": "b2bc7b5cca",
+   "rule": "Returns four things. Keep-total-at = the balance the account was entered at. Itemised = the values of the listed holdings that have one, added up. Remainder = the entered balance less that sum. Remainder-final = false when any listed holding has no value (the remainder is then not final, never called unexplained).",
+   "read_from": "a99d79cf0b",
    "sent_as": "b2bc7b5cca"
   },
   "MK-NW-F-084": {
@@ -1994,6 +1994,11 @@
    "name": "propertyUseMap",
    "rule": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no use stated on any, the one entered first (last in the list) is home. Every other property is a second home, except that when a rent entry names no property and exactly one other property remains, that one is a rental.",
    "read_from": "aea036cc4c"
+  },
+  "MK-NW-F-118": {
+   "name": "itemizeMissingCount",
+   "rule": "How many listed holdings have no value (none entered, or not a number). A remainder worked out while any are missing is not final.",
+   "read_from": "7b4496f2ec"
   }
  },
  "pack_sent": {

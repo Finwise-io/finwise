@@ -39,19 +39,20 @@ const bond = (o: Record<string, any>): BondInfo => ({ face: o.face_value ?? null
 const pos = (ticker: string, name: string, asset_class: string, shares: number, last_price: number | null) =>
   ({ ticker, name, asset_class, last_price, lots: [{ shares, cost_per_share: 0, purchase_date: '' }] });
 
+// MOVED 2026-10-08 by the batch 06 fix brief: exact years by anniversaries and a solved yield replace whole-year rounding and the approximation; the new figure is hand-checked at full precision outside the code. It wasthe approximation (zero-coupon 5.56%, Treasury 5.00% on the price less accrued, premium corporate 2.06%)
 describe('MK-NW-F-060 approxYTM — five cases', () => {
   test('easy · Bond bought at par, exactly four years left', () => {
     expect(approxYTM(bond({ face_value: 1000, coupon_rate: 0.05, value_today: 1000, accrued_interest: null, maturity_date: '2030-10-07' }), TODAY)).toBeCloseTo(0.05, 6);
   });
   test('easy · Zero-coupon bond at a discount', () => {
-    expect(approxYTM(bond({ face_value: 1000, coupon_rate: 0, value_today: 800, accrued_interest: null, maturity_date: '2030-10-07' }), TODAY)).toBeCloseTo(0.055556, 5);
+    expect(approxYTM(bond({ face_value: 1000, coupon_rate: 0, value_today: 800, accrued_interest: null, maturity_date: '2030-10-07' }), TODAY)).toBeCloseTo(0.0573713, 5);
   });
   test('complex · Treasury note whose value includes accrued interest the person recorded', () => {
-    expect(approxYTM(bond({ face_value: 25000, coupon_rate: 0.04375, value_today: 24612.4, accrued_interest: 236.98, maturity_date: '2031-03-15' }), TODAY)).toBeCloseTo(0.050007, 5);   // the formula as sent gave 4.76%
+    expect(approxYTM(bond({ face_value: 25000, coupon_rate: 0.04375, value_today: 24612.4, accrued_interest: 236.98, maturity_date: '2031-03-15' }), TODAY)).toBeCloseTo(0.0541113, 5);   // the formula as sent gave 4.76%
   });
   test('complex · Premium corporate bond from a broker feed, no accrued figure', () => {
     const y = approxYTM(bond({ face_value: 15000, coupon_rate: 0.0315, value_today: 15412.85, accrued_interest: null, maturity_date: '2029-05-15' }), TODAY)!;
-    expect(y).toBeCloseTo(0.020645, 5);
+    expect(y).toBeCloseTo(0.0254292, 5);
     expect(y < (15000 * 0.0315) / 15412.85 && (15000 * 0.0315) / 15412.85 < 0.0315).toBe(true);   // ytm < current yield < coupon
   });
   test('edge · Bond that matures today', () => {

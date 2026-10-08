@@ -57,8 +57,8 @@ describe('MK-NW-F-055 isBond — five cases', () => {
 
 describe('MK-NW-F-073 itemising — five cases', () => {
   const items = (...values: number[]) => values.map((value, i) => ({ cls: 'stocks_etf', label: `H${i}`, value })) as any[];
-  test('easy · part itemised', () => { expect(itemising(10000, items(6000, 3000))).toEqual({ keepTotalAt: 10000, itemised: 9000, remainder: 1000 }); });
-  test('easy · nothing listed yet', () => { expect(itemising(10000, [])).toEqual({ keepTotalAt: 10000, itemised: 0, remainder: 10000 }); });
+  test('easy · part itemised', () => { expect(itemising(10000, items(6000, 3000))).toEqual({ keepTotalAt: 10000, itemised: 9000, remainder: 1000, remainderFinal: true }); });
+  test('easy · nothing listed yet', () => { expect(itemising(10000, [])).toEqual({ keepTotalAt: 10000, itemised: 0, remainder: 10000, remainderFinal: true }); });
   test('complex · a Vanguard lump partly explained', () => {
     const r = itemising(186442.19, items(124086.16, 23915.08));
     expect(r.keepTotalAt).toBe(186442.19); expect(r.itemised).toBeCloseTo(148001.24, 6); expect(r.remainder).toBeCloseTo(38440.95, 6);
