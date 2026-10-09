@@ -32,6 +32,9 @@ Unclassified. The first of these that applies decides (MK-NW-F-011 assetClassOf)
    recorded; Personal property for any other kind — a ring is not a house.
 8. Otherwise Unclassified: a wrapper whose contents nobody has said (a bare 401(k) or brokerage).
 
+The add-account form offers a CD and a money-market fund with Investments, not Cash, so the kind
+list and the class agree (2026-10-08; one CD had sat under Cash on one total and Investments on another).
+
 The sweep that corrects classes the app guessed (MK-NW-F-053 correctClassOf, MK-NW-F-054
 reclassifyAccounts) never touches an account the person confirmed: what they said stands.
 

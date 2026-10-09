@@ -41,11 +41,12 @@ describe('ACCOUNT_CLASS', () => {
     expect(assetClassOf(A({ kind: '401k', tax_bucket: 'PRE_TAX' }))).toBe('mixed');
   });
 
-  test('THE F6 CONTRADICTION: the class says measured, the kind metadata still says Cash', () => {
+  test('THE F6 CONTRADICTION IS CLOSED (2026-10-08): the class and the kind metadata agree — measured, not Cash', () => {
     expect(assetClassOf(A({ kind: 'money_market' }))).toBe('stocks_etf');
-    expect(assetKind('money_market')!.section).toBe('Cash');     // and Net worth groups by THIS
-    expect(assetKind('money_market')!.bucket).toBe('CASH');
-    expect(isCashKind('money_market')).toBe(true);               // …so it reads as cash on screen
+    expect(assetKind('money_market')!.section).toBe('Investments');
+    expect(assetKind('money_market')!.bucket).toBe('TAXABLE');
+    expect(isCashKind('money_market')).toBe(false);
+    expect(isCashKind('cd')).toBe(false);                        // the same fix for a CD (batch 06 fix brief)
   });
 });
 

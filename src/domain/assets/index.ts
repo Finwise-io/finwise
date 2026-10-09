@@ -245,8 +245,12 @@ export const ASSET_KINDS: { id: string; label: string; icon: string; bucket: Tax
   { id: 'checking', label: 'Checking', icon: '💵', bucket: 'CASH', section: 'Cash', ret: 0.005 },
   { id: 'savings', label: 'Savings', icon: '🏦', bucket: 'CASH', section: 'Cash', ret: 0.024 },
   { id: 'hysa', label: 'High-yield savings', icon: '💰', bucket: 'CASH', section: 'Cash', ret: 0.042 },
-  { id: 'money_market', label: 'Money market', icon: '🏧', bucket: 'CASH', section: 'Cash', ret: 0.045 },
-  { id: 'cd', label: 'CD', icon: '📑', bucket: 'CASH', section: 'Cash', ret: 0.042 },
+  // a money-market fund sits with Investments, in Stocks / Funds — his rule DEC-0051; the same fix as a CD
+  { id: 'money_market', label: 'Money market', icon: '🏧', bucket: 'TAXABLE', section: 'Investments', ret: 0.045 },
+  // A CD SITS WITH INVESTMENTS, in Bonds & CDs — his rule DEC-0051 (2026-08-04: CDs are Bonds & CDs at any
+  // maturity). It was listed as a cash kind, so one CD sat under Cash on one total and Investments on
+  // another (batch 06 fix brief, 2026-10-08). How soon it can be spent is its liquidity, not its class.
+  { id: 'cd', label: 'CD', icon: '📑', bucket: 'TAXABLE', section: 'Investments', ret: 0.042 },
   { id: 'cash_mgmt', label: 'Cash management', icon: '💳', bucket: 'CASH', section: 'Cash', ret: 0.035 },
   // Q08 (founder, 2026-08-26): a foreign currency is cash held in that currency — no interest, no
   // dividend, no growth. Entered as what it is worth in dollars today (no exchange-rate feed: Q43).

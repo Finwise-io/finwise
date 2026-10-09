@@ -65,22 +65,15 @@ test.each([[50_000], [900]])('a money-market fund the broker flags as cash-equiv
 // was not, and the Net Worth screen groups by that.
 import { ASSET_KINDS, assetClassOf, assetKind } from '../../domain/assets';
 
-test('the kind mapping says STOCKS but the kind metadata still says CASH — two sources, disagreeing', () => {
+test('F6 CLOSED 2026-10-08: the kind mapping and the kind metadata agree — a money-market fund is measured, not Cash', () => {
   const mm = ASSET_KINDS.find((k) => k.id === 'money_market')!;
-  // corrected 2026-08-04: a money-market fund pays dividends, so it is measured
-  expect(assetClassOf({ kind: 'money_market' } as any)).toBe('stocks_etf');
-  // NOT corrected: the same kind still declares itself Cash, and Net Worth groups by this
-  expect(mm.section).toBe('Cash');
-  expect(mm.bucket).toBe('CASH');
-  expect(assetKind('money_market')!.section).toBe('Cash');
+  expect(assetClassOf({ kind: 'money_market' } as any)).toBe('stocks_etf');   // his rule DEC-0051
+  expect(mm.section).toBe('Investments');
+  expect(mm.bucket).toBe('TAXABLE');
 });
 
-test('so one holding answers "which class am I?" two different ways', () => {
+test('so one holding answers "which class am I?" one way', () => {
   const holding = { kind: 'money_market', label: 'VMFXX', balance: 50_000 } as any;
-  const byClass = assetClassOf(holding);                       // Stocks / Funds
-  const bySection = assetKind(holding.kind)!.section;           // Cash
-  expect(byClass).toBe('stocks_etf');
-  expect(bySection).toBe('Cash');
-  expect(byClass === 'cash').toBe(false);
-  // the screen groups by section, so the founder sees it under Cash — F6, exactly as reported
+  expect(assetClassOf(holding)).toBe('stocks_etf');
+  expect(assetKind(holding.kind)!.section).toBe('Investments');   // it was 'Cash' — F6, as he reported it
 });

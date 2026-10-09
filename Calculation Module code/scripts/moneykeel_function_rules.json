@@ -1231,7 +1231,7 @@
   },
   "MK-NW-F-006": {
    "name": "isCashKind",
-   "rule": "True when the kind is a cash kind: checking, savings, high-yield savings, money market, CD, cash management or foreign currency.",
+   "rule": "True when the kind is a cash kind: checking, savings, high-yield savings, cash management or foreign currency. A money-market fund (Stocks / Funds) and a CD (Bonds & CDs) are not cash kinds — his rule DEC-0051.",
    "read_from": "47ed1adbcd",
    "sent_as": "47ed1adbcd"
   },

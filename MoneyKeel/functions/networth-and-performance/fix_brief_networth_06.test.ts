@@ -49,7 +49,7 @@ describe('rowOf — MK-NW-F-072', () => {
   });
 });
 
-test.failing('8 · isCashKind — kind cd → false (pending owner confirmation) — passes in the CD commit that follows', () => { expect(isCashKind('cd')).toBe(false); });
+test('8 · isCashKind — kind cd → false (his rule DEC-0051)', () => { expect(isCashKind('cd')).toBe(false); });
 
 test('9 · sumWhere — checking 2,500 + linked savings with no balance; test = cash kind', () => {
   const r = sumWhere([{ asset_id: 'c', kind: 'checking', balance: 2500 } as any, { asset_id: 's', kind: 'savings', source: 'connected', balance: undefined } as any], (a) => isCashKind(a.kind));

@@ -101,8 +101,14 @@ test('cash includes a connected brokerage sweep balance — the CASH group and t
 
 // pj review note: the "add cash" picker only offered Checking/Savings. Added the common cash sub-types.
 // They MUST behave as cash (CASH bucket, class 'cash', no individual tickers) — not be mistaken for investments.
-describe('cash sub-types (HYSA / money-market / CD / cash management)', () => {
-  const CASH_KINDS = ['hysa', 'money_market', 'cd', 'cash_mgmt'] as const;
+describe('cash sub-types (HYSA / cash management) — and a money-market fund and a CD, which are not cash', () => {
+  // 2026-10-08 (batch 06 fix brief; his rule DEC-0051): a CD is Bonds & CDs and a money-market fund is
+  // Stocks / Funds, so neither is offered in the Cash picker or counted as a cash kind any more — one
+  // CD had sat under Cash on one total and Investments on another.
+  const CASH_KINDS = ['hysa', 'cash_mgmt'] as const;
+  test('a CD and a money-market fund are offered with Investments, not Cash', () => {
+    for (const id of ['cd', 'money_market']) { expect(assetKind(id)!.section).toBe('Investments'); expect(assetKind(id)!.bucket).toBe('TAXABLE'); }
+  });
 
   test('each is registered in the Cash section as a CASH-bucket account', () => {
     for (const id of CASH_KINDS) {
@@ -119,15 +125,15 @@ describe('cash sub-types (HYSA / money-market / CD / cash management)', () => {
     expect(assetClassOf(mk('cash_mgmt'))).toBe('cash');
     expect(assetClassOf(mk('money_market'))).toBe('stocks_etf');   // a dividend-paying fund — measured
     expect(assetClassOf(mk('cd'))).toBe('bonds');                  // interest-paying — measured
-    for (const id of CASH_KINDS) expect(accountAllowsTicker(mk(id))).toBe(false);   // CASH-bucket accounts never trade tickers
-    // cash total counts ONLY the true-cash kinds now
-    const p = CASH_KINDS.map((id) => mk(id));
+    for (const id of [...CASH_KINDS, 'money_market', 'cd']) expect(accountAllowsTicker(mk(id))).toBe(false);   // CASH-bucket accounts never trade tickers
+    // cash total counts ONLY the true-cash kinds
+    const p = [...CASH_KINDS, 'money_market', 'cd'].map((id) => mk(id));
     expect(cashTotal(p)).toBe(2000);
   });
 
-  test('the Cash picker offers 7 types in order (checking, savings, the four sub-types, then foreign currency — Q08)', () => {
+  test('the Cash picker offers 5 types in order (checking, savings, high-yield savings, cash management, then foreign currency — Q08)', () => {
     const cashIds = ASSET_KINDS.filter((k) => k.section === 'Cash').map((k) => k.id);
-    expect(cashIds).toEqual(['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt', 'foreign_currency']);
+    expect(cashIds).toEqual(['checking', 'savings', 'hysa', 'cash_mgmt', 'foreign_currency']);
   });
 });
 
