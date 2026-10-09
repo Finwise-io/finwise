@@ -1099,6 +1099,11 @@
   "file": "MoneyKeel/functions/cashflow/essentials.ts",
   "category": "3 · DEPENDENT"
  },
+ "estimatedAccrued": {
+  "id": "MK-NW-F-119",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "expenses": {
   "id": "MK-CF-O-002",
   "file": "MoneyKeel/functions/cashflow/expenses.ts",

@@ -48,11 +48,11 @@ describe('MK-NW-F-060 approxYTM — five cases', () => {
     expect(approxYTM(bond({ face_value: 1000, coupon_rate: 0, value_today: 800, accrued_interest: null, maturity_date: '2030-10-07' }), TODAY)).toBeCloseTo(0.0573713, 5);
   });
   test('complex · Treasury note whose value includes accrued interest the person recorded', () => {
-    expect(approxYTM(bond({ face_value: 25000, coupon_rate: 0.04375, value_today: 24612.4, accrued_interest: 236.98, maturity_date: '2031-03-15' }), TODAY)).toBeCloseTo(0.0541113, 5);   // the formula as sent gave 4.76%
+    expect(approxYTM(bond({ face_value: 25000, coupon_rate: 0.04375, value_today: 24612.4, accrued_interest: 236.98, maturity_date: '2031-03-15' }), TODAY)).toBeCloseTo(0.0516043, 5);   // MOVED 2026-10-09 by his ruling (DEC replacing A47): the value is the statement's market value, without accrued interest; accrued interest — entered, or estimated from the coupon schedule — is ADDED for the yield to maturity, and the yield on today's value is on the value as entered. Hand-checked outside the code. It was 5.41%   // the formula as sent gave 4.76%
   });
   test('complex · Premium corporate bond from a broker feed, no accrued figure', () => {
     const y = approxYTM(bond({ face_value: 15000, coupon_rate: 0.0315, value_today: 15412.85, accrued_interest: null, maturity_date: '2029-05-15' }), TODAY)!;
-    expect(y).toBeCloseTo(0.0254292, 5);
+    expect(y).toBeCloseTo(0.0205021, 5);   // MOVED 2026-10-09 by his ruling (DEC replacing A47): the value is the statement's market value, without accrued interest; accrued interest — entered, or estimated from the coupon schedule — is ADDED for the yield to maturity, and the yield on today's value is on the value as entered. Hand-checked outside the code. It was 2.54% (on $15,412.85, no accrued); with $187.71 estimated it is 2.05% — the reviewer's own 2.06%
     expect(y < (15000 * 0.0315) / 15412.85 && (15000 * 0.0315) / 15412.85 < 0.0315).toBe(true);   // ytm < current yield < coupon
   });
   test('edge · Bond that matures today', () => {

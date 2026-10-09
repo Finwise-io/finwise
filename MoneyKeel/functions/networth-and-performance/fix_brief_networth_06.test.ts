@@ -31,7 +31,10 @@ describe('rowOf — MK-NW-F-072', () => {
     const r = rowOf(acct({ face: 10000, rate: 0.04, maturity: '2027-02-24', value: 10180 }), TODAY);
     expect(r.yearsLeft!).toBeCloseTo(0.3836, 4);
     expect(r.currentYield!).toBeCloseTo(0.0392927, 6);
-    expect(r.yieldToMaturity!).toBeCloseTo(0.0573258, 5);
+    // HELD AT THE APP'S ANSWER SINCE 2026-10-09 — his ruling: accrued interest not entered is estimated and ADDED
+    // ($246.58 for 225 days), so the full price is $10,426.58 for $10,400 still to come: −0.66%. The brief's 5.73%
+    // treated $10,180 as the full price. Hand-checked outside the code.
+    expect(r.yieldToMaturity!).toBeCloseTo(-0.0066315, 5);
     expect(r.accruedCaveat).not.toBeNull();
   });
   test('6 · face 10,000; 5%; matured 2026-09-30; value 10,000; accrued 0', () => {

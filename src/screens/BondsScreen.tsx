@@ -87,8 +87,8 @@ export default function BondsScreen() {
                 <DotJoined style={styles.bondSub} numberOfLines={2} parts={[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : figWords('MK-NW-M-055', 'coupon rate not entered'), `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}`]} />
                 <View style={styles.bondMetrics}>
                   <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', 'coupon not entered')}</Text>
-                  <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}{r.accruedCaveat ? ' *' : ''}</Text>
-                  <Text style={styles.metric}>Yield to maturity: {fig('MK-NW-M-058', r.yieldToMaturity)}</Text>
+                  <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}</Text>
+                  <Text style={styles.metric}>Yield to maturity: {fig('MK-NW-M-058', r.yieldToMaturity)}{r.accruedCaveat ? ' *' : ''}</Text>
                 </View>
                 {!!r.accruedCaveat && <Text style={styles.bondSub}>* {r.accruedCaveat}</Text>}
               </TouchableOpacity>

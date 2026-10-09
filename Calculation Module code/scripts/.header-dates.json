@@ -753,5 +753,6 @@
 "src/domain/assets/index.ts::rentedIdsOf": "not in git yet|\u2014",
 "src/domain/assets/index.ts::liveRent": "not in git yet|\u2014",
 "src/domain/assets/index.ts::rentAmount": "not in git yet|\u2014",
-"src/domain/assets/itemize.ts::itemizeMissingCount": "not in git yet|\u2014"
+"src/domain/assets/itemize.ts::itemizeMissingCount": "not in git yet|\u2014",
+"src/domain/bonds/index.ts::estimatedAccrued": "not in git yet|\u2014"
 }

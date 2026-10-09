@@ -1554,20 +1554,20 @@
   },
   "MK-NW-F-059": {
    "name": "currentYield",
-   "rule": "yearlyInterest ÷ (value − accrued interest, where entered). Nothing when no rate was entered, or when that divisor is zero or less.",
-   "read_from": "abdc4a8b1e",
+   "rule": "yearlyInterest ÷ the value as entered (the statement's market value, which leaves accrued interest out — his ruling of 2026-10-09). Nothing when no rate was entered, or when the value is zero or less.",
+   "read_from": "7b0ac7c40e",
    "sent_as": "976c554970"
   },
   "MK-NW-F-060": {
    "name": "approxYTM",
-   "rule": "Nothing when there is no maturity date, the bond has matured, or no face value or no rate was entered. A CD: its stated rate (it is not bought at a market price). Otherwise nothing when its value is zero or less; else the yield y at which priceAtYield equals the value as entered — the full price, accrued interest included — found by halving the interval two hundred times.",
-   "read_from": "ea7838de7e",
+   "rule": "Nothing when there is no maturity date, the bond has matured, or no face value or no rate was entered. A CD: its stated rate (it is not bought at a market price). Otherwise nothing when its value is zero or less; else the yield y at which priceAtYield equals the full price — the value as entered plus accrued interest (as entered, else estimatedAccrued; his ruling of 2026-10-09) — found by halving the interval two hundred times.",
+   "read_from": "d1fc75a372",
    "sent_as": "a0c4e87be3"
   },
   "MK-NW-F-061": {
    "name": "bondSummary",
-   "rule": "Count = how many bonds. Total value = each value added up. Total face value = each face value added up, a face not entered counting as zero. Interest in a year = yearlyInterest of each, added up, a bond with no rate counting as zero. Average yield is over the bonds that have a value today AND a rate: their yearlyInterest ÷ their value today less accrued interest where that is known; nothing when no bond qualifies. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next.",
-   "read_from": "0ab7174c6f",
+   "rule": "Count = how many bonds. Total value = each value added up. Total face value = each face value added up, a face not entered counting as zero. Interest in a year = yearlyInterest of each, added up, a bond with no rate counting as zero. Average yield is over the bonds that have a value today AND a rate: their yearlyInterest ÷ their value today as entered; nothing when no bond qualifies. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next.",
+   "read_from": "318ec5cd07",
    "sent_as": "95c273f536"
   },
   "MK-NW-F-062": {
@@ -1627,8 +1627,8 @@
   },
   "MK-NW-F-070": {
    "name": "accruedInterestCaveat",
-   "rule": "When the bond pays interest (a rate above zero) and accrued interest was not entered: the note accrued interest not entered — the yield uses the price as you entered it. When accrued interest was entered (0 included), or the bond pays no interest: nothing.",
-   "read_from": "dba2b5575a",
+   "rule": "When accrued interest was not entered and estimatedAccrued gives an estimate (a bond that pays interest, not a CD, not matured, not on a coupon day): his words — Added estimated $<the estimate, whole dollars> in accrued interest to bond value at <the rate>% coupon for <days> days to calculate YTM. If this is not accurate, enter actual accrued interest. Otherwise nothing.",
+   "read_from": "89f4a4a446",
    "sent_as": "843f845929"
   },
   "MK-NW-F-071": {
@@ -1639,8 +1639,8 @@
   },
   "MK-NW-F-072": {
    "name": "rowOf",
-   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterest: face × rate; with no face, value × rate; with no rate, not entered), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, and the accrued-interest note. The heading is the institution when it is not blank after trimming, otherwise the account's name.",
-   "read_from": "6f7ded8120",
+   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterest: face × rate; with no face, value × rate; with no rate, not entered), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
+   "read_from": "e399c7fb6f",
    "sent_as": "4cc586d060"
   },
   "MK-NW-F-073": {
@@ -1687,8 +1687,8 @@
   },
   "MK-NW-O-001": {
    "name": "theBonds",
-   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures. It also names the bonds the average yield leaves out — those with no value today after accrued interest, and, apart, those with a value but no rate entered — and the bonds with no face value entered, so a screen can say which.",
-   "read_from": "504acff7c6",
+   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures. It also names the bonds the average yield leaves out — those with no value today, and, apart, those with a value but no rate entered — and the bonds with no face value entered, so a screen can say which.",
+   "read_from": "903fe849cc",
    "sent_as": "ac38213b75"
   },
   "MK-NW-O-002": {
@@ -1999,6 +1999,11 @@
    "name": "itemizeMissingCount",
    "rule": "How many listed holdings have no value (none entered, or not a number). A remainder worked out while any are missing is not final.",
    "read_from": "7b4496f2ec"
+  },
+  "MK-NW-F-119": {
+   "name": "estimatedAccrued",
+   "rule": "The interest earned since the last yearly coupon, estimated from the coupon schedule: face × rate × the days since the last maturity anniversary ÷ the days in that coupon year, with the days. Nothing for a CD, a bond with no face or no rate above zero, no or an unreadable maturity date, a matured bond, or on a coupon day (nothing has accrued).",
+   "read_from": "cda35d0c7f"
   }
  },
  "pack_sent": {

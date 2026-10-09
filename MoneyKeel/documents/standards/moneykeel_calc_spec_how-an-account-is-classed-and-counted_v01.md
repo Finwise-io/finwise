@@ -232,18 +232,19 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
 - **Years left are exact, by anniversaries** (batch 06): whole years counted back from the maturity
   date, plus the days to the first anniversary ÷ the days in that year — one year to the day is 1.0.
 - **A bond is priced at exact times**: the yearly coupon falls on each maturity anniversary; a matured
-  bond, or one with no date, has no price. **Yield to maturity is solved exactly** on the full value as
-  entered (accrued interest included — what the remaining payments are worth is the whole price); a CD
-  yields its stated rate. The approximation it replaced read −0.69% for a short 4% note where 5.73% is right.
+  bond, or one with no date, has no price. **Yield to maturity is solved exactly** on the full price —
+  the value plus accrued interest; a CD yields its stated rate. The approximation it replaced read −0.69% for a short 4% note where 5.73% is right.
 - **A missing balance or holding value is never $0**: it is left out of the total, the amber box names
   the account, and an itemised remainder with a missing value is not final. Sums of money are exact
   decimals. A kind that names contents (crypto, private equity, hedge funds, other) claims no
   'Brokerage' wrapper unless the person confirmed one. 'CDs', 'certificates of deposit' and 'share
   certificates' are CDs. The accrued-interest note shows only for a bond that pays interest. Dates are
   read as calendar dates, never shifted by a time zone.
-- **Yield on today's value and yield to maturity both use the clean price**: the value less accrued
-  interest, when it is known (owner A47, 2026-08-26). Neither is given without a rate; yield to
-  maturity also needs a face value and a date still ahead.
+- **A bond's value is its statement market value, without accrued interest** (his ruling, 2026-10-09,
+  DEC-3390, replacing A47). The yield on today's value is on that value. For the yield to maturity the
+  accrued interest is ADDED — as entered, or estimated from the coupon schedule, and then the screen says:
+  'Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM.
+  If this is not accurate, enter actual accrued interest'. His Treasury worth $24,200 reads 5.69%.
 - **If rates move one point**: the change is measured between two prices worked the same way — at
   the moved yield and at today's — then added to today's value. A CD is refused by the function
   itself, not only by the screen: a CD is not traded, so its value does not move with rates.

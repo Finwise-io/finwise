@@ -212,11 +212,19 @@ describe('Bonds v02', () => {
     const [t, a, c, add] = [at('US Treasury 2027'), at('Apple Corp 4.5%'), at('Chase 12-month CD'), at('＋ Add a bond')];
     expect([t, a, c, add].every((i) => i > 0) && t < a && a < c && c < add).toBe(true);
     const star = seg.slice(a, c).filter((l) => l.startsWith('* accrued'));                                   // the note sits under the bond it is about
-    const soonestFirst = [...seg.slice(0, t), ...seg.slice(c, add), ...seg.slice(t, a), ...seg.slice(a, c).filter((l) => !l.startsWith('* accrued')), ...star, ...seg.slice(add)];   // 5
+    // HIS RULING OF 2026-10-09 ON TOP OF THE DRAWING (noted at its top): accrued interest not entered is
+    // estimated and ADDED to calculate the yield to maturity, so the star moves from the yield on today's
+    // value to the yield to maturity, and the note reads in his words.
+    const ruled = (l: string) => /^yield [\d.]+% \*$/.test(l) ? l.replace(/ \*$/, '') : l;
+    const apple = seg.slice(a, c).filter((l) => !l.startsWith('* accrued')).map(ruled)
+      .map((l) => /^Yield to maturity: /.test(l) ? `${l} *` : l);
+    // (the figures in the note are masked by norm; only its words are compared)
+    const note = star.map(() => '* Added estimated $193 in accrued interest to bond value at 4.5% coupon for 206 days to calculate YTM. If this is not accurate, enter actual accrued interest');
+    const soonestFirst = [...seg.slice(0, t), ...seg.slice(c, add), ...seg.slice(t, a), ...apple, ...note, ...seg.slice(add)];   // 5
     expect(firstDifference(norm(soonestFirst), norm(built))).toBe('');
     expect(built.indexOf('Chase 12-month CD')).toBeLessThan(built.indexOf('US Treasury 2027'));            // Feb 2027, then Jun 2027, then Mar 2030
     expect(built.indexOf('US Treasury 2027')).toBeLessThan(built.indexOf('Apple Corp 4.5%'));
-    expect(built).toEqual(expect.arrayContaining(['$74,180', '3 bonds · face $75,000', '$3,163', '4.26%', '$1,063/year coupon', 'yield 4.31%', 'yield 4.61% *', 'yield 4.00%']));
+    expect(built).toEqual(expect.arrayContaining(['$74,180', '3 bonds · face $75,000', '$3,163', '4.26%', '$1,063/year coupon', 'yield 4.31%', 'yield 4.61%', 'yield 4.00%']));
   });
 
   test('phone 2 · the first day — a real $0, what belongs here, and one button', () => {

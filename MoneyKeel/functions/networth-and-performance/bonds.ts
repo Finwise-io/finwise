@@ -150,7 +150,7 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
     yieldToMaturity: approxYTM(b, now),
     value: b.value,
     isCD: !!b.isCd,
-    accruedCaveat: accruedInterestCaveat(b),
+    accruedCaveat: accruedInterestCaveat(b, now),
   };
 };
 
@@ -204,7 +204,6 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
- *     · If accrued interest is missing it uses 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-001
@@ -258,8 +257,8 @@ export function theBonds(input: BondsInput): Bonds {
     couponPerYear: sum.annualCoupon,
     avgYield: sum.avgYield,
     // the same test the average itself uses: a value today, after accrued interest, above zero
-    leftOutOfAverage: held.filter((a) => { const b = bondInfo(a); return !(b.value - (b.accruedInterest ?? 0) > 0); }).map((a) => a.label),
-    leftOutNoRate: held.filter((a) => { const b = bondInfo(a); return b.value - (b.accruedInterest ?? 0) > 0 && yearlyInterest(b) == null; }).map((a) => a.label),
+    leftOutOfAverage: held.filter((a) => { const b = bondInfo(a); return !(b.value > 0); }).map((a) => a.label),
+    leftOutNoRate: held.filter((a) => { const b = bondInfo(a); return b.value > 0 && yearlyInterest(b) == null; }).map((a) => a.label),
     faceNotEntered: held.filter((a) => bondInfo(a).face == null).map((a) => a.label),
     nextMaturity: (sum as any).nextMaturity ?? null,
     rows,
@@ -551,9 +550,10 @@ export const BOND_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      // 7.44%, hand-checked (2026-10-08): the yield solved exactly on the full value, the Treasury 3.0055
-      // years out with a $1,125 coupon due in two days. It read 5.65% under the approximation.
-      answer: '7.44%',
+      // 5.69%, hand-checked (2026-10-09, his ruling DEC-3390): $1,118.84 of accrued interest estimated for
+      // 363 days and added to the $24,200 statement value, so the full price is $25,318.84. It read 7.44%
+      // on $24,200 alone, and 5.65% under the old approximation.
+      answer: '5.69%',
       run: () => ONE().yieldToMaturity,
     },
   },
@@ -585,7 +585,7 @@ export const BOND_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '$23,400–$23,800',
+      answer: '$23,300–$23,800',
       run: () => `${formatMoney(ONE().ratesMove!.ratesUp.low)}–${formatMoney(ONE().ratesMove!.ratesUp.high)}`,
     },
   },

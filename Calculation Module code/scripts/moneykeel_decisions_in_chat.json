@@ -506,6 +506,24 @@
    "proof": "MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12",
    "not_a_repeat_of": "DEC-2748 and DEC-3035 approved earlier batches; this is batch 06 — a different set of changes. DEC-2634 says audit changes are his decisions."
+  },
+  {
+   "decided": "2026-10-09",
+   "answers": [],
+   "tab": "networth",
+   "type": "RULE",
+   "status": "TESTED",
+   "screens": "/bonds · /account-portfolio",
+   "his_words": "I like your recommendation to add accrued interest. Say \"Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest\"",
+   "subject": "A bond’s value is its statement market value, without accrued interest; accrued interest is added for the yield to maturity, estimated when not entered, and the screen says so in his words",
+   "plain": "The value typed for a bond is what the statement shows, which leaves out the interest earned since the last coupon. For the yield to maturity, that interest is added: the figure entered, or an estimate from the coupon schedule, and then the screen reads: \"Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest\". The yield on today's value is on the value as entered. A $25,000 4.5% Treasury worth $24,200 two days before its coupon now reads 5.69%, not 7.44%.",
+   "means": "Said in chat on 2026-10-09 after the Treasury was worked both ways (subtract: 7.44%; add: 5.69%). Broker statements show market value without accrued interest, listing it separately. It replaces A47 (DEC-0280, 2026-08-26: \"subtract accrued interest when known; say so when not\"). A CD (its yield is its stated rate), a zero-coupon bond and a matured bond get no estimate; on a coupon day nothing has accrued.",
+   "governs": "MK-NW-F-059 currentYield · MK-NW-F-060 approxYTM · MK-NW-F-061 bondSummary · MK-NW-F-064 bondRateSensitivity · MK-NW-F-070 accruedInterestCaveat · estimatedAccrued · MK-NW-O-001 theBonds · MK-NW-M-057 · MK-NW-M-058 · MK-NW-M-027",
+   "changed": "Built and tested 2026-10-09: the full price for the yield = value + accrued (entered or estimated); the yield on today's value and the average yield on the value as entered; the note in his words, its star on the yield to maturity.",
+   "apply_steps": "1. estimatedAccrued from the coupon schedule. 2. approxYTM on value + accrued. 3. currentYield and bondSummary on the value. 4. The note in his words. 5. Moved cases hand-checked. 6. Standard §12, Bonds v02 note, tracker. Done.",
+   "proof": "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "supersedes": "DEC-0280",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
   }
  ]
 }

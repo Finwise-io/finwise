@@ -43,7 +43,7 @@ import { paymentShape, defaultPaymentType } from '../domain/debt';
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
 import { theNetWorth, NET_WORTH_FIGURES } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
-import { accruedInterestCaveat } from '../domain/bonds';
+import { accruedInterestCaveat, approxYTM } from '../domain/bonds';
 import { theHolding } from '../../MoneyKeel/functions/networth-and-performance/holding';
 import { buildDayFromAccounts } from '../../Calculation Module code/engines/snapshots';
 import { reconcileAccountTotal, reconcileLedgerIdentity } from '../../Calculation Module code/engines/reconcile';
@@ -980,12 +980,14 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(sourceWording({ ...byHand, source: 'connected', last_synced: new Date().toISOString() })).toMatch(/^Linked/);
   });
 
-  // ── DEC-0280 ───────────────────────────────────────────────────────────────────────────────
-  test('DEC-0280 — "subtract accrued interest when known; say so when not"', () => {
-    // on a bond that pays interest — a zero-coupon bond never accrues (batch 06, 2026-10-07)
-    expect(accruedInterestCaveat({ couponRate: 0.05, accruedInterest: null } as any)).toBe('accrued interest not entered — the yield uses the price as you entered it');
-    expect(accruedInterestCaveat({ accruedInterest: 12.5 } as any)).toBeNull();
-    expect(accruedInterestCaveat({ accruedInterest: 0 } as any)).toBeNull();   // zero is known; nothing is not
+  // ── DEC-3390 (replaced DEC-0280 on 2026-10-09) ───────────────────────────────────────────────
+  test('DEC-3390 — accrued interest is added to the statement value for the yield to maturity, and said so in his words', () => {
+    const b = { face: 25000, couponRate: 0.045, maturity: '2029-09-30', value: 24200, accruedInterest: null } as any;
+    const now = new Date(2026, 8, 28);
+    expect(accruedInterestCaveat(b, now)).toBe('Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest');
+    expect(approxYTM(b, now)!).toBeCloseTo(0.0568800, 5);                 // his Treasury: 5.69%, not 7.44%
+    expect(accruedInterestCaveat({ ...b, accruedInterest: 12.5 }, now)).toBeNull();
+    expect(accruedInterestCaveat({ ...b, accruedInterest: 0 }, now)).toBeNull();   // zero is known; nothing is not
   });
 
   // ── DEC-0295 ───────────────────────────────────────────────────────────────────────────────

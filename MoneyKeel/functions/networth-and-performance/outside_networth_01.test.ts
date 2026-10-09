@@ -61,9 +61,9 @@ describe('MK-NW-O-001 theBonds — five cases', () => {
       bond('b', 'B', 12500, 0.037, null, '2030-05-15'),
       bond('cd', 'Bank CD', 5000, 0.05, 5000, '2027-03-01')], today: TODAY });
     expect(b.couponPerYear).toBeCloseTo(1487.5, 4);
-    expect(b.avgYield).toBeCloseTo(0.042246, 5);                           // the formula as sent gave 6.09%
+    expect(b.avgYield).toBeCloseTo(0.0419865, 5);   // MOVED 2026-10-09 by his ruling (DEC replacing A47): the value is the statement's market value, without accrued interest; accrued interest — entered, or estimated from the coupon schedule — is ADDED for the yield to maturity, and the yield on today's value is on the value as entered. Hand-checked outside the code. It was 4.22% (A on its value less $150 accrued)                           // the formula as sent gave 6.09%
     expect(b.nextMaturity).toBe('2027-03-01');
-    expect(b.rows.find((r) => r.label === 'A')!.currentYield).toBeCloseTo(0.040231, 5);
+    expect(b.rows.find((r) => r.label === 'A')!.currentYield).toBeCloseTo(0.0399225, 5);   // MOVED 2026-10-09 by his ruling (DEC replacing A47): the value is the statement's market value, without accrued interest; accrued interest — entered, or estimated from the coupon schedule — is ADDED for the yield to maturity, and the yield on today's value is on the value as entered. Hand-checked outside the code. It was 4.02%
     expect(b.rows.find((r) => r.label === 'B')!.currentYield).toBeNull();  // REFUSES — no value today to divide by
   });
 

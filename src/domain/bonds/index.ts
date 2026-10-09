@@ -261,16 +261,14 @@ export function yearsToMaturity(maturity: string, now: Date = new Date()): numbe
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
- *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
- *
- * Decides .....
- *     · If accrued interest is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-059
  * Changed ..... 2026-06-06 (2c5ce55)
  */
 export function currentYield(b: BondInfo): number | null {
-  const clean = b.value - (b.accruedInterest ?? 0);   // A47 (founder, 2026-08-26): accrued interest is subtracted when known
+  // HIS RULING, 2026-10-09 (replacing A47): the value typed is the statement's market value, which does
+  // NOT include accrued interest — so the yield on today's value is on that value as entered.
+  const clean = b.value;
   const interest = yearlyInterest(b);                 // nothing without a rate — a dash, never 0.00% (outside review, 2026-10-07)
   return interest != null && clean > 0 ? ((interest / clean)) : null;
 }
@@ -284,8 +282,11 @@ export function currentYield(b: BondInfo): number | null {
  * Answers ..... The note shown beside a bond's yield when its accrued interest was not entered, or nothing when it was.
  *
  * Formula .....
- *     'accrued interest not entered — the yield uses the price as you entered it'   if coupon rate ≠ nothing and coupon rate > 0 and accrued interest = nothing
- *     nothing   otherwise
+ *     nothing   when accrued interest ≠ nothing
+ *     est = estimated accrued(b, now)
+ *     nothing   when est = nothing
+ *     pct = `${+((coupon rate as number) × 100).to fixed(3)}%`
+ *     the answer = `added estimated $${math.round(est.amount).to locale string('en − US')} in accrued interest to bond value at ${pct} coupon for ${est.days} days to calculate YTM. if this is not accurate, enter actual accrued interest`
  *
  * Called by ... MK-NW-F-072 rowOf
  *
@@ -306,13 +307,90 @@ export function currentYield(b: BondInfo): number | null {
  *               MK-XS-I-049 bond price — what the bond is worth today
  *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
  *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Rounds the answer to a whole number.
+ *     · Shows 3 decimal places.
+ *
  * Formula also on the master file · functions_from_code · MK-NW-F-070
  * Changed ..... not in git yet (—)
  */
-export function accruedInterestCaveat(b: BondInfo): string | null {
-  // only where it can matter: a bond that pays interest and has no accrued figure entered. An entered 0 is
-  // entered; a zero-coupon bond never accrues (outside review batch 06, 2026-10-07)
-  return b.couponRate != null && b.couponRate > 0 && b.accruedInterest == null ? 'accrued interest not entered — the yield uses the price as you entered it' : null;
+export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): string | null {
+  // HIS WORDS, 2026-10-09: when accrued interest is not entered, the estimate is added and the screen says
+  // so — "Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to
+  // calculate YTM. If this is not accurate, enter actual accrued interest". Only where an estimate was
+  // used: a bond that pays interest, not a CD (its yield is its stated rate), not matured.
+  if (b.accruedInterest != null) return null;
+  const est = estimatedAccrued(b, now);
+  if (est == null) return null;
+  const pct = `${+((b.couponRate as number) * 100).toFixed(3)}%`;
+  return `Added estimated $${Math.round(est.amount).toLocaleString('en-US')} in accrued interest to bond value at ${pct} coupon for ${est.days} days to calculate YTM. If this is not accurate, enter actual accrued interest`;
+}
+
+/** The interest a bond has earned since its last yearly coupon, estimated from the coupon schedule — face × rate × days since the last coupon ÷ days in that coupon year; nothing for a CD, a matured or undated bond, or one with no face or rate. */
+/* ─ MK-NW-F-119 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * estimatedAccrued
+ *
+ * Answers ..... The interest a bond has earned since its last yearly coupon, estimated from the coupon schedule — face × rate × days since the last coupon ÷ days in that coupon year; nothing for a CD, a matured or undated bond, or one with no face or rate.
+ *
+ * Formula .....
+ *     nothing   when is cd (or face = nothing (or not (coupon rate ≠ nothing and coupon rate > 0) (or maturity is missing when missing or zero) when missing or zero) when missing or zero)
+ *     nothing   when y is missing
+ *     today = date.UTC(now.get full year(), now.get month(), now.get date())
+ *     at = (yy: number) => date.UTC(yy, (m or 1) − 1, d or 1)
+ *     nothing   when at(y) ≤ today
+ *     n = 0
+ *     next = at(y − n), last = at(y − n − 1)
+ *     nothing   when next = today
+ *     days = round((today − last) ÷ 86400000)
+ *     year days = round((next − last) ÷ 86400000)
+ *     the answer:
+ *     amount = face × coupon rate × days ÷ year days
+ *     days = days
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-070 accruedInterestCaveat
+ *
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               … and 68 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-011 bond face value
+ *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-049 bond price — what the bond is worth today
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-119
+ * Changed ..... not in git yet (—)
+ */
+export function estimatedAccrued(b: BondInfo, now: Date = new Date()): { amount: number; days: number } | null {
+  if (b.isCd || b.face == null || !(b.couponRate != null && b.couponRate > 0) || !b.maturity) return null;
+  const [y, m, d] = String(b.maturity).slice(0, 10).split('-').map(Number);
+  if (!y) return null;
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const at = (yy: number) => Date.UTC(yy, (m || 1) - 1, d || 1);
+  if (at(y) <= today) return null;
+  let n = 0;
+  while (at(y - n - 1) >= today) n++;
+  const next = at(y - n), last = at(y - n - 1);
+  if (next === today) return null;            // a coupon paid today leaves nothing accrued
+  const days = Math.round((today - last) / 86400000);
+  const yearDays = Math.round((next - last) / 86400000);
+  return { amount: b.face * b.couponRate * days / yearDays, days };
 }
 /** Approximate yield to maturity (standard approximation), decimal. null if matured / no value. */
 /* ─ MK-NW-F-060 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -343,8 +421,10 @@ export function accruedInterestCaveat(b: BondInfo): string | null {
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-049 bond price — what the bond is worth today
+ *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
  *
  * Decides .....
+ *     · If amount is missing it uses 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *     · 'value' is the bond's current value as entered (the balance) — the SAME total basis as face, not a price per $100 (founder question G20, 2026-09-08).
  *
@@ -364,17 +444,19 @@ export function approxYTM(b: BondInfo, now: Date = new Date()): number | null {
   // is principal plus interest credited; priced as a yearly-coupon bond, a $10,000 CD at 5.05% five
   // months from maturity read 11.30%. (2026-10-08)
   if (b.isCd) return b.couponRate;
-  // THE FULL VALUE, AS ENTERED. What the bond will still pay, discounted, equals the whole price paid
-  // for it today — accrued interest included (his rule A47 reads the value as including it). Accrued
-  // interest comes off for the yield on today's value (MK-NW-F-059), not here: taking it off here too
-  // would count it twice. (2026-10-08, against the fix brief's 'value − accrued'.)
+  // THE FULL PRICE = THE VALUE AS ENTERED + ACCRUED INTEREST (his ruling, 2026-10-09). A statement's
+  // market value leaves out the interest earned since the last coupon, but a buyer pays it; what the
+  // bond will still pay, discounted, equals that full price. Accrued interest as entered, else estimated
+  // from the coupon schedule (and the screen says so). A $25,000 4.5% Treasury worth $24,200 two days
+  // before its coupon read 7.44% on $24,200; on $25,319 it is 5.69%.
   if (b.value <= 0) return null;
+  const full = b.value + (b.accruedInterest ?? estimatedAccrued(b, now)?.amount ?? 0);
   let lo = -0.99, hi = 10;
   for (let i = 0; i < 200; i++) {
     const mid = (lo + hi) / 2;
     const p = priceAtYield(b, mid, now);
     if (p == null) return null;
-    if (p > b.value) lo = mid; else hi = mid;
+    if (p > full) lo = mid; else hi = mid;
   }
   return (lo + hi) / 2;
 }
@@ -392,7 +474,7 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *     total value = Σ over list of (value)
  *     total face = Σ over list of (face (or 0 when missing))
  *     coupon = Σ over list of (yearly interest(each) (or 0 when missing))
- *     clean = (b: bond info) => value − (accrued interest ?? 0)
+ *     clean = (b: bond info) => value
  *     priced = list where clean(each) > 0 and yearly interest(each) ≠ nothing
  *     clean value = Σ over priced of (clean(each))
  *     avg yield = Σ over clean value > 0 ? priced of (yearly interest(each) (or 0 when missing))÷ clean value : nothing
@@ -425,11 +507,9 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  * Reads ....... MK-XS-I-011 bond face value
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-049 bond price — what the bond is worth today
- *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
  *
  * Decides .....
  *     · If face is missing it uses 0.
- *     · If accrued interest is missing it uses 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-061
@@ -445,7 +525,7 @@ export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSumm
   // coupon to the top and nothing to the bottom, and accrued interest — which one bond's own yield
   // subtracts when it is known (his ruling A47, 2026-08-26) — was left in. Three bonds of which one was
   // unpriced read 6.09% where 4.22% is right.
-  const clean = (b: BondInfo) => b.value - (b.accruedInterest ?? 0);
+  const clean = (b: BondInfo) => b.value;   // the statement value, without accrued interest (his ruling, 2026-10-09)
   const priced = list.filter((b) => clean(b) > 0 && yearlyInterest(b) != null);   // a bond with no rate is in neither half
   const cleanValue = priced.reduce((t, b) => t + clean(b), 0);
   const avgYield = cleanValue > 0 ? priced.reduce((t, b) => t + (yearlyInterest(b) ?? 0), 0) / cleanValue : null;
