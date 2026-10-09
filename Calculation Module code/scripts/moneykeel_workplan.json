@@ -2826,6 +2826,18 @@
     "status": "DONE",
     "comments": "Not pushed. Bonds v02 drawing noted."
    }
+  },
+  {
+   "task": "Final outside test of the whole Net worth module — brief for OpenAI",
+   "todo": "His words, 2026-10-09: 'write one last brief for Open AI to run one last set of test across entire NW module to ensure all fixes are in, and all screens, and functions meet tenants.' Written from the code as it stands (build-outside-test-cards.py --module-audit NW --for OpenAI): the tenets; four jobs (formula check and five cases for every function; each decided rule HELD or NOT; each screen figure against the tenets); his settled rulings (A47 replaced by DEC-3390); the 67 rules decided in the outside reviews, in force, from the decision log; the 71 figures the Net worth screens print, from the figure register; 101 function cards in four parts.",
+   "status": "WAITING ON HIM — to send to OpenAI",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/to-send/moneykeel_audit_module_nw_for-openai_v01.md + _cards-part-1..4-of-4.md",
+   "date": "2026-10-09",
+   "comments": "Batch 06's full 60-case JSON was never returned — only its fix brief; the brief's 23 tests are in. Tenets are draft v01, not yet approved by him.",
+   "_written": {
+    "status": "WAITING ON HIM — to send to OpenAI",
+    "comments": "Batch 06's full 60-case JSON was never returned — only its fix brief; the brief's 23 tests are in. Tenets are draft v01, not yet approved by him."
+   }
   }
  ]
 }

@@ -618,6 +618,94 @@ def main():
               + ', '.join(f"{c['card']['id']} {c['card']['name']}" for c in moved))
     else:
         print('changed since the pack was sent: none')
+    if '--module-audit' in sys.argv:
+        # THE LAST LOOK AT A WHOLE MODULE (founder, 2026-10-09: "write one last brief for Open AI to run one
+        # last set of test across entire NW module to ensure all fixes are in, and all screens, and
+        # functions meet tenants"). Every function of the module as it stands today, every rule decided in
+        # its outside reviews (from the decision log, in force), every figure its screens print (from the
+        # figure register), and the tenets. Nothing of any earlier review is quoted: the judge works alone.
+        prefix = sys.argv[sys.argv.index('--module-audit') + 1]                    # e.g. NW
+        who = sys.argv[sys.argv.index('--for') + 1] if '--for' in sys.argv else 'the outside judge'
+        also = sys.argv[sys.argv.index('--also') + 1].split(',') if '--also' in sys.argv else []
+        screens = sys.argv[sys.argv.index('--screens') + 1].split(',') if '--screens' in sys.argv else []
+        chosen = [c for c in testable if c['card']['id'].startswith(f'MK-{prefix}-') or c['card']['id'] in also]
+        chosen.sort(key=lambda c: c['card']['id'])
+        assert len(chosen) >= 90, f'only {len(chosen)} cards for {prefix} — the reader has gone blind'
+        here = os.path.dirname(os.path.abspath(__file__))
+        dec = json.load(open(os.path.join(here, 'moneykeel_decisions.json')))['rows']
+        reviews = [r for r in dec if str(r.get('decided', '')) >= '2026-10-04' and str(r.get('in_use') or 'IN USE').startswith('IN USE')
+                   and r.get('type') in ('RULE', 'DESIGN') and r.get('tab') == 'networth']
+        figs = json.load(open(os.path.join(here, 'moneykeel_figures.json')))['figures']
+        shown = {k: v for k, v in figs.items() if any(sc in screens for sc in v.get('screens', []))}
+        tenets = open(os.path.join(OUT, '..', '..', 'standards', 'moneykeel_spec_tenets_v01.md'), encoding='utf8').read().split('\n', 4)[-1].strip()
+        rulings = [r for r in (rules_file.get('final_audit_rulings') or [])]
+        lean = appendix(chosen)
+        label = f'{prefix.lower()} module final'
+        parts = 4
+        per = -(-len(chosen) // parts)
+        head = [f'Written for: {who}, as the outside judge of the whole Net worth module, once, at the end. You have not seen any '
+                'earlier review of it and none is given here: judge it as if for the first time.', '',
+                '# What this is', '',
+                f'The last independent test of the Net worth module before the owner builds it. {len(chosen)} functions, every one '
+                'as it is in the app today; the rules the owner has decided for them; every figure its screens print; and the '
+                'tenets every figure must meet. Six earlier batches were each judged by an outside model and corrected. This '
+                'check is to find what is still wrong, still unsaid, or still not true to the tenets — anywhere in the module.', '',
+                '# The tenets — every function and every figure must meet them', '', tenets, '',
+                '# Your four jobs', '',
+                '1. **Formula check, every card.** Is the formula right for what it says it is for? Verdict RIGHT, WRONG, INCOMPLETE '
+                'or CANNOT TELL, with why, what it should be, and what it rests on (a published source, the owner\'s rule below, or '
+                'ordinary arithmetic). Severity for anything not RIGHT: high (a wrong number a person would act on), medium, low.',
+                '2. **Five cases per card** — two easy, two complex (real-world inputs: unround figures, several accounts, broker '
+                'wording), one edge — each worked by hand, with the expected answer at full precision and as shown. Where the '
+                'honest answer is no number, say REFUSES and why. Where the owner\'s rule is needed and missing, say RULE UNCLEAR '
+                'and give each reading\'s answer.',
+                '3. **The decided rules are in.** For each rule in the list below, find the card or cards that carry it and say '
+                'HELD (the formula does what the rule says), NOT HELD (with the case that shows it), or CANNOT TELL.',
+                '4. **The screens meet the tenets.** For each figure in the screen register below, check it against the tenets: '
+                'its words are plain and say what the number means; a figure with no input refuses with a reason, never $0 or a '
+                'default; a total and the rows shown under it add up; one concept has one name and the same figure ID wherever '
+                'it is shown; an estimate says it is one. Give PASS or FAIL with the tenet number and why.', '',
+                '# Reply', '',
+                'One JSON object per part you are given, with:', '',
+                '```json', '{', f'  "batch": "{label} — part N",', '  "written_by": "<you>",',
+                '  "ready_to_close": true,', '  "still_open": ["<card or figure id>: what must change"],',
+                '  "formula_checks": [{"id": "", "name": "", "verdict": "", "why": "", "should_be": "", "rests_on": "", "severity": ""}],',
+                '  "cases": [{"id": "", "name": "", "kind": "easy|complex|edge", "title": "", "given": "", "inputs": {}, "expected": {}, "working": [], "rests_on": "", "confidence": "high|medium|low", "notes": ""}],',
+                '  "rules_held": [{"rule": "", "cards": [], "verdict": "HELD|NOT HELD|CANNOT TELL", "why": ""}],',
+                '  "screen_checks": [{"figure": "", "tenet": 0, "verdict": "PASS|FAIL", "why": ""}],',
+                '  "could_not_test": []', '}', '```', '',
+                'Jobs 3 and 4 go in the reply to part 1 only. Never change an expected answer to agree with the code. Where you '
+                'think the owner\'s rule is wrong, say so in `notes` with your reasoning; do not apply your own rule.', '',
+                '# The general brief — how a card is read and how a case is worked', '', brief, '', '---', '',
+                '# What the owner has ruled — settled, in his words', '']
+        head += [f'{i}. {r["date"]} — "{r["words"]}" {r["about"]}' for i, r in enumerate(rulings, 1)]
+        head += ['', f'# The rules decided in the outside reviews — {len(reviews)}, each in force', '',
+                 'From the owner\'s decision log. Job 3 checks each one.', '']
+        head += [f'- **{r["id"]}** ({r.get("decided")}) — {str(r.get("plain", "")).strip()}  \n  Governs: {r.get("governs", "")}' for r in reviews]
+        head += ['', f'# The screen register — {len(shown)} figures on {", ".join(screens)}', '',
+                 'What each figure on the Net worth screens is, how it is worked, and what it says when it cannot be. Job 4 checks each.', '',
+                 '```json', json.dumps({k: {f: v.get(f) for f in ('label', 'screens', 'answers', 'formula', 'inputs', 'decisions', 'refusal', 'worked')} for k, v in sorted(shown.items())}, indent=1, ensure_ascii=False, default=str), '```', ''] + tables
+        types = {}
+        for c in chosen:
+            types.update(c['types'])
+        if types:
+            head += ['## The app\'s own types the cards name', '', '```ts', '\n\n'.join(types[t] for t in sorted(types)), '```', '']
+        if lean:
+            head += ['## Formulas the cards lean on', '', f'{len(lean)} functions outside the module named by the formulas. Use them to work answers; do not judge them.', '',
+                     '```json', json.dumps(lean, indent=1, ensure_ascii=False), '```', '']
+        stem = f'moneykeel_audit_module_{prefix.lower()}_for-{who.lower().replace(" ", "-")}_v01'
+        open(os.path.join(send_dir, stem + '.md'), 'w', encoding='utf8').write('\n'.join(head))
+        for i in range(parts):
+            group = chosen[i * per:(i + 1) * per]
+            if not group:
+                continue
+            body = [f'# The cards — "{label} — part {i + 1} of {parts}"', '',
+                    f'{len(group)} cards, so {len(group)} formula checks and {len(group) * 5} cases. Read the brief file '
+                    f'{stem}.md first. Put `"batch": "{label} — part {i + 1}"` in your reply.', '',
+                    '```json', json.dumps([c['card'] for c in group], indent=1, ensure_ascii=False), '```', '']
+            open(os.path.join(send_dir, f'{stem}_cards-part-{i + 1}-of-{parts}.md'), 'w', encoding='utf8').write('\n'.join(body))
+        print(f'module audit written: to-send/{stem}.md + {parts} card parts — {len(chosen)} cards, {len(reviews)} decided rules, {len(shown)} screen figures, {len(lean)} leaned on')
+        return
     if '--final-audit' in sys.argv:
         # ONE LAST LOOK AT A BATCH, AS IT STANDS NOW (founder, 2026-10-05: "write another brief for Gemini
         # for NW-01 to conduct one final audit before we move to NW-02"). The cards of that batch as they
