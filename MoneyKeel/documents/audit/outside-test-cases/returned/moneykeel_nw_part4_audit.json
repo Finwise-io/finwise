@@ -1,0 +1,3507 @@
+{
+  "batch": "nw module final — part 4",
+  "written_by": "OpenAI independent formula auditor",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-NW-F-107 and MK-NW-F-117: remove stored-rental fallback when Income entries do not name the property; reconcile to DEC-1926/DEC-3035p.",
+    "MK-NW-F-117: resolve “first entered (last in the list)” ordering conflict with DEC-2747e.",
+    "MK-NW-F-112: return $0 and disclose when coupon rate is missing, per DEC-2748c.",
+    "MK-NW-O-003: do not show complete owned/net-worth totals when any balance is missing.",
+    "MK-NW-O-008: keep approved drawing’s dollar walk, but do not use its returns as expected values because cash-flow dates are not supplied.",
+    "Runtime execution is pending: Claude Code must map and run all 115 cases; orchestrator cases need cross-figure consistency checks.",
+    "MK-NW-F-106: enforce the no-unassigned-mortgage/no-excess-mortgage invariant; report unmatched/duplicate mortgages as invalid data.",
+    "MK-NW-F-114/F-115: distinguish confirmed no rent from missing/unavailable or invalid rent data."
+  ],
+  "formula_checks": [
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "verdict": "INCOMPLETE",
+      "why": "The sentence branches cover the known refusal conditions, but they do not state a priority when multiple conditions occur together, and “value less than money added” can be caused by a legitimate same-day withdrawal or by incomplete records.",
+      "should_be": "Use one deterministic priority order; name the exact missing/invalid record and refuse the return rather than silently picking one reason.",
+      "rests_on": "Owner rule DEC-1669 and DEC-3035i; tenet 8.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagesByProperty",
+      "verdict": "INCOMPLETE",
+      "why": "The matching heuristic can leave mortgages on no property or allow more mortgage records than properties. That may be useful as an error report, but the owner rule says no mortgage without a property and never more mortgages than properties; the card does not say these are invalid-data diagnostics rather than accepted state.",
+      "should_be": "Validate the invariant, match every valid mortgage to a named property, and report unmatched/duplicate mortgages as errors requiring correction rather than a normal valid mapping.",
+      "rests_on": "Owner decision DEC-1925.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-107",
+      "name": "propertyUses",
+      "verdict": "WRONG",
+      "why": "It treats a stored “rental” use as rental when no rent entries are handed in. DEC-1926 says a property is a second/vacation home unless rental income is entered on the Income screen; DEC-3035p says rental only when an entry names it. Missing rent records must not silently preserve rental status.",
+      "should_be": "A property is rental only when a live rent entry names it. Use the shared home-selection rule for the one home; all others are second homes. If rent data are unavailable, distinguish unavailable from confirmed no rent entries.",
+      "rests_on": "Owner decisions DEC-1926 and DEC-3035p.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-108",
+      "name": "taxWordsOf",
+      "verdict": "RIGHT",
+      "why": "The wording gives fixed treatment for 529 and HSA and only adds “(Roth)” for tax-free accounts in the Roth bucket, matching DEC-3035c.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3035c.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-109",
+      "name": "holdingClassOf",
+      "verdict": "RIGHT",
+      "why": "It preserves the person’s answer, keeps asked/unresolved holdings Unclassified, then applies the safe name evidence needed for money-market funds, CDs and T-bills, and never defaults unknown holdings to stocks.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2484r, DEC-3035f, DEC-3035g, DEC-3035o.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-110",
+      "name": "primaryHomeIdOf",
+      "verdict": "INCOMPLETE",
+      "why": "It delegates to propertyUseMap and correctly distinguishes no home (null) from not being asked, but the “first entered” rule must agree with the phrase “last in the list” in F-117. The order of records/list is not defined here.",
+      "should_be": "Return the property selected by the shared propertyUseMap; explicitly define the insertion order and ensure all property functions use the same one.",
+      "rests_on": "Owner decisions DEC-2747e and DEC-3035p.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-111",
+      "name": "assetsStateFrom",
+      "verdict": "RIGHT",
+      "why": "An absent saved record or empty saved account list returns no state rather than a $0 portfolio with an invented blended return.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2748i.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-112",
+      "name": "yearlyInterest",
+      "verdict": "WRONG",
+      "why": "The formula returns “nothing” when rate is missing, but the owner’s rule says a bond/CD with no rate entered counts as $0 annual interest and the app says so. The note in the card itself contradicts its formula.",
+      "should_be": "Return $0 annual interest when rate is missing and expose a disclosure that the rate was not entered; if rate exists, use face×rate or value×rate when face is absent. Do not invent a yield.",
+      "rests_on": "Owner decision DEC-2748c; tenet 3.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-113",
+      "name": "altPartsOf",
+      "verdict": "INCOMPLETE",
+      "why": "Alternative portions are assigned by holding kind and remaining value, but any remainder is always “other” even if the account contains an alternative holding whose class is known but price is missing. It does not specify how to handle missing sync prices without presenting an incomplete total.",
+      "should_be": "Use the same class split for total and per-kind rows; allocate known priced portions and flag unknown/missing portions rather than silently labelling them “other” unless “other” is genuinely the confirmed kind.",
+      "rests_on": "Owner decision DEC-3035n; tenets 2–3.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmount",
+      "verdict": "INCOMPLETE",
+      "why": "“0 when none” conflates no rent entry with an absent/unavailable rent amount. Under the tenets, unknown is not zero; a missing field must not look like confirmed zero rent.",
+      "should_be": "Return the entered numeric rent; distinguish explicitly no rent from missing/unavailable rent data, and only use zero for a confirmed no-rent entry.",
+      "rests_on": "Owner decisions DEC-1926 and DEC-3035p; tenet 3.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-115",
+      "name": "liveRent",
+      "verdict": "INCOMPLETE",
+      "why": "It keeps rent entries with income or costs above zero, but does not state how malformed amounts, negative amounts, or missing amounts are handled. An entry with costs only is live; that is likely intended but needs edge coverage.",
+      "should_be": "Include entries with a known positive incoming-rent or cost amount; preserve the difference between zero and missing/unparseable values.",
+      "rests_on": "Card formula; tenet 3.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-116",
+      "name": "rentedIdsOf",
+      "verdict": "RIGHT",
+      "why": "It returns property IDs named by live rent entries, which lets the shared property-use rule use the actual Income-screen linkage.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3035p.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-117",
+      "name": "propertyUseMap",
+      "verdict": "WRONG",
+      "why": "The formula uses the first-entered property but parenthetically says “last in the list”, which conflicts with DEC-2747e’s “entered first” unless the list is reverse chronological. It also allows a stored rental to remain rental when no rent entries were handed in, conflicting with DEC-1926/DEC-3035p.",
+      "should_be": "A live rent entry naming a property makes it rental. Otherwise the one marked home is home; if none marked and no use stated, select the genuinely first-created property using a clearly defined ordering; every other property is a second home. Never infer rental solely from a stored rental label when no Income entry names it.",
+      "rests_on": "Owner decisions DEC-1926, DEC-2747e and DEC-3035p.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-118",
+      "name": "itemizeMissingCount",
+      "verdict": "RIGHT",
+      "why": "It counts missing or nonnumeric holding values and marks the remainder nonfinal whenever any are missing, preventing an incomplete itemization from looking complete.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2746g.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-119",
+      "name": "estimatedAccrued",
+      "verdict": "INCOMPLETE",
+      "why": "The accrued-interest formula is correct for a simple annual coupon schedule, but it assumes the last maturity anniversary is the last coupon date and needs explicit treatment of leap-day anniversaries/day-count conventions. It also requires rate above zero, while an explicitly entered 0% rate is known and yields $0 accrued interest, not unknown.",
+      "should_be": "Use the actual coupon schedule/day-count basis; a known zero coupon gives zero accrued interest, while missing rate/face/date refuses. Keep CDs, matured bonds and coupon day at no estimate.",
+      "rests_on": "Owner decision DEC-3390; ordinary accrued-interest arithmetic.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "verdict": "INCOMPLETE",
+      "why": "Sorting is correctly soonest maturity first with undated last, and CD sensitivity is suppressed. The summary inherits the missing-face-as-zero issue from bondSummary; the orchestrator must not show a complete face total when some faces were never entered.",
+      "should_be": "Preserve sort order and disclosures for bonds omitted from average yield; total face value must identify missing face values rather than silently treating them as zero.",
+      "rests_on": "Owner decisions DEC-1558, DEC-2484b and DEC-2748b.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "verdict": "RIGHT",
+      "why": "The card explicitly says no figure only when there are no records at all; with a record whose amount is $0, the income sum is $0.",
+      "should_be": "",
+      "rests_on": "Card formula; tenet 4.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "verdict": "INCOMPLETE",
+      "why": "The arithmetic definitions of assets/debts/net worth and class splits are clear, but the orchestrator sums every account balance despite the owner rule that missing balances are not zero and must be named. It must also reconcile mortgages and class rows to the same total.",
+      "should_be": "Sum known asset/debt balances and flag each missing value; class rows and totals must reconcile; cash + investments + property = owned total only when the class data are complete; return must remain TWR and refuse on missing movement-day values.",
+      "rests_on": "Owner decisions DEC-1925, DEC-3146, DEC-3279e and DEC-1669.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "verdict": "INCOMPLETE",
+      "why": "The emergency-fund equations correctly count rent and debt minimums, exclude voluntary above-minimum payments, and avoid double-counting mortgage budget lines. However, when rent is equal to or exceeds essentials it clamps monthly draw to zero and refuses months-covered, which is sensible, but the formula must ensure the same net rent row is used across screens and distinguish missing income/rent data from confirmed zero.",
+      "should_be": "Use cashTotal, essential expense average over months with logged entries, debt minimums, net rental income from the same Income summary figure, and refuse months covered when draw is zero; explicitly flag missing data and preserve the same rent figure everywhere.",
+      "rests_on": "Owner decisions DEC-1668, DEC-1925 and DEC-1926; tenet 4.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "verdict": "RIGHT",
+      "why": "The summary reads the same alternative portions and weighted rates as alternativesSummary, refuses growth when nothing is held, and rows should add to the total.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2747c and DEC-3035n.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "verdict": "INCOMPLETE",
+      "why": "The holding-detail calculations are broadly specified, including FIFO cost lots and a one-share day change. It does not explicitly say how negative/zero total paid, duplicate sale records, or missing share price should be validated; no-price value equals total paid is a useful cost basis display but must not look like market value.",
+      "should_be": "Use FIFO for sales; preserve separate cost, market value, realized/unrealized gain; no price means value is shown as cost basis and gains/return/tax estimate refuse; label it plainly as not current market value.",
+      "rests_on": "Owner decision DEC-2484d; tenet 8.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "verdict": "CANNOT TELL",
+      "why": "The orchestrator is a pass-through to lookBack, but the card does not include the lookBack formula, output contract, or refusal behavior. The general brief says do not judge formulas of dependencies not in the batch, but here even the delegated function contract is absent from this card.",
+      "should_be": "",
+      "rests_on": "Card formula only; dependency contract absent.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "verdict": "INCOMPLETE",
+      "why": "The orchestrator contains many coherent invariants: recorded beginning is read, money moved is separated, transfer between measured accounts nets to zero, dividends/interest are included in wealth generated, and TWR is required. However, it back-solves a beginning when no record of these accounts exists, then says no percent is given; that may be acceptable for a dollar walk but risks implying an observed beginning. It also says missing account value on a recorded day is not used, while other logic says a typed balance stands until next record; clarify interaction.",
+      "should_be": "Never show a back-solved beginning as observed; label it inferred or omit the walk. Keep TWR refusal conditions, show ending independently, and apply one consistent carry-forward rule for missing account rows. Do not compute a percent when no valid beginning/flows are recorded.",
+      "rests_on": "Owner decisions DEC-1669, DEC-3035i and the approved Performance v17 drawing.",
+      "severity": "high"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "easy",
+      "title": "Missing movement-day value",
+      "given": "A $500 deposit has no recorded value for its date.",
+      "inputs": {
+        "money_moved": 500,
+        "movement_date": "2026-10-03",
+        "value_recorded_that_day": false
+      },
+      "expected": {
+        "reason": "A return cannot be measured across Oct 3, 2026 because money moved on a day with no recorded value."
+      },
+      "working": [
+        "Movement has a date, but there is no value that day."
+      ],
+      "rests_on": "Card formula; DEC-1669.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written."
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "easy",
+      "title": "Return measured gives empty reason",
+      "given": "All values and flows are recorded and return is measured.",
+      "inputs": {
+        "return_measured": true
+      },
+      "expected": {
+        "reason": ""
+      },
+      "working": [
+        "Sentence is empty when return was measured."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "complex",
+      "title": "Share transfer direction missing",
+      "given": "Shares were moved on 2026-09-01, but record does not say whether they moved in or out or their value.",
+      "inputs": {
+        "share_movement_date": "2026-09-01",
+        "direction": null,
+        "value": null
+      },
+      "expected": {
+        "reason": "The records do not say what the shares moved on Sep 1, 2026 were worth / which way they moved; return cannot be measured."
+      },
+      "working": [
+        "Share transfer lacks direction/value; no alternative return method."
+      ],
+      "rests_on": "Card formula; DEC-1669.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "complex",
+      "title": "Several failure conditions use one stable explanation",
+      "given": "There is no value on a deposit day and today’s value is not on record.",
+      "inputs": {
+        "movement_day_value_missing": true,
+        "today_value_missing": true
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — card does not define priority when multiple refusal conditions occur; both must be disclosed or a deterministic primary reason selected"
+      },
+      "working": [
+        "Two reasons are true.",
+        "The formula lists branches but no priority order."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "This tests deterministic wording.",
+      "formula_gives": "A single arbitrary branch may be chosen; the formula gives no priority or combined reason."
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "edge",
+      "title": "Nothing invested",
+      "given": "No investment account has value over the period.",
+      "inputs": {
+        "invested_value": 0,
+        "records": []
+      },
+      "expected": {
+        "reason": "There is no return to state because nothing was invested."
+      },
+      "working": [
+        "No invested value → no return."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagesByProperty",
+      "kind": "easy",
+      "title": "One property and named mortgage",
+      "given": "Property “Oak House”; mortgage names Oak House with $2,000 monthly payment.",
+      "inputs": {
+        "properties": [
+          "Oak House"
+        ],
+        "mortgages": [
+          {
+            "name": "Oak House mortgage",
+            "property_name": "Oak House",
+            "payment": 2000
+          }
+        ]
+      },
+      "expected": {
+        "property_count": 1,
+        "mortgage_count": 1,
+        "matches": [
+          {
+            "property": "Oak House",
+            "mortgage": "Oak House mortgage",
+            "payment": 2000
+          }
+        ],
+        "unassigned": []
+      },
+      "working": [
+        "Mortgage names existing property and it is not already taken."
+      ],
+      "rests_on": "Owner decision DEC-1925.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagesByProperty",
+      "kind": "easy",
+      "title": "Property can have no mortgage",
+      "given": "One property, no mortgage debts.",
+      "inputs": {
+        "properties": [
+          "Cabin"
+        ],
+        "mortgages": []
+      },
+      "expected": {
+        "property_count": 1,
+        "mortgage_count": 0,
+        "matches": [
+          {
+            "property": "Cabin",
+            "mortgage": null
+          }
+        ],
+        "unassigned": []
+      },
+      "working": [
+        "Property without mortgage is allowed."
+      ],
+      "rests_on": "Owner decision DEC-1925.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagesByProperty",
+      "kind": "complex",
+      "title": "Three properties and three unique mortgages",
+      "given": "Three named properties and one matching mortgage per property.",
+      "inputs": {
+        "properties": [
+          "Home",
+          "Rental",
+          "Cabin"
+        ],
+        "mortgages": [
+          {
+            "property_name": "Home",
+            "name": "Home mortgage",
+            "payment": 2400
+          },
+          {
+            "property_name": "Rental",
+            "name": "Rental mortgage",
+            "payment": 1100
+          },
+          {
+            "property_name": "Cabin",
+            "name": "Cabin mortgage",
+            "payment": 600
+          }
+        ]
+      },
+      "expected": {
+        "property_count": 3,
+        "mortgage_count": 3,
+        "unassigned": []
+      },
+      "working": [
+        "Each mortgage matches a unique property; no unmatched mortgage."
+      ],
+      "rests_on": "Owner decision DEC-1925.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagesByProperty",
+      "kind": "complex",
+      "title": "Duplicate mortgage for same property must be an error",
+      "given": "Two mortgages both name the only property.",
+      "inputs": {
+        "properties": [
+          "Home"
+        ],
+        "mortgages": [
+          {
+            "name": "First mortgage",
+            "property_name": "Home"
+          },
+          {
+            "name": "Second mortgage",
+            "property_name": "Home"
+          }
+        ]
+      },
+      "expected": "RULE UNCLEAR — owner invariant says no mortgage without property and no more mortgages than properties; second mortgage must trigger validation/error, not be accepted as a normal unassigned mortgage",
+      "working": [
+        "Only one mortgage may occupy the property under the matching rule.",
+        "Second mortgage remains unmatched; the contract must say whether to refuse the household state."
+      ],
+      "rests_on": "Owner decision DEC-1925.",
+      "confidence": "high",
+      "notes": "A diagnostic unassigned list is useful only if the data state is explicitly invalid.",
+      "formula_gives": "one mortgage matched, one unassigned"
+    },
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagesByProperty",
+      "kind": "edge",
+      "title": "Mortgage but no properties",
+      "given": "No real-estate accounts; one mortgage debt.",
+      "inputs": {
+        "properties": [],
+        "mortgages": [
+          {
+            "name": "Mortgage",
+            "property_name": null
+          }
+        ]
+      },
+      "expected": {
+        "result": "INVALID STATE — report mortgage with no property and require correction; do not treat as a valid household mapping"
+      },
+      "working": [
+        "Owner says a mortgage cannot exist without a property."
+      ],
+      "rests_on": "Owner decision DEC-1925.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-107",
+      "name": "propertyUses",
+      "kind": "easy",
+      "title": "Named rent entry makes rental",
+      "given": "Property A has a live rent entry naming A.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "second"
+          }
+        ],
+        "rent_entries": [
+          {
+            "property_id": "A",
+            "rent": 1800
+          }
+        ]
+      },
+      "expected": {
+        "A": "rental"
+      },
+      "working": [
+        "Live rent entry names A → rental."
+      ],
+      "rests_on": "Owner decision DEC-1926.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-107",
+      "name": "propertyUses",
+      "kind": "easy",
+      "title": "No rent entry means second home",
+      "given": "One property stored as rental but no Income-screen rent entry exists.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "rental"
+          }
+        ],
+        "rent_entries": []
+      },
+      "expected": "second home unless another approved home-selection rule identifies it as home",
+      "working": [
+        "Card allows stored rental when no rent entries are handed in.",
+        "Owner says property is second/vacation unless rent is entered."
+      ],
+      "rests_on": "Owner decisions DEC-1926 and DEC-3035p.",
+      "confidence": "high",
+      "notes": "This is a direct formula contradiction.",
+      "formula_gives": "rental"
+    },
+    {
+      "id": "MK-NW-F-107",
+      "name": "propertyUses",
+      "kind": "complex",
+      "title": "Two properties with rent entry only for one",
+      "given": "A and B both stored use home; only B has rent income.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "home"
+          },
+          {
+            "id": "B",
+            "stored_use": "home"
+          }
+        ],
+        "rent_entries": [
+          {
+            "property_id": "B",
+            "rent": 1400
+          }
+        ]
+      },
+      "expected": {
+        "A": "home if marked home or first-use rule applies",
+        "B": "rental"
+      },
+      "working": [
+        "B is rental because entry names it.",
+        "A is not rental; home selection must be resolved consistently."
+      ],
+      "rests_on": "Owner decisions DEC-1926 and DEC-3035p.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-107",
+      "name": "propertyUses",
+      "kind": "complex",
+      "title": "Rent entry naming no property with one remaining",
+      "given": "Properties A and B; one live rent entry has no property ID.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A"
+          },
+          {
+            "id": "B"
+          }
+        ],
+        "rent_entries": [
+          {
+            "property_id": null,
+            "rent": 1000
+          }
+        ]
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula’s exception makes the one remaining property rental only when exactly one property remains after home selection; define which property and disclose unlinked rent"
+      },
+      "working": [
+        "No rent entry names a property.",
+        "With two properties, one may be home and the other rental under the special case, but the selection order is not explicit."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "Unlinked rent must not silently reclassify the wrong property."
+    },
+    {
+      "id": "MK-NW-F-107",
+      "name": "propertyUses",
+      "kind": "edge",
+      "title": "Rent data unavailable is not known empty",
+      "given": "Caller could not load Income-screen rent entries.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "rental"
+          }
+        ],
+        "rent_entries": null,
+        "rent_data_available": false
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — unavailable rent data must not be treated as “no entries”; preserve uncertainty or refuse property-use classification"
+      },
+      "working": [
+        "No records supplied due to unavailable data is different from a confirmed empty list."
+      ],
+      "rests_on": "Tenet 3; DEC-3035p.",
+      "confidence": "high",
+      "notes": "Distinguish null/unavailable from []."
+    },
+    {
+      "id": "MK-NW-F-108",
+      "name": "taxWordsOf",
+      "kind": "easy",
+      "title": "529 fixed education wording",
+      "given": "529 has stored treatment taxable.",
+      "inputs": {
+        "kind": "529",
+        "tax_treatment": "taxable",
+        "tax_bucket": "taxable"
+      },
+      "expected": {
+        "text": "tax-free for education"
+      },
+      "working": [
+        "529 special case overrides generic treatment."
+      ],
+      "rests_on": "Owner decision DEC-3035c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-108",
+      "name": "taxWordsOf",
+      "kind": "easy",
+      "title": "HSA fixed wording",
+      "given": "HSA is in Roth bucket and stored treatment tax-free.",
+      "inputs": {
+        "kind": "HSA",
+        "tax_treatment": "tax-free",
+        "tax_bucket": "Roth"
+      },
+      "expected": {
+        "text": "pre-tax — tax-free for medical costs"
+      },
+      "working": [
+        "HSA always uses fixed HSA wording."
+      ],
+      "rests_on": "Owner decision DEC-3035c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-108",
+      "name": "taxWordsOf",
+      "kind": "complex",
+      "title": "Roth IRA tax-free includes Roth",
+      "given": "Roth IRA treatment tax-free and bucket Roth.",
+      "inputs": {
+        "kind": "Roth IRA",
+        "tax_treatment": "tax-free",
+        "tax_bucket": "Roth"
+      },
+      "expected": {
+        "text": "tax-free (Roth)"
+      },
+      "working": [
+        "Tax-free + Roth bucket → tax-free (Roth)."
+      ],
+      "rests_on": "Owner decision DEC-3035c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-108",
+      "name": "taxWordsOf",
+      "kind": "complex",
+      "title": "Tax-free non-Roth has no Roth tag",
+      "given": "529 is handled above; other account tax-free but bucket pre-tax.",
+      "inputs": {
+        "kind": "brokerage",
+        "tax_treatment": "tax-free",
+        "tax_bucket": "pre-tax"
+      },
+      "expected": {
+        "text": "tax-free"
+      },
+      "working": [
+        "Roth tag appears only for Roth bucket."
+      ],
+      "rests_on": "Owner decision DEC-3035c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-108",
+      "name": "taxWordsOf",
+      "kind": "edge",
+      "title": "Missing treatment has no word specified",
+      "given": "Unknown account with no treatment.",
+      "inputs": {
+        "kind": "unknown",
+        "tax_treatment": null,
+        "tax_bucket": null
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — taxWordsOf lists output branches for treatment values but no branch for missing treatment; do not invent a tax label"
+      },
+      "working": [
+        "No treatment matches any listed branch."
+      ],
+      "rests_on": "Tenet 3.",
+      "confidence": "medium",
+      "notes": "Need an explicit missing-treatment phrase."
+    },
+    {
+      "id": "MK-NW-F-109",
+      "name": "holdingClassOf",
+      "kind": "easy",
+      "title": "Asked holding remains Unclassified",
+      "given": "Holding marked as asked, no user answer yet.",
+      "inputs": {
+        "asked": true,
+        "stored_class": "Stocks / Funds",
+        "name": "VTI"
+      },
+      "expected": {
+        "class": "Unclassified"
+      },
+      "working": [
+        "Asked flag forces Unclassified."
+      ],
+      "rests_on": "Owner decision 2026-09-30.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-109",
+      "name": "holdingClassOf",
+      "kind": "easy",
+      "title": "User answer outranks broker tag",
+      "given": "User confirms Bonds & CDs; broker tag says stock.",
+      "inputs": {
+        "user_confirmed_class": "Bonds & CDs",
+        "broker_tag": "stock",
+        "name": "Treasury ETF"
+      },
+      "expected": {
+        "class": "Bonds & CDs"
+      },
+      "working": [
+        "User-confirmed class has first priority."
+      ],
+      "rests_on": "Owner decision DEC-2484r.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-109",
+      "name": "holdingClassOf",
+      "kind": "complex",
+      "title": "Money-market fund overrides broker cash tag",
+      "given": "Broker tags holding cash, name says Money Market Fund.",
+      "inputs": {
+        "user_confirmed_class": null,
+        "asked": false,
+        "broker_tag": "cash",
+        "name": "Vanguard Money Market Fund"
+      },
+      "expected": {
+        "class": "Stocks / Funds"
+      },
+      "working": [
+        "Money-market fund is Stocks / Funds even when broker tag says cash."
+      ],
+      "rests_on": "Owner decision DEC-0051 / DEC-2747d.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-109",
+      "name": "holdingClassOf",
+      "kind": "complex",
+      "title": "Property-like name and commodity word not enough",
+      "given": "Holding name “Silver Lake House REIT” and no stored evidence; person has not confirmed.",
+      "inputs": {
+        "user_confirmed_class": null,
+        "asked": false,
+        "stored_class": null,
+        "name": "Silver Lake House REIT",
+        "kind": null
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — if it is a property/account label, property-name words are not evidence; if holding is a REIT, source does not give a REIT rule; do not guess Alternatives from Silver"
+      },
+      "working": [
+        "The name has an asset-like word but no safe classification evidence is established."
+      ],
+      "rests_on": "Owner decision DEC-3035o.",
+      "confidence": "medium",
+      "notes": "Need distinguish a company/security name from property name."
+    },
+    {
+      "id": "MK-NW-F-109",
+      "name": "holdingClassOf",
+      "kind": "edge",
+      "title": "No tag, kind or evidence stays Unclassified",
+      "given": "Holding has no class tag, no kind and name “Imported holding”.",
+      "inputs": {
+        "user_confirmed_class": null,
+        "asked": false,
+        "stored_class": null,
+        "kind": null,
+        "name": "Imported holding"
+      },
+      "expected": {
+        "class": "Unclassified"
+      },
+      "working": [
+        "No safe evidence; never default to Stocks / Funds."
+      ],
+      "rests_on": "Owner decision DEC-3035f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-110",
+      "name": "primaryHomeIdOf",
+      "kind": "easy",
+      "title": "Explicitly marked home wins",
+      "given": "Property A marked home; B is second home.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "marked_home": true
+          },
+          {
+            "id": "B",
+            "marked_home": false
+          }
+        ],
+        "rent_entries": []
+      },
+      "expected": {
+        "id": "A"
+      },
+      "working": [
+        "Explicit home mark wins."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-110",
+      "name": "primaryHomeIdOf",
+      "kind": "easy",
+      "title": "No properties returns null",
+      "given": "No real estate accounts.",
+      "inputs": {
+        "properties": [],
+        "rent_entries": []
+      },
+      "expected": {
+        "id": null
+      },
+      "working": [
+        "No household home exists."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-110",
+      "name": "primaryHomeIdOf",
+      "kind": "complex",
+      "title": "First-created property selected when none marked or used",
+      "given": "A created first, B second; no use set.",
+      "inputs": {
+        "properties_in_creation_order": [
+          "A",
+          "B"
+        ],
+        "marked_home": null,
+        "uses": null,
+        "rent_entries": []
+      },
+      "expected": {
+        "id": "A"
+      },
+      "working": [
+        "No explicit home and no use; owner rule selects first-entered property."
+      ],
+      "rests_on": "Owner decision DEC-2747e.",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "If list order is ordinary creation order, “last in the list” would select B rather than first-created A."
+    },
+    {
+      "id": "MK-NW-F-110",
+      "name": "primaryHomeIdOf",
+      "kind": "complex",
+      "title": "One rental and one home",
+      "given": "A has live rent entry; B is marked home.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A"
+          },
+          {
+            "id": "B",
+            "marked_home": true
+          }
+        ],
+        "rent_entries": [
+          {
+            "property_id": "A",
+            "rent": 1000
+          }
+        ]
+      },
+      "expected": {
+        "id": "B"
+      },
+      "working": [
+        "Rental A is not home; explicit home B wins."
+      ],
+      "rests_on": "Owner decision DEC-3035p.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-110",
+      "name": "primaryHomeIdOf",
+      "kind": "edge",
+      "title": "Stored home use but no marked home",
+      "given": "One property has stored use “home” but no explicit marked-home flag.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "home",
+            "marked_home": false
+          }
+        ],
+        "rent_entries": []
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — card says “none marked and no use stated” then first entered; a stated use exists, so null may result even though only property says home"
+      },
+      "working": [
+        "No marked home but a use is stated.",
+        "The card’s exact fallback does not choose it."
+      ],
+      "rests_on": "Card formula; DEC-3035p.",
+      "confidence": "medium",
+      "notes": "Clarify whether stored use “home” is considered a mark."
+    },
+    {
+      "id": "MK-NW-F-111",
+      "name": "assetsStateFrom",
+      "kind": "easy",
+      "title": "Saved accounts produce state",
+      "given": "Saved account list has one $5,000 account.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 5000
+          }
+        ]
+      },
+      "expected": {
+        "state": "buildAssetsState result"
+      },
+      "working": [
+        "Nonempty list passed to buildAssetsState."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-111",
+      "name": "assetsStateFrom",
+      "kind": "easy",
+      "title": "Empty saved list returns nothing",
+      "given": "Saved list empty.",
+      "inputs": {
+        "accounts": []
+      },
+      "expected": "REFUSES — no state",
+      "working": [
+        "Empty list returns nothing."
+      ],
+      "rests_on": "Owner decision DEC-2748i.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-111",
+      "name": "assetsStateFrom",
+      "kind": "complex",
+      "title": "Multiple accounts state",
+      "given": "Accounts $10,000 and $15,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 10000
+          },
+          {
+            "balance": 15000
+          }
+        ]
+      },
+      "expected": {
+        "total": 25000
+      },
+      "working": [
+        "Build state from both; 10,000+15,000=25,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-111",
+      "name": "assetsStateFrom",
+      "kind": "complex",
+      "title": "All records deleted is first-day state",
+      "given": "Saved record exists but every account was deleted.",
+      "inputs": {
+        "saved_record": true,
+        "accounts": []
+      },
+      "expected": "REFUSES — show first-day screen, not zero with 7% return",
+      "working": [
+        "Empty account list is not a zero-asset portfolio."
+      ],
+      "rests_on": "Owner decision DEC-2748i.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-111",
+      "name": "assetsStateFrom",
+      "kind": "edge",
+      "title": "No saved record",
+      "given": "No record exists.",
+      "inputs": {
+        "saved_record": false,
+        "accounts": null
+      },
+      "expected": "REFUSES — no saved record",
+      "working": [
+        "No record → nothing."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-112",
+      "name": "yearlyInterest",
+      "kind": "easy",
+      "title": "Face times rate",
+      "given": "Face $1,000 at 5%.",
+      "inputs": {
+        "face_value": 1000,
+        "rate": 0.05,
+        "value": 980
+      },
+      "expected": {
+        "exact": 50,
+        "shown": "$50"
+      },
+      "working": [
+        "1,000×0.05=$50."
+      ],
+      "rests_on": "Owner decision DEC-2748c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-112",
+      "name": "yearlyInterest",
+      "kind": "easy",
+      "title": "Missing face uses value",
+      "given": "No face entered; value $2,500; rate 4%.",
+      "inputs": {
+        "face_value": null,
+        "value": 2500,
+        "rate": 0.04
+      },
+      "expected": {
+        "exact": 100,
+        "shown": "$100"
+      },
+      "working": [
+        "2,500×0.04=$100."
+      ],
+      "rests_on": "Owner decision DEC-2748c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-112",
+      "name": "yearlyInterest",
+      "kind": "complex",
+      "title": "Mix of face and value fallbacks",
+      "given": "Bond A face $10,000 at 4.5%; CD B no face, value $4,500 at 3.2%.",
+      "inputs": {
+        "items": [
+          {
+            "face_value": 10000,
+            "value": 9800,
+            "rate": 0.045
+          },
+          {
+            "face_value": null,
+            "value": 4500,
+            "rate": 0.032
+          }
+        ]
+      },
+      "expected": {
+        "annual_interest": [
+          450,
+          144
+        ],
+        "total": 594
+      },
+      "working": [
+        "A = 10,000×4.5%=450.",
+        "B = 4,500×3.2%=144.",
+        "Total = $594."
+      ],
+      "rests_on": "Owner decision DEC-2748c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-112",
+      "name": "yearlyInterest",
+      "kind": "complex",
+      "title": "Missing rate is $0 with disclosure",
+      "given": "Face $10,000, value $9,800, no rate entered.",
+      "inputs": {
+        "face_value": 10000,
+        "value": 9800,
+        "rate": null
+      },
+      "expected": {
+        "annual_interest": 0,
+        "disclosure": "Rate not entered; counted as $0 annual interest"
+      },
+      "working": [
+        "Formula says nothing when rate missing.",
+        "Owner rule says $0 annual interest and disclosure."
+      ],
+      "rests_on": "Owner decision DEC-2748c.",
+      "confidence": "high",
+      "notes": "Direct contradiction between prose and owner rule.",
+      "formula_gives": "REFUSES / nothing"
+    },
+    {
+      "id": "MK-NW-F-112",
+      "name": "yearlyInterest",
+      "kind": "edge",
+      "title": "Expired bond handled by caller",
+      "given": "Bond matured yesterday, face $1,000 at 5%.",
+      "inputs": {
+        "face_value": 1000,
+        "rate": 0.05,
+        "value": 980,
+        "maturity": "2026-10-08",
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "yearlyInterest_helper": 50,
+        "orchestrator_interest": 0
+      },
+      "working": [
+        "yearlyInterest helper itself has no maturity input and calculates 1,000×5%=50.",
+        "interestIncomeAnnual must suppress this for a matured bond."
+      ],
+      "rests_on": "Owner decision DEC-2748d.",
+      "confidence": "medium",
+      "notes": "Test the separation between per-instrument arithmetic and maturity filtering."
+    },
+    {
+      "id": "MK-NW-F-113",
+      "name": "altPartsOf",
+      "kind": "easy",
+      "title": "Alternative account uses its class portion",
+      "given": "An account itself is gold alternative, balance $5,000, no split.",
+      "inputs": {
+        "is_alternative_account": true,
+        "balance": 5000,
+        "class_breakdown": null,
+        "kind": "gold"
+      },
+      "expected": {
+        "parts": [
+          {
+            "value": 5000,
+            "kind": "gold"
+          }
+        ]
+      },
+      "working": [
+        "Whole balance used when no split; kind remains gold."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-113",
+      "name": "altPartsOf",
+      "kind": "easy",
+      "title": "No alternatives returns empty",
+      "given": "Ordinary checking account with no alternative holdings.",
+      "inputs": {
+        "is_alternative_account": false,
+        "class_breakdown": {
+          "Cash": 1000
+        },
+        "holdings": [],
+        "options": []
+      },
+      "expected": {
+        "parts": []
+      },
+      "working": [
+        "No alternatives portion → nothing."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-113",
+      "name": "altPartsOf",
+      "kind": "complex",
+      "title": "Option and bitcoin portions",
+      "given": "Account has option value $2,000, 10 bitcoin ETF shares at $50, and remaining alternatives portion $500.",
+      "inputs": {
+        "class_breakdown": {
+          "Alternatives": 3000
+        },
+        "options": [
+          {
+            "value": 2000
+          }
+        ],
+        "holdings": [
+          {
+            "name": "Bitcoin tracker",
+            "class": "Alternatives",
+            "shares": 10,
+            "price": 50
+          }
+        ]
+      },
+      "expected": {
+        "parts": [
+          {
+            "value": 2000,
+            "kind": "options"
+          },
+          {
+            "value": 500,
+            "kind": "crypto"
+          },
+          {
+            "value": 500,
+            "kind": "other"
+          }
+        ],
+        "total": 3000
+      },
+      "working": [
+        "Options = $2,000.",
+        "Bitcoin tracker = 10×50 = $500, kind crypto.",
+        "Remaining alternative value = 3,000−2,000−500 = $500, kind other."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-113",
+      "name": "altPartsOf",
+      "kind": "complex",
+      "title": "Unpriced alternative holding must not vanish",
+      "given": "Account alternatives portion $4,000; known priced gold holding $2,500; another alternative holding has no price.",
+      "inputs": {
+        "class_breakdown": {
+          "Alternatives": 4000
+        },
+        "holdings": [
+          {
+            "name": "Gold",
+            "class": "Alternatives",
+            "shares": 25,
+            "price": 100
+          },
+          {
+            "name": "Private holding",
+            "class": "Alternatives",
+            "shares": null,
+            "price": null
+          }
+        ]
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula assigns remaining $1,500 to “other”, but the actual unpriced holding kind/value is unknown; flag the remainder as unresolved rather than asserting other kind"
+      },
+      "working": [
+        "Known priced gold = 25×100 = $2,500.",
+        "Remaining $1,500 is not evidence that the unpriced holding is kind “other”."
+      ],
+      "rests_on": "Owner decision DEC-3035n; tenet 3.",
+      "confidence": "medium",
+      "notes": "Owner says unknown holdings should remain Unclassified; alternative portions need a transparent remainder rule.",
+      "formula_gives": {
+        "parts": [
+          {
+            "value": 2500,
+            "kind": "gold"
+          },
+          {
+            "value": 1500,
+            "kind": "other"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MK-NW-F-113",
+      "name": "altPartsOf",
+      "kind": "edge",
+      "title": "Option contracts count as one position",
+      "given": "One option position has 100 contracts and synced value $450.",
+      "inputs": {
+        "options": [
+          {
+            "contracts": 100,
+            "synced_value": 450
+          }
+        ],
+        "class_breakdown": {
+          "Alternatives": 450
+        }
+      },
+      "expected": {
+        "parts": [
+          {
+            "value": 450,
+            "kind": "options"
+          }
+        ],
+        "option_position_count": 1
+      },
+      "working": [
+        "Position count is one option regardless of 100 contracts; value is synced value."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmount",
+      "kind": "easy",
+      "title": "Entered rent digits preserved",
+      "given": "Rent entered $1,800.",
+      "inputs": {
+        "rent_value": 1800
+      },
+      "expected": {
+        "exact": 1800
+      },
+      "working": [
+        "Return entered number."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmount",
+      "kind": "easy",
+      "title": "Explicit no-rent entry is zero",
+      "given": "Person explicitly records no rent for this property.",
+      "inputs": {
+        "rent_value": 0,
+        "entry_status": "explicit none"
+      },
+      "expected": {
+        "exact": 0
+      },
+      "working": [
+        "Explicit zero is a valid numeric value."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmount",
+      "kind": "complex",
+      "title": "Rent field missing is not confirmed zero",
+      "given": "Income data failed to load; no rent value was handed in.",
+      "inputs": {
+        "rent_value": null,
+        "entry_status": "unavailable"
+      },
+      "expected": {
+        "result": "REFUSES / unknown — do not return a zero that looks like confirmed no rent"
+      },
+      "working": [
+        "Missing data is not the same as entered zero."
+      ],
+      "rests_on": "Tenet 3; DEC-3035p.",
+      "confidence": "high",
+      "notes": "Formula conflates no entry with zero.",
+      "formula_gives": {
+        "rent_amount": 0
+      }
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmount",
+      "kind": "complex",
+      "title": "Positive rent and costs remain distinct",
+      "given": "Property rent $2,100, costs $450; separate rentAmount calls.",
+      "inputs": {
+        "rent_values": [
+          2100,
+          450
+        ]
+      },
+      "expected": {
+        "exact_values": [
+          2100,
+          450
+        ]
+      },
+      "working": [
+        "Each typed figure is returned as entered; net rent is computed elsewhere."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmount",
+      "kind": "edge",
+      "title": "Invalid text refuses validation",
+      "given": "Rent amount contains “about 2k”.",
+      "inputs": {
+        "rent_value": "about 2k"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — parseable digits or refuse and ask; do not silently map invalid text to 0"
+      },
+      "working": [
+        "No numeric value exists to return."
+      ],
+      "rests_on": "Tenet 3.",
+      "confidence": "medium",
+      "notes": "Input validation behavior is unspecified."
+    },
+    {
+      "id": "MK-NW-F-115",
+      "name": "liveRent",
+      "kind": "easy",
+      "title": "Positive rent entry is live",
+      "given": "Rent incoming $1,200.",
+      "inputs": {
+        "entries": [
+          {
+            "rent_in": 1200,
+            "costs": 0
+          }
+        ]
+      },
+      "expected": {
+        "live_count": 1
+      },
+      "working": [
+        "Rent incoming is above zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-115",
+      "name": "liveRent",
+      "kind": "easy",
+      "title": "All-zero entry is not live",
+      "given": "Rent $0 and costs $0.",
+      "inputs": {
+        "entries": [
+          {
+            "rent_in": 0,
+            "costs": 0
+          }
+        ]
+      },
+      "expected": {
+        "live_count": 0
+      },
+      "working": [
+        "Neither amount is above zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-115",
+      "name": "liveRent",
+      "kind": "complex",
+      "title": "Costs-only entry is live",
+      "given": "No rent income, but running costs $350.",
+      "inputs": {
+        "entries": [
+          {
+            "rent_in": 0,
+            "costs": 350
+          }
+        ]
+      },
+      "expected": {
+        "live_count": 1
+      },
+      "working": [
+        "Costs are above zero, so entry is live even without income."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-115",
+      "name": "liveRent",
+      "kind": "complex",
+      "title": "Several entries and missing value",
+      "given": "Entry A rent $1,500; entry B costs $200; entry C has missing rent and missing costs.",
+      "inputs": {
+        "entries": [
+          {
+            "rent_in": 1500,
+            "costs": 0
+          },
+          {
+            "rent_in": 0,
+            "costs": 200
+          },
+          {
+            "rent_in": null,
+            "costs": null
+          }
+        ]
+      },
+      "expected": {
+        "live_ids": [
+          "A",
+          "B"
+        ],
+        "unknown_entry": "C needs validation; not safely equivalent to zero"
+      },
+      "working": [
+        "A and B each have a known positive amount.",
+        "C has no known positive amount but is also not known to be zero."
+      ],
+      "rests_on": "Tenet 3.",
+      "confidence": "medium",
+      "notes": "The filter alone may drop unknown entries silently.",
+      "formula_gives": {
+        "live_ids": [
+          "A",
+          "B"
+        ],
+        "unknown_entry": "C is silently omitted"
+      }
+    },
+    {
+      "id": "MK-NW-F-115",
+      "name": "liveRent",
+      "kind": "edge",
+      "title": "Negative amount should not be live without explicit rule",
+      "given": "Entry rent −$50 and costs 0.",
+      "inputs": {
+        "entries": [
+          {
+            "rent_in": -50,
+            "costs": 0
+          }
+        ]
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula says above zero, so excludes it; confirm negative values are invalid and should trigger validation"
+      },
+      "working": [
+        "−50 is not above zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "low",
+      "notes": "Need invalid negative-input handling."
+    },
+    {
+      "id": "MK-NW-F-116",
+      "name": "rentedIdsOf",
+      "kind": "easy",
+      "title": "One live entry maps property ID",
+      "given": "Live rent entry names property A.",
+      "inputs": {
+        "live_entries": [
+          {
+            "property_id": "A"
+          }
+        ]
+      },
+      "expected": {
+        "ids": [
+          "A"
+        ]
+      },
+      "working": [
+        "Return the identifier from the entry."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-116",
+      "name": "rentedIdsOf",
+      "kind": "easy",
+      "title": "No live entries returns empty IDs",
+      "given": "No entries have positive rent/cost.",
+      "inputs": {
+        "live_entries": []
+      },
+      "expected": {
+        "ids": []
+      },
+      "working": [
+        "No IDs to return."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-116",
+      "name": "rentedIdsOf",
+      "kind": "complex",
+      "title": "Several entries deduplicate IDs",
+      "given": "Two rent/cost entries name A, one names B.",
+      "inputs": {
+        "live_entries": [
+          {
+            "property_id": "A"
+          },
+          {
+            "property_id": "A"
+          },
+          {
+            "property_id": "B"
+          }
+        ]
+      },
+      "expected": {
+        "ids": [
+          "A",
+          "B"
+        ]
+      },
+      "working": [
+        "Unique property IDs are A and B."
+      ],
+      "rests_on": "Card formula; ordinary set semantics.",
+      "confidence": "medium",
+      "notes": "The card says identifiers plural but does not explicitly say whether duplicates are deduplicated; test and define.",
+      "formula_gives": {
+        "ids": [
+          "A",
+          "A",
+          "B"
+        ]
+      }
+    },
+    {
+      "id": "MK-NW-F-116",
+      "name": "rentedIdsOf",
+      "kind": "complex",
+      "title": "Unmatched property identifier preserved for diagnostics",
+      "given": "Live entry names deleted property ID X.",
+      "inputs": {
+        "live_entries": [
+          {
+            "property_id": "X"
+          }
+        ],
+        "properties": [
+          "A",
+          "B"
+        ]
+      },
+      "expected": {
+        "ids": [
+          "X"
+        ]
+      },
+      "working": [
+        "Function returns IDs that entries name; it should not silently substitute A or B."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-116",
+      "name": "rentedIdsOf",
+      "kind": "edge",
+      "title": "Missing property ID not inferred",
+      "given": "Live entry has rent but no property identifier.",
+      "inputs": {
+        "live_entries": [
+          {
+            "property_id": null
+          }
+        ]
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — no identifier to return; preserve an unlinked-rent diagnostic rather than guessing a property"
+      },
+      "working": [
+        "No property identifier exists."
+      ],
+      "rests_on": "Card formula; DEC-3035p.",
+      "confidence": "medium",
+      "notes": "Downstream property map has a special unlinked-rent case."
+    },
+    {
+      "id": "MK-NW-F-117",
+      "name": "propertyUseMap",
+      "kind": "easy",
+      "title": "Named live rent makes rental",
+      "given": "Property A has a live Income entry naming A.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "second"
+          }
+        ],
+        "rent_entries": [
+          {
+            "property_id": "A",
+            "rent": 1500
+          }
+        ]
+      },
+      "expected": {
+        "A": "rental"
+      },
+      "working": [
+        "Live rent entry names A → rental."
+      ],
+      "rests_on": "Owner decision DEC-1926.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-117",
+      "name": "propertyUseMap",
+      "kind": "easy",
+      "title": "Stored rental without Income entry should not remain rental",
+      "given": "One property stored as rental; no rent entry was entered.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "rental"
+          }
+        ],
+        "rent_entries": []
+      },
+      "expected": "second home unless explicitly selected as home",
+      "working": [
+        "Formula retains stored rental when no entries are handed in.",
+        "Owner rule requires rental income entered for the property."
+      ],
+      "rests_on": "Owner decisions DEC-1926 and DEC-3035p.",
+      "confidence": "high",
+      "notes": "Direct contradiction.",
+      "formula_gives": "rental"
+    },
+    {
+      "id": "MK-NW-F-117",
+      "name": "propertyUseMap",
+      "kind": "complex",
+      "title": "First-created home versus last-in-list ambiguity",
+      "given": "Properties created A then B; list order is [B,A], no marked home or use.",
+      "inputs": {
+        "creation_order": [
+          "A",
+          "B"
+        ],
+        "list_order": [
+          "B",
+          "A"
+        ],
+        "marked_home": null,
+        "uses": null,
+        "rent_entries": []
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — DEC-2747e says A (created first); formula parenthetical “last in list” picks A only if list is reverse chronological; list ordering contract must be explicit"
+      },
+      "working": [
+        "If list order is [B,A], “last in list” is A.",
+        "If the list is ordinary creation order [A,B], “last in list” is B and conflicts with “first entered”."
+      ],
+      "rests_on": "Owner decision DEC-2747e.",
+      "confidence": "high",
+      "notes": "The formula text is internally ambiguous about list order."
+    },
+    {
+      "id": "MK-NW-F-117",
+      "name": "propertyUseMap",
+      "kind": "complex",
+      "title": "Only the property not named by rent entry can be home",
+      "given": "A and B; rent entry names A; no marked home.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A"
+          },
+          {
+            "id": "B"
+          }
+        ],
+        "rent_entries": [
+          {
+            "property_id": "A",
+            "rent": 2000
+          }
+        ],
+        "marked_home": null,
+        "uses": null
+      },
+      "expected": {
+        "A": "rental",
+        "B": "home"
+      },
+      "working": [
+        "A is rental because named by live rent.",
+        "With one remaining property and no marked/stated use, B is the home."
+      ],
+      "rests_on": "Owner decisions DEC-1926 and DEC-2747e.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-117",
+      "name": "propertyUseMap",
+      "kind": "edge",
+      "title": "Unavailable rent list is not empty rent list",
+      "given": "Property stored rental but Income screen could not be loaded.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "rental"
+          }
+        ],
+        "rent_entries": null,
+        "data_available": false
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — unavailable data must not activate the “no rent entries at all” exception"
+      },
+      "working": [
+        "Null/unavailable does not mean confirmed empty list."
+      ],
+      "rests_on": "Tenet 3; DEC-3035p.",
+      "confidence": "high",
+      "notes": "Distinguish null from []."
+    },
+    {
+      "id": "MK-NW-F-118",
+      "name": "itemizeMissingCount",
+      "kind": "easy",
+      "title": "All values present",
+      "given": "Three listed holdings each have numeric value.",
+      "inputs": {
+        "holdings": [
+          {
+            "value": 100
+          },
+          {
+            "value": 200
+          },
+          {
+            "value": 0
+          }
+        ]
+      },
+      "expected": {
+        "missing_count": 0,
+        "remainder_final": true
+      },
+      "working": [
+        "Zero is a numeric value; none are missing."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-118",
+      "name": "itemizeMissingCount",
+      "kind": "easy",
+      "title": "One absent value counted",
+      "given": "Two values present and one absent.",
+      "inputs": {
+        "holdings": [
+          {
+            "value": 100
+          },
+          {
+            "value": null
+          },
+          {
+            "value": 200
+          }
+        ]
+      },
+      "expected": {
+        "missing_count": 1,
+        "remainder_final": false
+      },
+      "working": [
+        "One missing/non-numeric value."
+      ],
+      "rests_on": "Owner decision DEC-2746g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-118",
+      "name": "itemizeMissingCount",
+      "kind": "complex",
+      "title": "Non-numeric text counted missing",
+      "given": "Values $1,000, “n/a”, $250.50.",
+      "inputs": {
+        "holdings": [
+          {
+            "value": 1000
+          },
+          {
+            "value": "n/a"
+          },
+          {
+            "value": 250.5
+          }
+        ]
+      },
+      "expected": {
+        "missing_count": 1,
+        "remainder_final": false
+      },
+      "working": [
+        "“n/a” is not numeric; count as missing."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-118",
+      "name": "itemizeMissingCount",
+      "kind": "complex",
+      "title": "Negative numeric value is present",
+      "given": "Values −$20, $50, no value.",
+      "inputs": {
+        "holdings": [
+          {
+            "value": -20
+          },
+          {
+            "value": 50
+          },
+          {
+            "value": null
+          }
+        ]
+      },
+      "expected": {
+        "missing_count": 1,
+        "remainder_final": false
+      },
+      "working": [
+        "Negative numeric value is present, not missing.",
+        "One absent value is missing."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-118",
+      "name": "itemizeMissingCount",
+      "kind": "edge",
+      "title": "Empty holdings list",
+      "given": "No holdings listed.",
+      "inputs": {
+        "holdings": []
+      },
+      "expected": {
+        "missing_count": 0,
+        "remainder_final": true
+      },
+      "working": [
+        "No listed holdings are missing."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-119",
+      "name": "estimatedAccrued",
+      "kind": "easy",
+      "title": "Annual coupon accrual",
+      "given": "Face $10,000, rate 4.5%, 180 days elapsed in 365-day coupon year.",
+      "inputs": {
+        "face_value": 10000,
+        "rate": 0.045,
+        "days_since_coupon": 180,
+        "days_in_coupon_year": 365,
+        "is_cd": false,
+        "matured": false,
+        "coupon_day": false
+      },
+      "expected": {
+        "exact": 221.91780821917808,
+        "shown": "$221.92",
+        "days": 180
+      },
+      "working": [
+        "10,000×0.045×180/365 = 221.9178082…"
+      ],
+      "rests_on": "Owner formula; ordinary arithmetic.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-119",
+      "name": "estimatedAccrued",
+      "kind": "easy",
+      "title": "Coupon day gives zero accrued interest",
+      "given": "Today is coupon day.",
+      "inputs": {
+        "face_value": 10000,
+        "rate": 0.045,
+        "days_since_coupon": 0,
+        "is_cd": false,
+        "matured": false,
+        "coupon_day": true
+      },
+      "expected": {
+        "result": "REFUSES / no estimate — nothing has accrued"
+      },
+      "working": [
+        "Zero days since coupon → no accrued interest."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-119",
+      "name": "estimatedAccrued",
+      "kind": "complex",
+      "title": "Owner-approved accrued-interest example",
+      "given": "Face $25,000, coupon 4.5%, 363 days elapsed in 365-day coupon year.",
+      "inputs": {
+        "face_value": 25000,
+        "rate": 0.045,
+        "days_since_coupon": 363,
+        "days_in_coupon_year": 365,
+        "is_cd": false,
+        "matured": false
+      },
+      "expected": {
+        "exact": 1118.835616438356,
+        "shown": "$1,119.04"
+      },
+      "working": [
+        "25,000×0.045×363/365 = 1,119.04109589…; caveat displays whole dollars $1,119."
+      ],
+      "rests_on": "Owner decision DEC-3390.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-119",
+      "name": "estimatedAccrued",
+      "kind": "complex",
+      "title": "Known zero coupon should be zero not unknown",
+      "given": "Face $10,000, rate explicitly 0%, future maturity, 100 days elapsed.",
+      "inputs": {
+        "face_value": 10000,
+        "rate": 0,
+        "days_since_coupon": 100,
+        "days_in_coupon_year": 365,
+        "is_cd": false,
+        "matured": false,
+        "coupon_day": false
+      },
+      "expected": {
+        "exact": 0,
+        "shown": "$0.00"
+      },
+      "working": [
+        "10,000×0×100/365 = 0.",
+        "Formula says no rate above zero, so it refuses; but a known 0% coupon is not a missing rate."
+      ],
+      "rests_on": "Card formula; tenet 3.",
+      "confidence": "medium",
+      "notes": "Distinguish explicit zero rate from missing rate.",
+      "formula_gives": "REFUSES — rate must be above zero"
+    },
+    {
+      "id": "MK-NW-F-119",
+      "name": "estimatedAccrued",
+      "kind": "edge",
+      "title": "Matured or undated bond refuses estimate",
+      "given": "No valid maturity date.",
+      "inputs": {
+        "face_value": 10000,
+        "rate": 0.045,
+        "maturity": null,
+        "is_cd": false,
+        "matured": false
+      },
+      "expected": {
+        "result": "REFUSES — no valid maturity date"
+      },
+      "working": [
+        "No coupon schedule can be established."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "easy",
+      "title": "Bonds sorted by maturity",
+      "given": "Two bonds mature 2028 and 2027; one undated.",
+      "inputs": {
+        "bonds": [
+          {
+            "name": "A",
+            "maturity": "2028-01-01"
+          },
+          {
+            "name": "B",
+            "maturity": "2027-01-01"
+          },
+          {
+            "name": "C",
+            "maturity": null
+          }
+        ]
+      },
+      "expected": {
+        "order": [
+          "B",
+          "A",
+          "C"
+        ]
+      },
+      "working": [
+        "Soonest date first; undated last."
+      ],
+      "rests_on": "Owner decision DEC-1558.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "easy",
+      "title": "CD gets no rate-move figure",
+      "given": "A CD is opened on its detail page.",
+      "inputs": {
+        "selected_bond": {
+          "is_cd": true,
+          "value": 5000,
+          "maturity": "2028-01-01"
+        }
+      },
+      "expected": {
+        "rate_sensitivity": "REFUSES",
+        "message": "A CD is not traded and is worth its balance until it matures."
+      },
+      "working": [
+        "CD sensitivity is suppressed and explained."
+      ],
+      "rests_on": "Owner decision DEC-2748f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "complex",
+      "title": "Summary excludes unpriced bond from average yield",
+      "given": "Bond A $950 value, $50 annual interest; bond B no value; bond C value $2,000 but rate missing.",
+      "inputs": {
+        "bonds": [
+          {
+            "value": 950,
+            "annual_interest": 50,
+            "rate": 0.05
+          },
+          {
+            "value": null,
+            "annual_interest": 100,
+            "rate": 0.05
+          },
+          {
+            "value": 2000,
+            "annual_interest": null,
+            "rate": null
+          }
+        ]
+      },
+      "expected": {
+        "count": 3,
+        "average_yield": 0.05263157894736842,
+        "excluded_no_value": [
+          "B"
+        ],
+        "excluded_no_rate": [
+          "C"
+        ],
+        "missing_face_notice": [
+          "B",
+          "C"
+        ],
+        "total_face": {
+          "known_subtotal": 3000,
+          "warning": "Bond C face value not entered; total is incomplete"
+        }
+      },
+      "working": [
+        "Count all bonds.",
+        "Average yield uses A only: 50/950 = 5.2631579…%.",
+        "B and C are listed separately as excluded for distinct reasons."
+      ],
+      "rests_on": "Owner decisions DEC-2484b and DEC-2748b.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written.",
+      "formula_gives": {
+        "total_face": 3000,
+        "display": "complete total; missing face counted as 0"
+      }
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "complex",
+      "title": "All totals and rows reconcile",
+      "given": "Two bonds values $980 and $2,000, face values $1,000 and $2,000, interest $50 and $80.",
+      "inputs": {
+        "bonds": [
+          {
+            "name": "A",
+            "value": 980,
+            "face": 1000,
+            "annual_interest": 50,
+            "maturity": "2027-01-01"
+          },
+          {
+            "name": "B",
+            "value": 2000,
+            "face": 2000,
+            "annual_interest": 80,
+            "maturity": "2028-01-01"
+          }
+        ]
+      },
+      "expected": {
+        "count": 2,
+        "total_value": 2980,
+        "total_face": 3000,
+        "annual_interest": 130,
+        "rows_sum_value": 2980
+      },
+      "working": [
+        "Value = 980+2,000=2,980.",
+        "Face = 1,000+2,000=3,000.",
+        "Interest = 50+80=130.",
+        "Row values sum to total value."
+      ],
+      "rests_on": "Card formula; tenet 2.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-001",
+      "name": "theBonds",
+      "kind": "edge",
+      "title": "No bond data refuses face total completeness",
+      "given": "One bond lacks face value.",
+      "inputs": {
+        "bonds": [
+          {
+            "name": "Bond A",
+            "value": 1000,
+            "face": null,
+            "rate": 0.04
+          }
+        ]
+      },
+      "expected": {
+        "result": "Total face value must be marked incomplete; Bond A named as face value not entered"
+      },
+      "working": [
+        "An unentered face is not a known $0 face."
+      ],
+      "rests_on": "Owner decision DEC-2748b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "easy",
+      "title": "Income sum from records",
+      "given": "One dividend $10.25 and interest $3.75 for selected account.",
+      "inputs": {
+        "records": [
+          {
+            "type": "dividend",
+            "amount": 10.25,
+            "ticker": "ABC"
+          },
+          {
+            "type": "interest",
+            "amount": 3.75,
+            "ticker": "ABC"
+          }
+        ],
+        "account_balance": 1000
+      },
+      "expected": {
+        "market_value": 1000,
+        "income": 14
+      },
+      "working": [
+        "Income = 10.25+3.75=$14.00."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "easy",
+      "title": "No records means no income figure",
+      "given": "Account has balance $5,000 but no activity records.",
+      "inputs": {
+        "records": [],
+        "account_balance": 5000
+      },
+      "expected": {
+        "market_value": 5000,
+        "income": "REFUSES — no records at all"
+      },
+      "working": [
+        "No records means no income figure, not $0."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "complex",
+      "title": "Transfers have correct sign and do not count as income",
+      "given": "Account A receives $1,000 transfer, pays $200 fee, receives $25 interest.",
+      "inputs": {
+        "records": [
+          {
+            "type": "transfer_in",
+            "amount": 1000
+          },
+          {
+            "type": "fee",
+            "amount": -200
+          },
+          {
+            "type": "interest",
+            "amount": 25
+          }
+        ]
+      },
+      "expected": {
+        "activity_amounts": [
+          1000,
+          -200,
+          25
+        ],
+        "income": 25
+      },
+      "working": [
+        "Transfer-in shows amount moved, but is not dividend/interest income.",
+        "Income = $25."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "complex",
+      "title": "Holding income matches ticker case-insensitively",
+      "given": "Records include $10 dividend ticker abc, $5 interest ticker ABC, and $4 tickerless interest.",
+      "inputs": {
+        "records": [
+          {
+            "type": "dividend",
+            "amount": 10,
+            "ticker": "abc"
+          },
+          {
+            "type": "interest",
+            "amount": 5,
+            "ticker": "ABC"
+          },
+          {
+            "type": "interest",
+            "amount": 4,
+            "ticker": null
+          }
+        ]
+      },
+      "expected": {
+        "account_income": 19,
+        "holding_ABC_income": 15,
+        "tickerless_income_to_holding": 0
+      },
+      "working": [
+        "Account income = 10+5+4=19.",
+        "Holding ABC income = 10+5=15, case-insensitive.",
+        "Tickerless interest belongs to no holding."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-002",
+      "name": "theAccount",
+      "kind": "edge",
+      "title": "Zero income records still differ from no records",
+      "given": "Account has one record, a $0 dividend.",
+      "inputs": {
+        "records": [
+          {
+            "type": "dividend",
+            "amount": 0,
+            "ticker": "ABC"
+          }
+        ],
+        "account_balance": 1000
+      },
+      "expected": {
+        "income": 0
+      },
+      "working": [
+        "There is a record; its income sum is $0.",
+        "No-record refusal should not trigger."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written."
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "easy",
+      "title": "Cash and investment totals",
+      "given": "Checking $2,000, stocks $8,000, mortgage debt $3,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Cash",
+            "balance": 2000
+          },
+          {
+            "class": "Stocks / Funds",
+            "balance": 8000
+          }
+        ],
+        "debts": [
+          3000
+        ]
+      },
+      "expected": {
+        "cash": 2000,
+        "investments": 8000,
+        "owned": 10000,
+        "debts": 3000,
+        "net_worth": 7000
+      },
+      "working": [
+        "Owned = 2,000+8,000=10,000.",
+        "Net worth = 10,000−3,000=7,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "easy",
+      "title": "No mortgage on property is allowed",
+      "given": "Home $300,000, no mortgage debt.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Real estate",
+            "balance": 300000
+          }
+        ],
+        "debts": []
+      },
+      "expected": {
+        "owned": 300000,
+        "debts": 0,
+        "net_worth": 300000
+      },
+      "working": [
+        "Owned = 300,000; debts = 0; net worth = 300,000."
+      ],
+      "rests_on": "Owner decision DEC-1925.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "complex",
+      "title": "Approved drawing — Net worth Quiet Instrument v08 state A",
+      "given": "Chase Checking $8,000; Vanguard Brokerage $349,333 ($838 cash, $348,495 stocks); E*TRADE bonds/CDs $5,819; Home $450,000; mortgage $412,000; Visa $6,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "name": "Chase Checking",
+            "class": "Cash",
+            "balance": 8000
+          },
+          {
+            "name": "Vanguard Brokerage",
+            "balance": 349333,
+            "class_breakdown": {
+              "Cash": 838,
+              "Stocks / Funds": 348495
+            }
+          },
+          {
+            "name": "E*TRADE bonds and CDs",
+            "class": "Bonds & CDs",
+            "balance": 5819
+          },
+          {
+            "name": "Home",
+            "class": "Real estate",
+            "balance": 450000
+          }
+        ],
+        "debts": [
+          {
+            "name": "Home mortgage",
+            "balance": 412000
+          },
+          {
+            "name": "Chase Visa",
+            "balance": 6000
+          }
+        ]
+      },
+      "expected": {
+        "Cash": 8838,
+        "Investments": 354314,
+        "Personal property": 450000,
+        "What you own": 813152,
+        "Debts": 418000,
+        "Net worth": 395152
+      },
+      "working": [
+        "Cash = 8,000 + 838 = 8,838.",
+        "Investments = 348,495 + 5,819 = 354,314.",
+        "What you own = 8,838 + 354,314 + 450,000 = 813,152.",
+        "Debts = 412,000 + 6,000 = 418,000.",
+        "Net worth = 813,152 − 418,000 = 395,152."
+      ],
+      "rests_on": "Approved drawing Net worth, Quiet Instrument v08, state A (2026-09-14).",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "complex",
+      "title": "Missing asset balance is named and total marked incomplete",
+      "given": "Checking $2,000, stocks $10,000, one linked CD missing value; debt $1,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Cash",
+            "balance": 2000
+          },
+          {
+            "class": "Stocks / Funds",
+            "balance": 10000
+          },
+          {
+            "class": "Bonds & CDs",
+            "balance": null,
+            "name": "Linked CD"
+          }
+        ],
+        "debts": [
+          1000
+        ]
+      },
+      "expected": {
+        "known_owned_subtotal": 12000,
+        "known_net_worth_subtotal": 11000,
+        "warning": "Incomplete — Linked CD has no value",
+        "class_invariant": "Cannot certify complete"
+      },
+      "working": [
+        "Known assets = 2,000+10,000=12,000.",
+        "Known debt = 1,000.",
+        "Known subtotal net worth = 11,000, but missing CD prevents a complete figure."
+      ],
+      "rests_on": "Owner decision DEC-3279e.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written.",
+      "formula_gives": "A complete-looking total of known balances without missing-value disclosure."
+    },
+    {
+      "id": "MK-NW-O-003",
+      "name": "theNetWorth",
+      "kind": "edge",
+      "title": "No accounts state is not $0 net worth",
+      "given": "No saved accounts because user has not entered assets.",
+      "inputs": {
+        "accounts": [],
+        "debts": [],
+        "saved_record": false
+      },
+      "expected": "REFUSES — show first-day state, not a completed $0 net worth",
+      "working": [
+        "No account state should not be represented as $0 owned with default returns."
+      ],
+      "rests_on": "Owner decision DEC-2748i.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "easy",
+      "title": "Cash covers essentials with rent",
+      "given": "Cash $12,000, essentials including debt minimums $3,000/month, net rent $1,000/month.",
+      "inputs": {
+        "cash": 12000,
+        "essentials_monthly": 3000,
+        "rent_net_monthly": 1000,
+        "debt_minimums_in_essentials": true
+      },
+      "expected": {
+        "monthly_draw_from_cash": 2000,
+        "months_covered": 6
+      },
+      "working": [
+        "From cash = 3,000−1,000=2,000.",
+        "Months = 12,000/2,000=6."
+      ],
+      "rests_on": "Owner decision DEC-1668.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "easy",
+      "title": "No debt minimums when no debt",
+      "given": "Cash $5,000; essentials $1,000; no debt entries; no rent.",
+      "inputs": {
+        "cash": 5000,
+        "essential_expenses": 1000,
+        "debt_minimums": 0,
+        "rent_net_monthly": 0
+      },
+      "expected": {
+        "monthly_draw_from_cash": 1000,
+        "months_covered": 5
+      },
+      "working": [
+        "From cash = 1,000−0=1,000.",
+        "Months = 5,000/1,000=5."
+      ],
+      "rests_on": "Owner decision DEC-1925.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "complex",
+      "title": "Mortgage budget line not double-counted; debt minimum included",
+      "given": "Cash $18,000; average essential spend $3,100; mortgage minimum $1,600; budget has $1,600 Rent/Mortgage line; net rent $900.",
+      "inputs": {
+        "cash": 18000,
+        "logged_essential_average_excluding_mortgage": 3100,
+        "mortgage_minimum": 1600,
+        "budget_rent_mortgage_line": 1600,
+        "rent_net_monthly": 900
+      },
+      "expected": {
+        "essentials_including_debt_minimum": 4700,
+        "monthly_draw_from_cash": 3800,
+        "months_covered": 4.7368421052631575
+      },
+      "working": [
+        "Mortgage budget line is counted as nothing because mortgage is in Debts.",
+        "Essentials = 3,100 + 1,600 = 4,700.",
+        "From cash = 4,700−900=3,800.",
+        "Months = 18,000/3,800 = 4.7368421053… → 4.7 months."
+      ],
+      "rests_on": "Owner decisions DEC-1668 and DEC-1925.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "complex",
+      "title": "Rent covers whole month refuses months covered",
+      "given": "Cash $20,000; essentials $2,500; net rent $3,000.",
+      "inputs": {
+        "cash": 20000,
+        "essentials_monthly": 2500,
+        "rent_net_monthly": 3000
+      },
+      "expected": {
+        "monthly_draw_from_cash": 0,
+        "months_covered": "REFUSES — rent pays for whole month; cash is not drawn on"
+      },
+      "working": [
+        "From cash = max(2,500−3,000,0)=0.",
+        "No months figure when monthly draw is zero."
+      ],
+      "rests_on": "Owner decision DEC-1668.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-004",
+      "name": "theEmergencyFund",
+      "kind": "edge",
+      "title": "Rent data unavailable is not confirmed zero",
+      "given": "Cash $10,000, monthly essentials $2,000, but Income-screen rent data could not be loaded.",
+      "inputs": {
+        "cash": 10000,
+        "essentials_monthly": 2000,
+        "rent_net_monthly": null,
+        "rent_data_available": false
+      },
+      "expected": "RULE UNCLEAR — no runway figure until rent data availability is resolved; if rent is confirmed $0, months covered is 5.",
+      "working": [
+        "If rent is confirmed zero, monthly draw = $2,000 and runway = 10,000/2,000 = 5 months.",
+        "Unavailable rent data is not proof of zero rent."
+      ],
+      "rests_on": "Owner decisions DEC-1668 and DEC-3035p; tenet 3.",
+      "confidence": "high",
+      "notes": "The case distinguishes unavailable income data from a confirmed no-rent household.",
+      "formula_gives": "If unavailable rent collapses to 0, the formula gives 5 months; that number is not justified until rent data availability is resolved."
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "easy",
+      "title": "One alternative row",
+      "given": "Gold holding $5,000 at 8%.",
+      "inputs": {
+        "alternatives": [
+          {
+            "name": "Gold",
+            "value": 5000,
+            "rate": 0.08
+          }
+        ]
+      },
+      "expected": {
+        "count": 1,
+        "total": 5000,
+        "blended_rate": 0.08,
+        "growth": 400,
+        "rows_sum": 5000
+      },
+      "working": [
+        "Growth = 5,000×8%=400.",
+        "Row total equals summary total."
+      ],
+      "rests_on": "Owner decision DEC-3035n.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "easy",
+      "title": "No alternatives refuses growth",
+      "given": "No alternatives held.",
+      "inputs": {
+        "alternatives": []
+      },
+      "expected": {
+        "count": 0,
+        "total": 0,
+        "blended_rate": "REFUSES",
+        "growth": "REFUSES"
+      },
+      "working": [
+        "No holdings means no growth forecast, not $0 forecast."
+      ],
+      "rests_on": "Owner decision DEC-2747c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "complex",
+      "title": "Split brokerage account row only shows alternative portion",
+      "given": "Brokerage $30,000 with $20,000 stocks and $10,000 crypto fund as Alternatives at 8%.",
+      "inputs": {
+        "alternatives": [
+          {
+            "account": "Brokerage",
+            "total_account": 30000,
+            "alternative_portion": 10000,
+            "kind": "crypto",
+            "rate": 0.08
+          }
+        ]
+      },
+      "expected": {
+        "count": 1,
+        "total": 10000,
+        "blended_rate": 0.08,
+        "growth": 800,
+        "rows": [
+          {
+            "account": "Brokerage",
+            "value": 10000,
+            "portion_label": "Alternatives"
+          }
+        ]
+      },
+      "working": [
+        "Only $10,000 Alternatives portion enters total.",
+        "Growth = 10,000×8%=800.",
+        "Rows sum to $10,000."
+      ],
+      "rests_on": "Owner decision DEC-3035n.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "complex",
+      "title": "Multiple rates and rows add to total",
+      "given": "Gold $8,000 at 5%; crypto $9,031 at 12%; annuity $6,000 at 3%.",
+      "inputs": {
+        "alternatives": [
+          {
+            "value": 8000,
+            "rate": 0.05
+          },
+          {
+            "value": 9031,
+            "rate": 0.12
+          },
+          {
+            "value": 6000,
+            "rate": 0.03
+          }
+        ]
+      },
+      "expected": {
+        "total": 23031,
+        "weighted_growth": 1663.72,
+        "blended_rate": 0.07223828752550909,
+        "growth": 1663.72,
+        "rows_sum": 23031
+      },
+      "working": [
+        "Total = 8,000+9,031+6,000=23,031.",
+        "Growth = 400+1,083.72+180 = 1,663.72.",
+        "Blended rate = 1,663.72/23,031 = 7.22382875…%."
+      ],
+      "rests_on": "Owner decision DEC-3035n.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-005",
+      "name": "theAlternativesOutlook",
+      "kind": "edge",
+      "title": "Unknown alternative class should ask, not forecast",
+      "given": "Unclassified holding has no kind and may be an alternative but not confirmed.",
+      "inputs": {
+        "alternatives": [],
+        "unclassified_value": 5000
+      },
+      "expected": {
+        "growth": "REFUSES — do not infer alternative holding from unclassified asset"
+      },
+      "working": [
+        "Only holdings actually classified as alternatives are counted."
+      ],
+      "rests_on": "Owner rule 7.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "easy",
+      "title": "Shares and cost basis",
+      "given": "Bought 10 shares at $20; current price $25.",
+      "inputs": {
+        "purchases": [
+          {
+            "shares": 10,
+            "cost_per_share": 20,
+            "date": "2025-01-01"
+          }
+        ],
+        "sales": [],
+        "price": 25,
+        "multiplier": 1
+      },
+      "expected": {
+        "shares": 10,
+        "total_paid": 200,
+        "value": 250,
+        "gain": 50,
+        "return_on_cost": 0.25
+      },
+      "working": [
+        "Shares = 10.",
+        "Cost = 10×20=200.",
+        "Value = 10×25=250.",
+        "Gain=50; return on cost=50/200=25%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "easy",
+      "title": "No price shows cost basis only",
+      "given": "Bought 5 shares at $30; no current price.",
+      "inputs": {
+        "purchases": [
+          {
+            "shares": 5,
+            "cost_per_share": 30
+          }
+        ],
+        "sales": [],
+        "price": null
+      },
+      "expected": {
+        "shares": 5,
+        "total_paid": 150,
+        "value_shown": 150,
+        "gain": "REFUSES",
+        "return": "REFUSES",
+        "tax_estimate": "REFUSES",
+        "label": "Cost basis, not current market value"
+      },
+      "working": [
+        "5×30=$150 paid.",
+        "No price means value display equals cost paid, but gains/return/tax estimate are not given."
+      ],
+      "rests_on": "Card formula; tenet 8.",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "value_shown": 150,
+        "label": "value (not explicitly labelled cost basis)"
+      }
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "complex",
+      "title": "FIFO sale consumes oldest lots",
+      "given": "Buy 10 shares at $10 on Jan 1; buy 10 at $20 on Jun 1; sell 12 shares in Sep.",
+      "inputs": {
+        "purchases": [
+          {
+            "shares": 10,
+            "cost_per_share": 10,
+            "date": "2025-01-01"
+          },
+          {
+            "shares": 10,
+            "cost_per_share": 20,
+            "date": "2025-06-01"
+          }
+        ],
+        "sales": [
+          {
+            "shares": 12,
+            "date": "2025-09-01",
+            "proceeds_per_share": 25
+          }
+        ],
+        "price": 25
+      },
+      "expected": {
+        "shares_remaining": 8,
+        "remaining_cost": 160,
+        "sale_proceeds": 300,
+        "realized_gain": 160
+      },
+      "working": [
+        "FIFO: first 10 shares cost $100; next 2 cost $40; total cost sold $140.",
+        "Sale proceeds = 12×25=$300.",
+        "Realized gain = $300 − $140 = $160.",
+        "Remaining 8 shares are from second lot, cost 8×20=$160."
+      ],
+      "rests_on": "Owner decision DEC-2484d.",
+      "confidence": "high",
+      "notes": "Expected realized gain corrected by arithmetic: $300−$140=$160."
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "complex",
+      "title": "Option multiplier honored",
+      "given": "One option contract, multiplier 100, cost $2.50 per share, price $3.00.",
+      "inputs": {
+        "purchases": [
+          {
+            "shares": 1,
+            "cost_per_share": 2.5,
+            "date": "2025-01-01"
+          }
+        ],
+        "sales": [],
+        "price": 3,
+        "is_option": true,
+        "multiplier": 100
+      },
+      "expected": {
+        "shares": 1,
+        "total_paid": 250,
+        "value": 300,
+        "gain": 50,
+        "return_on_cost": 0.2
+      },
+      "working": [
+        "Cost = 1×2.50×100=250.",
+        "Value = 1×3×100=300.",
+        "Gain=50; return=20%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-006",
+      "name": "theHolding",
+      "kind": "edge",
+      "title": "Exactly one year is short-term",
+      "given": "Purchase date exactly one year before sale date.",
+      "inputs": {
+        "purchases": [
+          {
+            "shares": 1,
+            "cost_per_share": 100,
+            "date": "2025-10-09"
+          }
+        ],
+        "sale_date": "2026-10-09",
+        "today": "2026-10-09",
+        "price": 120
+      },
+      "expected": {
+        "gain_if_sold": 20,
+        "term": "short-term"
+      },
+      "working": [
+        "Exactly one year or less is short-term; long-term requires more than one year."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written."
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "easy",
+      "title": "Passes exact amount through",
+      "given": "Look-back amount is $1,000; two price histories, 3 months, today fixed.",
+      "inputs": {
+        "amount": 1000,
+        "history_a": [
+          100,
+          110
+        ],
+        "history_b": [
+          100,
+          105
+        ],
+        "months": 3,
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "expected": "Exactly the result returned by lookBack for these inputs"
+      },
+      "working": [
+        "The orchestrator must return the delegated result unchanged."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "easy",
+      "title": "Zero amount passes through",
+      "given": "Amount is zero.",
+      "inputs": {
+        "amount": 0,
+        "history_a": [
+          100,
+          110
+        ],
+        "history_b": [
+          100,
+          105
+        ],
+        "months": 3,
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "expected": "Exactly the result returned by lookBack; do not invent nonzero value"
+      },
+      "working": [
+        "No orchestration arithmetic is added."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "complex",
+      "title": "Different history lengths passed unchanged",
+      "given": "Amount $5,432.10, histories have different date coverage, period 12 months.",
+      "inputs": {
+        "amount": 5432.1,
+        "history_a": [
+          {
+            "date": "2025-10-09",
+            "price": 100
+          },
+          {
+            "date": "2026-10-09",
+            "price": 120
+          }
+        ],
+        "history_b": [
+          {
+            "date": "2026-01-01",
+            "price": 100
+          },
+          {
+            "date": "2026-10-09",
+            "price": 110
+          }
+        ],
+        "months": 12,
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "expected": "Delegated lookBack result, including its own missing-history/refusal behavior"
+      },
+      "working": [
+        "No formula in this card modifies the lookBack answer."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "low",
+      "notes": "Cannot calculate numerical output without the delegated lookBack formula/contract."
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "complex",
+      "title": "Missing history is not replaced by guess",
+      "given": "One price history is empty.",
+      "inputs": {
+        "amount": 1000,
+        "history_a": [],
+        "history_b": [
+          100,
+          110
+        ],
+        "months": 6,
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "expected": "Delegated lookBack refusal/result unchanged"
+      },
+      "working": [
+        "Orchestrator must not backfill or reinterpret missing history."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "low",
+      "notes": "Dependency behavior not supplied."
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "edge",
+      "title": "Invalid month count is delegated",
+      "given": "Months supplied as 0.",
+      "inputs": {
+        "amount": 1000,
+        "history_a": [
+          100,
+          110
+        ],
+        "history_b": [
+          100,
+          105
+        ],
+        "months": 0,
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "expected": "Delegated lookBack result unchanged; validate according to lookBack contract"
+      },
+      "working": [
+        "The card is only a pass-through."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "low",
+      "notes": "Dependency contract is absent."
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "easy",
+      "title": "No flows and known values gives simple TWR",
+      "given": "Beginning value $10,000, ending $11,000, no flows.",
+      "inputs": {
+        "beginning": 10000,
+        "ending": 11000,
+        "flows": [],
+        "period_days": 365,
+        "record_has_beginning": true
+      },
+      "expected": {
+        "wealth_generated": 1000,
+        "change_in_investment_value": 1000,
+        "return": 0.1
+      },
+      "working": [
+        "Wealth generated = 11,000−10,000=1,000.",
+        "With no dividends/interest, change in investment value = 1,000.",
+        "TWR = 11,000/10,000−1 = 10%."
+      ],
+      "rests_on": "Owner decision DEC-1669.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "easy",
+      "title": "Transfer between measured accounts is not contribution",
+      "given": "Account A transfers $1,000 to B; both are measured; aggregate beginning $20,000 and ending $20,000.",
+      "inputs": {
+        "measured_accounts": [
+          "A",
+          "B"
+        ],
+        "transfer_between_measured": 1000,
+        "beginning": 20000,
+        "ending": 20000
+      },
+      "expected": {
+        "contributions": 0,
+        "withdrawals": 0,
+        "wealth_generated": 0,
+        "return": 0
+      },
+      "working": [
+        "Internal transfer nets to zero for measured portfolio.",
+        "Ending equals beginning; TWR 0% if no other flows/changes."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "complex",
+      "title": "Approved drawing Performance v17",
+      "given": "Two linked accounts, record beginning Oct 1 2025 read on Sep 30 2026. All accounts: beginning $100,000; contributions $15,000; withdrawals $0; dividends $1,800; interest $400; change in investment value $5,800. Vanguard: beginning $80,000, contributions $15,000, wealth generated $6,000, ending $101,000. E*TRADE: beginning $20,000, no flows, wealth generated $2,000, ending $22,000.",
+      "inputs": {
+        "approved_drawing": "Performance v17, phone 1, approved 2026-10-01",
+        "beginning": 100000,
+        "contributions": 15000,
+        "withdrawals": 0,
+        "dividends": 1800,
+        "interest": 400,
+        "change_in_investment_value": 5800,
+        "ending": 123000,
+        "accounts": [
+          {
+            "name": "Vanguard",
+            "beginning": 80000,
+            "contributions": 15000,
+            "wealth_generated": 6000,
+            "ending": 101000
+          },
+          {
+            "name": "E*TRADE",
+            "beginning": 20000,
+            "contributions": 0,
+            "wealth_generated": 2000,
+            "ending": 22000
+          }
+        ]
+      },
+      "expected": {
+        "wealth_generated_all": 8000,
+        "ending_all": 123000,
+        "vanguard_wealth_generated": 6000,
+        "vanguard_ending": 101000,
+        "etrade_wealth_generated": 2000,
+        "etrade_ending": 22000,
+        "return_all": "RULE UNCLEAR — no contribution dates, so no expected TWR rate",
+        "return_vanguard": "RULE UNCLEAR — no contribution dates, so no expected TWR rate"
+      },
+      "working": [
+        "All wealth generated = 6,000+2,000=8,000.",
+        "Ending = 101,000+22,000=123,000.",
+        "All-account walk: 123,000−100,000−15,000=8,000.",
+        "Change in investment value = 8,000−1,800−400=5,800.",
+        "Do not invent the return rates because contribution dates are absent."
+      ],
+      "rests_on": "Approved drawing Performance v17, phone 1 (2026-10-01).",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written."
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "complex",
+      "title": "No record for these accounts back-solves only a dollar walk",
+      "given": "No recorded values exist for the measured accounts in the selected period; ending value $12,000, priced gain $1,000, contributions $2,000, withdrawals $0.",
+      "inputs": {
+        "window_open": "2026-10-01",
+        "record_has_any_values_for_named_accounts": false,
+        "ending": 12000,
+        "priced_gain": 1000,
+        "contributions": 2000,
+        "withdrawals": 0
+      },
+      "expected": {
+        "beginning_inferred": 9000,
+        "wealth_generated": 1000,
+        "return": "REFUSES — no percent; beginning was back-solved, not read"
+      },
+      "working": [
+        "Back-solved beginning = 12,000 − 1,000 − 2,000 + 0 = 9,000.",
+        "Wealth generated = 12,000 − 9,000 − 2,000 + 0 = 1,000.",
+        "Do not label the beginning as observed; no percent is given."
+      ],
+      "rests_on": "Card formula; tenet 2; owner decision DEC-3035i.",
+      "confidence": "high",
+      "notes": "This exercises the branch where there is no record of these accounts. The inferred beginning must not be presented as observed.",
+      "formula_gives": {
+        "beginning": 9000,
+        "wealth_generated": 1000,
+        "label": "Formula does not specify that the beginning is inferred; no return percent is still required."
+      }
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "edge",
+      "title": "Cash value less than deposit refuses return",
+      "given": "Record says value after day’s movement is $500, but deposit that day was $600.",
+      "inputs": {
+        "recorded_value_after_movement": 500,
+        "deposit": 600,
+        "movement_date": "2026-10-01",
+        "beginning_known": true,
+        "ending": 700
+      },
+      "expected": {
+        "return": "REFUSES",
+        "reason": "Value on a day is less than the money added that day"
+      },
+      "working": [
+        "500 < 600, so the record cannot support the flow/return calculation."
+      ],
+      "rests_on": "Card formula; tenet 1.",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "rules_held": [],
+  "screen_checks": [],
+  "could_not_test": [
+    {
+      "id": "MK-NW-O-007",
+      "missing": "The card only delegates to lookBack; its formula, output contract, and refusal rules are not supplied. The five cases can test pass-through integrity only, not the delegated calculation."
+    }
+  ]
+}

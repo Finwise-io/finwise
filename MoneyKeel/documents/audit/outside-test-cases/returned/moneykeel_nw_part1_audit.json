@@ -1,0 +1,4638 @@
+{
+  "batch": "nw module final — part 1",
+  "written_by": "OpenAI independent formula auditor",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-NW-F-015: replace missing-balance-as-zero semantics; omit the unknown account and visibly name it as missing.",
+    "MK-NW-F-022: add the required visible missing-account warning when a non-real asset balance is omitted from totalAssets.",
+    "MK-NW-F-013: reconcile standalone and household property-use rules with DEC-1926/DEC-3035p; distinguish unavailable Income data from a confirmed empty rent list.",
+    "MK-NW-F-010: confirm that no wrapper selection intentionally defaults to brokerage/taxable; otherwise preserve unknown rather than asserting a tax wrapper.",
+    "MK-NW-F-024: clarify whether an unusable mask falls back to account number.",
+    "MK-NW-F-008: provide explicit ticker registry and company-name exclusion rules.",
+    "Runtime execution is pending: expected results are independent oracles only; Claude Code must map and run all 130 cases.",
+    "All screen checks are based on the register’s written descriptions; actual UI copy, visible missing-data notices, and cross-screen figure identity require runtime/UI inspection."
+  ],
+  "formula_checks": [
+    {
+      "id": "MK-NW-F-001",
+      "name": "isAlternative",
+      "verdict": "RIGHT",
+      "why": "It directly delegates to assetClassOf, so it is correct if that shared classifier is correct. Its result must inherit the classifier’s Unclassified outcome rather than infer from unrelated fields.",
+      "should_be": "",
+      "rests_on": "Card formula; owner classification rules DEC-0051, DEC-2334, DEC-2747d, DEC-3035f.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-002",
+      "name": "alternativesSummary",
+      "verdict": "RIGHT",
+      "why": "The formula uses altPartsOf for each alternative portion and weights each portion by its kind-specific rate; the companion altPartsOf card supplies that split.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2747c and DEC-3035n; ordinary weighted-average arithmetic.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-003",
+      "name": "valueFreshness",
+      "verdict": "RIGHT",
+      "why": "The day-aware whole-month calculation and six-whole-month threshold agree with the stated rule, including month-only dates being represented as the first. Verify month-end and leap-year boundaries in tests.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2441, DEC-2484f, DEC-3035h.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-004",
+      "name": "portfolioActualReturn",
+      "verdict": "RIGHT",
+      "why": "For eligible retirement balances, reconstruct each start balance as current/(1+r), then compute total current / total start − 1. This is the stated account-weighted aggregate return and agrees with DEC-3035b. Reported zero is included; missing returns and returns ≤ −100% are excluded as specified.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2484o and DEC-3035b.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-005",
+      "name": "accountAllowsTicker",
+      "verdict": "RIGHT",
+      "why": "The listed disallowed account types are unconditional; otherwise an existing holdings list permits ticker entry before the remaining Bonds & CDs/Alternatives fallback.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2441; consistency and ordinary branching logic.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-006",
+      "name": "isCashKind",
+      "verdict": "RIGHT",
+      "why": "The list explicitly excludes money-market funds and CDs from cash, matching the owner’s classification rule.",
+      "should_be": "",
+      "rests_on": "Owner rule DEC-0051 / rule 13 in the brief.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-007",
+      "name": "assetKind",
+      "verdict": "RIGHT",
+      "why": "An exact lookup in the app-maintained ID list is internally consistent. Unknown or differently cased IDs correctly yield no entry rather than a guessed kind.",
+      "should_be": "",
+      "rests_on": "Card formula; tenet 3.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-008",
+      "name": "incomeBearingClassOf",
+      "verdict": "INCOMPLETE",
+      "why": "Name inference has several interacting token rules and “first match wins,” but the card does not state the full exact ticker registry for money-market funds and Treasury-bill funds, nor a complete rule for distinguishing company names from commodity words. DEC-2747d does settle two critical examples.",
+      "should_be": "Keep the explicit precedence and whole-word rules; make ticker registries and company-name exclusions explicit and test them. If evidence remains ambiguous, return no inferred class and ask.",
+      "rests_on": "Owner decisions DEC-2747d and DEC-3035o; owner rule to refuse unclear classifications.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-009",
+      "name": "maturityClass",
+      "verdict": "RIGHT",
+      "why": "A maturity date determines Bonds & CDs regardless of whether it is past; a blank date is treated as absent. This matches the owner’s any-maturity-dated-instrument rule.",
+      "should_be": "",
+      "rests_on": "Owner rule 9 in the brief, 2026-08-04.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-010",
+      "name": "wrapperAccount",
+      "verdict": "INCOMPLETE",
+      "why": "The mapping is explicit for the listed wrappers, but “anything else, or nothing chosen” silently defaults to taxable brokerage. For a genuinely unknown or absent tax wrapper, that may state a tax treatment the user never supplied, contrary to “unknown is not zero” and the user’s word outranks a guess.",
+      "should_be": "Keep the stated mappings for chosen wrappers; represent no choice/unknown separately or make the default a clearly disclosed capture default rather than a claimed user choice.",
+      "rests_on": "Tenets 3 and 5; card formula.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-011",
+      "name": "assetClassOf",
+      "verdict": "RIGHT",
+      "why": "The precedence is explicit: user-stated class first, maturity date second, and property/place names are excluded from name evidence. This agrees with the owner’s rule that a property name is not class evidence.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2441, DEC-2747d, DEC-2748h, DEC-3035f, DEC-3035o; tenet 5.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-012",
+      "name": "taxTreatmentOf",
+      "verdict": "RIGHT",
+      "why": "The account’s explicitly stored tax treatment wins; 529/HSA wording overrides are implemented by taxWordsOf (MK-NW-F-108), not by this underlying treatment helper.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3035c; card formula; tenet 5.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-013",
+      "name": "realEstateUseOf",
+      "verdict": "INCOMPLETE",
+      "why": "The standalone-property branch allows its stored stated use to beat the “home” default when no rental entry exists, while DEC-1926 says a property is a second/vacation home unless rent is entered. A household map may also differ from the standalone branch. DEC-3035p requires one reading across functions.",
+      "should_be": "Use one shared rule across standalone and household calls: a property is rental only if a rent entry names it; otherwise apply the owner-approved home/second-home selection consistently, and report no home when none is identified.",
+      "rests_on": "Owner decisions DEC-1926, DEC-2747e, DEC-3035p.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-014",
+      "name": "isRealAsset",
+      "verdict": "RIGHT",
+      "why": "It delegates to assetClassOf and correctly treats only Real estate and Personal property as physical assets.",
+      "should_be": "",
+      "rests_on": "Card formula; ordinary classification logic.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-015",
+      "name": "totalAssets",
+      "verdict": "WRONG",
+      "why": "The formula says every account balance is summed and missing balance counts as zero. DEC-2747f says accounts with no value must not be counted in the asset total, and DEC-3279e says a missing balance is never $0: leave it out and name the account.",
+      "should_be": "Sum only accounts with an actual value. If an account is missing its value, omit that account from the numeric total and show an amber notice naming it; do not make the total appear complete.",
+      "rests_on": "Owner decisions DEC-2747f and DEC-3279e; tenets 1 and 3.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-016",
+      "name": "cashTotal",
+      "verdict": "INCOMPLETE",
+      "why": "The calculation follows the class split, but the card does not specify how a missing or invalid cash portion is represented, and its screen figure’s refusal condition (“nothing logged and no plan set”) is not directly determined by cashTotal itself. It must preserve the invariant with the other class totals.",
+      "should_be": "Sum known cash portions only; keep missing amounts visibly unknown and disclose incompleteness rather than treating them as zero.",
+      "rests_on": "Owner decision DEC-2441; tenets 2–4.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-017",
+      "name": "equitiesTotal",
+      "verdict": "RIGHT",
+      "why": "It reads the Stocks / Funds class line from the shared class split, including only that portion of split accounts.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2441; DEC-3146 account split rule.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-018",
+      "name": "fixedIncomeTotal",
+      "verdict": "RIGHT",
+      "why": "It reads the Bonds & CDs class line from the shared class split, including only that portion of split accounts.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2441; DEC-3146 account split rule.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-019",
+      "name": "alternativesTotal",
+      "verdict": "RIGHT",
+      "why": "It reads the Alternatives class line from the shared class split, including only that portion of split accounts.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2441; DEC-3035n; DEC-3146.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-020",
+      "name": "realEstateTotal",
+      "verdict": "RIGHT",
+      "why": "It reads the Real estate class line from the shared class split. The card should be checked to ensure split-account portions, rather than whole balances, are used.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3146.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-021",
+      "name": "investmentsTotal",
+      "verdict": "INCOMPLETE",
+      "why": "The stated categories and invariant are right, but the formula does not state how missing account values are handled. The Unclassified amount is included in investments, as required by the definition, while cash and real assets are excluded.",
+      "should_be": "Add Stocks / Funds + Bonds & CDs + Alternatives + Unclassified class portions; exclude cash and real assets; ensure cash + investments equals investableAssets for complete valued data and flag missing balances.",
+      "rests_on": "Owner decisions 13–15 and DEC-3146; tenet 2.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-022",
+      "name": "investableAssets",
+      "verdict": "INCOMPLETE",
+      "why": "It excludes physical assets and skips missing balances. That avoids adding unknown values as zero, but does not say how the total signals that omitted accounts make the displayed total incomplete, as required by DEC-3279e.",
+      "should_be": "Sum known balances for non-real assets and separately identify any missing-valued accounts so the displayed total is not presented as complete.",
+      "rests_on": "Owner decision DEC-3279e; tenets 2 and 3.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-023",
+      "name": "wrapperWord",
+      "verdict": "RIGHT",
+      "why": "The map gives plain labels for known account kinds and returns no wrapper label for kinds that name holdings rather than account wrappers, unless the person confirmed brokerage. This follows the described distinction.",
+      "should_be": "",
+      "rests_on": "Card formula; tenet 8; owner rule DEC-2334.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-024",
+      "name": "accountLastFour",
+      "verdict": "INCOMPLETE",
+      "why": "The mask takes precedence over the account number. If a mask exists but contains fewer than four digits, the formula returns null rather than falling back to a valid account number; “or failing that its account number” should clarify whether failure means absent mask or unusable mask.",
+      "should_be": "Use the mask if it yields at least four digits; otherwise try the account number; return null only when neither source has at least four digits.",
+      "rests_on": "Card formula and ordinary fallback semantics.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-025",
+      "name": "accountDisplayName",
+      "verdict": "RIGHT",
+      "why": "The formula explicitly covers Roth 401(k) and no-kind tax-advantaged accounts with known digits, matching DEC-3035e. Contradictory stored tax fields should be validated, but no conflict precedence is required by the stated valid-input contract.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3035e; tenet 5.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-026",
+      "name": "accountDisplayNames",
+      "verdict": "RIGHT",
+      "why": "It disambiguates equal names deterministically by textual account ID order and skips suffixes that collide with an existing name. This is a coherent uniqueness rule.",
+      "should_be": "",
+      "rests_on": "Card formula; owner decision DEC-2441; ordinary uniqueness logic.",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-F-001",
+      "name": "isAlternative",
+      "kind": "easy",
+      "title": "Alternative class is true",
+      "given": "An account is classified Alternatives.",
+      "inputs": {
+        "asset_class": "Alternatives"
+      },
+      "expected": {
+        "exact": true,
+        "shown": "Yes"
+      },
+      "working": [
+        "assetClassOf = Alternatives → true"
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-001",
+      "name": "isAlternative",
+      "kind": "easy",
+      "title": "Stocks class is false",
+      "given": "An account is classified Stocks / Funds.",
+      "inputs": {
+        "asset_class": "Stocks / Funds"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "Class is not Alternatives → false"
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-001",
+      "name": "isAlternative",
+      "kind": "complex",
+      "title": "Explicit class beats suggestive name",
+      "given": "An account named “Gold miners ETF” has a person-confirmed Stocks / Funds class.",
+      "inputs": {
+        "name": "Gold miners ETF",
+        "confirmed_class": "Stocks / Funds"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "Use the confirmed class first: Stocks / Funds.",
+        "Stocks / Funds is not Alternatives."
+      ],
+      "rests_on": "Owner tenet 5; DEC-3035o.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-001",
+      "name": "isAlternative",
+      "kind": "complex",
+      "title": "Legacy alternative retained",
+      "given": "A legacy hedge-fund row is still saved and classified Alternatives.",
+      "inputs": {
+        "name": "Legacy hedge fund",
+        "kind": "hedge_fund",
+        "asset_class": "Alternatives"
+      },
+      "expected": {
+        "exact": true,
+        "shown": "Yes"
+      },
+      "working": [
+        "Legacy rows are retained; class is Alternatives."
+      ],
+      "rests_on": "Owner decision DEC-2334.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-001",
+      "name": "isAlternative",
+      "kind": "edge",
+      "title": "Unclassified does not get guessed",
+      "given": "No kind or evidence is present; classifier returns Unclassified.",
+      "inputs": {
+        "name": "Imported holding",
+        "asset_class": "Unclassified"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "Unclassified ≠ Alternatives → false."
+      ],
+      "rests_on": "Owner rule 7; DEC-3035f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-002",
+      "name": "alternativesSummary",
+      "kind": "easy",
+      "title": "One alternative with known rate",
+      "given": "One $10,000 gold holding; benchmark annual rate 4%.",
+      "inputs": {
+        "parts": [
+          {
+            "kind": "gold",
+            "value": 10000
+          }
+        ],
+        "rates": {
+          "gold": 0.04
+        }
+      },
+      "expected": {
+        "count": 1,
+        "total": {
+          "exact": 10000,
+          "shown": "$10,000"
+        },
+        "blended_rate": {
+          "exact": 0.04,
+          "shown": "4.00%"
+        },
+        "growth": {
+          "exact": 400,
+          "shown": "$400"
+        }
+      },
+      "working": [
+        "Count = 1.",
+        "Total = $10,000.",
+        "Weighted rate = (10,000 × 4%) / 10,000 = 4%.",
+        "Growth = 10,000 × 4% = $400."
+      ],
+      "rests_on": "Card formula; weighted-average arithmetic.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-002",
+      "name": "alternativesSummary",
+      "kind": "easy",
+      "title": "Owner rate overrides benchmark",
+      "given": "One $5,000 crypto holding; owner rate 10%, benchmark 4%.",
+      "inputs": {
+        "parts": [
+          {
+            "kind": "crypto",
+            "value": 5000
+          }
+        ],
+        "owner_rates": {
+          "crypto": 0.1
+        },
+        "benchmark_rates": {
+          "crypto": 0.04
+        }
+      },
+      "expected": {
+        "count": 1,
+        "total": {
+          "exact": 5000,
+          "shown": "$5,000"
+        },
+        "blended_rate": {
+          "exact": 0.1,
+          "shown": "10.00%"
+        },
+        "growth": {
+          "exact": 500,
+          "shown": "$500"
+        }
+      },
+      "working": [
+        "Use owner rate 10%, not benchmark 4%.",
+        "Growth = 5,000 × 0.10 = $500."
+      ],
+      "rests_on": "Card formula; owner rate takes precedence.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-002",
+      "name": "alternativesSummary",
+      "kind": "complex",
+      "title": "Mixed alternatives class portions",
+      "given": "A $23,031 account has $8,000 gold at 5%, $9,031 crypto at 12%, and $6,000 annuity at 3%.",
+      "inputs": {
+        "parts": [
+          {
+            "kind": "gold",
+            "value": 8000,
+            "rate": 0.05
+          },
+          {
+            "kind": "crypto",
+            "value": 9031,
+            "rate": 0.12
+          },
+          {
+            "kind": "annuity",
+            "value": 6000,
+            "rate": 0.03
+          }
+        ]
+      },
+      "expected": {
+        "count": 1,
+        "total": {
+          "exact": 23031,
+          "shown": "$23,031"
+        },
+        "blended_rate": {
+          "exact": 0.07223828752550909,
+          "shown": "7.22%"
+        },
+        "growth": {
+          "exact": 1663.72,
+          "shown": "$1,664"
+        }
+      },
+      "working": [
+        "Total = 8,000 + 9,031 + 6,000 = 23,031.",
+        "Weighted growth = 8,000×0.05 + 9,031×0.12 + 6,000×0.03 = 400 + 1,083.72 + 180 = 1,663.72.",
+        "Blended rate = 1,663.72 / 23,031 = 0.07223828752550909… = 7.223828752550909…%.",
+        "Growth = $1,663.72 → $1,664."
+      ],
+      "rests_on": "Owner decision DEC-3035n; ordinary weighted average.",
+      "confidence": "high",
+      "notes": "Exact blended rate is 1663.72/23031 = 0.07223828752550909…; growth is $1,663.72."
+    },
+    {
+      "id": "MK-NW-F-002",
+      "name": "alternativesSummary",
+      "kind": "complex",
+      "title": "Split account totals use only alternative portion",
+      "given": "A brokerage account totals $48,765.43: $33,111.11 stocks, $10,654.32 bonds, $5,000 alternatives at 7.5%.",
+      "inputs": {
+        "account_total": 48765.43,
+        "parts": {
+          "stocks": 33111.11,
+          "bonds": 10654.32,
+          "alternatives": [
+            {
+              "kind": "gold",
+              "value": 5000,
+              "rate": 0.075
+            }
+          ]
+        }
+      },
+      "expected": {
+        "count": 1,
+        "total": {
+          "exact": 5000,
+          "shown": "$5,000"
+        },
+        "blended_rate": {
+          "exact": 0.075,
+          "shown": "7.50%"
+        },
+        "growth": {
+          "exact": 375,
+          "shown": "$375"
+        }
+      },
+      "working": [
+        "Only the Alternatives portion is used: $5,000.",
+        "Growth = $5,000 × 7.5% = $375; other class portions do not enter this summary."
+      ],
+      "rests_on": "Owner decision DEC-3035n.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-002",
+      "name": "alternativesSummary",
+      "kind": "edge",
+      "title": "Nothing held refuses forecast",
+      "given": "No alternatives are held.",
+      "inputs": {
+        "parts": [],
+        "rates": {}
+      },
+      "expected": {
+        "count": 0,
+        "total": {
+          "exact": 0,
+          "shown": "$0"
+        },
+        "blended_rate": "REFUSES — no alternative value held",
+        "growth": "REFUSES — no forecast when nothing is held"
+      },
+      "working": [
+        "There are no alternative portions to sum.",
+        "The owner explicitly says no growth figure when nothing is held."
+      ],
+      "rests_on": "Owner decision DEC-2747c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-003",
+      "name": "valueFreshness",
+      "kind": "easy",
+      "title": "Exactly five months old",
+      "given": "Manual value dated 2026-01-15; today 2026-06-15.",
+      "inputs": {
+        "value_source": "manual",
+        "value_date": "2026-01-15",
+        "today": "2026-06-15"
+      },
+      "expected": {
+        "as_of": "2026-01-15",
+        "months_old": 5,
+        "stale": false
+      },
+      "working": [
+        "Jan 15 to Jun 15 = 5 whole calendar months.",
+        "5 < 6, so not stale."
+      ],
+      "rests_on": "Owner decisions DEC-2484f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-003",
+      "name": "valueFreshness",
+      "kind": "easy",
+      "title": "Exactly six months old",
+      "given": "Manual value dated 2026-01-10; today 2026-07-10.",
+      "inputs": {
+        "value_source": "manual",
+        "value_date": "2026-01-10",
+        "today": "2026-07-10"
+      },
+      "expected": {
+        "as_of": "2026-01-10",
+        "months_old": 6,
+        "stale": true
+      },
+      "working": [
+        "Jan 10 to Jul 10 = 6 whole months.",
+        "6 ≥ 6, so stale."
+      ],
+      "rests_on": "Owner decisions DEC-2441, DEC-2484f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-003",
+      "name": "valueFreshness",
+      "kind": "complex",
+      "title": "Month-only date counts from first",
+      "given": "Value date entered as month 2026-02; today 2026-08-01.",
+      "inputs": {
+        "value_source": "manual",
+        "value_month": "2026-02",
+        "today": "2026-08-01"
+      },
+      "expected": {
+        "as_of": "2026-02-01",
+        "months_old": 6,
+        "stale": true
+      },
+      "working": [
+        "Month-only date is represented as 2026-02-01.",
+        "Feb 1 to Aug 1 = 6 whole months."
+      ],
+      "rests_on": "Owner decision DEC-3035h.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-003",
+      "name": "valueFreshness",
+      "kind": "complex",
+      "title": "Month-end crossing is not prematurely stale",
+      "given": "Manual value dated 2026-04-30; today 2026-10-29.",
+      "inputs": {
+        "value_source": "manual",
+        "value_date": "2026-04-30",
+        "today": "2026-10-29"
+      },
+      "expected": {
+        "as_of": "2026-04-30",
+        "months_old": 5,
+        "stale": false
+      },
+      "working": [
+        "Calendar months apart = 6.",
+        "Oct 29 is before day 30, and Oct 29 is not month-end: subtract one → 5."
+      ],
+      "rests_on": "Owner decision DEC-2484f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-003",
+      "name": "valueFreshness",
+      "kind": "edge",
+      "title": "Holding-derived value has no freshness answer",
+      "given": "Balance is calculated from holdings, no manual value date.",
+      "inputs": {
+        "value_source": "holdings",
+        "value_date": null,
+        "today": "2026-10-09"
+      },
+      "expected": "REFUSES — holding-derived values have no manual value freshness date",
+      "working": [
+        "Formula expressly returns no answer for holdings-derived values."
+      ],
+      "rests_on": "Card formula; tenet 3.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-004",
+      "name": "portfolioActualReturn",
+      "kind": "easy",
+      "title": "One retirement account earns 10%",
+      "given": "Retirement amount now $11,000 and reported 12-month return 10%.",
+      "inputs": {
+        "accounts": [
+          {
+            "retirement_amount_now": 11000,
+            "return_12m": 0.1,
+            "is_property": false
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.1,
+        "shown": "10.00%"
+      },
+      "working": [
+        "Start = 11,000 / 1.10 = 10,000.",
+        "Aggregate end = 11,000; start = 10,000.",
+        "Return = 11,000 / 10,000 − 1 = 10%."
+      ],
+      "rests_on": "Owner decision DEC-3035b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-004",
+      "name": "portfolioActualReturn",
+      "kind": "easy",
+      "title": "Reported zero return is included",
+      "given": "Retirement amount now $8,000 and explicitly reported return 0%.",
+      "inputs": {
+        "accounts": [
+          {
+            "retirement_amount_now": 8000,
+            "return_12m": 0.0,
+            "is_property": false
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.0,
+        "shown": "0.00%"
+      },
+      "working": [
+        "Start = 8,000 / (1+0) = 8,000.",
+        "Return = 8,000 / 8,000 − 1 = 0%."
+      ],
+      "rests_on": "Card formula; explicit zero is reported.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-004",
+      "name": "portfolioActualReturn",
+      "kind": "complex",
+      "title": "Beginning-value weighted aggregate",
+      "given": "Account A now $11,298 with +13%; account B now $10,798.20 with +8%; both retirement balances.",
+      "inputs": {
+        "accounts": [
+          {
+            "retirement_amount_now": 11298,
+            "return_12m": 0.13,
+            "is_property": false
+          },
+          {
+            "retirement_amount_now": 10798.2,
+            "return_12m": 0.08,
+            "is_property": false
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.10499987092177321,
+        "shown": "10.50%"
+      },
+      "working": [
+        "A start = 11,298 / 1.13 = 9,998.230088495575…",
+        "B start = 10,798.20 / 1.08 = 9,998.333333333334…",
+        "Total end = 22,096.20; total start = 19,996.56342182891…",
+        "Return = 22,096.20 / 19,996.56342182891… − 1 = 0.10499987092177321… = 10.499987092177321…%, displayed 10.50%."
+      ],
+      "rests_on": "Owner decision DEC-3035b.",
+      "confidence": "medium",
+      "notes": "The exact result is 0.10499987092177321…; display rounds to 10.50%."
+    },
+    {
+      "id": "MK-NW-F-004",
+      "name": "portfolioActualReturn",
+      "kind": "complex",
+      "title": "Exclude unreported return and property",
+      "given": "Retirement A now $12,000 with reported 20%; retirement B now $9,000 with no return; property $300,000 with 9% return.",
+      "inputs": {
+        "accounts": [
+          {
+            "retirement_amount_now": 12000,
+            "return_12m": 0.2,
+            "is_property": false
+          },
+          {
+            "retirement_amount_now": 9000,
+            "return_12m": null,
+            "is_property": false
+          },
+          {
+            "retirement_amount_now": 300000,
+            "return_12m": 0.09,
+            "is_property": true
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.2,
+        "shown": "20.00%"
+      },
+      "working": [
+        "Only eligible retirement A is included.",
+        "Start = 12,000 / 1.20 = 10,000.",
+        "Missing-return B and property are excluded.",
+        "Return = 12,000 / 10,000 − 1 = 20%."
+      ],
+      "rests_on": "Card formula; owner rule that missing is not zero.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-004",
+      "name": "portfolioActualReturn",
+      "kind": "edge",
+      "title": "No eligible retirement values refuses",
+      "given": "Only a property with a reported return is present.",
+      "inputs": {
+        "accounts": [
+          {
+            "retirement_amount_now": 500000,
+            "return_12m": 0.07,
+            "is_property": true
+          }
+        ]
+      },
+      "expected": "REFUSES — no eligible retirement account totals",
+      "working": [
+        "Properties are excluded; both eligible aggregate totals are zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-005",
+      "name": "accountAllowsTicker",
+      "kind": "easy",
+      "title": "Checking account cannot hold ticker",
+      "given": "Empty checking account.",
+      "inputs": {
+        "class": "Cash",
+        "kind": "checking",
+        "holdings": []
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "Checking is explicitly disallowed."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-005",
+      "name": "accountAllowsTicker",
+      "kind": "easy",
+      "title": "Brokerage with no holdings can add ticker",
+      "given": "Empty taxable brokerage account.",
+      "inputs": {
+        "class": "Stocks / Funds",
+        "kind": "brokerage",
+        "holdings": [],
+        "is_property": false
+      },
+      "expected": {
+        "exact": true,
+        "shown": "Yes"
+      },
+      "working": [
+        "Not property, cash, 529, checking/savings, Bonds & CDs, or Alternatives.",
+        "No existing holdings, so default branch permits ticker."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-005",
+      "name": "accountAllowsTicker",
+      "kind": "complex",
+      "title": "529 remains disallowed even with holdings",
+      "given": "529 account already contains one listed holding.",
+      "inputs": {
+        "kind": "529",
+        "holdings": [
+          "VTI"
+        ],
+        "class": "Stocks / Funds"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "529 is in the unconditional false list; existing holdings must not override it."
+      ],
+      "rests_on": "Card formula read with explicit restrictions; DEC-2441.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-005",
+      "name": "accountAllowsTicker",
+      "kind": "complex",
+      "title": "Hand-entered CD cannot accept ticker",
+      "given": "CD account has no holdings array.",
+      "inputs": {
+        "kind": "cd",
+        "class": "Bonds & CDs",
+        "holdings": []
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "No existing holdings; Bonds & CDs account is itself a manually valued instrument."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-005",
+      "name": "accountAllowsTicker",
+      "kind": "edge",
+      "title": "Alternative with existing holdings",
+      "given": "Legacy Alternatives account already lists a saved holding.",
+      "inputs": {
+        "kind": "other",
+        "class": "Alternatives",
+        "holdings": [
+          "legacy item"
+        ]
+      },
+      "expected": {
+        "exact": true,
+        "shown": "Yes"
+      },
+      "working": [
+        "“Otherwise true when account already lists holdings” precedes class-based Bonds & CDs/Alternatives rejection.",
+        "If implementation interprets this differently, precedence is unresolved."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "This case intentionally probes the wording ambiguity: 529 is clearly unconditional; Alternatives may be allowed when it already lists holdings."
+    },
+    {
+      "id": "MK-NW-F-006",
+      "name": "isCashKind",
+      "kind": "easy",
+      "title": "Checking is cash kind",
+      "given": "Kind is checking.",
+      "inputs": {
+        "kind": "checking"
+      },
+      "expected": {
+        "exact": true,
+        "shown": "Yes"
+      },
+      "working": [
+        "Checking is listed as a cash kind."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-006",
+      "name": "isCashKind",
+      "kind": "easy",
+      "title": "CD is not cash kind",
+      "given": "Kind is CD.",
+      "inputs": {
+        "kind": "cd"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "CD is explicitly excluded and belongs to Bonds & CDs."
+      ],
+      "rests_on": "Owner rule DEC-0051.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-006",
+      "name": "isCashKind",
+      "kind": "complex",
+      "title": "Money-market fund not cash",
+      "given": "Broker-labelled money market fund.",
+      "inputs": {
+        "kind": "money_market",
+        "description": "Vanguard Federal Money Market Fund"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "Money-market funds are Stocks / Funds, not Cash."
+      ],
+      "rests_on": "Owner rule DEC-0051; DEC-2747d.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-006",
+      "name": "isCashKind",
+      "kind": "complex",
+      "title": "Foreign currency is cash, forex holding is alternative",
+      "given": "A bank foreign-currency account kind is foreign currency; a separate holding is named EUR forex.",
+      "inputs": {
+        "kind": "foreign_currency"
+      },
+      "expected": {
+        "exact": true,
+        "shown": "Yes"
+      },
+      "working": [
+        "Cash-kind test reads account kind: foreign currency is listed.",
+        "A holding name does not change this kind-level answer."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-006",
+      "name": "isCashKind",
+      "kind": "edge",
+      "title": "Unknown kind is not cash",
+      "given": "Kind is absent.",
+      "inputs": {
+        "kind": null
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "Absent kind matches none of the listed cash kinds."
+      ],
+      "rests_on": "Card formula; tenet 3.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-007",
+      "name": "assetKind",
+      "kind": "easy",
+      "title": "Known exact ID resolves",
+      "given": "Known app-written id “checking”.",
+      "inputs": {
+        "id": "checking"
+      },
+      "expected": {
+        "result": "The exact checking entry from the app kind registry"
+      },
+      "working": [
+        "Exact ID lookup returns the matching registry entry."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-007",
+      "name": "assetKind",
+      "kind": "easy",
+      "title": "Unknown ID returns nothing",
+      "given": "No matching ID exists.",
+      "inputs": {
+        "id": "not-a-real-kind"
+      },
+      "expected": {
+        "result": "REFUSES — no matching kind"
+      },
+      "working": [
+        "No registry entry matches."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-007",
+      "name": "assetKind",
+      "kind": "complex",
+      "title": "Case mismatch does not normalize",
+      "given": "Registry ID is “high_yield_savings”; input is “High_Yield_Savings”.",
+      "inputs": {
+        "id": "High_Yield_Savings"
+      },
+      "expected": {
+        "result": "REFUSES — exact ID not found"
+      },
+      "working": [
+        "IDs are matched exactly; capitals count."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-007",
+      "name": "assetKind",
+      "kind": "complex",
+      "title": "Whitespace mismatch does not normalize",
+      "given": "Registry ID “money_market”; input “money market ” with trailing space.",
+      "inputs": {
+        "id": "money market "
+      },
+      "expected": {
+        "result": "REFUSES — exact ID not found"
+      },
+      "working": [
+        "Different spaces/string mean a different ID."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-007",
+      "name": "assetKind",
+      "kind": "edge",
+      "title": "Missing ID returns nothing",
+      "given": "ID omitted.",
+      "inputs": {
+        "id": null
+      },
+      "expected": {
+        "result": "REFUSES — no ID supplied"
+      },
+      "working": [
+        "No ID means no lookup key."
+      ],
+      "rests_on": "Card formula; tenet 3.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-008",
+      "name": "incomeBearingClassOf",
+      "kind": "easy",
+      "title": "Sweep name infers cash",
+      "given": "Account name “Settlement Sweep”.",
+      "inputs": {
+        "name": "Settlement Sweep"
+      },
+      "expected": {
+        "class": "Cash"
+      },
+      "working": [
+        "Whole-word “sweep” / “settlement” → cash."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-008",
+      "name": "incomeBearingClassOf",
+      "kind": "easy",
+      "title": "Money market wins over settlement",
+      "given": "Name “Vanguard Money Market Settlement Fund”.",
+      "inputs": {
+        "name": "Vanguard Money Market Settlement Fund"
+      },
+      "expected": {
+        "class": "Stocks / Funds"
+      },
+      "working": [
+        "Money market is checked before sweep/settlement."
+      ],
+      "rests_on": "Owner decision DEC-2747d.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-008",
+      "name": "incomeBearingClassOf",
+      "kind": "complex",
+      "title": "Company name does not trigger bond",
+      "given": "Name “Treasury Wine Estates Ltd”.",
+      "inputs": {
+        "name": "Treasury Wine Estates Ltd"
+      },
+      "expected": {
+        "class": "REFUSES — no safe inference"
+      },
+      "working": [
+        "“treasury” would ordinarily suggest Bonds & CDs, but owner says a bond word inside a company name is not a bond.",
+        "Without other evidence, do not classify by that company-name word."
+      ],
+      "rests_on": "Owner decision DEC-2747d; DEC-3035o.",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "Bonds & CDs if “treasury” is matched literally; this conflicts with the owner’s company-name exclusion."
+    },
+    {
+      "id": "MK-NW-F-008",
+      "name": "incomeBearingClassOf",
+      "kind": "complex",
+      "title": "Broker Treasury ticker maps bond",
+      "given": "Broker label “UST 4.25% 2031” with no user-confirmed class.",
+      "inputs": {
+        "name": "UST 4.25% 2031"
+      },
+      "expected": {
+        "class": "Bonds & CDs"
+      },
+      "working": [
+        "UST/Treasury wording and percent/year pattern indicate a bond."
+      ],
+      "rests_on": "Owner decision DEC-3035g; formula’s name evidence.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-008",
+      "name": "incomeBearingClassOf",
+      "kind": "edge",
+      "title": "Embedded letters are not whole words",
+      "given": "Account name “ABCD Holdings”.",
+      "inputs": {
+        "name": "ABCD Holdings"
+      },
+      "expected": {
+        "class": "REFUSES — no class evidence"
+      },
+      "working": [
+        "The substring “cd” inside ABCD is not the whole word “CD”."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written."
+    },
+    {
+      "id": "MK-NW-F-009",
+      "name": "maturityClass",
+      "kind": "easy",
+      "title": "Future maturity means bond",
+      "given": "CD maturity date is 2027-05-01.",
+      "inputs": {
+        "maturity_date": "2027-05-01"
+      },
+      "expected": {
+        "class": "Bonds & CDs"
+      },
+      "working": [
+        "Nonblank maturity date → Bonds & CDs."
+      ],
+      "rests_on": "Owner rule 9.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-009",
+      "name": "maturityClass",
+      "kind": "easy",
+      "title": "No maturity means cash",
+      "given": "No maturity date.",
+      "inputs": {
+        "maturity_date": null
+      },
+      "expected": {
+        "class": "Cash"
+      },
+      "working": [
+        "No maturity date → Cash."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-009",
+      "name": "maturityClass",
+      "kind": "complex",
+      "title": "Expired maturity remains bond",
+      "given": "Maturity date is 2024-01-01; today is 2026-10-09.",
+      "inputs": {
+        "maturity_date": "2024-01-01",
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "class": "Bonds & CDs"
+      },
+      "working": [
+        "Formula does not check whether maturity is past."
+      ],
+      "rests_on": "Owner rule 9.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-009",
+      "name": "maturityClass",
+      "kind": "complex",
+      "title": "Whitespace-only date is empty",
+      "given": "Maturity date is spaces only.",
+      "inputs": {
+        "maturity_date": "   "
+      },
+      "expected": {
+        "class": "Cash"
+      },
+      "working": [
+        "Blank date counts as no date."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-009",
+      "name": "maturityClass",
+      "kind": "edge",
+      "title": "Invalid nonblank date needs owner clarification",
+      "given": "Stored date is “tomorrow-ish”.",
+      "inputs": {
+        "maturity_date": "tomorrow-ish"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — if treated as nonblank it classifies Bonds & CDs; if invalid dates are rejected it should refuse/validate input"
+      },
+      "working": [
+        "The formula defines empty/blank but does not say how invalid nonblank dates are validated."
+      ],
+      "rests_on": "Card formula; tenet 1.",
+      "confidence": "medium",
+      "notes": "Invalid date behavior is not specified."
+    },
+    {
+      "id": "MK-NW-F-010",
+      "name": "wrapperAccount",
+      "kind": "easy",
+      "title": "Traditional IRA maps pre-tax",
+      "given": "Person selects Traditional IRA.",
+      "inputs": {
+        "wrapper_choice": "Traditional IRA"
+      },
+      "expected": {
+        "kind": "Traditional IRA",
+        "tax_bucket": "pre-tax"
+      },
+      "working": [
+        "Apply the stated mapping."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-010",
+      "name": "wrapperAccount",
+      "kind": "easy",
+      "title": "Roth 401(k) maps Roth bucket",
+      "given": "Person selects Roth 401(k).",
+      "inputs": {
+        "wrapper_choice": "Roth 401(k)"
+      },
+      "expected": {
+        "kind": "401(k)",
+        "tax_bucket": "Roth"
+      },
+      "working": [
+        "Roth 401(k) → kind 401(k), Roth bucket."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-010",
+      "name": "wrapperAccount",
+      "kind": "complex",
+      "title": "HSA maps pre-tax bucket",
+      "given": "Person selects HSA.",
+      "inputs": {
+        "wrapper_choice": "HSA"
+      },
+      "expected": {
+        "kind": "HSA",
+        "tax_bucket": "pre-tax"
+      },
+      "working": [
+        "HSA maps to kind HSA and pre-tax bucket."
+      ],
+      "rests_on": "Card formula; DEC-3035c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-010",
+      "name": "wrapperAccount",
+      "kind": "complex",
+      "title": "Unknown choice defaults taxable brokerage",
+      "given": "An unrecognized legacy wrapper value is stored.",
+      "inputs": {
+        "wrapper_choice": "unknown legacy wrapper"
+      },
+      "expected": {
+        "kind": "brokerage",
+        "tax_bucket": "taxable"
+      },
+      "working": [
+        "As written, anything else defaults to brokerage/taxable."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "This records the formula’s output, but flags a design risk: unknown input is silently represented as taxable brokerage."
+    },
+    {
+      "id": "MK-NW-F-010",
+      "name": "wrapperAccount",
+      "kind": "edge",
+      "title": "No wrapper chosen",
+      "given": "No wrapper selection was made.",
+      "inputs": {
+        "wrapper_choice": null
+      },
+      "expected": "RULE UNCLEAR — if capture default is explicitly approved, brokerage/taxable; if unknown must remain unknown, REFUSES and asks the user",
+      "working": [
+        "The formula maps no choice to brokerage/taxable, but the brief’s tenet 3 says unknown must not become an answer-like default."
+      ],
+      "rests_on": "Tenet 3; card formula.",
+      "confidence": "medium",
+      "notes": "Owner approval of this default is not established in the provided decisions.",
+      "formula_gives": {
+        "kind": "brokerage",
+        "tax_bucket": "taxable"
+      }
+    },
+    {
+      "id": "MK-NW-F-011",
+      "name": "assetClassOf",
+      "kind": "easy",
+      "title": "Confirmed class outranks maturity",
+      "given": "User-confirmed class is Stocks / Funds; a maturity date is also present.",
+      "inputs": {
+        "confirmed_class": "Stocks / Funds",
+        "maturity_date": "2030-01-01",
+        "kind": "cd"
+      },
+      "expected": {
+        "class": "Stocks / Funds"
+      },
+      "working": [
+        "Step 1, stated class, wins before maturity-date rule."
+      ],
+      "rests_on": "Card formula; tenet 5.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-011",
+      "name": "assetClassOf",
+      "kind": "easy",
+      "title": "Maturity date beats contradictory name",
+      "given": "No confirmed class; name is “Savings”; maturity date is 2028-01-01.",
+      "inputs": {
+        "confirmed_class": null,
+        "name": "Savings",
+        "maturity_date": "2028-01-01"
+      },
+      "expected": {
+        "class": "Bonds & CDs"
+      },
+      "working": [
+        "No stated class.",
+        "A nonblank maturity date is step 2 and beats name evidence."
+      ],
+      "rests_on": "Owner rule 9.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-011",
+      "name": "assetClassOf",
+      "kind": "complex",
+      "title": "Property name not read as class evidence",
+      "given": "Property account named “Silver Lake house”, no confirmed class, kind home.",
+      "inputs": {
+        "name": "Silver Lake house",
+        "is_property": true,
+        "kind": "home"
+      },
+      "expected": {
+        "class": "Real estate"
+      },
+      "working": [
+        "Do not classify from the words “Silver” or “Lake”; property names are excluded from name inference.",
+        "Kind home/property fallback gives Real estate."
+      ],
+      "rests_on": "Owner decision DEC-3035o.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-011",
+      "name": "assetClassOf",
+      "kind": "complex",
+      "title": "Unclassified when nothing identifies holding",
+      "given": "Imported account with no confirmed class, maturity, evidence-bearing name, kind, holdings or cash status.",
+      "inputs": {
+        "confirmed_class": null,
+        "maturity_date": null,
+        "name": "Imported holding",
+        "kind": null,
+        "holdings": [],
+        "is_cash_account": false,
+        "is_property": false
+      },
+      "expected": {
+        "class": "Unclassified"
+      },
+      "working": [
+        "Every earlier classification step fails.",
+        "Final fallback is Unclassified."
+      ],
+      "rests_on": "Owner decision DEC-3035f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-011",
+      "name": "assetClassOf",
+      "kind": "edge",
+      "title": "Confirmed user class beats sweep correction",
+      "given": "Account name says “settlement sweep” but user confirmed Stocks / Funds.",
+      "inputs": {
+        "confirmed_class": "Stocks / Funds",
+        "name": "Settlement Sweep"
+      },
+      "expected": {
+        "class": "Stocks / Funds"
+      },
+      "working": [
+        "Step 1 preserves the confirmed class; name inference cannot overwrite it."
+      ],
+      "rests_on": "Owner decision DEC-2748h; tenet 5.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written."
+    },
+    {
+      "id": "MK-NW-F-012",
+      "name": "taxTreatmentOf",
+      "kind": "easy",
+      "title": "Roth account tax-free",
+      "given": "Roth bucket; no explicit tax treatment.",
+      "inputs": {
+        "tax_treatment": null,
+        "kind": "brokerage",
+        "tax_bucket": "Roth"
+      },
+      "expected": {
+        "tax_treatment": "tax-free"
+      },
+      "working": [
+        "Roth bucket fallback → tax-free."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-012",
+      "name": "taxTreatmentOf",
+      "kind": "easy",
+      "title": "Pre-tax account tax-deferred",
+      "given": "Pre-tax 401(k); no explicit treatment.",
+      "inputs": {
+        "tax_treatment": null,
+        "kind": "401(k)",
+        "tax_bucket": "pre-tax"
+      },
+      "expected": {
+        "tax_treatment": "tax-deferred"
+      },
+      "working": [
+        "Pre-tax bucket fallback → tax-deferred."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-012",
+      "name": "taxTreatmentOf",
+      "kind": "complex",
+      "title": "529 with explicit taxable conflicts with fixed 529 rule",
+      "given": "529 account has stored treatment “taxable”.",
+      "inputs": {
+        "tax_treatment": "taxable",
+        "kind": "529",
+        "tax_bucket": "taxable"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula returns taxable because explicit treatment wins; owner decision says 529 tax words are fixed by what it is, suggesting tax-free for qualified education use"
+      },
+      "working": [
+        "Formula branch 1 returns stored treatment.",
+        "Fallback branch says 529 tax-free only when no stored treatment.",
+        "DEC-3035c says the 529 tax words are fixed by what they are."
+      ],
+      "rests_on": "Owner decision DEC-3035c.",
+      "confidence": "medium",
+      "notes": "Conflict between explicit treatment precedence and fixed 529 treatment requires owner resolution."
+    },
+    {
+      "id": "MK-NW-F-012",
+      "name": "taxTreatmentOf",
+      "kind": "complex",
+      "title": "HSA in Roth bucket tests owner-specific wording",
+      "given": "HSA stored as Roth bucket with no explicit treatment.",
+      "inputs": {
+        "tax_treatment": null,
+        "kind": "HSA",
+        "tax_bucket": "Roth"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula returns tax-free via Roth fallback; DEC-3035c says HSA tax words are fixed by what it is and “(Roth)” appears only for Roth bucket; clarify treatment vs label"
+      },
+      "working": [
+        "HSA is not ordinary Roth IRA.",
+        "The card’s general Roth fallback may override HSA-specific treatment expectations."
+      ],
+      "rests_on": "Owner decision DEC-3035c.",
+      "confidence": "medium",
+      "notes": "The card does not fully specify the interaction of HSA kind and Roth bucket."
+    },
+    {
+      "id": "MK-NW-F-012",
+      "name": "taxTreatmentOf",
+      "kind": "edge",
+      "title": "No treatment and no tax bucket",
+      "given": "Unknown account kind and no tax bucket.",
+      "inputs": {
+        "tax_treatment": null,
+        "kind": "unknown",
+        "tax_bucket": null
+      },
+      "expected": {
+        "tax_treatment": "taxable"
+      },
+      "working": [
+        "The final fallback says taxable for anything else."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "The default is explicit in the formula but should be checked against whether unknown is being represented as a fact."
+    },
+    {
+      "id": "MK-NW-F-013",
+      "name": "realEstateUseOf",
+      "kind": "easy",
+      "title": "Non-property has no use",
+      "given": "Account class is Stocks / Funds.",
+      "inputs": {
+        "asset_class": "Stocks / Funds"
+      },
+      "expected": {
+        "use": null
+      },
+      "working": [
+        "Real-estate use is meaningful only for real estate."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-013",
+      "name": "realEstateUseOf",
+      "kind": "easy",
+      "title": "Land stays land",
+      "given": "Real-estate account has explicit use land.",
+      "inputs": {
+        "asset_class": "Real estate",
+        "stated_use": "land",
+        "rent_entries": []
+      },
+      "expected": {
+        "use": "land"
+      },
+      "working": [
+        "Land stated as land → land."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-013",
+      "name": "realEstateUseOf",
+      "kind": "complex",
+      "title": "Rent entry naming property makes it rental",
+      "given": "Property A has no stored use; a rent entry names Property A.",
+      "inputs": {
+        "property_id": "A",
+        "stated_use": null,
+        "rent_entries": [
+          {
+            "property_id": "A",
+            "monthly_rent": 1800
+          }
+        ],
+        "scope": "single property"
+      },
+      "expected": {
+        "use": "rental"
+      },
+      "working": [
+        "A matching rent entry exists → rental."
+      ],
+      "rests_on": "Owner decision DEC-1926.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-013",
+      "name": "realEstateUseOf",
+      "kind": "complex",
+      "title": "Household map must agree with rent entries",
+      "given": "Property A is stored as “home” but no rent entry names it; property B has rent entry and is stored as “home”.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "stored_use": "home"
+          },
+          {
+            "id": "B",
+            "stored_use": "home"
+          }
+        ],
+        "rent_entries": [
+          {
+            "property_id": "B",
+            "monthly_rent": 1400
+          }
+        ],
+        "scope": "household"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — A should not be rental; B must be rental because rent entry names it; the one household home must be resolved consistently, and B cannot remain home"
+      },
+      "working": [
+        "DEC-3035p requires same property-use interpretation across functions.",
+        "Rent entry identifies B as rental.",
+        "The formula’s propertyUseMap behavior and default-home selection must not conflict with the standalone branch."
+      ],
+      "rests_on": "Owner decisions DEC-1926, DEC-2747e, DEC-3035p.",
+      "confidence": "medium",
+      "notes": "This tests consistency across the single-property and household branches.",
+      "formula_gives": "The household branch delegates to propertyUseMap; the standalone branch may retain stored “rental” without a rent entry."
+    },
+    {
+      "id": "MK-NW-F-013",
+      "name": "realEstateUseOf",
+      "kind": "edge",
+      "title": "No home among properties",
+      "given": "Two properties exist; both are rentals because rent entries name them.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A"
+          },
+          {
+            "id": "B"
+          }
+        ],
+        "rent_entries": [
+          {
+            "property_id": "A",
+            "monthly_rent": 1500
+          },
+          {
+            "property_id": "B",
+            "monthly_rent": 900
+          }
+        ],
+        "scope": "household"
+      },
+      "expected": {
+        "use_for_A": "rental",
+        "use_for_B": "rental",
+        "home": "REFUSES — household has no home identified"
+      },
+      "working": [
+        "Both named properties are rentals.",
+        "DEC-3035p says a household with no home is told so; do not quietly assign a rental as home."
+      ],
+      "rests_on": "Owner decision DEC-3035p.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-014",
+      "name": "isRealAsset",
+      "kind": "easy",
+      "title": "Home is real asset",
+      "given": "Account class is Real estate.",
+      "inputs": {
+        "asset_class": "Real estate"
+      },
+      "expected": {
+        "exact": true,
+        "shown": "Yes"
+      },
+      "working": [
+        "Real estate is one of the two true classes."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-014",
+      "name": "isRealAsset",
+      "kind": "easy",
+      "title": "Stocks are not real asset",
+      "given": "Account class is Stocks / Funds.",
+      "inputs": {
+        "asset_class": "Stocks / Funds"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "Stocks / Funds is not Real estate or Personal property."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-014",
+      "name": "isRealAsset",
+      "kind": "complex",
+      "title": "Vehicle is physical personal property",
+      "given": "Vehicle account is classified Personal property.",
+      "inputs": {
+        "kind": "vehicle",
+        "asset_class": "Personal property"
+      },
+      "expected": {
+        "exact": true,
+        "shown": "Yes"
+      },
+      "working": [
+        "Personal property → true."
+      ],
+      "rests_on": "Card formula; DEC-2746b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-014",
+      "name": "isRealAsset",
+      "kind": "complex",
+      "title": "Unclassified holding not real asset",
+      "given": "An unclassified holding is imported.",
+      "inputs": {
+        "asset_class": "Unclassified"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "Unclassified is neither Real estate nor Personal property."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-014",
+      "name": "isRealAsset",
+      "kind": "edge",
+      "title": "Unknown class is not guessed physical",
+      "given": "No class evidence; class is Unclassified.",
+      "inputs": {
+        "asset_class": "Unclassified"
+      },
+      "expected": {
+        "exact": false,
+        "shown": "No"
+      },
+      "working": [
+        "No class means no positive real-asset match."
+      ],
+      "rests_on": "Card formula; tenet 3.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-015",
+      "name": "totalAssets",
+      "kind": "easy",
+      "title": "Two known balances sum",
+      "given": "Checking $2,000 and savings $3,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "name": "Checking",
+            "balance": 2000
+          },
+          {
+            "name": "Savings",
+            "balance": 3000
+          }
+        ]
+      },
+      "expected": {
+        "exact": 5000,
+        "shown": "$5,000"
+      },
+      "working": [
+        "2,000 + 3,000 = 5,000."
+      ],
+      "rests_on": "Ordinary arithmetic.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-015",
+      "name": "totalAssets",
+      "kind": "easy",
+      "title": "One zero balance is known zero",
+      "given": "Checking $0 explicitly entered and brokerage $4,500.",
+      "inputs": {
+        "accounts": [
+          {
+            "name": "Checking",
+            "balance": 0,
+            "balance_known": true
+          },
+          {
+            "name": "Brokerage",
+            "balance": 4500
+          }
+        ]
+      },
+      "expected": {
+        "exact": 4500,
+        "shown": "$4,500"
+      },
+      "working": [
+        "Known zero contributes 0; 0 + 4,500 = 4,500."
+      ],
+      "rests_on": "Ordinary arithmetic.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-015",
+      "name": "totalAssets",
+      "kind": "complex",
+      "title": "Missing balance must not count as zero",
+      "given": "Checking $8,450.25, brokerage $17,600.50, linked savings has no synced value.",
+      "inputs": {
+        "accounts": [
+          {
+            "name": "Checking",
+            "balance": 8450.25
+          },
+          {
+            "name": "Brokerage",
+            "balance": 17600.5
+          },
+          {
+            "name": "Linked savings",
+            "balance": null
+          }
+        ]
+      },
+      "expected": {
+        "exact": 26050.75,
+        "shown": "$26,051",
+        "warning": "Incomplete — Linked savings has no value; name it in an amber notice"
+      },
+      "working": [
+        "Known balances sum = 8,450.25 + 17,600.50 = 26,050.75.",
+        "Missing balance must be omitted and explicitly disclosed; it is not a known zero."
+      ],
+      "rests_on": "Owner decisions DEC-2747f and DEC-3279e.",
+      "confidence": "high",
+      "notes": "Expected numeric known-value subtotal is the same as formula arithmetic; failure is the missing-data semantics/notice. A second test should verify total is marked incomplete. Numeric sum happens to match known values, but formula wrongly represents missing as zero and loses required incomplete-state signal.",
+      "formula_gives": {
+        "known_numeric_subtotal": 26050.75,
+        "problem": "missing account silently contributes 0 and no incomplete warning"
+      }
+    },
+    {
+      "id": "MK-NW-F-015",
+      "name": "totalAssets",
+      "kind": "complex",
+      "title": "Missing middle account not counted or hidden",
+      "given": "Assets: $100,000 home, $28,333.33 brokerage, one property record without a value.",
+      "inputs": {
+        "accounts": [
+          {
+            "name": "Home",
+            "balance": 100000
+          },
+          {
+            "name": "Brokerage",
+            "balance": 28333.33
+          },
+          {
+            "name": "Undervalued property",
+            "balance": null
+          }
+        ]
+      },
+      "expected": {
+        "exact": 128333.33,
+        "shown": "$128,333",
+        "warning": "Incomplete — Undervalued property has no value"
+      },
+      "working": [
+        "Known values = 100,000 + 28,333.33 = 128,333.33.",
+        "Unknown property must be named; total cannot be presented as complete."
+      ],
+      "rests_on": "Owner decisions DEC-2747f and DEC-3279e.",
+      "confidence": "high",
+      "notes": "Tests the incomplete indicator rather than a different numeric subtotal. The numeric known subtotal is right, but silently treating the missing property as zero is wrong."
+    },
+    {
+      "id": "MK-NW-F-015",
+      "name": "totalAssets",
+      "kind": "edge",
+      "title": "No accounts refuses rather than $0 owned",
+      "given": "No asset accounts exist.",
+      "inputs": {},
+      "expected": "REFUSES — nothing entered yet; do not present $0 owned as a completed household total",
+      "working": [
+        "There are no account values to sum.",
+        "Owner says a saved record with all accounts deleted shows first-day screen, not $0 owned."
+      ],
+      "rests_on": "Owner decision DEC-2748i; tenet 3.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-016",
+      "name": "cashTotal",
+      "kind": "easy",
+      "title": "Bank cash added",
+      "given": "Checking $1,200; savings $800.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "checking",
+            "balance": 1200
+          },
+          {
+            "kind": "savings",
+            "balance": 800
+          }
+        ]
+      },
+      "expected": {
+        "exact": 2000,
+        "shown": "$2,000"
+      },
+      "working": [
+        "Cash total = 1,200 + 800 = 2,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-016",
+      "name": "cashTotal",
+      "kind": "easy",
+      "title": "Investment account uninvested cash",
+      "given": "Brokerage balance $10,000 with $750 uninvested cash in its breakdown.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "brokerage",
+            "balance": 10000,
+            "class_breakdown": {
+              "cash": 750,
+              "stocks": 9250
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 750,
+        "shown": "$750"
+      },
+      "working": [
+        "For split account, take cash portion only: $750."
+      ],
+      "rests_on": "Card formula; DEC-2484e.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-016",
+      "name": "cashTotal",
+      "kind": "complex",
+      "title": "Two linked accounts with cash and bonds",
+      "given": "Brokerage A has $15,000 total ($1,250 cash, $13,750 stocks); hand-built account B has $9,400 total ($400 cash, $7,000 stocks, $2,000 T-bill).",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 15000,
+            "class_breakdown": {
+              "cash": 1250,
+              "stocks": 13750
+            }
+          },
+          {
+            "balance": 9400,
+            "class_breakdown": {
+              "cash": 400,
+              "stocks": 7000,
+              "bonds": 2000
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 1650,
+        "shown": "$1,650"
+      },
+      "working": [
+        "Cash = 1,250 + 400 = 1,650.",
+        "Stocks and bonds portions do not count as cash."
+      ],
+      "rests_on": "Owner decision DEC-2484e; DEC-3035d.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-016",
+      "name": "cashTotal",
+      "kind": "complex",
+      "title": "Cash account full balance and money-market fund excluded",
+      "given": "Checking $3,200; money-market fund $6,000 class Stocks / Funds; CD $2,500 class Bonds & CDs.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "checking",
+            "balance": 3200,
+            "class_breakdown": null
+          },
+          {
+            "kind": "money_market",
+            "balance": 6000,
+            "class_breakdown": null
+          },
+          {
+            "kind": "cd",
+            "balance": 2500,
+            "class_breakdown": null
+          }
+        ]
+      },
+      "expected": {
+        "exact": 3200,
+        "shown": "$3,200"
+      },
+      "working": [
+        "Checking contributes its full $3,200.",
+        "Money market and CD are not cash kinds."
+      ],
+      "rests_on": "Owner rule DEC-0051.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-016",
+      "name": "cashTotal",
+      "kind": "edge",
+      "title": "No cash value known",
+      "given": "Only a linked investment account exists but its breakdown has no cash portion and its sync value is missing.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "brokerage",
+            "balance": null,
+            "class_breakdown": null
+          }
+        ]
+      },
+      "expected": "REFUSES — cash amount cannot be established; do not infer $0 from a missing breakdown",
+      "working": [
+        "No usable cash split or known account value is available."
+      ],
+      "rests_on": "Tenets 2 and 3.",
+      "confidence": "medium",
+      "notes": "The formula does not explicitly define missing split behavior.",
+      "formula_gives": "No cash portion is specified; formula has no explicit unknown/incomplete output."
+    },
+    {
+      "id": "MK-NW-F-017",
+      "name": "equitiesTotal",
+      "kind": "easy",
+      "title": "One account in Stocks / Funds",
+      "given": "One account has $4,000 in Stocks / Funds.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Stocks / Funds": 4000
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 4000,
+        "shown": "$4,000"
+      },
+      "working": [
+        "Sum the Stocks / Funds portion: $4,000."
+      ],
+      "rests_on": "Card formula; class split.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-017",
+      "name": "equitiesTotal",
+      "kind": "easy",
+      "title": "No Stocks / Funds portion",
+      "given": "One account has $2,500 cash and no Stocks / Funds portion.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Cash": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0,
+        "shown": "$0"
+      },
+      "working": [
+        "No Stocks / Funds portion is present, so known class subtotal is zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-017",
+      "name": "equitiesTotal",
+      "kind": "complex",
+      "title": "Split account contributes only Stocks / Funds",
+      "given": "Account A totals $48,765.43 with $31,111.11 Stocks / Funds, $12,654.32 Bonds & CDs, $5,000 Alternatives; account B has $2,500 Stocks / Funds.",
+      "inputs": {
+        "accounts": [
+          {
+            "total": 48765.43,
+            "class_portions": {
+              "Stocks / Funds": 31111.11,
+              "Bonds & CDs": 12654.32,
+              "Alternatives": 5000
+            }
+          },
+          {
+            "total": 2500,
+            "class_portions": {
+              "Stocks / Funds": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 36111.11,
+        "shown": "$36,111"
+      },
+      "working": [
+        "For the requested class, take only that class portion from split account A.",
+        "Add account B’s portion if it has one."
+      ],
+      "rests_on": "Owner decision DEC-3146.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-017",
+      "name": "equitiesTotal",
+      "kind": "complex",
+      "title": "Multiple account portions in Stocks / Funds",
+      "given": "Account A has $1,234.56 in Stocks / Funds; account B has $7,890.12 in Stocks / Funds; account C has $4,321.00 in another class.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Stocks / Funds": 1234.56
+            }
+          },
+          {
+            "class_portions": {
+              "Stocks / Funds": 7890.12
+            }
+          },
+          {
+            "class_portions": {
+              "Other": 4321
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 9124.68,
+        "shown": "$9,125"
+      },
+      "working": [
+        "1,234.56 + 7,890.12 = 9,124.68.",
+        "Account C contributes nothing to this class."
+      ],
+      "rests_on": "Card formula; ordinary arithmetic.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-017",
+      "name": "equitiesTotal",
+      "kind": "edge",
+      "title": "Unknown value for Stocks / Funds account",
+      "given": "One account may hold Stocks / Funds, but its value and split are unavailable.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": null,
+            "balance": null,
+            "possible_class": "Stocks / Funds"
+          }
+        ]
+      },
+      "expected": {
+        "result": "REFUSES — class subtotal incomplete; identify the missing-valued account"
+      },
+      "working": [
+        "A missing class split is not proof of zero."
+      ],
+      "rests_on": "Tenets 2 and 3.",
+      "confidence": "medium",
+      "notes": "The card does not define how an unavailable split is signaled; this tests disclosure."
+    },
+    {
+      "id": "MK-NW-F-018",
+      "name": "fixedIncomeTotal",
+      "kind": "easy",
+      "title": "One account in Bonds & CDs",
+      "given": "One account has $4,000 in Bonds & CDs.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Bonds & CDs": 4000
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 4000,
+        "shown": "$4,000"
+      },
+      "working": [
+        "Sum the Bonds & CDs portion: $4,000."
+      ],
+      "rests_on": "Card formula; class split.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-018",
+      "name": "fixedIncomeTotal",
+      "kind": "easy",
+      "title": "No Bonds & CDs portion",
+      "given": "One account has $2,500 cash and no Bonds & CDs portion.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Cash": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0,
+        "shown": "$0"
+      },
+      "working": [
+        "No Bonds & CDs portion is present, so known class subtotal is zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-018",
+      "name": "fixedIncomeTotal",
+      "kind": "complex",
+      "title": "Split account contributes only Bonds & CDs",
+      "given": "Account A totals $48,765.43 with $31,111.11 Stocks / Funds, $12,654.32 Bonds & CDs, $5,000 Alternatives; account B has $2,500 Bonds & CDs.",
+      "inputs": {
+        "accounts": [
+          {
+            "total": 48765.43,
+            "class_portions": {
+              "Stocks / Funds": 31111.11,
+              "Bonds & CDs": 12654.32,
+              "Alternatives": 5000
+            }
+          },
+          {
+            "total": 2500,
+            "class_portions": {
+              "Bonds & CDs": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 15154.32,
+        "shown": "$15,154"
+      },
+      "working": [
+        "For the requested class, take only that class portion from split account A.",
+        "Add account B’s portion if it has one."
+      ],
+      "rests_on": "Owner decision DEC-3146.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-018",
+      "name": "fixedIncomeTotal",
+      "kind": "complex",
+      "title": "Multiple account portions in Bonds & CDs",
+      "given": "Account A has $1,234.56 in Bonds & CDs; account B has $7,890.12 in Bonds & CDs; account C has $4,321.00 in another class.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Bonds & CDs": 1234.56
+            }
+          },
+          {
+            "class_portions": {
+              "Bonds & CDs": 7890.12
+            }
+          },
+          {
+            "class_portions": {
+              "Other": 4321
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 9124.68,
+        "shown": "$9,125"
+      },
+      "working": [
+        "1,234.56 + 7,890.12 = 9,124.68.",
+        "Account C contributes nothing to this class."
+      ],
+      "rests_on": "Card formula; ordinary arithmetic.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-018",
+      "name": "fixedIncomeTotal",
+      "kind": "edge",
+      "title": "Unknown value for Bonds & CDs account",
+      "given": "One account may hold Bonds & CDs, but its value and split are unavailable.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": null,
+            "balance": null,
+            "possible_class": "Bonds & CDs"
+          }
+        ]
+      },
+      "expected": {
+        "result": "REFUSES — class subtotal incomplete; identify the missing-valued account"
+      },
+      "working": [
+        "A missing class split is not proof of zero."
+      ],
+      "rests_on": "Tenets 2 and 3.",
+      "confidence": "medium",
+      "notes": "The card does not define how an unavailable split is signaled; this tests disclosure."
+    },
+    {
+      "id": "MK-NW-F-019",
+      "name": "alternativesTotal",
+      "kind": "easy",
+      "title": "One account in Alternatives",
+      "given": "One account has $4,000 in Alternatives.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Alternatives": 4000
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 4000,
+        "shown": "$4,000"
+      },
+      "working": [
+        "Sum the Alternatives portion: $4,000."
+      ],
+      "rests_on": "Card formula; class split.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-019",
+      "name": "alternativesTotal",
+      "kind": "easy",
+      "title": "No Alternatives portion",
+      "given": "One account has $2,500 cash and no Alternatives portion.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Cash": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0,
+        "shown": "$0"
+      },
+      "working": [
+        "No Alternatives portion is present, so known class subtotal is zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-019",
+      "name": "alternativesTotal",
+      "kind": "complex",
+      "title": "Split account contributes only Alternatives",
+      "given": "Account A totals $48,765.43 with $31,111.11 Stocks / Funds, $12,654.32 Bonds & CDs, $5,000 Alternatives; account B has $2,500 Alternatives.",
+      "inputs": {
+        "accounts": [
+          {
+            "total": 48765.43,
+            "class_portions": {
+              "Stocks / Funds": 31111.11,
+              "Bonds & CDs": 12654.32,
+              "Alternatives": 5000
+            }
+          },
+          {
+            "total": 2500,
+            "class_portions": {
+              "Alternatives": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 7500,
+        "shown": "$7,500"
+      },
+      "working": [
+        "Account A contributes $5,000 Alternatives.",
+        "Account B contributes $2,500 Alternatives.",
+        "Total = $7,500."
+      ],
+      "rests_on": "Owner decision DEC-3146.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-019",
+      "name": "alternativesTotal",
+      "kind": "complex",
+      "title": "Multiple account portions in Alternatives",
+      "given": "Account A has $1,234.56 in Alternatives; account B has $7,890.12 in Alternatives; account C has $4,321.00 in another class.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Alternatives": 1234.56
+            }
+          },
+          {
+            "class_portions": {
+              "Alternatives": 7890.12
+            }
+          },
+          {
+            "class_portions": {
+              "Other": 4321
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 9124.68,
+        "shown": "$9,125"
+      },
+      "working": [
+        "1,234.56 + 7,890.12 = 9,124.68.",
+        "Account C contributes nothing to this class."
+      ],
+      "rests_on": "Card formula; ordinary arithmetic.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-019",
+      "name": "alternativesTotal",
+      "kind": "edge",
+      "title": "Unknown value for Alternatives account",
+      "given": "One account may hold Alternatives, but its value and split are unavailable.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": null,
+            "balance": null,
+            "possible_class": "Alternatives"
+          }
+        ]
+      },
+      "expected": {
+        "result": "REFUSES — class subtotal incomplete; identify the missing-valued account"
+      },
+      "working": [
+        "A missing class split is not proof of zero."
+      ],
+      "rests_on": "Tenets 2 and 3.",
+      "confidence": "medium",
+      "notes": "The card does not define how an unavailable split is signaled; this tests disclosure."
+    },
+    {
+      "id": "MK-NW-F-020",
+      "name": "realEstateTotal",
+      "kind": "easy",
+      "title": "One account in Real estate",
+      "given": "One account has $4,000 in Real estate.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Real estate": 4000
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 4000,
+        "shown": "$4,000"
+      },
+      "working": [
+        "Sum the Real estate portion: $4,000."
+      ],
+      "rests_on": "Card formula; class split.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-020",
+      "name": "realEstateTotal",
+      "kind": "easy",
+      "title": "No Real estate portion",
+      "given": "One account has $2,500 cash and no Real estate portion.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Cash": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0,
+        "shown": "$0"
+      },
+      "working": [
+        "No Real estate portion is present, so known class subtotal is zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-020",
+      "name": "realEstateTotal",
+      "kind": "complex",
+      "title": "Split account contributes only Real estate",
+      "given": "Account A totals $48,765.43 with $31,111.11 Stocks / Funds, $12,654.32 Bonds & CDs, $5,000 Alternatives; account B has $2,500 Real estate.",
+      "inputs": {
+        "accounts": [
+          {
+            "total": 48765.43,
+            "class_portions": {
+              "Stocks / Funds": 31111.11,
+              "Bonds & CDs": 12654.32,
+              "Alternatives": 5000
+            }
+          },
+          {
+            "total": 2500,
+            "class_portions": {
+              "Real estate": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 2500,
+        "shown": "$2,500"
+      },
+      "working": [
+        "Account A has no Real estate portion.",
+        "Account B contributes $2,500 Real estate.",
+        "Total = $2,500."
+      ],
+      "rests_on": "Owner decision DEC-3146.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-020",
+      "name": "realEstateTotal",
+      "kind": "complex",
+      "title": "Multiple account portions in Real estate",
+      "given": "Account A has $1,234.56 in Real estate; account B has $7,890.12 in Real estate; account C has $4,321.00 in another class.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": {
+              "Real estate": 1234.56
+            }
+          },
+          {
+            "class_portions": {
+              "Real estate": 7890.12
+            }
+          },
+          {
+            "class_portions": {
+              "Other": 4321
+            }
+          }
+        ]
+      },
+      "expected": {
+        "exact": 9124.68,
+        "shown": "$9,125"
+      },
+      "working": [
+        "1,234.56 + 7,890.12 = 9,124.68.",
+        "Account C contributes nothing to this class."
+      ],
+      "rests_on": "Card formula; ordinary arithmetic.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-020",
+      "name": "realEstateTotal",
+      "kind": "edge",
+      "title": "Unknown value for Real estate account",
+      "given": "One account may hold Real estate, but its value and split are unavailable.",
+      "inputs": {
+        "accounts": [
+          {
+            "class_portions": null,
+            "balance": null,
+            "possible_class": "Real estate"
+          }
+        ]
+      },
+      "expected": {
+        "result": "REFUSES — class subtotal incomplete; identify the missing-valued account"
+      },
+      "working": [
+        "A missing class split is not proof of zero."
+      ],
+      "rests_on": "Tenets 2 and 3.",
+      "confidence": "medium",
+      "notes": "The card does not define how an unavailable split is signaled; this tests disclosure."
+    },
+    {
+      "id": "MK-NW-F-021",
+      "name": "investmentsTotal",
+      "kind": "easy",
+      "title": "Cash excluded from investments",
+      "given": "Checking $2,000 and stocks $8,000.",
+      "inputs": {
+        "class_totals": {
+          "Cash": 2000,
+          "Stocks / Funds": 8000,
+          "Bonds & CDs": 0,
+          "Alternatives": 0,
+          "Unclassified": 0,
+          "Real estate": 0,
+          "Personal property": 0
+        }
+      },
+      "expected": {
+        "exact": 8000,
+        "shown": "$8,000",
+        "cash_plus_investments": 10000
+      },
+      "working": [
+        "Investments = Stocks / Funds + Bonds & CDs + Alternatives + Unclassified = 8,000.",
+        "Cash + investments = 2,000 + 8,000 = investable assets 10,000."
+      ],
+      "rests_on": "Owner rule 15.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-021",
+      "name": "investmentsTotal",
+      "kind": "easy",
+      "title": "Unclassified included",
+      "given": "$3,500 unclassified holding, no other investments.",
+      "inputs": {
+        "class_totals": {
+          "Cash": 0,
+          "Stocks / Funds": 0,
+          "Bonds & CDs": 0,
+          "Alternatives": 0,
+          "Unclassified": 3500,
+          "Real estate": 0,
+          "Personal property": 0
+        }
+      },
+      "expected": {
+        "exact": 3500,
+        "shown": "$3,500"
+      },
+      "working": [
+        "Unclassified is included in investment total."
+      ],
+      "rests_on": "Card formula; owner rule 7.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-021",
+      "name": "investmentsTotal",
+      "kind": "complex",
+      "title": "All investment classes and cash split",
+      "given": "Checking $8,421.13; brokerage: $17,333.33 stocks, $5,444.44 bonds, $2,222.22 alternatives, $111.11 unclassified, $999.99 cash.",
+      "inputs": {
+        "class_totals": {
+          "Cash": 9421.12,
+          "Stocks / Funds": 17333.33,
+          "Bonds & CDs": 5444.44,
+          "Alternatives": 2222.22,
+          "Unclassified": 111.11,
+          "Real estate": 0,
+          "Personal property": 0
+        }
+      },
+      "expected": {
+        "exact": 25111.1,
+        "shown": "$25,111",
+        "cash_plus_investments": 34532.22
+      },
+      "working": [
+        "Investments = 17,333.33 + 5,444.44 + 2,222.22 + 111.11 = 25,111.10.",
+        "Cash + investments = 9,421.12 + 25,111.10 = 34,532.22."
+      ],
+      "rests_on": "Owner rules 13–15; DEC-3146.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-021",
+      "name": "investmentsTotal",
+      "kind": "complex",
+      "title": "CD in a cash-named account still bonds",
+      "given": "Cash-management account holds $1,200 sweep cash and a separately valued $4,500 CD.",
+      "inputs": {
+        "class_totals": {
+          "Cash": 1200,
+          "Stocks / Funds": 0,
+          "Bonds & CDs": 4500,
+          "Alternatives": 0,
+          "Unclassified": 0,
+          "Real estate": 0,
+          "Personal property": 0
+        }
+      },
+      "expected": {
+        "exact": 4500,
+        "shown": "$4,500",
+        "cash_plus_investments": 5700
+      },
+      "working": [
+        "CD is Bonds & CDs regardless of being in a cash account.",
+        "Investments = $4,500; cash + investments = $1,200 + $4,500 = $5,700."
+      ],
+      "rests_on": "Owner rule DEC-0051.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-021",
+      "name": "investmentsTotal",
+      "kind": "edge",
+      "title": "Missing valued investment blocks complete invariant",
+      "given": "Known cash $2,000; known stocks $4,000; one account value is missing.",
+      "inputs": {
+        "class_totals": {
+          "Cash": 2000,
+          "Stocks / Funds": 4000,
+          "Bonds & CDs": null,
+          "Alternatives": 0,
+          "Unclassified": 0
+        },
+        "missing_accounts": [
+          "Linked bond account"
+        ]
+      },
+      "expected": {
+        "known_investments_subtotal": {
+          "exact": 4000,
+          "shown": "$4,000"
+        },
+        "result": "REFUSES — total/invariant is incomplete until Linked bond account is valued"
+      },
+      "working": [
+        "Known subtotal = $4,000.",
+        "A missing class value must not be silently treated as zero; full cash + investments = investableAssets cannot be certified."
+      ],
+      "rests_on": "Owner decision DEC-3279e; tenets 2–3.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written.",
+      "formula_gives": "Known class totals are summed as if complete; missing-account state is not surfaced."
+    },
+    {
+      "id": "MK-NW-F-022",
+      "name": "investableAssets",
+      "kind": "easy",
+      "title": "Cash and stocks are investable",
+      "given": "Checking $2,000, brokerage $8,000, no property.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Cash",
+            "balance": 2000
+          },
+          {
+            "class": "Stocks / Funds",
+            "balance": 8000
+          }
+        ]
+      },
+      "expected": {
+        "exact": 10000,
+        "shown": "$10,000"
+      },
+      "working": [
+        "Both accounts are not real assets: 2,000 + 8,000 = 10,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-022",
+      "name": "investableAssets",
+      "kind": "easy",
+      "title": "Home excluded",
+      "given": "Home $300,000 and cash $5,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Real estate",
+            "balance": 300000
+          },
+          {
+            "class": "Cash",
+            "balance": 5000
+          }
+        ]
+      },
+      "expected": {
+        "exact": 5000,
+        "shown": "$5,000"
+      },
+      "working": [
+        "Real estate is excluded; cash remains."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-022",
+      "name": "investableAssets",
+      "kind": "complex",
+      "title": "Vehicle excluded, retirement included",
+      "given": "401(k) $83,456.78, car $19,321.44, brokerage $42,111.11, rental property $220,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Stocks / Funds",
+            "balance": 83456.78
+          },
+          {
+            "class": "Personal property",
+            "balance": 19321.44
+          },
+          {
+            "class": "Stocks / Funds",
+            "balance": 42111.11
+          },
+          {
+            "class": "Real estate",
+            "balance": 220000
+          }
+        ]
+      },
+      "expected": {
+        "exact": 125567.89,
+        "shown": "$125,568"
+      },
+      "working": [
+        "Include 401(k) and brokerage: 83,456.78 + 42,111.11 = 125,567.89.",
+        "Exclude car and rental property."
+      ],
+      "rests_on": "Card formula; DEC-2746b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-022",
+      "name": "investableAssets",
+      "kind": "complex",
+      "title": "Missing account value is omitted but flagged",
+      "given": "Cash $2,345.67, stocks $9,876.54, linked CD missing value.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Cash",
+            "balance": 2345.67
+          },
+          {
+            "class": "Stocks / Funds",
+            "balance": 9876.54
+          },
+          {
+            "class": "Bonds & CDs",
+            "balance": null,
+            "name": "Linked CD"
+          }
+        ]
+      },
+      "expected": {
+        "known_subtotal": {
+          "exact": 12222.21,
+          "shown": "$12,222"
+        },
+        "warning": "Incomplete — Linked CD has no value"
+      },
+      "working": [
+        "Known subtotal = 2,345.67 + 9,876.54 = 12,222.21.",
+        "Do not imply the missing CD is zero."
+      ],
+      "rests_on": "Owner decision DEC-3279e.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written.",
+      "formula_gives": "Known balances are summed, but no explicit incomplete warning is part of the formula."
+    },
+    {
+      "id": "MK-NW-F-022",
+      "name": "investableAssets",
+      "kind": "edge",
+      "title": "Only real assets yields zero known investable assets",
+      "given": "Only home and vehicle values are present.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Real estate",
+            "balance": 250000
+          },
+          {
+            "class": "Personal property",
+            "balance": 12000
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0,
+        "shown": "$0"
+      },
+      "working": [
+        "Both accounts are real assets and are excluded."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "The numeric subtotal is zero, but UI must distinguish “no non-real assets entered” from a verified $0 balance if that matters to the screen."
+    },
+    {
+      "id": "MK-NW-F-023",
+      "name": "wrapperWord",
+      "kind": "easy",
+      "title": "Checking label",
+      "given": "Kind checking.",
+      "inputs": {
+        "kind": "checking"
+      },
+      "expected": {
+        "word": "Checking"
+      },
+      "working": [
+        "Lookup map returns Checking."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-023",
+      "name": "wrapperWord",
+      "kind": "easy",
+      "title": "Crypto has no wrapper word",
+      "given": "Kind crypto; no brokerage confirmation.",
+      "inputs": {
+        "kind": "crypto",
+        "wrapper_confirmed": false
+      },
+      "expected": {
+        "word": null
+      },
+      "working": [
+        "Crypto names a holding, not an account wrapper."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-023",
+      "name": "wrapperWord",
+      "kind": "complex",
+      "title": "Legacy hedge fund row retained without wrapper label",
+      "given": "Kind hedge fund, wrapper not confirmed.",
+      "inputs": {
+        "kind": "hedge_fund",
+        "wrapper_confirmed": false
+      },
+      "expected": {
+        "word": null
+      },
+      "working": [
+        "Legacy holding remains but its kind does not name an account wrapper."
+      ],
+      "rests_on": "Owner decision DEC-2334.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-023",
+      "name": "wrapperWord",
+      "kind": "complex",
+      "title": "Confirmed brokerage for crypto",
+      "given": "Kind crypto but person confirmed this account is brokerage.",
+      "inputs": {
+        "kind": "crypto",
+        "wrapper_confirmed": true
+      },
+      "expected": {
+        "word": "Brokerage"
+      },
+      "working": [
+        "Confirmed brokerage exception applies."
+      ],
+      "rests_on": "Card formula; tenet 5.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-023",
+      "name": "wrapperWord",
+      "kind": "edge",
+      "title": "Unknown kind has no label",
+      "given": "Kind is absent.",
+      "inputs": {
+        "kind": null
+      },
+      "expected": {
+        "word": null
+      },
+      "working": [
+        "Unknown or none returns nothing."
+      ],
+      "rests_on": "Card formula; tenet 3.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-024",
+      "name": "accountLastFour",
+      "kind": "easy",
+      "title": "Mask digits extracted",
+      "given": "Mask “•••• 1234”.",
+      "inputs": {
+        "mask": "•••• 1234",
+        "account_number": "999999"
+      },
+      "expected": {
+        "last_four": "1234"
+      },
+      "working": [
+        "Digits in mask are 1234; four digits available."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-024",
+      "name": "accountLastFour",
+      "kind": "easy",
+      "title": "No digits returns null",
+      "given": "Mask “joint acct”; no account number.",
+      "inputs": {
+        "mask": "joint acct",
+        "account_number": null
+      },
+      "expected": {
+        "last_four": null
+      },
+      "working": [
+        "No source contains four digits."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-024",
+      "name": "accountLastFour",
+      "kind": "complex",
+      "title": "Mask wins over account number",
+      "given": "Mask “xx-9876”; account number “1234567890”.",
+      "inputs": {
+        "mask": "xx-9876",
+        "account_number": "1234567890"
+      },
+      "expected": {
+        "last_four": "9876"
+      },
+      "working": [
+        "Mask is the first source and yields 9876."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-024",
+      "name": "accountLastFour",
+      "kind": "complex",
+      "title": "Unusable mask fallback ambiguity",
+      "given": "Mask “••12”; account number “00012345”.",
+      "inputs": {
+        "mask": "••12",
+        "account_number": "00012345"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — literal formula could return null because mask exists but yields <4 digits; intended fallback reading returns 2345"
+      },
+      "working": [
+        "Mask exists but does not yield four digits.",
+        "The wording “or failing that its account number” is ambiguous about whether an unusable mask triggers fallback."
+      ],
+      "rests_on": "Card formula; tenet 3.",
+      "confidence": "medium",
+      "notes": "This case demonstrates the formula-check finding.",
+      "formula_gives": "Null if a present mask yields fewer than four digits and fallback is not attempted."
+    },
+    {
+      "id": "MK-NW-F-024",
+      "name": "accountLastFour",
+      "kind": "edge",
+      "title": "Mask contains more than four digits",
+      "given": "Mask “acct 12-34-5678”.",
+      "inputs": {
+        "mask": "acct 12-34-5678",
+        "account_number": null
+      },
+      "expected": {
+        "last_four": "5678"
+      },
+      "working": [
+        "Keep digits only → 12345678; last four = 5678."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-025",
+      "name": "accountDisplayName",
+      "kind": "easy",
+      "title": "Institution and checking last four",
+      "given": "Chase checking account ending 0333.",
+      "inputs": {
+        "institution": "Chase",
+        "kind": "checking",
+        "mask": "0333"
+      },
+      "expected": {
+        "display_name": "Chase -0333"
+      },
+      "working": [
+        "Ordinary account with institution and digits → Institution -last four."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-025",
+      "name": "accountDisplayName",
+      "kind": "easy",
+      "title": "Roth 401(k) is named explicitly",
+      "given": "Fidelity account kind 401(k), Roth bucket, ending 1234.",
+      "inputs": {
+        "institution": "Fidelity",
+        "kind": "401(k)",
+        "tax_bucket": "Roth",
+        "mask": "1234"
+      },
+      "expected": {
+        "display_name": "Fidelity Roth 401(k) -1234"
+      },
+      "working": [
+        "Roth 401(k) must retain Roth identity."
+      ],
+      "rests_on": "Owner decision DEC-3035e.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-025",
+      "name": "accountDisplayName",
+      "kind": "complex",
+      "title": "No-kind tax-advantaged account shows tax word",
+      "given": "Vanguard account has no kind, Roth tax bucket, mask 7890.",
+      "inputs": {
+        "institution": "Vanguard",
+        "kind": null,
+        "tax_bucket": "Roth",
+        "tax_treatment": "tax-free",
+        "mask": "7890"
+      },
+      "expected": {
+        "display_name": "Vanguard Roth -7890"
+      },
+      "working": [
+        "No kind + known digits + Roth tax bucket → Roth word; tax-advantaged identity must not disappear."
+      ],
+      "rests_on": "Owner decision DEC-3035e.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-025",
+      "name": "accountDisplayName",
+      "kind": "complex",
+      "title": "Imported holding with one position",
+      "given": "No institution; label “Imported holding”; one holding named “TREAS 4.25% 2031”.",
+      "inputs": {
+        "institution": null,
+        "label": "Imported holding",
+        "positions": [
+          "TREAS 4.25% 2031"
+        ],
+        "mask": null
+      },
+      "expected": {
+        "display_name": "TREAS 4.25% 2031"
+      },
+      "working": [
+        "Exactly one holding means use its ticker/name instead of generic Imported holding."
+      ],
+      "rests_on": "Card formula; DEC-3035g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-025",
+      "name": "accountDisplayName",
+      "kind": "edge",
+      "title": "Conflicting wrapper and tax treatment",
+      "given": "A Fidelity account is stored as kind 401(k), Roth tax bucket, and tax-deferred treatment, with mask 1234.",
+      "inputs": {
+        "institution": "Fidelity",
+        "kind": "401(k)",
+        "tax_bucket": "Roth",
+        "tax_treatment": "tax-deferred",
+        "mask": "1234"
+      },
+      "expected": {
+        "display_name": "Fidelity Roth 401(k) -1234"
+      },
+      "working": [
+        "The formula says a 401(k) in the Roth bucket is displayed as Roth 401(k).",
+        "Institution and last four are appended: Fidelity Roth 401(k) -1234.",
+        "The inconsistent tax-treatment field should be separately validated; it does not override the explicit Roth-bucket display rule."
+      ],
+      "rests_on": "Owner decision DEC-3035e; card formula.",
+      "confidence": "high",
+      "notes": "Valid wrapper identity wins for display; test separately whether inconsistent persisted tax fields are rejected."
+    },
+    {
+      "id": "MK-NW-F-026",
+      "name": "accountDisplayNames",
+      "kind": "easy",
+      "title": "Unique names remain unchanged",
+      "given": "Two accounts have names Chase -1111 and Fidelity -2222.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "a",
+            "base_name": "Chase -1111"
+          },
+          {
+            "id": "b",
+            "base_name": "Fidelity -2222"
+          }
+        ]
+      },
+      "expected": {
+        "names": [
+          "Chase -1111",
+          "Fidelity -2222"
+        ]
+      },
+      "working": [
+        "Names are already unique; no suffixes needed."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-026",
+      "name": "accountDisplayNames",
+      "kind": "easy",
+      "title": "Duplicate names get suffixes",
+      "given": "Two accounts share “Chase -1111”.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "01",
+            "base_name": "Chase -1111"
+          },
+          {
+            "id": "02",
+            "base_name": "Chase -1111"
+          }
+        ]
+      },
+      "expected": {
+        "names": [
+          "Chase -1111 · 1",
+          "Chase -1111 · 2"
+        ]
+      },
+      "working": [
+        "Duplicate base name; append sequential suffixes in account-ID text order."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-026",
+      "name": "accountDisplayNames",
+      "kind": "complex",
+      "title": "IDs sorted as text, not numerically",
+      "given": "Three identical names with IDs “2”, “10”, “1”.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "2",
+            "base_name": "Brokerage"
+          },
+          {
+            "id": "10",
+            "base_name": "Brokerage"
+          },
+          {
+            "id": "1",
+            "base_name": "Brokerage"
+          }
+        ]
+      },
+      "expected": {
+        "names_by_id": {
+          "1": "Brokerage · 1",
+          "10": "Brokerage · 2",
+          "2": "Brokerage · 3"
+        }
+      },
+      "working": [
+        "Text order is “1”, “10”, “2”.",
+        "Assign suffixes in that order."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-026",
+      "name": "accountDisplayNames",
+      "kind": "complex",
+      "title": "Pre-existing numbered name must not collide",
+      "given": "Accounts have base names “Brokerage”, “Brokerage”, and literal “Brokerage · 1”.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "1",
+            "base_name": "Brokerage"
+          },
+          {
+            "id": "2",
+            "base_name": "Brokerage"
+          },
+          {
+            "id": "3",
+            "base_name": "Brokerage · 1"
+          }
+        ]
+      },
+      "expected": {
+        "names_by_id": {
+          "1": "Brokerage · 2",
+          "2": "Brokerage · 3",
+          "3": "Brokerage · 1"
+        }
+      },
+      "working": [
+        "Literal Brokerage · 1 is already occupied.",
+        "Duplicate Brokerage names must skip suffix 1 and use 2, 3."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-026",
+      "name": "accountDisplayNames",
+      "kind": "edge",
+      "title": "Empty account list",
+      "given": "No accounts supplied.",
+      "inputs": {
+        "accounts": []
+      },
+      "expected": {
+        "names": []
+      },
+      "working": [
+        "No names to create."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "rules_held": [
+    {
+      "rule": "DEC-1558 — On the Bonds screen a person’s bonds are listed soonest-maturing first.",
+      "cards": [
+        "MK-NW-O-001"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The governing orchestrator and Bonds screen are outside Part 1; no formula in this batch implements bond ordering."
+    },
+    {
+      "rule": "DEC-1559 — On a holding’s page, when nothing has been sold, the Realized from sales row reads \"$0 — nothing sold\".",
+      "cards": [
+        "MK-NW-M-035"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Holding-detail screen and realized-gain row are outside Part 1."
+    },
+    {
+      "rule": "DEC-1668 — The emergency fund counts rent from a property. Rent keeps arriving when pay stops, so each month it is added to the cash: months = cash ÷ (a month of essentials − the rent).",
+      "cards": [
+        "MK-NW-M-013",
+        "MK-NW-M-046",
+        "MK-NW-M-064",
+        "MK-MN-M-020",
+        "MK-MN-M-025",
+        "MK-NW-O-004",
+        "MK-CF-O-004"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The emergency-fund and income-summary formulas are outside Part 1; cashTotal alone cannot establish rent runway behavior."
+    },
+    {
+      "rule": "DEC-1925 — Every property, mortgage and debt has a name the person gives it. Each mortgage is matched to a property in Net worth. A property can have no mortgage; a mortgage cannot be without a property. So there are never more mortgages than properties: three properties, three mortgages or fewer.",
+      "cards": [
+        "MK-NW-M-010",
+        "MK-NW-M-047"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Mortgage matching and debt minimum logic are outside Part 1."
+    },
+    {
+      "rule": "DEC-1926 — A property is a second or vacation home unless rental income is entered for it on the Income screen. With rental income entered, it is a rental.",
+      "cards": [
+        "MK-NW-O-004",
+        "MK-NW-M-064"
+      ],
+      "verdict": "NOT HELD",
+      "why": "MK-NW-F-013’s single-property branch can return a stored “rental” use when no rent entry names it, contrary to the rule that rental status requires Income-screen rent."
+    },
+    {
+      "rule": "DEC-2334 — Private equity and hedge funds are not offered anywhere in this phase. The kinds offered are crypto, gold and commodities, annuities and other. A row saved with one of the two kinds earlier is kept as it is.",
+      "cards": [
+        "MK-NW-M-049"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "MK-NW-F-023 preserves the wrapper-label distinction for legacy holding kinds, but whether the add-account UI blocks new private-equity/hedge-fund entries is outside this batch."
+    },
+    {
+      "rule": "DEC-2440 — The first batch of the outside review of Net worth is closed. Everything corrected in it stands: every return time-weighted, rent counted in the emergency fund, every debt counted from Debts, a mortgage on a named property, and the smaller fixes to bonds, holdings and the account page.",
+      "cards": [
+        "MK-NW-O-001",
+        "MK-NW-O-002",
+        "MK-NW-O-003",
+        "MK-NW-O-004",
+        "MK-NW-O-005",
+        "MK-NW-O-006",
+        "MK-NW-F-106",
+        "MK-NW-F-107",
+        "MK-CF-O-020",
+        "MK-NW-M-002",
+        "MK-NW-M-013",
+        "MK-NW-M-036",
+        "MK-NW-M-044",
+        "MK-NW-M-064",
+        "MK-PF-M-016"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "This broad closure covers multiple orchestrators/screens and implementation behavior not fully represented by Part 1 cards."
+    },
+    {
+      "rule": "DEC-2441 — He read three lists for the second batch — eleven errors fixed, six places where the app was kept against the reviewer, four agreed points not yet built — and approved them all, with one change made alongside: private equity and hedge funds are not offered in this phase (DEC-2334).",
+      "cards": [
+        "MK-NW-F-003",
+        "MK-NW-F-005",
+        "MK-NW-F-010",
+        "MK-NW-F-011",
+        "MK-NW-F-012",
+        "MK-NW-F-016",
+        "MK-NW-F-017",
+        "MK-NW-F-018",
+        "MK-NW-F-019",
+        "MK-NW-F-020",
+        "MK-NW-F-021",
+        "MK-NW-F-025",
+        "MK-NW-F-026",
+        "MK-NW-F-027",
+        "MK-NW-F-028",
+        "MK-NW-F-108",
+        "MK-NW-F-109",
+        "MK-NW-O-008",
+        "MK-NW-O-003",
+        "MK-NW-M-005",
+        "MK-NW-M-007",
+        "MK-NW-M-008",
+        "MK-NW-M-014",
+        "MK-PF-M-001"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "This closure spans formulas and screens across several batches; the Part 1 descriptions alone cannot verify every correction in the decision."
+    },
+    {
+      "rule": "DEC-2484b — The average yield of the bonds counts only bonds that have a value today, on that value as entered (refined 2026-10-09 by DEC-3390: it was the value less accrued interest). Before: an unpriced bond added its interest to the top and nothing to the bottom — three bonds read 6.09% where 4.22% is right.",
+      "cards": [
+        "MK-NW-F-061"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Bond summary average-yield behavior is MK-NW-F-061, outside Part 1."
+    },
+    {
+      "rule": "DEC-2484c — The if-rates-move estimate on a bond is rounded in proportion to the bond’s size, not always to the nearest $1,000. Before: a $10,000 bond read $10,000 to $10,000 whichever way rates moved.",
+      "cards": [
+        "MK-NW-F-064"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Bond rate sensitivity is MK-NW-F-064, outside Part 1."
+    },
+    {
+      "rule": "DEC-2484d — A sale of shares takes the oldest purchase first. Before: the gain on a sale was worked from an average cost.",
+      "cards": [
+        "MK-PF-F-006"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "FIFO capital gains are outside Part 1."
+    },
+    {
+      "rule": "DEC-2484e — A hand-built investment account shows its own uninvested cash inside it. Before: the cash it recorded was missing from the account’s own breakdown.",
+      "cards": [
+        "MK-NW-O-002"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The account orchestrator and class breakdown are outside Part 1; cashTotal consumes the shared breakdown but cannot prove its construction."
+    },
+    {
+      "rule": "DEC-2484f — A typed value is called old after six whole months have passed, counted to the day. Before: it counted month names crossed, so 30 April read six months old on 1 October.",
+      "cards": [
+        "MK-NW-F-003"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-003 counts whole completed calendar months to the day and marks stale at six or more."
+    },
+    {
+      "rule": "DEC-2484g — Any account that already lists holdings can take a recorded buy or sale. Before: a fixed-income brokerage holding bond funds could not be chosen.",
+      "cards": [
+        "MK-NW-F-005"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-005 allows ticker entry when holdings already exist, after the unconditional disallowed account types."
+    },
+    {
+      "rule": "DEC-2484h — A Roth 401(k) is its own choice when adding an account: a 401(k) in the Roth tax bucket. Before: the form had no Roth 401(k).",
+      "cards": [
+        "MK-NW-F-010"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-010 explicitly maps Roth 401(k) to kind 401(k) with Roth bucket."
+    },
+    {
+      "rule": "DEC-2484i — A maturity date makes an account Bonds & CDs before its name is read; property that is not a house is personal property. Before: a CD named ‘savings’ read as cash, and a ring could be filed as real estate.",
+      "cards": [
+        "MK-NW-F-011"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-011 gives maturity date priority over name evidence after a stated class."
+    },
+    {
+      "rule": "DEC-2484j — A 529 is tax-free for education and an HSA is pre-tax but tax-free for medical costs, and their pages say so. Before: a 529 read ‘taxable’ and an HSA read ‘taxed when it comes out’.",
+      "cards": [
+        "MK-NW-F-012",
+        "MK-NW-F-108"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-012 defaults a 529 to tax-free and an HSA/pre-tax account to tax-deferred; taxWordsOf supplies the fixed HSA/529 wording in its own card."
+    },
+    {
+      "rule": "DEC-2484k — Cash a hand-built account records for itself is on the Cash line; a holding with no price is never counted as cash. Before: that cash was in no Cash line, and an unpriced holding’s value could fall into cash.",
+      "cards": [
+        "MK-NW-F-016",
+        "MK-NW-F-027"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-016 includes the hand-built account’s recorded uninvested cash through the class breakdown."
+    },
+    {
+      "rule": "DEC-2484l — Investments is one function, and Cash + Investments always equals Cash and investments together. Before: the Investments line was added up in more than one place.",
+      "cards": [
+        "MK-NW-F-021"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-021 states the invariant cashTotal + investmentsTotal = investableAssets and excludes cash from investments."
+    },
+    {
+      "rule": "DEC-2484m — No two accounts show the same name: alike names are numbered · 1, · 2 in the order the accounts were made. Before: two accounts could read the same.",
+      "cards": [
+        "MK-NW-F-026"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-026 makes duplicate account names unique by deterministic suffixing."
+    },
+    {
+      "rule": "DEC-2484n — A holding nobody has classed is Unclassified everywhere, and the words under an account count holdings by that same test. Before: Net worth said Unclassified and the account page said Stocks / Funds.",
+      "cards": [
+        "MK-NW-F-109",
+        "MK-NW-F-028"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The governing holding classifier and class label are outside Part 1."
+    },
+    {
+      "rule": "DEC-2484o — The return on the retirement money weighs each account by the money set aside for retirement. Kept as built; the reviewer wanted a different weighting (held).",
+      "cards": [
+        "MK-NW-F-004"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-004 reconstructs each beginning retirement amount as current/(1+reported return) and calculates total ending / total beginning − 1."
+    },
+    {
+      "rule": "DEC-2484q — A money-market fund a broker flags is kept as a holding, not dropped. Before: such funds vanished at sync.",
+      "cards": [
+        "MK-XS-F-102"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Broker-sync ingestion is outside Part 1."
+    },
+    {
+      "rule": "DEC-2484r — The person’s own answer about a holding’s class outranks what its name suggests. Before: the name won.",
+      "cards": [
+        "MK-NW-F-109"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The rule is about holdingClassOf (MK-NW-F-109), outside Part 1."
+    },
+    {
+      "rule": "DEC-2746b — Only a vehicle can be the car you drive. Before: a jewellery collection worth more than the car was taken as the car.",
+      "cards": [
+        "MK-NW-F-031"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Primary-car selection is MK-NW-F-031, outside Part 1."
+    },
+    {
+      "rule": "DEC-2746c — The rate the retirement money grows at, and its spread, are blended over exactly the money set aside, with no figure when nothing is set aside. Before: an invented 6% and 12% stood in.",
+      "cards": [
+        "MK-NW-F-037",
+        "MK-NW-F-035"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Blended return and volatility are outside Part 1."
+    },
+    {
+      "rule": "DEC-2746d — With nothing owned there is no average return. Before: it said 7%.",
+      "cards": [
+        "MK-NW-F-039"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The build-assets-state formula is outside Part 1."
+    },
+    {
+      "rule": "DEC-2746e — Monthly contributions: the 401(k) answer is held at the yearly legal limit for the age reached this year; property savings do not count; nothing answered gives no figure. Before: no limit, property savings counted, and $0 for nothing answered.",
+      "cards": [
+        "MK-NW-F-041"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Monthly contribution limit logic is outside Part 1."
+    },
+    {
+      "rule": "DEC-2746f — History shared is counted in months and never rounded up to a year. Before: eighteen months read ‘2 years’.",
+      "cards": [
+        "MK-NW-F-046"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "History coverage is outside Part 1."
+    },
+    {
+      "rule": "DEC-2746g — Itemising never lowers an account’s total; whatever is not itemised stays as cash. Before: a part-itemised $186,442 could fall to $148,001.",
+      "cards": [
+        "MK-NW-F-051"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Itemization total logic is outside Part 1."
+    },
+    {
+      "rule": "DEC-2746h — Accounts made by itemising carry the original’s retirement share, source and wrapper; a bond’s face value is entered or left blank. Before: itemising moved money out of the nest egg and gave bonds an invented face value.",
+      "cards": [
+        "MK-NW-F-052"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Building itemized accounts is outside Part 1."
+    },
+    {
+      "rule": "DEC-2747c — With nothing held there is no growth figure for alternatives. Before: it showed $0 growth.",
+      "cards": [
+        "MK-NW-F-002"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-002 explicitly refuses a growth figure when nothing is held or the alternatives total is zero."
+    },
+    {
+      "rule": "DEC-2747d — A money-market settlement fund is a fund, and a bond word inside a company name is not a bond. Before: a settlement fund read as cash; Treasury Wine Estates read as a bond.",
+      "cards": [
+        "MK-NW-F-008"
+      ],
+      "verdict": "NOT HELD",
+      "why": "MK-NW-F-008’s precedence does not clearly exclude the whole-word “treasury” inside a company name such as Treasury Wine Estates, even though the owner says that is not a bond."
+    },
+    {
+      "rule": "DEC-2747e — With two or more properties and no use stated, the one entered first is the home; the others count toward retirement. Before: every such property was the home, so a second property fell out of the retirement money.",
+      "cards": [
+        "MK-NW-F-110",
+        "MK-NW-F-013",
+        "MK-NW-F-030"
+      ],
+      "verdict": "NOT HELD",
+      "why": "MK-NW-F-013’s household branch delegates to propertyUseMap, while its single-property branch can return a stored use without a rent entry; the same property can therefore be read differently."
+    },
+    {
+      "rule": "DEC-2747f — The asset total does not get a count of accounts with no value (his answer: no). Not built.",
+      "cards": [
+        "MK-NW-F-015"
+      ],
+      "verdict": "NOT HELD",
+      "why": "MK-NW-F-015 explicitly says a missing balance counts as zero, contrary to the owner’s decision not to count accounts with no value."
+    },
+    {
+      "rule": "DEC-2748b — A bond’s face value or rate that was never entered stays blank — never $0 — and the screens say ‘not entered’. Before: a CD typed by its balance showed a yield to maturity of −274%.",
+      "cards": [
+        "MK-NW-F-056",
+        "MK-NW-M-055"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Bond face/rate display is governed by MK-NW-F-056 and screen MK-NW-M-055, outside Part 1."
+    },
+    {
+      "rule": "DEC-2748c — A year’s interest from a bond or CD has one rule everywhere: face × rate; with no face, value × rate; with no rate, $0 and said so. Before: the Bonds screen counted a CD at $0 while the income figure counted balance × rate.",
+      "cards": [
+        "MK-NW-F-112",
+        "MK-NW-F-062",
+        "MK-NW-F-063"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The unified yearly-interest functions are outside Part 1."
+    },
+    {
+      "rule": "DEC-2748d — A bond or CD past its maturity date pays no more interest. Before: it kept counting a year’s coupon.",
+      "cards": [
+        "MK-NW-F-063"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Maturity-filtered annual interest is outside Part 1."
+    },
+    {
+      "rule": "DEC-2748f — The if-rates-move estimate measures the change between two prices worked the same way, and a CD gets no estimate. Before: a 4.4-year Treasury read down about $1,000 where about $1,700 is right; only the screen hid a CD’s figure.",
+      "cards": [
+        "MK-NW-F-064"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Rate sensitivity is outside Part 1."
+    },
+    {
+      "rule": "DEC-2748g — Years to maturity count calendar days, not the time of day. Before: the hour shaved part of a day off (one example moved from 5.66% to 5.65%).",
+      "cards": [
+        "MK-NW-F-058"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Years to maturity is outside Part 1."
+    },
+    {
+      "rule": "DEC-2748h — The sweep that corrects classes never changes an account the person confirmed. Before: it could overwrite a confirmed class.",
+      "cards": [
+        "MK-NW-F-054"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The reclassification sweep is outside Part 1."
+    },
+    {
+      "rule": "DEC-2748i — A saved record whose accounts were all deleted shows the first-day screen, not $0 owned. Before: it showed $0 with a 7% average return.",
+      "cards": [
+        "MK-NW-F-111",
+        "MK-NW-F-044"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The saved-state behavior is outside Part 1."
+    },
+    {
+      "rule": "DEC-3035b — The retirement money’s twelve-month return weighs each account by what was set aside when the year began: Σ now ÷ Σ start − 1. Before: weighed by today’s amounts, 13.72% where 12.98% is right.",
+      "cards": [
+        "MK-NW-F-004"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-004’s reconstructed beginning balances implement the approved beginning-value weighted aggregate return."
+    },
+    {
+      "rule": "DEC-3035c — A 529’s and an HSA’s tax words are fixed by what they are; ‘(Roth)’ appears only for an account in the Roth bucket. Before: a 529 stated tax-free read ‘tax-free (Roth)’.",
+      "cards": [
+        "MK-NW-F-108"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The fixed 529/HSA tax words are governed by MK-NW-F-108, outside Part 1."
+    },
+    {
+      "rule": "DEC-3035d — A hand-built account is split holding by holding, so a T-bill inside it is Bonds & CDs. Before: everything but its cash was filed under the account’s own class.",
+      "cards": [
+        "MK-NW-F-027"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Hand-built account split logic is outside Part 1."
+    },
+    {
+      "rule": "DEC-3035e — A Roth 401(k) reads Roth 401(k), and a tax-advantaged account with no kind and known digits shows its tax word. Before: ‘Fidelity 401(k)’ for both a Roth and a pre-tax 401(k); ‘Vanguard -1234’ for a Roth.",
+      "cards": [
+        "MK-NW-F-025"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-025 explicitly renders Roth 401(k) as Roth 401(k) and supplies a tax word when a tax-advantaged account has no kind but known digits."
+    },
+    {
+      "rule": "DEC-3035f — A holding with nothing stored — no tag, no kind, nothing in its name — is Unclassified, never Stocks / Funds by default. Before: it was filed as Stocks / Funds (against DEC-2160).",
+      "cards": [
+        "MK-NW-F-109"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs holdingClassOf, not account-level assetClassOf; the holding classifier is outside Part 1."
+    },
+    {
+      "rule": "DEC-3035g — Broker Treasury wording (TREAS, UST, T-bond) counts as a Treasury in the words under an account, and more than one reads Treasuries. Before: a broker’s T-bill read ‘1 bond’.",
+      "cards": [
+        "MK-NW-F-028"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Treasury wording under an account is handled by MK-NW-F-028, outside Part 1."
+    },
+    {
+      "rule": "DEC-3035h — A value dated by its month alone is shown as the 1st of that month. Before: the stored text was handed back unchanged.",
+      "cards": [
+        "MK-NW-F-003"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-003 represents a month-only date as the first day of that month."
+    },
+    {
+      "rule": "DEC-3035i — Performance draws no walk for a window its record exists but cannot reach; a sentence names the record’s first day. Before: the beginning was worked back from today and wealth generated shown as if measured.",
+      "cards": [
+        "MK-NW-O-008"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The performance orchestrator is outside Part 1."
+    },
+    {
+      "rule": "DEC-3035j — A rate the person set themselves is labelled an estimate. Before: it took the record’s flag.",
+      "cards": [
+        "MK-NW-F-036"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Benchmark info is outside Part 1."
+    },
+    {
+      "rule": "DEC-3035k — An employer’s percent match is taken on the 401(k) figure after the yearly limit. Before: on the figure as typed — $1,600 where $1,490 is right.",
+      "cards": [
+        "MK-NW-F-041"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Contribution match logic is outside Part 1."
+    },
+    {
+      "rule": "DEC-3035l — History shared is rounded down and its sentence built from whole months only. Before: one day short of a year read ‘1 year’.",
+      "cards": [
+        "MK-NW-F-046"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "History coverage is outside Part 1."
+    },
+    {
+      "rule": "DEC-3035m — Accounts made by itemising carry the typical rate for their class, never 0%, and a bond rate not entered stays blank. Before: every itemised account had a 0% rate.",
+      "cards": [
+        "MK-NW-F-052"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Itemized account creation is outside Part 1."
+    },
+    {
+      "rule": "DEC-3035n — The Other investments summary reads the class split, so its total is the Alternatives line’s dollars and each part is rated by what it is. Before: whole accounts only — $18,641 where the Alternatives line read $23,031.",
+      "cards": [
+        "MK-NW-F-002"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-002 reads each Alternatives class portion through altPartsOf, rates portions by kind, and makes total equal the Alternatives line."
+    },
+    {
+      "rule": "DEC-3035o — A property’s name is not read as evidence of its class; a fund that writes options is a fund. Before: ‘Silver Lake house’ read as an alternative and a covered-call ETF as options.",
+      "cards": [
+        "MK-NW-F-011",
+        "MK-ST-F-010"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-011 explicitly excludes property/place names from name-based class evidence."
+    },
+    {
+      "rule": "DEC-3035p — What a property is for has one reading for every function; handed the rent entries, a property is a rental only when an entry names it, and a household with no home is told so. Before: three functions read it three ways; a rented-out house marked home counted as the home.",
+      "cards": [
+        "MK-NW-F-117",
+        "MK-NW-F-107",
+        "MK-NW-F-110",
+        "MK-NW-F-013",
+        "MK-NW-F-030"
+      ],
+      "verdict": "NOT HELD",
+      "why": "MK-NW-F-013’s standalone and household branches do not guarantee one shared rental/home interpretation when a stored use exists but no rent entry names the property."
+    },
+    {
+      "rule": "DEC-3146 — Under each class heading, every account that holds money in that class is listed by its name with only its part in that class (for example Vanguard -0008 $45,000, Chase -0333 $34,000), so the rows under a heading add up to the heading. It replaces the batch 4 rule that listed a split account once, under its largest class, at its whole balance.",
+      "cards": [
+        "MK-NW-F-094",
+        "MK-NW-M-007",
+        "MK-NW-M-008"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "The governing ledgerGroups and screen rows are outside Part 1."
+    },
+    {
+      "rule": "DEC-3279b — Years to maturity are exact, by anniversaries: one year to the day is exactly 1. Before: days ÷ 365.25 (0.9993 for one year).",
+      "cards": [
+        "MK-NW-F-058"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Years-to-maturity calculation is outside Part 1."
+    },
+    {
+      "rule": "DEC-3279c — A bond is priced at exact times, its yearly coupon on each maturity anniversary; a matured bond or one with no date has no price. Before: years rounded to a whole number, at least 1, so a matured bond still paid.",
+      "cards": [
+        "MK-NW-F-069"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Bond pricing is outside Part 1."
+    },
+    {
+      "rule": "DEC-3279e — A missing balance is never $0: it is left out of the total and the amber box names the account. Before: a linked account that failed to sync added 0 and the total looked complete.",
+      "cards": [
+        "MK-NW-F-066",
+        "MK-NW-F-022",
+        "MK-XS-F-002"
+      ],
+      "verdict": "NOT HELD",
+      "why": "MK-NW-F-015 counts missing balances as zero; MK-NW-F-022 omits missing balances without specifying the required amber warning naming the account."
+    },
+    {
+      "rule": "DEC-3279f — Itemised sums are exact decimals, a holding with no value is left out, and the remainder is then not final. Before: a missing value was 0 and the remainder looked complete; sums could leave a fraction of a cent.",
+      "cards": [
+        "MK-NW-F-049",
+        "MK-NW-F-050",
+        "MK-NW-F-073",
+        "MK-NW-F-118"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Itemization functions are outside Part 1."
+    },
+    {
+      "rule": "DEC-3279g — A kind that names contents — crypto, private equity, hedge funds, other — claims no Brokerage wrapper unless the person confirmed one. Before: ‘Coinbase Brokerage’ for a crypto wallet.",
+      "cards": [
+        "MK-NW-F-023",
+        "MK-NW-F-025"
+      ],
+      "verdict": "HELD",
+      "why": "MK-NW-F-023 gives no wrapper word to crypto/private-equity/hedge-fund/other kinds unless brokerage is confirmed."
+    },
+    {
+      "rule": "DEC-3279h — CDs, certificates of deposit and share certificates are recognised as CDs; ABCD Growth Fund is not. Before: ‘No-Penalty CDs’ was not a CD.",
+      "cards": [
+        "MK-NW-F-071"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "CD detection is outside Part 1."
+    },
+    {
+      "rule": "DEC-3279i — The accrued-interest note shows only for a bond that pays interest and has no accrued figure entered. Before: a zero-coupon bond got the note.",
+      "cards": [
+        "MK-NW-F-070"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Accrued-interest caveat is outside Part 1."
+    },
+    {
+      "rule": "DEC-3279j — Dates are read as calendar dates, never shifted by a time zone; an empty date shows nothing. Before: a midnight-UTC date could show the day before in Pacific time.",
+      "cards": [
+        "MK-NW-F-068"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Date formatting is outside Part 1."
+    },
+    {
+      "rule": "DEC-3390 — The value typed for a bond is what the statement shows, which leaves out the interest earned since the last coupon. For the yield to maturity, that interest is added: the figure entered, or an estimate from the coupon schedule, and then the screen reads: \"Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest\". The yield on today's value is on the value as entered. A $25,000 4.5% Treasury worth $24,200 two days before its coupon now reads 5.69%, not 7.44%.",
+      "cards": [
+        "MK-NW-F-059",
+        "MK-NW-F-060",
+        "MK-NW-F-061",
+        "MK-NW-F-064",
+        "MK-NW-F-070",
+        "MK-NW-O-001",
+        "MK-NW-M-057",
+        "MK-NW-M-058",
+        "MK-NW-M-027"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Bond current yield, YTM, accrued interest and Bonds screen behavior are outside Part 1."
+    }
+  ],
+  "screen_checks": [
+    {
+      "figure": "MK-NW-M-001",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-002",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-003",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-004",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The “WHAT YOU OWN” total is built from MK-NW-F-015, whose formula treats a missing balance as zero. DEC-3279e requires the missing account to be omitted and named in an amber warning; a complete-looking total is misleading."
+    },
+    {
+      "figure": "MK-NW-M-005",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-006",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The register says the group band shows $0 when no assets are entered, even though this is not a known $0 physical-property balance. The accompanying “Nothing entered yet” line helps but the displayed $0 still reads like a number the person owns; prefer “not entered” for an empty state."
+    },
+    {
+      "figure": "MK-NW-M-007",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-008",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The account-balance row shows $0 for an account with no value, and MK-NW-F-015 explicitly maps missing balances to zero. A known entered $0 must be distinguishable from a missing balance."
+    },
+    {
+      "figure": "MK-NW-M-009",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-010",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-011",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-014",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The cash/essentials line can look complete even when a split account’s cash amount or account balance is missing; cashTotal does not specify an amber missing-account signal. The figure should say when cash is incomplete."
+    },
+    {
+      "figure": "MK-NW-M-015",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-016",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The register explicitly says zero and “nothing recorded yet” read alike. Returning $0 when there is nothing to add violates the rule that unknown/never-entered is not zero."
+    },
+    {
+      "figure": "MK-NW-M-017",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The arithmetic is clear, but the owned/debt totals inherit the missing-balance-as-zero behavior and can show a complete-looking net worth while an account has no value."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "“Interest payments” is withheld when no coupon rate is entered, but the owner’s rule says annual interest counts as $0 and the screen says the rate was not entered. Keep the rate itself blank; show annual interest as $0 with disclosure."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 8,
+      "verdict": "FAIL",
+      "why": "The heading says “CURRENT PRICE · LIVE” while the no-price path shows what was paid instead. Even with a note, the title risks making cost basis look like a live market price; use a distinct “price not available / amount paid” state."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The owner decision DEC-1559 requires the Realized from sales row to read exactly “$0 — nothing sold” when nothing has been sold. The register’s refusal text only says “Nothing sold yet,” so it does not preserve the approved wording."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-038",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-039",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The empty itemization state explicitly reads “$0 of the balance.” A not-yet-itemized account should be described as not entered/not itemized, not as a zero-valued itemization."
+    },
+    {
+      "figure": "MK-NW-M-040",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-041",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-042",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The Bonds summary total face value can treat missing face values as zero through MK-NW-F-061, while the owner requires an unentered face to remain blank and be named as not entered."
+    },
+    {
+      "figure": "MK-NW-M-043",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-044",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-045",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-046",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-047",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-048",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-049",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-050",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-051",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-052",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-053",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-054",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-055",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "The register says an unentered bond face falls back to the value entered and labels that figure as face. This invents face value from market value and directly violates DEC-2748b."
+    },
+    {
+      "figure": "MK-NW-M-056",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-057",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-058",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-063",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-NW-M-064",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "The screen says the walk is not drawn when the record does not reach the window’s beginning, but MK-NW-O-008 also has a branch that back-solves a beginning when no record for the named accounts exists. The screen must not display a back-solved beginning as if read from history."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "The figure refuses wealth generated when there is no beginning, while MK-NW-O-008 can back-solve a beginning and produce a dollar walk when no record for those accounts exists. If retained, the inferred beginning must be labelled as inferred; otherwise refuse the walk."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "The register gives an explicit refusal/empty-state behavior rather than silently inventing a numeric answer; the calculation and rendered state still require Claude Code/UI verification."
+    }
+  ],
+  "could_not_test": []
+}

@@ -1,0 +1,2297 @@
+{
+ "batch": "nw module final — part 1",
+ "source": "MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_nw_part1_audit.json",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+ "run": "npx jest MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts --maxWorkers=2 → 130 of 130 green (7 marked test.failing, 0 skipped); tsc --noEmit reports no error in the file",
+ "cases": [
+  {
+   "id": "MK-NW-F-001",
+   "kind": "easy",
+   "title": "Alternative class is true",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": true,
+    "shown": "Yes"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-001 isAlternative — five cases › easy · Alternative class is true"
+  },
+  {
+   "id": "MK-NW-F-001",
+   "kind": "easy",
+   "title": "Stocks class is false",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-001 isAlternative — five cases › easy · Stocks class is false"
+  },
+  {
+   "id": "MK-NW-F-001",
+   "kind": "complex",
+   "title": "Explicit class beats suggestive name",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-001 isAlternative — five cases › complex · Explicit class beats suggestive name"
+  },
+  {
+   "id": "MK-NW-F-001",
+   "kind": "complex",
+   "title": "Legacy alternative retained",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": true,
+    "shown": "Yes"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-001 isAlternative — five cases › complex · Legacy alternative retained"
+  },
+  {
+   "id": "MK-NW-F-001",
+   "kind": "edge",
+   "title": "Unclassified does not get guessed",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-001 isAlternative — five cases › edge · Unclassified does not get guessed"
+  },
+  {
+   "id": "MK-NW-F-002",
+   "kind": "easy",
+   "title": "One alternative with known rate",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "count": 1,
+    "total": {
+     "exact": 10000,
+     "shown": "$10,000"
+    },
+    "blended_rate": {
+     "exact": 0.04,
+     "shown": "4.00%"
+    },
+    "growth": {
+     "exact": 400,
+     "shown": "$400"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-002 alternativesSummary — five cases › easy · One alternative with known rate"
+  },
+  {
+   "id": "MK-NW-F-002",
+   "kind": "easy",
+   "title": "Owner rate overrides benchmark",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "count": 1,
+    "total": {
+     "exact": 5000,
+     "shown": "$5,000"
+    },
+    "blended_rate": {
+     "exact": 0.1,
+     "shown": "10.00%"
+    },
+    "growth": {
+     "exact": 500,
+     "shown": "$500"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-002 alternativesSummary — five cases › easy · Owner rate overrides benchmark"
+  },
+  {
+   "id": "MK-NW-F-002",
+   "kind": "complex",
+   "title": "Mixed alternatives class portions",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "count": 1,
+    "total": {
+     "exact": 23031,
+     "shown": "$23,031"
+    },
+    "blended_rate": {
+     "exact": 0.07223828752550909,
+     "shown": "7.22%"
+    },
+    "growth": {
+     "exact": 1663.72,
+     "shown": "$1,664"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-002 alternativesSummary — five cases › complex · Mixed alternatives class portions"
+  },
+  {
+   "id": "MK-NW-F-002",
+   "kind": "complex",
+   "title": "Split account totals use only alternative portion",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "count": 1,
+    "total": {
+     "exact": 5000,
+     "shown": "$5,000"
+    },
+    "blended_rate": {
+     "exact": 0.075,
+     "shown": "7.50%"
+    },
+    "growth": {
+     "exact": 375,
+     "shown": "$375"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-002 alternativesSummary — five cases › complex · Split account totals use only alternative portion"
+  },
+  {
+   "id": "MK-NW-F-002",
+   "kind": "edge",
+   "title": "Nothing held refuses forecast",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "count": 0,
+    "total": {
+     "exact": 0,
+     "shown": "$0"
+    },
+    "blended_rate": "REFUSES — no alternative value held",
+    "growth": "REFUSES — no forecast when nothing is held"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-002 alternativesSummary — five cases › edge · Nothing held refuses forecast"
+  },
+  {
+   "id": "MK-NW-F-003",
+   "kind": "easy",
+   "title": "Exactly five months old",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "as_of": "2026-01-15",
+    "months_old": 5,
+    "stale": false
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-003 valueFreshness — five cases › easy · Exactly five months old"
+  },
+  {
+   "id": "MK-NW-F-003",
+   "kind": "easy",
+   "title": "Exactly six months old",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "as_of": "2026-01-10",
+    "months_old": 6,
+    "stale": true
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-003 valueFreshness — five cases › easy · Exactly six months old"
+  },
+  {
+   "id": "MK-NW-F-003",
+   "kind": "complex",
+   "title": "Month-only date counts from first",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "as_of": "2026-02-01",
+    "months_old": 6,
+    "stale": true
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-003 valueFreshness — five cases › complex · Month-only date counts from first"
+  },
+  {
+   "id": "MK-NW-F-003",
+   "kind": "complex",
+   "title": "Month-end crossing is not prematurely stale",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "as_of": "2026-04-30",
+    "months_old": 5,
+    "stale": false
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-003 valueFreshness — five cases › complex · Month-end crossing is not prematurely stale"
+  },
+  {
+   "id": "MK-NW-F-003",
+   "kind": "edge",
+   "title": "Holding-derived value has no freshness answer",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": "REFUSES — holding-derived values have no manual value freshness date",
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-003 valueFreshness — five cases › edge · Holding-derived value has no freshness answer"
+  },
+  {
+   "id": "MK-NW-F-004",
+   "kind": "easy",
+   "title": "One retirement account earns 10%",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0.1,
+    "shown": "10.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-004 portfolioActualReturn — five cases › easy · One retirement account earns 10%"
+  },
+  {
+   "id": "MK-NW-F-004",
+   "kind": "easy",
+   "title": "Reported zero return is included",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0.0,
+    "shown": "0.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-004 portfolioActualReturn — five cases › easy · Reported zero return is included"
+  },
+  {
+   "id": "MK-NW-F-004",
+   "kind": "complex",
+   "title": "Beginning-value weighted aggregate",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0.10499987092177321,
+    "shown": "10.50%"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-004 portfolioActualReturn — five cases › complex · Beginning-value weighted aggregate"
+  },
+  {
+   "id": "MK-NW-F-004",
+   "kind": "complex",
+   "title": "Exclude unreported return and property",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0.2,
+    "shown": "20.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-004 portfolioActualReturn — five cases › complex · Exclude unreported return and property"
+  },
+  {
+   "id": "MK-NW-F-004",
+   "kind": "edge",
+   "title": "No eligible retirement values refuses",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": "REFUSES — no eligible retirement account totals",
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-004 portfolioActualReturn — five cases › edge · No eligible retirement values refuses"
+  },
+  {
+   "id": "MK-NW-F-005",
+   "kind": "easy",
+   "title": "Checking account cannot hold ticker",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-005 accountAllowsTicker — five cases › easy · Checking account cannot hold ticker"
+  },
+  {
+   "id": "MK-NW-F-005",
+   "kind": "easy",
+   "title": "Brokerage with no holdings can add ticker",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": true,
+    "shown": "Yes"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-005 accountAllowsTicker — five cases › easy · Brokerage with no holdings can add ticker"
+  },
+  {
+   "id": "MK-NW-F-005",
+   "kind": "complex",
+   "title": "529 remains disallowed even with holdings",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-005 accountAllowsTicker — five cases › complex · 529 remains disallowed even with holdings"
+  },
+  {
+   "id": "MK-NW-F-005",
+   "kind": "complex",
+   "title": "Hand-entered CD cannot accept ticker",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-005 accountAllowsTicker — five cases › complex · Hand-entered CD cannot accept ticker"
+  },
+  {
+   "id": "MK-NW-F-005",
+   "kind": "edge",
+   "title": "Alternative with existing holdings",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": true,
+    "shown": "Yes"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "Owner kept this precedence: DEC-2441 FIXED list, 'an account that lists holdings takes a ticker' (index.ts:234).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-005 accountAllowsTicker — five cases › edge · Alternative with existing holdings"
+  },
+  {
+   "id": "MK-NW-F-006",
+   "kind": "easy",
+   "title": "Checking is cash kind",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": true,
+    "shown": "Yes"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › easy · Checking is cash kind"
+  },
+  {
+   "id": "MK-NW-F-006",
+   "kind": "easy",
+   "title": "CD is not cash kind",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › easy · CD is not cash kind"
+  },
+  {
+   "id": "MK-NW-F-006",
+   "kind": "complex",
+   "title": "Money-market fund not cash",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › complex · Money-market fund not cash"
+  },
+  {
+   "id": "MK-NW-F-006",
+   "kind": "complex",
+   "title": "Foreign currency is cash, forex holding is alternative",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": true,
+    "shown": "Yes"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › complex · Foreign currency is cash, forex holding is alternative"
+  },
+  {
+   "id": "MK-NW-F-006",
+   "kind": "edge",
+   "title": "Unknown kind is not cash",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › edge · Unknown kind is not cash"
+  },
+  {
+   "id": "MK-NW-F-007",
+   "kind": "easy",
+   "title": "Known exact ID resolves",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "result": "The exact checking entry from the app kind registry"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-007 assetKind — five cases › easy · Known exact ID resolves"
+  },
+  {
+   "id": "MK-NW-F-007",
+   "kind": "easy",
+   "title": "Unknown ID returns nothing",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "result": "REFUSES — no matching kind"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-007 assetKind — five cases › easy · Unknown ID returns nothing"
+  },
+  {
+   "id": "MK-NW-F-007",
+   "kind": "complex",
+   "title": "Case mismatch does not normalize",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "result": "REFUSES — exact ID not found"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-007 assetKind — five cases › complex · Case mismatch does not normalize"
+  },
+  {
+   "id": "MK-NW-F-007",
+   "kind": "complex",
+   "title": "Whitespace mismatch does not normalize",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "result": "REFUSES — exact ID not found"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-007 assetKind — five cases › complex · Whitespace mismatch does not normalize"
+  },
+  {
+   "id": "MK-NW-F-007",
+   "kind": "edge",
+   "title": "Missing ID returns nothing",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "result": "REFUSES — no ID supplied"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-007 assetKind — five cases › edge · Missing ID returns nothing"
+  },
+  {
+   "id": "MK-NW-F-008",
+   "kind": "easy",
+   "title": "Sweep name infers cash",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Cash"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-008 incomeBearingClassOf — five cases › easy · Sweep name infers cash"
+  },
+  {
+   "id": "MK-NW-F-008",
+   "kind": "easy",
+   "title": "Money market wins over settlement",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Stocks / Funds"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-008 incomeBearingClassOf — five cases › easy · Money market wins over settlement"
+  },
+  {
+   "id": "MK-NW-F-008",
+   "kind": "complex",
+   "title": "Company name does not trigger bond",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "REFUSES — no safe inference"
+   },
+   "difference": "none",
+   "formula_gives_match": "expected",
+   "note": "App returns null; the company-word test applies to bond words too (Calculation Module code/engines/holding-class.ts, nameEvidence, FIXED_INCOME_RE && !COMPANY_WORDS). DEC-2747d.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-008 incomeBearingClassOf — five cases › complex · Company name does not trigger bond"
+  },
+  {
+   "id": "MK-NW-F-008",
+   "kind": "complex",
+   "title": "Broker Treasury ticker maps bond",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Bonds & CDs"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-008 incomeBearingClassOf — five cases › complex · Broker Treasury ticker maps bond"
+  },
+  {
+   "id": "MK-NW-F-008",
+   "kind": "edge",
+   "title": "Embedded letters are not whole words",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "REFUSES — no class evidence"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-008 incomeBearingClassOf — five cases › edge · Embedded letters are not whole words"
+  },
+  {
+   "id": "MK-NW-F-009",
+   "kind": "easy",
+   "title": "Future maturity means bond",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Bonds & CDs"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-009 maturityClass — five cases › easy · Future maturity means bond"
+  },
+  {
+   "id": "MK-NW-F-009",
+   "kind": "easy",
+   "title": "No maturity means cash",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Cash"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-009 maturityClass — five cases › easy · No maturity means cash"
+  },
+  {
+   "id": "MK-NW-F-009",
+   "kind": "complex",
+   "title": "Expired maturity remains bond",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Bonds & CDs"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-009 maturityClass — five cases › complex · Expired maturity remains bond"
+  },
+  {
+   "id": "MK-NW-F-009",
+   "kind": "complex",
+   "title": "Whitespace-only date is empty",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Cash"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-009 maturityClass — five cases › complex · Whitespace-only date is empty"
+  },
+  {
+   "id": "MK-NW-F-009",
+   "kind": "edge",
+   "title": "Invalid nonblank date needs owner clarification",
+   "status": "UNCLEAR",
+   "actual": "'bonds'",
+   "expected": {
+    "result": "RULE UNCLEAR — if treated as nonblank it classifies Bonds & CDs; if invalid dates are rejected it should refuse/validate input"
+   },
+   "difference": "no single expected",
+   "formula_gives_match": null,
+   "note": "UNCLEAR: app treats any non-blank text as a maturity date (src/domain/assets/index.ts:416). Open question: is an unreadable date refused or kept as Bonds & CDs? No decision found (DEC-0332 covers a missing date only).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-009 maturityClass — five cases › edge · Invalid nonblank date needs owner clarification"
+  },
+  {
+   "id": "MK-NW-F-010",
+   "kind": "easy",
+   "title": "Traditional IRA maps pre-tax",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "kind": "Traditional IRA",
+    "tax_bucket": "pre-tax"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-010 wrapperAccount — five cases › easy · Traditional IRA maps pre-tax"
+  },
+  {
+   "id": "MK-NW-F-010",
+   "kind": "easy",
+   "title": "Roth 401(k) maps Roth bucket",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "kind": "401(k)",
+    "tax_bucket": "Roth"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-010 wrapperAccount — five cases › easy · Roth 401(k) maps Roth bucket"
+  },
+  {
+   "id": "MK-NW-F-010",
+   "kind": "complex",
+   "title": "HSA maps pre-tax bucket",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "kind": "HSA",
+    "tax_bucket": "pre-tax"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-010 wrapperAccount — five cases › complex · HSA maps pre-tax bucket"
+  },
+  {
+   "id": "MK-NW-F-010",
+   "kind": "complex",
+   "title": "Unknown choice defaults taxable brokerage",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "kind": "brokerage",
+    "tax_bucket": "taxable"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-010 wrapperAccount — five cases › complex · Unknown choice defaults taxable brokerage"
+  },
+  {
+   "id": "MK-NW-F-010",
+   "kind": "edge",
+   "title": "No wrapper chosen",
+   "status": "UNCLEAR",
+   "actual": "{kind:'brokerage',tax_bucket:'TAXABLE'}",
+   "expected": "RULE UNCLEAR — if capture default is explicitly approved, brokerage/taxable; if unknown must remain unknown, REFUSES and asks the user",
+   "difference": "no single expected",
+   "formula_gives_match": "formula_gives",
+   "note": "UNCLEAR: app defaults no choice to taxable brokerage (index.ts:455). Open question: is that an approved capture default, or must the wrapper stay unknown (tenet 3)? DEC-2441 approved F-010's Roth 401(k) fix only.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-010 wrapperAccount — five cases › edge · No wrapper chosen"
+  },
+  {
+   "id": "MK-NW-F-011",
+   "kind": "easy",
+   "title": "Confirmed class outranks maturity",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Stocks / Funds"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-011 assetClassOf — five cases › easy · Confirmed class outranks maturity"
+  },
+  {
+   "id": "MK-NW-F-011",
+   "kind": "easy",
+   "title": "Maturity date beats contradictory name",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Bonds & CDs"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-011 assetClassOf — five cases › easy · Maturity date beats contradictory name"
+  },
+  {
+   "id": "MK-NW-F-011",
+   "kind": "complex",
+   "title": "Property name not read as class evidence",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Real estate"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-011 assetClassOf — five cases › complex · Property name not read as class evidence"
+  },
+  {
+   "id": "MK-NW-F-011",
+   "kind": "complex",
+   "title": "Unclassified when nothing identifies holding",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Unclassified"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-011 assetClassOf — five cases › complex · Unclassified when nothing identifies holding"
+  },
+  {
+   "id": "MK-NW-F-011",
+   "kind": "edge",
+   "title": "Confirmed user class beats sweep correction",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "class": "Stocks / Funds"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-011 assetClassOf — five cases › edge · Confirmed user class beats sweep correction"
+  },
+  {
+   "id": "MK-NW-F-012",
+   "kind": "easy",
+   "title": "Roth account tax-free",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "tax_treatment": "tax-free"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › easy · Roth account tax-free"
+  },
+  {
+   "id": "MK-NW-F-012",
+   "kind": "easy",
+   "title": "Pre-tax account tax-deferred",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "tax_treatment": "tax-deferred"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › easy · Pre-tax account tax-deferred"
+  },
+  {
+   "id": "MK-NW-F-012",
+   "kind": "complex",
+   "title": "529 with explicit taxable conflicts with fixed 529 rule",
+   "status": "UNCLEAR",
+   "actual": "'taxable'",
+   "expected": {
+    "result": "RULE UNCLEAR — formula returns taxable because explicit treatment wins; owner decision says 529 tax words are fixed by what it is, suggesting tax-free for qualified education use"
+   },
+   "difference": "no single expected",
+   "formula_gives_match": null,
+   "note": "UNCLEAR: stated treatment wins (index.ts:570) while taxWordsOf prints 'tax-free for education' for the same account (index.ts:609). Open question: may a 529 carry a stated 'taxable' treatment? DEC-3035c fixes the words only.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › complex · 529 with explicit taxable conflicts with fixed 529 rule"
+  },
+  {
+   "id": "MK-NW-F-012",
+   "kind": "complex",
+   "title": "HSA in Roth bucket tests owner-specific wording",
+   "status": "UNCLEAR",
+   "actual": "'tax_free'",
+   "expected": {
+    "result": "RULE UNCLEAR — formula returns tax-free via Roth fallback; DEC-3035c says HSA tax words are fixed by what it is and “(Roth)” appears only for Roth bucket; clarify treatment vs label"
+   },
+   "difference": "no single expected",
+   "formula_gives_match": null,
+   "note": "UNCLEAR: Roth-bucket fallback gives tax_free (index.ts:573) while taxWordsOf says 'pre-tax — tax-free for medical costs' (index.ts:610). Open question: can an HSA sit in the Roth bucket? DEC-2441 (KEPT) only sorts an HSA with pre-tax by default.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › complex · HSA in Roth bucket tests owner-specific wording"
+  },
+  {
+   "id": "MK-NW-F-012",
+   "kind": "edge",
+   "title": "No treatment and no tax bucket",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "tax_treatment": "taxable"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › edge · No treatment and no tax bucket"
+  },
+  {
+   "id": "MK-NW-F-013",
+   "kind": "easy",
+   "title": "Non-property has no use",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "use": null
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › easy · Non-property has no use"
+  },
+  {
+   "id": "MK-NW-F-013",
+   "kind": "easy",
+   "title": "Land stays land",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "use": "land"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › easy · Land stays land"
+  },
+  {
+   "id": "MK-NW-F-013",
+   "kind": "complex",
+   "title": "Rent entry naming property makes it rental",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "use": "rental"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › complex · Rent entry naming property makes it rental"
+  },
+  {
+   "id": "MK-NW-F-013",
+   "kind": "complex",
+   "title": "Household map must agree with rent entries",
+   "status": "PASS",
+   "actual": "{A:'primary',B:'rental'}",
+   "expected": {
+    "result": "RULE UNCLEAR — A should not be rental; B must be rental because rent entry names it; the one household home must be resolved consistently, and B cannot remain home"
+   },
+   "difference": "none against the decisions",
+   "formula_gives_match": "expected",
+   "note": "Brief said RULE UNCLEAR; settled by DEC-1926 + DEC-3035p (rental only when a rent entry names it; the marked home is the home). Asserted as ruled; app agrees via propertyUseMap (index.ts:801-813).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › complex · Household map must agree with rent entries"
+  },
+  {
+   "id": "MK-NW-F-013",
+   "kind": "edge",
+   "title": "No home among properties",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "use_for_A": "rental",
+    "use_for_B": "rental",
+    "home": "REFUSES — household has no home identified"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › edge · No home among properties"
+  },
+  {
+   "id": "MK-NW-F-014",
+   "kind": "easy",
+   "title": "Home is real asset",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": true,
+    "shown": "Yes"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-014 isRealAsset — five cases › easy · Home is real asset"
+  },
+  {
+   "id": "MK-NW-F-014",
+   "kind": "easy",
+   "title": "Stocks are not real asset",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-014 isRealAsset — five cases › easy · Stocks are not real asset"
+  },
+  {
+   "id": "MK-NW-F-014",
+   "kind": "complex",
+   "title": "Vehicle is physical personal property",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": true,
+    "shown": "Yes"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-014 isRealAsset — five cases › complex · Vehicle is physical personal property"
+  },
+  {
+   "id": "MK-NW-F-014",
+   "kind": "complex",
+   "title": "Unclassified holding not real asset",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-014 isRealAsset — five cases › complex · Unclassified holding not real asset"
+  },
+  {
+   "id": "MK-NW-F-014",
+   "kind": "edge",
+   "title": "Unknown class is not guessed physical",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": false,
+    "shown": "No"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-014 isRealAsset — five cases › edge · Unknown class is not guessed physical"
+  },
+  {
+   "id": "MK-NW-F-015",
+   "kind": "easy",
+   "title": "Two known balances sum",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 5000,
+    "shown": "$5,000"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › easy · Two known balances sum"
+  },
+  {
+   "id": "MK-NW-F-015",
+   "kind": "easy",
+   "title": "One zero balance is known zero",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 4500,
+    "shown": "$4,500"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › easy · One zero balance is known zero"
+  },
+  {
+   "id": "MK-NW-F-015",
+   "kind": "complex",
+   "title": "Missing balance must not count as zero",
+   "status": "PASS",
+   "actual": "26050.75; amber box 'Linked savings has no balance'",
+   "expected": {
+    "exact": 26050.75,
+    "shown": "$26,051",
+    "warning": "Incomplete — Linked savings has no value; name it in an amber notice"
+   },
+   "difference": "none",
+   "formula_gives_match": "expected",
+   "note": "Number from totalAssets (index.ts:954); the amber notice is dataGaps 'no-balance' (src/domain/gaps/index.ts:166). Wording is the app's ('has no balance'), checked by name only.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › complex · Missing balance must not count as zero"
+  },
+  {
+   "id": "MK-NW-F-015",
+   "kind": "complex",
+   "title": "Missing middle account not counted or hidden",
+   "status": "PASS",
+   "actual": "128333.33; amber box 'Undervalued property has no balance'",
+   "expected": {
+    "exact": 128333.33,
+    "shown": "$128,333",
+    "warning": "Incomplete — Undervalued property has no value"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "As above.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › complex · Missing middle account not counted or hidden"
+  },
+  {
+   "id": "MK-NW-F-015",
+   "kind": "edge",
+   "title": "No accounts refuses rather than $0 owned",
+   "status": "FINDING",
+   "actual": "0",
+   "expected": "REFUSES — nothing entered yet; do not present $0 owned as a completed household total",
+   "difference": "returns 0 instead of refusing",
+   "formula_gives_match": null,
+   "note": "FINDING (low reach): totalAssets([]) = 0. totalAssets has no production caller (the screen total is buildAssetsState, index.ts:2213); DEC-2748i's first-day screen is held upstream by getAssetsState.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › edge · No accounts refuses rather than $0 owned"
+  },
+  {
+   "id": "MK-NW-F-016",
+   "kind": "easy",
+   "title": "Bank cash added",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 2000,
+    "shown": "$2,000"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-016 cashTotal — five cases › easy · Bank cash added"
+  },
+  {
+   "id": "MK-NW-F-016",
+   "kind": "easy",
+   "title": "Investment account uninvested cash",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 750,
+    "shown": "$750"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-016 cashTotal — five cases › easy · Investment account uninvested cash"
+  },
+  {
+   "id": "MK-NW-F-016",
+   "kind": "complex",
+   "title": "Two linked accounts with cash and bonds",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 1650,
+    "shown": "$1,650"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-016 cashTotal — five cases › complex · Two linked accounts with cash and bonds"
+  },
+  {
+   "id": "MK-NW-F-016",
+   "kind": "complex",
+   "title": "Cash account full balance and money-market fund excluded",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 3200,
+    "shown": "$3,200"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-016 cashTotal — five cases › complex · Cash account full balance and money-market fund excluded"
+  },
+  {
+   "id": "MK-NW-F-016",
+   "kind": "edge",
+   "title": "No cash value known",
+   "status": "BRIEF_WRONG",
+   "actual": "0 (account named in amber box by dataGaps)",
+   "expected": "REFUSES — cash amount cannot be established; do not infer $0 from a missing breakdown",
+   "difference": "app 0 vs REFUSES",
+   "formula_gives_match": "formula_gives",
+   "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. So the right answer is $0 cash plus the named account, which the app gives.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-016 cashTotal — five cases › edge · No cash value known"
+  },
+  {
+   "id": "MK-NW-F-017",
+   "kind": "easy",
+   "title": "One account in Stocks / Funds",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 4000,
+    "shown": "$4,000"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › easy · One account in Stocks / Funds"
+  },
+  {
+   "id": "MK-NW-F-017",
+   "kind": "easy",
+   "title": "No Stocks / Funds portion",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › easy · No Stocks / Funds portion"
+  },
+  {
+   "id": "MK-NW-F-017",
+   "kind": "complex",
+   "title": "Split account contributes only Stocks / Funds",
+   "status": "BRIEF_WRONG",
+   "actual": "33611.11",
+   "expected": {
+    "exact": 36111.11,
+    "shown": "$36,111"
+   },
+   "difference": "-2500.00",
+   "formula_gives_match": null,
+   "note": "BRIEF WRONG: 36111.11 — right is 33611.11 because 31,111.11 + 2,500 = 33,611.11. The app is right.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › complex · Split account contributes only Stocks / Funds"
+  },
+  {
+   "id": "MK-NW-F-017",
+   "kind": "complex",
+   "title": "Multiple account portions in Stocks / Funds",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 9124.68,
+    "shown": "$9,125"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › complex · Multiple account portions in Stocks / Funds"
+  },
+  {
+   "id": "MK-NW-F-017",
+   "kind": "edge",
+   "title": "Unknown value for Stocks / Funds account",
+   "status": "BRIEF_WRONG",
+   "actual": "0 (account named in amber box by dataGaps)",
+   "expected": {
+    "result": "REFUSES — class subtotal incomplete; identify the missing-valued account"
+   },
+   "difference": "app 0 vs REFUSES",
+   "formula_gives_match": null,
+   "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. App gives $0 for the class and dataGaps names the account.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › edge · Unknown value for Stocks / Funds account"
+  },
+  {
+   "id": "MK-NW-F-018",
+   "kind": "easy",
+   "title": "One account in Bonds & CDs",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 4000,
+    "shown": "$4,000"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › easy · One account in Bonds & CDs"
+  },
+  {
+   "id": "MK-NW-F-018",
+   "kind": "easy",
+   "title": "No Bonds & CDs portion",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › easy · No Bonds & CDs portion"
+  },
+  {
+   "id": "MK-NW-F-018",
+   "kind": "complex",
+   "title": "Split account contributes only Bonds & CDs",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 15154.32,
+    "shown": "$15,154"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › complex · Split account contributes only Bonds & CDs"
+  },
+  {
+   "id": "MK-NW-F-018",
+   "kind": "complex",
+   "title": "Multiple account portions in Bonds & CDs",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 9124.68,
+    "shown": "$9,125"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › complex · Multiple account portions in Bonds & CDs"
+  },
+  {
+   "id": "MK-NW-F-018",
+   "kind": "edge",
+   "title": "Unknown value for Bonds & CDs account",
+   "status": "BRIEF_WRONG",
+   "actual": "0 (account named in amber box by dataGaps)",
+   "expected": {
+    "result": "REFUSES — class subtotal incomplete; identify the missing-valued account"
+   },
+   "difference": "app 0 vs REFUSES",
+   "formula_gives_match": null,
+   "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. App gives $0 for the class and dataGaps names the account.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › edge · Unknown value for Bonds & CDs account"
+  },
+  {
+   "id": "MK-NW-F-019",
+   "kind": "easy",
+   "title": "One account in Alternatives",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 4000,
+    "shown": "$4,000"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › easy · One account in Alternatives"
+  },
+  {
+   "id": "MK-NW-F-019",
+   "kind": "easy",
+   "title": "No Alternatives portion",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › easy · No Alternatives portion"
+  },
+  {
+   "id": "MK-NW-F-019",
+   "kind": "complex",
+   "title": "Split account contributes only Alternatives",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 7500,
+    "shown": "$7,500"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › complex · Split account contributes only Alternatives"
+  },
+  {
+   "id": "MK-NW-F-019",
+   "kind": "complex",
+   "title": "Multiple account portions in Alternatives",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 9124.68,
+    "shown": "$9,125"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › complex · Multiple account portions in Alternatives"
+  },
+  {
+   "id": "MK-NW-F-019",
+   "kind": "edge",
+   "title": "Unknown value for Alternatives account",
+   "status": "BRIEF_WRONG",
+   "actual": "0 (account named in amber box by dataGaps)",
+   "expected": {
+    "result": "REFUSES — class subtotal incomplete; identify the missing-valued account"
+   },
+   "difference": "app 0 vs REFUSES",
+   "formula_gives_match": null,
+   "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. App gives $0 for the class and dataGaps names the account.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › edge · Unknown value for Alternatives account"
+  },
+  {
+   "id": "MK-NW-F-020",
+   "kind": "easy",
+   "title": "One account in Real estate",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 4000,
+    "shown": "$4,000"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › easy · One account in Real estate"
+  },
+  {
+   "id": "MK-NW-F-020",
+   "kind": "easy",
+   "title": "No Real estate portion",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › easy · No Real estate portion"
+  },
+  {
+   "id": "MK-NW-F-020",
+   "kind": "complex",
+   "title": "Split account contributes only Real estate",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 2500,
+    "shown": "$2,500"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › complex · Split account contributes only Real estate"
+  },
+  {
+   "id": "MK-NW-F-020",
+   "kind": "complex",
+   "title": "Multiple account portions in Real estate",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 9124.68,
+    "shown": "$9,125"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › complex · Multiple account portions in Real estate"
+  },
+  {
+   "id": "MK-NW-F-020",
+   "kind": "edge",
+   "title": "Unknown value for Real estate account",
+   "status": "BRIEF_WRONG",
+   "actual": "0 (account named in amber box by dataGaps)",
+   "expected": {
+    "result": "REFUSES — class subtotal incomplete; identify the missing-valued account"
+   },
+   "difference": "app 0 vs REFUSES",
+   "formula_gives_match": null,
+   "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. App gives $0 for the class and dataGaps names the account.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › edge · Unknown value for Real estate account"
+  },
+  {
+   "id": "MK-NW-F-021",
+   "kind": "easy",
+   "title": "Cash excluded from investments",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 8000,
+    "shown": "$8,000",
+    "cash_plus_investments": 10000
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-021 investmentsTotal — five cases › easy · Cash excluded from investments"
+  },
+  {
+   "id": "MK-NW-F-021",
+   "kind": "easy",
+   "title": "Unclassified included",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 3500,
+    "shown": "$3,500"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-021 investmentsTotal — five cases › easy · Unclassified included"
+  },
+  {
+   "id": "MK-NW-F-021",
+   "kind": "complex",
+   "title": "All investment classes and cash split",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 25111.1,
+    "shown": "$25,111",
+    "cash_plus_investments": 34532.22
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-021 investmentsTotal — five cases › complex · All investment classes and cash split"
+  },
+  {
+   "id": "MK-NW-F-021",
+   "kind": "complex",
+   "title": "CD in a cash-named account still bonds",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 4500,
+    "shown": "$4,500",
+    "cash_plus_investments": 5700
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-021 investmentsTotal — five cases › complex · CD in a cash-named account still bonds"
+  },
+  {
+   "id": "MK-NW-F-021",
+   "kind": "edge",
+   "title": "Missing valued investment blocks complete invariant",
+   "status": "PASS",
+   "actual": "4000; amber box 'Linked bond account has no balance'",
+   "expected": {
+    "known_investments_subtotal": {
+     "exact": 4000,
+     "shown": "$4,000"
+    },
+    "result": "REFUSES — total/invariant is incomplete until Linked bond account is valued"
+   },
+   "difference": "none",
+   "formula_gives_match": "expected",
+   "note": "Known subtotal and the named account match. The brief's added 'REFUSES' conflicts with DEC-3279e: a missing balance is left out of the total and the amber box names the account. Only the subtotal and the naming are asserted.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-021 investmentsTotal — five cases › edge · Missing valued investment blocks complete invariant"
+  },
+  {
+   "id": "MK-NW-F-022",
+   "kind": "easy",
+   "title": "Cash and stocks are investable",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 10000,
+    "shown": "$10,000"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-022 investableAssets — five cases › easy · Cash and stocks are investable"
+  },
+  {
+   "id": "MK-NW-F-022",
+   "kind": "easy",
+   "title": "Home excluded",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 5000,
+    "shown": "$5,000"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-022 investableAssets — five cases › easy · Home excluded"
+  },
+  {
+   "id": "MK-NW-F-022",
+   "kind": "complex",
+   "title": "Vehicle excluded, retirement included",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 125567.89,
+    "shown": "$125,568"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-022 investableAssets — five cases › complex · Vehicle excluded, retirement included"
+  },
+  {
+   "id": "MK-NW-F-022",
+   "kind": "complex",
+   "title": "Missing account value is omitted but flagged",
+   "status": "PASS",
+   "actual": "12222.21; missingCount 1; amber box 'Linked CD has no balance'",
+   "expected": {
+    "known_subtotal": {
+     "exact": 12222.21,
+     "shown": "$12,222"
+    },
+    "warning": "Incomplete — Linked CD has no value"
+   },
+   "difference": "none",
+   "formula_gives_match": "expected",
+   "note": "sumWhere counts the missing account (index.ts:923); dataGaps names it.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-022 investableAssets — five cases › complex · Missing account value is omitted but flagged"
+  },
+  {
+   "id": "MK-NW-F-022",
+   "kind": "edge",
+   "title": "Only real assets yields zero known investable assets",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-022 investableAssets — five cases › edge · Only real assets yields zero known investable assets"
+  },
+  {
+   "id": "MK-NW-F-023",
+   "kind": "easy",
+   "title": "Checking label",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "word": "Checking"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-023 wrapperWord — five cases › easy · Checking label"
+  },
+  {
+   "id": "MK-NW-F-023",
+   "kind": "easy",
+   "title": "Crypto has no wrapper word",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "word": null
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-023 wrapperWord — five cases › easy · Crypto has no wrapper word"
+  },
+  {
+   "id": "MK-NW-F-023",
+   "kind": "complex",
+   "title": "Legacy hedge fund row retained without wrapper label",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "word": null
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-023 wrapperWord — five cases › complex · Legacy hedge fund row retained without wrapper label"
+  },
+  {
+   "id": "MK-NW-F-023",
+   "kind": "complex",
+   "title": "Confirmed brokerage for crypto",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "word": "Brokerage"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-023 wrapperWord — five cases › complex · Confirmed brokerage for crypto"
+  },
+  {
+   "id": "MK-NW-F-023",
+   "kind": "edge",
+   "title": "Unknown kind has no label",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "word": null
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-023 wrapperWord — five cases › edge · Unknown kind has no label"
+  },
+  {
+   "id": "MK-NW-F-024",
+   "kind": "easy",
+   "title": "Mask digits extracted",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "last_four": "1234"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-024 accountLastFour — five cases › easy · Mask digits extracted"
+  },
+  {
+   "id": "MK-NW-F-024",
+   "kind": "easy",
+   "title": "No digits returns null",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "last_four": null
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-024 accountLastFour — five cases › easy · No digits returns null"
+  },
+  {
+   "id": "MK-NW-F-024",
+   "kind": "complex",
+   "title": "Mask wins over account number",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "last_four": "9876"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-024 accountLastFour — five cases › complex · Mask wins over account number"
+  },
+  {
+   "id": "MK-NW-F-024",
+   "kind": "complex",
+   "title": "Unusable mask fallback ambiguity",
+   "status": "UNCLEAR",
+   "actual": "'2345'",
+   "expected": {
+    "result": "RULE UNCLEAR — literal formula could return null because mask exists but yields <4 digits; intended fallback reading returns 2345"
+   },
+   "difference": "no single expected",
+   "formula_gives_match": "expected",
+   "note": "UNCLEAR: a mask with under four digits falls through to the account number (index.ts:1205-1208), which is the auditor's own 'intended fallback reading' (formula_gives said null). Open question: is that the intended reading of the card's 'or failing that'? No decision found.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-024 accountLastFour — five cases › complex · Unusable mask fallback ambiguity"
+  },
+  {
+   "id": "MK-NW-F-024",
+   "kind": "edge",
+   "title": "Mask contains more than four digits",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "last_four": "5678"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-024 accountLastFour — five cases › edge · Mask contains more than four digits"
+  },
+  {
+   "id": "MK-NW-F-025",
+   "kind": "easy",
+   "title": "Institution and checking last four",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "display_name": "Chase -0333"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-025 accountDisplayName — five cases › easy · Institution and checking last four"
+  },
+  {
+   "id": "MK-NW-F-025",
+   "kind": "easy",
+   "title": "Roth 401(k) is named explicitly",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "display_name": "Fidelity Roth 401(k) -1234"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-025 accountDisplayName — five cases › easy · Roth 401(k) is named explicitly"
+  },
+  {
+   "id": "MK-NW-F-025",
+   "kind": "complex",
+   "title": "No-kind tax-advantaged account shows tax word",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "display_name": "Vanguard Roth -7890"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-025 accountDisplayName — five cases › complex · No-kind tax-advantaged account shows tax word"
+  },
+  {
+   "id": "MK-NW-F-025",
+   "kind": "complex",
+   "title": "Imported holding with one position",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "display_name": "TREAS 4.25% 2031"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-025 accountDisplayName — five cases › complex · Imported holding with one position"
+  },
+  {
+   "id": "MK-NW-F-025",
+   "kind": "edge",
+   "title": "Conflicting wrapper and tax treatment",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "display_name": "Fidelity Roth 401(k) -1234"
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-025 accountDisplayName — five cases › edge · Conflicting wrapper and tax treatment"
+  },
+  {
+   "id": "MK-NW-F-026",
+   "kind": "easy",
+   "title": "Unique names remain unchanged",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "names": [
+     "Chase -1111",
+     "Fidelity -2222"
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-026 accountDisplayNames — five cases › easy · Unique names remain unchanged"
+  },
+  {
+   "id": "MK-NW-F-026",
+   "kind": "easy",
+   "title": "Duplicate names get suffixes",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "names": [
+     "Chase -1111 · 1",
+     "Chase -1111 · 2"
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-026 accountDisplayNames — five cases › easy · Duplicate names get suffixes"
+  },
+  {
+   "id": "MK-NW-F-026",
+   "kind": "complex",
+   "title": "IDs sorted as text, not numerically",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "names_by_id": {
+     "1": "Brokerage · 1",
+     "10": "Brokerage · 2",
+     "2": "Brokerage · 3"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-026 accountDisplayNames — five cases › complex · IDs sorted as text, not numerically"
+  },
+  {
+   "id": "MK-NW-F-026",
+   "kind": "complex",
+   "title": "Pre-existing numbered name must not collide",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "names_by_id": {
+     "1": "Brokerage · 2",
+     "2": "Brokerage · 3",
+     "3": "Brokerage · 1"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-026 accountDisplayNames — five cases › complex · Pre-existing numbered name must not collide"
+  },
+  {
+   "id": "MK-NW-F-026",
+   "kind": "edge",
+   "title": "Empty account list",
+   "status": "PASS",
+   "actual": "same as expected",
+   "expected": {
+    "names": []
+   },
+   "difference": "none",
+   "formula_gives_match": null,
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-026 accountDisplayNames — five cases › edge · Empty account list"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-NW-F-008",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "incomeBearingClassOf = nameEvidence (src/domain/assets/index.ts:380-382 → Calculation Module code/engines/holding-class.ts nameEvidence). The registries are explicit there: MONEY_MARKET_TICKERS, TBILL_ETF_TICKERS, CRYPTO_TICKERS, COMMODITY_TICKERS; COMPANY_WORDS (corp|inc|ltd|plc|mining|miners|resources|company) blocks BOTH commodity words and bond words.",
+   "card_text_says": "Lists the order but not the ticker lists, and gives the company-name exception only for commodity words.",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "governing_decisions": [
+    "DEC-2747d",
+    "DEC-3035o"
+   ],
+   "plain_example": "'Treasury Wine Estates Ltd': card as written → Bonds & CDs; code → no class (null), as DEC-2747d rules. Card should name the company test for bond words and the ticker lists."
+  },
+  {
+   "id": "MK-NW-F-010",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "wrapperAccount default branch returns {kind:'brokerage', tax_bucket:'TAXABLE'} for anything else or nothing (src/domain/assets/index.ts:455).",
+   "card_text_says": "Same: anything else, or nothing chosen → brokerage, taxable.",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [
+    "DEC-2441"
+   ],
+   "plain_example": "Add by hand with no tax choice → 'Vanguard Brokerage', taxable. Should it stay 'tax not entered' instead? DEC-2441 lists the by-hand form's 401(k)/IRA choice as not built."
+  },
+  {
+   "id": "MK-NW-F-013",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "Standalone branch (no household handed in, src/domain/assets/index.ts:651-653): rental only if a handed-in rent entry names it, else the STORED re_use ?? 'primary' — even when the rent entries were handed in and none names it. Household branch (index.ts:655-656) reads propertyUseMap, which, told the entries, turns a stored 'rental' with no entry into a second home (index.ts:801).",
+   "card_text_says": "Same two branches as the code.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-1926",
+    "DEC-3035p",
+    "DEC-2747e"
+   ],
+   "plain_example": "One house stored re_use 'rental', rent entries handed in = [] : realEstateUseOf(house, undefined, []) → 'rental'; with the household, propertyUseMap → 'secondary'. Should be 'secondary' both ways (DEC-3035p: handed the rent entries, rental only when an entry names it). Reach is small: the function has no live caller."
+  },
+  {
+   "id": "MK-NW-F-015",
+   "auditor_verdict": "WRONG",
+   "what_the_code_actually_does": "Σ (a.balance || 0) (src/domain/assets/index.ts:954). A null balance adds 0, which is the same number as leaving it out; the account is named by the amber box, dataGaps 'no-balance' (src/domain/gaps/index.ts:166). totalAssets has no production caller; the screen's What you own is buildAssetsState (index.ts:2213), which has no null guard (undefined → NaN).",
+   "card_text_says": "Every account's balance added up; a missing balance counts as zero.",
+   "classification": "AUDITOR MISREAD",
+   "governing_decisions": [
+    "DEC-2747f",
+    "DEC-3279e"
+   ],
+   "plain_example": "$8,450.25 + $17,600.50 + Linked savings (no value) → $26,050.75 and the amber box 'Linked savings has no balance' — exactly what DEC-3279e asks. DEC-2747f is his 'no' to adding a count of missing accounts to this total; the auditor read it as the opposite. The card's words 'counts as zero' should say 'is left out' to match DEC-3279e. Real adjacent defect: buildAssetsState with an undefined balance → NaN (see screen check MK-NW-M-004)."
+  },
+  {
+   "id": "MK-NW-F-016",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "Σ over accounts of breakdown cash, else whole balance when class is cash, else 0; a missing balance adds 0 via (a.balance || 0) (src/domain/assets/index.ts:990-995). It does not go through sumWhere, so no missing count; the amber box still names the account (gaps/index.ts:166).",
+   "card_text_says": "Silent on a missing balance.",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [
+    "DEC-3279e",
+    "DEC-2441"
+   ],
+   "plain_example": "Checking $3,200 + a linked savings with no balance → $3,200 and the months-covered line reads '$3,200 cash ÷ …' with no note on that line (the box higher up names the account). DEC-3279e names sumWhere/investableAssets/dataGaps, not cashTotal: must the cash line itself say an account was left out?"
+  },
+  {
+   "id": "MK-NW-F-021",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "stocks_etf + bonds + alternatives + mixed of assetAllocation (src/domain/assets/index.ts:1102-1105); assetAllocation adds (a.balance || 0) (index.ts:1743), so a missing balance is left out, consistently with cashTotal and investableAssets (sumWhere) — the invariant cash + investments = investable holds with a missing account (test F-021 edge).",
+   "card_text_says": "Does not say what happens to a missing balance.",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "governing_decisions": [
+    "DEC-3279e",
+    "DEC-0343",
+    "DEC-3146"
+   ],
+   "plain_example": "Cash $2,000, stocks $4,000, Linked bond account (no value) → Investments $4,000, amber box names the bond account. Card should add: 'a missing balance is left out and named (DEC-3279e)'."
+  },
+  {
+   "id": "MK-NW-F-022",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "sumWhere(accounts, !isRealAsset).total (src/domain/assets/index.ts:1130); sumWhere counts missingCount (index.ts:923) but investableAssets drops it; the naming is dataGaps (gaps/index.ts:166).",
+   "card_text_says": "Left out, not counted as zero — no mention of the amber box.",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "governing_decisions": [
+    "DEC-3279e"
+   ],
+   "plain_example": "Cash $2,345.67 + stocks $9,876.54 + Linked CD (no value) → $12,222.21 and 'Linked CD has no balance' in the amber box. Card should name the box."
+  },
+  {
+   "id": "MK-NW-F-024",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "Loops mask then account number; the first with ≥4 digits gives its last four (src/domain/assets/index.ts:1205-1208). An unusable mask falls through to the account number.",
+   "card_text_says": "'From the account's mask, or failing that its account number' — ambiguous whether 'failing' means absent or unusable.",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "governing_decisions": [],
+   "plain_example": "Mask '••12', account number '00012345' → '2345' (what the auditor's should_be asks). Card should say 'the first of the mask and the account number that has four digits'."
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-1926",
+   "auditor_verdict": "NOT HELD",
+   "classification": "CODE WRONG",
+   "evidence": "Standalone realEstateUseOf with rent entries handed in but none naming the property returns the stored 'rental' (src/domain/assets/index.ts:652-653). No live caller, so no screen shows it; household path (propertyUseMap, index.ts:801) holds the rule.",
+   "governing_decisions": [
+    "DEC-1926",
+    "DEC-3035p"
+   ],
+   "plain_example": "house re_use 'rental', rentals [] → 'rental'; should be 'secondary'."
+  },
+  {
+   "rule": "DEC-2747d",
+   "auditor_verdict": "NOT HELD",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "evidence": "incomeBearingClassOf('Treasury Wine Estates Ltd') → null and 'Vanguard Money Market Settlement Fund' → stocks_etf, both run in the suite (F-008 complex, easy). Code: holding-class.ts nameEvidence (FIXED_INCOME_RE && !COMPANY_WORDS). The card text omits the company test for bond words.",
+   "governing_decisions": [
+    "DEC-2747d"
+   ],
+   "plain_example": "Treasury Wine Estates Ltd → no class, as ruled."
+  },
+  {
+   "rule": "DEC-2747e",
+   "auditor_verdict": "NOT HELD",
+   "classification": "AUDITOR MISREAD",
+   "evidence": "propertyUseMap picks the first-entered property as home when none is marked and no use stated (src/domain/assets/index.ts:809-813), and realEstateUseOf's household branch reads it (index.ts:655). The standalone branch has no household to choose from, by design. The real divergence is the rent-entry case under DEC-3035p.",
+   "governing_decisions": [
+    "DEC-2747e",
+    "DEC-3035p"
+   ],
+   "plain_example": "Two houses, no use: first entered → 'primary', other → 'secondary'."
+  },
+  {
+   "rule": "DEC-2747f",
+   "auditor_verdict": "NOT HELD",
+   "classification": "AUDITOR MISREAD",
+   "evidence": "DEC-2747f is his answer 'no' to adding a count of no-value accounts to the asset total. totalAssets has no such count (index.ts:954). The auditor read it as 'accounts with no value must not be counted'.",
+   "governing_decisions": [
+    "DEC-2747f"
+   ],
+   "plain_example": "totalAssets returns one number, no count — as he ruled."
+  },
+  {
+   "rule": "DEC-3035p",
+   "auditor_verdict": "NOT HELD",
+   "classification": "CODE WRONG",
+   "evidence": "Same as DEC-1926: the standalone branch ignores a handed-in rent list that does not name the property (index.ts:651-653), while propertyUseMap does not (index.ts:801). Two readings remain for that one input.",
+   "governing_decisions": [
+    "DEC-3035p",
+    "DEC-1926"
+   ],
+   "plain_example": "house re_use 'rental', rentals [] : standalone 'rental', household 'secondary'."
+  },
+  {
+   "rule": "DEC-3279e",
+   "auditor_verdict": "NOT HELD",
+   "classification": "CODE WRONG",
+   "evidence": "At function level it holds for F-015/F-021/F-022 (suite cases pass; dataGaps names the account, gaps/index.ts:166). It is NOT held on screen paths: the What you own total is buildAssetsState Σ a.balance with no guard (src/domain/assets/index.ts:2213) — an undefined balance gives NaN and the screen prints the refusal text 'Nothing entered yet.'; the guided-setup steps (src/screens/NetWorthScreen.tsx:647) show no amber box; the by-institution row prints $0 (NetWorthScreen.tsx:889).",
+   "governing_decisions": [
+    "DEC-3279e"
+   ],
+   "plain_example": "A linked account whose balance is undefined → What you own reads 'Nothing entered yet.' beside listed accounts, instead of the known total plus 'X has no balance'."
+  }
+ ],
+ "screen_checks": [
+  {
+   "figure": "MK-NW-M-004",
+   "auditor_verdict": "FAIL",
+   "classification": "CODE WRONG",
+   "evidence_file_line": "NetWorthScreen.tsx:850 (main), :589 (first day), :647 and :763",
+   "visible_strings": "Normal \"$X\". Null balance: total without it + amber box (NetWorthScreen.tsx:800). Undefined balance: \"Nothing entered yet.\" with accounts on screen; Own/Owe line hidden (:761). Setup steps: no box.",
+   "governing_decisions": [
+    "DEC-3279e"
+   ],
+   "reason": "Null case complies; total is buildAssetsState (src/domain/assets/index.ts:2213), not sumWhere — undefined gives NaN and fig() prints the refusal text (src/components/figure.ts:37); setup shows no box."
+  },
+  {
+   "figure": "MK-NW-M-006",
+   "auditor_verdict": "FAIL",
+   "classification": "AUDITOR MISREAD",
+   "evidence_file_line": "NetWorthScreen.tsx:593, :600; :403; :931",
+   "visible_strings": "First day: \"$0\" + \"Nothing entered yet.\" + the add door. Main view: no $0 Personal-property band.",
+   "governing_decisions": [
+    "DEC-0260",
+    "DEC-0431"
+   ],
+   "reason": "$0 with the sentence and the door is the approved empty state."
+  },
+  {
+   "figure": "MK-NW-M-008",
+   "auditor_verdict": "FAIL",
+   "classification": "CODE WRONG",
+   "evidence_file_line": "NetWorthScreen.tsx:889 (by institution), :356 and :324 (by class), :390 (setup row)",
+   "visible_strings": "By institution \"$0\" (a.balance || 0); by class the row is dropped; setup row can print the register refusal sentence literally.",
+   "governing_decisions": [
+    "DEC-3279e"
+   ],
+   "reason": "A missing balance shows as $0 or as internal text."
+  },
+  {
+   "figure": "MK-NW-M-014",
+   "auditor_verdict": "FAIL",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "evidence_file_line": "NetWorthScreen.tsx:1007",
+   "visible_strings": "\"of essentials covered by your cash — $X cash ÷ $Y/month essentials\"; a missing cash balance adds 0 via cashTotal (src/domain/assets/index.ts:993); the box higher up names it.",
+   "governing_decisions": [
+    "DEC-3279e"
+   ],
+   "reason": "Must the line itself say an account was left out? DEC-3279e governs sumWhere/investableAssets/dataGaps, not cashTotal."
+  },
+  {
+   "figure": "MK-NW-M-016",
+   "auditor_verdict": "FAIL",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "evidence_file_line": "NetWorthScreen.tsx:645, :491; net-worth.ts:903",
+   "visible_strings": "Nothing entered: \"$0\" with \"Add a {section} account →\", no \"Nothing entered yet.\"; undefined balance prints the register text (\"Adds to $0 … worth a decision.\").",
+   "governing_decisions": [
+    "DEC-0260",
+    "DEC-0431"
+   ],
+   "reason": "The register itself says \"worth a decision\"; the undefined case is a separate bug (internal text on screen)."
+  },
+  {
+   "figure": "MK-NW-M-017",
+   "auditor_verdict": "FAIL",
+   "classification": "CODE WRONG",
+   "evidence_file_line": "NetWorthScreen.tsx:646-648 (setup only; no fig('MK-NW-M-017') anywhere)",
+   "visible_strings": "\"Assets $X − Debts $Y = Net worth $Z\"; a missing balance drops silently with no box in setup; undefined → \"Assets Nothing entered yet. − …\".",
+   "governing_decisions": [
+    "DEC-3279e"
+   ],
+   "reason": "Same total as M-004; no amber box in setup; figure has no ID tag in code."
+  },
+  {
+   "figure": "MK-NW-M-024",
+   "auditor_verdict": "FAIL",
+   "classification": "CODE WRONG",
+   "evidence_file_line": "src/screens/AccountPortfolioScreen.tsx:794, :802",
+   "visible_strings": "With rate and face: \"4.50%/year · $1,125/year\"; no face: \"… · not entered/year\"; NO RATE: BondDetail returns null — the whole BOND FACTS card (face, maturity too) disappears.",
+   "governing_decisions": [
+    "DEC-2748c",
+    "DEC-2748b",
+    "DEC-0279"
+   ],
+   "reason": "Ruling: no rate → $0 interest and say the rate was not entered. Verified at AccountPortfolioScreen.tsx:794 (`one.couponRate == null` → return null)."
+  },
+  {
+   "figure": "MK-NW-M-029",
+   "auditor_verdict": "FAIL",
+   "classification": "AUDITOR MISREAD",
+   "evidence_file_line": "src/screens/HoldingDetailScreen.tsx:203-204, :209, :245",
+   "visible_strings": "With price \"CURRENT PRICE · LIVE\"; stale \"CURRENT PRICE\" + \"prices may be out of date\"; no price: heading becomes \"NO LIVE PRICE — SHOWING WHAT YOU PAID\" (verified :245).",
+   "governing_decisions": [
+    "DEC-0012"
+   ],
+   "reason": "The heading does not stay when there is no price."
+  },
+  {
+   "figure": "MK-NW-M-035",
+   "auditor_verdict": "FAIL",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "evidence_file_line": "src/screens/HoldingDetailScreen.tsx:298-300",
+   "visible_strings": "None sold: \"$0 — nothing sold\" (verified :300); with sales \"+$X all time\".",
+   "governing_decisions": [
+    "DEC-1559"
+   ],
+   "reason": "Code matches the ruling; the register's \"Nothing sold yet.\" is old text."
+  },
+  {
+   "figure": "MK-NW-M-039",
+   "auditor_verdict": "FAIL",
+   "classification": "AUDITOR MISREAD",
+   "evidence_file_line": "src/screens/ItemizeScreen.tsx:106, :109, :71",
+   "visible_strings": "Empty: \"Unallocated $B\" and \"$0 of $B itemized\"; a holding cannot be added at $0 (:71).",
+   "governing_decisions": [
+    "DEC-0260",
+    "DEC-3279f"
+   ],
+   "reason": "$0 placed is a true zero, not a missing value."
+  },
+  {
+   "figure": "MK-NW-M-042",
+   "auditor_verdict": "FAIL",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "evidence_file_line": "src/screens/BondsScreen.tsx:59, :72-73; src/domain/bonds/index.ts:103",
+   "visible_strings": "\"n bonds · face $X\"; all faces missing: \"face value not entered\"; some missing: known total + \"Face value leaves out A, B — not entered.\"",
+   "governing_decisions": [
+    "DEC-2748b"
+   ],
+   "reason": "Missing faces are named, not counted as $0. Separately, the line is tagged MK-NW-M-053, not MK-NW-M-042."
+  },
+  {
+   "figure": "MK-NW-M-055",
+   "auditor_verdict": "FAIL",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "evidence_file_line": "src/screens/BondsScreen.tsx:87; MoneyKeel/functions/networth-and-performance/bonds.ts:144, :396-397",
+   "visible_strings": "\"face $X\" or \"face value not entered\"; no fallback to the balance.",
+   "governing_decisions": [
+    "DEC-2748b"
+   ],
+   "reason": "Code is right; its own figure declaration still says \"falls back\" (bonds.ts:396-397) — that text and the register are stale."
+  },
+  {
+   "figure": "MK-PF-M-013",
+   "auditor_verdict": "FAIL",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "evidence_file_line": "src/screens/AccountPortfolioScreen.tsx:442, :444, :415; src/screens/PerformanceScreen.tsx:407; MoneyKeel/functions/networth-and-performance/performance.ts:459-464, :470-473",
+   "visible_strings": "Record reaches back: read from it. Record starts too late: no walk + \"The record begins …\". No daily record at all: walk drawn with a back-solved beginning (ending − pricedGain − contributions + withdrawals, performance.ts:464, verified) and the note \"…the beginning is read back from your activity records and no return is measured.\"",
+   "governing_decisions": [
+    "DEC-3035i",
+    "DEC-0647"
+   ],
+   "reason": "DEC-3035i covers only a record that exists; the back-solve with no record is deliberate (performance.ts:459-461) and labelled, but the register says \"never back-solved\"."
+  },
+  {
+   "figure": "MK-PF-M-014",
+   "auditor_verdict": "FAIL",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "evidence_file_line": "src/screens/AccountPortfolioScreen.tsx:393, :447, :482; src/screens/PerformanceScreen.tsx:401",
+   "visible_strings": "No walk: \"—\"; with a back-solved beginning it prints a figure equal to the priced gain.",
+   "governing_decisions": [
+    "DEC-3035i",
+    "DEC-0647"
+   ],
+   "reason": "Same path as MK-PF-M-013."
+  }
+ ],
+ "notes": [
+  "Screen-check evidence was gathered by a read-only code search and spot-checked at AccountPortfolioScreen.tsx:794, HoldingDetailScreen.tsx:245 and :300, and performance.ts:459-464.",
+  "Two defects outside the auditor's list: (1) fig() prints a figure's refusal text when its value is NaN, so an undefined balance puts register text on screen (src/components/figure.ts:37); (2) AccountPortfolioScreen.tsx:794 hides face value and maturity for any bond with no rate."
+ ],
+ "coverage": "130 of 130 cases run; 118 PASS, 1 FINDING, 6 BRIEF_WRONG, 5 UNCLEAR, 0 BLOCKED. Formula checks: 8 of 8 non-RIGHT classified. Rules: 6 of 6 NOT HELD classified. Screens: 14 of 14 FAIL classified."
+}

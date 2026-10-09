@@ -1,0 +1,2540 @@
+{
+ "batch": "nw module final — part 3",
+ "source": "MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_nw_part3_audit.json",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+ "run_on": "2026-10-09",
+ "cases": [
+  {
+   "id": "MK-NW-F-055",
+   "kind": "easy",
+   "title": "Bond class returns true",
+   "status": "PASS",
+   "actual": {
+    "exact": true
+   },
+   "expected": {
+    "exact": true
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-055 isBond — five cases › easy · Bond class returns true"
+  },
+  {
+   "id": "MK-NW-F-055",
+   "kind": "easy",
+   "title": "Maturity alone does not make bond",
+   "status": "PASS",
+   "actual": {
+    "exact": false
+   },
+   "expected": {
+    "exact": false
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-055 isBond — five cases › easy · Maturity alone does not make bond"
+  },
+  {
+   "id": "MK-NW-F-055",
+   "kind": "complex",
+   "title": "CD classified bond",
+   "status": "PASS",
+   "actual": {
+    "exact": true
+   },
+   "expected": {
+    "exact": true
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-055 isBond — five cases › complex · CD classified bond"
+  },
+  {
+   "id": "MK-NW-F-055",
+   "kind": "complex",
+   "title": "Confirmed cash with date still not bond here",
+   "status": "PASS",
+   "actual": {
+    "exact": false
+   },
+   "expected": {
+    "exact": false
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-055 isBond — five cases › complex · Confirmed cash with date still not bond here"
+  },
+  {
+   "id": "MK-NW-F-055",
+   "kind": "edge",
+   "title": "Unknown class false",
+   "status": "PASS",
+   "actual": {
+    "exact": false
+   },
+   "expected": {
+    "exact": false
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-055 isBond — five cases › edge · Unknown class false"
+  },
+  {
+   "id": "MK-NW-F-056",
+   "kind": "easy",
+   "title": "Known bond facts",
+   "status": "PASS",
+   "actual": {
+    "face_value": 1000,
+    "rate": 0.04,
+    "maturity": "2030-01-01",
+    "value": 980,
+    "accrued_interest": "not entered",
+    "is_cd": false,
+    "value_label": "Statement market value (excludes accrued interest)"
+   },
+   "expected": {
+    "face_value": 1000,
+    "rate": 0.04,
+    "maturity": "2030-01-01",
+    "value": 980,
+    "accrued_interest": "not entered",
+    "is_cd": false,
+    "value_label": "Statement market value (excludes accrued interest)"
+   },
+   "difference": "value_label: bondInfo carries no label; the editor reads \"Market value, as your statement shows it — without accrued interest\" (src/screens/BondsScreen.tsx:239) — same meaning, other words",
+   "formula_gives_match": "expected (formula_gives \"value (the balance)\" is the card wording; the app now labels it as statement market value)",
+   "note": "Numeric facts match exactly.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-056 bondInfo — five cases › easy · Known bond facts"
+  },
+  {
+   "id": "MK-NW-F-056",
+   "kind": "easy",
+   "title": "Zero rate is retained",
+   "status": "PASS",
+   "actual": {
+    "face_value": 1000,
+    "rate": 0,
+    "value": 1000
+   },
+   "expected": {
+    "face_value": 1000,
+    "rate": 0,
+    "value": 1000
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-056 bondInfo — five cases › easy · Zero rate is retained"
+  },
+  {
+   "id": "MK-NW-F-056",
+   "kind": "complex",
+   "title": "Market value excludes accrued interest",
+   "status": "PASS",
+   "actual": {
+    "value": 9850,
+    "accrued_interest": 112.5,
+    "full_price_for_ytm": 9962.5
+   },
+   "expected": {
+    "value": 9850,
+    "accrued_interest": 112.5,
+    "full_price_for_ytm": 9962.5
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Maturity 2031-10-09 added only to reprice: priceAtYield at the app yield = 9962.50 (±$0.000001).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-056 bondInfo — five cases › complex · Market value excludes accrued interest"
+  },
+  {
+   "id": "MK-NW-F-056",
+   "kind": "complex",
+   "title": "Missing face stays blank, not zero",
+   "status": "PASS",
+   "actual": {
+    "face_value": "not entered",
+    "value": 9700,
+    "rate": 0.042
+   },
+   "expected": {
+    "face_value": "not entered",
+    "value": 9700,
+    "rate": 0.042
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-056 bondInfo — five cases › complex · Missing face stays blank, not zero"
+  },
+  {
+   "id": "MK-NW-F-056",
+   "kind": "edge",
+   "title": "Negative face rejected as not entered",
+   "status": "PASS",
+   "actual": {
+    "face_value": "not entered"
+   },
+   "expected": {
+    "face_value": "not entered"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-056 bondInfo — five cases › edge · Negative face rejected as not entered"
+  },
+  {
+   "id": "MK-NW-F-057",
+   "kind": "easy",
+   "title": "Annual coupon",
+   "status": "PASS",
+   "actual": {
+    "exact": 50,
+    "shown": "$50"
+   },
+   "expected": {
+    "exact": 50,
+    "shown": "$50"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › easy · Annual coupon"
+  },
+  {
+   "id": "MK-NW-F-057",
+   "kind": "easy",
+   "title": "Zero rate is zero coupon",
+   "status": "PASS",
+   "actual": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "expected": {
+    "exact": 0,
+    "shown": "$0"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › easy · Zero rate is zero coupon"
+  },
+  {
+   "id": "MK-NW-F-057",
+   "kind": "complex",
+   "title": "Unround face and coupon",
+   "status": "BRIEF_WRONG",
+   "actual": 524.6909750000001,
+   "expected": {
+    "exact": 524.187475,
+    "shown": "$524.19"
+   },
+   "difference": "0.5035",
+   "formula_gives_match": "n/a",
+   "note": "BRIEF WRONG: 524.187475 — right is 524.690975: 12,345.67 × 0.04 = 493.8268, × 0.0025 = 30.864175, sum 524.690975. App is right.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › complex · Unround face and coupon"
+  },
+  {
+   "id": "MK-NW-F-057",
+   "kind": "complex",
+   "title": "Missing rate must disclose zero annual interest",
+   "status": "BRIEF_WRONG",
+   "actual": null,
+   "expected": {
+    "annual_interest": 0,
+    "disclosure": "Coupon rate not entered; counted as $0 annual interest"
+   },
+   "difference": "app null; expected 0 + disclosure",
+   "formula_gives_match": "formula_gives (REFUSES / no value)",
+   "note": "DEC-2748c puts \"no rate → $0 and said so\" on yearlyInterest (MK-NW-F-112) and the income figures, not on annualCoupon, whose only caller is priceAtYield (src/domain/bonds/index.ts:669). The $0 + words appear at the income figure: couponIncomeAnnual 0, row \"coupon not entered\" (BondsScreen.tsx:89).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › complex · Missing rate must disclose zero annual interest"
+  },
+  {
+   "id": "MK-NW-F-057",
+   "kind": "edge",
+   "title": "Missing face but known rate",
+   "status": "PASS",
+   "actual": {
+    "result": "REFUSES — annualCoupon needs face × rate; annual interest fallback to value is handled by yearlyInterest, not this helper"
+   },
+   "expected": {
+    "result": "REFUSES — annualCoupon needs face × rate; annual interest fallback to value is handled by yearlyInterest, not this helper"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › edge · Missing face but known rate"
+  },
+  {
+   "id": "MK-NW-F-058",
+   "kind": "easy",
+   "title": "Exactly one year",
+   "status": "PASS",
+   "actual": {
+    "exact": 1,
+    "shown": "1.0000 years"
+   },
+   "expected": {
+    "exact": 1,
+    "shown": "1.0000 years"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › easy · Exactly one year"
+  },
+  {
+   "id": "MK-NW-F-058",
+   "kind": "easy",
+   "title": "Maturity today is zero",
+   "status": "PASS",
+   "actual": {
+    "exact": 0
+   },
+   "expected": {
+    "exact": 0
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › easy · Maturity today is zero"
+  },
+  {
+   "id": "MK-NW-F-058",
+   "kind": "complex",
+   "title": "Leap-year anniversary fraction",
+   "status": "PASS",
+   "actual": 1.4972677595628414,
+   "expected": "RULE UNCLEAR — February 29 anniversary convention must be specified (Feb 28 vs Mar 1); compute the fractional year only after that rule is set",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Auditor wrote RULE UNCLEAR; SETTLED BY DEC-3279b — anniversaries are counted back from the MATURITY date (Aug 29 exists every year): 1 + 182/366. A Feb-29 maturity would still need a rule (Date.UTC rolls Feb 29 to Mar 1 in non-leap years, bonds/index.ts:230).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › complex · Leap-year anniversary fraction"
+  },
+  {
+   "id": "MK-NW-F-058",
+   "kind": "complex",
+   "title": "4.4 years uses exact anniversaries",
+   "status": "PASS",
+   "actual": 4.4,
+   "expected": {
+    "result": "Compute whole anniversaries plus remaining days / days in next anniversary year; no day-count rounding before final display"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Expected stated as a method; the method gives 4 + 146/365 = 4.4 and the app gives 4.4.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › complex · 4.4 years uses exact anniversaries"
+  },
+  {
+   "id": "MK-NW-F-058",
+   "kind": "edge",
+   "title": "Invalid date refuses",
+   "status": "FINDING",
+   "actual": 0,
+   "expected": {
+    "result": "REFUSES — no valid maturity date"
+   },
+   "difference": "app 0 (reads as matured); expected refusal",
+   "formula_gives_match": "n/a",
+   "note": "yearsToMaturity validates with new Date(maturity) (src/domain/bonds/index.ts:222); JavaScript rolls 2026-02-30 to 2026-03-02, so an impossible date is \"matured\" (from 2026-01-01 it is 0.1644 years away). Card: \"Nothing when there is no valid date.\" CODE WRONG.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › edge · Invalid date refuses"
+  },
+  {
+   "id": "MK-NW-F-059",
+   "kind": "easy",
+   "title": "Current yield",
+   "status": "PASS",
+   "actual": {
+    "exact": 0.05,
+    "shown": "5.00%"
+   },
+   "expected": {
+    "exact": 0.05,
+    "shown": "5.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-059 currentYield — five cases › easy · Current yield"
+  },
+  {
+   "id": "MK-NW-F-059",
+   "kind": "easy",
+   "title": "Premium price lowers yield",
+   "status": "PASS",
+   "actual": {
+    "exact": 0.04,
+    "shown": "4.00%"
+   },
+   "expected": {
+    "exact": 0.04,
+    "shown": "4.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-059 currentYield — five cases › easy · Premium price lowers yield"
+  },
+  {
+   "id": "MK-NW-F-059",
+   "kind": "complex",
+   "title": "Accrued interest excluded from denominator",
+   "status": "PASS",
+   "actual": {
+    "exact": 0.04568527918781726,
+    "shown": "4.57%"
+   },
+   "expected": {
+    "exact": 0.04568527918781726,
+    "shown": "4.57%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-059 currentYield — five cases › complex · Accrued interest excluded from denominator"
+  },
+  {
+   "id": "MK-NW-F-059",
+   "kind": "complex",
+   "title": "No rate refuses yield",
+   "status": "PASS",
+   "actual": "REFUSES — coupon rate not entered; yield is not invented",
+   "expected": "REFUSES — coupon rate not entered; yield is not invented",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-059 currentYield — five cases › complex · No rate refuses yield"
+  },
+  {
+   "id": "MK-NW-F-059",
+   "kind": "edge",
+   "title": "Zero or negative value refuses",
+   "status": "PASS",
+   "actual": "REFUSES — value must be above zero",
+   "expected": "REFUSES — value must be above zero",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-059 currentYield — five cases › edge · Zero or negative value refuses"
+  },
+  {
+   "id": "MK-NW-F-060",
+   "kind": "easy",
+   "title": "CD uses stated rate",
+   "status": "PASS",
+   "actual": {
+    "exact": 0.042,
+    "shown": "4.20%"
+   },
+   "expected": {
+    "exact": 0.042,
+    "shown": "4.20%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-060 approxYTM — five cases › easy · CD uses stated rate"
+  },
+  {
+   "id": "MK-NW-F-060",
+   "kind": "easy",
+   "title": "Matured bond refuses YTM",
+   "status": "PASS",
+   "actual": "REFUSES — bond has matured",
+   "expected": "REFUSES — bond has matured",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-060 approxYTM — five cases › easy · Matured bond refuses YTM"
+  },
+  {
+   "id": "MK-NW-F-060",
+   "kind": "complex",
+   "title": "Bond full price includes accrued interest",
+   "status": "PASS",
+   "actual": 0.04585625790931813,
+   "expected": {
+    "pricing_target": 9962.5,
+    "ytm": "Solve priceAtYield(y)=9,962.50 by bisection over the permitted interval"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "priceAtYield(0.0458563) = 9962.50 to $0.000001 (200 halvings, bonds/index.ts:454-461).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-060 approxYTM — five cases › complex · Bond full price includes accrued interest"
+  },
+  {
+   "id": "MK-NW-F-060",
+   "kind": "complex",
+   "title": "CD with rate but no face value",
+   "status": "UNCLEAR",
+   "actual": null,
+   "expected": {
+    "result": "RULE UNCLEAR — first gate says no YTM without face; CD branch says its stated rate is YTM. Clarify whether CD YTM needs face value."
+   },
+   "difference": "app refuses; auditor asks for a ruling",
+   "formula_gives_match": "formula_gives (first gate refuses)",
+   "note": "Face gate (src/domain/bonds/index.ts:442) runs before the CD branch (:446). No decision settles it. Open question: does a CD typed by its balance (the common case, DEC-2748c \"no face\") show its stated rate as its yield to maturity, or nothing?",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-060 approxYTM — five cases › complex · CD with rate but no face value"
+  },
+  {
+   "id": "MK-NW-F-060",
+   "kind": "edge",
+   "title": "Missing rate refuses",
+   "status": "PASS",
+   "actual": "REFUSES — rate not entered; do not invent yield",
+   "expected": "REFUSES — rate not entered; do not invent yield",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-060 approxYTM — five cases › edge · Missing rate refuses"
+  },
+  {
+   "id": "MK-NW-F-061",
+   "kind": "easy",
+   "title": "One bond summary",
+   "status": "PASS",
+   "actual": {
+    "count": 1,
+    "total_value": 980,
+    "total_face": 1000,
+    "annual_interest": 50,
+    "average_yield": 0.05102040816326531,
+    "next_maturity": "2027-01-01"
+   },
+   "expected": {
+    "count": 1,
+    "total_value": 980,
+    "total_face": 1000,
+    "annual_interest": 50,
+    "average_yield": 0.05102040816326531,
+    "next_maturity": "2027-01-01"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-061 bondSummary — five cases › easy · One bond summary"
+  },
+  {
+   "id": "MK-NW-F-061",
+   "kind": "easy",
+   "title": "No qualifying yield refuses",
+   "status": "PASS",
+   "actual": {
+    "average_yield": "REFUSES — no bond with value and rate"
+   },
+   "expected": {
+    "average_yield": "REFUSES — no bond with value and rate"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-061 bondSummary — five cases › easy · No qualifying yield refuses"
+  },
+  {
+   "id": "MK-NW-F-061",
+   "kind": "complex",
+   "title": "Average yield excludes unpriced bond",
+   "status": "PASS",
+   "actual": {
+    "count": 3,
+    "total_value": 2950,
+    "average_yield": 0.05263157894736842
+   },
+   "expected": {
+    "count": 3,
+    "total_value": "REFUSES/incomplete because one value missing",
+    "known_value_subtotal": 2950,
+    "average_yield": 0.05263157894736842
+   },
+   "difference": "total_value is the known subtotal 2950; B is named in theBonds.leftOutOfAverage and the amber box (dataGaps no-balance, DEC-3279e)",
+   "formula_gives_match": "n/a",
+   "note": "\"REFUSES/incomplete\" met by naming, not by refusing the total.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-061 bondSummary — five cases › complex · Average yield excludes unpriced bond"
+  },
+  {
+   "id": "MK-NW-F-061",
+   "kind": "complex",
+   "title": "Missing face is not zero",
+   "status": "PASS",
+   "actual": {
+    "total_face": 1000,
+    "faceNotEntered": [
+     "Bond two"
+    ],
+    "couponPerYear": 90
+   },
+   "expected": {
+    "total_face": {
+     "known_subtotal": 1000,
+     "warning": "One face value not entered; total is incomplete"
+    },
+    "annual_interest": 90
+   },
+   "difference": "warning wording differs: screen prints \"Face value leaves out Bond two — not entered.\" (BondsScreen.tsx:72-73)",
+   "formula_gives_match": "expected (not formula_gives: the screen is not silent)",
+   "note": "bondSummary itself adds the missing face as 0 (bonds/index.ts:521) but theBonds names it (bonds.ts:265) and the screen says so.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-061 bondSummary — five cases › complex · Missing face is not zero"
+  },
+  {
+   "id": "MK-NW-F-061",
+   "kind": "edge",
+   "title": "No bonds returns count zero but no average yield",
+   "status": "PASS",
+   "actual": {
+    "count": 0,
+    "total_value": 0,
+    "total_face": 0,
+    "average_yield": null,
+    "next_maturity": null
+   },
+   "expected": {
+    "count": 0,
+    "total_value": 0,
+    "total_face": "REFUSES/incomplete or $0 only if no holdings is clearly stated",
+    "average_yield": "REFUSES",
+    "next_maturity": null
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "total_face $0 with count 0; the Bonds screen shows its empty state (BondsScreen.tsx:50).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-061 bondSummary — five cases › edge · No bonds returns count zero but no average yield"
+  },
+  {
+   "id": "MK-NW-F-062",
+   "kind": "easy",
+   "title": "One bond annual interest",
+   "status": "PASS",
+   "actual": {
+    "exact": 50
+   },
+   "expected": {
+    "exact": 50
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › easy · One bond annual interest"
+  },
+  {
+   "id": "MK-NW-F-062",
+   "kind": "easy",
+   "title": "No rate counts zero",
+   "status": "PASS",
+   "actual": 0,
+   "expected": {
+    "exact": 0,
+    "disclosure": "Coupon rate not entered; counted as $0 annual interest"
+   },
+   "difference": "disclosure wording differs: row \"coupon not entered\" (BondsScreen.tsx:89); summary \"Average yield leaves out Bond — no rate entered.\" (:70)",
+   "formula_gives_match": "expected",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › easy · No rate counts zero"
+  },
+  {
+   "id": "MK-NW-F-062",
+   "kind": "complex",
+   "title": "Several bonds and CD",
+   "status": "PASS",
+   "actual": 770,
+   "expected": {
+    "result": "RULE UNCLEAR — including the CD gives $770; excluding CD from the “coupon income across individual bonds” gives $570"
+   },
+   "difference": "none",
+   "formula_gives_match": "both (formula_gives 770)",
+   "note": "Auditor wrote RULE UNCLEAR; SETTLED BY DEC-2748c (one rule everywhere; \"Before: the Bonds screen counted a CD at $0\") and DEC-0051 (a CD is Bonds & CDs) → CD included, $770.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › complex · Several bonds and CD"
+  },
+  {
+   "id": "MK-NW-F-062",
+   "kind": "complex",
+   "title": "Expired bond omitted",
+   "status": "FINDING",
+   "actual": 580,
+   "expected": {
+    "exact": 80
+   },
+   "difference": "+500",
+   "formula_gives_match": "n/a",
+   "note": "couponIncomeAnnual takes no date and keeps the matured $10,000 bond (src/domain/bonds/index.ts:557); bondSummary's COUPON /year does the same (:522). interestIncomeAnnual drops it (:602, DEC-2748d) → two figures for one year's interest: 580 vs 80. DEC-2748c: one rule everywhere.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › complex · Expired bond omitted"
+  },
+  {
+   "id": "MK-NW-F-062",
+   "kind": "edge",
+   "title": "Maturity date missing",
+   "status": "UNCLEAR",
+   "actual": 200,
+   "expected": {
+    "result": "RULE UNCLEAR — formula treats no date as not expired and returns $200; owner rule does not say whether undated interest should be assumed active"
+   },
+   "difference": "",
+   "formula_gives_match": "formula_gives",
+   "note": "App counts undated interest. DEC-0332 (no date = unknown, not due now) governs F-058/060/064, not interest. Open question: count undated interest, or refuse and name the missing date?",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › edge · Maturity date missing"
+  },
+  {
+   "id": "MK-NW-F-063",
+   "kind": "easy",
+   "title": "Cash account rate interest",
+   "status": "PASS",
+   "actual": {
+    "exact": 300
+   },
+   "expected": {
+    "exact": 300
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › easy · Cash account rate interest"
+  },
+  {
+   "id": "MK-NW-F-063",
+   "kind": "easy",
+   "title": "Non-rate cash account contributes nothing",
+   "status": "PASS",
+   "actual": {
+    "exact": 0
+   },
+   "expected": {
+    "exact": 0
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › easy · Non-rate cash account contributes nothing"
+  },
+  {
+   "id": "MK-NW-F-063",
+   "kind": "complex",
+   "title": "Bonds, CD, and savings interest",
+   "status": "PASS",
+   "actual": {
+    "exact": 850,
+    "shown": "$850"
+   },
+   "expected": {
+    "exact": 850,
+    "shown": "$850"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › complex · Bonds, CD, and savings interest"
+  },
+  {
+   "id": "MK-NW-F-063",
+   "kind": "complex",
+   "title": "Expired bond excluded but cash included",
+   "status": "PASS",
+   "actual": {
+    "exact": 80
+   },
+   "expected": {
+    "exact": 80
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › complex · Expired bond excluded but cash included"
+  },
+  {
+   "id": "MK-NW-F-063",
+   "kind": "edge",
+   "title": "Undated bond interest is treated as active",
+   "status": "UNCLEAR",
+   "actual": 200,
+   "expected": "RULE UNCLEAR — if undated bonds are treated as active, $200; if maturity is unknown and interest must not be assumed, refuse and disclose missing maturity.",
+   "difference": "",
+   "formula_gives_match": "formula_gives (200)",
+   "note": "Same question as F-062 edge; src/domain/bonds/index.ts:602 drops only a date before today.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › edge · Undated bond interest is treated as active"
+  },
+  {
+   "id": "MK-NW-F-064",
+   "kind": "easy",
+   "title": "CD has no sensitivity figure",
+   "status": "PASS",
+   "actual": "REFUSES — CD is not traded; no rate-move estimate",
+   "expected": "REFUSES — CD is not traded; no rate-move estimate",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › easy · CD has no sensitivity figure"
+  },
+  {
+   "id": "MK-NW-F-064",
+   "kind": "edge",
+   "title": "Invalid yield cannot produce a price range",
+   "status": "BLOCKED",
+   "actual": null,
+   "expected": "REFUSES — invalid discount factor / price cannot be calculated reliably",
+   "difference": "",
+   "formula_gives_match": "n/a",
+   "note": "bondRateSensitivity takes no yield; it solves its own inside −99%…1,000% (bonds/index.ts:454) and floors the down move at 0.01% (:737), so −100% cannot reach it. The −100% price is tested under MK-NW-F-069 edge (FINDING: Infinity).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › edge · Invalid yield cannot produce a price range"
+  },
+  {
+   "id": "MK-NW-F-064",
+   "kind": "complex",
+   "title": "Sensitivity uses price change at yield ±1 point",
+   "status": "BLOCKED",
+   "actual": null,
+   "expected": {
+    "change_up_rates": -400,
+    "change_down_rates": 450,
+    "raw_new_price_if_rates_up": 9600,
+    "raw_new_price_if_rates_down": 10450
+   },
+   "difference": "",
+   "formula_gives_match": "n/a",
+   "note": "The function prices the bond itself; the three given prices cannot be handed in.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › complex · Sensitivity uses price change at yield ±1 point"
+  },
+  {
+   "id": "MK-NW-F-064",
+   "kind": "complex",
+   "title": "Bond under $10k rounds in proportion",
+   "status": "BLOCKED",
+   "actual": null,
+   "expected": {
+    "rounded_change_down_rates": 40,
+    "rounded_change_up_rates": -40
+   },
+   "difference": "",
+   "formula_gives_match": "n/a",
+   "note": "Raw changes cannot be handed in. By hand the app rule (bonds/index.ts:730, :745) gives step 10 for $4,250 and 43→40, −37→−40 — the auditor's answer.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › complex · Bond under $10k rounds in proportion"
+  },
+  {
+   "id": "MK-NW-F-064",
+   "kind": "easy",
+   "title": "Missing coupon/rate refuses",
+   "status": "PASS",
+   "actual": "REFUSES — no positive coupon/rate for sensitivity",
+   "expected": "REFUSES — no positive coupon/rate for sensitivity",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Value not given; set to face so the 0% rate is what refuses (bonds/index.ts:728).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › easy · Missing coupon/rate refuses"
+  },
+  {
+   "id": "MK-NW-F-065",
+   "kind": "easy",
+   "title": "Assets minus debt",
+   "status": "PASS",
+   "actual": {
+    "net_worth": 70000,
+    "assets": 100000,
+    "debt": 30000
+   },
+   "expected": {
+    "net_worth": 70000,
+    "assets": 100000,
+    "debt": 30000
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › easy · Assets minus debt"
+  },
+  {
+   "id": "MK-NW-F-065",
+   "kind": "easy",
+   "title": "Debt exceeds assets",
+   "status": "PASS",
+   "actual": {
+    "net_worth": -15000
+   },
+   "expected": {
+    "net_worth": -15000
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › easy · Debt exceeds assets"
+  },
+  {
+   "id": "MK-NW-F-065",
+   "kind": "complex",
+   "title": "Several asset and debt rows",
+   "status": "PASS",
+   "actual": {
+    "assets": 360500,
+    "debt": 220750,
+    "net_worth": 139750
+   },
+   "expected": {
+    "assets": 360500,
+    "debt": 220750,
+    "net_worth": 139750
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › complex · Several asset and debt rows"
+  },
+  {
+   "id": "MK-NW-F-065",
+   "kind": "complex",
+   "title": "Unknown debt balance must flag incomplete",
+   "status": "FINDING",
+   "actual": {
+    "net_worth": 80000,
+    "gross_debt": 20000
+   },
+   "expected": {
+    "known_net_worth": 80000,
+    "warning": "Incomplete — debt balance missing"
+   },
+   "difference": "net worth right; no incomplete flag",
+   "formula_gives_match": "formula_gives",
+   "note": "totalDebtBalance adds a debt with no balance as 0 (src/domain/debt/index.ts:269); buildNetWorth (src/domain/networth/index.ts:35) gets totals only; dataGaps names accounts with no balance (src/domain/gaps/index.ts:166) but never a debt. DEC-3279e: \"a missing balance is never $0\" — its governed list names only asset functions, so whether debts are covered needs his word.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › complex · Unknown debt balance must flag incomplete"
+  },
+  {
+   "id": "MK-NW-F-065",
+   "kind": "edge",
+   "title": "No assets and no debt",
+   "status": "PASS",
+   "actual": 0,
+   "expected": {
+    "result": "RULE UNCLEAR — arithmetic is $0 but the household has entered nothing; first-day/empty state should not claim net worth $0"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Auditor wrote RULE UNCLEAR; SETTLED BY DEC-0260 (fresh account: $0 + \"nothing entered\" sentence + the door) and DEC-2748i (first-day screen). The function's $0 is right; the words are the screen's.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › edge · No assets and no debt"
+  },
+  {
+   "id": "MK-NW-F-066",
+   "kind": "easy",
+   "title": "Matching accounts sum",
+   "status": "PASS",
+   "actual": {
+    "total": 350,
+    "missing_count": 0
+   },
+   "expected": {
+    "total": 350,
+    "missing_count": 0
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-066 sumWhere — five cases › easy · Matching accounts sum"
+  },
+  {
+   "id": "MK-NW-F-066",
+   "kind": "easy",
+   "title": "Empty match set returns zero",
+   "status": "PASS",
+   "actual": {
+    "total": 0,
+    "missing_count": 0
+   },
+   "expected": {
+    "total": 0,
+    "missing_count": 0
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-066 sumWhere — five cases › easy · Empty match set returns zero"
+  },
+  {
+   "id": "MK-NW-F-066",
+   "kind": "complex",
+   "title": "Negative and missing balances",
+   "status": "PASS",
+   "actual": {
+    "total": 800,
+    "missing_count": 1
+   },
+   "expected": {
+    "total": 800,
+    "missing_count": 1
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-066 sumWhere — five cases › complex · Negative and missing balances"
+  },
+  {
+   "id": "MK-NW-F-066",
+   "kind": "complex",
+   "title": "Predicate excludes property",
+   "status": "PASS",
+   "actual": {
+    "total": 2000,
+    "missing_count": 0
+   },
+   "expected": {
+    "total": 2000,
+    "missing_count": 0
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-066 sumWhere — five cases › complex · Predicate excludes property"
+  },
+  {
+   "id": "MK-NW-F-066",
+   "kind": "edge",
+   "title": "Only missing matching account",
+   "status": "PASS",
+   "actual": {
+    "total": 0,
+    "missing_count": 1
+   },
+   "expected": {
+    "total": 0,
+    "missing_count": 1
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-066 sumWhere — five cases › edge · Only missing matching account"
+  },
+  {
+   "id": "MK-NW-F-067",
+   "kind": "easy",
+   "title": "Singular CD",
+   "status": "PASS",
+   "actual": {
+    "text": "1 CD"
+   },
+   "expected": {
+    "text": "1 CD"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-067 plural — five cases › easy · Singular CD"
+  },
+  {
+   "id": "MK-NW-F-067",
+   "kind": "easy",
+   "title": "Plural CDs",
+   "status": "PASS",
+   "actual": {
+    "text": "3 CDs"
+   },
+   "expected": {
+    "text": "3 CDs"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-067 plural — five cases › easy · Plural CDs"
+  },
+  {
+   "id": "MK-NW-F-067",
+   "kind": "complex",
+   "title": "Explicit irregular plural",
+   "status": "PASS",
+   "actual": {
+    "text": "2 people"
+   },
+   "expected": {
+    "text": "2 people"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-067 plural — five cases › complex · Explicit irregular plural"
+  },
+  {
+   "id": "MK-NW-F-067",
+   "kind": "complex",
+   "title": "Zero uses plural",
+   "status": "PASS",
+   "actual": {
+    "text": "0 properties"
+   },
+   "expected": {
+    "text": "0 properties"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-067 plural — five cases › complex · Zero uses plural"
+  },
+  {
+   "id": "MK-NW-F-067",
+   "kind": "edge",
+   "title": "Plural not supplied for irregular noun",
+   "status": "UNCLEAR",
+   "actual": "2 propertys",
+   "expected": {
+    "result": "RULE UNCLEAR — generic add-s gives “propertys”, but correct English is “properties”"
+   },
+   "difference": "",
+   "formula_gives_match": "formula_gives",
+   "note": "src/domain/assets/index.ts:1625; no decision. Open question: must every caller pass the plural (today's callers pass nouns that take s), or should the helper know English plurals?",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-067 plural — five cases › edge · Plural not supplied for irregular noun"
+  },
+  {
+   "id": "MK-NW-F-068",
+   "kind": "easy",
+   "title": "Date formatting",
+   "status": "PASS",
+   "actual": {
+    "text": "Aug 4, 2026"
+   },
+   "expected": {
+    "text": "Aug 4, 2026"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-068 prettyDay — five cases › easy · Date formatting"
+  },
+  {
+   "id": "MK-NW-F-068",
+   "kind": "easy",
+   "title": "September abbreviation",
+   "status": "PASS",
+   "actual": {
+    "text": "Sep 9, 2026"
+   },
+   "expected": {
+    "text": "Sep 9, 2026"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-068 prettyDay — five cases › easy · September abbreviation"
+  },
+  {
+   "id": "MK-NW-F-068",
+   "kind": "complex",
+   "title": "Leap-day date",
+   "status": "PASS",
+   "actual": {
+    "text": "Feb 29, 2024"
+   },
+   "expected": {
+    "text": "Feb 29, 2024"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-068 prettyDay — five cases › complex · Leap-day date"
+  },
+  {
+   "id": "MK-NW-F-068",
+   "kind": "complex",
+   "title": "Timezone offset must not shift date",
+   "status": "PASS",
+   "actual": "Jan 1, 2026",
+   "expected": {
+    "text": "Jan 1, 2026"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Read by pattern, never through Date (src/domain/assets/index.ts:2575); DEC-3279j.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-068 prettyDay — five cases › complex · Timezone offset must not shift date"
+  },
+  {
+   "id": "MK-NW-F-068",
+   "kind": "edge",
+   "title": "Impossible date refuses",
+   "status": "PASS",
+   "actual": "",
+   "expected": "REFUSES — invalid calendar date",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "\"Gives nothing\" = empty string.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-068 prettyDay — five cases › edge · Impossible date refuses"
+  },
+  {
+   "id": "MK-NW-F-069",
+   "kind": "easy",
+   "title": "Zero-coupon bond price",
+   "status": "PASS",
+   "actual": {
+    "price": 952.3809523809523
+   },
+   "expected": {
+    "price": 952.3809523809523
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › easy · Zero-coupon bond price"
+  },
+  {
+   "id": "MK-NW-F-069",
+   "kind": "easy",
+   "title": "Matured bond refuses price",
+   "status": "PASS",
+   "actual": "REFUSES — matured bond cannot be priced",
+   "expected": "REFUSES — matured bond cannot be priced",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › easy · Matured bond refuses price"
+  },
+  {
+   "id": "MK-NW-F-069",
+   "kind": "complex",
+   "title": "Coupon bond discounted by exact times",
+   "status": "PASS",
+   "actual": 1018.860946745562,
+   "expected": {
+    "price": 1018.860946745562
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Expected is RIGHT; only the working is wrong: 1,050 ÷ 1.0816 = 970.7840237 (not 970.0443787), so 48.0769231 + 970.7840237 = 1,018.8609467 (not 1,018.1213018).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › complex · Coupon bond discounted by exact times"
+  },
+  {
+   "id": "MK-NW-F-069",
+   "kind": "complex",
+   "title": "Missing face must not create a numeric price",
+   "status": "FINDING",
+   "actual": 0,
+   "expected": "REFUSES — face value not entered; cannot price principal cash flow",
+   "difference": "app prices it at $0",
+   "formula_gives_match": "formula_gives (no face guard)",
+   "note": "priceAtYield uses face ?? 0 and coupon ?? 0 (src/domain/bonds/index.ts:669, :672). Latent: approxYTM (:442) and bondRateSensitivity (:728) refuse a missing face first. DEC-2748b: a face never entered is never $0.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › complex · Missing face must not create a numeric price"
+  },
+  {
+   "id": "MK-NW-F-069",
+   "kind": "edge",
+   "title": "Invalid yield at or below −100%",
+   "status": "FINDING",
+   "actual": "Infinity",
+   "expected": "REFUSES — invalid discount factor at 1 + yield = 0",
+   "difference": "app Infinity; expected refusal",
+   "formula_gives_match": "n/a",
+   "note": "(1 + y)^t = 0 at y = −1 and nothing guards it (src/domain/bonds/index.ts:671-672). Latent: the solver never asks below −99% (:454).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › edge · Invalid yield at or below −100%"
+  },
+  {
+   "id": "MK-NW-F-070",
+   "kind": "easy",
+   "title": "Caveat shown for estimate",
+   "status": "PASS",
+   "actual": {
+    "text": "Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+   },
+   "expected": {
+    "text": "Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Bond built to produce the given estimate: face $25,000, 4.5%, coupon due 2026-10-11, today 2026-10-09 → 25,000 × 4.5% × 363/365 = $1,118.84 → \"$1,119\". Text matches word for word (DEC-3390).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-070 accruedInterestCaveat — five cases › easy · Caveat shown for estimate"
+  },
+  {
+   "id": "MK-NW-F-070",
+   "kind": "easy",
+   "title": "Actual accrued interest means no caveat",
+   "status": "PASS",
+   "actual": {
+    "text": null
+   },
+   "expected": {
+    "text": null
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-070 accruedInterestCaveat — five cases › easy · Actual accrued interest means no caveat"
+  },
+  {
+   "id": "MK-NW-F-070",
+   "kind": "complex",
+   "title": "CD does not get estimate note",
+   "status": "PASS",
+   "actual": {
+    "text": null
+   },
+   "expected": {
+    "text": null
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-070 accruedInterestCaveat — five cases › complex · CD does not get estimate note"
+  },
+  {
+   "id": "MK-NW-F-070",
+   "kind": "complex",
+   "title": "Matured bond has no estimate caveat",
+   "status": "PASS",
+   "actual": {
+    "text": null
+   },
+   "expected": {
+    "text": null
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-070 accruedInterestCaveat — five cases › complex · Matured bond has no estimate caveat"
+  },
+  {
+   "id": "MK-NW-F-070",
+   "kind": "edge",
+   "title": "Coupon day has no accrued interest",
+   "status": "PASS",
+   "actual": {
+    "text": null
+   },
+   "expected": {
+    "text": null
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-070 accruedInterestCaveat — five cases › edge · Coupon day has no accrued interest"
+  },
+  {
+   "id": "MK-NW-F-071",
+   "kind": "easy",
+   "title": "Kind says CD",
+   "status": "PASS",
+   "actual": {
+    "is_cd": true
+   },
+   "expected": {
+    "is_cd": true
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-071 isCertificateOfDeposit — five cases › easy · Kind says CD"
+  },
+  {
+   "id": "MK-NW-F-071",
+   "kind": "easy",
+   "title": "CDW institution is not whole-word CD",
+   "status": "PASS",
+   "actual": {
+    "is_cd": false
+   },
+   "expected": {
+    "is_cd": false
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-071 isCertificateOfDeposit — five cases › easy · CDW institution is not whole-word CD"
+  },
+  {
+   "id": "MK-NW-F-071",
+   "kind": "complex",
+   "title": "Certificate phrase in account name",
+   "status": "PASS",
+   "actual": {
+    "is_cd": true
+   },
+   "expected": {
+    "is_cd": true
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-071 isCertificateOfDeposit — five cases › complex · Certificate phrase in account name"
+  },
+  {
+   "id": "MK-NW-F-071",
+   "kind": "complex",
+   "title": "Institution name alone triggers CD according to formula",
+   "status": "UNCLEAR",
+   "actual": true,
+   "expected": "RULE UNCLEAR — literal formula says institution whole-word CD makes it a CD; account name alone does not establish that the product is a CD",
+   "difference": "",
+   "formula_gives_match": "formula_gives (true)",
+   "note": "bondInfo reads the institution with the name (src/domain/bonds/index.ts:107). DEC-3279h lists the words, not where they may come from. Open question: may an institution's name alone (CD Capital) make an account a CD?",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-071 isCertificateOfDeposit — five cases › complex · Institution name alone triggers CD according to formula"
+  },
+  {
+   "id": "MK-NW-F-071",
+   "kind": "edge",
+   "title": "Lowercase whole word CD",
+   "status": "PASS",
+   "actual": {
+    "is_cd": true
+   },
+   "expected": {
+    "is_cd": true
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-071 isCertificateOfDeposit — five cases › edge · Lowercase whole word CD"
+  },
+  {
+   "id": "MK-NW-F-072",
+   "kind": "easy",
+   "title": "Basic bond row",
+   "status": "BRIEF_WRONG",
+   "actual": {
+    "ytm": 0.0672268219436577
+   },
+   "expected": {
+    "heading": "Vanguard",
+    "face": 1000,
+    "rate": 0.05,
+    "yearly_interest": 50,
+    "value": 980,
+    "current_yield": 0.05102040816326531,
+    "ytm": 0.055
+   },
+   "difference": "ytm 0.0672268 vs 0.055",
+   "formula_gives_match": "n/a",
+   "note": "BRIEF WRONG: 0.055 was handed in as an input, not worked out. Under DEC-3390 the full price is $980 + $38.49 accrued (1,000 × 5% × 281/365) = $1,018.49; at 5.5% the bond prices at $1,032.46, at 6.72% at $1,018.49. Every other field matches.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-072 rowOf — five cases › easy · Basic bond row"
+  },
+  {
+   "id": "MK-NW-F-072",
+   "kind": "easy",
+   "title": "Missing rate remains blank",
+   "status": "PASS",
+   "actual": {
+    "heading": "Bond account",
+    "rate": "not entered",
+    "yearly_interest": "not entered"
+   },
+   "expected": {
+    "heading": "Bond account",
+    "rate": "not entered",
+    "yearly_interest": "not entered"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-072 rowOf — five cases › easy · Missing rate remains blank"
+  },
+  {
+   "id": "MK-NW-F-072",
+   "kind": "complex",
+   "title": "Value excludes accrued interest but YTM includes it",
+   "status": "PASS",
+   "actual": {
+    "heading": "Fidelity",
+    "value": 9850,
+    "full_price_for_ytm": 9962.5,
+    "caveat": "none because actual accrued interest entered"
+   },
+   "expected": {
+    "heading": "Fidelity",
+    "value": 9850,
+    "full_price_for_ytm": 9962.5,
+    "caveat": "none because actual accrued interest entered"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-072 rowOf — five cases › complex · Value excludes accrued interest but YTM includes it"
+  },
+  {
+   "id": "MK-NW-F-072",
+   "kind": "complex",
+   "title": "Matured bond has no YTM or sensitivity",
+   "status": "PASS",
+   "actual": {
+    "matured": true,
+    "ytm": "not entered",
+    "rate_sensitivity": "not entered",
+    "years_left": 0
+   },
+   "expected": {
+    "matured": true,
+    "ytm": "not entered",
+    "rate_sensitivity": "not entered",
+    "years_left": 0
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Read from theBonds(…, accountId).one (rowOf has no matured / rates fields).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-072 rowOf — five cases › complex · Matured bond has no YTM or sensitivity"
+  },
+  {
+   "id": "MK-NW-F-072",
+   "kind": "edge",
+   "title": "No maturity is unknown, not matured",
+   "status": "PASS",
+   "actual": {
+    "matured": false,
+    "maturity": "",
+    "ytm": null
+   },
+   "expected": {
+    "matured": false,
+    "maturity": "not entered",
+    "ytm": "not entered"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "\"not entered\" = empty date string; years left also null.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-072 rowOf — five cases › edge · No maturity is unknown, not matured"
+  },
+  {
+   "id": "MK-NW-F-073",
+   "kind": "easy",
+   "title": "Exact itemization",
+   "status": "PASS",
+   "actual": {
+    "keep_total_at": 1000,
+    "itemized": 1000,
+    "remainder": 0,
+    "remainder_final": true
+   },
+   "expected": {
+    "keep_total_at": 1000,
+    "itemized": 1000,
+    "remainder": 0,
+    "remainder_final": true
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-073 itemising — five cases › easy · Exact itemization"
+  },
+  {
+   "id": "MK-NW-F-073",
+   "kind": "easy",
+   "title": "Missing value makes remainder not final",
+   "status": "PASS",
+   "actual": {
+    "keep_total_at": 1000,
+    "itemized": 400,
+    "remainder": 600,
+    "remainder_final": false
+   },
+   "expected": {
+    "keep_total_at": 1000,
+    "itemized": 400,
+    "remainder": 600,
+    "remainder_final": false
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-073 itemising — five cases › easy · Missing value makes remainder not final"
+  },
+  {
+   "id": "MK-NW-F-073",
+   "kind": "complex",
+   "title": "Over-itemized account shows negative remainder",
+   "status": "PASS",
+   "actual": {
+    "keep_total_at": 9876.54,
+    "itemized": 10654.32,
+    "remainder": -777.78,
+    "remainder_final": true
+   },
+   "expected": {
+    "keep_total_at": 9876.54,
+    "itemized": 10654.32,
+    "remainder": -777.78,
+    "remainder_final": true
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-073 itemising — five cases › complex · Over-itemized account shows negative remainder"
+  },
+  {
+   "id": "MK-NW-F-073",
+   "kind": "complex",
+   "title": "Several missing values counted separately",
+   "status": "PASS",
+   "actual": {
+    "itemized": 5000,
+    "remainder": 15000,
+    "remainder_final": false,
+    "missing_count": 2
+   },
+   "expected": {
+    "itemized": 5000,
+    "remainder": 15000,
+    "remainder_final": false,
+    "missing_count": 2
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-073 itemising — five cases › complex · Several missing values counted separately"
+  },
+  {
+   "id": "MK-NW-F-073",
+   "kind": "edge",
+   "title": "No holdings listed",
+   "status": "PASS",
+   "actual": {
+    "itemized": 0,
+    "remainder": 4000,
+    "remainder_final": true
+   },
+   "expected": {
+    "itemized": 0,
+    "remainder": 4000,
+    "remainder_final": true
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-073 itemising — five cases › edge · No holdings listed"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "easy",
+   "title": "No earnings on day one",
+   "status": "PASS",
+   "actual": {
+    "categories": {
+     "Cash": {
+      "earnings": 0,
+      "return": null
+     },
+     "Stocks / Funds": {
+      "earnings": 0,
+      "return": null
+     },
+     "Bonds & CDs": {
+      "earnings": 0,
+      "return": null
+     }
+    }
+   },
+   "expected": {
+    "categories": {
+     "Cash": {
+      "earnings": 0,
+      "return": null
+     },
+     "Stocks / Funds": {
+      "earnings": 0,
+      "return": null
+     },
+     "Bonds & CDs": {
+      "earnings": 0,
+      "return": null
+     }
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "App label for Cash is \"Cash in this account\" (his wording, 2026-08-11); compared by key.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-084 categoryEarnings — five cases › easy · No earnings on day one"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "easy",
+   "title": "Tickerless dividend goes to stocks",
+   "status": "PASS",
+   "actual": {
+    "Stocks / Funds": {
+     "earnings": 25
+    }
+   },
+   "expected": {
+    "Stocks / Funds": {
+     "earnings": 25
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-084 categoryEarnings — five cases › easy · Tickerless dividend goes to stocks"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "complex",
+   "title": "Current-value weighting differs from beginning-value TWR",
+   "status": "FINDING",
+   "actual": 0.10909090909090909,
+   "expected": 0.1,
+   "difference": "+0.909 points",
+   "formula_gives_match": "formula_gives (0.1090909…)",
+   "note": "Category return weighted by TODAY's value (MoneyKeel/functions/networth-and-performance/performance.ts:621-626). With no money moved the class went $20,000 → $22,000 = 10%. DEC-1669 (every return time-weighted) and DEC-3035b (same fix on the retirement return: Σ now ÷ Σ start − 1) say 10%.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Current-value weighting differs from beginning-value TWR"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "complex",
+   "title": "Interest record without ticker goes to cash",
+   "status": "PASS",
+   "actual": {
+    "Cash": {
+     "earnings": 18.75
+    }
+   },
+   "expected": {
+    "Cash": {
+     "earnings": 18.75
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Interest record without ticker goes to cash"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "edge",
+   "title": "Return refuses when no holding can be priced",
+   "status": "PASS",
+   "actual": {
+    "category_return": "REFUSES — no priced holding with a valid return"
+   },
+   "expected": {
+    "category_return": "REFUSES — no priced holding with a valid return"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-084 categoryEarnings — five cases › edge · Return refuses when no holding can be priced"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "easy",
+   "title": "This year starts Jan 1",
+   "status": "PASS",
+   "actual": {
+    "start": "2026-01-01"
+   },
+   "expected": {
+    "start": "2026-01-01"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › easy · This year starts Jan 1"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "easy",
+   "title": "Since starts day after first record",
+   "status": "PASS",
+   "actual": {
+    "start": "2026-05-01"
+   },
+   "expected": {
+    "start": "2026-05-01"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › easy · Since starts day after first record"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "complex",
+   "title": "One month back from month-end",
+   "status": "UNCLEAR",
+   "actual": "2026-03-03",
+   "expected": {
+    "result": "RULE UNCLEAR — calendar subtraction could clamp to 2026-02-28 or overflow to 2026-03-03; owner-approved rule needed"
+   },
+   "difference": "",
+   "formula_gives_match": "formula_gives (overflow to Mar 3)",
+   "note": "setUTCMonth overflows (performance.ts:124-125): 1M from Mar 31 starts Mar 3 (a 28-day window); also 2024-03-31 → 2024-03-02 and 1Y from 2024-02-29 → 2023-03-01. No decision (DEC-0647 approves Performance v17, silent on month-ends). Open question: clamp to the month's last day?",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › complex · One month back from month-end"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "complex",
+   "title": "Since with no records starts today",
+   "status": "PASS",
+   "actual": {
+    "start": "2026-10-09"
+   },
+   "expected": {
+    "start": "2026-10-09"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › complex · Since with no records starts today"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "edge",
+   "title": "Unknown label defaults to 12 months back",
+   "status": "PASS",
+   "actual": {
+    "start": "2025-10-09"
+   },
+   "expected": {
+    "start": "2025-10-09"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › edge · Unknown label defaults to 12 months back"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "easy",
+   "title": "Bought inside period gain",
+   "status": "PASS",
+   "actual": {
+    "exact": 150
+   },
+   "expected": {
+    "exact": 150
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-091 pricedGainOf — five cases › easy · Bought inside period gain"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "easy",
+   "title": "Existing holding with 10% return",
+   "status": "PASS",
+   "actual": {
+    "exact": 100
+   },
+   "expected": {
+    "exact": 100
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-091 pricedGainOf — five cases › easy · Existing holding with 10% return"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "complex",
+   "title": "Multiple holdings and negative return",
+   "status": "PASS",
+   "actual": {
+    "gains": [
+     250,
+     -499.99999999999943
+    ],
+    "total": -249.99999999999943
+   },
+   "expected": {
+    "gains": [
+     250,
+     -499.99999999999943
+    ],
+    "total": -249.99999999999943
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "Compared to 9 decimals (float).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-091 pricedGainOf — five cases › complex · Multiple holdings and negative return"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "complex",
+   "title": "Holding bought before period uses reverse return",
+   "status": "PASS",
+   "actual": {
+    "exact": 940.8940184757511,
+    "shown": "$940.89"
+   },
+   "expected": {
+    "exact": 940.8940184757511,
+    "shown": "$940.89"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-091 pricedGainOf — five cases › complex · Holding bought before period uses reverse return"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "edge",
+   "title": "Missing return refuses gain",
+   "status": "FINDING",
+   "actual": 0,
+   "expected": "REFUSES — no period return to reconstruct opening value",
+   "difference": "app $0; expected refusal",
+   "formula_gives_match": "n/a",
+   "note": "A holding with no period return adds $0 (performance.ts:190); a one-holding gain reads \"$0 gained\", not unknown (tenet 3). Callers: PerformanceScreen.tsx:114 (per row), :156; HomeScreen.tsx:189.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-091 pricedGainOf — five cases › edge · Missing return refuses gain"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "easy",
+   "title": "Stocks account included",
+   "status": "PASS",
+   "actual": {
+    "ids": [
+     "A"
+    ]
+   },
+   "expected": {
+    "ids": [
+     "A"
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › easy · Stocks account included"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "easy",
+   "title": "Cash account excluded",
+   "status": "PASS",
+   "actual": {
+    "ids": []
+   },
+   "expected": {
+    "ids": []
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › easy · Cash account excluded"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "complex",
+   "title": "Mixed and unclassified accounts included once",
+   "status": "PASS",
+   "actual": [
+    "A",
+    "B"
+   ],
+   "expected": {
+    "ids": [
+     "A",
+     "B"
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "DEC-0338: Unclassified counts as an investment.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › complex · Mixed and unclassified accounts included once"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "complex",
+   "title": "Cash plus investment split includes mixed account",
+   "status": "PASS",
+   "actual": {
+    "ids": [
+     "A"
+    ]
+   },
+   "expected": {
+    "ids": [
+     "A"
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › complex · Cash plus investment split includes mixed account"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "edge",
+   "title": "Empty list returns no IDs",
+   "status": "PASS",
+   "actual": {
+    "ids": []
+   },
+   "expected": {
+    "ids": []
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › edge · Empty list returns no IDs"
+  },
+  {
+   "id": "MK-NW-F-094",
+   "kind": "easy",
+   "title": "Single class row total",
+   "status": "PASS",
+   "actual": {
+    "groups": [
+     {
+      "class": "Cash",
+      "rows": [
+       {
+        "name": "Checking",
+        "value": 1000
+       }
+      ],
+      "total": 1000
+     }
+    ]
+   },
+   "expected": {
+    "groups": [
+     {
+      "class": "Cash",
+      "rows": [
+       {
+        "name": "Checking",
+        "value": 1000
+       }
+      ],
+      "total": 1000
+     }
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-094 ledgerGroups — five cases › easy · Single class row total"
+  },
+  {
+   "id": "MK-NW-F-094",
+   "kind": "easy",
+   "title": "Institution names trimmed and case-insensitive",
+   "status": "PASS",
+   "actual": {
+    "groups": [
+     {
+      "institution": "Chase",
+      "total": 300
+     }
+    ]
+   },
+   "expected": {
+    "groups": [
+     {
+      "institution": "Chase",
+      "total": 300
+     }
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-094 ledgerGroups — five cases › easy · Institution names trimmed and case-insensitive"
+  },
+  {
+   "id": "MK-NW-F-094",
+   "kind": "complex",
+   "title": "Split account appears under every class at its portion",
+   "status": "PASS",
+   "actual": {
+    "groups": [
+     {
+      "class": "Stocks / Funds",
+      "total": 45000,
+      "rows": [
+       {
+        "name": "Vanguard -0008",
+        "value": 45000
+       }
+      ]
+     },
+     {
+      "class": "Bonds & CDs",
+      "total": 34000,
+      "rows": [
+       {
+        "name": "Vanguard -0008",
+        "value": 34000
+       }
+      ]
+     },
+     {
+      "class": "Cash",
+      "total": 20000,
+      "rows": [
+       {
+        "name": "Chase -0333",
+        "value": 20000
+       }
+      ]
+     }
+    ],
+    "grand_total": 99000
+   },
+   "expected": {
+    "groups": [
+     {
+      "class": "Stocks / Funds",
+      "total": 45000,
+      "rows": [
+       {
+        "name": "Vanguard -0008",
+        "value": 45000
+       }
+      ]
+     },
+     {
+      "class": "Bonds & CDs",
+      "total": 34000,
+      "rows": [
+       {
+        "name": "Vanguard -0008",
+        "value": 34000
+       }
+      ]
+     },
+     {
+      "class": "Cash",
+      "total": 20000,
+      "rows": [
+       {
+        "name": "Chase -0333",
+        "value": 20000
+       }
+      ]
+     }
+    ],
+    "grand_total": 99000
+   },
+   "difference": "heading order not given by the function (screen sorts); compared by heading",
+   "formula_gives_match": "n/a",
+   "note": "DEC-3146.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-094 ledgerGroups — five cases › complex · Split account appears under every class at its portion"
+  },
+  {
+   "id": "MK-NW-F-094",
+   "kind": "complex",
+   "title": "Institution group class subtotals sum",
+   "status": "PASS",
+   "actual": {
+    "groups": [
+     {
+      "institution": "Bank A",
+      "total": 15000,
+      "class_totals": {
+       "Stocks / Funds": 9000,
+       "Bonds & CDs": 5000,
+       "Cash": 1000
+      }
+     }
+    ]
+   },
+   "expected": {
+    "groups": [
+     {
+      "institution": "Bank A",
+      "total": 15000,
+      "class_totals": {
+       "Stocks / Funds": 9000,
+       "Bonds & CDs": 5000,
+       "Cash": 1000
+      }
+     }
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-094 ledgerGroups — five cases › complex · Institution group class subtotals sum"
+  },
+  {
+   "id": "MK-NW-F-094",
+   "kind": "edge",
+   "title": "Missing balance appears as missing, not zero",
+   "status": "PASS",
+   "actual": {
+    "known_total": 0,
+    "warning": "Linked account has no balance"
+   },
+   "expected": {
+    "known_total": 0,
+    "warning": "Incomplete — Linked account has no value"
+   },
+   "difference": "the account is in NO ledger group at all (its split is all zeros and zero parts are dropped, net-worth.ts:445-447) — named only in the amber box",
+   "formula_gives_match": "expected (not formula_gives: dataGaps names it)",
+   "note": "Warning from dataGaps (src/domain/gaps/index.ts:166-173), DEC-3279e.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-094 ledgerGroups — five cases › edge · Missing balance appears as missing, not zero"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "easy",
+   "title": "Dates sorted oldest first",
+   "status": "PASS",
+   "actual": {
+    "dates": [
+     "2026-01-03",
+     "2026-04-02"
+    ]
+   },
+   "expected": {
+    "dates": [
+     "2026-01-03",
+     "2026-04-02"
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-103 investmentRecordDates — five cases › easy · Dates sorted oldest first"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "easy",
+   "title": "No accounts gives empty list",
+   "status": "PASS",
+   "actual": {
+    "dates": []
+   },
+   "expected": {
+    "dates": []
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-103 investmentRecordDates — five cases › easy · No accounts gives empty list"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "complex",
+   "title": "Date included when one of multiple accounts valued",
+   "status": "PASS",
+   "actual": {
+    "dates": [
+     "2026-01-01",
+     "2026-01-02"
+    ]
+   },
+   "expected": {
+    "dates": [
+     "2026-01-01",
+     "2026-01-02"
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-103 investmentRecordDates — five cases › complex · Date included when one of multiple accounts valued"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "complex",
+   "title": "Ignore unrelated account records",
+   "status": "PASS",
+   "actual": {
+    "dates": [
+     "2026-01-02"
+    ]
+   },
+   "expected": {
+    "dates": [
+     "2026-01-02"
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-103 investmentRecordDates — five cases › complex · Ignore unrelated account records"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "edge",
+   "title": "No recorded values",
+   "status": "PASS",
+   "actual": {
+    "dates": []
+   },
+   "expected": {
+    "dates": []
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-103 investmentRecordDates — five cases › edge · No recorded values"
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "easy",
+   "title": "Append today using ending value",
+   "status": "PASS",
+   "actual": {
+    "record": [
+     {
+      "date": "2026-10-08",
+      "values": {
+       "A": 1000
+      }
+     },
+     {
+      "date": "2026-10-09",
+      "values": {
+       "A": 1100
+      }
+     }
+    ]
+   },
+   "expected": {
+    "record": [
+     {
+      "date": "2026-10-08",
+      "values": {
+       "A": 1000
+      }
+     },
+     {
+      "date": "2026-10-09",
+      "values": {
+       "A": 1100
+      }
+     }
+    ]
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › easy · Append today using ending value"
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "easy",
+   "title": "No prior day leaves record unchanged",
+   "status": "PASS",
+   "actual": {
+    "record": []
+   },
+   "expected": {
+    "record": []
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › easy · No prior day leaves record unchanged"
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "complex",
+   "title": "Several named accounts carry ending values",
+   "status": "BLOCKED",
+   "actual": {
+    "A": 20000,
+    "B": 0
+   },
+   "expected": {
+    "today_values": {
+     "A": 12000,
+     "B": 8000
+    }
+   },
+   "difference": "per-account split cannot be handed in",
+   "formula_gives_match": "n/a",
+   "note": "closedWith takes ONE ending total (performance.ts:286). Run with the sum $20,000 it writes all $20,000 on A and $0 on B (performance.ts:290); the total, which is all the return reads, is right.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › complex · Several named accounts carry ending values"
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "complex",
+   "title": "Latest record has none of named accounts",
+   "status": "UNCLEAR",
+   "actual": "record unchanged",
+   "expected": {
+    "result": "RULE UNCLEAR — formula says return unchanged when latest earlier day holds none of named accounts; caller ending value is not appended"
+   },
+   "difference": "",
+   "formula_gives_match": "formula_gives",
+   "note": "As the card says (performance.ts:289). No decision. Open question (auditor's): confirm, and that the return then refuses (END_NOT_RECORDED).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › complex · Latest record has none of named accounts"
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "edge",
+   "title": "Today already exists",
+   "status": "UNCLEAR",
+   "actual": "record unchanged (recorded $1,000 stands; $1,100 ignored)",
+   "expected": {
+    "result": "RULE UNCLEAR — avoid duplicate date; either replace today’s value or leave record unchanged according to an explicit contract"
+   },
+   "difference": "no duplicate row",
+   "formula_gives_match": "neither (formula_gives feared a duplicate; there is none)",
+   "note": "closedWith finds no earlier day (performance.ts:287-288) and its caller never calls it when today is recorded (performance.ts:409). No decision. Open question: should a newer ending value replace today's recorded one?",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › edge · Today already exists"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-NW-F-056",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:103-107 — face null when missing or ≤0, rate null when missing (0 kept), value = balance || 0, accrued null when missing, isCd from kind or CD words. The editor labels value \"Market value, as your statement shows it — without accrued interest\" (src/screens/BondsScreen.tsx:239).",
+   "card_text_says": "\"value (the balance)\"; face not entered when missing or ≤0; rate not entered when missing; accrued not entered when missing.",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "governing_decisions": [
+    "DEC-2748b",
+    "DEC-3390"
+   ],
+   "plain_example": "Value $9,850 with $112.50 accrued: card says \"the balance\"; app treats $9,850 as statement value without accrued interest (DEC-3390). Card should say so. Missing balance still reads $0 inside bondInfo (bonds/index.ts:105) — the amber box names it (DEC-3279e)."
+  },
+  {
+   "id": "MK-NW-F-057",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:141-144 — face × rate, null when either missing. Only caller: priceAtYield (:669). The $0-and-said-so rule lives in yearlyInterest (:181-184) and its income figures.",
+   "card_text_says": "Face × rate; nothing when either was not entered.",
+   "classification": "AUDITOR MISREAD",
+   "governing_decisions": [
+    "DEC-2748c"
+   ],
+   "plain_example": "Face $10,000, no rate: annualCoupon = nothing (right — a pricing helper); the Bonds screen row reads \"coupon not entered\" and the coupon total counts $0. Separately the auditor's case 524.187475 should be 524.690975 (app right)."
+  },
+  {
+   "id": "MK-NW-F-060",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:441-446 — refuses when no maturity / matured / no face / no rate, THEN a CD returns its stated rate.",
+   "card_text_says": "Same order: nothing without face or rate; a CD: its stated rate.",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [
+    "DEC-2748b",
+    "DEC-2748c",
+    "DEC-3390"
+   ],
+   "plain_example": "CD typed by its $9,700 balance at 4.2%, no face: today yield to maturity = nothing; with a face of $10,000 typed it = 4.20%. Should the balance-only CD show 4.20%?"
+  },
+  {
+   "id": "MK-NW-F-061",
+   "auditor_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:521 adds a missing face as 0, but the door names every bond with no face (MoneyKeel/functions/networth-and-performance/bonds.ts:265, faceNotEntered) and the Bonds screen prints \"Face value leaves out <name> — not entered.\" or \"face value not entered\" when none has one (src/screens/BondsScreen.tsx:59, :72-73).",
+   "card_text_says": "\"Total face value = each face value added up, a face not entered counting as zero\" — silent on the disclosure.",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "governing_decisions": [
+    "DEC-2748b",
+    "DEC-2484b",
+    "DEC-3390"
+   ],
+   "plain_example": "Bonds with face $1,000 and no face: screen reads \"face $1,000\" and beneath it \"Face value leaves out Bond two — not entered.\" — the known subtotal, named as incomplete. Card should say the total is of entered faces and the missing are named."
+  },
+  {
+   "id": "MK-NW-F-062",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:554-558 — Σ yearlyInterest over every Bonds & CDs account; takes no date, so a matured bond still counts. bondSummary's COUPON /year (:522) the same.",
+   "card_text_says": "Over bonds or CDs: yearlyInterest of each, no rate counting zero. (Purpose line says \"INDIVIDUAL bonds\".)",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-2748c",
+    "DEC-2748d",
+    "DEC-0051"
+   ],
+   "plain_example": "Matured $10,000 5% bond + live $2,000 4% bond: Bonds screen coupon $580/year, interest income $80/year → should be $80 on both. CDs belong in it (DEC-2748c settles the auditor's question: $770 not $570)."
+  },
+  {
+   "id": "MK-NW-F-063",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:595-612 — drops a bond whose date is before today (:602); an undated bond counts.",
+   "card_text_says": "Nothing when its maturity date is before today; otherwise yearlyInterest.",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [
+    "DEC-2748d",
+    "DEC-0332",
+    "DEC-0279"
+   ],
+   "plain_example": "Undated $5,000 bond at 4%: counts $200/year. Count it, or show nothing and name the missing date?"
+  },
+  {
+   "id": "MK-NW-F-064",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:724-749 — refuses CD / no yield / no face / rate ≤0; solver bounded −99%…1,000% (:454); down move floored at 0.01% (:737); priceAtYield failure falls back to base (:737 \"?? base\"). Rounding step ≥ $1 (:730).",
+   "card_text_says": "All of the above, including the 0.01% floor and proportional rounding.",
+   "classification": "AUDITOR MISREAD",
+   "governing_decisions": [
+    "DEC-2748f",
+    "DEC-2484c",
+    "DEC-0332"
+   ],
+   "plain_example": "−100% can never be asked: the solver stops at −99%. Values under $1 round to $1 steps. Nothing to change."
+  },
+  {
+   "id": "MK-NW-F-065",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/networth/index.ts:35-37 — assets − debt from two totals; debt total from totalDebtBalance adds a missing balance as 0 (src/domain/debt/index.ts:269); dataGaps flags accounts only (src/domain/gaps/index.ts:166).",
+   "card_text_says": "Net worth = total assets − total debt.",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [
+    "DEC-3279e",
+    "DEC-0260"
+   ],
+   "plain_example": "Assets $100,000, debts $20,000 + one with no balance: shows $80,000 with no warning → should say \"a debt has no balance\". DEC-3279e's words cover it; its list names only asset functions."
+  },
+  {
+   "id": "MK-NW-F-067",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/assets/index.ts:1625 — plural given or noun + s.",
+   "card_text_says": "Same.",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [],
+   "plain_example": "plural(2, \"property\") → \"2 propertys\". Callers today pass nouns that take s, so no screen shows this yet."
+  },
+  {
+   "id": "MK-NW-F-069",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:661-674 — principal face ?? 0 (:672), coupon annualCoupon ?? 0 (:669); no guard on y ≤ −1.",
+   "card_text_says": "Coupon zero when face or rate not entered; silent on a missing face as principal and on the yield range.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-2748b",
+    "DEC-3279c"
+   ],
+   "plain_example": "No face, 5% rate, 4% yield: price $0 → should be nothing. Yield −100%: price Infinity → should be nothing. Latent today (callers refuse first)."
+  },
+  {
+   "id": "MK-NW-F-071",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/bonds/index.ts:20, :107 — kind cd, or whole-word CD / certificate(s) of deposit / share certificate(s) in label OR institution.",
+   "card_text_says": "Kind CD, or name or institution has the whole word — matches code (card omits \"share certificate\").",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [
+    "DEC-3279h"
+   ],
+   "plain_example": "Brokerage \"Investment account\" at \"CD Capital\" → treated as a CD (no rates estimate, yield = stated rate). Should the institution alone decide?"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "auditor_verdict": "WRONG",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:621-626 — category return = Σ periodReturn × today's marketValue ÷ Σ today's marketValue.",
+   "card_text_says": "\"its holdings' period returns averaged, weighted by market value\".",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-1669",
+    "DEC-3035b"
+   ],
+   "plain_example": "Two $10,000 holdings, one +20% (now $12,000), one 0%: shows +10.91% → should be +10.00% ($20,000 → $22,000). Weigh each by its value at the start: today's value ÷ (1 + its return)."
+  },
+  {
+   "id": "MK-NW-F-090",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:113-127 — setUTCMonth(month − n); overflows past a short month.",
+   "card_text_says": "\"today moved back 1, 3, 6, 12 or 24 months\" — no month-end rule.",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [
+    "DEC-0647"
+   ],
+   "plain_example": "1M on Mar 31, 2026 starts Mar 3 (28 days) → clamp would start Feb 28. 1Y on Feb 29, 2024 starts Mar 1, 2023 → clamp Feb 28, 2023."
+  },
+  {
+   "id": "MK-NW-F-094",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/net-worth.ts:432-469 — missing balance read as 0 (:446, :459); an account whose split is all zeros is in no group (:445). The amber box names it (src/domain/gaps/index.ts:166-173). Both views add to the same total when all are known (tested).",
+   "card_text_says": "Groups and totals; silent on a missing balance.",
+   "classification": "CARD STALE (code right, card text wrong)",
+   "governing_decisions": [
+    "DEC-3146",
+    "DEC-3279e"
+   ],
+   "plain_example": "Linked account with no balance: not in the ledger total ($0 added), named in the amber box \"Linked account has no balance\". Card should say so."
+  },
+  {
+   "id": "MK-NW-F-104",
+   "auditor_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:286-292 — unchanged when no earlier day or none of the accounts; else adds today with the whole ending on the first account. Caller skips it when today is recorded (:409).",
+   "card_text_says": "Same; silent on today already recorded.",
+   "classification": "NEEDS RULING (no decision settles it)",
+   "governing_decisions": [
+    "DEC-3035i"
+   ],
+   "plain_example": "Record holds today at $1,000, caller says $1,100: $1,000 stands, no duplicate row. Should $1,100 replace it?"
+  }
+ ],
+ "coverage": "130 of 130 cases mapped and recorded (108 PASS, 7 FINDING, 3 BRIEF_WRONG, 8 UNCLEAR, 4 BLOCKED); 126 run + 4 skipped in MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts, suite green; 15 of 15 non-RIGHT formula checks classified (11 RIGHT not listed)."
+}

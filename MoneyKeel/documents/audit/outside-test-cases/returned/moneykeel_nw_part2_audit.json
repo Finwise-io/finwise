@@ -1,0 +1,3789 @@
+{
+  "batch": "nw module final — part 2",
+  "written_by": "OpenAI independent formula auditor",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-NW-F-053: fix precedence and preserve confirmed class; maturity-date rule must beat name inference.",
+    "MK-NW-F-054: preserve user-confirmed holding class and Unclassified when no evidence exists.",
+    "MK-NW-F-030: reconcile no-home/not-asked state with first-entered home rule.",
+    "MK-NW-F-035: label weighted-average volatility accurately or calculate covariance-based portfolio risk.",
+    "Runtime execution is pending: Claude Code must map and run all 130 cases; this is a formula audit, not an implementation pass/fail report."
+  ],
+  "formula_checks": [
+    {
+      "id": "MK-NW-F-027",
+      "name": "accountClassBreakdown",
+      "verdict": "INCOMPLETE",
+      "why": "The linked-account reconciliation is elaborate and usually conserves the balance, but a hand-built account with an unpriced holding or negative/overdrawn balance can create allocation cases not fully specified. “Cash above zero, never more than balance” is ambiguous when balance is negative.",
+      "should_be": "All returned class portions must sum to the account balance exactly; missing-priced holdings should absorb the residual only under the specified class rule, and impossible/negative cases need an explicit refusal or reconciliation rule.",
+      "rests_on": "Owner DEC-3035d and DEC-3146; arithmetic.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-028",
+      "name": "classPortionLabel",
+      "verdict": "INCOMPLETE",
+      "why": "The labels mostly match the class split, but “government” is treated as a Treasury synonym, broader than the owner-confirmed broker terms TREAS, UST, T-bill, T-note, T-bond. It can mislabel agency/government bonds as Treasuries.",
+      "should_be": "Use only the approved Treasury tokens; otherwise label the holding as a bond unless a CD token is present.",
+      "rests_on": "Owner decision DEC-3035g.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-029",
+      "name": "assetAllocation",
+      "verdict": "INCOMPLETE",
+      "why": "It says the seven class totals add to everything owned, but does not say how a missing balance or missing breakdown is exposed; a class split may be unknown rather than zero.",
+      "should_be": "Sum each account’s known class portions and flag incomplete accounts; do not certify the total as complete while a balance is missing.",
+      "rests_on": "Owner DEC-3279e and DEC-3146; tenets 2–3.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-030",
+      "name": "earmarkDefault",
+      "verdict": "INCOMPLETE",
+      "why": "The default share depends on whether the caller supplies the household home/car identity. “Told nothing” makes a property with no use 0%, while the owner rule says the first property is the home when none is marked and no use is stated; those paths can disagree.",
+      "should_be": "Always resolve home/car identity from the shared property-use and primary-vehicle rules before applying 0%/100% defaults; distinguish “not asked” from “none exists”.",
+      "rests_on": "Owner DEC-2747e, DEC-2746b and DEC-3035p.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "verdict": "RIGHT",
+      "why": "Selects only accounts of kind vehicle, chooses largest balance and breaks ties by textual ID order. This follows DEC-2746b and avoids valuables being mistaken for the car.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2746b.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "verdict": "INCOMPLETE",
+      "why": "The formula says a saved share is held between 0% and 100% but does not state whether out-of-range inputs are clamped, rejected, or ignored.",
+      "should_be": "Clamp only if that is the agreed input contract; otherwise validate/refuse invalid saved percentages. Never calculate a negative or over-100% earmark silently.",
+      "rests_on": "Card formula; tenet 1.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "verdict": "INCOMPLETE",
+      "why": "The total is the sum of earmarked amounts, but no handling is stated for accounts with missing balances. Missing values should not silently disappear from a complete-looking nest egg.",
+      "should_be": "Sum known earmarked amounts and expose missing-value accounts/incompleteness.",
+      "rests_on": "Owner DEC-3279e; tenets 2–3.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "verdict": "RIGHT",
+      "why": "The 6% fallback for unknown/missing kind is explicit, and benchmarkInfo is specified to label a missing-record kind “Generic blended estimate” with estimate=true. The downstream label must be used.",
+      "should_be": "",
+      "rests_on": "Tenets 3 and 7; card formula.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "verdict": "INCOMPLETE",
+      "why": "A weighted average of individual volatilities is not generally the volatility of a combined portfolio unless the holdings move together. The formula acknowledges no covariance table exists, so calling it portfolio volatility overstates what it measures.",
+      "should_be": "Label it as a weighted average of holding-level volatility estimates, or calculate portfolio volatility with correlations/covariances. Refuse when no amount is earmarked.",
+      "rests_on": "Ordinary portfolio-risk mathematics; card’s own caveat.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "verdict": "RIGHT",
+      "why": "It carries the rate from benchmarkReturn and labels custom rates as estimates, including zero; fallback generic rate is explicitly identified as an estimate.",
+      "should_be": "",
+      "rests_on": "Card formula; DEC-3035j.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "verdict": "RIGHT",
+      "why": "The benchmark rate is weighted by each account’s retirement-earmarked amount and refuses when that total is zero. This follows the stated nest-egg definition.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2746c.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "verdict": "INCOMPLETE",
+      "why": "It counts kinds among non-property accounts with positive earmark and substitutes “other” for no kind, but does not specify how a property held in a retirement account or invalid earmark is treated.",
+      "should_be": "Use positive earmark and distinct normalized kind values; represent missing kind as other only as an explicit owner-approved fallback.",
+      "rests_on": "Card formula; tenet 3.",
+      "severity": "low"
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "verdict": "RIGHT",
+      "why": "The formula explicitly defines shares as 0 when the total is 0 and refuses an average return. It is an exceptional undefined-total state, not an arithmetic claim that shares sum to 100 in that case.",
+      "should_be": "",
+      "rests_on": "Ordinary arithmetic; tenet 3.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "verdict": "INCOMPLETE",
+      "why": "The formula creates “savings or portfolio” as taxable Stocks / Funds, which may misclassify a bank-savings answer as an investment. The source does not define whether that onboarding answer means cash savings or an investment portfolio.",
+      "should_be": "Use the user’s selected meaning: savings account → Cash; portfolio/holdings → Stocks / Funds. Ask if the source answer conflates them.",
+      "rests_on": "Owner rule DEC-0051; tenets 5 and 8.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "verdict": "INCOMPLETE",
+      "why": "The 401(k) cap and match arithmetic are specified, but the formula needs boundary tests for age as attained in the current year, the 60–63 catch-up tier, and whether employer match percentage is applied to the capped employee contribution or compensation. It also mixes a 401(k) elective limit with a Roth answer of unknown account type by design.",
+      "should_be": "Apply the published 2026 elective limit for age reached this year; cap employee 401(k) amount before computing percentage match as owner specifies; keep Roth amount as entered and exclude property savings.",
+      "rests_on": "Owner decisions DEC-2746e and DEC-3035k; 2026 IRS elective-deferral limits as stated in the brief. IRS official 2026 limits: https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "verdict": "RIGHT",
+      "why": "It delegates to assetsStateFrom and returns nothing for absent/empty saved accounts, consistent with the no-accounts rule.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2748i.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "verdict": "RIGHT",
+      "why": "It distinguishes Linked, Imported and By hand; it does not invent an age when no sync is recorded and adds an age only from a successful sync at four or more days.",
+      "should_be": "",
+      "rests_on": "Card formula; tenet 3.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "verdict": "INCOMPLETE",
+      "why": "The whole-month sentence logic is detailed, but the card does not specify what happens when the recorded history start is in the future or when the history start date is malformed. Also, “part month” uses days ÷ days in that month, but the sentence intentionally uses only whole months; test this split.",
+      "should_be": "Validate dates; never produce negative coverage for a future start; round down the numeric month measure and build the sentence only from whole months.",
+      "rests_on": "Owner decisions DEC-2746f and DEC-3035l.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "verdict": "RIGHT",
+      "why": "The three-way mapping is explicit and consistent with the described Net worth grouping.",
+      "should_be": "",
+      "rests_on": "Card formula.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "verdict": "INCOMPLETE",
+      "why": "The grouping and sum rules are clear, but a missing balance or an account with no usable class split can make group totals look complete despite missing information.",
+      "should_be": "Group the known class rows and totals, while propagating a missing-data indicator; for complete data the three groups must add to What you own.",
+      "rests_on": "Owner DEC-3146 and DEC-3279e.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-049",
+      "name": "itemizedTotal",
+      "verdict": "RIGHT",
+      "why": "It adds only entered values in exact decimals, leaves missing values out, and counts negative values; this is consistent with the stated purpose.",
+      "should_be": "",
+      "rests_on": "Card formula; DEC-2746g.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-050",
+      "name": "itemizeRemainder",
+      "verdict": "RIGHT",
+      "why": "Entered total minus exact sum of known itemized values is correct, including negative remainder when holdings exceed the entered amount.",
+      "should_be": "",
+      "rests_on": "Card formula; DEC-2746g.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-051",
+      "name": "itemizedResultTotal",
+      "verdict": "RIGHT",
+      "why": "The new total equals the entered total when itemized holdings do not exceed it and equals the holdings sum when they do, so itemizing cannot reduce the account total.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2746g.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-052",
+      "name": "buildItemizedAccounts",
+      "verdict": "INCOMPLETE",
+      "why": "The propagation rules are detailed and match owner decisions, but a listed holding with no value is still described as “balance = its value” without stating whether an account is created with missing balance or omitted. That affects total preservation and itemizeMissingCount.",
+      "should_be": "Create each holding account while preserving a missing value as missing; carry the original wrapper/source/retirement share; never invent bond face value/rate; create residual cash only for positive known remainder.",
+      "rests_on": "Owner decisions DEC-2746h and DEC-3035m; tenets 3 and 5.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-053",
+      "name": "correctClassOf",
+      "verdict": "WRONG",
+      "why": "Name evidence is applied before maturity date, and it does not explicitly preserve a user-confirmed class. This conflicts with the owner’s rule that any maturity-dated instrument is Bonds & CDs and that confirmed classes are never overwritten; it can also infer from property names, contrary to DEC-3035o.",
+      "should_be": "For unconfirmed accounts, apply maturity date before safe name evidence; exclude property names from name inference; preserve confirmed class.",
+      "rests_on": "Owner rules 9, DEC-2748h, DEC-3035o.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-054",
+      "name": "reclassifyAccounts",
+      "verdict": "WRONG",
+      "why": "Holding reclassification makes every non-cash name-evidenced holding without a bond name Stocks / Funds, and does not preserve a person-confirmed holding class or Unclassified when evidence is absent. This conflicts with DEC-2484r and DEC-3035f.",
+      "should_be": "Do not overwrite a person-confirmed class; only correct when clear current evidence and the owner’s precedence rules establish a class; otherwise keep Unclassified and ask.",
+      "rests_on": "Owner decisions DEC-2484r and DEC-3035f; tenets 3 and 5.",
+      "severity": "high"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-F-027",
+      "name": "accountClassBreakdown",
+      "kind": "easy",
+      "title": "Linked account splits cleanly",
+      "given": "Balance $1,000; cash $100; priced stocks $900.",
+      "inputs": {
+        "balance": 1000,
+        "cash": 100,
+        "holdings": [
+          {
+            "class": "Stocks / Funds",
+            "value": 900
+          }
+        ]
+      },
+      "expected": {
+        "Cash": 100,
+        "Stocks / Funds": 900,
+        "total": 1000
+      },
+      "working": [
+        "$100 + $900 = $1,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-027",
+      "name": "accountClassBreakdown",
+      "kind": "easy",
+      "title": "Small positive difference goes to cash",
+      "given": "Balance $1,000; holdings total $995; no unpriced holdings.",
+      "inputs": {
+        "balance": 1000,
+        "cash": 0,
+        "holdings_value": 995,
+        "unpriced_holdings": [],
+        "account_class": "Stocks / Funds"
+      },
+      "expected": {
+        "Cash": 5,
+        "Stocks / Funds": 995,
+        "total": 1000
+      },
+      "working": [
+        "Difference = 1,000 − 995 = $5.",
+        "Threshold = max($1, 1% of $1,000 = $10), so $5 is small; add it to cash."
+      ],
+      "rests_on": "Owner rule 2026-08-11.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-027",
+      "name": "accountClassBreakdown",
+      "kind": "complex",
+      "title": "Hand-built split weights remaining balance",
+      "given": "Hand-built account $10,000, cash $500, stock holding worth $4,000, T-bill worth $2,000; rest allocated by holding weights.",
+      "inputs": {
+        "balance": 10000,
+        "cash": 500,
+        "holdings": [
+          {
+            "class": "Stocks / Funds",
+            "value": 4000
+          },
+          {
+            "class": "Bonds & CDs",
+            "value": 2000
+          }
+        ]
+      },
+      "expected": {
+        "Cash": 500,
+        "Stocks / Funds": 6333.333333333333,
+        "Bonds & CDs": 3166.666666666667,
+        "total": 10000
+      },
+      "working": [
+        "Available for holdings after cash = 9,500.",
+        "Known holding weights total = 6,000; residual = 9,500 − 6,000 = 3,500.",
+        "Stock weight 2/3 gets 2,333.333333…; bond weight 1/3 gets 1,166.666667….",
+        "Final stocks = 4,000 + 2,333.333333…; bonds = 2,000 + 1,166.666667…."
+      ],
+      "rests_on": "Card formula; DEC-3035d.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-027",
+      "name": "accountClassBreakdown",
+      "kind": "complex",
+      "title": "Unpriced holdings sharing one class absorb residual",
+      "given": "Linked account balance $20,000; cash $1,000; priced stocks $8,000; two unpriced stock holdings.",
+      "inputs": {
+        "balance": 20000,
+        "cash": 1000,
+        "priced_holdings": [
+          {
+            "class": "Stocks / Funds",
+            "value": 8000
+          }
+        ],
+        "unpriced_holdings": [
+          {
+            "class": "Stocks / Funds"
+          },
+          {
+            "class": "Stocks / Funds"
+          }
+        ]
+      },
+      "expected": {
+        "Cash": 1000,
+        "Stocks / Funds": 19000,
+        "total": 20000
+      },
+      "working": [
+        "Known parts = 1,000 + 8,000 = 9,000.",
+        "Difference = 20,000 − 9,000 = 11,000.",
+        "All unpriced holdings share Stocks / Funds, so residual belongs to that class, not cash."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-027",
+      "name": "accountClassBreakdown",
+      "kind": "edge",
+      "title": "Negative balance with positive cash field",
+      "given": "Hand-built account balance −$100 and recorded cash $50.",
+      "inputs": {
+        "balance": -100,
+        "cash": 50,
+        "holdings": []
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — “cash above zero, never more than balance” cannot be satisfied when balance is negative; refuse/flag invalid breakdown rather than inventing a sum"
+      },
+      "working": [
+        "Cash cannot be both above zero and no more than −100.",
+        "The formula does not specify this contradictory input."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "Requires explicit behavior for overdraft/negative balance.",
+      "formula_gives": "No valid split can satisfy “cash above zero” and “cash no more than −$100”; invalid-state behavior is unspecified."
+    },
+    {
+      "id": "MK-NW-F-028",
+      "name": "classPortionLabel",
+      "kind": "easy",
+      "title": "Single CD label",
+      "given": "One holding named “Brokered CD 2028”.",
+      "inputs": {
+        "class": "Bonds & CDs",
+        "holdings": [
+          "Brokered CD 2028"
+        ]
+      },
+      "expected": {
+        "label": "1 CD in this account"
+      },
+      "working": [
+        "One whole-word CD match → singular “1 CD”."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-028",
+      "name": "classPortionLabel",
+      "kind": "easy",
+      "title": "No stock holdings label",
+      "given": "No stock/fund holdings in the class.",
+      "inputs": {
+        "class": "Stocks / Funds",
+        "holdings": []
+      },
+      "expected": {
+        "label": "stocks & funds in this account"
+      },
+      "working": [
+        "Zero holdings uses the generic class phrase."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-028",
+      "name": "classPortionLabel",
+      "kind": "complex",
+      "title": "Treasury broker wording pluralizes",
+      "given": "Holdings “UST 4.25% 2031”, “T-bill 2027”, and “Corporate 5% 2030”.",
+      "inputs": {
+        "class": "Bonds & CDs",
+        "holdings": [
+          "UST 4.25% 2031",
+          "T-bill 2027",
+          "Corporate 5% 2030"
+        ]
+      },
+      "expected": {
+        "label": "2 Treasuries & 1 bond in this account"
+      },
+      "working": [
+        "UST and T-bill are Treasury tokens → 2 Treasuries.",
+        "Corporate bond is the remaining bond → 1 bond.",
+        "Join two parts with &."
+      ],
+      "rests_on": "Owner decision DEC-3035g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-028",
+      "name": "classPortionLabel",
+      "kind": "complex",
+      "title": "Government word may overstate Treasury classification",
+      "given": "Holdings “US Government Agency 2032” and “Municipal bond 2030”.",
+      "inputs": {
+        "class": "Bonds & CDs",
+        "holdings": [
+          "US Government Agency 2032",
+          "Municipal bond 2030"
+        ]
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — if “government” is an approved Treasury synonym, label 1 Treasury & 1 bond; if not, label 2 bonds; owner-approved broker tokens do not clearly establish the broader synonym"
+      },
+      "working": [
+        "Formula’s “government” token gives a Treasury label to the agency bond.",
+        "DEC-3035g names TREAS, UST, T-bond and broker T-bill wording, not all government securities."
+      ],
+      "rests_on": "Owner decision DEC-3035g.",
+      "confidence": "medium",
+      "notes": "Likely overbroad synonym; owner should decide whether “government” is intentionally included.",
+      "formula_gives": "1 Treasury & 1 bond in this account"
+    },
+    {
+      "id": "MK-NW-F-028",
+      "name": "classPortionLabel",
+      "kind": "edge",
+      "title": "Zero alternatives holdings use generic label",
+      "given": "No alternatives holdings or options.",
+      "inputs": {
+        "class": "Alternatives",
+        "holdings": [],
+        "options": []
+      },
+      "expected": {
+        "label": "alternatives in this account"
+      },
+      "working": [
+        "No counts are positive; use generic alternatives phrase."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-029",
+      "name": "assetAllocation",
+      "kind": "easy",
+      "title": "One cash account allocation",
+      "given": "Checking $1,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Cash",
+            "balance": 1000
+          }
+        ]
+      },
+      "expected": {
+        "Cash": 1000,
+        "Stocks / Funds": 0,
+        "Bonds & CDs": 0,
+        "Alternatives": 0,
+        "Real estate": 0,
+        "Personal property": 0,
+        "Unclassified": 0,
+        "total": 1000
+      },
+      "working": [
+        "Only Cash contributes $1,000; seven classes sum to $1,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-029",
+      "name": "assetAllocation",
+      "kind": "easy",
+      "title": "One unclassified account stays unclassified",
+      "given": "Unknown holding $500.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Unclassified",
+            "balance": 500
+          }
+        ]
+      },
+      "expected": {
+        "Unclassified": 500,
+        "total": 500
+      },
+      "working": [
+        "Unclassified remains its own class; do not guess Stocks / Funds."
+      ],
+      "rests_on": "Owner decision DEC-3035f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-029",
+      "name": "assetAllocation",
+      "kind": "complex",
+      "title": "Split account classes sum to total",
+      "given": "Brokerage $20,000: $500 cash, $12,000 stocks, $5,000 bonds, $2,500 alternatives.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 20000,
+            "class_breakdown": {
+              "Cash": 500,
+              "Stocks / Funds": 12000,
+              "Bonds & CDs": 5000,
+              "Alternatives": 2500
+            }
+          }
+        ]
+      },
+      "expected": {
+        "Cash": 500,
+        "Stocks / Funds": 12000,
+        "Bonds & CDs": 5000,
+        "Alternatives": 2500,
+        "total": 20000
+      },
+      "working": [
+        "500 + 12,000 + 5,000 + 2,500 = 20,000."
+      ],
+      "rests_on": "Owner decision DEC-3146.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-029",
+      "name": "assetAllocation",
+      "kind": "complex",
+      "title": "Property and personal property group remain separate classes",
+      "given": "Home $350,000, car $18,000, gold $6,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Real estate",
+            "balance": 350000
+          },
+          {
+            "class": "Personal property",
+            "balance": 18000
+          },
+          {
+            "class": "Alternatives",
+            "balance": 6000
+          }
+        ]
+      },
+      "expected": {
+        "Real estate": 350000,
+        "Personal property": 18000,
+        "Alternatives": 6000,
+        "total": 374000
+      },
+      "working": [
+        "350,000 + 18,000 + 6,000 = 374,000.",
+        "Real estate and Personal property are separate asset classes even if later grouped together on screen."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-029",
+      "name": "assetAllocation",
+      "kind": "edge",
+      "title": "Missing split cannot certify complete total",
+      "given": "Brokerage account has no value and no breakdown.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": null,
+            "class_breakdown": null,
+            "class": "Stocks / Funds"
+          }
+        ]
+      },
+      "expected": {
+        "result": "REFUSES — allocation total is incomplete; identify account with missing value"
+      },
+      "working": [
+        "Unknown balance is not a known zero."
+      ],
+      "rests_on": "Owner decision DEC-3279e.",
+      "confidence": "medium",
+      "notes": "The formula does not describe how the missing-data warning propagates.",
+      "formula_gives": "Known class totals returned without a visible missing-value warning."
+    },
+    {
+      "id": "MK-NW-F-030",
+      "name": "earmarkDefault",
+      "kind": "easy",
+      "title": "Marked home gets zero retirement share",
+      "given": "The identified home is worth $400,000.",
+      "inputs": {
+        "account_class": "Real estate",
+        "property_id": "home-1",
+        "primary_home_id": "home-1",
+        "saved_share": null
+      },
+      "expected": {
+        "share": 0
+      },
+      "working": [
+        "The home lived in has default 0%."
+      ],
+      "rests_on": "Owner decision DEC-0100.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-030",
+      "name": "earmarkDefault",
+      "kind": "easy",
+      "title": "Rental defaults fully earmarked",
+      "given": "Rental property worth $250,000; rent entry identifies it; not primary home.",
+      "inputs": {
+        "account_class": "Real estate",
+        "property_id": "rental-1",
+        "rent_entry_names_it": true,
+        "primary_home_id": "home-1",
+        "saved_share": null
+      },
+      "expected": {
+        "share": 1
+      },
+      "working": [
+        "Rental is everything else and defaults to 100%."
+      ],
+      "rests_on": "Owner decision DEC-0100 / DEC-1926.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-030",
+      "name": "earmarkDefault",
+      "kind": "complex",
+      "title": "Primary car excluded but second car included",
+      "given": "Vehicle A $30,000 and vehicle B $12,000; A is primaryCarIdOf.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "kind": "vehicle",
+            "balance": 30000
+          },
+          {
+            "id": "B",
+            "kind": "vehicle",
+            "balance": 12000
+          }
+        ],
+        "primary_car_id": "A"
+      },
+      "expected": {
+        "A_share": 0,
+        "B_share": 1
+      },
+      "working": [
+        "Largest vehicle A is the car driven → 0%.",
+        "Second vehicle B → 100%."
+      ],
+      "rests_on": "Owner decision DEC-2746b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-030",
+      "name": "earmarkDefault",
+      "kind": "complex",
+      "title": "First property default home versus “told nothing”",
+      "given": "Two properties with no stated use, no marked home, first-entered property A.",
+      "inputs": {
+        "properties": [
+          {
+            "id": "A",
+            "balance": 300000
+          },
+          {
+            "id": "B",
+            "balance": 200000
+          }
+        ],
+        "primary_home_id": null,
+        "use_info": "not provided"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — if home identity was resolved, A is the home and gets 0%; if caller truly did not supply home context, formula says a property with no use stated gets 0% anyway, which could also exclude B"
+      },
+      "working": [
+        "DEC-2747e says the first property is home when none marked and no use stated.",
+        "The “told nothing” branch also assigns 0% to any property with no use stated, so this formula may exclude multiple properties."
+      ],
+      "rests_on": "Owner decisions DEC-2747e and DEC-3035p.",
+      "confidence": "medium",
+      "notes": "This exposes the missing distinction between unresolved input and a resolved no-home state.",
+      "formula_gives": "Potentially assigns 0% to more than one property when home identity is not supplied."
+    },
+    {
+      "id": "MK-NW-F-030",
+      "name": "earmarkDefault",
+      "kind": "edge",
+      "title": "Saved share outside range",
+      "given": "Account has a saved retirement share of 130%.",
+      "inputs": {
+        "balance": 10000,
+        "saved_share": 1.3
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — clamp to 100%, reject invalid value, or ignore saved share; formula does not say"
+      },
+      "working": [
+        "The formula says share is held between 0% and 100% but gives no out-of-range policy."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "Invalid persisted data behavior must be explicit."
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "easy",
+      "title": "Most valuable vehicle chosen",
+      "given": "Vehicle A $20,000, vehicle B $10,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "kind": "vehicle",
+            "balance": 20000
+          },
+          {
+            "id": "B",
+            "kind": "vehicle",
+            "balance": 10000
+          }
+        ]
+      },
+      "expected": {
+        "primary_car_id": "A"
+      },
+      "working": [
+        "A has largest vehicle balance."
+      ],
+      "rests_on": "Owner decision DEC-2746b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "easy",
+      "title": "No vehicle returns null",
+      "given": "Only jewellery and real estate.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "J",
+            "kind": "personal_property",
+            "balance": 30000
+          }
+        ]
+      },
+      "expected": {
+        "primary_car_id": null
+      },
+      "working": [
+        "Only kind vehicle is eligible; none exists."
+      ],
+      "rests_on": "Owner decision DEC-2746b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "complex",
+      "title": "Tie uses ID text order",
+      "given": "Vehicle IDs “2” and “10” each $12,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "2",
+            "kind": "vehicle",
+            "balance": 12000
+          },
+          {
+            "id": "10",
+            "kind": "vehicle",
+            "balance": 12000
+          }
+        ]
+      },
+      "expected": {
+        "primary_car_id": "10"
+      },
+      "working": [
+        "IDs are compared as text: “10” sorts before “2”.",
+        "Tie winner is ID “10”."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "complex",
+      "title": "Valuables never count as car",
+      "given": "Jewellery $80,000; vehicle $28,000; boat listed as personal property $50,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "J",
+            "kind": "jewellery",
+            "balance": 80000
+          },
+          {
+            "id": "V",
+            "kind": "vehicle",
+            "balance": 28000
+          },
+          {
+            "id": "B",
+            "kind": "boat",
+            "balance": 50000
+          }
+        ]
+      },
+      "expected": {
+        "primary_car_id": "V"
+      },
+      "working": [
+        "Only vehicle-kind accounts are eligible.",
+        "Jewellery and boat are ignored even though more valuable."
+      ],
+      "rests_on": "Owner decision DEC-2746b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "edge",
+      "title": "Missing balance among vehicles",
+      "given": "Vehicle A has no balance; Vehicle B has known $8,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "kind": "vehicle",
+            "balance": null
+          },
+          {
+            "id": "B",
+            "kind": "vehicle",
+            "balance": 8000
+          }
+        ]
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — known-value-only reading picks B; unknown A could be more valuable, so a definitive primary car should not be claimed without resolving A"
+      },
+      "working": [
+        "A’s missing value prevents comparison.",
+        "Formula does not state how unknown vehicle values rank."
+      ],
+      "rests_on": "Tenet 3.",
+      "confidence": "medium",
+      "notes": "Unknown balance handling is unspecified."
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "easy",
+      "title": "Saved 50% share",
+      "given": "Balance $10,000, saved share 50%.",
+      "inputs": {
+        "balance": 10000,
+        "saved_share": 0.5
+      },
+      "expected": {
+        "exact": 5000,
+        "shown": "$5,000"
+      },
+      "working": [
+        "10,000 × 0.50 = 5,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "easy",
+      "title": "Default 100% share",
+      "given": "Balance $7,500, no saved share, default 100%.",
+      "inputs": {
+        "balance": 7500,
+        "saved_share": null,
+        "default_share": 1
+      },
+      "expected": {
+        "exact": 7500,
+        "shown": "$7,500"
+      },
+      "working": [
+        "7,500 × 1 = 7,500."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "complex",
+      "title": "Mixed household earmarks",
+      "given": "401(k) $87,654.32 at 100%; home $420,000 at 0%; rental $185,500 at 100%; brokerage $32,111.11 saved at 35%.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 87654.32,
+            "share": 1
+          },
+          {
+            "balance": 420000,
+            "share": 0
+          },
+          {
+            "balance": 185500,
+            "share": 1
+          },
+          {
+            "balance": 32111.11,
+            "share": 0.35
+          }
+        ]
+      },
+      "expected": {
+        "amounts": [
+          87654.32,
+          0,
+          185500,
+          11238.8885
+        ],
+        "total": 284393.2085
+      },
+      "working": [
+        "401(k): 87,654.32.",
+        "Home: 420,000 × 0 = 0.",
+        "Rental: 185,500.",
+        "Brokerage: 32,111.11 × 0.35 = 11,238.8885.",
+        "Total = 284,393.2085."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "complex",
+      "title": "Property default depends on resolved home identity",
+      "given": "Two properties no use stated, A entered first; B balance $200,000.",
+      "inputs": {
+        "balance": 200000,
+        "property_id": "B",
+        "saved_share": null,
+        "primary_home_id": "A",
+        "use": "second home"
+      },
+      "expected": {
+        "exact": 200000,
+        "shown": "$200,000"
+      },
+      "working": [
+        "B is not the home; second home defaults to 100%."
+      ],
+      "rests_on": "Owner decision DEC-2747e.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "edge",
+      "title": "Out-of-range share",
+      "given": "Balance $5,000 and saved share −10%.",
+      "inputs": {
+        "balance": 5000,
+        "saved_share": -0.1
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — must validate/clamp/reject; formula does not define invalid stored percentages"
+      },
+      "working": [
+        "A negative share would yield −$500, contrary to stated 0–100% range."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "Needs explicit handling of corrupt or legacy persisted values.",
+      "formula_gives": "Would multiply by the saved invalid share unless a separate clamp/validation exists."
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "easy",
+      "title": "Two earmarked accounts sum",
+      "given": "Account A earmarked $4,000; B $6,000.",
+      "inputs": {
+        "earmarked_amounts": [
+          4000,
+          6000
+        ]
+      },
+      "expected": {
+        "exact": 10000,
+        "shown": "$10,000"
+      },
+      "working": [
+        "4,000 + 6,000 = 10,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "easy",
+      "title": "Home excluded from nest egg",
+      "given": "Home $300,000 share 0%; retirement account $25,000 share 100%.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 300000,
+            "share": 0
+          },
+          {
+            "balance": 25000,
+            "share": 1
+          }
+        ]
+      },
+      "expected": {
+        "exact": 25000,
+        "shown": "$25,000"
+      },
+      "working": [
+        "Home contributes 0; retirement account contributes 25,000."
+      ],
+      "rests_on": "Owner decision DEC-0100.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "complex",
+      "title": "Multiple account types and home/car exclusion",
+      "given": "401(k) $124,567.89 at 100%; car $22,000 at 0%; home $350,000 at 0%; rental $178,900 at 100%; Roth $65,432.10 at 75%.",
+      "inputs": {
+        "earmarked_amounts": [
+          124567.89,
+          0,
+          0,
+          178900,
+          49074.075
+        ]
+      },
+      "expected": {
+        "exact": 352541.965,
+        "shown": "$352,542"
+      },
+      "working": [
+        "Roth = 65,432.10 × 0.75 = 49,074.075.",
+        "Total = 124,567.89 + 178,900 + 49,074.075 = 352,541.965."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "complex",
+      "title": "Use same home/car identity as defaults",
+      "given": "The same property and vehicle IDs are passed to each account earmark calculation.",
+      "inputs": {
+        "home_id": "H1",
+        "car_id": "V1",
+        "accounts": [
+          {
+            "id": "H1",
+            "balance": 250000
+          },
+          {
+            "id": "H2",
+            "balance": 150000
+          },
+          {
+            "id": "V1",
+            "balance": 20000
+          },
+          {
+            "id": "V2",
+            "balance": 9000
+          }
+        ]
+      },
+      "expected": {
+        "earmarked": [
+          0,
+          150000,
+          0,
+          9000
+        ],
+        "total": 159000
+      },
+      "working": [
+        "H1 is home → 0; H2 second home → 100%.",
+        "V1 is primary car → 0; V2 second vehicle → 100%.",
+        "Total = 150,000 + 9,000 = 159,000."
+      ],
+      "rests_on": "Owner decisions DEC-2747e and DEC-2746b.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "edge",
+      "title": "Missing balance makes nest egg incomplete",
+      "given": "A retirement account has missing balance; other account earmarked $10,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": null,
+            "share": 1,
+            "name": "Linked 401(k)"
+          },
+          {
+            "balance": 10000,
+            "share": 1
+          }
+        ]
+      },
+      "expected": {
+        "known_subtotal": 10000,
+        "warning": "Incomplete — Linked 401(k) has no value"
+      },
+      "working": [
+        "Known subtotal = $10,000; missing account is not $0."
+      ],
+      "rests_on": "Owner decision DEC-3279e.",
+      "confidence": "medium",
+      "notes": "Formula does not describe missing balance propagation.",
+      "formula_gives": "Known earmarked subtotal with no explicit incomplete marker."
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "easy",
+      "title": "Owner override zero is still set",
+      "given": "Savings benchmark default 2.4%; owner sets 0%.",
+      "inputs": {
+        "kind": "savings",
+        "owner_rate": 0,
+        "default_rate": 0.024
+      },
+      "expected": {
+        "rate": 0,
+        "source": "owner override"
+      },
+      "working": [
+        "An explicit zero is a set value; do not fall back to 2.4%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "easy",
+      "title": "Known kind uses stated default",
+      "given": "Checking with no owner override.",
+      "inputs": {
+        "kind": "checking",
+        "owner_rate": null
+      },
+      "expected": {
+        "rate": 0.005
+      },
+      "working": [
+        "Checking default = 0.5% = 0.005."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "complex",
+      "title": "Exact kind match matters",
+      "given": "Kind is “Roth IRA”; no override.",
+      "inputs": {
+        "kind": "Roth IRA",
+        "owner_rate": null
+      },
+      "expected": {
+        "rate": 0.079
+      },
+      "working": [
+        "Roth IRA is in the listed 7.9% set."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "complex",
+      "title": "Unknown kind uses generic estimate",
+      "given": "Kind “rare asset” has no benchmark record or override.",
+      "inputs": {
+        "kind": "rare asset",
+        "owner_rate": null
+      },
+      "expected": {
+        "rate": 0.06,
+        "label": "Generic blended estimate"
+      },
+      "working": [
+        "Formula’s unknown-kind fallback is 6%.",
+        "It must be identified as generic estimate, not a measured return."
+      ],
+      "rests_on": "Tenets 3 and 7.",
+      "confidence": "medium",
+      "notes": "Numeric fallback is explicit; disclosure should be checked."
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "edge",
+      "title": "Missing kind gets generic estimate or refusal?",
+      "given": "Kind missing, no override.",
+      "inputs": {
+        "kind": null,
+        "owner_rate": null
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula says 6% for unknown or missing; must label generic estimate and not present as known asset-specific benchmark"
+      },
+      "working": [
+        "The formula applies 6% to missing kind, which is a guess rather than a measured rate."
+      ],
+      "rests_on": "Tenet 3.",
+      "confidence": "medium",
+      "notes": "Missing kind must not be mistaken for an identified benchmark."
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "easy",
+      "title": "Single holding volatility",
+      "given": "One $10,000 earmarked holding with volatility 20%.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 10000,
+            "volatility": 0.2
+          }
+        ]
+      },
+      "expected": {
+        "weighted_average": 0.2,
+        "shown": "20.00%"
+      },
+      "working": [
+        "Only one holding: weighted average = 20%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "easy",
+      "title": "No earmarked money refuses",
+      "given": "No accounts have positive earmarked amount.",
+      "inputs": {
+        "holdings": []
+      },
+      "expected": "REFUSES — no volatility figure when nothing is earmarked",
+      "working": [
+        "Denominator is zero."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "complex",
+      "title": "Weighted holding volatilities",
+      "given": "$20,000 at 15%; $10,000 at 30%.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 20000,
+            "volatility": 0.15
+          },
+          {
+            "earmarked": 10000,
+            "volatility": 0.3
+          }
+        ]
+      },
+      "expected": {
+        "weighted_average": 0.2,
+        "shown": "20.00%"
+      },
+      "working": [
+        "(20,000×0.15 + 10,000×0.30) / 30,000 = (3,000+3,000)/30,000 = 20%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "complex",
+      "title": "Weighted average is not true portfolio volatility",
+      "given": "Two equally weighted assets each have 20% volatility and are perfectly negatively correlated.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 50000,
+            "volatility": 0.2
+          },
+          {
+            "earmarked": 50000,
+            "volatility": 0.2
+          }
+        ],
+        "correlation": -1
+      },
+      "expected": {
+        "portfolio_volatility": 0.0,
+        "verdict": "INCOMPLETE — weighted average is not combined portfolio volatility"
+      },
+      "working": [
+        "Formula = (50,000×20% + 50,000×20%) / 100,000 = 20%.",
+        "With equal perfectly negatively correlated identical-risk holdings, true combined volatility can be 0%."
+      ],
+      "rests_on": "Portfolio-risk mathematics; card caveat.",
+      "confidence": "high",
+      "notes": "The output must be named as weighted average volatility, not portfolio volatility.",
+      "formula_gives": {
+        "weighted_average_volatility": 0.2
+      }
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "edge",
+      "title": "Missing per-kind volatility fallback",
+      "given": "One $2,000 holding has no owner or kind volatility.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 2000,
+            "volatility": null,
+            "kind_rate": null
+          }
+        ]
+      },
+      "expected": {
+        "weighted_average": 0.12,
+        "shown": "12.00%"
+      },
+      "working": [
+        "Fallback volatility = 12%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written."
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "easy",
+      "title": "Custom zero is labelled estimate",
+      "given": "Owner set rate 0%.",
+      "inputs": {
+        "kind": "stocks",
+        "owner_rate": 0,
+        "benchmark_record": {
+          "source": "Index",
+          "period": "10 years",
+          "estimate": false
+        }
+      },
+      "expected": {
+        "rate": 0,
+        "source": "Your custom estimate",
+        "period": "",
+        "estimate": true
+      },
+      "working": [
+        "Zero counts as a custom rate.",
+        "Custom rate source and estimate flag override benchmark record."
+      ],
+      "rests_on": "Owner decision DEC-3035j.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "easy",
+      "title": "Measured record source passes through",
+      "given": "No override; record says source “US Aggregate Bond Index”, period “10 years”, estimate false.",
+      "inputs": {
+        "kind": "fixed income",
+        "owner_rate": null,
+        "benchmark_record": {
+          "rate": 0.042,
+          "source": "US Aggregate Bond Index",
+          "period": "10 years",
+          "estimate": false
+        }
+      },
+      "expected": {
+        "rate": 0.042,
+        "source": "US Aggregate Bond Index",
+        "period": "10 years",
+        "estimate": false
+      },
+      "working": [
+        "No override; use record rate and metadata."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "complex",
+      "title": "Custom nonzero hides benchmark period",
+      "given": "Owner sets 8.25%; recorded benchmark is 10.4% over 30 years.",
+      "inputs": {
+        "owner_rate": 0.0825,
+        "benchmark_record": {
+          "rate": 0.104,
+          "source": "Index",
+          "period": "30 years",
+          "estimate": false
+        }
+      },
+      "expected": {
+        "rate": 0.0825,
+        "source": "Your custom estimate",
+        "period": "",
+        "estimate": true
+      },
+      "working": [
+        "Owner override wins.",
+        "Custom source, blank period, estimate=true."
+      ],
+      "rests_on": "Card formula; DEC-3035j.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "complex",
+      "title": "Unknown kind generic fallback disclosed",
+      "given": "No benchmark record or owner rate.",
+      "inputs": {
+        "owner_rate": null,
+        "benchmark_record": null
+      },
+      "expected": {
+        "rate": 0.06,
+        "source": "Generic blended estimate",
+        "period": "",
+        "estimate": true
+      },
+      "working": [
+        "Generic fallback is 6%, with blank period and estimate=true."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "edge",
+      "title": "Custom rate exactly zero must not be treated as absent",
+      "given": "Owner rate stored as numeric 0 and record says 8%.",
+      "inputs": {
+        "owner_rate": 0,
+        "benchmark_record": {
+          "rate": 0.08,
+          "source": "Index",
+          "period": "5 years",
+          "estimate": false
+        }
+      },
+      "expected": {
+        "rate": 0,
+        "source": "Your custom estimate",
+        "period": "",
+        "estimate": true
+      },
+      "working": [
+        "The zero value is set, so record fallback is not used."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "easy",
+      "title": "One earmarked holding",
+      "given": "$10,000 earmarked at 8%.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 10000,
+            "benchmark_return": 0.08
+          }
+        ]
+      },
+      "expected": {
+        "rate": 0.08,
+        "shown": "8.00%"
+      },
+      "working": [
+        "Weighted return = 10,000×8% / 10,000 = 8%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "easy",
+      "title": "Zero earmarked total refuses",
+      "given": "Only home has $300,000 and its share is 0%.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 0,
+            "benchmark_return": 0.045
+          }
+        ]
+      },
+      "expected": "REFUSES — no earmarked nest egg",
+      "working": [
+        "Total earmarked amount is zero."
+      ],
+      "rests_on": "Owner decision DEC-2746c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "complex",
+      "title": "Weighted return over nest egg",
+      "given": "401(k) $80,000 at 7.9%, brokerage $20,000 at 10.4%, home $400,000 at 0%.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 80000,
+            "benchmark_return": 0.079
+          },
+          {
+            "earmarked": 20000,
+            "benchmark_return": 0.104
+          },
+          {
+            "earmarked": 0,
+            "benchmark_return": 0.045
+          }
+        ]
+      },
+      "expected": {
+        "rate": 0.084,
+        "shown": "8.40%"
+      },
+      "working": [
+        "Weighted numerator = 80,000×.079 + 20,000×.104 = 6,320 + 2,080 = 8,400.",
+        "Total earmarked = 100,000.",
+        "Rate = 8,400 / 100,000 = 8.4%."
+      ],
+      "rests_on": "Owner decision DEC-2746c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "complex",
+      "title": "Rental counts fully, home does not",
+      "given": "Rental $225,000 at 4.5%; primary home $500,000 at 4.5%; retirement account $125,000 at 7.9%.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 225000,
+            "benchmark_return": 0.045
+          },
+          {
+            "earmarked": 0,
+            "benchmark_return": 0.045
+          },
+          {
+            "earmarked": 125000,
+            "benchmark_return": 0.079
+          }
+        ]
+      },
+      "expected": {
+        "rate": 0.05714285714285714,
+        "shown": "5.71%"
+      },
+      "working": [
+        "Numerator = 10,125 + 9,875 = 20,000.",
+        "Denominator = 225,000 + 125,000 = 350,000.",
+        "Rate = 20,000 / 350,000 = 5.7142857…%."
+      ],
+      "rests_on": "Owner decision DEC-0100.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "edge",
+      "title": "No held value but default rate exists",
+      "given": "All accounts have zero earmarked amount, even though benchmarks exist.",
+      "inputs": {
+        "holdings": [
+          {
+            "earmarked": 0,
+            "benchmark_return": 0.08
+          },
+          {
+            "earmarked": 0,
+            "benchmark_return": 0.06
+          }
+        ]
+      },
+      "expected": "REFUSES — no rate when earmarked total is zero",
+      "working": [
+        "Denominator = 0; do not substitute a default here."
+      ],
+      "rests_on": "Owner decision DEC-2746c.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "easy",
+      "title": "One investment kind",
+      "given": "One positive-earmarked brokerage account.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "brokerage",
+            "earmarked": 1000,
+            "is_property": false
+          }
+        ]
+      },
+      "expected": {
+        "kinds": [
+          "brokerage"
+        ]
+      },
+      "working": [
+        "One distinct kind with positive earmark."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "easy",
+      "title": "Zero earmark excluded",
+      "given": "One 529 with zero earmarked amount.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "529",
+            "earmarked": 0,
+            "is_property": false
+          }
+        ]
+      },
+      "expected": {
+        "kinds": []
+      },
+      "working": [
+        "Only positive earmarks count."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "complex",
+      "title": "Deduplicate kinds",
+      "given": "Two brokerage accounts and one crypto account, all positive earmark.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "brokerage",
+            "earmarked": 1000
+          },
+          {
+            "kind": "brokerage",
+            "earmarked": 2000
+          },
+          {
+            "kind": "crypto",
+            "earmarked": 500
+          }
+        ]
+      },
+      "expected": {
+        "kinds": [
+          "brokerage",
+          "crypto"
+        ]
+      },
+      "working": [
+        "Distinct set removes repeated brokerage; crypto remains."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "complex",
+      "title": "Missing kind becomes other",
+      "given": "Positive-earmarked account has no kind.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": null,
+            "earmarked": 1200,
+            "is_property": false
+          }
+        ]
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula explicitly maps missing kind to “other”; decide whether this is an approved fallback or should remain unknown"
+      },
+      "working": [
+        "No kind counts as other under the formula."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": "The expected result is the independent rule-based answer; formula_gives records the behavior implied by the card as written.",
+      "formula_gives": {
+        "kinds": [
+          "other"
+        ]
+      }
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "edge",
+      "title": "Property excluded even if earmark positive",
+      "given": "Property account has positive earmarked amount due corrupt saved data.",
+      "inputs": {
+        "accounts": [
+          {
+            "kind": "home",
+            "earmarked": 50000,
+            "is_property": true
+          }
+        ]
+      },
+      "expected": {
+        "kinds": []
+      },
+      "working": [
+        "Property accounts are excluded from kind set."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "easy",
+      "title": "Two positive balances",
+      "given": "Accounts $6,000 and $4,000, target rates 8% and 4%.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 6000,
+            "target_return": 0.08
+          },
+          {
+            "balance": 4000,
+            "target_return": 0.04
+          }
+        ]
+      },
+      "expected": {
+        "total": 10000,
+        "shares": [
+          60,
+          40
+        ],
+        "average_target_return": 0.064
+      },
+      "working": [
+        "Total = 10,000.",
+        "Shares = 60% and 40%.",
+        "Weighted return = .6×8% + .4×4% = 6.4%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "easy",
+      "title": "Zero total has no average return",
+      "given": "One $0 account.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 0,
+            "target_return": 0.07
+          }
+        ]
+      },
+      "expected": {
+        "total": 0,
+        "shares": [
+          0
+        ],
+        "average_target_return": "REFUSES"
+      },
+      "working": [
+        "Total is zero; average return has no denominator."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "complex",
+      "title": "Overdrawn account shares can be negative",
+      "given": "Assets $100,000 at 8%; overdrawn account −$20,000 at 0%.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 100000,
+            "target_return": 0.08
+          },
+          {
+            "balance": -20000,
+            "target_return": 0
+          }
+        ]
+      },
+      "expected": {
+        "total": 80000,
+        "shares": [
+          125,
+          -25
+        ],
+        "average_target_return": 0.1
+      },
+      "working": [
+        "Total = 80,000.",
+        "Shares = 100,000/80,000=125%; −20,000/80,000=−25%; sum = 100%.",
+        "Weighted target = (100,000×8% + −20,000×0%) / 80,000 = 10%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "complex",
+      "title": "Negative balance and target return",
+      "given": "Balances $15,234.56 at 7.9%, $4,765.44 at 10.4%, and −$2,000 at 0.5%.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 15234.56,
+            "target_return": 0.079
+          },
+          {
+            "balance": 4765.44,
+            "target_return": 0.104
+          },
+          {
+            "balance": -2000,
+            "target_return": 0.005
+          }
+        ]
+      },
+      "expected": {
+        "total": 18000,
+        "shares": [
+          84.6364444444,
+          26.4746666667,
+          -11.1111111111
+        ],
+        "average_target_return": 0.09384088888888889
+      },
+      "working": [
+        "Total = 15,234.56 + 4,765.44 − 2,000 = 18,000.",
+        "Weighted return numerator = 1,203.53024 + 495.60576 − 10 = 1,689.136.",
+        "Average target = 1,689.136 / 18,000 = 9.384088888…%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "edge",
+      "title": "All balances net to zero",
+      "given": "Accounts +$5,000 and −$5,000.",
+      "inputs": {
+        "accounts": [
+          {
+            "balance": 5000,
+            "target_return": 0.1
+          },
+          {
+            "balance": -5000,
+            "target_return": 0.1
+          }
+        ]
+      },
+      "expected": {
+        "total": 0,
+        "shares": [
+          0,
+          0
+        ],
+        "average_target_return": "REFUSES"
+      },
+      "working": [
+        "Total = 0; formula says shares are 0 when total is 0 and no average return."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "Zero shares sum to 0, not 100; that exception must be understood by consumers."
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "easy",
+      "title": "One retirement answer creates account",
+      "given": "Traditional retirement savings $20,000; all other answers blank.",
+      "inputs": {
+        "traditional_retirement_savings": 20000,
+        "roth_savings": null,
+        "investment_holdings": null,
+        "savings_or_portfolio": null
+      },
+      "expected": {
+        "accounts": [
+          {
+            "kind": "401(k)",
+            "tax_bucket": "pre-tax",
+            "balance": 20000,
+            "target_return": 0.07
+          }
+        ]
+      },
+      "working": [
+        "Only nonblank nonnegative answer creates an account."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "easy",
+      "title": "Typed zero is retained",
+      "given": "Roth retirement savings answer is $0.",
+      "inputs": {
+        "traditional_retirement_savings": null,
+        "roth_savings": 0,
+        "investment_holdings": null,
+        "savings_or_portfolio": null
+      },
+      "expected": {
+        "accounts": [
+          {
+            "kind": "Roth IRA",
+            "tax_bucket": "Roth",
+            "balance": 0,
+            "target_return": 0.07
+          }
+        ]
+      },
+      "working": [
+        "Zero is not blank or below zero; retain account."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "complex",
+      "title": "Four answers create four accounts",
+      "given": "Traditional $18,765.43; Roth $12,345.67; investment holdings $32,100.50; savings/portfolio $4,000.",
+      "inputs": {
+        "traditional_retirement_savings": 18765.43,
+        "roth_savings": 12345.67,
+        "investment_holdings": 32100.5,
+        "savings_or_portfolio": 4000
+      },
+      "expected": {
+        "account_count": 4,
+        "total": 67211.6,
+        "target_returns": [
+          0.07,
+          0.07,
+          0.07,
+          0.07
+        ]
+      },
+      "working": [
+        "18,765.43 + 12,345.67 + 32,100.50 + 4,000 = 67,211.60.",
+        "All created accounts target 7%."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "complex",
+      "title": "Negative answers skipped",
+      "given": "Traditional −$100, Roth $2,000, holdings blank, portfolio $1,500.",
+      "inputs": {
+        "traditional_retirement_savings": -100,
+        "roth_savings": 2000,
+        "investment_holdings": null,
+        "savings_or_portfolio": 1500
+      },
+      "expected": {
+        "account_count": 2,
+        "total": 3500
+      },
+      "working": [
+        "Traditional answer below zero is skipped.",
+        "Roth 2,000 + portfolio 1,500 = 3,500."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "edge",
+      "title": "Ambiguous “savings or portfolio” value",
+      "given": "The legacy onboarding answer is $8,000 but its wording does not reveal whether it is bank savings or investment portfolio.",
+      "inputs": {
+        "savings_or_portfolio": 8000,
+        "answer_meaning": "unknown"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula makes taxable Stocks / Funds; if it means bank savings it should be Cash, if investment portfolio it should be Stocks / Funds"
+      },
+      "working": [
+        "The source answer is ambiguous; the formula always makes Stocks / Funds."
+      ],
+      "rests_on": "Owner rule DEC-0051; tenets 5 and 8.",
+      "confidence": "high",
+      "notes": "Resolve by preserving user intent or asking, not by guessing.",
+      "formula_gives": "Creates taxable Stocks / Funds for either interpretation."
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "easy",
+      "title": "Under-50 401(k) contribution",
+      "given": "Age 40; monthly 401(k) contribution $1,000; no other answers.",
+      "inputs": {
+        "birth_year": 1986,
+        "year": 2026,
+        "401k_monthly": 1000,
+        "roth_monthly": null,
+        "investing_monthly": null,
+        "match_percent": null
+      },
+      "expected": {
+        "capped_401k_monthly": 1000,
+        "total_monthly": 1000
+      },
+      "working": [
+        "2026 under-50 annual limit = 24,500; monthly equivalent = 2,041.6667.",
+        "1,000 is below the limit, so retain it."
+      ],
+      "rests_on": "Card formula; 2026 limits as supplied. IRS official 2026 limits: https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "easy",
+      "title": "No contribution questions answered refuses",
+      "given": "All contribution answers blank.",
+      "inputs": {
+        "401k_monthly": null,
+        "roth_monthly": null,
+        "investing_monthly": null,
+        "match_percent": null,
+        "match_dollars": null
+      },
+      "expected": "REFUSES — none of the contribution questions was answered",
+      "working": [
+        "No input was answered."
+      ],
+      "rests_on": "Card formula. IRS official 2026 limits: https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "complex",
+      "title": "Age 62 higher catch-up tier and match",
+      "given": "Person turns 62 in 2026; monthly 401(k) $3,500; employer match 50%; Roth $300; investing $450.",
+      "inputs": {
+        "birth_year": 1964,
+        "year": 2026,
+        "401k_monthly": 3500,
+        "roth_monthly": 300,
+        "investing_monthly": 450,
+        "match_percent": 0.5
+      },
+      "expected": {
+        "limit_annual": 35750,
+        "limit_monthly": 2979.166666666667,
+        "capped_401k_monthly": 2979.166666666667,
+        "match_monthly": 1489.5833333333335,
+        "total_monthly": 5218.75
+      },
+      "working": [
+        "Age 62 falls in 60–63 tier: annual limit $35,750.",
+        "Monthly cap = 35,750/12 = 2,979.1666667.",
+        "Match = 50% × capped 401(k) = 1,489.5833333.",
+        "Total = 2,979.1666667 + 300 + 450 + 1,489.5833333 = 5,218.75."
+      ],
+      "rests_on": "Owner decision DEC-3035k; 2026 limits as supplied. IRS official 2026 limits: https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "complex",
+      "title": "Property saving excluded; fixed-dollar match included",
+      "given": "Age 48, 401(k) $2,500/month, employer match $250/month, property savings $800/month, Roth $100, investment $350.",
+      "inputs": {
+        "birth_year": 1978,
+        "year": 2026,
+        "401k_monthly": 2500,
+        "roth_monthly": 100,
+        "investing_monthly": 350,
+        "match_dollars": 250,
+        "property_saving_monthly": 800
+      },
+      "expected": {
+        "limit_annual": 24500,
+        "limit_monthly": 2041.666666666667,
+        "capped_401k_monthly": 2041.666666666667,
+        "total_monthly": 2741.666666666667
+      },
+      "working": [
+        "Age under 50 cap = 24,500/12 = 2,041.6666667.",
+        "Fixed-dollar match = $250.",
+        "Property saving $800 is excluded.",
+        "Total = 2,041.6666667 + 100 + 350 + 250 = 2,741.6666667."
+      ],
+      "rests_on": "Owner decision DEC-2746e. IRS official 2026 limits: https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "edge",
+      "title": "Age 60 exactly uses age-60–63 limit",
+      "given": "Person turns 60 during 2026; monthly 401(k) contribution $4,000.",
+      "inputs": {
+        "birth_year": 1966,
+        "year": 2026,
+        "401k_monthly": 4000,
+        "roth_monthly": null,
+        "investing_monthly": null,
+        "match_percent": null
+      },
+      "expected": {
+        "limit_annual": 35750,
+        "limit_monthly": 2979.166666666667,
+        "capped_401k_monthly": 2979.166666666667
+      },
+      "working": [
+        "Age attained this year is 60; 60–63 limit applies.",
+        "Cap monthly contribution at 35,750/12."
+      ],
+      "rests_on": "Owner decision DEC-2746e. IRS official 2026 limits: https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits",
+      "confidence": "high",
+      "notes": "Check birth-year-only age computation at the exact 60/63 boundaries.",
+      "formula_gives": "Uses 2026 $35,750 annual limit / 12; match is applied to the capped contribution."
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "easy",
+      "title": "Saved account returned",
+      "given": "One account is saved.",
+      "inputs": {
+        "saved_record": true,
+        "accounts": [
+          {
+            "balance": 1000
+          }
+        ]
+      },
+      "expected": {
+        "state": "buildAssetsState of one account"
+      },
+      "working": [
+        "Nonempty saved list is passed through."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "easy",
+      "title": "No saved record returns nothing",
+      "given": "No assets state has ever been saved.",
+      "inputs": {
+        "saved_record": false,
+        "accounts": null
+      },
+      "expected": "REFUSES — no saved asset state",
+      "working": [
+        "No record exists."
+      ],
+      "rests_on": "Owner decision DEC-2748i.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "complex",
+      "title": "Several saved accounts aggregate",
+      "given": "Checking $2,000, brokerage $8,000.",
+      "inputs": {
+        "saved_record": true,
+        "accounts": [
+          {
+            "balance": 2000
+          },
+          {
+            "balance": 8000
+          }
+        ]
+      },
+      "expected": {
+        "state_total": 10000
+      },
+      "working": [
+        "buildAssetsState receives both accounts; total = 2,000 + 8,000 = 10,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "complex",
+      "title": "Persisted record with empty list is not $0 state",
+      "given": "Saved record exists but its account list is empty after deletion.",
+      "inputs": {
+        "saved_record": true,
+        "accounts": []
+      },
+      "expected": "REFUSES — no state; show first-day screen, not $0 with blended return",
+      "working": [
+        "Empty saved list returns nothing."
+      ],
+      "rests_on": "Owner decision DEC-2748i.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "edge",
+      "title": "All saved accounts deleted",
+      "given": "Previously saved record now contains no accounts.",
+      "inputs": {
+        "saved_record": true,
+        "accounts": []
+      },
+      "expected": "REFUSES — first-day screen, not zero-valued assets state",
+      "working": [
+        "This is explicitly the owner’s empty/deleted state."
+      ],
+      "rests_on": "Owner decision DEC-2748i.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "easy",
+      "title": "Fresh linked account",
+      "given": "Linked account successfully synced two days ago.",
+      "inputs": {
+        "source": "linked",
+        "days_since_successful_sync": 2
+      },
+      "expected": {
+        "wording": "Linked"
+      },
+      "working": [
+        "2 < 4 days; no age suffix."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "easy",
+      "title": "Manual account wording",
+      "given": "Account is updated by hand.",
+      "inputs": {
+        "source": "manual"
+      },
+      "expected": {
+        "wording": "By hand · you update it"
+      },
+      "working": [
+        "All non-linked/imported sources use manual wording."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "complex",
+      "title": "Imported account stale at four days",
+      "given": "Imported account last successfully updated four days ago.",
+      "inputs": {
+        "source": "imported",
+        "days_since_successful_sync": 4
+      },
+      "expected": {
+        "wording": "Imported · 4 days old"
+      },
+      "working": [
+        "4 days meets the stale threshold."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "complex",
+      "title": "No successful sync timestamp",
+      "given": "Linked account has never had a successful sync; a failed attempt occurred yesterday.",
+      "inputs": {
+        "source": "linked",
+        "last_successful_sync": null,
+        "last_failed_sync": "yesterday"
+      },
+      "expected": {
+        "wording": "Linked · not updated yet"
+      },
+      "working": [
+        "Failed attempt is not the timestamp; no age is invented."
+      ],
+      "rests_on": "Card formula; tenet 3.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "edge",
+      "title": "Three days is not stale",
+      "given": "Linked account last successfully updated three days ago.",
+      "inputs": {
+        "source": "linked",
+        "days_since_successful_sync": 3
+      },
+      "expected": {
+        "wording": "Linked"
+      },
+      "working": [
+        "3 < 4; no stale suffix."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "easy",
+      "title": "Manual account has no activity history",
+      "given": "Account source is by hand.",
+      "inputs": {
+        "source": "manual",
+        "history_start": null,
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "wording": "No activity records are available for this account."
+      },
+      "working": [
+        "Manual account gets the no-activity-records sentence."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "easy",
+      "title": "History covers requested period",
+      "given": "History starts before the period’s first day.",
+      "inputs": {
+        "source": "linked",
+        "history_start": "2024-01-01",
+        "period_start": "2025-01-01",
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "wording": ""
+      },
+      "working": [
+        "History reaches back to before the requested period, so nothing to say."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "complex",
+      "title": "18 whole months plus part month is not rounded up",
+      "given": "History starts 2025-04-01; today 2026-10-09.",
+      "inputs": {
+        "source": "linked",
+        "history_start": "2025-04-01",
+        "period_start": "2026-01-01",
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "months_covered": 18.3,
+        "wording": "1 year and 6 months of history, starting Apr 1, 2025"
+      },
+      "working": [
+        "Apr 1, 2025 to Oct 1, 2026 = 18 whole months.",
+        "Oct 1 to Oct 9 is 8/31 = 0.258 months; numeric month coverage rounds down to one decimal, 18.2.",
+        "Oct 1 to Oct 9 is 8/31 = 0.258 months; numeric month coverage rounds to one decimal, 18.3."
+      ],
+      "rests_on": "Owner decisions DEC-2746f and DEC-3035l.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "complex",
+      "title": "One day short of year never rounds up",
+      "given": "History starts 2025-10-10; today 2026-10-09.",
+      "inputs": {
+        "source": "linked",
+        "history_start": "2025-10-10",
+        "period_start": "2026-01-01",
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "months_covered": 11.9,
+        "wording": "11 months of history, starting Oct 10, 2025"
+      },
+      "working": [
+        "One day short of 12 months; do not round to one year.",
+        "Whole months = 11; sentence says 11 months."
+      ],
+      "rests_on": "Owner decision DEC-3035l.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "edge",
+      "title": "Future history date",
+      "given": "History start date is after today.",
+      "inputs": {
+        "source": "linked",
+        "history_start": "2026-12-01",
+        "period_start": "2026-01-01",
+        "today": "2026-10-09"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — should reject invalid future history start or report no history; formula does not specify negative coverage behavior"
+      },
+      "working": [
+        "The start date is in the future.",
+        "Formula does not define this invalid record."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "medium",
+      "notes": "Future date validation is unspecified.",
+      "formula_gives": "Could produce a negative months-covered sentence; no future-date refusal stated."
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "easy",
+      "title": "Cash class maps to Cash group",
+      "given": "Asset class Cash.",
+      "inputs": {
+        "class": "Cash"
+      },
+      "expected": {
+        "group": "Cash"
+      },
+      "working": [
+        "Direct mapping."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "easy",
+      "title": "Real estate maps to Personal property group",
+      "given": "Asset class Real estate.",
+      "inputs": {
+        "class": "Real estate"
+      },
+      "expected": {
+        "group": "Personal property"
+      },
+      "working": [
+        "The third group explicitly contains Real estate and Personal property."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "complex",
+      "title": "All seven classes map correctly",
+      "given": "Cash, Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, Real estate, Personal property.",
+      "inputs": {
+        "classes": [
+          "Cash",
+          "Stocks / Funds",
+          "Bonds & CDs",
+          "Alternatives",
+          "Unclassified",
+          "Real estate",
+          "Personal property"
+        ]
+      },
+      "expected": {
+        "groups": [
+          "Cash",
+          "Investments",
+          "Investments",
+          "Investments",
+          "Investments",
+          "Personal property",
+          "Personal property"
+        ]
+      },
+      "working": [
+        "Cash → Cash.",
+        "Four investment classes → Investments.",
+        "Real estate and Personal property → Personal property group."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "complex",
+      "title": "Unknown class must not be assigned arbitrarily",
+      "given": "A malformed class value is supplied.",
+      "inputs": {
+        "class": "mystery"
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — no mapping for invalid class; refuse/flag instead of silently putting it in Investments"
+      },
+      "working": [
+        "Formula lists only seven known classes."
+      ],
+      "rests_on": "Tenet 3.",
+      "confidence": "medium",
+      "notes": "Invalid class handling is not stated."
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "edge",
+      "title": "Unclassified remains investment group",
+      "given": "Class Unclassified.",
+      "inputs": {
+        "class": "Unclassified"
+      },
+      "expected": {
+        "group": "Investments"
+      },
+      "working": [
+        "Unclassified is explicitly listed in Investments."
+      ],
+      "rests_on": "Owner decision DEC-3035f.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "kind": "easy",
+      "title": "Single group total",
+      "given": "Cash $1,000.",
+      "inputs": {
+        "class_rows": [
+          {
+            "class": "Cash",
+            "total": 1000
+          }
+        ]
+      },
+      "expected": {
+        "groups": [
+          {
+            "name": "Cash",
+            "total": 1000
+          }
+        ],
+        "grand_total": 1000
+      },
+      "working": [
+        "Cash group total = 1,000."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "kind": "easy",
+      "title": "Empty group omitted",
+      "given": "No Real estate or Personal property rows.",
+      "inputs": {
+        "class_rows": [
+          {
+            "class": "Cash",
+            "total": 500
+          }
+        ]
+      },
+      "expected": {
+        "groups": [
+          {
+            "name": "Cash",
+            "total": 500
+          }
+        ],
+        "no_empty_groups": true
+      },
+      "working": [
+        "Empty groups are left out."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "kind": "complex",
+      "title": "Groups sum to everything owned",
+      "given": "Cash $5,000; stocks $20,000; bonds $8,000; alternatives $2,000; unclassified $1,000; home $300,000; car $15,000.",
+      "inputs": {
+        "class_rows": [
+          {
+            "class": "Cash",
+            "total": 5000
+          },
+          {
+            "class": "Stocks / Funds",
+            "total": 20000
+          },
+          {
+            "class": "Bonds & CDs",
+            "total": 8000
+          },
+          {
+            "class": "Alternatives",
+            "total": 2000
+          },
+          {
+            "class": "Unclassified",
+            "total": 1000
+          },
+          {
+            "class": "Real estate",
+            "total": 300000
+          },
+          {
+            "class": "Personal property",
+            "total": 15000
+          }
+        ]
+      },
+      "expected": {
+        "groups": [
+          {
+            "name": "Cash",
+            "total": 5000
+          },
+          {
+            "name": "Investments",
+            "total": 31000
+          },
+          {
+            "name": "Personal property",
+            "total": 315000
+          }
+        ],
+        "grand_total": 351000
+      },
+      "working": [
+        "Investments = 20,000 + 8,000 + 2,000 + 1,000 = 31,000.",
+        "Personal property group = 300,000 + 15,000 = 315,000.",
+        "Grand total = 5,000 + 31,000 + 315,000 = 351,000."
+      ],
+      "rests_on": "Owner decision DEC-3146.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "kind": "complex",
+      "title": "Within-group class order preserved",
+      "given": "Stocks, Bonds, Alternatives, Unclassified input rows in that order.",
+      "inputs": {
+        "class_rows": [
+          {
+            "class": "Stocks / Funds",
+            "total": 20
+          },
+          {
+            "class": "Bonds & CDs",
+            "total": 30
+          },
+          {
+            "class": "Alternatives",
+            "total": 40
+          },
+          {
+            "class": "Unclassified",
+            "total": 10
+          }
+        ]
+      },
+      "expected": {
+        "group_order": [
+          "Stocks / Funds",
+          "Bonds & CDs",
+          "Alternatives",
+          "Unclassified"
+        ],
+        "total": 100
+      },
+      "working": [
+        "Preserve specified class order within Investments."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "kind": "edge",
+      "title": "Missing class amount makes group incomplete",
+      "given": "Investments group has $5,000 stocks and a bond account with missing value.",
+      "inputs": {
+        "class_rows": [
+          {
+            "class": "Stocks / Funds",
+            "total": 5000
+          },
+          {
+            "class": "Bonds & CDs",
+            "total": null,
+            "account": "Linked bond"
+          }
+        ]
+      },
+      "expected": {
+        "known_subtotal": 5000,
+        "warning": "Incomplete — Linked bond has no value"
+      },
+      "working": [
+        "Known subtotal is $5,000.",
+        "Missing bond value is not zero; do not present group as complete."
+      ],
+      "rests_on": "Owner decision DEC-3279e.",
+      "confidence": "medium",
+      "notes": "Missing-data propagation is not specified in this formula.",
+      "formula_gives": "Group totals sum known class amounts without explicit incompleteness signal."
+    },
+    {
+      "id": "MK-NW-F-049",
+      "name": "itemizedTotal",
+      "kind": "easy",
+      "title": "Two holding values sum",
+      "given": "Holdings $100 and $250.",
+      "inputs": {
+        "values": [
+          100,
+          250
+        ]
+      },
+      "expected": {
+        "exact": 350,
+        "shown": "$350"
+      },
+      "working": [
+        "100 + 250 = 350."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-049",
+      "name": "itemizedTotal",
+      "kind": "easy",
+      "title": "Missing value excluded",
+      "given": "Holdings $500 and one with no value.",
+      "inputs": {
+        "values": [
+          500,
+          null
+        ]
+      },
+      "expected": {
+        "exact": 500,
+        "missing_count": 1
+      },
+      "working": [
+        "Only entered values sum: $500.",
+        "Missing holding is not zero; count it separately."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-049",
+      "name": "itemizedTotal",
+      "kind": "complex",
+      "title": "Decimals and negative value",
+      "given": "Holdings $1,234.56, −$12.34, $98.765.",
+      "inputs": {
+        "values": [
+          1234.56,
+          -12.34,
+          98.765
+        ]
+      },
+      "expected": {
+        "exact": 1320.985,
+        "shown": "$1,320.99"
+      },
+      "working": [
+        "1,234.56 − 12.34 + 98.765 = 1,320.985.",
+        "Do not round each item before adding."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-049",
+      "name": "itemizedTotal",
+      "kind": "complex",
+      "title": "Missing and zero values differ",
+      "given": "One holding is explicitly $0; another has no numeric value; one is $75.25.",
+      "inputs": {
+        "values": [
+          0,
+          null,
+          75.25
+        ]
+      },
+      "expected": {
+        "exact": 75.25,
+        "missing_count": 1
+      },
+      "working": [
+        "Known values = 0 + 75.25 = 75.25.",
+        "Missing value increments missing count, not total."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-049",
+      "name": "itemizedTotal",
+      "kind": "edge",
+      "title": "No holdings",
+      "given": "No holdings listed.",
+      "inputs": {
+        "values": []
+      },
+      "expected": {
+        "exact": 0,
+        "missing_count": 0
+      },
+      "working": [
+        "Sum of empty known list = 0."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-050",
+      "name": "itemizeRemainder",
+      "kind": "easy",
+      "title": "Positive remainder",
+      "given": "Account $1,000, itemized $700.",
+      "inputs": {
+        "account_total": 1000,
+        "itemized_values": [
+          700
+        ]
+      },
+      "expected": {
+        "exact": 300,
+        "shown": "$300"
+      },
+      "working": [
+        "Itemized total = 700.",
+        "Remainder = 1,000 − 700 = 300."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-050",
+      "name": "itemizeRemainder",
+      "kind": "easy",
+      "title": "Negative remainder",
+      "given": "Account $1,000, itemized $1,200.",
+      "inputs": {
+        "account_total": 1000,
+        "itemized_values": [
+          1200
+        ]
+      },
+      "expected": {
+        "exact": -200,
+        "shown": "−$200"
+      },
+      "working": [
+        "Remainder = 1,000 − 1,200 = −200."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-050",
+      "name": "itemizeRemainder",
+      "kind": "complex",
+      "title": "Unround itemized amounts",
+      "given": "Account $18,765.43; holdings $7,654.32, $4,321.09, $1,234.56.",
+      "inputs": {
+        "account_total": 18765.43,
+        "itemized_values": [
+          7654.32,
+          4321.09,
+          1234.56
+        ]
+      },
+      "expected": {
+        "itemized_total": 13209.97,
+        "remainder": 5555.46
+      },
+      "working": [
+        "Itemized = 7,654.32 + 4,321.09 + 1,234.56 = 13,209.97.",
+        "Remainder = 18,765.43 − 13,209.97 = 5,555.46."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-050",
+      "name": "itemizeRemainder",
+      "kind": "complex",
+      "title": "Exact cent equality is zero",
+      "given": "Account $100.00; holdings $33.33, $66.67.",
+      "inputs": {
+        "account_total": 100.0,
+        "itemized_values": [
+          33.33,
+          66.67
+        ]
+      },
+      "expected": {
+        "exact": 0,
+        "shown": "$0.00"
+      },
+      "working": [
+        "33.33 + 66.67 = 100.00 exactly.",
+        "Remainder must be exactly zero, not floating residue."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-050",
+      "name": "itemizeRemainder",
+      "kind": "edge",
+      "title": "Unknown holding value makes remainder nonfinal",
+      "given": "Account $10,000; known holding $4,000; second holding missing.",
+      "inputs": {
+        "account_total": 10000,
+        "itemized_values": [
+          4000,
+          null
+        ],
+        "missing_count": 1
+      },
+      "expected": {
+        "known_remainder": 6000,
+        "remainder_final": false,
+        "wording": "Not final — 1 holding has no value"
+      },
+      "working": [
+        "Known itemized subtotal = 4,000.",
+        "Provisional remainder = 10,000 − 4,000 = 6,000, but missing holding means it is not final."
+      ],
+      "rests_on": "Owner decision DEC-2746g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-051",
+      "name": "itemizedResultTotal",
+      "kind": "easy",
+      "title": "Itemized total below account keeps account total",
+      "given": "Account $1,000, listed holdings $700.",
+      "inputs": {
+        "account_total": 1000,
+        "itemized_total": 700
+      },
+      "expected": {
+        "new_total": 1000,
+        "cash_remainder": 300
+      },
+      "working": [
+        "Remainder = 300 cash.",
+        "New total = 700 + 300 = 1,000."
+      ],
+      "rests_on": "Owner decision DEC-2746g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-051",
+      "name": "itemizedResultTotal",
+      "kind": "easy",
+      "title": "Holdings above account increase result",
+      "given": "Account $1,000, holdings total $1,200.",
+      "inputs": {
+        "account_total": 1000,
+        "itemized_total": 1200
+      },
+      "expected": {
+        "new_total": 1200
+      },
+      "working": [
+        "Holdings exceed entered total; new total is their sum $1,200."
+      ],
+      "rests_on": "Owner decision DEC-2746g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-051",
+      "name": "itemizedResultTotal",
+      "kind": "complex",
+      "title": "Partial itemization preserves $186,442 total",
+      "given": "Account $186,442; listed holdings total $148,001.",
+      "inputs": {
+        "account_total": 186442,
+        "itemized_total": 148001
+      },
+      "expected": {
+        "remainder": 38441,
+        "new_total": 186442
+      },
+      "working": [
+        "Remainder = 186,442 − 148,001 = 38,441.",
+        "New total = 148,001 + 38,441 = 186,442."
+      ],
+      "rests_on": "Owner decision DEC-2746g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-051",
+      "name": "itemizedResultTotal",
+      "kind": "complex",
+      "title": "Listed items exceed balance by cents",
+      "given": "Account $10,000.00; itemized total $10,000.01.",
+      "inputs": {
+        "account_total": 10000,
+        "itemized_total": 10000.01
+      },
+      "expected": {
+        "new_total": 10000.01
+      },
+      "working": [
+        "Holdings exceed account by $0.01.",
+        "Do not lower total; new total is itemized sum."
+      ],
+      "rests_on": "Owner decision DEC-2746g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-051",
+      "name": "itemizedResultTotal",
+      "kind": "edge",
+      "title": "Missing value makes remainder provisional",
+      "given": "Account $10,000; listed known holding $3,000, another holding missing.",
+      "inputs": {
+        "account_total": 10000,
+        "itemized_values": [
+          3000,
+          null
+        ],
+        "missing_count": 1
+      },
+      "expected": {
+        "new_total": 10000,
+        "remainder_final": false,
+        "warning": "Not final — 1 holding has no value"
+      },
+      "working": [
+        "Provisional known remainder is $7,000; missing holding means the remainder is not final."
+      ],
+      "rests_on": "Owner decision DEC-2746g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-052",
+      "name": "buildItemizedAccounts",
+      "kind": "easy",
+      "title": "One stock holding creates one account",
+      "given": "Original brokerage $5,000, one VTI holding worth $5,000.",
+      "inputs": {
+        "original": {
+          "institution": "Fidelity",
+          "kind": "brokerage",
+          "source": "manual",
+          "retirement_share": 1
+        },
+        "holdings": [
+          {
+            "label": "VTI",
+            "ticker": "VTI",
+            "value": 5000,
+            "class": "Stocks / Funds"
+          }
+        ]
+      },
+      "expected": {
+        "accounts": [
+          {
+            "name": "VTI",
+            "institution": "Fidelity",
+            "balance": 5000,
+            "class": "Stocks / Funds",
+            "target_rate": 0.104,
+            "retirement_share": 1,
+            "source": "manual"
+          }
+        ]
+      },
+      "working": [
+        "One account per listed holding.",
+        "Target rate comes from Stocks / Funds benchmark 10.4%."
+      ],
+      "rests_on": "Owner decision DEC-3035m.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-052",
+      "name": "buildItemizedAccounts",
+      "kind": "easy",
+      "title": "Bond face value is not invented",
+      "given": "One bond holding has value $9,500 but no face value and no coupon rate entered.",
+      "inputs": {
+        "original": {
+          "institution": "Vanguard",
+          "kind": "brokerage"
+        },
+        "holdings": [
+          {
+            "label": "Treasury",
+            "value": 9500,
+            "class": "Bonds & CDs",
+            "maturity": "2030-01-01",
+            "face_value": null,
+            "coupon_rate": null
+          }
+        ]
+      },
+      "expected": {
+        "account": {
+          "name": "Treasury",
+          "balance": 9500,
+          "face_value": null,
+          "coupon_rate": null,
+          "maturity": "2030-01-01"
+        }
+      },
+      "working": [
+        "Value remains $9,500.",
+        "Face and rate stay blank; neither is replaced with the current value."
+      ],
+      "rests_on": "Owner decisions DEC-2748b and DEC-2746h.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-052",
+      "name": "buildItemizedAccounts",
+      "kind": "complex",
+      "title": "Residual becomes cash and inherits retirement share",
+      "given": "Original $18,000, itemized holdings $12,000 stocks and $3,000 bond; $3,000 remainder.",
+      "inputs": {
+        "original": {
+          "institution": "Schwab",
+          "retirement_share": 0.75,
+          "source": "linked",
+          "kind": "401(k)"
+        },
+        "holdings": [
+          {
+            "label": "VTI",
+            "value": 12000,
+            "class": "Stocks / Funds"
+          },
+          {
+            "label": "UST 2031",
+            "value": 3000,
+            "class": "Bonds & CDs"
+          }
+        ]
+      },
+      "expected": {
+        "accounts": [
+          {
+            "name": "VTI",
+            "balance": 12000,
+            "retirement_share": 0.75,
+            "source": "linked",
+            "kind": "401(k)"
+          },
+          {
+            "name": "UST 2031",
+            "balance": 3000,
+            "retirement_share": 0.75,
+            "source": "linked",
+            "kind": "401(k)"
+          },
+          {
+            "name": "Schwab cash",
+            "balance": 3000,
+            "class": "Cash",
+            "retirement_share": 0.75,
+            "source": "linked",
+            "kind": "401(k)",
+            "target_rate": 0.035
+          }
+        ]
+      },
+      "working": [
+        "Remainder = 18,000 − 12,000 − 3,000 = 3,000.",
+        "Create residual cash account for $3,000.",
+        "Each child carries 75% share, linked source and original wrapper."
+      ],
+      "rests_on": "Owner decisions DEC-2746h and DEC-3035m.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-052",
+      "name": "buildItemizedAccounts",
+      "kind": "complex",
+      "title": "Missing holding value stays missing",
+      "given": "One listed holding has no value; one priced holding $4,000.",
+      "inputs": {
+        "original": {
+          "balance": 10000,
+          "institution": "Chase"
+        },
+        "holdings": [
+          {
+            "label": "VTI",
+            "value": 4000,
+            "class": "Stocks / Funds"
+          },
+          {
+            "label": "Unpriced bond",
+            "value": null,
+            "class": "Bonds & CDs"
+          }
+        ]
+      },
+      "expected": {
+        "result": "RULE UNCLEAR — formula says balance equals holding value, but owner rules require missing remain unknown; create the record with missing balance and flag incomplete, not as $0"
+      },
+      "working": [
+        "Known holding value = 4,000.",
+        "The other holding has no value; it must not become $0."
+      ],
+      "rests_on": "Owner decision DEC-3279e; tenet 3.",
+      "confidence": "medium",
+      "notes": "The card does not explicitly state creation semantics for a missing holding value.",
+      "formula_gives": "Attempts to create an account with the missing value as its balance; incomplete-state behavior is unspecified."
+    },
+    {
+      "id": "MK-NW-F-052",
+      "name": "buildItemizedAccounts",
+      "kind": "edge",
+      "title": "No remainder cash when holdings exceed total",
+      "given": "Account $10,000; listed holdings sum $10,500.",
+      "inputs": {
+        "original": {
+          "balance": 10000,
+          "institution": "Fidelity",
+          "retirement_share": 1
+        },
+        "holdings": [
+          {
+            "label": "A",
+            "value": 6000,
+            "class": "Stocks / Funds"
+          },
+          {
+            "label": "B",
+            "value": 4500,
+            "class": "Bonds & CDs"
+          }
+        ]
+      },
+      "expected": {
+        "cash_account": "none",
+        "new_total": 10500
+      },
+      "working": [
+        "Holdings sum = 10,500 > 10,000.",
+        "Remainder is negative, so no residual cash account is created."
+      ],
+      "rests_on": "Owner decision DEC-2746g.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-053",
+      "name": "correctClassOf",
+      "kind": "easy",
+      "title": "CD name suggests Bonds & CDs",
+      "given": "Unconfirmed account name “Brokered CD 2028”, no maturity date.",
+      "inputs": {
+        "confirmed": false,
+        "name": "Brokered CD 2028",
+        "maturity_date": null,
+        "class": "Cash"
+      },
+      "expected": {
+        "should_be": "Bonds & CDs"
+      },
+      "working": [
+        "Name evidence identifies CD → Bonds & CDs."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-053",
+      "name": "correctClassOf",
+      "kind": "easy",
+      "title": "No correction when class already matches",
+      "given": "Unconfirmed account has maturity date and class Bonds & CDs.",
+      "inputs": {
+        "confirmed": false,
+        "name": "Treasury",
+        "maturity_date": "2030-01-01",
+        "class": "Bonds & CDs"
+      },
+      "expected": {
+        "correction": null
+      },
+      "working": [
+        "Expected class is already current class; no correction."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-053",
+      "name": "correctClassOf",
+      "kind": "complex",
+      "title": "Maturity date outranks misleading name",
+      "given": "Unconfirmed account name “Savings” but maturity date 2028-01-01.",
+      "inputs": {
+        "confirmed": false,
+        "name": "Savings",
+        "maturity_date": "2028-01-01",
+        "class": "Cash"
+      },
+      "expected": "Bonds & CDs",
+      "working": [
+        "The written formula checks name evidence before maturity.",
+        "Owner rule says any maturity-dated instrument is Bonds & CDs regardless of name."
+      ],
+      "rests_on": "Owner rule 9.",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "Cash (name evidence is checked before maturity date)"
+    },
+    {
+      "id": "MK-NW-F-053",
+      "name": "correctClassOf",
+      "kind": "complex",
+      "title": "Property name must not be inferred as alternative",
+      "given": "Property account named “Silver Lake house”, current class Alternatives.",
+      "inputs": {
+        "confirmed": false,
+        "name": "Silver Lake house",
+        "is_property": true,
+        "maturity_date": null,
+        "class": "Alternatives"
+      },
+      "expected": "Real estate or no correction from name; property name is not class evidence",
+      "working": [
+        "The formula gives name evidence first without excluding property names.",
+        "DEC-3035o says property name is not read as evidence of class."
+      ],
+      "rests_on": "Owner decision DEC-3035o.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-053",
+      "name": "correctClassOf",
+      "kind": "edge",
+      "title": "Person-confirmed class must not be corrected",
+      "given": "User-confirmed Stocks / Funds, name “CD Fund”.",
+      "inputs": {
+        "confirmed": true,
+        "name": "CD Fund",
+        "maturity_date": null,
+        "class": "Stocks / Funds"
+      },
+      "expected": {
+        "result": "No correction; preserve confirmed class"
+      },
+      "working": [
+        "Tenet 5 and DEC-2748h prohibit a sweep from overwriting confirmed class."
+      ],
+      "rests_on": "Owner decision DEC-2748h.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-054",
+      "name": "reclassifyAccounts",
+      "kind": "easy",
+      "title": "Unconfirmed cash sweep corrected",
+      "given": "Unconfirmed account class Stocks / Funds, name “Settlement Sweep”.",
+      "inputs": {
+        "accounts": [
+          {
+            "confirmed": false,
+            "class": "Stocks / Funds",
+            "name": "Settlement Sweep"
+          }
+        ]
+      },
+      "expected": {
+        "class": "Cash",
+        "changed_count": 1
+      },
+      "working": [
+        "Name evidence identifies cash; update unconfirmed account."
+      ],
+      "rests_on": "Card formula.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-054",
+      "name": "reclassifyAccounts",
+      "kind": "easy",
+      "title": "Confirmed account left unchanged",
+      "given": "Confirmed account class Stocks / Funds, name “CD 2030”.",
+      "inputs": {
+        "accounts": [
+          {
+            "confirmed": true,
+            "class": "Stocks / Funds",
+            "name": "CD 2030"
+          }
+        ]
+      },
+      "expected": {
+        "class": "Stocks / Funds",
+        "changed_count": 0
+      },
+      "working": [
+        "Confirmed account is left exactly as it is."
+      ],
+      "rests_on": "Owner decision DEC-2748h.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-054",
+      "name": "reclassifyAccounts",
+      "kind": "complex",
+      "title": "Confirmed holding class outranks broker name",
+      "given": "Holding is confirmed Bonds & CDs by user but broker tag says stock and name “Treasury ETF”.",
+      "inputs": {
+        "account_confirmed": false,
+        "holdings": [
+          {
+            "confirmed_class": "Bonds & CDs",
+            "broker_tag": "stock",
+            "name": "Treasury ETF",
+            "class": "Bonds & CDs"
+          }
+        ]
+      },
+      "expected": {
+        "result": "Keep confirmed holding class Bonds & CDs; changed_count 0"
+      },
+      "working": [
+        "Person’s confirmed holding classification outranks name inference."
+      ],
+      "rests_on": "Owner decision DEC-2484r.",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-054",
+      "name": "reclassifyAccounts",
+      "kind": "complex",
+      "title": "Gold holding must become Alternatives, not Stocks / Funds",
+      "given": "An unconfirmed account contains a holding named Gold; it is currently filed as Stocks / Funds, with no user-confirmed holding class.",
+      "inputs": {
+        "account_confirmed": false,
+        "holdings": [
+          {
+            "name": "Gold",
+            "class": "Stocks / Funds",
+            "user_confirmed_class": null,
+            "broker_tag": null
+          }
+        ]
+      },
+      "expected": {
+        "class": "Alternatives",
+        "changed_count": 1
+      },
+      "working": [
+        "“Gold” is safe name evidence for Alternatives.",
+        "The formula says any non-bond class other than cash becomes Stocks / Funds, so it would leave/reassign this holding to Stocks / Funds instead of Alternatives.",
+        "The correct classification is Alternatives."
+      ],
+      "rests_on": "Owner classification rules; tenets 1 and 5.",
+      "confidence": "high",
+      "notes": "This case directly tests the formula’s overly broad “any other class ... a stock or fund” branch.",
+      "formula_gives": "Stocks / Funds (the formula’s fallback for name evidence other than bonds/cash)"
+    },
+    {
+      "id": "MK-NW-F-054",
+      "name": "reclassifyAccounts",
+      "kind": "edge",
+      "title": "Person-confirmed class must survive sweep",
+      "given": "Account marked confirmed Cash, but name contains “Treasury CD”.",
+      "inputs": {
+        "accounts": [
+          {
+            "confirmed": true,
+            "class": "Cash",
+            "name": "Treasury CD"
+          }
+        ]
+      },
+      "expected": {
+        "class": "Cash",
+        "changed_count": 0
+      },
+      "working": [
+        "The account is confirmed; do not reclassify despite suggestive name."
+      ],
+      "rests_on": "Owner decision DEC-2748h.",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "rules_held": [],
+  "screen_checks": [],
+  "could_not_test": []
+}
