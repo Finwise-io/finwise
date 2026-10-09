@@ -155,7 +155,8 @@ describe('MK-NW-F-058 yearsToMaturity — five cases', () => {
   // FINDING: app gives 0, expected REFUSES — the validity check is `new Date(maturity)` (bonds/index.ts:222), which JavaScript
   // rolls 2026-02-30 forward to 2026-03-02 instead of rejecting, so the impossible date reads as already matured (and, seen
   // from 2026-01-01, as 0.16 years away). The card says "Nothing when there is no valid date"; DEC-0332: unknown is not due now.
-  test.failing('edge · Invalid date refuses', () => { refuses(yearsToMaturity('2026-02-30', TODAY)); });
+  // FIXED 2026-10-09 after OpenAI's final audit (was test.failing)
+  test('edge · Invalid date refuses', () => { refuses(yearsToMaturity('2026-02-30', TODAY)); });
 });
 
 describe('MK-NW-F-059 currentYield — five cases', () => {
@@ -241,7 +242,8 @@ describe('MK-NW-F-062 couponIncomeAnnual — five cases', () => {
   // FINDING: app gives 580, expected 80 — couponIncomeAnnual takes no date and never drops a matured bond (bonds/index.ts:557),
   // nor does the Bonds screen's COUPON /year, bondSummary (:522); interestIncomeAnnual does (:602, DEC-2748d). Two figures
   // for one year's interest disagree by $500 — DEC-2748c says one rule everywhere.
-  test.failing('complex · Expired bond omitted', () => {
+  // FIXED 2026-10-09 after OpenAI's final audit (was test.failing)
+  test('complex · Expired bond omitted', () => {
     expect(couponIncomeAnnual([bondAcct({ id: 'x', face: 10000, rate: 0.05, maturity: '2026-10-08' }), bondAcct({ id: 'y', face: 2000, rate: 0.04, maturity: '2028-10-09' })])).toBe(80);
   });
   // UNCLEAR: app counts an undated bond as paying ($200). DEC-0332 (no date is unknown, not due now) governs years left,
@@ -360,10 +362,11 @@ describe('MK-NW-F-069 priceAtYield — five cases', () => {
   // FINDING: app gives 0, expected REFUSES — the principal is `b.face ?? 0` and the coupon `annualCoupon(b) ?? 0`
   // (bonds/index.ts:669, :672), so a bond with no face is priced at $0. Latent: both callers refuse a missing face first
   // (approxYTM :442, bondRateSensitivity :728). DEC-2748b: a face never entered is never $0.
-  test.failing('complex · Missing face must not create a numeric price', () => { refuses(priceAtYield(bond(null, 0.05, '2030-01-01', 0), 0.04, D('2026-01-01'))); });
-  // FINDING: app gives Infinity, expected REFUSES — (1 + y)^t = 0 at y = −100% and nothing guards it (bonds/index.ts:671-672).
+  test('complex · Missing face must not create a numeric price', () => { refuses(priceAtYield(bond(null, 0.05, '2030-01-01', 0), 0.04, D('2026-01-01'))); });
+  // FIXED 2026-10-09 after OpenAI's final audit — it was a FINDING: app gives Infinity, expected REFUSES — (1 + y)^t = 0 at y = −100% and nothing guards it (bonds/index.ts:671-672).
   // Latent: the solver never asks below −99% (:454).
-  test.failing('edge · Invalid yield at or below −100%', () => { refuses(priceAtYield(bond(1000, 0.05, '2028-01-01'), -1, D('2026-01-01'))); });
+  // FIXED 2026-10-09 after OpenAI's final audit (was test.failing)
+  test('edge · Invalid yield at or below −100%', () => { refuses(priceAtYield(bond(1000, 0.05, '2028-01-01'), -1, D('2026-01-01'))); });
 });
 
 describe('MK-NW-F-070 accruedInterestCaveat — five cases', () => {
@@ -463,7 +466,8 @@ describe('MK-NW-F-084 categoryEarnings — five cases', () => {
   // (12,000 × 20% + 10,000 × 0%) ÷ 22,000). With no money moved, the class grew $20,000 → $22,000 = 10%. DEC-1669 (every
   // return time-weighted) and DEC-3035b (the same fix made to the retirement return: weigh by what was there when the
   // period began, Σ now ÷ Σ start − 1) both say 10%. Weighing by beginning value = marketValue ÷ (1 + periodReturn).
-  test.failing('complex · Current-value weighting differs from beginning-value TWR', () => {
+  // FIXED 2026-10-09 after OpenAI's final audit (was test.failing)
+  test('complex · Current-value weighting differs from beginning-value TWR', () => {
     const c = categoryEarnings({ transactions: [{ date: '2025-10-02', type: 'DIVIDEND', amount: 1, ticker: 'S1' }], windowStart: '2025-10-01',
       rows: [row('stock_etf', 12000, 0.2, 'S1'), row('stock_etf', 10000, 0, 'S2')] });
     expect(c.find((x) => x.key === 'stocks_etf')!.ret!).toBeCloseTo(0.1, 12);

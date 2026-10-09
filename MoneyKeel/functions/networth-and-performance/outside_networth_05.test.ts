@@ -204,8 +204,12 @@ describe('MK-NW-F-061 bondSummary — five cases', () => {
   });
   test('edge · one matured last month, one maturing today', () => {
     const s = bondSummary([bond({ face: 20000, rate: 0.03, value: 20000, maturity: '2026-09-15' }), bond({ face: 10000, rate: 0.04, value: 10000, maturity: '2026-10-07' }), bond({ face: 18000, rate: 0.045, value: 17650, maturity: '2029-01-15' })], TODAY);
-    expect([s.count, s.totalValue, s.totalFace, s.annualCoupon]).toEqual([3, 47650, 48000, 1810]);
-    expect(s.avgYield).toBeCloseTo(0.037985, 5);
+    // MOVED 2026-10-09 by his rule DEC-2748d (a bond past its maturity date pays no more interest), applied to the Bonds
+    // summary after OpenAI's final audit found it counted there and nowhere else. Hand-checked outside the code: the
+    // bond that matured 2026-09-15 drops its $600 — coupon 400 + 810 = $1,210 (was $1,810); the average yield is over
+    // the two that still pay, (400 + 810) ÷ (10,000 + 17,650) = 4.3761% (was 1,810 ÷ 47,650 = 3.7985%).
+    expect([s.count, s.totalValue, s.totalFace, s.annualCoupon]).toEqual([3, 47650, 48000, 1210]);
+    expect(s.avgYield).toBeCloseTo(1210 / 27650, 10);
     // HELD AT THE APP'S ANSWER — a bond maturing today has matured and cannot also be next to mature (file 1's own
     // case, approved by him, DEC-2484); this file says 2026-10-07.
     expect(s.nextMaturity).toBe('2029-01-15');

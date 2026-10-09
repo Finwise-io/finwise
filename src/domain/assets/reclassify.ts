@@ -2,7 +2,7 @@
 // only, so a CD and a money-market fund already synced stayed under Cash. A rule that only applies
 // to future data is not built. This re-classifies EVERY stored account and position by today's
 // rule, once, and marks the profile so it never runs twice.
-import { incomeBearingClassOf, maturityClass, type AssetAccount, type AssetClass } from './index';
+import { classEvidenceOf, holdingNameEvidence, holdingTagClass, holdingTagFor, type AssetAccount, type AssetClass } from './index';
 
 export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
 
@@ -14,38 +14,42 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
  * Answers ..... The class an account SHOULD carry under the current rule.
  *
  * Formula .....
- *     by label = income bearing class of(label)
- *     by label   when by label
- *     maturity class(maturity date)   when maturity date
+ *     asset class (or nothing when missing)   when class source = 'user'
+ *     evidence = class evidence of(a)
+ *     evidence   when evidence
  *     'stocks_etf'   when kind = 'money_market'
  *     'bonds'   when kind = 'cd'
  *     the answer = nothing
  *
- * Called by ... MK-NW-F-054 reclassifyAccounts
+ * Called by ... MK-NW-F-010 wrapperAccount · MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
  *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 41 more — the full list is on functions_from_code
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-013 bond maturity date
+ * Reads ....... MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-056 how a holding was classified, and by whom
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-053
  * Changed ..... 2026-08-10 (88ce4aa)
  */
 export function correctClassOf(a: AssetAccount): AssetClass | null {
-  const byLabel = incomeBearingClassOf(a.label);
-  if (byLabel) return byLabel;                                  // CD/T-bill → bonds · money-market → stocks
-  if (a.maturity_date) return maturityClass(a.maturity_date);   // any maturity → bonds
+  // the class the person chose is the class it should carry (outside review OpenAI final, 2026-10-09, DEC-2748h)
+  if (a.class_source === 'user') return a.asset_class ?? null;
+  // the same order assetClassOf reads: a maturity date before the name, and never a property's name
+  // (outside review OpenAI final, 2026-10-09, DEC-2484i, DEC-3035o)
+  const evidence = classEvidenceOf(a);
+  if (evidence) return evidence;                                // maturity → bonds · CD/T-bill → bonds · money-market → stocks
   if (a.kind === 'money_market') return 'stocks_etf';
   if (a.kind === 'cd') return 'bonds';
   return null;
@@ -60,30 +64,32 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  * Formula .....
  *     changed = 0
  *     a   when wrapper confirmed
- *     want = correct class of(a)
+ *     want = nothing   if class source = 'user'
+ *     correct class of(a)   otherwise
  *     next = a
  *     ps = (next.positions ?? []) as any[]
+ *     p   when class source = 'user' (or class asked when missing or zero)
  *     the answer = p
  *
- * Called by ... MK-XS-F-175 uid
+ * Called by ... MK-NW-F-109 holdingClassOf · MK-XS-F-175 uid
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
  *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-056 how a holding was classified, and by whom
  *
  * Decides .....
  *     · Uses a built-in changed of 0.
@@ -97,7 +103,8 @@ export function reclassifyAccounts(accounts: AssetAccount[]): { accounts: AssetA
     // what the person confirmed stands — the rule corrects what the app guessed, never what they said
     // (outside review, 2026-10-07)
     if (a.wrapper_confirmed) return a;
-    const want = correctClassOf(a);
+    // a class the person chose stays; their holdings are still read one by one below (DEC-2748h)
+    const want = a.class_source === 'user' ? null : correctClassOf(a);
     let next = a;
     if (want && a.asset_class !== want) {
       next = { ...next, asset_class: want, tax_bucket: want === 'cash' ? next.tax_bucket : (next.tax_bucket === 'CASH' ? 'TAXABLE' : next.tax_bucket) };
@@ -107,11 +114,14 @@ export function reclassifyAccounts(accounts: AssetAccount[]): { accounts: AssetA
     const ps = (next.positions ?? []) as any[];
     if (ps.length) {
       const nps = ps.map((p) => {
-        const byLabel = incomeBearingClassOf(`${p.ticker ?? ''} ${p.name ?? p.description ?? ''}`);
-        if (byLabel && byLabel !== 'cash') {
-          const want2 = byLabel === 'bonds' ? 'bond' : 'stock_etf';
-          if (p.asset_class !== want2) { changed++; return { ...p, asset_class: want2 }; }
-        }
+        // a holding the person classed, or one waiting on their answer, is theirs — never re-filed
+        // (outside review OpenAI final, 2026-10-09, DEC-2484r)
+        if (p.class_source === 'user' || p.class_asked) return p;
+        // the name's class is stored as that class — Gold is Alternatives, not Stocks / Funds; no
+        // evidence leaves it as it is (outside review OpenAI final, 2026-10-09, DEC-3035f)
+        const byLabel = holdingNameEvidence(p);
+        const want2 = byLabel && byLabel !== 'cash' ? holdingTagFor(byLabel) : null;
+        if (want2 && holdingTagClass(p.asset_class) !== byLabel) { changed++; return { ...p, asset_class: want2 }; }
         return p;
       });
       if (nps.some((p, i) => p !== ps[i])) next = { ...next, positions: nps } as AssetAccount;

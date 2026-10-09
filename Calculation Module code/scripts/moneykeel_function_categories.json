@@ -669,6 +669,11 @@
   "file": "src/domain/retirement/willItLast.ts",
   "category": "2 · DISPLAYED"
  },
+ "classEvidenceOf": {
+  "id": "MK-NW-F-120",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "classPortionLabel": {
   "id": "MK-NW-F-028",
   "file": "src/domain/assets/index.ts",
@@ -1364,6 +1369,21 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "1 · ACTION"
  },
+ "holdingNameEvidence": {
+  "id": "MK-NW-F-123",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "holdingTagClass": {
+  "id": "MK-NW-F-121",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "holdingTagFor": {
+  "id": "MK-NW-F-122",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "householdK401ByMonth": {
   "id": "MK-CF-F-206",
   "file": "src/domain/income/onboarding.ts",
@@ -1553,6 +1573,11 @@
   "id": "MK-ST-F-070",
   "file": "Calculation Module code/engines/rebuild-history.ts",
   "category": "1 · ACTION"
+ },
+ "isPastMaturity": {
+  "id": "MK-NW-F-125",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "isPlausibleTicker": {
   "id": "MK-XS-F-081",
@@ -1813,6 +1838,11 @@
   "id": "MK-NW-F-009",
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "maturityParts": {
+  "id": "MK-NW-F-124",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "measuredFromLabel": {
   "id": "MK-ST-F-005",
@@ -3516,6 +3546,11 @@
  },
  "yearlyInterest": {
   "id": "MK-NW-F-112",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "yearlyInterestNow": {
+  "id": "MK-NW-F-126",
   "file": "src/domain/bonds/index.ts",
   "category": "3 · DEPENDENT"
  },

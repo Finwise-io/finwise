@@ -243,7 +243,7 @@ export default function NetWorthScreen() {
     router.setParams({ edit: undefined } as any);   // consume the param so back/refocus doesn't reopen
   }, [editParam]);
 
-  const sectionTotals = ASSET_SECTIONS.map((sec) => ({ sec, total: assets.filter((a) => sectionOf(a) === sec).reduce((t, a) => t + a.balance, 0) }));
+  const sectionTotals = ASSET_SECTIONS.map((sec) => ({ sec, total: assets.filter((a) => sectionOf(a) === sec).reduce((t, a) => t + (a.balance != null && Number.isFinite(a.balance) ? a.balance : 0), 0) }));   // a missing balance is left out (DEC-3279e)
   const alloc = assetAllocation(assets);   // #19: assets grouped by ASSET CLASS (the taxonomy)
   // FOUNDER DECISION 2026-08-11 (audit Q2) — supersedes the pre-48 audit A7 liquidity order:
   // categories read BIGGEST FIRST, in the bar and in the list alike, so the two always tell the
@@ -371,6 +371,8 @@ export default function NetWorthScreen() {
   const curYm = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
   const assetRow = (a: AssetAccount, i: number, title: string, sub: string, amount?: number, rowKey?: string) => {
     const shown = amount ?? a.balance;
+    // a missing balance says 'not entered', never $0 or the refusal sentence (outside review OpenAI final, 2026-10-09, DEC-3279e)
+    const has = shown != null && Number.isFinite(shown as number);
     const ch = a.change_month === curYm ? (a.change_amount ?? 0) : 0;
     const up = ch > 0;
     // FCC: every row says where its number comes from and how fresh it is
@@ -378,7 +380,7 @@ export default function NetWorthScreen() {
     sub = sub ? `${sub} · ${stamp}` : stamp;
     // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
-      <TouchableOpacity key={rowKey ?? a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${figSaid('MK-NW-M-008', shown)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
+      <TouchableOpacity key={rowKey ?? a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${has ? figSaid('MK-NW-M-008', shown) : 'balance not entered'}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
         <Text style={styles.rowIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -387,7 +389,7 @@ export default function NetWorthScreen() {
         <View style={{ alignItems: 'flex-end' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
             {ch !== 0 && <Text style={[styles.chArrow, { color: up ? Colors.gainText : Colors.red }]}>{up ? '▲' : '▼'}</Text>}
-            <Text style={styles.rowVal}>{fig('MK-NW-M-008', shown)}</Text>
+            <Text style={styles.rowVal}>{has ? fig('MK-NW-M-008', shown) : figWords('MK-NW-M-008', 'not entered')}</Text>
           </View>
           {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.gainText : Colors.red }]}>{up ? '+' : '−'}{fig('MK-NW-M-001', Math.abs(ch))} this mo</Text>}
         </View>
@@ -397,7 +399,7 @@ export default function NetWorthScreen() {
 
   const renderAssetSection = (sec: string) => {
     const rows = assets.filter((a) => sectionOf(a) === sec);
-    const total = rows.reduce((t, a) => t + a.balance, 0);
+    const total = rows.reduce((t, a) => t + (a.balance != null && Number.isFinite(a.balance) ? a.balance : 0), 0);   // a missing balance is left out (DEC-3279e)
     const head = (
       <View style={styles.secHead}>
         <SectionBand light title={`${SECTION_ICON[sec]}  ${secLabel(sec).toUpperCase()}`} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} />
@@ -716,7 +718,7 @@ export default function NetWorthScreen() {
       : null;
     // FINAL mock: the missing-data banner — computed against the SAME window the change line
     // above it reports, so the depth check can never imply older income sits inside the change.
-    const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any);
+    const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any, liabilities as any);   // a debt with no balance is named too (OpenAI final, 2026-10-09, DEC-3279e)
     // FINAL mock State E: tapping the change opens the walk. Built from the SAME window the line
     // reports and the SAME ledger the account pages show — the rows sum to the headline by design.
     const inWindow = (t: any) => !janPoint || String(t.date ?? '').slice(0, 10) >= String(janPoint.month).slice(0, 10);
@@ -878,18 +880,20 @@ export default function NetWorthScreen() {
                     <SectionBand light trailing={RIGHT_SLOT} title={`${open ? '▾' : '▸'} ${label}${open ? '' : ` · ${count}`}`}
                       value={fig('MK-NW-M-007', Math.round(g.total))} />
                   </TouchableOpacity>
-                  {open && g.members.map((a) => (
+                  {/* A MISSING BALANCE IS NOT $0: the row says 'not entered', the word the bond rows use
+                      (outside review OpenAI final, 2026-10-09, DEC-3279e) */}
+                  {open && g.members.map((a) => { const has = a.balance != null && Number.isFinite(a.balance as number); return (
                     <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={[styles.ledgerRow, styles.ledgerChild]}
                       onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-                      accessibilityLabel={`${displayNames.get(a.asset_id)}, ${figSaid('MK-NW-M-008', Math.round(a.balance || 0))}. Opens its page.`}>
+                      accessibilityLabel={`${displayNames.get(a.asset_id)}, ${has ? figSaid('MK-NW-M-008', Math.round(a.balance)) : 'balance not entered'}. Opens its page.`}>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
                         <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
                       </View>
-                      <Text style={styles.acctRowVal}>{fig('MK-NW-M-008', Math.round(a.balance || 0))}</Text>
+                      <Text style={styles.acctRowVal}>{has ? fig('MK-NW-M-008', Math.round(a.balance)) : figWords('MK-NW-M-008', 'not entered')}</Text>
                       <Text style={styles.arrowSlot}>›</Text>
                     </TouchableOpacity>
-                  ))}
+                  ); })}
                 </View>
               );
             });
@@ -1174,12 +1178,22 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       // B48 finding 6: CDs/bonds edit their maturity here too — the date re-sorts the class
       // (under 1 year = cash equivalent · 1 year or more = bond), same rule as adding one.
       const showsMaturity = editing.kind === 'cd' || assetClassOf(editing) === 'bonds' || !!editing.maturity_date;
+      const byDate = showsMaturity && maturity.trim();
+      // THE PERSON PICKED A CLASS: it is marked theirs, so the class sweep never changes it; a maturity
+      // date decides the class instead of the pick (outside review OpenAI final, 2026-10-09, DEC-2748h)
+      const picked = !byDate && inside !== 'mixed' && inside !== editing.asset_class;
       store.updateAsset?.(editing.asset_id, {
         institution: inst.trim(), balance: v, asset_class: inside === 'mixed' ? undefined : inside,
-        ...(showsMaturity && maturity.trim() ? { maturity_date: maturity.trim(), asset_class: maturityClass(maturity.trim()) } : {}),
+        ...(picked ? { class_source: 'user' as const } : inside === 'mixed' && editing.asset_class ? { class_source: undefined } : {}),
+        ...(byDate ? { maturity_date: maturity.trim(), asset_class: maturityClass(maturity.trim()) } : {}),
       });
       onClose(); return;
     }
+    // a class the person picked when adding the account is theirs (DEC-2748h); a cash kind's class
+    // follows the kind it names, and an unsorted or Unclassified account has no class to keep
+    const pickedOnAdd = step === 'stocks' || step === 'bonds' || step === 'alts' || step === 'realestate' || step === 'property'
+      || (step === 'retirement' && inside !== 'mixed');
+    if (pickedOnAdd && patch.asset_class) patch = { ...patch, class_source: 'user' };
     store.addAsset?.(patch); onClose();
   };
   // Build-47 walk row 23 (B46 finding 5): Remove asks first and names the money leaving.

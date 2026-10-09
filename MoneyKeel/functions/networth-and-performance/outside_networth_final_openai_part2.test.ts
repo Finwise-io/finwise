@@ -144,9 +144,9 @@ describe('MK-NW-F-028 classPortionLabel — five cases', () => {
     expect(classPortionLabel(bondsAcct('UST 4.25% 2031', 'T-bill 2027', 'Corporate 5% 2030'), 'bonds')).toBe('2 Treasuries & 1 bond in this account');
   });
   test('complex · Government word may overstate Treasury classification', () => {
-    // UNCLEAR: app counts "US Government Agency 2032" as a Treasury — TREASURY_RE carries govt|government (index.ts:1602);
-    // open question: is "government" an approved Treasury word? DEC-3035g names TREAS, UST, T-bond only.
-    expect(classPortionLabel(bondsAcct('US Government Agency 2032', 'Municipal bond 2030'), 'bonds')).toBe('1 Treasury & 1 bond in this account');
+    // SETTLED by DEC-3035g, which names the Treasury words (TREAS, UST, T-bill, T-note, T-bond); "government" is not one,
+    // so an agency bond is a bond. FIXED 2026-10-09 — the app said "1 Treasury & 1 bond".
+    expect(classPortionLabel(bondsAcct('US Government Agency 2032', 'Municipal bond 2030'), 'bonds')).toBe('2 bonds in this account');
   });
   test('edge · Zero alternatives holdings use generic label', () => {
     expect(classPortionLabel(acct({ kind: 'brokerage', positions: [], option_holdings: [] }), 'alternatives')).toBe('alternatives in this account');
@@ -697,8 +697,8 @@ describe('MK-NW-F-054 reclassifyAccounts — five cases', () => {
     const r = reclassifyAccounts([acct({ kind: 'brokerage', positions: [pos('', 'Treasury ETF', 10, 100, 'bond', { class_source: 'user' })] })]);
     expect({ class: TAG_NAME[(r.accounts[0].positions as any)[0].asset_class], changed_count: r.changed }).toEqual({ class: 'Bonds & CDs', changed_count: 0 });
   });
-  test.failing('complex · Gold holding must become Alternatives, not Stocks / Funds', () => {
-    // FINDING: app leaves the holding's stored class Stocks / Funds and counts 0 changes — name evidence other than
+  test('complex · Gold holding must become Alternatives, not Stocks / Funds', () => {
+    // FIXED 2026-10-09 after OpenAI's final audit — it was a FINDING: app leaves the holding's stored class Stocks / Funds and counts 0 changes — name evidence other than
     // bonds or cash is written as 'stock_etf' (reclassify.ts:112), so Gold already filed 'stock_etf' looks correct to the
     // sweep; expected Alternatives, 1 change. (The screens still show Alternatives for this holding only because
     // holdingClassOf reads the name before the stored tag for a holding nobody classed — index.ts:1427-1428.)
@@ -712,16 +712,16 @@ describe('MK-NW-F-054 reclassifyAccounts — five cases', () => {
 });
 
 describe('PROOF RUNS for the WRONG formula checks MK-NW-F-053 / MK-NW-F-054 (not among the 130 cases)', () => {
-  test.failing('F-053 · a maturity date does not beat name evidence', () => {
-    // FINDING: app gives Stocks / Funds — the name ("money market") is read before the maturity date (reclassify.ts:46-48);
+  test('F-053 · a maturity date does not beat name evidence', () => {
+    // FIXED 2026-10-09 after OpenAI's final audit — it was a FINDING: app gives Stocks / Funds — the name ("money market") is read before the maturity date (reclassify.ts:46-48);
     // expected Bonds & CDs: DEC-2484i "a maturity date makes an account Bonds & CDs before its name is read" (built in
     // assetClassOf, index.ts:519-520, which gives Bonds & CDs for this same account with no stored class).
     const a = acct({ label: 'Ally Money Market CD', maturity_date: '2027-06-30', asset_class: 'bonds', kind: 'brokerage' });
     expect(correctClassOf(a)).toBe('bonds');
     expect(reclassifyAccounts([a]).accounts[0].asset_class).toBe('bonds');
   });
-  test.failing('F-053 · a property name is read as class evidence', () => {
-    // FINDING: app moves a home named "Silver Creek land" to Alternatives (the word silver, reclassify.ts:46-47) and the
+  test('F-053 · a property name is read as class evidence', () => {
+    // FIXED 2026-10-09 after OpenAI's final audit — it was a FINDING: app moves a home named "Silver Creek land" to Alternatives (the word silver, reclassify.ts:46-47) and the
     // sweep re-files it; expected Real estate kept: DEC-3035o "a property's name is not read as evidence of its class"
     // (assetClassOf skips the name for property, index.ts:524-525; correctClassOf does not).
     const a = acct({ id: 'p', label: 'Silver Creek land', kind: 'home', re_use: 'land', tax_bucket: 'PROPERTY', asset_class: 'real_estate', balance: 63250 });
@@ -735,8 +735,8 @@ describe('PROOF RUNS for the WRONG formula checks MK-NW-F-053 / MK-NW-F-054 (not
     const r = reclassifyAccounts([acct({ label: 'CD 2030 ladder', kind: 'brokerage', asset_class: 'stocks_etf' })]);
     expect({ class: r.accounts[0].asset_class, changed: r.changed }).toEqual({ class: 'bonds', changed: 1 });
   });
-  test.failing('F-054 · a Gold holding the person classed as Alternatives becomes Stocks / Funds', () => {
-    // FINDING: app rewrites the person's 'other' (Alternatives) to 'stock_etf' and counts a change (reclassify.ts:109-113 —
+  test('F-054 · a Gold holding the person classed as Alternatives becomes Stocks / Funds', () => {
+    // FIXED 2026-10-09 after OpenAI's final audit — it was a FINDING: app rewrites the person's 'other' (Alternatives) to 'stock_etf' and counts a change (reclassify.ts:109-113 —
     // no class_source check), and because a person's answer is read from the stored tag (index.ts:1425) the holding is
     // then filed Stocks / Funds everywhere; expected Alternatives kept, 0 changes: DEC-2484r "the person's own answer
     // about a holding's class outranks what its name suggests".
@@ -744,18 +744,18 @@ describe('PROOF RUNS for the WRONG formula checks MK-NW-F-053 / MK-NW-F-054 (not
     const p = (r.accounts[0].positions as any)[0];
     expect({ stored: TAG_NAME[p.asset_class], filed: NAME_OF[holdingClassOf(p)], changed: r.changed }).toEqual({ stored: 'Alternatives', filed: 'Alternatives', changed: 0 });
   });
-  test.failing('F-054 · a person’s Stocks / Funds answer on a bond-named holding is overwritten', () => {
-    // FINDING: app rewrites the person's 'stock_etf' on "Treasury ETF" to 'bond' (reclassify.ts:110-113); holdingClassOf then
+  test('F-054 · a person’s Stocks / Funds answer on a bond-named holding is overwritten', () => {
+    // FIXED 2026-10-09 after OpenAI's final audit — it was a FINDING: app rewrites the person's 'stock_etf' on "Treasury ETF" to 'bond' (reclassify.ts:110-113); holdingClassOf then
     // files it Bonds & CDs; expected Stocks / Funds kept (DEC-2484r).
     const r = reclassifyAccounts([acct({ kind: 'brokerage', positions: [pos('', 'Treasury ETF', 10, 100, 'stock_etf', { class_source: 'user' })] })]);
     const p = (r.accounts[0].positions as any)[0];
     expect({ filed: NAME_OF[holdingClassOf(p)], changed: r.changed }).toEqual({ filed: 'Stocks / Funds', changed: 0 });
   });
-  test('F-054 · an unclassed Gold holding stays visible as Alternatives, but its stored tag is rewritten to Stocks / Funds', () => {
-    // the run behind the F-054 Gold finding, as the app does it today: stored 'other' becomes 'stock_etf' (1 change);
-    // holdingClassOf still reads the name first (index.ts:1427-1428), so screens keep Alternatives
+  test('F-054 · an unclassed Gold holding stays Alternatives, and its stored tag is no longer rewritten', () => {
+    // FIXED 2026-10-09: the sweep used to rewrite stored 'other' to 'stock_etf' (1 change); name evidence is now stored
+    // under its real class (DEC-2484r, DEC-3035f), so nothing changes
     const r = reclassifyAccounts([acct({ kind: 'brokerage', positions: [pos('', 'Gold', 5, 2000, 'other')] })]);
     const p = (r.accounts[0].positions as any)[0];
-    expect({ stored: TAG_NAME[p.asset_class], filed: NAME_OF[holdingClassOf(p)], changed: r.changed }).toEqual({ stored: 'Stocks / Funds', filed: 'Alternatives', changed: 1 });
+    expect({ stored: TAG_NAME[p.asset_class], filed: NAME_OF[holdingClassOf(p)], changed: r.changed }).toEqual({ stored: 'Alternatives', filed: 'Alternatives', changed: 0 });
   });
 });

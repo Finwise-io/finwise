@@ -155,8 +155,91 @@ export function annualCoupon(b: BondInfo): number | null {
  *     value × coupon rate   otherwise
  *
  * Called by ... MK-NW-F-059 currentYield · MK-NW-F-061 bondSummary
- *               MK-NW-F-062 couponIncomeAnnual · MK-NW-F-063 interestIncomeAnnual
- *               MK-NW-F-072 rowOf · MK-NW-O-001 theBonds
+ *               MK-NW-F-126 yearlyInterestNow · MK-NW-O-001 theBonds
+ *
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               … and 70 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-011 bond face value
+ *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-049 bond price — what the bond is worth today
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-112
+ * Changed ..... not in git yet (—)
+ */
+export function yearlyInterest(b: BondInfo): number | null {
+  if (b.couponRate == null) return null;
+  return b.face != null ? b.face * b.couponRate : b.value * b.couponRate;
+}
+/** A maturity date read as a real calendar day (year, month, day), or nothing when it is missing or impossible. */
+/* ─ MK-NW-F-124 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * maturityParts
+ *
+ * Answers ..... A maturity date read as a real calendar day (year, month, day), or nothing when it is missing or impossible.
+ *
+ * Formula .....
+ *     m = ÷ ^\s × (\d{4}) − (\d{1,2}) − (\d{1,2})(?!\d) ÷ .exec(string(maturity ?? ''))
+ *     nothing   when m is missing
+ *     y = m[1]), mo = number(m[2]), d = number(m[3] read as a number
+ *     t = the date date.UTC(y, mo − 1, d)
+ *     nothing   when get utcfull year() ! = y (or get utcmonth() ! = mo − 1 (or get utcdate() ! = d when missing or zero) when missing or zero)
+ *     the answer = [y, mo, d]
+ *
+ * Called by ... MK-NW-F-058 yearsToMaturity · MK-NW-F-119 estimatedAccrued
+ *               MK-NW-F-125 isPastMaturity
+ *
+ * Reaches ..... 94 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               … and 76 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-013 bond maturity date
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-124
+ * Changed ..... not in git yet (—)
+ */
+export function maturityParts(maturity: string): [number, number, number] | null {
+  // AN IMPOSSIBLE DATE IS NO DATE (outside review OpenAI final, 2026-10-09, DEC-0332): '2026-02-30' used to roll
+  // over to 2 March and read as matured. The day must come back as the same year, month and day it was typed.
+  const m = /^\s*(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/.exec(String(maturity ?? ''));
+  if (!m) return null;
+  const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+  const t = new Date(Date.UTC(y, mo - 1, d));
+  if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;
+  return [y, mo, d];
+}
+
+/** Whether a bond or CD is past its maturity date — the day after it, by the calendar. No date, or an impossible one, is unknown, not matured. */
+/* ─ MK-NW-F-125 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * isPastMaturity
+ *
+ * Answers ..... Whether a bond or CD is past its maturity date — the day after it, by the calendar.
+ *
+ * Formula .....
+ *     p = maturity parts(maturity)
+ *     false   when p = nothing
+ *     iso = `${p[0]}-${string(p[1]).pad start(2, '0')}-${string(p[2]).pad start(2, '0')}`
+ *     the answer = iso < iso local date(now)
+ *
+ * Called by ... MK-NW-F-061 bondSummary · MK-NW-F-126 yearlyInterestNow
  *
  * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
@@ -171,16 +254,60 @@ export function annualCoupon(b: BondInfo): number | null {
  *               … and 69 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-011 bond face value
- *               MK-XS-I-012 bond coupon rate
- *               MK-XS-I-049 bond price — what the bond is worth today
+ * Reads ....... MK-XS-I-013 bond maturity date
  *
- * Formula also on the master file · functions_from_code · MK-NW-F-112
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-125
  * Changed ..... not in git yet (—)
  */
-export function yearlyInterest(b: BondInfo): number | null {
-  if (b.couponRate == null) return null;
-  return b.face != null ? b.face * b.couponRate : b.value * b.couponRate;
+export function isPastMaturity(maturity: string, now: Date = new Date()): boolean {
+  // the one test every interest figure uses (outside review OpenAI final, 2026-10-09, DEC-2748d + DEC-2748c)
+  const p = maturityParts(maturity);
+  if (p == null) return false;
+  const iso = `${p[0]}-${String(p[1]).padStart(2, '0')}-${String(p[2]).padStart(2, '0')}`;
+  return iso < isoLocalDate(now);
+}
+
+/** A year's interest from one bond or CD as it pays today: its yearly interest, and $0 once it is past its maturity date. */
+/* ─ MK-NW-F-126 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * yearlyInterestNow
+ *
+ * Answers ..... A year's interest from one bond or CD as it pays today: its yearly interest, and $0 once it is past its maturity date.
+ *
+ * Formula .....
+ *     0   if is past maturity(maturity, now)
+ *     yearly interest(b)   otherwise
+ *
+ * Called by ... MK-NW-F-061 bondSummary · MK-NW-F-062 couponIncomeAnnual
+ *               MK-NW-F-063 interestIncomeAnnual · MK-NW-F-072 rowOf
+ *
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               … and 68 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-013 bond maturity date
+ *               MK-XS-I-049 bond price — what the bond is worth today
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-126
+ * Changed ..... not in git yet (—)
+ */
+export function yearlyInterestNow(b: BondInfo, now: Date = new Date()): number | null {
+  // a matured bond pays no more interest, by one rule for every figure (outside review OpenAI final, 2026-10-09, DEC-2748d + DEC-2748c)
+  return isPastMaturity(b.maturity, now) ? 0 : yearlyInterest(b);
 }
 /* ─ MK-NW-F-058 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * yearsToMaturity
@@ -219,13 +346,14 @@ export function yearlyInterest(b: BondInfo): number | null {
 export function yearsToMaturity(maturity: string, now: Date = new Date()): number | null {
   // G11 (founder, 2026-09-12): no date, or an unreadable one, is NOT "due now" — it is unknown, and
   // everything that needs the years (yield to maturity, rate sensitivity) says so instead of inventing 0.
-  if (!maturity || Number.isNaN(new Date(maturity).getTime())) return null;
+  const parts = maturityParts(maturity);   // an impossible date such as 2026-02-30 is unknown too (outside review OpenAI final, 2026-10-09, DEC-0332)
+  if (parts == null) return null;
   // EXACT YEARS, BY ANNIVERSARIES (outside review batch 06, 2026-10-07): the whole years counted back
   // from the maturity date while still on or after today, plus the days left to the first of those
   // anniversaries ÷ the days in that year. 2026-10-07 → 2028-10-07 is exactly 2.0, and 2029-04-15 is
   // 2 + 190/365. It was days ÷ 365.25, which put a bond exactly one year away at 0.9993 years. By the
   // calendar date, never the time of day.
-  const [y, m, d] = String(maturity).slice(0, 10).split('-').map(Number);
+  const [y, m, d] = parts;
   const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
   const at = (yy: number) => Date.UTC(yy, (m || 1) - 1, d || 1);
   if (at(y) <= today) return 0;
@@ -335,7 +463,8 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
  *
  * Formula .....
  *     nothing   when is cd (or face = nothing (or not (coupon rate ≠ nothing and coupon rate > 0) (or maturity is missing when missing or zero) when missing or zero) when missing or zero)
- *     nothing   when y is missing
+ *     parts = maturity parts(maturity)
+ *     nothing   when parts = nothing
  *     today = date.UTC(now.get full year(), now.get month(), now.get date())
  *     at = (yy: number) => date.UTC(yy, (m or 1) − 1, d or 1)
  *     nothing   when at(y) ≤ today
@@ -344,9 +473,6 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
  *     nothing   when next = today
  *     days = round((today − last) ÷ 86400000)
  *     year days = round((next − last) ÷ 86400000)
- *     the answer:
- *     amount = face × coupon rate × days ÷ year days
- *     days = days
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
@@ -379,8 +505,9 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
  */
 export function estimatedAccrued(b: BondInfo, now: Date = new Date()): { amount: number; days: number } | null {
   if (b.isCd || b.face == null || !(b.couponRate != null && b.couponRate > 0) || !b.maturity) return null;
-  const [y, m, d] = String(b.maturity).slice(0, 10).split('-').map(Number);
-  if (!y) return null;
+  const parts = maturityParts(b.maturity);   // an impossible date gives no estimate (outside review OpenAI final, 2026-10-09, DEC-0332)
+  if (parts == null) return null;
+  const [y, m, d] = parts;
   const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
   const at = (yy: number) => Date.UTC(yy, (m || 1) - 1, d || 1);
   if (at(y) <= today) return null;
@@ -473,9 +600,9 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *     list = bonds (or none when missing)
  *     total value = Σ over list of (value)
  *     total face = Σ over list of (face (or 0 when missing))
- *     coupon = Σ over list of (yearly interest(each) (or 0 when missing))
+ *     coupon = Σ over list of (yearly interest now(each, now) (or 0 when missing))
  *     clean = (b: bond info) => value
- *     priced = list where clean(each) > 0 and yearly interest(each) ≠ nothing
+ *     priced = list where clean(each) > 0 and yearly interest(each) ≠ nothing and !is past maturity(maturity, now)
  *     clean value = Σ over priced of (clean(each))
  *     avg yield = Σ over clean value > 0 ? priced of (yearly interest(each) (or 0 when missing))÷ clean value : nothing
  *     today = iso local date(now)
@@ -519,14 +646,16 @@ export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSumm
   const list = bonds ?? [];
   const totalValue = (list.reduce((t, b) => t + b.value, 0));
   const totalFace = (list.reduce((t, b) => t + (b.face ?? 0), 0));
-  const coupon = (list.reduce((t, b) => t + (yearlyInterest(b) ?? 0), 0));   // a CD by its balance counts its balance × rate
+  // a CD by its balance counts its balance × rate; a matured bond counts $0 (outside review OpenAI final, 2026-10-09, DEC-2748d)
+  const coupon = (list.reduce((t, b) => t + (yearlyInterestNow(b, now) ?? 0), 0));
   // THE AVERAGE YIELD IS OVER THE BONDS THAT HAVE A VALUE TODAY, ON THAT VALUE LESS ACCRUED INTEREST.
   // Found by the outside review, 2026-10-04 (batch networth 01): a bond with no value still added its
   // coupon to the top and nothing to the bottom, and accrued interest — which one bond's own yield
   // subtracts when it is known (his ruling A47, 2026-08-26) — was left in. Three bonds of which one was
   // unpriced read 6.09% where 4.22% is right.
   const clean = (b: BondInfo) => b.value;   // the statement value, without accrued interest (his ruling, 2026-10-09)
-  const priced = list.filter((b) => clean(b) > 0 && yearlyInterest(b) != null);   // a bond with no rate is in neither half
+  // a bond with no rate is in neither half; nor is a matured one, which pays nothing more (outside review OpenAI final, 2026-10-09, DEC-2748d)
+  const priced = list.filter((b) => clean(b) > 0 && yearlyInterest(b) != null && !isPastMaturity(b.maturity, now));
   const cleanValue = priced.reduce((t, b) => t + clean(b), 0);
   const avgYield = cleanValue > 0 ? priced.reduce((t, b) => t + (yearlyInterest(b) ?? 0), 0) / cleanValue : null;
   // NEXT TO MATURE IS THE EARLIEST DATE AFTER TODAY — by the calendar, not the clock. A bond maturing
@@ -542,19 +671,23 @@ export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSumm
  * Answers ..... Total annual coupon income across the user's INDIVIDUAL bonds (kept for the Bonds screen summary).
  *
  * Formula .....
- *     Σ over accounts (or none when missing) where is bond of (yearly interest(bond info(each)) (or 0 when missing))
+ *     Σ over accounts (or none when missing) where is bond of (yearly interest now(bond info(each), now) (or 0 when missing))
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
  * Formula also on the master file · functions_from_code · MK-NW-F-062
  * Changed ..... 2026-08-04 (abb4c23)
  */
-export function couponIncomeAnnual(accounts: AssetAccount[]): number {
+export function couponIncomeAnnual(accounts: AssetAccount[], now: Date = new Date()): number {
   // the same per-account rule as interestIncomeAnnual, so the Bonds screen and the income figure agree:
-  // a CD typed by its balance used to count $0 here and balance × rate there (outside review, 2026-10-07)
-  return ((accounts ?? []).filter(isBond).reduce((t, a) => t + (yearlyInterest(bondInfo(a)) ?? 0), 0));
+  // a CD typed by its balance used to count $0 here and balance × rate there (outside review, 2026-10-07);
+  // a matured bond counted a year's coupon here and $0 there (outside review OpenAI final, 2026-10-09, DEC-2748d)
+  return ((accounts ?? []).filter(isBond).reduce((t, a) => t + (yearlyInterestNow(bondInfo(a), now) ?? 0), 0));
 }
 
 /** Canonical annual INTEREST income across all interest-bearing holdings (Term #6). Individual
@@ -569,10 +702,8 @@ export function couponIncomeAnnual(accounts: AssetAccount[]): number {
  * Answers ..... The interest every bond, CD and rate-paying cash account pays in a year, added up, counting nothing for a holding that states no rate.
  *
  * Formula .....
- *     today = iso local date(now)
  *     cls = asset class of(a)
- *     t   when maturity date and string(maturity date).slice(0, 10) < today
- *     the answer = t + (yearly interest(bond info(a)) ?? 0)
+ *     the answer = t + (yearly interest now(bond info(a), now) ?? 0)
  *
  * Called by ... MK-NW-F-062 couponIncomeAnnual
  *
@@ -582,7 +713,6 @@ export function couponIncomeAnnual(accounts: AssetAccount[]): number {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-012 bond coupon rate
- *               MK-XS-I-013 bond maturity date
  *
  * Decides .....
  *     · If coupon rate is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -593,16 +723,14 @@ export function couponIncomeAnnual(accounts: AssetAccount[]): number {
  * Changed ..... 2026-08-04 (abb4c23)
  */
 export function interestIncomeAnnual(accounts: AssetAccount[], now: Date = new Date()): number {
-  const today = isoLocalDate(now);
   return ((accounts ?? []).reduce((t, a) => {
     const cls = assetClassOf(a);
     if (cls === 'bonds') {
       // a bond or CD whose maturity date has passed pays no further interest; it used to keep counting
-      // a year's coupon (outside review, 2026-10-07)
-      if (a.maturity_date && String(a.maturity_date).slice(0, 10) < today) return t;
+      // a year's coupon (outside review, 2026-10-07) — now by the one shared test (outside review OpenAI final, 2026-10-09, DEC-2748c)
       // face × rate; a CD with no face, balance × rate (founder rule 2026-08-04: CDs are bonds);
       // A46 (founder, 2026-08-26): no coupon rate → $0, never a built-in yield
-      return t + (yearlyInterest(bondInfo(a)) ?? 0);
+      return t + (yearlyInterestNow(bondInfo(a), now) ?? 0);
     }
     if (cls === 'cash' && (a.coupon_rate || 0) > 0) {
       return t + (a.balance || 0) * (a.coupon_rate as number);            // CD / money-market with a stated rate
@@ -628,6 +756,7 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
  * Formula .....
  *     t = years to maturity(maturity, now)
  *     nothing   when t = nothing (or t ≤ 0 when missing or zero)
+ *     nothing   when face = nothing (or not (face > 0) or !(1 + y > 0) when missing or zero)
  *     c = annual coupon(b) (or 0 when missing)
  *     pv = 0
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
@@ -652,7 +781,6 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
  *               MK-XS-I-049 bond price — what the bond is worth today
  *
  * Decides .....
- *     · If face is missing it uses 0.
  *     · Uses a built-in pv of 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-069
@@ -666,10 +794,13 @@ export function priceAtYield(b: BondInfo, y: number, now: Date): number | null {
   // the old answer. Nothing when matured or with no date — no yield search runs on it.
   const t = yearsToMaturity(b.maturity, now);
   if (t == null || t <= 0) return null;
+  // no face entered prices nothing, never $0; a yield at or below −100% has no price, not Infinity
+  // (outside review OpenAI final, 2026-10-09, DEC-2748b)
+  if (b.face == null || !(b.face > 0) || !(1 + y > 0)) return null;
   const c = annualCoupon(b) ?? 0;
   let pv = 0;
   for (let k = t; k > 1e-9; k -= 1) pv += c / Math.pow(1 + y, k);
-  pv += (b.face ?? 0) / Math.pow(1 + y, t);
+  pv += b.face / Math.pow(1 + y, t);
   return pv;
 }
 

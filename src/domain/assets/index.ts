@@ -77,6 +77,9 @@ export interface AssetAccount {
   mask?: string;                  // '••4821' — how banks disambiguate accounts
   status?: 'open' | 'closed' | 'archived' | 'unavailable';   // broker-reported; closed is SHOWN, never dropped
   wrapper_confirmed?: boolean;    // the USER confirmed kind/tax_bucket — syncs never override it
+  // the PERSON chose this account's class in the Net worth editor — the class sweep never changes it
+  // (the same word a holding carries; outside review OpenAI final, 2026-10-09, DEC-2748h)
+  class_source?: 'user';
   snaptrade_account_id?: string;  // stable SnapTrade account id — how syncs find an absorbed manual row
   option_holdings?: {             // SnapTrade v2 (G2): itemized option positions on a connected
     label: string;                // account — 'AAPL $220 call · exp Jan 16 2027'. Their value is
@@ -357,10 +360,9 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  * Formula .....
  *     name evidence(label)
  *
- * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
- *               MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
+ * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-123 holdingNameEvidence
  *
- * Reaches ..... 188 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 191 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -370,7 +372,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 170 more — the full list is on functions_from_code
+ *               … and 173 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -393,19 +395,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *     'bonds'   if maturity date and string(maturity date).trim()
  *     'cash'   otherwise
  *
- * Called by ... MK-NW-F-053 correctClassOf
- *
- * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-NW-F-053 correctClassOf
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               … and 42 more — the full list is on functions_from_code
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -456,6 +446,53 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
   }
 }
 
+/** What an account's own facts say its class is, before its kind is read: a maturity date first, then
+ *  its name — never a property's name. ONE order, read by MK-NW-F-011 assetClassOf and MK-NW-F-053
+ *  correctClassOf, which used to read the name first and re-filed 'Ally Money Market CD' maturing
+ *  2027-06-30 to Stocks / Funds (outside review OpenAI final, 2026-10-09, DEC-2484i, DEC-3035o). */
+/* ─ MK-NW-F-120 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * classEvidenceOf
+ *
+ * Answers ..... What an account's own facts say its class is, before its kind is read: a maturity date first, then its name — never a property's name.
+ *
+ * Formula .....
+ *     'bonds'   when maturity date and string(maturity date).trim()
+ *     is property = tax bucket = 'PROPERTY' (or kind = 'home' (or kind = 'real_estate' (or kind = 'vehicle' when missing or zero) when missing or zero) when missing or zero)
+ *     the answer:
+ *     nothing   if is property
+ *     income bearing class of(label)   otherwise
+ *
+ * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
+ *
+ * Reaches ..... 189 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               … and 171 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-120
+ * Changed ..... not in git yet (—)
+ */
+export function classEvidenceOf(a: AssetAccount): AssetClass | null {
+  if (a.maturity_date && String(a.maturity_date).trim()) return 'bonds';   // founder rule 2026-08-04: ANY maturity date is a bond
+  // A PROPERTY'S NAME IS A PLACE, NOT EVIDENCE (outside review, 2026-10-07): 'Silver Lake house' read as
+  // an alternative and 'Bond Street flat' as a bond, so a home left Real estate. A home, real estate, a
+  // vehicle or anything in the property bucket skips the name.
+  const isProperty = a.tax_bucket === 'PROPERTY' || a.kind === 'home' || a.kind === 'real_estate' || a.kind === 'vehicle';
+  return isProperty ? null : incomeBearingClassOf(a.label);
+}
+
 /** What an account is: cash, bonds and CDs, stocks and funds, an alternative, real estate, personal property, or not yet known.
  *  The first that applies. (1) The class the person stated. (2) A maturity date makes it a bond or
  *  CD, whatever its name says — the owner's rule of 2026-08-04, which the name used to outrank
@@ -470,11 +507,8 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *
  * Formula .....
  *     asset class   when asset class
- *     'bonds'   when maturity date and string(maturity date).trim()
- *     is property = tax bucket = 'PROPERTY' (or kind = 'home' (or kind = 'real_estate' (or kind = 'vehicle' when missing or zero) when missing or zero) when missing or zero)
- *     by label = nothing   if is property
- *     income bearing class of(label)   otherwise
- *     by label   when by label
+ *     evidence = class evidence of(a)
+ *     evidence   when evidence
  *     by kind = KIND_TO_CLASS[kind]   if kind
  *     undefined   otherwise
  *     by kind   when by kind
@@ -483,7 +517,6 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *     'real_estate'   if kind is missing (or re use when missing or zero)
  *     'personal_property'   otherwise   when tax bucket = 'PROPERTY'
  *     the answer = 'mixed'
- *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts · MK-NW-F-001 isAlternative
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-007 assetKind
@@ -494,7 +527,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-NW-F-063 interestIncomeAnnual · MK-NW-F-106 mortgagesByProperty
  *               MK-NW-F-117 propertyUseMap · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 185 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 134 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -504,11 +537,10 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 167 more — the full list is on functions_from_code
+ *               … and 116 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
@@ -517,13 +549,8 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
  */
 export function assetClassOf(a: AssetAccount): AssetClass {
   if (a.asset_class) return a.asset_class;
-  if (a.maturity_date && String(a.maturity_date).trim()) return 'bonds';   // founder rule 2026-08-04: ANY maturity date is a bond
-  // A PROPERTY'S NAME IS A PLACE, NOT EVIDENCE (outside review, 2026-10-07): 'Silver Lake house' read as
-  // an alternative and 'Bond Street flat' as a bond, so a home left Real estate. A home, real estate, a
-  // vehicle or anything in the property bucket skips the name.
-  const isProperty = a.tax_bucket === 'PROPERTY' || a.kind === 'home' || a.kind === 'real_estate' || a.kind === 'vehicle';
-  const byLabel = isProperty ? null : incomeBearingClassOf(a.label);
-  if (byLabel) return byLabel;                         // founder rule 2026-08-04: cash = cash only
+  const evidence = classEvidenceOf(a);
+  if (evidence) return evidence;                       // founder rule 2026-08-04: cash = cash only
   const byKind = a.kind ? KIND_TO_CLASS[a.kind] : undefined;
   if (byKind) return byKind;
   if (a.positions && a.positions.length) return 'stocks_etf';   // imported ticker holdings ⇒ market securities
@@ -623,9 +650,12 @@ export function taxWordsOf(a: AssetAccount): string {
  * Formula .....
  *     nothing   when asset class of(a) ! = 'real_estate'
  *     'land'   when re use = 'land'
- *     'rental'   when rentals and rented ids of(rentals).has(string(asset id))
- *     the answer = re use (or 'primary' when missing)
- *     use = property use map(accounts, rentals).get(string(asset id))
+ *     re use (or 'primary' when missing)   when !accounts and !array.is array(rentals)
+ *     use = property use map(accounts ?? [a], rentals).get(string(asset id))
+ *     the answer:
+ *     'primary'   if use = 'home'
+ *     'rental'   if use = 'rental'
+ *     'secondary'   otherwise   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -648,11 +678,11 @@ export function realEstateUseOf(a: AssetAccount, accounts?: AssetAccount[], rent
   // propertyUses each read a property's use their own way, and disagreed. All three now read
   // propertyUseMap. Handed the rent entries from the Income screen, a property is a rental only when an
   // entry names it (DEC-1926); a rented-out house marked as the home is a rental.
-  if (!accounts) {
-    if (rentals && rentedIdsOf(rentals).has(String(a.asset_id))) return 'rental';
-    return a.re_use ?? 'primary';
-  }
-  const use = propertyUseMap(accounts, rentals).get(String(a.asset_id));
+  // Handed the rent entries but no household, the property is read as a household of one by the same
+  // map: a stored 'rental' no entry names is a second home, as propertyUseMap says for the same input
+  // (outside review OpenAI final, 2026-10-09, DEC-3035p). Not handed the entries, the stored word stands.
+  if (!accounts && !Array.isArray(rentals)) return a.re_use ?? 'primary';
+  const use = propertyUseMap(accounts ?? [a], rentals).get(String(a.asset_id));
   return use === 'home' ? 'primary' : use === 'rental' ? 'rental' : 'secondary';
 }
 
@@ -669,7 +699,7 @@ export type RentEntry = { income?: any; expenses?: any; property_id?: any };
  *
  * Called by ... MK-NW-F-115 liveRent
  *
- * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
  *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
  *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
@@ -678,8 +708,8 @@ export type RentEntry = { income?: any; expenses?: any; property_id?: any };
  *               MK-NW-F-110 primaryHomeIdOf · MK-NW-F-117 propertyUseMap
  *               MK-NW-F-107 propertyUses · MK-NW-F-013 realEstateUseOf
  *               MK-NW-F-116 rentedIdsOf · MK-NW-F-033 retirementEarmarkedValue
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
- *               … and 7 more — the full list is on functions_from_code
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-008 rmdSchedule
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -698,7 +728,7 @@ const rentAmount = (v: any) => Number(String(v ?? '').replace(/[^0-9.-]/g, '')) 
  *
  * Called by ... MK-NW-F-116 rentedIdsOf · MK-NW-F-117 propertyUseMap
  *
- * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
  *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
  *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
@@ -706,9 +736,9 @@ const rentAmount = (v: any) => Number(String(v ?? '').replace(/[^0-9.-]/g, '')) 
  *               MK-PL-F-026 planDoor · MK-NW-F-110 primaryHomeIdOf
  *               MK-NW-F-117 propertyUseMap · MK-NW-F-107 propertyUses
  *               MK-NW-F-013 realEstateUseOf · MK-NW-F-116 rentedIdsOf
- *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               … and 6 more — the full list is on functions_from_code
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               … and 8 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -726,9 +756,9 @@ const liveRent = (rentals: RentEntry[] | null | undefined) => (rentals ?? []).fi
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-117 propertyUseMap
+ * Called by ... MK-NW-F-117 propertyUseMap
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
  *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
  *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
@@ -736,9 +766,9 @@ const liveRent = (rentals: RentEntry[] | null | undefined) => (rentals ?? []).fi
  *               MK-PL-F-026 planDoor · MK-NW-F-110 primaryHomeIdOf
  *               MK-NW-F-117 propertyUseMap · MK-NW-F-107 propertyUses
  *               MK-NW-F-013 realEstateUseOf · MK-NW-F-033 retirementEarmarkedValue
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-005 theAlternativesOutlook
- *               … and 5 more — the full list is on functions_from_code
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 7 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -773,17 +803,17 @@ const rentedIdsOf = (rentals: RentEntry[] | null | undefined) =>
  * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-107 propertyUses
  *               MK-NW-F-110 primaryHomeIdOf
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
  *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
  *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
  *               MK-PL-F-077 clamp · MK-CF-O-017 futurePaycheck
  *               MK-PL-F-026 planDoor · MK-NW-F-110 primaryHomeIdOf
  *               MK-NW-F-107 propertyUses · MK-NW-F-013 realEstateUseOf
- *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-NW-O-005 theAlternativesOutlook · MK-CF-O-020 theBudgetCounted
- *               … and 4 more — the full list is on functions_from_code
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               … and 6 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -828,15 +858,16 @@ export function propertyUseMap(accounts: AssetAccount[], rentals?: RentEntry[] |
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-NW-F-033 retirementEarmarkedValue · MK-NW-F-035 blendedVolatility
- *               MK-NW-F-037 blendedReturn
+ *               MK-NW-F-037 blendedReturn · MK-PL-F-001 taxBucketSplit
  *
- * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-037 blendedReturn
  *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
  *               MK-XS-F-031 buildSnapshot · MK-PL-F-077 clamp
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
- *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
  *               MK-NW-O-005 theAlternativesOutlook · MK-NW-F-003 valueFreshness
  *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
  *
@@ -1382,7 +1413,7 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  *     undefined   otherwise
  *     stored (or 'mixed' when missing)   when class source = 'user'
  *     'mixed'   when class asked
- *     by name = income bearing class of(`${ticker ?? ''} ${name ?? description ?? label ?? ''}`)
+ *     by name = holding name evidence(p)
  *     by name   when by name and by name ! = 'cash'
  *     the answer:
  *     stored (or 'cash'   if by name = 'cash'
@@ -1404,8 +1435,7 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  *               … and 11 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
- *               MK-XS-I-048 the person’s own asset-class answer
+ * Reads ....... MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-056 how a holding was classified, and by whom
  *
@@ -1419,14 +1449,119 @@ export function holdingClassOf(p: any): AssetClass {
   // 2026-09-30 (master Q11, DEC-2160) is 'Refuse the line and ask'. It is Unclassified now.
   const tag = p?.asset_class;
   const byKind = p?.kind ? KIND_TO_CLASS[p.kind] : undefined;
-  const stored: AssetClass | null = tag === 'bond' ? 'bonds' : tag === 'other' ? 'alternatives' : tag === 'cash' ? 'cash'
-    : tag ? 'stocks_etf'
-    : byKind && byKind !== 'real_estate' && byKind !== 'personal_property' ? byKind : null;
+  const stored: AssetClass | null = holdingTagClass(tag)
+    ?? (byKind && byKind !== 'real_estate' && byKind !== 'personal_property' ? byKind : null);
   if (p?.class_source === 'user') return stored ?? 'mixed';
   if (p?.class_asked) return 'mixed';
-  const byName = incomeBearingClassOf(`${p?.ticker ?? ''} ${p?.name ?? p?.description ?? p?.label ?? ''}`);
+  const byName = holdingNameEvidence(p);
   if (byName && byName !== 'cash') return byName;
   return stored ?? (byName === 'cash' ? 'cash' : 'mixed');
+}
+
+/** The class a holding's stored tag stands for — 'bond' Bonds & CDs, 'other' Alternatives, 'cash' Cash,
+ *  any other tag Stocks / Funds — or null when nothing is stored. ONE reading, used by MK-NW-F-109
+ *  holdingClassOf and MK-NW-F-054 reclassifyAccounts (outside review OpenAI final, 2026-10-09, DEC-2484r). */
+/* ─ MK-NW-F-121 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * holdingTagClass
+ *
+ * Answers ..... The class a holding's stored tag stands for — 'bond' Bonds & CDs, 'other' Alternatives, 'cash' Cash, any other tag Stocks / Funds — or null when nothing is stored.
+ *
+ * Formula .....
+ *     'bonds'   if tag = 'bond'
+ *     'alternatives'   if tag = 'other'
+ *     'cash'   if tag = 'cash'
+ *     'stocks_etf'   if tag
+ *     nothing   otherwise   otherwise   otherwise   otherwise
+ *
+ * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
+ *
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               … and 67 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-121
+ * Changed ..... not in git yet (—)
+ */
+export function holdingTagClass(tag?: string | null): AssetClass | null {
+  return tag === 'bond' ? 'bonds' : tag === 'other' ? 'alternatives' : tag === 'cash' ? 'cash' : tag ? 'stocks_etf' : null;
+}
+/** The tag a holding is stored under for a class — the reverse of holdingTagClass. Gold is 'other'
+ *  (Alternatives), never 'stock_etf' (outside review OpenAI final, 2026-10-09, DEC-3035f). */
+/* ─ MK-NW-F-122 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * holdingTagFor
+ *
+ * Answers ..... The tag a holding is stored under for a class — the reverse of holdingTagClass.
+ *
+ * Formula .....
+ *     'bond'   if cls = 'bonds'
+ *     'other'   if cls = 'alternatives'
+ *     'cash'   if cls = 'cash'
+ *     'stock_etf'   if cls = 'stocks_etf'
+ *     nothing   otherwise   otherwise   otherwise   otherwise
+ *
+ * Called by ... MK-NW-F-054 reclassifyAccounts
+ *
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               … and 67 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-122
+ * Changed ..... not in git yet (—)
+ */
+export function holdingTagFor(cls: AssetClass): 'bond' | 'other' | 'cash' | 'stock_etf' | null {
+  return cls === 'bonds' ? 'bond' : cls === 'alternatives' ? 'other' : cls === 'cash' ? 'cash' : cls === 'stocks_etf' ? 'stock_etf' : null;
+}
+/** What a holding's name (ticker and description together) is evidence for, or null. */
+/* ─ MK-NW-F-123 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * holdingNameEvidence
+ *
+ * Answers ..... What a holding's name (ticker and description together) is evidence for, or null.
+ *
+ * Formula .....
+ *     income bearing class of(`${ticker ?? ''} ${name ?? description ?? label ?? ''}`)
+ *
+ * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
+ *
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               … and 67 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-123
+ * Changed ..... not in git yet (—)
+ */
+export function holdingNameEvidence(p: any): AssetClass | null {
+  return incomeBearingClassOf(`${p?.ticker ?? ''} ${p?.name ?? p?.description ?? p?.label ?? ''}`);
 }
 
 /** How much of one account sits in each class, with the parts adding up exactly to the account's balance.
@@ -1598,8 +1733,10 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
 }
 
 const CD_RE = /\b(cd|certificate of deposit)\b/i;
-// broker wording too — 'UNITED STATES TREAS BILLS', 'US TREAS NT', 'UST' (outside review, 2026-10-07)
-const TREASURY_RE = /\b(treasur\w*|treas|ust|t-?bills?|t-?notes?|t-?bonds?|govt?|government)\b/i;
+// broker wording too — 'UNITED STATES TREAS BILLS', 'US TREAS NT', 'UST' (outside review, 2026-10-07).
+// 'government' / 'govt' are NOT Treasury words: an agency or a foreign government bond is not a US
+// Treasury — 'US Government Agency 2032' is a bond (outside review OpenAI final, 2026-10-09, DEC-3035g)
+const TREASURY_RE = /\b(treasur\w*|treas|ust|t-?bills?|t-?notes?|t-?bonds?)\b/i;
 
 /** Writes a count with its noun, singular for one and plural otherwise: 1 CD, 3 CDs. */
 /* ─ MK-NW-F-067 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -1822,15 +1959,16 @@ export function earmarkDefault(a: AssetAccount, primaryCarId?: string, primaryHo
  *     the answer = [...cars].sort((x, y) => (balance or 0) − (balance or 0) or (string(asset id) < string(asset id) ? -1 : string(asset id) > string(asset id) ? 1 : 0))[0].asset id
  *
  * Called by ... MK-NW-F-033 retirementEarmarkedValue · MK-NW-F-035 blendedVolatility
- *               MK-NW-F-037 blendedReturn
+ *               MK-NW-F-037 blendedReturn · MK-PL-F-001 taxBucketSplit
  *
- * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-037 blendedReturn
  *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
  *               MK-XS-F-031 buildSnapshot · MK-PL-F-077 clamp
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
- *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
  *               MK-NW-O-005 theAlternativesOutlook · MK-NW-F-003 valueFreshness
  *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
  *
@@ -2210,14 +2348,18 @@ const DEFAULT_RETURN = 0.07;
  * Changed ..... 2026-06-05 (f742136)
  */
 export function buildAssetsState(uid: UserId, accounts: AssetAccount[]): AssetsState {
-  const total = accounts.reduce((t, a) => t + a.balance, 0);
+  // A BALANCE THAT IS NOT THERE IS LEFT OUT — null or absent alike; an absent one made What you own
+  // and Net worth NaN. The amber box (dataGaps 'no-balance') names it (outside review OpenAI final,
+  // 2026-10-09, DEC-3279e)
+  const balOf = (a: AssetAccount): number => (a.balance != null && Number.isFinite(a.balance as number) ? (a.balance as number) : 0);
+  const total = accounts.reduce((t, a) => t + balOf(a), 0);
   const withPct = accounts.map((a) => ({
-    ...a, portfolio_percentage: total > 0 ? ((a.balance / total) * 100) : 0,
+    ...a, portfolio_percentage: total > 0 ? ((balOf(a) / total) * 100) : 0,
   }));
   // no accounts, no average: the 7% that stood here was a return for a household that owns nothing
   // (outside review, 2026-10-07)
   const avg = total > 0
-    ? accounts.reduce((t, a) => t + a.target_return * a.balance, 0) / total
+    ? accounts.reduce((t, a) => t + (balOf(a) ? a.target_return * balOf(a) : 0), 0) / total
     : null;
   return { user_id: uid, total_asset_value: (total), average_target_return: (avg), accounts: withPct };
 }

@@ -533,7 +533,7 @@ export interface CategoryEarned {
   label: string;
   /** Dividends and interest actually RECEIVED in the window, from the records only. */
   earned: number;
-  /** That class’s return over the window, value-weighted — null where it cannot be calculated. */
+  /** That class’s return over the window, each holding weighed by what it was worth when the window began — null where it cannot be calculated. */
   ret: number | null;
   /** True where `ret` is a STATED yearly rate (a bond or CD's own coupon), printed with "/year" —
    *  Performance v17: "a /year figure is that category's yearly pace". */
@@ -557,7 +557,7 @@ export interface CategoryEarned {
  *     r = rows.find((x) => string(position.ticker ?? '').to upper case() = string(tk ?? '').to upper case())
  *     category of(position)   when r
  *     in class = rows where category of(position) = cls
- *     usable = in class where period return ≠ nothing and (market value ?? 0) > 0
+ *     usable = in class where period return ≠ nothing and (period return as number) > -1 and (market value ?? 0) > 0
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-086 CATS
@@ -627,13 +627,19 @@ export function categoryEarnings(input: {
     if (r) return categoryOf(r.position);
     return type === 'DIVIDEND' ? 'stocks_etf' : 'bonds';
   };
-  // the value-weighted return of the holdings in one class — the same rule the whole portfolio uses
+  // WHAT THE HOLDINGS IN ONE CLASS GREW BY, weighed by what each was worth when the window BEGAN
+  // (outside review MK-NW-F-084, 2026-10-09; DEC-1669 every return time-weighted; DEC-3035b the same
+  // fix to the retirement return): each holding's start = its value now ÷ (1 + its return), and the
+  // answer is Σ now ÷ Σ start − 1. Weighing by today's values counted the holding that grew most twice
+  // over: $12,000 at +20% and $10,000 at 0% read +10.91% where the class grew $20,000 → $22,000 = +10%.
+  // A holding with no return, or one of −100% or worse (no start to divide by), is left out, never read as 0.
   const retOf = (cls: string): number | null => {
     const inClass = rows.filter((x) => categoryOf(x.position) === cls);
-    const usable = inClass.filter((r) => r.periodReturn != null && (r.marketValue ?? 0) > 0);
-    const total = usable.reduce((t, r) => t + (r.marketValue ?? 0), 0);
-    if (total <= 0) return null;
-    return usable.reduce((t, r) => t + (r.periodReturn as number) * (r.marketValue ?? 0), 0) / total;
+    const usable = inClass.filter((r) => r.periodReturn != null && (r.periodReturn as number) > -1 && (r.marketValue ?? 0) > 0);
+    const now = usable.reduce((t, r) => t + (r.marketValue as number), 0);
+    const start = usable.reduce((t, r) => t + (r.marketValue as number) / (1 + (r.periodReturn as number)), 0);
+    if (now <= 0 || start <= 0) return null;
+    return now / start - 1;
   };
 
   // A BOND STATES ITS OWN YEARLY RATE, and where every bond held states one the category shows that
@@ -802,7 +808,7 @@ const PERF_ONE = (ids: string[]) => thePerformance({ ...EXAMPLE, investmentAccou
  *
  *  One window, one ledger: $825 of dividends on a fund and $505 of interest on a CD, plus one
  *  untickered dividend of $40 — which is classed by WHAT IT IS, a dividend, so it joins the funds.
- *  The holdings give each class its own return, value-weighted.
+ *  The holdings give each class its own return, each weighed by what it was worth when the window began.
  */
 const CAT_EXAMPLE = {
   windowStart: '2026-01-01',

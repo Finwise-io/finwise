@@ -173,19 +173,19 @@ export function inflowSourceWord(source: string): string {
  *               MK-CF-F-156 plannedMonthFlow · MK-CF-O-010 theMonth
  *               MK-HM-F-006 money0 · MK-NW-F-004 portfolioActualReturn
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-007 assetKind
- *               MK-NW-F-008 incomeBearingClassOf · MK-NW-F-010 wrapperAccount
- *               MK-NW-F-021 investmentsTotal · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-035 blendedVolatility · MK-NW-F-051 itemizedResultTotal
- *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-056 bondInfo
- *               MK-NW-F-075 ACC · MK-NW-F-079 EF
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-101 PLAN
- *               MK-NW-F-109 holdingClassOf · MK-NW-O-004 theEmergencyFund
+ *               MK-NW-F-008 incomeBearingClassOf · MK-NW-F-021 investmentsTotal
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-035 blendedVolatility
+ *               MK-NW-F-051 itemizedResultTotal · MK-NW-F-052 buildItemizedAccounts
+ *               MK-NW-F-056 bondInfo · MK-NW-F-075 ACC
+ *               MK-NW-F-079 EF · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-101 PLAN · MK-NW-F-120 classEvidenceOf
+ *               MK-NW-F-123 holdingNameEvidence · MK-NW-O-004 theEmergencyFund
  *               MK-NW-O-008 thePerformance · MK-PF-F-017 allocation
  *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-022 goalProgressPct
  *               MK-ST-F-072 undo · MK-XS-F-031 buildSnapshot
  *               MK-XS-F-107 mapActivityType
  *
- * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 206 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -195,7 +195,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               … and 186 more — the full list is on functions_from_code
+ *               … and 188 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

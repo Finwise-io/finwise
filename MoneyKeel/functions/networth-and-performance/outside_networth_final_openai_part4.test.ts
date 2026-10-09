@@ -249,7 +249,8 @@ describe('MK-NW-F-112 yearlyInterest — five cases', () => {
   });
   // FINDING: the Bonds screen's COUPON /year (theBonds → bondSummary, bonds/index.ts:522) gives 50 for a bond that matured
   // yesterday, expected 0 — interestIncomeAnnual (index.ts:602) leaves it out, so the two "one rule" figures disagree (DEC-2748c)
-  test.failing('edge · Expired bond handled by caller', () => {
+  // FIXED 2026-10-09 after OpenAI's final audit (was test.failing)
+  test('edge · Expired bond handled by caller', () => {
     const b = bond('M', { balance: 980, face_value: 1000, coupon_rate: 0.05, maturity_date: '2026-10-08' });
     expect({ yearlyInterest_helper: yearlyInterest(bi({ face: 1000, couponRate: 0.05, value: 980, maturity: '2026-10-08' })),
       orchestrator_interest: interestIncomeAnnual([b], ON('2026-10-09')), bonds_screen_coupon_per_year: theBonds({ accounts: [b], today: ON('2026-10-09') }).couponPerYear })

@@ -47,7 +47,7 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-XS-F-030 effectiveAnnualContribution · MK-XS-F-031 buildSnapshot
  *               MK-XS-F-058 parseReceipt
  *
- * Reaches ..... 239 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 240 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -57,7 +57,7 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 221 more — the full list is on functions_from_code
+ *               … and 222 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

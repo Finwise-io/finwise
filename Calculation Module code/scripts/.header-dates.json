@@ -754,5 +754,12 @@
 "src/domain/assets/index.ts::liveRent": "not in git yet|\u2014",
 "src/domain/assets/index.ts::rentAmount": "not in git yet|\u2014",
 "src/domain/assets/itemize.ts::itemizeMissingCount": "not in git yet|\u2014",
-"src/domain/bonds/index.ts::estimatedAccrued": "not in git yet|\u2014"
+"src/domain/bonds/index.ts::estimatedAccrued": "not in git yet|\u2014",
+"src/domain/assets/index.ts::holdingNameEvidence": "not in git yet|\u2014",
+"src/domain/assets/index.ts::holdingTagFor": "not in git yet|\u2014",
+"src/domain/assets/index.ts::holdingTagClass": "not in git yet|\u2014",
+"src/domain/assets/index.ts::classEvidenceOf": "not in git yet|\u2014",
+"src/domain/bonds/index.ts::yearlyInterestNow": "not in git yet|\u2014",
+"src/domain/bonds/index.ts::isPastMaturity": "not in git yet|\u2014",
+"src/domain/bonds/index.ts::maturityParts": "not in git yet|\u2014"
 }

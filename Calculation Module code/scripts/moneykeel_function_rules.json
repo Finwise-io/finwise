@@ -1262,7 +1262,7 @@
   "MK-NW-F-011": {
    "name": "assetClassOf",
    "rule": "The first of these that applies. (1) The class stated on the account. (2) Bonds & CDs if it has a maturity date (owner rule, 2026-08-04: any maturity-dated instrument is a bond) — whatever its name says. (3) The class its name is evidence for — except for a home, real estate, a vehicle or anything in the property bucket, whose name is a place and is not read. (4) The class of its kind: checking, savings, high-yield savings, cash management and foreign currency are cash; money market and stocks are Stocks / Funds; CD and fixed income are Bonds & CDs; private equity, hedge funds, commodities, crypto, annuities, options and other are Alternatives; home and real estate are Real estate; vehicle is Personal property. (5) Stocks / Funds if it lists holdings. (6) Cash if it is a cash account. (7) If it is property: Real estate when no kind is recorded or its use (lived in, rented, second home, land) is recorded; Personal property for any other kind. (8) Otherwise Unclassified.",
-   "read_from": "507405ff10",
+   "read_from": "c1779502aa",
    "sent_as": "0440597b60"
   },
   "MK-NW-F-012": {
@@ -1273,8 +1273,8 @@
   },
   "MK-NW-F-013": {
    "name": "realEstateUseOf",
-   "rule": "An account that is not real estate has no use (no answer). Land stated as land is land. Asked about one property alone: rental when a rent entry handed in names it, else its stated use, else the home. Asked within the household: what propertyUseMap says of it — home is the home lived in, rental is a rental, anything else is a second home.",
-   "read_from": "d1172621fb",
+   "rule": "An account that is not real estate has no use (no answer). Land stated as land is land. Asked about one property with neither the household nor the rent entries: its stated use, else the home. Given the household or the rent entries: what propertyUseMap says of it — home is the home lived in, rental is a rental (only when a rent entry handed in names it), anything else is a second home.",
+   "read_from": "e0864b88ae",
    "sent_as": "036545ad7c"
   },
   "MK-NW-F-014": {
@@ -1435,8 +1435,8 @@
   },
   "MK-NW-F-039": {
    "name": "buildAssetsState",
-   "rule": "Total = balances added up. Each account's share = its balance ÷ total × 100, or 0 when the total is 0 (an overdrawn account has a negative share; the shares still add to 100). Average target return = each account's target return weighted by its balance; no answer when the total is 0.",
-   "read_from": "20df881e46",
+   "rule": "A balance that is missing (blank, or not a number) is left out. Total = the balances that are there, added up. Each account's share = its balance ÷ total × 100, or 0 when the total is 0 or its balance is missing (an overdrawn account has a negative share; the shares still add to 100). Average target return = each account's target return weighted by its balance; no answer when the total is 0.",
+   "read_from": "4f5e5836b0",
    "sent_as": "ce4459f8e0"
   },
   "MK-NW-F-040": {
@@ -1512,20 +1512,20 @@
   },
   "MK-NW-F-052": {
    "name": "buildItemizedAccounts",
-   "rule": "One account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket, and what the original carried — its retirement share, its source, and its wrapper kind when the original is a 401(k), IRA, Roth IRA, HSA or 529 (otherwise the kind for the class); balance = its value; class as given; its yearly rate = the benchmark for its class's kind (benchmarkReturn), never 0. A bond also carries its maturity date, its rate only when one was entered, and its face value only when the person entered one — never today's value in its place. What is still unallocated, when above zero, becomes one more account named institution + cash, with the same share, source and wrapper, at the cash-management benchmark rate.",
-   "read_from": "ae7a07354b",
+   "rule": "Refused when any listed holding has no value — nothing is built, so the account stays as it was. Otherwise one account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket, and what the original carried — its retirement share, its source, and its wrapper kind when the original is a 401(k), IRA, Roth IRA, HSA or 529 (otherwise the kind for the class); balance = its value; class as given; its yearly rate = the benchmark for its class's kind (benchmarkReturn), never 0. A bond also carries its maturity date, its rate only when one was entered, and its face value only when the person entered one — never today's value in its place. What is still unallocated, when above zero, becomes one more account named institution + cash, with the same share, source and wrapper, at the cash-management benchmark rate.",
+   "read_from": "3996f7491f",
    "sent_as": "102a91ae82"
   },
   "MK-NW-F-053": {
    "name": "correctClassOf",
-   "rule": "The class an account SHOULD have, or nothing when there is no correction to make: the class its name is evidence for; else Bonds & CDs if it has a maturity date; else Stocks / Funds for a money market account; else Bonds & CDs for a CD.",
-   "read_from": "15d782f46b",
+   "rule": "The class an account SHOULD have, or nothing when there is no correction to make. A class the person chose is the class it should carry. Otherwise, in the order assetClassOf reads: Bonds & CDs if it has a maturity date; else the class its name is evidence for — never for a home, real estate, a vehicle or anything in the property bucket, whose name is a place; else Stocks / Funds for a money market account; else Bonds & CDs for a CD.",
+   "read_from": "4682327224",
    "sent_as": "15d782f46b"
   },
   "MK-NW-F-054": {
    "name": "reclassifyAccounts",
-   "rule": "For each account the person has NOT confirmed (an account they confirmed is left exactly as it is): if correctClassOf gives a class different from the one it carries, it takes that class (a cash tax bucket becomes taxable unless the new class is cash). For each holding inside it: if its name is evidence for bonds it becomes a bond; if for any other class except cash, a stock or fund. Returns the accounts and how many changes were made.",
-   "read_from": "7409e09c51",
+   "rule": "For each account the person has NOT confirmed (an account they confirmed is left exactly as it is): if the person did not choose its class and correctClassOf gives a class different from the one it carries, it takes that class (a cash tax bucket becomes taxable unless the new class is cash). For each holding inside it: a holding the person classed, or one waiting on their answer, is left as it is; otherwise, when its ticker and name are evidence for a class other than cash and its stored tag means another class, it is stored under that class — bond for Bonds & CDs, other for Alternatives (Gold), stock_etf for Stocks / Funds. No evidence leaves it as it is. Returns the accounts and how many changes were made.",
+   "read_from": "a6d287108b",
    "sent_as": "c48e5489ed"
   },
   "MK-NW-F-055": {
@@ -1548,8 +1548,8 @@
   },
   "MK-NW-F-058": {
    "name": "yearsToMaturity",
-   "rule": "Exact years to maturity, by anniversaries: the whole years counted back from the maturity date while still on or after today, plus the days from today to the first of those anniversaries ÷ the days in that year. One year to the day is exactly 1. Zero when the date is today or past. By the calendar date, never the time of day. Nothing when there is no valid date.",
-   "read_from": "797bec462c",
+   "rule": "Exact years to maturity, by anniversaries: the whole years counted back from the maturity date while still on or after today, plus the days from today to the first of those anniversaries ÷ the days in that year. One year to the day is exactly 1. Zero when the date is today or past. By the calendar date, never the time of day. Nothing when there is no date or the day does not exist (a day past the end of its month is not rolled into the next month).",
+   "read_from": "af1c484d4a",
    "sent_as": "8118b711d5"
   },
   "MK-NW-F-059": {
@@ -1566,20 +1566,20 @@
   },
   "MK-NW-F-061": {
    "name": "bondSummary",
-   "rule": "Count = how many bonds. Total value = each value added up. Total face value = each face value added up, a face not entered counting as zero. Interest in a year = yearlyInterest of each, added up, a bond with no rate counting as zero. Average yield is over the bonds that have a value today AND a rate: their yearlyInterest ÷ their value today as entered; nothing when no bond qualifies. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next.",
-   "read_from": "318ec5cd07",
+   "rule": "Count = how many bonds. Total value = each value added up. Total face value = each face value added up, a face not entered counting as zero (the bonds without one are named apart by theBonds). Interest in a year = yearlyInterestNow of each, added up: a bond past its maturity date counts $0, and a bond with no rate counts as zero. Average yield is over the bonds that have a value today AND a rate AND are not past their maturity date: their yearlyInterest ÷ their value today as entered; nothing when no bond qualifies. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next.",
+   "read_from": "b7660d6c2a",
    "sent_as": "95c273f536"
   },
   "MK-NW-F-062": {
    "name": "couponIncomeAnnual",
-   "rule": "Over the accounts that are bonds or CDs: yearlyInterest of each, added up, one with no rate counting as zero.",
-   "read_from": "ffa1ec4dbd",
+   "rule": "Over the accounts that are bonds or CDs: yearlyInterestNow of each, added up — $0 for one past its maturity date, and one with no rate counting as zero.",
+   "read_from": "cb6b289424",
    "sent_as": "19b9de3d12"
   },
   "MK-NW-F-063": {
    "name": "interestIncomeAnnual",
-   "rule": "For a bond or CD: nothing when its maturity date is before today; otherwise yearlyInterest (face × rate; with no face, balance × rate; with no rate, nothing). For a cash account that states a rate: balance × rate. Nothing for anything else. Added up over every account.",
-   "read_from": "f90f31c194",
+   "rule": "For a bond or CD: nothing when it is past its maturity date (isPastMaturity, by the calendar; no date or an impossible one is not past); otherwise yearlyInterest (face × rate; with no face, balance × rate; with no rate, nothing). For a cash account that states a rate: balance × rate. Nothing for anything else. Added up over every account.",
+   "read_from": "e34ce57145",
    "sent_as": "0772b3b134"
   },
   "MK-NW-F-064": {
@@ -1621,8 +1621,8 @@
   },
   "MK-NW-F-069": {
    "name": "priceAtYield",
-   "rule": "Nothing when the bond has matured or has no maturity date. Otherwise t = yearsToMaturity, exact; the yearly coupon (face × rate; zero when either was not entered) falls on each maturity anniversary, at t, t − 1, … down to the last above zero; price = each coupon ÷ (1 + yield) to the power of its time, added up, plus face ÷ (1 + yield) to the power t.",
-   "read_from": "71fa43acf0",
+   "rule": "Nothing when the bond has matured or has no maturity date, when no face value above zero was entered, or when 1 + yield is zero or less. Otherwise t = yearsToMaturity, exact; the yearly coupon (face × rate; zero when no rate was entered) falls on each maturity anniversary, at t, t − 1, … down to the last above zero; price = each coupon ÷ (1 + yield) to the power of its time, added up, plus face ÷ (1 + yield) to the power t.",
+   "read_from": "dfaee55079",
    "sent_as": "c459c9a051"
   },
   "MK-NW-F-070": {
@@ -1639,8 +1639,8 @@
   },
   "MK-NW-F-072": {
    "name": "rowOf",
-   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterest: face × rate; with no face, value × rate; with no rate, not entered), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
-   "read_from": "e399c7fb6f",
+   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterestNow: face × rate; with no face, value × rate; with no rate, not entered; $0 once past its maturity date, so the rows add up to the summary), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
+   "read_from": "c9134937d4",
    "sent_as": "4cc586d060"
   },
   "MK-NW-F-073": {
@@ -1651,8 +1651,8 @@
   },
   "MK-NW-F-084": {
    "name": "categoryEarnings",
-   "rule": "Uses the dividend and interest records dated on or after the period's first day, amounts taken as positive. A record that names a ticker goes to that holding's category: bond → Bonds & CDs; cash → Cash in this account; anything else → Stocks / Funds; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend, Cash in this account for interest. A category's return = its holdings' period returns averaged, weighted by market value, counting only holdings with a return and a value above zero; nothing when there are none. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding. On day one all three categories are returned with no return; any other day only the categories that earned more than zero.",
-   "read_from": "f1c50cadca",
+   "rule": "Uses the dividend and interest records dated on or after the period's first day, amounts taken as positive. A record that names a ticker goes to that holding's category: bond → Bonds & CDs; cash → Cash in this account; anything else → Stocks / Funds; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend, Cash in this account for interest. A category's return, over the holdings with a value above zero and a period return above −100%: each holding's value at the start = its value now ÷ (1 + its return); return = the values now added up ÷ the values at the start added up − 1. Nothing when no holding qualifies. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding. On day one all three categories are returned with no return; any other day only the categories that earned more than zero.",
+   "read_from": "8e5ce5b358",
    "sent_as": "f1c50cadca"
   },
   "MK-NW-F-090": {
@@ -1688,7 +1688,7 @@
   "MK-NW-O-001": {
    "name": "theBonds",
    "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures. It also names the bonds the average yield leaves out — those with no value today, and, apart, those with a value but no rate entered — and the bonds with no face value entered, so a screen can say which.",
-   "read_from": "903fe849cc",
+   "read_from": "5b0fea98c4",
    "sent_as": "ac38213b75"
   },
   "MK-NW-O-002": {
@@ -1951,7 +1951,7 @@
   "MK-NW-F-109": {
    "name": "holdingClassOf",
    "rule": "The class of one holding inside an account. What was stored: the broker's or importer's tag (bond → Bonds & CDs, other → Alternatives, cash → cash, any other tag → Stocks / Funds), else the class of the kind picked when it was added (not real estate or personal property), else nothing. (1) If the person said what it is, their answer — the stored class, or Unclassified when nothing is stored. (2) If it is marked as asked, Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (3) The class its ticker and name are evidence for, unless that is cash: a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker sent (owner rule, 2026-08-04: cash means cash only). (4) Otherwise what was stored; with nothing stored, cash when the name says cash, else Unclassified — never a guessed Stocks / Funds.",
-   "read_from": "b628f0ce02",
+   "read_from": "57edaca889",
    "sent_as": ""
   },
   "MK-NW-F-110": {
@@ -2002,8 +2002,43 @@
   },
   "MK-NW-F-119": {
    "name": "estimatedAccrued",
-   "rule": "The interest earned since the last yearly coupon, estimated from the coupon schedule: face × rate × the days since the last maturity anniversary ÷ the days in that coupon year, with the days. Nothing for a CD, a bond with no face or no rate above zero, no or an unreadable maturity date, a matured bond, or on a coupon day (nothing has accrued).",
-   "read_from": "cda35d0c7f"
+   "rule": "The interest earned since the last yearly coupon, estimated from the coupon schedule: face × rate × the days since the last maturity anniversary ÷ the days in that coupon year, with the days. Nothing for a CD, a bond with no face or no rate above zero, no maturity date or a day that does not exist, a matured bond, or on a coupon day (nothing has accrued).",
+   "read_from": "155a98484a"
+  },
+  "MK-NW-F-124": {
+   "name": "maturityParts",
+   "rule": "A maturity date read as a real calendar day: its year, month and day, when the date is written year-month-day and that day exists on the calendar. Nothing when there is no date, it is written another way, or the day does not exist (a day past the end of its month, or a month past December).",
+   "read_from": "69f9d98e84"
+  },
+  "MK-NW-F-125": {
+   "name": "isPastMaturity",
+   "rule": "Yes when the bond's maturity date is a real calendar day earlier than today's date on the device; no when it is today or later. No date, or a day that does not exist, is unknown, so the answer is no — never matured.",
+   "read_from": "f85827f633"
+  },
+  "MK-NW-F-126": {
+   "name": "yearlyInterestNow",
+   "rule": "A year's interest from one bond or CD as it pays today: $0 once it is past its maturity date; otherwise its yearly interest (face × rate, or the value × rate when no face was entered), and nothing when no rate was entered.",
+   "read_from": "02af60c1aa"
+  },
+  "MK-NW-F-120": {
+   "name": "classEvidenceOf",
+   "rule": "What an account's own facts say its class is, before its kind is looked at. Any maturity date makes it Bonds & CDs. Otherwise a property — a home, real estate, a vehicle, or anything in the property group — gives nothing, because its name is a place, not evidence. Otherwise what its name is evidence for, or nothing.",
+   "read_from": "79f377f5f0"
+  },
+  "MK-NW-F-121": {
+   "name": "holdingTagClass",
+   "rule": "The class a holding's stored tag means: bond is Bonds & CDs, other is Alternatives, cash is Cash, any other tag is Stocks / Funds, and no tag is nothing.",
+   "read_from": "279786c2d1"
+  },
+  "MK-NW-F-122": {
+   "name": "holdingTagFor",
+   "rule": "The tag a holding is stored under for a class, the reverse of the reading above: Bonds & CDs is bond, Alternatives is other, Cash is cash, Stocks / Funds is stock_etf; any other class has no tag.",
+   "read_from": "d22a769292"
+  },
+  "MK-NW-F-123": {
+   "name": "holdingNameEvidence",
+   "rule": "What a holding's ticker and description, read together, are evidence for — a class, or nothing when the words name none.",
+   "read_from": "46a4e6cbe5"
   }
  },
  "pack_sent": {

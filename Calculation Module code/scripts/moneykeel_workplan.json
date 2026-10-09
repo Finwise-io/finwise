@@ -2850,6 +2850,18 @@
     "status": "DONE — waiting on OpenAI's full audit",
     "comments": "Not pushed."
    }
+  },
+  {
+   "task": "OpenAI final audit of the whole Net worth module (2026-10-09): 505 cases on 101 cards, run against the app",
+   "todo": "Run all 505 cases (done: 433 pass, 16 app errors, 15 OpenAI slips, 35 open, 6 cannot be mapped — tests outside_networth_final_openai_part1..4, results in returned/results/). Fixed under his existing rules: matured bond pays $0 everywhere (DEC-2748d), category return start-weighted (DEC-1669/3035b), class sweep keeps the person's class and reads maturity before name and never a property name (DEC-2748h/2484r/2484i/3035o), Gold holding stays Alternatives, 'government' not a Treasury word (DEC-3035g), one property-use reading (DEC-3035p), missing balance left out with no NaN and row 'not entered', debt with no balance named in the amber box (DEC-3279e), bond with no rate keeps its facts card (DEC-2748b/c), Plan screens told the home and the car (DEC-2747e/2746b), impossible dates, unpriced itemise refused. Still to decide: the 'open' points (rent data unknown vs none, '2k' read as $2, month before Mar 31, CD with balance only, MK-NW-F-091 gain on a hand-typed CD).",
+   "status": "IN PROGRESS — 16 app errors fixed or held; open points to decide",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/ (moneykeel_nw_part1..4_audit.json, results/)",
+   "date": "2026-10-09",
+   "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond.",
+   "_written": {
+    "status": "IN PROGRESS — 16 app errors fixed or held; open points to decide",
+    "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond."
+   }
   }
  ]
 }

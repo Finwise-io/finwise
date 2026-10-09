@@ -791,7 +791,9 @@ function BondDetail({ account }: { account: AssetAccount }) {
   // It now asks the question once and reads the figures off the answer.
   const answer = theBonds({ accounts: [account], accountId: String(account.asset_id) });
   const one = answer.one;
-  if (!one || !one.maturity || one.couponRate == null) return null;   // a bond FUND — no honest bond math; a face never entered still gets its facts
+  // a bond FUND (no maturity) — no honest bond math. A face or a rate never entered still gets its facts: the card used to
+  // vanish with no rate, taking face value and maturity with it (outside review OpenAI final, 2026-10-09, DEC-2748b + DEC-2748c)
+  if (!one || !one.maturity) return null;
   const { matured, isCD } = one;
   const years = one.yearsLeft ?? 0;
   return (
@@ -799,7 +801,10 @@ function BondDetail({ account }: { account: AssetAccount }) {
       <View style={s.card}>
         <Text style={s.cardHdr2}>BOND FACTS</Text>
         <FactRow label="Face value" value={one.face != null ? fig('MK-NW-M-023', one.face) : figWords('MK-NW-M-023', 'not entered')} />
-        <FactRow label="Interest payments" value={figWords('MK-NW-M-024', `${(one.couponRate * 100).toFixed(2)}%/year · ${one.couponPerYear != null ? fig('MK-NW-M-056', one.couponPerYear) : 'not entered'}/year`)} />
+        {/* no rate entered: the rate reads "not entered" and a year's interest $0, said so in the Bonds screen's words (DEC-2748c) */}
+        <FactRow label="Interest payments" value={figWords('MK-NW-M-024', one.couponRate == null
+          ? `not entered · ${fig('MK-NW-M-056', 0)}/year — coupon rate not entered`
+          : `${(one.couponRate * 100).toFixed(2)}%/year · ${one.couponPerYear != null ? fig('MK-NW-M-056', one.couponPerYear) : 'not entered'}/year`)} />
         <FactRow label="Matures" value={figWords('MK-NW-M-025', matured ? `${one.maturity} (matured)` : `${one.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`)} />
         {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${fig('MK-NW-M-026', one.yieldToMaturity)} · estimate`} />}
         {one.currentYield != null && <FactRow label="Yield on today's value" value={fig('MK-NW-M-027', one.currentYield)} />}

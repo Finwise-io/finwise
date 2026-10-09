@@ -3,7 +3,7 @@
 // depletion age, a tax-efficient withdrawal order, and required minimum distributions (RMDs).
 import type { AssetAccount } from '../assets';
 import { rmdStartAgeFromAge, rmdDivisor as tableRmdDivisor } from '../../../Calculation Module code/engines/rmd';
-import { earmarkedAmount } from '../assets';
+import { earmarkedAmount, primaryCarIdOf, primaryHomeIdOf } from '../assets';
 import { marketValue, costBasis } from '../performance';
 
 // ---- where the money sits, by tax treatment ----
@@ -19,7 +19,8 @@ export interface BucketSplit { taxable: number; preTax: number; roth: number; ca
  *     roth = 0
  *     cash = 0
  *     total = 0
- *     v = earmarked amount(a)
+ *     car = primary car id of(accounts ?? []), home = primary home id of(accounts ?? [])
+ *     v = earmarked amount(a, car, home)
  *     the answer = s
  *
  * Called by ... MK-CF-O-017 futurePaycheck · MK-PL-F-049 retirementSpendMonthly
@@ -38,9 +39,11 @@ export interface BucketSplit { taxable: number; preTax: number; roth: number; ca
  */
 export function taxBucketSplit(accounts: AssetAccount[]): BucketSplit {
   const s: BucketSplit = { taxable: 0, preTax: 0, roth: 0, cash: 0, total: 0 };
+  // the household's home and car, so the shares agree with the nest egg (outside review OpenAI final, 2026-10-09, DEC-2747e · DEC-2746b)
+  const car = primaryCarIdOf(accounts ?? []), home = primaryHomeIdOf(accounts ?? []);
   for (const a of accounts ?? []) {
     if (a.tax_bucket === 'PROPERTY') continue;
-    const v = earmarkedAmount(a);               // retirement-earmarked portion of the account
+    const v = earmarkedAmount(a, car, home);    // retirement-earmarked portion of the account
     if (v <= 0) continue;
     if (a.tax_bucket === 'PRE_TAX') s.preTax += v;
     else if (a.tax_bucket === 'ROTH') s.roth += v;

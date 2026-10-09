@@ -158,11 +158,15 @@ export default function RetirementCockpit() {
   const level = planChance == null ? Colors.textTertiary : planChance >= 80 ? Colors.primary : planChance >= 60 ? Colors.amber : Colors.red;
 
   // donut segments (earmarked, grouped by section, Net-Worth colors)
-  const earmarked = assets.filter((a) => earmarkedAmount(a) > 0);
+  // the household's home and the car you drive, read once, so a second property counts and the car you
+  // drive does not (outside review OpenAI final, 2026-10-09, DEC-2747e · DEC-2746b · DEC-3035p). No rent
+  // entries here: the nest egg (retirementEarmarkedValue) reads none, and the donut must add up to it.
+  const carId = primaryCarIdOf(assets), homeId = primaryHomeIdOf(assets);
+  const earmarked = assets.filter((a) => earmarkedAmount(a, carId, homeId) > 0);
   const bySection: Record<string, { amt: number; full: boolean }> = {};
   earmarked.forEach((a) => {
-    const sec = sectionOf(a); const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarIdOf(assets), primaryHomeIdOf(assets)) : a.retirement_pct;
-    (bySection[sec] ||= { amt: 0, full: true }); bySection[sec].amt += earmarkedAmount(a); if (pct < 100) bySection[sec].full = false;
+    const sec = sectionOf(a); const pct = a.retirement_pct == null ? earmarkDefault(a, carId, homeId) : a.retirement_pct;
+    (bySection[sec] ||= { amt: 0, full: true }); bySection[sec].amt += earmarkedAmount(a, carId, homeId); if (pct < 100) bySection[sec].full = false;
   });
   const segs = ASSET_SECTIONS.filter((s) => (bySection[s]?.amt ?? 0) > 0).map((s) => ({ label: s, amt: bySection[s].amt, full: bySection[s].full, color: SECTION_COLOR[s] }));
 
@@ -170,7 +174,7 @@ export default function RetirementCockpit() {
   const instruments = earmarked
     .filter((a) => a.tax_bucket !== 'PROPERTY')
     .map((a) => ({ a, info: benchmarkInfo(a.kind) }))
-    .sort((x, y) => earmarkedAmount(y.a) - earmarkedAmount(x.a));
+    .sort((x, y) => earmarkedAmount(y.a, carId, homeId) - earmarkedAmount(x.a, carId, homeId));
 
   // beating-benchmark: actual portfolio return vs the blended benchmark. Portfolio actual =
   // explicit override if set, else value-weighted from the per-instrument actuals the user entered.
@@ -669,8 +673,8 @@ export default function RetirementCockpit() {
                 <TouchableOpacity style={{ flex: 1 }} disabled={!uncategorized} onPress={() => setKindPick(a)}>
                   <Text style={styles.instName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
                   {uncategorized
-                    ? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a), 'M')} · ⚠ Set a type ›</Text>
-                    : <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a), 'M')}{simple ? '' : ` · ${info.source} · ${info.period}${info.estimate ? ' · est.' : ''}`}</Text>}
+                    ? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')} · ⚠ Set a type ›</Text>
+                    : <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}{simple ? '' : ` · ${info.source} · ${info.period}${info.estimate ? ' · est.' : ''}`}</Text>}
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null
@@ -933,6 +937,8 @@ function Donut({ segments, size = 124, stroke = 16, children, label }: { segment
 export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
   open: boolean; onClose: () => void; assets: AssetAccount[]; nestEgg: number; onSet: (id: string, pct: number | null) => void; onDone: () => void;
 }) {
+  // the same home and car the Plan donut uses (outside review OpenAI final, 2026-10-09, DEC-2747e · DEC-2746b)
+  const carId = primaryCarIdOf(assets), homeId = primaryHomeIdOf(assets);
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
@@ -945,7 +951,7 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: 
         <ScrollView automaticallyAdjustKeyboardInsets style={{ maxHeight: 380 }} keyboardShouldPersistTaps="handled">
           {assets.map((a) => {
             const isProp = a.tax_bucket === 'PROPERTY';
-            const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarIdOf(assets), primaryHomeIdOf(assets)) : a.retirement_pct;
+            const pct = a.retirement_pct == null ? earmarkDefault(a, carId, homeId) : a.retirement_pct;
             return (
               <View key={a.asset_id} style={[styles.acc, (isProp || pct === 0) && { opacity: 0.55 }]}>
                 <Text style={styles.accIc}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
@@ -956,7 +962,7 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: 
                 {isProp ? <Text style={styles.counts}>—</Text> : (
                   <>
                     <View style={styles.pctBox}><TextInput style={styles.pctIn} keyboardType="number-pad" value={String(pct)} onChangeText={(t) => onSet(a.asset_id, clamp(Math.round(num(t)), 0, 100))} /><Text style={styles.pctU}>%</Text></View>
-                    <Text style={styles.counts}>{moneyCompact(earmarkedAmount(a), 'M')}</Text>
+                    <Text style={styles.counts}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}</Text>
                     {a.retirement_pct != null && (
                       <TouchableOpacity accessibilityLabel={`Use the automatic share for ${a.institution?.trim() || a.label}`} onPress={() => onSet(a.asset_id, null)}>
                         <Text style={styles.autoLink}>auto</Text>

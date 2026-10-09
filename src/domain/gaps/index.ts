@@ -9,6 +9,7 @@
 // Each gap carries: what's missing (title), what the app is honestly doing meanwhile (meanwhile),
 // and the button that lands on the exact cure (fixLabel + route) — never a generic settings page.
 import type { AssetAccount } from '../assets';
+import type { Debt } from '../debt';
 import { historyCoverage, accountDisplayNames } from '../assets';
 import { daysSince } from '../_shared/freshness';
 
@@ -21,6 +22,7 @@ export interface DataGap {
   fixLabel: string;     // the button that cures it
   route: string;        // where that button lands (the exact field, not a settings page)
   accountId?: string;
+  debtId?: string;      // set on a debt's gap (a debt with no balance)
   /** What the button DOES. 'sync' runs the sync in place (a button that says "Sync now" must sync,
    *  founder finding 2026-08-11); 'reconnect' opens the connection flow; absent = plain navigation. */
   action?: 'sync' | 'reconnect';
@@ -127,18 +129,21 @@ const nameOf = (a: AssetAccount, names: Map<string, string>) =>
  *     cov = history coverage(a, window start, new date(now))   if window start
  *     nothing   otherwise
  *     d = days since(value as of, now)
+ *     who = label.trim() (or institution.trim() (or 'A debt' when missing or zero) when missing or zero)
  *     the answer = gaps
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-006 price fetched at
+ *               MK-XS-I-014 debt balance
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-033 the date a hand-typed value was set
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · If shares is missing it uses 0.
@@ -154,6 +159,7 @@ export function dataGaps(
   now: number = Date.now(),
   transactions: { account_id?: string; type?: string }[] = [],   // the store's ledger (income rows live there, not on the account)
   failures: { accountId: string; at: string; reason?: string }[] = [],   // accounts the last sync could not reach
+  debts: Pick<Debt, 'debt_id' | 'label' | 'institution' | 'remaining_balance'>[] = [],   // what you owe — a debt with no balance is a gap too
 ): DataGap[] {
   const gaps: DataGap[] = [];
   const names = namesFor(accounts ?? []);   // one naming rule, the same one every screen shows
@@ -251,6 +257,22 @@ export function dataGaps(
           fixLabel: 'Update the value', route: `/account-detail?id=${a.asset_id}`,
         });
       }
+    }
+  }
+
+  // 6) a debt with no balance — it adds nothing to what you owe, so net worth would look complete
+  //    while a debt is unknown. Named here, like an account with no balance (Tenet 3, unknown is not
+  //    zero). (outside review OpenAI final, 2026-10-09, DEC-3279e)
+  for (const d of debts ?? []) {
+    if (d == null) continue;
+    if (d.remaining_balance == null || !Number.isFinite(d.remaining_balance as number)) {
+      const who = d.label?.trim() || d.institution?.trim() || 'A debt';
+      gaps.push({
+        kind: 'no-balance', debtId: d.debt_id,
+        title: `${who} has no balance`,
+        meanwhile: 'It is left out of what you owe until it has one — not counted as $0.',
+        fixLabel: 'Enter what you owe', route: '/(tabs)/analytics',
+      });
     }
   }
   return gaps;

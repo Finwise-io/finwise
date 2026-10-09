@@ -146,6 +146,7 @@ export const itemizedResultTotal = (lump: Pick<AssetAccount, 'balance'>, items: 
  * Answers ..... Build the new accounts to CREATE when committing an itemization.
  *
  * Formula .....
+ *     missing = items (or none when missing) where value = nothing (or !number.is finite(value) when missing or zero)
  *     institution = (lump.institution or lump.label or '').trim() (or undefined when missing or zero)
  *     bucket = lump.tax bucket
  *     wrapper = lump.kind   if lump.kind and ['401k', 'trad_ira', 'roth_ira', 'hsa', 'college_529'].includes(lump.kind)
@@ -165,13 +166,17 @@ export const itemizedResultTotal = (lump: Pick<AssetAccount, 'balance'>, items: 
  *               MK-XS-I-028 assumed return
  *               MK-XS-I-048 the person’s own asset-class answer
  *
- * Decides .....
- *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
- *
  * Formula also on the master file · functions_from_code · MK-NW-F-052
  * Changed ..... 2026-06-28 (e637ba5)
  */
 export function buildItemizedAccounts(lump: AssetAccount, items: ItemHolding[]): Omit<AssetAccount, 'asset_id'>[] {
+  // A MISSING VALUE IS NEVER $0: a holding with no value would become a $0 account and the cash left over
+  // would be built as if final. Refuse instead; the caller builds before it deletes the lump, so the lump
+  // stays as it was. (outside review OpenAI final, 2026-10-09, DEC-3279f)
+  const missing = (items ?? []).filter((h) => h.value == null || !Number.isFinite(h.value));
+  if (missing.length > 0) {
+    throw new Error(`buildItemizedAccounts: ${missing.length} listed holding${missing.length === 1 ? ' has' : 's have'} no value (${missing.map((h) => h.label || h.ticker || 'a holding').join(', ')}) — give each a value before itemising.`);
+  }
   const institution = (lump.institution || lump.label || '').trim() || undefined;
   const bucket: TaxBucket = lump.tax_bucket;
   // WHAT THE LUMP CARRIED, EVERY NEW ACCOUNT CARRIES (outside review, 2026-10-07): its retirement share —
@@ -190,7 +195,7 @@ export function buildItemizedAccounts(lump: AssetAccount, items: ItemHolding[]):
       asset_class: h.cls,
       kind: wrapper ?? h.kind ?? KIND_FOR[h.cls],
       tax_bucket: bucket,
-      balance: (h.value || 0),
+      balance: h.value as number,   // checked above: every listed holding has a value
       // the typical rate for what it IS, not 0 (outside review, 2026-10-07): an itemised fund at 0%
       // pulled the household's average return down
       target_return: benchmarkReturn(KIND_FOR[h.cls]),

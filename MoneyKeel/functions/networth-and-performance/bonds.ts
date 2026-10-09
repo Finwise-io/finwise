@@ -11,12 +11,11 @@
 //
 // Two grains, one door: `theBonds({ accounts })` answers for every bond a person holds, and
 // `theBonds({ accounts, accountId })` also answers for the one they opened.
-import { isoLocalDate } from '../../../src/domain/_shared/dates';
 import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
-  isBond, bondInfo, yearlyInterest, yearsToMaturity, currentYield, approxYTM,
+  isBond, bondInfo, yearlyInterest, yearlyInterestNow, yearsToMaturity, currentYield, approxYTM,
   bondSummary, accruedInterestCaveat, bondRateSensitivity,
   type BondInfo, type RateSensitivity,
 } from '../../../src/domain/bonds';
@@ -143,7 +142,9 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
     institution: (a as any).institution?.trim() || a.label,
     face: b.face,
     couponRate: b.couponRate,
-    couponPerYear: yearlyInterest(b),   // face × rate; a CD by its balance, balance × rate; nothing without a rate
+    // face × rate; a CD by its balance, balance × rate; nothing without a rate; $0 once matured, so the rows add up
+    // to COUPON /year (outside review OpenAI final, 2026-10-09, DEC-2748d, tenet 2)
+    couponPerYear: yearlyInterestNow(b, now),
     maturity: b.maturity,
     yearsLeft: yearsToMaturity(b.maturity, now),
     currentYield: currentYield(b),
@@ -171,7 +172,7 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *     one = nothing
  *     b = bond info(opened)
  *     row = row of(opened, now)
- *     matured today = the first 10) ≤ iso local date(now of !!row.maturity and string(row.maturity)
+ *     matured today = row.years left = 0
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
@@ -229,7 +230,8 @@ export function theBonds(input: BondsInput): Bonds {
     // MATURED IS A FACT ABOUT THE DATE, NOT THE CLOCK — and a bond with no date has not matured, it is
     // unknown (G11). It read years-left ≤ 0 with "no date" counted as 0, so an undated bond was called
     // matured, and a bond's maturity day depended on the hour and the time zone (outside review, 2026-10-04).
-    const maturedToday = !!row.maturity && String(row.maturity).slice(0, 10) <= isoLocalDate(now);
+    // an impossible date (2026-02-30) is unknown too, not matured: years left is nothing for it (outside review OpenAI final, 2026-10-09, DEC-0332)
+    const maturedToday = row.yearsLeft === 0;
     // A CD IS NOT MARKED TO MARKET — the founder's ruling, built into the door so no screen has to
     // remember it. KEEP (2026-09-27): the app does not ask whether a CD is a bank one or a brokered
     // one; it says the true thing for a bank CD, which is what almost everyone holds, and names the
@@ -393,9 +395,10 @@ export const BOND_FIGURES = declareFigures({
   'MK-NW-M-055': {
     label: 'one bond\u2019s face', unit: 'money', screens: ['/bonds'], grain: 'one bond',
     answers: 'What this one bond pays back at maturity.',
-    formula: 'the face value as entered, or the balance when no face was given',
-    inputs: ['MK-XS-I-001 account balance'],
-    refusal: 'Falls back to the value entered, and the row says face with that figure.',
+    // the declaration said a face never entered fell back to the value; the code never did (outside review OpenAI final, 2026-10-09, DEC-2748b)
+    formula: 'the face value as entered; a face never entered stays blank, never the balance and never $0',
+    inputs: ['MK-XS-I-011 bond face value'],
+    refusal: 'No face value entered \u2014 the row says \u201cface value not entered\u201d.',
     ruled: '2026-10-01',
     worked: { given: GIVEN, answer: '$10,000', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.face },
   },
@@ -465,7 +468,8 @@ export const BOND_FIGURES = declareFigures({
   'MK-NW-M-043': {
     label: 'COUPON', unit: 'money', per: 'year', screens: ['/bonds'],
     answers: 'The interest all your bonds pay in a year, in money.',
-    formula: 'for each bond: face value × coupon rate; then added up',
+    // a bond past its maturity date pays no more interest (outside review OpenAI final, 2026-10-09, DEC-2748d)
+    formula: 'for each bond: face value × coupon rate, and $0 once past its maturity date; then added up',
     inputs: ['MK-NW-I-001 your accounts'],
     refusal: 'Nothing entered yet.',
     ruled: '2026-09-27',

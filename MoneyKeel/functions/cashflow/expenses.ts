@@ -39,7 +39,7 @@ export const BIG_BILL_FLOOR = 500;
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 140 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 141 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -49,7 +49,7 @@ export const BIG_BILL_FLOOR = 500;
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 122 more — the full list is on functions_from_code
+ *               … and 123 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -81,7 +81,7 @@ export function recurringDebtPayments(s: ExpensesInput): { label: string; monthl
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 140 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 141 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -91,7 +91,7 @@ export function recurringDebtPayments(s: ExpensesInput): { label: string; monthl
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 122 more — the full list is on functions_from_code
+ *               … and 123 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -139,7 +139,7 @@ export const SHOW_FIRST = 5;
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 140 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 141 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -149,7 +149,7 @@ export const SHOW_FIRST = 5;
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 122 more — the full list is on functions_from_code
+ *               … and 123 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -196,7 +196,7 @@ export interface RadarItem { label: string; amount: number; reason: RadarReason;
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-153 radar
  *               MK-CF-F-156 plannedMonthFlow
  *
- * Reaches ..... 140 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 141 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -206,7 +206,7 @@ export interface RadarItem { label: string; amount: number; reason: RadarReason;
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 122 more — the full list is on functions_from_code
+ *               … and 123 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -238,7 +238,7 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 140 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 141 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -248,7 +248,7 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 122 more — the full list is on functions_from_code
+ *               … and 123 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -324,7 +324,7 @@ export interface Expenses {
  *               MK-XS-F-057 analyzeExpenses · MK-XS-F-176 useMonthlyStats
  *               MK-XS-F-177 useCategorySpend
  *
- * Reaches ..... 140 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 141 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -334,7 +334,7 @@ export interface Expenses {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 122 more — the full list is on functions_from_code
+ *               … and 123 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses

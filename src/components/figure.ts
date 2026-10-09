@@ -39,12 +39,14 @@ function write(spec: FigureSpec, value: number | null, hidden: boolean, spoken: 
   return writeFigure(spec, value);
 }
 
-function print(id: string, value: number | null, spoken: boolean, withPeriod: boolean): string {
+function print(id: string, raw: number | null, spoken: boolean, withPeriod: boolean): string {
+  // a value that is not a real number (NaN, Infinity) is a refused figure, exactly like null — it
+  // never reaches the screen as "NaN" or a number. (outside review OpenAI final, 2026-10-09, DEC-3523)
+  const value = raw != null && Number.isFinite(raw) ? raw : null;
   const spec = figureSpec(id);
   const hidden = useStore.getState().hideBalances;
   let text = write(spec, value, hidden, spoken);
-  const printable = value != null && Number.isFinite(value);
-  if (withPeriod && printable && spec.per) text += spoken ? ` a ${spec.per}` : `/${spec.per}`;   // spoken keeps "a month" (cluster 14)
+  if (withPeriod && value != null && spec.per) text += spoken ? ` a ${spec.per}` : `/${spec.per}`;   // spoken keeps "a month" (cluster 14)
   PRINTED.push({ id, value, text, spoken });
   return text;
 }

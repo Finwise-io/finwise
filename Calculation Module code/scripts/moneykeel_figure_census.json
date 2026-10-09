@@ -39724,7 +39724,7 @@
    "renders": 66
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:491",
+   "site": "src/screens/RetirementCockpit.tsx:495",
    "routes": [
     "/retirement"
    ],
@@ -39739,7 +39739,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:520",
+   "site": "src/screens/RetirementCockpit.tsx:524",
    "routes": [
     "/retirement"
    ],
@@ -39756,7 +39756,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:555",
+   "site": "src/screens/RetirementCockpit.tsx:559",
    "routes": [
     "/retirement"
    ],
@@ -39772,7 +39772,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:630",
+   "site": "src/screens/RetirementCockpit.tsx:634",
    "routes": [
     "/retirement"
    ],
@@ -39792,7 +39792,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:639",
+   "site": "src/screens/RetirementCockpit.tsx:643",
    "routes": [
     "/retirement"
    ],
@@ -39812,7 +39812,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:648",
+   "site": "src/screens/RetirementCockpit.tsx:652",
    "routes": [
     "/retirement"
    ],
@@ -39827,7 +39827,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:672",
+   "site": "src/screens/RetirementCockpit.tsx:676",
    "routes": [
     "/retirement"
    ],
@@ -39835,14 +39835,14 @@
     "/retirement|rich"
    ],
    "inside": "RetirementCockpit",
-   "line": "? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a), 'M')} · ⚠ Set a type ›</Text>",
+   "line": "? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')} · ⚠ Set a type ›</Text>",
    "values": [
     "$10K"
    ],
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:673",
+   "site": "src/screens/RetirementCockpit.tsx:677",
    "routes": [
     "/retirement"
    ],
@@ -39852,7 +39852,7 @@
     "/retirement|worker"
    ],
    "inside": "RetirementCockpit",
-   "line": ": <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a), 'M')}{simple ? '' : ` · ${info.source} · ${info.period}${info.estimate ? ' · est.' : ''}",
+   "line": ": <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}{simple ? '' : ` · ${info.source} · ${info.period}${info.estimate ? ",
    "values": [
     "$120K",
     "$45K",
@@ -39864,7 +39864,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:734",
+   "site": "src/screens/RetirementCockpit.tsx:738",
    "routes": [
     "/retirement"
    ],
@@ -39880,7 +39880,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:751",
+   "site": "src/screens/RetirementCockpit.tsx:755",
    "routes": [
     "/retirement"
    ],
@@ -39899,7 +39899,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:773",
+   "site": "src/screens/RetirementCockpit.tsx:777",
    "routes": [
     "/retirement"
    ],
@@ -39917,7 +39917,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:775",
+   "site": "src/screens/RetirementCockpit.tsx:779",
    "routes": [
     "/retirement"
    ],
@@ -39934,7 +39934,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:790",
+   "site": "src/screens/RetirementCockpit.tsx:794",
    "routes": [
     "/retirement"
    ],
@@ -39949,7 +39949,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:954",
+   "site": "src/screens/RetirementCockpit.tsx:960",
    "routes": [
     "/retirement"
    ],
@@ -39972,7 +39972,7 @@
    "renders": 14
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:959",
+   "site": "src/screens/RetirementCockpit.tsx:965",
    "routes": [
     "/retirement"
    ],
@@ -39982,7 +39982,7 @@
     "/retirement|worker"
    ],
    "inside": "EarmarkSheet",
-   "line": "<Text style={styles.counts}>{moneyCompact(earmarkedAmount(a), 'M')}</Text>",
+   "line": "<Text style={styles.counts}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}</Text>",
    "values": [
     "$120K",
     "$45K",
