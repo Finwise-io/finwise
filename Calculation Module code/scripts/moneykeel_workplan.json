@@ -2838,6 +2838,18 @@
     "status": "WAITING ON HIM — to send to OpenAI",
     "comments": "Batch 06's full 60-case JSON was never returned — only its fix brief; the brief's 23 tests are in. Tenets are draft v01, not yet approved by him."
    }
+  },
+  {
+   "task": "OpenAI preliminary handoff on the Net worth module (2026-10-09): four review findings, no cases",
+   "todo": "(1) Rent entries 'not handed in' vs 'none recorded' — REAL: the cash-flow budget read a profile with no rent entries as unknown; now none recorded = an empty list (MK-CF-O-020). Working it through found a gap in MK-NW-F-117: a renter owning only a stored 'rental' with no rent must not get a home, and an old stored 'rental' beside an unmarked mortgaged house must not stop that house being the home (else its mortgage is counted in Debts and in the budget line). Both pinned in budget-counted.test.ts. (2) Home ordering — already one rule: all five functions read propertyUseMap; addAsset keeps newest first. (3) More mortgages than properties — already shown: theNetWorth's mortgage check lists a mortgage on no property and Net worth opens it to fix. (4) Bond value wording — REAL: the editor said 'Current value'; it now says 'Market value, as your statement shows it — without accrued interest' (DEC-3390); Bonds v02 noted. (5) No cases yet — the full audit is still to come from OpenAI.",
+   "status": "DONE — waiting on OpenAI's full audit",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned (handoff not saved as a file)",
+   "date": "2026-10-09",
+   "comments": "Not pushed.",
+   "_written": {
+    "status": "DONE — waiting on OpenAI's full audit",
+    "comments": "Not pushed."
+   }
   }
  ]
 }

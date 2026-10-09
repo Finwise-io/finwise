@@ -133,7 +133,7 @@
   "name": "propertyUseMap",
   "kind": "function",
   "what_it_is_for": "What each property is for — the home lived in, a rental, or a second home — by his rule DEC-1926: a rental only when a rent entry on the Income screen names it; the one marked as the home is the home; with none marked and no use stated on any, the one entered first; every other property is a second home.",
-  "formula_in_words": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no use stated on any, the one entered first (last in the list) is home. Every other property is a second home, except that when a rent entry names no property and exactly one other property remains, that one is a rental.",
+  "formula_in_words": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all (unknown, not none) — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no other use stated (a stored 'rental' word does not count here), the one entered first (last in the list) that is not stored as a rental is home — a property stored as a rental is never made the home this way. Every other property is a second home, except that when a rent entry names no property and exactly one other property remains, that one is a rental.",
   "handed": "export function propertyUseMap(accounts: AssetAccount[], rentals?: RentEntry[] | null): Map<string, 'home' | 'rental' | 'second'>"
  },
  {

@@ -42,7 +42,7 @@ export interface BudgetCounted {
  *     cats = profile.spend cats   if array.is array(profile.spend cats)
  *     []   otherwise
  *     budgeted = cats.reduce((t: number, c: any) => (id = 'rent' ? t + (number(amount) or 0) : t), 0)
- *     uses = property uses(input.accounts ?? [], profile.rentals)
+ *     uses = property uses(input.accounts ?? [], array.is array(profile.rentals) ? profile.rentals : [])
  *     home = the first of [...uses].find(([, use]) => use = 'home')?.
  *     on home = mortgages by property(input.accounts ?? [], input.debts ?? []).by property.find((p) => property id = home)   if home
  *     undefined   otherwise
@@ -69,7 +69,9 @@ export function theBudgetCounted(input: { profile: any; accounts: AssetAccount[]
   const profile = input.profile ?? {};
   const cats = Array.isArray(profile.spendCats) ? profile.spendCats : [];
   const budgeted = cats.reduce((t: number, c: any) => (c?.id === 'rent' ? t + (Number(c?.amount) || 0) : t), 0);
-  const uses = propertyUses(input.accounts ?? [], profile.rentals);
+  // the profile is here, so its rent entries are known — none recorded is an empty list, not 'not told'
+  // (OpenAI review, 2026-10-09): a stored 'rental' with no rent entry is a second home, his rule DEC-1926
+  const uses = propertyUses(input.accounts ?? [], Array.isArray(profile.rentals) ? profile.rentals : []);
   const home = [...uses].find(([, use]) => use === 'home')?.[0];
   const onHome = home ? mortgagesByProperty(input.accounts ?? [], input.debts ?? []).byProperty.find((p) => p.propertyId === home) : undefined;
   const homeMortgage = onHome?.mortgageId ? String(onHome.mortgage ?? 'your mortgage') : null;

@@ -236,8 +236,8 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
               <Text style={{ color: Colors.primary, fontWeight: '700', fontSize: 15 }}>Done</Text>
             </TouchableOpacity>
           )}
-          <Text style={styles.fieldL}>Current value (blank = face value)</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="what it's worth now" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.fieldL}>Market value, as your statement shows it — without accrued interest (blank = face value)</Text>
+          <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="the value on your statement" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
           {valid && num(face) > 0 && <Text style={styles.note}>~{figPer('MK-NW-M-056', num(face) * (num(coupon) / 100))} in coupon income.</Text>}

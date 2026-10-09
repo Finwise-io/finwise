@@ -761,11 +761,14 @@ const rentedIdsOf = (rentals: RentEntry[] | null | undefined) =>
  *     out = new map<string, 'home' | 'rental' | 'second'>()
  *     rest = properties where !out.has(string(asset id))
  *     marked = rest.find((a) => re use = 'primary')
- *     home = marked (or undefined   if rest.some((a) => re use ≠ nothing)
- *     rest[rest.length − 1]   otherwise when missing)
+ *     candidates = rest where re use ! = 'rental'
+ *     other use stated = rest.some((a) => re use ≠ nothing and re use ! = 'rental')
+ *     home = marked (or undefined   if other use stated
+ *     candidates[candidates.length − 1]   otherwise when missing)
  *     others = rest where each ! = home
  *     unnamed rent = live rent(rentals).some((r) => property id = nothing or property id = '')
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-107 propertyUses
  *               MK-NW-F-110 primaryHomeIdOf
@@ -798,8 +801,15 @@ export function propertyUseMap(accounts: AssetAccount[], rentals?: RentEntry[] |
   for (const a of properties) if (named.has(String(a.asset_id)) || (!told && a.re_use === 'rental')) out.set(String(a.asset_id), 'rental');
   const rest = properties.filter((a) => !out.has(String(a.asset_id)));
   const marked = rest.find((a) => a.re_use === 'primary');
-  // addAsset puts the newest first, so the property entered first is the last one
-  const home = marked ?? (rest.some((a) => a.re_use != null) ? undefined : rest[rest.length - 1]);
+  // THE ENTERED-FIRST FALLBACK, when nothing is marked home (OpenAI review, 2026-10-09). A property stored
+  // as 'rental' is never made the home by it — a renter who owns only a rental house with no rent entered
+  // owns a second home (DEC-1926) — but its old word does not stop the fallback choosing among the others:
+  // beside it, a house with nothing stated and its mortgage is the home, or that mortgage would be counted
+  // in Debts AND in the Rent / Mortgage budget line. Any other stated use (second home, land) stops it.
+  const candidates = rest.filter((a) => a.re_use !== 'rental');
+  const otherUseStated = rest.some((a) => a.re_use != null && a.re_use !== 'rental');
+  // addAsset puts the newest first, so the property entered first is the last one in the list
+  const home = marked ?? (otherUseStated ? undefined : candidates[candidates.length - 1]);
   if (home) out.set(String(home.asset_id), 'home');
   const others = rest.filter((a) => a !== home);
   const unnamedRent = liveRent(rentals).some((r) => r?.property_id == null || r.property_id === '');

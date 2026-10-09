@@ -1938,8 +1938,8 @@
   },
   "MK-CF-O-020": {
    "name": "theBudgetCounted",
-   "rule": "Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" The home = the property read as HOME (propertyUses). Its mortgage = the mortgage matched to that property (mortgagesByProperty). When the home has a mortgage in Debts AND the budget's Rent / Mortgage line holds an amount: that line is counted as nothing, the one typed monthly total (when there is one) is lowered by the same amount, never below zero, and the sentence says the line is not counted and names the mortgage. Otherwise — a renter, a home with no mortgage, a mortgage on another property, or no amount on the line — the budget is counted exactly as typed. It also names the home's mortgage when there is one. What the person typed is never changed; this is the budget as it is counted.",
-   "read_from": "db9f756819",
+   "rule": "Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" The home = the property read as HOME (propertyUses, handed the profile's rent entries — none recorded is read as none, not as unknown). Its mortgage = the mortgage matched to that property (mortgagesByProperty). When the home has a mortgage in Debts AND the budget's Rent / Mortgage line holds an amount: that line is counted as nothing, the one typed monthly total (when there is one) is lowered by the same amount, never below zero, and the sentence says the line is not counted and names the mortgage. Otherwise — a renter, a home with no mortgage, a mortgage on another property, or no amount on the line — the budget is counted exactly as typed. It also names the home's mortgage when there is one. What the person typed is never changed; this is the budget as it is counted.",
+   "read_from": "2877cc9451",
    "sent_as": ""
   },
   "MK-NW-F-108": {
@@ -1992,8 +1992,8 @@
   },
   "MK-NW-F-117": {
    "name": "propertyUseMap",
-   "rule": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no use stated on any, the one entered first (last in the list) is home. Every other property is a second home, except that when a rent entry names no property and exactly one other property remains, that one is a rental.",
-   "read_from": "aea036cc4c"
+   "rule": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all (unknown, not none) — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no other use stated (a stored 'rental' word does not count here), the one entered first (last in the list) that is not stored as a rental is home — a property stored as a rental is never made the home this way. Every other property is a second home, except that when a rent entry names no property and exactly one other property remains, that one is a rental.",
+   "read_from": "4c1584eeb8"
   },
   "MK-NW-F-118": {
    "name": "itemizeMissingCount",

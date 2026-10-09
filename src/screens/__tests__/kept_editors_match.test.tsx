@@ -239,15 +239,19 @@ describe('Bonds v02', () => {
     const typed = ['US Treasury 2027', '25000', '4.25', 'interest earned since the last coupon, if you know it', 'amount sold (up to $24,650)'];   // 2
     const seg = upTo(P[2], /^Sold the whole position/).filter((l) => !typed.includes(l) && l !== '‹ Back');
     // the drawing's markup breaks two sentences across lines; the build prints each as one
+    // his ruling DEC-3390 on top of the drawing (2026-10-09, noted at its top): the value field says it is the
+    // statement's market value, without accrued interest
     const joined = [seg.join(' ')
-      .replace('When you enter it,', 'When you enter it,')];
+      .replace('When you enter it,', 'When you enter it,')
+      .replace('Current value (blank = face value)', 'Market value, as your statement shows it — without accrued interest (blank = face value)')
+      .replace("what it's worth now", 'the value on your statement')];
     const form = builtLines(screen.toJSON()); const from = form.indexOf('Edit bond');
     expect(from).toBeGreaterThan(0);
     const formWords = norm(form.slice(from));
     const drawnWords = norm(joined).split(' ');
     let k = 0; for (const w of formWords.split(' ')) { if (w === drawnWords[k]) k += 1; }
     expect(drawnWords.slice(k, k + 12).join(' ')).toBe('');                                                  // 8: every drawn word, in order
-    expect(form).toEqual(expect.arrayContaining(['Institution / account (optional)', 'Current value (blank = face value)', 'Save', 'Delete bond']));
+    expect(form).toEqual(expect.arrayContaining(['Institution / account (optional)', 'Market value, as your statement shows it — without accrued interest (blank = face value)', 'Save', 'Delete bond']));
   });
 });
 

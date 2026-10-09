@@ -70,3 +70,27 @@ describe('theBudgetCounted — the Rent / Mortgage line stands down when the hom
     expect([c.rentLineInDebts, c.homeMortgage]).toEqual([null, 'Chase']);
   });
 });
+
+// OPENAI REVIEW, 2026-10-09: "no rent entries handed in" must not be confused with "the person has none".
+// The profile is in hand, so a profile with no rent entries at all is read as NONE — and a property stored as
+// 'rental' with no rent entered is a second home (his rule DEC-1926), exactly as with an empty list.
+test('a profile with no rent entries is read as none recorded, the same as an empty list', () => {
+  const accounts: any[] = [{ asset_id: 'r', label: 'Old rental', kind: 'home', tax_bucket: 'PROPERTY', re_use: 'rental', balance: 300000 }];
+  const debts: any[] = [];
+  const a = theBudgetCounted({ profile: { spendCats: [{ id: 'rent', amount: 1800 }] }, accounts, debts });
+  const b = theBudgetCounted({ profile: { spendCats: [{ id: 'rent', amount: 1800 }], rentals: [] }, accounts, debts });
+  expect([a.rentLineInDebts, a.sentence, a.homeMortgage]).toEqual([b.rentLineInDebts, b.sentence, b.homeMortgage]);
+  expect(propertyUses(accounts, [] as any).get('r')).toBe('second');   // no rent entered → a second home
+});
+
+test('an old house stored as a rental (no rent entered) beside a house with nothing stated and a mortgage: that house is the home, its mortgage counted once', () => {
+  const accounts: any[] = [
+    { asset_id: 'b', label: 'Maple Ave', kind: 'home', tax_bucket: 'PROPERTY', balance: 600000 },                       // entered second (newest first)
+    { asset_id: 'a', label: 'Old rental', kind: 'home', tax_bucket: 'PROPERTY', re_use: 'rental', balance: 300000 }];
+  const debts: any[] = [{ debt_id: 'm', label: 'Maple Ave mortgage', debt_type: 'mortgage', property_id: 'b', remaining_balance: 400000, minimum_monthly_payment: 2400, interest_rate_apr: 0.06 }];
+  for (const rentals of [undefined, []]) {
+    const r = theBudgetCounted({ profile: { spendCats: [{ id: 'rent', amount: 2400 }], rentals }, accounts, debts });
+    expect(r.homeMortgage).not.toBeNull();                                  // the Rent / Mortgage line stands down
+    expect(propertyUses(accounts, rentals as any).get('b')).toBe('home');
+  }
+});
