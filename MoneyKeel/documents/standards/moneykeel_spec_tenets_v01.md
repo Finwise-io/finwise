@@ -1,6 +1,6 @@
 # MoneyKeel — tenets
 
-MoneyKeel · standard · v01 · 2026-10-07 · DRAFT FOR HIS APPROVAL
+MoneyKeel · standard · v01 · 2026-10-07 · APPROVED by him 2026-10-09 ("tenets approved") · decision log DEC-3523
 
 When two good things pull against each other, the higher tenet wins.
 

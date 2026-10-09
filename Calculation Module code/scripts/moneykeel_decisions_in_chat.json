@@ -524,6 +524,23 @@
    "proof": "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
    "supersedes": "DEC-0280",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
+  },
+  {
+   "decided": "2026-10-09",
+   "answers": [],
+   "tab": "process-and-standards",
+   "type": "PROCESS",
+   "status": "RULED",
+   "screens": "every screen",
+   "his_words": "tenets approved",
+   "subject": "The eight tenets of MoneyKeel are approved: when two pull against each other, the higher one wins",
+   "plain": "The eight tenets are approved, in this order: 1. A wrong number ends trust. 2. Every number shows how it was made. 3. Unknown is not zero. 4. One thing, one number, one word. 5. The person's word outranks the app's guess. 6. His decision is the design. 7. Honest like a fiduciary. 8. Plain words for a reader of 55 to 70. When two pull against each other, the higher one wins.",
+   "means": "Said in chat on 2026-10-09, after the draft of 2026-10-07. Every function and every figure is judged against them, starting with the outside test of the whole Net worth module.",
+   "governs": "MoneyKeel/documents/standards/moneykeel_spec_tenets_v01.md · every function · every figure",
+   "changed": "The tenets file reads APPROVED; the outside brief for the Net worth module carries them.",
+   "apply_steps": "1. Mark the tenets file approved. 2. Record his words. 3. The module audit brief carries them as the test every figure must meet. Done.",
+   "proof": "MoneyKeel/documents/audit/outside-test-cases/to-send/moneykeel_audit_module_nw_for-openai_v01.md",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_spec_tenets_v01.md"
   }
  ]
 }
