@@ -12,7 +12,8 @@
 import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
-import { cashTotal } from '../../../src/domain/assets';
+import { cashTotal, propertyUseMap } from '../../../src/domain/assets';
+import { rentFigure } from '../../../src/domain/_shared/num';
 import { emergencyTest, monthlyEssentials, plannedMonthlySpend } from '../../../src/domain/budget';
 import { paymentShape, type Debt } from '../../../src/domain/debt';
 import { theBudgetCounted } from '../cashflow/budget-counted';
@@ -37,6 +38,12 @@ export interface EmergencyFund {
    *  show two figures for it. It keeps arriving when pay stops (founder, 2026-10-04), so each month
    *  it is added to the cash before the month is paid for. 0 with no rental. */
   rentalIncomeMonthly: number;
+  /** DEC-3769 (founder, 2026-10-10): true when a property's rent is NOT KNOWN — a rent entry whose rent
+   *  figure is blank or not a plain number (DEC-3768c), or rent entries that could not be read at all while
+   *  a property other than the home is held. The months above are then counted without that rent, and the
+   *  card says so: "<N> months, rent not included. Enter rent to include." A property with no rent entry
+   *  is a second home (DEC-1926), not a missing rent, and a household with no such property is never flagged. */
+  rentNotKnown: boolean;
   /** What the cash itself must find each month: essentials less that rent, never below zero. */
   fromCashMonthly: number;
   /** True when the rent alone pays for the month, so the cash is not drawn on and no count of
@@ -171,6 +178,23 @@ export function theEmergencyFund(input: {
   const plannedFromCash = Math.max(0, planned - rent);
   const rentCovers = monthly > 0 && rent >= monthly;
 
+  // RENT NOT KNOWN (DEC-3769, 2026-10-10, his words: "How about we say "5 month xx, rent not included. Enter
+  // rent to include." instead of just showing nothing."). The months stay counted without that rent; this
+  // only says so. Three shapes, each needing a property that is not the home:
+  //   · a rent entry whose rent figure is blank or not a plain number ("about 2k", DEC-3768c);
+  //   · the old single rent figure typed but not a plain number;
+  //   · rent entries stored in a shape that cannot be read at all — or, with none stored, a property kept
+  //     as a rental. With none stored and no property kept as a rental, every other property is a second
+  //     home (DEC-1926): no rent is missing.
+  const p = input.profile ?? {};
+  const uses = [...propertyUseMap(input.accounts ?? [], Array.isArray(p.rentals) ? p.rentals : null).values()];
+  const otherProperty = uses.some((u) => u !== 'home');
+  const legacyTyped = p.rentalIncome != null && String(p.rentalIncome).trim() !== '';
+  const rentNotKnown = otherProperty && (Array.isArray(p.rentals)
+    ? p.rentals.some((r: any) => rentFigure(r?.income) == null)
+    : legacyTyped ? rentFigure(p.rentalIncome) == null
+    : p.rentals != null || uses.includes('rental'));
+
   return {
     cash,
     rentLineInDebts: budget.rentLineInDebts,
@@ -183,6 +207,7 @@ export function theEmergencyFund(input: {
     rentalIncomeMonthly: rent,
     fromCashMonthly: fromCash,
     rentCoversEssentials: rentCovers,
+    rentNotKnown,
     // never divided by nothing: with no essentials figure, or with the rent paying for the whole
     // month, there is no count of months to state
     monthsCovered: fromCash > 0 ? cash / fromCash : null,

@@ -838,6 +838,43 @@
      "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
     }
    ]
+  },
+  {
+   "match": "SUBJECT: His approval of items 2 and 3 of the open points from OpenAI's final audit of Net worth — each rule, by function",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "His approval of items 2 and 3, as a whole",
+     "plain": "His approval of items 2 and 3 of the open points from OpenAI's final audit, as a whole. Each rule is its own row beside this one.",
+     "type": "PROCESS",
+     "status": "RULED"
+    },
+    {
+     "decided": "2026-10-10",
+     "subject": "A window that reaches back whole months stops at the month's last day",
+     "plain": "A window that reaches back whole months (1M, 3M, 6M, 1Y, 2Y) starts on the same day of the earlier month, or on that month's last day when the day does not exist there. Mar 31 less one month is Feb 28; Feb 29 less a year is Feb 28. Before: the missing day rolled into the next month, so 1M from Mar 31 started Mar 3 — a 28-day window.",
+     "type": "CALCULATION",
+     "status": "RULED",
+     "screens": "/invest · /account-detail · /home",
+     "governs": "MK-NW-F-090 windowStartKey · MK-PF-F-030 startDateFor",
+     "proof": "src/domain/performance/start_date_month_end.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md",
+     "keep": true
+    },
+    {
+     "decided": "2026-10-10",
+     "subject": "A rent figure with words in it is refused, never read as its digits",
+     "plain": "A rent or running-cost figure is a number. One with words in it — \"about 2k\" — is not read: it counts as not entered, and the rent field on the Income screen takes digits only. Before: \"about 2k\" was read as $2, and the property counted as a rental.",
+     "type": "CALCULATION",
+     "status": "RULED",
+     "screens": "/income · /networth",
+     "governs": "MK-NW-F-114 rentAmount · MK-CF-F-067 rentalList · MK-NW-F-115 liveRent",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part4.test.ts (MK-NW-F-114)",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+     "keep": true
+    }
+   ]
   }
  ]
 }

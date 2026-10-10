@@ -2539,6 +2539,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "1 · ACTION"
  },
+ "rentFigure": {
+  "id": "MK-ST-F-085",
+  "file": "src/domain/_shared/num.ts",
+  "category": "3 · DEPENDENT"
+ },
  "rentalList": {
   "id": "MK-CF-F-067",
   "file": "src/domain/income/onboarding.ts",

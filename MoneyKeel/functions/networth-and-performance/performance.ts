@@ -104,6 +104,9 @@ export interface WindowFigures {
  *     '1 y': 12 = '1 y': 12
  *     '2 y': 24 = '2 y': 24
  *     `${today.slice(0, 4)}-01 − 01`   when period = 'YTD'
+ *     back = months[period] (or 12 when missing)
+ *     y = get utcfull year(), m = get utcmonth() − back, day = get utcdate()
+ *     last day = the date date.UTC(y, m + 1, 0)).get utcdate(
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -125,8 +128,12 @@ export function windowStartKey(period: string, recordDates: string[], today: str
   const d = new Date(today + 'T12:00:00Z');
   const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
   if (period === 'YTD') return `${today.slice(0, 4)}-01-01`;
-  d.setUTCMonth(d.getUTCMonth() - (months[period] ?? 12));
-  return d.toISOString().slice(0, 10);
+  // MONTHS BACK STOP AT THE MONTH'S LAST DAY (his approval, 2026-10-10, DEC-3768b): one month before Mar 31
+  // is Feb 28, never Mar 3 — the calendar used to roll a missing day into the next month.
+  const back = months[period] ?? 12;
+  const y = d.getUTCFullYear(), m = d.getUTCMonth() - back, day = d.getUTCDate();
+  const lastDay = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(y, m, Math.min(day, lastDay))).toISOString().slice(0, 10);
 }
 
 /** THE DAYS THE RECORD HOLDS AN INVESTMENT VALUE FOR, oldest first. "Since" opens on the first of

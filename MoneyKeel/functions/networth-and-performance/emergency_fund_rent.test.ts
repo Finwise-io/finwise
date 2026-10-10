@@ -139,3 +139,48 @@ describe('a debt payment that was logged as an expense', () => {
     }
   });
 });
+
+/** RENT NOT KNOWN — DEC-3769 (founder, 2026-10-10): 'How about we say "5 month xx, rent not included. Enter
+ *  rent to include." instead of just showing nothing.' The months are counted without the unknown rent, and
+ *  the door raises rentNotKnown so the card can say so. $10,000 cash, $2,000 a month of essentials. */
+describe('rentNotKnown (DEC-3769)', () => {
+  const ESS = [{ id: 'groceries', label: 'Groceries', amount: 2000, bucket: 'flexible', tier: 'need' }];
+  const home = { asset_id: 'home', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', re_use: 'primary', balance: 400000 };
+  const second = { asset_id: 'lake', label: 'Lake house', kind: 'home', tax_bucket: 'PROPERTY', balance: 250000 };
+  const run = (accounts: any[], profile: any) => theEmergencyFund({ accounts: [cashAt('chk', 'checking', 10000), ...accounts] as any, expenses: [], profile: { spendCats: ESS, ...profile } });
+
+  test('a rent entry with its rent blank: flag raised, 5 months counted without that rent', () => {
+    const e = run([home, second], { rentals: [{ type: 'long', income: '', expenses: '', property_id: 'lake' }] });
+    expect(e.rentNotKnown).toBe(true);
+    expect(e.rentalIncomeMonthly).toBe(0);
+    expect(e.monthsCovered).toBeCloseTo(5, 9);
+  });
+  test('a rent figure with words in it ("about 2k", DEC-3768c) is not known either — never $2 of rent', () => {
+    const e = run([home, second], { rentals: [{ type: 'long', income: 'about 2k', expenses: '', property_id: 'lake' }] });
+    expect(e.rentNotKnown).toBe(true);
+    expect(e.rentalIncomeMonthly).toBe(0);
+    expect(e.monthsCovered).toBeCloseTo(5, 9);
+  });
+  test('rent entered: no flag, and the rent counts', () => {
+    const e = run([home, second], { rentals: [{ type: 'long', income: '1000', expenses: '0', property_id: 'lake' }] });
+    expect(e.rentNotKnown).toBe(false);
+    expect(e.rentalIncomeMonthly).toBeGreaterThan(0);
+  });
+  test('no rent entry at all and a second home (DEC-1926): no flag', () => {
+    expect(run([home, second], { rentals: [] }).rentNotKnown).toBe(false);
+    expect(run([home, second], {}).rentNotKnown).toBe(false);
+  });
+  test('no property: no flag, even with a blank rent entry', () => {
+    const e = run([], { rentals: [{ type: 'long', income: '', expenses: '' }] });
+    expect(e.rentNotKnown).toBe(false);
+    expect(e.monthsCovered).toBeCloseTo(5, 9);
+  });
+  test('rent entries that cannot be read, beside a property that is not the home: flag raised', () => {
+    expect(run([home, second], { rentals: { broken: true } }).rentNotKnown).toBe(true);
+    // none stored, but a property kept as a rental: its rent is missing
+    expect(run([home, { ...second, re_use: 'rental' }], {}).rentNotKnown).toBe(true);
+    // the old single rent figure typed with words
+    expect(run([home, second], { rentalIncome: 'about 2k' }).rentNotKnown).toBe(true);
+    expect(run([home, second], { rentalIncome: '1500' }).rentNotKnown).toBe(false);
+  });
+});

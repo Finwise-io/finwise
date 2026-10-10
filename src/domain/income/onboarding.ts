@@ -4,7 +4,7 @@
 // and the tax config (SYSTEM_CALCULATED vs MANUAL_OVERRIDE).
 import type { UserId } from '../_shared/ids';
 import { newEntityId } from '../_shared/ids';
-import { toNum } from '../_shared/num';
+import { toNum, rentFigure } from '../_shared/num';
 import { hasMonthlySalaryTable, salaryCalendarYear } from './salary-months';
 import { sumMonthsOverEarners, sumOverEarners, earnerWages } from './earners';
 import { IncomeDoc, IncomeSource, WhoEarns, DEFAULT_TAX } from './types';
@@ -455,7 +455,8 @@ export function rsuAnnual(op: OnboardingProfile | null): number {
  * Formula .....
  *     a = op (or none when missing)
  *     norm = (t: any): 'long' | 'short' => (t = 'short' ? 'short' : 'long')
- *     [{ type: norm(rental type), income: to num(rental income), expenses: to num(rental expenses) }]   when to num(rental income) > 0
+ *     rent = (v: any) => rent figure(v) (or 0 when missing)
+ *     [{ type: norm(rental type), income: rent(rental income), expenses: rent(rental expenses) }]   when rent(rental income) > 0
  *     the answer = []
  *
  * Called by ... MK-CF-F-068 rentalNetAnnual · MK-CF-F-079 incomeFromOnboarding
@@ -482,12 +483,15 @@ export function rsuAnnual(op: OnboardingProfile | null): number {
 export function rentalList(op: OnboardingProfile | null): { type: 'long' | 'short'; income: number; expenses: number }[] {
   const a = op ?? {};
   const norm = (t: any): 'long' | 'short' => (t === 'short' ? 'short' : 'long');
+  // DEC-3768c (2026-10-10): a rent or running-cost figure is read by the one strict reader, rentFigure —
+  // "about 2k" is not entered (0 here), never $2. toNum is left alone for every other figure.
+  const rent = (v: any) => rentFigure(v) ?? 0;
   if (Array.isArray(a.rentals)) {
     return a.rentals
-      .map((r: any) => ({ type: norm(r?.type), income: toNum(r?.income), expenses: toNum(r?.expenses) }))
+      .map((r: any) => ({ type: norm(r?.type), income: rent(r?.income), expenses: rent(r?.expenses) }))
       .filter((r: any) => r.income > 0 || r.expenses > 0);
   }
-  if (toNum(a.rentalIncome) > 0) return [{ type: norm(a.rentalType), income: toNum(a.rentalIncome), expenses: toNum(a.rentalExpenses) }];
+  if (rent(a.rentalIncome) > 0) return [{ type: norm(a.rentalType), income: rent(a.rentalIncome), expenses: rent(a.rentalExpenses) }];
   return [];
 }
 

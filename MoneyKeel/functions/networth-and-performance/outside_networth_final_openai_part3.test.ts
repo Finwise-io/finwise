@@ -487,10 +487,15 @@ describe('MK-NW-F-084 categoryEarnings — five cases', () => {
 describe('MK-NW-F-090 windowStartKey — five cases', () => {
   test('easy · This year starts Jan 1', () => { expect(windowStartKey('YTD', [], '2026-10-09')).toBe('2026-01-01'); });
   test('easy · Since starts day after first record', () => { expect(windowStartKey('SINCE', ['2026-04-30'], '2026-10-09')).toBe('2026-05-01'); });
-  // UNCLEAR: app gives 2026-03-03 (overflow: setUTCMonth on the 31st, performance.ts:124-125), so "1M" from Mar 31 is a
-  // 28-day window. No decision sets the rule (DEC-0647 approves Performance v17 but says nothing about month-ends); open
-  // question: clamp to Feb 28, or keep the overflow?
-  test('complex · One month back from month-end', () => { expect(windowStartKey('1M', [], '2026-03-31')).toBe('2026-03-03'); });
+  // SETTLED 2026-10-10 by his approval DEC-3768b: months back stop at the month's last day — Mar 31 less one month is
+  // Feb 28. FIXED: the app gave 2026-03-03 (a 28-day window).
+  test('complex · One month back from month-end', () => {
+    expect(windowStartKey('1M', [], '2026-03-31')).toBe('2026-02-28');
+    expect(windowStartKey('1M', [], '2024-03-31')).toBe('2024-02-29');   // a leap year keeps its 29th
+    expect(windowStartKey('1Y', [], '2024-02-29')).toBe('2023-02-28');
+    expect(windowStartKey('3M', [], '2026-05-31')).toBe('2026-02-28');
+    expect(windowStartKey('1M', [], '2026-10-09')).toBe('2026-09-09');   // an ordinary day is unchanged
+  });
   test('complex · Since with no records starts today', () => { expect(windowStartKey('SINCE', [], '2026-10-09')).toBe('2026-10-09'); });
   test('edge · Unknown label defaults to 12 months back', () => { expect(windowStartKey('Lifetime', [], '2026-10-09')).toBe('2025-10-09'); });
 });

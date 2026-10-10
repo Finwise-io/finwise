@@ -20,32 +20,31 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-CF-F-019 upcomingBills · MK-CF-F-020 cashflowYear
  *               MK-CF-F-038 debtsFromOnboarding · MK-CF-F-059 annualizedEnteredSalary
  *               MK-CF-F-062 equityRowValue · MK-CF-F-066 rsuAnnual
- *               MK-CF-F-067 rentalList · MK-CF-F-070 benefitAnnual
- *               MK-CF-F-071 extraIncome · MK-CF-F-073 otherIncomeMonth
- *               MK-CF-F-074 tipsAnnual · MK-CF-F-075 retirementIncomeMonthly
- *               MK-CF-F-076 guaranteedOutsideStreams · MK-CF-F-077 scholarshipByCalendarMonth
- *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-083 totalGrossAnnual
- *               MK-CF-F-084 taxableAnnual · MK-CF-F-086 stateRateOf
- *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-088 taxableByCalendarMonth
- *               MK-CF-F-089 over65CountOf · MK-CF-F-092 incomeMonthlyGrid
- *               MK-CF-F-105 guaranteedRows · MK-CF-F-130 enteredMonthlyRaw
- *               MK-CF-F-141 perMonth · MK-CF-F-142 monthsOf
- *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-145 deductionsFromPay
- *               MK-CF-F-146 payFiguresAgree · MK-CF-F-150 debtPaymentsCountedAsExpenses
- *               MK-CF-F-151 actualSpending · MK-CF-F-153 radar
- *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-165 salaryMonths
- *               MK-CF-F-169 withSalaryMonth · MK-CF-F-170 salaryYearFromCells
- *               MK-CF-F-171 earnerPay · MK-CF-F-178 wageMatchMonthly
- *               MK-CF-F-180 enteredLandsAnnual · MK-CF-F-181 rateInForce
- *               MK-CF-F-185 needsTakeHomeConversion · MK-CF-F-186 convertTakeHomeMode
- *               MK-CF-F-188 householdPreTaxContributionsAnnual · MK-CF-F-189 essentialsFromLoggedSpending
- *               MK-CF-F-206 householdK401ByMonth · MK-CF-O-004 incomeSummary
- *               MK-CF-O-016 incomeSources · MK-CF-O-019 theIncomeManager
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-041 monthlyContributionsFromOnboarding
- *               MK-PL-F-013 goalsFromOnboarding · MK-PL-F-031 taxOrganizer
- *               MK-PL-F-049 retirementSpendMonthly · MK-XS-F-004 buildDatedGrid
- *               MK-XS-F-030 effectiveAnnualContribution · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-058 parseReceipt
+ *               MK-CF-F-070 benefitAnnual · MK-CF-F-071 extraIncome
+ *               MK-CF-F-073 otherIncomeMonth · MK-CF-F-074 tipsAnnual
+ *               MK-CF-F-075 retirementIncomeMonthly · MK-CF-F-076 guaranteedOutsideStreams
+ *               MK-CF-F-077 scholarshipByCalendarMonth · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-083 totalGrossAnnual · MK-CF-F-084 taxableAnnual
+ *               MK-CF-F-086 stateRateOf · MK-CF-F-087 monthlyTaxRates
+ *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-089 over65CountOf
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-105 guaranteedRows
+ *               MK-CF-F-130 enteredMonthlyRaw · MK-CF-F-141 perMonth
+ *               MK-CF-F-142 monthsOf · MK-CF-F-144 takeHomeAsEntered
+ *               MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
+ *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-151 actualSpending
+ *               MK-CF-F-153 radar · MK-CF-F-157 debtPaymentsByDebt
+ *               MK-CF-F-165 salaryMonths · MK-CF-F-169 withSalaryMonth
+ *               MK-CF-F-170 salaryYearFromCells · MK-CF-F-171 earnerPay
+ *               MK-CF-F-178 wageMatchMonthly · MK-CF-F-180 enteredLandsAnnual
+ *               MK-CF-F-181 rateInForce · MK-CF-F-185 needsTakeHomeConversion
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-188 householdPreTaxContributionsAnnual
+ *               MK-CF-F-189 essentialsFromLoggedSpending · MK-CF-F-206 householdK401ByMonth
+ *               MK-CF-O-004 incomeSummary · MK-CF-O-016 incomeSources
+ *               MK-CF-O-019 theIncomeManager · MK-NW-F-040 assetsFromOnboarding
+ *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-PL-F-013 goalsFromOnboarding
+ *               MK-PL-F-031 taxOrganizer · MK-PL-F-049 retirementSpendMonthly
+ *               MK-XS-F-004 buildDatedGrid · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
  *
  * Reaches ..... 240 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
@@ -67,6 +66,57 @@ export { round2 } from '../../../Calculation Module code/engines/money';
 export const toNum = (v: any): number => {
   const n = parseFloat(String(v ?? '').replace(/[^0-9.\-]/g, ''));
   return Number.isFinite(n) ? n : 0;
+};
+
+/** A rent or running-cost figure as the person typed it: a plain number, or null when it is not one.
+ *  DEC-3768c (founder, 2026-10-10, "#2,3 - approved."): a rent figure is a number. A leading $,
+ *  thousands commas and spaces are allowed ("$2,000", "1,850.50"); anything with letters or other text
+ *  ("about 2k", "2k", "n/a") is NOT READ — it counts as not entered, never as the digits inside it
+ *  (toNum read "about 2k" as $2). Blank is not entered too. Only rent figures use this reader; toNum,
+ *  which many other figures share, is unchanged. */
+/* ─ MK-ST-F-085 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * rentFigure
+ *
+ * Answers ..... A rent or running-cost figure as the person typed it: a plain number, or null when it is not one.
+ *
+ * Formula .....
+ *     v   if number.is finite(v)
+ *     nothing   otherwise   when v is a number
+ *     nothing   when v = nothing
+ *     t = string(v).trim()
+ *     nothing   when ! ÷ ^\$?\s × (?=[\d.])[\d,\s] × (\.\d × )?$ ÷ .test(t) (or ! ÷ \d ÷ .test(t) when missing or zero)
+ *     n = parse float(replace( ÷ [$,\s] ÷ g, ''))
+ *     the answer:
+ *     n   if number.is finite(n)
+ *     nothing   otherwise
+ *
+ * Called by ... MK-CF-F-067 rentalList · MK-NW-F-114 rentAmount
+ *               MK-NW-O-004 theEmergencyFund
+ *
+ * Reaches ..... 113 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               … and 95 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-085
+ * Changed ..... not in git yet (—)
+ */
+export const rentFigure = (v: any): number | null => {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  if (v == null) return null;
+  const t = String(v).trim();
+  if (!/^\$?\s*(?=[\d.])[\d,\s]*(\.\d*)?$/.test(t) || !/\d/.test(t)) return null;
+  const n = parseFloat(t.replace(/[$,\s]/g, ''));
+  return Number.isFinite(n) ? n : null;
 };
 // Currency/locale-aware (delegates to the active money format; defaults to USD/en-US).
 /* ─ MK-ST-F-053 ──────────────────────────────────────────────────────────────────── 1 · ACTION

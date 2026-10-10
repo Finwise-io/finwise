@@ -429,6 +429,15 @@ export function totalROI(p: Position, price: number | null | undefined): number 
  * Answers ..... The date a period starts from, counted back from today: one, three or six months, the start of this year, one year or two years.
  *
  * Formula .....
+ *     the date now.get full year(), 0, 1   when period = 'YTD'
+ *     back = '1 m': 1 = '1 m': 1
+ *     '3 m': 3 = '3 m': 3
+ *     '6 m': 6 = '6 m': 6
+ *     '1 y': 12 = '1 y': 12
+ *     '2 y': 24 = '2 y': 24
+ *     the date now   when back[period] = nothing
+ *     m = now.get month() − back[period]
+ *     last day = the date now.get full year(), m + 1, 0).get date(
  *     d = the date now
  *     the answer = d
  *
@@ -448,15 +457,15 @@ export function totalROI(p: Position, price: number | null | undefined): number 
  * Changed ..... 2026-08-18 (98a342a)
  */
 export function startDateFor(period: Period, now: Date): Date {
+  if (period === 'YTD') return new Date(now.getFullYear(), 0, 1);
+  const back: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
+  if (back[period] == null) return new Date(now);
+  // MONTHS BACK STOP AT THE MONTH'S LAST DAY (his approval, 2026-10-10, DEC-3768b): Mar 31 less one month is
+  // Feb 28, and Feb 29 less a year is Feb 28 — never rolled into the next month.
+  const m = now.getMonth() - back[period];
+  const lastDay = new Date(now.getFullYear(), m + 1, 0).getDate();
   const d = new Date(now);
-  switch (period) {
-    case '1M': d.setMonth(d.getMonth() - 1); break;
-    case '3M': d.setMonth(d.getMonth() - 3); break;
-    case '6M': d.setMonth(d.getMonth() - 6); break;
-    case '1Y': d.setFullYear(d.getFullYear() - 1); break;
-    case '2Y': d.setFullYear(d.getFullYear() - 2); break;
-    case 'YTD': return new Date(now.getFullYear(), 0, 1);
-  }
+  d.setDate(1); d.setFullYear(now.getFullYear(), m, Math.min(now.getDate(), lastDay));
   return d;
 }
 /** Close on/just-before a target date (series oldest→newest). */

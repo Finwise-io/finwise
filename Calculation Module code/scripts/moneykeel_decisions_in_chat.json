@@ -576,6 +576,40 @@
    "apply_steps": "1. NetWorthScreen: every missing-balance figure reads \"Value not entered\". 2. Screen tests. 3. Ruling note on Net worth v08. 4. Changelog row.",
    "proof": "src/screens/__tests__/networth_missing_balance_and_class_pick.test.tsx",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md"
+  },
+  {
+   "decided": "2026-10-10",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "type": "PROCESS",
+   "status": "RULED",
+   "screens": "/invest · /account-detail · /income · /networth",
+   "his_words": "#2,3 - approved.",
+   "subject": "His approval of items 2 and 3 of the open points from OpenAI's final audit of Net worth — each rule, by function",
+   "plain": "His approval of items 2 and 3 of the open points from OpenAI's final audit: (a) a window that reaches back whole months stops at the month's last day; (b) a rent figure with words in it is refused, never read as its digits. Each rule is its own row beside this one.",
+   "means": "Said in chat on 2026-10-10, approving items 2 and 3 of the open points from OpenAI's final audit (MK-NW-F-090).",
+   "governs": "MK-NW-F-090 windowStartKey · MK-PF-F-030 startDateFor · MK-NW-F-114 rentAmount · MK-CF-F-067 rentalList · MK-NW-F-115 liveRent",
+   "changed": "windowStartKey and startDateFor stop at the month's last day. rentAmount and rentalList read only a plain number; the Income screen's rent fields keep digits only.",
+   "apply_steps": "1. (a) windowStartKey and startDateFor clamp to the month's last day. 2. (b) one strict reading of a rent figure; the Income screen's rent fields keep digits only. 3. Tests, Changelog row.",
+   "proof": "src/domain/performance/start_date_month_end.test.ts",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md"
+  },
+  {
+   "decided": "2026-10-10",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "status": "RULED",
+   "type": "COPY",
+   "screens": "/networth",
+   "his_words": "#1: How about we say \"5 month xx, rent not included. Enter rent to include.\" instead of just showing nothing.",
+   "subject": "The emergency fund still gives its months when a rent figure is missing, and says rent is not included",
+   "plain": "When a property's rent is not known — its rent entry is blank or unreadable, or the rent entries could not be read — the emergency fund still gives its months, counted without rent, and says so: \"5 months, rent not included. Enter rent to include.\" Cash $10,000, essentials $2,000 a month: 5 months. Before (my recommendation, not built): no months figure at all.",
+   "means": "Said in chat on 2026-10-10, answering item 1 of the open points from OpenAI's final audit (MK-NW-O-004). A property with no rent entry at all is a second home (DEC-1926), not a missing rent, and gets no line.",
+   "governs": "MK-NW-O-004 theEmergencyFund · MK-NW-M-064",
+   "changed": "theEmergencyFund says when rent is not known; the Net worth emergency-fund card adds his line.",
+   "apply_steps": "1. theEmergencyFund returns whether a rent figure is missing. 2. The emergency-fund card adds \"rent not included. Enter rent to include.\" beside the months. 3. Tests. 4. Ruling note on Net worth v08. 5. Changelog row.",
+   "proof": "MoneyKeel/functions/networth-and-performance/emergency_fund_rent.test.ts",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
   }
  ]
 }

@@ -61,3 +61,34 @@ test('Job safety: six months is 6 × ($3,000 − $1,000), and the line shows the
   render(<JobSafetyScreen />);
   expect(screen.getByText(/6 months of essentials is \$12,000 \(\$3,000\/month − \$1,000\/month rent from your property, which keeps arriving\)/)).toBeOnTheScreen();
 });
+
+// RENT NOT KNOWN (DEC-3769, founder 2026-10-10): 'How about we say "5 month xx, rent not included. Enter rent to
+// include." instead of just showing nothing.' $10,000 cash, $2,000 a month of essentials, a lake house with a
+// rent entry whose rent is blank → 5.0 months, counted without that rent, and the card says so.
+describe('Net worth emergency fund, rent not known (DEC-3769)', () => {
+  const HOME = { asset_id: 'home', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', re_use: 'primary', balance: 400000 };
+  const LAKE = { asset_id: 'lake', label: 'Lake house', kind: 'home', tax_bucket: 'PROPERTY', balance: 250000 };
+  const at = (rentals: any, accounts: any[]) => {
+    useStore.getState().resetAll();
+    useStore.setState({ hideBalances: false, onboardingComplete: true, nwSetupChoice: 'self', expenses: [],
+      onboardingProfile: { monthlySpending: '2000', spendCats: [{ id: 'groceries', label: 'Groceries', amount: 2000, bucket: 'flexible', tier: 'need' }], rentals },
+      assetAccounts: [{ asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 10000 }, ...accounts] } as any);
+  };
+
+  test('a blank rent figure: "5.0 months, rent not included. Enter rent to include." beside the months', () => {
+    at([{ type: 'long', income: '', expenses: '', property_id: 'lake' }], [HOME, LAKE]);
+    render(<NetWorthScreen />);
+    expect(screen.getByText('5.0 months')).toBeOnTheScreen();
+    expect(screen.getByText('5.0 months, rent not included. Enter rent to include.')).toBeOnTheScreen();
+    expect(screen.getByLabelText('5.0 months, rent not included. Enter rent to include. Opens Income.')).toBeOnTheScreen();
+  });
+
+  test('rent entered, a second home with no rent entry, or no property: no such line', () => {
+    for (const [rentals, accounts] of [[[{ type: 'long', income: '1000', expenses: '0', property_id: 'lake' }], [HOME, LAKE]], [[], [HOME, LAKE]], [[{ type: 'long', income: '', expenses: '' }], []]] as any[]) {
+      at(rentals, accounts);
+      const { unmount } = render(<NetWorthScreen />);
+      expect(screen.queryByText(/rent not included/)).toBeNull();
+      unmount();
+    }
+  });
+});

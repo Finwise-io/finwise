@@ -7,7 +7,7 @@
   "NW-O": 9,
   "PF": 34,
   "PL": 85,
-  "ST": 84,
+  "ST": 85,
   "XS": 184
  },
  "issued": {
@@ -524,6 +524,7 @@
   "relayUrl": "MK-XS-F-112",
   "removeShares": "MK-CF-F-139",
   "rentAmount": "MK-NW-F-114",
+  "rentFigure": "MK-ST-F-085",
   "rentalList": "MK-CF-F-067",
   "rentalNetAnnual": "MK-CF-F-068",
   "rentedIdsOf": "MK-NW-F-116",

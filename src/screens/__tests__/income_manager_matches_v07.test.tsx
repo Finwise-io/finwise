@@ -165,3 +165,17 @@ test('phone 1 · Where does your money come from? — the question, and every of
   expect(offered.size).toBe(10);                                                   // and all ten are offered to someone
   expect(incomeSourceOptionsFor('employed')).toHaveLength(8);
 });
+
+// DEC-3768c (founder, 2026-10-10): the rent fields keep digits and one decimal point only, as the person types.
+// Every money field on this screen is a plain amount, so the one Money field applies it to all of them.
+test('phone 10 · the rent fields keep digits and one decimal point only (DEC-3768c)', () => {
+  show('rental');
+  const typed = (label: string, text: string) => {
+    fireEvent.changeText(screen.getByLabelText(label), text);
+    return (useStore.getState().onboardingProfile as any).rentals[0];
+  };
+  expect(typed('Rent you receive each month, property 1', '$1,850.50').income).toBe('1850.50');
+  // words are refused whole: the field keeps $1,850.50 — stripping letters would have left "2", the $2 the decision forbids
+  expect(typed('Rent you receive each month, property 1', 'about 2k').income).toBe('1850.50');
+  expect(typed('What it costs to run each month, property 1', '1.2.3').expenses).toBe('1.23');
+});

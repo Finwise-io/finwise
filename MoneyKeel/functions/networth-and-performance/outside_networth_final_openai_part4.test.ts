@@ -43,6 +43,7 @@ import {
   propertyUseMap, primaryHomeIdOf, taxWordsOf, holdingClassOf, assetsStateFrom, buildAssetsState,
 } from '../../../src/domain/assets';
 import { itemizeMissingCount } from '../../../src/domain/assets/itemize';
+import { rentFigure } from '../../../src/domain/_shared/num';
 import { altPartsOf } from '../../../src/domain/alternatives';
 import { yearlyInterest, estimatedAccrued, accruedInterestCaveat, interestIncomeAnnual, type BondInfo } from '../../../src/domain/bonds';
 import { applyTransaction } from '../../../src/domain/transactions';
@@ -66,7 +67,8 @@ const RENT = (() => {
   const code = `${pick('rentAmount')}\n${pick('liveRent')}\n${pick('rentedIdsOf')}\nexport const __x = { rentAmount, liveRent, rentedIdsOf };`;
   const js = ts.transpileModule(code, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2019 } }).outputText;
   const exports: any = {};
-  new Function('exports', js)(exports);
+  // rentAmount reads through the one strict reader, rentFigure (DEC-3768c, 2026-10-10), handed in here
+  new Function('exports', 'rentFigure', js)(exports, rentFigure);
   return exports.__x as { rentAmount: (v: any) => number; liveRent: (r: any) => any[]; rentedIdsOf: (r: any) => Set<string> };
 })();
 
@@ -292,9 +294,11 @@ describe('MK-NW-F-114 rentAmount — five cases', () => {
   });
   test('complex · Positive rent and costs remain distinct', () => { expect([2100, 450].map(RENT.rentAmount)).toEqual([2100, 450]); });
   test('edge · Invalid text refuses validation', () => {
-    // UNCLEAR: app keeps only the digits — "about 2k" reads as 2 (dollars), not refused and not 2,000 (index.ts:689);
-    // open question: refuse unparseable rent text, or read "k"?
-    expect(RENT.rentAmount('about 2k')).toBe(2);
+    // SETTLED 2026-10-10 by DEC-3768c: a rent figure with words in it is not read — "about 2k" counts as not
+    // entered (0 here, so the entry is not live), never $2 and never $2,000.
+    expect(RENT.rentAmount('about 2k')).toBe(0);
+    expect(RENT.rentAmount('2k')).toBe(0);
+    expect(RENT.rentAmount('$2,000')).toBe(2000);
   });
 });
 

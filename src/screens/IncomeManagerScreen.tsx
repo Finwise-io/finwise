@@ -163,13 +163,24 @@ function Frame({ title, sub, onDone, save, children }: { title: string; sub: str
   );
 }
 
+/** DEC-3768c (founder, 2026-10-10): a money field here keeps digits and ONE decimal point as the person types —
+ *  "about 2k" can no longer be typed, so a rent figure is always a number. Every field this component serves
+ *  is a plain amount (bonus, stock a year, rent, running costs, mortgage payment, interest and dividends), so
+ *  the filter applies to all of them. A change that carries a LETTER is refused whole — the field keeps what it
+ *  had — because stripping the letters out of "about 2k" would leave "2", the very $2 the decision forbids. */
+const plainAmount = (v: string): string => {
+  const digits = String(v ?? '').replace(/[^0-9.]/g, '');
+  const dot = digits.indexOf('.');
+  return dot < 0 ? digits : digits.slice(0, dot + 1) + digits.slice(dot + 1).replace(/\./g, '');
+};
+
 function Money({ label, hint, value, onChangeText, placeholder, a11y }: { label: string; hint?: string; value: any; onChangeText: (v: string) => void; placeholder?: string; a11y?: string }) {
   return (
     <>
       <Text style={s.q}>{label}</Text>
       {!!hint && <Text style={s.qsub}>{hint}</Text>}
       <TextInput style={s.input} keyboardType="decimal-pad" accessibilityLabel={a11y ?? label} placeholder={placeholder}
-        placeholderTextColor={Colors.textTertiary} value={value != null && value !== '' ? String(value) : ''} onChangeText={onChangeText} />
+        placeholderTextColor={Colors.textTertiary} value={value != null && value !== '' ? String(value) : ''} onChangeText={(v) => { if (!/[A-Za-z]/.test(v)) onChangeText(plainAmount(v)); }} />
     </>
   );
 }

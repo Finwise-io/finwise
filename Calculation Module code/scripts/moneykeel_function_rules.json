@@ -367,8 +367,8 @@
   },
   "MK-CF-F-067": {
    "name": "rentalList",
-   "rule": "Each rental with rent or running costs above zero: long-term unless marked short-term, its monthly rent and its monthly running costs. With no list: the single typed rental, when its rent is above zero.",
-   "read_from": "172e664839",
+   "rule": "Each rental with rent or running costs above zero: long-term unless marked short-term, its monthly rent and its monthly running costs. With no list: the single typed rental, when its rent is above zero. Owner rule, 2026-10-10: each rent and running-cost figure is read only when it is a plain number (digits with at most one decimal point, allowing a leading dollar sign, thousands commas and spaces); a figure with letters or other text in it is not entered and counts as 0, never as the digits inside it.",
+   "read_from": "55a1eda47d",
    "sent_as": "172e664839"
   },
   "MK-CF-F-068": {
@@ -1657,9 +1657,14 @@
   },
   "MK-NW-F-090": {
    "name": "windowStartKey",
-   "rule": "Since: the day after the earliest recorded day, but never later than today; today when nothing is recorded. This year: 1 January of today's year. 1M, 3M, 6M, 1Y and 2Y: today moved back 1, 3, 6, 12 or 24 months. Any other label: 12 months back.",
-   "read_from": "95c12d8442",
-   "sent_as": "95c12d8442"
+   "rule": "Since: the day after the earliest recorded day, but never later than today; today when nothing is recorded. This year: 1 January of today's year. 1M, 3M, 6M, 1Y and 2Y: today moved back 1, 3, 6, 12 or 24 months — the same day of that month, or its last day when that month is shorter (one month before 31 March is 28 February). Any other label: 12 months back, the same way.",
+   "read_from": "1113dd70ed",
+   "sent_as": "95c12d8442",
+   "figures_checked_by_hand": {
+    "28": "a date in the example (28 February), not a figure the code holds — the last day of February in a year that is not a leap year",
+    "29": "a date in the example (29 February), not a figure the code holds",
+    "31": "a date in the example (31 March), not a figure the code holds"
+   }
   },
   "MK-NW-F-091": {
    "name": "pricedGainOf",
@@ -1708,8 +1713,8 @@
   },
   "MK-NW-O-004": {
    "name": "theEmergencyFund",
-   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" Debt minimums = the MINIMUM monthly payment of every debt added up — the home's mortgage included; a balance due in one lump has none. A payment a person chooses to make above the minimum is not counted: it can be stopped. The budget is read as it is counted (theBudgetCounted): where the home's mortgage is in Debts, the Rent / Mortgage budget line is counted as nothing, and the screen is given a sentence saying so. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. Left out of that average, so nothing is counted twice: a payment logged against a debt that is entered (an expense in the category Debt payment, named for that debt), and, where the home's mortgage is in Debts, anything logged under Rent / Mortgage. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A target, and the months left after a shock, are given only when there is an essentials figure.",
-   "read_from": "408f24e43d",
+   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" Debt minimums = the MINIMUM monthly payment of every debt added up — the home's mortgage included; a balance due in one lump has none. A payment a person chooses to make above the minimum is not counted: it can be stopped. The budget is read as it is counted (theBudgetCounted): where the home's mortgage is in Debts, the Rent / Mortgage budget line is counted as nothing, and the screen is given a sentence saying so. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. Left out of that average, so nothing is counted twice: a payment logged against a debt that is entered (an expense in the category Debt payment, named for that debt), and, where the home's mortgage is in Debts, anything logged under Rent / Mortgage. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A target, and the months left after a shock, are given only when there is an essentials figure. Rent not known, owner rule 2026-10-10 (instead of showing nothing, the card says the months are counted with the rent not included, and asks for the rent): the answer also says whether a property's rent is not known. It is not known only when the household holds a property that is not the home (home, rental and second home read by the owner's property-use rule of 2026-10-04) AND one of these holds: a rent entry's rent figure is blank or not a plain number; with no list of rent entries, the single typed rent figure is typed but is not a plain number; the rent entries are stored in a shape that is not a list; or with no rent entries stored at all, a property is kept as a rental. A property with no rent entry when rent entries are stored is a second home, not a missing rent. A household with no property other than the home is never flagged. The months covered are still given, counted without the unknown rent.",
+   "read_from": "af49429f9a",
    "sent_as": "aca43cd91b"
   },
   "MK-NW-O-005": {
@@ -1783,9 +1788,14 @@
   },
   "MK-PF-F-008": {
    "name": "startDateFor",
-   "rule": "1M, 3M and 6M: today moved back that many months. 1Y and 2Y: today moved back that many years. This year: 1 January of today's year.",
-   "read_from": "a967566da9",
-   "sent_as": "a967566da9"
+   "rule": "1M, 3M and 6M: today moved back that many months; 1Y and 2Y: back 12 or 24 months — the same day of that month, or its last day when that month is shorter (one month before 31 March is 28 February; a year before 29 February is 28 February). This year: 1 January of today's year. Any other label: today.",
+   "read_from": "922cf32196",
+   "sent_as": "a967566da9",
+   "figures_checked_by_hand": {
+    "28": "a date in the example (28 February), not a figure the code holds — the last day of February in a year that is not a leap year",
+    "29": "a date in the example (29 February), not a figure the code holds",
+    "31": "a date in the example (31 March), not a figure the code holds"
+   }
   },
   "MK-PF-F-009": {
    "name": "latestClose",
@@ -1983,8 +1993,8 @@
   },
   "MK-NW-F-114": {
    "name": "rentAmount",
-   "rule": "A rent figure as a number: the digits typed, or 0 when none.",
-   "read_from": "484f868381"
+   "rule": "A rent figure as a number. Owner rule, 2026-10-10: a rent figure is a number. It is read only when it is a plain number: digits with at most one decimal point, allowing a leading dollar sign, thousands commas and spaces. A figure with letters or any other text in it (a word such as \"about\", a \"k\" for thousands, \"n/a\", a minus sign) is not read and counts as not entered, never as the digits inside it. Not entered, blank or missing gives 0.",
+   "read_from": "7e1dcfa7a8"
   },
   "MK-NW-F-115": {
    "name": "liveRent",

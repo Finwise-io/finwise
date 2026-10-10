@@ -3,7 +3,7 @@
 import type { UserId, EntityId } from '../_shared/ids';
 import { nameEvidence } from '../../../Calculation Module code/engines/holding-class';
 import { newEntityId } from '../_shared/ids';
-import { toNum } from '../_shared/num';
+import { toNum, rentFigure } from '../_shared/num';
 import { getUserDoc, setUserDoc } from '../_shared/firestore';
 import { emit } from '../_shared/eventBus';
 import { employerMatchMonthly } from '../income/onboarding';
@@ -691,14 +691,16 @@ export function realEstateUseOf(a: AssetAccount, accounts?: AssetAccount[], rent
 
 /** One rent entry from the Income screen: what it brings in, what it costs, and the property it names. */
 export type RentEntry = { income?: any; expenses?: any; property_id?: any };
-/** A rent figure as a number: the digits typed, or 0 when none. */
+// DEC-3768c (2026-10-10): a rent figure with words in it is not read — it counts as not entered, never as
+// the digits inside it ("about 2k" was $2 and made the property a rental). One strict reader, rentFigure.
+/** A rent figure as a number: the figure typed, or 0 when none or when it is not a plain number. */
 /* ─ MK-NW-F-114 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * rentAmount
  *
- * Answers ..... A rent figure as a number: the digits typed, or 0 when none.
+ * Answers ..... DEC-3768c (2026-10-10): a rent figure with words in it is not read — it counts as not entered, never as the digits inside it ("about 2k" was $2 and made the property a rental).
  *
  * Formula .....
- *     string(v ?? '').replace( ÷ [^0 − 9.-] ÷ g, '') read as a number (or 0 when missing or zero)
+ *     rent figure(v) (or 0 when missing)
  *
  * Called by ... MK-NW-F-115 liveRent
  *
@@ -719,7 +721,7 @@ export type RentEntry = { income?: any; expenses?: any; property_id?: any };
  * Formula also on the master file · functions_from_code · MK-NW-F-114
  * Changed ..... not in git yet (—)
  */
-const rentAmount = (v: any) => Number(String(v ?? '').replace(/[^0-9.-]/g, '')) || 0;
+const rentAmount = (v: any) => rentFigure(v) ?? 0;
 /** The rent entries that carry a figure: rent coming in or costs going out above zero. */
 /* ─ MK-NW-F-115 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * liveRent
@@ -804,7 +806,7 @@ const rentedIdsOf = (rentals: RentEntry[] | null | undefined) =>
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-107 propertyUses
- *               MK-NW-F-110 primaryHomeIdOf
+ *               MK-NW-F-110 primaryHomeIdOf · MK-NW-O-004 theEmergencyFund
  *
  * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF

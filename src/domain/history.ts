@@ -151,11 +151,12 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
  *               MK-ST-F-051 moneyCompact · MK-ST-F-052 toNum
  *               MK-ST-F-053 money · MK-ST-F-054 money2
- *               MK-ST-F-058 numberOrUndefined · MK-XS-F-007 makeMonthlySnapshot
- *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-131 toInt
- *               MK-XS-F-171 numOrNaN · MK-XS-F-175 uid
+ *               MK-ST-F-058 numberOrUndefined · MK-ST-F-085 rentFigure
+ *               MK-XS-F-007 makeMonthlySnapshot · MK-XS-F-008 normalizeSnapshot
+ *               MK-XS-F-131 toInt · MK-XS-F-171 numOrNaN
+ *               MK-XS-F-175 uid
  *
- * Reaches ..... 338 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 340 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -165,7 +166,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 320 more — the full list is on functions_from_code
+ *               … and 322 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

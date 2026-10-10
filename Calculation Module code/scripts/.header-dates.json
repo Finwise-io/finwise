@@ -765,5 +765,6 @@
 "MoneyKeel/functions/networth-and-performance/performance.ts::cannotWorkBackSentence": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/performance.ts::gainRowName": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/performance.ts::heldValueOf": "not in git yet|\u2014",
-"MoneyKeel/functions/networth-and-performance/performance.ts::gainOfRow": "not in git yet|\u2014"
+"MoneyKeel/functions/networth-and-performance/performance.ts::gainOfRow": "not in git yet|\u2014",
+"src/domain/_shared/num.ts::rentFigure": "not in git yet|\u2014"
 }

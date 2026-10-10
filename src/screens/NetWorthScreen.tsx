@@ -1016,6 +1016,15 @@ export default function NetWorthScreen() {
                   {shownMonths < 3 ? 'Tight ⚠' : 'Comfortable ✓'}
                 </Text>
               </View>
+              {/* RENT NOT KNOWN (DEC-3769, 2026-10-10): a property's rent is blank or not a plain number, so the
+                  months above are counted without it — the card says so beside them, with the same months
+                  figure, and the words open the rent editor on the Income screen */}
+              {emergencyFund.rentNotKnown && (
+                <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => router.push('/income-manager?open=rental' as any)}
+                  accessibilityLabel={`${figSaid('MK-NW-M-013', shownMonths)}, rent not included. Enter rent to include. Opens Income.`}>
+                  <Text style={styles.cushionMath}>{fig('MK-NW-M-013', shownMonths)}, rent not included. <Text style={{ color: Colors.primary, fontWeight: '700' }}>Enter rent to include.</Text></Text>
+                </TouchableOpacity>
+              )}
               {/* the emergency fund's progress bar (founder Q6, 2026-08-11): it fills against the top of the
                   3-6 month guide the note beneath names, so a full bar means "covered" — never an
                   unlabelled meter (the word and the figure above always carry the meaning too) */}
