@@ -36,7 +36,14 @@ The add-account form offers a CD and a money-market fund with Investments, not C
 list and the class agree (2026-10-08; one CD had sat under Cash on one total and Investments on another).
 
 The sweep that corrects classes the app guessed (MK-NW-F-053 correctClassOf, MK-NW-F-054
-reclassifyAccounts) never touches an account the person confirmed: what they said stands.
+reclassifyAccounts) never touches an account the person confirmed: what they said stands. It reads the
+same order as the steps above, through the one function MK-NW-F-120 classEvidenceOf — a maturity date
+before the name, and never a property's name — and a class the person picked in the editor is
+recorded as theirs and kept (OpenAI's final audit, 2026-10-09, DEC-2748h, DEC-2484i, DEC-3035o: the
+sweep had kept its own older copy of these rules, so "Ally Money Market CD" maturing 2027-06-30 was
+re-filed as a fund and a home named "Silver Creek land" as an alternative). Inside an account, a
+holding the person classed, or one waiting on their answer, is never re-filed; name evidence is
+stored under its real class — Gold is Alternatives, never Stocks / Funds (DEC-2484r, DEC-3035f).
 
 A property's name is a place, not evidence (second-round review, 2026-10-07): for a home, real
 estate, a vehicle or anything in the property bucket, step 3 is skipped — 'Silver Lake house' is real
@@ -56,8 +63,8 @@ account's own page (MK-NW-F-109 holdingClassOf):
 
 A holding with nothing stored — no broker tag, no kind picked, nothing in its name — is Unclassified
 and asked about (DEC-2160, 'Refuse the line and ask'); it is never filed as Stocks / Funds by default.
-Treasury wording from brokers ('TREAS', 'UST', 'T-bond') counts as a Treasury in the words under an
-account.
+Treasury wording from brokers ('TREAS', 'UST', 'T-bill', 'T-note', 'T-bond') counts as a Treasury in
+the words under an account; 'government' does not — an agency bond is a bond (DEC-3035g, 2026-10-09).
 
 ## 3. How an account's money is split across the classes
 
@@ -112,7 +119,23 @@ account's own uninvested cash. Each part is rated by what it is, the person's ow
 Performance and a window the record cannot reach (second-round review, 2026-10-07; Performance v17):
 where a daily record exists but begins after the window opens, there is no walk and no wealth
 generated — a sentence names the record's first day. The ending stands on its own. With no record at
-all, the account page's approved 'read back from your activity records' state stands.
+all, the account page's approved 'read back from your activity records' state stands, worked back from
+today (his decision DEC-3656, 2026-10-10): a CD with a stated rate gains by its rate — $10,500 at 5% for a
+year began at $10,000; a holding with no price history and no rate (a bond typed by hand) leaves that
+account with no beginning and no wealth generated, and the screen says "The beginning can't be worked
+back: Fidelity Brokerage has no price history." Day one opens every window today.
+
+A balance that was never entered stays in view and reads "Value not entered" (his wording, DEC-3657):
+an account row, a bank, a class whose only account has none, a group and a debt row — never $0, −$0
+or dropped. The amber box names it; the bar and the percents count only what is known (DEC-3279e).
+A debt with no balance is named in the amber box too.
+
+The emergency fund, wherever its months show (Net worth, Job safety, Stress test, Insights, Home):
+when a property's rent entry has no amount it can read, the months are counted without that rent and
+the line reads "5.0 months, rent not included. Enter rent to include." (DEC-3769, DEC-3836, 2026-10-10).
+A property with no rent entry at all is a second home (DEC-1926) and gets no line. A rent figure is a
+number: one with words in it ("about 2k") is not read — never $2 — and the Income screen refuses a
+change that carries a letter (DEC-3768c).
 
 ## 5. What can be added, in this phase
 
@@ -198,6 +221,8 @@ MK-NW-F-073 itemising, MK-NW-F-051 itemizedResultTotal, MK-NW-F-052 buildItemize
 
 - Accounts made by itemising carry the typical yearly rate for their class, never 0%; a rate not
   entered on an itemised bond stays blank.
+- A listed holding with no value is refused: nothing is built and the lump stays as it was — never a $0
+  holding beside a remainder built as if final (DEC-3279f, 2026-10-09).
 
 ## 10. The list under the class rows — by class, by institution
 
@@ -228,12 +253,21 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
 - **A year's interest, one rule everywhere** (yearlyInterest): face × rate; with no face, today's
   value × rate (a CD typed by its balance); with no rate, nothing (owner A46, 2026-08-26). The Bonds
   screen's total and the interest-income figure use it, so the two cannot disagree.
-- **A matured bond pays nothing more.** A maturity date before today adds no interest to a year.
+- **A matured bond pays nothing more — on every figure** (DEC-2748d, DEC-2748c, 2026-10-09): its own
+  row, COUPON /year, the average yield and the income figure all count it at $0, through one function
+  (MK-NW-F-126 yearlyInterestNow). $600 + $400 + $810 a year with the $600 one matured last month:
+  COUPON /year $1,210. A maturity date that does not exist (30 February) is no date, never 'matured'.
 - **Years left are exact, by anniversaries** (batch 06): whole years counted back from the maturity
   date, plus the days to the first anniversary ÷ the days in that year — one year to the day is 1.0.
 - **A bond is priced at exact times**: the yearly coupon falls on each maturity anniversary; a matured
   bond, or one with no date, has no price. **Yield to maturity is solved exactly** on the full price —
-  the value plus accrued interest; a CD yields its stated rate. The approximation it replaced read −0.69% for a short 4% note where 5.73% is right.
+  the value plus accrued interest. The approximation it replaced read −0.69% for a short 4% note where 5.73% is right.
+  A bond with no face value, or a yield at or below −100%, has no price.
+- **A CD: bought from the bank, or through a broker** (his decision DEC-3837, 2026-10-10). Adding a CD asks
+  it once (Add an account and the Bonds screen's form). A bank CD yields its interest rate ($10,000 at 4.2%
+  → 4.20%; with no face entered, still its rate). A broker CD is priced like a bond from its face value,
+  interest rate, statement value and maturity date ($10,000 face, 4.2%, worth $9,850, 2 years left → about
+  5.01%), with the accrued-interest estimate and note. A CD never answered reads as a bank CD.
 - **A missing balance or holding value is never $0**: it is left out of the total, the amber box names
   the account, and an itemised remainder with a missing value is not final. Sums of money are exact
   decimals. A kind that names contents (crypto, private equity, hedge funds, other) claims no
@@ -246,8 +280,9 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
   'Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM.
   If this is not accurate, enter actual accrued interest'. His Treasury worth $24,200 reads 5.69%.
 - **If rates move one point**: the change is measured between two prices worked the same way — at
-  the moved yield and at today's — then added to today's value. A CD is refused by the function
-  itself, not only by the screen: a CD is not traded, so its value does not move with rates.
+  the moved yield and at today's — then added to today's value. A bank CD is refused by the function
+  itself, not only by the screen: it is not traded, so its value does not move with rates. A broker CD
+  trades, and gets the estimate like a bond (DEC-3837 narrows DEC-2748f).
 
 ## 13. A saved record with no accounts
 

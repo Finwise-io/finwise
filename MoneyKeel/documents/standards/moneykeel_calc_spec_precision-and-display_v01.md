@@ -53,6 +53,15 @@ Where a window's return is refused and the exact rate stands in its place (Q52),
 yearly rate by its nature and carries "/year" whatever the window's length.
 
 
+## A window that reaches back whole months
+
+1M, 3M, 6M, 1Y and 2Y start on the same day of the earlier month, or on that month's last day when the
+day does not exist there (his approval, 2026-10-10, DEC-3768b): one month before 31 March is 28 February
+(29 February in a leap year); a year before 29 February is 28 February. Before, the missing day rolled
+into the next month, so 1M from 31 March started 3 March — a 28-day window. One rule in both places that
+open a window: MK-NW-F-090 windowStartKey and MK-PF-F-008 startDateFor, held by
+src/domain/performance/start_date_month_end.test.ts.
+
 ## Every return is a time-weighted return
 
 **Owner decision, 2026-10-04 (DEC-1669):** *"All return should be True Weighted Return and not Dietz
