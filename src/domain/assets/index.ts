@@ -581,10 +581,13 @@ export function assetClassOf(a: AssetAccount): AssetClass {
  *
  * Called by ... MK-NW-F-025 accountDisplayName · MK-NW-F-108 taxWordsOf
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
  *               MK-XS-F-002 dataGaps · MK-XS-F-102 ingestSync
  *               MK-XS-F-119 namesFor · MK-NW-F-108 taxWordsOf
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -1190,12 +1193,15 @@ const KIND_TO_WRAPPER: Record<string, string> = {
  *
  * Called by ... MK-NW-F-022 investableAssets · MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-100 TREND · MK-NW-F-025 accountDisplayName
  *               MK-NW-F-026 accountDisplayNames · MK-XS-F-002 dataGaps
  *               MK-XS-F-102 ingestSync · MK-NW-F-022 investableAssets
  *               MK-XS-F-119 namesFor · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -1222,10 +1228,12 @@ export const wrapperWord = (kind?: string, a?: { wrapper_confirmed?: boolean }):
  *
  * Called by ... MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
  *               MK-XS-F-002 dataGaps · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor
+ *               MK-XS-F-119 namesFor · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1269,10 +1277,12 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *
  * Called by ... MK-NW-F-026 accountDisplayNames
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
  *               MK-XS-F-002 dataGaps · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor
+ *               MK-XS-F-119 namesFor · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -1361,13 +1371,15 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
  *     i = (seen.get(n) ?? 0) + 1
  *     the answer = out
  *
- * Called by ... MK-NW-F-025 accountDisplayName · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor
+ * Called by ... MK-NW-F-025 accountDisplayName · MK-NW-O-008 thePerformance
+ *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
  *               MK-XS-F-002 dataGaps · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor
+ *               MK-XS-F-119 namesFor · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name

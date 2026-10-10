@@ -28,6 +28,8 @@ import { windowBounds } from '../../../Calculation Module code/engines/window-re
 import { valueOn, covers as snapshotCovers, buildDayFromAccounts, accountValuesOn, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
 import { timeWeightedReturn, movementsOf, type TimeWeightedVerdict } from '../../../Calculation Module code/engines/time-weighted-return';
 import { dateShown } from '../../../src/domain/_shared/dates';
+import { accountDisplayNames } from '../../../src/domain/assets';
+import { isCertificateOfDeposit } from './bonds';
 
 export interface WindowFigures {
   /** The first day of the window, or null for "since the record began". */
@@ -54,6 +56,9 @@ export interface WindowFigures {
   years: number;
   /** Why a refusal, in words. Empty when nothing is refused. */
   sentence: string;
+  /** Set only where the beginning would be worked back from today and a holding's gain cannot be known:
+   *  "The beginning can't be worked back: … has no price history." Empty otherwise. (DEC-3656, 2026-10-09) */
+  cannotWorkBack: string;
 }
 
 /** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
@@ -153,42 +158,214 @@ export function investmentRecordDates(snapshotDays: any[], investmentAccountIds:
     .sort();
 }
 
-/** MK-NW-F-091 · What the PRICED holdings gained over the window. It is used ONLY to derive a
- *  beginning the daily record cannot reach — it never becomes the return. A holding bought inside the
- *  window counts its true gain (value − cost); any other counts what the window's price move gave it. */
+/** MK-NW-F-091 · What the holdings gained over the window. It is used ONLY to derive a beginning the
+ *  daily record cannot reach — it never becomes the return. A holding bought inside the window counts
+ *  its true gain (value − cost); one with a price history counts what the window's price move gave it;
+ *  a CD stating its rate counts what that rate gave it; any other holding's gain is UNKNOWN, and the
+ *  answer is null rather than $0 (DEC-3656, 2026-10-09). */
 
-/** What the priced holdings gained over the period in dollars: the true gain for a holding bought inside the period, and the price move's share of today's value for any other. */
+/** What the holdings gained over the period in dollars: the true gain for a holding bought inside the period, the price move's share of today's value for one with a price history, the stated rate's share for a CD — and nothing (unknown) when any holding has neither. */
 /* ─ MK-NW-F-091 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * pricedGainOf
  *
- * Answers ..... What the priced holdings gained over the period in dollars: the true gain for a holding bought inside the period, and the price move's share of today's value for any other.
+ * Answers ..... What the holdings gained over the period in dollars: the true gain for a holding bought inside the period, the price move's share of today's value for one with a price history, the stated rate's share for a CD — and nothing (unknown) when any holding has neither.
  *
  * Formula .....
- *     t + (gain ?? 0)   when capped since
- *     mv = market value (or 0 when missing)
- *     pr = period return
- *     the answer = t + (pr ≠ nothing and mv > 0 ? mv × (1 − 1 ÷ (1 + pr)) : 0)
+ *     total = 0
+ *     g = gain of row(r, years)
+ *     nothing   when g = nothing
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-012 bond coupon rate
+ *
+ * Decides .....
+ *     · Uses a built-in total of 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-091
+ * Changed ..... 2026-09-30 (08d5d52)
+ */
+export function pricedGainOf(rows: GainRow[], years = 0): number | null {
+  let total = 0;
+  for (const r of rows ?? []) {
+    const g = gainOfRow(r, years);
+    if (g == null) return null;   // one holding whose gain cannot be known makes the total unknown (DEC-3656, 2026-10-09)
+    total += g;
+  }
+  return total;
+}
+
+/** One holding, as the gain over a window is asked of it. `couponRate` is set only for a CD that states
+ *  its rate (a position carries none); `name` is what the refusal sentence calls it. (DEC-3656, 2026-10-09) */
+export type GainRow = {
+  name?: string;
+  cappedSince?: string | null;
+  gain?: number;
+  periodReturn?: number | null;
+  marketValue?: number;
+  couponRate?: number | null;
+  position?: { ticker?: string; label?: string; name?: string; last_price?: number; value_now?: number; lots?: { shares?: number }[] };
+};
+
+/** THE ONE RULE FOR WHAT A HOLDING GAINED OVER THE WINDOW (DEC-3656, 2026-10-09), or null when it cannot
+ *  be known. Bought inside the window: value − cost. A price history: the window's price move. A CD with
+ *  a stated rate: value now × (1 − 1 ÷ (1 + rate)^years). Nothing held: nothing gained. Anything else
+ *  held — no price history, no rate — is unknown, never $0 (tenet: unknown is not zero). */
+/* ─ MK-NW-F-127 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * gainOfRow
+ *
+ * Answers ..... THE ONE RULE FOR WHAT A HOLDING GAINED OVER THE WINDOW (DEC-3656, 2026-10-09), or null when it cannot be known.
+ *
+ * Formula .....
+ *     gain (or 0 when missing)   when capped since
+ *     mv = market value (or 0 when missing)
+ *     pr = period return
+ *     mv × (1 − 1 ÷ (1 + pr))   if mv > 0
+ *     0   otherwise   when pr ≠ nothing
+ *     mv × (1 − 1 ÷ math.pow(1 + coupon rate, years))   if mv > 0
+ *     0   otherwise   when coupon rate ≠ nothing and coupon rate > 0
+ *     the answer:
+ *     nothing   if held value of(r) > 0
+ *     0   otherwise
+ *
+ * Called by ... MK-NW-F-091 pricedGainOf
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-012 bond coupon rate
  *
  * Decides .....
  *     · If gain is missing it uses 0.
  *     · If market value is missing it uses 0.
  *
- * Formula also on the master file · functions_from_code · MK-NW-F-091
- * Changed ..... 2026-09-30 (08d5d52)
+ * Formula also on the master file · functions_from_code · MK-NW-F-127
+ * Changed ..... not in git yet (—)
  */
-export function pricedGainOf(
-  rows: { cappedSince?: string | null; gain?: number; periodReturn?: number | null; marketValue?: number }[],
-): number {
-  return (rows ?? []).reduce((t, r) => {
-    if (r.cappedSince) return t + (r.gain ?? 0);
-    const mv = r.marketValue ?? 0;
-    const pr = r.periodReturn;
-    return t + (pr != null && mv > 0 ? mv * (1 - 1 / (1 + pr)) : 0);
-  }, 0);
+function gainOfRow(r: GainRow, years: number): number | null {
+  if (r.cappedSince) return r.gain ?? 0;
+  const mv = r.marketValue ?? 0;
+  const pr = r.periodReturn;
+  if (pr != null) return mv > 0 ? mv * (1 - 1 / (1 + pr)) : 0;
+  if (r.couponRate != null && r.couponRate > 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, years)) : 0;
+  return heldValueOf(r) > 0 ? null : 0;
+}
+
+/** What a holding is worth when no price series prices it: the broker's last mark × shares, or the value
+ *  it was built at by hand. Used ONLY to tell "holds something" from "holds nothing". (DEC-3656, 2026-10-09) */
+/* ─ MK-NW-F-128 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * heldValueOf
+ *
+ * Answers ..... What a holding is worth when no price series prices it: the broker's last mark × shares, or the value it was built at by hand.
+ *
+ * Formula .....
+ *     market value as number   when (market value ?? 0) > 0
+ *     p = position
+ *     0   when p is missing
+ *     shares = Σ over lots (or none when missing) of (shares (or 0 when missing or zero))
+ *     the answer:
+ *     shares × last price   if last price ≠ nothing
+ *     value now (or 0 when missing)   otherwise
+ *
+ * Called by ... MK-NW-F-127 gainOfRow
+ *
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-127 gainOfRow · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *
+ * Decides .....
+ *     · If market value is missing it uses 0.
+ *     · If value now is missing it uses 0.
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-128
+ * Changed ..... not in git yet (—)
+ */
+function heldValueOf(r: GainRow): number {
+  if ((r.marketValue ?? 0) > 0) return r.marketValue as number;
+  const p = r.position;
+  if (!p) return 0;
+  const shares = (p.lots ?? []).reduce((t, l) => t + (l?.shares || 0), 0);
+  return p.last_price != null ? shares * p.last_price : (p.value_now ?? 0);
+}
+
+/** What the refusal sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way
+ *  to the security's name. (DEC-3656, 2026-10-09) */
+/* ─ MK-NW-F-129 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * gainRowName
+ *
+ * Answers ..... What the refusal sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way to the security's name.
+ *
+ * Formula .....
+ *     name   when name
+ *     t = (position.ticker ?? '').trim()
+ *     nm = (position.label ?? position.name ?? '').trim()
+ *     the answer:
+ *     nm   if ÷ ^[0 − 9A − Z]{9}$ ÷ .test(t) and ÷ \d ÷ .test(t) and nm
+ *     t (or nm (or 'a holding' when missing or zero) when missing or zero)   otherwise
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-129
+ * Changed ..... not in git yet (—)
+ */
+function gainRowName(r: GainRow): string {
+  if (r.name) return r.name;
+  const t = (r.position?.ticker ?? '').trim();
+  const nm = (r.position?.label ?? r.position?.name ?? '').trim();
+  return /^[0-9A-Z]{9}$/.test(t) && /\d/.test(t) && nm ? nm : (t || nm || 'a holding');
+}
+
+/** THE SENTENCE where the beginning cannot be worked back (DEC-3656, 2026-10-09, his wording). */
+/* ─ MK-NW-F-130 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * cannotWorkBackSentence
+ *
+ * Answers ..... THE SENTENCE where the beginning cannot be worked back (DEC-3656, 2026-10-09, his wording).
+ *
+ * Formula .....
+ *     `the beginning can't be worked back: ${list} ${names.length > 1 ? 'have' : 'has'} no price history.`
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-130
+ * Changed ..... not in git yet (—)
+ */
+function cannotWorkBackSentence(names: string[]): string {
+  const list = names.length <= 1 ? (names[0] ?? 'a holding')
+    : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+  return `The beginning can't be worked back: ${list} ${names.length > 1 ? 'have' : 'has'} no price history.`;
 }
 
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
@@ -330,6 +507,7 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  *               MK-PF-M-019 · MK-PF-M-020 · MK-XS-M-004
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-009 transaction date
+ *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-024 logged expenses
  * Ruled by .... DEC-0008 · DEC-0015 · DEC-0046 · DEC-0056 · DEC-0063 · DEC-0064
  *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
@@ -344,6 +522,9 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  *
  * Decides .....
  *     · If ending is missing it uses 0.
+ *     · If coupon rate is missing it uses 0.
+ *     · If g is missing it uses 0.
+ *     · If priced gain is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Treats a year as 365 days.
  *
@@ -365,8 +546,13 @@ export function thePerformance(input: {
   snapshotDays: any[];
   investmentAccountIds: Set<string>;
   /** What the priced holdings gained over the window — used ONLY to derive a beginning the record
-   *  cannot reach. It never becomes the return. */
-  pricedGain: number;
+   *  cannot reach. It never becomes the return. Null = a holding's gain cannot be known (DEC-3656).
+   *  A caller that hands over `holdings` instead lets the door calculate it with the window's own years. */
+  pricedGain?: number | null;
+  /** The holdings themselves (rows of buildPerformance, or GainRows) — preferred to `pricedGain`, so the
+   *  ONE rule (pricedGainOf) decides each holding's gain over THIS window, and the refusal can name the
+   *  ones it cannot know. (DEC-3656, 2026-10-09) */
+  holdings?: GainRow[];
   /** True for "Since" — the whole record. Its return is the window's OWN total and is never turned
    *  into a yearly rate (Performance v17, phone 3: "Since Jun 3, 2024 +16.24% … not a yearly rate").
    *  A fixed window longer than a year (2Y) still shows the yearly rate. */
@@ -450,7 +636,29 @@ export function thePerformance(input: {
   // A WINDOW THAT OPENS TODAY has seen no price move: "your value is real, your return starts
   // measuring from today" (Performance v17, phone 4). What the holdings gained before today is not
   // this window's gain, so it is not taken off the beginning.
-  const pricedGain = windowStart === today ? 0 : input.pricedGain;
+  //
+  // WHAT THE HOLDINGS GAINED, decided by ONE rule (pricedGainOf, MK-NW-F-091) — (DEC-3656, 2026-10-09).
+  // A measured account with NO positions is its own instrument: a CD stating its rate gains by that rate;
+  // anything else (a bond typed by hand, a balance-only account) has no price history, so its gain is
+  // unknown. With no window (day one on the account page passes none) nothing is worked back: no rate is
+  // applied and nothing unknown refuses — the approved day-one page stands.
+  const years = bounds ? bounds.days / 365 : 0;   // the window's days ÷ 365 — the same years the yearly rate uses
+  const names = accountDisplayNames((input.accounts ?? []) as any[]);
+  const instrumentRows: GainRow[] = (input.accounts ?? [])
+    .filter((a: any) => input.investmentAccountIds.has(String(a?.asset_id)) && !(a?.positions?.length) && (a?.balance || 0) > 0)
+    .map((a: any) => ({
+      name: names.get(a.asset_id) ?? a.label ?? 'this account',
+      marketValue: a.balance,
+      couponRate: isCertificateOfDeposit(a) && (a.coupon_rate ?? 0) > 0 ? a.coupon_rate : null,
+      periodReturn: null,
+    }));
+  const gainRows: GainRow[] = [...(input.holdings ?? []), ...instrumentRows];
+  const rowGains = gainRows.map((r) => pricedGainOf([r], years));
+  const unknownNames = gainRows.filter((_, i) => rowGains[i] == null).map(gainRowName);
+  // a caller still handing over a dollar figure (no holdings) whose gain is unknown: named generically
+  if (!input.holdings && input.pricedGain === null) unknownNames.push('a holding');
+  const knownGain = rowGains.reduce((t: number, g) => t + (g ?? 0), 0) + (input.holdings ? 0 : (input.pricedGain ?? 0));
+  const pricedGain = windowStart === today ? 0 : knownGain;
   // NO BEGINNING WORKED BACK FROM TODAY (outside review, 2026-10-07). Where the record cannot reach the
   // window's first day, the beginning used to be worked back — ending less the priced gain and the money
   // moved — and wealth generated then equalled that gain, both shown as if measured. Performance v17
@@ -461,18 +669,24 @@ export function thePerformance(input: {
   // activity records, it says so, and no return is measured (AccountPortfolio, 'does not reach back … yet').
   const theirDays = days.filter((d: any) => accountValuesOn(d, (x) => input.investmentAccountIds.has(x)).size > 0);
   const unreachable = windowStart != null && windowStart !== today && bounds != null && measured == null && theirDays.length > 0;
+  // THE BEGINNING CANNOT BE WORKED BACK where a holding's gain is unknown (DEC-3656, 2026-10-09): no
+  // beginning, no wealth generated, no walk — and a sentence that names the holding. Only where the
+  // beginning WOULD be worked back: a window that opens today, no window at all (day one), a beginning
+  // the record reads, or a record that begins too late (above) are untouched.
+  const cannotWorkBack = windowStart != null && windowStart !== today && measured == null && !unreachable && unknownNames.length > 0
+    ? cannotWorkBackSentence(unknownNames) : '';
   const beginning = measured ?? (ending - pricedGain - contributions + withdrawals);
 
-  const walk = unreachable ? null : buildChangeWalk({
+  const walk = unreachable || cannotWorkBack ? null : buildChangeWalk({
     beginning, ending, fromLabel: input.windowLabel, toLabel: 'today',
     contributions, withdrawals, dividends, interest,
   });
   const firstRecorded = theirDays.map((d: any) => String(d?.date ?? '')).filter(Boolean).sort()[0];
-  const cannotReach = unreachable && bounds && firstRecorded
+  // the record begins too late — or, where the beginning would be worked back, a holding's gain cannot be known (DEC-3656, 2026-10-09)
+  const cannotReach = cannotWorkBack || (unreachable && bounds && firstRecorded
     ? `The record begins ${dateShown(firstRecorded)}, so it cannot say what ${input.investmentAccountIds.size === 1 ? 'this account was' : 'these accounts were'} worth on ${dateShown(bounds.beginningAsOf)}.`
-    : '';
+    : '');
 
-  const years = bounds ? bounds.days / 365 : 0;
   // A WINDOW THE RECORD CANNOT COVER ANSWERS NOTHING (Performance v17, approved 2026-10-01: "a window
   // the record cannot cover is greyed to — … nothing on this page shows a figure for a window its
   // record cannot cover"). A return needs a beginning that was READ from the record (B-98); the
@@ -507,6 +721,7 @@ export function thePerformance(input: {
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
     sentence: covered ? whyNoReturn(verdict) : cannotReach,
+    cannotWorkBack,
   };
 }
 

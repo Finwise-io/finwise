@@ -609,6 +609,11 @@
   "file": "src/services/notifications.ts",
   "category": "1 · ACTION"
  },
+ "cannotWorkBackSentence": {
+  "id": "MK-NW-F-130",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT"
+ },
  "capGains": {
   "id": "MK-PF-F-006",
   "file": "src/domain/performance/index.ts",
@@ -1224,6 +1229,16 @@
   "file": "src/domain/debt/mortgageVsTreasury.ts",
   "category": "3 · DEPENDENT"
  },
+ "gainOfRow": {
+  "id": "MK-NW-F-127",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "gainRowName": {
+  "id": "MK-NW-F-129",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "gapsHeadline": {
   "id": "MK-XS-F-003",
   "file": "src/domain/gaps/index.ts",
@@ -1353,6 +1368,11 @@
   "id": "MK-CF-F-172",
   "file": "src/domain/income/earners.ts",
   "category": "1 · ACTION"
+ },
+ "heldValueOf": {
+  "id": "MK-NW-F-128",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT"
  },
  "historyCoverage": {
   "id": "MK-NW-F-046",
@@ -1532,7 +1552,7 @@
  "isCertificateOfDeposit": {
   "id": "MK-NW-F-071",
   "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "isDay": {
   "id": "MK-ST-F-080",

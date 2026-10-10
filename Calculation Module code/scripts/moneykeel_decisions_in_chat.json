@@ -541,6 +541,41 @@
    "apply_steps": "1. Mark the tenets file approved. 2. Record his words. 3. The module audit brief carries them as the test every figure must meet. Done.",
    "proof": "MoneyKeel/documents/audit/outside-test-cases/to-send/moneykeel_audit_module_nw_for-openai_v01.md",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_spec_tenets_v01.md"
+  },
+  {
+   "decided": "2026-10-09",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "type": "CALCULATION",
+   "status": "RULED",
+   "screens": "/account-detail · /invest",
+   "his_words": "MK-NW-F-091  - recommend #1 and 2 approved.",
+   "subject": "Working an account's beginning back when the daily record does not reach it: a CD's gain comes from its stated rate; a holding with no price history and no rate leaves the beginning blank, named",
+   "plain": "When the daily record does not reach back to the window's first day, the beginning is worked back from today: today's value less what each holding gained, less the money moved. (1) A CD with a stated rate gains by its rate: value now × (1 − 1 ÷ (1 + rate) to the power of the years in the window) — $10,500 at 5% for a year gained $500. (2) A holding with no price history and no stated rate — a bond typed by hand — has a gain that cannot be known, so that account shows no beginning and no wealth generated, and a sentence names it: \"The beginning can't be worked back: Treasury 2031 has no price history.\" Before: its gain counted $0, so the beginning read about $500 too high.",
+   "means": "Said in chat on 2026-10-09, answering my recommendation on MK-NW-F-091 (OpenAI's final audit). Every other account keeps its full page; day one is unchanged.",
+   "governs": "MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance · MK-PF-M-013 · MK-PF-M-014",
+   "changed": "pricedGainOf gives no gain when a holding's growth cannot be known, and a CD's gain from its rate; thePerformance draws no walk and names the holding; the account page and the Performance tab print that sentence.",
+   "apply_steps": "1. pricedGainOf: a CD with a stated rate gains value × (1 − 1 ÷ (1 + rate)^years); a holding with no price history and no rate gives no gain and is named. 2. thePerformance: no gain known → no walk, and the sentence naming it. 3. Account page and Performance tab print the sentence where the walk would be. 4. Tests, ruling note on Performance v17, Changelog row.",
+   "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts (MK-NW-F-091 edge)",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+   "not_a_repeat_of": "DEC-3035i — that one governs a window whose daily record EXISTS but begins too late (no walk, the record's first day named). This one governs an account with NO daily record at all, where the beginning is worked back from today: a CD's gain from its rate, and no beginning where a holding's gain cannot be known. Both stand."
+  },
+  {
+   "decided": "2026-10-09",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "type": "COPY",
+   "status": "RULED",
+   "screens": "/networth",
+   "his_words": "\"Ally · not entered\" is Ally name of bank? Should say \"Ally . Value not entered\"",
+   "subject": "A missing balance on Net worth reads \"Value not entered\", never \"not entered\" alone",
+   "plain": "Where an account, a bank, a class or a debt on Net worth has no balance entered, the figure reads \"Value not entered\" — so the line says what is missing. By institution: \"Ally · Value not entered\". Before: \"Ally · not entered\", which did not say what was not entered.",
+   "means": "Said in chat on 2026-10-09, reading the fix table for MK-NW-M-007.",
+   "governs": "MK-NW-M-007 · MK-NW-M-008 · MK-NW-M-010",
+   "changed": "The Net worth screen prints \"Value not entered\" for a missing balance on an account row, a bank, a class, a group and a debt row.",
+   "apply_steps": "1. NetWorthScreen: every missing-balance figure reads \"Value not entered\". 2. Screen tests. 3. Ruling note on Net worth v08. 4. Changelog row.",
+   "proof": "src/screens/__tests__/networth_missing_balance_and_class_pick.test.tsx",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md"
   }
  ]
 }

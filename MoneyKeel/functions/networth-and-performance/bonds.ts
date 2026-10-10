@@ -22,7 +22,7 @@ import {
 
 
 /** Whether an account is a certificate of deposit, judged from its name. */
-/* ─ MK-NW-F-071 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-071 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * isCertificateOfDeposit
  *
  * Answers ..... Whether an account is a certificate of deposit, judged from its name.
@@ -30,7 +30,12 @@ import {
  * Formula .....
  *     !!bond info(a as any).is cd
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name

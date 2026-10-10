@@ -134,8 +134,14 @@ test('no daily record but activity records → the window opens the first day mo
   seed({ invDaily: {}, snapshotDays: [] });
   render(<AccountPortfolioScreen />);
   expect(screen.getByText('Since Jul 31, 2026')).toBeOnTheScreen();
-  expect(screen.getByText('Beginning market value (Jul 31, 2026)')).toBeOnTheScreen();
-  expect(screen.getByText(/Your daily record does not reach back to Jul 31, 2026 yet/)).toBeOnTheScreen();
+  // MOVED 2026-10-09 by DEC-3656: "Beginning market value (Jul 31, 2026)" $52,704 and "Your daily record does
+  // not reach back to Jul 31, 2026 yet…" → no walk, and "The beginning can't be worked back: LCTX, KEYBANK CD
+  // 4.00% and US TREASURY 4.25% have no price history." Hand-checked: no price series is cached for any of the
+  // three, and each is held (800 × $50 = $40,000; 5,704 × $1 = $5,704; 3,000 × $1 = $3,000 — all > 0), so each
+  // gain is unknown; before, each added $0 and the beginning read $52,704 − $0 − $0 moved = $52,704, too high.
+  expect(screen.queryByText('Beginning market value (Jul 31, 2026)')).toBeNull();
+  expect(screen.getByText("The beginning can't be worked back: LCTX, KEYBANK CD 4.00% and US TREASURY 4.25% have no price history.")).toBeOnTheScreen();
+  expect(screen.queryByText(/Your daily record does not reach back to Jul 31, 2026 yet/)).toBeNull();
   expect(screen.queryByText(/Day one:/)).toBeNull();
 });
 

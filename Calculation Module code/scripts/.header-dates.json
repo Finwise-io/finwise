@@ -761,5 +761,9 @@
 "src/domain/assets/index.ts::classEvidenceOf": "not in git yet|\u2014",
 "src/domain/bonds/index.ts::yearlyInterestNow": "not in git yet|\u2014",
 "src/domain/bonds/index.ts::isPastMaturity": "not in git yet|\u2014",
-"src/domain/bonds/index.ts::maturityParts": "not in git yet|\u2014"
+"src/domain/bonds/index.ts::maturityParts": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::cannotWorkBackSentence": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::gainRowName": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::heldValueOf": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::gainOfRow": "not in git yet|\u2014"
 }

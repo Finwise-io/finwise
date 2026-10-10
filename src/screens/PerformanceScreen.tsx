@@ -9,7 +9,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip, sourceWords } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf, investmentRecordDates } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, windowStartKey, investmentAccountIdsOf, investmentRecordDates } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -110,8 +110,6 @@ export default function PerformanceScreen() {
   // a `listMode` selector were still computed on every render and drawn by nothing. Found through his
   // question on DEC-0008 — the decision's own wording cited "the winners and laggards list" as a live
   // example of a dense table, and the list had not existed for five days.
-  // capped rows: the dollar is YOUR true gain (value − cost) — same math as unrealized everywhere
-  const rowGain = (r: any) => pricedGainOf([r]);                    // the door's own rule, one row at a time
   const investIds = useMemo(
     () => investmentAccountIdsOf(resolvedNwAccounts as any, assetClassOf), [resolvedNwAccounts]);
   // WHERE "SINCE" STARTS is read from the SAME daily record the door reads the beginning from — the
@@ -153,10 +151,10 @@ export default function PerformanceScreen() {
     const windowStart = periodStartKey(p);
     // what the priced holdings gained: used ONLY to derive a beginning the record cannot reach
     const priced = p === period ? rows : buildPerformance(positions, priceOf, p as Period, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()]);
-    const pricedDollar = pricedGainOf(priced as any);
     const answer = thePerformance({
       windowStart, windowLabel: phraseFor(p), today: todayKey,
-      pricedGain: pricedDollar,
+      // the holdings themselves: the door decides each one's gain over this window (DEC-3656, 2026-10-09)
+      holdings: priced as any,
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investIds,
@@ -368,11 +366,12 @@ export default function PerformanceScreen() {
         return list.map((acct, i) => {
           const id = String(acct.asset_id);
           const label = names.get(acct.asset_id) ?? acct.label ?? 'Account';
-          const gain = (rows as any[]).filter((r) => owned.find((x) => x.p.position_id === r.position.position_id)?.accountId === acct.asset_id)
-            .reduce((t, r) => t + rowGain(r), 0);
+          // this account's own holdings: the door decides their gain, and an account with no positions counts as its
+          // own instrument — a CD by its rate, anything else unknown and named (DEC-3656, 2026-10-09)
+          const held = (rows as any[]).filter((r) => owned.find((x) => x.p.position_id === r.position.position_id)?.accountId === acct.asset_id);
           const one = thePerformance({
             windowStart: now.windowStart, windowLabel: phraseFor(period), today: todayKey,
-            pricedGain: gain,
+            holdings: held,
             // every record: the function keeps this account's own, and the cash that arrived in it by transfer
             transactions: (store.transactions ?? []) as any[],
             snapshotDays: (store as any).snapshotDays ?? [],

@@ -15,7 +15,7 @@ import { periodReturnSince, buildPerformance, startDateFor, type Period, type Po
 import { historyCoverage, assetClassOf, taxWordsOf, holdingClassOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
-import { windowStartKey, thePerformance, categoryEarnings, pricedGainOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, thePerformance, categoryEarnings } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { ValueGraph } from '../components/ValueGraph';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
@@ -165,7 +165,11 @@ export default function AccountPortfolioScreen() {
     // "Since" opens the day after the record's first day (MK-NW-F-090: that day IS the beginning
     // value); with no record, it opens ON the first day money moved, so that movement counts; with
     // neither, it is null and the door answers day one.
-    const start = p === 'SINCE'
+    // DAY ONE (nothing recorded, nothing moved): every window opens today — there is no earlier day to
+    // work back to, so no window may back-fill one (v17 day one: "We never back-fill a year we didn't see";
+    // DEC-3656 refuses a worked-back beginning, which must never fire on day one)
+    const start = !dataStart ? null
+      : p === 'SINCE'
       ? (recordedDays.length ? windowStartKey('SINCE', recordedDays, todayKey) : movedDays[0] ?? null)
       : iso(startDateFor(p as Period, new Date()));
     const priced = buildPerformance(positions, priceOf, p as Period, new Date(), () => dataStart);
@@ -173,7 +177,9 @@ export default function AccountPortfolioScreen() {
       windowStart: start,
       windowLabel: p === 'SINCE' ? (dataStart ? `since ${dateShown(dataStart)}` : 'since today') : (PHRASE[p] ?? 'this window'),
       today: todayKey,
-      pricedGain: pricedGainOf(priced as any),
+      // the holdings themselves: the door decides each one's gain over THIS window, and names any it
+      // cannot know — this account's own value counts as the instrument when it holds no positions (DEC-3656, 2026-10-09)
+      holdings: priced as any,
       transactions: ledger,
       snapshotDays: days,
       investmentAccountIds: ids,
@@ -407,8 +413,10 @@ export default function AccountPortfolioScreen() {
               /* the drawing's own day-one line (v17, "DAY ONE, A LINKED ACCOUNT") */
               ? 'Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn\'t see.'
               : walk == null
+              /* a holding whose gain cannot be known: no beginning is worked back, and the sentence names it (DEC-3656, 2026-10-09) */
+              ? (now?.cannotWorkBack
               /* a refusal is an answer (D4): no daily record reaching back, so no beginning — say so */
-              ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
+                || 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.')
               : now?.sentence
               || (now?.measured == null
                 /* no recorded value on the first day: the beginning is read back from the records, so no return is measured */

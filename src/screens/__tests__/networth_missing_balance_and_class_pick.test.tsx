@@ -31,9 +31,11 @@ test('an absent balance: What you own is $2,000, the amber box names the account
   expect(screen.getAllByText('$2,000').length).toBeGreaterThan(0);          // What you own, the absent CD left out
   expect(screen.getAllByText(/Ally CD has no balance/).length).toBeGreaterThan(0);   // the amber box names it (its shown name)
   fireEvent.press(screen.getByLabelText(/Group what you own by institution/));
-  expect(screen.getByLabelText(/Ally CD, balance not entered\. Opens its page\./)).toBeOnTheScreen();
-  expect(screen.getAllByText('not entered').length).toBeGreaterThan(0);
-  expect(screen.getByLabelText(/^Ally, balance not entered, 1 account/)).toBeOnTheScreen();   // a bank with no known balance says so, never $0
+  expect(screen.getByLabelText(/Ally CD, value not entered\. Opens its page\./)).toBeOnTheScreen();
+  expect(screen.getAllByText('Value not entered').length).toBeGreaterThan(0);
+  expect(screen.getByLabelText(/^Ally, value not entered, 1 account/)).toBeOnTheScreen();
+  // his wording, DEC-3657: the bank's line says WHAT is not entered — "Ally · Value not entered"
+  expect(screen.queryByText('not entered')).toBeNull();   // a bank with no known balance says so, never $0
 });
 
 test('a class picked in the editor is marked as the person\'s, and the sweep keeps it', () => {
@@ -70,15 +72,15 @@ test('a debt with no balance is named in the amber box, and Net worth counts the
   render(<NetWorthScreen />);
   expect(screen.queryByText(/NaN/)).toBeNull();
   expect(screen.getAllByText(/Personal loan has no balance/).length).toBeGreaterThan(0);
-  expect(screen.getByLabelText(/^Personal loan, balance not entered\. Opens the editor\./)).toBeOnTheScreen();   // the row: never −$0
+  expect(screen.getByLabelText(/^Personal loan, value not entered\. Opens the editor\./)).toBeOnTheScreen();   // the row: never −$0
 });
 
 test('by category, an account with no balance stays listed under its class, reading "not entered"', () => {
   seedMissing();
   render(<NetWorthScreen />);
   // the CD is the only Bonds & CDs account and has no balance: its class still shows, and so does it
-  expect(screen.getByLabelText(/^Bonds & CDs, balance not entered\./)).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText(/^Bonds & CDs, balance not entered\./));
-  expect(screen.getByLabelText(/^Ally CD, balance not entered\. Opens its page\./)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/^Bonds & CDs, value not entered\./)).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText(/^Bonds & CDs, value not entered\./));
+  expect(screen.getByLabelText(/^Ally CD, value not entered\. Opens its page\./)).toBeOnTheScreen();
   expect(screen.queryByText(/NaN/)).toBeNull();
 });

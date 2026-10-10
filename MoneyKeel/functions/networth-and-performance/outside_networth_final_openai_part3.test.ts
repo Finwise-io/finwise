@@ -500,14 +500,15 @@ describe('MK-NW-F-091 pricedGainOf — five cases', () => {
   test('easy · Existing holding with 10% return', () => { expect(pricedGainOf([{ marketValue: 1100, periodReturn: 0.1 }])).toBeCloseTo(100, 10); });
   test('complex · Multiple holdings and negative return', () => {
     const a = { cappedSince: '2026-01-01', gain: 1250 - 1000, marketValue: 1250 }, b = { marketValue: 9500, periodReturn: -0.05 };
-    expect([pricedGainOf([a]), pricedGainOf([b])].map((x) => +x.toFixed(9))).toEqual([250, +(-499.99999999999943).toFixed(9)]);
+    expect([pricedGainOf([a]), pricedGainOf([b])].map((x) => +x!.toFixed(9))).toEqual([250, +(-499.99999999999943).toFixed(9)]);
     expect(pricedGainOf([a, b])).toBeCloseTo(-249.99999999999943, 9);
   });
   test('complex · Holding bought before period uses reverse return', () => { expect(pricedGainOf([{ marketValue: 12345.67, periodReturn: 0.0825 }])).toBeCloseTo(940.8940184757511, 9); });
-  // FINDING: app gives 0, expected REFUSES — a holding with no period return adds $0 to the gain (performance.ts:190), so a
-  // one-holding gain reads as "$0 gained" rather than unknown (tenet 3: unknown is not zero). Callers: PerformanceScreen.tsx:114
-  // (per row), :156; HomeScreen.tsx:189.
-  test.failing('edge · Missing return refuses gain', () => { refuses(pricedGainOf([{ marketValue: 1000, periodReturn: null }])); });
+  // FINDING: app gave 0, expected REFUSES — a holding with no period return added $0 to the gain, so a
+  // one-holding gain read as "$0 gained" rather than unknown (tenet 3: unknown is not zero).
+  // FIXED 2026-10-09 by DEC-3656: a holding held (value > 0) with no price history and no stated rate has an
+  // unknown gain — pricedGainOf answers null, and the walk that would be worked back from it is not drawn.
+  test('edge · Missing return refuses gain', () => { refuses(pricedGainOf([{ marketValue: 1000, periodReturn: null }])); });
 });
 
 describe('MK-NW-F-092 investmentAccountIdsOf — five cases', () => {

@@ -251,7 +251,7 @@ export default function NetWorthScreen() {
   // Personal property order; only the categories inside them are sorted.
   const classRows = CLASS_META.map((m) => ({ ...m, total: alloc[m.key] })).filter((r) => r.total > 0)
     .sort((a, b) => b.total - a.total);
-  // THE LIST ALSO SHOWS A CLASS WHOSE ONLY ACCOUNTS HAVE NO BALANCE, reading 'not entered' — the bar and
+  // THE LIST ALSO SHOWS A CLASS WHOSE ONLY ACCOUNTS HAVE NO BALANCE, reading 'Value not entered' (DEC-3657) — the bar and
   // the percents count only what is known (OpenAI final, 2026-10-09, DEC-3279e: a missing balance is left out
   // of the total and named, never dropped from view)
   const noBal = (a: AssetAccount) => a.balance == null || !Number.isFinite(a.balance as number);
@@ -324,7 +324,7 @@ export default function NetWorthScreen() {
     const members = assets
       .map((a) => {
         const b = accountClassBreakdown(a);
-        // an account whose balance is missing stays under its class, reading 'not entered' — it used to drop
+        // an account whose balance is missing stays under its class, reading 'Value not entered' (DEC-3657) — it used to drop
         // out of the list as if it held nothing (OpenAI final, 2026-10-09, DEC-3279e)
         const missing = a.balance == null || !Number.isFinite(a.balance as number);
         const portion: number | null = missing ? (assetClassOf(a) === r.key ? null : 0)
@@ -343,14 +343,14 @@ export default function NetWorthScreen() {
             already said it. A single same-named class renders its accounts directly. */}
         {!hideHeader && <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button"
           onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
-          accessibilityLabel={`${r.label}, ${(r as any).unvalued ? 'balance not entered' : figSaid('MK-NW-M-007', Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
+          accessibilityLabel={`${r.label}, ${(r as any).unvalued ? 'value not entered' : figSaid('MK-NW-M-007', Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
           <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
           <View style={[styles.dot, { backgroundColor: r.color }]} />
           <View style={{ flex: 1 }}>
             <Text style={styles.rowTitle}>{r.label}</Text>
             {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
           </View>
-          <Text style={styles.rowVal}>{(r as any).unvalued ? figWords('MK-NW-M-007', 'not entered') : fig('MK-NW-M-007', Math.round(r.total))}</Text>
+          <Text style={styles.rowVal}>{(r as any).unvalued ? figWords('MK-NW-M-007', 'Value not entered') : fig('MK-NW-M-007', Math.round(r.total))}</Text>
           {/* the empty arrow column: a row that doesn't navigate still holds the slot open, so its
               number lands on the same right edge as one that does (founder gap 4) */}
           <View style={styles.arrowGap} />
@@ -358,13 +358,13 @@ export default function NetWorthScreen() {
         {shownMembers.map(({ a, portion, split }) => (
           <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={[styles.ledgerRow, styles.ledgerChild]}
             onPress={() => router.push((split ? `/account-detail?id=${a.asset_id}&class=${r.key}` : `/account-detail?id=${a.asset_id}`) as any)}
-            accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${portion == null ? 'balance not entered' : figSaid('MK-NW-M-008', Math.round(portion))}. Opens its page.`}>
+            accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${portion == null ? 'value not entered' : figSaid('MK-NW-M-008', Math.round(portion))}. Opens its page.`}>
             <View style={{ flex: 1 }}>
               <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
               {split && <Text style={styles.acctRowSub}>{classPortionLabel(a, r.key)}</Text>}
               <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
             </View>
-            <Text style={styles.acctRowVal}>{portion == null ? figWords('MK-NW-M-008', 'not entered') : fig('MK-NW-M-008', Math.round(portion))}</Text>
+            <Text style={styles.acctRowVal}>{portion == null ? figWords('MK-NW-M-008', 'Value not entered') : fig('MK-NW-M-008', Math.round(portion))}</Text>
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
         ))}
@@ -382,7 +382,7 @@ export default function NetWorthScreen() {
   const curYm = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
   const assetRow = (a: AssetAccount, i: number, title: string, sub: string, amount?: number, rowKey?: string) => {
     const shown = amount ?? a.balance;
-    // a missing balance says 'not entered', never $0 or the refusal sentence (outside review OpenAI final, 2026-10-09, DEC-3279e)
+    // a missing balance says 'Value not entered' (DEC-3657), never $0 or the refusal sentence (outside review OpenAI final, 2026-10-09, DEC-3279e)
     const has = shown != null && Number.isFinite(shown as number);
     const ch = a.change_month === curYm ? (a.change_amount ?? 0) : 0;
     const up = ch > 0;
@@ -391,7 +391,7 @@ export default function NetWorthScreen() {
     sub = sub ? `${sub} · ${stamp}` : stamp;
     // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
-      <TouchableOpacity key={rowKey ?? a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${has ? figSaid('MK-NW-M-008', shown) : 'balance not entered'}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
+      <TouchableOpacity key={rowKey ?? a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${has ? figSaid('MK-NW-M-008', shown) : 'value not entered'}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
         <Text style={styles.rowIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -400,7 +400,7 @@ export default function NetWorthScreen() {
         <View style={{ alignItems: 'flex-end' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
             {ch !== 0 && <Text style={[styles.chArrow, { color: up ? Colors.gainText : Colors.red }]}>{up ? '▲' : '▼'}</Text>}
-            <Text style={styles.rowVal}>{has ? fig('MK-NW-M-008', shown) : figWords('MK-NW-M-008', 'not entered')}</Text>
+            <Text style={styles.rowVal}>{has ? fig('MK-NW-M-008', shown) : figWords('MK-NW-M-008', 'Value not entered')}</Text>
           </View>
           {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.gainText : Colors.red }]}>{up ? '+' : '−'}{fig('MK-NW-M-001', Math.abs(ch))} this mo</Text>}
         </View>
@@ -872,7 +872,7 @@ export default function NetWorthScreen() {
               first. An institution's row is what it HOLDS — a debt at the same bank never merges into
               it; the Chase Visa stays under DEBTS. Open/closed is remembered per view. */}
           {nwGrouping === 'institution' && (() => {
-            // a bank whose every balance is missing reads 'not entered', never "$0" (OpenAI final, 2026-10-09, DEC-3279e)
+            // a bank whose every balance is missing reads 'Value not entered' (DEC-3657), never "$0" (OpenAI final, 2026-10-09, DEC-3279e)
             const groups = new Map<string, { total: number; known: number; members: AssetAccount[] }>();
             for (const a of assets) {
               const k = a.institution?.trim() || 'No institution';
@@ -889,21 +889,21 @@ export default function NetWorthScreen() {
                 <View key={label}>
                   <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
                     onPress={() => setOpenInst((m) => ({ ...m, [label]: !open }))}
-                    accessibilityLabel={`${label}, ${g.known ? figSaid('MK-NW-M-007', Math.round(g.total)) : 'balance not entered'}, ${count}. ${open ? 'Collapses' : 'Expands'} them.`}>
+                    accessibilityLabel={`${label}, ${g.known ? figSaid('MK-NW-M-007', Math.round(g.total)) : 'value not entered'}, ${count}. ${open ? 'Collapses' : 'Expands'} them.`}>
                     <SectionBand light trailing={RIGHT_SLOT} title={`${open ? '▾' : '▸'} ${label}${open ? '' : ` · ${count}`}`}
-                      value={g.known ? fig('MK-NW-M-007', Math.round(g.total)) : figWords('MK-NW-M-007', 'not entered')} />
+                      value={g.known ? fig('MK-NW-M-007', Math.round(g.total)) : figWords('MK-NW-M-007', 'Value not entered')} />
                   </TouchableOpacity>
                   {/* A MISSING BALANCE IS NOT $0: the row says 'not entered', the word the bond rows use
                       (outside review OpenAI final, 2026-10-09, DEC-3279e) */}
                   {open && g.members.map((a) => { const has = a.balance != null && Number.isFinite(a.balance as number); return (
                     <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={[styles.ledgerRow, styles.ledgerChild]}
                       onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-                      accessibilityLabel={`${displayNames.get(a.asset_id)}, ${has ? figSaid('MK-NW-M-008', Math.round(a.balance)) : 'balance not entered'}. Opens its page.`}>
+                      accessibilityLabel={`${displayNames.get(a.asset_id)}, ${has ? figSaid('MK-NW-M-008', Math.round(a.balance)) : 'value not entered'}. Opens its page.`}>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
                         <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
                       </View>
-                      <Text style={styles.acctRowVal}>{has ? fig('MK-NW-M-008', Math.round(a.balance)) : figWords('MK-NW-M-008', 'not entered')}</Text>
+                      <Text style={styles.acctRowVal}>{has ? fig('MK-NW-M-008', Math.round(a.balance)) : figWords('MK-NW-M-008', 'Value not entered')}</Text>
                       <Text style={styles.arrowSlot}>›</Text>
                     </TouchableOpacity>
                   ); })}
@@ -928,9 +928,9 @@ export default function NetWorthScreen() {
               <View key={g.group}>
                 <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
                   onPress={() => setOpenUber((m) => ({ ...m, [g.group]: !gOpen }))}
-                  accessibilityLabel={`${g.label}, ${gUnvalued ? 'balance not entered' : figSaid('MK-NW-M-007', Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
+                  accessibilityLabel={`${g.label}, ${gUnvalued ? 'value not entered' : figSaid('MK-NW-M-007', Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
                   <SectionBand light trailing={RIGHT_SLOT} title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${count}`}`}
-                    value={gUnvalued ? figWords('MK-NW-M-007', 'not entered') : fig('MK-NW-M-007', Math.round(g.total))} />
+                    value={gUnvalued ? figWords('MK-NW-M-007', 'Value not entered') : fig('MK-NW-M-007', Math.round(g.total))} />
                 </TouchableOpacity>
                 {gOpen && g.classes.map((r, i) => renderClassRow(
                   r, i, g.classes.length === 1 && r.label.trim().toLowerCase() === g.label.trim().toLowerCase(),
@@ -965,16 +965,16 @@ export default function NetWorthScreen() {
           )}
           {liabilities.map((d) => (
             <TouchableOpacity key={d.debt_id} style={styles.ledgerRow} accessibilityRole="button"
-              accessibilityLabel={`${d.label}, ${d.remaining_balance == null || !Number.isFinite(d.remaining_balance) ? 'balance not entered' : `you owe ${figSaid('MK-NW-M-010', Math.round(d.remaining_balance))}`}. Opens the editor.`}
+              accessibilityLabel={`${d.label}, ${d.remaining_balance == null || !Number.isFinite(d.remaining_balance) ? 'value not entered' : `you owe ${figSaid('MK-NW-M-010', Math.round(d.remaining_balance))}`}. Opens the editor.`}
               onPress={() => setDebtSheet({ open: true, edit: d })}>
               <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={styles.rowTitle}>{d.label}</Text>
                 {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
               </View>
-              {/* a debt with no balance reads 'not entered', never −$0 (OpenAI final, 2026-10-09, DEC-3279e) */}
+              {/* a debt with no balance reads 'Value not entered' (DEC-3657), never −$0 (OpenAI final, 2026-10-09, DEC-3279e) */}
               {d.remaining_balance == null || !Number.isFinite(d.remaining_balance)
-                ? <Text style={styles.rowVal}>{figWords('MK-NW-M-010', 'not entered')}</Text>
+                ? <Text style={styles.rowVal}>{figWords('MK-NW-M-010', 'Value not entered')}</Text>
                 : <Text style={[styles.rowVal, { color: Colors.red }]}>−{fig('MK-NW-M-010', Math.round(d.remaining_balance))}</Text>}
               <Text style={styles.arrowSlot}>›</Text>
             </TouchableOpacity>
