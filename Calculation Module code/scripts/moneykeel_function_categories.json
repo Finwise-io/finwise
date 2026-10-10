@@ -2349,6 +2349,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "2 · DISPLAYED"
  },
+ "pricedLikeBond": {
+  "id": "MK-NW-F-131",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "primaryCarIdOf": {
   "id": "MK-NW-F-031",
   "file": "src/domain/assets/index.ts",

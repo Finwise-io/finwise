@@ -15,6 +15,44 @@ export interface BondInfo {
   accruedInterest?: number | null;
   /** A certificate of deposit: not traded, so its value does not move with rates (owner, 2026-09-27). */
   isCd?: boolean;
+  /** (DEC-3837, 2026-10-10) Where a CD was bought — 'bank' or 'broker'; not answered reads as 'bank'. */
+  cdBought?: 'bank' | 'broker';
+}
+
+/** (DEC-3837, 2026-10-10) THE ONE TEST of whether a holding is priced like a bond: every bond is, and a CD
+ *  only when it was bought through a broker. A bank CD yields its stated rate and does not move with
+ *  rates; a broker CD trades, so its yield is solved from its price and it gets the if-rates-move estimate. */
+/* ─ MK-NW-F-131 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * pricedLikeBond
+ *
+ * Answers ..... (DEC-3837, 2026-10-10) THE ONE TEST of whether a holding is priced like a bond: every bond is, and a CD only when it was bought through a broker.
+ *
+ * Formula .....
+ *     is cd is missing (or cd bought = 'broker' when missing or zero)
+ *
+ * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-064 bondRateSensitivity
+ *               MK-NW-F-072 rowOf · MK-NW-F-119 estimatedAccrued
+ *
+ * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
+ *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               … and 69 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-131
+ * Changed ..... not in git yet (—)
+ */
+export function pricedLikeBond(b: BondInfo): boolean {
+  return !b.isCd || b.cdBought === 'broker';
 }
 // whole words, capitals ignored: CD(s), certificate(s) of deposit, share certificate(s) — 'ABCD Growth Fund' is not one
 const CD_WORDS = /\b(cds?|certificates? of deposit|share certificates?)\b/i;
@@ -58,11 +96,13 @@ export function isBond(a: AssetAccount): boolean {
  * Answers ..... What are this holding's bond facts?
  *
  * Formula .....
- *     face = face value or 0
- *     coupon rate = coupon rate or 0
+ *     face = face value   when it is above 0;   nothing otherwise
+ *     coupon rate = coupon rate as entered (a typed 0 kept);   nothing when not entered
  *     maturity = maturity date or ''
  *     value = balance or 0
  *     accrued interest = the entered figure, or nothing when not entered
+ *     is a CD = kind is 'cd', or the name or institution says CD or certificate of deposit
+ *     where a CD was bought = 'broker'   when the person said so;   'bank' otherwise (DEC-3837, 2026-10-10)
  *
  * Called by ... MK-NW-F-062 couponIncomeAnnual · MK-NW-F-063 interestIncomeAnnual
  *               MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-072 rowOf
@@ -104,7 +144,9 @@ export function bondInfo(a: AssetAccount): BondInfo {
            couponRate: a.coupon_rate == null ? null : a.coupon_rate,
            maturity: a.maturity_date || '', value: a.balance || 0,
            accruedInterest: a.accrued_interest == null ? null : a.accrued_interest,
-           isCd: (a.kind as string) === 'cd' || CD_WORDS.test(`${a.label ?? ''} ${(a as any).institution ?? ''}`) };
+           isCd: (a.kind as string) === 'cd' || CD_WORDS.test(`${a.label ?? ''} ${(a as any).institution ?? ''}`),
+           // (DEC-3837, 2026-10-10) bought through a broker only when the person said so; anything else is a bank CD
+           cdBought: a.cd_bought === 'broker' ? 'broker' : 'bank' };
 }
 
 /** Annual coupon income = face value × coupon rate (paid as cash). */
@@ -447,7 +489,8 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
   // HIS WORDS, 2026-10-09: when accrued interest is not entered, the estimate is added and the screen says
   // so — "Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to
   // calculate YTM. If this is not accurate, enter actual accrued interest". Only where an estimate was
-  // used: a bond that pays interest, not a CD (its yield is its stated rate), not matured.
+  // used: a bond that pays interest, not a bank CD (its yield is its stated rate), not matured. A CD bought
+  // through a broker is priced like a bond and carries the note too (DEC-3837, 2026-10-10).
   if (b.accruedInterest != null) return null;
   const est = estimatedAccrued(b, now);
   if (est == null) return null;
@@ -455,14 +498,14 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
   return `Added estimated $${Math.round(est.amount).toLocaleString('en-US')} in accrued interest to bond value at ${pct} coupon for ${est.days} days to calculate YTM. If this is not accurate, enter actual accrued interest`;
 }
 
-/** The interest a bond has earned since its last yearly coupon, estimated from the coupon schedule — face × rate × days since the last coupon ÷ days in that coupon year; nothing for a CD, a matured or undated bond, or one with no face or rate. */
+/** The interest a bond has earned since its last yearly coupon, estimated from the coupon schedule — face × rate × days since the last coupon ÷ days in that coupon year; nothing for a bank CD, a matured or undated bond, or one with no face or rate. */
 /* ─ MK-NW-F-119 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * estimatedAccrued
  *
- * Answers ..... The interest a bond has earned since its last yearly coupon, estimated from the coupon schedule — face × rate × days since the last coupon ÷ days in that coupon year; nothing for a CD, a matured or undated bond, or one with no face or rate.
+ * Answers ..... The interest a bond has earned since its last yearly coupon, estimated from the coupon schedule — face × rate × days since the last coupon ÷ days in that coupon year; nothing for a bank CD, a matured or undated bond, or one with no face or rate.
  *
  * Formula .....
- *     nothing   when is cd (or face = nothing (or not (coupon rate ≠ nothing and coupon rate > 0) (or maturity is missing when missing or zero) when missing or zero) when missing or zero)
+ *     nothing   when !priced like bond(b) (or face = nothing (or not (coupon rate ≠ nothing and coupon rate > 0) (or maturity is missing when missing or zero) when missing or zero) when missing or zero)
  *     parts = maturity parts(maturity)
  *     nothing   when parts = nothing
  *     today = date.UTC(now.get full year(), now.get month(), now.get date())
@@ -504,7 +547,8 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
  * Changed ..... not in git yet (—)
  */
 export function estimatedAccrued(b: BondInfo, now: Date = new Date()): { amount: number; days: number } | null {
-  if (b.isCd || b.face == null || !(b.couponRate != null && b.couponRate > 0) || !b.maturity) return null;
+  // a bank CD has no accrued-interest estimate; a broker CD is priced like a bond and does (DEC-3837, 2026-10-10)
+  if (!pricedLikeBond(b) || b.face == null || !(b.couponRate != null && b.couponRate > 0) || !b.maturity) return null;
   const parts = maturityParts(b.maturity);   // an impossible date gives no estimate (outside review OpenAI final, 2026-10-09, DEC-0332)
   if (parts == null) return null;
   const [y, m, d] = parts;
@@ -519,15 +563,18 @@ export function estimatedAccrued(b: BondInfo, now: Date = new Date()): { amount:
   const yearDays = Math.round((next - last) / 86400000);
   return { amount: b.face * b.couponRate * days / yearDays, days };
 }
-/** Approximate yield to maturity (standard approximation), decimal. null if matured / no value. */
+/** Yield to maturity, solved from the price, decimal; a CD bought from the bank yields its rate (DEC-3837, 2026-10-10). null if matured / no value. */
 /* ─ MK-NW-F-060 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * approxYTM
  *
- * Answers ..... Approximate yield to maturity (standard approximation), decimal.
+ * Answers ..... Yield to maturity, solved from the price, decimal; a CD bought from the bank yields its rate (DEC-3837, 2026-10-10).
  *
  * Formula .....
- *     yield to maturity ≈ round( (annual coupon + (face − value) ÷ years left)
- *                                ÷ ((face + value) ÷ 2), 4 dp )
+ *     nothing   when there is no maturity date or it has passed
+ *     a CD bought from the bank (not priced like a bond): the answer = its interest rate (DEC-3837, 2026-10-10)
+ *     nothing   when no face value or no rate was entered, or the value is 0 or less
+ *     full price = value + accrued interest (as entered, else estimated accrued)
+ *     the answer = the yield y at which price at yield(y) = full price, found by halving the interval
  *
  * Called by ... MK-NW-F-064 bondRateSensitivity · MK-NW-F-072 rowOf
  *
@@ -566,11 +613,15 @@ export function approxYTM(b: BondInfo, now: Date = new Date()): number | null {
   // found by halving the interval to well under 0.0001. Nothing when matured, with no date, no face, no
   // rate, or a clean price of zero or less.
   const n = yearsToMaturity(b.maturity, now);
-  if (n == null || n <= 0 || b.face == null || b.couponRate == null) return null;
-  // A CD HELD TO MATURITY YIELDS ITS STATED RATE. It is not bought at a market price, and its balance
+  if (n == null || n <= 0) return null;
+  // A BANK CD HELD TO MATURITY YIELDS ITS STATED RATE. It is not bought at a market price, and its balance
   // is principal plus interest credited; priced as a yearly-coupon bond, a $10,000 CD at 5.05% five
-  // months from maturity read 11.30%. (2026-10-08)
-  if (b.isCd) return b.couponRate;
+  // months from maturity read 11.30%. (2026-10-08) It needs no face value: a bank CD with a rate and no
+  // face yields its rate. A CD BOUGHT THROUGH A BROKER is priced like a bond below — its rate is the
+  // coupon and its yield can differ ($10,000 face, 4.2%, worth $9,850, two years left: about 5.0%).
+  // (DEC-3837, 2026-10-10)
+  if (!pricedLikeBond(b)) return b.couponRate;
+  if (b.face == null || b.couponRate == null) return null;
   // THE FULL PRICE = THE VALUE AS ENTERED + ACCRUED INTEREST (his ruling, 2026-10-09). A statement's
   // market value leaves out the interest earned since the last coupon, but a buyer pays it; what the
   // bond will still pay, discounted, equals that full price. Accrued interest as entered, else estimated
@@ -811,7 +862,7 @@ export function priceAtYield(b: BondInfo, y: number, now: Date): number | null {
  *
  * Formula .....
  *     ytm = approx ytm(b, now)
- *     nothing   when is cd (or ytm = nothing (or face = nothing (or face ≤ 0 (or not (coupon rate ≠ nothing and coupon rate > 0) when missing or zero) when missing or zero) when missing or zero) when missing or zero)
+ *     nothing   when !priced like bond(b) (or ytm = nothing (or face = nothing (or face ≤ 0 (or not (coupon rate ≠ nothing and coupon rate > 0) when missing or zero) when missing or zero) when missing or zero) when missing or zero)
  *     step = (10)^(max(0, round down(math.log10(math.max(value, 1))) − 2))
  *     base = price at yield(b, ytm, now)
  *     nothing   when base = nothing
@@ -856,7 +907,8 @@ export function bondRateSensitivity(b: BondInfo, now: Date = new Date()): RateSe
   const ytm = approxYTM(b, now);
   // a CD is not traded, so its value does not move with rates (owner, 2026-09-27) — refused here, not
   // only by the screen (outside review, 2026-10-07); no coupon or no face, nothing to reprice
-  if (b.isCd || ytm == null || b.face == null || b.face <= 0 || !(b.couponRate != null && b.couponRate > 0)) return null;
+  // a broker CD trades, so it gets the estimate like a bond (DEC-3837, 2026-10-10)
+  if (!pricedLikeBond(b) || ytm == null || b.face == null || b.face <= 0 || !(b.couponRate != null && b.couponRate > 0)) return null;
   // three figures of the bond's own size: $1,000 from $100,000, $100 from $10,000, $10 below that
   const step = Math.pow(10, Math.max(0, Math.floor(Math.log10(Math.max(b.value, 1))) - 2));
   // THE CHANGE IS MEASURED WITHIN ONE MODEL (outside review, 2026-10-07): the price at the moved yield

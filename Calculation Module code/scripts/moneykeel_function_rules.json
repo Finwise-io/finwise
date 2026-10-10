@@ -1536,9 +1536,12 @@
   },
   "MK-NW-F-056": {
    "name": "bondInfo",
-   "rule": "Reads a bond's facts off its account: face value (not entered when missing or zero or less), yearly rate (not entered when missing; a typed zero is kept), maturity date, value (the balance), accrued interest (not entered when missing), and whether it is a CD — its kind is a CD, or its name or institution says CD or certificate of deposit.",
-   "read_from": "c7434aac43",
-   "sent_as": "5a6cacedd3"
+   "rule": "Reads a bond's facts off its account: face value (not entered when missing or zero or less), yearly rate (not entered when missing; a typed zero is kept), maturity date, value (the balance), accrued interest (not entered when missing), whether it is a CD — its kind is a CD, or its name or institution says CD or certificate of deposit — and where a CD was bought: through a broker only when the person said so, otherwise from the bank (DEC-3837, 2026-10-10).",
+   "read_from": "affd6e7d48",
+   "sent_as": "5a6cacedd3",
+   "figures_checked_by_hand": {
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-057": {
    "name": "annualCoupon",
@@ -1560,9 +1563,12 @@
   },
   "MK-NW-F-060": {
    "name": "approxYTM",
-   "rule": "Nothing when there is no maturity date, the bond has matured, or no face value or no rate was entered. A CD: its stated rate (it is not bought at a market price). Otherwise nothing when its value is zero or less; else the yield y at which priceAtYield equals the full price — the value as entered plus accrued interest (as entered, else estimatedAccrued; his ruling of 2026-10-09) — found by halving the interval two hundred times.",
-   "read_from": "d1fc75a372",
-   "sent_as": "a0c4e87be3"
+   "rule": "Nothing when there is no maturity date or the bond has matured. A CD bought from the bank (pricedLikeBond says no): its stated rate, even when no face value was entered, and nothing when no rate was entered (DEC-3837, 2026-10-10). A bond, or a CD bought through a broker: nothing when no face value or no rate was entered, or when its value is zero or less; else the yield y at which priceAtYield equals the full price — the value as entered plus accrued interest (as entered, else estimatedAccrued; his ruling of 2026-10-09) — found by halving the interval two hundred times.",
+   "read_from": "0166f4e149",
+   "sent_as": "a0c4e87be3",
+   "figures_checked_by_hand": {
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-061": {
    "name": "bondSummary",
@@ -1584,15 +1590,16 @@
   },
   "MK-NW-F-064": {
    "name": "bondRateSensitivity",
-   "rule": "Nothing for a CD, when the yield to maturity is unknown, when the bond cannot be priced (matured or no date), or when the face value or rate was not entered or is zero or less. For rates one percentage point UP and one DOWN: the change = priceAtYield at the yield to maturity plus or minus one point (never below 0.01%) less priceAtYield at the yield to maturity itself. The new price = today's value + that change. It gives a range from 1% under to 1% over the new price, and the change, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
-   "read_from": "88ed566fc6",
+   "rule": "Nothing for a CD bought from the bank (pricedLikeBond says no; a CD bought through a broker is priced like a bond, DEC-3837, 2026-10-10), when the yield to maturity is unknown, when the bond cannot be priced (matured or no date), or when the face value or rate was not entered or is zero or less. For rates one percentage point UP and one DOWN: the change = priceAtYield at the yield to maturity plus or minus one point (never below 0.01%) less priceAtYield at the yield to maturity itself. The new price = today's value + that change. It gives a range from 1% under to 1% over the new price, and the change, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
+   "read_from": "0256549cf8",
    "sent_as": "de92efd74a",
    "figures_checked_by_hand": {
     "$100,000": "10 to the power 5: the step is 10 to the power (whole digits of the value − 3)",
     "$100": "the step from $10,000",
     "$10,000": "10 to the power 4",
     "$10": "the step from $1,000",
-    "$1,000": "the step from $100,000, and 10 to the power 3"
+    "$1,000": "the step from $100,000, and 10 to the power 3",
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
    }
   },
   "MK-NW-F-065": {
@@ -1627,7 +1634,7 @@
   },
   "MK-NW-F-070": {
    "name": "accruedInterestCaveat",
-   "rule": "When accrued interest was not entered and estimatedAccrued gives an estimate (a bond that pays interest, not a CD, not matured, not on a coupon day): his words — Added estimated $<the estimate, whole dollars> in accrued interest to bond value at <the rate>% coupon for <days> days to calculate YTM. If this is not accurate, enter actual accrued interest. Otherwise nothing.",
+   "rule": "When accrued interest was not entered and estimatedAccrued gives an estimate (a bond or a CD bought through a broker that pays interest, not a CD bought from the bank, not matured, not on a coupon day): his words — Added estimated $<the estimate, whole dollars> in accrued interest to bond value at <the rate>% coupon for <days> days to calculate YTM. If this is not accurate, enter actual accrued interest. Otherwise nothing.",
    "read_from": "89f4a4a446",
    "sent_as": "843f845929"
   },
@@ -1639,8 +1646,8 @@
   },
   "MK-NW-F-072": {
    "name": "rowOf",
-   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterestNow: face × rate; with no face, value × rate; with no rate, not entered; $0 once past its maturity date, so the rows add up to the summary), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
-   "read_from": "c9134937d4",
+   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterestNow: face × rate; with no face, value × rate; with no rate, not entered; $0 once past its maturity date, so the rows add up to the summary), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, whether it is priced like a bond (pricedLikeBond: a bond, or a CD bought through a broker), and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
+   "read_from": "a476e55971",
    "sent_as": "4cc586d060"
   },
   "MK-NW-F-073": {
@@ -1695,9 +1702,12 @@
   },
   "MK-NW-O-001": {
    "name": "theBonds",
-   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures. It also names the bonds the average yield leaves out — those with no value today, and, apart, those with a value but no rate entered — and the bonds with no face value entered, so a screen can say which.",
-   "read_from": "5b0fea98c4",
-   "sent_as": "ac38213b75"
+   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD bought from the bank, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures; a CD bought through a broker gets the figure like a bond and no sentence (DEC-3837, 2026-10-10). It also names the bonds the average yield leaves out — those with no value today, and, apart, those with a value but no rate entered — and the bonds with no face value entered, so a screen can say which.",
+   "read_from": "1b4aaded96",
+   "sent_as": "ac38213b75",
+   "figures_checked_by_hand": {
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-O-002": {
    "name": "theAccount",
@@ -2018,8 +2028,11 @@
   },
   "MK-NW-F-119": {
    "name": "estimatedAccrued",
-   "rule": "The interest earned since the last yearly coupon, estimated from the coupon schedule: face × rate × the days since the last maturity anniversary ÷ the days in that coupon year, with the days. Nothing for a CD, a bond with no face or no rate above zero, no maturity date or a day that does not exist, a matured bond, or on a coupon day (nothing has accrued).",
-   "read_from": "155a98484a"
+   "rule": "The interest earned since the last yearly coupon, estimated from the coupon schedule: face × rate × the days since the last maturity anniversary ÷ the days in that coupon year, with the days. Nothing for a CD bought from the bank (a CD bought through a broker is estimated like a bond, DEC-3837, 2026-10-10), a bond with no face or no rate above zero, no maturity date or a day that does not exist, a matured bond, or on a coupon day (nothing has accrued).",
+   "read_from": "c59f7c7500",
+   "figures_checked_by_hand": {
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-124": {
    "name": "maturityParts",
@@ -2075,6 +2088,14 @@
    "name": "cannotWorkBackSentence",
    "rule": "The sentence when the beginning cannot be worked back: \"The beginning can't be worked back: <names> has no price history.\" With several names, they are joined by commas with \"and\" before the last, and the verb is \"have\". With no name, \"a holding\".",
    "read_from": "a4c5ead277"
+  },
+  "MK-NW-F-131": {
+   "name": "pricedLikeBond",
+   "rule": "Yes for every bond that is not a CD. For a CD: yes only when it was bought through a broker; a CD bought from the bank, or one whose answer was never given, is no (DEC-3837, 2026-10-10). This is the one test every bond figure reads to decide whether a CD is priced like a bond.",
+   "read_from": "52159b7883",
+   "figures_checked_by_hand": {
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
+   }
   }
  },
  "pack_sent": {

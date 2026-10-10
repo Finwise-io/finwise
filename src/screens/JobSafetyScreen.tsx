@@ -8,6 +8,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'reac
 import { SectionBand } from '../components/SectionBand';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
+import { useRouter } from 'expo-router';
 // ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5 ruled 2026-09-27: "Yes.").
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
 import { Disclaimer } from '../components/Disclaimer';
@@ -38,6 +39,7 @@ export default function JobSafetyScreen() {
   // their emergency fund was $0 and the gap was $0: it told them they needed nothing. The other two
   // screens showed $4,000 for the same person on the same day.
   const store = useStore() as any;
+  const router = useRouter();
   const emergencyFund = theEmergencyFund({
     accounts: store.assetAccounts ?? [], expenses: store.expenses ?? [], profile: store.onboardingProfile ?? {}, debts: store.liabilities ?? [],
   });
@@ -116,6 +118,16 @@ export default function JobSafetyScreen() {
             <Text style={s.heroLine}>
               {months} months of essentials is {money(target)} ({money(ess)}/month{rent > 0 ? ` − ${figPer('MK-NW-M-064', rent)} rent from your property, which keeps arriving` : ''}) — your {basisWord} cover {money(Math.min(available, target))} of it.
             </Text>
+            {/* RENT NOT KNOWN (DEC-3836, 2026-10-10 — the DEC-3769 line, carried from Net worth): a property's rent
+                is blank or not a plain number, so the months of essentials above are costed without it. The same
+                words as Net worth, with this screen's own months figure (the months chosen, MK-MN-M-020), and the
+                words open the rent editor on Income. */}
+            {asked.rentNotKnown && (
+              <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => router.push('/income-manager?open=rental' as any)}
+                accessibilityLabel={`${months} months, rent not included. Enter rent to include. Opens Income.`}>
+                <Text style={s.heroLine}>{months} months, rent not included. <Text style={{ color: Colors.primary, fontWeight: '700' }}>Enter rent to include.</Text></Text>
+              </TouchableOpacity>
+            )}
             {monthSpend > 0 && !customExpenses && (
               <Text style={s.baselineNote}>Using {money(monthSpend)}/month — {emergencyFund.essentialsBasis} of your logged expenses — type your own if a typical month differs.</Text>
             )}

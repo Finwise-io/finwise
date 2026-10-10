@@ -7,7 +7,8 @@ import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { figPer } from '../components/figure';
+import { fig, figPer, figSaid } from '../components/figure';
+import { useRouter } from 'expo-router';
 // ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5 ruled 2026-09-27: "Yes."). The emergency fund on Net
 // worth, Job safety and this screen ask one question under three names; they read one answer now.
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
@@ -23,6 +24,7 @@ const PRESETS = [
 
 export default function StressTestScreen() {
   const store = useStore() as any;
+  const router = useRouter();
   const op = store.onboardingProfile ?? {};
   const accounts = store.assetAccounts ?? [];
   const cashGuess = theEmergencyFund({ accounts, expenses: store.expenses ?? [], profile: op, debts: store.liabilities ?? [] }).cash;
@@ -90,6 +92,15 @@ export default function StressTestScreen() {
               <Text style={[styles.big, { color: tone(r.jobLossRunway) }]}>{r.jobLossRunway.toFixed(1)}</Text>
               <Text style={styles.bigUnit}>months your cash would last</Text>
             </View>
+            {/* RENT NOT KNOWN (DEC-3836, 2026-10-10 — the DEC-3769 line, carried from Net worth): a property's rent
+                is blank or not a plain number, so the months above are counted without it. The same words as Net
+                worth, with the same months figure (MK-NW-M-013), and the words open the rent editor on Income. */}
+            {answer.rentNotKnown && (
+              <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => router.push('/income-manager?open=rental' as any)}
+                accessibilityLabel={`${figSaid('MK-NW-M-013', answer.monthsCovered)}, rent not included. Enter rent to include. Opens Income.`}>
+                <Text style={styles.note}>{fig('MK-NW-M-013', answer.monthsCovered)}, rent not included. <Text style={{ color: Colors.primary, fontWeight: '700' }}>Enter rent to include.</Text></Text>
+              </TouchableOpacity>
+            )}
             <Text style={styles.note}>Covering your {money(ess)}/month of essentials ({essLabel}) with no paycheck coming in{rentLine ? `, counting ${rentLine} of rent from your property, which keeps arriving` : ''}. 3–6 months of essentials is the range most planners use.</Text>
           </>
         ) : (

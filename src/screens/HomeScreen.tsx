@@ -33,7 +33,7 @@ import { resolveLens } from '../domain/profile/lens';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
 import { makeMonthlySnapshot, readHistory } from '../domain/history';
-import { useInsights } from './InsightsScreen';
+import { useInsights, RentNotKnownLine } from './InsightsScreen';
 import { maskedMoney, maskDollars, spokenDollars, spokenMoney } from '../components/useMoney';
 import { InfoDot, EmptyNote } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
@@ -438,6 +438,8 @@ export default function HomeScreen() {
                 {/* function sentences carry dollar figures — mask them, keep the words (the walk test) */}
                 <Text style={[styles.needTitle, i === 0 && { fontWeight: '800' }]}>{maskDollars(ins.title)}</Text>
                 <Text style={styles.needBody}>{maskDollars(ins.body)}</Text>
+                {/* RENT NOT KNOWN (DEC-3836, 2026-10-10): the emergency-fund row states months, so the line sits with them */}
+                {ins.rentNotKnownMonths && <RentNotKnownLine months={ins.rentNotKnownMonths} onPress={() => router.push('/income-manager?open=rental' as any)} />}
               </View>
               <Text style={styles.nwArrow}>›</Text>
             </TouchableOpacity>

@@ -15,6 +15,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { typedAmount } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 import { isoLocalDate } from '../domain/_shared/dates';
+import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // native date picker (audit AA-1: no hand-typed YYYY-MM-DD) — same helpers the Bonds editor uses
@@ -75,11 +76,19 @@ export default function AddAccountScreen() {
   const [coupon, setCoupon] = useState<string>(existing?.coupon_rate != null ? String(existing.coupon_rate * 100) : '');
   const [maturity, setMaturity] = useState<string>(existing?.maturity_date ?? '');
   const [showMaturity, setShowMaturity] = useState(false);
+  // WHERE A CD WAS BOUGHT (DEC-3837, 2026-10-10): "Interest rate % is the coupon, and yield to maturity
+  // could be different from coupon/interest rate % for CD bought in secondary market." A bank CD yields
+  // its rate; a broker CD is priced like a bond. Not answered = bank, so the choice starts there.
+  const [cdBought, setCdBought] = useState<'bank' | 'broker'>(existing?.cd_bought === 'broker' ? 'broker' : 'bank');
   // debt fields
   const [apr, setApr] = useState<string>('');
   const [minPay, setMinPay] = useState<string>('');
 
   const isInvestment = cls === 'stocks' || cls === 'bonds' || cls === 'alts';
+  // the question shows only for a CD — asked of the bonds door (MK-NW-O-001), so the form and the bond
+  // figures use the same one test of what a CD is (DEC-3837, 2026-10-10)
+  const isCd = cls === 'bonds' && !!theBonds({ accounts: [{ asset_id: 'draft', label: name, institution, kind: existing?.kind,
+    asset_class: 'bonds', tax_bucket: 'TAXABLE', balance: 0, target_return: 0 } as any] }).rows[0]?.isCD;
   const ready = cls === 'debt'
     ? name.trim() !== '' && num(balance) > 0 && minPay.trim() !== ''
     : name.trim() !== '' && balance.trim() !== '';           // an explicit $0 is allowed (B-21 rule)
@@ -103,7 +112,7 @@ export default function AddAccountScreen() {
       kind: cls === 'alts' ? altType : KIND_BY_CLASS[cls],
       tax_bucket: cls === 'cash' ? 'CASH' : cls === 'property' ? 'PROPERTY' : wrapper,
     };
-    if (cls === 'bonds') { base.asset_class = 'bonds'; base.face_value = num(face) || undefined; base.coupon_rate = num(coupon) > 0 ? num(coupon) / 100 : undefined; base.maturity_date = maturity.trim() || undefined; }
+    if (cls === 'bonds') { base.asset_class = 'bonds'; base.face_value = num(face) || undefined; base.coupon_rate = num(coupon) > 0 ? num(coupon) / 100 : undefined; base.maturity_date = maturity.trim() || undefined; if (isCd) base.cd_bought = cdBought; }   // (DEC-3837, 2026-10-10)
     if (cls === 'alts') base.asset_class = 'alternatives';
     if (cls === 'property') {
       base.re_use = livedIn ? 'primary' : 'secondary';
@@ -170,6 +179,20 @@ export default function AddAccountScreen() {
         <>
           {field('Face value (optional)', face, setFace, { placeholder: '$10,000', keyboard: 'decimal-pad', a11y: 'Face value' })}
           {field('Interest rate % (optional)', coupon, setCoupon, { placeholder: '4.5', keyboard: 'decimal-pad', a11y: 'Coupon percent' })}
+          {isCd && (
+            <>
+              {/* (DEC-3837, 2026-10-10) asked once, for a CD only */}
+              <Text style={s.fieldL}>Bought from the bank, or through a broker?</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                {([['bank', 'From the bank'], ['broker', 'Through a broker']] as const).map(([v, label]) => (
+                  <TouchableOpacity key={v} style={[s.chip, cdBought === v && s.chipOn]} accessibilityRole="button" accessibilityState={{ selected: cdBought === v }}
+                    accessibilityLabel={v === 'bank' ? 'CD bought from the bank' : 'CD bought through a broker'} onPress={() => setCdBought(v)}>
+                    <Text style={[s.chipTxt, cdBought === v && { color: Colors.primaryDark }]}>{label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          )}
           <Text style={s.fieldL}>Matures (optional)</Text>
           <TouchableOpacity accessibilityRole="button" style={s.input} activeOpacity={0.7}
             accessibilityLabel={maturity ? `Maturity date, ${humanDate(maturity)}. Tap to change.` : 'Pick a maturity date'}

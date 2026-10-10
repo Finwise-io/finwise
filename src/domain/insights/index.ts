@@ -6,6 +6,9 @@ export interface Insight {
   id: string; priority: 1 | 2 | 3; theme: InsightTheme; icon: string; title: string; body: string;
   route?: string;
   details?: { label: string; value: string }[];   // provenance (which accounts / the math) — attached by the screen
+  /** DEC-3836 (2026-10-10): the emergency fund's months ("2.5 months", MK-NW-M-013) when a property's rent is
+   *  not known — the card then says "<months>, rent not included. Enter rent to include." Attached by the screen. */
+  rentNotKnownMonths?: string;
 }
 
 export interface InsightInput {

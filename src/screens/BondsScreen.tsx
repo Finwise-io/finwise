@@ -143,12 +143,20 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   const [institution, setInstitution] = useState('');
   const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
   const [sellAmt, setSellAmt] = useState('');
+  // WHERE A CD WAS BOUGHT (DEC-3837, 2026-10-10): a bank CD yields its rate; a broker CD is priced like a
+  // bond. Not answered = bank. Asked only for a CD, judged by the bonds door (MK-NW-O-001) — the same test
+  // the bond figures and the Add an account form use.
+  const [cdBought, setCdBought] = useState<'bank' | 'broker'>('bank');
+  const isCd = !!theBonds({ accounts: [{ asset_id: 'draft', label, institution, kind: bond?.kind, asset_class: 'bonds',
+    tax_bucket: 'TAXABLE', balance: 0, target_return: 0 } as any] }).rows[0]?.isCD;
+  const cdField = isCd ? { cd_bought: cdBought } : {};   // saved with the other fields (DEC-3837, 2026-10-10)
   React.useEffect(() => {
     if (!open) return;
     setLabel(bond?.label ?? ''); setFace(bond?.face_value ? String(bond.face_value) : '');
     setCoupon(bond?.coupon_rate ? String(bond.coupon_rate * 100) : ''); setMaturity(bond?.maturity_date ?? '');
     setAccrued(bond?.accrued_interest != null ? String(bond.accrued_interest) : '');
     setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? ''); setSellAmt(''); setValueAsOf(bond?.value_as_of ?? '');
+    setCdBought(bond?.cd_bought === 'broker' ? 'broker' : 'bank');   // (DEC-3837, 2026-10-10)
   }, [open]);
   // You can sell a bond on the secondary market before maturity. Record a full or partial sale: a full
   // sale closes the position; a partial sale lowers its value and scales the face/par proportionally.
@@ -175,7 +183,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           if (bond) recordTransaction?.({ type: 'SELL', account_id: bond.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Bond sale' });
           onSave({ label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
             coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
-            face_value: r2(num(face) * (newVal / cur)), ...(bond ? {} : { balance: newVal }) });
+            face_value: r2(num(face) * (newVal / cur)), ...cdField, ...(bond ? {} : { balance: newVal }) });
         } },
       ],
     );
@@ -193,6 +201,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     face_value: num(face), coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
     balance: num(value) > 0 ? num(value) : num(face),   // default value to face if blank
     value_as_of: valueAsOf || fmtISO(new Date()),       // walk row 4: every manual value carries its date
+    ...cdField,
   });
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
@@ -211,6 +220,16 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} keyboardType="decimal-pad" value={face} onChangeText={setFace} placeholder="10000" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
+          {isCd && (
+            <>
+              {/* (DEC-3837, 2026-10-10) asked once, for a CD only */}
+              <Text style={styles.fieldL}>Bought from the bank, or through a broker?</Text>
+              <View style={styles.chips}>{([['bank', 'From the bank'], ['broker', 'Through a broker']] as const).map(([v, t]) => (
+                <TouchableOpacity key={v} accessibilityRole="button" accessibilityLabel={v === 'bank' ? 'CD bought from the bank' : 'CD bought through a broker'} accessibilityState={{ selected: cdBought === v }}
+                  style={[styles.chip, cdBought === v && styles.chipOn]} onPress={() => setCdBought(v)}><Text style={[styles.chipT, cdBought === v && styles.chipTOn]}>{t}</Text></TouchableOpacity>
+              ))}</View>
+            </>
+          )}
           <Text style={styles.fieldL}>Accrued interest (optional)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={accrued} onChangeText={setAccrued} placeholder="interest earned since the last coupon, if you know it" placeholderTextColor={Colors.textTertiary} accessibilityLabel="Accrued interest, optional" />
           <Text style={styles.fieldHint}>When you enter it, the yield is calculated on the price without it. Left blank, the yield uses the price as you entered it — and says so.</Text>

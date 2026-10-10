@@ -5,9 +5,10 @@
 // Both halves of his answer are built in here:
 //   · the question is one question, so the Bonds screen and an account's own page read the SAME
 //     figures from the SAME place and can never disagree;
-//   · a CD is NOT a tradeable bond. It is not marked to market, it cannot be sold, and it is worth
-//     its balance until it matures. The rates-move estimate is refused for one, and the door says
-//     why in words the screen prints rather than leaving each screen to remember.
+//   · a CD bought from the bank is NOT a tradeable bond. It is not marked to market, it cannot be sold,
+//     and it is worth its balance until it matures. A CD bought through a broker trades, so it is priced
+//     like a bond and gets the estimate (DEC-3837, 2026-10-10). The rates-move estimate is refused for a
+//     bank CD, and the door says why in words the screen prints rather than leaving each screen to remember.
 //
 // Two grains, one door: `theBonds({ accounts })` answers for every bond a person holds, and
 // `theBonds({ accounts, accountId })` also answers for the one they opened.
@@ -16,7 +17,7 @@ import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
   isBond, bondInfo, yearlyInterest, yearlyInterestNow, yearsToMaturity, currentYield, approxYTM,
-  bondSummary, accruedInterestCaveat, bondRateSensitivity,
+  bondSummary, accruedInterestCaveat, bondRateSensitivity, pricedLikeBond,
   type BondInfo, type RateSensitivity,
 } from '../../../src/domain/bonds';
 
@@ -65,13 +66,16 @@ export interface BondRow {
   yieldToMaturity: number | null;
   value: number;
   isCD: boolean;
+  /** (DEC-3837, 2026-10-10) A bond, or a CD bought through a broker: its yield is solved from its price
+   *  and a move in rates changes its value. False for a CD bought from the bank. */
+  pricedLikeBond: boolean;
   /** The note about accrued interest, when the figures need one. Null when they do not. */
   accruedCaveat: string | null;
 }
 
 export interface OneBond extends BondRow {
   matured: boolean;
-  /** Null for a CD, and for anything the maths cannot answer honestly. */
+  /** Null for a bank CD, and for anything the maths cannot answer honestly. */
   ratesMove: RateSensitivity | null;
   /** Why the rates-move estimate is not shown, when it is not. Empty when it is. */
   ratesMoveRefusal: string;
@@ -156,6 +160,7 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
     yieldToMaturity: approxYTM(b, now),
     value: b.value,
     isCD: !!b.isCd,
+    pricedLikeBond: pricedLikeBond(b),   // the one test (DEC-3837, 2026-10-10)
     accruedCaveat: accruedInterestCaveat(b, now),
   };
 };
@@ -237,21 +242,20 @@ export function theBonds(input: BondsInput): Bonds {
     // matured, and a bond's maturity day depended on the hour and the time zone (outside review, 2026-10-04).
     // an impossible date (2026-02-30) is unknown too, not matured: years left is nothing for it (outside review OpenAI final, 2026-10-09, DEC-0332)
     const maturedToday = row.yearsLeft === 0;
-    // A CD IS NOT MARKED TO MARKET — the founder's ruling, built into the door so no screen has to
-    // remember it. KEEP (2026-09-27): the app does not ask whether a CD is a bank one or a brokered
-    // one; it says the true thing for a bank CD, which is what almost everyone holds, and names the
-    // difference rather than pretending it does not exist.
-    const refusal = row.isCD
+    // A BANK CD IS NOT MARKED TO MARKET — the founder's ruling (2026-09-27), built into the door so no
+    // screen has to remember it. The app now asks where a CD was bought (DEC-3837, 2026-10-10): a CD
+    // bought through a broker trades, so it gets the estimate like a bond and this sentence is not shown.
+    const refusal = row.isCD && !row.pricedLikeBond
       ? 'Nothing happens to this CD. It is not traded, so its value does not move with rates — it is worth '
         + 'its balance until it matures, when the face value above comes back. '
         + 'The only way out early is to break it, and your bank charges a fixed penalty for that, usually some '
-        + 'months of interest. A brokered CD, bought through a brokerage rather than a bank, does trade and does '
-        + 'move with rates; we do not ask which yours is, so we say the safe thing.'
+        + 'months of interest. A CD bought through a broker does trade and does move with rates; this one '
+        + 'is marked as bought from the bank.'
       : '';
     one = {
       ...row,
       matured: maturedToday,
-      ratesMove: row.isCD || maturedToday ? null : bondRateSensitivity(b, now),
+      ratesMove: !row.pricedLikeBond || maturedToday ? null : bondRateSensitivity(b, now),
       yieldToMaturity: maturedToday ? null : row.yieldToMaturity,
       ratesMoveRefusal: refusal,
     };
@@ -439,7 +443,10 @@ export const BOND_FIGURES = declareFigures({
       + 'what it is worth now and what it pays back.',
     formula: 'the coupon a year plus (face \u2212 value) spread over the years left, \u00f7 the value today',
     inputs: ['MK-XS-I-001 account balance'],
-    decisions: ['AN ESTIMATE, and the foot of the screen says so in those words.'],
+    decisions: ['AN ESTIMATE, and the foot of the screen says so in those words.',
+      'DEC-3837, 2026-10-10: a CD bought from the bank yields its interest rate; a CD bought through a broker '
+      + 'is priced like a bond, its yield solved from its face value, rate, value and maturity date. '
+      + 'A CD whose answer was never given is read as bought from the bank.'],
     refusal: '\u2014 with no maturity date there are no years to spread the difference over.',
     ruled: '2026-10-01',
     worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.yieldToMaturity },
@@ -586,11 +593,13 @@ export const BOND_FIGURES = declareFigures({
     inputs: ['MK-NW-I-001 your accounts'],
     decisions: [
       'An estimate, and it wears the estimate label.',
-      'FOUNDER 2026-09-27: a CD gets no estimate. It is not traded, so its value does not move with rates; '
-      + 'the screen says that instead. KEEP — the app does not ask whether a CD is a bank one or a brokered one.',
+      'FOUNDER 2026-09-27: a CD bought from the bank gets no estimate. It is not traded, so its value does not '
+      + 'move with rates; the screen says that instead.',
+      'DEC-3837, 2026-10-10: a CD bought through a broker trades, so it gets the estimate like a bond. '
+      + 'A CD whose answer was never given is read as bought from the bank.',
     ],
-    refusal: 'Refused for a CD, for a matured bond, and for anything with no coupon or no maturity — '
-      + 'and for a CD it says plainly why nothing happens.',
+    refusal: 'Refused for a CD bought from the bank, for a matured bond, and for anything with no coupon or no '
+      + 'maturity — and for a bank CD it says plainly why nothing happens.',
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,

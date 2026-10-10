@@ -610,6 +610,42 @@
    "apply_steps": "1. theEmergencyFund returns whether a rent figure is missing. 2. The emergency-fund card adds \"rent not included. Enter rent to include.\" beside the months. 3. Tests. 4. Ruling note on Net worth v08. 5. Changelog row.",
    "proof": "MoneyKeel/functions/networth-and-performance/emergency_fund_rent.test.ts",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+  },
+  {
+   "decided": "2026-10-10",
+   "answers": [],
+   "status": "RULED",
+   "tab": "networth-and-performance",
+   "type": "COPY",
+   "screens": "/networth · /job-safety · /stress-test",
+   "his_words": "The line shows only on Net worth. The Job safety and Stress test screens also show these emergency-fund months, but without the line. I recommend adding it there too, so the same figure carries the same warning everywhere (tenet 4: one thing, one number, one word). - approved.",
+   "subject": "The \"rent not included\" line goes wherever the emergency-fund months show",
+   "plain": "Wherever the emergency fund's months are shown — Net worth, Job safety and Stress test — the same line sits with them when a property's rent is not known: \"5.0 months, rent not included. Enter rent to include.\" Before: only Net worth carried it.",
+   "means": "Said in chat on 2026-10-10, approving my recommendation after DEC-3769 was built on Net worth only. Tenet 4: the same figure carries the same warning everywhere.",
+   "governs": "MK-NW-O-004 theEmergencyFund · MK-NW-M-013 · the Job safety and Stress test months figures",
+   "changed": "Job safety and Stress test print the DEC-3769 line beside their emergency-fund months.",
+   "apply_steps": "1. Find every screen that prints the emergency-fund months from theEmergencyFund. 2. Print the same line there when rentNotKnown. 3. Screen tests. 4. Changelog row.",
+   "not_a_repeat_of": "DEC-3769 — that decision set the line's words and when it shows, on Net worth; this one carries it to every screen showing the same months.",
+   "proof": "src/screens/__tests__/emergency_fund_rent_dec3836.test.tsx",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+  },
+  {
+   "decided": "2026-10-10",
+   "answers": [],
+   "status": "RULED",
+   "tab": "networth-and-performance",
+   "type": "CALCULATION",
+   "screens": "/bonds · /add-account · /account-detail",
+   "his_words": "Interest rate % ist he coupon, and yield to maturity could be different from coupon/interest rate % for CD bought in secondary market. So if interest rate or coupon is enterest, and face value and purchase price. YTM can be calculated. Or is the built assuming no secondary market CD? … #4 - yes",
+   "subject": "A CD bought through a broker is priced like a bond; a CD bought from a bank yields its rate",
+   "plain": "Adding a CD asks once: \"Bought from the bank, or through a broker?\" A bank CD's yield to maturity is its interest rate ($10,000 at 4.2% → 4.20%), and it has no if-rates-move estimate. A broker CD's yield to maturity is worked out like a bond's, from its face value, interest rate, statement value and maturity date ($10,000 face, 4.2%, worth $9,850, 2 years left → about 5.0%), and it gets the if-rates-move estimate like a bond. Before: every CD showed its interest rate as its yield to maturity — my rule of 2026-10-08, which assumed every CD was bought from a bank at face value.",
+   "means": "Said in chat on 2026-10-10. He pointed out that a CD bought on the secondary market can yield more or less than its coupon. Narrows DEC-2748f (no rate-move estimate for a CD) to bank CDs.",
+   "governs": "MK-NW-F-060 approxYTM · MK-NW-F-064 bondRateSensitivity · MK-NW-F-056 bondInfo · MK-NW-F-070 accruedInterestCaveat · MK-NW-F-119 estimatedAccrued · MK-NW-O-001 theBonds · the add-account CD form",
+   "changed": "bondInfo knows whether a CD was bought from a bank or through a broker; approxYTM, bondRateSensitivity and the accrued-interest estimate treat a broker CD as a bond; the CD form asks the question once.",
+   "apply_steps": "1. A field on the account: bought from the bank or through a broker. 2. The add-account and edit forms ask it for a CD. 3. bondInfo carries it; approxYTM, bondRateSensitivity, estimatedAccrued and the caveat treat a broker CD as a bond. 4. Tests. 5. Ruling note on Bonds v02 and Add an account by hand v01. 6. Changelog row.",
+   "not_a_repeat_of": "DEC-2748f — narrowed, not replaced: a CD bought from a bank still gets no rate-move estimate; a broker CD now does. DEC-2748b — different: that one says a face value or rate never entered stays blank and says 'not entered'; this one decides how a CD's yield is worked out once they are entered. Both stand.",
+   "proof": "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §12"
   }
  ]
 }

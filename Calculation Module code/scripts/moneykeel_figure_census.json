@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -38860,7 +38860,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:503",
+   "site": "src/screens/HomeScreen.tsx:505",
    "routes": [
     "/home"
    ],
@@ -38879,7 +38879,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:516",
+   "site": "src/screens/HomeScreen.tsx:518",
    "routes": [
     "/home"
    ],
@@ -38897,7 +38897,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:517",
+   "site": "src/screens/HomeScreen.tsx:519",
    "routes": [
     "/home"
    ],
@@ -38914,7 +38914,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:520",
+   "site": "src/screens/HomeScreen.tsx:522",
    "routes": [
     "/home"
    ],
@@ -39274,7 +39274,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:115",
+   "site": "src/screens/JobSafetyScreen.tsx:117",
    "routes": [
     "/jobsafety"
    ],
@@ -39293,7 +39293,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:117",
+   "site": "src/screens/JobSafetyScreen.tsx:119",
    "routes": [
     "/jobsafety"
    ],
@@ -39316,7 +39316,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:120",
+   "site": "src/screens/JobSafetyScreen.tsx:132",
    "routes": [
     "/jobsafety"
    ],
@@ -39335,7 +39335,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:163",
+   "site": "src/screens/JobSafetyScreen.tsx:175",
    "routes": [
     "/jobsafety"
    ],
@@ -40192,75 +40192,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:107",
-   "routes": [
-    "/stress-test"
-   ],
-   "states": [
-    "/stress-test|retiree",
-    "/stress-test|worker"
-   ],
-   "inside": "StressTestScreen",
-   "line": "<Text style={styles.fundTxt}>3 months of essentials{rent > 0 ? ', less the rent that keeps arriving,' : ''} is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.",
-   "values": [
-    "$1,800",
-    "$9,300"
-   ],
-   "renders": 4
-  },
-  {
-   "site": "src/screens/StressTestScreen.tsx:72",
-   "routes": [
-    "/stress-test"
-   ],
-   "states": [
-    "/stress-test|new",
-    "/stress-test|retiree",
-    "/stress-test|rich",
-    "/stress-test|worker"
-   ],
-   "inside": "StressTestScreen",
-   "line": "{r.coversIt ? `✓ You could cover a ${money(shock)} hit` : `⚠ A ${money(shock)} hit would put you ${money(Math.abs(r.cashAfter))} in the red`}",
-   "values": [
-    "$3,000"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/screens/StressTestScreen.tsx:76",
-   "routes": [
-    "/stress-test"
-   ],
-   "states": [
-    "/stress-test|rich"
-   ],
-   "inside": "StressTestScreen",
-   "line": "? `You'd have ${money(r.cashAfter)} left${rentPaysForIt ? ', and rent from your property pays for your essentials' : ` — about ${r.runwayAfter.toFixed(1)} months of essentials`} (${money(ess)}/month —",
-   "values": [
-    "$17,000",
-    "$5,220"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/StressTestScreen.tsx:77",
-   "routes": [
-    "/stress-test"
-   ],
-   "states": [
-    "/stress-test|new",
-    "/stress-test|retiree",
-    "/stress-test|worker"
-   ],
-   "inside": "StressTestScreen",
-   "line": ": `You'd need ${money(Math.abs(r.cashAfter))} more to absorb it without borrowing.`}",
-   "values": [
-    "$3,000"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/StressTestScreen.tsx:93",
+   "site": "src/screens/StressTestScreen.tsx:104",
    "routes": [
     "/stress-test"
    ],
@@ -40279,7 +40211,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:97",
+   "site": "src/screens/StressTestScreen.tsx:108",
    "routes": [
     "/stress-test"
    ],
@@ -40292,6 +40224,74 @@
     "$0"
    ],
    "renders": 1
+  },
+  {
+   "site": "src/screens/StressTestScreen.tsx:118",
+   "routes": [
+    "/stress-test"
+   ],
+   "states": [
+    "/stress-test|retiree",
+    "/stress-test|worker"
+   ],
+   "inside": "StressTestScreen",
+   "line": "<Text style={styles.fundTxt}>3 months of essentials{rent > 0 ? ', less the rent that keeps arriving,' : ''} is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.",
+   "values": [
+    "$1,800",
+    "$9,300"
+   ],
+   "renders": 4
+  },
+  {
+   "site": "src/screens/StressTestScreen.tsx:74",
+   "routes": [
+    "/stress-test"
+   ],
+   "states": [
+    "/stress-test|new",
+    "/stress-test|retiree",
+    "/stress-test|rich",
+    "/stress-test|worker"
+   ],
+   "inside": "StressTestScreen",
+   "line": "{r.coversIt ? `✓ You could cover a ${money(shock)} hit` : `⚠ A ${money(shock)} hit would put you ${money(Math.abs(r.cashAfter))} in the red`}",
+   "values": [
+    "$3,000"
+   ],
+   "renders": 7
+  },
+  {
+   "site": "src/screens/StressTestScreen.tsx:78",
+   "routes": [
+    "/stress-test"
+   ],
+   "states": [
+    "/stress-test|rich"
+   ],
+   "inside": "StressTestScreen",
+   "line": "? `You'd have ${money(r.cashAfter)} left${rentPaysForIt ? ', and rent from your property pays for your essentials' : ` — about ${r.runwayAfter.toFixed(1)} months of essentials`} (${money(ess)}/month —",
+   "values": [
+    "$17,000",
+    "$5,220"
+   ],
+   "renders": 2
+  },
+  {
+   "site": "src/screens/StressTestScreen.tsx:79",
+   "routes": [
+    "/stress-test"
+   ],
+   "states": [
+    "/stress-test|new",
+    "/stress-test|retiree",
+    "/stress-test|worker"
+   ],
+   "inside": "StressTestScreen",
+   "line": ": `You'd need ${money(Math.abs(r.cashAfter))} more to absorb it without borrowing.`}",
+   "values": [
+    "$3,000"
+   ],
+   "renders": 3
   },
   {
    "site": "src/screens/TaxOrganizerScreen.tsx:107",

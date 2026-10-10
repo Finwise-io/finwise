@@ -134,5 +134,7 @@
  "2026-10-10 | Performance · DEC-3768b": "DEC-3768b — the decision log row this changelog row records",
  "2026-10-10 | Income · Net worth · DEC-3768c": "DEC-3768c — the decision log row this changelog row records",
  "2026-10-10 | Net worth · Emergency fund · DEC-3769": "DEC-3769 — the decision log row this changelog row records",
- "2026-10-10 | Performance · Income · Net worth · DEC-3768": "DEC-3768 — the decision log row this changelog row records"
+ "2026-10-10 | Performance · Income · Net worth · DEC-3768": "DEC-3768 — the decision log row this changelog row records",
+ "2026-10-10 | Net worth · Job safety · Stress test · DEC-3836": "DEC-3836 — the decision log row this changelog row records",
+ "2026-10-10 | Net worth · Bonds · Add an account · DEC-3837": "DEC-3837 — the decision log row this changelog row records"
 }

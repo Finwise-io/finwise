@@ -802,7 +802,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
   // a bond FUND (no maturity) — no honest bond math. A face or a rate never entered still gets its facts: the card used to
   // vanish with no rate, taking face value and maturity with it (outside review OpenAI final, 2026-10-09, DEC-2748b + DEC-2748c)
   if (!one || !one.maturity) return null;
-  const { matured, isCD } = one;
+  const { matured } = one;
   const years = one.yearsLeft ?? 0;
   return (
     <>
@@ -819,13 +819,14 @@ function BondDetail({ account }: { account: AssetAccount }) {
         {!!one.accruedCaveat && <Text style={s.bondNote}>{one.accruedCaveat}</Text>}
       </View>
 
-      {isCD && !matured && (
+      {/* the door says why for a bank CD; a CD bought through a broker gets the estimate like a bond (DEC-3837, 2026-10-10) */}
+      {!!one.ratesMoveRefusal && !matured && (
         <View style={s.card}>
           <SectionBand inCard title="IF INTEREST RATES MOVE" />
           <Text style={s.bondNote}>{one.ratesMoveRefusal}</Text>
         </View>
       )}
-      {one.ratesMove && !isCD && (
+      {one.ratesMove && (
         <View style={s.card} accessible
           accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${figSaid('MK-NW-M-023', one.ratesMove.ratesUp.low)} to ${figSaid('MK-NW-M-023', one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${figSaid('MK-NW-M-023', one.ratesMove.ratesDown.low)} to ${figSaid('MK-NW-M-023', one.ratesMove.ratesDown.high)}. Held to maturity, ${figSaid('MK-NW-M-023', one.face)} comes back if the issuer pays as promised.`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>

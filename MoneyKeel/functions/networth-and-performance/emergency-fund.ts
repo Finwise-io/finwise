@@ -307,7 +307,9 @@ const EF = () => theEmergencyFund(EXAMPLE);
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const EMERGENCY_FUND_FIGURES = declareFigures({
   'MK-NW-M-013': {
-    label: 'EMERGENCY FUND — X.X months', unit: 'months', screens: ['/analytics', '/jobsafety'],
+    label: 'EMERGENCY FUND — X.X months', unit: 'months',
+    // DEC-3836 (2026-10-10): also printed in the rent-not-known line on Stress test and on the runway card (Insights, Home)
+    screens: ['/analytics', '/jobsafety', '/stress-test', '/insights', '/home'],
     answers: 'How many months your cash would cover, if your income stopped tomorrow.',
     formula: 'your cash ÷ (what a month of essentials costs − the rent from a property that keeps arriving each month)',
     inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-001 your logged expenses'],

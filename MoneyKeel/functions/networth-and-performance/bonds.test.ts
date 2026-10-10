@@ -38,13 +38,13 @@ test('a bond gets the rates-move estimate, and no refusal', () => {
   expect(a.one!.ratesMoveRefusal).toBe('');
 });
 
-test('A CD NEVER GETS ONE, and the door says why (founder, 2026-09-27)', () => {
+test('A BANK CD NEVER GETS ONE, and the door says why (founder, 2026-09-27; a CD not answered is a bank CD, DEC-3837, 2026-10-10)', () => {
   const a = theBonds({ accounts: [cd()], accountId: 'c1' });
   expect(a.one!.isCD).toBe(true);
   expect(a.one!.ratesMove).toBeNull();
   expect(a.one!.ratesMoveRefusal).toMatch(/not traded/);
   expect(a.one!.ratesMoveRefusal).toMatch(/fixed penalty/);
-  expect(a.one!.ratesMoveRefusal).toMatch(/brokered CD/);
+  expect(a.one!.ratesMoveRefusal).toMatch(/A CD bought through a broker does trade/);   // (DEC-3837, 2026-10-10)
 });
 
 test('the one account asked for is the one answered, and only that one', () => {

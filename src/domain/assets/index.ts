@@ -63,6 +63,9 @@ export interface AssetAccount {
   coupon_rate?: number;           // annual coupon, decimal (e.g. 0.045)
   maturity_date?: string;         // 'YYYY-MM-DD'
   accrued_interest?: number;      // A47 (founder, 2026-08-26): interest earned since the last coupon, when the person knows it — subtracted before the yield
+  // (DEC-3837, 2026-10-10) where a CD was bought: 'bank' = held at the bank to maturity, its yield is its
+  // rate; 'broker' = bought through a brokerage, priced like a bond. Not answered reads as 'bank'.
+  cd_bought?: 'bank' | 'broker';
   origin?: 'onboarding';          // seeded from onboarding answers; re-seeding replaces ONLY these
                                   // rows (absent = user-created, never touched by seeding/restart)
   // Two-axis classification (taxonomy spec). Optional + EXPLICIT — when absent, derived from

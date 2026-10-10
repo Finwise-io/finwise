@@ -177,10 +177,10 @@ describe('MK-NW-F-060 approxYTM — five cases', () => {
     const y = approxYTM(b, D('2026-10-09'))!;
     expect(priceAtYield(b, y, D('2026-10-09'))!).toBeCloseTo(9962.5, 6);   // pricing_target, solved to $0.000001
   });
-  // UNCLEAR: app refuses (null) — the face gate (bonds/index.ts:442) runs before the CD branch (:446). No decision says
-  // whether a CD's yield to maturity needs a face value; open question: is a CD typed by its balance (DEC-2748c's "no
-  // face" case) shown its stated 4.2%, or nothing?
-  test('complex · CD with rate but no face value', () => { refuses(approxYTM(bond(null, 0.042, '2028-01-01', 9700, null, true), D('2026-01-01'))); });
+  // SETTLED 2026-10-10 by DEC-3837 ("Interest rate % is the coupon … #4 - yes"): a CD not marked as bought through a
+  // broker is a bank CD, and a bank CD's yield to maturity is its interest rate — no face value needed. So a CD typed
+  // by its balance and rate shows its stated 4.2%. (A broker CD with no face still refuses, as a bond does.)
+  test('complex · CD with rate but no face value', () => { expect(approxYTM(bond(null, 0.042, '2028-01-01', 9700, null, true), D('2026-01-01'))).toBe(0.042); });
   test('edge · Missing rate refuses', () => { refuses(approxYTM(bond(10000, null, '2030-01-01', 9800), D('2026-01-01'))); });
 });
 

@@ -180,8 +180,25 @@ export function useInsights(limit?: number): Insight[] {
       'goals-gap': () => activeGoals.map((g) => ({ label: g.label, value: `${money(requiredMonthly(g) ?? 0)}/month needed` }))
         .concat([{ label: 'Planned surplus', value: `${money(freed)}/month` }]),
     };
-    return built.filter(notDismissed).slice(0, limit ?? built.length).map((i) => ({ ...i, details: detailsById[i.id]?.() }));
+    // RENT NOT KNOWN (DEC-3836, 2026-10-10 — the DEC-3769 line, carried from Net worth): the runway card states
+    // the door's months; when a property's rent is blank or not a plain number those months are counted
+    // without it, so the card carries the same line, with the same months figure (MK-NW-M-013). Only where
+    // the card states months — below 0.1 it says "no cash set aside" and states none.
+    const rentNotKnownMonths = ef.rentNotKnown && ef.monthsCovered != null && ef.monthsCovered >= 0.1 ? fig('MK-NW-M-013', ef.monthsCovered) : undefined;
+    return built.filter(notDismissed).slice(0, limit ?? built.length).map((i) => ({ ...i, details: detailsById[i.id]?.(),
+      ...(i.id === 'runway' && rentNotKnownMonths ? { rentNotKnownMonths } : {}) }));
   }, [store.onboardingProfile, store.assetAccounts, store.liabilities, store.lastRetireChance, store.txnFlags, store.goals, store.retirementAssumptions, plan.pct, limit]);
+}
+
+/** RENT NOT KNOWN (DEC-3836, 2026-10-10): the Net worth line (DEC-3769) in the same words — "<months>, rent not
+ *  included. Enter rent to include." — and the same tap to the rent editor on Income. Shared with Home's list. */
+export function RentNotKnownLine({ months, onPress }: { months: string; onPress: () => void }) {
+  return (
+    <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }} onPress={onPress}
+      accessibilityLabel={`${months}, rent not included. Enter rent to include. Opens Income.`}>
+      <Text style={styles.body}>{months}, rent not included. <Text style={{ color: Colors.primary, fontWeight: '700' }}>Enter rent to include.</Text></Text>
+    </TouchableOpacity>
+  );
 }
 
 export default function InsightsScreen() {
@@ -206,6 +223,7 @@ export default function InsightsScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.title}>{maskDollars(i.title)}</Text>
                 <Text style={styles.body}>{maskDollars(i.body)}</Text>
+                {i.rentNotKnownMonths && <RentNotKnownLine months={i.rentNotKnownMonths} onPress={() => router.push('/income-manager?open=rental' as any)} />}
               </View>
               {/* PRD F10#16: dismiss/snooze BY BUTTON (never gesture-only); worth-a-look keeps
                   its own explicit resolution flow instead */}
@@ -240,6 +258,7 @@ export default function InsightsScreen() {
                   the card was masked but this sheet leaked the plain dollars. */}
               <Text style={styles.sheetTitle}>{open.icon}  {maskDollars(open.title)}</Text>
               <Text style={styles.sheetBody}>{maskDollars(open.body)}</Text>
+              {open.rentNotKnownMonths && <RentNotKnownLine months={open.rentNotKnownMonths} onPress={() => { setOpen(null); router.push('/income-manager?open=rental' as any); }} />}
               {open.details && open.details.length > 0 && (
                 <View style={styles.detailBox}>
                   <Text style={styles.detailHdr}>Where this comes from</Text>

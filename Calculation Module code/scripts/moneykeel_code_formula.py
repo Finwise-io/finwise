@@ -435,8 +435,8 @@ OVERRIDES = {
    'Adds up the value of every holding entered while itemising an account.'),
  'itemizeRemainder': ('the answer = (lump balance, or 0) − itemized total(items)',
    'The lump balance less the holdings entered so far: positive means money still unallocated, negative means the holdings exceed the entered total.'),
- 'bondInfo': ("face = face value or 0\ncoupon rate = coupon rate or 0\nmaturity = maturity date or ''\nvalue = balance or 0\naccrued interest = the entered figure, or nothing when not entered",
-   "Reads the bond's facts off the account record — face value, coupon rate, maturity date, the value as entered, and the accrued interest when the person entered it (MK-XS-I-065). No arithmetic."),
+ 'bondInfo': ("face = face value   when it is above 0;   nothing otherwise\ncoupon rate = coupon rate as entered (a typed 0 kept);   nothing when not entered\nmaturity = maturity date or ''\nvalue = balance or 0\naccrued interest = the entered figure, or nothing when not entered\nis a CD = kind is 'cd', or the name or institution says CD or certificate of deposit\nwhere a CD was bought = 'broker'   when the person said so;   'bank' otherwise (DEC-3837, 2026-10-10)",
+   "Reads the bond's facts off the account record — face value, coupon rate, maturity date, the value as entered, the accrued interest when the person entered it (MK-XS-I-065), whether it is a CD, and where a CD was bought (a CD not answered is read as bought from the bank, DEC-3837). No arithmetic."),
  'plural': ("the answer = n + ' ' + (one   when n = 1;   many   otherwise)",
    "'1 account' or '3 accounts' — the word made plural when the count is not one. Display only."),
  'oddsAt': ('the answer = simulate({ …base, retire monthly spend today: monthly spend }).chance of success',
@@ -584,12 +584,14 @@ OVERRIDES = {
    'The interest a year as a share of what the bond is worth now. If the recorded value is a dirty '
    'price it carries accrued interest, and the yield reads low — the file does not say which it is.'),
  'approxYTM': (
-   'yield to maturity ≈ round( (annual coupon + (face − value) ÷ years left)\n'
-   '                           ÷ ((face + value) ÷ 2), 4 dp )',
-   'The STRAIGHT-LINE APPROXIMATION, not the real yield. The gain or loss to maturity is spread '
-   'evenly over the years left and taken against the average of face and price. The true yield is '
-   'the rate that discounts every coupon and the face value back to the price — 4 to 27 basis '
-   'points away from this, widening with the discount and the maturity. Finding A30.'),
+   'nothing   when there is no maturity date or it has passed\n'
+   'a CD bought from the bank (not priced like a bond): the answer = its interest rate (DEC-3837, 2026-10-10)\n'
+   'nothing   when no face value or no rate was entered, or the value is 0 or less\n'
+   'full price = value + accrued interest (as entered, else estimated accrued)\n'
+   'the answer = the yield y at which price at yield(y) = full price, found by halving the interval',
+   'The real yield, solved: the rate that discounts every remaining coupon and the face value back to '
+   'the full price. A CD bought from the bank yields its stated rate, with or without a face value; a '
+   'CD bought through a broker is priced like a bond (DEC-3837, 2026-10-10).'),
  'yearsToMaturity': ('years to maturity = max(0, (maturity date − today) ÷ 365.25 days)',
    'How long until the bond repays, as a fraction of a year, never negative. Uses 365.25 days — '
    'the master file says 365, which is finding A31.'),
