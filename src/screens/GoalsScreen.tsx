@@ -63,7 +63,7 @@ export default function GoalsScreen() {
   const [alloc, setAlloc] = useState<Goal | null>(null);     // goal being funded from surplus
   const [allocAmt, setAllocAmt] = useState('');
   const hasSinkingGoal = goals.some((g) => /non-?monthly|sinking/i.test(g.label));
-  const totalDebt = liabilities.reduce((t, d) => t + d.remaining_balance, 0);
+  const totalDebt = liabilities.reduce((t, d) => t + (d.remaining_balance || 0), 0);   // known debts only (DEC-3279e): one with no balance made this NaN
   const grossMonthly = totalGrossAnnual(op) / 12;
   const homeowner = liabilities.some((d) => d.debt_type === 'MORTGAGE');
   const dti = useMemo(() => debtToIncome(totalDebtMonthly(liabilities), grossMonthly, homeowner), [liabilities, grossMonthly, homeowner]);

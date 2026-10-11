@@ -215,6 +215,7 @@ export function theNetWorth(input: {
         accountIds: ids,
         cashIds: new Set(measured.filter((a) => assetClassOf(a) === 'cash').map((a) => String(a.asset_id))),
         flows: moved.flows, interest: moved.interest, sharesMoved: moved.sharesMoved,
+        amountMissing: moved.amountMissing,   // a movement with no amount refuses (outside review Claude Performance, 2026-10-11, DEC-3523)
         start, end: today,
       }).rate;
     })(),

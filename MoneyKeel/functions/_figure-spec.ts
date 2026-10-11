@@ -156,7 +156,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-NW-F-080 HOLD · MK-NW-F-081 LB
  *               MK-NW-F-088 BENCH · MK-NW-F-101 PLAN
  *
- * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -166,7 +166,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 67 more — the full list is on functions_from_code
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

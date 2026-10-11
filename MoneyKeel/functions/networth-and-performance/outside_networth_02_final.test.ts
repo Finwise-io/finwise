@@ -704,9 +704,11 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
       snapshotDays: [recorded('2025-10-06', [linkedAt('v', 50000)])], investmentAccountIds: new Set(['v']), accounts: [linkedAt('v', 54100)] });
     expect({ beginning: f.walk!.beginning, ending: f.walk!.ending, wealth_generated: f.walk!.wealthGenerated, return_total: f.cumulative })
       .toEqual({ beginning: near(50000), ending: near(54100), wealth_generated: near(4100), return_total: expect.closeTo(0.082, 4) });
-    // RULE UNCLEAR (which day the years are counted from). The app counts the days from the beginning day,
-    // 2025-10-06, both ends inside: 366 days, so it shows a yearly rate — reading B, +8.18%.
-    expect(f.ret).toBeCloseTo(0.08176704, 6);
+    // SETTLED BY DEC-0237 (outside review Claude Performance, 2026-10-11): a window that opens one year back to the
+    // day IS a year, and a window of a year or less is never annualised — so the return is the window's own
+    // total, +8.20%, not a yearly rate. It read reading B, +8.18% (366 edge-inclusive days ÷ 365 > 1).
+    expect(f.ret).toBeCloseTo(0.082, 9);
+    expect(f.perYear).toBeNull();
   });
   test('easy · One deposit inside the window', () => {
     const f = thePerformance({ windowStart: '2026-07-07', windowLabel: 'past 3 months', today: '2026-10-07', pricedGain: 0,

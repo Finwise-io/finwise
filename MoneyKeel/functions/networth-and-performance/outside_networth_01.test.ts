@@ -442,7 +442,7 @@ describe('MK-NW-O-006 theHolding — five cases', () => {
     expect(h.returnOnCost).toBeCloseTo(0.209759, 6);
     expect(h.capitalGains!.longGain).toBeCloseTo(3129, 3);
     expect(h.capitalGains!.shortGain).toBeCloseTo(244.825, 3);
-    expect(h.capitalGains!.longGain + h.capitalGains!.shortGain).toBeCloseTo(h.gain as number, 6);   // the parts add to the gain
+    expect(h.capitalGains!.longGain! + h.capitalGains!.shortGain!).toBeCloseTo(h.gain as number, 6);   // the parts add to the gain
     expect(h.dividends.trailing12).toBeCloseTo(171.89, 4);
     expect(h.dividends.allTime).toBeCloseTo(206.99, 4);                    // the record naming no ticker belongs to no holding
     // its RULE UNCLEAR: the day's change is the PRICE's — per share, as the line under "Current price" reads
@@ -459,7 +459,7 @@ describe('MK-NW-O-006 theHolding — five cases', () => {
     expect(h.gain).toBeCloseTo(1360, 4);
     expect(h.returnOnCost).toBeCloseTo(0.331707, 6);
     expect(h.avgPaidPerShare).toBeCloseTo(6.833333, 5);                    // in the unit the price is quoted in
-    expect(h.capitalGains!.longGain + h.capitalGains!.shortGain).toBeCloseTo(1360, 4);   // the split adds to the gain for an option too
+    expect(h.capitalGains!.longGain! + h.capitalGains!.shortGain!).toBeCloseTo(1360, 4);   // the split adds to the gain for an option too
   });
 
   test('edge · held exactly one year to the day', () => {

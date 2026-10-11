@@ -62,6 +62,14 @@ const PHRASE: Record<string, string> = {
  *  day BEFORE its start — so a window whose beginning IS the daily record's first day opens the day
  *  after it, and the beginning is READ from the record instead of being back-solved. */
 
+/** A record's day as the approved activity rows write it: "Aug 1", with the year only when it is not this year. */
+const activityDay = (iso: string): string => {
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+  if (!y || !m || !d) return iso;
+  const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${MO[m - 1]} ${d}${y === new Date().getFullYear() ? '' : `, ${y}`}`;
+};
+
 export default function AccountPortfolioScreen() {
   const router = useRouter();
   const { id: idParam, accountId, class: classParam } = useLocalSearchParams<{ id?: string; accountId?: string; class?: string }>();
@@ -731,15 +739,17 @@ export default function AccountPortfolioScreen() {
             return (
             <View key={String(t.id)} style={s.txnRow} accessible
               accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${figSaid('MK-NW-M-062', Math.abs(eff))}. ${mine ? 'You entered this — editable.' : `${from}, read-only.`}`}>
-              <Text style={s.txnDate}>{String(t.date).slice(5)}</Text>
+              {/* THE ROW AS BOTH APPROVED DRAWINGS WRITE IT (Performance v17 frame 2, and v14 before it):
+                  "Dividend · LCTX", then "Aug 1 · from E*TRADE", then "$120". It printed the date as "08-01"
+                  in a column of its own and "+$120" (mock-match audit, 2026-10-11). A minus stays a minus. */}
               <View style={{ flex: 1 }}>
                 <Text style={s.txnLabel} numberOfLines={1}>
-                  {txnLabel(t.type)}{t.ticker ? ` ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${fig('MK-NW-M-061', t.price)}` : ''}` : ''}
+                  {txnLabel(t.type)}{t.ticker ? ` · ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${fig('MK-NW-M-061', t.price)}` : ''}` : ''}
                 </Text>
-                <Text style={mine ? s.txnMine : s.txnFrom}>{from}</Text>
+                <Text style={mine ? s.txnMine : s.txnFrom}>{activityDay(String(t.date))} · {from}</Text>
               </View>
               <Text style={[s.txnAmt, { color: eff >= 0 ? Colors.gainText : Colors.textPrimary }]}>
-                {eff >= 0 ? '+' : '−'}{fig('MK-NW-M-062', Math.abs(eff))}
+                {eff < 0 ? '−' : ''}{fig('MK-NW-M-062', Math.abs(eff))}
               </Text>
               {mine ? (
                 <Text style={s.txnEdit} onPress={() => setEditRow(t)} suppressHighlighting
@@ -1146,7 +1156,6 @@ const s = StyleSheet.create({
   txnFrom: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   txnEdit: { fontSize: 15, color: Colors.primaryDark, fontWeight: '800', paddingHorizontal: 8, paddingVertical: 6 },
   txnEditGap: { width: 31 },
-  txnDate: { width: 46, fontSize: 13, fontWeight: '700', color: Colors.textTertiary },
   txnLabel: { flex: 1, fontSize: 15, color: Colors.textPrimary },
   txnAmt: { fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'] },
   empty: { fontSize: 13, color: Colors.textSecondary, paddingVertical: 6 },

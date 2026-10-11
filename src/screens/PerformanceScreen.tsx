@@ -98,13 +98,12 @@ export default function PerformanceScreen() {
   const anyCapped = rows.some((r) => r.cappedSince != null);
   // FINAL mock: every chip shows ITS OWN return — a window with no data shows an em-dash, never a
   // guess. Same rows and function as the headline, just run per period, so chips can't disagree with it.
-  const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
   // FCC glance pin: the SAME resolved rows + helper Home's hero uses — the two can never disagree
   const resolvedNwAccounts = resolveNetWorthRows(
     store.user?.uid ?? 'local', store.onboardingProfile, store.nwSeeded ?? false, accounts, store.liabilities ?? [],
   ).accounts;
-  const investedValue = rows.reduce((t, r) => t + r.marketValue, 0);
-  const totalValue = investedValue + cashTotal;
+  // (an unused invested-plus-cash total that read a holding with no price as $0 was removed here — outside
+  //  review Claude Performance, 2026-10-11, DEC-3523 tenet 3; nothing on the screen printed it)
   // WINNERS, LAGGARDS AND THE LIST MODE ARE GONE (2026-09-30). The approved mock v14 removed those
   // sections on 2026-09-25, but the arithmetic behind them stayed: `ranked`, `winners`, `laggards` and
   // a `listMode` selector were still computed on every render and drawn by nothing. Found through his
@@ -687,7 +686,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           )}
 
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} accessibilityRole="button" accessibilityLabel={isNew ? 'Add holding' : 'Save holding'} onPress={save}>
-            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && costBasis({ position_id: '', ticker, lots } as Position) > 0 ? ` · cost ${fig('MK-NW-M-033', costBasis({ position_id: '', ticker, lots } as Position))}` : ''}</Text>
+            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && (costBasis({ position_id: '', ticker, lots } as Position) ?? 0) > 0 ? ` · cost ${fig('MK-NW-M-033', costBasis({ position_id: '', ticker, lots } as Position))}` : ''}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete holding" onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
           <View style={{ height: 20 }} />
@@ -802,7 +801,8 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   const enough = isBuy ? cost <= avail : (type === 'WITHDRAWAL' || isTransfer) ? num(amount) <= avail : true;
   const tickerOk = isBuy ? !!ticker.trim() : (isSell || isDiv) ? held.includes(ticker) : true;
   const ownedShares = isSell ? totalShares((acct?.positions ?? []).find((p) => p.ticker === ticker) ?? { lots: [] } as any) : 0;
-  const sellOk = !isSell || num(shares) <= ownedShares;
+  // a holding whose share count is not on record cannot be checked against, so the sale waits (tenet 3; outside review Claude Performance, 2026-10-11)
+  const sellOk = !isSell || (ownedShares != null && num(shares) <= ownedShares);
   const valid = !!accountId && enough && sellOk && (
     isTrade ? (tickerOk && num(shares) > 0 && num(price) > 0) :
     isCash ? num(amount) > 0 :

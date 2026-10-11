@@ -209,7 +209,7 @@ describe('MK-NW-O-006 theHolding — its five cases', () => {
     expect([h.priced, h.value, h.gain, h.returnOnCost]).toEqual([false, 2500, null, null]);
   });
   test('ITS ISSUE 6 · the line between short and long term, on ordinary days and on 29 February', () => {
-    const split = (bought: string, today: string) => { const h = hold([lot('1', 10, 100, bought)], 110, {}, [], new Date(`${today}T12:00:00`)); return h.capitalGains!.longGain > 0 ? 'long' : 'short'; };
+    const split = (bought: string, today: string) => { const h = hold([lot('1', 10, 100, bought)], 110, {}, [], new Date(`${today}T12:00:00`)); return h.capitalGains!.longGain! > 0 ? 'long' : 'short'; };
     expect(split('2025-10-05', '2026-10-05')).toBe('short');                // exactly one year is not more than one year
     expect(split('2025-10-05', '2026-10-06')).toBe('long');
     expect(split('2027-02-28', '2028-02-28')).toBe('short');

@@ -86,7 +86,7 @@ export interface MonthBlock { lines: Line[]; surplus: number;
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -96,7 +96,7 @@ export interface MonthBlock { lines: Line[]; surplus: number;
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 61 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -129,7 +129,7 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *
  * Called by ... MK-CF-F-192 inflowLabel
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -139,7 +139,7 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -185,7 +185,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-PL-F-022 goalProgressPct · MK-ST-F-072 undo
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-107 mapActivityType
  *
- * Reaches ..... 224 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 225 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -195,7 +195,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               … and 206 more — the full list is on functions_from_code
+ *               … and 207 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -227,7 +227,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -237,7 +237,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 61 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -301,7 +301,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -311,7 +311,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 61 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -392,7 +392,7 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *
  * Called by ... MK-CF-F-005 actualMonthFlow
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -402,7 +402,7 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 61 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -638,7 +638,7 @@ export const FIGURES = declareFigures({
  *
  * Called by ... MK-CF-O-010 theMonth · MK-CF-O-014 M
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -648,7 +648,7 @@ export const FIGURES = declareFigures({
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 61 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-050
  *               MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-053 · MK-CF-M-054

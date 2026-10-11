@@ -1,0 +1,963 @@
+{
+ "batch": "performance 02",
+ "run_by": "Claude Code (outside-audit runner)",
+ "run_on": "2026-10-11",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_02.test.ts",
+ "source": "returned/performance_02.claude.json",
+ "cases": [
+  {
+   "id": "MK-PF-F-001",
+   "kind": "easy",
+   "title": "Two purchases of one stock",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 25.0,
+    "shown": "25"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-001",
+   "kind": "easy",
+   "title": "Fractional crypto coins",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 0.375,
+    "shown": "0.375"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-001",
+   "kind": "complex",
+   "title": "Broker-linked lots with long decimals",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 50.2367,
+    "shown": "50.2367"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-001",
+   "kind": "complex",
+   "title": "Option contracts are counted as contracts, not as 100 shares each",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 5.0,
+    "shown": "5"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-001",
+   "kind": "edge",
+   "title": "One purchase arrives with no share count",
+   "status": "FINDING",
+   "actual": 40,
+   "expected": "REFUSES",
+   "difference": "40 vs refusal",
+   "formula_gives_match": true,
+   "note": "src/domain/performance/index.ts:191 l.shares || 0 (tenet 3)."
+  },
+  {
+   "id": "MK-PF-F-031",
+   "kind": "easy",
+   "title": "A share of stock",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 1.0,
+    "shown": "1"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-031",
+   "kind": "easy",
+   "title": "An option with nothing stated",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 100.0,
+    "shown": "100"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-031",
+   "kind": "complex",
+   "title": "A mini option the broker states as 10",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 10.0,
+    "shown": "10"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-031",
+   "kind": "complex",
+   "title": "An adjusted contract after a special dividend delivers 102 shares",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 102.0,
+    "shown": "102"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-031",
+   "kind": "edge",
+   "title": "An option whose stated multiplier is exactly zero",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 100.0,
+    "shown": "100"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-002",
+   "kind": "easy",
+   "title": "One purchase of a stock",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 500.0,
+    "shown": "$500.00"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-002",
+   "kind": "easy",
+   "title": "Option premium times 100",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 700.0,
+    "shown": "$700.00"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-002",
+   "kind": "complex",
+   "title": "Three lots bought at different prices",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 8987.835,
+    "shown": "$8,987.84"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-002",
+   "kind": "complex",
+   "title": "Adjusted option contract with two purchases",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 768.06,
+    "shown": "$768.06"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-002",
+   "kind": "edge",
+   "title": "One lot transferred in with no cost on record",
+   "status": "FINDING",
+   "actual": 900,
+   "expected": "REFUSES",
+   "difference": "900 vs refusal",
+   "formula_gives_match": true,
+   "note": "src/domain/performance/index.ts:231 cost_per_share || 0 (tenet 3)."
+  },
+  {
+   "id": "MK-PF-F-003",
+   "kind": "easy",
+   "title": "Two equal lots at different prices",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 60.0,
+    "shown": "$60.00"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-003",
+   "kind": "easy",
+   "title": "Option average comes back per share",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 3.5,
+    "shown": "$3.50"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-003",
+   "kind": "complex",
+   "title": "Three lots, kept unrounded until shown",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 180.66,
+    "shown": "$180.66"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-003",
+   "kind": "complex",
+   "title": "Adjusted option contract, two purchases",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 1.506,
+    "shown": "$1.51"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-003",
+   "kind": "edge",
+   "title": "Every share sold, no shares held",
+   "status": "FINDING",
+   "actual": 0,
+   "expected": "REFUSES",
+   "difference": "$0.00 vs refusal",
+   "formula_gives_match": true,
+   "note": "src/domain/performance/index.ts:262."
+  },
+  {
+   "id": "MK-PF-F-004",
+   "kind": "easy",
+   "title": "Ten shares at fifty dollars",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 500.0,
+    "shown": "$500"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-004",
+   "kind": "easy",
+   "title": "Three option contracts",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 630.0,
+    "shown": "$630"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-004",
+   "kind": "complex",
+   "title": "Three-lot ETF at a broker price",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 10620.1325,
+    "shown": "$10,620"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-004",
+   "kind": "complex",
+   "title": "Fractional bitcoin at a price with cents",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 23138.2479,
+    "shown": "$23,138"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-004",
+   "kind": "edge",
+   "title": "A holding with shares and no price",
+   "status": "FINDING",
+   "actual": 0,
+   "expected": "REFUSES",
+   "difference": "$0 vs refusal",
+   "formula_gives_match": true,
+   "note": "src/domain/performance/index.ts:299; feeds buildPerformance rows (src/domain/performance/index.ts:837)."
+  },
+  {
+   "id": "MK-PF-F-005",
+   "kind": "easy",
+   "title": "A simple gain",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 100.0,
+    "shown": "$100"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-005",
+   "kind": "easy",
+   "title": "A simple loss",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": -100.0,
+    "shown": "-$100"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-005",
+   "kind": "complex",
+   "title": "Three lots at a broker price",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 1632.2975,
+    "shown": "$1,632"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-005",
+   "kind": "complex",
+   "title": "Adjusted option bought twice, now worth less",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": -334.56,
+    "shown": "-$335"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-005",
+   "kind": "edge",
+   "title": "No price for a holding that has shares",
+   "status": "FINDING",
+   "actual": 0,
+   "expected": "REFUSES",
+   "difference": "$0 vs refusal",
+   "formula_gives_match": true,
+   "note": "src/domain/performance/index.ts:326."
+  },
+  {
+   "id": "MK-PF-F-006",
+   "kind": "easy",
+   "title": "Held two years: all long-term",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "long_term": {
+     "exact": 500.0,
+     "shown": "$500"
+    },
+    "short_term": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "total": {
+     "exact": 500.0,
+     "shown": "$500"
+    }
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-006",
+   "kind": "easy",
+   "title": "Held four months at a loss: short-term",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "long_term": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "short_term": {
+     "exact": -100.0,
+     "shown": "-$100"
+    },
+    "total": {
+     "exact": -100.0,
+     "shown": "-$100"
+    }
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-006",
+   "kind": "complex",
+   "title": "Three lots, one held exactly a year to the day",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "long_term": {
+     "exact": 89.2475,
+     "shown": "$89"
+    },
+    "short_term": {
+     "exact": 1543.05,
+     "shown": "$1,543"
+    },
+    "total": {
+     "exact": 1632.2975,
+     "shown": "$1,632"
+    }
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-006",
+   "kind": "complex",
+   "title": "A lot transferred in with no basis",
+   "status": "FINDING",
+   "actual": {
+    "longGain": 1320,
+    "shortGain": 0,
+    "totalGain": 1320
+   },
+   "expected": {
+    "long_term": {
+     "exact": 1320.0,
+     "shown": "$1,320"
+    },
+    "short_term": "REFUSES",
+    "total": "REFUSES"
+   },
+   "difference": "short $0 and total $1,320 vs refusals",
+   "formula_gives_match": true,
+   "note": "src/domain/performance/index.ts:367 skips a lot with cost not above zero."
+  },
+  {
+   "id": "MK-PF-F-006",
+   "kind": "edge",
+   "title": "Bought on the leap day, today is 1 March the next year",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "long_term": {
+     "exact": 300.0,
+     "shown": "$300"
+    },
+    "short_term": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "total": {
+     "exact": 300.0,
+     "shown": "$300"
+    }
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-007",
+   "kind": "easy",
+   "title": "One lot up twenty percent",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 0.2,
+    "shown": "+20.00%"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-007",
+   "kind": "easy",
+   "title": "No price: no return",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "REFUSES",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-007",
+   "kind": "complex",
+   "title": "Bought twice at different prices",
+   "status": "BRIEF_WRONG",
+   "actual": 0.15555555555555556,
+   "expected": {
+    "exact": 0.3,
+    "shown": "+30.00%"
+   },
+   "difference": "0.1556 vs judge 0.30",
+   "formula_gives_match": true,
+   "note": "BRIEF WRONG: totalROI is return on cost, which DEC-1669 itself sets apart (\"'Return on cost' on one holding is a different question and keeps its own name\"); shown beside the gain since purchase (HoldingDetailScreen.tsx:235)."
+  },
+  {
+   "id": "MK-PF-F-007",
+   "kind": "complex",
+   "title": "Adjusted option, one purchase",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 0.3125,
+    "shown": "+31.25%"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-007",
+   "kind": "edge",
+   "title": "Cost of zero",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "REFUSES",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-012",
+   "kind": "easy",
+   "title": "Two dated lots",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "2024-03-01",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-012",
+   "kind": "easy",
+   "title": "No lots at all",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "REFUSES",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-012",
+   "kind": "complex",
+   "title": "Lots out of order, one undated",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "2023-08-22",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-012",
+   "kind": "complex",
+   "title": "Blank and placeholder dates from a broker",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "2022-06-30",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-012",
+   "kind": "edge",
+   "title": "Every lot undated",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "REFUSES",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-028",
+   "kind": "easy",
+   "title": "One buy, one sale",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "realized_all_time": {
+     "exact": 100.0,
+     "shown": "$100"
+    },
+    "realized_this_year": {
+     "exact": 100.0,
+     "shown": "$100"
+    },
+    "sales_counted": 1,
+    "sales_without_cost": 0
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-028",
+   "kind": "easy",
+   "title": "First in, first out",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "realized_all_time": {
+     "exact": 400.0,
+     "shown": "$400"
+    },
+    "realized_this_year": {
+     "exact": 400.0,
+     "shown": "$400"
+    },
+    "sales_counted": 1,
+    "sales_without_cost": 0
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-028",
+   "kind": "complex",
+   "title": "Opening position, two sales across a year end, another account ignored",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "realized_all_time": {
+     "exact": 2387.85,
+     "shown": "$2,388"
+    },
+    "realized_this_year": {
+     "exact": 319.2,
+     "shown": "$319"
+    },
+    "sales_counted": 2,
+    "sales_without_cost": 0
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-028",
+   "kind": "complex",
+   "title": "Option contracts bought and sold, as a broker names them",
+   "status": "FINDING",
+   "actual": {
+    "realizedAllTime": 4.5,
+    "realizedThisYear": 4.5,
+    "sellsCounted": 1,
+    "sellsWithoutBasis": 0
+   },
+   "expected": {
+    "realized_all_time": {
+     "exact": 450.0,
+     "shown": "$450"
+    },
+    "realized_this_year": {
+     "exact": 450.0,
+     "shown": "$450"
+    },
+    "sales_counted": 1,
+    "sales_without_cost": 0
+   },
+   "difference": "4.50 vs 450 (no ×100)",
+   "formula_gives_match": true,
+   "note": "src/domain/performance/realized.ts:84 has no contract multiplier (DEC-0274)."
+  },
+  {
+   "id": "MK-PF-F-028",
+   "kind": "edge",
+   "title": "A sale bigger than the purchases on record",
+   "status": "UNCLEAR",
+   "actual": {
+    "realizedAllTime": 200,
+    "realizedThisYear": 200,
+    "sellsCounted": 1,
+    "sellsWithoutBasis": 1
+   },
+   "expected": "RULE UNCLEAR",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": "UNCLEAR: app = reading 1 (counted in both tallies). Open question: does a partly matched sale count as a \"sale counted\"? No decision found."
+  },
+  {
+   "id": "MK-PF-F-032",
+   "kind": "easy",
+   "title": "A stock",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "shares",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-032",
+   "kind": "easy",
+   "title": "A cryptocurrency",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "coins",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-032",
+   "kind": "complex",
+   "title": "Option and commodity from a broker link",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "contracts",
+    "ounces"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-032",
+   "kind": "complex",
+   "title": "The person's own unit wins over the kind",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "units",
+    "shares"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-032",
+   "kind": "edge",
+   "title": "Nothing at all",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "shares",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-033",
+   "kind": "easy",
+   "title": "Three shares",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "3 shares",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-033",
+   "kind": "easy",
+   "title": "One coin",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "1 coin",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-033",
+   "kind": "complex",
+   "title": "Contracts, an ounce and half a coin",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "2 contracts",
+    "1 ounce",
+    "0.5 coins"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-033",
+   "kind": "complex",
+   "title": "The person's own unit, one and many",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "1 unit",
+    "250 units"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-PF-F-033",
+   "kind": "edge",
+   "title": "A written call: minus one contract",
+   "status": "FINDING",
+   "actual": "-1 contracts",
+   "expected": "-1 contract",
+   "difference": "'-1 contracts' vs '-1 contract'",
+   "formula_gives_match": true,
+   "note": "src/domain/performance/index.ts:145 singular only at +1. Low: only if a short position is ever stored."
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-PF-F-001",
+   "judge_verdict": "INCOMPLETE",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:191 a lot with no share figure counts 0.",
+   "governing_decisions": "DEC-3523 tenet 3 (unknown is not zero)",
+   "plain_example": "Lots of 40 and (missing) shares: before 40 → should be no total, and the screen says a purchase is missing its quantity.",
+   "note": "Low in practice: Lot.shares is a required number; reachable only through a feed that omits it."
+  },
+  {
+   "id": "MK-PF-F-002",
+   "judge_verdict": "INCOMPLETE",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:231 a lot with no cost adds $0.",
+   "governing_decisions": "DEC-3523 tenet 3 (unknown is not zero); DEC-2161 (a cost the person sets is kept)",
+   "plain_example": "20 sh at $45 + 10 sh with no cost: before $900 → should be unknown (no total).",
+   "note": "The Lot type has no way to say \"cost unknown\" — a missing cost and a $0 gift look the same."
+  },
+  {
+   "id": "MK-PF-F-003",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:262 0 when no shares are held.",
+   "governing_decisions": "DEC-3523 tenet 3 (unknown is not zero)",
+   "plain_example": "All shares sold (0 held, bought at $150): before $0.00 average → should be no figure."
+  },
+  {
+   "id": "MK-PF-F-004",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:299 0 when there is no price; buildPerformance stores that 0 as the row value (src/domain/performance/index.ts:837).",
+   "governing_decisions": "DEC-3523 tenet 3 (unknown is not zero); DEC-0012 (a holding with no price shows what you paid — callers such as holding.ts:125 do that themselves)",
+   "plain_example": "40 shares, no price: before $0 → should be unknown (the caller then shows what was paid, DEC-0012)."
+  },
+  {
+   "id": "MK-PF-F-005",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:326 0 when there is no price.",
+   "governing_decisions": "DEC-3523 tenet 3 (unknown is not zero)",
+   "plain_example": "40 shares at $25 cost, no price: before gain $0 → should be unknown.",
+   "note": "The judge's secondary point (disagrees with capGains on a no-cost lot) is real and is the same tenet-3 defect seen from F-006."
+  },
+  {
+   "id": "MK-PF-F-006",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:367 skips a lot whose cost is not above zero; src/domain/performance/index.ts:372 an undated lot is short-term; no price → all zeros.",
+   "governing_decisions": "DEC-3523 tenet 3 (unknown is not zero); DEC-0329 (more than one year is long-term — app complies, cases pass)",
+   "plain_example": "100 sh long-term + 50 sh with no basis at $55.30: before long $1,320, short $0, total $1,320 → should be long $1,320, short and total unknown."
+  },
+  {
+   "id": "MK-PF-F-007",
+   "judge_verdict": "WRONG",
+   "classification": "CARD STALE",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:420 gain ÷ cost (return on cost).",
+   "governing_decisions": "DEC-1669 MEANS: \"'Return on cost' on one holding is a different question and keeps its own name\" — not printed on the card the judge saw.",
+   "plain_example": "10 sh at $200 + 10 sh at $250, now $260: 15.56% on cost is right for this figure (judge wanted 30.00%).",
+   "note": "Open point the judge touched: buildPerformance uses totalROI as the window return of a holding bought inside the window (src/domain/performance/index.ts:830); for several lots bought at different times that is return on cost, not time-weighted. Not settled by DEC-1669's carve-out (which is about the since-purchase figure) — NEEDS RULING for that use."
+  },
+  {
+   "id": "MK-PF-F-028",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "src/domain/performance/realized.ts:84 gain = covered × sale price − basis, no contract multiplier; a partly matched sale counts in both tallies.",
+   "governing_decisions": "DEC-0274 (options × 100)",
+   "plain_example": "2 contracts bought at $3.20, sold at $5.45: before $4.50 realised → should be $450.",
+   "note": "Partly matched sale: UNCLEAR, no decision."
+  },
+  {
+   "id": "MK-PF-F-033",
+   "judge_verdict": "INCOMPLETE",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:145 singular only when qty === 1.",
+   "governing_decisions": "DEC-0277 (a quantity always carries its unit)",
+   "plain_example": "A written call of −1: before '-1 contracts' → should be '-1 contract'. Low."
+  }
+ ],
+ "coverage": "60 of 60 cases written and run, one test each (BRIEF_WRONG 1, FINDING 8, PASS 50, UNCLEAR 1); 9 of 9 non-RIGHT formula verdicts checked against the code and the decision log; 3 RIGHT verdicts not re-checked beyond their cases."
+}

@@ -12,7 +12,7 @@ import { capGains } from '../../src/domain/performance';
 const lot = (purchase_date: string) => ({ position_id: 'p', ticker: 'VTI',
   lots: [{ lot_id: 'l', shares: 100, cost_per_share: 100, purchase_date }] } as any);
 const SOLD = new Date('2026-01-01T12:00:00Z');
-const isLong = (d: string) => capGains(lot(d), 150, SOLD).longGain > 0;
+const isLong = (d: string) => (capGains(lot(d), 150, SOLD).longGain ?? 0) > 0;
 
 describe('HOLDING_PERIOD', () => {
   test('the clear cases are right', () => {

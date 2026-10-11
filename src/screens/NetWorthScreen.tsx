@@ -970,7 +970,10 @@ export default function NetWorthScreen() {
           {liabilities.length > 0 && (
             <CompositionBar spoken="What you owe" rows={liabilities.map((d, i) => ({
               key: String(d.debt_id), label: d.label, color: DebtRamp[i % DebtRamp.length], total: d.remaining_balance || 0,
-            }))} />
+              known: d.remaining_balance != null && Number.isFinite(d.remaining_balance),
+            // the bar and its percents count only known balances — Net worth v08, READ THIS FIRST, 2026-10-09:
+            // a debt with no balance is named in the amber box, never drawn here as "<1%"
+            })).filter((r) => r.known)} />
           )}
           {liabilities.map((d) => (
             <TouchableOpacity key={d.debt_id} style={styles.ledgerRow} accessibilityRole="button"
@@ -1409,7 +1412,7 @@ const styles = StyleSheet.create({
   addConnect: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   addConnectTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   firstDayAsk: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, paddingVertical: Spacing.sm },
-  firstDayAskQ: { fontWeight: '800', color: Colors.textPrimary },
+  firstDayAskQ: { fontWeight: '700', color: Colors.textPrimary },   // Net worth v08 state C: a plain <b> in the drawing, which draws at 700
   chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.md },
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },

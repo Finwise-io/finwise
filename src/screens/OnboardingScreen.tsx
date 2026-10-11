@@ -10,7 +10,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import {
   Status, Track, STATUS_OPTIONS, goalOptionsFor, goalGroupsFor, buildSteps, isOptional,
 } from '../onboarding/steps';
-import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress } from '../onboarding/modules';
+import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress, rentStepReady, rentProperties } from '../onboarding/modules';
 import Summary from '../onboarding/Summary';
 import Mascot from '../onboarding/Mascot';
 import { saveProfile, profileFromOnboarding } from '../domain/profile';
@@ -159,6 +159,8 @@ export default function OnboardingScreen() {
     if (current === 'status') return !!status;
     if (current === 'goals') return tracks.length > 0;
     if (META.has(current)) return true;
+    // (DEC-4327, 2026-10-11) with a property already held, each rent entry picks its property before Continue
+    if (current === 'income_rental') return rentStepReady(answers, rentProperties(store.assetAccounts));
     if (isOptionalStep) return true;        // optional steps: Continue always enabled (or Skip)
     return stepValid(current as any, ctx);  // required field steps: validate
   }

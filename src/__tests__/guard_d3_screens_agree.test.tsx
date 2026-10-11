@@ -128,7 +128,11 @@ const INVESTOR_TXNS = [
 test("MK-XS-M-004 — the month's return reads the same on Home and on Performance's 1M window", () => {
   useStore.setState({
     assetAccounts: [INVESTOR_ACCOUNT], transactions: INVESTOR_TXNS, snapshotDays: INVESTOR_DAYS,
-    priceCache: { VTI: closes('VTI', 95, 100), SPY: closes('SPY', 96, 100) },
+    // VTI's prices ramp 90 → 100, not in step with the record's 285,000 → 300,000: since 2026-10-11 a price
+    // return starts at the close of the day BEFORE the window (DEC-0315; outside review Claude Performance), and
+    // with both ramps 95 → 100 the price-only figure equalled the door's by construction, so the pin below
+    // could no longer tell the two methods apart.
+    priceCache: { VTI: closes('VTI', 90, 100), SPY: closes('SPY', 96, 100) },
     pricesFetchedAt: TODAY_D.toISOString(),
   } as any);
 
@@ -159,7 +163,7 @@ test("MK-XS-M-004 — the month's return reads the same on Home and on Performan
   const { buildPerformance, portfolioPeriodReturn } = require('../domain/performance');
   const positions = (INVESTOR_ACCOUNT.positions ?? []) as any[];
   const priceOnly = portfolioPeriodReturn(
-    buildPerformance(positions, (t: string) => ({ VTI: closes('VTI', 95, 100) } as any)[t.toUpperCase()], '1M'));
+    buildPerformance(positions, (t: string) => ({ VTI: closes('VTI', 90, 100) } as any)[t.toUpperCase()], '1M'));
   expect(priceOnly).not.toBeNull();
   expect(Number(home!.replace(/[+%]/g, ''))).not.toBeCloseTo(priceOnly! * 100, 2);
 });

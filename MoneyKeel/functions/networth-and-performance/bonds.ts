@@ -124,7 +124,7 @@ export interface BondsInput {
  *
  * Called by ... MK-NW-O-001 theBonds
  *
- * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 83 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -134,7 +134,7 @@ export interface BondsInput {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 64 more — the full list is on functions_from_code
+ *               … and 65 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -190,7 +190,7 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -200,7 +200,7 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 63 more — the full list is on functions_from_code
+ *               … and 64 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
@@ -313,7 +313,7 @@ const GIVEN =
  *
  * Called by ... MK-NW-F-078 ONE
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -323,7 +323,7 @@ const GIVEN =
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -343,7 +343,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -353,7 +353,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 61 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

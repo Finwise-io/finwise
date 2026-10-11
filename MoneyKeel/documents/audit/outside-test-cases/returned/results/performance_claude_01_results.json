@@ -1,0 +1,1323 @@
+{
+ "batch": "performance 01",
+ "run_by": "Claude Code (outside-audit runner)",
+ "run_on": "2026-10-11",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts",
+ "source": "returned/performance_01.claude.json",
+ "cases": [
+  {
+   "id": "MK-NW-O-008",
+   "kind": "easy",
+   "title": "Exactly one year, nothing moved",
+   "status": "FINDING",
+   "actual": {
+    "ret": 0.09971358593414137,
+    "perYear": 0.09971358593414137,
+    "cumulative": 0.1,
+    "years": 1.0027397260273974,
+    "beginning": 40000,
+    "ending": 44000,
+    "wealth_generated": 4000
+   },
+   "expected": {
+    "beginning": {
+     "exact": 40000.0,
+     "shown": "$40,000"
+    },
+    "ending": {
+     "exact": 44000.0,
+     "shown": "$44,000"
+    },
+    "wealth_generated": {
+     "exact": 4000.0,
+     "shown": "$4,000"
+    },
+    "return": {
+     "exact": 0.1,
+     "shown": "+10.00%"
+    },
+    "return_is_yearly": false,
+    "rows": [
+     {
+      "label": "Beginning",
+      "exact": 40000.0
+     },
+     {
+      "label": "Contributions",
+      "exact": 0.0
+     },
+     {
+      "label": "Withdrawals",
+      "exact": 0.0
+     },
+     {
+      "label": "Dividends",
+      "exact": 0.0
+     },
+     {
+      "label": "Interest",
+      "exact": 0.0
+     },
+     {
+      "label": "Change in investment value",
+      "exact": 4000.0
+     }
+    ]
+   },
+   "difference": "return 0.0997135859 shown as a yearly rate vs 0.10 total (−0.000286); every dollar figure matches",
+   "formula_gives_match": true,
+   "note": "windowBounds counts the 1Y window 2025-10-10..2026-10-10 as 366 days (both edges in), years = 366/365 > 1, so an exactly-one-year window is annualised. Against DEC-0237 and DEC-1669."
+  },
+  {
+   "id": "MK-NW-O-008",
+   "kind": "easy",
+   "title": "The record starts after the period opens",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "REFUSES",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-O-008",
+   "kind": "complex",
+   "title": "Two accounts, a large deposit, a withdrawal, a dividend and interest",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "beginning": {
+     "exact": 100000.0,
+     "shown": "$100,000"
+    },
+    "contributions": {
+     "exact": 50000.0,
+     "shown": "$50,000"
+    },
+    "withdrawals": {
+     "exact": 8000.0,
+     "shown": "$8,000"
+    },
+    "dividends": {
+     "exact": 420.0,
+     "shown": "$420"
+    },
+    "interest": {
+     "exact": 35.17,
+     "shown": "$35"
+    },
+    "change_in_investment_value": {
+     "exact": 8057.2,
+     "shown": "$8,057"
+    },
+    "wealth_generated": {
+     "exact": 8512.37,
+     "shown": "$8,512"
+    },
+    "ending": {
+     "exact": 150512.37,
+     "shown": "$150,512"
+    },
+    "rows": [
+     {
+      "label": "Beginning",
+      "exact": 100000.0
+     },
+     {
+      "label": "Contributions",
+      "exact": 50000.0
+     },
+     {
+      "label": "Withdrawals",
+      "exact": -8000.0
+     },
+     {
+      "label": "Dividends",
+      "exact": 420.0
+     },
+     {
+      "label": "Interest",
+      "exact": 35.17
+     },
+     {
+      "label": "Change in investment value",
+      "exact": 8057.2
+     }
+    ],
+    "per_account_ending": {
+     "A": {
+      "exact": 108912.37,
+      "shown": "$108,912"
+     },
+     "B": {
+      "exact": 41600.0,
+      "shown": "$41,600"
+     }
+    },
+    "return": {
+     "exact": 0.066031,
+     "shown": "+6.60%"
+    }
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-O-008",
+   "kind": "complex",
+   "title": "The approved drawing, Performance v17 phone 1",
+   "status": "PASS",
+   "actual": {
+    "since": {
+     "walk": [
+      100000,
+      15000,
+      0,
+      1800,
+      400,
+      5800,
+      8000,
+      123000
+     ],
+     "Vanguard": [
+      101000,
+      6000
+     ],
+     "E*TRADE": {
+      "ending": 22000,
+      "wealth": 2000,
+      "return": 0.1
+     }
+    },
+    "1Y": {
+     "walk": null,
+     "ret": null,
+     "ending": 123000,
+     "sentence": "The record begins Oct 1, 2025, so it cannot say what these accounts were worth on Sep 29, 2025."
+    }
+   },
+   "expected": "RULE UNCLEAR",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": "RULE UNCLEAR settled by DEC-0647 (v17 approved in full): phone 1 is drawn on the Since chip (\"SUMMARY · SINCE OCT 1, 2025\"); both readings were run and both match the app. The $15,000 is dated 2026-03-02 (not drawn); the all-accounts return is not asserted."
+  },
+  {
+   "id": "MK-NW-O-008",
+   "kind": "edge",
+   "title": "No record at all: the beginning worked back, with a dividend kept as cash",
+   "status": "FINDING",
+   "actual": {
+    "beginning": 101200,
+    "wealth_generated": 5000,
+    "change_in_investment_value": 3800,
+    "dividends": 1200,
+    "ending": 106200,
+    "return": null
+   },
+   "expected": {
+    "beginning": {
+     "exact": 100000.0,
+     "shown": "$100,000"
+    },
+    "contributions": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "withdrawals": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "dividends": {
+     "exact": 1200.0,
+     "shown": "$1,200"
+    },
+    "interest": {
+     "exact": 0.0,
+     "shown": "$0"
+    },
+    "change_in_investment_value": {
+     "exact": 5000.0,
+     "shown": "$5,000"
+    },
+    "wealth_generated": {
+     "exact": 6200.0,
+     "shown": "$6,200"
+    },
+    "ending": {
+     "exact": 106200.0,
+     "shown": "$106,200"
+    },
+    "rows": [
+     {
+      "label": "Beginning",
+      "exact": 100000.0
+     },
+     {
+      "label": "Dividends",
+      "exact": 1200.0
+     },
+     {
+      "label": "Change in investment value",
+      "exact": 5000.0
+     }
+    ],
+    "return": "REFUSES"
+   },
+   "difference": "beginning +1,200; wealth −1,200; change in value −1,200 (the dividend left in the beginning)",
+   "formula_gives_match": true,
+   "note": "The worked-back beginning (no record at all) takes off the price gain but not the dividends and interest received in the window and still in the account."
+  },
+  {
+   "id": "MK-ST-F-081",
+   "kind": "easy",
+   "title": "Nothing moved",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "rate": {
+     "exact": 0.05,
+     "shown": "+5.00%"
+    },
+    "measured_from": "2026-07-09"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-081",
+   "kind": "easy",
+   "title": "One deposit splits the period",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "rate": {
+     "exact": 0.0815,
+     "shown": "+8.15%"
+    },
+    "measured_from": "2026-07-09"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-081",
+   "kind": "complex",
+   "title": "Four accounts: a typed balance, a cash account with interest, one joining mid-period, a withdrawal",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "rate": {
+     "exact": 0.052086,
+     "shown": "+5.21%"
+    },
+    "measured_from": "2026-07-09"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-081",
+   "kind": "complex",
+   "title": "A deposit dated on a Saturday",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "REFUSES",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-081",
+   "kind": "edge",
+   "title": "An account that started empty",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "rate": {
+     "exact": 0.05,
+     "shown": "+5.00%"
+    },
+    "measured_from": "2026-07-15"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-082",
+   "kind": "easy",
+   "title": "A deposit and a withdrawal",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "flows": [
+     {
+      "date": "2026-08-14",
+      "account": "BRK",
+      "amount": 5000.0
+     },
+     {
+      "date": "2026-09-01",
+      "account": "BRK",
+      "amount": -2000.0
+     }
+    ],
+    "interest": [],
+    "shares_moved_days": []
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-082",
+   "kind": "easy",
+   "title": "Transfers in from outside and between measured accounts",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "flows": [
+     {
+      "date": "2026-08-20",
+      "account": "BRK",
+      "amount": 3000.0
+     },
+     {
+      "date": "2026-09-05",
+      "account": "BRK",
+      "amount": -1000.0
+     },
+     {
+      "date": "2026-09-05",
+      "account": "IRA",
+      "amount": 1000.0
+     }
+    ],
+    "interest": [],
+    "shares_moved_days": []
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-082",
+   "kind": "complex",
+   "title": "A broker writes the withdrawal as a negative number",
+   "status": "BRIEF_WRONG",
+   "actual": {
+    "flows": [
+     {
+      "date": "2026-09-30",
+      "accountId": "BRK",
+      "amount": 2500
+     }
+    ],
+    "interest": [
+     {
+      "date": "2026-09-30",
+      "accountId": "BRK",
+      "amount": 12.37
+     }
+    ],
+    "sharesMoved": []
+   },
+   "expected": {
+    "flows": [
+     {
+      "date": "2026-09-30",
+      "account": "BRK",
+      "amount": -2500.0
+     }
+    ],
+    "interest": [
+     {
+      "date": "2026-09-30",
+      "account": "BRK",
+      "amount": 12.37
+     }
+    ],
+    "shares_moved_days": []
+   },
+   "difference": "flow +2,500 vs judge −2,500",
+   "formula_gives_match": true,
+   "note": "BRIEF WRONG: a stored negative WITHDRAWAL is a reversal (ledger.ts:237 \"a stored reversal cancels\"); the broker road normalises signs before storing (src/services/sync/ingest.ts:328, NEGATIVE_IS_OUT). +2,500 is right and agrees with the walk."
+  },
+  {
+   "id": "MK-ST-F-082",
+   "kind": "complex",
+   "title": "Shares moved in kind, valued and unvalued",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "flows": [
+     {
+      "date": "2026-08-03",
+      "account": "BRK",
+      "amount": 5336.75
+     }
+    ],
+    "interest": [],
+    "shares_moved_days": [
+     "2026-09-03"
+    ]
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-082",
+   "kind": "edge",
+   "title": "A deposit with no amount",
+   "status": "FINDING",
+   "actual": {
+    "flows": [
+     {
+      "date": "2026-08-14",
+      "accountId": "BRK",
+      "amount": 0
+     }
+    ],
+    "interest": [],
+    "sharesMoved": []
+   },
+   "expected": "REFUSES",
+   "difference": "a $0 flow where the judge expects a refusal",
+   "formula_gives_match": true,
+   "note": "Number(null) || 0 (time-weighted-return.ts:261): unknown counted as zero (tenet 3, DEC-3523)."
+  },
+  {
+   "id": "MK-ST-F-080",
+   "kind": "easy",
+   "title": "A good day",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": true,
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-080",
+   "kind": "easy",
+   "title": "A number",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": false,
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-080",
+   "kind": "complex",
+   "title": "What broker exports send",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-080",
+   "kind": "complex",
+   "title": "Real days at the edges of the calendar",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    true,
+    true,
+    true
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-ST-F-080",
+   "kind": "edge",
+   "title": "A leap day in a year that has none",
+   "status": "FINDING",
+   "actual": true,
+   "expected": false,
+   "difference": "true vs false",
+   "formula_gives_match": true,
+   "note": "Shape-only test (time-weighted-return.ts:94)."
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "easy",
+   "title": "One month",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "2026-09-10",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "easy",
+   "title": "Since the record began",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "2025-10-02",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "complex",
+   "title": "Since, with record days in no order",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "2024-06-04",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "complex",
+   "title": "Since on day one, and with nothing recorded",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "2026-10-10",
+    "2026-10-10"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-090",
+   "kind": "edge",
+   "title": "A label the app does not have",
+   "status": "FINDING",
+   "actual": "2025-10-10",
+   "expected": "REFUSES",
+   "difference": "a date vs a refusal",
+   "formula_gives_match": true,
+   "note": "Unknown label → 12 months back (performance.ts:133); MK-PF-F-008 startDateFor gives today for the same label (src/domain/performance/index.ts:462). No decision covers an unknown label."
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "easy",
+   "title": "A brokerage and a savings account",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "a1"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "easy",
+   "title": "No accounts",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "complex",
+   "title": "Five kinds of account, one id given as a number",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "101",
+    "b7",
+    "x9"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "complex",
+   "title": "Two Unclassified accounts: one bare balance, one with holdings",
+   "status": "BRIEF_WRONG",
+   "actual": [
+    "u1",
+    "u2",
+    "a1"
+   ],
+   "expected": [
+    "u2",
+    "a1"
+   ],
+   "difference": "app includes u1",
+   "formula_gives_match": true,
+   "note": "BRIEF WRONG: DEC-0338 (TESTED): \"Unclassified counts as investments.\" Q2 is about money-market funds, not Unclassified accounts."
+  },
+  {
+   "id": "MK-NW-F-092",
+   "kind": "edge",
+   "title": "Only cash and property",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "easy",
+   "title": "Two days, one account",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "2026-07-09",
+    "2026-07-10"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "easy",
+   "title": "No accounts named",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "complex",
+   "title": "Days out of order, some only for a savings account",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "2026-02-27",
+    "2026-03-03"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "complex",
+   "title": "A day where the named account is worth $0",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "2026-07-09",
+    "2026-07-15"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-103",
+   "kind": "edge",
+   "title": "A record that never mentions the named accounts",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "easy",
+   "title": "Two accounts carried to today",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "today_rows_accounts": [
+     "BRK",
+     "IRA"
+    ],
+    "today_total_as_measured": {
+     "exact": 51000.0,
+     "shown": "$51,000"
+    }
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "easy",
+   "title": "Nothing recorded yet",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "record_unchanged": true
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "complex",
+   "title": "A typed balance missing from the latest day",
+   "status": "PASS",
+   "actual": {
+    "today_total": 51000
+   },
+   "expected": {
+    "today_total_as_measured": {
+     "exact": 51000.0,
+     "shown": "$51,000"
+    }
+   },
+   "difference": null,
+   "formula_gives_match": false,
+   "note": "The judge's formula_gives (71,000) assumed the engine carries IRA's typed balance into today; a typed balance stands only inside its own recorded span (time-weighted-return.ts:160). Side observation, not this case's expectation: IRA is then read as having LEFT after 2026-10-08 and the whole ending lands on BRK, so a return over these days would read 51,000 ÷ 30,450 as growth."
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "complex",
+   "title": "Three accounts on the latest day",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "today_rows_accounts": [
+     "BRK",
+     "IRA",
+     "ROTH"
+    ],
+    "today_total_as_measured": {
+     "exact": 187431.12,
+     "shown": "$187,431"
+    }
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-104",
+   "kind": "edge",
+   "title": "The latest day holds none of the named accounts",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "record_unchanged": true
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-105",
+   "kind": "easy",
+   "title": "Measured: no sentence",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-105",
+   "kind": "easy",
+   "title": "Nothing invested",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "empty": false,
+    "says": "there is no return to state because nothing was invested over the period"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-105",
+   "kind": "complex",
+   "title": "Money moved on a Saturday",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "empty": false,
+    "names_day": "2026-08-15",
+    "says": "a return cannot be measured across that day"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-105",
+   "kind": "complex",
+   "title": "Shares moved with no worth on record",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "empty": false,
+    "names_day": "2026-09-03",
+    "says": "the records do not say what the shares moved were worth"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-105",
+   "kind": "edge",
+   "title": "Value with nothing behind it",
+   "status": "FINDING",
+   "actual": "The value recorded on Aug 14, 2026 is less than the money added that day, so a return cannot be measured across it. The dollar figures here are still right.",
+   "expected": {
+    "empty": false,
+    "names_day": "2026-08-14",
+    "says": "the value on that day cannot be explained by the money added"
+   },
+   "difference": "sentence present and names the day, but says \"less than the money added\" when the value ($5,000) is MORE than the money added ($0)",
+   "formula_gives_match": false,
+   "note": "The judge's formula_gives '' is wrong (the engine reports this state as VALUE_BELOW_MONEY_ADDED, time-weighted-return.ts:212), but the sentence it then gets is false for it."
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "easy",
+   "title": "One holding up ten percent",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 1000.0,
+    "shown": "$1,000"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "easy",
+   "title": "A CD for one year",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 476.1905,
+    "shown": "$476"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "complex",
+   "title": "Four holdings of four kinds",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 4117.8749,
+    "shown": "$4,118"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "complex",
+   "title": "A two-year window and a yearly rate",
+   "status": "FINDING",
+   "actual": 1100.0000000000005,
+   "expected": {
+    "exact": 2100.0,
+    "shown": "$2,100"
+   },
+   "difference": "−1,000 (one year of gain, not two)",
+   "formula_gives_match": true,
+   "note": "2Y rows carry a yearly periodReturn (src/domain/performance/index.ts:611-620) and PerformanceScreen.tsx:153-157 hands those rows to the door, which reads periodReturn as the window total (performance.ts:268)."
+  },
+  {
+   "id": "MK-NW-F-091",
+   "kind": "edge",
+   "title": "One holding nobody can price",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "REFUSES",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-127",
+   "kind": "easy",
+   "title": "Up a quarter",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 2500.0,
+    "shown": "$2,500"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-127",
+   "kind": "easy",
+   "title": "No price history, no rate, but something held",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "REFUSES",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-127",
+   "kind": "complex",
+   "title": "A CD over a six-month window",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 281.4328,
+    "shown": "$281"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-127",
+   "kind": "complex",
+   "title": "Two-year window, yearly rate on the row",
+   "status": "FINDING",
+   "actual": 420.00000000000045,
+   "expected": {
+    "exact": 820.0,
+    "shown": "$820"
+   },
+   "difference": "−400",
+   "formula_gives_match": true,
+   "note": "Same 2Y fault as MK-NW-F-091."
+  },
+  {
+   "id": "MK-NW-F-127",
+   "kind": "edge",
+   "title": "A CD whose stated rate is 0%",
+   "status": "UNCLEAR",
+   "actual": null,
+   "expected": "RULE UNCLEAR",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": "UNCLEAR: app gives nothing (unknown) — reading 2. Open question: is a stated 0% a rate (gain $0) or no rate? No decision found (rulings-for.py \"stated rate\", DEC-3656, DEC-2748c)."
+  },
+  {
+   "id": "MK-NW-F-128",
+   "kind": "easy",
+   "title": "A market value is there",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 5000.0,
+    "shown": "$5,000"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-128",
+   "kind": "easy",
+   "title": "Broker's last mark times shares",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 1400.0,
+    "shown": "$1,400"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-128",
+   "kind": "complex",
+   "title": "Option contracts at the broker's last mark",
+   "status": "FINDING",
+   "actual": 6.300000000000001,
+   "expected": {
+    "exact": 630.0,
+    "shown": "$630"
+   },
+   "difference": "−623.70 (no ×100)",
+   "formula_gives_match": true,
+   "note": "performance.ts:314 omits contractMultiplier (DEC-0274). Only \"> 0\" is used today, so no screen figure moves."
+  },
+  {
+   "id": "MK-NW-F-128",
+   "kind": "complex",
+   "title": "A hand-built holding",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": {
+    "exact": 12345.67,
+    "shown": "$12,346"
+   },
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-128",
+   "kind": "edge",
+   "title": "Shares and nothing else",
+   "status": "FINDING",
+   "actual": 0,
+   "expected": "REFUSES",
+   "difference": "$0 vs refusal",
+   "formula_gives_match": true,
+   "note": "50 shares with no price/value read as \"holds nothing\" → gainOfRow gives $0, DEC-3656 refusal never fires (tenet 3)."
+  },
+  {
+   "id": "MK-NW-F-129",
+   "kind": "easy",
+   "title": "An account named by the person",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "Ally CD",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-129",
+   "kind": "easy",
+   "title": "A ticker only",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "VTI",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-129",
+   "kind": "complex",
+   "title": "Two Treasuries by CUSIP, one with a name",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": [
+    "US Treasury Note 0.25% 05/31/2025",
+    "91282CJL6"
+   ],
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-129",
+   "kind": "complex",
+   "title": "A CUSIP sent in lower case",
+   "status": "FINDING",
+   "actual": "912828zt6",
+   "expected": "US Treasury Note 0.25% 05/31/2025",
+   "difference": "raw code vs the security name",
+   "formula_gives_match": true,
+   "note": "performance.ts:348 accepts capitals only."
+  },
+  {
+   "id": "MK-NW-F-129",
+   "kind": "edge",
+   "title": "Nothing to call it by",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "a holding",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-130",
+   "kind": "easy",
+   "title": "One name",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "The beginning can't be worked back: Fundrise Income Fund has no price history.",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-130",
+   "kind": "easy",
+   "title": "No name",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "The beginning can't be worked back: a holding has no price history.",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-130",
+   "kind": "complex",
+   "title": "Three names",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "The beginning can't be worked back: PRIVX, Fundrise Income Fund and Ally CD have no price history.",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-130",
+   "kind": "complex",
+   "title": "Two names",
+   "status": "PASS",
+   "actual": "as expected",
+   "expected": "The beginning can't be worked back: Old employer plan fund and a holding have no price history.",
+   "difference": null,
+   "formula_gives_match": null,
+   "note": ""
+  },
+  {
+   "id": "MK-NW-F-130",
+   "kind": "edge",
+   "title": "The same fund in two accounts",
+   "status": "FINDING",
+   "actual": "The beginning can't be worked back: PRIVX and PRIVX have no price history.",
+   "expected": "The beginning can't be worked back: PRIVX has no price history.",
+   "difference": "name repeated",
+   "formula_gives_match": true,
+   "note": "No de-duplication (performance.ts:373); thePerformance lists per holding row (performance.ts:664)."
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-NW-O-008",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:685 beginning = measured ?? (ending − pricedGain − contributions + withdrawals) — dividends/interest received are not taken off; Calculation Module code/engines/window-return.ts:93 days = end − start + 1, so MoneyKeel/functions/networth-and-performance/performance.ts:652 years = 366/365 for a 1Y window and MoneyKeel/functions/networth-and-performance/performance.ts:717 annualises it.",
+   "governing_decisions": "DEC-0237 (a window of a year or less is never annualised); DEC-1669 (yearly rate only for a period longer than a year; never another method — answers the judge's Q1 point 5: Q1's fallback is superseded); DEC-3656 (beginning = today less what each holding gained, less money moved); DEC-0647 (v17 approved — settles the Since chip of the drawing; the judge's point 3 is settled by phone 3 \"not a yearly rate\"); DEC-3035i (no walk where the record exists but begins late — app complies)",
+   "plain_example": "1Y on 2026-10-10, $40,000 → $44,000, nothing moved: before +9.97% \"a year\" → should be +10.00% for the year. No record, VTI $105,000 up 5% plus a $1,200 dividend kept as cash: before beginning $101,200, change in value $3,800 → should be $100,000 and $5,000.",
+   "note": "Of the judge's five faults: (1) and (2) are code defects, confirmed by cases; (3) settled by DEC-0647/v17 phone 3; (4) the 7.46%/year in the drawing is the DEC-0643 stand-in rate, itself replaced by DEC-1669 (stale drawing, not a code fault); (5) Q1 superseded by DEC-1669."
+  },
+  {
+   "id": "MK-ST-F-082",
+   "judge_verdict": "WRONG",
+   "classification": "JUDGE MISREAD",
+   "what_the_code_actually_does": "Calculation Module code/engines/time-weighted-return.ts:264 WITHDRAWAL → −amount, so a stored −2,500 becomes +2,500; Calculation Module code/engines/time-weighted-return.ts:261 a missing amount → 0.",
+   "governing_decisions": "DEC-1669; DEC-3523 tenet 3 (unknown is not zero). No decision on stored signs; the ledger convention is code (ledger.ts:237, ingest.ts:328).",
+   "plain_example": "Sign: a stored withdrawal of −$2,500 is a reversal → +$2,500 is right (judge misread). Missing amount: before a $0 deposit on Aug 14 (growth absorbs the deposit) → should be no figure (refuse). The second part is CODE WRONG.",
+   "note": "Two parts: the sign complaint is a misread (stored negatives are reversals; the road normalises sign before storing); the missing-amount complaint is a real tenet-3 defect (FINDING)."
+  },
+  {
+   "id": "MK-ST-F-080",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "Calculation Module code/engines/time-weighted-return.ts:94 shape test only; 2026-02-29 passes.",
+   "governing_decisions": "None specific; tenet 1 (DEC-3523).",
+   "plain_example": "Before: '2026-02-29' is a day → should not be (2026 has no 29 February). Low: real feeds rarely send impossible dates."
+  },
+  {
+   "id": "MK-NW-F-090",
+   "judge_verdict": "INCOMPLETE",
+   "classification": "NEEDS RULING",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:133 an unknown label falls to 12 months back; src/domain/performance/index.ts:462 startDateFor gives today for the same label.",
+   "governing_decisions": "DEC-3768b (month-end rule — app complies); tenet 4 (one thing, one number). No decision on an unknown label.",
+   "plain_example": "'5Y' on 2026-10-10: before 2025-10-10 here and 2026-10-10 in startDateFor → should be one answer in both (judge: refuse)."
+  },
+  {
+   "id": "MK-NW-F-092",
+   "judge_verdict": "WRONG",
+   "classification": "JUDGE MISREAD",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:402 counts stocks_etf, bonds, alternatives and mixed (Unclassified).",
+   "governing_decisions": "DEC-0338 (\"Unclassified counts as investments\", TESTED); DEC-2160.",
+   "plain_example": "An Unclassified $18,000 account: counted as an investment — right by DEC-0338. Nothing to change."
+  },
+  {
+   "id": "MK-NW-F-104",
+   "judge_verdict": "WRONG",
+   "classification": "JUDGE MISREAD",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:473 rows for the accounts on the latest earlier day only, first gets the whole ending; the engine carries a typed balance only inside its own span (Calculation Module code/engines/time-weighted-return.ts:160), so nothing is counted twice.",
+   "governing_decisions": "DEC-1669.",
+   "plain_example": "Judge's case: today's total is $51,000 as the judge expected, not $71,000. Side observation (not the judge's claim): IRA is then read as having left after its last record and the whole ending lands on BRK, so a return over those days reads $51,000 ÷ $30,450 — worth a look.",
+   "note": "Classified on the judge's stated fault (double count), which does not happen."
+  },
+  {
+   "id": "MK-NW-F-105",
+   "judge_verdict": "INCOMPLETE",
+   "classification": "BOTH WRONG",
+   "what_the_code_actually_does": "The engine reports \"value with nothing behind it\" as VALUE_BELOW_MONEY_ADDED (Calculation Module code/engines/time-weighted-return.ts:212), and MoneyKeel/functions/networth-and-performance/performance.ts:439 says \"less than the money added that day\".",
+   "governing_decisions": "DEC-1669 (where it cannot be measured: no percent and a sentence saying why).",
+   "plain_example": "Account at $0, then $5,000 on Aug 14 with no deposit: before \"The value recorded on Aug 14, 2026 is less than the money added that day\" → should say the value is more than the money added, so the day cannot be explained.",
+   "note": "Judge wrong that there is no sentence; code wrong that the sentence is true."
+  },
+  {
+   "id": "MK-NW-F-091",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:268 value × (1 − 1 ÷ (1 + periodReturn)); on 2Y the rows carry a yearly periodReturn (src/domain/performance/index.ts:611-620) handed in by src/screens/PerformanceScreen.tsx:153-157.",
+   "governing_decisions": "DEC-3656; DEC-0237 (2Y rates are yearly).",
+   "plain_example": "2Y, VTI $12,100 at +10%/year: before gain $1,100 → should be $2,100 (12,100 − 12,100 ÷ 1.21).",
+   "note": "The judge's second point (0% CD disagrees between F-091 and F-127) is a misread: pricedGainOf calls gainOfRow, so they cannot disagree; the F-091 card's wording is loose (CARD STALE). 0% is an open question (see F-127)."
+  },
+  {
+   "id": "MK-NW-F-127",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:268 reads the yearly 2Y rate as the window total; MoneyKeel/functions/networth-and-performance/performance.ts:269 a CD rate only above zero.",
+   "governing_decisions": "DEC-3656; DEC-0237.",
+   "plain_example": "2Y, SCHD $8,820 at +5%/year: before $420 → should be $820.",
+   "note": "0% CD: UNCLEAR — no decision; app treats it as no rate (unknown)."
+  },
+  {
+   "id": "MK-NW-F-128",
+   "judge_verdict": "WRONG",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:314 shares × last price with no contract multiplier; else value_now ?? 0.",
+   "governing_decisions": "DEC-0274 (options × 100); DEC-3656 (no price history and no rate → unknown, named); tenet 3 (DEC-3523).",
+   "plain_example": "3 option contracts at $2.10: before $6.30 → should be $630. 50 shares, no price, no value: before $0 (gain $0, no refusal) → should be unknown, so the walk refuses and names it.",
+   "note": "The ×100 half changes no figure today (only \"> 0\" is used); the $0 half lets a DEC-3656 refusal slip."
+  },
+  {
+   "id": "MK-NW-F-129",
+   "judge_verdict": "INCOMPLETE",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:348 security-code test is capitals only; the row name comes first.",
+   "governing_decisions": "DEC-3656 (names the holding).",
+   "plain_example": "A CUSIP sent as '912828zt6': before the sentence prints 912828zt6 → should print US Treasury Note 0.25% 05/31/2025.",
+   "note": "The judge's other point (O-008 card says ticker-first) is CARD STALE wording, not a code fault. Low."
+  },
+  {
+   "id": "MK-NW-F-130",
+   "judge_verdict": "INCOMPLETE",
+   "classification": "CODE WRONG",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:373 joins the names as given; repeats kept.",
+   "governing_decisions": "DEC-3656 (his wording of the sentence).",
+   "plain_example": "PRIVX in two accounts: before 'PRIVX and PRIVX have no price history.' → should be 'PRIVX has no price history.' Low."
+  }
+ ],
+ "coverage": "70 of 70 cases written and run, one test each (BRIEF_WRONG 2, FINDING 12, PASS 55, UNCLEAR 1); 12 of 12 non-RIGHT formula verdicts checked against the code and the decision log; 2 RIGHT verdicts not re-checked beyond their cases."
+}

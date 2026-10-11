@@ -777,5 +777,15 @@
 "src/domain/assets/index.ts::valueEntered": "not in git yet|\u2014",
 "src/domain/decumulation/index.ts::countedTaxableLine": "not in git yet|\u2014",
 "src/domain/decumulation/index.ts::taxTypeNotStated": "not in git yet|\u2014",
-"src/domain/decumulation/index.ts::splitBucketOf": "not in git yet|\u2014"
+"src/domain/decumulation/index.ts::splitBucketOf": "not in git yet|\u2014",
+"src/domain/performance/index.ts::startValues": "not in git yet|\u2014",
+"src/domain/performance/index.ts::windowTotalOfRow": "not in git yet|\u2014",
+"src/domain/performance/index.ts::windowTotal": "not in git yet|\u2014",
+"src/domain/performance/index.ts::isoDay": "not in git yet|\u2014",
+"src/domain/performance/index.ts::returnSincePurchases": "not in git yet|\u2014",
+"src/domain/performance/index.ts::periodReturnParts": "not in git yet|\u2014",
+"src/domain/performance/index.ts::periodTotalReturn": "not in git yet|\u2014",
+"src/domain/performance/index.ts::dayBefore": "not in git yet|\u2014",
+"src/domain/performance/index.ts::monthsBefore": "not in git yet|\u2014",
+"src/domain/performance/index.ts::unknownFigure": "not in git yet|\u2014"
 }

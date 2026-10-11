@@ -48,7 +48,7 @@ export interface Debt {
  *
  * Called by ... MK-CF-F-022 paymentShape
  *
- * Reaches ..... 154 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 155 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -58,7 +58,7 @@ export interface Debt {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 136 more — the full list is on functions_from_code
+ *               … and 137 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -85,7 +85,7 @@ export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type'
  *               MK-CF-F-159 isRecurringDebt · MK-NW-O-004 theEmergencyFund
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 153 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 154 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -95,7 +95,7 @@ export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type'
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 135 more — the full list is on functions_from_code
+ *               … and 136 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -124,7 +124,7 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
  *               MK-NW-F-106 mortgagesByProperty · MK-NW-O-003 theNetWorth
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 147 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 148 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -134,7 +134,7 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 129 more — the full list is on functions_from_code
+ *               … and 130 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-016 debt minimum payment
@@ -254,7 +254,13 @@ export function actualDebtPayment(debts: Debt[]): number {
  * Formula .....
  *     Σ over debts (or none when missing) of (remaining balance (or 0 when missing or zero))
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-036 buildDebtState
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-100 TREND · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -662,13 +668,19 @@ export const TOXIC_APR = 0.07;
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *
+ * Decides .....
+ *     · If remaining balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
  * Formula also on the master file · functions_from_code · MK-CF-F-036
  * Changed ..... 2026-06-22 (b8657c4)
  */
 export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
-  const total = debts.reduce((t, d) => t + d.remaining_balance, 0);
+  // the sum of KNOWN debts (DEC-3279e, MK-NW-F-065: "Net worth counts the debts that are known"): one debt
+  // with no balance made this NaN, and the Net worth hero printed "Owe No debts entered." with a sentence
+  // where its figure belongs (mock-match audit, 2026-10-11). The one canonical sum is totalDebtBalance.
+  const total = totalDebtBalance(debts);
   const highest = debts.length ? debts.reduce((m, d) => (d.interest_rate_apr > m.interest_rate_apr ? d : m)) : null;
-  const toxic = debts.filter((d) => d.interest_rate_apr > TOXIC_APR).reduce((t, d) => t + d.remaining_balance, 0);
+  const toxic = debts.filter((d) => d.interest_rate_apr > TOXIC_APR).reduce((t, d) => t + (d.remaining_balance || 0), 0);
   return {
     user_id: uid, total_debt_balance: (total),
     total_monthly_debt_service: minimumDebtService(debts),   // DTI obligation (Σ minimum)

@@ -25,9 +25,11 @@ describe('performance — cost basis & value', () => {
     expect(unrealizedGain(p, 200)).toBe(1400);
     expect(totalROI(p, 200)).toBeCloseTo(0.875, 4);   // 1400/1600
   });
-  test('null price → safe zeros / null ROI', () => {
-    expect(marketValue(p, null)).toBe(0);
-    expect(unrealizedGain(p, undefined)).toBe(0);
+  // no price → UNKNOWN, not $0 (outside review Claude Performance, 2026-10-11, DEC-3523 tenet 3: unknown is not zero).
+  // It read "safe zeros" — 15 shares with no price shown as worth $0 and no gain.
+  test('null price → unknown value, unknown gain, null ROI', () => {
+    expect(marketValue(p, null)).toBeNull();
+    expect(unrealizedGain(p, undefined)).toBeNull();
     expect(totalROI(p, null)).toBeNull();
   });
 });
@@ -69,7 +71,8 @@ describe('performance — table + benchmark comparison', () => {
   test('benchmark mapping', () => {
     expect(benchmarkTicker('stocks_etf')).toBe('SPY');
     expect(benchmarkTicker('fixed_income')).toBe('AGG');
-    expect(benchmarkTicker(undefined)).toBe('SPY');
+    // nothing says what the holding is → no yardstick (outside review Claude Performance, 2026-10-11, DEC-2160); it read 'SPY'
+    expect(benchmarkTicker(undefined)).toBeNull();
   });
   test('row compares same-period return vs benchmark', () => {
     const [row] = buildPerformance(positions, priceOf, '1Y', now);
@@ -134,4 +137,13 @@ describe('performance — attribution + allocation', () => {
     expect(trend[0].bench).toBeCloseTo(trend[0].value, 0);
     expect(trend[trend.length - 1].bench).toBeGreaterThan(trend[0].bench);  // SPY rose over the window
   });
+});
+
+// NO "−1 contracts" (outside review Claude Performance, 2026-10-11, DEC-3523 tenet 3): the app has no words for a
+// short (written) position, so a quantity below zero — or one not on record — refuses rather than reading wrong.
+test('a quantity below zero, or not on record, has no words', () => {
+  const { quantityWithUnit } = require('./index');
+  expect(quantityWithUnit({ kind: 'options' }, -1)).toBeNull();
+  expect(quantityWithUnit({ kind: 'options' }, null)).toBeNull();
+  expect(quantityWithUnit({ kind: 'options' }, 2)).toBe('2 contracts');
 });

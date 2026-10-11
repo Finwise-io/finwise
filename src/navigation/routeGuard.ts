@@ -59,7 +59,9 @@ export function nextRoute({ user, onboardingComplete, onboardingPaused, segment 
       // FCC (B46): a brand-new user gets the LIGHT first-run (value intro → intents → stage →
       // routed fast-path). The deep questionnaire (/onboarding) stays legal — it's the
       // set-up-by-hand door Home offers; the guard must not bounce someone who chose it.
-      if (!inOnboarding && segment !== 'first-run') return '/first-run';
+      // (DEC-4350, 2026-10-11) Add an account is opened FROM the sign-up rent step ("Add the property first ›") and
+      // goes back to it; bouncing it to /first-run would strand the person mid-setup.
+      if (!inOnboarding && segment !== 'first-run' && segment !== 'add-account') return '/first-run';
     }
   } else {
     // Unauthenticated → AuthScreen first (the only place to sign up or log in).

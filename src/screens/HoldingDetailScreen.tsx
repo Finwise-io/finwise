@@ -166,11 +166,15 @@ export default function HoldingDetailScreen() {
 
   // r162: a bond FUND (ticker'd, bond benchmark) gets the general mechanism sentence — never a
   // live claim about what rates did this year
-  const isBondFund = benchmarkTicker(position.kind) === 'AGG';
+  // the holding itself is handed over, so a class the person set decides its yardstick (tenet 5; outside review Claude Performance, 2026-10-11)
+  const isBondFund = benchmarkTicker(position) === 'AGG';
+  // THE QUANTITY WITH ITS UNIT, or its refusal: a share count not on record (or below zero) has no words, and the
+  // figure's own refusal is printed — never "0 shares" (tenet 3; outside review Claude Performance, 2026-10-11)
+  const quantityWords = quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String);
 
   const headerA11y = closed
     ? `${name}, position closed, all shares sold`
-    : `${name}, worth ${figSpoken('MK-NW-M-030', Math.round(value))}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${figSpoken('MK-NW-M-059', Math.abs(Math.round(gain)))}${roi != null ? `, ${Math.abs(Math.round(roi * 100))} percent since purchase` : ''}` : ''}`;
+    : `${name}, worth ${figSpoken('MK-NW-M-030', value == null ? null : Math.round(value))}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${figSpoken('MK-NW-M-059', Math.abs(Math.round(gain)))}${roi != null ? `, ${Math.abs(Math.round(roi * 100))} percent since purchase` : ''}` : ''}`;
 
   const tickerTxns = ((store.transactions ?? []) as any[]).filter((t) => String(t.ticker ?? '').toUpperCase() === ticker.toUpperCase());
   const realized = answer.realised;
@@ -234,7 +238,7 @@ export default function HoldingDetailScreen() {
                 <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text>
                   <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{fig('MK-NW-M-059', Math.abs(gain))}{roi != null ? ` (${pct(roi)})` : ''}</Text></View>
               )}
-              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String))}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWords == null ? fig('MK-NW-M-031', null) : figWords('MK-NW-M-031', quantityWords)}</Text></View>
               <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
             </View>
             )}
@@ -245,7 +249,7 @@ export default function HoldingDetailScreen() {
             <Text style={s.big}>{fig('MK-NW-M-030', value)}</Text>
             <Text style={s.metaLine}>⏱ live pricing arrives with the price provider</Text>
             <View style={s.tblTop}>
-              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWithUnit(position, shares, position.kind === 'crypto' ? coinQuantity : String))}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWords == null ? fig('MK-NW-M-031', null) : figWords('MK-NW-M-031', quantityWords)}</Text></View>
               <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
             </View>
             <Text style={s.note}>No market compare, dividends or tax estimate without a live price — sections appear when pricing does. Nothing invented.</Text>
@@ -310,8 +314,8 @@ export default function HoldingDetailScreen() {
       {cg && !closed && (
         <View style={s.card}>
           <SectionBand inCard inset={20} title="IF YOU SOLD TODAY" />
-          <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain >= 0 ? '+' : '−'}{fig('MK-NW-M-036', Math.abs(cg.longGain))}</Text></View>
-          {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (held 1 yr or less)</Text><Text style={s.tV}>{cg.shortGain >= 0 ? '+' : '−'}{fig('MK-NW-M-037', Math.abs(cg.shortGain))}</Text></View>}
+          <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain == null ? fig('MK-NW-M-036', null) : `${cg.longGain >= 0 ? '+' : '−'}${fig('MK-NW-M-036', Math.abs(cg.longGain))}`}</Text></View>
+          {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (held 1 yr or less)</Text><Text style={s.tV}>{cg.shortGain == null ? fig('MK-NW-M-037', null) : `${cg.shortGain >= 0 ? '+' : '−'}${fig('MK-NW-M-037', Math.abs(cg.shortGain))}`}</Text></View>}
         </View>
       )}
 

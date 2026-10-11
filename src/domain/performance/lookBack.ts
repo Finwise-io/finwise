@@ -3,7 +3,7 @@
 // have become moved, and the plain difference. Explicitly backward-looking — a fact about the past,
 // never a recommendation about tomorrow. null when either series lacks the window (honest absence,
 // never an invented price).
-import type { PriceSeries } from './index';
+import { monthsBefore, type PriceSeries } from './index';
 import { isoLocalDate } from '../_shared/dates';
 
 export interface LookBackLeg { endValue: number; delta: number; pct: number }
@@ -53,7 +53,9 @@ export function factorOverMonths(series: PriceSeries | null | undefined, months:
   // parts — never through UTC: converting local midnight to UTC moves the date back a day anywhere
   // east of Greenwich, and that shift made every look-back answer "nothing" on a device set to India
   // time (found 2026-09-08 when the probe suite ran on a machine in IST).
-  const cutoff = isoLocalDate(new Date(now.getFullYear(), now.getMonth() - months, now.getDate()));
+  // MONTHS BACK STOP AT THE MONTH'S LAST DAY — the one rule (DEC-3768b, monthsBefore): six months before
+  // 31 Aug is 28 Feb. `new Date(y, m − 6, 31)` rolled 31 Feb to 3 Mar (outside review Claude Performance, 2026-10-11).
+  const cutoff = isoLocalDate(monthsBefore(now, months));
   // the series must actually START at/before the window opening — a shorter history can't answer
   if (pts[0].date > cutoff) return null;
   let start = pts[0];

@@ -385,7 +385,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-123 holdingNameEvidence
  *
- * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 205 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -395,7 +395,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 186 more — the full list is on functions_from_code
+ *               … and 187 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -422,7 +422,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf
  *
- * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -432,7 +432,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 185 more — the full list is on functions_from_code
+ *               … and 186 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -509,7 +509,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *
- * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -519,7 +519,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 185 more — the full list is on functions_from_code
+ *               … and 186 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -574,7 +574,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-117 propertyUseMap · MK-NW-F-137 asksCashOrInvestments
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -584,7 +584,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 185 more — the full list is on functions_from_code
+ *               … and 186 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -2982,7 +2982,7 @@ const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
  *
  * Called by ... MK-NW-F-009 maturityClass · MK-NW-F-046 historyCoverage
  *
- * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -2992,7 +2992,7 @@ const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 185 more — the full list is on functions_from_code
+ *               … and 186 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

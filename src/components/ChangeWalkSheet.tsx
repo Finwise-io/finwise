@@ -40,7 +40,9 @@ export function ChangeWalkSheet({ visible, onClose, walk }: {
           {rows.map((r) => (
             <View key={r.label} style={[s.row, r.indent && s.indent]}>
               <Text style={[s.label, r.strong && s.strong, r.muted && s.muted]}>{r.label}</Text>
-              <Text style={[s.value, r.strong && s.strong, r.value < 0 && s.neg]}>{signedMoney(r.value)}</Text>
+              {/* Net worth v08 state E (and Performance v17's walk): an indented value is grey like its
+                  label (.wrow.ind .v), and a minus sign is the only mark a negative gets — never red. */}
+              <Text style={[s.value, r.strong && s.strong, r.muted && s.muted]}>{signedMoney(r.value)}</Text>
             </View>
           ))}
           <View style={[s.row, s.total]}>
@@ -67,7 +69,6 @@ const s = StyleSheet.create({
   muted: { color: Colors.textSecondary },
   value: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'], minWidth: 92, textAlign: 'right' },
   strong: { fontWeight: '800' },
-  neg: { color: Colors.red },
   total: { borderTopWidth: 1, borderTopColor: Colors.bgTertiary, marginTop: 4, paddingTop: 10 },
   note: { fontSize: 11, color: Colors.textTertiary, marginTop: 8, lineHeight: 16 },
   radii: { borderRadius: Radii.lg },

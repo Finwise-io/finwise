@@ -94,7 +94,7 @@ test('the gains card: long + short gains SUM to the header gain (estimated-tax l
   const row = buildPerformance([NVDA_POS as any], (t: string) => st.priceCache[t], '1Y')[0];
   const { capGains } = require('../../domain/performance');
   const cg = capGains(NVDA_POS, row.price);
-  expect(Math.round(cg.longGain + cg.shortGain)).toBe(Math.round(row.gain));   // the identity the card relies on
+  expect(Math.round(cg.longGain + cg.shortGain)).toBe(Math.round(row.gain!));   // the identity the card relies on
   expect(screen.getByText('Gain — long-term (held over 1 yr)')).toBeOnTheScreen();
   expect(screen.getByText('Gain — short-term (held 1 yr or less)')).toBeOnTheScreen();
   expect(screen.queryByText(/~ Tax at your own rate/)).toBeNull();   // the cut line stays gone
@@ -221,4 +221,17 @@ test('realized gains from sales show honestly, with the FIFO note', () => {
   expect(screen.getByText('Realized from sales')).toBeOnTheScreen();
   expect(screen.getByText(/\+\$2,000 all time/)).toBeOnTheScreen();       // 40 × (200 − 150), a total
   expect(screen.getByText(/oldest shares sold first/)).toBeOnTheScreen();
+});
+
+
+// UNKNOWN IS NOT ZERO on the page (outside review Claude Performance, 2026-10-11, DEC-3523 tenet 3): a purchase whose
+// share count is not on record shows the quantity's refusal, never "0 shares" or a count that leaves it out.
+test('a purchase with no share count: the quantity is refused, not printed as a number', () => {
+  const st = useStore.getState() as any;
+  useStore.setState({ assetAccounts: st.assetAccounts.map((a: any) => ({ ...a, positions: a.positions.map((p: any) => p.position_id === 'p1'
+    ? { ...p, lots: [...p.lots, { lot_id: 'l9', shares: null, cost_per_share: 500, purchase_date: '2025-01-02' }] } : p) })) } as any);
+  render(<HoldingDetailScreen />);
+  expect(screen.getByText('Quantity')).toBeOnTheScreen();
+  expect(screen.queryByText('360 shares')).toBeNull();
+  expect(screen.getByText(/Not stated where a purchase has no share count on record\./)).toBeOnTheScreen();
 });

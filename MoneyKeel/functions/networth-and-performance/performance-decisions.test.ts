@@ -267,17 +267,19 @@ describe('MK-PF-M-015 one line of the walk', () => {
 // ── MK-PF-M-008 · market +X% (on Home) ──────────────────────────────────────────────────────────
 describe('MK-PF-M-008 market +X%', () => {
   test('weighted by what each holding is worth — "the market, matched to my mix", not an average of indices', () => {
+    // weighed by what each holding was worth WHEN THE WINDOW BEGAN (outside review Claude Performance, 2026-10-11,
+    // DEC-1669, DEC-3035b) — each needs its own return to know that; with no move of its own it is worth now what it was
     const blend = portfolioBenchReturn([
-      { benchReturn: 0.10, marketValue: 40_000 },
-      { benchReturn: 0.04, marketValue: 10_000 },
+      { benchReturn: 0.10, marketValue: 40_000, periodReturn: 0 },
+      { benchReturn: 0.04, marketValue: 10_000, periodReturn: 0 },
     ] as any);
     expect(blend).toBeCloseTo(0.088, 6);        // 8.80%, not the 7.00% a plain average would give
     expect(blend).not.toBeCloseTo(0.07, 4);
   });
   test('the benchmark runs over the SAME DATES, so a holding with no usable benchmark is left out', () => {
     const blend = portfolioBenchReturn([
-      { benchReturn: 0.10, marketValue: 40_000 },
-      { benchReturn: null, marketValue: 60_000 },    // no benchmark over these dates
+      { benchReturn: 0.10, marketValue: 40_000, periodReturn: 0 },
+      { benchReturn: null, marketValue: 60_000, periodReturn: 0 },    // no benchmark over these dates
     ] as any);
     expect(blend).toBeCloseTo(0.10, 6);            // it is not diluted towards zero by the one it cannot price
   });

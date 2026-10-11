@@ -3,6 +3,7 @@
 // lots are consumed first by each sale; a sale with no recorded basis contributes nothing and is
 // counted separately (we never invent a cost). Works for manual ledgers and connected history.
 import type { Transaction } from '../transactions';
+import { contractMultiplier, type Position } from './index';
 
 export interface RealizedResult {
   realizedAllTime: number;      // Σ (proceeds − basis) over sells WITH known basis
@@ -32,6 +33,8 @@ export interface RealizedResult {
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
  *     · If shares is missing it uses 0.
@@ -43,9 +46,14 @@ export interface RealizedResult {
  */
 export function realizedFromLedger(
   txns: Transaction[],
-  opts: { ticker?: string; accountId?: string; now?: Date } = {},
+  opts: { ticker?: string; accountId?: string; now?: Date; holding?: Pick<Position, 'kind' | 'multiplier'> } = {},
 ): RealizedResult {
   const now = opts.now ?? new Date();
+  // × THE CONTRACT MULTIPLIER of the holding asked about (DEC-0274: "options: value = contracts × 100 × price"),
+  // as cost, value and the long/short split already apply it: two contracts bought at $3.20 and sold at $5.45
+  // made $450, they read $4.50 (outside review Claude Performance, 2026-10-11). The records carry a price per
+  // share and a count of contracts; the holding says how many shares a contract is.
+  const mult = opts.holding ? contractMultiplier(opts.holding) : 1;
   const yr = String(now.getFullYear());
   const rows = txns
     .filter((t) => (t.type === 'BUY' || t.type === 'OPENING_POSITION' || t.type === 'SELL'))
@@ -81,7 +89,7 @@ export function realizedFromLedger(
       if (lot.shares <= 1e-9) q.shift();
     }
     if (covered > 0) {
-      const gain = ((covered * t.price! - basis));
+      const gain = (covered * t.price! - basis) * mult;
       all += gain;
       if (t.date.startsWith(yr)) year += gain;
       counted++;

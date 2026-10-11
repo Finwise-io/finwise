@@ -52,7 +52,8 @@ test('a fully sold holding says it is closed rather than showing a $0 position',
   const h = theHolding({ position: position({ lots: [] }), accountId: 'a1', price: 250, transactions: [], now: NOW });
   expect(h.closed).toBe(true);
   expect(h.shares).toBe(0);
-  expect(h.avgPaidPerShare).toBe(0);
+  // no shares held, no average price — $0.00 read as "paid nothing" (outside review Claude Performance, 2026-10-11, DEC-3523 tenet 3)
+  expect(h.avgPaidPerShare).toBeNull();
 });
 
 test('the gain splits long and short by how long each lot was held', () => {
@@ -69,4 +70,27 @@ test('the realised figure carries the sales it could NOT price honestly', () => 
   const h = theHolding({ position: position(), accountId: 'a1', price: 250, transactions: [], now: NOW });
   expect(h.realised).toHaveProperty('realizedAllTime');
   expect(h.realised).toHaveProperty('sellsWithoutBasis');
+});
+
+// UNKNOWN IS NOT ZERO (outside review Claude Performance, 2026-10-11, DEC-3523 tenet 3). A purchase with no share
+// count, or shares with no price paid on record, made the totals look complete at $0; now each figure that needs
+// the missing one is unknown, and the rest stand.
+test('a purchase with no share count makes the shares, the total paid and the value unknown — never 0', () => {
+  const h = theHolding({ position: position({ lots: [{ shares: 100, cost_per_share: 200, purchase_date: iso(NOW.getTime() - 2 * YEAR) },
+    { shares: null, cost_per_share: 210, purchase_date: iso(NOW.getTime() - 30 * 864e5) }] }), accountId: 'a1', price: 250, transactions: [], now: NOW });
+  expect(h.shares).toBeNull();
+  expect(h.closed).toBe(false);
+  expect(h.totalPaid).toBeNull();
+  expect(h.avgPaidPerShare).toBeNull();
+  expect(h.value).toBeNull();
+  expect(h.gain).toBeNull();
+  expect(h.returnOnCost).toBeNull();
+});
+
+test('shares bought with no price paid on record: the part of the split they sit in, and the total, are unknown', () => {
+  const h = theHolding({ position: position({ lots: [{ shares: 100, cost_per_share: 200, purchase_date: iso(NOW.getTime() - 2 * YEAR) },
+    { shares: 50, cost_per_share: 0, purchase_date: iso(NOW.getTime() - 30 * 864e5) }] }), accountId: 'a1', price: 250, transactions: [], now: NOW });
+  expect(h.capitalGains!.longGain).toBe(5000);       // the lot with a price paid stands
+  expect(h.capitalGains!.shortGain).toBeNull();      // the lot without one is not a $0 gain
+  expect(h.capitalGains!.totalGain).toBeNull();
 });

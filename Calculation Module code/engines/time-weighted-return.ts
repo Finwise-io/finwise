@@ -45,6 +45,10 @@ export interface TimeWeightedInput {
   interest?: DatedAmount[];
   /** Days on which shares were moved in or out of a measured account. */
   sharesMoved?: string[];
+  /** Days on which a deposit, withdrawal or transfer on a measured account has no amount on record — the
+   *  money moved, how much is unknown, so the return refuses there (outside review Claude Performance,
+   *  2026-10-11, DEC-3523 tenet 3: unknown is not zero). */
+  amountMissing?: string[];
   /** The day whose close is the beginning, and the last day. */
   start: string;
   end: string;
@@ -52,7 +56,7 @@ export interface TimeWeightedInput {
 
 export type TimeWeightedRefusal =
   | 'START_NOT_RECORDED' | 'END_NOT_RECORDED' | 'MOVEMENT_HAS_NO_DATE' | 'MOVEMENT_DAY_NOT_RECORDED'
-  | 'SHARES_MOVED' | 'VALUE_BELOW_MONEY_ADDED' | 'NOTHING_INVESTED';
+  | 'SHARES_MOVED' | 'MOVEMENT_HAS_NO_AMOUNT' | 'VALUE_BELOW_MONEY_ADDED' | 'NOTHING_INVESTED';
 
 export interface TimeWeightedVerdict {
   /** The return as a share (0.1097 = 10.97%), at full precision — or null when it is refused. */
@@ -63,6 +67,9 @@ export interface TimeWeightedVerdict {
   /** The day the measured period really starts: the recorded day at or before the start, or the
    *  first day there was money when it started with none. Null when refused. */
   measuredFrom: string | null;
+  /** VALUE_BELOW_MONEY_ADDED only: true where the value that day was MORE than the money added — value
+   *  with nothing behind it — so the sentence can say which (outside review Claude Performance, 2026-10-11). */
+  valueAboveMoneyAdded?: boolean;
 }
 
 /** Whether a value is a calendar day written as year-month-day. */
@@ -91,7 +98,10 @@ export interface TimeWeightedVerdict {
  * Formula also on the master file · functions_from_code · MK-ST-F-080
  * Changed ..... not in git yet (—)
  */
-const isDay = (d: unknown): d is string => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
+const isDay = (d: unknown): d is string => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)
+  && !Number.isNaN(Date.parse(`${d}T00:00:00Z`)) && new Date(Date.parse(`${d}T00:00:00Z`)).toISOString().slice(0, 10) === d;
+// A REAL CALENDAR DAY, not only its shape: 2026-02-29 is written like a day and is not one (outside review
+// Claude Performance, 2026-10-11, DEC-3523 tenet 1) — the year, month and day must name a day the calendar has.
 /** Half a cent: two money figures closer than this are the same figure. */
 const SAME = 0.005;
 
@@ -180,6 +190,10 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
   for (const f of a.flows ?? []) if (ids.has(f.accountId) && !cash.has(f.accountId) && !isDay(f.date)) return refuse('MOVEMENT_HAS_NO_DATE');
   const moved = (a.sharesMoved ?? []).filter((d) => d > begin!.date && d <= a.end).sort()[0];
   if (moved) return refuse('SHARES_MOVED', moved);
+  // money moved and the record does not say how much: the piece cannot be measured (outside review Claude
+  // Performance, 2026-10-11, DEC-3523 tenet 3) — never read as a $0 movement
+  const noAmount = (a.amountMissing ?? []).filter((d) => d > begin!.date && d <= a.end).sort()[0];
+  if (noAmount) return refuse('MOVEMENT_HAS_NO_AMOUNT', noAmount);
 
   let prev = begin;
   let growth = 1;
@@ -210,8 +224,9 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
       growth *= Math.max(0, before) / prev.total;
       measuredFrom = measuredFrom ?? prev.date;
     } else if (Math.abs(before) > SAME) {
-      // value with nothing behind it and no money recorded as arriving: the record contradicts itself
-      return refuse('VALUE_BELOW_MONEY_ADDED', now.date);
+      // value with nothing behind it and no money recorded as arriving: the record contradicts itself.
+      // Which way it contradicts itself is said, so the sentence is true (outside review Claude Performance, 2026-10-11)
+      return { ...refuse('VALUE_BELOW_MONEY_ADDED', now.date), ...(before > 0 ? { valueAboveMoneyAdded: true } : {}) };
     }
     // a piece that starts with nothing measures nothing: the period starts at the first money in
     prev = now;
@@ -227,14 +242,19 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  * Answers ..... Which of a household's records are money moving in or out of the measured accounts, which are interest, and on which days shares were moved.
  *
  * Formula .....
- *     flows = [], interest: dated amount[] = [], shares moved: string[] = []
+ *     flows = [], interest: dated amount[] = [], shares moved: string[] = [], amount missing: string[] = []
  *     date = the first 10 of string(date ?? '')
  *     acc = string(account id)   if account id ≠ nothing
  *     ''   otherwise
  *     other = string(counter account id)   if counter account id ≠ nothing
  *     ''   otherwise
  *     amount = amount read as a number (or 0 when missing or zero)
- *     the answer = { flows, interest, shares moved }
+ *     no amount = amount = nothing (or amount = '' (or !number.is finite(number(amount)) when missing or zero) when missing or zero)
+ *     the answer:
+ *     flows = flows
+ *     interest = interest
+ *     shares moved = shares moved
+ *     ...(amount missing.length ? { amount missing } : {}) = ...(amount missing.length ? { amount missing } : {})
  *
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
@@ -247,23 +267,30 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-008 transaction amount
  *               MK-XS-I-024 logged expenses
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-082
  * Changed ..... not in git yet (—)
  */
-export function movementsOf(transactions: any[], ids: Set<string>): { flows: DatedAmount[]; interest: DatedAmount[]; sharesMoved: string[] } {
-  const flows: DatedAmount[] = [], interest: DatedAmount[] = [], sharesMoved: string[] = [];
+export function movementsOf(transactions: any[], ids: Set<string>): { flows: DatedAmount[]; interest: DatedAmount[]; sharesMoved: string[]; amountMissing?: string[] } {
+  const flows: DatedAmount[] = [], interest: DatedAmount[] = [], sharesMoved: string[] = [], amountMissing: string[] = [];
   for (const t of transactions ?? []) {
     const date = String(t?.date ?? '').slice(0, 10);
     const acc = t?.account_id != null ? String(t.account_id) : '';
     const other = t?.counter_account_id != null ? String(t.counter_account_id) : '';
     const amount = Number(t?.amount) || 0;
+    // A MOVEMENT WITH NO AMOUNT IS UNKNOWN, NOT $0 (outside review Claude Performance, 2026-10-11, DEC-3523
+    // tenet 3): as $0 the return counted the deposit as growth. Its day is named and the return refuses there.
+    const noAmount = t?.amount == null || t.amount === '' || !Number.isFinite(Number(t.amount));
     switch (t?.type) {
-      case 'DEPOSIT': if (ids.has(acc)) flows.push({ date, accountId: acc, amount }); break;
-      case 'WITHDRAWAL': if (ids.has(acc)) flows.push({ date, accountId: acc, amount: -amount }); break;
+      case 'DEPOSIT': if (ids.has(acc)) { if (noAmount) amountMissing.push(date); else flows.push({ date, accountId: acc, amount }); } break;
+      case 'WITHDRAWAL': if (ids.has(acc)) { if (noAmount) amountMissing.push(date); else flows.push({ date, accountId: acc, amount: -amount }); } break;
       // cash between accounts: it leaves the first and arrives in the second, the way the balances are kept
       case 'TRANSFER':
+        // with no amount, a transfer between two measured accounts still nets to nothing; one that crosses
+        // the edge of the measured accounts moved an unknown sum
+        if (noAmount) { if (ids.has(acc) !== ids.has(other)) amountMissing.push(date); break; }
         if (ids.has(acc)) flows.push({ date, accountId: acc, amount: -amount });
         if (ids.has(other)) flows.push({ date, accountId: other, amount });
         break;
@@ -289,5 +316,6 @@ export function movementsOf(transactions: any[], ids: Set<string>): { flows: Dat
       default: break;
     }
   }
-  return { flows, interest, sharesMoved };
+  // the days with no amount are named only when there are some, so a record with none reads as it always did
+  return { flows, interest, sharesMoved, ...(amountMissing.length ? { amountMissing } : {}) };
 }

@@ -29,7 +29,9 @@ describe('HOLDING_SHARES / COST_BASIS / AVG_COST', () => {
   test('no lots is zero, not an error and not a guess', () => {
     expect(totalShares(P())).toBe(0);
     expect(costBasis(P())).toBe(0);
-    expect(avgCost(P())).toBe(0);                 // avoids dividing by zero
+    // no shares held: no average price — $0.00 read as "paid nothing" (outside review Claude Performance,
+    // 2026-10-11, DEC-3523 tenet 3)
+    expect(avgCost(P())).toBeNull();
   });
 
   test('a lot with no cost still counts toward shares — you own them either way', () => {
@@ -41,8 +43,8 @@ describe('HOLDING_SHARES / COST_BASIS / AVG_COST', () => {
 
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 // HOLDING_MARKET_VALUE · HOLDING_UNREALISED_GAIN
-// DERIVATION RULE: NO PRICE MEANS ZERO, NOT A GUESS. An unpriced holding contributes nothing rather
-// than being valued at what it cost — the screen says the price is missing instead of inventing one.
+// DERIVATION RULE: NO PRICE MEANS UNKNOWN, NOT A GUESS (and, since 2026-10-11, not zero either — tenet 3). An
+// unpriced holding is never valued at what it cost — the screen says the price is missing instead of inventing one.
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 describe('HOLDING_MARKET_VALUE / UNREALISED_GAIN', () => {
   test('value is shares × price; gain is value − basis', () => {
@@ -51,10 +53,12 @@ describe('HOLDING_MARKET_VALUE / UNREALISED_GAIN', () => {
     expect(unrealizedGain(p, 150)).toBe(500);
   });
 
-  test('a missing price yields zero, and never falls back to cost', () => {
+  // UNKNOWN, NOT ZERO (outside review Claude Performance, 2026-10-11, DEC-3523 tenet 3): shares with no price are
+  // worth something unknown — it read $0 and "no gain". Still never a fallback to cost.
+  test('a missing price yields UNKNOWN, and never falls back to cost', () => {
     const p = P(lot(10, 100));
-    expect(marketValue(p, null)).toBe(0);
-    expect(unrealizedGain(p, null)).toBe(0);      // NOT −1000, and NOT 0-because-it-equals-cost
+    expect(marketValue(p, null)).toBeNull();
+    expect(unrealizedGain(p, null)).toBeNull();   // NOT −1000, NOT 0, and NOT 0-because-it-equals-cost
   });
 
   test('a loss is a real negative — it is never floored', () => {
@@ -65,8 +69,8 @@ describe('HOLDING_MARKET_VALUE / UNREALISED_GAIN', () => {
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 // HOLDING_CAP_GAINS · CAP_GAINS_TAX
 // DERIVATION RULE: long-term means held twelve WHOLE MONTHS or more, measured per lot from its own
-// purchase date — not per position. Lots with no cost basis are skipped rather than treated as free
-// shares, which would report the entire value as gain.
+// purchase date — not per position. A lot with no cost basis is never treated as free shares, which would
+// report the entire value as gain; since 2026-10-11 its part of the split is unknown rather than skipped.
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 describe('HOLDING_CAP_GAINS / CAP_GAINS_TAX', () => {
   const NOW = new Date('2026-08-17T12:00:00Z');
@@ -84,13 +88,18 @@ describe('HOLDING_CAP_GAINS / CAP_GAINS_TAX', () => {
     expect(capGains(P(lot(10, 100, '2025-09-17')), 150, NOW).shortGain).toBe(500);  // well inside a year
   });
 
-  test('a lot with no cost is SKIPPED, not treated as free shares', () => {
-    // treating it as free would report the whole $1,500 as gain and tax it
-    expect(capGains(P(lot(10, 0, '2020-01-15')), 150, NOW).totalGain).toBe(0);
+  // A LOT WITH NO COST IS NOT FREE SHARES, AND NOT A $0 GAIN EITHER (outside review Claude Performance, 2026-10-11,
+  // DEC-3523 tenets 3 and 4): skipping it made its shares vanish from the split, so the total disagreed with the
+  // gain above it. Its part is unknown, and the total with it.
+  test('a lot with no cost makes its part of the split UNKNOWN, not free shares and not $0', () => {
+    const g = capGains(P(lot(10, 0, '2020-01-15')), 150, NOW);
+    expect(g.longGain).toBeNull();
+    expect(g.totalGain).toBeNull();
+    expect(g.shortGain).toBe(0);                  // nothing short-term was held
   });
 
   test('no price means no gain figure at all', () => {
-    expect(capGains(P(lot(10, 100)), null, NOW)).toEqual({ longGain: 0, shortGain: 0, totalGain: 0 });
+    expect(capGains(P(lot(10, 100)), null, NOW)).toEqual({ longGain: null, shortGain: null, totalGain: null });
   });
 
   test('E7: the line is DAY-precise — 335 days is SHORT, whatever the calendar months say', () => {

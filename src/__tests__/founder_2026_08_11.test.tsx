@@ -398,7 +398,7 @@ test('the activity list is newest-first, so recent income is never pushed off th
   mockParams = { id: 'van' };
   const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
   render(<AccountPortfolioScreen />);
-  expect(screen.getByText('08-01')).toBeOnTheScreen();        // the 2026 dividend, newest, is visible
+  expect(screen.getByText(/^Aug 1(, 2026)? · you entered this$/)).toBeOnTheScreen();   // the 2026 dividend, newest, is visible (written as v17 frame 2 writes a day)
   // 2026-08-11: each row now also says WHOSE fact it is — the broker's or yours
   expect(screen.getByLabelText(/2026-08-01: Dividend, plus \$250\. You entered this — editable\./)).toBeOnTheScreen();
 });
@@ -774,8 +774,9 @@ test('a row you entered is marked yours and editable; a broker row says where it
   mockParams = { id: 'van' };
   const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
   render(<AccountPortfolioScreen />);
-  expect(screen.getByText('you entered this')).toBeOnTheScreen();
-  expect(screen.getByText('from Vanguard')).toBeOnTheScreen();
+  // the day leads the line, as Performance v17 frame 2 draws it: "Jul 22 · you entered this", "Aug 1 · from Vanguard"
+  expect(screen.getByText(/^Jul 22(, \d{4})? · you entered this$/)).toBeOnTheScreen();
+  expect(screen.getByText(/^Aug 1(, \d{4})? · from Vanguard$/)).toBeOnTheScreen();
   // only YOUR row offers the pencil — a broker row would be overwritten by the next sync
   const edits = screen.queryAllByLabelText(/Edit or delete your/);
   expect(edits).toHaveLength(1);

@@ -1,0 +1,1694 @@
+{
+ "batch": "performance 03",
+ "source": "MoneyKeel/documents/audit/outside-test-cases/returned/performance_03.claude.json",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts",
+ "run_on": "2026-10-11",
+ "cases": [
+  {
+   "id": "MK-PF-F-014",
+   "kind": "easy",
+   "title": "One holding held all year",
+   "status": "PASS",
+   "actual": [
+    {
+     "price": 275,
+     "mv": 2750,
+     "cost": 2000,
+     "gain": 750,
+     "roc": 0.375,
+     "pr": 0.10000000000000009,
+     "bt": "SPY",
+     "br": 0.050000000000000044,
+     "beat": 0.050000000000000044,
+     "capped": null
+    }
+   ],
+   "expected": [
+    {
+     "price": {
+      "exact": 275.0,
+      "shown": "$275.00"
+     },
+     "market_value": {
+      "exact": 2750.0,
+      "shown": "$2,750"
+     },
+     "cost": {
+      "exact": 2000.0,
+      "shown": "$2,000"
+     },
+     "gain": {
+      "exact": 750.0,
+      "shown": "$750"
+     },
+     "return_on_cost": {
+      "exact": 0.375,
+      "shown": "+37.50%"
+     },
+     "period_return": {
+      "exact": 0.1,
+      "shown": "+10.00%"
+     },
+     "yardstick": "SPY",
+     "yardstick_return": {
+      "exact": 0.05,
+      "shown": "+5.00%"
+     },
+     "beat_by": {
+      "exact": 0.05,
+      "shown": "+5.00%"
+     },
+     "capped_since": null
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › easy · One holding held all year"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "kind": "easy",
+   "title": "Bought once, inside the period",
+   "status": "PASS",
+   "actual": [
+    {
+     "price": 112,
+     "mv": 1120,
+     "cost": 1000,
+     "gain": 120,
+     "roc": 0.12,
+     "pr": 0.12,
+     "bt": "SPY",
+     "br": 0.032786885245901676,
+     "beat": 0.08721311475409832,
+     "capped": "2026-06-01"
+    }
+   ],
+   "expected": [
+    {
+     "price": {
+      "exact": 112.0,
+      "shown": "$112.00"
+     },
+     "market_value": {
+      "exact": 1120.0,
+      "shown": "$1,120"
+     },
+     "cost": {
+      "exact": 1000.0,
+      "shown": "$1,000"
+     },
+     "gain": {
+      "exact": 120.0,
+      "shown": "$120"
+     },
+     "return_on_cost": {
+      "exact": 0.12,
+      "shown": "+12.00%"
+     },
+     "period_return": {
+      "exact": 0.12,
+      "shown": "+12.00%"
+     },
+     "yardstick": "SPY",
+     "yardstick_return": {
+      "exact": 0.032787,
+      "shown": "+3.28%"
+     },
+     "beat_by": {
+      "exact": 0.087213,
+      "shown": "+8.72%"
+     },
+     "capped_since": "2026-06-01"
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › easy · Bought once, inside the period"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "kind": "complex",
+   "title": "Bought twice inside the period at different prices",
+   "status": "FINDING",
+   "actual": [
+    {
+     "price": 260,
+     "mv": 5200,
+     "cost": 4500,
+     "gain": 700,
+     "roc": 0.15555555555555556,
+     "pr": 0.15555555555555556,
+     "bt": "SPY",
+     "br": 0.10000000000000009,
+     "beat": 0.05555555555555547,
+     "capped": "2026-01-15"
+    }
+   ],
+   "expected": [
+    {
+     "price": {
+      "exact": 260.0,
+      "shown": "$260.00"
+     },
+     "market_value": {
+      "exact": 5200.0,
+      "shown": "$5,200"
+     },
+     "cost": {
+      "exact": 4500.0,
+      "shown": "$4,500"
+     },
+     "gain": {
+      "exact": 700.0,
+      "shown": "$700"
+     },
+     "return_on_cost": {
+      "exact": 0.155556,
+      "shown": "+15.56%"
+     },
+     "period_return": {
+      "exact": 0.3,
+      "shown": "+30.00%"
+     },
+     "yardstick": "SPY",
+     "yardstick_return": {
+      "exact": 0.1,
+      "shown": "+10.00%"
+     },
+     "beat_by": {
+      "exact": 0.2,
+      "shown": "+20.00%"
+     },
+     "capped_since": "2026-01-15"
+    }
+   ],
+   "difference": "period return 0.155556 (return on cost) and beat-by 0.055556 vs time-weighted 0.30 / 0.20 — DEC-1669",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Bought twice inside the period at different prices"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "kind": "complex",
+   "title": "Two years, a stock fund and a bond fund, both held throughout",
+   "status": "PASS",
+   "actual": [
+    {
+     "price": 314.6,
+     "mv": 9438,
+     "cost": 5400,
+     "gain": 4038,
+     "roc": 0.7477777777777778,
+     "pr": 0.10000000000000009,
+     "bt": "SPY",
+     "br": 0.04880884817015163,
+     "beat": 0.05119115182984846,
+     "capped": null
+    },
+    {
+     "price": 74.74,
+     "mv": 3736.9999999999995,
+     "cost": 4250,
+     "gain": -513.0000000000005,
+     "roc": -0.12070588235294129,
+     "pr": 0.00498756211208895,
+     "bt": "AGG",
+     "br": 0.010000000000000009,
+     "beat": -0.005012437887911059,
+     "capped": null
+    }
+   ],
+   "expected": [
+    {
+     "price": {
+      "exact": 314.6,
+      "shown": "$314.60"
+     },
+     "market_value": {
+      "exact": 9438.0,
+      "shown": "$9,438"
+     },
+     "cost": {
+      "exact": 5400.0,
+      "shown": "$5,400"
+     },
+     "gain": {
+      "exact": 4038.0,
+      "shown": "$4,038"
+     },
+     "return_on_cost": {
+      "exact": 0.747778,
+      "shown": "+74.78%"
+     },
+     "period_return": {
+      "exact": 0.1,
+      "shown": "+10.00%"
+     },
+     "yardstick": "SPY",
+     "yardstick_return": {
+      "exact": 0.048809,
+      "shown": "+4.88%"
+     },
+     "beat_by": {
+      "exact": 0.051191,
+      "shown": "+5.12%"
+     },
+     "capped_since": null
+    },
+    {
+     "price": {
+      "exact": 74.74,
+      "shown": "$74.74"
+     },
+     "market_value": {
+      "exact": 3737.0,
+      "shown": "$3,737"
+     },
+     "cost": {
+      "exact": 4250.0,
+      "shown": "$4,250"
+     },
+     "gain": {
+      "exact": -513.0,
+      "shown": "-$513"
+     },
+     "return_on_cost": {
+      "exact": -0.120706,
+      "shown": "−12.07%"
+     },
+     "period_return": {
+      "exact": 0.004988,
+      "shown": "+0.50%"
+     },
+     "yardstick": "AGG",
+     "yardstick_return": {
+      "exact": 0.01,
+      "shown": "+1.00%"
+     },
+     "beat_by": {
+      "exact": -0.005012,
+      "shown": "−0.50%"
+     },
+     "capped_since": null
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Two years, a stock fund and a bond fund, both held throughout"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "kind": "edge",
+   "title": "Bought on the period's first day",
+   "status": "FINDING",
+   "actual": [
+    {
+     "price": 68.75,
+     "mv": 2750,
+     "cost": 2500,
+     "gain": 250,
+     "roc": 0.1,
+     "pr": 0.10000000000000009,
+     "bt": "SPY",
+     "br": 0.050000000000000044,
+     "beat": 0.050000000000000044,
+     "capped": null
+    }
+   ],
+   "expected": [
+    {
+     "price": {
+      "exact": 68.75,
+      "shown": "$68.75"
+     },
+     "market_value": {
+      "exact": 2750.0,
+      "shown": "$2,750"
+     },
+     "cost": {
+      "exact": 2500.0,
+      "shown": "$2,500"
+     },
+     "gain": {
+      "exact": 250.0,
+      "shown": "$250"
+     },
+     "return_on_cost": {
+      "exact": 0.1,
+      "shown": "+10.00%"
+     },
+     "period_return": {
+      "exact": 0.1,
+      "shown": "+10.00%"
+     },
+     "yardstick": "SPY",
+     "yardstick_return": {
+      "exact": 0.05,
+      "shown": "+5.00%"
+     },
+     "beat_by": {
+      "exact": 0.05,
+      "shown": "+5.00%"
+     },
+     "capped_since": "2025-10-10"
+    }
+   ],
+   "difference": "capped_since null vs 2025-10-10: a purchase ON the first day is inside the window (DEC-0315); every figure agrees, only the label differs",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › edge · Bought on the period's first day"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "kind": "easy",
+   "title": "A stock fund",
+   "status": "PASS",
+   "actual": "SPY",
+   "expected": "SPY",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-013 benchmarkTicker — five cases › easy · A stock fund"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "kind": "easy",
+   "title": "Crypto",
+   "status": "PASS",
+   "actual": "BTC",
+   "expected": "BTC",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-013 benchmarkTicker — five cases › easy · Crypto"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "kind": "complex",
+   "title": "Every named kind",
+   "status": "PASS",
+   "actual": [
+    "AGG",
+    "AGG",
+    "PSP",
+    "QAI",
+    "GLD",
+    "AOR"
+   ],
+   "expected": [
+    "AGG",
+    "AGG",
+    "PSP",
+    "QAI",
+    "GLD",
+    "AOR"
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-013 benchmarkTicker — five cases › complex · Every named kind"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "kind": "complex",
+   "title": "A bond fund described by its class, not its kind",
+   "status": "FINDING",
+   "actual": "SPY",
+   "expected": "AGG",
+   "difference": "yardstick SPY vs AGG: reads kind only; a class the person sets leaves kind unchanged (tenet 5, DEC-3523; DEC-0309)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-013 benchmarkTicker — five cases › complex · A bond fund described by its class, not its kind"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "kind": "edge",
+   "title": "Nothing says what the holding is",
+   "status": "FINDING",
+   "actual": "SPY",
+   "expected": "REFUSES",
+   "difference": "SPY vs no yardstick: a default that looks like an answer (tenet 3, DEC-3523; DEC-2160)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-013 benchmarkTicker — five cases › edge · Nothing says what the holding is"
+  },
+  {
+   "id": "MK-PF-F-015",
+   "kind": "easy",
+   "title": "Three quarters in one fund",
+   "status": "PASS",
+   "actual": {
+    "ticker": "VTI",
+    "pct": 75,
+    "value": 75000
+   },
+   "expected": {
+    "ticker": "VTI",
+    "pct": {
+     "exact": 75.0,
+     "shown": "75%"
+    },
+    "value": {
+     "exact": 75000.0,
+     "shown": "$75,000"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › easy · Three quarters in one fund"
+  },
+  {
+   "id": "MK-PF-F-015",
+   "kind": "easy",
+   "title": "Only one holding",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › easy · Only one holding"
+  },
+  {
+   "id": "MK-PF-F-015",
+   "kind": "complex",
+   "title": "Five holdings from a broker link",
+   "status": "FINDING",
+   "actual": {
+    "ticker": "VTI",
+    "pct": 43,
+    "value": 41250
+   },
+   "expected": {
+    "ticker": "VTI",
+    "pct": {
+     "exact": 43.141042,
+     "shown": "43%"
+    },
+    "value": {
+     "exact": 41250.17,
+     "shown": "$41,250"
+    }
+   },
+   "difference": "value 41250 vs 41250.17: rounded inside the function (DEC-0300); pct 43 agrees as shown",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › complex · Five holdings from a broker link"
+  },
+  {
+   "id": "MK-PF-F-015",
+   "kind": "complex",
+   "title": "Spread out: no fact to report",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › complex · Spread out: no fact to report"
+  },
+  {
+   "id": "MK-PF-F-015",
+   "kind": "edge",
+   "title": "24.6% — just under the line before rounding",
+   "status": "FINDING",
+   "actual": {
+    "ticker": "VTI",
+    "pct": 25,
+    "value": 24600
+   },
+   "expected": "REFUSES",
+   "difference": "reported at 25% vs refused: the 25% line is tested after rounding 24.6 → 25 (DEC-0300)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › edge · 24.6% — just under the line before rounding"
+  },
+  {
+   "id": "MK-PF-F-016",
+   "kind": "easy",
+   "title": "Two holdings, one up twenty percent",
+   "status": "FINDING",
+   "actual": [
+    {
+     "t": "VTI",
+     "w": 0.5454545454545454,
+     "c": 0.10909090909090909
+    },
+    {
+     "t": "BND",
+     "w": 0.45454545454545453,
+     "c": 0
+    }
+   ],
+   "expected": [
+    {
+     "ticker": "VTI",
+     "weight": {
+      "exact": 0.5,
+      "shown": "50.0%"
+     },
+     "contribution": {
+      "exact": 0.1,
+      "shown": "+10.0 pts"
+     }
+    },
+    {
+     "ticker": "BND",
+     "weight": {
+      "exact": 0.5,
+      "shown": "50.0%"
+     },
+     "contribution": {
+      "exact": 0.0,
+      "shown": "+0.0 pts"
+     }
+    }
+   ],
+   "difference": "today-value weights 0.545455/0.454545 vs start-value 0.5/0.5 (DEC-1669, DEC-3035b)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › easy · Two holdings, one up twenty percent"
+  },
+  {
+   "id": "MK-PF-F-016",
+   "kind": "easy",
+   "title": "One holding: its contribution is its return",
+   "status": "PASS",
+   "actual": [
+    {
+     "t": "VTI",
+     "w": 1,
+     "c": 0.05
+    }
+   ],
+   "expected": [
+    {
+     "ticker": "VTI",
+     "weight": {
+      "exact": 1.0,
+      "shown": "100.0%"
+     },
+     "contribution": {
+      "exact": 0.05,
+      "shown": "+5.0 pts"
+     }
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › easy · One holding: its contribution is its return"
+  },
+  {
+   "id": "MK-PF-F-016",
+   "kind": "complex",
+   "title": "A holding with no return sits in the total",
+   "status": "FINDING",
+   "actual": [
+    {
+     "t": "VTI",
+     "w": 0.484,
+     "c": 0.0484
+    },
+    {
+     "t": "QQQ",
+     "w": 0.336,
+     "c": -0.05376
+    }
+   ],
+   "expected": [
+    {
+     "ticker": "VTI",
+     "weight": {
+      "exact": 0.52381,
+      "shown": "52.38%"
+     },
+     "contribution": {
+      "exact": 0.052381,
+      "shown": "+5.24 pts"
+     }
+    },
+    {
+     "ticker": "QQQ",
+     "weight": {
+      "exact": 0.47619,
+      "shown": "47.62%"
+     },
+     "contribution": {
+      "exact": -0.07619,
+      "shown": "-7.62 pts"
+     }
+    }
+   ],
+   "difference": "today-value weights over all 25,000 incl. the REIT vs start weights over the two with a return (DEC-1669, DEC-3035b)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › complex · A holding with no return sits in the total"
+  },
+  {
+   "id": "MK-PF-F-016",
+   "kind": "complex",
+   "title": "Four holdings, sorted largest first",
+   "status": "FINDING",
+   "actual": [
+    {
+     "t": "VTI",
+     "w": 0.48427671009923173,
+     "c": 0.05449226825049585
+    },
+    {
+     "t": "SCHD",
+     "w": 0.15285457465275093,
+     "c": 0.003561511589409097
+    },
+    {
+     "t": "BND",
+     "w": 0.2260329287122157,
+     "c": 0.002848014901773918
+    },
+    {
+     "t": "QQQ",
+     "w": 0.1368357865358017,
+     "c": -0.0056376344052750296
+    }
+   ],
+   "expected": [
+    {
+     "ticker": "VTI",
+     "weight": {
+      "exact": 0.457914,
+      "shown": "45.79%"
+     },
+     "contribution": {
+      "exact": 0.051526,
+      "shown": "+5.15 pts"
+     }
+    },
+    {
+     "ticker": "SCHD",
+     "weight": {
+      "exact": 0.157136,
+      "shown": "15.71%"
+     },
+     "contribution": {
+      "exact": 0.003661,
+      "shown": "+0.37 pts"
+     }
+    },
+    {
+     "ticker": "BND",
+     "weight": {
+      "exact": 0.234819,
+      "shown": "23.48%"
+     },
+     "contribution": {
+      "exact": 0.002959,
+      "shown": "+0.3 pts"
+     }
+    },
+    {
+     "ticker": "QQQ",
+     "weight": {
+      "exact": 0.150131,
+      "shown": "15.01%"
+     },
+     "contribution": {
+      "exact": -0.006185,
+      "shown": "-0.62 pts"
+     }
+    }
+   ],
+   "difference": "today-value weights vs start-value weights (DEC-1669, DEC-3035b)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › complex · Four holdings, sorted largest first"
+  },
+  {
+   "id": "MK-PF-F-016",
+   "kind": "edge",
+   "title": "Nothing held",
+   "status": "PASS",
+   "actual": [],
+   "expected": [],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › edge · Nothing held"
+  },
+  {
+   "id": "MK-PF-F-017",
+   "kind": "easy",
+   "title": "Sixty-forty",
+   "status": "PASS",
+   "actual": [
+    {
+     "key": "stocks_etf",
+     "value": 60000,
+     "pct": 60
+    },
+    {
+     "key": "fixed_income",
+     "value": 40000,
+     "pct": 40
+    }
+   ],
+   "expected": [
+    {
+     "key": "stocks",
+     "value": {
+      "exact": 60000.0,
+      "shown": "$60,000"
+     },
+     "pct": {
+      "exact": 60.0,
+      "shown": "60.0%"
+     }
+    },
+    {
+     "key": "fixed income",
+     "value": {
+      "exact": 40000.0,
+      "shown": "$40,000"
+     },
+     "pct": {
+      "exact": 40.0,
+      "shown": "40.0%"
+     }
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › easy · Sixty-forty"
+  },
+  {
+   "id": "MK-PF-F-017",
+   "kind": "easy",
+   "title": "Cash only",
+   "status": "PASS",
+   "actual": [
+    {
+     "key": "cash",
+     "value": 10000,
+     "pct": 100
+    }
+   ],
+   "expected": [
+    {
+     "key": "cash",
+     "value": {
+      "exact": 10000.0,
+      "shown": "$10,000"
+     },
+     "pct": {
+      "exact": 100.0,
+      "shown": "100.0%"
+     }
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › easy · Cash only"
+  },
+  {
+   "id": "MK-PF-F-017",
+   "kind": "complex",
+   "title": "Linked and hand-entered holdings with cash in the account",
+   "status": "FINDING",
+   "actual": [
+    {
+     "key": "stocks_etf",
+     "value": 60214.73,
+     "pct": 66.8
+    },
+    {
+     "key": "fixed_income",
+     "value": 21377.9,
+     "pct": 23.7
+    },
+    {
+     "key": "cash",
+     "value": 5412.37,
+     "pct": 6
+    },
+    {
+     "key": "other_asset",
+     "value": 3150,
+     "pct": 3.5
+    }
+   ],
+   "expected": [
+    {
+     "key": "stocks",
+     "value": {
+      "exact": 60214.73,
+      "shown": "$60,215"
+     },
+     "pct": {
+      "exact": 66.790228,
+      "shown": "66.8%"
+     }
+    },
+    {
+     "key": "fixed income",
+     "value": {
+      "exact": 21377.9,
+      "shown": "$21,378"
+     },
+     "pct": {
+      "exact": 23.712384,
+      "shown": "23.7%"
+     }
+    },
+    {
+     "key": "cash",
+     "value": {
+      "exact": 5412.37,
+      "shown": "$5,412"
+     },
+     "pct": {
+      "exact": 6.003405,
+      "shown": "6.0%"
+     }
+    },
+    {
+     "key": "other",
+     "value": {
+      "exact": 3150.0,
+      "shown": "$3,150"
+     },
+     "pct": {
+      "exact": 3.493983,
+      "shown": "3.5%"
+     }
+    }
+   ],
+   "difference": "pct rounded to one decimal inside (66.8 vs 66.790228) — DEC-0300; values and order agree",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › complex · Linked and hand-entered holdings with cash in the account"
+  },
+  {
+   "id": "MK-PF-F-017",
+   "kind": "complex",
+   "title": "Three equal slices",
+   "status": "FINDING",
+   "actual": [
+    {
+     "key": "stocks_etf",
+     "value": 10000,
+     "pct": 33.3
+    },
+    {
+     "key": "fixed_income",
+     "value": 10000,
+     "pct": 33.3
+    },
+    {
+     "key": "cash",
+     "value": 10000,
+     "pct": 33.3
+    }
+   ],
+   "expected": [
+    {
+     "key": "stocks",
+     "value": {
+      "exact": 10000.0,
+      "shown": "$10,000"
+     },
+     "pct": {
+      "exact": 33.333333,
+      "shown": "33.4%"
+     }
+    },
+    {
+     "key": "fixed income",
+     "value": {
+      "exact": 10000.0,
+      "shown": "$10,000"
+     },
+     "pct": {
+      "exact": 33.333333,
+      "shown": "33.3%"
+     }
+    },
+    {
+     "key": "cash",
+     "value": {
+      "exact": 10000.0,
+      "shown": "$10,000"
+     },
+     "pct": {
+      "exact": 33.333333,
+      "shown": "33.3%"
+     }
+    }
+   ],
+   "difference": "pct 33.3 each vs 33.333333 — DEC-0300; the auditor's shown 33.4 (largest remainder) is an unsettled display rule",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › complex · Three equal slices"
+  },
+  {
+   "id": "MK-PF-F-017",
+   "kind": "edge",
+   "title": "Nothing held and no cash",
+   "status": "PASS",
+   "actual": [],
+   "expected": [],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › edge · Nothing held and no cash"
+  },
+  {
+   "id": "MK-PF-F-018",
+   "kind": "easy",
+   "title": "One fund held all year",
+   "status": "PASS",
+   "actual": {
+    "n": 13,
+    "first": {
+     "date": "2025-10-10",
+     "value": 1000,
+     "bench": 1000
+    },
+    "last": {
+     "date": "2026-10-10",
+     "value": 1200,
+     "bench": 1100
+    }
+   },
+   "expected": {
+    "points": 13,
+    "first": {
+     "date": "2025-10-10",
+     "value": {
+      "exact": 1000.0,
+      "shown": "$1,000"
+     },
+     "bench": {
+      "exact": 1000.0,
+      "shown": "$1,000"
+     }
+    },
+    "last": {
+     "date": "2026-10-10",
+     "value": {
+      "exact": 1200.0,
+      "shown": "$1,200"
+     },
+     "bench": {
+      "exact": 1100.0,
+      "shown": "$1,100"
+     }
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › easy · One fund held all year"
+  },
+  {
+   "id": "MK-PF-F-018",
+   "kind": "easy",
+   "title": "No holdings",
+   "status": "PASS",
+   "actual": [],
+   "expected": [],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › easy · No holdings"
+  },
+  {
+   "id": "MK-PF-F-018",
+   "kind": "complex",
+   "title": "A second fund bought in June",
+   "status": "UNCLEAR",
+   "actual": {
+    "n": 13,
+    "first": {
+     "date": "2025-10-10",
+     "value": 8000,
+     "bench": 8000
+    },
+    "last": {
+     "date": "2026-10-10",
+     "value": 10000,
+     "bench": 8800
+    }
+   },
+   "expected": {
+    "first_value": {
+     "exact": 1000.0,
+     "shown": "$1,000"
+    },
+    "last_value": {
+     "exact": 10000.0,
+     "shown": "$10,000"
+    }
+   },
+   "difference": "first value 8,000 (today's 20 QQQ priced at the start) vs 1,000; open question: should the trend show shares actually held on each date? No decision; no screen calls portfolioTrend",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › complex · A second fund bought in June"
+  },
+  {
+   "id": "MK-PF-F-018",
+   "kind": "complex",
+   "title": "Two funds with broker-style fractional shares",
+   "status": "PASS",
+   "actual": {
+    "n": 13,
+    "first": {
+     "date": "2025-10-10",
+     "value": 14127.237120000002,
+     "bench": 14127.237120000002
+    },
+    "last": {
+     "date": "2026-10-10",
+     "value": 14963.714339999999,
+     "bench": 15515.47559959664
+    }
+   },
+   "expected": {
+    "points": 13,
+    "first": {
+     "value": {
+      "exact": 14127.2371,
+      "shown": "$14,127"
+     },
+     "bench": {
+      "exact": 14127.2371,
+      "shown": "$14,127"
+     }
+    },
+    "last": {
+     "value": {
+      "exact": 14963.7143,
+      "shown": "$14,964"
+     },
+     "bench": {
+      "exact": 15515.4756,
+      "shown": "$15,515"
+     }
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › complex · Two funds with broker-style fractional shares"
+  },
+  {
+   "id": "MK-PF-F-018",
+   "kind": "edge",
+   "title": "Holdings but no prices at all",
+   "status": "FINDING",
+   "actual": {
+    "n": 13,
+    "first": {
+     "date": "2026-07-10",
+     "value": 0,
+     "bench": 0
+    },
+    "last": {
+     "date": "2026-10-10",
+     "value": 0,
+     "bench": 0
+    }
+   },
+   "expected": "REFUSES",
+   "difference": "13 points of $0 vs refuse: a holding with no price counts as zero (tenet 3, DEC-3523)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › edge · Holdings but no prices at all"
+  },
+  {
+   "id": "MK-PF-F-019",
+   "kind": "easy",
+   "title": "One fund doubled, one flat",
+   "status": "FINDING",
+   "actual": 0.6666666666666666,
+   "expected": {
+    "exact": 0.5,
+    "shown": "+50.00%"
+   },
+   "difference": "0.666667 (today-weighted) vs 0.50 (start-weighted) — DEC-1669, DEC-3035b",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › easy · One fund doubled, one flat"
+  },
+  {
+   "id": "MK-PF-F-019",
+   "kind": "easy",
+   "title": "One holding",
+   "status": "PASS",
+   "actual": 0.05,
+   "expected": {
+    "exact": 0.05,
+    "shown": "+5.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › easy · One holding"
+  },
+  {
+   "id": "MK-PF-F-019",
+   "kind": "complex",
+   "title": "A holding with no return is left out",
+   "status": "FINDING",
+   "actual": -0.006536585365853658,
+   "expected": {
+    "exact": -0.02381,
+    "shown": "−2.38%"
+   },
+   "difference": "-0.006537 vs -0.02381 — DEC-1669, DEC-3035b",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › complex · A holding with no return is left out"
+  },
+  {
+   "id": "MK-PF-F-019",
+   "kind": "complex",
+   "title": "Four holdings, three months",
+   "status": "FINDING",
+   "actual": 0.05526416033640384,
+   "expected": {
+    "exact": 0.05196,
+    "shown": "+5.20%"
+   },
+   "difference": "0.055264 vs 0.05196 — DEC-1669, DEC-3035b; disagrees with MK-NW-F-084 on the same holdings",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › complex · Four holdings, three months"
+  },
+  {
+   "id": "MK-PF-F-019",
+   "kind": "edge",
+   "title": "No holding has a return",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › edge · No holding has a return"
+  },
+  {
+   "id": "MK-PF-F-020",
+   "kind": "easy",
+   "title": "A holding that doubled does not double its yardstick",
+   "status": "FINDING",
+   "actual": 0.07333333333333333,
+   "expected": {
+    "exact": 0.06,
+    "shown": "+6.00%"
+   },
+   "difference": "0.073333 vs 0.06 — today-weighted market figure (DEC-1669, DEC-3035b); shown on /home",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › easy · A holding that doubled does not double its yardstick"
+  },
+  {
+   "id": "MK-PF-F-020",
+   "kind": "easy",
+   "title": "One holding",
+   "status": "PASS",
+   "actual": 0.03,
+   "expected": {
+    "exact": 0.03,
+    "shown": "+3.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › easy · One holding"
+  },
+  {
+   "id": "MK-PF-F-020",
+   "kind": "complex",
+   "title": "Four holdings, two yardsticks",
+   "status": "FINDING",
+   "actual": 0.0649708357184629,
+   "expected": {
+    "exact": 0.06434,
+    "shown": "+6.43%"
+   },
+   "difference": "0.064971 vs 0.06434 — DEC-1669, DEC-3035b",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › complex · Four holdings, two yardsticks"
+  },
+  {
+   "id": "MK-PF-F-020",
+   "kind": "complex",
+   "title": "A holding with a yardstick but no return of its own",
+   "status": "FINDING",
+   "actual": 0.041867469879518074,
+   "expected": {
+    "exact": 0.05,
+    "shown": "+5.00%"
+   },
+   "difference": "0.041867 vs 0.05 — FNEW (no own return) is in the market average but not the person's; start weighting drops it from both",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › complex · A holding with a yardstick but no return of its own"
+  },
+  {
+   "id": "MK-PF-F-020",
+   "kind": "edge",
+   "title": "No holding has a yardstick return",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › edge · No holding has a yardstick return"
+  },
+  {
+   "id": "MK-PF-F-021",
+   "kind": "easy",
+   "title": "Up five percent, nothing moved",
+   "status": "PASS",
+   "actual": 5000,
+   "expected": {
+    "exact": 5000.0,
+    "shown": "$5,000"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › easy · Up five percent, nothing moved"
+  },
+  {
+   "id": "MK-PF-F-021",
+   "kind": "easy",
+   "title": "Down ten percent",
+   "status": "PASS",
+   "actual": -10000,
+   "expected": {
+    "exact": -10000.0,
+    "shown": "-$10,000"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › easy · Down ten percent"
+  },
+  {
+   "id": "MK-PF-F-021",
+   "kind": "complex",
+   "title": "A large deposit nine days before the end",
+   "status": "FINDING",
+   "actual": 4000,
+   "expected": {
+    "exact": 3010.0,
+    "shown": "$3,010"
+   },
+   "difference": "4,000 vs 3,010 — the return is charged to money deposited 9 days before the end (DEC-1669: money added is never earned)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › complex · A large deposit nine days before the end"
+  },
+  {
+   "id": "MK-PF-F-021",
+   "kind": "complex",
+   "title": "A large account, small return, nothing moved",
+   "status": "FINDING",
+   "actual": 6840,
+   "expected": {
+    "exact": 6840.4824,
+    "shown": "$6,840"
+   },
+   "difference": "6,840 vs 6,840.4824 — rounded inside the function (DEC-0300); the screen shows $6,840 either way",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › complex · A large account, small return, nothing moved"
+  },
+  {
+   "id": "MK-PF-F-021",
+   "kind": "edge",
+   "title": "The return is not a number",
+   "status": "FINDING",
+   "actual": 0,
+   "expected": "REFUSES",
+   "difference": "0 vs refuse — tenet 3 (DEC-3523): unknown is not zero",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › edge · The return is not a number"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "easy",
+   "title": "One dividend from a stock fund",
+   "status": "PASS",
+   "actual": [
+    {
+     "key": "stocks_etf",
+     "label": "Stocks / Funds",
+     "earned": 120,
+     "ret": 0.050000000000000044,
+     "yearly": false
+    }
+   ],
+   "expected": [
+    {
+     "category": "Stocks / Funds",
+     "earned": {
+      "exact": 120.0,
+      "shown": "$120"
+     },
+     "return": {
+      "exact": 0.05,
+      "shown": "+5.00%"
+     },
+     "yearly": false
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-NW-F-084 categoryEarnings — five cases › easy · One dividend from a stock fund"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "easy",
+   "title": "Sweep interest with no ticker",
+   "status": "PASS",
+   "actual": [
+    {
+     "key": "cash",
+     "label": "Cash in this account",
+     "earned": 35,
+     "ret": null,
+     "yearly": false
+    }
+   ],
+   "expected": [
+    {
+     "category": "Cash in this account",
+     "earned": {
+      "exact": 35.0,
+      "shown": "$35"
+     },
+     "return": "REFUSES",
+     "yearly": false
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-NW-F-084 categoryEarnings — five cases › easy · Sweep interest with no ticker"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "complex",
+   "title": "A quarter of dividends and interest, as a broker sends them",
+   "status": "PASS",
+   "actual": [
+    {
+     "key": "stocks_etf",
+     "label": "Stocks / Funds",
+     "earned": 349.55,
+     "ret": 0.0640393827785588,
+     "yearly": false
+    },
+    {
+     "key": "bonds",
+     "label": "Bonds & CDs",
+     "earned": 183.2,
+     "ret": 0.012599999999999945,
+     "yearly": false
+    },
+    {
+     "key": "cash",
+     "label": "Cash in this account",
+     "earned": 14.73,
+     "ret": null,
+     "yearly": false
+    }
+   ],
+   "expected": [
+    {
+     "category": "Stocks / Funds",
+     "earned": {
+      "exact": 349.55,
+      "shown": "$350"
+     },
+     "return": {
+      "exact": 0.064039,
+      "shown": "+6.40%"
+     },
+     "yearly": false
+    },
+    {
+     "category": "Bonds & CDs",
+     "earned": {
+      "exact": 183.2,
+      "shown": "$183"
+     },
+     "return": {
+      "exact": 0.0126,
+      "shown": "+1.26%"
+     },
+     "yearly": false
+    },
+    {
+     "category": "Cash in this account",
+     "earned": {
+      "exact": 14.73,
+      "shown": "$15"
+     },
+     "return": "REFUSES",
+     "yearly": false
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · A quarter of dividends and interest, as a broker sends them"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "complex",
+   "title": "Interest from two CDs held as accounts",
+   "status": "FINDING",
+   "actual": [
+    {
+     "key": "cash",
+     "label": "Cash in this account",
+     "earned": 412,
+     "ret": null,
+     "yearly": false
+    }
+   ],
+   "expected": [
+    {
+     "category": "Bonds & CDs",
+     "earned": {
+      "exact": 412.0,
+      "shown": "$412"
+     },
+     "return": {
+      "exact": 0.040062,
+      "shown": "+4.01%"
+     },
+     "yearly": true
+    }
+   ],
+   "difference": "Cash in this account $412 (no return) vs Bonds & CDs $412 at 4.00625%/year — CD interest with no ticker filed as cash (DEC-0051, DEC-0094)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Interest from two CDs held as accounts"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "kind": "edge",
+   "title": "Day one: nothing yet",
+   "status": "PASS",
+   "actual": [
+    {
+     "key": "stocks_etf",
+     "label": "Stocks / Funds",
+     "earned": 0,
+     "ret": null,
+     "yearly": false
+    },
+    {
+     "key": "bonds",
+     "label": "Bonds & CDs",
+     "earned": 0,
+     "ret": null,
+     "yearly": false
+    },
+    {
+     "key": "cash",
+     "label": "Cash in this account",
+     "earned": 0,
+     "ret": null,
+     "yearly": false
+    }
+   ],
+   "expected": [
+    {
+     "category": "Stocks / Funds",
+     "earned": {
+      "exact": 0.0,
+      "shown": "$0"
+     },
+     "return": "REFUSES",
+     "yearly": false
+    },
+    {
+     "category": "Bonds & CDs",
+     "earned": {
+      "exact": 0.0,
+      "shown": "$0"
+     },
+     "return": "REFUSES",
+     "yearly": false
+    },
+    {
+     "category": "Cash in this account",
+     "earned": {
+      "exact": 0.0,
+      "shown": "$0"
+     },
+     "return": "REFUSES",
+     "yearly": false
+    }
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-NW-F-084 categoryEarnings — five cases › edge · Day one: nothing yet"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-PF-F-014",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:829-834 — capped when bought > period start (string compare, so a first-day purchase is not capped); a capped row's period return is totalROI = (value − cost) ÷ cost; uncapped rows use periodReturn, which turns 2Y into a yearly rate (:640-643) while capped rows stay totals.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-1669",
+    "DEC-0315",
+    "DEC-0237"
+   ],
+   "plain_example": "VTI: 10 shares at $200 on 15 Jan, 10 at $250 on 15 Jun, $260 now, SPY +10% since 15 Jan. Before: +15.56%, beat SPY by 5.56. Should be: +30.00% time-weighted, beat by 20.00. A purchase on the first day: capped_since blank → should read the first day (label only today)."
+  },
+  {
+   "id": "MK-PF-F-013",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:761 — BENCHMARK_TICKER[kind] or SPY; buildPerformance passes p.kind only (:831). The sync writes kind in step with class (src/services/sync/ingest.ts:203-204), but updatePosition (src/store/useStore.ts:808-812) changes the class the person sets and leaves kind as it was.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-3523 (tenets 3 and 5)",
+    "DEC-2160",
+    "DEC-0309"
+   ],
+   "plain_example": "A synced fund the person re-files as a bond keeps kind stocks_etf: before, compared with SPY; should be AGG. A holding nothing describes: before, SPY; should be no yardstick and no beat-by."
+  },
+  {
+   "id": "MK-PF-F-015",
+   "judge_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:879-880 — pct = Math.round(share × 100), then the 25% test on the rounded pct; value = Math.round(marketValue). Tie: the first row with the largest value wins (reduce with >).",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-0300"
+   ],
+   "plain_example": "Five holdings, largest $24,600 of $100,000. Before: \"VTI is 25% of your investments\". Should be: no fact (24.6% is under 25%). Tie order is unsettled but harmless."
+  },
+  {
+   "id": "MK-PF-F-016",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:902-906 — weight = value now ÷ total value of ALL rows (those with no return included); contribution = weight × period return. No screen calls it.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-1669",
+    "DEC-3035b"
+   ],
+   "plain_example": "VTI $6,000 now (+20%), BND $5,000 (0%). Before: VTI contributes +10.91 points, more than the portfolio's +10%. Should be: +10.00 points (weights $5,000 / $5,000 at the start)."
+  },
+  {
+   "id": "MK-PF-F-017",
+   "judge_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:939-943 — groups by position.kind (no kind → other_asset), cash above 0 added, each pct rounded to one decimal inside the function. No screen calls it.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-0300",
+    "DEC-3523 (tenet 5)"
+   ],
+   "plain_example": "Three equal $10,000 slices. Before: 33.3% each (sums to 99.9). Should be: 33.333…% each at full precision, rounded once on screen; whether the screen forces the shown three to 100.0 is a display rule no decision states. Grouping by kind has the same class-vs-kind gap as MK-PF-F-013."
+  },
+  {
+   "id": "MK-PF-F-018",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:996-1002 — every date values TODAY's shares × the close on or before it; no price counts as 0; the yardstick line falls back to the value line. No screen calls it.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-3523 (tenet 3)"
+   ],
+   "plain_example": "Two holdings with no prices: before, a flat $0 line of 13 points; should be no line. Separately (NEEDS RULING, case UNCLEAR): QQQ bought in June is drawn as held all year — $8,000 at the start where $1,000 was really held."
+  },
+  {
+   "id": "MK-PF-F-019",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:1030-1033 — Σ(return × value NOW) ÷ Σ value now. No screen calls it. MK-NW-F-084 (performance.ts:858-865) already weighs by the start value.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-1669",
+    "DEC-3035b",
+    "DEC-0248 (value-weighted — still met by start-value weights)"
+   ],
+   "plain_example": "A $2,000 now (+100%), B $1,000 (0%). Before: +66.67%. Should be: $2,000 → $3,000 = +50.00%, the figure MK-NW-F-084 gives for the same holdings."
+  },
+  {
+   "id": "MK-PF-F-020",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:1061-1064 — Σ(yardstick return × value NOW) ÷ Σ value now over rows with a yardstick return (own return not required). Shown on /home as the market figure (src/screens/HomeScreen.tsx:208) and in BENCH (performance.ts:1127).",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-1669",
+    "DEC-3035b",
+    "DEC-3523 (tenet 4)"
+   ],
+   "plain_example": "A $2,000 (+100%, its market +10%), B $1,000 (0%, market +2%). Before: \"market +7.33%\". Should be: +6.00%, weighed by the $1,000 and $1,000 held when the window began."
+  },
+  {
+   "id": "MK-PF-F-021",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:1091-1092 — 0 for a missing or ≤ −100% return; otherwise Math.round(total × r ÷ (1 + r)). No screen calls it.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-1669",
+    "DEC-3523 (tenet 3)",
+    "DEC-0300"
+   ],
+   "plain_example": "$100,000 on 9 Sep, $100,000 added 1 Oct, $203,010 today, +2.01% time-weighted. Before: \"up $4,000\". Should be: up $3,010 (203,010 − 100,000 − 100,000). No return: before $0; should be no figure."
+  },
+  {
+   "id": "MK-NW-F-084",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "MoneyKeel/functions/networth-and-performance/performance.ts:891 — interest naming no ticker → Cash in this account, whatever account it came from; :898 drops a category that earned 0, its stated bond rate with it. The Performance tab hands it every record in the store (src/screens/PerformanceScreen.tsx:431-436). Money-market point: a fund named or listed as money market is filed Stocks / Funds before asset_class is written (ingest.ts:192-204, DEC-0309), so class cash means cash — the auditor misread that part. Return: start = value ÷ (1 + periodReturn), but a 2Y row's periodReturn is a yearly rate (index.ts:640-643) — not run by a case.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-0051",
+    "DEC-0094",
+    "DEC-0237"
+   ],
+   "plain_example": "Ally CD $25,000 at 4.10% and Marcus CD $15,000 at 3.85% paid $412. Before: \"Cash in this account $412\", no Bonds & CDs row. Should be: \"Bonds & CDs $412, 4.01%/year\"."
+  }
+ ],
+ "coverage": "50 of 50 cases mapped and run against the app: 27 PASS, 22 FINDING, 0 BRIEF_WRONG, 1 UNCLEAR, 0 BLOCKED. 10 of 10 non-RIGHT formula checks classified. Judge arithmetic re-done by hand on every numeric case: 0 errors."
+}

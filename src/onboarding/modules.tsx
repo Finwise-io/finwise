@@ -6,6 +6,7 @@ import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './steps';
 import Mascot from './Mascot';
+import { useRouter } from 'expo-router';
 import { effectiveRateOnGrossFor, marginalBracketFor, filingStatusOf, stateRateOf, over65CountOf, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
 import { loanPayment } from '../domain/debt';
 import { currentAge as domainCurrentAge, ageToday } from '../domain/profile/calc';
@@ -381,6 +382,7 @@ import { employerMatchMonthly } from '../domain/income/onboarding';
 import { hasMonthlySalaryTable, salaryCalendarYear, salaryYearFromCells, salaryMonths } from '../domain/income/salary-months';
 import { FilingStatusQuestions } from '../screens/FilingStatusScreen';
 import { incomeFromAccounts } from '../domain/income/from-accounts';
+import { assetClassOf } from '../domain/assets';
 import BasePayScreen from '../screens/BasePayScreen';
 export { employerMatchMonthly };
 export function monthlyContributions(a: Record<string, any>): number {
@@ -2198,8 +2200,25 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   </>);
 }
 
+// WHICH PROPERTY IS IT? (DEC-4327, 2026-10-11, "1: yes"): the properties already held in Net worth when the rent
+// step is reached — the same list the Income screen picks from (IncomeManagerScreen, Rent).
+export function rentProperties(accounts: any[] | null | undefined): any[] {
+  return ((accounts ?? []) as any[]).filter((a) => assetClassOf(a) === 'real_estate');
+}
+/** (DEC-4327, 2026-10-11) With at least one property held, every rent entry with a figure typed must name one of them
+ *  before the rent step continues; with none held, the step continues as before (the question waits for the Income screen). */
+export function rentStepReady(answers: Record<string, any>, properties: any[]): boolean {
+  if (!properties.length) return true;
+  const ids = new Set(properties.map((a) => String(a.asset_id)));
+  return ((answers.rentals ?? []) as any[])
+    .filter((r) => num(r?.income) > 0 || num(r?.expenses) > 0)
+    .every((r) => ids.has(String(r?.property_id ?? '')));
+}
+
 // Rental properties — one editable card each, type toggle on top, summed into net income.
 export function RentalEditor({ ctx }: { ctx: StepCtx }) {
+  const properties = rentProperties((useStore() as any).assetAccounts);   // (DEC-4327, 2026-10-11)
+  const router = useRouter();   // the "Add the property first ›" door (DEC-4350, 2026-10-11)
   const stored = (ctx.answers.rentals ?? []) as any[];
   const list = stored.length ? stored : [{}];   // always show at least one to fill in
   const write = (next: any[]) => ctx.setAnswer('rentals', next);
@@ -2211,7 +2230,10 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
   const addProp = () => write([...list, {}]);
   const removeProp = (i: number) => write(list.filter((_, idx) => idx !== i));
   // WHAT WAS TYPED, NOT WHAT IS COUNTED (DEC-4059d, 2026-10-10): a rent entry counts only once it names its property
-  // in Net worth, which this step cannot ask — so the sum shown here is the typed one, and says it is not counted yet.
+  // in Net worth. With no property held yet this step cannot ask — so the sum shown here is the typed one, and says it
+  // is not counted yet. With one or more held, the step asks "Which property is it?" right here (DEC-4327, 2026-10-11).
+  const named = (r: any) => properties.some((a) => String(a.asset_id) === String(r?.property_id ?? ''));
+  const allNamed = list.filter((r) => num(r.income) > 0 || num(r.expenses) > 0).every(named);
   const netMonthly = list.reduce((t, r) => t + num(r.income) - num(r.expenses), 0);
   const count = list.filter((r) => num(r.income) > 0).length;
 
@@ -2244,11 +2266,43 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
         </View>
         {(r.type ?? 'long') === 'short' && <Text style={s.hint}>Short-term income varies by season — enter a typical month, or your annual total ÷ 12.</Text>}
         {num(r.income) > 0 && <Text style={s.note2}>Net <Text style={{ fontWeight: '700' }}>{money(num(r.income) - num(r.expenses))}/month{(r.type ?? 'long') === 'short' ? ' avg' : ''}</Text></Text>}
+        {/* WHICH PROPERTY IS IT? (DEC-4327, 2026-10-11, "1: yes") — the Income screen's question and pick, asked here
+            when a property is already held; picking saves property_id on the entry, so the rent counts at once. */}
+        {properties.length > 0 && (<>
+          <Text style={[s.label, { marginTop: Spacing.sm }, !named(r) && { color: Colors.amber }]}>Which property is it?</Text>
+          {!named(r) && <Text style={[s.hint, { color: Colors.amber }]}>Not counted as rent until you pick its property.</Text>}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+            {properties.map((a) => {
+              const on = String(r.property_id ?? '') === String(a.asset_id);
+              return (
+                <TouchableOpacity key={String(a.asset_id)} accessibilityRole="button" accessibilityState={{ selected: on }}
+                  accessibilityLabel={`Property ${i + 1} is ${a.label}`} onPress={() => setProp(i, 'property_id', String(a.asset_id))}
+                  style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 12, borderRadius: Radii.md, borderWidth: 1,
+                    borderColor: on ? Colors.primary : Colors.border, backgroundColor: on ? Colors.primaryLight : Colors.bgSecondary }}>
+                  <Text style={{ fontSize: 13, color: Colors.textPrimary }}>{on ? '✓ ' : ''}🏠 {a.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </>)}
       </Card>
     ))}
+    {/* ADD THE PROPERTY FIRST (DEC-4350, 2026-10-11, "A - approved."): sign-up takes no property, so with none held
+        the rent step could not ask which property the rent is from. This door opens Add an account on Real estate
+        (the same door the Income screen's rent entry uses). Add an account is pushed ON TOP of this step, so the step
+        stays mounted with the rent typed; saving or cancelling goes back here, and once saved "Which property is it?"
+        shows above. from=onboarding tells Add an account not to seed Net worth from a half-finished setup. */}
+    {properties.length === 0 && (
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add the property first"
+        onPress={() => router.push('/add-account?cls=property&from=onboarding' as any)}
+        style={{ minHeight: 44, justifyContent: 'center', marginTop: Spacing.sm }}>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.primary }}>Add the property first ›</Text>
+      </TouchableOpacity>
+    )}
     <TouchableOpacity style={s.addBtn} onPress={addProp}><Text style={s.addBtnT}>+ Add property</Text></TouchableOpacity>
     {count > 0 && <Callout text={`${money(netMonthly)}/month net rental income`}
-      sub={`About ${money(netMonthly * 12)}/year across ${plural(count, 'property')} after costs. The rent is counted once you pick its property on the Income screen.`} warn={netMonthly < 0} />}
+      sub={`About ${money(netMonthly * 12)}/year across ${plural(count, 'property')} after costs.${properties.length === 0 ? ' The rent is counted once you pick its property on the Income screen.'
+        : allNamed ? '' : ' The rent is counted once you pick its property above.'}`} warn={netMonthly < 0} />}
   </>);
 }
 

@@ -52,7 +52,8 @@ test('#3 · the hero change is DOLLARS+percent from ONE source — the approved 
   const { periodDollarDelta } = require('../../domain/performance');
   // wireframe: hero $843,700 · "up $11,200 this month" → the return that produced it gives back $11,200
   const ret = 11200 / (843700 - 11200);
-  expect(periodDollarDelta(843700, ret)).toBe(11200);
+  // unrounded since 2026-10-11 (DEC-0300: round once, at display — outside review Claude Performance)
+  expect(periodDollarDelta(843700, ret)).toBeCloseTo(11200, 6);
   expect(periodDollarDelta(843700, 0)).toBe(0);
   expect(periodDollarDelta(0, 0.05)).toBe(0);
 });

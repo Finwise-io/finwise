@@ -42,7 +42,7 @@ export interface EarnerWage {
  *
  * Called by ... MK-CF-F-173 earnerWages
  *
- * Reaches ..... 109 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -52,7 +52,7 @@ export interface EarnerWage {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 91 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -87,7 +87,7 @@ const hasWage = (w: any): boolean =>
  *               MK-CF-O-004 incomeSummary · MK-CF-O-016 incomeSources
  *               MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 108 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 109 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -97,7 +97,7 @@ const hasWage = (w: any): boolean =>
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 90 more — the full list is on functions_from_code
+ *               … and 91 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -183,7 +183,7 @@ export function sumOverEarners(op: OnboardingProfile | null, of: (w: EarnerWage)
  *
  * Called by ... MK-CF-F-060 salaryGrossByMonth · MK-CF-F-206 householdK401ByMonth
  *
- * Reaches ..... 98 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 99 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -193,7 +193,7 @@ export function sumOverEarners(op: OnboardingProfile | null, of: (w: EarnerWage)
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 80 more — the full list is on functions_from_code
+ *               … and 81 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -1,0 +1,916 @@
+{
+ "batch": "performance 04",
+ "source": "MoneyKeel/documents/audit/outside-test-cases/returned/performance_04.claude.json",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts",
+ "run_on": "2026-10-11",
+ "cases": [
+  {
+   "id": "MK-NW-O-007",
+   "kind": "easy",
+   "title": "Stayed up, moved would have been down",
+   "status": "PASS",
+   "actual": {
+    "stayed": {
+     "endValue": 5500,
+     "delta": 500,
+     "pct": 10.000000000000009
+    },
+    "moved": {
+     "endValue": 4750,
+     "delta": -250,
+     "pct": -5.000000000000004
+    },
+    "difference": -750,
+    "months": 3
+   },
+   "expected": {
+    "stayed_end": {
+     "exact": 5500.0,
+     "shown": "$5,500"
+    },
+    "stayed_change": {
+     "exact": 500.0,
+     "shown": "$500"
+    },
+    "stayed_percent": {
+     "exact": 10.0,
+     "shown": "+10.00%"
+    },
+    "moved_end": {
+     "exact": 4750.0,
+     "shown": "$4,750"
+    },
+    "moved_change": {
+     "exact": -250.0,
+     "shown": "-$250"
+    },
+    "moved_percent": {
+     "exact": -5.0,
+     "shown": "−5.00%"
+    },
+    "difference": {
+     "exact": -750.0,
+     "shown": "-$750"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-NW-O-007 theLookBack — five cases › easy · Stayed up, moved would have been down"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "kind": "easy",
+   "title": "No history for the fund it is in",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-NW-O-007 theLookBack — five cases › easy · No history for the fund it is in"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "kind": "complex",
+   "title": "Twelve months, the parts and the difference agree",
+   "status": "PASS",
+   "actual": {
+    "stayed": {
+     "endValue": 20063.936863776733,
+     "delta": 1813.936863776733,
+     "pct": 9.939380075488957
+    },
+    "moved": {
+     "endValue": 20342.47730220493,
+     "delta": 2092.4773022049303,
+     "pct": 11.465629053177695
+    },
+    "difference": 278.5404384281974,
+    "months": 12
+   },
+   "expected": {
+    "stayed_end": {
+     "exact": 20063.9369,
+     "shown": "$20,064"
+    },
+    "rows": [
+     {
+      "label": "Amount",
+      "exact": 18250.0
+     },
+     {
+      "label": "Stayed: change",
+      "exact": 1813.9369
+     }
+    ],
+    "moved_end": {
+     "exact": 20342.4773,
+     "shown": "$20,342"
+    },
+    "difference": {
+     "exact": 278.5404,
+     "shown": "$279"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-NW-O-007 theLookBack — five cases › complex · Twelve months, the parts and the difference agree"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "kind": "complex",
+   "title": "Six months back from 31 August lands on a short February",
+   "status": "FINDING",
+   "actual": {
+    "stayed": {
+     "endValue": 7118.336025848142,
+     "delta": -381.6639741518584,
+     "pct": -5.088852988691439
+    },
+    "moved": {
+     "endValue": 8050.000000000001,
+     "delta": 550.0000000000009,
+     "pct": 7.333333333333347
+    },
+    "difference": 931.6639741518593,
+    "months": 6
+   },
+   "expected": {
+    "stayed_end": {
+     "exact": 7199.7549,
+     "shown": "$7,200"
+    },
+    "stayed_change": {
+     "exact": -300.2451,
+     "shown": "-$300"
+    },
+    "moved_end": {
+     "exact": 8025.6798,
+     "shown": "$8,026"
+    },
+    "moved_change": {
+     "exact": 525.6798,
+     "shown": "$526"
+    },
+    "difference": {
+     "exact": 825.9249,
+     "shown": "$826"
+    }
+   },
+   "difference": "start closes of 2 March (61.90 / 33.00) vs 27 February: 31 Aug less 6 months rolls to 3 March (DEC-3768b)",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-NW-O-007 theLookBack — five cases › complex · Six months back from 31 August lands on a short February"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "kind": "edge",
+   "title": "A negative amount",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-NW-O-007 theLookBack — five cases › edge · A negative amount"
+  },
+  {
+   "id": "MK-PF-F-023",
+   "kind": "easy",
+   "title": "Stayed up ten percent, moved would have been up twenty",
+   "status": "PASS",
+   "actual": {
+    "stayed": {
+     "endValue": 11000,
+     "delta": 1000,
+     "pct": 10.000000000000009
+    },
+    "moved": {
+     "endValue": 12000,
+     "delta": 2000,
+     "pct": 19.999999999999996
+    },
+    "difference": 1000,
+    "months": 12
+   },
+   "expected": {
+    "stayed_end": {
+     "exact": 11000.0,
+     "shown": "$11,000"
+    },
+    "stayed_change": {
+     "exact": 1000.0,
+     "shown": "$1,000"
+    },
+    "stayed_percent": {
+     "exact": 10.0,
+     "shown": "+10.00%"
+    },
+    "moved_end": {
+     "exact": 12000.0,
+     "shown": "$12,000"
+    },
+    "moved_change": {
+     "exact": 2000.0,
+     "shown": "$2,000"
+    },
+    "moved_percent": {
+     "exact": 20.0,
+     "shown": "+20.00%"
+    },
+    "difference": {
+     "exact": 1000.0,
+     "shown": "$1,000"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-023 lookBack — five cases › easy · Stayed up ten percent, moved would have been up twenty"
+  },
+  {
+   "id": "MK-PF-F-023",
+   "kind": "easy",
+   "title": "Nothing to move",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-023 lookBack — five cases › easy · Nothing to move"
+  },
+  {
+   "id": "MK-PF-F-023",
+   "kind": "complex",
+   "title": "Six months, stock index fund against a bond fund",
+   "status": "PASS",
+   "actual": {
+    "stayed": {
+     "endValue": 26052.97411714529,
+     "delta": 2635.0941171452905,
+     "pct": 11.25248791583735
+    },
+    "moved": {
+     "endValue": 23713.28159135015,
+     "delta": 295.40159135014983,
+     "pct": 1.2614360964790627
+    },
+    "difference": -2339.6925257951407,
+    "months": 6
+   },
+   "expected": {
+    "stayed_end": {
+     "exact": 26052.9741,
+     "shown": "$26,053"
+    },
+    "stayed_change": {
+     "exact": 2635.0941,
+     "shown": "$2,635"
+    },
+    "stayed_percent": {
+     "exact": 11.252488,
+     "shown": "+11.25%"
+    },
+    "moved_end": {
+     "exact": 23713.2816,
+     "shown": "$23,713"
+    },
+    "moved_change": {
+     "exact": 295.4016,
+     "shown": "$295"
+    },
+    "moved_percent": {
+     "exact": 1.261436,
+     "shown": "+1.26%"
+    },
+    "difference": {
+     "exact": -2339.6925,
+     "shown": "-$2,340"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-023 lookBack — five cases › complex · Six months, stock index fund against a bond fund"
+  },
+  {
+   "id": "MK-PF-F-023",
+   "kind": "complex",
+   "title": "A bond fund whose return came as distributions",
+   "status": "PASS",
+   "actual": {
+    "stayed": {
+     "endValue": 10800,
+     "delta": 800,
+     "pct": 8.000000000000007
+    },
+    "moved": {
+     "endValue": 10500,
+     "delta": 500,
+     "pct": 5.000000000000004
+    },
+    "difference": -300,
+    "months": 12
+   },
+   "expected": {
+    "stayed_end": {
+     "exact": 10800.0,
+     "shown": "$10,800"
+    },
+    "moved_end": {
+     "exact": 10500.0,
+     "shown": "$10,500"
+    },
+    "difference": {
+     "exact": -300.0,
+     "shown": "-$300"
+    }
+   },
+   "difference": "none",
+   "formula_gives_match": "no — with the feed's adjusted closes the app gives the auditor's expected 10,500, not the price-only 10,069.44",
+   "note": "mapped as the app's feed delivers it: dividend-adjusted closes (marketData.ts:59-64); the auditor's formula_gives assumed raw closes",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-023 lookBack — five cases › complex · A bond fund whose return came as distributions"
+  },
+  {
+   "id": "MK-PF-F-023",
+   "kind": "edge",
+   "title": "The other fund's history starts after the cut-off",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-023 lookBack — five cases › edge · The other fund's history starts after the cut-off"
+  },
+  {
+   "id": "MK-PF-F-022",
+   "kind": "easy",
+   "title": "Twelve months, a close on the cut-off",
+   "status": "PASS",
+   "actual": 1.25,
+   "expected": {
+    "exact": 1.25,
+    "shown": "1.25"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-022 factorOverMonths — five cases › easy · Twelve months, a close on the cut-off"
+  },
+  {
+   "id": "MK-PF-F-022",
+   "kind": "easy",
+   "title": "Only one price",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-022 factorOverMonths — five cases › easy · Only one price"
+  },
+  {
+   "id": "MK-PF-F-022",
+   "kind": "complex",
+   "title": "Six months with a close on both sides of the cut-off",
+   "status": "PASS",
+   "actual": 1.1125248791583735,
+   "expected": {
+    "exact": 1.112525,
+    "shown": "1.1125"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-022 factorOverMonths — five cases › complex · Six months with a close on both sides of the cut-off"
+  },
+  {
+   "id": "MK-PF-F-022",
+   "kind": "complex",
+   "title": "Two years asked, record of 21 months",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-022 factorOverMonths — five cases › complex · Two years asked, record of 21 months"
+  },
+  {
+   "id": "MK-PF-F-022",
+   "kind": "edge",
+   "title": "One month before 31 March",
+   "status": "FINDING",
+   "actual": 1.0377358490566038,
+   "expected": {
+    "exact": 1.1,
+    "shown": "1.1000"
+   },
+   "difference": "1.037736 vs 1.10: 31 Mar less 1 month rolls to 3 March (DEC-3768b)",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-022 factorOverMonths — five cases › edge · One month before 31 March"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "kind": "easy",
+   "title": "One month back, an ordinary day",
+   "status": "PASS",
+   "actual": "2026-09-10",
+   "expected": "2026-09-10",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-008 startDateFor — five cases › easy · One month back, an ordinary day"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "kind": "easy",
+   "title": "This year",
+   "status": "PASS",
+   "actual": "2026-01-01",
+   "expected": "2026-01-01",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-008 startDateFor — five cases › easy · This year"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "kind": "complex",
+   "title": "Three and six months back into a short February",
+   "status": "PASS",
+   "actual": [
+    "2026-02-28",
+    "2026-02-28"
+   ],
+   "expected": [
+    "2026-02-28",
+    "2026-02-28"
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-008 startDateFor — five cases › complex · Three and six months back into a short February"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "kind": "complex",
+   "title": "One and two years back from a leap day, and an exact year",
+   "status": "PASS",
+   "actual": [
+    "2027-02-28",
+    "2026-02-28",
+    "2025-10-10"
+   ],
+   "expected": [
+    "2027-02-28",
+    "2026-02-28",
+    "2025-10-10"
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-008 startDateFor — five cases › complex · One and two years back from a leap day, and an exact year"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "kind": "edge",
+   "title": "One month before 31 March",
+   "status": "PASS",
+   "actual": "2026-02-28",
+   "expected": "2026-02-28",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-008 startDateFor — five cases › edge · One month before 31 March"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "kind": "easy",
+   "title": "Three closes in order",
+   "status": "PASS",
+   "actual": 102,
+   "expected": {
+    "exact": 102.0,
+    "shown": "$102.00"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-009 latestClose — five cases › easy · Three closes in order"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "kind": "easy",
+   "title": "One price only",
+   "status": "PASS",
+   "actual": 48.25,
+   "expected": {
+    "exact": 48.25,
+    "shown": "$48.25"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-009 latestClose — five cases › easy · One price only"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "kind": "complex",
+   "title": "Today is a Saturday; the last close is Friday's",
+   "status": "PASS",
+   "actual": 213.47,
+   "expected": {
+    "exact": 213.47,
+    "shown": "$213.47"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-009 latestClose — five cases › complex · Today is a Saturday; the last close is Friday's"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "kind": "complex",
+   "title": "A feed that sends newest first",
+   "status": "UNCLEAR",
+   "actual": 212.66,
+   "expected": {
+    "exact": 213.47,
+    "shown": "$213.47"
+   },
+   "difference": "212.66 (last item) vs 213.47 (latest date); the one feed always sends oldest first, so this input cannot arrive today; open question: is oldest-first a stated contract?",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-009 latestClose — five cases › complex · A feed that sends newest first"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "kind": "edge",
+   "title": "No prices",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-009 latestClose — five cases › edge · No prices"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "kind": "easy",
+   "title": "One month, first day's move included",
+   "status": "FINDING",
+   "actual": 0.07843137254901955,
+   "expected": {
+    "exact": 0.1,
+    "shown": "+10.00%"
+   },
+   "difference": "0.078431 (from the first day's close) vs 0.10 (from the close of the day before) — DEC-0315",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › easy · One month, first day's move included"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "kind": "easy",
+   "title": "No prices",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › easy · No prices"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "kind": "complex",
+   "title": "Exactly two years, given as a yearly rate",
+   "status": "PASS",
+   "actual": 0.17472514515807758,
+   "expected": {
+    "exact": 0.174725,
+    "shown": "+17.47%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › complex · Exactly two years, given as a yearly rate"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "kind": "complex",
+   "title": "A one-year period for a fund launched five months ago",
+   "status": "UNCLEAR",
+   "actual": 0.03400000000000003,
+   "expected": "REFUSES",
+   "difference": "0.034 measured from the first price (4 May) vs refuse; the fallback is deliberate; open question: may a 1Y figure start at a later first price?",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › complex · A one-year period for a fund launched five months ago"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "kind": "edge",
+   "title": "Exactly one year: a total, not a yearly rate",
+   "status": "PASS",
+   "actual": 0.10000000000000009,
+   "expected": {
+    "exact": 0.1,
+    "shown": "+10.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › edge · Exactly one year: a total, not a yearly rate"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "kind": "easy",
+   "title": "Since a purchase day with a close",
+   "status": "PASS",
+   "actual": 0.19999999999999996,
+   "expected": {
+    "exact": 0.2,
+    "shown": "+20.00%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-011 periodReturnSince — five cases › easy · Since a purchase day with a close"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "kind": "easy",
+   "title": "Since a Sunday takes Friday's close",
+   "status": "PASS",
+   "actual": 0.22448979591836737,
+   "expected": {
+    "exact": 0.22449,
+    "shown": "+22.45%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-011 periodReturnSince — five cases › easy · Since a Sunday takes Friday's close"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "kind": "complex",
+   "title": "Bought nineteen months ago: a total, not a yearly rate",
+   "status": "PASS",
+   "actual": 0.26332396588275886,
+   "expected": {
+    "exact": 0.263324,
+    "shown": "+26.33%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-011 periodReturnSince — five cases › complex · Bought nineteen months ago: a total, not a yearly rate"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "kind": "complex",
+   "title": "Broker history with a gap over the purchase day",
+   "status": "PASS",
+   "actual": 0.08788460419938349,
+   "expected": {
+    "exact": 0.087885,
+    "shown": "+8.79%"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-011 periodReturnSince — five cases › complex · Broker history with a gap over the purchase day"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "kind": "edge",
+   "title": "Purchase before the price record begins",
+   "status": "UNCLEAR",
+   "actual": 0.03400000000000003,
+   "expected": "REFUSES",
+   "difference": "0.034 from the first price after the purchase date vs refuse; same open question",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-011 periodReturnSince — five cases › edge · Purchase before the price record begins"
+  },
+  {
+   "id": "MK-PF-F-029",
+   "kind": "easy",
+   "title": "A close on the target day",
+   "status": "PASS",
+   "actual": 102,
+   "expected": {
+    "exact": 102.0,
+    "shown": "$102.00"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › easy · A close on the target day"
+  },
+  {
+   "id": "MK-PF-F-029",
+   "kind": "easy",
+   "title": "No prices",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › easy · No prices"
+  },
+  {
+   "id": "MK-PF-F-029",
+   "kind": "complex",
+   "title": "Labor Day weekend",
+   "status": "PASS",
+   "actual": 415.02,
+   "expected": {
+    "exact": 415.02,
+    "shown": "$415.02"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › complex · Labor Day weekend"
+  },
+  {
+   "id": "MK-PF-F-029",
+   "kind": "complex",
+   "title": "Target between two sparse marks of a hand-priced fund",
+   "status": "PASS",
+   "actual": 10.538,
+   "expected": {
+    "exact": 10.538,
+    "shown": "$10.54"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › complex · Target between two sparse marks of a hand-priced fund"
+  },
+  {
+   "id": "MK-PF-F-029",
+   "kind": "edge",
+   "title": "Target before the first price on record",
+   "status": "UNCLEAR",
+   "actual": 25,
+   "expected": "REFUSES",
+   "difference": "25.00 (first close, five months after the target) vs refuse; same open question",
+   "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › edge · Target before the first price on record"
+  },
+  {
+   "id": "MK-PF-F-034",
+   "kind": "easy",
+   "title": "A close on the very day",
+   "status": "PASS",
+   "actual": 52,
+   "expected": {
+    "exact": 52.0,
+    "shown": "$52.00"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-034 closeOnOrBefore — five cases › easy · A close on the very day"
+  },
+  {
+   "id": "MK-PF-F-034",
+   "kind": "easy",
+   "title": "A weekend day takes Friday's close",
+   "status": "PASS",
+   "actual": 50,
+   "expected": {
+    "exact": 50.0,
+    "shown": "$50.00"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-034 closeOnOrBefore — five cases › easy · A weekend day takes Friday's close"
+  },
+  {
+   "id": "MK-PF-F-034",
+   "kind": "complex",
+   "title": "A long weekend and a later close that must not be used",
+   "status": "PASS",
+   "actual": 50,
+   "expected": {
+    "exact": 50.0,
+    "shown": "$50.00"
+   },
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-034 closeOnOrBefore — five cases › complex · A long weekend and a later close that must not be used"
+  },
+  {
+   "id": "MK-PF-F-034",
+   "kind": "complex",
+   "title": "Days not written as year-month-day",
+   "status": "PASS",
+   "actual": [
+    null,
+    null,
+    null
+   ],
+   "expected": [
+    "REFUSES",
+    "REFUSES",
+    "REFUSES"
+   ],
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-034 closeOnOrBefore — five cases › complex · Days not written as year-month-day"
+  },
+  {
+   "id": "MK-PF-F-034",
+   "kind": "edge",
+   "title": "A day before the first price",
+   "status": "PASS",
+   "actual": null,
+   "expected": "REFUSES",
+   "difference": "none",
+   "formula_gives_match": "n/a",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-034 closeOnOrBefore — five cases › edge · A day before the first price"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-PF-F-023",
+   "judge_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/performance/lookBack.ts:97-110 — amount × factor, change, (factor − 1) × 100, difference = moved − stayed. The factor comes from the series it is handed, and the app's one feed hands dividend-adjusted closes (src/services/marketData.ts:59-64, Yahoo adjclose; raw close only when adjclose is absent).",
+   "classification": "CARD STALE",
+   "governing_decisions": [
+    "DEC-1669",
+    "DEC-0595 (its \"market figure is price only\" wording is stale for the same reason)"
+   ],
+   "plain_example": "$10,000 in a bond fund $72.00 → $72.50 that paid $3.10 a share. The card and the screen note say price only ($10,069); the app, fed adjusted closes, gives $10,500 — the right total-return figure. The card and the note should say distributions are included."
+  },
+  {
+   "id": "MK-PF-F-022",
+   "judge_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/performance/lookBack.ts:56 — cutoff = new Date(year, month − months, day), which rolls a missing day into the next month.",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-3768b (its governs list names MK-PF-F-008 and MK-NW-F-090; its words cover any whole-month window)"
+   ],
+   "plain_example": "Today 31 Mar, one month back. Before: measured from 3 March ($53 → $55, ×1.0377). Should be: from 28 Feb, last close 27 Feb ($50 → $55, ×1.10). The look-back screen offers 12/24/36 months, so a 29 Feb today is where it shows."
+  },
+  {
+   "id": "MK-PF-F-009",
+   "judge_verdict": "INCOMPLETE",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:584 — the close of the last item in the list. The one feed builds its list oldest first (src/services/marketData.ts:66-71).",
+   "classification": "CARD STALE",
+   "governing_decisions": [],
+   "plain_example": "A newest-first list (9, 8, 7 Oct) would give 7 Oct's $212.66 instead of $213.47; no feed of the app sends that order today. The card should state that every price list is oldest first."
+  },
+  {
+   "id": "MK-PF-F-010",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:626 — start = closeAsOf(the period's first day), i.e. that day's own close; :506 falls back to the first close on record; :642 counts years as days ÷ 365.25 (MK-NW-O-008 uses ÷ 365).",
+   "classification": "CODE WRONG",
+   "governing_decisions": [
+    "DEC-0315",
+    "DEC-0230 (related, not settling the fallback)",
+    "DEC-0237"
+   ],
+   "plain_example": "$100 on 9 Sep, $102 on 10 Sep, $110 on 9 Oct, 1M from 10 Sep. Before: +7.84%. Should be: +10.00% (from the close of the day before). The fallback (a 1Y figure for a five-month-old fund reads +3.40%) and the 365.25 day count are NEEDS RULING."
+  },
+  {
+   "id": "MK-PF-F-011",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:680 → :506 — when no close is on or before the date, the first close on record is used.",
+   "classification": "NEEDS RULING",
+   "governing_decisions": [
+    "DEC-0230 (related)"
+   ],
+   "plain_example": "Bought 5 Jan; prices start 2 Mar at $25.00; $25.85 now. Before: \"+3.40% since you bought it\". Ruling needed: refuse, or say \"since 2 March\"."
+  },
+  {
+   "id": "MK-PF-F-029",
+   "judge_verdict": "WRONG",
+   "what_the_code_actually_does": "src/domain/performance/index.ts:500-506 — last close on or before the target; when every close is later, the first close on record (\"target predates the series → first available\", written on purpose). closeOnOrBefore (:545) is its no-fallback twin.",
+   "classification": "NEEDS RULING",
+   "governing_decisions": [
+    "DEC-0230 (related)"
+   ],
+   "plain_example": "Asked for 10 Oct 2025; the fund's first close is 2 Mar 2026 at $25.00. Before: $25.00. Ruling needed: nothing (as MK-PF-F-034), or the first price with its date said."
+  }
+ ],
+ "coverage": "45 of 45 cases mapped and run against the app: 38 PASS, 3 FINDING, 0 BRIEF_WRONG, 4 UNCLEAR, 0 BLOCKED. 6 of 6 non-RIGHT formula checks classified; 3 RIGHT verdicts (MK-NW-O-007, MK-PF-F-008, MK-PF-F-034) not re-checked here — MK-NW-O-007 still fails one case through MK-PF-F-022. Judge arithmetic re-done by hand on every numeric case: 0 errors."
+}

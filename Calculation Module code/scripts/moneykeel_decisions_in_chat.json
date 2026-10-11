@@ -717,6 +717,42 @@
    "not_a_repeat_of": "DEC-4036f — that rule says an unstated account is never assumed taxable on Net worth; this one is how withdrawal planning, which needs a bucket, counts it and says so.",
    "proof": "src/screens/__tests__/dec_4105_counted_taxable.test.tsx",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+  },
+  {
+   "decided": "2026-10-11",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "type": "DESIGN",
+   "status": "RULED",
+   "screens": "onboarding · the rent step",
+   "his_words": "1: yes. 2. I have performance responses from claude for you to process.",
+   "subject": "Sign-up asks which property a rent is for, when a property was entered earlier in sign-up",
+   "plain": "When sign-up's rent step comes after a property was entered, it asks \"Which property is it?\" right there, so rent entered at sign-up counts at once. With no property entered yet it keeps its line: \"The rent is counted once you pick its property on the Income screen.\" Before: sign-up never asked, so its rent was not counted until the property was picked on the Income screen (DEC-4059d).",
+   "means": "Said in chat on 2026-10-10/11, answering my recommendation after DEC-4059d was built.",
+   "governs": "the onboarding rent step · MK-NW-F-116 rentedIdsOf",
+   "changed": "The onboarding rent step offers the properties already entered and saves the property on the rent entry.",
+   "apply_steps": "1. The onboarding rent step lists the properties entered so far and requires a pick when there are any. 2. Saves property_id on the rent entry. 3. Screen test. 4. Changelog row.",
+   "not_a_repeat_of": "DEC-4059d — that rule says rent needs its property; this one is where sign-up asks for it.",
+   "proof": "src/screens/__tests__/dec4059_dates_rent_taxtype.test.tsx",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+  },
+  {
+   "decided": "2026-10-11",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "type": "DESIGN",
+   "status": "RULED",
+   "screens": "onboarding · the rent step · Add an account",
+   "his_words": "A - approved.",
+   "subject": "Sign-up's rent step has a door to add the property first",
+   "plain": "Sign-up asks for rent before any property can exist, so its rent step carries a door: \"Add the property first ›\". It opens Add an account set to Real estate; saving brings the person back to the rent step, which asks \"Which property is it?\"; once picked, the rent counts at once. About 3 taps plus typing, without leaving sign-up. Before: the rent was kept but counted nowhere until the person added the property in Net worth and picked it on the Income screen, about 7 taps after sign-up.",
+   "means": "Said in chat on 2026-10-11, choosing option A after DEC-4327 turned out not to reach a new person (sign-up takes no property).",
+   "governs": "the onboarding rent step · Add an account · MK-NW-F-116 rentedIdsOf",
+   "changed": "The onboarding rent step shows the door when no property exists; Add an account opened from it returns to the rent step.",
+   "apply_steps": "1. Door on the rent step when no property is held. 2. Add an account opened on Real estate, returning to the rent step on save. 3. The rent step's \"Which property is it?\" (DEC-4327) then shows. 4. Screen test. 5. Changelog row.",
+   "not_a_repeat_of": "DEC-4327 — that one asks the question when a property already exists; this one gives the door when none does.",
+   "proof": "src/screens/__tests__/onboarding_rent_property_dec4327.test.tsx",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
   }
  ]
 }

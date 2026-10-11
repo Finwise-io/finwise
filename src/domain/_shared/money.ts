@@ -113,7 +113,7 @@ export function balancesHidden(): boolean { return _hide; }
  *
  * Called by ... MK-ST-F-048 currencySymbol
  *
- * Reaches ..... 165 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 168 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -123,7 +123,7 @@ export function balancesHidden(): boolean { return _hide; }
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 147 more — the full list is on functions_from_code
+ *               … and 150 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -144,7 +144,7 @@ export function activeCurrency(): Currency {
  * Called by ... MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
  *               MK-ST-F-051 moneyCompact
  *
- * Reaches ..... 164 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 167 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -154,7 +154,7 @@ export function activeCurrency(): Currency {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 146 more — the full list is on functions_from_code
+ *               … and 149 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -185,7 +185,7 @@ export function currencySymbol(): string {
  *               MK-NW-F-132 notClassifiedWords · MK-ST-F-053 money
  *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 160 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 163 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -195,7 +195,7 @@ export function currencySymbol(): string {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 142 more — the full list is on functions_from_code
+ *               … and 145 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

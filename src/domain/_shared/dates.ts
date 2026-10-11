@@ -15,10 +15,11 @@
  *
  * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-183 paidOutByAccount
  *               MK-NW-F-046 historyCoverage · MK-NW-F-061 bondSummary
- *               MK-NW-F-125 isPastMaturity · MK-NW-O-003 theNetWorth
- *               MK-PF-F-022 factorOverMonths · MK-XS-F-175 uid
+ *               MK-NW-F-090 windowStartKey · MK-NW-F-125 isPastMaturity
+ *               MK-NW-O-003 theNetWorth · MK-PF-F-022 factorOverMonths
+ *               MK-XS-F-175 uid
  *
- * Reaches ..... 145 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 147 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -28,7 +29,7 @@
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 127 more — the full list is on functions_from_code
+ *               … and 129 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

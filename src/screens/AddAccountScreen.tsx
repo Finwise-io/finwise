@@ -47,7 +47,7 @@ const classOfExisting = (a: any): Cls => {
 
 export default function AddAccountScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ edit?: string; cls?: string }>();
+  const params = useLocalSearchParams<{ edit?: string; cls?: string; from?: string }>();   // from=onboarding: the sign-up rent step's door (DEC-4350, 2026-10-11)
   const store = useStore() as any;
   const existing = useMemo(() => (store.assetAccounts ?? []).find((a: any) => a.asset_id === String(params.edit)), [params.edit, store.assetAccounts]);
   const editMode = !!existing;
@@ -104,7 +104,9 @@ export default function AddAccountScreen() {
     // Until today only the Net worth tab created them, so a person who came straight to this form from Home
     // would never see them. It runs once, before the new account is added, so the account typed here is kept
     // and a setup row someone already edited is never re-created over their edit.
-    if (!editMode && !store.nwSeeded) store.seedNetWorth?.(store.onboardingProfile ?? null);
+    // (DEC-4350, 2026-10-11) not when opened from the sign-up rent step: setup is half-answered there, and seeding now
+    // would mark Net worth seeded before the rest of setup's accounts are typed.
+    if (!editMode && !store.nwSeeded && params.from !== 'onboarding') store.seedNetWorth?.(store.onboardingProfile ?? null);
     const today = isoLocalDate(new Date());
     if (cls === 'debt') {
       store.addLiability?.({ label: name.trim(), debt_type: 'OTHER', remaining_balance: num(balance), interest_rate_apr: num(apr) / 100, minimum_monthly_payment: num(minPay) });

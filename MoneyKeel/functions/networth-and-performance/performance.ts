@@ -20,14 +20,14 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures } from '../_figure-spec';
-import { portfolioBenchReturn } from '../../../src/domain/performance';
+import { portfolioBenchReturn, monthsBefore, contractMultiplier, totalShares, windowTotal } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../../Calculation Module code/engines/window-return';
 import { valueOn, covers as snapshotCovers, buildDayFromAccounts, accountValuesOn, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
 import { timeWeightedReturn, movementsOf, type TimeWeightedVerdict } from '../../../Calculation Module code/engines/time-weighted-return';
-import { dateShown } from '../../../src/domain/_shared/dates';
+import { dateShown, isoLocalDate } from '../../../src/domain/_shared/dates';
 import { accountDisplayNames } from '../../../src/domain/assets';
 import { isCertificateOfDeposit } from './bonds';
 
@@ -97,7 +97,6 @@ export interface WindowFigures {
  *     the answer:
  *     after   if after ≤ today
  *     today   otherwise
- *     d = the date today + 'T12:00:00Z'
  *     months = '1 m': 1 = '1 m': 1
  *     '3 m': 3 = '3 m': 3
  *     '6 m': 6 = '6 m': 6
@@ -105,10 +104,13 @@ export interface WindowFigures {
  *     '2 y': 24 = '2 y': 24
  *     `${today.slice(0, 4)}-01 − 01`   when period = 'YTD'
  *     back = months[period] (or 12 when missing)
- *     y = get utcfull year(), m = get utcmonth() − back, day = get utcdate()
- *     last day = the date date.UTC(y, m + 1, 0)).get utcdate(
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -125,15 +127,15 @@ export function windowStartKey(period: string, recordDates: string[], today: str
     const after = new Date(Date.parse(`${first}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
     return after <= today ? after : today;
   }
-  const d = new Date(today + 'T12:00:00Z');
   const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
   if (period === 'YTD') return `${today.slice(0, 4)}-01-01`;
   // MONTHS BACK STOP AT THE MONTH'S LAST DAY (his approval, 2026-10-10, DEC-3768b): one month before Mar 31
-  // is Feb 28, never Mar 3 — the calendar used to roll a missing day into the next month.
+  // is Feb 28, never Mar 3 — the calendar used to roll a missing day into the next month. ONE RULE: the same
+  // function the holdings' start date and the look-back's cut-off ask (outside review Claude Performance,
+  // 2026-10-11, DEC-3768b), read on the calendar day `today` names.
   const back = months[period] ?? 12;
-  const y = d.getUTCFullYear(), m = d.getUTCMonth() - back, day = d.getUTCDate();
-  const lastDay = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
-  return new Date(Date.UTC(y, m, Math.min(day, lastDay))).toISOString().slice(0, 10);
+  const [y, m, day] = today.split('-').map(Number);
+  return isoLocalDate(monthsBefore(new Date(y, m - 1, day, 12), back));
 }
 
 /** THE DAYS THE RECORD HOLDS AN INVESTMENT VALUE FOR, oldest first. "Since" opens on the first of
@@ -194,6 +196,8 @@ export function investmentRecordDates(snapshotDays: any[], investmentAccountIds:
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
  *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
  *     · Uses a built-in total of 0.
@@ -220,7 +224,11 @@ export type GainRow = {
   periodReturn?: number | null;
   marketValue?: number;
   couponRate?: number | null;
-  position?: { ticker?: string; label?: string; name?: string; last_price?: number; value_now?: number; lots?: { shares?: number }[] };
+  position?: { ticker?: string; label?: string; name?: string; kind?: string; multiplier?: number; last_price?: number; value_now?: number; lots?: { shares?: number }[] };
+  /** The window's own total, never a yearly rate — buildPerformance writes it beside periodReturn. Where it is
+   *  absent and the window is longer than a year, periodReturn is read as a yearly rate (outside review Claude
+   *  Performance, 2026-10-11, MK-NW-F-091). */
+  periodTotal?: number | null;
 };
 
 /** THE ONE RULE FOR WHAT A HOLDING GAINED OVER THE WINDOW (DEC-3656, 2026-10-09), or null when it cannot
@@ -235,14 +243,14 @@ export type GainRow = {
  * Formula .....
  *     gain (or 0 when missing)   when capped since
  *     mv = market value (or 0 when missing)
- *     pr = period return
+ *     pr = window total(period return, period total, years)
  *     mv × (1 − 1 ÷ (1 + pr))   if mv > 0
  *     0   otherwise   when pr ≠ nothing
  *     mv × (1 − 1 ÷ math.pow(1 + coupon rate, years))   if mv > 0
  *     0   otherwise   when coupon rate ≠ nothing and coupon rate > 0
  *     the answer:
- *     nothing   if held value of(r) > 0
- *     0   otherwise
+ *     0   if held value of(r) = 0
+ *     nothing   otherwise
  *
  * Called by ... MK-NW-F-091 pricedGainOf
  *
@@ -264,10 +272,14 @@ export type GainRow = {
 function gainOfRow(r: GainRow, years: number): number | null {
   if (r.cappedSince) return r.gain ?? 0;
   const mv = r.marketValue ?? 0;
-  const pr = r.periodReturn;
+  // THE WINDOW'S OWN TOTAL, never a yearly rate: over 2Y a holding's period return is a yearly rate, and read as
+  // the window's total it worked the gain back one year, not two — $12,100 at 10% a year gained $2,100, it read
+  // $1,100 (outside review Claude Performance, 2026-10-11, MK-NW-F-091/F-127). One rule: windowTotal.
+  const pr = windowTotal(r.periodReturn, r.periodTotal, years);
   if (pr != null) return mv > 0 ? mv * (1 - 1 / (1 + pr)) : 0;
   if (r.couponRate != null && r.couponRate > 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, years)) : 0;
-  return heldValueOf(r) > 0 ? null : 0;
+  // holds nothing: gained nothing. Holds something, or holds shares no one has priced: unknown (DEC-3656)
+  return heldValueOf(r) === 0 ? 0 : null;
 }
 
 /** What a holding is worth when no price series prices it: the broker's last mark × shares, or the value
@@ -281,10 +293,13 @@ function gainOfRow(r: GainRow, years: number): number | null {
  *     market value as number   when (market value ?? 0) > 0
  *     p = position
  *     0   when p is missing
- *     shares = Σ over lots (or none when missing) of (shares (or 0 when missing or zero))
+ *     shares = total shares({ lots: lots ?? [] } as any)
+ *     nothing   if shares = nothing
+ *     shares × last price × contract multiplier(p)   otherwise   when last price ≠ nothing
+ *     value now   when value now ≠ nothing
  *     the answer:
- *     shares × last price   if last price ≠ nothing
- *     value now (or 0 when missing)   otherwise
+ *     0   if shares = 0
+ *     nothing   otherwise
  *
  * Called by ... MK-NW-F-127 gainOfRow
  *
@@ -297,21 +312,27 @@ function gainOfRow(r: GainRow, years: number): number | null {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
  *     · If market value is missing it uses 0.
- *     · If value now is missing it uses 0.
- *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-128
  * Changed ..... not in git yet (—)
  */
-function heldValueOf(r: GainRow): number {
+function heldValueOf(r: GainRow): number | null {
   if ((r.marketValue ?? 0) > 0) return r.marketValue as number;
   const p = r.position;
   if (!p) return 0;
-  const shares = (p.lots ?? []).reduce((t, l) => t + (l?.shares || 0), 0);
-  return p.last_price != null ? shares * p.last_price : (p.value_now ?? 0);
+  // the one count of shares (MK-PF-F-001): unknown when a purchase has no share count
+  const shares = totalShares({ lots: p.lots ?? [] } as any);
+  // × THE CONTRACT MULTIPLIER (DEC-0274: "options: value = contracts × 100 × price"): three contracts at $2.10
+  // are $630, they read $6.30 (outside review Claude Performance, 2026-10-11)
+  if (p.last_price != null) return shares == null ? null : shares * p.last_price * contractMultiplier(p);
+  if (p.value_now != null) return p.value_now;
+  // SHARES WITH NO PRICE ARE NOT "HOLDS NOTHING": their worth is unknown, so DEC-3656's refusal names the holding
+  // (tenet 3, DEC-3523) — they read $0 and gained $0 (outside review Claude Performance, 2026-10-11)
+  return shares === 0 ? 0 : null;
 }
 
 /** What the refusal sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way
@@ -326,7 +347,7 @@ function heldValueOf(r: GainRow): number {
  *     t = (position.ticker ?? '').trim()
  *     nm = (position.label ?? position.name ?? '').trim()
  *     the answer:
- *     nm   if ÷ ^[0 − 9A − Z]{9}$ ÷ .test(t) and ÷ \d ÷ .test(t) and nm
+ *     nm   if ÷ ^[0 − 9A − Z]{9}$ ÷ test(t) and ÷ \d ÷ .test(t) and nm
  *     t (or nm (or 'a holding' when missing or zero) when missing or zero)   otherwise
  *
  * Called by ... MK-NW-O-008 thePerformance
@@ -345,7 +366,8 @@ function gainRowName(r: GainRow): string {
   if (r.name) return r.name;
   const t = (r.position?.ticker ?? '').trim();
   const nm = (r.position?.label ?? r.position?.name ?? '').trim();
-  return /^[0-9A-Z]{9}$/.test(t) && /\d/.test(t) && nm ? nm : (t || nm || 'a holding');
+  // a CUSIP sent in lower case is still a CUSIP (outside review Claude Performance, 2026-10-11, DEC-3656)
+  return /^[0-9A-Z]{9}$/i.test(t) && /\d/.test(t) && nm ? nm : (t || nm || 'a holding');
 }
 
 /** THE SENTENCE where the beginning cannot be worked back (DEC-3656, 2026-10-09, his wording). */
@@ -355,7 +377,8 @@ function gainRowName(r: GainRow): string {
  * Answers ..... THE SENTENCE where the beginning cannot be worked back (DEC-3656, 2026-10-09, his wording).
  *
  * Formula .....
- *     `the beginning can't be worked back: ${list} ${names.length > 1 ? 'have' : 'has'} no price history.`
+ *     once = [...new set(names)]
+ *     the answer = `the beginning can't be worked back: ${list} ${once.length > 1 ? 'have' : 'has'} no price history.`
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
@@ -370,9 +393,11 @@ function gainRowName(r: GainRow): string {
  * Changed ..... not in git yet (—)
  */
 function cannotWorkBackSentence(names: string[]): string {
-  const list = names.length <= 1 ? (names[0] ?? 'a holding')
-    : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
-  return `The beginning can't be worked back: ${list} ${names.length > 1 ? 'have' : 'has'} no price history.`;
+  // one fund held in two accounts is named once (outside review Claude Performance, 2026-10-11, DEC-3656)
+  const once = [...new Set(names)];
+  const list = once.length <= 1 ? (once[0] ?? 'a holding')
+    : `${once.slice(0, -1).join(', ')} and ${once[once.length - 1]}`;
+  return `The beginning can't be worked back: ${list} ${once.length > 1 ? 'have' : 'has'} no price history.`;
 }
 
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
@@ -436,7 +461,15 @@ export function whyNoReturn(v: TimeWeightedVerdict | null): string {
     case 'MOVEMENT_DAY_NOT_RECORDED': return `Money moved in or out on ${on} and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right.`;
     case 'MOVEMENT_HAS_NO_DATE': return 'A deposit or withdrawal in your records has no date, so a return cannot be measured. The dollar figures here are still right.';
     case 'SHARES_MOVED': return `Shares were moved in or out on ${on}, and your records do not say what they were worth that day, so a return cannot be measured across it. The dollar figures here are still right.`;
-    case 'VALUE_BELOW_MONEY_ADDED': return `The value recorded on ${on} is less than the money added that day, so a return cannot be measured across it. The dollar figures here are still right.`;
+    // TWO STATES SHARE THIS REFUSAL, and the words say which one is true (outside review Claude Performance,
+    // 2026-10-11, DEC-3523 tenet 1): a value LESS than the money added, or a value that appeared with no money
+    // added and nothing there the day before.
+    case 'VALUE_BELOW_MONEY_ADDED': return v.valueAboveMoneyAdded
+      ? `The value recorded on ${on} is more than the money added that day, and nothing was there before it, so a return cannot be measured across it. The dollar figures here are still right.`
+      : `The value recorded on ${on} is less than the money added that day, so a return cannot be measured across it. The dollar figures here are still right.`;
+    // a deposit or withdrawal whose amount is not on record: the dollars it moved are unknown too, so this
+    // sentence does not say the dollar figures stand (outside review Claude Performance, 2026-10-11, DEC-3523)
+    case 'MOVEMENT_HAS_NO_AMOUNT': return `A deposit or withdrawal on ${on} has no amount in your records, so a return cannot be measured across it.`;
     case 'NOTHING_INVESTED': return 'Nothing was invested over this period, so there is no return to state.';
     case 'END_NOT_RECORDED': return 'Today’s value is not in your records yet, so a return cannot be measured.';
     default: return '';
@@ -708,13 +741,19 @@ export function thePerformance(input: {
   const verdict = bounds && measured != null ? timeWeightedReturn({
     days: record, accountIds: input.investmentAccountIds,
     flows: moved.flows, sharesMoved: moved.sharesMoved,
+    amountMissing: moved.amountMissing,   // a movement with no amount refuses (outside review Claude Performance, 2026-10-11, DEC-3523)
     start: bounds.beginningAsOf, end: today,
   }) : null;
   const covered = measured != null && verdict?.refused !== 'START_NOT_RECORDED';
   const cumulative = covered ? verdict?.rate ?? null : null;
   // a yearly rate only for a window longer than a year: (1 + the return)^(365 ÷ days) − 1. "Since" is
   // the whole record: its figure is the window's own total, said with its two dates.
-  const perYear = cumulative != null && years > 1 && !input.wholeRecord ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
+  // LONGER THAN A YEAR is read on the calendar, the way the window itself is (DEC-3768b): a window that opens
+  // one year back to the day IS a year, though Q3 (DEC-0315) counts both its edge days in and so finds 366 of
+  // them. It read 366 ÷ 365 > 1 and turned an exact year's +10.00% into +9.97% "a year" — against DEC-0237 and
+  // DEC-1669: a window of a year or less is never annualised (outside review Claude Performance, 2026-10-11).
+  const longerThanAYear = windowStart != null && windowStart < windowStartKey('1Y', [], today);
+  const perYear = cumulative != null && longerThanAYear && years > 1 && !input.wholeRecord ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
 
   return {
     windowStart, ledger, walk, ending, measured,
@@ -779,7 +818,7 @@ export interface CategoryEarned {
  *     r = rows.find((x) => string(position.ticker ?? '').to upper case() = string(tk ?? '').to upper case())
  *     category of(position)   when r
  *     in class = rows where category of(position) = cls
- *     usable = in class where period return ≠ nothing and (period return as number) > -1 and (market value ?? 0) > 0
+ *     now = Σ over usable of (r.market value as number)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-086 CATS
@@ -811,9 +850,9 @@ export function categoryEarnings(input: {
   /** the window’s first day, or null for "since the record began" */
   windowStart: string | null;
   /** each holding with its class and its own return, as buildPerformance produces them */
-  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; marketValue?: number }[];
-  /** Every bond or CD held as its own account: what it is worth and the yearly rate it states. */
-  bonds?: { balance?: number; coupon_rate?: number }[];
+  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; periodTotal?: number | null; marketValue?: number }[];
+  /** Every bond or CD held as its own account: which account it is, what it is worth and the yearly rate it states. */
+  bonds?: { asset_id?: string | number; balance?: number; coupon_rate?: number }[];
   /** DAY ONE: every category is shown at $0 — "every line fills in as days pass, the structure never
    *  changes" (Performance v17, phones 4 and 5). Any other day, a category that received nothing is
    *  left out. */
@@ -857,9 +896,12 @@ export function categoryEarnings(input: {
   // A holding with no return, or one of −100% or worse (no start to divide by), is left out, never read as 0.
   const retOf = (cls: string): number | null => {
     const inClass = rows.filter((x) => categoryOf(x.position) === cls);
-    const usable = inClass.filter((r) => r.periodReturn != null && (r.periodReturn as number) > -1 && (r.marketValue ?? 0) > 0);
-    const now = usable.reduce((t, r) => t + (r.marketValue as number), 0);
-    const start = usable.reduce((t, r) => t + (r.marketValue as number) / (1 + (r.periodReturn as number)), 0);
+    // each holding's return as the WINDOW'S OWN TOTAL — over 2Y a period return is a yearly rate, and a start worked
+    // from it was a year short (outside review Claude Performance, 2026-10-11, MK-NW-F-091; one rule: windowTotal)
+    const usable = inClass.map((r) => ({ r, tot: windowTotal(r.periodReturn, r.periodTotal) }))
+      .filter((x) => x.tot != null && (x.tot as number) > -1 && (x.r.marketValue ?? 0) > 0);
+    const now = usable.reduce((t, x) => t + (x.r.marketValue as number), 0);
+    const start = usable.reduce((t, x) => t + (x.r.marketValue as number) / (1 + (x.tot as number)), 0);
     if (now <= 0 || start <= 0) return null;
     return now / start - 1;
   };
@@ -873,6 +915,10 @@ export function categoryEarnings(input: {
   const bondHoldings = rows.filter((x) => categoryOf(x.position) === 'bonds');
   const allState = held.length > 0 && bondHoldings.length === 0 && held.every((b) => (b.coupon_rate ?? 0) > 0);
   const heldTotal = held.reduce((t, b) => t + (b.balance ?? 0), 0);
+  // THE ACCOUNTS THAT ARE A BOND OR A CD: interest recorded on one of them, naming no holding, is that bond's or
+  // CD's interest — Bonds & CDs, never "Cash in this account" (DEC-0051 a CD is Bonds & CDs and pays interest;
+  // DEC-0094 untickered income is counted at the account it belongs to) (outside review Claude Performance, 2026-10-11)
+  const bondAccountIds = new Set((input.bonds ?? []).filter((b) => b.asset_id != null).map((b) => String(b.asset_id)));
   const statedBondRate = allState ? held.reduce((t, b) => t + (b.coupon_rate ?? 0) * (b.balance ?? 0), 0) / heldTotal : null;
 
   const buckets: CategoryEarned[] = [
@@ -888,7 +934,9 @@ export function categoryEarnings(input: {
     // that names nothing is what the uninvested balance earned — "Cash in this account", where the
     // approved drawing puts it (Performance v17, phones 1 to 3). Interest that NAMES a holding we hold
     // no price for is a bond's or a CD's (B-116), and stays under Bonds & CDs.
-    const cls = t.ticker ? classOfTicker(t.ticker, t.type) : (t.type === 'DIVIDEND' ? 'stocks_etf' : 'cash');
+    const cls = t.ticker ? classOfTicker(t.ticker, t.type)
+      : t.type === 'DIVIDEND' ? 'stocks_etf'
+      : t.account_id != null && bondAccountIds.has(String(t.account_id)) ? 'bonds' : 'cash';
     const b = buckets.find((x) => x.key === cls)
            ?? buckets.find((x) => x.key === (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds'))!;
     b.earned += amt;
@@ -1100,7 +1148,7 @@ const CAT = (key: string) => CATS().find((c) => c.key === key);
  *  the two indices would give. Weighting by what is held is the whole point of the figure. */
 const BENCH_GIVEN =
   '$40,000 of shares against a benchmark up 10% over the window, and $10,000 of bonds against one up '
-  + '4% over the same days.';
+  + '4% over the same days; neither holding moved, so each was worth then what it is worth now.';
 
 /** Example only: runs the market comparison on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-088 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
@@ -1125,8 +1173,8 @@ const BENCH_GIVEN =
  * Changed ..... not in git yet (—)
  */
 const BENCH = () => portfolioBenchReturn([
-  { benchReturn: 0.10, marketValue: 40000 },
-  { benchReturn: 0.04, marketValue: 10000 },
+  { benchReturn: 0.10, marketValue: 40000, periodReturn: 0 },
+  { benchReturn: 0.04, marketValue: 10000, periodReturn: 0 },
 ] as any);
 
 /** THE MONEY-WEIGHTED RETURN IS NOT A FIGURE ANY MORE (Performance pass 2, 2026-09-30).
@@ -1271,7 +1319,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
   'MK-PF-M-006': {
     label: 'WHAT EACH CATEGORY EARNED — RETURN', unit: 'percent-signed', screens: ['/invest'],
     answers: 'What each kind of holding returned over the window you picked.',
-    formula: "each class's own return, weighted by what each holding in it is worth",
+    formula: "each class's own growth over the window: what its holdings are worth now ÷ what they were worth when the window began (each now ÷ (1 + its own return over the whole window, never a yearly rate)), less 1",
     inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-006 the price fetched at'],
     decisions: [
       'A class with no holding we can price shows an em-dash, never a 0% — a zero reads as "it returned nothing", which is a different claim.',
@@ -1306,11 +1354,11 @@ export const PERFORMANCE_FIGURES = declareFigures({
   'MK-PF-M-008': {
     label: 'market +X%', unit: 'percent-2dp', screens: ['/home'],
     answers: 'What the market did over the SAME days, matched to what you actually hold.',
-    formula: "each holding's own benchmark return over the same dates, weighted by what that holding is worth",
+    formula: "each holding's own benchmark return over the same dates, weighted by what that holding was worth when the window began (its value now ÷ (1 + its own return)); a holding with no return of its own is left out of the blend",
     inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-006 the price fetched at'],
     decisions: [
       'The benchmark runs over the SAME DATES as your return — including where your window is cut short at your own purchase date. Comparing your three months against the market\'s twelve is not a comparison.',
-      'Weighted by what each holding is worth, so the blend answers "the market, matched to my mix" rather than a plain average of indices.',
+      'Weighted by what each holding was worth when the window began, so the blend answers "the market, matched to my mix" rather than a plain average of indices — and a holding that grew does not grow its yardstick\'s weight (outside review Claude Performance, 2026-10-11, DEC-1669, DEC-3035b).',
     ],
     refusal: 'No benchmark can be priced over this window, so none is shown.',
     worked: {

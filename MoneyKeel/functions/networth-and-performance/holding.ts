@@ -16,17 +16,18 @@ import { realizedFromLedger, type RealizedResult } from '../../../src/domain/per
 export interface HoldingAnswer {
   ticker: string;
   name: string;
-  shares: number;
+  /** Null when a purchase has no share count — unknown, never 0 (tenet 3; outside review Claude Performance, 2026-10-11). */
+  shares: number | null;
   /** True once every share is sold — the screen says "Holding liquidated", never a $0 position. */
   closed: boolean;
-  /** What was paid for what is still held. */
-  totalPaid: number;
-  /** Per share, unrounded — rounding happens at display (Q49), not here. */
-  avgPaidPerShare: number;
+  /** What was paid for what is still held. Null when a share count or a cost is not entered. */
+  totalPaid: number | null;
+  /** Per share, unrounded — rounding happens at display (Q49), not here. Null with no shares held or a figure not entered. */
+  avgPaidPerShare: number | null;
   /** Today's price, or null when none is held. */
   price: number | null;
-  /** What it is worth. With no price this is WHAT YOU PAID, and `priced` says so. */
-  value: number;
+  /** What it is worth. With no price this is WHAT YOU PAID, and `priced` says so. Null when that is not known. */
+  value: number | null;
   priced: boolean;
   /** Only when priced: what it has gained, and the return on what was paid. */
   gain: number | null;
@@ -134,16 +135,16 @@ export function theHolding(input: {
     ticker,
     name: String((p as any).label ?? '').trim() || ticker,
     shares,
-    closed: shares <= 0,
+    closed: shares != null && shares <= 0,
     totalPaid: paid,
     // IN THE UNIT THE PRICE IS QUOTED IN. An option's price is per share and a contract is 100 of them;
     // total paid carries that 100, so the average is taken back per share — it read $683.33 beside a
     // price of $9.10 (outside review, 2026-10-04).
-    avgPaidPerShare: shares > 0 ? paid / (shares * contractMultiplier(p as any)) : 0,
+    avgPaidPerShare: shares != null && shares > 0 && paid != null ? paid / (shares * contractMultiplier(p as any)) : null,
     price: input.price ?? null,
     value,
     priced,
-    gain: priced ? value - paid : null,
+    gain: priced && value != null && paid != null ? value - paid : null,
     purchases: ((p as any).lots ?? []).map((l: any) => ({
       lotId: String(l.lot_id ?? ''),
       date: String(l.purchase_date ?? ''),
@@ -157,13 +158,14 @@ export function theHolding(input: {
       // a previous close of zero cannot be divided by, and a share of nothing is not a move
       return prev > 0 ? { amount: last - prev, share: (last - prev) / prev } : null;
     })(),
-    returnOnCost: priced && paid > 0 ? (value - paid) / paid : null,
+    returnOnCost: priced && value != null && paid != null && paid > 0 ? (value - paid) / paid : null,
     capitalGains: priced ? capGains(p, input.price as number, now) : null,
     dividends: {
       trailing12: sum(divRows.filter((t) => String(t.date) >= aYearAgo)),
       allTime: sum(divRows),
     },
-    realised: realizedFromLedger(input.transactions ?? [], { ticker, accountId: input.accountId }),
+    // the holding is named, so an option's realised gain carries its contract multiplier (DEC-0274; outside review Claude Performance, 2026-10-11)
+    realised: realizedFromLedger(input.transactions ?? [], { ticker, accountId: input.accountId, holding: p as any }),
   };
 }
 
@@ -289,7 +291,9 @@ export const HOLDING_FIGURES = declareFigures({
     formula: 'shares × today’s price',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
     decisions: ['r30: with NO price it shows what you paid, never a zero — a holding priced at zero would quietly shrink your whole portfolio.'],
-    refusal: 'No price — it shows what you paid, labelled as that.',
+    // the second sentence covers the states the outside review opened (Claude Performance, 2026-10-11, tenet 3): a
+    // value that cannot be known is refused, never printed as $0
+    refusal: 'No price — it shows what you paid, labelled as that. Not stated where a purchase has no share count or price paid on record.',
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,
@@ -302,7 +306,7 @@ export const HOLDING_FIGURES = declareFigures({
     answers: 'How many shares you still hold.',
     formula: 'the shares of every lot still held, added up',
     inputs: ['MK-NW-I-001 your accounts'],
-    refusal: 'All sold — the screen says the holding is liquidated rather than showing 0 shares.',
+    refusal: 'All sold — the screen says the holding is liquidated rather than showing 0 shares. Not stated where a purchase has no share count on record.',
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,
@@ -369,7 +373,7 @@ export const HOLDING_FIGURES = declareFigures({
     answers: 'The gain on shares you have held more than a year — the part taxed at the lower rate.',
     formula: 'for each lot bought over a year ago: shares × (today’s price − what you paid)',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
-    refusal: 'No price today — no gain is stated at all.',
+    refusal: 'No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record.',
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,
@@ -382,7 +386,7 @@ export const HOLDING_FIGURES = declareFigures({
     answers: 'The gain on shares held under a year — the part taxed as ordinary income.',
     formula: 'for each lot bought within the year: shares × (today’s price − what you paid)',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
-    refusal: 'No price today — no gain is stated at all.',
+    refusal: 'No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record.',
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,

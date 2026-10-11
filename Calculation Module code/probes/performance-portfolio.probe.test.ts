@@ -24,12 +24,16 @@ const row = (ticker: string, marketValue: number, periodReturn: number | null, k
   ({ position: { position_id: ticker, ticker, kind, lots: [] }, marketValue, periodReturn } as any);
 
 describe('ATTRIBUTION / ALLOCATION / CONCENTRATION', () => {
-  test('each holding contributes its WEIGHT times its return, best first', () => {
+  // THE WEIGHT IS WHAT EACH WAS WORTH WHEN THE WINDOW BEGAN, value now ÷ (1 + its return) (outside review Claude
+  // Performance, 2026-10-11, DEC-1669, DEC-3035b): the contributions then add up to the portfolio's own growth.
+  test('each holding contributes its WEIGHT AT THE START times its return, best first', () => {
     const a = attribution([row('VTI', 75_000, 0.10), row('BND', 25_000, 0.02)]);
+    const vti = 75_000 / 1.1, bnd = 25_000 / 1.02;
     expect(a[0].position.ticker).toBe('VTI');
-    expect(a[0].weight).toBe(0.75);
-    expect(a[0].contribution).toBeCloseTo(0.075, 4);    // 0.75 × 10%
-    expect(a[1].contribution).toBeCloseTo(0.005, 4);
+    expect(a[0].weight).toBeCloseTo(vti / (vti + bnd), 12);
+    expect(a[0].contribution).toBeCloseTo(vti / (vti + bnd) * 0.10, 12);
+    expect(a[1].contribution).toBeCloseTo(bnd / (vti + bnd) * 0.02, 12);
+    expect(a[0].contribution + a[1].contribution).toBeCloseTo(100_000 / (vti + bnd) - 1, 12);   // = the portfolio's growth
   });
 
   test('a holding with no return is left out rather than counted as zero', () => {
@@ -89,9 +93,11 @@ describe('LOOK_BACK', () => {
 import { portfolioPeriodReturn, portfolioBenchReturn, portfolioTrend } from '../../src/domain/performance';
 
 describe('PORTFOLIO_RETURN', () => {
-  test('holdings are weighted by how much money is in them, not counted equally', () => {
-    // 90k at +10% and 10k at 0% is +9%, not the +5% an equal-weight average would give
-    expect(portfolioPeriodReturn([row('VTI', 90_000, 0.10), row('BND', 10_000, 0)])).toBeCloseTo(0.09, 4);
+  test('holdings are weighted by how much money was in them, not counted equally', () => {
+    // 90k at +10% and 10k at 0%: $81,818 + $10,000 became $100,000 = +8.91%, not the +5% an equal-weight average
+    // would give — weighed by the value when the window began (outside review Claude Performance, 2026-10-11,
+    // DEC-1669, DEC-3035b); today's values read +9.00%
+    expect(portfolioPeriodReturn([row('VTI', 90_000, 0.10), row('BND', 10_000, 0)])).toBeCloseTo(100_000 / (90_000 / 1.1 + 10_000) - 1, 12);
   });
 
   test('a holding with no return is excluded from BOTH the top and the bottom of the average', () => {

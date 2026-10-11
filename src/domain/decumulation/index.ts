@@ -678,8 +678,11 @@ export function taxableGainShare(accounts: AssetAccount[], priceOf: (ticker: str
     for (const p of a.positions ?? []) {
       const price = p.last_price ?? priceOf(p.ticker);
       if (price == null) continue;
-      value += marketValue(p, price);
-      basis += costBasis(p);
+      // a holding whose worth or cost is not on record makes the share unknown — never a $0 cost (tenet 3; outside review Claude Performance, 2026-10-11)
+      const mv = marketValue(p, price), cost = costBasis(p);
+      if (mv == null || cost == null) return null;
+      value += mv;
+      basis += cost;
     }
   }
   if (value <= 0) return null;

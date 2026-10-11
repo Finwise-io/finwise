@@ -22,7 +22,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *     a   when source = 'connected'
  *     ledger managed = derive balance = true (or cash balance ≠ nothing when missing or zero)
  *     a   when ledger managed is missing
- *     positions = for each of positions (or none when missing): const px = latest close(cache[ticker.trim().to upper case()]); return { ...each, value now: px == null ? cost basis(each) : market value(each, px) }; = const px = latest close(cache[ticker.trim().to upper case()]); return { ...each, value now: px == null ? cost basis(each) : market value(each, px) };
+ *     positions = for each of positions (or none when missing): const px = latest close(cache[ticker.trim().to upper case()]); return { ...each, value now: (px == null ? cost basis(each) : market value(each, px)) ?? value now ?? 0 }; = const px = latest close(cache[ticker.trim().to upper case()]); return { ...each, value now: (px == null ? cost basis(each) : market value(each, px)) ?? value now ?? 0 };
  *     mv = Σ over positions of (value now)
  *     the answer:
  *     ...a = ...a
@@ -54,6 +54,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-XS-I-020 Social Security monthly amount
  *
  * Decides .....
+ *     · If value now is missing it uses 0.
  *     · If cash balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-174
@@ -75,7 +76,10 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
     // not $0 — counting it as $0 silently understated net worth.
     // each holding keeps the value the balance was built from, so the split of the account across
     // classes uses today's prices too — not what was paid (re-check of 2026-10-07)
-    const positions = (a.positions ?? []).map((p) => { const px = latestClose(cache[p.ticker.trim().toUpperCase()]); return { ...p, value_now: px == null ? costBasis(p) : marketValue(p, px) }; });
+    // A STORED BALANCE IS A NUMBER: where a holding's worth is unknown (a share count or a cost not entered — outside
+    // review Claude Performance, 2026-10-11, tenet 3) it keeps the value it was last built at, and the holding's own
+    // figures refuse on screen. Before, the missing figure counted as 0 here.
+    const positions = (a.positions ?? []).map((p) => { const px = latestClose(cache[p.ticker.trim().toUpperCase()]); return { ...p, value_now: (px == null ? costBasis(p) : marketValue(p, px)) ?? p.value_now ?? 0 }; });
     const mv = positions.reduce((t, p) => t + p.value_now, 0);
     return { ...a, positions, balance: round2((a.cash_balance || 0) + mv) };
   });
@@ -899,7 +903,8 @@ export const useStore = create<AppState>()(
       refreshPrices: async () => {
         const accts = get().assetAccounts;
         const tickers: string[] = [];
-        accts.forEach((a) => (a.positions ?? []).forEach((p) => { tickers.push(p.ticker); tickers.push(benchmarkTicker(p.kind)); }));
+        // a holding nothing describes has no yardstick, so none is fetched for it (DEC-2160; outside review Claude Performance, 2026-10-11)
+        accts.forEach((a) => (a.positions ?? []).forEach((p) => { tickers.push(p.ticker); const b = benchmarkTicker(p); if (b) tickers.push(b); }));
         if (!tickers.length) return;
         const fetched = await fetchPriceSeries(tickers);
         if (!Object.keys(fetched).length) {                  // offline/blocked → keep cache, SAY so (mock approved 2026-07-31)

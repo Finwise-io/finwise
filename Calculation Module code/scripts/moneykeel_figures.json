@@ -2198,7 +2198,7 @@
    "decisions": [
     "r30: with NO price it shows what you paid, never a zero — a holding priced at zero would quietly shrink your whole portfolio."
    ],
-   "refusal": "No price — it shows what you paid, labelled as that.",
+   "refusal": "No price — it shows what you paid, labelled as that. Not stated where a purchase has no share count or price paid on record.",
    "ruled": "2026-09-28",
    "worked": {
     "given": "140 shares of VTI on 28 Sep 2026, priced at $290: 100 bought at $210 in Mar 2023 and 40 at $265 in Jun 2026. Dividends of $420 and $405 this year; 20 shares bought at $200 were sold at $285.",
@@ -2218,7 +2218,7 @@
    "inputs": [
     "MK-NW-I-001 your accounts"
    ],
-   "refusal": "All sold — the screen says the holding is liquidated rather than showing 0 shares.",
+   "refusal": "All sold — the screen says the holding is liquidated rather than showing 0 shares. Not stated where a purchase has no share count on record.",
    "ruled": "2026-09-28",
    "worked": {
     "given": "140 shares of VTI on 28 Sep 2026, priced at $290: 100 bought at $210 in Mar 2023 and 40 at $265 in Jun 2026. Dividends of $420 and $405 this year; 20 shares bought at $200 were sold at $285.",
@@ -2326,7 +2326,7 @@
     "MK-NW-I-001 your accounts",
     "MK-NW-I-005 the price feed"
    ],
-   "refusal": "No price today — no gain is stated at all.",
+   "refusal": "No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record.",
    "ruled": "2026-09-28",
    "worked": {
     "given": "140 shares of VTI on 28 Sep 2026, priced at $290: 100 bought at $210 in Mar 2023 and 40 at $265 in Jun 2026. Dividends of $420 and $405 this year; 20 shares bought at $200 were sold at $285.",
@@ -2347,7 +2347,7 @@
     "MK-NW-I-001 your accounts",
     "MK-NW-I-005 the price feed"
    ],
-   "refusal": "No price today — no gain is stated at all.",
+   "refusal": "No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record.",
    "ruled": "2026-09-28",
    "worked": {
     "given": "140 shares of VTI on 28 Sep 2026, priced at $290: 100 bought at $210 in Mar 2023 and 40 at $265 in Jun 2026. Dividends of $420 and $405 this year; 20 shares bought at $200 were sold at $285.",
@@ -2632,7 +2632,7 @@
     "/invest"
    ],
    "answers": "What each kind of holding returned over the window you picked.",
-   "formula": "each class's own return, weighted by what each holding in it is worth",
+   "formula": "each class's own growth over the window: what its holdings are worth now ÷ what they were worth when the window began (each now ÷ (1 + its own return over the whole window, never a yearly rate)), less 1",
    "inputs": [
     "MK-NW-I-001 your accounts",
     "MK-XS-I-006 the price fetched at"
@@ -2680,18 +2680,18 @@
     "/home"
    ],
    "answers": "What the market did over the SAME days, matched to what you actually hold.",
-   "formula": "each holding's own benchmark return over the same dates, weighted by what that holding is worth",
+   "formula": "each holding's own benchmark return over the same dates, weighted by what that holding was worth when the window began (its value now ÷ (1 + its own return)); a holding with no return of its own is left out of the blend",
    "inputs": [
     "MK-NW-I-001 your accounts",
     "MK-XS-I-006 the price fetched at"
    ],
    "decisions": [
     "The benchmark runs over the SAME DATES as your return — including where your window is cut short at your own purchase date. Comparing your three months against the market's twelve is not a comparison.",
-    "Weighted by what each holding is worth, so the blend answers \"the market, matched to my mix\" rather than a plain average of indices."
+    "Weighted by what each holding was worth when the window began, so the blend answers \"the market, matched to my mix\" rather than a plain average of indices — and a holding that grew does not grow its yardstick's weight (outside review Claude Performance, 2026-10-11, DEC-1669, DEC-3035b)."
    ],
    "refusal": "No benchmark can be priced over this window, so none is shown.",
    "worked": {
-    "given": "$40,000 of shares against a benchmark up 10% over the window, and $10,000 of bonds against one up 4% over the same days.",
+    "given": "$40,000 of shares against a benchmark up 10% over the window, and $10,000 of bonds against one up 4% over the same days; neither holding moved, so each was worth then what it is worth now.",
     "answer": "8.80%"
    },
    "note": "ITS SCREEN WAS WRONG UNTIL 2026-09-30. The row said /invest and called it HONEST COMPARISON — the name of a card the approved mock v14 removed on 2026-09-25 (\"not in this design, so they go\"). The figure itself is alive, on HOME, inside the glance line \"you +3.69% · market +2.83% · ahead by 0.85%\". Nothing showed it on Performance. Declared 2026-09-30; hand-typed before that, so nothing compared the row with the code. STILL OPEN FOR HIM: the market side counts PRICE CHANGE ONLY (we hold no dividend record for an index), while the \"you\" side beside it counts dividends and interest — so the \"ahead by\" is not a like-for-like gap.",

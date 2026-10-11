@@ -14,7 +14,7 @@ function recompute(accs: AssetAccount[], cache: Record<string, PriceSeries>): As
   return accs.map((a) => {
     const ledgerManaged = (a.positions?.length ?? 0) > 0 || a.cash_balance != null;
     if (!ledgerManaged) return a;
-    const mv = (a.positions ?? []).reduce((t, p) => { const c = latestClose(cache[p.ticker.trim().toUpperCase()]); return t + (c == null ? 0 : totalShares(p) * c); }, 0);
+    const mv = (a.positions ?? []).reduce((t, p) => { const c = latestClose(cache[p.ticker.trim().toUpperCase()]); return t + (c == null ? 0 : totalShares(p)! * c); }, 0);
     return { ...a, balance: round2((a.cash_balance || 0) + mv) };
   });
 }

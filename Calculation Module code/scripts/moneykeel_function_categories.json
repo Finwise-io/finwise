@@ -859,6 +859,11 @@
   "file": "src/domain/_shared/dates.ts",
   "category": "2 · DISPLAYED"
  },
+ "dayBefore": {
+  "id": "MK-PF-F-037",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "dayWords": {
   "id": "MK-ST-F-003",
   "file": "Calculation Module code/engines/coverage.ts",
@@ -1659,6 +1664,11 @@
   "file": "src/domain/history.ts",
   "category": "1 · ACTION"
  },
+ "isoDay": {
+  "id": "MK-PF-F-041",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "isoLocalDate": {
   "id": "MK-ST-F-065",
   "file": "src/domain/_shared/dates.ts",
@@ -1994,6 +2004,11 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "3 · DEPENDENT"
  },
+ "monthsBefore": {
+  "id": "MK-PF-F-036",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "monthsLeftInYear": {
   "id": "MK-CF-F-195",
   "file": "src/domain/income/limits.ts",
@@ -2279,10 +2294,20 @@
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "periodReturnParts": {
+  "id": "MK-PF-F-039",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "periodReturnSince": {
   "id": "MK-PF-F-011",
   "file": "src/domain/performance/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "periodTotalReturn": {
+  "id": "MK-PF-F-038",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "periodsAYear": {
   "id": "MK-CF-F-140",
@@ -2668,6 +2693,11 @@
   "id": "MK-PL-F-049",
   "file": "src/domain/retirement/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "returnSincePurchases": {
+  "id": "MK-PF-F-040",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "reviewTransactions": {
   "id": "MK-CF-F-109",
@@ -3094,6 +3124,11 @@
   "file": "src/domain/performance/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "startValues": {
+  "id": "MK-PF-F-044",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "stateRateOf": {
   "id": "MK-CF-F-086",
   "file": "src/domain/income/onboarding.ts",
@@ -3439,6 +3474,11 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "unknownFigure": {
+  "id": "MK-PF-F-035",
+  "file": "src/domain/performance/index.ts",
+  "category": "1 · ACTION"
+ },
  "unrealizedGain": {
   "id": "MK-PF-F-005",
   "file": "src/domain/performance/index.ts",
@@ -3568,6 +3608,16 @@
   "id": "MK-NW-F-090",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "2 · DISPLAYED"
+ },
+ "windowTotal": {
+  "id": "MK-PF-F-042",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "windowTotalOfRow": {
+  "id": "MK-PF-F-043",
+  "file": "src/domain/performance/index.ts",
+  "category": "1 · ACTION"
  },
  "withSalaryMonth": {
   "id": "MK-CF-F-169",

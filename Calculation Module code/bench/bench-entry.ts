@@ -365,10 +365,10 @@ export const CARDS: Card[] = [
       const pos = { position_id: 'bench', ticker: 'BENCH', lots } as unknown as Position;
       const g = capGains(pos, num(v.price), new Date(`${v.asof}T12:00:00`));
       return [
-        { label: 'Long-term gain (held more than one year)', value: money(g.longGain) },
-        { label: 'Short-term gain', value: money(g.shortGain) },
-        { label: 'Total unrealised gain', value: money(g.totalGain) },
-        { label: 'The rule', value: 'a lot with no cost is SKIPPED (never free shares); an unreadable date stays SHORT — the cautious side' },
+        { label: 'Long-term gain (held more than one year)', value: g.longGain == null ? 'UNKNOWN' : money(g.longGain) },
+        { label: 'Short-term gain', value: g.shortGain == null ? 'UNKNOWN' : money(g.shortGain) },
+        { label: 'Total unrealised gain', value: g.totalGain == null ? 'UNKNOWN' : money(g.totalGain) },
+        { label: 'The rule', value: 'a lot with no cost makes its part UNKNOWN, and the total with it (never free shares, never skipped — outside review Claude Performance, 2026-10-11); an unreadable date stays SHORT — the cautious side' },
       ];
     },
   },
