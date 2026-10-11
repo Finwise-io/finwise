@@ -35,6 +35,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess as _sp
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -880,7 +881,16 @@ def main():
         here = os.path.dirname(os.path.abspath(__file__))
         dec = json.load(open(os.path.join(here, 'moneykeel_decisions.json')))['rows']
         reviews = [r for r in dec if str(r.get('decided', '')) >= '2026-10-04' and str(r.get('in_use') or 'IN USE').startswith('IN USE')
-                   and r.get('type') in ('RULE', 'DESIGN') and r.get('tab') == 'networth']
+                   and r.get('type') in ('RULE', 'DESIGN', 'CALCULATION', 'COPY') and r.get('tab') in ('networth', 'networth-and-performance')]
+        # A RE-RUN names what changed since the judge last saw the module (founder, 2026-10-11: "files ready to feed to
+        # OpenAI for re-run"): every card whose formula was re-read after the commit the last brief went out at.
+        since = sys.argv[sys.argv.index('--rerun-since') + 1] if '--rerun-since' in sys.argv else None
+        changed_ids = []
+        if since:
+            old_rules = json.loads(_sp.run(['git', 'show', f'{since}:Calculation Module code/scripts/moneykeel_function_rules.json'],
+                                                  capture_output=True, text=True, cwd=os.path.dirname(os.path.dirname(here))).stdout)['rules']
+            changed_ids = [c['card']['id'] for c in chosen if (old_rules.get(c['card']['id']) or {}).get('rule') != written.get(c['card']['id'], {}).get('rule')]
+            assert changed_ids, 'a re-run that finds nothing changed has not looked'
         figs = json.load(open(os.path.join(here, 'moneykeel_figures.json')))['figures']
         shown = {k: v for k, v in figs.items() if any(sc in screens for sc in v.get('screens', []))}
         tenets = open(os.path.join(OUT, '..', '..', 'standards', 'moneykeel_spec_tenets_v01.md'), encoding='utf8').read().split('\n', 4)[-1].strip()
@@ -924,6 +934,8 @@ def main():
                 'think the owner\'s rule is wrong, say so in `notes` with your reasoning; do not apply your own rule.', '',
                 '# The general brief — how a card is read and how a case is worked', '', brief, '', '---', '',
                 '# What the owner has ruled — settled, in his words', '']
+        if since:
+            head = [f'**THIS IS A RE-RUN.** You judged this module once (brief v01). The app has been corrected since, against your findings and the owner\'s new decisions. Judge every card again from scratch. These {len(changed_ids)} cards changed since you last saw them — look hardest at them: ' + ', '.join(changed_ids) + '.', ''] + head
         head += [f'{i}. {r["date"]} — "{r["words"]}" {r["about"]}' for i, r in enumerate(rulings, 1)]
         head += ['', f'# The rules decided in the outside reviews — {len(reviews)}, each in force', '',
                  'From the owner\'s decision log. Job 3 checks each one.', '']
