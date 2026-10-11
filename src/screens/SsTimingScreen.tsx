@@ -1,6 +1,7 @@
 // Claim Social Security (FCC detailed design v1.1, Plan sheet) — the flagship decision: 62 vs 67 vs 70
 // laid out in YOUR dollars. You set how long you expect to live; we never crown a winner. Everything is
 // a sandbox until the Use-this-plan sheet; Back discards silently (nothing was at risk).
+import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { displayOdds } from '../domain/retirement/willItLast';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
@@ -115,6 +116,8 @@ export default function SsTimingScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <Text style={styles.tagline}>We lay it out. You decide.</Text>
+      {/* the odds here count an account with no tax type as taxable, and name it (DEC-4105, 2026-10-10) */}
+      <CountedTaxableLines accounts={accounts} />
 
       {/* statement amount — the one number everything is computed from */}
       <View style={styles.card}>

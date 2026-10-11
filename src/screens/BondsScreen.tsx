@@ -1,5 +1,6 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
 // already flow into Net Worth + the nest egg; here we add/edit them and show bond-specific metrics.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Platform, Alert, KeyboardAvoidingView } from 'react-native';
@@ -11,7 +12,7 @@ import { fig, figPer, figSpoken, figWords } from '../components/figure';   // ru
 import { InfoDot, EmptyNote } from '../components/UI';
 import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
-import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
+import { theBonds, MATURITY_NOT_ENTERED } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
 import { isoLocalDate } from '../domain/_shared/dates';
@@ -56,7 +57,7 @@ export default function BondsScreen() {
         <>
           <View style={styles.summary}>
             <Text style={styles.sumVal}>{fig('MK-NW-M-041', summary.totalValue)}</Text>
-            <Text style={styles.sumLab}>{summary.count} bond{summary.count > 1 ? 's' : ''} · {summary.faceNotEntered.length === summary.count ? figWords('MK-NW-M-053', 'face value not entered') : `face ${fig('MK-NW-M-053', summary.totalFace)}`}</Text>
+            <Text style={styles.sumLab}>{plural(summary.count, 'bond')} · {summary.faceNotEntered.length === summary.count ? figWords('MK-NW-M-053', 'face value not entered') : `face ${fig('MK-NW-M-053', summary.totalFace)}`}</Text>
             <View style={styles.sumRow}>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{fig('MK-NW-M-043', summary.couponPerYear)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-044', summary.avgYield)}</Text></View>
@@ -79,12 +80,14 @@ export default function BondsScreen() {
             // only to open the editor, which is the one thing a figure cannot do
             const acct = accounts.find((x) => String(x.asset_id) === r.accountId);
             const yrs = r.yearsLeft ?? 0;   // G11: no date → no years figure; the sub-line shows the date field instead
+            // no maturity date: the row says "maturity date not entered" where the date stands, never a blank or a dash;
+            // its interest still counts in COUPON /year (DEC-4036b, 2026-10-10)
             return (
               <TouchableOpacity key={r.accountId} accessibilityRole="button"
-                accessibilityLabel={`${r.institution}, ${figSpoken('MK-NW-M-054', r.value)}, matures ${humanDate(r.maturity)}. Opens the editor.`}
+                accessibilityLabel={`${r.institution}, ${figSpoken('MK-NW-M-054', r.value)}, ${r.maturity ? `matures ${humanDate(r.maturity)}` : MATURITY_NOT_ENTERED}. Opens the editor.`}
                 style={styles.card} onPress={() => acct && setEdit(acct)}>
                 <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.institution}</Text><Text style={styles.bondVal}>{fig('MK-NW-M-054', r.value)}</Text></View>
-                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : figWords('MK-NW-M-055', 'coupon rate not entered'), `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}`]} />
+                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : figWords('MK-NW-M-055', 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED]} />
                 <View style={styles.bondMetrics}>
                   <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', 'coupon not entered')}</Text>
                   <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}</Text>
@@ -141,7 +144,10 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   const [value, setValue] = useState('');
   const [valueAsOf, setValueAsOf] = useState('');   // walk row 4: the stamp lives everywhere a manual value does
   const [institution, setInstitution] = useState('');
-  const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
+  // NO ACCOUNT TYPE IS CHOSEN FOR THE PERSON (DEC-4036f, 2026-10-10): "An account with no account type chosen is never
+  // assumed taxable." Taxable used to be preselected; now no chip is on until they tap one, and saved untapped the
+  // holding has no tax type (its page says "tax type not stated").
+  const [bucket, setBucket] = useState<TaxBucket | undefined>(undefined);
   const [sellAmt, setSellAmt] = useState('');
   // WHERE A CD WAS BOUGHT (DEC-3837, 2026-10-10): a bank CD yields its rate; a broker CD is priced like a
   // bond. Not answered = bank. Asked only for a CD, judged by the bonds door (MK-NW-O-001) — the same test
@@ -155,7 +161,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     setLabel(bond?.label ?? ''); setFace(bond?.face_value ? String(bond.face_value) : '');
     setCoupon(bond?.coupon_rate ? String(bond.coupon_rate * 100) : ''); setMaturity(bond?.maturity_date ?? '');
     setAccrued(bond?.accrued_interest != null ? String(bond.accrued_interest) : '');
-    setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? ''); setSellAmt(''); setValueAsOf(bond?.value_as_of ?? '');
+    setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket);   // (DEC-4036f, 2026-10-10) unstated stays unstated setInstitution(bond?.institution ?? ''); setSellAmt(''); setValueAsOf(bond?.value_as_of ?? '');
     setCdBought(bond?.cd_bought === 'broker' ? 'broker' : 'bank');   // (DEC-3837, 2026-10-10)
   }, [open]);
   // You can sell a bond on the secondary market before maturity. Record a full or partial sale: a full
@@ -181,7 +187,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           const newVal = r2(cur - sold);
           // the ledger row lowers the value (the one writer); onSave carries only the non-balance fields
           if (bond) recordTransaction?.({ type: 'SELL', account_id: bond.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Bond sale' });
-          onSave({ label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
+          onSave({ label: label.trim(), tax_bucket: bucket as TaxBucket, institution: institution.trim() || undefined,
             coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
             face_value: r2(num(face) * (newVal / cur)), ...cdField, ...(bond ? {} : { balance: newVal }) });
         } },
@@ -197,7 +203,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     setShowPicker((s) => !s);
   };
   const save = () => onSave({
-    label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
+    label: label.trim(), tax_bucket: bucket as TaxBucket, institution: institution.trim() || undefined,
     face_value: num(face), coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
     balance: num(value) > 0 ? num(value) : num(face),   // default value to face if blank
     value_as_of: valueAsOf || fmtISO(new Date()),       // walk row 4: every manual value carries its date

@@ -80,7 +80,8 @@ describe('WRAPPER_GUESS', () => {
   test('a "savings" account through this broker is a BROKERAGE wearing the wrong label', () => {
     // founder-verified 2026-08-04: SnapTrade is brokerage-only, and E*TRADE labels one this way.
     // Labels lose to reality — and it stays NOT confident so the question can still correct it.
-    expect(mapAccountType('savings')).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE', confident: false });
+    // MOVED 2026-10-10 by his rule DEC-4036f: a guess is not a tax answer — the tax type stays unstated until asked
+    expect(mapAccountType('savings')).toEqual({ kind: 'brokerage', tax_bucket: undefined, confident: false });
   });
 
   test('anything unrecognised is NOT confident, so the app asks instead of guessing at tax', () => {

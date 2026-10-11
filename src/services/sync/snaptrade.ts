@@ -69,7 +69,8 @@ export interface StActivity {
 // SnapTrade has NO normalized wrapper — only the broker's raw string. We map the common shapes;
 // anything unmatched returns confident:false and the connect flow ASKS with the Held-in chooser
 // (wrong wrapper = wrong tax math — accuracy-is-trust P0, never guessed silently).
-export interface WrapperGuess { kind: string; tax_bucket: 'CASH' | 'TAXABLE' | 'PRE_TAX' | 'ROTH'; confident: boolean }
+// tax_bucket undefined = not stated: an account type the broker's word does not settle is never guessed taxable (DEC-4036f, 2026-10-10)
+export interface WrapperGuess { kind: string; tax_bucket: 'CASH' | 'TAXABLE' | 'PRE_TAX' | 'ROTH' | undefined; confident: boolean }
 /* ─ MK-XS-F-104 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * mapAccountType
  *
@@ -98,7 +99,7 @@ export interface WrapperGuess { kind: string; tax_bucket: 'CASH' | 'TAXABLE' | '
  *     tax bucket = 'CASH'
  *     confident = true   when has('checking')
  *     kind = 'brokerage'
- *     tax bucket = 'TAXABLE'
+ *     tax bucket = undefined
  *     confident = false   when has('savings')
  *     kind = 'college_529'
  *     tax bucket = 'TAXABLE'
@@ -133,13 +134,15 @@ export function mapAccountType(rawType: string | null | undefined, category?: st
   // FOUNDER-VERIFIED 2026-08-04 (research v1 correction): SnapTrade is brokerage-only — an account
   // typed 'savings' through it is a BROKERAGE account wearing the wrong label (E*TRADE does this).
   // Labels lose to reality (rule 6). Not confident → the wrapper question can still fix IRAs.
-  if (has('savings')) return { kind: 'brokerage', tax_bucket: 'TAXABLE', confident: false };
+  // NOT CONFIDENT IS NOT TAXABLE (DEC-4036f, 2026-10-10): "An account with no account type chosen is never assumed
+  // taxable." The tax type stays unstated until the person answers the Held-in question.
+  if (has('savings')) return { kind: 'brokerage', tax_bucket: undefined, confident: false };
   if (has('529', 'education')) return { kind: 'college_529', tax_bucket: 'TAXABLE', confident: true };
   if (has('individual', 'joint', 'brokerage', 'margin', 'cash', 'taxable', 'trust'))
     return { kind: 'brokerage', tax_bucket: 'TAXABLE', confident: true };
   if (category === 'DEPOSIT') return { kind: 'checking', tax_bucket: 'CASH', confident: true };
-  // Unknown → sensible display default, but the UI must CONFIRM before tax math trusts it.
-  return { kind: 'brokerage', tax_bucket: 'TAXABLE', confident: false };
+  // Unknown → a display kind only; no tax type until the person confirms it (DEC-4036f, 2026-10-10) — it used to be TAXABLE.
+  return { kind: 'brokerage', tax_bucket: undefined, confident: false };
 }
 
 // ── positions → our holdings ───────────────────────────────────────────────────────────────────

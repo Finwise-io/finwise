@@ -93,7 +93,10 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   });
 
   test('rental nets operating expenses; system-calculated tax by default', () => {
-    const doc = incomeFromOnboarding('u1', { rentalIncome: '2000', rentalExpenses: '800', rentalType: 'long' });
+    // the entry names its property: rent with no property is not counted (DEC-4059d, 2026-10-10)
+    expect(incomeFromOnboarding('u1', { rentalIncome: '2000', rentalExpenses: '800', rentalType: 'long' }).sources).toHaveLength(0);
+    expect(incomeFromOnboarding('u1', { rentals: [{ type: 'long', income: '2000', expenses: '800' }] }).sources).toHaveLength(0);
+    const doc = incomeFromOnboarding('u1', { rentals: [{ type: 'long', income: '2000', expenses: '800', property_id: 'p1' }] });
     expect(doc.tax.use_manual_tax_override).toBe(false);
     expect(doc.sources[0].income_type).toBe('LONG_TERM_RENTAL');
     expect(buildIncomeState('u1', doc.sources, doc.tax).total_gross_annual).toBe((2000 - 800) * 12);
@@ -105,7 +108,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     const doc = incomeFromOnboarding('u1', {
       baseSalary: '100000', salaryFreq: 'annual',
       equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400' }],
-      rentals: [{ type: 'long', income: '2000', expenses: '500' }],
+      rentals: [{ type: 'long', income: '2000', expenses: '500', property_id: 'p1' }],
       seAmount: '30000', seFreq: 'annual',
     } as any);
     const labels = doc.sources.map((s) => s.label);
@@ -114,8 +117,8 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
 
   test('multiple rental properties each become a source, netting their own expenses', () => {
     const doc = incomeFromOnboarding('u1', { rentals: [
-      { type: 'long', income: '2000', expenses: '800' },
-      { type: 'short', income: '3000', expenses: '1200' },
+      { type: 'long', income: '2000', expenses: '800', property_id: 'p1' },
+      { type: 'short', income: '3000', expenses: '1200', property_id: 'p2' },
     ] });
     expect(doc.sources).toHaveLength(2);
     expect(doc.sources.map((s) => s.income_type)).toEqual(['LONG_TERM_RENTAL', 'SHORT_TERM_RENTAL']);

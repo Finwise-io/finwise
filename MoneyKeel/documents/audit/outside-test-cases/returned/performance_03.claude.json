@@ -1,0 +1,2845 @@
+{
+  "batch": "performance 03",
+  "written_by": "claude",
+  "formula_checks": [
+    {
+      "id": "MK-PF-F-014",
+      "name": "buildPerformance",
+      "verdict": "WRONG",
+      "why": "Most of the row is assembled right from the functions it names, and measuring the yardstick over the same dates as the holding is right. Three faults. (1) A holding bought inside the period gets its return on cost (MK-PF-F-007) as its period return. With more than one purchase at different prices that is not a time-weighted return (owner decision Q16), and it is set beside a yardstick measured as a pure price return since the first purchase, so 'beat by' compares two different kinds of figure. (2) 'Bought AFTER the period's start' leaves a purchase made ON the first day uncapped; owner decision Q3 puts the first day inside the period, so money that arrived that day arrived inside it. (3) In a 2Y window uncapped holdings carry a yearly rate (MK-PF-F-010) and capped ones a total (MK-PF-F-007 / MK-PF-F-011), so one column mixes two units, and portfolio and category averages built on these rows (MK-PF-F-019, MK-NW-F-084) mix them too. It also inherits a $0 market value for a holding with no price (MK-PF-F-004).",
+      "should_be": "Capped when the earliest purchase is on or after the period's first day. A capped holding's period return = its time-weighted return since the first purchase (price-based: chain-linked at each purchase), set against the yardstick since the same day. Within one window, every row's return is in the same unit (all totals, or all yearly rates when the window is over a year).",
+      "rests_on": "Owner decisions Q16 (time-weighted) and Q3 (both edge days inside the period); agreement between rows in one column.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-013",
+      "name": "benchmarkTicker",
+      "verdict": "WRONG",
+      "why": "The mapping for the kinds it names is sensible (SPY for stocks, AGG for bonds, GLD for commodities, AOR for a balanced 529). Two faults. (1) It reads only `kind`, while the app's own Position type says the explicit `asset_class` (set by import or sync) wins over kind: a bond fund the import marks as class 'bond' with no kind is compared against SPY. (2) 'Anything else or none → SPY' invents a yardstick for a holding nothing describes, and for a cash-class holding; the brief's rule is that an honest 'no answer' beats a default (the type comments also record the owner's Q11 'refuse the line and ask' — author-recorded). Low: the registry tags (purchase price and date, account wrapper) do not fit a function that reads only the kind.",
+      "should_be": "Read the holding's asset class first (it wins over kind), then kind. Stocks/funds → SPY; bonds, fixed income and annuities → AGG; private equity → PSP; hedge funds → QAI; commodities → GLD; crypto → BTC; 529 → AOR. Cash, or nothing that says what the holding is → no yardstick (the comparison is not shown).",
+      "rests_on": "The app's Position type ('explicit class … wins over kind'); brief: no default number where the honest answer is 'no answer'.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "verdict": "INCOMPLETE",
+      "why": "Largest holding ÷ total, reported at 25% or more with two or more holdings, is the right fact. The formula does not say whether the 25% line is tested before or after rounding to a whole percent; as worded ('rounded … — reported only when that share is 25% or more') it tests the rounded figure, so a 24.6% holding is reported as 25%. Owner decision Q56 is to round once, at display, so the line should be tested on the full-precision share. It also does not say which holding is named when two are equally largest.",
+      "should_be": "Share = largest value ÷ total at full precision; report when that share is 25% or more; round to a whole percent only for display. On a tie, name a stated one (for example, the first in the list).",
+      "rests_on": "Owner decision Q56 (round once, at display); brief: a line on the wrong side.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-016",
+      "name": "attribution",
+      "verdict": "WRONG",
+      "why": "A contribution should be the holding's weight at the START of the period × its return, so that the contributions add up to the portfolio's return. The formula weights by value today, which already includes each holding's gain, so winners are over-weighted and the contributions do not add up to the portfolio return. It also divides by the total of ALL holdings, including those with no period return, so the weights of the holdings it lists do not sum to 1 and the contributions cannot add up to MK-PF-F-019's figure either. Parts that do not add up to the whole they sit beside.",
+      "should_be": "Over the holdings with a period return and value above zero: start value = value now ÷ (1 + return); weight = start value ÷ the sum of those start values; contribution = weight × return. The contributions then sum to the portfolio return (Σ value now ÷ Σ start value − 1).",
+      "rests_on": "Standard return attribution (beginning-of-period weights); ordinary arithmetic.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-PF-F-017",
+      "name": "allocation",
+      "verdict": "INCOMPLETE",
+      "why": "Value by kind plus cash, share = value ÷ total, largest first, is right. Two gaps. (1) Each share is rounded to one decimal on its own, so the slices shown can add to 99.9% or 100.1% beside a total of 100% — parts that do not add up to the whole. (2) It groups by `kind`, while the Position type says the explicit asset class wins over kind; a holding the import classes as 'bond' with kind 'mutual fund' lands with the funds. Owner decision Q2 also says a position clearly named money market is a fund, not cash; the card does not say how such a holding is grouped.",
+      "should_be": "Group by the holding's class (class wins over kind; a money-market fund is a fund per Q2), plus cash above zero. Share = value ÷ total at full precision; for display, round to one decimal so the shown shares sum to exactly 100.0 (largest-remainder rounding).",
+      "rests_on": "Owner decisions Q2 and Q56; the Position type comment; ordinary arithmetic.",
+      "severity": "low"
+    },
+    {
+      "id": "MK-PF-F-018",
+      "name": "portfolioTrend",
+      "verdict": "WRONG",
+      "why": "The question is how the portfolio moved. The formula prices TODAY'S share count at every past date, so it draws what today's holdings would have done, not what the portfolio was. A holding bought halfway through the period appears to have been owned from the start (its money shows up as if it were always there and its price moves before the purchase show as the person's gain or loss); a holding sold during the period vanishes from the past entirely. A holding with no price counts as zero, so the line drops or jumps with no money moving, and with no prices at all it draws a flat line at $0 rather than nothing. It also disagrees with MK-NW-O-008, which reads the actual value of the accounts from the daily record.",
+      "should_be": "Value at each date = the measured accounts' recorded value on or before that date (the daily record MK-NW-O-008 reads), or failing that, the shares actually held on that date (from purchase and sale dates) × the close on or before it. No point where a holding held on that date has no price. Yardstick line scaled from the first point.",
+      "rests_on": "Agreement with MK-NW-O-008 (values read from the daily record); brief: missing is not zero.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-PF-F-019",
+      "name": "portfolioPeriodReturn",
+      "verdict": "WRONG",
+      "why": "Averaging holdings' returns weighted by market value TODAY does not give the portfolio's return: today's value already contains each holding's gain, so winners count for more than they did. The right weights are the values at the start, which is exactly what MK-NW-F-084 (each category's return) does — value at start = value now ÷ (1 + return), return = Σ now ÷ Σ start − 1. The two cards disagree for the same holdings; this card is the wrong one. In a 2Y window it also averages yearly rates with capped holdings' totals (see MK-PF-F-014). The author's renaming of this figure to 'value-weighted' (DEC-0323) does not make it a return of the portfolio.",
+      "should_be": "Over the holdings with a period return above −100% and value above zero: start value = value now ÷ (1 + return); return = Σ value now ÷ Σ start value − 1 (the same rule as MK-NW-F-084). Nothing when none qualifies.",
+      "rests_on": "Ordinary arithmetic (a portfolio with no money moved returns Σ end ÷ Σ start − 1); agreement with MK-NW-F-084.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "verdict": "WRONG",
+      "why": "'The market, matched to my mix' should weight each yardstick by how much of the portfolio that holding was at the START — the mix the market is being compared against. Weighting by value today lets the person's own gains change the market figure (a holding that doubled doubles its yardstick's weight). It also averages over a different set of holdings from MK-PF-F-019: a holding with a yardstick return but no return of its own is in this average and not in that one, so the two figures shown side by side on /home (MK-PF-M-008 beside the person's return) are not about the same money.",
+      "should_be": "Over the holdings that have BOTH their own period return and a yardstick return, with value above zero: start value = value now ÷ (1 + own return); market = Σ (start value × yardstick return) ÷ Σ start value.",
+      "rests_on": "Standard benchmark blending (beginning-of-period weights); agreement with the set used by MK-PF-F-019.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-PF-F-021",
+      "name": "periodDollarDelta",
+      "verdict": "WRONG",
+      "why": "total × r ÷ (1 + r) is the dollar gain only when no money moved during the period. With a time-weighted return (owner decision Q16) and money added or taken out inside the period, today's total includes the money added, so this formula applies the return to money that was not there for the whole period and the dollars no longer equal what the money made. The Home hero then says 'up $X' with an X that disagrees with 'Wealth generated' (MK-PF-M-002) for the same window. It is consistent with MK-NW-F-091 / MK-NW-F-127, which use the same expression for a holding with no flows. Smaller: '0 when an input is not a number or the return is −100% or worse' invents a $0 where there is no answer.",
+      "should_be": "Dollars shown beside the return = wealth generated over the same window from the walk: ending − beginning − contributions + withdrawals (MK-NW-O-008). total × r ÷ (1 + r) only when nothing moved in or out. No answer (not $0) when an input is missing or the return is −100% or worse.",
+      "rests_on": "Ordinary arithmetic; agreement with MK-PF-M-002 (wealth generated) via MK-NW-O-008; brief: missing is not zero.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "verdict": "WRONG",
+      "why": "The return rule is right — value at start = value now ÷ (1 + return), category return = Σ now ÷ Σ start − 1 — and it is the rule MK-PF-F-019 should use. The filing of records has two faults. (1) Interest with no ticker goes to 'Cash in this account', but the interest from a CD or bond held as its own account usually arrives with no ticker; it then lands in Cash, and Bonds & CDs (which earned it) is dropped because it 'earned nothing' — while the author's own rule for this table says interest comes from a bond. (2) It files a holding of class 'cash' under Cash, but the app's type comment says that class includes money-market funds, and owner decision Q2 says a position clearly named money market is never counted as cash. Also: in a 2Y window the rows' period returns are yearly rates (MK-PF-F-010), so value now ÷ (1 + yearly rate) is not the value at the start; the category return is then neither a total nor a correct yearly rate.",
+      "should_be": "Interest on a bond or CD account (or naming a bond) → Bonds & CDs, whether or not it names a ticker; interest with no ticker on a cash account → Cash. A money-market fund (by name, flag or the person's answer) → Stocks / Funds, not Cash (Q2). Use each holding's TOTAL return over the window for the start value; turn the category's total into a yearly rate afterwards when the window is over a year.",
+      "rests_on": "Owner decision Q2; the author rule on MK-PF-M-007 ('interest from a bond'); ordinary arithmetic.",
+      "severity": "medium"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-PF-F-014",
+      "name": "buildPerformance",
+      "kind": "easy",
+      "title": "One holding held all year",
+      "given": "Today 2026-10-10, period 1Y (first day 2025-10-10). VTI (stock fund): 10 shares bought 2024-01-02 at $200. VTI closes 2025-10-09 and 2025-10-10 $250, 2026-10-09 $275. SPY closes 2025-10-09 and 2025-10-10 $600, 2026-10-09 $630.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "kind": "stock fund",
+            "purchases": [
+              {
+                "date": "2024-01-02",
+                "shares": 10,
+                "cost_per_share": 200
+              }
+            ]
+          }
+        ],
+        "closes": {
+          "VTI": [
+            [
+              "2025-10-09",
+              250
+            ],
+            [
+              "2025-10-10",
+              250
+            ],
+            [
+              "2026-10-09",
+              275
+            ]
+          ],
+          "SPY": [
+            [
+              "2025-10-09",
+              600
+            ],
+            [
+              "2025-10-10",
+              600
+            ],
+            [
+              "2026-10-09",
+              630
+            ]
+          ]
+        }
+      },
+      "expected": [
+        {
+          "price": {
+            "exact": 275.0,
+            "shown": "$275.00"
+          },
+          "market_value": {
+            "exact": 2750.0,
+            "shown": "$2,750"
+          },
+          "cost": {
+            "exact": 2000.0,
+            "shown": "$2,000"
+          },
+          "gain": {
+            "exact": 750.0,
+            "shown": "$750"
+          },
+          "return_on_cost": {
+            "exact": 0.375,
+            "shown": "+37.50%"
+          },
+          "period_return": {
+            "exact": 0.1,
+            "shown": "+10.00%"
+          },
+          "yardstick": "SPY",
+          "yardstick_return": {
+            "exact": 0.05,
+            "shown": "+5.00%"
+          },
+          "beat_by": {
+            "exact": 0.05,
+            "shown": "+5.00%"
+          },
+          "capped_since": null
+        }
+      ],
+      "working": [
+        "Price 275; value 10 × 275 = 2,750; cost 2,000; gain 750; return on cost 750 ÷ 2,000 = 0.375",
+        "Bought before the period: not capped; period return 275 ÷ 250 − 1 = 0.10 (the close is 250 on both 9 and 10 Oct, so the start-day question in MK-PF-F-010 does not change it)",
+        "Yardstick SPY over the same period: 630 ÷ 600 − 1 = 0.05",
+        "Beat by 0.10 − 0.05 = 0.05"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-014",
+      "name": "buildPerformance",
+      "kind": "easy",
+      "title": "Bought once, inside the period",
+      "given": "Today 2026-10-10, period 1Y. QQQ (stock fund): 10 shares bought 2026-06-01 at $100. QQQ close 2026-06-01 $100, 2026-10-09 $112. SPY 2026-06-01 $610, 2026-10-09 $630.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "QQQ",
+            "kind": "stock fund",
+            "purchases": [
+              {
+                "date": "2026-06-01",
+                "shares": 10,
+                "cost_per_share": 100
+              }
+            ]
+          }
+        ],
+        "closes": {
+          "QQQ": [
+            [
+              "2026-06-01",
+              100
+            ],
+            [
+              "2026-10-09",
+              112
+            ]
+          ],
+          "SPY": [
+            [
+              "2026-06-01",
+              610
+            ],
+            [
+              "2026-10-09",
+              630
+            ]
+          ]
+        }
+      },
+      "expected": [
+        {
+          "price": {
+            "exact": 112.0,
+            "shown": "$112.00"
+          },
+          "market_value": {
+            "exact": 1120.0,
+            "shown": "$1,120"
+          },
+          "cost": {
+            "exact": 1000.0,
+            "shown": "$1,000"
+          },
+          "gain": {
+            "exact": 120.0,
+            "shown": "$120"
+          },
+          "return_on_cost": {
+            "exact": 0.12,
+            "shown": "+12.00%"
+          },
+          "period_return": {
+            "exact": 0.12,
+            "shown": "+12.00%"
+          },
+          "yardstick": "SPY",
+          "yardstick_return": {
+            "exact": 0.032787,
+            "shown": "+3.28%"
+          },
+          "beat_by": {
+            "exact": 0.087213,
+            "shown": "+8.72%"
+          },
+          "capped_since": "2026-06-01"
+        }
+      ],
+      "working": [
+        "Bought 1 Jun 2026, after the period's first day: capped since 2026-06-01",
+        "One purchase: return on cost 120 ÷ 1,000 = 0.12, which equals the price return 112 ÷ 100 − 1",
+        "Yardstick since 1 Jun: 630 ÷ 610 − 1 = 0.032787",
+        "Beat by = 0.12 − 0.032787 = 0.087213"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-014",
+      "name": "buildPerformance",
+      "kind": "complex",
+      "title": "Bought twice inside the period at different prices",
+      "given": "Today 2026-10-10, period 1Y. VTI: 10 shares on 2026-01-15 at $200 and 10 on 2026-06-15 at $250 (the market price those days). VTI latest close $260 (2026-10-09). SPY close 2026-01-15 $600, 2026-10-09 $660.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "kind": "stock fund",
+            "purchases": [
+              {
+                "date": "2026-01-15",
+                "shares": 10,
+                "cost_per_share": 200
+              },
+              {
+                "date": "2026-06-15",
+                "shares": 10,
+                "cost_per_share": 250
+              }
+            ]
+          }
+        ],
+        "closes": {
+          "VTI": [
+            [
+              "2026-01-15",
+              200
+            ],
+            [
+              "2026-06-15",
+              250
+            ],
+            [
+              "2026-10-09",
+              260
+            ]
+          ],
+          "SPY": [
+            [
+              "2026-01-15",
+              600
+            ],
+            [
+              "2026-10-09",
+              660
+            ]
+          ]
+        }
+      },
+      "expected": [
+        {
+          "price": {
+            "exact": 260.0,
+            "shown": "$260.00"
+          },
+          "market_value": {
+            "exact": 5200.0,
+            "shown": "$5,200"
+          },
+          "cost": {
+            "exact": 4500.0,
+            "shown": "$4,500"
+          },
+          "gain": {
+            "exact": 700.0,
+            "shown": "$700"
+          },
+          "return_on_cost": {
+            "exact": 0.155556,
+            "shown": "+15.56%"
+          },
+          "period_return": {
+            "exact": 0.3,
+            "shown": "+30.00%"
+          },
+          "yardstick": "SPY",
+          "yardstick_return": {
+            "exact": 0.1,
+            "shown": "+10.00%"
+          },
+          "beat_by": {
+            "exact": 0.2,
+            "shown": "+20.00%"
+          },
+          "capped_since": "2026-01-15"
+        }
+      ],
+      "formula_gives": [
+        {
+          "price": {
+            "exact": 260.0,
+            "shown": "$260.00"
+          },
+          "market_value": {
+            "exact": 5200.0,
+            "shown": "$5,200"
+          },
+          "cost": {
+            "exact": 4500.0,
+            "shown": "$4,500"
+          },
+          "gain": {
+            "exact": 700.0,
+            "shown": "$700"
+          },
+          "return_on_cost": {
+            "exact": 0.155556,
+            "shown": "+15.56%"
+          },
+          "period_return": {
+            "exact": 0.155556,
+            "shown": "+15.56%"
+          },
+          "yardstick": "SPY",
+          "yardstick_return": {
+            "exact": 0.1,
+            "shown": "+10.00%"
+          },
+          "beat_by": {
+            "exact": 0.055556,
+            "shown": "+5.56%"
+          },
+          "capped_since": "2026-01-15"
+        }
+      ],
+      "working": [
+        "Capped since the first purchase, 15 Jan 2026",
+        "Value 20 × 260 = 5,200; cost 2,000 + 2,500 = 4,500; gain 700; return on cost 0.155556",
+        "Time-weighted since 15 Jan: 250 ÷ 200 = 1.25, then 260 ÷ 250 = 1.04; 1.25 × 1.04 − 1 = 0.30",
+        "Yardstick since 15 Jan: 660 ÷ 600 − 1 = 0.10",
+        "Beat by 0.30 − 0.10 = 0.20",
+        "Formula as written: period return = return on cost 0.155556; beat by 0.055556"
+      ],
+      "rests_on": "Owner decision Q16",
+      "confidence": "medium",
+      "notes": "Assumes each purchase was at that day's close."
+    },
+    {
+      "id": "MK-PF-F-014",
+      "name": "buildPerformance",
+      "kind": "complex",
+      "title": "Two years, a stock fund and a bond fund, both held throughout",
+      "given": "Today 2026-10-10, period 2Y (first day 2024-10-10). VTI (stock fund) 30 sh bought 2023-05-01 at $180; closes 2024-10-09/10 $260, 2026-10-09 $314.60. BND (bond fund) 50 sh bought 2022-01-03 at $85; closes 2024-10-09/10 $74.00, 2026-10-09 $74.74. SPY 2024-10-09/10 $570, 2026-10-09 $627. AGG 2024-10-09/10 $100, 2026-10-09 $102.01.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "2Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "kind": "stock fund",
+            "purchases": [
+              {
+                "date": "2023-05-01",
+                "shares": 30,
+                "cost_per_share": 180
+              }
+            ]
+          },
+          {
+            "ticker": "BND",
+            "kind": "fixed income",
+            "purchases": [
+              {
+                "date": "2022-01-03",
+                "shares": 50,
+                "cost_per_share": 85
+              }
+            ]
+          }
+        ],
+        "closes": {
+          "VTI": [
+            [
+              "2024-10-09",
+              260
+            ],
+            [
+              "2024-10-10",
+              260
+            ],
+            [
+              "2026-10-09",
+              314.6
+            ]
+          ],
+          "BND": [
+            [
+              "2024-10-09",
+              74
+            ],
+            [
+              "2024-10-10",
+              74
+            ],
+            [
+              "2026-10-09",
+              74.74
+            ]
+          ],
+          "SPY": [
+            [
+              "2024-10-09",
+              570
+            ],
+            [
+              "2024-10-10",
+              570
+            ],
+            [
+              "2026-10-09",
+              627
+            ]
+          ],
+          "AGG": [
+            [
+              "2024-10-09",
+              100
+            ],
+            [
+              "2024-10-10",
+              100
+            ],
+            [
+              "2026-10-09",
+              102.01
+            ]
+          ]
+        }
+      },
+      "expected": [
+        {
+          "price": {
+            "exact": 314.6,
+            "shown": "$314.60"
+          },
+          "market_value": {
+            "exact": 9438.0,
+            "shown": "$9,438"
+          },
+          "cost": {
+            "exact": 5400.0,
+            "shown": "$5,400"
+          },
+          "gain": {
+            "exact": 4038.0,
+            "shown": "$4,038"
+          },
+          "return_on_cost": {
+            "exact": 0.747778,
+            "shown": "+74.78%"
+          },
+          "period_return": {
+            "exact": 0.1,
+            "shown": "+10.00%"
+          },
+          "yardstick": "SPY",
+          "yardstick_return": {
+            "exact": 0.048809,
+            "shown": "+4.88%"
+          },
+          "beat_by": {
+            "exact": 0.051191,
+            "shown": "+5.12%"
+          },
+          "capped_since": null
+        },
+        {
+          "price": {
+            "exact": 74.74,
+            "shown": "$74.74"
+          },
+          "market_value": {
+            "exact": 3737.0,
+            "shown": "$3,737"
+          },
+          "cost": {
+            "exact": 4250.0,
+            "shown": "$4,250"
+          },
+          "gain": {
+            "exact": -513.0,
+            "shown": "-$513"
+          },
+          "return_on_cost": {
+            "exact": -0.120706,
+            "shown": "−12.07%"
+          },
+          "period_return": {
+            "exact": 0.004988,
+            "shown": "+0.50%"
+          },
+          "yardstick": "AGG",
+          "yardstick_return": {
+            "exact": 0.01,
+            "shown": "+1.00%"
+          },
+          "beat_by": {
+            "exact": -0.005012,
+            "shown": "−0.50%"
+          },
+          "capped_since": null
+        }
+      ],
+      "working": [
+        "VTI: value 30 × 314.60 = 9,438; cost 5,400; gain 4,038; return on cost 0.747778",
+        "VTI total 314.60 ÷ 260 = 1.21; 2Y yearly = √1.21 − 1 = 0.10",
+        "SPY total 627 ÷ 570 = 1.10; yearly √1.10 − 1 = 0.048809; beat 0.051191",
+        "BND: value 50 × 74.74 = 3,737; cost 4,250; gain −513; return on cost −0.120706",
+        "BND total 74.74 ÷ 74 = 1.01; yearly √1.01 − 1 = 0.004988",
+        "AGG total 102.01 ÷ 100 = 1.0201; yearly 0.01; beat −0.005012",
+        "Both rows are yearly rates (2Y, held throughout), so the column is in one unit here"
+      ],
+      "rests_on": "formula in words; MK-PF-F-010; MK-PF-F-013",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-014",
+      "name": "buildPerformance",
+      "kind": "edge",
+      "title": "Bought on the period's first day",
+      "given": "Today 2026-10-10, period 1Y (first day 2025-10-10). VXUS: 40 shares bought 2025-10-10 at $62.50 (that day's close). Closes 2025-10-09 $62.00, 2025-10-10 $62.50, 2026-10-09 $68.75. SPY 2025-10-09 $598, 2025-10-10 $600, 2026-10-09 $630.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VXUS",
+            "kind": "stock fund",
+            "purchases": [
+              {
+                "date": "2025-10-10",
+                "shares": 40,
+                "cost_per_share": 62.5
+              }
+            ]
+          }
+        ],
+        "closes": {
+          "VXUS": [
+            [
+              "2025-10-09",
+              62
+            ],
+            [
+              "2025-10-10",
+              62.5
+            ],
+            [
+              "2026-10-09",
+              68.75
+            ]
+          ],
+          "SPY": [
+            [
+              "2025-10-09",
+              598
+            ],
+            [
+              "2025-10-10",
+              600
+            ],
+            [
+              "2026-10-09",
+              630
+            ]
+          ]
+        }
+      },
+      "expected": [
+        {
+          "price": {
+            "exact": 68.75,
+            "shown": "$68.75"
+          },
+          "market_value": {
+            "exact": 2750.0,
+            "shown": "$2,750"
+          },
+          "cost": {
+            "exact": 2500.0,
+            "shown": "$2,500"
+          },
+          "gain": {
+            "exact": 250.0,
+            "shown": "$250"
+          },
+          "return_on_cost": {
+            "exact": 0.1,
+            "shown": "+10.00%"
+          },
+          "period_return": {
+            "exact": 0.1,
+            "shown": "+10.00%"
+          },
+          "yardstick": "SPY",
+          "yardstick_return": {
+            "exact": 0.05,
+            "shown": "+5.00%"
+          },
+          "beat_by": {
+            "exact": 0.05,
+            "shown": "+5.00%"
+          },
+          "capped_since": "2025-10-10"
+        }
+      ],
+      "formula_gives": [
+        {
+          "price": {
+            "exact": 68.75,
+            "shown": "$68.75"
+          },
+          "market_value": {
+            "exact": 2750.0,
+            "shown": "$2,750"
+          },
+          "cost": {
+            "exact": 2500.0,
+            "shown": "$2,500"
+          },
+          "gain": {
+            "exact": 250.0,
+            "shown": "$250"
+          },
+          "return_on_cost": {
+            "exact": 0.1,
+            "shown": "+10.00%"
+          },
+          "period_return": {
+            "exact": 0.1,
+            "shown": "+10.00%"
+          },
+          "yardstick": "SPY",
+          "yardstick_return": {
+            "exact": 0.05,
+            "shown": "+5.00%"
+          },
+          "beat_by": {
+            "exact": 0.05,
+            "shown": "+5.00%"
+          },
+          "capped_since": null
+        }
+      ],
+      "working": [
+        "The money arrived on 10 Oct, which is inside the period (Q3): capped since 2025-10-10",
+        "Period return = 68.75 ÷ 62.50 − 1 = 0.10; yardstick since 10 Oct = 630 ÷ 600 − 1 = 0.05; beat 0.05",
+        "Formula as written: not bought AFTER the start, so not capped (capped_since null). Its period return then depends on MK-PF-F-010's start close: 0.10 as MK-PF-F-010 is written (close of 10 Oct), or 68.75 ÷ 62.00 − 1 = 0.108871 if the start is read the day before as MK-NW-O-008 does"
+      ],
+      "rests_on": "Owner decision Q3",
+      "confidence": "medium",
+      "notes": "The figures agree today only because MK-PF-F-010 starts at the first day's close; capped_since differs either way."
+    },
+    {
+      "id": "MK-PF-F-013",
+      "name": "benchmarkTicker",
+      "kind": "easy",
+      "title": "A stock fund",
+      "given": "Today 2026-10-10. Kind: stocks and funds.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stocks and funds",
+        "asset_class": null
+      },
+      "expected": "SPY",
+      "working": [
+        "Stocks and funds → SPY"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-013",
+      "name": "benchmarkTicker",
+      "kind": "easy",
+      "title": "Crypto",
+      "given": "Today 2026-10-10. Kind: crypto.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "crypto",
+        "asset_class": null
+      },
+      "expected": "BTC",
+      "working": [
+        "Crypto → BTC"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-013",
+      "name": "benchmarkTicker",
+      "kind": "complex",
+      "title": "Every named kind",
+      "given": "Today 2026-10-10. Six holdings: fixed income, annuity, private equity, hedge fund, commodity, 529 plan.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kinds": [
+          "fixed income",
+          "annuity",
+          "private equity",
+          "hedge fund",
+          "commodity",
+          "529"
+        ]
+      },
+      "expected": [
+        "AGG",
+        "AGG",
+        "PSP",
+        "QAI",
+        "GLD",
+        "AOR"
+      ],
+      "working": [
+        "Each kind to its own yardstick as listed on the card"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-013",
+      "name": "benchmarkTicker",
+      "kind": "complex",
+      "title": "A bond fund described by its class, not its kind",
+      "given": "Today 2026-10-10. A broker sync imports BNDX with asset class 'bond' and no kind.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": null,
+        "asset_class": "bond",
+        "source": "broker sync"
+      },
+      "expected": "AGG",
+      "formula_gives": "SPY",
+      "working": [
+        "The class says bond; the type says the class wins over kind → AGG",
+        "The formula reads kind only; with no kind it gives SPY"
+      ],
+      "rests_on": "The app's Position type comment on asset_class",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-013",
+      "name": "benchmarkTicker",
+      "kind": "edge",
+      "title": "Nothing says what the holding is",
+      "given": "Today 2026-10-10. A holding with no kind and no class.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": null,
+        "asset_class": null
+      },
+      "expected": "REFUSES",
+      "formula_gives": "SPY",
+      "working": [
+        "Nothing describes it, so there is no honest yardstick",
+        "The formula as written gives SPY"
+      ],
+      "rests_on": "Brief: no invented default; owner Q11 as recorded in the type comments",
+      "confidence": "medium",
+      "notes": "REFUSES because nothing says what the holding is; comparing it with the S&P 500 would be a guess. Medium: the owner may prefer SPY as a stated default."
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "easy",
+      "title": "Three quarters in one fund",
+      "given": "Today 2026-10-10. VTI $75,000; BND $25,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "values": {
+          "VTI": 75000,
+          "BND": 25000
+        }
+      },
+      "expected": {
+        "ticker": "VTI",
+        "pct": {
+          "exact": 75.0,
+          "shown": "75%"
+        },
+        "value": {
+          "exact": 75000.0,
+          "shown": "$75,000"
+        }
+      },
+      "working": [
+        "Total 100,000; VTI 75,000 ÷ 100,000 = 75%; 75 ≥ 25 → reported"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "easy",
+      "title": "Only one holding",
+      "given": "Today 2026-10-10. VTI $40,000 and nothing else.",
+      "inputs": {
+        "today": "2026-10-10",
+        "values": {
+          "VTI": 40000
+        }
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Fewer than two holdings: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because there are fewer than two holdings (no concentration fact)."
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "complex",
+      "title": "Five holdings from a broker link",
+      "given": "Today 2026-10-10. VTI $41,250.17; SCHD $22,980.40; BND $18,100.00; QQQ $9,875.55; GLD $3,410.88.",
+      "inputs": {
+        "today": "2026-10-10",
+        "values": {
+          "VTI": 41250.17,
+          "SCHD": 22980.4,
+          "BND": 18100.0,
+          "QQQ": 9875.55,
+          "GLD": 3410.88
+        }
+      },
+      "expected": {
+        "ticker": "VTI",
+        "pct": {
+          "exact": 43.141042,
+          "shown": "43%"
+        },
+        "value": {
+          "exact": 41250.17,
+          "shown": "$41,250"
+        }
+      },
+      "working": [
+        "Total = 95617.00",
+        "Largest VTI: 41250.17 ÷ 95617.00 = 0.43141042",
+        "= 43.141% ≥ 25% → reported, shown 43%"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "pct.exact is the unrounded percent; the card says the function returns it rounded to a whole percent — compare against 'shown'."
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "complex",
+      "title": "Spread out: no fact to report",
+      "given": "Today 2026-10-10. Five holdings: $22,000, $21,500, $20,800, $19,700, $16,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "values": {
+          "VTI": 22000,
+          "VXUS": 21500,
+          "BND": 20800,
+          "SCHD": 19700,
+          "VNQ": 16000
+        }
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Total 100,000; largest 22,000 = 22% < 25% → nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because the largest share is below 25% (not a fact worth a card)."
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "edge",
+      "title": "24.6% — just under the line before rounding",
+      "given": "Today 2026-10-10. Five holdings: VTI $24,600, VXUS $24,500, BND $24,400, SCHD $24,300, GLD $2,200.",
+      "inputs": {
+        "today": "2026-10-10",
+        "values": {
+          "VTI": 24600,
+          "VXUS": 24500,
+          "BND": 24400,
+          "SCHD": 24300,
+          "GLD": 2200
+        }
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "ticker": "VTI",
+        "pct": {
+          "exact": 25.0,
+          "shown": "25%"
+        },
+        "value": {
+          "exact": 24600.0,
+          "shown": "$24,600"
+        }
+      },
+      "working": [
+        "Total 100,000; largest VTI 24,600 = 24.6%",
+        "24.6% < 25% → not reported",
+        "As worded, the share is rounded first: 24.6 → 25, and 25 ≥ 25 → reported"
+      ],
+      "rests_on": "Owner decision Q56",
+      "confidence": "high",
+      "notes": "REFUSES because the true share is 24.6%, under the 25% line."
+    },
+    {
+      "id": "MK-PF-F-016",
+      "name": "attribution",
+      "kind": "easy",
+      "title": "Two holdings, one up twenty percent",
+      "given": "Today 2026-10-10, period 1Y. VTI worth $6,000 now, return +20%; BND worth $5,000, return 0%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 6000,
+            "period_return": 0.2
+          },
+          {
+            "ticker": "BND",
+            "value_now": 5000,
+            "period_return": 0
+          }
+        ]
+      },
+      "expected": [
+        {
+          "ticker": "VTI",
+          "weight": {
+            "exact": 0.5,
+            "shown": "50.0%"
+          },
+          "contribution": {
+            "exact": 0.1,
+            "shown": "+10.0 pts"
+          }
+        },
+        {
+          "ticker": "BND",
+          "weight": {
+            "exact": 0.5,
+            "shown": "50.0%"
+          },
+          "contribution": {
+            "exact": 0.0,
+            "shown": "+0.0 pts"
+          }
+        }
+      ],
+      "formula_gives": [
+        {
+          "ticker": "VTI",
+          "weight": {
+            "exact": 0.545455,
+            "shown": "54.55%"
+          },
+          "contribution": {
+            "exact": 0.109091,
+            "shown": "+10.91 pts"
+          }
+        },
+        {
+          "ticker": "BND",
+          "weight": {
+            "exact": 0.454545,
+            "shown": "45.45%"
+          },
+          "contribution": {
+            "exact": 0.0,
+            "shown": "+0.0 pts"
+          }
+        }
+      ],
+      "working": [
+        "Start values: VTI 6,000 ÷ 1.2 = 5,000; BND 5,000 ÷ 1 = 5,000; total 10,000",
+        "Weights 0.5 and 0.5",
+        "Contributions: VTI 0.5 × 0.20 = 0.10; BND 0",
+        "Sum 0.10 = the portfolio return 11,000 ÷ 10,000 − 1",
+        "Formula as written: VTI weight 6,000 ÷ 11,000 = 0.545455, contribution 0.109091 — the sum 0.109091 is not the portfolio's 0.10"
+      ],
+      "rests_on": "Beginning-of-period weights",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-016",
+      "name": "attribution",
+      "kind": "easy",
+      "title": "One holding: its contribution is its return",
+      "given": "Today 2026-10-10, period 6M. Only VTI, worth $10,000, return +5%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "6M",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 10000,
+            "period_return": 0.05
+          }
+        ]
+      },
+      "expected": [
+        {
+          "ticker": "VTI",
+          "weight": {
+            "exact": 1.0,
+            "shown": "100.0%"
+          },
+          "contribution": {
+            "exact": 0.05,
+            "shown": "+5.0 pts"
+          }
+        }
+      ],
+      "working": [
+        "Weight 1 (either way); contribution 1 × 0.05 = 0.05"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-016",
+      "name": "attribution",
+      "kind": "complex",
+      "title": "A holding with no return sits in the total",
+      "given": "Today 2026-10-10, period 1Y. VTI worth $12,100, return +10%; QQQ worth $8,400, return −16%; a private REIT worth $4,500 with no period return.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 12100,
+            "period_return": 0.1
+          },
+          {
+            "ticker": "QQQ",
+            "value_now": 8400,
+            "period_return": -0.16
+          },
+          {
+            "ticker": "REIT",
+            "value_now": 4500,
+            "period_return": null
+          }
+        ]
+      },
+      "expected": [
+        {
+          "ticker": "VTI",
+          "weight": {
+            "exact": 0.52381,
+            "shown": "52.38%"
+          },
+          "contribution": {
+            "exact": 0.052381,
+            "shown": "+5.24 pts"
+          }
+        },
+        {
+          "ticker": "QQQ",
+          "weight": {
+            "exact": 0.47619,
+            "shown": "47.62%"
+          },
+          "contribution": {
+            "exact": -0.07619,
+            "shown": "-7.62 pts"
+          }
+        }
+      ],
+      "formula_gives": [
+        {
+          "ticker": "VTI",
+          "weight": {
+            "exact": 0.484,
+            "shown": "48.4%"
+          },
+          "contribution": {
+            "exact": 0.0484,
+            "shown": "+4.84 pts"
+          }
+        },
+        {
+          "ticker": "QQQ",
+          "weight": {
+            "exact": 0.336,
+            "shown": "33.6%"
+          },
+          "contribution": {
+            "exact": -0.05376,
+            "shown": "-5.38 pts"
+          }
+        }
+      ],
+      "working": [
+        "Holdings with a return: VTI start 12,100 ÷ 1.10 = 11,000; QQQ start 8,400 ÷ 0.84 = 10,000; total 21000",
+        "Weights 0.52381 and 0.47619",
+        "Contributions VTI 0.052381, QQQ -0.07619",
+        "Sum -0.02381 = 20,500 ÷ 21,000 − 1 (the portfolio return over these two)",
+        "Formula as written: weights over all 25,000 → VTI 0.484, QQQ 0.336; contributions 0.0484 and −0.05376; sum −0.00536"
+      ],
+      "rests_on": "Beginning-of-period weights",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-016",
+      "name": "attribution",
+      "kind": "complex",
+      "title": "Four holdings, sorted largest first",
+      "given": "Today 2026-10-10, period 3M. VTI $31,302.00 (+11.2523%), SCHD $9,880.00 (+2.33%), BND $14,610.00 (+1.26%), QQQ $8,844.60 (−4.12%).",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "3M",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 31302.0,
+            "period_return": 0.112523
+          },
+          {
+            "ticker": "SCHD",
+            "value_now": 9880.0,
+            "period_return": 0.0233
+          },
+          {
+            "ticker": "BND",
+            "value_now": 14610.0,
+            "period_return": 0.0126
+          },
+          {
+            "ticker": "QQQ",
+            "value_now": 8844.6,
+            "period_return": -0.0412
+          }
+        ]
+      },
+      "expected": [
+        {
+          "ticker": "VTI",
+          "weight": {
+            "exact": 0.457914,
+            "shown": "45.79%"
+          },
+          "contribution": {
+            "exact": 0.051526,
+            "shown": "+5.15 pts"
+          }
+        },
+        {
+          "ticker": "SCHD",
+          "weight": {
+            "exact": 0.157136,
+            "shown": "15.71%"
+          },
+          "contribution": {
+            "exact": 0.003661,
+            "shown": "+0.37 pts"
+          }
+        },
+        {
+          "ticker": "BND",
+          "weight": {
+            "exact": 0.234819,
+            "shown": "23.48%"
+          },
+          "contribution": {
+            "exact": 0.002959,
+            "shown": "+0.3 pts"
+          }
+        },
+        {
+          "ticker": "QQQ",
+          "weight": {
+            "exact": 0.150131,
+            "shown": "15.01%"
+          },
+          "contribution": {
+            "exact": -0.006185,
+            "shown": "-0.62 pts"
+          }
+        }
+      ],
+      "formula_gives": [
+        {
+          "ticker": "VTI",
+          "weight": {
+            "exact": 0.484277,
+            "shown": "48.43%"
+          },
+          "contribution": {
+            "exact": 0.054492,
+            "shown": "+5.45 pts"
+          }
+        },
+        {
+          "ticker": "SCHD",
+          "weight": {
+            "exact": 0.152855,
+            "shown": "15.29%"
+          },
+          "contribution": {
+            "exact": 0.003562,
+            "shown": "+0.36 pts"
+          }
+        },
+        {
+          "ticker": "BND",
+          "weight": {
+            "exact": 0.226033,
+            "shown": "22.6%"
+          },
+          "contribution": {
+            "exact": 0.002848,
+            "shown": "+0.28 pts"
+          }
+        },
+        {
+          "ticker": "QQQ",
+          "weight": {
+            "exact": 0.136836,
+            "shown": "13.68%"
+          },
+          "contribution": {
+            "exact": -0.005638,
+            "shown": "-0.56 pts"
+          }
+        }
+      ],
+      "working": [
+        "Start values: VTI 31302.00 ÷ (1 + 0.112523) = 28136.0475; SCHD 9880.00 ÷ (1 + 0.0233) = 9655.0376; BND 14610.00 ÷ (1 + 0.0126) = 14428.2046; QQQ 8844.60 ÷ (1 + -0.0412) = 9224.6558",
+        "Total start 61443.9456",
+        "Contributions: VTI 0.051526; SCHD 0.003661; BND 0.002959; QQQ -0.006185",
+        "Sum 0.05196 = Σ now ÷ Σ start − 1 = 0.05196",
+        "Sorted largest contribution first: VTI, SCHD, BND, QQQ"
+      ],
+      "rests_on": "Beginning-of-period weights",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-016",
+      "name": "attribution",
+      "kind": "edge",
+      "title": "Nothing held",
+      "given": "Today 2026-10-10, period 1M. No holdings with a value.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "holdings": []
+      },
+      "expected": [],
+      "working": [
+        "Total 0: empty list"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-017",
+      "name": "allocation",
+      "kind": "easy",
+      "title": "Sixty-forty",
+      "given": "Today 2026-10-10. Stock funds $60,000; bond funds $40,000; no cash.",
+      "inputs": {
+        "today": "2026-10-10",
+        "holdings": [
+          {
+            "kind": "stocks",
+            "value": 60000
+          },
+          {
+            "kind": "fixed income",
+            "value": 40000
+          }
+        ],
+        "cash": 0
+      },
+      "expected": [
+        {
+          "key": "stocks",
+          "value": {
+            "exact": 60000.0,
+            "shown": "$60,000"
+          },
+          "pct": {
+            "exact": 60.0,
+            "shown": "60.0%"
+          }
+        },
+        {
+          "key": "fixed income",
+          "value": {
+            "exact": 40000.0,
+            "shown": "$40,000"
+          },
+          "pct": {
+            "exact": 40.0,
+            "shown": "40.0%"
+          }
+        }
+      ],
+      "working": [
+        "Total 100,000; 60.0% and 40.0%"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-017",
+      "name": "allocation",
+      "kind": "easy",
+      "title": "Cash only",
+      "given": "Today 2026-10-10. No holdings; cash $10,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "holdings": [],
+        "cash": 10000
+      },
+      "expected": [
+        {
+          "key": "cash",
+          "value": {
+            "exact": 10000.0,
+            "shown": "$10,000"
+          },
+          "pct": {
+            "exact": 100.0,
+            "shown": "100.0%"
+          }
+        }
+      ],
+      "working": [
+        "Cash is the only slice: 100.0%"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-017",
+      "name": "allocation",
+      "kind": "complex",
+      "title": "Linked and hand-entered holdings with cash in the account",
+      "given": "Today 2026-10-10. Stocks: VTI $48,210.55 and SCHD $12,004.18; fixed income: BND $21,377.90; a hand-entered holding with no kind $3,150.00; uninvested cash $5,412.37.",
+      "inputs": {
+        "today": "2026-10-10",
+        "holdings": [
+          {
+            "kind": "stocks",
+            "value": 48210.55
+          },
+          {
+            "kind": "stocks",
+            "value": 12004.18
+          },
+          {
+            "kind": "fixed income",
+            "value": 21377.9
+          },
+          {
+            "kind": null,
+            "value": 3150.0
+          }
+        ],
+        "cash": 5412.37
+      },
+      "expected": [
+        {
+          "key": "stocks",
+          "value": {
+            "exact": 60214.73,
+            "shown": "$60,215"
+          },
+          "pct": {
+            "exact": 66.790228,
+            "shown": "66.8%"
+          }
+        },
+        {
+          "key": "fixed income",
+          "value": {
+            "exact": 21377.9,
+            "shown": "$21,378"
+          },
+          "pct": {
+            "exact": 23.712384,
+            "shown": "23.7%"
+          }
+        },
+        {
+          "key": "cash",
+          "value": {
+            "exact": 5412.37,
+            "shown": "$5,412"
+          },
+          "pct": {
+            "exact": 6.003405,
+            "shown": "6.0%"
+          }
+        },
+        {
+          "key": "other",
+          "value": {
+            "exact": 3150.0,
+            "shown": "$3,150"
+          },
+          "pct": {
+            "exact": 3.493983,
+            "shown": "3.5%"
+          }
+        }
+      ],
+      "working": [
+        "Stocks 48,210.55 + 12,004.18 = 60,214.73",
+        "Fixed income 21,377.90; other (no kind) 3,150.00; cash 5,412.37",
+        "Total 90155.00",
+        "Shares: stocks 66.7902%; fixed income 23.7124%; cash 6.0034%; other 3.494%",
+        "Rounded to one decimal: 66.8%, 23.7%, 6.0%, 3.5% — they sum to 100.0"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-017",
+      "name": "allocation",
+      "kind": "complex",
+      "title": "Three equal slices",
+      "given": "Today 2026-10-10. Stocks $10,000; fixed income $10,000; cash $10,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "holdings": [
+          {
+            "kind": "stocks",
+            "value": 10000
+          },
+          {
+            "kind": "fixed income",
+            "value": 10000
+          }
+        ],
+        "cash": 10000
+      },
+      "expected": [
+        {
+          "key": "stocks",
+          "value": {
+            "exact": 10000.0,
+            "shown": "$10,000"
+          },
+          "pct": {
+            "exact": 33.333333,
+            "shown": "33.4%"
+          }
+        },
+        {
+          "key": "fixed income",
+          "value": {
+            "exact": 10000.0,
+            "shown": "$10,000"
+          },
+          "pct": {
+            "exact": 33.333333,
+            "shown": "33.3%"
+          }
+        },
+        {
+          "key": "cash",
+          "value": {
+            "exact": 10000.0,
+            "shown": "$10,000"
+          },
+          "pct": {
+            "exact": 33.333333,
+            "shown": "33.3%"
+          }
+        }
+      ],
+      "formula_gives": [
+        {
+          "key": "stocks",
+          "value": {
+            "exact": 10000.0,
+            "shown": "$10,000"
+          },
+          "pct": {
+            "exact": 33.333333,
+            "shown": "33.3%"
+          }
+        },
+        {
+          "key": "fixed income",
+          "value": {
+            "exact": 10000.0,
+            "shown": "$10,000"
+          },
+          "pct": {
+            "exact": 33.333333,
+            "shown": "33.3%"
+          }
+        },
+        {
+          "key": "cash",
+          "value": {
+            "exact": 10000.0,
+            "shown": "$10,000"
+          },
+          "pct": {
+            "exact": 33.333333,
+            "shown": "33.3%"
+          }
+        }
+      ],
+      "working": [
+        "Each share 33.3333…%",
+        "Rounded each on its own: 33.3 + 33.3 + 33.3 = 99.9",
+        "Largest-remainder rounding gives one slice 33.4 so the shown slices sum to 100.0"
+      ],
+      "rests_on": "Ordinary arithmetic: parts must add up to the whole",
+      "confidence": "medium",
+      "notes": "Which equal slice takes the extra 0.1 is not settled by any rule; the point tested is that the shown shares sum to 100.0."
+    },
+    {
+      "id": "MK-PF-F-017",
+      "name": "allocation",
+      "kind": "edge",
+      "title": "Nothing held and no cash",
+      "given": "Today 2026-10-10. No holdings; cash $0.",
+      "inputs": {
+        "today": "2026-10-10",
+        "holdings": [],
+        "cash": 0
+      },
+      "expected": [],
+      "working": [
+        "Total 0: empty"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-018",
+      "name": "portfolioTrend",
+      "kind": "easy",
+      "title": "One fund held all year",
+      "given": "Today 2026-10-10, period 1Y (first day 2025-10-10). VTI 10 shares held throughout. VTI close on or before 2025-10-10 $100; latest $120 (2026-10-09). SPY $500 → $550.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "shares_today": 10,
+            "purchases": [
+              {
+                "date": "2023-01-03",
+                "shares": 10
+              }
+            ]
+          }
+        ],
+        "closes": {
+          "VTI": [
+            [
+              "2025-10-10",
+              100
+            ],
+            [
+              "2026-10-09",
+              120
+            ]
+          ],
+          "SPY": [
+            [
+              "2025-10-10",
+              500
+            ],
+            [
+              "2026-10-09",
+              550
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "points": 13,
+        "first": {
+          "date": "2025-10-10",
+          "value": {
+            "exact": 1000.0,
+            "shown": "$1,000"
+          },
+          "bench": {
+            "exact": 1000.0,
+            "shown": "$1,000"
+          }
+        },
+        "last": {
+          "date": "2026-10-10",
+          "value": {
+            "exact": 1200.0,
+            "shown": "$1,200"
+          },
+          "bench": {
+            "exact": 1100.0,
+            "shown": "$1,100"
+          }
+        }
+      },
+      "working": [
+        "13 points from 2025-10-10 to 2026-10-10",
+        "First: 10 × 100 = 1,000; yardstick starts at the same 1,000",
+        "Last: 10 × 120 = 1,200; yardstick 1,000 × 550 ÷ 500 = 1,100"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "Only the first and last of the 13 points are stated; the middle dates fall on fractional days and are not tested."
+    },
+    {
+      "id": "MK-PF-F-018",
+      "name": "portfolioTrend",
+      "kind": "easy",
+      "title": "No holdings",
+      "given": "Today 2026-10-10, period 6M. No holdings.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "6M",
+        "holdings": []
+      },
+      "expected": [],
+      "working": [
+        "No holdings: empty"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-018",
+      "name": "portfolioTrend",
+      "kind": "complex",
+      "title": "A second fund bought in June",
+      "given": "Today 2026-10-10, period 1Y. VTI 10 shares held all year ($100 at the start, $120 now). QQQ: 20 shares bought 2026-06-01 at $400; QQQ close at 2025-10-10 $350, now $440.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "shares_today": 10,
+            "purchases": [
+              {
+                "date": "2023-01-03",
+                "shares": 10
+              }
+            ]
+          },
+          {
+            "ticker": "QQQ",
+            "shares_today": 20,
+            "purchases": [
+              {
+                "date": "2026-06-01",
+                "shares": 20,
+                "cost_per_share": 400
+              }
+            ]
+          }
+        ],
+        "closes": {
+          "VTI": [
+            [
+              "2025-10-10",
+              100
+            ],
+            [
+              "2026-10-09",
+              120
+            ]
+          ],
+          "QQQ": [
+            [
+              "2025-10-10",
+              350
+            ],
+            [
+              "2026-06-01",
+              400
+            ],
+            [
+              "2026-10-09",
+              440
+            ]
+          ],
+          "SPY": [
+            [
+              "2025-10-10",
+              500
+            ],
+            [
+              "2026-10-09",
+              550
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "first_value": {
+          "exact": 1000.0,
+          "shown": "$1,000"
+        },
+        "last_value": {
+          "exact": 10000.0,
+          "shown": "$10,000"
+        }
+      },
+      "formula_gives": {
+        "first_value": {
+          "exact": 8000.0,
+          "shown": "$8,000"
+        },
+        "last_value": {
+          "exact": 10000.0,
+          "shown": "$10,000"
+        }
+      },
+      "working": [
+        "At 2025-10-10 only VTI was held: 10 × 100 = 1,000 (QQQ was bought eight months later)",
+        "Today: 10 × 120 + 20 × 440 = 1,200 + 8,800 = 10,000",
+        "Formula as written: today's 20 QQQ shares priced at the start: 1,000 + 20 × 350 = 8,000 for the first point"
+      ],
+      "rests_on": "Agreement with MK-NW-O-008 (the portfolio as it was)",
+      "confidence": "medium",
+      "notes": "Under the right rule the June purchase shows as money added; the yardstick line's treatment of that money is not tested here."
+    },
+    {
+      "id": "MK-PF-F-018",
+      "name": "portfolioTrend",
+      "kind": "complex",
+      "title": "Two funds with broker-style fractional shares",
+      "given": "Today 2026-10-10, period 1Y. VTI 23.417 shares and BND 104.5 shares, both held all year. Closes on or before 2025-10-10: VTI $281.36, BND $72.14; latest: VTI $313.02, BND $73.05. SPY $571.20 → $627.33.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "shares_today": 23.417
+          },
+          {
+            "ticker": "BND",
+            "shares_today": 104.5
+          }
+        ],
+        "closes": {
+          "VTI": [
+            [
+              "2025-10-10",
+              281.36
+            ],
+            [
+              "2026-10-09",
+              313.02
+            ]
+          ],
+          "BND": [
+            [
+              "2025-10-10",
+              72.14
+            ],
+            [
+              "2026-10-09",
+              73.05
+            ]
+          ],
+          "SPY": [
+            [
+              "2025-10-10",
+              571.2
+            ],
+            [
+              "2026-10-09",
+              627.33
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "points": 13,
+        "first": {
+          "value": {
+            "exact": 14127.2371,
+            "shown": "$14,127"
+          },
+          "bench": {
+            "exact": 14127.2371,
+            "shown": "$14,127"
+          }
+        },
+        "last": {
+          "value": {
+            "exact": 14963.7143,
+            "shown": "$14,964"
+          },
+          "bench": {
+            "exact": 15515.4756,
+            "shown": "$15,515"
+          }
+        }
+      },
+      "working": [
+        "First: 23.417 × 281.36 = 6588.60712; 104.5 × 72.14 = 7538.630; total 14127.23712",
+        "Last: 23.417 × 313.02 = 7329.98934; 104.5 × 73.05 = 7633.725; total 14963.71434",
+        "Yardstick last = 14127.23712 × 627.33 ÷ 571.20 = 15515.4756"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "Both funds held all period, so today's shares are the shares held throughout and the formula's shortcut gives the right line."
+    },
+    {
+      "id": "MK-PF-F-018",
+      "name": "portfolioTrend",
+      "kind": "edge",
+      "title": "Holdings but no prices at all",
+      "given": "Today 2026-10-10, period 3M. VTI 10 shares and BND 20 shares; neither has any price history.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "3M",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "shares_today": 10
+          },
+          {
+            "ticker": "BND",
+            "shares_today": 20
+          }
+        ],
+        "closes": {}
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "points": 13,
+        "every_value": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "every_bench": {
+          "exact": 0.0,
+          "shown": "$0"
+        }
+      },
+      "working": [
+        "Nothing can be priced at any date, so there is no line to draw",
+        "Formula as written: 13 points, every value 0 and the yardstick equal to it"
+      ],
+      "rests_on": "Brief: missing is not zero",
+      "confidence": "high",
+      "notes": "REFUSES because no holding has a price; a flat $0 line would say the portfolio is worth nothing."
+    },
+    {
+      "id": "MK-PF-F-019",
+      "name": "portfolioPeriodReturn",
+      "kind": "easy",
+      "title": "One fund doubled, one flat",
+      "given": "Today 2026-10-10, period 1Y. A: worth $2,000 now, return +100%. B: worth $1,000, return 0%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "A",
+            "value_now": 2000,
+            "period_return": 1.0
+          },
+          {
+            "ticker": "B",
+            "value_now": 1000,
+            "period_return": 0
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.5,
+        "shown": "+50.00%"
+      },
+      "formula_gives": {
+        "exact": 0.666667,
+        "shown": "+66.67%"
+      },
+      "working": [
+        "Start values 1,000 and 1,000 = 2,000; now 3,000",
+        "3,000 ÷ 2,000 − 1 = 0.50",
+        "Formula as written: (2,000 × 1.0 + 1,000 × 0) ÷ 3,000 = 0.666667"
+      ],
+      "rests_on": "Σ end ÷ Σ start − 1; MK-NW-F-084",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-019",
+      "name": "portfolioPeriodReturn",
+      "kind": "easy",
+      "title": "One holding",
+      "given": "Today 2026-10-10, period 6M. Only VTI, worth $10,000, return +5%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "6M",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 10000,
+            "period_return": 0.05
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.05,
+        "shown": "+5.00%"
+      },
+      "working": [
+        "One holding: its own return, 0.05, either way"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-019",
+      "name": "portfolioPeriodReturn",
+      "kind": "complex",
+      "title": "A holding with no return is left out",
+      "given": "Today 2026-10-10, period 1Y. VTI $12,100 (+10%); QQQ $8,400 (−16%); a private REIT $4,500 with no period return.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 12100,
+            "period_return": 0.1
+          },
+          {
+            "ticker": "QQQ",
+            "value_now": 8400,
+            "period_return": -0.16
+          },
+          {
+            "ticker": "REIT",
+            "value_now": 4500,
+            "period_return": null
+          }
+        ]
+      },
+      "expected": {
+        "exact": -0.02381,
+        "shown": "−2.38%"
+      },
+      "formula_gives": {
+        "exact": -0.006537,
+        "shown": "−0.65%"
+      },
+      "working": [
+        "REIT has no return: left out",
+        "Starts 11,000 + 10,000 = 21,000; now 20,500",
+        "20,500 ÷ 21,000 − 1 = -0.02381",
+        "Formula as written: (12,100 × 0.10 + 8,400 × −0.16) ÷ 20,500 = -0.006537"
+      ],
+      "rests_on": "Σ end ÷ Σ start − 1",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-019",
+      "name": "portfolioPeriodReturn",
+      "kind": "complex",
+      "title": "Four holdings, three months",
+      "given": "Today 2026-10-10, period 3M. VTI $31,302.00 (+11.2523%), SCHD $9,880.00 (+2.33%), BND $14,610.00 (+1.26%), QQQ $8,844.60 (−4.12%).",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "3M",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 31302.0,
+            "period_return": 0.112523
+          },
+          {
+            "ticker": "SCHD",
+            "value_now": 9880.0,
+            "period_return": 0.0233
+          },
+          {
+            "ticker": "BND",
+            "value_now": 14610.0,
+            "period_return": 0.0126
+          },
+          {
+            "ticker": "QQQ",
+            "value_now": 8844.6,
+            "period_return": -0.0412
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.05196,
+        "shown": "+5.20%"
+      },
+      "formula_gives": {
+        "exact": 0.055264,
+        "shown": "+5.53%"
+      },
+      "working": [
+        "Σ now = 64636.60",
+        "Σ start = 61443.9456",
+        "Return = 0.05196",
+        "Formula as written (weights today) = 0.055264",
+        "This must equal the Stocks + Bonds category returns combined on the same holdings (MK-NW-F-084)"
+      ],
+      "rests_on": "Σ end ÷ Σ start − 1; MK-NW-F-084",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-019",
+      "name": "portfolioPeriodReturn",
+      "kind": "edge",
+      "title": "No holding has a return",
+      "given": "Today 2026-10-10, period 1M. Two holdings, neither with a period return.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "holdings": [
+          {
+            "ticker": "REIT",
+            "value_now": 4500,
+            "period_return": null
+          },
+          {
+            "ticker": "PRIV",
+            "value_now": 9000,
+            "period_return": null
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "None qualifies: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because no holding has a period return."
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "easy",
+      "title": "A holding that doubled does not double its yardstick",
+      "given": "Today 2026-10-10, period 1Y. A: $2,000 now, own return +100%, yardstick +10%. B: $1,000 now, own 0%, yardstick +2%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "A",
+            "value_now": 2000,
+            "period_return": 1.0,
+            "yardstick_return": 0.1
+          },
+          {
+            "ticker": "B",
+            "value_now": 1000,
+            "period_return": 0,
+            "yardstick_return": 0.02
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.06,
+        "shown": "+6.00%"
+      },
+      "formula_gives": {
+        "exact": 0.073333,
+        "shown": "+7.33%"
+      },
+      "working": [
+        "Start values 1,000 and 1,000",
+        "(1,000 × 0.10 + 1,000 × 0.02) ÷ 2,000 = 0.06",
+        "Formula as written: (2,000 × 0.10 + 1,000 × 0.02) ÷ 3,000 = 0.073333"
+      ],
+      "rests_on": "Beginning-of-period weights",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "easy",
+      "title": "One holding",
+      "given": "Today 2026-10-10, period 6M. VTI $10,000, own +5%, yardstick SPY +3%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "6M",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 10000,
+            "period_return": 0.05,
+            "yardstick_return": 0.03
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.03,
+        "shown": "+3.00%"
+      },
+      "working": [
+        "One holding: its yardstick, 0.03"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "complex",
+      "title": "Four holdings, two yardsticks",
+      "given": "Today 2026-10-10, period 3M. VTI $31,302.00 (own +11.2523%, SPY +8.12%); SCHD $9,880.00 (+2.33%, SPY +8.12%); BND $14,610.00 (+1.26%, AGG +0.94%); QQQ $8,844.60 (−4.12%, SPY +8.12%).",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "3M",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 31302.0,
+            "period_return": 0.112523,
+            "yardstick_return": 0.0812
+          },
+          {
+            "ticker": "SCHD",
+            "value_now": 9880.0,
+            "period_return": 0.0233,
+            "yardstick_return": 0.0812
+          },
+          {
+            "ticker": "BND",
+            "value_now": 14610.0,
+            "period_return": 0.0126,
+            "yardstick_return": 0.0094
+          },
+          {
+            "ticker": "QQQ",
+            "value_now": 8844.6,
+            "period_return": -0.0412,
+            "yardstick_return": 0.0812
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.06434,
+        "shown": "+6.43%"
+      },
+      "formula_gives": {
+        "exact": 0.064971,
+        "shown": "+6.50%"
+      },
+      "working": [
+        "Start values as in MK-PF-F-019's case: total 61443.9456",
+        "SPY-weighted start = 47015.741; AGG-weighted start = 14428.2046",
+        "Market = 0.06434",
+        "Formula as written (weights today) = 0.064971",
+        "Shown on /home as 'market +X%' beside the person's own return; both must be over the same holdings"
+      ],
+      "rests_on": "Beginning-of-period weights",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "complex",
+      "title": "A holding with a yardstick but no return of its own",
+      "given": "Today 2026-10-10, period 1Y. VTI $12,100, own +10%, SPY +5%. A new fund FNEW $4,500 whose own price history is too short for a return, yardstick AGG +2%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 12100,
+            "period_return": 0.1,
+            "yardstick_return": 0.05
+          },
+          {
+            "ticker": "FNEW",
+            "value_now": 4500,
+            "period_return": null,
+            "yardstick_return": 0.02
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.05,
+        "shown": "+5.00%"
+      },
+      "formula_gives": {
+        "exact": 0.041867,
+        "shown": "+4.19%"
+      },
+      "working": [
+        "Only VTI has both its own return and a yardstick: market = 0.05, over the same money as the person's return (MK-PF-F-019 uses VTI only)",
+        "Formula as written: (12,100 × 0.05 + 4,500 × 0.02) ÷ 16,600 = 0.041867"
+      ],
+      "rests_on": "Same holdings as MK-PF-F-019",
+      "confidence": "medium",
+      "notes": "The card says the average is over holdings with a yardstick return; the expected value assumes the comparison must be over the same holdings as the person's own return."
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "edge",
+      "title": "No holding has a yardstick return",
+      "given": "Today 2026-10-10, period 1M. VTI $10,000 with no yardstick prices over the window.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value_now": 10000,
+            "period_return": 0.01,
+            "yardstick_return": null
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "None qualifies: nothing, and no market figure is shown"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because no yardstick can be priced over the window."
+    },
+    {
+      "id": "MK-PF-F-021",
+      "name": "periodDollarDelta",
+      "kind": "easy",
+      "title": "Up five percent, nothing moved",
+      "given": "Today 2026-10-10, period 1M. Total $105,000; return +5%; no money in or out.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "total_now": 105000,
+        "return": 0.05
+      },
+      "expected": {
+        "exact": 5000.0,
+        "shown": "$5,000"
+      },
+      "working": [
+        "Start = 105,000 ÷ 1.05 = 100,000",
+        "Dollars = 105,000 − 100,000 = 5,000 (= 105,000 × 0.05 ÷ 1.05)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-021",
+      "name": "periodDollarDelta",
+      "kind": "easy",
+      "title": "Down ten percent",
+      "given": "Today 2026-10-10, period 3M. Total $90,000; return −10%; nothing moved.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "3M",
+        "total_now": 90000,
+        "return": -0.1
+      },
+      "expected": {
+        "exact": -10000.0,
+        "shown": "-$10,000"
+      },
+      "working": [
+        "Start = 90,000 ÷ 0.90 = 100,000",
+        "Dollars = −10,000"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-021",
+      "name": "periodDollarDelta",
+      "kind": "complex",
+      "title": "A large deposit nine days before the end",
+      "given": "Today 2026-10-10, period 1M (beginning read 2026-09-09). Value 2026-09-09 $100,000. On 2026-10-01 $100,000 deposited; value that day after the deposit $201,000. Value today $203,010.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "values": [
+          [
+            "2026-09-09",
+            100000
+          ],
+          [
+            "2026-10-01",
+            201000
+          ],
+          [
+            "2026-10-10",
+            203010
+          ]
+        ],
+        "deposits": [
+          [
+            "2026-10-01",
+            100000
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 3010.0,
+        "shown": "$3,010"
+      },
+      "formula_gives": {
+        "exact": 4000.0,
+        "shown": "$4,000"
+      },
+      "working": [
+        "Time-weighted: 101,000 ÷ 100,000 = 1.01; 203,010 ÷ 201,000 = 1.01; return 1.01 × 1.01 − 1 = 0.0201",
+        "Wealth generated = 203,010 − 100,000 − 100,000 = 3,010",
+        "Formula as written: 203,010 × 0.0201 ÷ 1.0201 = 4000.099 → $4,000"
+      ],
+      "rests_on": "MK-NW-O-008 walk; MK-PF-M-002",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-021",
+      "name": "periodDollarDelta",
+      "kind": "complex",
+      "title": "A large account, small return, nothing moved",
+      "given": "Today 2026-10-10, period 1M. Total $487,312.66; return +1.4237%; no money in or out.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "total_now": 487312.66,
+        "return": 0.014237
+      },
+      "expected": {
+        "exact": 6840.4824,
+        "shown": "$6,840"
+      },
+      "working": [
+        "Start = 487,312.66 ÷ 1.014237 = 480472.1776",
+        "Dollars = 6840.4824",
+        "Rounded once at display: $6,840"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-021",
+      "name": "periodDollarDelta",
+      "kind": "edge",
+      "title": "The return is not a number",
+      "given": "Today 2026-10-10, period 1M. Total $50,000; the return could not be measured (no number).",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "total_now": 50000,
+        "return": null
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 0.0,
+        "shown": "$0"
+      },
+      "working": [
+        "No return, so no dollars",
+        "Formula as written: 0"
+      ],
+      "rests_on": "Brief: never invent a default number",
+      "confidence": "high",
+      "notes": "REFUSES because there is no return; '$0' would read as 'flat'."
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "easy",
+      "title": "One dividend from a stock fund",
+      "given": "Today 2026-10-10, period 3M (first day 2026-07-10). VTI dividend $120 on 2026-09-25. VTI worth $10,500, return +5%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period_first_day": "2026-07-10",
+        "records": [
+          {
+            "type": "dividend",
+            "ticker": "VTI",
+            "date": "2026-09-25",
+            "amount": 120
+          }
+        ],
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "class": "stocks",
+            "value_now": 10500,
+            "period_return": 0.05
+          }
+        ]
+      },
+      "expected": [
+        {
+          "category": "Stocks / Funds",
+          "earned": {
+            "exact": 120.0,
+            "shown": "$120"
+          },
+          "return": {
+            "exact": 0.05,
+            "shown": "+5.00%"
+          },
+          "yearly": false
+        }
+      ],
+      "working": [
+        "Dividend naming VTI → its category, Stocks / Funds: 120",
+        "Start 10,500 ÷ 1.05 = 10,000; return 10,500 ÷ 10,000 − 1 = 0.05",
+        "No other category earned anything: only Stocks / Funds is shown"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "easy",
+      "title": "Sweep interest with no ticker",
+      "given": "Today 2026-10-10, period 3M. Interest $35 on 2026-09-30 on the brokerage's cash sweep, no ticker. No cash-class holdings.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period_first_day": "2026-07-10",
+        "records": [
+          {
+            "type": "interest",
+            "ticker": null,
+            "account": "Brokerage (cash sweep)",
+            "date": "2026-09-30",
+            "amount": 35
+          }
+        ],
+        "holdings": []
+      },
+      "expected": [
+        {
+          "category": "Cash in this account",
+          "earned": {
+            "exact": 35.0,
+            "shown": "$35"
+          },
+          "return": "REFUSES",
+          "yearly": false
+        }
+      ],
+      "working": [
+        "Interest with no ticker on a brokerage cash sweep → Cash in this account: 35",
+        "No cash holding to measure a return: none"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "The category's return is refused (no holding to measure); the earned amount is known."
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "complex",
+      "title": "A quarter of dividends and interest, as a broker sends them",
+      "given": "Today 2026-10-10, period 3M (first day 2026-07-10). Records: SCHD dividend 2026-07-10 $41.00; VTI dividend 2026-07-09 $80.00; VTI dividend 2026-09-25 $212.40; SCHD dividend 2026-09-28 $96.15; BND dividend 2026-10-01 written as −$58.20; interest 2026-08-15 $125.00 naming 912828ZT6 (a Treasury not held); interest 2026-09-30 $14.73 on the cash sweep, no ticker. Holdings: VTI (stocks) $31,302.00 +11.2523%; SCHD (stocks) $9,880.00 +2.33%; QQQ (stocks) $8,844.60 −4.12%; BND (class bond) $14,610.00 +1.26%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period_first_day": "2026-07-10",
+        "records": [
+          {
+            "type": "dividend",
+            "ticker": "SCHD",
+            "date": "2026-07-10",
+            "amount": 41.0
+          },
+          {
+            "type": "dividend",
+            "ticker": "VTI",
+            "date": "2026-07-09",
+            "amount": 80.0
+          },
+          {
+            "type": "dividend",
+            "ticker": "VTI",
+            "date": "2026-09-25",
+            "amount": 212.4
+          },
+          {
+            "type": "dividend",
+            "ticker": "SCHD",
+            "date": "2026-09-28",
+            "amount": 96.15
+          },
+          {
+            "type": "dividend",
+            "ticker": "BND",
+            "date": "2026-10-01",
+            "amount": -58.2
+          },
+          {
+            "type": "interest",
+            "ticker": "912828ZT6",
+            "date": "2026-08-15",
+            "amount": 125.0
+          },
+          {
+            "type": "interest",
+            "ticker": null,
+            "account": "Brokerage (cash sweep)",
+            "date": "2026-09-30",
+            "amount": 14.73
+          }
+        ],
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "class": "stocks",
+            "value_now": 31302.0,
+            "period_return": 0.112523
+          },
+          {
+            "ticker": "SCHD",
+            "class": "stocks",
+            "value_now": 9880.0,
+            "period_return": 0.0233
+          },
+          {
+            "ticker": "QQQ",
+            "class": "stocks",
+            "value_now": 8844.6,
+            "period_return": -0.0412
+          },
+          {
+            "ticker": "BND",
+            "class": "bond",
+            "value_now": 14610.0,
+            "period_return": 0.0126
+          }
+        ]
+      },
+      "expected": [
+        {
+          "category": "Stocks / Funds",
+          "earned": {
+            "exact": 349.55,
+            "shown": "$350"
+          },
+          "return": {
+            "exact": 0.064039,
+            "shown": "+6.40%"
+          },
+          "yearly": false
+        },
+        {
+          "category": "Bonds & CDs",
+          "earned": {
+            "exact": 183.2,
+            "shown": "$183"
+          },
+          "return": {
+            "exact": 0.0126,
+            "shown": "+1.26%"
+          },
+          "yearly": false
+        },
+        {
+          "category": "Cash in this account",
+          "earned": {
+            "exact": 14.73,
+            "shown": "$15"
+          },
+          "return": "REFUSES",
+          "yearly": false
+        }
+      ],
+      "working": [
+        "Window starts 10 Jul: the 10 Jul SCHD dividend is in (on the first day); the 9 Jul VTI dividend is out",
+        "Stocks / Funds: 41.00 + 212.40 + 96.15 = 349.55",
+        "BND dividend −58.20 taken as 58.20 → BND is class bond → Bonds & CDs; Treasury interest 125.00 (ticker not held, interest) → Bonds & CDs; total 183.20",
+        "Cash sweep interest 14.73, no ticker → Cash in this account",
+        "Total received 349.55 + 183.20 + 14.73 = 547.48 — the categories sum to all records in the window",
+        "Stocks return: now 31,302 + 9,880 + 8,844.60 = 50,026.60; starts 47015.741; return 0.064039",
+        "Bonds return: BND is held as a holding, so no stated rate: 14,610 ÷ (14,610 ÷ 1.0126) − 1 = 0.0126",
+        "Cash: no holding to measure, return none"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "Category order on screen is not tested. Cash's return is refused (no holding)."
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "complex",
+      "title": "Interest from two CDs held as accounts",
+      "given": "Today 2026-10-10, period 3M (first day 2026-07-10). Two CDs held as their own accounts: Ally CD $25,000 at 4.10%, Marcus CD $15,000 at 3.85%; no bond held as a holding. Interest records, no ticker: Ally CD account 2026-09-30 $256.25; Marcus CD account 2026-09-30 $155.75.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period_first_day": "2026-07-10",
+        "records": [
+          {
+            "type": "interest",
+            "ticker": null,
+            "account": "Ally CD",
+            "date": "2026-09-30",
+            "amount": 256.25
+          },
+          {
+            "type": "interest",
+            "ticker": null,
+            "account": "Marcus CD",
+            "date": "2026-09-30",
+            "amount": 155.75
+          }
+        ],
+        "holdings": [],
+        "bond_accounts": [
+          {
+            "name": "Ally CD",
+            "balance": 25000,
+            "coupon_rate": 0.041
+          },
+          {
+            "name": "Marcus CD",
+            "balance": 15000,
+            "coupon_rate": 0.0385
+          }
+        ]
+      },
+      "expected": [
+        {
+          "category": "Bonds & CDs",
+          "earned": {
+            "exact": 412.0,
+            "shown": "$412"
+          },
+          "return": {
+            "exact": 0.040062,
+            "shown": "+4.01%"
+          },
+          "yearly": true
+        }
+      ],
+      "formula_gives": [
+        {
+          "category": "Cash in this account",
+          "earned": {
+            "exact": 412.0,
+            "shown": "$412"
+          },
+          "return": "REFUSES",
+          "yearly": false
+        }
+      ],
+      "working": [
+        "Both interest records come from CD accounts → Bonds & CDs: 256.25 + 155.75 = 412.00",
+        "Stated yearly rate: (25,000 × 4.10% + 15,000 × 3.85%) ÷ 40,000 = (1,025 + 577.50) ÷ 40,000 = 0.0400625, shown /year",
+        "Formula as written: interest with no ticker → Cash in this account (412.00, no return); Bonds & CDs earned 0 and is left out"
+      ],
+      "rests_on": "Author rule on MK-PF-M-007 (interest comes from a bond); ordinary reading of where CD interest belongs",
+      "confidence": "medium",
+      "notes": "Assumes the records name their CD account but no ticker, as CD interest usually arrives."
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "edge",
+      "title": "Day one: nothing yet",
+      "given": "Today 2026-10-10: the first day of the record. No records, no returns.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period_first_day": null,
+        "day_one": true,
+        "records": [],
+        "holdings": []
+      },
+      "expected": [
+        {
+          "category": "Stocks / Funds",
+          "earned": {
+            "exact": 0.0,
+            "shown": "$0"
+          },
+          "return": "REFUSES",
+          "yearly": false
+        },
+        {
+          "category": "Bonds & CDs",
+          "earned": {
+            "exact": 0.0,
+            "shown": "$0"
+          },
+          "return": "REFUSES",
+          "yearly": false
+        },
+        {
+          "category": "Cash in this account",
+          "earned": {
+            "exact": 0.0,
+            "shown": "$0"
+          },
+          "return": "REFUSES",
+          "yearly": false
+        }
+      ],
+      "working": [
+        "Day one: all three categories, each at $0 with no return"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "'REFUSES' on each return means no percent is shown on day one."
+    }
+  ],
+  "could_not_test": []
+}

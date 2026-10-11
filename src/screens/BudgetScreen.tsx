@@ -1,3 +1,4 @@
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, FlatList,
@@ -337,8 +338,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const costliest = activeDebts.length > 1
     ? activeDebts.slice().sort((a, b) => (b.interest_rate_apr || 0) - (a.interest_rate_apr || 0))[0]?.debt_id : null;
   const timeLeft = (months: number) => (months >= 12
-    ? `${Math.round(months / 12)} year${Math.round(months / 12) === 1 ? '' : 's'} left`
-    : `${months} month${months === 1 ? '' : 's'} left`);
+    ? `${plural(Math.round(months / 12), 'year')} left`
+    : `${plural(months, 'month')} left`);
   // PROGRESS, from the door (MK-CF-O-018): the earliest month-end recorded this year against today
   const yearKeys = Object.keys((monthlySnapshots ?? {}) as Record<string, any>).filter((k) => k.startsWith(`${new Date().getFullYear()}-`)).sort();
   const firstSnap = yearKeys.length ? (monthlySnapshots as any)[yearKeys[0]] : null;
@@ -681,7 +682,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             <Text style={[styles.debtHero, { color: totalDebt > 0 ? Colors.red : Colors.primary }]} accessible
               accessibilityLabel={`You owe ${figSaid('MK-NW-M-009', Math.round(totalDebt))}`}>{fig('MK-NW-M-009', Math.round(totalDebt))}</Text>
             <Text style={styles.budgetCardSub}>
-              across {activeDebts.length} debt{activeDebts.length !== 1 ? 's' : ''} · {fig('MK-CF-M-071', totalMinMonthly)}/month in payments · ~{fig('MK-CF-M-057', totalInterestMonthly)}/month interest
+              across {plural(activeDebts.length, 'debt')} · {fig('MK-CF-M-071', totalMinMonthly)}/month in payments · ~{fig('MK-CF-M-057', totalInterestMonthly)}/month interest
             </Text>
           </Card>
 
@@ -764,7 +765,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                           const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
                           let n = dd - t; if (n < 0) n += dim;                 // days to the next occurrence
                           if (n > 10) return null;                            // only surface when it's soon
-                          return <Text style={[styles.dueNote, { color: n <= 2 ? Colors.red : Colors.amber }]}>🔔 {n === 0 ? 'payment due today' : `payment due in ${n} day${n === 1 ? '' : 's'}`}</Text>;
+                          return <Text style={[styles.dueNote, { color: n <= 2 ? Colors.red : Colors.amber }]}>🔔 {n === 0 ? 'payment due today' : `payment due in ${plural(n, 'day')}`}</Text>;
                         })()}
                       </View>
                       <Text style={[styles.catAmt, { color: Colors.red, marginLeft: 8 }]}>−{fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))} ›</Text>

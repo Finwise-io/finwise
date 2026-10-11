@@ -169,13 +169,13 @@ describe('maturityClass — any maturity means Bonds & CDs', () => {
 
 // NW redesign: "where is it held?" → account kind + tax bucket (axis 2). Same asset class, different wrapper.
 describe('wrapperAccount — maps the held-in wrapper to kind + tax bucket', () => {
-  test('each wrapper maps correctly; default/unspecified = taxable brokerage', () => {
+  test('each wrapper maps correctly; nothing chosen = no kind, no tax type (DEC-4036f, 2026-10-10)', () => {
     expect(wrapperAccount('taxable')).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' });
     expect(wrapperAccount('401k')).toEqual({ kind: '401k', tax_bucket: 'PRE_TAX' });
     expect(wrapperAccount('trad_ira')).toEqual({ kind: 'trad_ira', tax_bucket: 'PRE_TAX' });
     expect(wrapperAccount('roth')).toEqual({ kind: 'roth_ira', tax_bucket: 'ROTH' });
     expect(wrapperAccount('hsa')).toEqual({ kind: 'hsa', tax_bucket: 'PRE_TAX' });
-    expect(wrapperAccount(undefined)).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' });
+    expect(wrapperAccount(undefined)).toStrictEqual({ kind: undefined, tax_bucket: undefined });   // never assumed taxable (DEC-4036f, 2026-10-10)
   });
 });
 

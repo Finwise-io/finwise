@@ -6,7 +6,7 @@ const op = {
   baseSalary: 4200, salaryFreq: 'biweekly', salaryMode: 'gross', c_401k: 1200,
   partnerName: 'Sam', partnerWage: { baseSalary: 5000, salaryFreq: 'monthly', salaryMode: 'gross', c_401k: 400 },
   seAmount: 24000, seFreq: 'yearly', bonusAnnual: 12000, bonusMonth: 3, rsuShares: '50', rsuPrice: '400',
-  rentalIncome: 2000, rentalExpenses: 800, ri_ss: '2100', ri_ss_receiving: 'yes', ri_ss_freq: 'monthly',
+  rentals: [{ type: 'long', income: 2000, expenses: 800, property_id: 'p' }], ri_ss: '2100', ri_ss_receiving: 'yes', ri_ss_freq: 'monthly',
 };
 
 describe('MK-CF-O-004 incomeSummary — every source, named, never converted silently', () => {

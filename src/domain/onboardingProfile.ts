@@ -8,7 +8,8 @@ export type RiFreq = 'monthly' | 'quarterly' | 'annual';
 
 export interface ScholarshipEntry { label?: string; amount?: Money; freq?: 'annual' | 'monthly'; months?: number[]; day?: Money; year?: Money }
 export interface LoanEntry { label?: string; amount?: Money; months?: number[]; day?: Money; year?: Money; apr?: Money; termYears?: Money }
-export interface RentalEntry { type?: 'long' | 'short'; income?: Money; expenses?: Money }
+// property_id: the property in Net worth the rent is for — an entry with none is not counted as rent (DEC-4059d, 2026-10-10)
+export interface RentalEntry { type?: 'long' | 'short'; income?: Money; expenses?: Money; property_id?: string; mortgage?: Money }
 export interface RsuGrant { shares?: Money; price?: Money; date?: string }
 export interface SpendCat { id: string; label?: string; tier?: 'critical' | 'important' | 'flex'; bucket?: 'fixed' | 'nonmonthly' | 'flexible'; unit?: 'dollar' | 'pct'; amount?: Money; months?: number[]; dueDay?: Money; custom?: boolean }
 export interface GoalEntry { label?: string; target?: Money; year?: Money }

@@ -30,7 +30,7 @@
  *   ledgerGroups is called as the Net worth screen calls it (class label + assetClassOf). Account names → asset ids.
  *   accruedInterestCaveat: the auditor gives the estimate ($1,119, 363 days); the bond that produces it is built —
  *   face $25,000 at 4.5%, coupon due 2026-10-11, today 2026-10-09 (25,000 × 4.5% × 363/365 = $1,118.84).
- *   plural (MK-NW-F-067) and closedWith (MK-NW-F-104) are not exported: each is read out of its source file
+ *   closedWith (MK-NW-F-104) is not exported: it is read out of its source file (plural, MK-NW-F-067, is exported since DEC-4082)
  *   (src/domain/assets/index.ts, performance.ts) and compiled as written — the app's own text, nothing re-typed.
  *   "shown" strings are screen formatting (fig()), not this function's output, and are not asserted.
  * TOLERANCES: exact arithmetic compared with toBe / 12 decimal places; the solved yield to maturity (200 halvings)
@@ -43,7 +43,7 @@ import {
   isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary, couponIncomeAnnual,
   interestIncomeAnnual, bondRateSensitivity, priceAtYield, accruedInterestCaveat, type BondInfo,
 } from '../../../src/domain/bonds';
-import { sumWhere, prettyDay, assetClassOf, ASSET_CLASS_LABEL } from '../../../src/domain/assets';
+import { sumWhere, prettyDay, assetClassOf, ASSET_CLASS_LABEL, plural as realPlural } from '../../../src/domain/assets';
 import { itemizeMissingCount } from '../../../src/domain/assets/itemize';
 import { buildNetWorth } from '../../../src/domain/networth';
 import { totalDebtBalance } from '../../../src/domain/debt';
@@ -62,8 +62,8 @@ const fromSource = (file: string, start: RegExp, end: string, name: string) => {
   const js = ts.transpileModule(code, { compilerOptions: { target: ts.ScriptTarget.ES2019 } }).outputText;
   return new Function(`${js}\nreturn ${name};`)();
 };
-const plural: (n: number, one: string, many?: string) => string =
-  fromSource('../../../src/domain/assets/index.ts', /const plural = \(n: number, one: string/, ';', 'plural');
+// plural is exported since DEC-4082 (2026-10-10) and reads its plural from the one list PLURAL_WORDS: imported, not compiled
+const plural = (n: number, word: string, _many?: string) => realPlural(n, word as any);
 const closedWith: (days: any[], ids: Set<string>, today: string, ending: number) => any[] =
   fromSource('performance.ts', /function closedWith\(/, '\n}\n', 'closedWith');
 
@@ -246,8 +246,8 @@ describe('MK-NW-F-062 couponIncomeAnnual — five cases', () => {
   test('complex · Expired bond omitted', () => {
     expect(couponIncomeAnnual([bondAcct({ id: 'x', face: 10000, rate: 0.05, maturity: '2026-10-08' }), bondAcct({ id: 'y', face: 2000, rate: 0.04, maturity: '2028-10-09' })])).toBe(80);
   });
-  // UNCLEAR: app counts an undated bond as paying ($200). DEC-0332 (no date is unknown, not due now) governs years left,
-  // yield to maturity and the rates estimate, not interest; open question: is undated interest counted, or refused and named?
+  // SETTLED 2026-10-10 by DEC-4036b ("1 to 5 - Approved"): a bond or CD with no maturity date keeps counting its interest
+  // (DEC-0332: unknown, not matured) — $200 — and its row reads "maturity date not entered" instead of a dash
   test('edge · Maturity date missing', () => { expect(couponIncomeAnnual([bondAcct({ face: 5000, rate: 0.04, maturity: null })])).toBe(200); });
 });
 
@@ -267,8 +267,7 @@ describe('MK-NW-F-063 interestIncomeAnnual — five cases', () => {
     expect(interestIncomeAnnual([bondAcct({ id: 'b', face: 5000, rate: 0.05, maturity: '2026-01-01' }),
       acct({ id: 's', kind: 'savings', asset_class: 'cash', balance: 2000, coupon_rate: 0.04 })], D('2026-10-09'))).toBeCloseTo(80, 12);
   });
-  // UNCLEAR: app counts the undated bond ($200) — bonds/index.ts:602 drops only a date before today. No decision covers
-  // undated interest (DEC-0332 is about years left / yield); open question: count it, or refuse and name the missing date?
+  // SETTLED 2026-10-10 by DEC-4036b: an undated bond's interest counts ($200); only a date before today drops it
   test('edge · Undated bond interest is treated as active', () => {
     expect(interestIncomeAnnual([bondAcct({ face: 5000, rate: 0.04, maturity: null })], D('2026-10-09'))).toBe(200);
   });
@@ -335,11 +334,15 @@ describe('MK-NW-F-066 sumWhere — five cases', () => {
 describe('MK-NW-F-067 plural — five cases', () => {
   test('easy · Singular CD', () => { expect(plural(1, 'CD', 'CDs')).toBe('1 CD'); });
   test('easy · Plural CDs', () => { expect(plural(3, 'CD', 'CDs')).toBe('3 CDs'); });
-  test('complex · Explicit irregular plural', () => { expect(plural(2, 'person', 'people')).toBe('2 people'); });
+  // RULED (DEC-4082, 2026-10-10 — "make a list of words and plurals"): the plural comes from the one list, so a word
+  // the app does not count ('person') is refused, never guessed; the case it stood for is Treasury → Treasuries.
+  test('complex · Explicit irregular plural', () => {
+    expect(plural(2, 'Treasury')).toBe('2 Treasuries');
+    expect(() => plural(2, 'person', 'people')).toThrow(/not on PLURAL_WORDS/);
+  });
   test('complex · Zero uses plural', () => { expect(plural(0, 'property', 'properties')).toBe('0 properties'); });
-  // UNCLEAR: app gives "2 propertys" with no plural supplied (src/domain/assets/index.ts:1625). No decision; open question:
-  // must every caller supply the plural (today's callers pass only nouns that take s), or should the helper know English?
-  test('edge · Plural not supplied for irregular noun', () => { expect(plural(2, 'property')).toBe('2 propertys'); });
+  // was UNCLEAR ("2 propertys" with no plural supplied); answered by DEC-4082: the list knows property → properties
+  test('edge · Plural not supplied for irregular noun', () => { expect(plural(2, 'property')).toBe('2 properties'); });
 });
 
 describe('MK-NW-F-068 prettyDay — five cases', () => {
@@ -384,10 +387,10 @@ describe('MK-NW-F-071 isCertificateOfDeposit — five cases', () => {
   test('easy · Kind says CD', () => { expect(isCertificateOfDeposit({ kind: 'cd', label: 'Deposit', institution: 'Bank' })).toBe(true); });
   test('easy · CDW institution is not whole-word CD', () => { expect(isCertificateOfDeposit({ kind: 'brokerage', label: 'Brokerage', institution: 'CDW Financial' })).toBe(false); });
   test('complex · Certificate phrase in account name', () => { expect(isCertificateOfDeposit({ kind: 'brokerage', label: 'Certificate of Deposit 2028', institution: 'Bank' })).toBe(true); });
-  // UNCLEAR: app says true — the institution is read with the name (bonds/index.ts:107). DEC-3279h names the words, not
-  // where they may come from; open question: may an institution's name alone (CD Capital) make an account a CD?
+  // SETTLED 2026-10-10 by DEC-4036c: "CD" is read only from an account's own name or type, never its institution — a
+  // brokerage account at "CD Capital" is not a CD
   test('complex · Institution name alone triggers CD according to formula', () => {
-    expect(isCertificateOfDeposit({ kind: 'brokerage', label: 'Investment account', institution: 'CD Capital' })).toBe(true);
+    expect(isCertificateOfDeposit({ kind: 'brokerage', label: 'Investment account', institution: 'CD Capital' })).toBe(false);
   });
   test('edge · Lowercase whole word CD', () => { expect(isCertificateOfDeposit({ kind: 'brokerage', label: 'bank cd ladder', institution: 'Bank' })).toBe(true); });
 });

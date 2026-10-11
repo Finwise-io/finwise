@@ -30,9 +30,9 @@ describe('propertyUses — nobody is asked what a property is for', () => {
     expect(propertyUses([home('p1', 'Home')], []).get('p1')).toBe('home');
   });
 
-  test('rent stored before the rule names no property: it belongs to the one property that is not the home, when there is exactly one', () => {
+  test('rent that names no property makes no property a rental (DEC-4059d, 2026-10-10) — it used to go to the one property that is not the home', () => {
     const rent = [{ income: '1800', expenses: '600' }];
-    expect(propertyUses([home('p2', 'Duplex'), home('p1', 'Home')], rent).get('p2')).toBe('rental');
+    expect(propertyUses([home('p2', 'Duplex'), home('p1', 'Home')], rent).get('p2')).toBe('second');
     const three = propertyUses([home('p3', 'Condo'), home('p2', 'Duplex'), home('p1', 'Home')], rent);
     expect([three.get('p2'), three.get('p3')]).toEqual(['second', 'second']);      // two candidates: not guessed
   });

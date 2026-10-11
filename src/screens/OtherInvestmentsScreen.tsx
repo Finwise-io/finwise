@@ -1,6 +1,7 @@
 // Other investments (Phase C) — alternatives (crypto, PE, hedge funds, commodities, annuities, other)
 // held at a manual value as AssetAccounts, so they flow to Net Worth + nest egg. Third management
 // surface alongside Performance (stocks/ETFs) and Bonds.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
@@ -9,7 +10,7 @@ import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
 import { DateField } from '../components/DateField';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { fig, figSpoken } from '../components/figure';
+import { fig, figSpoken, figWords } from '../components/figure';
 import { InfoDot, EmptyNote } from '../components/UI';
 import { assetKind, benchmarkReturn, type AssetAccount, type TaxBucket } from '../domain/assets';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1). The share of investable this screen shows is the
@@ -67,11 +68,14 @@ export default function OtherInvestmentsScreen() {
         <>
           <View style={styles.summary}>
             <Text style={styles.sumVal}>{fig('MK-NW-M-049', outlook.totalValue)}</Text>
-            <Text style={styles.sumLab}>{outlook.count} holding{outlook.count > 1 ? 's' : ''} · {sharePct}% of your investable assets</Text>
+            <Text style={styles.sumLab}>{plural(outlook.count, 'holding')} · {sharePct}% of your investable assets</Text>
             <View style={styles.sumRow}>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>EXP. RETURN</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-051', outlook.expectedReturn)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>EST. GROWTH /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{fig('MK-NW-M-050', outlook.estimatedGrowthPerYear)}</Text></View>
             </View>
+            {/* money no priced holding explains is in the total, and the rate and growth say they leave it out —
+                in his words, "$1500 asset type not classified" (DEC-4036h, 2026-10-10) */}
+            {!!outlook.leavesOut && <Text style={styles.sumLab}>{figWords('MK-NW-M-051', outlook.leavesOut)}</Text>}
           </View>
 
           {outlook.rows.map((r) => {
@@ -80,7 +84,11 @@ export default function OtherInvestmentsScreen() {
             return (
             <TouchableOpacity key={r.accountId} accessibilityRole="button" accessibilityLabel={`Edit ${r.label}, ${figSpoken('MK-NW-M-052', r.value)}`} style={styles.card} onPress={() => r.inside ? router.push(`/account-detail?id=${r.accountId}` as any) : a && setEdit(a)}>
               <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{r.label}</Text><Text style={styles.val}>{fig('MK-NW-M-052', r.value)}</Text></View>
-              <Text style={styles.sub}>{r.institution ? `${r.institution} · ` : ''}{r.inside ?? assetKind(a?.kind)?.label ?? 'Other'} · ~{(r.benchmark * 100).toFixed(2)}%/year expected</Text>
+              {/* a part no priced holding explains is named, never "Other", and given no rate (DEC-4036h, 2026-10-10) */}
+              <Text style={styles.sub}>{[r.institution, r.inside ?? assetKind(a?.kind)?.label ?? 'Other',
+                r.benchmark != null ? `~${(r.benchmark * 100).toFixed(2)}%/year expected` : '',
+                Math.abs(r.notClassified) > 0.005 ? `${fig('MK-NW-M-052', r.notClassified)} asset type not classified` : '',
+              ].filter(Boolean).join(' · ')}</Text>
             </TouchableOpacity>
             );
           })}
@@ -109,12 +117,15 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
   const [label, setLabel] = useState('');
   const [inst, setInst] = useState('');
   const [value, setValue] = useState('');
-  const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
+  // NO ACCOUNT TYPE IS CHOSEN FOR THE PERSON (DEC-4036f, 2026-10-10): "An account with no account type chosen is never
+  // assumed taxable." Taxable used to be preselected; now no chip is on until they tap one, and saved untapped the
+  // holding has no tax type (its page says "tax type not stated").
+  const [bucket, setBucket] = useState<TaxBucket | undefined>(undefined);
   const [sellAmt, setSellAmt] = useState('');
   const [valueAsOf, setValueAsOf] = useState('');   // walk row 4: the stamp lives everywhere a manual value does
   React.useEffect(() => {
     if (!open) return;
-    setKind(item?.kind ?? presetKind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE'); setSellAmt(''); setValueAsOf(item?.value_as_of ?? '');
+    setKind(item?.kind ?? presetKind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket);   // (DEC-4036f, 2026-10-10) unstated stays unstated setSellAmt(''); setValueAsOf(item?.value_as_of ?? '');
   }, [open]);
   const valid = label.trim().length > 0 && num(value) > 0;
   // Alternatives are sellable too (e.g. an American option before expiration, crypto, a fund stake).
@@ -134,7 +145,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
         { text: full ? 'Sell all' : 'Sell', onPress: () => {
           if (full) { onDelete?.(); return; }
           if (item) recordTransaction?.({ type: 'SELL', account_id: item.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Sale' });
-          onSave({ kind, label: label.trim(), institution: inst.trim(), tax_bucket: bucket, ...(item ? {} : { balance: Math.round((cur - sold) * 100) / 100 }) });
+          onSave({ kind, label: label.trim(), institution: inst.trim(), tax_bucket: bucket as TaxBucket, ...(item ? {} : { balance: Math.round((cur - sold) * 100) / 100 }) });
         } },
       ],
     );
@@ -179,7 +190,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
             </View>
           )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
-            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket, value_as_of: valueAsOf || isoLocalDate(new Date()) })}>
+            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket as TaxBucket, value_as_of: valueAsOf || isoLocalDate(new Date()) })}>
             <Text style={styles.saveBtnT}>{item ? 'Save' : 'Add'}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this holding" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => Alert.alert('Delete this holding?', `Removes ${label.trim() || 'this investment'} from your holdings.`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: onDelete }])}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}

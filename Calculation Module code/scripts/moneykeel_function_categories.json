@@ -379,6 +379,11 @@
   "file": "src/domain/income/from-accounts.ts",
   "category": "1 · ACTION"
  },
+ "asksCashOrInvestments": {
+  "id": "MK-NW-F-137",
+  "file": "src/domain/assets/index.ts",
+  "category": "1 · ACTION"
+ },
  "assetAllocation": {
   "id": "MK-NW-F-029",
   "file": "src/domain/assets/index.ts",
@@ -629,6 +634,11 @@
   "file": "src/services/crashReporter.ts",
   "category": "1 · ACTION"
  },
+ "carValueNotEnteredNotes": {
+  "id": "MK-NW-F-134",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
  "cash": {
   "id": "MK-CF-F-155",
   "file": "MoneyKeel/functions/cashflow/this-month.ts",
@@ -763,6 +773,11 @@
   "id": "MK-PF-F-002",
   "file": "src/domain/performance/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "countedTaxableLine": {
+  "id": "MK-PL-F-088",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "1 · ACTION"
  },
  "couponIncomeAnnual": {
   "id": "MK-NW-F-062",
@@ -981,6 +996,16 @@
  },
  "earmarkDefault": {
   "id": "MK-NW-F-030",
+  "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "earmarkLeavesOut": {
+  "id": "MK-NW-F-135",
+  "file": "src/domain/assets/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "earmarkLeavesOutWords": {
+  "id": "MK-NW-F-136",
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
@@ -2084,6 +2109,11 @@
   "file": "src/domain/history.ts",
   "category": "3 · DEPENDENT"
  },
+ "notClassifiedWords": {
+  "id": "MK-NW-F-132",
+  "file": "MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts",
+  "category": "3 · DEPENDENT"
+ },
  "numOrNaN": {
   "id": "MK-XS-F-171",
   "file": "src/domain/import/holdingsImport.ts",
@@ -2296,8 +2326,8 @@
  },
  "plural": {
   "id": "MK-NW-F-067",
-  "file": "src/domain/assets/index.ts",
-  "category": "1 · ACTION"
+  "file": "src/domain/_shared/plural.ts",
+  "category": "2 · DISPLAYED"
  },
  "portfolioActualReturn": {
   "id": "MK-NW-F-004",
@@ -3014,6 +3044,11 @@
   "file": "src/domain/planning/spendMore.ts",
   "category": "2 · DISPLAYED"
  },
+ "splitBucketOf": {
+  "id": "MK-PL-F-086",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "ssBenefitAt": {
   "id": "MK-PL-F-060",
   "file": "src/domain/retirement/ssTiming.ts",
@@ -3143,6 +3178,11 @@
   "id": "MK-NW-F-012",
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "taxTypeNotStated": {
+  "id": "MK-PL-F-087",
+  "file": "src/domain/decumulation/index.ts",
+  "category": "1 · ACTION"
  },
  "taxWordsOf": {
   "id": "MK-NW-F-108",
@@ -3457,6 +3497,11 @@
  "utcOfDay": {
   "id": "MK-ST-F-067",
   "file": "Calculation Module code/engines/rebuild-history.ts",
+  "category": "1 · ACTION"
+ },
+ "valueEntered": {
+  "id": "MK-NW-F-133",
+  "file": "src/domain/assets/index.ts",
   "category": "1 · ACTION"
  },
  "valueFreshness": {

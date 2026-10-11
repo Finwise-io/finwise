@@ -8,6 +8,7 @@
 //
 // Each gap carries: what's missing (title), what the app is honestly doing meanwhile (meanwhile),
 // and the button that lands on the exact cure (fixLabel + route) — never a generic settings page.
+import { plural } from '../_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import type { AssetAccount } from '../assets';
 import type { Debt } from '../debt';
 import { historyCoverage, accountDisplayNames } from '../assets';
@@ -249,7 +250,7 @@ export function dataGaps(
       if (d != null && d > STALE_VALUE_DAYS) {
         gaps.push({
           kind: 'stale-value', accountId: a.asset_id,
-          title: `${a.label || 'A value'} hasn't been updated in ${Math.floor(d / 365)} year${d >= 730 ? 's' : ''}`,
+          title: `${a.label || 'A value'} hasn't been updated in ${plural(Math.floor(d / 365), 'year')}`,
           meanwhile: 'We still count what you entered — property has no price feed, so only you can refresh it.',
           // the Net worth tab's route key is 'analytics' — '/(tabs)/networth' matches nothing, so this
           // button used to land on an unmatched route and bounce Home. Every fix button must reach the
@@ -286,8 +287,7 @@ export function dataGaps(
  *
  * Formula .....
  *     nothing   when count of gaps is missing
- *     '1 number needs more information'   if gaps.length = 1
- *     `${gaps.length} numbers need more information`   otherwise
+ *     `${plural(gaps.length, 'number')} ${gaps.length = 1 ? 'needs' : 'need'} more information`
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -298,5 +298,5 @@ export function dataGaps(
  */
 export function gapsHeadline(gaps: DataGap[]): string | null {
   if (!gaps.length) return null;
-  return gaps.length === 1 ? '1 number needs more information' : `${gaps.length} numbers need more information`;
+  return `${plural(gaps.length, 'number')} ${gaps.length === 1 ? 'needs' : 'need'} more information`;
 }

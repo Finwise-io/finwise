@@ -1,0 +1,1774 @@
+{
+  "batch": "performance 04",
+  "written_by": "claude",
+  "formula_checks": [
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "verdict": "RIGHT",
+      "why": "Passing the amount, the two histories, the months and today straight to lookBack and returning its answer unchanged is right for an orchestrator: the screen computes nothing, the three figures (MK-PF-M-010, -011, -012) all come from one answer, so the difference always equals moved − stayed. It inherits lookBack's price-only measurement (finding on MK-PF-F-023). The owner rule DEC-0233 is about layout only.",
+      "should_be": "",
+      "rests_on": "formula in words; MK-PF-F-023",
+      "severity": ""
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "verdict": "INCOMPLETE",
+      "why": "The arithmetic is right: end value = amount × factor, change = end − amount, percent = (factor − 1) × 100, difference = moved − stayed, refusing unless the amount is above zero and both factors exist. The percent is a percent, as the batch note says. It is incomplete in what it measures: it uses prices only, so distributions are left out. Comparing a stock fund with a bond fund (which pays most of its return as distributions) over a year understates the bond fund by its yield, and the difference shown is wrong in money. The author's rule says the screen says 'price changes only', which discloses it but does not make the dollar difference right; owner decision Q16 asks for time-weighted total returns.",
+      "should_be": "Factor = the fund's total-return factor over the window (closes adjusted for distributions, i.e. distributions reinvested); the rest unchanged.",
+      "rests_on": "Owner decision Q16 (time-weighted return); standard practice that a fund's return includes its distributions.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "verdict": "INCOMPLETE",
+      "why": "Latest close ÷ the last close on or before the cut-off, refusing when the record does not reach the cut-off or the start close is not above zero, is right — and better than MK-PF-F-010 / MK-PF-F-029, which fall back. But 'today moved back the given number of months' does not say what happens when that month is shorter. MK-PF-F-008 and MK-NW-F-090 both stop at the month's last day (owner decision DEC-3768b: one month before 31 March is 28 February). A plain month subtraction overflows instead (31 March − 1 month → 3 March), which on the look-back screen would measure a different window from the period chips.",
+      "should_be": "Cut-off = today moved back the given number of months, stopping at that month's last day when it is shorter (as MK-PF-F-008 / MK-NW-F-090).",
+      "rests_on": "Owner decision DEC-3768b; agreement with MK-PF-F-008 and MK-NW-F-090.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-008",
+      "name": "startDateFor",
+      "verdict": "RIGHT",
+      "why": "Moving back whole months and stopping at the month's last day when that month is shorter is the right calendar rule (owner decision DEC-3768b), and 1 January for This year is right. It agrees with MK-NW-F-090 for every label both share. Low: for an unknown label this card gives today and MK-NW-F-090 gives 12 months back; here the input is typed as one of the six periods, so it cannot reach a screen. MK-PF-F-022 (factorOverMonths) does not state the month-end rule at all — that finding is on that card.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3768b (batch note); agreement with MK-NW-F-090.",
+      "severity": ""
+    },
+    {
+      "id": "MK-PF-F-009",
+      "name": "latestClose",
+      "verdict": "INCOMPLETE",
+      "why": "The most recent close is right in idea, but 'the close of the last price on record' means the last item in the list, which is the latest only when the list is sorted oldest first. Nothing on the card sorts it or says it must arrive sorted, and a price history from a broker or data feed is often newest first. Then this returns the OLDEST close, and every market value, gain and return built on it is wrong.",
+      "should_be": "The close of the price with the latest date (whatever order the list is in); nothing when there are no prices.",
+      "rests_on": "Ordinary reading of 'most recent'.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-010",
+      "name": "periodReturn",
+      "verdict": "WRONG",
+      "why": "Three faults. (1) The start is the close on or before the period's FIRST day, so the first day's own move is left out. Owner decision Q3 puts both edge days inside the period, and MK-NW-O-008 reads its beginning at the day BEFORE the period opens (the author records fixing exactly this there, B-115); the holding rows and the portfolio return then disagree by one day's move. (2) When the prices do not reach the period's start it falls back to the first close and labels a shorter span with the period's name (a 1Y return that is really five months) — MK-PF-F-022 refuses in the same case, MK-PF-F-034 has no fallback. (3) Years for the yearly rate are days ÷ 365.25, while MK-NW-O-008 uses days ÷ 365. Turning 2Y into a yearly rate and keeping 1Y as a total is right.",
+      "should_be": "Start = the close on or before the day before the period's first day; refuse when there is none. Return = end ÷ start − 1. For 2Y, the yearly rate (end ÷ start)^(1/2) − 1. Use the same day count for years as MK-NW-O-008.",
+      "rests_on": "Owner decision Q3 (both edge days inside); MK-NW-O-008 (beginning read the day before); agreement with MK-PF-F-022 / MK-PF-F-034.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-PF-F-011",
+      "name": "periodReturnSince",
+      "verdict": "WRONG",
+      "why": "Latest close ÷ the close on or before the purchase day − 1 is right for a window that starts at a purchase (the purchase day's close is the nearest market price to the buy). The fallback is wrong for the same reason as MK-PF-F-029: when the prices begin after the purchase date it uses the first close on record, so 'since you bought it' quietly becomes 'since our prices begin'. Note also: it is never turned into a yearly rate, so in a 2Y window a holding bought 18 months ago shows an 18-month total beside other holdings' yearly rates (MK-PF-F-010 annualises 2Y); the finding on mixing the two is on MK-PF-F-014.",
+      "should_be": "Latest close ÷ the close on or before the given date − 1; nothing when there is no close on or before that date.",
+      "rests_on": "Agreement with MK-PF-F-034 and MK-PF-F-022; brief: a percent given when the starting value was never known.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "verdict": "WRONG",
+      "why": "The last close on or before the target is right. The fallback is not: when every price is later than the target, it returns the FIRST close on record, i.e. a price from after the day asked. Any return built on it then covers a shorter span than the period it is labelled with — a period reaching back further than the record (shape 4) silently measured from the record's first day. MK-PF-F-034 (closeOnOrBefore) does the same job with no fallback and returns nothing; the two disagree for the same input. MK-PF-F-022 (factorOverMonths) also refuses in that case.",
+      "should_be": "The close of the last price on or before the target; nothing when there is none (as MK-PF-F-034).",
+      "rests_on": "Agreement with MK-PF-F-034 and MK-PF-F-022; brief: a percent given when the starting value was never known.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "verdict": "RIGHT",
+      "why": "The last close on or before a day, and nothing when there is none, is the honest lookup: it never borrows a later price. It is what MK-PF-F-029 (closeAsOf) should do and does not — that card falls back to the first close; the finding is on MK-PF-F-029. Like MK-PF-F-009 it assumes the history is in date order; a sorted input is assumed in these cases.",
+      "should_be": "",
+      "rests_on": "formula in words",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "easy",
+      "title": "Stayed up, moved would have been down",
+      "given": "Today 2026-10-10, 3 months (cut-off 2026-07-10). Amount $5,000. Fund it is in: $40 → $44. Other: $40 → $38.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 3,
+        "amount": 5000,
+        "from_closes": [
+          [
+            "2026-07-10",
+            40
+          ],
+          [
+            "2026-10-09",
+            44
+          ]
+        ],
+        "to_closes": [
+          [
+            "2026-07-10",
+            40
+          ],
+          [
+            "2026-10-09",
+            38
+          ]
+        ]
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 5500.0,
+          "shown": "$5,500"
+        },
+        "stayed_change": {
+          "exact": 500.0,
+          "shown": "$500"
+        },
+        "stayed_percent": {
+          "exact": 10.0,
+          "shown": "+10.00%"
+        },
+        "moved_end": {
+          "exact": 4750.0,
+          "shown": "$4,750"
+        },
+        "moved_change": {
+          "exact": -250.0,
+          "shown": "-$250"
+        },
+        "moved_percent": {
+          "exact": -5.0,
+          "shown": "−5.00%"
+        },
+        "difference": {
+          "exact": -750.0,
+          "shown": "-$750"
+        }
+      },
+      "working": [
+        "Stayed 5,000 × 1.10 = 5,500 (up 500, 10%)",
+        "Moved 5,000 × 0.95 = 4,750 (down 250, −5%)",
+        "Difference 4,750 − 5,500 = −750: $750 less if you had moved"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "easy",
+      "title": "No history for the fund it is in",
+      "given": "Today 2026-10-10, 12 months. Amount $5,000. Fund it is in: no price history.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 12,
+        "amount": 5000,
+        "from_closes": null,
+        "to_closes": [
+          [
+            "2025-10-10",
+            50
+          ],
+          [
+            "2026-10-09",
+            55
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No factor for the fund it is in: nothing on any of the three lines"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because the fund it is in has no price history over the window."
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "complex",
+      "title": "Twelve months, the parts and the difference agree",
+      "given": "Today 2026-10-10, 12 months (cut-off 2025-10-10). Amount $18,250.00. In fund A: $87.43 → $96.12. Other fund B: $154.20 → $171.88.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 12,
+        "amount": 18250,
+        "from_closes": [
+          [
+            "2025-10-10",
+            87.43
+          ],
+          [
+            "2026-04-01",
+            91.07
+          ],
+          [
+            "2026-10-09",
+            96.12
+          ]
+        ],
+        "to_closes": [
+          [
+            "2025-10-10",
+            154.2
+          ],
+          [
+            "2026-04-01",
+            160.33
+          ],
+          [
+            "2026-10-09",
+            171.88
+          ]
+        ]
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 20063.9369,
+          "shown": "$20,064"
+        },
+        "rows": [
+          {
+            "label": "Amount",
+            "exact": 18250.0
+          },
+          {
+            "label": "Stayed: change",
+            "exact": 1813.9369
+          }
+        ],
+        "moved_end": {
+          "exact": 20342.4773,
+          "shown": "$20,342"
+        },
+        "difference": {
+          "exact": 278.5404,
+          "shown": "$279"
+        }
+      },
+      "working": [
+        "Stayed factor 96.12 ÷ 87.43 = 1.0993938; end = 20063.9369",
+        "Stayed change = 20063.9369 − 18,250 = 1813.9369; amount + change = stayed end",
+        "Moved factor 171.88 ÷ 154.20 = 1.11465629; end = 20342.4773",
+        "Difference = 20342.4773 − 20063.9369 = 278.5404",
+        "All three figures (MK-PF-M-010, -011, -012) are on /look-back only, from the one answer; the difference line must equal moved − stayed exactly"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "complex",
+      "title": "Six months back from 31 August lands on a short February",
+      "given": "Today 2026-08-31, 6 months: cut-off 2026-02-28 (Saturday). Amount $7,500. In fund: Fri 2026-02-27 $61.20 → 2026-08-31 $58.75. Other: 2026-02-27 $33.10 → 2026-08-31 $35.42.",
+      "inputs": {
+        "today": "2026-08-31",
+        "months": 6,
+        "amount": 7500,
+        "from_closes": [
+          [
+            "2026-02-27",
+            61.2
+          ],
+          [
+            "2026-03-02",
+            61.9
+          ],
+          [
+            "2026-08-31",
+            58.75
+          ]
+        ],
+        "to_closes": [
+          [
+            "2026-02-27",
+            33.1
+          ],
+          [
+            "2026-03-02",
+            33.0
+          ],
+          [
+            "2026-08-31",
+            35.42
+          ]
+        ]
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 7199.7549,
+          "shown": "$7,200"
+        },
+        "stayed_change": {
+          "exact": -300.2451,
+          "shown": "-$300"
+        },
+        "moved_end": {
+          "exact": 8025.6798,
+          "shown": "$8,026"
+        },
+        "moved_change": {
+          "exact": 525.6798,
+          "shown": "$526"
+        },
+        "difference": {
+          "exact": 825.9249,
+          "shown": "$826"
+        }
+      },
+      "working": [
+        "Cut-off: 31 Aug − 6 months = 31 Feb → 28 Feb 2026; last close on or before is Fri 27 Feb",
+        "Stayed: 7,500 × 58.75 ÷ 61.20 = 7199.7549 (change -300.2451)",
+        "Moved: 7,500 × 35.42 ÷ 33.10 = 8025.6798 (change 525.6798)",
+        "Difference = 825.9249"
+      ],
+      "rests_on": "DEC-3768b month-end rule; MK-PF-F-022",
+      "confidence": "medium",
+      "notes": "Depends on factorOverMonths stopping at 28 February; if it overflows to 3 March the start closes change (see the MK-PF-F-022 finding)."
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "edge",
+      "title": "A negative amount",
+      "given": "Today 2026-10-10, 12 months. Amount −$500.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 12,
+        "amount": -500
+      },
+      "expected": "REFUSES",
+      "working": [
+        "The amount is not above zero: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because the amount is not above zero."
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "easy",
+      "title": "Stayed up ten percent, moved would have been up twenty",
+      "given": "Today 2026-10-10, 12 months (cut-off 2025-10-10). Amount $10,000. Fund it is in: $100 → $110. Other fund: $50 → $60.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 12,
+        "amount": 10000,
+        "from_closes": [
+          [
+            "2025-10-10",
+            100
+          ],
+          [
+            "2026-10-09",
+            110
+          ]
+        ],
+        "to_closes": [
+          [
+            "2025-10-10",
+            50
+          ],
+          [
+            "2026-10-09",
+            60
+          ]
+        ]
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 11000.0,
+          "shown": "$11,000"
+        },
+        "stayed_change": {
+          "exact": 1000.0,
+          "shown": "$1,000"
+        },
+        "stayed_percent": {
+          "exact": 10.0,
+          "shown": "+10.00%"
+        },
+        "moved_end": {
+          "exact": 12000.0,
+          "shown": "$12,000"
+        },
+        "moved_change": {
+          "exact": 2000.0,
+          "shown": "$2,000"
+        },
+        "moved_percent": {
+          "exact": 20.0,
+          "shown": "+20.00%"
+        },
+        "difference": {
+          "exact": 1000.0,
+          "shown": "$1,000"
+        }
+      },
+      "working": [
+        "Factors 1.10 and 1.20",
+        "Stayed 10,000 × 1.10 = 11,000; change 1,000; percent 10",
+        "Moved 10,000 × 1.20 = 12,000; change 2,000; percent 20",
+        "Difference 12,000 − 11,000 = 1,000"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "Percents are returned as percents (10 = 10%), per the card and the batch note."
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "easy",
+      "title": "Nothing to move",
+      "given": "Today 2026-10-10, 12 months. Amount $0.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 12,
+        "amount": 0
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Amount is not above zero: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because the amount is not above zero."
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "complex",
+      "title": "Six months, stock index fund against a bond fund",
+      "given": "Today 2026-10-10, 6 months (cut-off 2026-04-10). Amount $23,417.88. In VTI: 2026-04-10 $281.36 → 2026-10-09 $313.02. Other: BND 2026-04-10 $72.14 → 2026-10-09 $73.05. No distributions fell in the window.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 6,
+        "amount": 23417.88,
+        "from_closes": [
+          [
+            "2026-04-10",
+            281.36
+          ],
+          [
+            "2026-10-09",
+            313.02
+          ]
+        ],
+        "to_closes": [
+          [
+            "2026-04-10",
+            72.14
+          ],
+          [
+            "2026-10-09",
+            73.05
+          ]
+        ]
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 26052.9741,
+          "shown": "$26,053"
+        },
+        "stayed_change": {
+          "exact": 2635.0941,
+          "shown": "$2,635"
+        },
+        "stayed_percent": {
+          "exact": 11.252488,
+          "shown": "+11.25%"
+        },
+        "moved_end": {
+          "exact": 23713.2816,
+          "shown": "$23,713"
+        },
+        "moved_change": {
+          "exact": 295.4016,
+          "shown": "$295"
+        },
+        "moved_percent": {
+          "exact": 1.261436,
+          "shown": "+1.26%"
+        },
+        "difference": {
+          "exact": -2339.6925,
+          "shown": "-$2,340"
+        }
+      },
+      "working": [
+        "Stayed factor 313.02 ÷ 281.36 = 1.11252488; end = 26052.9741; change 2635.0941",
+        "Moved factor 73.05 ÷ 72.14 = 1.01261436; end = 23713.2816; change 295.4016",
+        "Difference = 23713.2816 − 26052.9741 = -2339.6925"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "With no distributions in the window, price-only and total return agree, so this case does not depend on the finding."
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "complex",
+      "title": "A bond fund whose return came as distributions",
+      "given": "Today 2026-10-10, 12 months (cut-off 2025-10-10). Amount $10,000. In a growth fund: $100.00 → $108.00, no distributions. Other: a bond fund $72.00 → $72.50 that paid $3.10 a share in distributions, taken as paid on the last day of the window.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 12,
+        "amount": 10000,
+        "from_closes": [
+          [
+            "2025-10-10",
+            100
+          ],
+          [
+            "2026-10-09",
+            108
+          ]
+        ],
+        "to_closes": [
+          [
+            "2025-10-10",
+            72
+          ],
+          [
+            "2026-10-09",
+            72.5
+          ]
+        ],
+        "to_distributions_per_share": 3.1
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 10800.0,
+          "shown": "$10,800"
+        },
+        "moved_end": {
+          "exact": 10500.0,
+          "shown": "$10,500"
+        },
+        "difference": {
+          "exact": -300.0,
+          "shown": "-$300"
+        }
+      },
+      "formula_gives": {
+        "stayed_end": {
+          "exact": 10800.0,
+          "shown": "$10,800"
+        },
+        "moved_end": {
+          "exact": 10069.4444,
+          "shown": "$10,069"
+        },
+        "difference": {
+          "exact": -730.5556,
+          "shown": "-$731"
+        }
+      },
+      "working": [
+        "Stayed: 10,000 × 1.08 = 10,800",
+        "Moved, total return: 10,000 ÷ 72 = 138.8889 shares; worth 138.8889 × (72.50 + 3.10) = 10,500",
+        "Difference 10,500 − 10,800 = −300",
+        "Formula (price only): moved = 10,000 × 72.50 ÷ 72 = 10069.4444; difference = -730.5556"
+      ],
+      "rests_on": "Owner decision Q16; total return includes distributions",
+      "confidence": "medium",
+      "notes": "The function is not handed distributions today; this case shows what the price-only rule leaves out (the gap is the $430.56 of distributions)."
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "edge",
+      "title": "The other fund's history starts after the cut-off",
+      "given": "Today 2026-10-10, 12 months (cut-off 2025-10-10). Amount $5,000. Fund it is in has closes from 2020. The other fund launched 2026-02-02.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 12,
+        "amount": 5000,
+        "from_closes": [
+          [
+            "2025-10-10",
+            100
+          ],
+          [
+            "2026-10-09",
+            106
+          ]
+        ],
+        "to_closes": [
+          [
+            "2026-02-02",
+            20
+          ],
+          [
+            "2026-10-09",
+            23
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "The other fund has no factor (its record does not reach back to the cut-off), so nothing is given"
+      ],
+      "rests_on": "formula in words; MK-PF-F-022",
+      "confidence": "high",
+      "notes": "REFUSES because the other fund has no price at the cut-off."
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "easy",
+      "title": "Twelve months, a close on the cut-off",
+      "given": "Today 2026-10-10, 12 months: cut-off 2025-10-10. Closes 2025-10-10 $100, 2026-10-09 $125.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 12,
+        "closes": [
+          [
+            "2025-10-10",
+            100
+          ],
+          [
+            "2026-10-09",
+            125
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 1.25,
+        "shown": "1.25"
+      },
+      "working": [
+        "Cut-off 10 Oct 2025 close 100",
+        "125 ÷ 100 = 1.25"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "easy",
+      "title": "Only one price",
+      "given": "Today 2026-10-10, 3 months. One close: 2026-10-09 $50.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 3,
+        "closes": [
+          [
+            "2026-10-09",
+            50
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Fewer than two prices: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because there are fewer than two prices."
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "complex",
+      "title": "Six months with a close on both sides of the cut-off",
+      "given": "Today 2026-10-10, 6 months: cut-off 2026-04-10 (Friday). Closes 2026-04-09 $281.02, 2026-04-10 $281.36, 2026-07-01 $296.55, 2026-10-09 $313.02.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 6,
+        "closes": [
+          [
+            "2026-04-09",
+            281.02
+          ],
+          [
+            "2026-04-10",
+            281.36
+          ],
+          [
+            "2026-07-01",
+            296.55
+          ],
+          [
+            "2026-10-09",
+            313.02
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 1.112525,
+        "shown": "1.1125"
+      },
+      "working": [
+        "Cut-off 10 Oct − 6 months = 10 Apr 2026",
+        "Last close on or before it: 10 Apr, 281.36",
+        "313.02 ÷ 281.36 = 1.11252488"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "complex",
+      "title": "Two years asked, record of 21 months",
+      "given": "Today 2026-10-10, 24 months: cut-off 2024-10-10. First close 2025-01-15 at $88.20; latest 2026-10-09 $104.66.",
+      "inputs": {
+        "today": "2026-10-10",
+        "months": 24,
+        "closes": [
+          [
+            "2025-01-15",
+            88.2
+          ],
+          [
+            "2026-10-09",
+            104.66
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "First price (15 Jan 2025) is later than the cut-off (10 Oct 2024): the record does not reach back"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because the record does not reach back to the cut-off."
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "edge",
+      "title": "One month before 31 March",
+      "given": "Today 2026-03-31, 1 month. Closes Fri 2026-02-27 $50.00, Mon 2026-03-02 $52.00, 2026-03-03 $53.00, 2026-03-31 $55.00.",
+      "inputs": {
+        "today": "2026-03-31",
+        "months": 1,
+        "closes": [
+          [
+            "2026-02-27",
+            50.0
+          ],
+          [
+            "2026-03-02",
+            52.0
+          ],
+          [
+            "2026-03-03",
+            53.0
+          ],
+          [
+            "2026-03-31",
+            55.0
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 1.1,
+        "shown": "1.1000"
+      },
+      "formula_gives": {
+        "exact": 1.037736,
+        "shown": "1.0377"
+      },
+      "working": [
+        "Cut-off: 31 March − 1 month = 31 February → 28 February 2026 (a Saturday)",
+        "Last close on or before 28 Feb: Friday 27 Feb, 50.00",
+        "55 ÷ 50 = 1.10",
+        "A plain month subtraction overflows to 3 March: close 53.00, 55 ÷ 53 = 1.037736"
+      ],
+      "rests_on": "DEC-3768b; MK-PF-F-008",
+      "confidence": "medium",
+      "notes": "formula_gives is the overflow reading; the card does not state either rule, so the app may already clamp."
+    },
+    {
+      "id": "MK-PF-F-008",
+      "name": "startDateFor",
+      "kind": "easy",
+      "title": "One month back, an ordinary day",
+      "given": "Today 2026-10-10, period 1M.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M"
+      },
+      "expected": "2026-09-10",
+      "working": [
+        "10 October − 1 month = 10 September 2026"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-008",
+      "name": "startDateFor",
+      "kind": "easy",
+      "title": "This year",
+      "given": "Today 2026-10-10, period This year (YTD).",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "YTD"
+      },
+      "expected": "2026-01-01",
+      "working": [
+        "1 January of 2026"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-008",
+      "name": "startDateFor",
+      "kind": "complex",
+      "title": "Three and six months back into a short February",
+      "given": "Today 2026-05-31 for 3M; today 2026-08-31 for 6M.",
+      "inputs": {
+        "cases": [
+          {
+            "today": "2026-05-31",
+            "period": "3M"
+          },
+          {
+            "today": "2026-08-31",
+            "period": "6M"
+          }
+        ],
+        "today": "2026-05-31 and 2026-08-31"
+      },
+      "expected": [
+        "2026-02-28",
+        "2026-02-28"
+      ],
+      "working": [
+        "31 May − 3 months = 31 February, which does not exist; 2026 is not a leap year → last day 28 February",
+        "31 August − 6 months = 31 February → 28 February"
+      ],
+      "rests_on": "DEC-3768b; formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-008",
+      "name": "startDateFor",
+      "kind": "complex",
+      "title": "One and two years back from a leap day, and an exact year",
+      "given": "Today 2028-02-29 for 1Y and 2Y; today 2026-10-10 for 1Y.",
+      "inputs": {
+        "cases": [
+          {
+            "today": "2028-02-29",
+            "period": "1Y"
+          },
+          {
+            "today": "2028-02-29",
+            "period": "2Y"
+          },
+          {
+            "today": "2026-10-10",
+            "period": "1Y"
+          }
+        ],
+        "today": "2028-02-29 and 2026-10-10"
+      },
+      "expected": [
+        "2027-02-28",
+        "2026-02-28",
+        "2025-10-10"
+      ],
+      "working": [
+        "29 Feb 2028 − 12 months = 29 Feb 2027, which does not exist → 28 Feb 2027",
+        "− 24 months = 29 Feb 2026 → 28 Feb 2026",
+        "10 Oct 2026 − 12 months = 10 Oct 2025 (exactly one year)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-008",
+      "name": "startDateFor",
+      "kind": "edge",
+      "title": "One month before 31 March",
+      "given": "Today 2026-03-31, period 1M.",
+      "inputs": {
+        "today": "2026-03-31",
+        "period": "1M"
+      },
+      "expected": "2026-02-28",
+      "working": [
+        "31 March − 1 month = 31 February → last day of February 2026 = 28 February",
+        "Not 3 March, which a plain month subtraction that overflows would give"
+      ],
+      "rests_on": "DEC-3768b (batch note: one month before 31 March is 28 February)",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-009",
+      "name": "latestClose",
+      "kind": "easy",
+      "title": "Three closes in order",
+      "given": "Today 2026-10-10. Closes: 2026-10-07 $100, 2026-10-08 $101, 2026-10-09 $102.",
+      "inputs": {
+        "today": "2026-10-10",
+        "closes": [
+          [
+            "2026-10-07",
+            100
+          ],
+          [
+            "2026-10-08",
+            101
+          ],
+          [
+            "2026-10-09",
+            102
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 102.0,
+        "shown": "$102.00"
+      },
+      "working": [
+        "Latest date 2026-10-09 → 102.00"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-009",
+      "name": "latestClose",
+      "kind": "easy",
+      "title": "One price only",
+      "given": "Today 2026-10-10. One close: 2026-10-09 $48.25.",
+      "inputs": {
+        "today": "2026-10-10",
+        "closes": [
+          [
+            "2026-10-09",
+            48.25
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 48.25,
+        "shown": "$48.25"
+      },
+      "working": [
+        "Only price: 48.25"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-009",
+      "name": "latestClose",
+      "kind": "complex",
+      "title": "Today is a Saturday; the last close is Friday's",
+      "given": "Today 2026-10-10 (Saturday). Closes 2026-10-06 $211.08, 2026-10-07 $212.66, 2026-10-08 $210.93, 2026-10-09 $213.47.",
+      "inputs": {
+        "today": "2026-10-10",
+        "closes": [
+          [
+            "2026-10-06",
+            211.08
+          ],
+          [
+            "2026-10-07",
+            212.66
+          ],
+          [
+            "2026-10-08",
+            210.93
+          ],
+          [
+            "2026-10-09",
+            213.47
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 213.47,
+        "shown": "$213.47"
+      },
+      "working": [
+        "No close dated today (a Saturday)",
+        "Latest date is Friday 2026-10-09 → 213.47"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-009",
+      "name": "latestClose",
+      "kind": "complex",
+      "title": "A feed that sends newest first",
+      "given": "Today 2026-10-10. Data feed sends: 2026-10-09 $213.47, 2026-10-08 $210.93, 2026-10-07 $212.66.",
+      "inputs": {
+        "today": "2026-10-10",
+        "closes": [
+          [
+            "2026-10-09",
+            213.47
+          ],
+          [
+            "2026-10-08",
+            210.93
+          ],
+          [
+            "2026-10-07",
+            212.66
+          ]
+        ],
+        "source": "data feed, newest first"
+      },
+      "expected": {
+        "exact": 213.47,
+        "shown": "$213.47"
+      },
+      "formula_gives": {
+        "exact": 212.66,
+        "shown": "$212.66"
+      },
+      "working": [
+        "The price with the latest date is 2026-10-09 → 213.47",
+        "The formula as written takes the last item in the list: 2026-10-07 → 212.66"
+      ],
+      "rests_on": "Ordinary reading of 'most recent'",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-009",
+      "name": "latestClose",
+      "kind": "edge",
+      "title": "No prices",
+      "given": "Today 2026-10-10. Empty price history.",
+      "inputs": {
+        "today": "2026-10-10",
+        "closes": []
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No prices: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because there are no prices."
+    },
+    {
+      "id": "MK-PF-F-010",
+      "name": "periodReturn",
+      "kind": "easy",
+      "title": "One month, first day's move included",
+      "given": "Today 2026-10-10 (Saturday), period 1M, first day 2026-09-10. Closes: 2026-09-09 $100, 2026-09-10 $102, 2026-10-09 $110.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "period_first_day": "2026-09-10",
+        "closes": [
+          [
+            "2026-09-09",
+            100
+          ],
+          [
+            "2026-09-10",
+            102
+          ],
+          [
+            "2026-10-09",
+            110
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 0.1,
+        "shown": "+10.00%"
+      },
+      "formula_gives": {
+        "exact": 0.078431,
+        "shown": "+7.84%"
+      },
+      "working": [
+        "End = latest close 110 (Fri 9 Oct)",
+        "Start = close on or before the day before the first day (9 Sep) = 100",
+        "110 ÷ 100 − 1 = 0.10",
+        "Formula as written starts at the close of 10 Sep (102): 110 ÷ 102 − 1 = 0.078431"
+      ],
+      "rests_on": "Owner decision Q3; MK-NW-O-008 beginning rule",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-010",
+      "name": "periodReturn",
+      "kind": "easy",
+      "title": "No prices",
+      "given": "Today 2026-10-10, period 3M. Empty history.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "3M",
+        "closes": []
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No prices: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because there are no prices."
+    },
+    {
+      "id": "MK-PF-F-010",
+      "name": "periodReturn",
+      "kind": "complex",
+      "title": "Exactly two years, given as a yearly rate",
+      "given": "Today 2026-10-10, period 2Y, first day 2024-10-10. Closes 2024-10-09 $480.00, 2024-10-10 $480.00, 2026-10-09 $662.39.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "2Y",
+        "period_first_day": "2024-10-10",
+        "closes": [
+          [
+            "2024-10-09",
+            480.0
+          ],
+          [
+            "2024-10-10",
+            480.0
+          ],
+          [
+            "2025-10-09",
+            571.2
+          ],
+          [
+            "2026-10-09",
+            662.39
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 0.174725,
+        "shown": "+17.47%"
+      },
+      "working": [
+        "Start 480.00 (the same on 9 and 10 Oct, so the start-day question does not change this case)",
+        "End 662.39",
+        "Total = 662.39 ÷ 480 = 1.37997917",
+        "Yearly over 2 years = square root − 1 = 0.17472515",
+        "Shown +17.47%"
+      ],
+      "rests_on": "formula in words; standard compounding",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-010",
+      "name": "periodReturn",
+      "kind": "complex",
+      "title": "A one-year period for a fund launched five months ago",
+      "given": "Today 2026-10-10, period 1Y, first day 2025-10-10. The fund's first close is 2026-05-04 at $25.00; latest 2026-10-09 at $25.85.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "period_first_day": "2025-10-10",
+        "closes": [
+          [
+            "2026-05-04",
+            25.0
+          ],
+          [
+            "2026-07-15",
+            25.4
+          ],
+          [
+            "2026-10-09",
+            25.85
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 0.034,
+        "shown": "+3.40%"
+      },
+      "working": [
+        "No close on or before 9 Oct 2025, so the one-year start is unknown",
+        "The formula as written falls back to the first close: 25.85 ÷ 25.00 − 1 = 0.034, shown as the 1Y return"
+      ],
+      "rests_on": "Agreement with MK-PF-F-022 (refuses); brief shape 4",
+      "confidence": "high",
+      "notes": "REFUSES because the prices do not reach back to the period's start."
+    },
+    {
+      "id": "MK-PF-F-010",
+      "name": "periodReturn",
+      "kind": "edge",
+      "title": "Exactly one year: a total, not a yearly rate",
+      "given": "Today 2026-10-10, period 1Y, first day 2025-10-10. Closes 2025-10-09 $500.00, 2025-10-10 $500.00, 2026-10-09 $550.00.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "period_first_day": "2025-10-10",
+        "closes": [
+          [
+            "2025-10-09",
+            500.0
+          ],
+          [
+            "2025-10-10",
+            500.0
+          ],
+          [
+            "2026-10-09",
+            550.0
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 0.1,
+        "shown": "+10.00%"
+      },
+      "working": [
+        "Start 500 (same both days); end 550",
+        "550 ÷ 500 − 1 = 0.10",
+        "1Y is never turned into a yearly rate: shown +10.00%"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-011",
+      "name": "periodReturnSince",
+      "kind": "easy",
+      "title": "Since a purchase day with a close",
+      "given": "Today 2026-10-10. Since 2026-06-15. Closes 2026-06-15 $100, 2026-10-09 $120.",
+      "inputs": {
+        "today": "2026-10-10",
+        "since": "2026-06-15",
+        "closes": [
+          [
+            "2026-06-15",
+            100
+          ],
+          [
+            "2026-10-09",
+            120
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 0.2,
+        "shown": "+20.00%"
+      },
+      "working": [
+        "120 ÷ 100 − 1 = 0.20"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-011",
+      "name": "periodReturnSince",
+      "kind": "easy",
+      "title": "Since a Sunday takes Friday's close",
+      "given": "Today 2026-10-10. Since Sunday 2026-06-14. Closes Fri 2026-06-12 $98, Mon 2026-06-15 $100, 2026-10-09 $120.",
+      "inputs": {
+        "today": "2026-10-10",
+        "since": "2026-06-14",
+        "closes": [
+          [
+            "2026-06-12",
+            98
+          ],
+          [
+            "2026-06-15",
+            100
+          ],
+          [
+            "2026-10-09",
+            120
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 0.22449,
+        "shown": "+22.45%"
+      },
+      "working": [
+        "Close on or before 14 June: Friday 12 June, 98",
+        "120 ÷ 98 − 1 = 0.22449"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-011",
+      "name": "periodReturnSince",
+      "kind": "complex",
+      "title": "Bought nineteen months ago: a total, not a yearly rate",
+      "given": "Today 2026-10-10. Since 2025-03-03. Closes 2025-02-28 $410.12, 2025-03-03 $405.66, 2026-01-02 $468.20, 2026-10-09 $512.48.",
+      "inputs": {
+        "today": "2026-10-10",
+        "since": "2025-03-03",
+        "closes": [
+          [
+            "2025-02-28",
+            410.12
+          ],
+          [
+            "2025-03-03",
+            405.66
+          ],
+          [
+            "2026-01-02",
+            468.2
+          ],
+          [
+            "2026-10-09",
+            512.48
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 0.263324,
+        "shown": "+26.33%"
+      },
+      "working": [
+        "Close on 3 Mar 2025: 405.66 (the 28 Feb close is earlier and not the last on or before)",
+        "512.48 ÷ 405.66 − 1 = 0.26332397",
+        "Never turned into a yearly rate, though the span is over a year"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "medium",
+      "notes": "The card says it is never annualised; author rules elsewhere say a return over a year is shown per year. If the owner wants a yearly rate for a capped span over a year, this case's expected changes."
+    },
+    {
+      "id": "MK-PF-F-011",
+      "name": "periodReturnSince",
+      "kind": "complex",
+      "title": "Broker history with a gap over the purchase day",
+      "given": "Today 2026-10-10. Since 2026-01-02. Broker history: 2025-12-30 $171.93, 2026-01-05 $173.40, 2026-10-09 $187.04 (no closes on 31 Dec or 2 Jan).",
+      "inputs": {
+        "today": "2026-10-10",
+        "since": "2026-01-02",
+        "closes": [
+          [
+            "2025-12-30",
+            171.93
+          ],
+          [
+            "2026-01-05",
+            173.4
+          ],
+          [
+            "2026-10-09",
+            187.04
+          ]
+        ],
+        "source": "broker link"
+      },
+      "expected": {
+        "exact": 0.087885,
+        "shown": "+8.79%"
+      },
+      "working": [
+        "Last close on or before 2 Jan 2026: 30 Dec 2025, 171.93",
+        "187.04 ÷ 171.93 − 1 = 0.0878846"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-011",
+      "name": "periodReturnSince",
+      "kind": "edge",
+      "title": "Purchase before the price record begins",
+      "given": "Today 2026-10-10. Since 2026-01-05. First close on record 2026-03-02 at $25.00; latest 2026-10-09 $25.85.",
+      "inputs": {
+        "today": "2026-10-10",
+        "since": "2026-01-05",
+        "closes": [
+          [
+            "2026-03-02",
+            25.0
+          ],
+          [
+            "2026-10-09",
+            25.85
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 0.034,
+        "shown": "+3.40%"
+      },
+      "working": [
+        "No close on or before 5 Jan 2026: the starting price is unknown",
+        "Formula as written uses the first close: 25.85 ÷ 25.00 − 1 = 0.034"
+      ],
+      "rests_on": "Agreement with MK-PF-F-034",
+      "confidence": "high",
+      "notes": "REFUSES because the price record begins after the purchase date."
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "easy",
+      "title": "A close on the target day",
+      "given": "Today 2026-10-10. Target 2026-09-10. Closes 2026-09-09 $100, 2026-09-10 $102.",
+      "inputs": {
+        "today": "2026-10-10",
+        "target": "2026-09-10",
+        "closes": [
+          [
+            "2026-09-09",
+            100
+          ],
+          [
+            "2026-09-10",
+            102
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 102.0,
+        "shown": "$102.00"
+      },
+      "working": [
+        "Close dated 10 Sep: 102.00"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "easy",
+      "title": "No prices",
+      "given": "Today 2026-10-10. Target 2026-09-10. Empty history.",
+      "inputs": {
+        "today": "2026-10-10",
+        "target": "2026-09-10",
+        "closes": []
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No prices: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because there are no prices."
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "complex",
+      "title": "Labor Day weekend",
+      "given": "Today 2026-10-10. Target Monday 2026-09-07 (market holiday). Closes 2026-09-03 $412.18, 2026-09-04 $415.02, 2026-09-08 $409.77.",
+      "inputs": {
+        "today": "2026-10-10",
+        "target": "2026-09-07",
+        "closes": [
+          [
+            "2026-09-03",
+            412.18
+          ],
+          [
+            "2026-09-04",
+            415.02
+          ],
+          [
+            "2026-09-08",
+            409.77
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 415.02,
+        "shown": "$415.02"
+      },
+      "working": [
+        "On or before 7 Sep: 3 Sep and 4 Sep",
+        "The last: Friday 4 Sep → 415.02",
+        "8 Sep is after and not used"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "complex",
+      "title": "Target between two sparse marks of a hand-priced fund",
+      "given": "Today 2026-10-10. Target 2026-06-30. A fund priced monthly: 2026-04-30 $10.412, 2026-05-29 $10.538, 2026-07-31 $10.701.",
+      "inputs": {
+        "today": "2026-10-10",
+        "target": "2026-06-30",
+        "closes": [
+          [
+            "2026-04-30",
+            10.412
+          ],
+          [
+            "2026-05-29",
+            10.538
+          ],
+          [
+            "2026-07-31",
+            10.701
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 10.538,
+        "shown": "$10.54"
+      },
+      "working": [
+        "On or before 30 June: 30 Apr and 29 May",
+        "The last: 29 May → 10.538 (shown 10.54)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "edge",
+      "title": "Target before the first price on record",
+      "given": "Today 2026-10-10. Target 2025-10-10. The fund launched 2026-03-02; first close $25.00.",
+      "inputs": {
+        "today": "2026-10-10",
+        "target": "2025-10-10",
+        "closes": [
+          [
+            "2026-03-02",
+            25.0
+          ],
+          [
+            "2026-10-09",
+            25.85
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 25.0,
+        "shown": "$25.00"
+      },
+      "working": [
+        "No price on or before 10 Oct 2025, so the close then is unknown",
+        "The formula as written falls back to the first close: 25.00, dated five months after the target"
+      ],
+      "rests_on": "Agreement with MK-PF-F-034",
+      "confidence": "high",
+      "notes": "REFUSES because the record starts after the target day."
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "easy",
+      "title": "A close on the very day",
+      "given": "Today 2026-03-10. Day asked: 2026-03-02. Closes 2026-02-27 $50.00, 2026-03-02 $52.00.",
+      "inputs": {
+        "today": "2026-03-10",
+        "day": "2026-03-02",
+        "closes": [
+          [
+            "2026-02-27",
+            50.0
+          ],
+          [
+            "2026-03-02",
+            52.0
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 52.0,
+        "shown": "$52.00"
+      },
+      "working": [
+        "A close dated 2026-03-02 exists: 52.00"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "easy",
+      "title": "A weekend day takes Friday's close",
+      "given": "Today 2026-03-10. Day asked: Saturday 2026-02-28. Closes Friday 2026-02-27 $50.00, Monday 2026-03-02 $52.00.",
+      "inputs": {
+        "today": "2026-03-10",
+        "day": "2026-02-28",
+        "closes": [
+          [
+            "2026-02-27",
+            50.0
+          ],
+          [
+            "2026-03-02",
+            52.0
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 50.0,
+        "shown": "$50.00"
+      },
+      "working": [
+        "Last close on or before 28 Feb is Friday 27 Feb: 50.00"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "complex",
+      "title": "A long weekend and a later close that must not be used",
+      "given": "Today 2026-03-10. Day asked: Sunday 2026-03-01. Closes 2026-02-26 $49.10, 2026-02-27 $50.00, 2026-03-02 $52.00, 2026-03-03 $53.00.",
+      "inputs": {
+        "today": "2026-03-10",
+        "day": "2026-03-01",
+        "closes": [
+          [
+            "2026-02-26",
+            49.1
+          ],
+          [
+            "2026-02-27",
+            50.0
+          ],
+          [
+            "2026-03-02",
+            52.0
+          ],
+          [
+            "2026-03-03",
+            53.0
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 50.0,
+        "shown": "$50.00"
+      },
+      "working": [
+        "Closes on or before 1 March: 26 Feb (49.10) and 27 Feb (50.00)",
+        "The last of them: 27 Feb → 50.00",
+        "2 March is after the day and is not used"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "complex",
+      "title": "Days not written as year-month-day",
+      "given": "Today 2026-03-10. Same closes. Days asked: '2026/03/02', '2026-03-02T00:00:00Z', '03-02-2026'.",
+      "inputs": {
+        "today": "2026-03-10",
+        "days": [
+          "2026/03/02",
+          "2026-03-02T00:00:00Z",
+          "03-02-2026"
+        ],
+        "closes": [
+          [
+            "2026-02-26",
+            49.1
+          ],
+          [
+            "2026-02-27",
+            50.0
+          ],
+          [
+            "2026-03-02",
+            52.0
+          ],
+          [
+            "2026-03-03",
+            53.0
+          ]
+        ]
+      },
+      "expected": [
+        "REFUSES",
+        "REFUSES",
+        "REFUSES"
+      ],
+      "working": [
+        "Slashes, a time after the date and month-first order are all not year-month-day: nothing for each"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because none of the three days is written as year-month-day."
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "edge",
+      "title": "A day before the first price",
+      "given": "Today 2026-03-10. Day asked: 2026-02-20. First close on record 2026-02-26.",
+      "inputs": {
+        "today": "2026-03-10",
+        "day": "2026-02-20",
+        "closes": [
+          [
+            "2026-02-26",
+            49.1
+          ],
+          [
+            "2026-02-27",
+            50.0
+          ],
+          [
+            "2026-03-02",
+            52.0
+          ],
+          [
+            "2026-03-03",
+            53.0
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No close on or before 20 Feb",
+        "No fallback to the first close"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because the record starts after the day asked."
+    }
+  ],
+  "could_not_test": []
+}

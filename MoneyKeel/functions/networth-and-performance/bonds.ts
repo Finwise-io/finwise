@@ -52,6 +52,10 @@ export function isCertificateOfDeposit(a: Pick<AssetAccount, 'label'> & { instit
   return !!bondInfo(a as any).isCd;   // one test, in bondInfo, so the function that reprices a bond refuses a CD itself
 }
 
+/** (DEC-4036b, 2026-10-10) What a bond or CD with no maturity date shows where its date would be — on the Bonds
+ *  screen's row and on the account page's bond facts — in place of a dash. Its interest still counts. */
+export const MATURITY_NOT_ENTERED = 'maturity date not entered';
+
 export interface BondRow {
   accountId: string;
   label: string;

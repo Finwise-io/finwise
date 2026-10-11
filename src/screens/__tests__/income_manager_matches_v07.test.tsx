@@ -65,7 +65,7 @@ const HOUSE = {
   baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800', landsTypical: '5000',
   hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both', filingStatus: 'married',
   partnerWage: { baseSalary: '4500', salaryFreq: 'monthly', c_401k: '400', landsTypical: '3300' },
-  rentalIncome: '1800', rentalExpenses: '600', invAnnual: '3000', bonusAnnual: '12000', bonusMonth: 12,
+  rentals: [{ type: 'long', income: '1800', expenses: '600', property_id: 'house' }], invAnnual: '3000', bonusAnnual: '12000', bonusMonth: 12,
   incomeSources: ['employment', 'rental', 'investment_income'],
 };
 const lastMonth = new Date(Date.now() - 40 * 86400_000).toISOString().slice(0, 10);
@@ -125,7 +125,8 @@ test('phone 10 · Rent from a property — two figures, and what is kept', () =>
   // 9: HIS RULINGS, 2026-10-04 (DEC-1924, DEC-1925) — each rent entry says which property it is, so its
   // mortgage can be asked for and sent to Debts. The drawn household has no property in Net worth, so
   // the screen says to add it first.
-  expect(firstDifference(want, built().replace(' which property is it? add this property first, on the net worth page. then its mortgage can be recorded here.', ''))).toBe('');
+  // DEC-4059d (2026-10-10): the door to add it is "Add the property in Net worth first ›", opening Add an account on Real estate
+  expect(firstDifference(want, built().replace(' which property is it? add the property in net worth first', ''))).toBe('');
   const lines = builtLines(screen.toJSON());
   expect(lines).toContain('$1,200/month net');
   expect(lines).toContain('$1,200/month');

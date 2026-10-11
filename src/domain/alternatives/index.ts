@@ -26,6 +26,7 @@ export type AltKind = typeof ALT_KINDS[number];
  *               MK-NW-F-002 alternativesSummary · MK-NW-O-005 theAlternativesOutlook
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-001
  * Changed ..... 2026-06-06 (a41cd47)
@@ -43,7 +44,14 @@ export interface AltSummary { count: number; totalValue: number;
   /** Null when nothing is held: 0% would read as a forecast. */
   blendedReturn: number | null;
   /** The rate in money over a year; null when nothing is held — $0 would read as a forecast too (outside review, 2026-10-07). */
-  estAnnualGrowth: number | null; }
+  estAnnualGrowth: number | null;
+  /** (DEC-4036h, 2026-10-10) Money in an alternatives part that no priced holding or option explains: it is in
+   *  totalValue, and the blended rate and the growth leave it out. 0 when every dollar is classified. */
+  notClassifiedValue: number; }
+
+/** One alternatives part of an account. `notClassified` marks money no priced holding or option explains: it has
+ *  no kind and no growth rate, and is shown as "<amount> asset type not classified" (DEC-4036h, 2026-10-10). */
+export interface AltPart { value: number; kind: string | undefined; notClassified?: true }
 
 /** Adds up the alternative investments: how many there are, what they are worth together, their blended yearly growth rate and the growth in dollars that rate gives over a year. */
 /* ─ MK-NW-F-002 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -56,7 +64,9 @@ export interface AltSummary { count: number; totalValue: number;
  *     parts = alt parts of(each) where parts.length > 0
  *     flat = parts.flat map((x) => parts)
  *     total = Σ over flat of (value)
- *     weighted = Σ over total > 0 ? flat of (value × benchmark return(kind, overrides))÷ total : nothing
+ *     classified = flat where not classified is missing
+ *     classified total = Σ over classified of (value)
+ *     weighted = Σ over classified total > 0 ? classified of (value × benchmark return(kind, overrides))÷ classified total : nothing
  *
  * Called by ... MK-NW-O-005 theAlternativesOutlook
  *
@@ -78,12 +88,17 @@ export function alternativesSummary(accounts: AssetAccount[], overrides?: Record
   const parts = (accounts ?? []).map((a) => ({ a, parts: altPartsOf(a) })).filter((x) => x.parts.length > 0);
   const flat = parts.flatMap((x) => x.parts);
   const total = flat.reduce((t, p) => t + p.value, 0);
-  const weighted = total > 0 ? flat.reduce((t, p) => t + p.value * benchmarkReturn(p.kind, overrides), 0) / total : null;
+  // THE RATE IS OVER THE CLASSIFIED PARTS ONLY (DEC-4036h, 2026-10-10): money no priced holding explains has no
+  // kind, so no rate; it stays in the total (which must equal the Alternatives line) and is named, not grown.
+  const classified = flat.filter((p) => !p.notClassified);
+  const classifiedTotal = classified.reduce((t, p) => t + p.value, 0);
+  const weighted = classifiedTotal > 0 ? classified.reduce((t, p) => t + p.value * benchmarkReturn(p.kind, overrides), 0) / classifiedTotal : null;
   return {
     count: parts.length,
     totalValue: (total),
     blendedReturn: (weighted),
-    estAnnualGrowth: total > 0 && weighted != null ? (total * weighted) : null,
+    estAnnualGrowth: classifiedTotal > 0 && weighted != null ? (classifiedTotal * weighted) : null,
+    notClassifiedValue: total - classifiedTotal,
   };
 }
 
@@ -124,14 +139,14 @@ export function alternativesSummary(accounts: AssetAccount[], overrides?: Record
  * Formula also on the master file · functions_from_code · MK-NW-F-113
  * Changed ..... not in git yet (—)
  */
-export function altPartsOf(a: AssetAccount): { value: number; kind: string | undefined }[] {
+export function altPartsOf(a: AssetAccount): AltPart[] {
   const split = accountClassBreakdown(a);
   if (isAlternative(a)) {
     const v = split ? split.alternatives : (a.balance || 0);
     return [{ value: v, kind: a.kind }];
   }
   if (!split || !split.alternatives) return [];
-  const out: { value: number; kind: string | undefined }[] = [];
+  const out: AltPart[] = [];
   for (const o of ((a as any).option_holdings ?? []) as any[]) if (o.value) out.push({ value: o.value, kind: 'options' });
   for (const p of (a.positions ?? []) as any[]) {
     if (holdingClassOf(p) !== 'alternatives' || p.last_price == null) continue;
@@ -142,6 +157,8 @@ export function altPartsOf(a: AssetAccount): { value: number; kind: string | und
     out.push({ value: sh * p.last_price, kind });
   }
   const rest = split.alternatives - out.reduce((t, x) => t + x.value, 0);
-  if (Math.abs(rest) > 0.005) out.push({ value: rest, kind: 'other_asset' });
+  // MONEY NO PRICED HOLDING OR OPTION EXPLAINS IS NOT "OTHER" (DEC-4036h, 2026-10-10): it is shown as "$1,500 asset
+  // type not classified", with no kind and no growth rate. It used to be filed 'other_asset' and grown at Other's 5%.
+  if (Math.abs(rest) > 0.005) out.push({ value: rest, kind: undefined, notClassified: true });
   return out;
 }

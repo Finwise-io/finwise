@@ -1,0 +1,2876 @@
+{
+  "batch": "performance 01",
+  "written_by": "claude",
+  "formula_checks": [
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "verdict": "WRONG",
+      "why": "Most of the card is right: the beginning is READ at the day before the period opens (both edge days inside, owner Q3); the walk (wealth generated = ending − beginning − contributions + withdrawals; change in value = wealth − dividends − interest) adds up to the ending; the ending counts each account whole, cash inside it included; transfers between measured accounts are neither in nor out; the return is a time-weighted return (owner Q16, DEC-1669) and refuses rather than falling back; the approved drawing's arithmetic agrees (100,000 + 15,000 + 8,000 = 123,000; 1,800 + 400 + 5,800 = 8,000; Vanguard 80,000 + 15,000 + 6,000 = 101,000; E*TRADE 20,000 + 2,000 = 22,000, return 10.00%). Faults: (1) WRONG — the worked-back beginning (no record at all) is ending − priced gain − contributions + withdrawals. The priced gain is a price move only, so dividends and interest received in the period and still sitting in the accounts are left in the beginning: the beginning is overstated by them, and 'change in investment value' (wealth − dividends − interest) then comes out smaller than the priced gain it was built from — the walk contradicts itself. (2) INCOMPLETE — 'a period longer than one year (days ÷ 365 above 1)' does not say how the days are counted. A 1Y window runs 2025-10-10 to 2026-10-10 (MK-NW-F-090); counted end − first day that is 365, but counted with both edge days in (Q3), or from the beginning day 2025-10-09, it is 366, and an exactly-one-year return is turned into a 'yearly rate'. (3) The Since exception (never a yearly rate, author's v17 phone 3) and the author-recorded ruling 'over a year it is a yearly rate' (MK-XS-M-004) disagree; the owner should settle it. (4) The drawing labels 7.46% and 6.88% as yearly rates for a record of 364 days, which the card's own rule would never annualise; cannot be checked (no dates for the $15,000) — flagged, not used. (5) Q1: the card refuses on any undated movement, while Q1 kept a 1% fallback for undated money. With a time-weighted return an undated movement cannot be placed between pieces, so refusing is the honest reading, but it departs from Q1's words — for the owner. The rows it lists from other functions (category returns, market, available cash) are not judged here.",
+      "should_be": "(1) Worked-back beginning = ending − priced gain − dividends − interest received in the period (when they stayed in the measured accounts) − contributions + withdrawals. (2) Years = (last day − the day before the first day) ÷ 365 with a 1Y window never annualised; annualise only a window longer than a calendar year (2Y), stated as such.",
+      "rests_on": "Ordinary arithmetic (the walk must agree with the gain it was built from); owner decisions Q3, Q16; brief shape 5 (exactly one year).",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-ST-F-081",
+      "name": "timeWeightedReturn",
+      "verdict": "RIGHT",
+      "why": "This is a correct daily time-weighted return: the record holds one value per day after that day's money moved, so value just before = that day's value − the money in; pieces are chained and 1 taken off; accounts joining or leaving are treated as money in or out at their value; a cash account earns only its credited interest; a priced account missing on a day makes the day unusable rather than guessed; money dated on a day that is not usable, an undated movement, unvalued shares moved, a value below the money added and nothing invested all refuse, with no fallback (owner Q16, DEC-1669). The half-cent comparisons stop a dust balance from defining a piece; they are a tolerance only at below a cent. Note for the owner: Q1 kept a 1% fallback for undated money; this card refuses any undated movement instead, which is the honest reading for a time-weighted return but departs from Q1's words.",
+      "should_be": "",
+      "rests_on": "Standard time-weighted return (sub-period returns chain-linked at each external cash flow); owner decision Q16.",
+      "severity": ""
+    },
+    {
+      "id": "MK-ST-F-082",
+      "name": "movementsOf",
+      "verdict": "WRONG",
+      "why": "Sorting deposits, withdrawals, transfers in and out, valued share transfers and un-reinvested interest is the right job, and treating a transfer between two measured accounts as out of one and into the other is right. The sign rule is wrong: it takes the sign from the kind of record and then applies it to the amount as written, so a withdrawal written as a negative amount — how many broker links and bank exports write money leaving — becomes money IN, and a deposit written negative becomes money out. The return then treats a $2,500 withdrawal as a $2,500 deposit and the time-weighted return is wrong by roughly twice the movement's share of the account. Also: 'a missing or unreadable amount counts as zero' turns a deposit with no amount into 'nothing moved', so the deposit is counted as growth (something missing counted as zero) — it should make the return refuse. Low: taking the date as the first ten characters of a timestamp written in UTC can move an evening transaction to the next day; low: the registry tag 'logged expenses' does not fit.",
+      "should_be": "Deposit = +|amount|; withdrawal = −|amount| (the kind decides the sign, the written sign is ignored); likewise for transfers. A deposit, withdrawal or transfer with no readable amount is not zero: report it so the return refuses (as for an undated movement).",
+      "rests_on": "Ordinary arithmetic; brief shapes 2 (a broker-link description) and 'missing counted as zero'.",
+      "severity": "high"
+    },
+    {
+      "id": "MK-ST-F-080",
+      "name": "isDay",
+      "verdict": "WRONG",
+      "why": "Checking the year-month-day shape is right, but the purpose is 'a calendar day', and the card admits 2026-02-31 passes. A day that does not exist is then compared as text with real days and can split a period or be read as a record day. Low in practice (most dates come from systems that write real days), but it is the guard every date in this module passes through.",
+      "should_be": "True only when the text is exactly four digits, a dash, two digits, a dash, two digits AND the month is 01–12 and the day exists in that month (29 February only in a leap year).",
+      "rests_on": "Ordinary calendar rules (Gregorian leap years).",
+      "severity": "low"
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "verdict": "INCOMPLETE",
+      "why": "Since = the day after the record's first day is right: the beginning is then read for the record's first day (MK-NW-O-008 reads the day before the period). This year = 1 January, and moving back whole months stopping at the month's last day (DEC-3768b) are right and agree with MK-PF-F-008. The gap: 'any other label: 12 months back' invents a period. This function takes any text, so a mistyped or new label ('5Y', 'MAX', 'since') silently shows a one-year window labelled as something else, while MK-PF-F-008 gives today for the same unknown label. Two formulas, two different defaults. MK-PF-F-022 (factorOverMonths) does not state the month-end rule at all — finding on that card.",
+      "should_be": "Since / This year / 1M / 3M / 6M / 1Y / 2Y as stated; any other label: no period (refuse), the same in MK-PF-F-008.",
+      "rests_on": "Agreement with MK-PF-F-008; brief: no invented default.",
+      "severity": "low"
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "verdict": "WRONG",
+      "why": "Counting Stocks / Funds, Bonds & CDs and Alternatives as investments, and leaving cash and property out, is right; an account holding cash as well as investments is counted whole, which matches MK-NW-O-008's ending. The fault is counting 'Unclassified'. Owner decision Q2 says a balance with no label is cash. A hand-entered account with a plain balance and no holdings that nobody has classified is then treated as an investment: its balance joins the beginning and ending, and if it is a savings account its deposits and interest move the investment return.",
+      "should_be": "Ids of accounts classed Stocks / Funds, Bonds & CDs or Alternatives; an Unclassified account only when it holds something that says it is invested (holdings, or the person's answer). A bare unlabelled balance is cash (Q2) and is left out.",
+      "rests_on": "Owner decision Q2 (2026-08-20): a balance with no label is cash.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "verdict": "RIGHT",
+      "why": "The days the record holds a value for at least one named account, oldest first, empty when none is named, is exactly what MK-NW-O-008 needs to say where the record begins. A recorded value of $0 is still a value and counts.",
+      "should_be": "",
+      "rests_on": "formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "closedWith",
+      "verdict": "WRONG",
+      "why": "Adding today to the record so the return can be measured to today is right in purpose, but the rows it adds are taken from the accounts on the latest earlier day only. A typed balance (MK-ST-F-081: it 'stands until it is next recorded') may be missing from that day; closedWith then puts the whole ending on the accounts that are there, and the return engine adds the typed account's carried value on top, so today's total is counted twice over for that account. It also does not say how the ending is divided between the accounts (only the total is defined), and does not say what happens when the record already holds today.",
+      "should_be": "Today's rows: one for every named account whose line covers today (including typed balances carried forward), such that today's total, as the return engine forms it, equals the ending handed in. If the record already holds today, replace that day's rows rather than adding a second set.",
+      "rests_on": "Agreement with MK-ST-F-081 (how a day's total is formed); ordinary arithmetic.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "verdict": "INCOMPLETE",
+      "why": "A sentence for each refusal, and none when the return was measured, is right, and leaving the unread beginning to the 'not covered' line is right. But its list does not cover every reason MK-ST-F-081 refuses: 'value with nothing behind it' (money appears on a day when the previous total was nothing) has no sentence here. The figures MK-PF-M-016 / MK-PF-M-017 require 'no percent, and a sentence saying why', so that refusal would show a dash with no reason.",
+      "should_be": "One sentence for every refusal MK-ST-F-081 can give except the unread beginning, including 'value with nothing behind it' (naming the day and saying the value cannot be explained by the money added). Empty only when the return was measured.",
+      "rests_on": "Refusal rule of MK-PF-M-016 / MK-PF-M-017; agreement with MK-ST-F-081's list.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "verdict": "WRONG",
+      "why": "The rules are right in shape: a holding bought inside the window gains value − cost; one with a period return gains value − value ÷ (1 + return); a CD gains value − value ÷ (1 + rate)^years; any holding that holds something with neither makes the whole total unknown (owner DEC-3656), not zero. Two faults. (1) The 'period return' it is handed comes from buildPerformance rows, and in a 2Y window that is a YEARLY rate (MK-PF-F-010 annualises 2Y). Dividing today's value by (1 + a yearly rate) gives the value one year ago, not two, so the gain is roughly halved — and this feeds the worked-back beginning in MK-NW-O-008. (2) It disagrees with MK-NW-F-127, which it is said to add up: this card gives a CD with a stated rate of 0 a gain of $0, MK-NW-F-127 only applies a rate 'above zero' and otherwise calls a holding that holds something unknown — so the total is $0 here and nothing there.",
+      "should_be": "Each holding's gain by MK-NW-F-127's rule, using the holding's TOTAL return over the window (not a yearly rate): value − value ÷ (1 + total return). For a 2Y yearly rate y, total = (1 + y)^2 − 1. Settle once whether a stated 0% rate is a rate (gain 0) or no rate (unknown), and use it in both cards.",
+      "rests_on": "Ordinary arithmetic (a yearly rate over 2 years compounds twice); agreement with MK-NW-F-127; owner decision DEC-3656.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "verdict": "WRONG",
+      "why": "One rule per holding, unknown rather than zero for a holding with no price history and no rate (DEC-3656), is right. It has the same 2Y fault as MK-NW-F-091: 'the return for the period' on a buildPerformance row is a yearly rate in a 2Y window, so value × (1 − 1 ÷ (1 + rate)) is one year's gain, not the window's. And its CD rule ('a stated rate above zero') disagrees with MK-NW-F-091 ('states a yearly rate') for a CD at 0%.",
+      "should_be": "Use the holding's total return over the window: for a 2Y yearly rate y, total = (1 + y)^2 − 1. State once whether a 0% stated rate is a rate (gain $0) or no rate (unknown), the same in MK-NW-F-091.",
+      "rests_on": "Ordinary compounding; agreement with MK-NW-F-091.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "verdict": "WRONG",
+      "why": "The order — market value, else shares × the broker's last mark, else the value it was built at — is right. Two faults. (1) Shares × last price leaves out the contract multiplier that marketValue (MK-PF-F-004) applies: an option with no market value is valued at 1/100 of its worth. (2) 'Else $0' makes a holding that clearly holds something (it has shares) but has no price and no built value count as holding nothing. MK-NW-F-127 then gives it a gain of $0 instead of 'unknown', and the DEC-3656 refusal ('… has no price history') never fires for exactly the holding it was written for.",
+      "should_be": "Market value when above zero; else total shares × last price × the contract multiplier (MK-PF-F-031); else the value it was last built at; else, when it has shares above zero, unknown (not $0); $0 only when it holds no shares.",
+      "rests_on": "Agreement with MK-PF-F-004 / MK-PF-F-031; owner decision DEC-3656.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "verdict": "INCOMPLETE",
+      "why": "Name, else ticker, with a security code giving way to the security's name, else 'a holding', is a sensible label. Two gaps. (1) MK-NW-O-008 says a holding is named by its TICKER (the security's name only where the ticker is a 9-character code); this card puts the row's own name first, so for a row that has both a name and an ordinary ticker the two cards name it differently. (2) The security-code test is 'nine capital letters and digits'; brokers often send CUSIPs in lower case, which then print as the raw code.",
+      "should_be": "Pick one order and state it in both cards. Treat a nine-character letters-and-digits code with a digit as a security code whatever its case.",
+      "rests_on": "Agreement with MK-NW-O-008's wording.",
+      "severity": "low"
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "verdict": "INCOMPLETE",
+      "why": "The sentence and its grammar (has / have, commas with 'and' before the last, 'a holding' with no name) are right. It does not remove repeated names: the same fund held in two accounts with no price history prints 'VTI and VTI have no price history', and two unnamed holdings print 'a holding and a holding'.",
+      "should_be": "Remove repeated names before joining; then join as stated.",
+      "rests_on": "Ordinary English.",
+      "severity": "low"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "easy",
+      "title": "Exactly one year, nothing moved",
+      "given": "Today 2026-10-10, period 1Y (first day 2025-10-10; beginning read for 2025-10-09). One linked brokerage, record from 2023. Recorded value 2025-10-09 $40,000; account worth $44,000 today. No records in the year.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "period_first_day": "2025-10-10",
+        "record_first_day": "2023-01-03",
+        "daily_record": [
+          [
+            "2025-10-09",
+            {
+              "Brokerage": 40000
+            }
+          ]
+        ],
+        "accounts_today": {
+          "Brokerage": 44000
+        },
+        "records": []
+      },
+      "expected": {
+        "beginning": {
+          "exact": 40000.0,
+          "shown": "$40,000"
+        },
+        "ending": {
+          "exact": 44000.0,
+          "shown": "$44,000"
+        },
+        "wealth_generated": {
+          "exact": 4000.0,
+          "shown": "$4,000"
+        },
+        "return": {
+          "exact": 0.1,
+          "shown": "+10.00%"
+        },
+        "return_is_yearly": false,
+        "rows": [
+          {
+            "label": "Beginning",
+            "exact": 40000.0
+          },
+          {
+            "label": "Contributions",
+            "exact": 0.0
+          },
+          {
+            "label": "Withdrawals",
+            "exact": 0.0
+          },
+          {
+            "label": "Dividends",
+            "exact": 0.0
+          },
+          {
+            "label": "Interest",
+            "exact": 0.0
+          },
+          {
+            "label": "Change in investment value",
+            "exact": 4000.0
+          }
+        ]
+      },
+      "formula_gives": {
+        "beginning": {
+          "exact": 40000.0,
+          "shown": "$40,000"
+        },
+        "ending": {
+          "exact": 44000.0,
+          "shown": "$44,000"
+        },
+        "wealth_generated": {
+          "exact": 4000.0,
+          "shown": "$4,000"
+        },
+        "return": {
+          "exact": 0.099714,
+          "shown": "+9.97%"
+        },
+        "return_is_yearly": true
+      },
+      "working": [
+        "Beginning read at 2025-10-09: 40,000",
+        "Wealth = 44,000 − 40,000 − 0 + 0 = 4,000; change in value = 4,000",
+        "One piece: 44,000 ÷ 40,000 − 1 = 0.10",
+        "Exactly one year: shown as the total, +10.00%, not as a yearly rate",
+        "If the period's days are counted 2025-10-09 → 2026-10-10 (366), the formula turns it into 1.10^(365/366) − 1 = 0.099714 and labels it yearly"
+      ],
+      "rests_on": "Brief shape 5; MK-XS-M-004 'over a year it is a yearly rate'",
+      "confidence": "medium",
+      "notes": "formula_gives is the reading where the 1Y window counts 366 days; if the app counts 365, the two agree."
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "easy",
+      "title": "The record starts after the period opens",
+      "given": "Today 2026-10-10, period 1Y (first day 2025-10-10). Two linked accounts whose daily record begins 2026-02-03. Accounts worth $72,415 today.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1Y",
+        "period_first_day": "2025-10-10",
+        "record_first_day": "2026-02-03",
+        "accounts_today": {
+          "Brokerage": 52415,
+          "IRA": 20000
+        }
+      },
+      "expected": "REFUSES",
+      "working": [
+        "The beginning must be read for 2025-10-09; the record's first day is 2026-02-03, later",
+        "So: no walk, no wealth generated, no percent",
+        "Sentence: 'The record begins 2026-02-03, so it cannot say what these accounts were worth on 2025-10-09.' (dates as the screen formats them)",
+        "The ending is still given: 52,415 + 20,000 = $72,415"
+      ],
+      "rests_on": "formula in words; MK-PF-M-013 / MK-PF-M-018",
+      "confidence": "high",
+      "notes": "REFUSES because the record does not reach the day before the period. Only the walk and the percent are refused: the ending $72,415 is still shown."
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "complex",
+      "title": "Two accounts, a large deposit, a withdrawal, a dividend and interest",
+      "given": "Today 2026-10-10, period 3M (first day 2026-07-10; beginning read 2026-07-09). Brokerage A and IRA B, both linked, record from 2024. Record: 2026-07-09 A $60,000, B $40,000. 2026-08-14 $50,000 deposited into A from checking; record that day A $111,500, B $40,800. 2026-09-15 dividend $420 into A's cash. 2026-09-20 $8,000 withdrawn from A to checking; record that day A $105,700, B $41,250. 2026-09-30 interest $35.17 into A's cash. Today A $108,912.37 (holdings plus cash), B $41,600.00.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "3M",
+        "period_first_day": "2026-07-10",
+        "daily_record": [
+          [
+            "2026-07-09",
+            {
+              "A": 60000,
+              "B": 40000
+            }
+          ],
+          [
+            "2026-08-14",
+            {
+              "A": 111500,
+              "B": 40800
+            }
+          ],
+          [
+            "2026-09-20",
+            {
+              "A": 105700,
+              "B": 41250
+            }
+          ]
+        ],
+        "records": [
+          {
+            "type": "deposit",
+            "account": "A",
+            "date": "2026-08-14",
+            "amount": 50000
+          },
+          {
+            "type": "dividend",
+            "account": "A",
+            "date": "2026-09-15",
+            "amount": 420
+          },
+          {
+            "type": "withdrawal",
+            "account": "A",
+            "date": "2026-09-20",
+            "amount": 8000
+          },
+          {
+            "type": "interest",
+            "account": "A",
+            "date": "2026-09-30",
+            "amount": 35.17
+          }
+        ],
+        "accounts_today": {
+          "A": 108912.37,
+          "B": 41600.0
+        }
+      },
+      "expected": {
+        "beginning": {
+          "exact": 100000.0,
+          "shown": "$100,000"
+        },
+        "contributions": {
+          "exact": 50000.0,
+          "shown": "$50,000"
+        },
+        "withdrawals": {
+          "exact": 8000.0,
+          "shown": "$8,000"
+        },
+        "dividends": {
+          "exact": 420.0,
+          "shown": "$420"
+        },
+        "interest": {
+          "exact": 35.17,
+          "shown": "$35"
+        },
+        "change_in_investment_value": {
+          "exact": 8057.2,
+          "shown": "$8,057"
+        },
+        "wealth_generated": {
+          "exact": 8512.37,
+          "shown": "$8,512"
+        },
+        "ending": {
+          "exact": 150512.37,
+          "shown": "$150,512"
+        },
+        "rows": [
+          {
+            "label": "Beginning",
+            "exact": 100000.0
+          },
+          {
+            "label": "Contributions",
+            "exact": 50000.0
+          },
+          {
+            "label": "Withdrawals",
+            "exact": -8000.0
+          },
+          {
+            "label": "Dividends",
+            "exact": 420.0
+          },
+          {
+            "label": "Interest",
+            "exact": 35.17
+          },
+          {
+            "label": "Change in investment value",
+            "exact": 8057.2
+          }
+        ],
+        "per_account_ending": {
+          "A": {
+            "exact": 108912.37,
+            "shown": "$108,912"
+          },
+          "B": {
+            "exact": 41600.0,
+            "shown": "$41,600"
+          }
+        },
+        "return": {
+          "exact": 0.066031,
+          "shown": "+6.60%"
+        }
+      },
+      "working": [
+        "Beginning (2026-07-09): 60,000 + 40,000 = 100,000",
+        "Contributions 50,000; withdrawals 8,000; dividends 420; interest 35.17 (all on A, a measured account)",
+        "Ending, read from the accounts: 108,912.37 + 41,600.00 = 150,512.37",
+        "Wealth = 150,512.37 − 100,000 − 50,000 + 8,000 = 8512.37",
+        "Change in value = 8512.37 − 420 − 35.17 = 8057.20",
+        "Rows: 100,000 + 50,000 − 8,000 + 420 + 35.17 + 8057.20 = 150,512.37 = the ending",
+        "Time-weighted: piece 1 to 14 Aug = (152,300 − 50,000) ÷ 100,000 = 1.023",
+        "Piece 2 to 20 Sep = (146,950 + 8,000) ÷ 152,300 = 1.01739987",
+        "Piece 3 to today = 150,512.37 ÷ 146,950 = 1.02424206",
+        "Return = product − 1 = 0.0660312; 92 days, under a year: total, +6.60%",
+        "The dividend and interest stayed in A, so they are not money moving and do not split the period",
+        "Same number everywhere: A's ending 108,912.37 on /invest and /account-detail (MK-PF-M-004); the return on /invest (MK-PF-M-017) equals 'YOUR RETURN' on /invest and /home (MK-XS-M-004)"
+      ],
+      "rests_on": "Owner decision Q16 (time-weighted); formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "complex",
+      "title": "The approved drawing, Performance v17 phone 1",
+      "given": "The household as drawn: two linked accounts, record beginning 2025-10-01, read on 2026-09-30 (today 2026-09-30). All accounts: beginning $100,000; contributions $15,000; withdrawals $0; dividends $1,800; interest $400; change in investment value $5,800. Vanguard: beginning $80,000, contributions $15,000, wealth generated $6,000, ending $101,000. E*TRADE: beginning $20,000, nothing added or taken out, wealth generated $2,000, ending $22,000. The drawing does not say which period chip is selected.",
+      "inputs": {
+        "today": "2026-09-30",
+        "record_first_day": "2025-10-01",
+        "period": "not given by the drawing",
+        "all_accounts": {
+          "beginning": 100000,
+          "contributions": 15000,
+          "withdrawals": 0,
+          "dividends": 1800,
+          "interest": 400,
+          "change_in_investment_value": 5800
+        },
+        "Vanguard": {
+          "beginning": 80000,
+          "contributions": 15000,
+          "wealth_generated": 6000,
+          "ending": 101000
+        },
+        "E*TRADE": {
+          "beginning": 20000,
+          "contributions": 0,
+          "withdrawals": 0,
+          "wealth_generated": 2000,
+          "ending": 22000
+        }
+      },
+      "expected": "RULE UNCLEAR",
+      "readings": [
+        {
+          "reading": "Since chip selected (whole record)",
+          "expected": {
+            "beginning": {
+              "exact": 100000.0,
+              "shown": "$100,000"
+            },
+            "contributions": {
+              "exact": 15000.0,
+              "shown": "$15,000"
+            },
+            "withdrawals": {
+              "exact": 0.0,
+              "shown": "$0"
+            },
+            "dividends": {
+              "exact": 1800.0,
+              "shown": "$1,800"
+            },
+            "interest": {
+              "exact": 400.0,
+              "shown": "$400"
+            },
+            "change_in_investment_value": {
+              "exact": 5800.0,
+              "shown": "$5,800"
+            },
+            "wealth_generated": {
+              "exact": 8000.0,
+              "shown": "$8,000"
+            },
+            "ending": {
+              "exact": 123000.0,
+              "shown": "$123,000"
+            },
+            "rows": [
+              {
+                "label": "Beginning",
+                "exact": 100000.0
+              },
+              {
+                "label": "Contributions",
+                "exact": 15000.0
+              },
+              {
+                "label": "Withdrawals",
+                "exact": 0.0
+              },
+              {
+                "label": "Dividends",
+                "exact": 1800.0
+              },
+              {
+                "label": "Interest",
+                "exact": 400.0
+              },
+              {
+                "label": "Change in investment value",
+                "exact": 5800.0
+              }
+            ],
+            "per_account": {
+              "Vanguard": {
+                "ending": {
+                  "exact": 101000.0,
+                  "shown": "$101,000"
+                },
+                "wealth_generated": {
+                  "exact": 6000.0,
+                  "shown": "$6,000"
+                }
+              },
+              "E*TRADE": {
+                "ending": {
+                  "exact": 22000.0,
+                  "shown": "$22,000"
+                },
+                "wealth_generated": {
+                  "exact": 2000.0,
+                  "shown": "$2,000"
+                },
+                "return": {
+                  "exact": 0.1,
+                  "shown": "+10.00%"
+                }
+              }
+            }
+          }
+        },
+        {
+          "reading": "1Y chip selected",
+          "expected": {
+            "walk": "REFUSES",
+            "wealth_generated": "REFUSES",
+            "return": "REFUSES",
+            "ending": {
+              "exact": 123000.0,
+              "shown": "$123,000"
+            },
+            "sentence": "The record begins 2025-10-01, so it cannot say what these accounts were worth on 2025-09-29."
+          }
+        }
+      ],
+      "working": [
+        "Since: the period's first day is the day after the record's first day, 2025-10-02; the beginning is read for 2025-10-01 = $100,000 as drawn",
+        "Wealth = 123,000 − 100,000 − 15,000 + 0 = 8,000 = 1,800 + 400 + 5,800",
+        "Ending = 101,000 + 22,000 = 123,000 (also on /account-detail per account)",
+        "E*TRADE: no money moved, one piece: 22,000 ÷ 20,000 − 1 = 0.10 → +10.00%",
+        "All-accounts and Vanguard returns depend on the $15,000's dates (not given): not stated",
+        "1Y: the first day is 2025-09-30, the beginning would be read for 2025-09-29, before the record → no walk, no percent, sentence naming 2025-10-01 and 2025-09-29; the ending $123,000 is still given"
+      ],
+      "rests_on": "Approved drawing Performance v17 phone 1; MK-NW-F-090",
+      "confidence": "medium",
+      "notes": "The drawing fixes the walk and E*TRADE's return only; other chips (This year, 6M, 3M, 1M) read beginnings the drawing does not give."
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "edge",
+      "title": "No record at all: the beginning worked back, with a dividend kept as cash",
+      "given": "Today 2026-10-10, period 3M (first day 2026-07-10). A brokerage linked today: no daily record of it before today. It holds VTI worth $105,000 (VTI's price return over the period +5%) and $1,200 cash. The ledger shows one record in the period: dividend $1,200 on 2026-09-15, kept as cash. No deposits or withdrawals.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "3M",
+        "period_first_day": "2026-07-10",
+        "daily_record": [],
+        "accounts_today": {
+          "Brokerage": 106200
+        },
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value": 105000,
+            "period_return": 0.05
+          }
+        ],
+        "cash_in_account": 1200,
+        "records": [
+          {
+            "type": "dividend",
+            "account": "Brokerage",
+            "ticker": "VTI",
+            "date": "2026-09-15",
+            "amount": 1200
+          }
+        ]
+      },
+      "expected": {
+        "beginning": {
+          "exact": 100000.0,
+          "shown": "$100,000"
+        },
+        "contributions": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "withdrawals": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "dividends": {
+          "exact": 1200.0,
+          "shown": "$1,200"
+        },
+        "interest": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "change_in_investment_value": {
+          "exact": 5000.0,
+          "shown": "$5,000"
+        },
+        "wealth_generated": {
+          "exact": 6200.0,
+          "shown": "$6,200"
+        },
+        "ending": {
+          "exact": 106200.0,
+          "shown": "$106,200"
+        },
+        "rows": [
+          {
+            "label": "Beginning",
+            "exact": 100000.0
+          },
+          {
+            "label": "Dividends",
+            "exact": 1200.0
+          },
+          {
+            "label": "Change in investment value",
+            "exact": 5000.0
+          }
+        ],
+        "return": "REFUSES"
+      },
+      "formula_gives": {
+        "beginning": {
+          "exact": 101200.0,
+          "shown": "$101,200"
+        },
+        "dividends": {
+          "exact": 1200.0,
+          "shown": "$1,200"
+        },
+        "change_in_investment_value": {
+          "exact": 3800.0,
+          "shown": "$3,800"
+        },
+        "wealth_generated": {
+          "exact": 5000.0,
+          "shown": "$5,000"
+        },
+        "ending": {
+          "exact": 106200.0,
+          "shown": "$106,200"
+        },
+        "return": "REFUSES"
+      },
+      "working": [
+        "Ending (the account whole) = 105,000 + 1,200 = 106,200",
+        "Priced gain of VTI = 105,000 × (1 − 1 ÷ 1.05) = 5,000",
+        "The $1,200 cash arrived as the dividend inside the period, so at the start the account held VTI worth 100,000 and no cash",
+        "Beginning = 106,200 − 5,000 − 1,200 − 0 + 0 = 100,000; wealth = 6,200; change in value = 6,200 − 1,200 = 5,000 (= the priced gain, as it must)",
+        "Return: the beginning was not read from a record → no percent",
+        "Formula as written: beginning = 106,200 − 5,000 − 0 + 0 = 101200; wealth = 5,000; change in value = 5,000 − 1,200 = 3,800, which contradicts the 5,000 priced gain it came from"
+      ],
+      "rests_on": "Ordinary arithmetic; owner decision DEC-3656 (worked-back beginning)",
+      "confidence": "medium",
+      "notes": "Assumes the cash inside the account is not itself a holding row (if it were, with no price history, DEC-3656 would refuse the walk instead). The return is refused either way."
+    },
+    {
+      "id": "MK-ST-F-081",
+      "name": "timeWeightedReturn",
+      "kind": "easy",
+      "title": "Nothing moved",
+      "given": "Today 2026-10-10. Start 2026-07-09, end 2026-10-10. One brokerage. Record: 2026-07-09 $10,000; 2026-10-10 $10,500. No flows.",
+      "inputs": {
+        "today": "2026-10-10",
+        "start": "2026-07-09",
+        "end": "2026-10-10",
+        "daily_record": [
+          [
+            "2026-07-09",
+            {
+              "BRK": 10000
+            }
+          ],
+          [
+            "2026-10-10",
+            {
+              "BRK": 10500
+            }
+          ]
+        ],
+        "flows": []
+      },
+      "expected": {
+        "rate": {
+          "exact": 0.05,
+          "shown": "+5.00%"
+        },
+        "measured_from": "2026-07-09"
+      },
+      "working": [
+        "One piece: 10,500 ÷ 10,000 − 1 = 0.05"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-081",
+      "name": "timeWeightedReturn",
+      "kind": "easy",
+      "title": "One deposit splits the period",
+      "given": "Today 2026-10-10. Start 2026-07-09. Record: 2026-07-09 $10,000; 2026-08-14 $15,300 (after a $5,000 deposit that day); 2026-10-10 $16,065.",
+      "inputs": {
+        "today": "2026-10-10",
+        "start": "2026-07-09",
+        "end": "2026-10-10",
+        "daily_record": [
+          [
+            "2026-07-09",
+            {
+              "BRK": 10000
+            }
+          ],
+          [
+            "2026-08-14",
+            {
+              "BRK": 15300
+            }
+          ],
+          [
+            "2026-10-10",
+            {
+              "BRK": 16065
+            }
+          ]
+        ],
+        "flows": [
+          [
+            "2026-08-14",
+            "BRK",
+            5000
+          ]
+        ]
+      },
+      "expected": {
+        "rate": {
+          "exact": 0.0815,
+          "shown": "+8.15%"
+        },
+        "measured_from": "2026-07-09"
+      },
+      "working": [
+        "Piece 1: (15,300 − 5,000) ÷ 10,000 = 1.03",
+        "Piece 2: 16,065 ÷ 15,300 = 1.05",
+        "1.03 × 1.05 − 1 = 0.0815"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-081",
+      "name": "timeWeightedReturn",
+      "kind": "complex",
+      "title": "Four accounts: a typed balance, a cash account with interest, one joining mid-period, a withdrawal",
+      "given": "Today 2026-10-10. Start 2026-07-09. Accounts: BRK (priced), IRA (typed balance), CASH (a cash account), NEW (priced, first recorded 2026-08-20). Record 2026-07-09: BRK $50,000, IRA $30,000, CASH $10,000. 2026-08-20: BRK $51,500, CASH $10,020, NEW $8,000 (IRA not recorded). 2026-09-30: BRK $49,800 (after a $3,000 withdrawal that day), IRA $30,900, CASH $12,045, NEW $8,240. 2026-10-10: BRK $50,610, CASH $12,045, NEW $8,400 (IRA not recorded). Interest credited to CASH: $20 on 2026-07-31, $25 on 2026-09-30.",
+      "inputs": {
+        "today": "2026-10-10",
+        "start": "2026-07-09",
+        "end": "2026-10-10",
+        "cash_accounts": [
+          "CASH"
+        ],
+        "daily_record": [
+          [
+            "2026-07-09",
+            {
+              "BRK": 50000,
+              "IRA": 30000,
+              "CASH": 10000
+            }
+          ],
+          [
+            "2026-08-20",
+            {
+              "BRK": 51500,
+              "CASH": 10020,
+              "NEW": 8000
+            }
+          ],
+          [
+            "2026-09-30",
+            {
+              "BRK": 49800,
+              "IRA": 30900,
+              "CASH": 12045,
+              "NEW": 8240
+            }
+          ],
+          [
+            "2026-10-10",
+            {
+              "BRK": 50610,
+              "CASH": 12045,
+              "NEW": 8400
+            }
+          ]
+        ],
+        "flows": [
+          [
+            "2026-09-30",
+            "BRK",
+            -3000
+          ]
+        ],
+        "interest": [
+          [
+            "2026-07-31",
+            "CASH",
+            20
+          ],
+          [
+            "2026-09-30",
+            "CASH",
+            25
+          ]
+        ]
+      },
+      "expected": {
+        "rate": {
+          "exact": 0.052086,
+          "shown": "+5.21%"
+        },
+        "measured_from": "2026-07-09"
+      },
+      "working": [
+        "Beginning 2026-07-09: 50,000 + 30,000 + 10,000 = 90,000",
+        "2026-08-20: IRA (typed) keeps 30,000. Total 51,500 + 30,000 + 10,020 + 8,000 = 99,520. Money in: NEW joins +8,000; CASH change 20 − interest 20 = 0. Before = 91,520; piece 91,520 ÷ 90,000",
+        "2026-09-30: total 49,800 + 30,900 + 12,045 + 8,240 = 100,985. Money in: BRK −3,000; CASH change 2,025 − interest 25 = +2,000 (a deposit into cash). Net −1,000. Before = 101,985; piece 101,985 ÷ 99,520",
+        "Today: IRA keeps 30,900. Total 50,610 + 30,900 + 12,045 + 8,400 = 101,955. No money. Piece 101,955 ÷ 100,985",
+        "Return = 1.01688889 × 1.02476889 × 1.00960539 − 1 = 0.05208564"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "The daily_record for today lists only BRK, CASH and NEW; IRA's typed balance stands until next recorded."
+    },
+    {
+      "id": "MK-ST-F-081",
+      "name": "timeWeightedReturn",
+      "kind": "complex",
+      "title": "A deposit dated on a Saturday",
+      "given": "Today 2026-10-10. Start 2026-07-09. BRK (priced) and IRA (priced). Record: 2026-07-09 BRK $40,000, IRA $25,000; 2026-08-14 (Fri) BRK $40,600, IRA $25,310; 2026-08-17 (Mon) BRK $45,750, IRA $25,402; 2026-10-10 BRK $46,300, IRA $25,900. The broker dates a $5,000 deposit into BRK on 2026-08-15 (Saturday).",
+      "inputs": {
+        "today": "2026-10-10",
+        "start": "2026-07-09",
+        "end": "2026-10-10",
+        "daily_record": [
+          [
+            "2026-07-09",
+            {
+              "BRK": 40000,
+              "IRA": 25000
+            }
+          ],
+          [
+            "2026-08-14",
+            {
+              "BRK": 40600,
+              "IRA": 25310
+            }
+          ],
+          [
+            "2026-08-17",
+            {
+              "BRK": 45750,
+              "IRA": 25402
+            }
+          ],
+          [
+            "2026-10-10",
+            {
+              "BRK": 46300,
+              "IRA": 25900
+            }
+          ]
+        ],
+        "flows": [
+          [
+            "2026-08-15",
+            "BRK",
+            5000
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Usable days 14 Aug and 17 Aug; the deposit is dated 15 Aug, after 14 Aug and before 17 Aug",
+        "No value is recorded on 15 Aug: refuse, naming 2026-08-15"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because money moved on 2026-08-15, a day with no recorded value."
+    },
+    {
+      "id": "MK-ST-F-081",
+      "name": "timeWeightedReturn",
+      "kind": "edge",
+      "title": "An account that started empty",
+      "given": "Today 2026-10-10. Start 2026-07-09. BRK opened with $0: record 2026-07-09 $0; 2026-07-15 $20,000 after a $20,000 deposit that day; 2026-10-10 $21,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "start": "2026-07-09",
+        "end": "2026-10-10",
+        "daily_record": [
+          [
+            "2026-07-09",
+            {
+              "BRK": 0
+            }
+          ],
+          [
+            "2026-07-15",
+            {
+              "BRK": 20000
+            }
+          ],
+          [
+            "2026-10-10",
+            {
+              "BRK": 21000
+            }
+          ]
+        ],
+        "flows": [
+          [
+            "2026-07-15",
+            "BRK",
+            20000
+          ]
+        ]
+      },
+      "expected": {
+        "rate": {
+          "exact": 0.05,
+          "shown": "+5.00%"
+        },
+        "measured_from": "2026-07-15"
+      },
+      "working": [
+        "Piece to 15 Jul: previous total 0 (half a cent or less) → nothing measured; value just before = 20,000 − 20,000 = 0, not above half a cent → no refusal",
+        "Piece to today: 21,000 ÷ 20,000 = 1.05; the measured period starts at 15 Jul",
+        "Return 0.05, measured from 2026-07-15"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-082",
+      "name": "movementsOf",
+      "kind": "easy",
+      "title": "A deposit and a withdrawal",
+      "given": "Today 2026-10-10. Measured: BRK, IRA. Records: deposit $5,000 into BRK on 2026-08-14; withdrawal $2,000 from BRK on 2026-09-01.",
+      "inputs": {
+        "today": "2026-10-10",
+        "measured": [
+          "BRK",
+          "IRA"
+        ],
+        "records": [
+          {
+            "type": "deposit",
+            "account": "BRK",
+            "date": "2026-08-14",
+            "amount": 5000
+          },
+          {
+            "type": "withdrawal",
+            "account": "BRK",
+            "date": "2026-09-01",
+            "amount": 2000
+          }
+        ]
+      },
+      "expected": {
+        "flows": [
+          {
+            "date": "2026-08-14",
+            "account": "BRK",
+            "amount": 5000.0
+          },
+          {
+            "date": "2026-09-01",
+            "account": "BRK",
+            "amount": -2000.0
+          }
+        ],
+        "interest": [],
+        "shares_moved_days": []
+      },
+      "working": [
+        "Deposit → +5,000",
+        "Withdrawal → −2,000"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-082",
+      "name": "movementsOf",
+      "kind": "easy",
+      "title": "Transfers in from outside and between measured accounts",
+      "given": "Today 2026-10-10. Measured: BRK, IRA. Records: transfer $3,000 from CHK (checking, not measured) to BRK on 2026-08-20; transfer $1,000 from BRK to IRA on 2026-09-05.",
+      "inputs": {
+        "today": "2026-10-10",
+        "measured": [
+          "BRK",
+          "IRA"
+        ],
+        "records": [
+          {
+            "type": "transfer",
+            "from": "CHK",
+            "to": "BRK",
+            "date": "2026-08-20",
+            "amount": 3000
+          },
+          {
+            "type": "transfer",
+            "from": "BRK",
+            "to": "IRA",
+            "date": "2026-09-05",
+            "amount": 1000
+          }
+        ]
+      },
+      "expected": {
+        "flows": [
+          {
+            "date": "2026-08-20",
+            "account": "BRK",
+            "amount": 3000.0
+          },
+          {
+            "date": "2026-09-05",
+            "account": "BRK",
+            "amount": -1000.0
+          },
+          {
+            "date": "2026-09-05",
+            "account": "IRA",
+            "amount": 1000.0
+          }
+        ],
+        "interest": [],
+        "shares_moved_days": []
+      },
+      "working": [
+        "CHK → BRK: CHK not measured, BRK measured: +3,000 into BRK",
+        "BRK → IRA: out of BRK −1,000 and into IRA +1,000; across the portfolio they cancel"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-082",
+      "name": "movementsOf",
+      "kind": "complex",
+      "title": "A broker writes the withdrawal as a negative number",
+      "given": "Today 2026-10-10. Measured: BRK, IRA. Broker records: withdrawal amount −2,500.00 dated '2026-09-30T16:00:00-04:00'; interest $12.37 on BRK, not reinvested, 2026-09-30; interest $4.10 on BRK, reinvested, 2026-09-30; dividend $88.00 on BRK, 2026-09-30.",
+      "inputs": {
+        "today": "2026-10-10",
+        "measured": [
+          "BRK",
+          "IRA"
+        ],
+        "records": [
+          {
+            "type": "withdrawal",
+            "account": "BRK",
+            "date": "2026-09-30T16:00:00-04:00",
+            "amount": -2500.0
+          },
+          {
+            "type": "interest",
+            "account": "BRK",
+            "date": "2026-09-30",
+            "amount": 12.37,
+            "reinvested": false
+          },
+          {
+            "type": "interest",
+            "account": "BRK",
+            "date": "2026-09-30",
+            "amount": 4.1,
+            "reinvested": true
+          },
+          {
+            "type": "dividend",
+            "account": "BRK",
+            "date": "2026-09-30",
+            "amount": 88.0
+          }
+        ],
+        "source": "broker link"
+      },
+      "expected": {
+        "flows": [
+          {
+            "date": "2026-09-30",
+            "account": "BRK",
+            "amount": -2500.0
+          }
+        ],
+        "interest": [
+          {
+            "date": "2026-09-30",
+            "account": "BRK",
+            "amount": 12.37
+          }
+        ],
+        "shares_moved_days": []
+      },
+      "formula_gives": {
+        "flows": [
+          {
+            "date": "2026-09-30",
+            "account": "BRK",
+            "amount": 2500.0
+          }
+        ],
+        "interest": [
+          {
+            "date": "2026-09-30",
+            "account": "BRK",
+            "amount": 12.37
+          }
+        ],
+        "shares_moved_days": []
+      },
+      "working": [
+        "Date = first ten characters: 2026-09-30",
+        "A withdrawal is money out whatever sign it is written with: −2,500",
+        "Interest not reinvested → interest 12.37; reinvested interest and the dividend are ignored",
+        "Formula as written: −(−2,500) = +2,500, money in"
+      ],
+      "rests_on": "Brief shape 2; ordinary arithmetic",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-082",
+      "name": "movementsOf",
+      "kind": "complex",
+      "title": "Shares moved in kind, valued and unvalued",
+      "given": "Today 2026-10-10. Measured: BRK, IRA. Records: transfer in kind of 25 VTI from Schwab (outside) to BRK on 2026-08-03, amount 0, price $213.47; transfer in kind on 2026-09-03 naming only IRA, direction not given, 40 shares; transfer in kind of 10 VTI from BRK to IRA on 2026-09-10, amount $2,140.",
+      "inputs": {
+        "today": "2026-10-10",
+        "measured": [
+          "BRK",
+          "IRA"
+        ],
+        "records": [
+          {
+            "type": "transfer in kind",
+            "from": "Schwab (outside)",
+            "to": "BRK",
+            "date": "2026-08-03",
+            "amount": 0,
+            "shares": 25,
+            "price": 213.47
+          },
+          {
+            "type": "transfer in kind",
+            "account": "IRA",
+            "direction": null,
+            "date": "2026-09-03",
+            "shares": 40
+          },
+          {
+            "type": "transfer in kind",
+            "from": "BRK",
+            "to": "IRA",
+            "date": "2026-09-10",
+            "amount": 2140,
+            "shares": 10
+          }
+        ]
+      },
+      "expected": {
+        "flows": [
+          {
+            "date": "2026-08-03",
+            "account": "BRK",
+            "amount": 5336.75
+          }
+        ],
+        "interest": [],
+        "shares_moved_days": [
+          "2026-09-03"
+        ]
+      },
+      "working": [
+        "Into BRK from outside: amount 0, so worth = 25 × 213.47 = 5,336.75 → +5,336.75",
+        "Only IRA named and no direction: cannot place it → 2026-09-03 goes on the shares-moved list",
+        "BRK → IRA in kind: both measured → nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-082",
+      "name": "movementsOf",
+      "kind": "edge",
+      "title": "A deposit with no amount",
+      "given": "Today 2026-10-10. Measured: BRK. Record: deposit into BRK on 2026-08-14 with the amount missing.",
+      "inputs": {
+        "today": "2026-10-10",
+        "measured": [
+          "BRK"
+        ],
+        "records": [
+          {
+            "type": "deposit",
+            "account": "BRK",
+            "date": "2026-08-14",
+            "amount": null
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "flows": [
+          {
+            "date": "2026-08-14",
+            "account": "BRK",
+            "amount": 0.0
+          }
+        ],
+        "interest": [],
+        "shares_moved_days": []
+      },
+      "working": [
+        "Money moved on 2026-08-14 but how much is unknown; counted as 0 the return would treat the deposit as growth",
+        "Formula as written: +0 on 2026-08-14"
+      ],
+      "rests_on": "Brief: missing is not zero",
+      "confidence": "high",
+      "notes": "REFUSES because the deposit has no amount; the return over this day cannot be measured."
+    },
+    {
+      "id": "MK-ST-F-080",
+      "name": "isDay",
+      "kind": "easy",
+      "title": "A good day",
+      "given": "Today 2026-10-10. Value '2026-10-10'.",
+      "inputs": {
+        "today": "2026-10-10",
+        "value": "2026-10-10"
+      },
+      "expected": true,
+      "working": [
+        "Shape fits and the day exists: true"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-080",
+      "name": "isDay",
+      "kind": "easy",
+      "title": "A number",
+      "given": "Today 2026-10-10. Value 20261010 (a number, not text).",
+      "inputs": {
+        "today": "2026-10-10",
+        "value": 20261010
+      },
+      "expected": false,
+      "working": [
+        "Not text: false"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-080",
+      "name": "isDay",
+      "kind": "complex",
+      "title": "What broker exports send",
+      "given": "Today 2026-10-10. Values: ' 2026-10-10', '2026-10-10T00:00:00Z', '2026/10/10', '2026-1-5', ''.",
+      "inputs": {
+        "today": "2026-10-10",
+        "values": [
+          " 2026-10-10",
+          "2026-10-10T00:00:00Z",
+          "2026/10/10",
+          "2026-1-5",
+          ""
+        ]
+      },
+      "expected": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "working": [
+        "Leading space, a time after the date, slashes, one-digit month and day, empty: none is exactly the shape → all false"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-080",
+      "name": "isDay",
+      "kind": "complex",
+      "title": "Real days at the edges of the calendar",
+      "given": "Today 2026-10-10. Values: '2024-02-29', '2026-12-31', '2026-01-01'.",
+      "inputs": {
+        "today": "2026-10-10",
+        "values": [
+          "2024-02-29",
+          "2026-12-31",
+          "2026-01-01"
+        ]
+      },
+      "expected": [
+        true,
+        true,
+        true
+      ],
+      "working": [
+        "2024 is a leap year; 31 December and 1 January exist: all true"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-ST-F-080",
+      "name": "isDay",
+      "kind": "edge",
+      "title": "A leap day in a year that has none",
+      "given": "Today 2026-10-10. Value '2026-02-29'.",
+      "inputs": {
+        "today": "2026-10-10",
+        "value": "2026-02-29"
+      },
+      "expected": false,
+      "formula_gives": true,
+      "working": [
+        "2026 is not a leap year: 29 February 2026 does not exist → false",
+        "Formula as written checks the shape only → true"
+      ],
+      "rests_on": "Calendar rules",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "easy",
+      "title": "One month",
+      "given": "Today 2026-10-10, period 1M.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "1M",
+        "record_dates": [
+          "2024-06-03",
+          "2026-10-09"
+        ]
+      },
+      "expected": "2026-09-10",
+      "working": [
+        "10 Oct − 1 month = 10 Sep 2026"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "easy",
+      "title": "Since the record began",
+      "given": "Today 2026-10-10, period Since. Record's first day 2025-10-01.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "Since",
+        "record_dates": [
+          "2025-10-01",
+          "2026-10-09"
+        ]
+      },
+      "expected": "2025-10-02",
+      "working": [
+        "The day after 2025-10-01 = 2025-10-02 (the beginning is then read for 2025-10-01)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "complex",
+      "title": "Since, with record days in no order",
+      "given": "Today 2026-10-10, period Since. Record days: 2025-01-15, 2024-06-03, 2026-10-09, 2024-12-31.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "Since",
+        "record_dates": [
+          "2025-01-15",
+          "2024-06-03",
+          "2026-10-09",
+          "2024-12-31"
+        ]
+      },
+      "expected": "2024-06-04",
+      "working": [
+        "Earliest day 2024-06-03 (order does not matter); the day after: 2024-06-04"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "complex",
+      "title": "Since on day one, and with nothing recorded",
+      "given": "Today 2026-10-10, period Since: (a) the only recorded day is today; (b) nothing recorded.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "Since",
+        "cases": [
+          {
+            "record_dates": [
+              "2026-10-10"
+            ]
+          },
+          {
+            "record_dates": []
+          }
+        ]
+      },
+      "expected": [
+        "2026-10-10",
+        "2026-10-10"
+      ],
+      "working": [
+        "(a) The day after today is 2026-10-11, later than today → today",
+        "(b) Nothing recorded → today"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "edge",
+      "title": "A label the app does not have",
+      "given": "Today 2026-10-10, period '5Y'.",
+      "inputs": {
+        "today": "2026-10-10",
+        "period": "5Y",
+        "record_dates": [
+          "2024-06-03"
+        ]
+      },
+      "expected": "REFUSES",
+      "formula_gives": "2025-10-10",
+      "working": [
+        "'5Y' is not a period this screen offers: no honest first day",
+        "Formula as written: 12 months back → 2025-10-10"
+      ],
+      "rests_on": "Agreement with MK-PF-F-008; brief: no invented default",
+      "confidence": "medium",
+      "notes": "REFUSES because the label is not a known period. MK-PF-F-008 would give today for the same label."
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "easy",
+      "title": "A brokerage and a savings account",
+      "given": "Today 2026-10-10. Accounts: 'a1' brokerage (Stocks / Funds); 'a2' savings (Cash).",
+      "inputs": {
+        "today": "2026-10-10",
+        "accounts": [
+          {
+            "id": "a1",
+            "class": "Stocks / Funds"
+          },
+          {
+            "id": "a2",
+            "class": "Cash"
+          }
+        ]
+      },
+      "expected": [
+        "a1"
+      ],
+      "working": [
+        "Stocks / Funds → in; Cash → out"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "easy",
+      "title": "No accounts",
+      "given": "Today 2026-10-10. No accounts.",
+      "inputs": {
+        "today": "2026-10-10",
+        "accounts": []
+      },
+      "expected": [],
+      "working": [
+        "Nothing: empty set"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "complex",
+      "title": "Five kinds of account, one id given as a number",
+      "given": "Today 2026-10-10. Accounts: 101 (a number) 401(k) Stocks / Funds; 'b7' Treasury ladder Bonds & CDs; 'h1' home Property; 'x9' crypto Alternatives; 'c2' checking Cash.",
+      "inputs": {
+        "today": "2026-10-10",
+        "accounts": [
+          {
+            "id": 101,
+            "class": "Stocks / Funds"
+          },
+          {
+            "id": "b7",
+            "class": "Bonds & CDs"
+          },
+          {
+            "id": "h1",
+            "class": "Property"
+          },
+          {
+            "id": "x9",
+            "class": "Alternatives"
+          },
+          {
+            "id": "c2",
+            "class": "Cash"
+          }
+        ]
+      },
+      "expected": [
+        "101",
+        "b7",
+        "x9"
+      ],
+      "working": [
+        "In: 401(k), Treasury ladder, crypto. Out: home, checking",
+        "The numeric id 101 appears as the text '101' (the result is a set of text ids)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "medium",
+      "notes": "The card does not say how a numeric id is written in the set; text '101' is assumed from the return type Set<string>."
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "complex",
+      "title": "Two Unclassified accounts: one bare balance, one with holdings",
+      "given": "Today 2026-10-10. 'u1' 'Emergency fund', entered by hand: a balance of $18,000, no holdings, Unclassified. 'u2' 'Old employer plan', entered by hand with holdings (VTI 40 shares), Unclassified. 'a1' brokerage Stocks / Funds.",
+      "inputs": {
+        "today": "2026-10-10",
+        "accounts": [
+          {
+            "id": "u1",
+            "class": "Unclassified",
+            "balance": 18000,
+            "holdings": []
+          },
+          {
+            "id": "u2",
+            "class": "Unclassified",
+            "holdings": [
+              {
+                "ticker": "VTI",
+                "shares": 40
+              }
+            ]
+          },
+          {
+            "id": "a1",
+            "class": "Stocks / Funds"
+          }
+        ]
+      },
+      "expected": [
+        "u2",
+        "a1"
+      ],
+      "formula_gives": [
+        "u1",
+        "u2",
+        "a1"
+      ],
+      "working": [
+        "u1: a balance with no label → cash (Q2) → out",
+        "u2: holds a fund → invested → in",
+        "a1 → in",
+        "Formula as written: every Unclassified account is in → u1, u2, a1"
+      ],
+      "rests_on": "Owner decision Q2",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "edge",
+      "title": "Only cash and property",
+      "given": "Today 2026-10-10. Accounts: checking (Cash), home (Property).",
+      "inputs": {
+        "today": "2026-10-10",
+        "accounts": [
+          {
+            "id": "c1",
+            "class": "Cash"
+          },
+          {
+            "id": "h1",
+            "class": "Property"
+          }
+        ]
+      },
+      "expected": [],
+      "working": [
+        "Neither is an investment class: empty set (nothing invested; the performance screen then refuses)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "easy",
+      "title": "Two days, one account",
+      "given": "Today 2026-10-10. Named: BRK. Record: 2026-07-09 BRK; 2026-07-10 BRK.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK"
+        ],
+        "days": [
+          [
+            "2026-07-09",
+            [
+              "BRK"
+            ]
+          ],
+          [
+            "2026-07-10",
+            [
+              "BRK"
+            ]
+          ]
+        ]
+      },
+      "expected": [
+        "2026-07-09",
+        "2026-07-10"
+      ],
+      "working": [
+        "Both days hold BRK"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "easy",
+      "title": "No accounts named",
+      "given": "Today 2026-10-10. Named: none. Record: 2026-07-09 BRK.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [],
+        "days": [
+          [
+            "2026-07-09",
+            [
+              "BRK"
+            ]
+          ]
+        ]
+      },
+      "expected": [],
+      "working": [
+        "None named: empty"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "complex",
+      "title": "Days out of order, some only for a savings account",
+      "given": "Today 2026-10-10. Named: BRK, IRA. Record (as stored): 2026-03-02 SAV; 2026-02-27 IRA; 2026-03-03 BRK and SAV; 2026-02-26 SAV.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK",
+          "IRA"
+        ],
+        "days": [
+          [
+            "2026-03-02",
+            [
+              "SAV"
+            ]
+          ],
+          [
+            "2026-02-27",
+            [
+              "IRA"
+            ]
+          ],
+          [
+            "2026-03-03",
+            [
+              "BRK",
+              "SAV"
+            ]
+          ],
+          [
+            "2026-02-26",
+            [
+              "SAV"
+            ]
+          ]
+        ]
+      },
+      "expected": [
+        "2026-02-27",
+        "2026-03-03"
+      ],
+      "working": [
+        "Days with BRK or IRA: 27 Feb (IRA), 3 Mar (BRK)",
+        "Days with only SAV are left out",
+        "Oldest first"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "complex",
+      "title": "A day where the named account is worth $0",
+      "given": "Today 2026-10-10. Named: BRK. Record: 2026-07-09 BRK $0 (opened empty); 2026-07-15 BRK $20,000; 2026-07-12 SAV $500.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK"
+        ],
+        "days": [
+          [
+            "2026-07-09",
+            {
+              "BRK": 0
+            }
+          ],
+          [
+            "2026-07-15",
+            {
+              "BRK": 20000
+            }
+          ],
+          [
+            "2026-07-12",
+            {
+              "SAV": 500
+            }
+          ]
+        ]
+      },
+      "expected": [
+        "2026-07-09",
+        "2026-07-15"
+      ],
+      "working": [
+        "A $0 value is a value: 9 Jul is in",
+        "12 Jul holds only SAV: out"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "edge",
+      "title": "A record that never mentions the named accounts",
+      "given": "Today 2026-10-10. Named: BRK. Record: 2026-07-09 SAV; 2026-07-10 CHK.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK"
+        ],
+        "days": [
+          [
+            "2026-07-09",
+            [
+              "SAV"
+            ]
+          ],
+          [
+            "2026-07-10",
+            [
+              "CHK"
+            ]
+          ]
+        ]
+      },
+      "expected": [],
+      "working": [
+        "No day holds BRK: empty (the record does not cover these accounts)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "closedWith",
+      "kind": "easy",
+      "title": "Two accounts carried to today",
+      "given": "Today 2026-10-10. Named: BRK, IRA. Latest earlier day 2026-10-09: BRK $30,000, IRA $20,000. Ending handed in $51,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK",
+          "IRA"
+        ],
+        "days": [
+          [
+            "2026-10-09",
+            {
+              "BRK": 30000,
+              "IRA": 20000
+            }
+          ]
+        ],
+        "ending": 51000
+      },
+      "expected": {
+        "today_rows_accounts": [
+          "BRK",
+          "IRA"
+        ],
+        "today_total_as_measured": {
+          "exact": 51000.0,
+          "shown": "$51,000"
+        }
+      },
+      "working": [
+        "Rows for BRK and IRA on 2026-10-10 carrying 51,000 between them",
+        "Today's total = 51,000"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "How the 51,000 is split between BRK and IRA is not stated on the card; only the total is tested."
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "closedWith",
+      "kind": "easy",
+      "title": "Nothing recorded yet",
+      "given": "Today 2026-10-10. Named: BRK. Empty record. Ending $10,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK"
+        ],
+        "days": [],
+        "ending": 10000
+      },
+      "expected": {
+        "record_unchanged": true
+      },
+      "working": [
+        "No earlier day: the record is returned unchanged"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "closedWith",
+      "kind": "complex",
+      "title": "A typed balance missing from the latest day",
+      "given": "Today 2026-10-10. Named: BRK (priced) and IRA (typed balance). Record: 2026-10-08 BRK $30,000, IRA $20,000; 2026-10-09 BRK $30,450 (IRA not recorded; its typed $20,000 stands). Ending handed in for both accounts: $51,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK",
+          "IRA"
+        ],
+        "days": [
+          [
+            "2026-10-08",
+            {
+              "BRK": 30000,
+              "IRA": 20000
+            }
+          ],
+          [
+            "2026-10-09",
+            {
+              "BRK": 30450
+            }
+          ]
+        ],
+        "ending": 51000
+      },
+      "expected": {
+        "today_total_as_measured": {
+          "exact": 51000.0,
+          "shown": "$51,000"
+        }
+      },
+      "formula_gives": {
+        "today_total_as_measured": {
+          "exact": 71000.0,
+          "shown": "$71,000"
+        }
+      },
+      "working": [
+        "The ending covers both accounts: 51,000",
+        "Today's total must equal it",
+        "Formula as written: the latest earlier day holds only BRK, so one row BRK = 51,000; the return engine then adds IRA's carried 20,000 → today's total 71,000"
+      ],
+      "rests_on": "MK-ST-F-081 (a typed balance stands until next recorded)",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "closedWith",
+      "kind": "complex",
+      "title": "Three accounts on the latest day",
+      "given": "Today 2026-10-10. Named: BRK, IRA, ROTH. Latest earlier day 2026-10-09: BRK $112,406.50, IRA $61,220.18, ROTH $13,512.04. Ending handed in $187,431.12.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK",
+          "IRA",
+          "ROTH"
+        ],
+        "days": [
+          [
+            "2026-10-09",
+            {
+              "BRK": 112406.5,
+              "IRA": 61220.18,
+              "ROTH": 13512.04
+            }
+          ]
+        ],
+        "ending": 187431.12
+      },
+      "expected": {
+        "today_rows_accounts": [
+          "BRK",
+          "IRA",
+          "ROTH"
+        ],
+        "today_total_as_measured": {
+          "exact": 187431.12,
+          "shown": "$187,431"
+        }
+      },
+      "working": [
+        "Rows for all three on 2026-10-10",
+        "Their total = the ending 187,431.12 (yesterday's total was 187,138.72; the difference 292.40 is the day's change)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "closedWith",
+      "kind": "edge",
+      "title": "The latest day holds none of the named accounts",
+      "given": "Today 2026-10-10. Named: BRK. Record: 2026-10-09 SAV $5,000 only. Ending $10,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "named": [
+          "BRK"
+        ],
+        "days": [
+          [
+            "2026-10-09",
+            {
+              "SAV": 5000
+            }
+          ]
+        ],
+        "ending": 10000
+      },
+      "expected": {
+        "record_unchanged": true
+      },
+      "working": [
+        "The latest earlier day holds none of the named accounts: record returned unchanged (the return will then refuse: today not recorded)"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "easy",
+      "title": "Measured: no sentence",
+      "given": "Today 2026-10-10. The return was measured: rate 0.0815.",
+      "inputs": {
+        "today": "2026-10-10",
+        "verdict": {
+          "rate": 0.0815,
+          "refused": null
+        }
+      },
+      "expected": "",
+      "working": [
+        "Measured → empty"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "easy",
+      "title": "Nothing invested",
+      "given": "Today 2026-10-10. The return engine refused: nothing invested over the period.",
+      "inputs": {
+        "today": "2026-10-10",
+        "verdict": {
+          "rate": null,
+          "refused": "nothing invested"
+        }
+      },
+      "expected": {
+        "empty": false,
+        "says": "there is no return to state because nothing was invested over the period"
+      },
+      "working": [
+        "Nothing invested → the sentence says there is no return to state"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "Exact wording is the app's; the case checks the sentence is there and says this."
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "complex",
+      "title": "Money moved on a Saturday",
+      "given": "Today 2026-10-10. Refused: money moved on 2026-08-15, a day with no recorded value.",
+      "inputs": {
+        "today": "2026-10-10",
+        "verdict": {
+          "rate": null,
+          "refused": "money moved on a day with no recorded value",
+          "day": "2026-08-15"
+        }
+      },
+      "expected": {
+        "empty": false,
+        "names_day": "2026-08-15",
+        "says": "a return cannot be measured across that day"
+      },
+      "working": [
+        "Names 15 Aug 2026 and says a return cannot be measured across it"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "The day may be shown in the screen's date format (e.g. Aug 15, 2026)."
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "complex",
+      "title": "Shares moved with no worth on record",
+      "given": "Today 2026-10-10. Refused: shares moved in or out on 2026-09-03 and the records do not say what they were worth.",
+      "inputs": {
+        "today": "2026-10-10",
+        "verdict": {
+          "rate": null,
+          "refused": "shares moved",
+          "day": "2026-09-03"
+        }
+      },
+      "expected": {
+        "empty": false,
+        "names_day": "2026-09-03",
+        "says": "the records do not say what the shares moved were worth"
+      },
+      "working": [
+        "Names 3 Sep 2026; says their worth is not on record"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "edge",
+      "title": "Value with nothing behind it",
+      "given": "Today 2026-10-10. Refused by MK-ST-F-081: on 2026-08-14 the previous total was $0 and the value after a $10,000 deposit was $10,050 (value with nothing behind it).",
+      "inputs": {
+        "today": "2026-10-10",
+        "verdict": {
+          "rate": null,
+          "refused": "value with nothing behind it",
+          "day": "2026-08-14"
+        }
+      },
+      "expected": {
+        "empty": false,
+        "names_day": "2026-08-14",
+        "says": "the value on that day cannot be explained by the money added"
+      },
+      "formula_gives": "",
+      "working": [
+        "MK-ST-F-081 refuses here; the figure must say why",
+        "Formula as written has no sentence for this reason → empty"
+      ],
+      "rests_on": "MK-PF-M-016 / MK-PF-M-017 refusal rule",
+      "confidence": "medium",
+      "notes": "formula_gives assumes no catch-all sentence exists; the card lists none."
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "easy",
+      "title": "One holding up ten percent",
+      "given": "Today 2026-10-10, 3M window. VTI worth $11,000; period return +10%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 0.252055,
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value": 11000,
+            "period_return": 0.1
+          }
+        ]
+      },
+      "expected": {
+        "exact": 1000.0,
+        "shown": "$1,000"
+      },
+      "working": [
+        "11,000 − 11,000 ÷ 1.10 = 11,000 − 10,000 = 1,000"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "easy",
+      "title": "A CD for one year",
+      "given": "Today 2026-10-10, 1Y window (years 1). A CD worth $10,000, stated rate 5%, no price history.",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 1,
+        "holdings": [
+          {
+            "name": "Ally CD",
+            "value": 10000,
+            "period_return": null,
+            "coupon_rate": 0.05
+          }
+        ]
+      },
+      "expected": {
+        "exact": 476.1905,
+        "shown": "$476"
+      },
+      "working": [
+        "10,000 − 10,000 ÷ 1.05 = 476.190476"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "complex",
+      "title": "Four holdings of four kinds",
+      "given": "Today 2026-10-10, 3M window (first day 2026-07-10; years = 92 ÷ 365). (1) QQQ bought 2026-08-03, worth $5,200, cost $4,500. (2) VTI worth $31,302.00, period return +11.2523%. (3) CD worth $25,000, rate 4.10%. (4) An old fund that now holds nothing ($0).",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 0.25205479,
+        "holdings": [
+          {
+            "ticker": "QQQ",
+            "bought_inside_window": true,
+            "value": 5200,
+            "cost": 4500
+          },
+          {
+            "ticker": "VTI",
+            "value": 31302.0,
+            "period_return": 0.112523
+          },
+          {
+            "name": "CD",
+            "value": 25000,
+            "period_return": null,
+            "coupon_rate": 0.041
+          },
+          {
+            "ticker": "OLDF",
+            "value": 0
+          }
+        ]
+      },
+      "expected": {
+        "exact": 4117.8749,
+        "shown": "$4,118"
+      },
+      "working": [
+        "QQQ, bought inside: 5,200 − 4,500 = 700",
+        "VTI: 31,302 − 31,302 ÷ 1.112523 = 3165.9525",
+        "CD: 25,000 × (1 − 1 ÷ 1.041^(92/365)) = 251.9224",
+        "OLDF holds nothing: 0",
+        "Total = 4117.8749"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "complex",
+      "title": "A two-year window and a yearly rate",
+      "given": "Today 2026-10-10, 2Y window (years 2). VTI worth $12,100; its row's period return is the 2Y yearly rate +10% (a total of +21%, from $10,000).",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 2,
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value": 12100,
+            "period_return": 0.1,
+            "period_return_is_yearly": true
+          }
+        ]
+      },
+      "expected": {
+        "exact": 2100.0,
+        "shown": "$2,100"
+      },
+      "formula_gives": {
+        "exact": 1100.0,
+        "shown": "$1,100"
+      },
+      "working": [
+        "Total over 2 years = 1.10² − 1 = 0.21",
+        "Gain = 12,100 − 12,100 ÷ 1.21 = 12,100 − 10,000 = 2,100",
+        "Formula as written: 12,100 − 12,100 ÷ 1.10 = 1,100 (one year's gain)"
+      ],
+      "rests_on": "Ordinary compounding; MK-PF-F-010 (2Y is a yearly rate)",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "edge",
+      "title": "One holding nobody can price",
+      "given": "Today 2026-10-10, 3M window. VTI worth $11,000 (+10%). A private fund worth $4,500, no price history, no rate.",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 0.252055,
+        "holdings": [
+          {
+            "ticker": "VTI",
+            "value": 11000,
+            "period_return": 0.1
+          },
+          {
+            "name": "Private fund",
+            "value": 4500,
+            "period_return": null,
+            "coupon_rate": null
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "VTI's gain would be 1,000, but the private fund's gain cannot be known",
+        "The whole total is unknown (DEC-3656), not 1,000"
+      ],
+      "rests_on": "Owner decision DEC-3656",
+      "confidence": "high",
+      "notes": "REFUSES because one holding holds something and has no price history and no rate."
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "easy",
+      "title": "Up a quarter",
+      "given": "Today 2026-10-10, 1Y window. A fund worth $12,500, period return +25%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 1,
+        "row": {
+          "ticker": "VTV",
+          "value": 12500,
+          "period_return": 0.25
+        }
+      },
+      "expected": {
+        "exact": 2500.0,
+        "shown": "$2,500"
+      },
+      "working": [
+        "12,500 × (1 − 1 ÷ 1.25) = 12,500 × 0.2 = 2,500"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "easy",
+      "title": "No price history, no rate, but something held",
+      "given": "Today 2026-10-10, 3M window. A hand-entered private REIT worth $3,300; no price history; no rate.",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 0.252055,
+        "row": {
+          "name": "Private REIT",
+          "value": 3300,
+          "period_return": null,
+          "coupon_rate": null
+        }
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Holds something, no history, no rate → unknown"
+      ],
+      "rests_on": "Owner decision DEC-3656",
+      "confidence": "high",
+      "notes": "REFUSES because the holding's gain over the window cannot be known."
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "complex",
+      "title": "A CD over a six-month window",
+      "given": "Today 2026-10-10, 6M window (first day 2026-04-10; 183 days, years = 183 ÷ 365). A CD worth $15,000, stated rate 3.85%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 0.50136986,
+        "row": {
+          "name": "Marcus CD",
+          "value": 15000,
+          "period_return": null,
+          "coupon_rate": 0.0385
+        }
+      },
+      "expected": {
+        "exact": 281.4328,
+        "shown": "$281"
+      },
+      "working": [
+        "Years = 183 ÷ 365 = 0.50136986",
+        "1.0385^0.50137 = 1.01912094",
+        "Gain = 15,000 × (1 − 1 ÷ that) = 281.4328"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "complex",
+      "title": "Two-year window, yearly rate on the row",
+      "given": "Today 2026-10-10, 2Y window. A fund worth $8,820; its row's return is the 2Y yearly rate +5% (total +10.25%, from $8,000).",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 2,
+        "row": {
+          "ticker": "SCHD",
+          "value": 8820,
+          "period_return": 0.05,
+          "period_return_is_yearly": true
+        }
+      },
+      "expected": {
+        "exact": 820.0,
+        "shown": "$820"
+      },
+      "formula_gives": {
+        "exact": 420.0,
+        "shown": "$420"
+      },
+      "working": [
+        "Total = 1.05² − 1 = 0.1025",
+        "Gain = 8,820 − 8,820 ÷ 1.1025 = 8,820 − 8,000 = 820",
+        "Formula as written: 8,820 × (1 − 1 ÷ 1.05) = 420"
+      ],
+      "rests_on": "Ordinary compounding; MK-PF-F-010",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "edge",
+      "title": "A CD whose stated rate is 0%",
+      "given": "Today 2026-10-10, 1Y window. A CD worth $10,000 with stated rate 0.00%.",
+      "inputs": {
+        "today": "2026-10-10",
+        "years": 1,
+        "row": {
+          "name": "Promo CD",
+          "value": 10000,
+          "period_return": null,
+          "coupon_rate": 0
+        }
+      },
+      "expected": "RULE UNCLEAR",
+      "readings": [
+        {
+          "reading": "0% is a stated rate",
+          "expected": {
+            "exact": 0.0,
+            "shown": "$0"
+          }
+        },
+        {
+          "reading": "0% means no rate (as this card is written)",
+          "expected": "REFUSES"
+        }
+      ],
+      "working": [
+        "A stated 0% means it earned nothing: gain 0 (MK-NW-F-091's reading)",
+        "This card applies a rate only 'above zero', so a 0% CD that holds something falls to 'unknown'"
+      ],
+      "rests_on": "MK-NW-F-091 and MK-NW-F-127 disagree",
+      "confidence": "medium",
+      "notes": "The owner should say whether 0 is a rate or a missing rate; both cards should then agree."
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "easy",
+      "title": "A market value is there",
+      "given": "Today 2026-10-10. Holding with market value $5,000.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {
+          "ticker": "VTI",
+          "market_value": 5000
+        }
+      },
+      "expected": {
+        "exact": 5000.0,
+        "shown": "$5,000"
+      },
+      "working": [
+        "Market value above zero: 5,000"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "easy",
+      "title": "Broker's last mark times shares",
+      "given": "Today 2026-10-10. No market value; lots of 20 and 15 shares; broker's last price $40.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {
+          "ticker": "XYZ",
+          "market_value": 0,
+          "lots": [
+            20,
+            15
+          ],
+          "last_price": 40
+        }
+      },
+      "expected": {
+        "exact": 1400.0,
+        "shown": "$1,400"
+      },
+      "working": [
+        "Shares 20 + 15 = 35; 35 × 40 = 1,400"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "complex",
+      "title": "Option contracts at the broker's last mark",
+      "given": "Today 2026-10-10. An option holding as a broker link sends it: no market value, 3 contracts, last price $2.10 a share, no multiplier stated.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {
+          "ticker": "AAPL  260619C00200000",
+          "kind": "option",
+          "market_value": null,
+          "lots": [
+            3
+          ],
+          "last_price": 2.1
+        },
+        "source": "broker link"
+      },
+      "expected": {
+        "exact": 630.0,
+        "shown": "$630"
+      },
+      "formula_gives": {
+        "exact": 6.3,
+        "shown": "$6"
+      },
+      "working": [
+        "Multiplier 100 (option, none stated)",
+        "3 × 2.10 × 100 = 630",
+        "Formula as written: 3 × 2.10 = 6.30"
+      ],
+      "rests_on": "MK-PF-F-004 / MK-PF-F-031",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "complex",
+      "title": "A hand-built holding",
+      "given": "Today 2026-10-10. A holding built by hand: no market value, 40 shares, no broker price, built at a value of $12,345.67.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {
+          "name": "Old employer plan fund",
+          "market_value": null,
+          "lots": [
+            40
+          ],
+          "last_price": null,
+          "value_now": 12345.67
+        }
+      },
+      "expected": {
+        "exact": 12345.67,
+        "shown": "$12,346"
+      },
+      "working": [
+        "No market value; no last price; value it was built at: 12,345.67"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "edge",
+      "title": "Shares and nothing else",
+      "given": "Today 2026-10-10. A holding with 50 shares, no market value, no price, no built value.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {
+          "ticker": "PRIV",
+          "market_value": null,
+          "lots": [
+            50
+          ],
+          "last_price": null,
+          "value_now": null
+        }
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 0.0,
+        "shown": "$0"
+      },
+      "working": [
+        "It holds 50 shares, so it holds something; what they are worth is unknown",
+        "Formula as written: $0, which tells MK-NW-F-127 it holds nothing"
+      ],
+      "rests_on": "Owner decision DEC-3656",
+      "confidence": "high",
+      "notes": "REFUSES because the holding has shares but nothing that prices them."
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "easy",
+      "title": "An account named by the person",
+      "given": "Today 2026-10-10. Row name 'Ally CD'; no ticker.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {
+          "name": "Ally CD"
+        }
+      },
+      "expected": "Ally CD",
+      "working": [
+        "The name it was given"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "easy",
+      "title": "A ticker only",
+      "given": "Today 2026-10-10. Ticker 'VTI'; no names.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {
+          "position": {
+            "ticker": "VTI"
+          }
+        }
+      },
+      "expected": "VTI",
+      "working": [
+        "No name; ticker VTI is not a security code → VTI"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "complex",
+      "title": "Two Treasuries by CUSIP, one with a name",
+      "given": "Today 2026-10-10. (a) Ticker '912828ZT6', security name 'US Treasury Note 0.25% 05/31/2025'. (b) Ticker '91282CJL6', no name.",
+      "inputs": {
+        "today": "2026-10-10",
+        "rows": [
+          {
+            "position": {
+              "ticker": "912828ZT6",
+              "name": "US Treasury Note 0.25% 05/31/2025"
+            }
+          },
+          {
+            "position": {
+              "ticker": "91282CJL6"
+            }
+          }
+        ]
+      },
+      "expected": [
+        "US Treasury Note 0.25% 05/31/2025",
+        "91282CJL6"
+      ],
+      "working": [
+        "(a) Nine capitals and digits with a digit → a code; it has a name → the name",
+        "(b) A code with no name → the ticker"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "complex",
+      "title": "A CUSIP sent in lower case",
+      "given": "Today 2026-10-10. Broker sends ticker '912828zt6' with security name 'US Treasury Note 0.25% 05/31/2025'.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {
+          "position": {
+            "ticker": "912828zt6",
+            "name": "US Treasury Note 0.25% 05/31/2025"
+          }
+        },
+        "source": "broker link"
+      },
+      "expected": "US Treasury Note 0.25% 05/31/2025",
+      "formula_gives": "912828zt6",
+      "working": [
+        "It is a CUSIP whatever its case → the security's name",
+        "Formula as written: not 'capital letters' → the ticker '912828zt6'"
+      ],
+      "rests_on": "Brief shape 2",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "edge",
+      "title": "Nothing to call it by",
+      "given": "Today 2026-10-10. No name, no ticker.",
+      "inputs": {
+        "today": "2026-10-10",
+        "row": {}
+      },
+      "expected": "a holding",
+      "working": [
+        "Nothing: 'a holding'"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "easy",
+      "title": "One name",
+      "given": "Today 2026-10-10. Names: ['Fundrise Income Fund'].",
+      "inputs": {
+        "today": "2026-10-10",
+        "names": [
+          "Fundrise Income Fund"
+        ]
+      },
+      "expected": "The beginning can't be worked back: Fundrise Income Fund has no price history.",
+      "working": [
+        "One name: 'has'"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "easy",
+      "title": "No name",
+      "given": "Today 2026-10-10. Names: [].",
+      "inputs": {
+        "today": "2026-10-10",
+        "names": []
+      },
+      "expected": "The beginning can't be worked back: a holding has no price history.",
+      "working": [
+        "No name: 'a holding', 'has'"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "complex",
+      "title": "Three names",
+      "given": "Today 2026-10-10. Names: ['PRIVX', 'Fundrise Income Fund', 'Ally CD'].",
+      "inputs": {
+        "today": "2026-10-10",
+        "names": [
+          "PRIVX",
+          "Fundrise Income Fund",
+          "Ally CD"
+        ]
+      },
+      "expected": "The beginning can't be worked back: PRIVX, Fundrise Income Fund and Ally CD have no price history.",
+      "working": [
+        "Commas between, 'and' before the last, verb 'have'"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "No comma before 'and', as the card words it."
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "complex",
+      "title": "Two names",
+      "given": "Today 2026-10-10. Names: ['Old employer plan fund', 'a holding'].",
+      "inputs": {
+        "today": "2026-10-10",
+        "names": [
+          "Old employer plan fund",
+          "a holding"
+        ]
+      },
+      "expected": "The beginning can't be worked back: Old employer plan fund and a holding have no price history.",
+      "working": [
+        "Two names: 'A and B have'"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "edge",
+      "title": "The same fund in two accounts",
+      "given": "Today 2026-10-10. Names: ['PRIVX', 'PRIVX'] (held in a brokerage and an IRA).",
+      "inputs": {
+        "today": "2026-10-10",
+        "names": [
+          "PRIVX",
+          "PRIVX"
+        ]
+      },
+      "expected": "The beginning can't be worked back: PRIVX has no price history.",
+      "formula_gives": "The beginning can't be worked back: PRIVX and PRIVX have no price history.",
+      "working": [
+        "One fund, named once: 'PRIVX has'",
+        "Formula as written: 'PRIVX and PRIVX have no price history.'"
+      ],
+      "rests_on": "Ordinary English",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "could_not_test": []
+}

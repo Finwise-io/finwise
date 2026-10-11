@@ -767,5 +767,15 @@
 "MoneyKeel/functions/networth-and-performance/performance.ts::heldValueOf": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/performance.ts::gainOfRow": "not in git yet|\u2014",
 "src/domain/_shared/num.ts::rentFigure": "not in git yet|\u2014",
-"src/domain/bonds/index.ts::pricedLikeBond": "not in git yet|\u2014"
+"src/domain/bonds/index.ts::pricedLikeBond": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts::notClassifiedWords": "not in git yet|\u2014",
+"src/domain/_shared/plural.ts::plural": "not in git yet|\u2014",
+"src/domain/assets/index.ts::asksCashOrInvestments": "not in git yet|\u2014",
+"src/domain/assets/index.ts::earmarkLeavesOutWords": "not in git yet|\u2014",
+"src/domain/assets/index.ts::earmarkLeavesOut": "not in git yet|\u2014",
+"src/domain/assets/index.ts::carValueNotEnteredNotes": "not in git yet|\u2014",
+"src/domain/assets/index.ts::valueEntered": "not in git yet|\u2014",
+"src/domain/decumulation/index.ts::countedTaxableLine": "not in git yet|\u2014",
+"src/domain/decumulation/index.ts::taxTypeNotStated": "not in git yet|\u2014",
+"src/domain/decumulation/index.ts::splitBucketOf": "not in git yet|\u2014"
 }

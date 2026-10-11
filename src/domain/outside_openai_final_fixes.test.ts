@@ -52,3 +52,17 @@ describe('MK-NW-F-052 · itemising refuses a holding with no value (DEC-3279f)',
     expect(buildItemizedAccounts(lump, [item(4000, 'stocks_etf', 'VTI')]).map((a) => [a.label, a.balance])).toEqual([['VTI', 4000], ['Chase cash', 6000]]);
   });
 });
+
+describe('DEC-4105 · the withdrawal split reads tax as the account page does (tenet 4)', () => {
+  const { taxBucketSplit } = require('./decumulation');
+  const A = (over: any) => ({ asset_id: over.id, label: over.label ?? over.id, balance: 100000, target_return: 0.06, ...over });
+  test('a 401(k) saved with no tax type is pre-tax, not "tax type not stated"', () => {
+    const s = taxBucketSplit([A({ id: 'k', kind: '401k' })]);
+    expect(s.preTax).toBe(100000); expect(s.taxable).toBe(0); expect(s.countedTaxableNotStated).toEqual([]);
+  });
+  test('an HSA filed under Roth is pre-tax; an account the app cannot tell is taxable and named', () => {
+    const s = taxBucketSplit([A({ id: 'h', kind: 'hsa', tax_bucket: 'ROTH' }), A({ id: 'b', label: 'Brokerage', kind: 'brokerage' })]);
+    expect(s.preTax).toBe(100000); expect(s.taxable).toBe(100000);
+    expect(s.countedTaxableNotStated.length).toBe(1);
+  });
+});

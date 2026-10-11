@@ -6,6 +6,7 @@
 // number and is labelled as one. Mixing them is how a take-home figure comes to include a bonus
 // nobody has been paid yet — and how interest and dividends came to be counted as spendable when
 // they are reinvested where they are earned and never reach the bank.
+import { plural } from '../../../src/domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { declareFigures } from '../_figure-spec';
 import { toNum } from '../../../src/domain/_shared/num';
 import { salaryAnnual, taxableAnnual, rentalNetAnnual, extraIncome, filingStatusOf,
@@ -110,6 +111,7 @@ const GIVEN =
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-059 the month a bonus lands
  *
@@ -125,7 +127,8 @@ const SOURCES_EXAMPLE = {
   ...EXAMPLE,
   seAmount: 24000, seFreq: 'yearly', bonusAnnual: 12000, bonusMonth: 3,
   rsuShares: '50', rsuPrice: '400',
-  rentalIncome: 2000, rentalExpenses: 800,
+  // the rent entry names its property — an entry with none is not rent (DEC-4059d, 2026-10-10)
+  rentals: [{ type: 'long', income: 2000, expenses: 800, property_id: 'rental-house' }],
   ri_ss: '2100', ri_ss_receiving: 'yes', ri_ss_freq: 'monthly',
 };
 const SOURCES_GIVEN =
@@ -797,12 +800,12 @@ export function theIncomeManager(op: Record<string, any> | null): IncomeManager 
     row('employment', '💼', 'A job', 'A job (wages or salary)', pay.landsInBank, 'month', `${who} · take-home`, '', pay.landsEstimated),
     row('self_employment', '🧰', 'Self-employed / side gig', 'Self-employed / side gig', toNum(a.seAmount), selfPer, '', 'net'),
     row('rental', '🏠', 'Rent', 'Rent from a property', rentalNetAnnual(op as any) / 12, 'month',
-        `${COUNT[rentals.length] ?? rentals.length} ${rentals.length === 1 ? 'property' : 'properties'} ·`, 'net'),
+        `${plural(rentals.length, 'property', COUNT[rentals.length] ?? rentals.length)} ·`, 'net'),
     row('investment_income', '💵', 'Interest & dividends', 'Interest & dividends', inv, 'year', '',
         a.invPaidToBank === 'yes' ? '· paid to your bank' : '· reinvested'),
     row('retirement_income', '📨', 'Retirement income', 'Retirement income', retirementIncomeMonthly(op as any), 'month'),
     row('benefits', '🛟', 'Benefits', 'Benefits', toNum(a.benefitMonthly), 'month', '',
-        benefitMonths < 12 ? `· ${benefitMonths} months of the year` : ''),
+        benefitMonths < 12 ? `· ${plural(benefitMonths, 'month')} of the year` : ''),
     row('support', '👪', 'Child support or alimony', 'Child support or alimony', toNum(a.supportMonthly), 'month'),
     row('scholarship', '🎓', 'Scholarships, grants, stipend', 'Scholarships, grants, stipend', schoolYear, 'year'),
     row('loans', '🏦', 'Student loans', 'Student loans', loansYear, 'year'),

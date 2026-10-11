@@ -200,9 +200,11 @@ describe('MK-NW-F-009 maturityClass — five cases', () => {
   test('complex · Expired maturity remains bond', () => { expect(maturityClass('2024-01-01')).toBe('bonds'); });
   test('complex · Whitespace-only date is empty', () => { expect(maturityClass('   ')).toBe('cash'); });
   test('edge · Invalid nonblank date needs owner clarification', () => {
-    // UNCLEAR: app does 'bonds' (any non-blank text is a date); open question: is an unreadable maturity date refused
-    // or kept as Bonds & CDs? No decision found (rulings-for.py "maturity date": DEC-0332 covers a MISSING date only).
-    expect(maturityClass('tomorrow-ish')).toBe('bonds');
+    // SETTLED 2026-10-10 by DEC-4059b/c: an unreadable stored maturity text is read as no date — cash, never a bond.
+    // Dates are picked, never typed ("Use date picker for date."); a month alone, what the old box asked for, still reads.
+    expect(maturityClass('tomorrow-ish')).toBe('cash');
+    expect(maturityClass('2027-02-30')).toBe('cash');     // not a real calendar day
+    expect(maturityClass('2027-06')).toBe('bonds');       // a month alone is that month's first day
   });
 });
 
@@ -211,12 +213,14 @@ describe('MK-NW-F-010 wrapperAccount — five cases', () => {
   test('easy · Roth 401(k) maps Roth bucket', () => { expect(wrapperAccount('roth_401k')).toEqual({ kind: '401k', tax_bucket: 'ROTH' }); });
   test('complex · HSA maps pre-tax bucket', () => { expect(wrapperAccount('hsa')).toEqual({ kind: 'hsa', tax_bucket: 'PRE_TAX' }); });
   test('complex · Unknown choice defaults taxable brokerage', () => {
-    expect(wrapperAccount('unknown legacy wrapper' as any)).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' });
+    // SETTLED 2026-10-10 by DEC-4036f: an unknown legacy wrapper word is treated as nothing chosen — no kind, no tax
+    // type, never a taxable brokerage (the auditor's "defaults taxable" is no longer the rule)
+    expect(wrapperAccount('unknown legacy wrapper' as any)).toStrictEqual({ kind: undefined, tax_bucket: undefined });
   });
   test('edge · No wrapper chosen', () => {
-    // UNCLEAR: app does brokerage / TAXABLE; open question: is "nothing chosen" an approved capture default, or must the
-    // tax wrapper stay unknown (tenet 3)? DEC-2441 approved F-010's Roth 401(k) fix but no decision rules on null.
-    expect(wrapperAccount(null)).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' });
+    // SETTLED 2026-10-10 by DEC-4036f ("1 to 5 - Approved"): an account with no account type chosen is never assumed
+    // taxable — the wrapper stays unknown, and the account page says "tax type not stated" with a tap to choose
+    expect(wrapperAccount(null)).toStrictEqual({ kind: undefined, tax_bucket: undefined });
   });
 });
 
@@ -242,18 +246,17 @@ describe('MK-NW-F-012 taxTreatmentOf — five cases', () => {
   test('easy · Roth account tax-free', () => { expect(taxTreatmentOf(acct({ kind: 'brokerage', tax_bucket: 'ROTH' }))).toBe('tax_free'); });
   test('easy · Pre-tax account tax-deferred', () => { expect(taxTreatmentOf(acct({ kind: '401k', tax_bucket: 'PRE_TAX' }))).toBe('tax_deferred'); });
   test('complex · 529 with explicit taxable conflicts with fixed 529 rule', () => {
-    // UNCLEAR: app does 'taxable' (the stated treatment wins, src/domain/assets/index.ts:570) while MK-NW-F-108
-    // taxWordsOf prints 'tax-free for education' for the same account (index.ts:609); open question: may a 529 carry a
-    // stated 'taxable' treatment at all? DEC-3035c fixes the 529's WORDS only; DEC-2441 made the default tax-free.
-    expect(taxTreatmentOf(acct({ kind: 'college_529', tax_bucket: 'TAXABLE', tax_treatment: 'taxable' }))).toBe('taxable');
+    // SETTLED 2026-10-10 by DEC-4036d: a 529 is always tax-free for education whatever tax setting is stored, so the tax
+    // math agrees with MK-NW-F-108 taxWordsOf ('tax-free for education')
+    expect(taxTreatmentOf(acct({ kind: 'college_529', tax_bucket: 'TAXABLE', tax_treatment: 'taxable' }))).toBe('tax_free');
   });
   test('complex · HSA in Roth bucket tests owner-specific wording', () => {
-    // UNCLEAR: app does 'tax_free' (Roth-bucket fallback, index.ts:573) while taxWordsOf prints 'pre-tax — tax-free for
-    // medical costs' (index.ts:610); open question: can an HSA sit in the Roth bucket? DEC-2441 (KEPT) sorts an HSA
-    // with pre-tax by default; no decision covers a Roth-bucket HSA.
-    expect(taxTreatmentOf(acct({ kind: 'hsa', tax_bucket: 'ROTH' }))).toBe('tax_free');
+    // SETTLED 2026-10-10 by DEC-4036e: an HSA is always pre-tax going in and tax-free for medical costs, whatever bucket
+    // it is filed in — 'tax_deferred', the value the code uses for pre-tax, matching taxWordsOf's 'pre-tax — …'
+    expect(taxTreatmentOf(acct({ kind: 'hsa', tax_bucket: 'ROTH' }))).toBe('tax_deferred');
   });
-  test('edge · No treatment and no tax bucket', () => { expect(taxTreatmentOf(acct({ kind: 'unknown', tax_bucket: null }))).toBe('taxable'); });
+  // SETTLED 2026-10-10 by DEC-4036f: nothing stated is never assumed taxable
+  test('edge · No treatment and no tax bucket', () => { expect(taxTreatmentOf(acct({ kind: 'unknown', tax_bucket: null }))).toBe('not_stated'); });
 });
 
 describe('MK-NW-F-013 realEstateUseOf — five cases', () => {

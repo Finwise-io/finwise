@@ -367,9 +367,12 @@
   },
   "MK-CF-F-067": {
    "name": "rentalList",
-   "rule": "Each rental with rent or running costs above zero: long-term unless marked short-term, its monthly rent and its monthly running costs. With no list: the single typed rental, when its rent is above zero. Owner rule, 2026-10-10: each rent and running-cost figure is read only when it is a plain number (digits with at most one decimal point, allowing a leading dollar sign, thousands commas and spaces); a figure with letters or other text in it is not entered and counts as 0, never as the digits inside it.",
-   "read_from": "55a1eda47d",
-   "sent_as": "172e664839"
+   "rule": "Each rent entry that names its property (a property identifier that is not blank) with rent or running costs above zero: long-term unless marked short-term, its monthly rent and its monthly running costs. An entry that names no property is not counted (owner rule DEC-4059d, 2026-10-10). With no list of rent entries: nothing — the old single typed rent figure names no property, so it is not counted either. Owner rule, 2026-10-10: each rent and running-cost figure is read only when it is a plain number (digits with at most one decimal point, allowing a leading dollar sign, thousands commas and spaces); a figure with letters or other text in it is not entered and counts as 0, never as the digits inside it.",
+   "read_from": "f4121a9a9e",
+   "sent_as": "172e664839",
+   "figures_checked_by_hand": {
+    "4059": "not a figure: the number of the owner decision DEC-4059d (2026-10-10) that this rule follows"
+   }
   },
   "MK-CF-F-068": {
    "name": "rentalNetAnnual",
@@ -1207,9 +1210,12 @@
   },
   "MK-NW-F-002": {
    "name": "alternativesSummary",
-   "rule": "Over every account that holds alternatives, read from its class split (altPartsOf): count = how many such accounts; total = their alternatives parts added up — the same dollars as the Alternatives line; blended rate = each part × the yearly rate for its kind (the person's own rate for that kind first, else the benchmark), added up, ÷ total — no figure when the total is 0; growth in a year = total × blended rate, and no figure when nothing is held or the total is 0 ($0 would read as a forecast).",
-   "read_from": "14d5ec1f92",
-   "sent_as": "4eeda56b57"
+   "rule": "Over every account that holds alternatives, read from its class split (altPartsOf): count = how many such accounts; total = their alternatives parts added up, every part included — the same dollars as the Alternatives line; the parts no priced holding or option explains (asset type not classified) are added up on their own as the money not classified. Blended rate = each classified part × the yearly rate for its kind (the person's own rate for that kind first, else the benchmark), added up, ÷ the classified parts' total — no figure when that total is 0; growth in a year = the classified parts' total × blended rate, and no figure when it is 0 ($0 would read as a forecast). The rate and the growth leave the not-classified money out (DEC-4036h, 2026-10-10).",
+   "read_from": "3068e0458d",
+   "sent_as": "4eeda56b57",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036h (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-003": {
    "name": "valueFreshness",
@@ -1249,15 +1255,22 @@
   },
   "MK-NW-F-009": {
    "name": "maturityClass",
-   "rule": "Bonds & CDs when a maturity date is given; cash when none is. An empty or blank date counts as none. It does not look at whether the date has passed.",
-   "read_from": "79490b70d3",
-   "sent_as": "79490b70d3"
+   "rule": "Bonds & CDs when a maturity date is given that reads as a real calendar day — a full date (year-month-day), or a year and month alone, read as that month's first day; cash when none is. An empty or blank date counts as none, and so does a text that is not a real date (words such as 'tomorrow-ish', or a day that does not exist such as February 30) — owner rule DEC-4059b/c, 2026-10-10: dates are picked, never typed. It does not look at whether the date has passed.",
+   "read_from": "20fdb7ca71",
+   "sent_as": "79490b70d3",
+   "figures_checked_by_hand": {
+    "4059": "not a figure: the number of the owner decision DEC-4059b/c (2026-10-10) that this rule follows",
+    "30": "not a figure the function uses: February 30, an example of a day that does not exist (the function asks MK-NW-F-068 prettyDay, which checks the day against the days in that month)"
+   }
   },
   "MK-NW-F-010": {
    "name": "wrapperAccount",
-   "rule": "401(k) → kind 401(k), pre-tax. Traditional IRA → kind Traditional IRA, pre-tax. Roth IRA → kind Roth IRA, Roth. Roth 401(k) → kind 401(k), Roth. HSA → kind HSA, pre-tax. Anything else, or nothing chosen → kind brokerage, taxable.",
-   "read_from": "d3dc061aff",
-   "sent_as": "c4c48969ee"
+   "rule": "401(k) → kind 401(k), pre-tax. Traditional IRA → kind Traditional IRA, pre-tax. Roth IRA → kind Roth IRA, Roth. Roth 401(k) → kind 401(k), Roth. HSA → kind HSA, pre-tax. Taxable → kind brokerage, taxable. Nothing chosen, or a word not on this list → no kind and no tax type: never assumed taxable (DEC-4036f, 2026-10-10).",
+   "read_from": "5781d18d03",
+   "sent_as": "c4c48969ee",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036f (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-011": {
    "name": "assetClassOf",
@@ -1267,9 +1280,12 @@
   },
   "MK-NW-F-012": {
    "name": "taxTreatmentOf",
-   "rule": "The tax treatment stated on the account. Otherwise tax-free for a 529 (what it earns comes out untaxed when used for education). Otherwise tax-deferred for a pre-tax account — an HSA included: it goes in untaxed, and how it comes out depends on its use, which taxWordsOf says in words — tax-free for a Roth account, and taxable for anything else.",
-   "read_from": "c86cd5f888",
-   "sent_as": "ca7cbb9fb0"
+   "rule": "A 529 is tax-free whatever is stored (what it earns comes out untaxed when used for education; DEC-4036d, 2026-10-10). An HSA is tax-deferred — pre-tax going in — whatever bucket it is filed in (DEC-4036e, 2026-10-10). Otherwise the tax treatment stated on the account. Otherwise by its tax bucket — the one on the account when it is one of cash, pre-tax, Roth, taxable or property, else the bucket its kind carries when that bucket is not taxable — a kind whose catalogue bucket is taxable (crypto, a bond, a CD, a brokerage) says nothing about tax (DEC-4036f, 2026-10-10): no bucket at all → tax type not stated, never assumed taxable (DEC-4036f, 2026-10-10); pre-tax → tax-deferred; Roth → tax-free; anything else → taxable.",
+   "read_from": "419a7bc3d3",
+   "sent_as": "ca7cbb9fb0",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decisions DEC-4036d/e/f (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-013": {
    "name": "realEstateUseOf",
@@ -1345,9 +1361,12 @@
   },
   "MK-NW-F-025": {
    "name": "accountDisplayName",
-   "rule": "The kind word is wrapperWord for the account (401(k), Traditional IRA, Roth IRA, HSA, 529, Brokerage, Checking and so on; none for a kind that names contents, such as crypto, unless confirmed a brokerage). For a tax-advantaged account: where the kind says only Brokerage — or there is no kind and the last four digits are known — the word is Roth when the account is tax-free and 401(k) / IRA when it is tax-deferred; a 401(k) in the Roth bucket or tax-free is Roth 401(k). A tax-advantaged account always shows what it is. With an institution: a tax-advantaged account that has a word reads Institution + word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
-   "read_from": "686c444b7b",
-   "sent_as": "0509b9c53f"
+   "rule": "The kind word is wrapperWord for the account (401(k), Traditional IRA, Roth IRA, HSA, 529, Brokerage, Checking and so on; none for a kind that names contents, such as crypto, unless confirmed a brokerage). An account is tax-advantaged only when taxTreatmentOf says tax-deferred or tax-free — a tax type not stated is not (DEC-4036f, 2026-10-10). For a tax-advantaged account: where the kind says only Brokerage — or there is no kind and the last four digits are known — the word is Roth when the account is tax-free and 401(k) / IRA when it is tax-deferred; a 401(k) in the Roth bucket or tax-free is Roth 401(k). A tax-advantaged account always shows what it is. With an institution: a tax-advantaged account that has a word reads Institution + word + -last four (without the digits when unknown); otherwise with digits it reads Institution -last four; otherwise Institution + kind word. With none of those: the account's own name (an account named Imported holding with exactly one holding takes that holding's ticker or name), with the institution in front only if the name does not already contain it, and the mask at the end only if it is not already there.",
+   "read_from": "78b6ad6eb2",
+   "sent_as": "0509b9c53f",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036f (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-026": {
    "name": "accountDisplayNames",
@@ -1357,17 +1376,20 @@
   },
   "MK-NW-F-027": {
    "name": "accountClassBreakdown",
-   "rule": "LINKED ACCOUNT. Cash = its cash balance. Each holding with a price = shares × last price, filed under its class (holdingClassOf). Each option = its value as synced, under Alternatives (an option is valued when it is synced, at contracts × price per share × 100 — owner, 2026-08-26). If the parts come to less than the balance and one or more holdings have NO price: the whole difference is filed under the unpriced holdings' class when they share one, and under Unclassified when they span classes — never under cash. Otherwise, if the parts do not add up to the balance: a difference no bigger than the larger of $1 or 1% of the balance is added to cash when positive (owner rule, 2026-08-11), or taken off the largest class when negative; a bigger one is put under the account's own class (assetClassOf). ACCOUNT BUILT BY HAND (not a cash or property account): its cash = the uninvested cash it records, above zero, never more than the balance, when its balance is built from its records or it records cash. When its balance is built from its holdings, each holding is weighed at today's value — shares × the broker's price, else the value its balance was last built from, else what was paid — and the rest of the balance is shared out among the holdings' classes by those weights, so a T-bill is Bonds & CDs; if every holding is of the account's own class, the rest stays whole under that class. No answer when it records no cash and its holdings are all of its own class. ANY OTHER ACCOUNT — a typed balance, a bank account — gets no answer. The parts always add up to the balance.",
-   "read_from": "19f613c094",
+   "rule": "LINKED ACCOUNT. Cash = its cash balance. Each holding with a price = shares × last price, filed under its class (holdingClassOf). Each option = its value as synced, under Alternatives (an option is valued when it is synced, at contracts × price per share × 100 — owner, 2026-08-26). If the parts come to less than the balance and one or more holdings have NO price: the whole difference is filed under the unpriced holdings' class when they share one, and under Unclassified when they span classes — never under cash. Otherwise, if the parts do not add up to the balance: a difference no bigger than the larger of $1 or 1% of the balance is added to cash when positive (owner rule, 2026-08-11), or taken off the largest class when negative; a bigger one is put under the account's own class (assetClassOf). ACCOUNT BUILT BY HAND (not a cash or property account): when it records its own cash (or its balance is built from its records) and its balance is below zero, the whole balance is cash — overdrawn is negative cash: balance −$100 with a cash field of $50 is Cash −$100 (DEC-4036i, 2026-10-10). Otherwise its cash = the uninvested cash it records, above zero, never more than the balance, when its balance is built from its records or it records cash. When its balance is built from its holdings, each holding is weighed at today's value — shares × the broker's price, else the value its balance was last built from, else what was paid — and the rest of the balance is shared out among the holdings' classes by those weights, so a T-bill is Bonds & CDs; if every holding is of the account's own class, the rest stays whole under that class. No answer when it records no cash and its holdings are all of its own class. ANY OTHER ACCOUNT — a typed balance, a bank account — gets no answer. The parts always add up to the balance.",
+   "read_from": "8e7a20e320",
    "sent_as": "3977913591",
    "figures_checked_by_hand": {
-    "100": "the option contract size, applied where an option is synced (src/services/sync/snaptrade.ts: price × contracts × multiplier, multiplier 100) — owner ruling Q06, 2026-08-26. This function reads the value that results."
+    "100": "the option contract size, applied where an option is synced (src/services/sync/snaptrade.ts: price × contracts × multiplier, multiplier 100) — owner ruling Q06, 2026-08-26. This function reads the value that results.",
+    "4036": "not a figure: the number of the owner decision DEC-4036i (2026-10-10) that this rule follows",
+    "$50": "the ruling's own example (DEC-4036i): the cash field",
+    "$100": "the ruling's own example (DEC-4036i): an overdrawn balance"
    }
   },
   "MK-NW-F-028": {
    "name": "classPortionLabel",
-   "rule": "The words for one class inside one account, counting the holdings of that class (holdingClassOf — the same test the dollars beside the words were split by). Cash: cash in this account. Bonds: counts the holdings whose name has the whole word CD (or certificate of deposit), those whose name has the whole word Treasury (or Treas, UST, T-bill, T-note, T-bond, government — the broker's wording too), capitals ignored, and the rest as bonds; a count of one is singular (Treasuries for more than one), a count of zero is left out, two parts are joined with &, three as A, B & C — for example 3 CDs & 1 Treasury in this account, or 1 CD, 1 Treasury & 2 bonds in this account — or bonds & CDs in this account when none are listed. Stocks: N holdings in this account (1 holding), or stocks & funds in this account when none are listed. Alternatives: N options & N holdings in this account, each part left out when its count is zero (an option is one option position, however many contracts), or alternatives in this account. Any other class: unpriced portion of this account.",
-   "read_from": "4af0268c0d",
+   "rule": "The words for one class inside one account, counting the holdings of that class (holdingClassOf — the same test the dollars beside the words were split by). Cash: cash in this account. Bonds: counts the holdings whose name has the whole word CD (or certificate of deposit), those whose name has the whole word Treasury (or Treas, UST, T-bill, T-note, T-bond, government — the broker's wording too), capitals ignored, and the rest as bonds; a count of one is singular, any other count takes its plural from the one list of words (plural, the one list of words — his ruling of 2026-10-10 — Treasuries for more than one), a count of zero is left out, two parts are joined with &, three as A, B & C — for example 3 CDs & 1 Treasury in this account, or 1 CD, 1 Treasury & 2 bonds in this account — or bonds & CDs in this account when none are listed. Stocks: N holdings in this account (1 holding), or stocks & funds in this account when none are listed. Alternatives: N options & N holdings in this account, each part left out when its count is zero (an option is one option position, however many contracts), or alternatives in this account. Any other class: unpriced portion of this account.",
+   "read_from": "8e9a7abe42",
    "figures_checked_by_hand": {
     "3": "a count in the example label, not a figure of the formula"
    },
@@ -1387,9 +1409,12 @@
   },
   "MK-NW-F-031": {
    "name": "primaryCarIdOf",
-   "rule": "Among the accounts whose kind is vehicle, and no other: the one with the largest balance; a tie goes to the lower id read as text (the one made first). Nothing when there is no vehicle. Valuables and other personal property are never the car.",
-   "read_from": "06979e37d1",
-   "sent_as": "558fb0ed1a"
+   "rule": "Among the accounts whose kind is vehicle, and no other: the vehicles whose value is entered are the candidates — a vehicle with no value is not ranked as $0 (DEC-4036j, 2026-10-10); when none has a value, every vehicle is. Of the candidates, the one with the largest balance; a tie goes to the lower id read as text (the one made first). Nothing when there is no vehicle. Valuables and other personal property are never the car.",
+   "read_from": "1e8c1805ea",
+   "sent_as": "558fb0ed1a",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036j (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-032": {
    "name": "earmarkedAmount",
@@ -1441,9 +1466,12 @@
   },
   "MK-NW-F-040": {
    "name": "assetsFromOnboarding",
-   "rule": "Makes up to four accounts from the setup answers, skipping an answer left blank or below zero (a typed 0 is kept): traditional retirement savings → a pre-tax 401(k); Roth retirement savings → a Roth IRA; investment holdings → taxable stocks and funds; savings or portfolio → taxable stocks and funds. Each gets a target return of 7%.",
-   "read_from": "cf5ea1ede7",
-   "sent_as": "cf5ea1ede7"
+   "rule": "Makes up to four accounts from the setup answers, skipping an answer left blank or below zero (a typed 0 is kept): traditional retirement savings → a pre-tax 401(k); Roth retirement savings → a Roth IRA; investment holdings → taxable stocks and funds; each of those three gets a target return of 7%. Savings or portfolio → an Unclassified account with no kind, no tax type and a target return of 0, marked to be asked: Is this cash savings or investments? (DEC-4036g, 2026-10-10).",
+   "read_from": "aa15c2bc41",
+   "sent_as": "cf5ea1ede7",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036g (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-041": {
    "name": "monthlyContributionsFromOnboarding",
@@ -1476,9 +1504,12 @@
   },
   "MK-NW-F-046": {
    "name": "historyCoverage",
-   "rule": "Entered by hand: a sentence saying it has no activity records. Linked with no history start on record: a sentence saying none has been shared yet. History starting on or before the period's first day: nothing to say. Otherwise: months covered = the whole months from the history start to today plus the part month (days ÷ the days in that month), rounded DOWN to one decimal; the sentence is built from the whole months only and names the start date: N years when the whole months are an exact multiple of twelve and there is no part month, N years and a bit when there is, N years M months when twelve or more, N months when one or more, otherwise a few days. It never rounds up.",
-   "read_from": "8d54885dfa",
-   "sent_as": "7b1e1e5ad0"
+   "rule": "Entered by hand: a sentence saying it has no activity records. The history start is the person's own date when they entered one (DEC-4059c, 2026-10-10 — it outranks the date the sync read), otherwise the date the sync recorded. Linked with no history start on record: a sentence saying none has been shared yet. A history start that is not a real calendar date, or is after today: the refusal 'History start date cannot be read.' with no months figure and no start date — the screen offers 'Edit date' (owner rule DEC-4059c, 2026-10-10). History starting on or before the period's first day: nothing to say. Otherwise: months covered = the whole months from the history start to today plus the part month (days ÷ the days in that month), rounded DOWN to one decimal; the sentence is built from the whole months only and names the start date: N years when the whole months are an exact multiple of twelve and there is no part month, N years and a bit when there is, N years M months when twelve or more, N months when one or more, otherwise a few days. Year and month take their plural from the one list of words (plural, the one list of words — his ruling of 2026-10-10): 1 year, 1 month. It never rounds up.",
+   "read_from": "b5ddd68bc3",
+   "sent_as": "7b1e1e5ad0",
+   "figures_checked_by_hand": {
+    "4059": "not a figure: the number of the owner decision DEC-4059c (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-047": {
    "name": "uberGroupOf",
@@ -1512,8 +1543,8 @@
   },
   "MK-NW-F-052": {
    "name": "buildItemizedAccounts",
-   "rule": "Refused when any listed holding has no value — nothing is built, so the account stays as it was. Otherwise one account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket, and what the original carried — its retirement share, its source, and its wrapper kind when the original is a 401(k), IRA, Roth IRA, HSA or 529 (otherwise the kind for the class); balance = its value; class as given; its yearly rate = the benchmark for its class's kind (benchmarkReturn), never 0. A bond also carries its maturity date, its rate only when one was entered, and its face value only when the person entered one — never today's value in its place. What is still unallocated, when above zero, becomes one more account named institution + cash, with the same share, source and wrapper, at the cash-management benchmark rate.",
-   "read_from": "3996f7491f",
+   "rule": "Refused when any listed holding has no value (the refusal counts them with plural, the one list of words — his ruling of 2026-10-10) — nothing is built, so the account stays as it was. Otherwise one account for each listed holding: named by its label, else its ticker, else Holding; with the original's institution and tax bucket, and what the original carried — its retirement share, its source, and its wrapper kind when the original is a 401(k), IRA, Roth IRA, HSA or 529 (otherwise the kind for the class); balance = its value; class as given; its yearly rate = the benchmark for its class's kind (benchmarkReturn), never 0. A bond also carries its maturity date, its rate only when one was entered, and its face value only when the person entered one — never today's value in its place. What is still unallocated, when above zero, becomes one more account named institution + cash, with the same share, source and wrapper, at the cash-management benchmark rate.",
+   "read_from": "a2b56f9da8",
    "sent_as": "102a91ae82"
   },
   "MK-NW-F-053": {
@@ -1524,9 +1555,12 @@
   },
   "MK-NW-F-054": {
    "name": "reclassifyAccounts",
-   "rule": "For each account the person has NOT confirmed (an account they confirmed is left exactly as it is): if the person did not choose its class and correctClassOf gives a class different from the one it carries, it takes that class (a cash tax bucket becomes taxable unless the new class is cash). For each holding inside it: a holding the person classed, or one waiting on their answer, is left as it is; otherwise, when its ticker and name are evidence for a class other than cash and its stored tag means another class, it is stored under that class — bond for Bonds & CDs, other for Alternatives (Gold), stock_etf for Stocks / Funds. No evidence leaves it as it is. Returns the accounts and how many changes were made.",
-   "read_from": "a6d287108b",
-   "sent_as": "c48e5489ed"
+   "rule": "For each account the person has NOT confirmed (an account they confirmed is left exactly as it is): if the person did not choose its class and correctClassOf gives a class different from the one it carries, it takes that class (a cash tax bucket becomes no tax type stated unless the new class is cash — never taxable, DEC-4036f, 2026-10-10). For each holding inside it: a holding the person classed, or one waiting on their answer, is left as it is; otherwise, when its ticker and name are evidence for a class other than cash and its stored tag means another class, it is stored under that class — bond for Bonds & CDs, other for Alternatives (Gold), stock_etf for Stocks / Funds. No evidence leaves it as it is. Returns the accounts and how many changes were made.",
+   "read_from": "01f61d4f8d",
+   "sent_as": "c48e5489ed",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036f (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-055": {
    "name": "isBond",
@@ -1536,11 +1570,12 @@
   },
   "MK-NW-F-056": {
    "name": "bondInfo",
-   "rule": "Reads a bond's facts off its account: face value (not entered when missing or zero or less), yearly rate (not entered when missing; a typed zero is kept), maturity date, value (the balance), accrued interest (not entered when missing), whether it is a CD — its kind is a CD, or its name or institution says CD or certificate of deposit — and where a CD was bought: through a broker only when the person said so, otherwise from the bank (DEC-3837, 2026-10-10).",
-   "read_from": "affd6e7d48",
+   "rule": "Reads a bond's facts off its account: face value (not entered when missing or zero or less), yearly rate (not entered when missing; a typed zero is kept), maturity date, value (the balance), accrued interest (not entered when missing), whether it is a CD — its kind is a CD, or its own name says CD or certificate of deposit; its institution is never read for this (DEC-4036c, 2026-10-10) — and where a CD was bought: through a broker only when the person said so, otherwise from the bank (DEC-3837, 2026-10-10).",
+   "read_from": "b7afeba505",
    "sent_as": "5a6cacedd3",
    "figures_checked_by_hand": {
-    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows",
+    "4036": "not a figure: the number of the owner decision DEC-4036c (2026-10-10) that this rule follows"
    }
   },
   "MK-NW-F-057": {
@@ -1616,8 +1651,8 @@
   },
   "MK-NW-F-067": {
    "name": "plural",
-   "rule": "The count followed by the noun: the singular for exactly 1, otherwise the plural (the noun with s unless another plural is given).",
-   "read_from": "34baa1b4c1",
+   "rule": "The count followed by the noun: the noun for exactly 1, otherwise its plural from the one list of words the app counts in words, PLURAL_WORDS (his ruling, 2026-10-10) — Treasury → Treasuries, property → properties, every other word on it adds s; zero takes the plural. The count is written as the caller gives it (a formatted figure or a number word) when one is given, otherwise the number. A word not on the list is refused (an error) in tests and development, never given a guessed s; a release build writes the word unchanged.",
+   "read_from": "0c819a6f4b",
    "sent_as": "34baa1b4c1"
   },
   "MK-NW-F-068": {
@@ -1634,15 +1669,18 @@
   },
   "MK-NW-F-070": {
    "name": "accruedInterestCaveat",
-   "rule": "When accrued interest was not entered and estimatedAccrued gives an estimate (a bond or a CD bought through a broker that pays interest, not a CD bought from the bank, not matured, not on a coupon day): his words — Added estimated $<the estimate, whole dollars> in accrued interest to bond value at <the rate>% coupon for <days> days to calculate YTM. If this is not accurate, enter actual accrued interest. Otherwise nothing.",
-   "read_from": "89f4a4a446",
+   "rule": "When accrued interest was not entered and estimatedAccrued gives an estimate (a bond or a CD bought through a broker that pays interest, not a CD bought from the bank, not matured, not on a coupon day): his words — Added estimated $<the estimate, whole dollars> in accrued interest to bond value at <the rate>% coupon for <days> days (1 day for one; the plural from plural, the one list of words — his ruling of 2026-10-10) to calculate YTM. If this is not accurate, enter actual accrued interest. Otherwise nothing.",
+   "read_from": "5636bb935a",
    "sent_as": "843f845929"
   },
   "MK-NW-F-071": {
    "name": "isCertificateOfDeposit",
-   "rule": "True when bondInfo says the account is a CD: its kind is a CD, or its name or its institution contains the whole word CD, or the words certificate of deposit, in any capitals.",
+   "rule": "True when bondInfo says the account is a CD: its kind is a CD, or its own name contains the whole word CD, or the words certificate of deposit, in any capitals. The institution's name is never read: a brokerage account at CD Capital is not a CD (DEC-4036c, 2026-10-10).",
    "read_from": "bb46fb69e9",
-   "sent_as": "543f37b88f"
+   "sent_as": "543f37b88f",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036c (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-072": {
    "name": "rowOf",
@@ -1723,15 +1761,18 @@
   },
   "MK-NW-O-004": {
    "name": "theEmergencyFund",
-   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" Debt minimums = the MINIMUM monthly payment of every debt added up — the home's mortgage included; a balance due in one lump has none. A payment a person chooses to make above the minimum is not counted: it can be stopped. The budget is read as it is counted (theBudgetCounted): where the home's mortgage is in Debts, the Rent / Mortgage budget line is counted as nothing, and the screen is given a sentence saying so. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. Left out of that average, so nothing is counted twice: a payment logged against a debt that is entered (an expense in the category Debt payment, named for that debt), and, where the home's mortgage is in Debts, anything logged under Rent / Mortgage. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A target, and the months left after a shock, are given only when there is an essentials figure. Rent not known, owner rule 2026-10-10 (instead of showing nothing, the card says the months are counted with the rent not included, and asks for the rent): the answer also says whether a property's rent is not known. It is not known only when the household holds a property that is not the home (home, rental and second home read by the owner's property-use rule of 2026-10-04) AND one of these holds: a rent entry's rent figure is blank or not a plain number; with no list of rent entries, the single typed rent figure is typed but is not a plain number; the rent entries are stored in a shape that is not a list; or with no rent entries stored at all, a property is kept as a rental. A property with no rent entry when rent entries are stored is a second home, not a missing rent. A household with no property other than the home is never flagged. The months covered are still given, counted without the unknown rent.",
-   "read_from": "af49429f9a",
+   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" Debt minimums = the MINIMUM monthly payment of every debt added up — the home's mortgage included; a balance due in one lump has none. A payment a person chooses to make above the minimum is not counted: it can be stopped. The budget is read as it is counted (theBudgetCounted): where the home's mortgage is in Debts, the Rent / Mortgage budget line is counted as nothing, and the screen is given a sentence saying so. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. Left out of that average, so nothing is counted twice: a payment logged against a debt that is entered (an expense in the category Debt payment, named for that debt), and, where the home's mortgage is in Debts, anything logged under Rent / Mortgage. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A target, and the months left after a shock, are given only when there is an essentials figure. Rent not known, owner rule 2026-10-10 (instead of showing nothing, the card says the months are counted with the rent not included, and asks for the rent): the answer also says whether a property's rent is not known. It is not known only when the household holds a property that is not the home (home, rental and second home read by the owner's property-use rule of 2026-10-04) AND one of these holds: a rent entry's rent figure is blank or not a plain number, or the entry names no property (it is not counted as rent, owner rule DEC-4059d, 2026-10-10); with no list of rent entries, the single typed rent figure is typed at all (it names no property, so it is not counted, DEC-4059d); the rent entries are stored in a shape that is not a list; or with no rent entries stored at all, a property is kept as a rental. A property with no rent entry when rent entries are stored is a second home, not a missing rent. A household with no property other than the home is never flagged. The months covered are still given, counted without the unknown rent.",
+   "read_from": "74e21c26cf",
    "sent_as": "aca43cd91b"
   },
   "MK-NW-O-005": {
    "name": "theAlternativesOutlook",
-   "rule": "Count, total value and blended rate come from alternativesSummary: over every account that holds alternatives, its alternatives part (altPartsOf) — the same dollars the Net worth tab's Alternatives line counts. Blended rate: no figure when nothing is held. Growth in a year = total value × blended rate, given only when there is at least one such account and the total is above zero; otherwise no figure. Rows = each account that holds alternatives, at its alternatives part, with the yearly rate of its parts weighed by value; for an account that is not itself an alternative (a brokerage holding a bitcoin fund or options), the row also says which part of it this is (classPortionLabel for Alternatives). The rows add up to the total.",
-   "read_from": "61f1b66e4a",
-   "sent_as": "d0fb7728cb"
+   "rule": "Count, total value and blended rate come from alternativesSummary: over every account that holds alternatives, its alternatives part (altPartsOf) — the same dollars the Net worth tab's Alternatives line counts. Blended rate: over the classified parts only; no figure when nothing classified is held. Growth in a year = alternativesSummary's growth (the classified parts × blended rate), given only when there is at least one such account and the total is above zero; otherwise no figure. Money not classified = the parts no priced holding or option explains; when it is not 0 the summary says: Expected return and growth leave out <amount> asset type not classified. Rows = each account that holds alternatives, at its alternatives part, with the yearly rate of its classified parts weighed by value (no rate when none of it is classified) and its not-classified money; for an account that is not itself an alternative (a brokerage holding a bitcoin fund or options), the row also says which part of it this is (classPortionLabel for Alternatives). The rows add up to the total (DEC-4036h, 2026-10-10).",
+   "read_from": "e86da623f6",
+   "sent_as": "d0fb7728cb",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036h (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-O-006": {
    "name": "theHolding",
@@ -1935,8 +1976,8 @@
   },
   "MK-CF-O-019": {
    "name": "theIncomeManager",
-   "rule": "Takes the ten sources in the picker's order — a job, self-employment, rent, interest and dividends, retirement income, benefits, support, scholarships, student loans, something else — gives each one figure, and splits them into entered (a figure above zero) and not entered. A job: the household's monthly take-home (basePay) over the earners who have a wage, named after those earners, and marked as calculated when any part of it is. Self-employment: the amount as entered, per month or per year. Rent: rent after running costs for the year (rentalNetAnnual) ÷ 12, per month, with how many properties. Interest and dividends: the yearly amount, marked reinvested or paid to the bank. Retirement income: the monthly total (retirementIncomeMonthly). Benefits: the monthly benefit, saying how many months when fewer than 12. Support: the monthly amount. Scholarships: monthly ones × 12 plus yearly ones, per year. Student loans: each loan × the number of months it arrives in (1 when it names none), per year. Something else: the amount as entered — per month, per year or one-time. Bonus and stock, only when there is a job: the yearly bonus + the stock that vests in a year (rsuAnnual), and the month the bonus is paid (December when none is set).",
-   "read_from": "9616a8a545"
+   "rule": "Takes the ten sources in the picker's order — a job, self-employment, rent, interest and dividends, retirement income, benefits, support, scholarships, student loans, something else — gives each one figure, and splits them into entered (a figure above zero) and not entered. A job: the household's monthly take-home (basePay) over the earners who have a wage, named after those earners, and marked as calculated when any part of it is. Self-employment: the amount as entered, per month or per year. Rent: rent after running costs for the year (rentalNetAnnual) ÷ 12, per month, with how many properties (1 property; the plural from plural, the one list of words — his ruling of 2026-10-10). Interest and dividends: the yearly amount, marked reinvested or paid to the bank. Retirement income: the monthly total (retirementIncomeMonthly). Benefits: the monthly benefit, saying how many months when fewer than 12. Support: the monthly amount. Scholarships: monthly ones × 12 plus yearly ones, per year. Student loans: each loan × the number of months it arrives in (1 when it names none), per year. Something else: the amount as entered — per month, per year or one-time. Bonus and stock, only when there is a job: the yearly bonus + the stock that vests in a year (rsuAnnual), and the month the bonus is paid (December when none is set).",
+   "read_from": "1371e7a6dc"
   },
   "MK-NW-F-105": {
    "name": "whyNoReturn",
@@ -1970,9 +2011,12 @@
   },
   "MK-NW-F-108": {
    "name": "taxWordsOf",
-   "rule": "The words for how an account is taxed, shown on its page. A 529 always reads tax-free for education; an HSA always reads pre-tax — tax-free for medical costs, whatever treatment is stated. Otherwise by its treatment (taxTreatmentOf): tax-deferred reads pre-tax — taxed when it comes out; tax-free reads tax-free (Roth) for an account in the Roth bucket and tax-free for any other; taxable reads taxable.",
-   "read_from": "1d87707b67",
-   "sent_as": ""
+   "rule": "The words for how an account is taxed, shown on its page. A 529 always reads tax-free for education; an HSA always reads pre-tax — tax-free for medical costs, whatever treatment is stated. Otherwise by its treatment (taxTreatmentOf): tax type not stated reads tax type not stated (DEC-4036f, 2026-10-10); tax-deferred reads pre-tax — taxed when it comes out; tax-free reads tax-free (Roth) for an account in the Roth bucket and tax-free for any other; taxable reads taxable.",
+   "read_from": "f966362036",
+   "sent_as": "",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036f (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-109": {
    "name": "holdingClassOf",
@@ -1998,8 +2042,11 @@
   },
   "MK-NW-F-113": {
    "name": "altPartsOf",
-   "rule": "The alternatives inside one account, each with the kind its yearly rate is read from. An account that is itself an alternative: its alternatives part of the class split (or its whole balance when it has no split), at its own kind. Any other account: each option at its synced value, kind options; each holding classed as an alternative with a price, shares × price, kind crypto when its name says bitcoin, ethereum or crypto, commodities when it says gold, silver, platinum, palladium or commodity, otherwise other; and whatever of the account's alternatives part is left, kind other. Nothing when the account holds no alternatives.",
-   "read_from": "d0d2234457"
+   "rule": "The alternatives inside one account, each with the kind its yearly rate is read from. An account that is itself an alternative: its alternatives part of the class split (or its whole balance when it has no split), at its own kind. Any other account: each option at its synced value, kind options; each holding classed as an alternative with a price, shares × price, kind crypto when its name says bitcoin, ethereum or crypto, commodities when it says gold, silver, platinum, palladium or commodity, otherwise other; and whatever of the account's alternatives part is left (more than half a cent either way) is a part with no kind, marked asset type not classified — never other, and given no rate (DEC-4036h, 2026-10-10). Nothing when the account holds no alternatives.",
+   "read_from": "013fcae7e0",
+   "figures_checked_by_hand": {
+    "4036": "not a figure: the number of the owner decision DEC-4036h (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-114": {
    "name": "rentAmount",
@@ -2008,8 +2055,11 @@
   },
   "MK-NW-F-115": {
    "name": "liveRent",
-   "rule": "The rent entries whose rent coming in or costs going out is above zero.",
-   "read_from": "23cdba9715"
+   "rule": "The rent entries that name their property (a property identifier that is not blank) and whose rent coming in or costs going out is above zero. An entry that names no property is not rent and is left out, whatever its figures (owner rule DEC-4059d, 2026-10-10).",
+   "read_from": "7fbb51027c",
+   "figures_checked_by_hand": {
+    "4059": "not a figure: the number of the owner decision DEC-4059d (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-116": {
    "name": "rentedIdsOf",
@@ -2018,8 +2068,11 @@
   },
   "MK-NW-F-117": {
    "name": "propertyUseMap",
-   "rule": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all (unknown, not none) — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no other use stated (a stored 'rental' word does not count here), the one entered first (last in the list) that is not stored as a rental is home — a property stored as a rental is never made the home this way. Every other property is a second home, except that when a rent entry names no property and exactly one other property remains, that one is a rental.",
-   "read_from": "4c1584eeb8"
+   "rule": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all (unknown, not none) — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no other use stated (a stored 'rental' word does not count here), the one entered first (last in the list) that is not stored as a rental is home — a property stored as a rental is never made the home this way. Every other property is a second home. A rent entry that names no property makes no property a rental (owner rule DEC-4059d, 2026-10-10 — it used to make the one other property a rental when exactly one remained).",
+   "read_from": "e534c8c425",
+   "figures_checked_by_hand": {
+    "4059": "not a figure: the number of the owner decision DEC-4059d (2026-10-10) that this rule follows"
+   }
   },
   "MK-NW-F-118": {
    "name": "itemizeMissingCount",
@@ -2051,8 +2104,12 @@
   },
   "MK-NW-F-120": {
    "name": "classEvidenceOf",
-   "rule": "What an account's own facts say its class is, before its kind is looked at. Any maturity date makes it Bonds & CDs. Otherwise a property — a home, real estate, a vehicle, or anything in the property group — gives nothing, because its name is a place, not evidence. Otherwise what its name is evidence for, or nothing.",
-   "read_from": "79f377f5f0"
+   "rule": "What an account's own facts say its class is, before its kind is looked at. A maturity date that reads as a real date (the same reading as MK-NW-F-009 maturityClass: a text that is not a real date counts as no date, DEC-4059b/c, 2026-10-10) makes it Bonds & CDs. Otherwise a property — a home, real estate, a vehicle, or anything in the property group — gives nothing, because its name is a place, not evidence. Otherwise what its name is evidence for, or nothing.",
+   "read_from": "3f947da8ec",
+   "figures_checked_by_hand": {
+    "4059": "not a figure: the number of the owner decision DEC-4059b/c (2026-10-10) that this rule follows",
+    "009": "not a figure: the identifier MK-NW-F-009 of maturityClass, which this function asks"
+   }
   },
   "MK-NW-F-121": {
    "name": "holdingTagClass",
@@ -2114,6 +2171,36 @@
    "rule": "Sorts a household's records, for the accounts being measured, into money moving in or out, interest, and days shares were moved. Each record's date is its first ten characters; a missing or unreadable amount counts as zero. A deposit on a measured account is money in (plus its amount); a withdrawal on one is money out (minus its amount) — the sign comes from the kind of record, so a withdrawal written as a negative amount becomes money in. A transfer is money out of its first account when that account is measured, and money into its second account when that one is measured, so a transfer between two measured accounts appears as both. Shares moved (a transfer in kind): nothing when both accounts named are measured, or neither is, or when only one account is named and it is not measured. Otherwise it is money into or out of the measured account at what the shares were worth — the record's amount when above zero, else shares × price: in when they arrive in the measured account (or, with one account named, when the record says in), out when they leave (or the record says out). When the direction is neither in nor out, or the worth is not above zero, the day goes on the list of days shares were moved instead. Interest on a measured account that was not reinvested is interest (plus its amount). Every other kind of record is ignored.",
    "read_from": "711173346f",
    "sent_as": ""
+  },
+  "MK-NW-F-132": {
+   "name": "notClassifiedWords",
+   "rule": "The words for money in an alternatives part that no priced holding explains: the amount as money, then \"asset type not classified\".",
+   "read_from": "e991c66e12"
+  },
+  "MK-NW-F-133": {
+   "name": "valueEntered",
+   "rule": "Yes when the account has a balance that is a real number; no when its balance is missing or not a number.",
+   "read_from": "5cd41aa332"
+  },
+  "MK-NW-F-134": {
+   "name": "carValueNotEnteredNotes",
+   "rule": "For each vehicle whose value is not entered and that was not picked as the car you drive: its shown name (else its label, else its institution, else \"A vehicle\") followed by \"'s value not entered — it may be the car you drive.\"",
+   "read_from": "df0ad34302"
+  },
+  "MK-NW-F-135": {
+   "name": "earmarkLeavesOut",
+   "rule": "The accounts the retirement money leaves out because their value is not entered while their retirement share is above zero (the share saved, else the share it would have by default), each by its shown name, else its label, else its institution, else \"An account\".",
+   "read_from": "47c69895b1"
+  },
+  "MK-NW-F-136": {
+   "name": "earmarkLeavesOutWords",
+   "rule": "The words under the retirement money: \"leaves out <names, joined by commas> — Value not entered\" when any account is left out; nothing when none is.",
+   "read_from": "0516e4f978"
+  },
+  "MK-NW-F-137": {
+   "name": "asksCashOrInvestments",
+   "rule": "Yes when the account is marked to be asked whether it is cash or investments and it is still Unclassified; no otherwise.",
+   "read_from": "939febd3d9"
   }
  },
  "pack_sent": {

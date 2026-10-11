@@ -231,7 +231,7 @@ export function ingestSync(
       snaptrade_account_id: st.id,
       // the wrapper: keep a USER-confirmed wrapper forever; otherwise take the mapping's guess
       kind: prior?.wrapper_confirmed ? prior.kind : guess.kind,
-      tax_bucket: prior?.wrapper_confirmed ? prior.tax_bucket : guess.tax_bucket,
+      tax_bucket: prior?.wrapper_confirmed ? prior.tax_bucket : guess.tax_bucket as AssetAccount['tax_bucket'],   // undefined = not stated (DEC-4036f, 2026-10-10)
       target_return: prior?.target_return ?? 0.08,   // benchmark default for a brokerage; refined by class later
       // THE AUTHORITY RULE: balance = the broker's own total (includes options + money market).
       // B47 finding 3 (Vanguard): some brokers report NO usable total while the positions carry the
@@ -269,6 +269,9 @@ export function ingestSync(
       // Depth only ever deepens — a later shallow page can't shorten it (mergeHistoryFrom).
       history_from: mergeHistoryFrom(prior?.history_from,
         (p.activities ?? []).map((act: any) => act.trade_date ?? act.settlement_date ?? null)),
+      // THE PERSON'S HISTORY START DATE IS NEVER OVERWRITTEN BY A SYNC (DEC-4059c, 2026-10-10; tenet 5, the person's
+      // word outranks the app): the date they entered from "Edit date" is carried over exactly as they left it.
+      ...(prior?.history_start_override ? { history_start_override: prior.history_start_override } : {}),
       // E11 ASSERTION 1 — holdings + options + the cash sleeve vs the broker's own stated total.
       // Exact: a mismatch is a NAMED difference stored on the account, never a tolerance.
       recon_break: (() => {

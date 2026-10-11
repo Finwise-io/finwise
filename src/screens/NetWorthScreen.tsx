@@ -1,5 +1,6 @@
 // Net Worth = Assets − Debts. Also the capture surface: every bucket is a section you fill in
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, RefreshControl, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -25,7 +26,7 @@ import { trendPoints, buildChangeWalk } from '../domain/history';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup, uberGroupOf } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup, uberGroupOf, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, TAX_TYPE_NOT_STATED } from '../domain/assets';
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
 // their own net worth; they read one answer now.
@@ -49,6 +50,7 @@ import { DotJoined } from '../components/SepDot';
 import { SourceChip } from '../components/SourceChip';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor
 import { isoLocalDate } from '../domain/_shared/dates';
+import { DateField } from '../components/DateField';   // (DEC-4059b, 2026-10-10) bond and CD dates are picked, never typed
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -74,7 +76,9 @@ const WRAPPER_CLASS_CHOICES: { key: AssetClass | 'auto'; label: string }[] = [
 ];
 const SECTION_ICON: Record<string, string> = { Cash: '💵', Investments: '📈', Retirement: '🏛️', Property: '🏠' };
 const CLASS_ICON: Record<AssetClass, string> = { cash: '💵', stocks_etf: '📈', bonds: '📜', alternatives: '🪙', real_estate: '🏠', personal_property: '🚗', mixed: '🧩' };
-const bucketSection = (b: TaxBucket) => (b === 'CASH' ? 'Cash' : b === 'PROPERTY' ? 'Property' : b === 'TAXABLE' ? 'Investments' : 'Retirement');
+// no tax type stated is not Retirement: only a PRE_TAX or ROTH bucket says retirement (DEC-4036f, 2026-10-10); an
+// account with none (the old sign-up answer "savings or portfolio", DEC-4036g) sits with Investments, Unclassified
+const bucketSection = (b: TaxBucket | undefined) => (b === 'CASH' ? 'Cash' : b === 'PROPERTY' ? 'Property' : b === 'PRE_TAX' || b === 'ROTH' ? 'Retirement' : 'Investments');
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? bucketSection(a.tax_bucket);
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // B-21: an asset can be saved at $0 (placeholder), but the amount field must be filled in — a typed
@@ -315,9 +319,9 @@ export default function NetWorthScreen() {
   // INVESTMENTS · 2 categories, PERSONAL PROPERTY · 1 item. It names what is really behind the bar.
   const collapsedCount = (g: { group: UberGroup; label: string; classes: { key: AssetClass; label: string }[] }) => {
     const accounts = g.classes.reduce((t, c) => t + membersOf(c.key), 0);
-    if (g.group === 'property') return `${accounts} item${accounts === 1 ? '' : 's'}`;
+    if (g.group === 'property') return plural(accounts, 'item');
     if (g.classes.length > 1) return `${g.classes.length} categories`;
-    return `${accounts} account${accounts === 1 ? '' : 's'}`;
+    return plural(accounts, 'account');
   };
 
   const renderClassRow = (r: { key: AssetClass; label: string; color: string; total: number }, i: number, hideHeader = false) => {
@@ -343,7 +347,7 @@ export default function NetWorthScreen() {
             already said it. A single same-named class renders its accounts directly. */}
         {!hideHeader && <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button"
           onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
-          accessibilityLabel={`${r.label}, ${(r as any).unvalued ? 'value not entered' : figSaid('MK-NW-M-007', Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
+          accessibilityLabel={`${r.label}, ${(r as any).unvalued ? 'value not entered' : figSaid('MK-NW-M-007', Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${plural(members.length, 'account')}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
           <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
           <View style={[styles.dot, { backgroundColor: r.color }]} />
           <View style={{ flex: 1 }}>
@@ -362,6 +366,8 @@ export default function NetWorthScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
               {split && <Text style={styles.acctRowSub}>{classPortionLabel(a, r.key)}</Text>}
+              {/* the old sign-up answer "savings or portfolio" is asked about in its own words (DEC-4036g, 2026-10-10) */}
+              {!split && asksCashOrInvestments(a) && <Text style={styles.acctRowSub}>{CASH_OR_INVESTMENTS_ASK} Tap to say.</Text>}
               <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
             </View>
             <Text style={styles.acctRowVal}>{portion == null ? figWords('MK-NW-M-008', 'Value not entered') : fig('MK-NW-M-008', Math.round(portion))}</Text>
@@ -481,7 +487,9 @@ export default function NetWorthScreen() {
                   const base = invGroup === 'type' ? (a.institution?.trim() || '') : (assetClassOf(a) === 'mixed' ? '' : classLabel(a));
                   const t = withTickers(a, base);
                   // NW-15: an Unclassified account has no holdings set — invite a tap to classify it.
-                  const sub0 = assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what\'s inside') : t;
+                  // the old sign-up answer "savings or portfolio" is asked about in its own words (DEC-4036g, 2026-10-10)
+                  const sub0 = asksCashOrInvestments(a) ? `${CASH_OR_INVESTMENTS_ASK} Tap to say.`
+                    : assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what\'s inside') : t;
                   // by class, an account in several classes shows only its part here, and says which part
                   const part = amountOf[g]?.get(String(a.asset_id)) ?? (a.balance || 0);
                   const isPart = invGroup === 'type' && Math.abs(part - (a.balance || 0)) > 0.005;
@@ -502,7 +510,8 @@ export default function NetWorthScreen() {
         <View style={styles.card}>
           {rows.length === 0
             ? <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add a ${secLabel(sec)} account`} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.empty}>Add a {sec.toLowerCase()} account →</Text></TouchableOpacity>
-            : rows.map((a, i) => assetRow(a, i, a.label, `${assetKind(a.kind)?.label ?? a.tax_bucket}${a.institution ? ` · ${a.institution}` : ''}`))}
+            : rows.map((a, i) => assetRow(a, i, a.label, asksCashOrInvestments(a) ? `${CASH_OR_INVESTMENTS_ASK} Tap to say.`   // (DEC-4036g, 2026-10-10)
+              : `${assetKind(a.kind)?.label ?? a.tax_bucket ?? TAX_TYPE_NOT_STATED}${a.institution ? ` · ${a.institution}` : ''}`))}
         </View>
       </View>
     );
@@ -884,7 +893,7 @@ export default function NetWorthScreen() {
             return [...groups.entries()].sort((x, y) => y[1].total - x[1].total).map(([label, g]) => {
               const open = openInst[label] !== false;
               const n = g.members.length;
-              const count = `${n} account${n === 1 ? '' : 's'}`;
+              const count = plural(n, 'account');
               return (
                 <View key={label}>
                   <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
@@ -1135,6 +1144,8 @@ const WRAPPER_OPTS: { key: AddWrapper; label: string }[] = [
   { key: 'taxable', label: 'Taxable' }, { key: '401k', label: '401(k)' },
   { key: 'trad_ira', label: 'Trad. IRA' }, { key: 'roth', label: 'Roth IRA' }, { key: 'roth_401k', label: 'Roth 401(k)' }, { key: 'hsa', label: 'HSA' },
 ];
+/** The day a maturity picker opens on when no date is chosen yet: January 1, ten years out — the Bonds editor's and Add an account's (DEC-4059b, 2026-10-10). */
+const TEN_YEARS_OUT = () => isoLocalDate(new Date(new Date().getFullYear() + 10, 0, 1));
 const RET_OPTS: { key: AddWrapper; label: string }[] = WRAPPER_OPTS.filter((w) => w.key !== 'taxable');
 const CASH_OPTS = ['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt', 'foreign_currency'];
 // Founder 2026-08-04: PE/HF out of phase 1 (keep it simple) — the kinds stay in the data model,
@@ -1151,13 +1162,16 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   const editing = state.edit;
   const [step, setStep] = useState<AddStep>('pick');
   const [sub, setSub] = useState('');                              // cash kind / alt kind / property kind
-  const [wrapper, setWrapper] = useState<AddWrapper>('taxable');
+  // NO HELD-IN CHIP IS CHOSEN FOR THE PERSON (DEC-4036f, 2026-10-10): "An account with no account type chosen is
+  // never assumed taxable." Taxable used to be preselected — a default that looked like an answer. Nothing is
+  // chosen until they tap; saved untapped, the account has no tax type (MK-NW-F-010 wrapperAccount(null)).
+  const [wrapper, setWrapper] = useState<AddWrapper | null>(null);
   const [inside, setInside] = useState<AssetClass | 'mixed'>('mixed');
   const [maturity, setMaturity] = useState(''); const [inst, setInst] = useState(''); const [bal, setBal] = useState('');
 
   useEffect(() => {
     if (!state.open) return;
-    setSub(''); setWrapper('taxable'); setMaturity(editing?.maturity_date ?? '');
+    setSub(''); setWrapper(null); setMaturity(editing?.maturity_date ?? '');   // (DEC-4036f, 2026-10-10)
     if (editing) {
       setStep('edit'); setInst(editing.institution ?? ''); setBal(String(editing.balance));
       setInside((editing.asset_class as AssetClass) ?? 'mixed');
@@ -1165,7 +1179,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       // NW-12: a section's "+ Add" jumps straight to that section's form (the cash/retirement forms have a
       // "‹ Back" to the full picker). Investments & Property hold a mix → start at the class picker.
       const initial: AddStep = state.section === 'Cash' ? 'cash' : state.section === 'Retirement' ? 'retirement' : 'pick';
-      if (initial === 'cash') setSub('checking'); else if (initial === 'retirement') setWrapper('401k');
+      if (initial === 'cash') setSub('checking');   // a retirement account's kind is the person's tap, never 401(k) for them (DEC-4036f, 2026-10-10)
       setStep(initial); setInside('mixed'); setInst(''); setBal('');
     }
   }, [state.open]);
@@ -1173,16 +1187,20 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   const v = num(bal);
   const choose = (key: AddStep) => {
     if (key === 'cash') setSub('checking'); else if (key === 'alts') setSub('crypto');
-    else if (key === 'property') setSub('vehicle'); else if (key === 'retirement') setWrapper('401k');
+    else if (key === 'property') setSub('vehicle');   // no retirement kind preselected (DEC-4036f, 2026-10-10)
     setStep(key);
   };
   const lbl = (fallback: string) => inst.trim() || fallback;
+  // a retirement account says which kind it is by the person's tap — nothing is chosen for them (DEC-4036f, 2026-10-10)
+  const needsKind = step === 'retirement' && !wrapper;
   const save = () => {
+    if (needsKind) return;
     let patch: Partial<AssetAccount> = { institution: inst.trim(), balance: v };
     if (step === 'cash') {
       // founder rule 2026-08-04: CDs → Bonds & CDs (any maturity) · money market → Stocks/ETFs · cash = cash only
       const cls: AssetClass = sub === 'cd' ? 'bonds' : sub === 'money_market' ? 'stocks_etf' : 'cash';
-      patch = { ...patch, asset_class: cls, kind: cls === 'bonds' ? 'fixed_income' : sub, tax_bucket: cls === 'cash' ? 'CASH' : 'TAXABLE', maturity_date: maturity || undefined, label: lbl(assetKind(sub)?.label ?? 'Cash') };
+      // a CD or money market fund picked here is asked no tax type, so it has none — never Taxable (DEC-4036f, 2026-10-10)
+      patch = { ...patch, asset_class: cls, kind: cls === 'bonds' ? 'fixed_income' : sub, tax_bucket: cls === 'cash' ? 'CASH' : undefined, maturity_date: maturity || undefined, label: lbl(assetKind(sub)?.label ?? 'Cash') };
     } else if (step === 'stocks' || step === 'bonds') {
       const wa = wrapperAccount(wrapper);
       patch = { ...patch, asset_class: step === 'stocks' ? 'stocks_etf' : 'bonds', kind: wa.kind, tax_bucket: wa.tax_bucket, label: lbl(step === 'stocks' ? 'Stocks / Funds' : 'Bonds') };
@@ -1199,12 +1217,14 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
     } else if (step === 'brokerage') {
       patch = { ...patch, asset_class: undefined, kind: 'brokerage', tax_bucket: 'TAXABLE', label: lbl('Brokerage') };
     } else if (step === 'quick') {
-      patch = { ...patch, asset_class: 'mixed', kind: 'brokerage', tax_bucket: 'TAXABLE', label: inst.trim() || 'Account' };   // Unclassified — user sorts it later
+      // Unclassified — user sorts it later. QUICK ADD ASKS NO TAX TYPE, SO IT STATES NONE (DEC-4036f, 2026-10-10):
+      // it used to be saved as a taxable brokerage account; the account page now says "tax type not stated".
+      patch = { ...patch, asset_class: 'mixed', kind: undefined, tax_bucket: undefined, label: inst.trim() || 'Account' };
     } else if (step === 'edit' && editing) {
       // B48 finding 6: CDs/bonds edit their maturity here too — the date re-sorts the class
       // (under 1 year = cash equivalent · 1 year or more = bond), same rule as adding one.
       const showsMaturity = editing.kind === 'cd' || assetClassOf(editing) === 'bonds' || !!editing.maturity_date;
-      const byDate = showsMaturity && maturity.trim();
+      const byDate = showsMaturity && maturity.trim();   // a picked date (DEC-4059b, 2026-10-10)
       // THE PERSON PICKED A CLASS: it is marked theirs, so the class sweep never changes it; a maturity
       // date decides the class instead of the pick (outside review OpenAI final, 2026-10-09, DEC-2748h)
       const picked = !byDate && inside !== 'mixed' && inside !== editing.asset_class;
@@ -1265,7 +1285,8 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           {!editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" onPress={() => setStep('pick')}><Text style={sh.backLink}>‹ Back</Text></TouchableOpacity>}
           {step === 'cash' && (<>
             <Chips ids={CASH_OPTS} />
-            {sub === 'cd' && <TextInput style={sh.input} placeholder="Matures YYYY-MM ( < 1yr = cash · ≥ 1yr = bond )" placeholderTextColor={Colors.textTertiary} value={maturity} onChangeText={setMaturity} />}
+            {/* A CD'S MATURITY IS PICKED, NEVER TYPED (DEC-4059b, 2026-10-10) — the date picker Add an account and Bonds use */}
+            {sub === 'cd' && (<><Text style={sh.lbl}>Matures (optional)</Text><DateField value={maturity} onChange={setMaturity} label="maturity date" initial={TEN_YEARS_OUT()} minimumDate={new Date(2000, 0, 1)} style={sh.input} /></>)}
           </>)}
           {step === 'alts' && <Chips ids={ALT_OPTS} />}
           {step === 'property' && <Chips ids={PROP_OPTS} />}
@@ -1286,8 +1307,9 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           </>)}
           {step === 'edit' && (<>
             {(editing?.kind === 'cd' || (editing && assetClassOf(editing) === 'bonds') || editing?.maturity_date) && (<>
-              <Text style={sh.lbl}>Matures (YYYY-MM — CDs and dated bonds count under Bonds & CDs)</Text>
-              <TextInput style={sh.input} placeholder="2027-06" placeholderTextColor={Colors.textTertiary} value={maturity} onChangeText={setMaturity} />
+              {/* PICKED, NEVER TYPED, A FULL DATE (DEC-4059b, 2026-10-10): "Use date picker for date." */}
+              <Text style={sh.lbl}>Matures (CDs and dated bonds count under Bonds & CDs)</Text>
+              <DateField value={maturity} onChange={setMaturity} label="maturity date" initial={TEN_YEARS_OUT()} minimumDate={new Date(2000, 0, 1)} style={sh.input} />
             </>)}
             <Text style={sh.clsLabel}>What's it invested in?</Text>
             <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
@@ -1303,7 +1325,8 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           </>)}
           <TextInput style={sh.input} placeholder={step === 'quick' ? 'Name (e.g. My Robinhood)' : 'Institution / name (e.g. Chase)'} placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
           <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
-          <TouchableOpacity style={sh.save} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? typedAmount(v) : ''}</Text></TouchableOpacity>
+          {needsKind && <Text style={sh.note}>Pick which kind of retirement account it is.</Text>}
+          <TouchableOpacity style={[sh.save, needsKind && { opacity: 0.4 }]} disabled={needsKind} accessibilityState={{ disabled: needsKind }} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? typedAmount(v) : ''}</Text></TouchableOpacity>
           {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove account" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
         </>
       )}

@@ -875,6 +875,192 @@
      "keep": true
     }
    ]
+  },
+  {
+   "match": "SUBJECT: His answers on the open Net worth points from OpenAI's final audit, 2026-10-10 — each rule, by function",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "His answers on the open Net worth points, as a whole",
+     "plain": "His answers on the open Net worth points from OpenAI's final audit, as a whole. Each rule is its own row beside this one.",
+     "type": "PROCESS",
+     "status": "RULED"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "A bond or CD with no maturity date entered keeps counting its interest (DEC-0332",
+     "plain": "A bond or CD with no maturity date entered keeps counting its interest (DEC-0332: unknown, not matured); its row reads \"maturity date not entered\". Treasury $10,000 at 4%, no date: $400 a year counted.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-062 couponIncomeAnnual · MK-NW-F-063 interestIncomeAnnual · MK-NW-F-072 rowOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+     "not_a_repeat_of": "DEC-2748d — that rule: a bond PAST its maturity date pays no more interest. This one: a bond with NO maturity date entered keeps paying (unknown, not matured). Both stand."
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "\"CD\" is read only from an account's own name or type, never from its institution's name. A brokerage account at \"CD Capi",
+     "plain": "\"CD\" is read only from an account's own name or type, never from its institution's name. A brokerage account at \"CD Capital\" is not a CD.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-056 bondInfo",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "A 529 is always tax-free for education, whatever tax setting is stored; its type decides (DEC-3035c). Before",
+     "plain": "A 529 is always tax-free for education, whatever tax setting is stored; its type decides (DEC-3035c). Before: a 529 stored \"taxable\" was counted as taxable while its page said tax-free.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-012 taxTreatmentOf · MK-NW-F-108 taxWordsOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "An HSA is always pre-tax going in and tax-free for medical costs, whatever bucket it is filed in. Before",
+     "plain": "An HSA is always pre-tax going in and tax-free for medical costs, whatever bucket it is filed in. Before: an HSA filed under Roth was counted as tax-free going in.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-012 taxTreatmentOf · MK-NW-F-108 taxWordsOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "An account with no account type chosen is never assumed taxable",
+     "plain": "An account with no account type chosen is never assumed taxable: its tax reads \"tax type not stated\" with a tap to choose. Before: counted and shown as a taxable brokerage.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-010 wrapperAccount · MK-NW-F-012 taxTreatmentOf · MK-NW-F-108 taxWordsOf",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "The old sign-up answer \"savings or portfolio\" is filed Unclassified and asked about",
+     "plain": "The old sign-up answer \"savings or portfolio\" is filed Unclassified and asked about: \"Is this cash savings or investments?\" (DEC-2160). Before: always Stocks / Funds at 7%.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-040 assetsFromOnboarding",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "Money left in an alternatives part that no priced holding explains is shown as \"$1,500 asset type not classified\" — neve",
+     "plain": "Money left in an alternatives part that no priced holding explains is shown as \"$1,500 asset type not classified\" — never labelled Other or given a growth rate. Before: \"Other\" at 5%.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-113 altPartsOf · MK-NW-O-005 theAlternativesOutlook",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "An overdrawn hand-built account is negative cash",
+     "plain": "An overdrawn hand-built account is negative cash: balance −$100 with a cash field of $50 is Cash −$100. Before: Cash $0 and Unclassified −$100.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-027 accountClassBreakdown",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "Where a vehicle's value is not entered, the car you drive is still picked among the vehicles with a value, and a line sa",
+     "plain": "Where a vehicle's value is not entered, the car you drive is still picked among the vehicles with a value, and a line says: \"Car A's value not entered — it may be the car you drive.\"",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-031 primaryCarIdOf · MK-NW-F-030 earmarkDefault",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "The retirement money on the Plan screens names an account it leaves out",
+     "plain": "The retirement money on the Plan screens names an account it leaves out: \"leaves out Linked 401(k) — Value not entered\" (DEC-3657 wording). Before: $10,000 with no note.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /bonds · /account-detail · /plan",
+     "governs": "MK-NW-F-033 retirementEarmarkedValue",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    }
+   ]
+  },
+  {
+   "match": "SUBJECT: His second answers on the open Net worth points from OpenAI's final audit, 2026-10-10 — dates and rent, by function",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "His second answers on the open Net worth points, as a whole",
+     "plain": "His second answers on the open Net worth points, as a whole. Each rule is its own row beside this one.",
+     "type": "PROCESS",
+     "status": "RULED"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "Every date a person enters for a bond or CD is picked from a date picker, never typed — the Net worth account ",
+     "plain": "Every date a person enters for a bond or CD is picked from a date picker, never typed — the Net worth account editor too (it had a typed \"Matures YYYY-MM\" box). The app is not launched, so no typed date exists to carry over.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /account-detail · /income",
+     "governs": "MK-NW-F-009 maturityClass · the Net worth account editor",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+     "not_a_repeat_of": "DEC-4036 — a different point of the same table"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "When a linked account's history start date cannot be read (a date in the future, or not a date), the history l",
+     "plain": "When a linked account's history start date cannot be read (a date in the future, or not a date), the history line says \"History start date cannot be read. Edit date\", and a tap lets the person enter or correct the date with a date picker; the sentence then uses their date. Before: \"a few days of history (from )\".",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /account-detail · /income",
+     "governs": "MK-NW-F-046 historyCoverage · the account page · the Income screen",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+     "not_a_repeat_of": "DEC-4036 — a different point of the same table"
+    },
+    {
+     "keep": true,
+     "decided": "2026-10-10",
+     "subject": "A rent entry cannot be saved until the property it is for is picked. With no property in Net worth, the entry ",
+     "plain": "A rent entry cannot be saved until the property it is for is picked. With no property in Net worth, the entry says \"Add the property in Net worth first\" and links there; an older entry with no property shows the question in amber until answered.",
+     "type": "RULE",
+     "status": "RULED",
+     "screens": "/networth · /account-detail · /income",
+     "governs": "MK-NW-F-107 propertyUses · MK-NW-F-116 rentedIdsOf · the Income screen",
+     "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+     "not_a_repeat_of": "DEC-4036 — a different point of the same table"
+    }
+   ]
   }
  ]
 }

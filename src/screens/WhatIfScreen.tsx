@@ -2,6 +2,7 @@
 // companion to Look back. One dial (+$/month) against the SAME shared plan inputs the hub uses:
 // projected nest egg at retirement and the will-it-last chance, before → after, every figure an
 // estimate. Prefillable (?addMonthly=) so the 401(k)-room nudge lands here with its number.
+import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { displayOdds } from '../domain/retirement/willItLast';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -89,6 +90,8 @@ export default function WhatIfScreen() {
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false} scrollEnabled={!sliding}>
       <Text style={s.h1}>What if I save more?</Text>
       <Text style={s.banner}>{TRYING_IT_OUT}</Text>
+      {/* the odds here count an account with no tax type as taxable, and name it (DEC-4105, 2026-10-10) */}
+      <CountedTaxableLines accounts={accounts} />
 
       {/* the dial only renders when it can actually compute something (a dead control confuses) */}
       {result != null && !result.retired && (

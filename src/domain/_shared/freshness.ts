@@ -1,3 +1,4 @@
+import { plural } from './plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 /** HOW OLD IS A NUMBER, AND IS THAT OLD ENOUGH TO SAY SO — one rule, one threshold.
  *
  *  His ruling, DEC-0301: *"source always, date only when stale."* Every figure says where it came
@@ -64,7 +65,7 @@ export function daysSince(when: string | number | null | undefined, now: number)
  * Formula .....
  *     days = days since(when, now)
  *     nothing   when days = nothing
- *     `${days} day${days > 1 ? 's' : ''} ago`   when days ≥ 1
+ *     `${plural(days, 'day')} ago`   when days ≥ 1
  *     hours = round down((now − (typeof when = 'number' ? when : date.parse(string(when)))) ÷ 3600000)
  *     the answer:
  *     `${hours}h ago`   if hours ≥ 1
@@ -83,7 +84,7 @@ export function daysSince(when: string | number | null | undefined, now: number)
 export function agoLabel(when: string | number | null | undefined, now: number): string | null {
   const days = daysSince(when, now);
   if (days == null) return null;
-  if (days >= 1) return `${days} day${days > 1 ? 's' : ''} ago`;
+  if (days >= 1) return `${plural(days, 'day')} ago`;   // the plural from the one list (DEC-4082, 2026-10-10)
   const hours = Math.floor((now - (typeof when === 'number' ? when : Date.parse(String(when)))) / 3_600_000);
   return hours >= 1 ? `${hours}h ago` : 'just now';
 }

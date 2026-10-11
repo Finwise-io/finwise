@@ -31,7 +31,8 @@ describe('Rent from a property', () => {
     mockOpen = 'rental';
     render(<IncomeManagerScreen />);
     expect(screen.getByText('Which property is it?')).toBeOnTheScreen();
-    expect(screen.getByText('Add this property first, on the Net worth page. Then its mortgage can be recorded here.')).toBeOnTheScreen();
+    expect(screen.getByText('Add the property in Net worth first ›')).toBeOnTheScreen();   // (DEC-4059d, 2026-10-10)
+    expect(screen.getByText('Not counted as rent until you pick its property.')).toBeOnTheScreen();
     expect(screen.queryByLabelText('Monthly mortgage payment, property 1')).toBeNull();
     expect(screen.getByText('Tax, insurance, repairs, management.')).toBeOnTheScreen();      // and a mortgage is not a cost to run
   });

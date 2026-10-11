@@ -3,6 +3,7 @@
 // amount, what's already taken (from the ONE ledger), the deadline, a year-by-year schedule
 // (clearly labeled estimates), and a getting-ready checklist for the run-up to 73.
 // Logistics and reminders — the decision of WHEN in the year to take it stays with the user.
+import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -112,6 +113,8 @@ export default function RequiredWithdrawalsScreen() {
     <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.h1}>Required withdrawals</Text>
       <Text style={s.sub}>Logistics only — when in the year you take it is your call.</Text>
+      {/* the pre-tax money here leaves out an account with no tax type — it is counted taxable, and named (DEC-4105, 2026-10-10) */}
+      <CountedTaxableLines accounts={accounts} />
 
       {/* STATES (r51): no pre-tax accounts → explain + the road in; never a fake number */}
       {preTax <= 0 ? (

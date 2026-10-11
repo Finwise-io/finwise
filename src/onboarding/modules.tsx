@@ -1,3 +1,4 @@
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView, Share } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
@@ -1839,7 +1840,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
         Projected {money(projected)} = your {money(retireStart)} retirement savings
         {otherSavings > 0 ? ` + ${money(otherSavings)} investments` : ''}
         {monthlyContrib > 0 ? ` + ${money(monthlyContrib)}/month you add` : ''}, growing ≈{(realAcc * 100).toFixed(2)}%/year
-        after inflation for {years} year{years > 1 ? 's' : ''}.
+        after inflation for {plural(years, 'year')}.
         {otherSavings <= 0 ? " It does NOT include other investments, property, or accounts not captured yet — add them in Net Worth and this updates." : ''}
       </Text>
     </Card>
@@ -2209,7 +2210,9 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
   };
   const addProp = () => write([...list, {}]);
   const removeProp = (i: number) => write(list.filter((_, idx) => idx !== i));
-  const netMonthly = rentalNetAnnual(ctx.answers) / 12;
+  // WHAT WAS TYPED, NOT WHAT IS COUNTED (DEC-4059d, 2026-10-10): a rent entry counts only once it names its property
+  // in Net worth, which this step cannot ask — so the sum shown here is the typed one, and says it is not counted yet.
+  const netMonthly = list.reduce((t, r) => t + num(r.income) - num(r.expenses), 0);
   const count = list.filter((r) => num(r.income) > 0).length;
 
   return (<>
@@ -2245,7 +2248,7 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
     ))}
     <TouchableOpacity style={s.addBtn} onPress={addProp}><Text style={s.addBtnT}>+ Add property</Text></TouchableOpacity>
     {count > 0 && <Callout text={`${money(netMonthly)}/month net rental income`}
-      sub={`About ${money(netMonthly * 12)}/year across ${count} propert${count > 1 ? 'ies' : 'y'} after costs.`} warn={netMonthly < 0} />}
+      sub={`About ${money(netMonthly * 12)}/year across ${plural(count, 'property')} after costs. The rent is counted once you pick its property on the Income screen.`} warn={netMonthly < 0} />}
   </>);
 }
 

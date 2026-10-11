@@ -168,7 +168,8 @@ describe('MK-NW-F-010 wrapperAccount — five cases', () => {
     expect(wrapperAccount('401k')).toEqual({ kind: '401k', tax_bucket: 'PRE_TAX' });
   });
   test('easy · nothing chosen', () => {
-    expect(wrapperAccount(null)).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' });
+    // SETTLED 2026-10-10 by DEC-4036f: nothing chosen is never assumed taxable
+    expect(wrapperAccount(null)).toStrictEqual({ kind: undefined, tax_bucket: undefined });
   });
   test('complex · a Traditional IRA gets its own kind', () => {
     expect(wrapperAccount('trad_ira')).toEqual({ kind: 'trad_ira', tax_bucket: 'PRE_TAX' });   // the formula as sent named no kind

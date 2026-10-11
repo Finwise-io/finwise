@@ -5,6 +5,7 @@
 //
 // THE INVARIANT (trust): the account total NEVER drifts. A positive remainder (lump − Σ holdings) is kept
 // as a cash sleeve at the same institution, so  Σ(itemized) + remainder  ===  the lump you started with.
+import { plural } from '../_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import type { AssetAccount, TaxBucket } from './index';
 import { benchmarkReturn } from './index';
 import { Dec } from '../../../Calculation Module code/engines/decimal';
@@ -175,7 +176,7 @@ export function buildItemizedAccounts(lump: AssetAccount, items: ItemHolding[]):
   // stays as it was. (outside review OpenAI final, 2026-10-09, DEC-3279f)
   const missing = (items ?? []).filter((h) => h.value == null || !Number.isFinite(h.value));
   if (missing.length > 0) {
-    throw new Error(`buildItemizedAccounts: ${missing.length} listed holding${missing.length === 1 ? ' has' : 's have'} no value (${missing.map((h) => h.label || h.ticker || 'a holding').join(', ')}) — give each a value before itemising.`);
+    throw new Error(`buildItemizedAccounts: ${plural(missing.length, 'holding', `${missing.length} listed`)} ${missing.length === 1 ? 'has' : 'have'} no value (${missing.map((h) => h.label || h.ticker || 'a holding').join(', ')}) — give each a value before itemising.`);
   }
   const institution = (lump.institution || lump.label || '').trim() || undefined;
   const bucket: TaxBucket = lump.tax_bucket;

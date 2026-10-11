@@ -3,6 +3,8 @@
 // does this month's money cover it (against the CANONICAL capacity — the Cash flow number), and
 // what it does to retirement (age + will-it-last, from the ONE shared selector). Everything is a
 // sandbox until the Use-this-plan sheet; adopted commitments then appear on Cash flow by name.
+import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -82,7 +84,7 @@ export default function MultiGoalScreen() {
 
   const saveScenario = () => {
     store.saveRetirementScenario?.(
-      `Goals plan (${commitments.length} goal${commitments.length === 1 ? '' : 's'})`,
+      `Goals plan (${plural(commitments.length, 'goal')})`,
       { contribMonthly: retirementMonthly, commitments },
       weighed.retireAge ?? A.retireAge ?? 0, weighed.chance ?? 0,
     );
@@ -92,6 +94,8 @@ export default function MultiGoalScreen() {
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.banner}>{TRYING_IT_OUT}</Text>
+      {/* the odds here count an account with no tax type as taxable, and name it (DEC-4105, 2026-10-10) */}
+      <CountedTaxableLines accounts={accounts} />
 
       {/* goal dials */}
       <SectionBand title="TRY THESE TOGETHER" />

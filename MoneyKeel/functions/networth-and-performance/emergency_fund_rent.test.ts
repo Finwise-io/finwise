@@ -22,7 +22,8 @@ const RENTER = {
 };
 const BUDGET = [{ id: 'rent', label: 'Rent / Mortgage', amount: 2200, bucket: 'fixed', tier: 'critical' },
                 { id: 'groceries', label: 'Groceries', amount: 1325.6, bucket: 'flexible', tier: 'need' }];
-const withRental = (income: number, expenses: number) => ({ spendCats: BUDGET, rentals: [{ type: 'long', income, expenses }] });
+// the entry names its property — an entry with none is not rent (DEC-4059d, 2026-10-10)
+const withRental = (income: number, expenses: number) => ({ spendCats: BUDGET, rentals: [{ type: 'long', income, expenses, property_id: 'rental' }] });
 
 test('rent is added to the cash EVERY month — the same count as walking the months one by one', () => {
   const e = theEmergencyFund({ ...RENTER, profile: withRental(2400, 1200) });
@@ -181,6 +182,14 @@ describe('rentNotKnown (DEC-3769)', () => {
     expect(run([home, { ...second, re_use: 'rental' }], {}).rentNotKnown).toBe(true);
     // the old single rent figure typed with words
     expect(run([home, second], { rentalIncome: 'about 2k' }).rentNotKnown).toBe(true);
-    expect(run([home, second], { rentalIncome: '1500' }).rentNotKnown).toBe(false);
+    // the old single rent figure names no property, so it is not counted and its rent is not included (DEC-4059d, 2026-10-10)
+    expect(run([home, second], { rentalIncome: '1500' }).rentNotKnown).toBe(true);
+    expect(run([home, second], { rentalIncome: '1500' }).rentalIncomeMonthly).toBe(0);
+  });
+  test('a rent entry with a figure but no property: not counted, and the rent is not included (DEC-4059d, 2026-10-10)', () => {
+    const e = run([home, second], { rentals: [{ type: 'long', income: '1000', expenses: '0' }] });
+    expect(e.rentalIncomeMonthly).toBe(0);
+    expect(e.rentNotKnown).toBe(true);
+    expect(e.monthsCovered).toBeCloseTo(5, 9);
   });
 });

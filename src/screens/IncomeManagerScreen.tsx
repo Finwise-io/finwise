@@ -13,6 +13,7 @@
 // IT DOES NO ARITHMETIC. Which sources are entered and what each line says comes from MK-CF-O-016's
 // neighbour theIncomeManager; the December card reads MK-CF-O-004 incomeSummary; what the accounts pay
 // comes from MK-CF-F-184 incomeFromAccounts.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
@@ -23,7 +24,8 @@ import { EmptyNote } from '../components/UI';
 import { fig } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { theIncomeManager, incomeSummary, type ManagedSource } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { incomeFromAccounts } from '../domain/income/from-accounts';
-import { historyCoverage, assetClassOf } from '../domain/assets';
+import { historyCoverage, assetClassOf, EDIT_HISTORY_START } from '../domain/assets';
+import { DateLink } from '../components/DateField';   // (DEC-4059c, 2026-10-10)
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { RsuEditor, renderStep } from '../onboarding/modules';
 import type { StepCtx } from '../onboarding/modules';
@@ -81,7 +83,7 @@ export default function IncomeManagerScreen() {
 
         <View style={s.bandRow}>
           <Text style={s.band}>You entered about</Text>
-          <Text style={s.bandNum}>{m.entered.length} {m.entered.length === 1 ? 'source' : 'sources'}</Text>
+          <Text style={s.bandNum}>{plural(m.entered.length, 'source')}</Text>
         </View>
         {m.entered.length === 0 && (
           <View style={s.card}><EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} /></View>   /* Q48 */
@@ -296,6 +298,7 @@ const sumOfStock = (op: any) => theIncomeManager(op).bonusAndStock ? Math.max(0,
 // Two figures, not one: rent received is not income; what is left after running the place is.
 function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => void; onDone: () => void }) {
   const store = useStore() as any;
+  const router = useRouter();
   const list: { type?: string; income: any; expenses: any; property_id?: string; mortgage?: any }[] = Array.isArray(op.rentals) && op.rentals.length
     ? op.rentals : [{ type: op.rentalType, income: op.rentalIncome ?? '', expenses: op.rentalExpenses ?? '' }];
   const write = (i: number, patch: Record<string, any>) => set({ rentals: list.map((r, k) => (k === i ? { ...r, ...patch } : r)) });
@@ -324,6 +327,10 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
     <Frame title="Rent from a property" sub="What you keep, after what it costs to run" onDone={leave} save={false}>
       {list.map((r, i) => {
         const keep = num(r.income) - num(r.expenses);
+        // NO PROPERTY, NOT RENT (DEC-4059d, 2026-10-10, "10 - approved"): the entry is kept as typed but counted
+        // nowhere until it names its property — the question stays amber until it is answered.
+        // the one test the counting uses (MK-CF-F-067 rentalList, MK-NW-F-115 liveRent): the entry names a property
+        const named = r.property_id != null && String(r.property_id).trim() !== '';
         return (
           <View key={i}>
             <View style={s.bandRow}>
@@ -335,13 +342,19 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
               <Money label="What it costs to run each month" hint="Tax, insurance, repairs, management."
                 value={r.expenses} onChangeText={(v) => write(i, { expenses: v })} a11y={`What it costs to run each month, property ${i + 1}`} />
               <Row label="= You keep" value={`${fig('MK-CF-M-010', keep)}/month`} strong />
-              <Text style={s.note}>
+              {/* the figure every other screen uses only once the entry names its property (DEC-4059d, 2026-10-10) */}
+              {named && <Text style={s.note}>
                 {fig('MK-CF-M-027', keep * 12)}/year. This is the figure every other screen uses
                 {num(r.expenses) > 0 ? ` — the rent alone would overstate what reaches you by ${fig('MK-CF-M-027', num(r.expenses))}/month.` : '.'}
-              </Text>
-              <Text style={s.q}>Which property is it?</Text>
+              </Text>}
+              <Text style={[s.q, !named && { color: Colors.amber }]}>Which property is it?</Text>
+              {!named && <Text style={[s.qsub, { color: Colors.amber }]}>Not counted as rent until you pick its property.</Text>}
               {properties.length === 0 ? (
-                <Text style={[s.qsub, { color: Colors.amber }]}>Add this property first, on the Net worth page. Then its mortgage can be recorded here.</Text>
+                // (DEC-4059d, 2026-10-10) the door to add one: Add an account, opened on Real estate
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add the property in Net worth first"
+                  style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => router.push('/add-account?cls=property' as any)}>
+                  <Text style={[s.link, { marginTop: 4 }]}>Add the property in Net worth first ›</Text>
+                </TouchableOpacity>
               ) : (
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
                   {properties.map((a) => {
@@ -382,7 +395,7 @@ function InterestAndDividends({ op, set, onDone }: { op: any; set: (p: Record<st
   // founder rule 2026-08-04: a "last 12 months" figure can only cover the history each source shared
   const yearStart = new Date(Date.now() - 365 * 86400_000).toISOString().slice(0, 10);
   const coverageNotes = ((store.assetAccounts ?? []) as any[]).filter((a) => a.source === 'connected' || a.source === 'imported')
-    .map((a) => historyCoverage(a, yearStart)).filter(Boolean).map((c: any) => c.sentence);
+    .map((a) => ({ a, c: historyCoverage(a, yearStart) })).filter((x) => !!x.c);
   const paid = op.invPaidToBank === 'yes';
   return (
     <Frame title="Interest & dividends" sub="What your savings and investments pay you" onDone={onDone}>
@@ -396,7 +409,11 @@ function InterestAndDividends({ op, set, onDone }: { op: any; set: (p: Record<st
             {worked.lines.map((l) => <Row key={l.label} label={l.label} note={l.why} value={fig('MK-CF-M-066', l.annual)} />)}
             <Row label="= We calculate" value={`${fig('MK-CF-M-066', worked.annual)}/year`} strong />
             {!!worked.missing && <Text style={s.note}>{worked.missing}</Text>}
-            {coverageNotes.map((c: string, i: number) => <Text key={i} style={s.note}>· {c}</Text>)}
+            {coverageNotes.map(({ a, c }: any, i: number) => c.kind === 'unreadable'
+              // (DEC-4059c, 2026-10-10) "Say date cannot be read. Edit date." — the account is named, and its date is picked
+              ? <Text key={i} style={s.note}>· {a.institution || a.label}: {c.sentence} <DateLink text={EDIT_HISTORY_START} label={`Edit the history start date for ${a.institution || a.label}`}
+                  maximumDate={new Date()} onPick={(iso) => store.updateAsset?.(a.asset_id, { history_start_override: iso })} /></Text>
+              : <Text key={i} style={s.note}>· {c.sentence}</Text>)}
           </View>
         </>
       )}

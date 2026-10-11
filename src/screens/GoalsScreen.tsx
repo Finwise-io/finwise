@@ -1,5 +1,6 @@
 // Goals & Debt — save-by-date goals with progress, and an avalanche/snowball debt-payoff plan.
 // The pre-retirement (30yo) home for "what am I working toward and how do I kill my debt".
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { EmptyNote } from '../components/UI';
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
@@ -230,7 +231,7 @@ export default function GoalsScreen() {
             ) : (
               <View style={styles.resultBox}>
                 <Text style={styles.resultBig}>Debt-free in {plan.months} mo</Text>
-                <Text style={styles.resultSub}>around {monthsToDate(plan.months)} · {money(totalDebt)} across {liabilities.length} debt{liabilities.length > 1 ? 's' : ''}</Text>
+                <Text style={styles.resultSub}>around {monthsToDate(plan.months)} · {money(totalDebt)} across {plural(liabilities.length, 'debt')}</Text>
                 <Text style={styles.resultSub}>Total interest: {money(plan.totalInterest)}</Text>
                 {num(extra) > 0 && savedInterest > 0 && <Text style={[styles.resultSub, { color: Colors.primary, fontWeight: '700' }]}>Your extra saves {money(savedInterest)} interest{soonerMonths > 0 ? ` & ${soonerMonths} mo` : ''} vs minimums.</Text>}
               </View>

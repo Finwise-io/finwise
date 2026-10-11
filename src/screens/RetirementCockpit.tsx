@@ -5,6 +5,7 @@
 //   Security (asked once) + a button into scenario analysis.
 // Screen 2 "Scenario analysis": what-if sliders → projected-nest-egg hero (deterministic, live) +
 //   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { ageAttainedInYear } from '../domain/income/limits';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { inflationRateInForce, INFLATION_DEFAULT } from '../domain/retirement/inflation';
@@ -21,8 +22,9 @@ import { maskedMoney } from '../components/useMoney';
 import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
 import { colFactor } from '../domain/retirement/col';
 import { ssBenefitAt } from '../domain/retirement/ssTiming';
-import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, primaryCarIdOf, primaryHomeIdOf, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, primaryCarIdOf, primaryHomeIdOf, earmarkLeavesOutWords, carValueNotEnteredNotes, accountDisplayNames, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
+import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisorAtAge, rmdStartAgeFor, rateBandWords } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
 import { marginalBracketFor } from '../domain/income/tax';
@@ -64,6 +66,9 @@ export default function RetirementCockpit() {
   // ---- data-derived ----
   const age = ageAttainedInYear(num(op.birthYear) || null) ?? 45;   // G9: every rule and projection runs on the year-attained age; the 45 stand-in for a missing birth year is an open R2 item
   const nestEgg = retirementEarmarkedValue(assets);
+  // THE NEST EGG NAMES WHAT IT LEAVES OUT (DEC-4036k, 2026-10-10): an account whose value is not entered adds $0
+  // while its share would count, so every place the nest egg is printed says "leaves out <name> — Value not entered".
+  const leavesOut = earmarkLeavesOutWords(assets, accountDisplayNames(assets));
   // Money you want to LEAVE behind isn't spendable in retirement — reserve it so "will it last"
   // reflects what you can actually draw down. (nestEgg = what you have; spendableEgg = what you can spend.)
   const bequest = num(op.legacyTarget);
@@ -279,7 +284,7 @@ export default function RetirementCockpit() {
     for (let y = 0; y < scHorizonYears; y++) { bal = bal * (1 + r) - net; if (bal <= 0) { bal = 0; break; } net = net * (1 + f); }
     return Math.round(bal);
   })() : Math.round(scProj.will_have);
-  const scProjLabel = scRetired ? `In ${scHorizonYears} years` : `At retirement (${rAge})`;
+  const scProjLabel = scRetired ? `In ${plural(scHorizonYears, 'year')}` : `At retirement (${rAge})`;
   const scDelta = scProjected - nestEgg;
   const scDeplete = scRetired ? depletionAge({ age, horizon, nestEgg, netWithdrawalNow: Math.max(0, (spendMo - ssIncome) * 12), returnRate: retPct / 100, inflation: inflPct / 100 }) : null;
   const runMC = () => { const s = simulate(scInputs({ with_band: true })); setScChance(displayOdds(s.chance_of_success)); setScBand(s.band); };
@@ -306,6 +311,7 @@ export default function RetirementCockpit() {
             <View style={styles.heroCol}>
               <Text style={styles.heroColLabel}>Nest egg today</Text>
               <Text style={styles.heroColNum}>{big(nestEgg)}</Text>
+              {!!leavesOut && <Text style={styles.heroColLabel}>Nest egg {leavesOut}</Text>}{/* (DEC-4036k, 2026-10-10) */}
             </View>
             <Text style={styles.heroArrow}>→</Text>
             <View style={styles.heroCol}>
@@ -499,6 +505,7 @@ export default function RetirementCockpit() {
                   </View>
                 </View>
                 <TouchableOpacity onPress={() => setEarmarkOpen(true)}><Text style={styles.editLink}>⚙︎ Edit what counts toward retirement ›</Text></TouchableOpacity>
+            {!!leavesOut && <Text style={styles.note}>Nest egg {leavesOut}</Text>}{/* (DEC-4036k, 2026-10-10) */}
               </>
             ) : (
               <View style={{ alignItems: 'center', paddingVertical: 12 }}>
@@ -585,6 +592,8 @@ export default function RetirementCockpit() {
             {([['cash', 'Cash'], ['taxable', 'Taxable'], ['preTax', 'Pre-tax (401k / IRA)'], ['roth', 'Roth']] as const).map(([k, lbl]) => (dSplit[k] > 0 ? (
               <View key={k} style={styles.dwRow}><Text style={styles.dwL}>{lbl}</Text><Text style={styles.dwV}>{money(dSplit[k])}</Text></View>
             ) : null))}
+            {/* an account with no tax type is in Taxable above, and named (DEC-4105, 2026-10-10) */}
+            <CountedTaxableLines accounts={assets} />
 
             {dOrder.length > 0 && (
               <>
@@ -646,6 +655,7 @@ export default function RetirementCockpit() {
               </View>
             </View>
             <TouchableOpacity onPress={() => setEarmarkOpen(true)}><Text style={styles.editLink}>⚙︎ Edit what counts toward retirement ›</Text></TouchableOpacity>
+            {!!leavesOut && <Text style={styles.note}>Nest egg {leavesOut}</Text>}{/* (DEC-4036k, 2026-10-10) */}
           </>
         ) : (
           <View style={{ alignItems: 'center', paddingVertical: 12 }}>
@@ -939,6 +949,11 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: 
 }) {
   // the same home and car the Plan donut uses (outside review OpenAI final, 2026-10-09, DEC-2747e · DEC-2746b)
   const carId = primaryCarIdOf(assets), homeId = primaryHomeIdOf(assets);
+  // the car you drive is picked among vehicles with a value; one with none may be it, and the sheet says so (DEC-4036j,
+  // 2026-10-10) · the nest egg names an account it leaves out for a value not entered (DEC-4036k, 2026-10-10)
+  const names = accountDisplayNames(assets);
+  const carNotes = carValueNotEnteredNotes(assets, names);
+  const leavesOut = earmarkLeavesOutWords(assets, names);
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
@@ -974,6 +989,8 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: 
             );
           })}
         </ScrollView>
+        {carNotes.map((n) => <Text key={n} style={styles.sheetS}>{n}</Text>)}
+        {!!leavesOut && <Text style={styles.sheetS}>Counts toward retirement {leavesOut}</Text>}
         <TouchableOpacity style={styles.applyBtn} onPress={onDone}><Text style={styles.applyT}>Counts toward retirement: {big(nestEgg)} · Done</Text></TouchableOpacity>
       </View>
       </KeyboardAvoidingView>

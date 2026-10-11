@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "10"
+     "s": "11"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -322,7 +322,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 28 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 29 days old"
     },
     {
      "k": "t",
@@ -482,7 +482,7 @@
     },
     {
      "k": "t",
-     "s": "10"
+     "s": "11"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -748,7 +748,7 @@
     },
     {
      "k": "a",
-     "s": "Will my money last: 99.4 percent odds of lasting to age 95, an estimate. Opens Plan."
+     "s": "Will my money last: 99.5 percent odds of lasting to age 95, an estimate. Opens Plan."
     },
     {
      "k": "t",
@@ -756,7 +756,7 @@
     },
     {
      "k": "t",
-     "s": "99.4% odds of lasting to age 95"
+     "s": "99.5% odds of lasting to age 95"
     },
     {
      "k": "t",
@@ -796,7 +796,7 @@
     },
     {
      "k": "t",
-     "s": "10"
+     "s": "11"
     },
     {
      "k": "t",
@@ -915,7 +915,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 10, 2026"
+     "s": "YOUR NET WORTH · OCT 11, 2026"
     },
     {
      "k": "a",
@@ -1253,7 +1253,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 10, 2026"
+     "s": "YOUR NET WORTH · OCT 11, 2026"
     },
     {
      "k": "a",
@@ -1575,7 +1575,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 10, 2026"
+     "s": "YOUR NET WORTH · OCT 11, 2026"
     },
     {
      "k": "a",
@@ -2049,7 +2049,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 10, 2026"
+     "s": "YOUR NET WORTH · OCT 11, 2026"
     },
     {
      "k": "a",
@@ -2285,7 +2285,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 28 days old"
+     "s": "Linked · 29 days old"
     },
     {
      "k": "t",
@@ -2567,11 +2567,11 @@
    "retiree": [
     {
      "k": "a",
-     "s": "Net worth $250,000. By asset class: Stocks / Funds 100 percent."
+     "s": "Net worth $250,000. By asset class: Unclassified 100 percent."
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 10, 2026"
+     "s": "YOUR NET WORTH · OCT 11, 2026"
     },
     {
      "k": "a",
@@ -2607,7 +2607,7 @@
     },
     {
      "k": "a",
-     "s": "Your retirement plan: on course to last past 95, ~$1,031,000 to spare. Opens the Plan tab."
+     "s": "Your retirement plan: on course to last past 95, ~$439,000 to spare. Opens the Plan tab."
     },
     {
      "k": "t",
@@ -2615,7 +2615,7 @@
     },
     {
      "k": "t",
-     "s": "99.4% odds of lasting to age 95"
+     "s": "99.5% odds of lasting to age 95"
     },
     {
      "k": "t",
@@ -2623,7 +2623,7 @@
     },
     {
      "k": "t",
-     "s": "on course to last past 95, ~$1,031,000 to spare"
+     "s": "on course to last past 95, ~$439,000 to spare"
     },
     {
      "k": "t",
@@ -2663,11 +2663,11 @@
     },
     {
      "k": "a",
-     "s": "What you own by category: Stocks / Funds 100 percent."
+     "s": "What you own by category: Unclassified 100 percent."
     },
     {
      "k": "t",
-     "s": "Stocks / Funds"
+     "s": "Unclassified"
     },
     {
      "k": "t",
@@ -2691,7 +2691,7 @@
     },
     {
      "k": "a",
-     "s": "Stocks / Funds, $250,000. Collapses its 1 account."
+     "s": "Unclassified, $250,000. Collapses its 1 account. Tap an account to say what is inside."
     },
     {
      "k": "t",
@@ -2699,7 +2699,11 @@
     },
     {
      "k": "t",
-     "s": "Stocks / Funds"
+     "s": "Unclassified"
+    },
+    {
+     "k": "t",
+     "s": "tap an account to say what's inside"
     },
     {
      "k": "t",
@@ -2712,6 +2716,14 @@
     {
      "k": "t",
      "s": "Savings / portfolio"
+    },
+    {
+     "k": "t",
+     "s": "Is this cash savings or investments?"
+    },
+    {
+     "k": "t",
+     "s": "Tap to say."
     },
     {
      "k": "t",
@@ -2857,11 +2869,11 @@
    "retiree|By institution": [
     {
      "k": "a",
-     "s": "Net worth $250,000. By asset class: Stocks / Funds 100 percent."
+     "s": "Net worth $250,000. By asset class: Unclassified 100 percent."
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 10, 2026"
+     "s": "YOUR NET WORTH · OCT 11, 2026"
     },
     {
      "k": "a",
@@ -2897,7 +2909,7 @@
     },
     {
      "k": "a",
-     "s": "Your retirement plan: on course to last past 95, ~$1,031,000 to spare. Opens the Plan tab."
+     "s": "Your retirement plan: on course to last past 95, ~$439,000 to spare. Opens the Plan tab."
     },
     {
      "k": "t",
@@ -2905,7 +2917,7 @@
     },
     {
      "k": "t",
-     "s": "99.4% odds of lasting to age 95"
+     "s": "99.5% odds of lasting to age 95"
     },
     {
      "k": "t",
@@ -2913,7 +2925,7 @@
     },
     {
      "k": "t",
-     "s": "on course to last past 95, ~$1,031,000 to spare"
+     "s": "on course to last past 95, ~$439,000 to spare"
     },
     {
      "k": "t",
@@ -3518,7 +3530,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -3638,11 +3650,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "t",
@@ -4024,7 +4036,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "t",
@@ -4156,11 +4168,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "a",
@@ -4300,7 +4312,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 28 days old"
+     "s": "Linked · 29 days old"
     },
     {
      "k": "t",
@@ -4674,7 +4686,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -4794,11 +4806,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "t",
@@ -5080,7 +5092,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -5200,11 +5212,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "t",
-     "s": "Oct 10"
+     "s": "Oct 11"
     },
     {
      "k": "t",
@@ -5465,15 +5477,7 @@
     },
     {
      "k": "t",
-     "s": "2"
-    },
-    {
-     "k": "t",
-     "s": "account"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "2 accounts"
     },
     {
      "k": "t",
@@ -5915,19 +5919,7 @@
     },
     {
      "k": "t",
-     "s": "4"
-    },
-    {
-     "k": "t",
-     "s": "connected"
-    },
-    {
-     "k": "t",
-     "s": "account"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "4 connected accounts"
     },
     {
      "k": "t",
@@ -6405,11 +6397,11 @@
     },
     {
      "k": "a",
-     "s": "Will my money last: 99.4% odds of lasting to age 95, an estimate."
+     "s": "Will my money last: 99.5% odds of lasting to age 95, an estimate."
     },
     {
      "k": "t",
-     "s": "99.4"
+     "s": "99.5"
     },
     {
      "k": "t",
@@ -6441,7 +6433,7 @@
     },
     {
      "k": "t",
-     "s": "— on course to last past 95, ~$1,031,000 to spare"
+     "s": "— on course to last past 95, ~$439,000 to spare"
     },
     {
      "k": "t",
@@ -6497,7 +6489,7 @@
     },
     {
      "k": "t",
-     "s": "$110,000"
+     "s": "$130,000"
     },
     {
      "k": "t",
@@ -6514,6 +6506,14 @@
     {
      "k": "t",
      "s": "Everything you own counts, except the home you live in and the car you drive. Tap any row to change it."
+    },
+    {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
     },
     {
      "k": "a",
@@ -8156,11 +8156,7 @@
     },
     {
      "k": "t",
-     "s": "1"
-    },
-    {
-     "k": "t",
-     "s": "debt"
+     "s": "1 debt"
     },
     {
      "k": "t",
@@ -9214,15 +9210,7 @@
     },
     {
      "k": "t",
-     "s": "2"
-    },
-    {
-     "k": "t",
-     "s": "debt"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "2 debts"
     },
     {
      "k": "t",
@@ -9406,7 +9394,7 @@
     },
     {
      "k": "t",
-     "s": "payment due in 5 days"
+     "s": "payment due in 4 days"
     },
     {
      "k": "t",
@@ -9660,7 +9648,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 32 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 35 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9692,7 +9680,7 @@
     },
     {
      "k": "t",
-     "s": "32"
+     "s": "35"
     },
     {
      "k": "t",
@@ -9725,6 +9713,14 @@
     {
      "k": "t",
      "s": "The order the math would tap your accounts — not a directive. Balances match your Net worth."
+    },
+    {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
     },
     {
      "k": "t",
@@ -9844,7 +9840,7 @@
     },
     {
      "k": "a",
-     "s": "Will my money last: 99.4 percent, an estimate. Lives in your Plan."
+     "s": "Will my money last: 99.5 percent, an estimate. Lives in your Plan."
     },
     {
      "k": "t",
@@ -9852,7 +9848,7 @@
     },
     {
      "k": "t",
-     "s": "99.4"
+     "s": "99.5"
     },
     {
      "k": "t",
@@ -10038,7 +10034,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 32 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 35 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -10070,7 +10066,7 @@
     },
     {
      "k": "t",
-     "s": "32"
+     "s": "35"
     },
     {
      "k": "t",
@@ -10103,6 +10099,14 @@
     {
      "k": "t",
      "s": "The order the math would tap your accounts — not a directive. Balances match your Net worth."
+    },
+    {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
     },
     {
      "k": "t",
@@ -10222,7 +10226,7 @@
     },
     {
      "k": "a",
-     "s": "Will my money last: 99.4 percent, an estimate. Lives in your Plan."
+     "s": "Will my money last: 99.5 percent, an estimate. Lives in your Plan."
     },
     {
      "k": "t",
@@ -10230,7 +10234,7 @@
     },
     {
      "k": "t",
-     "s": "99.4"
+     "s": "99.5"
     },
     {
      "k": "t",
@@ -10632,15 +10636,7 @@
     },
     {
      "k": "t",
-     "s": "0"
-    },
-    {
-     "k": "t",
-     "s": "debt"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "0 debts"
     },
     {
      "k": "t",
@@ -11262,15 +11258,7 @@
     },
     {
      "k": "t",
-     "s": "0"
-    },
-    {
-     "k": "t",
-     "s": "debt"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "0 debts"
     },
     {
      "k": "t",
@@ -11715,11 +11703,7 @@
     },
     {
      "k": "t",
-     "s": "1"
-    },
-    {
-     "k": "t",
-     "s": "debt"
+     "s": "1 debt"
     },
     {
      "k": "t",
@@ -12205,15 +12189,7 @@
     },
     {
      "k": "t",
-     "s": "2"
-    },
-    {
-     "k": "t",
-     "s": "debt"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "2 debts"
     },
     {
      "k": "t",
@@ -13738,7 +13714,7 @@
     },
     {
      "k": "t",
-     "s": "Investments"
+     "s": "Retirement"
     },
     {
      "k": "t",
@@ -13770,11 +13746,11 @@
     },
     {
      "k": "t",
-     "s": "past age 95"
+     "s": "to about age 94"
     },
     {
      "k": "t",
-     "s": "in most futures — 99.4 out of 100 simulated futures"
+     "s": "in most futures — 99.9 out of 100 simulated futures"
     },
     {
      "k": "t",
@@ -13830,15 +13806,11 @@
     },
     {
      "k": "t",
-     "s": "Stocks / Funds"
-    },
-    {
-     "k": "t",
-     "s": "·"
-    },
-    {
-     "k": "t",
      "s": "$250K"
+    },
+    {
+     "k": "t",
+     "s": "· ⚠ Set a type ›"
     },
     {
      "k": "t",
@@ -13846,11 +13818,7 @@
     },
     {
      "k": "t",
-     "s": "10.4"
-    },
-    {
-     "k": "t",
-     "s": "%"
+     "s": "—"
     },
     {
      "k": "t",
@@ -13862,7 +13830,7 @@
     },
     {
      "k": "t",
-     "s": "10.4"
+     "s": "6.0"
     },
     {
      "k": "t",
@@ -13894,7 +13862,7 @@
     },
     {
      "k": "t",
-     "s": "10.4%"
+     "s": "6.0%"
     },
     {
      "k": "t",
@@ -13914,7 +13882,7 @@
     },
     {
      "k": "t",
-     "s": "10.4%"
+     "s": "6.0%"
     },
     {
      "k": "t",
@@ -17238,7 +17206,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -17648,7 +17616,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -17900,7 +17868,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 28 days old"
+     "s": "Linked · 29 days old"
     },
     {
      "k": "t",
@@ -18146,7 +18114,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -18398,7 +18366,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 28 days old"
+     "s": "Linked · 29 days old"
     },
     {
      "k": "t",
@@ -18640,7 +18608,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -19038,7 +19006,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -19444,7 +19412,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -19836,11 +19804,11 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $162 in accrued interest to bond value at 4% coupon for 148 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $163 in accrued interest to bond value at 4% coupon for 149 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "a",
-     "s": "Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly $9,310 to $9,500. If rates fall one percent, roughly $10,110 to $10,320. Held to maturity, $10,000 comes back if the issuer pays as promised."
+     "s": "Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly $9,310 to $9,500. If rates fall one percent, roughly $10,110 to $10,310. Held to maturity, $10,000 comes back if the issuer pays as promised."
     },
     {
      "k": "t",
@@ -19900,7 +19868,7 @@
     },
     {
      "k": "t",
-     "s": "$10,320"
+     "s": "$10,310"
     },
     {
      "k": "t",
@@ -20010,7 +19978,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 10, 2026"
+     "s": "Oct 11, 2026"
     },
     {
      "k": "a",
@@ -20269,8 +20237,12 @@
      "s": "· wealth generated $0 since today"
     },
     {
+     "k": "a",
+     "s": "Tax type not stated. Tap to choose."
+    },
+    {
      "k": "t",
-     "s": "Stocks / Funds"
+     "s": "Unclassified"
     },
     {
      "k": "t",
@@ -20278,7 +20250,11 @@
     },
     {
      "k": "t",
-     "s": "taxable"
+     "s": "tax type not stated"
+    },
+    {
+     "k": "t",
+     "s": "— choose ›"
     },
     {
      "k": "a",
@@ -21983,11 +21959,7 @@
     },
     {
      "k": "t",
-     "s": "1"
-    },
-    {
-     "k": "t",
-     "s": "bond"
+     "s": "1 bond"
     },
     {
      "k": "t",
@@ -22083,7 +22055,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $162 in accrued interest to bond value at 4% coupon for 148 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $163 in accrued interest to bond value at 4% coupon for 149 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "a",
@@ -25709,11 +25681,7 @@
     },
     {
      "k": "t",
-     "s": "1"
-    },
-    {
-     "k": "t",
-     "s": "source"
+     "s": "1 source"
     },
     {
      "k": "a",
@@ -25903,11 +25871,7 @@
     },
     {
      "k": "t",
-     "s": "1"
-    },
-    {
-     "k": "t",
-     "s": "source"
+     "s": "1 source"
     },
     {
      "k": "a",
@@ -26097,11 +26061,7 @@
     },
     {
      "k": "t",
-     "s": "1"
-    },
-    {
-     "k": "t",
-     "s": "source"
+     "s": "1 source"
     },
     {
      "k": "a",
@@ -26291,11 +26251,7 @@
     },
     {
      "k": "t",
-     "s": "0"
-    },
-    {
-     "k": "t",
-     "s": "sources"
+     "s": "0 sources"
     },
     {
      "k": "a",
@@ -27617,15 +27573,7 @@
     },
     {
      "k": "t",
-     "s": "0"
-    },
-    {
-     "k": "t",
-     "s": "holding"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "0 holdings"
     }
    ],
    "rich": [
@@ -27795,15 +27743,7 @@
     },
     {
      "k": "t",
-     "s": "0"
-    },
-    {
-     "k": "t",
-     "s": "holding"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "0 holdings"
     }
    ],
    "retiree": [
@@ -27973,15 +27913,7 @@
     },
     {
      "k": "t",
-     "s": "0"
-    },
-    {
-     "k": "t",
-     "s": "holding"
-    },
-    {
-     "k": "t",
-     "s": "s"
+     "s": "0 holdings"
     }
    ],
    "new": [
@@ -30520,6 +30452,14 @@
      "s": "Trying it out — nothing changes until you tap Use as my plan."
     },
     {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
+    },
+    {
      "k": "t",
      "s": "TRY THESE TOGETHER"
     },
@@ -30593,7 +30533,7 @@
     },
     {
      "k": "a",
-     "s": "Effect on retirement: will-it-last 99.4 percent to 99.4 percent. Estimate, not a promise."
+     "s": "Effect on retirement: will-it-last 99.5 percent to 99.5 percent. Estimate, not a promise."
     },
     {
      "k": "t",
@@ -30613,7 +30553,7 @@
     },
     {
      "k": "t",
-     "s": "99.4% → 99.4%"
+     "s": "99.5% → 99.5%"
     },
     {
      "k": "t",
@@ -31782,6 +31722,14 @@
      "s": "Logistics only — when in the year you take it is your call."
     },
     {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
+    },
+    {
      "k": "t",
      "s": "WHAT THIS IS"
     },
@@ -31826,6 +31774,14 @@
     {
      "k": "t",
      "s": "Logistics only — when in the year you take it is your call."
+    },
+    {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
     },
     {
      "k": "t",
@@ -32091,6 +32047,14 @@
     {
      "k": "t",
      "s": "Add your retirement accounts ›"
+    },
+    {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
     }
    ],
    "retiree|Add your retirement accounts on the Net worth": [
@@ -32117,6 +32081,14 @@
     {
      "k": "t",
      "s": "Add your retirement accounts ›"
+    },
+    {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
     }
    ],
    "new": [
@@ -34630,7 +34602,7 @@
     },
     {
      "k": "t",
-     "s": "stocks_etf"
+     "s": "account"
     },
     {
      "k": "t",
@@ -35120,6 +35092,14 @@
      "s": "Trying it out — nothing changes until you tap Use as my plan."
     },
     {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
+    },
+    {
      "k": "t",
      "s": "IF YOU SAVE MORE EACH MONTH"
     },
@@ -35201,7 +35181,7 @@
     },
     {
      "k": "a",
-     "s": "Estimates at age 76: nest egg $276,000 becomes $282,000; the chance your money lasts 99.4 percent becomes 99.4 percent."
+     "s": "Estimates at age 76: nest egg $265,000 becomes $271,000; the chance your money lasts 99.5 percent becomes 99.7 percent."
     },
     {
      "k": "t",
@@ -35249,7 +35229,7 @@
     },
     {
      "k": "t",
-     "s": "$276,000 → $282,000"
+     "s": "$265,000 → $271,000"
     },
     {
      "k": "t",
@@ -35257,7 +35237,7 @@
     },
     {
      "k": "t",
-     "s": "99.4% → 99.4%"
+     "s": "99.5% → 99.7%"
     },
     {
      "k": "t",
@@ -35328,7 +35308,7 @@
    "retiree": [
     {
      "k": "a",
-     "s": "Will my money last to 95: 99.4 percent, an estimate."
+     "s": "Will my money last to 95: 99.5 percent, an estimate."
     },
     {
      "k": "t",
@@ -35336,7 +35316,7 @@
     },
     {
      "k": "t",
-     "s": "99.4"
+     "s": "99.5"
     },
     {
      "k": "t",
@@ -35356,7 +35336,7 @@
     },
     {
      "k": "t",
-     "s": "99.4"
+     "s": "99.5"
     },
     {
      "k": "t",
@@ -35476,7 +35456,7 @@
     },
     {
      "k": "a",
-     "s": "Yearly growth assumed: 10.4%, the blended benchmark for your mix. Opens where you can change it."
+     "s": "Yearly growth assumed: 6.0%, the blended benchmark for your mix. Opens where you can change it."
     },
     {
      "k": "t",
@@ -35488,7 +35468,7 @@
     },
     {
      "k": "t",
-     "s": "10.4%"
+     "s": "6.0%"
     },
     {
      "k": "t",
@@ -35513,6 +35493,14 @@
     {
      "k": "t",
      "s": "›"
+    },
+    {
+     "k": "a",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose. Tap to choose its tax type."
+    },
+    {
+     "k": "t",
+     "s": "Savings / portfolio — tax type not stated; counted as taxable until you choose."
     },
     {
      "k": "t",
@@ -37753,7 +37741,7 @@
  },
  "callsites": [
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:71",
+   "site": "MoneyKeel/functions/_figure-spec.ts:72",
    "routes": [
     "/account-detail",
     "/analytics",
@@ -37837,7 +37825,7 @@
    "renders": 1257
   },
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:73",
+   "site": "MoneyKeel/functions/_figure-spec.ts:74",
    "routes": [
     "/holding-detail"
    ],
@@ -37895,7 +37883,7 @@
    "renders": 92
   },
   {
-   "site": "src/components/DrawSteerSheet.tsx:136",
+   "site": "src/components/DrawSteerSheet.tsx:137",
    "routes": [
     "/cashflow"
    ],
@@ -37910,7 +37898,7 @@
    "renders": 5
   },
   {
-   "site": "src/components/DrawSteerSheet.tsx:142",
+   "site": "src/components/DrawSteerSheet.tsx:143",
    "routes": [
     "/cashflow"
    ],
@@ -38092,7 +38080,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PlanInputs.tsx:119",
+   "site": "src/components/PlanInputs.tsx:122",
    "routes": [
     "/plan"
    ],
@@ -38107,7 +38095,7 @@
    "renders": 1
   },
   {
-   "site": "src/components/PlanInputs.tsx:141",
+   "site": "src/components/PlanInputs.tsx:144",
    "routes": [
     "/plan"
    ],
@@ -38121,12 +38109,12 @@
    "values": [
     "$1,080,000",
     "$1,160,000",
-    "$110,000"
+    "$130,000"
    ],
    "renders": 4
   },
   {
-   "site": "src/components/PlanInputs.tsx:148",
+   "site": "src/components/PlanInputs.tsx:151",
    "routes": [
     "/plan"
    ],
@@ -38145,7 +38133,7 @@
    "renders": 4
   },
   {
-   "site": "src/components/PlanInputs.tsx:154",
+   "site": "src/components/PlanInputs.tsx:163",
    "routes": [
     "/plan"
    ],
@@ -38168,7 +38156,7 @@
    "renders": 8
   },
   {
-   "site": "src/components/PlanInputs.tsx:157",
+   "site": "src/components/PlanInputs.tsx:166",
    "routes": [
     "/plan"
    ],
@@ -38191,7 +38179,7 @@
    "renders": 8
   },
   {
-   "site": "src/components/PlanInputs.tsx:172",
+   "site": "src/components/PlanInputs.tsx:181",
    "routes": [
     "/plan"
    ],
@@ -38206,7 +38194,7 @@
    "renders": 1
   },
   {
-   "site": "src/components/PlanInputs.tsx:174",
+   "site": "src/components/PlanInputs.tsx:183",
    "routes": [
     "/plan"
    ],
@@ -38221,7 +38209,7 @@
    "renders": 1
   },
   {
-   "site": "src/components/PlanInputs.tsx:176",
+   "site": "src/components/PlanInputs.tsx:185",
    "routes": [
     "/plan"
    ],
@@ -38236,7 +38224,7 @@
    "renders": 1
   },
   {
-   "site": "src/components/PlanInputs.tsx:242",
+   "site": "src/components/PlanInputs.tsx:251",
    "routes": [
     "/plan"
    ],
@@ -38331,7 +38319,7 @@
    "inside": "onCourseSentence",
    "line": "const near = (n: number) => money(Math.max(1000, Math.round(n / 1000) * 1000));",
    "values": [
-    "$1,031,000"
+    "$439,000"
    ],
    "renders": 10
   },
@@ -38558,7 +38546,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:100",
+   "site": "src/screens/GoalsScreen.tsx:101",
    "routes": [
     "/goals"
    ],
@@ -38573,7 +38561,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:107",
+   "site": "src/screens/GoalsScreen.tsx:108",
    "routes": [
     "/goals"
    ],
@@ -38593,7 +38581,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:141",
+   "site": "src/screens/GoalsScreen.tsx:142",
    "routes": [
     "/goals"
    ],
@@ -38613,7 +38601,7 @@
    "renders": 16
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:144",
+   "site": "src/screens/GoalsScreen.tsx:145",
    "routes": [
     "/goals"
    ],
@@ -38631,7 +38619,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:150",
+   "site": "src/screens/GoalsScreen.tsx:151",
    "routes": [
     "/goals"
    ],
@@ -38647,7 +38635,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:206",
+   "site": "src/screens/GoalsScreen.tsx:207",
    "routes": [
     "/goals"
    ],
@@ -38665,7 +38653,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:233",
+   "site": "src/screens/GoalsScreen.tsx:234",
    "routes": [
     "/goals"
    ],
@@ -38674,7 +38662,7 @@
     "/goals|worker"
    ],
    "inside": "GoalsScreen",
-   "line": "<Text style={styles.resultSub}>around {monthsToDate(plan.months)} · {money(totalDebt)} across {liabilities.length} debt{liabilities.length > 1 ? 's' : ''}</Text>",
+   "line": "<Text style={styles.resultSub}>around {monthsToDate(plan.months)} · {money(totalDebt)} across {plural(liabilities.length, 'debt')}</Text>",
    "values": [
     "$14,000",
     "$284,200"
@@ -38682,7 +38670,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:234",
+   "site": "src/screens/GoalsScreen.tsx:235",
    "routes": [
     "/goals"
    ],
@@ -38699,7 +38687,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:302",
+   "site": "src/screens/GoalsScreen.tsx:303",
    "routes": [
     "/goals"
    ],
@@ -38719,7 +38707,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:304",
+   "site": "src/screens/GoalsScreen.tsx:305",
    "routes": [
     "/goals"
    ],
@@ -38737,7 +38725,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:91",
+   "site": "src/screens/GoalsScreen.tsx:92",
    "routes": [
     "/goals"
    ],
@@ -38754,7 +38742,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:92",
+   "site": "src/screens/GoalsScreen.tsx:93",
    "routes": [
     "/goals"
    ],
@@ -39352,7 +39340,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/MultiGoalScreen.tsx:131",
+   "site": "src/screens/MultiGoalScreen.tsx:135",
    "routes": [
     "/multi-goal"
    ],
@@ -39368,7 +39356,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/MultiGoalScreen.tsx:133",
+   "site": "src/screens/MultiGoalScreen.tsx:137",
    "routes": [
     "/multi-goal"
    ],
@@ -39384,7 +39372,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/MultiGoalScreen.tsx:151",
+   "site": "src/screens/MultiGoalScreen.tsx:155",
    "routes": [
     "/multi-goal"
    ],
@@ -39402,7 +39390,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/MultiGoalScreen.tsx:164",
+   "site": "src/screens/MultiGoalScreen.tsx:168",
    "routes": [
     "/multi-goal"
    ],
@@ -39422,7 +39410,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/MultiGoalScreen.tsx:168",
+   "site": "src/screens/MultiGoalScreen.tsx:172",
    "routes": [
     "/multi-goal"
    ],
@@ -39442,7 +39430,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/MultiGoalScreen.tsx:79",
+   "site": "src/screens/MultiGoalScreen.tsx:81",
    "routes": [
     "/multi-goal"
    ],
@@ -39461,7 +39449,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:233",
+   "site": "src/screens/PlanHubScreen.tsx:234",
    "routes": [
     "/plan"
    ],
@@ -39476,7 +39464,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:273",
+   "site": "src/screens/PlanHubScreen.tsx:274",
    "routes": [
     "/plan"
    ],
@@ -39485,7 +39473,7 @@
     "/plan|worker"
    ],
    "inside": "PlanHubScreen",
-   "line": "<Text style={styles.doorCredit}>✓ What you have — already in: {door.credit.accounts} {accounts.some((a: any) => a.source === 'connected') ? 'connected ' : ''}account{door.credit.accounts === 1 ? '' : ",
+   "line": "<Text style={styles.doorCredit}>✓ What you have — already in: {plural(door.credit.accounts, 'account', `${door.credit.accounts}${accounts.some((a: any) => a.source === 'connected') ? ' connected' : ''",
    "values": [
     "$165,000",
     "$729,800"
@@ -39493,7 +39481,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:308",
+   "site": "src/screens/PlanHubScreen.tsx:309",
    "routes": [
     "/plan"
    ],
@@ -39510,7 +39498,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:314",
+   "site": "src/screens/PlanHubScreen.tsx:315",
    "routes": [
     "/plan"
    ],
@@ -39526,7 +39514,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:316",
+   "site": "src/screens/PlanHubScreen.tsx:317",
    "routes": [
     "/plan"
    ],
@@ -39541,7 +39529,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:317",
+   "site": "src/screens/PlanHubScreen.tsx:318",
    "routes": [
     "/plan"
    ],
@@ -39556,7 +39544,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:318",
+   "site": "src/screens/PlanHubScreen.tsx:319",
    "routes": [
     "/plan"
    ],
@@ -39571,7 +39559,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:327",
+   "site": "src/screens/PlanHubScreen.tsx:328",
    "routes": [
     "/plan"
    ],
@@ -39587,7 +39575,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:328",
+   "site": "src/screens/PlanHubScreen.tsx:329",
    "routes": [
     "/plan"
    ],
@@ -39602,7 +39590,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:101",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:102",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39619,7 +39607,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:186",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:189",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39642,7 +39630,7 @@
    "renders": 16
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:188",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:191",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39665,7 +39653,7 @@
    "renders": 16
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:202",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:205",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39682,7 +39670,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:204",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:207",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39699,7 +39687,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:37",
+   "site": "src/screens/RetirementCockpit.tsx:39",
    "routes": [
     "/retirement"
    ],
@@ -39724,7 +39712,7 @@
    "renders": 66
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:495",
+   "site": "src/screens/RetirementCockpit.tsx:501",
    "routes": [
     "/retirement"
    ],
@@ -39739,7 +39727,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:524",
+   "site": "src/screens/RetirementCockpit.tsx:531",
    "routes": [
     "/retirement"
    ],
@@ -39756,7 +39744,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:559",
+   "site": "src/screens/RetirementCockpit.tsx:566",
    "routes": [
     "/retirement"
    ],
@@ -39772,7 +39760,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:634",
+   "site": "src/screens/RetirementCockpit.tsx:643",
    "routes": [
     "/retirement"
    ],
@@ -39792,7 +39780,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:643",
+   "site": "src/screens/RetirementCockpit.tsx:652",
    "routes": [
     "/retirement"
    ],
@@ -39812,7 +39800,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:652",
+   "site": "src/screens/RetirementCockpit.tsx:662",
    "routes": [
     "/retirement"
    ],
@@ -39827,27 +39815,28 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:676",
-   "routes": [
-    "/retirement"
-   ],
-   "states": [
-    "/retirement|rich"
-   ],
-   "inside": "RetirementCockpit",
-   "line": "? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')} · ⚠ Set a type ›</Text>",
-   "values": [
-    "$10K"
-   ],
-   "renders": 2
-  },
-  {
-   "site": "src/screens/RetirementCockpit.tsx:677",
+   "site": "src/screens/RetirementCockpit.tsx:686",
    "routes": [
     "/retirement"
    ],
    "states": [
     "/retirement|retiree",
+    "/retirement|rich"
+   ],
+   "inside": "RetirementCockpit",
+   "line": "? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')} · ⚠ Set a type ›</Text>",
+   "values": [
+    "$10K",
+    "$250K"
+   ],
+   "renders": 4
+  },
+  {
+   "site": "src/screens/RetirementCockpit.tsx:687",
+   "routes": [
+    "/retirement"
+   ],
+   "states": [
     "/retirement|rich",
     "/retirement|worker"
    ],
@@ -39858,13 +39847,12 @@
     "$45K",
     "$400K",
     "$300K",
-    "$20K",
-    "$250K"
+    "$20K"
    ],
-   "renders": 12
+   "renders": 10
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:738",
+   "site": "src/screens/RetirementCockpit.tsx:748",
    "routes": [
     "/retirement"
    ],
@@ -39880,7 +39868,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:755",
+   "site": "src/screens/RetirementCockpit.tsx:765",
    "routes": [
     "/retirement"
    ],
@@ -39899,7 +39887,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:777",
+   "site": "src/screens/RetirementCockpit.tsx:787",
    "routes": [
     "/retirement"
    ],
@@ -39917,7 +39905,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:779",
+   "site": "src/screens/RetirementCockpit.tsx:789",
    "routes": [
     "/retirement"
    ],
@@ -39934,7 +39922,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:794",
+   "site": "src/screens/RetirementCockpit.tsx:804",
    "routes": [
     "/retirement"
    ],
@@ -39949,7 +39937,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:960",
+   "site": "src/screens/RetirementCockpit.tsx:975",
    "routes": [
     "/retirement"
    ],
@@ -39972,7 +39960,7 @@
    "renders": 14
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:965",
+   "site": "src/screens/RetirementCockpit.tsx:980",
    "routes": [
     "/retirement"
    ],
@@ -39995,7 +39983,7 @@
    "renders": 14
   },
   {
-   "site": "src/screens/RothScreen.tsx:132",
+   "site": "src/screens/RothScreen.tsx:135",
    "routes": [
     "/roth"
    ],
@@ -40012,7 +40000,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RothScreen.tsx:137",
+   "site": "src/screens/RothScreen.tsx:142",
    "routes": [
     "/roth"
    ],
@@ -40030,7 +40018,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RothScreen.tsx:138",
+   "site": "src/screens/RothScreen.tsx:143",
    "routes": [
     "/roth"
    ],
@@ -40048,7 +40036,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RothScreen.tsx:190",
+   "site": "src/screens/RothScreen.tsx:195",
    "routes": [
     "/roth"
    ],
@@ -40064,7 +40052,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RothScreen.tsx:84",
+   "site": "src/screens/RothScreen.tsx:85",
    "routes": [
     "/roth"
    ],
@@ -40082,7 +40070,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RothScreen.tsx:85",
+   "site": "src/screens/RothScreen.tsx:86",
    "routes": [
     "/roth"
    ],
@@ -40100,7 +40088,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/SsTimingScreen.tsx:102",
+   "site": "src/screens/SsTimingScreen.tsx:103",
    "routes": [
     "/ss-timing"
    ],
@@ -40115,7 +40103,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/SsTimingScreen.tsx:134",
+   "site": "src/screens/SsTimingScreen.tsx:137",
    "routes": [
     "/ss-timing"
    ],
@@ -40132,7 +40120,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/SsTimingScreen.tsx:148",
+   "site": "src/screens/SsTimingScreen.tsx:151",
    "routes": [
     "/ss-timing"
    ],
@@ -40154,7 +40142,7 @@
    "renders": 18
   },
   {
-   "site": "src/screens/SsTimingScreen.tsx:150",
+   "site": "src/screens/SsTimingScreen.tsx:153",
    "routes": [
     "/ss-timing"
    ],
@@ -40173,7 +40161,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/SsTimingScreen.tsx:151",
+   "site": "src/screens/SsTimingScreen.tsx:154",
    "routes": [
     "/ss-timing"
    ],
@@ -40434,7 +40422,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/WhatIfScreen.tsx:102",
+   "site": "src/screens/WhatIfScreen.tsx:105",
    "routes": [
     "/what-if"
    ],
@@ -40451,7 +40439,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/WhatIfScreen.tsx:143",
+   "site": "src/screens/WhatIfScreen.tsx:146",
    "routes": [
     "/what-if"
    ],
@@ -40467,13 +40455,13 @@
     "$5,734,057",
     "$9,483,181",
     "$10,134,248",
-    "$276,000",
-    "$282,000"
+    "$265,000",
+    "$271,000"
    ],
    "renders": 6
   },
   {
-   "site": "src/screens/WhatIfScreen.tsx:147",
+   "site": "src/screens/WhatIfScreen.tsx:150",
    "routes": [
     "/what-if"
    ],
@@ -40492,7 +40480,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/WhatIfScreen.tsx:156",
+   "site": "src/screens/WhatIfScreen.tsx:159",
    "routes": [
     "/what-if"
    ],
@@ -40508,13 +40496,13 @@
     "$5,734,057",
     "$9,483,181",
     "$10,134,248",
-    "$276,000",
-    "$282,000"
+    "$265,000",
+    "$271,000"
    ],
    "renders": 6
   },
   {
-   "site": "src/screens/WillItLastScreen.tsx:50",
+   "site": "src/screens/WillItLastScreen.tsx:51",
    "routes": [
     "/will-it-last"
    ],
@@ -40529,7 +40517,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/WillItLastScreen.tsx:51",
+   "site": "src/screens/WillItLastScreen.tsx:52",
    "routes": [
     "/will-it-last"
    ],
@@ -40544,7 +40532,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/WillItLastScreen.tsx:52",
+   "site": "src/screens/WillItLastScreen.tsx:53",
    "routes": [
     "/will-it-last"
    ],

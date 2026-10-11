@@ -6,6 +6,7 @@
 // Honesty rules: if a reorder barely moves the answer we say 'about the same' instead of
 // inventing precision; and the will-it-last PERCENT is deliberately not re-run per order —
 // the odds model isn't order-aware, and a faked shift would be a trust bug.
+import { CountedTaxableLines } from './CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { Modal, View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useStore } from '../store/useStore';
@@ -151,6 +152,9 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
               </View>
             );
           })}
+
+          {/* an account with no tax type is in Taxable above, and named; a tap closes the sheet and opens its editor (DEC-4105, 2026-10-10) */}
+          <CountedTaxableLines accounts={accounts} onOpen={onClose} />
 
           <TouchableOpacity accessibilityRole="button" onPress={() => setWhyOpen(!whyOpen)} accessibilityLabel="Why this order?">
             <Text style={s.link}>Why this order? {whyOpen ? '▴' : '›'}</Text>

@@ -1,6 +1,7 @@
 // Individual bonds (Phase B). A bond is held as an AssetAccount with bond fields (face_value,
 // coupon_rate, maturity_date); its `balance` is the current value, so it flows into Net Worth and the
 // nest egg via the existing balance machinery. These pure helpers compute the bond-specific metrics.
+import { plural } from '../_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import type { AssetAccount } from '../assets';
 import { assetClassOf } from '../assets';
 import { isoLocalDate } from '../_shared/dates';
@@ -122,7 +123,6 @@ export function isBond(a: AssetAccount): boolean {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-003 institution name
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
@@ -144,7 +144,9 @@ export function bondInfo(a: AssetAccount): BondInfo {
            couponRate: a.coupon_rate == null ? null : a.coupon_rate,
            maturity: a.maturity_date || '', value: a.balance || 0,
            accruedInterest: a.accrued_interest == null ? null : a.accrued_interest,
-           isCd: (a.kind as string) === 'cd' || CD_WORDS.test(`${a.label ?? ''} ${(a as any).institution ?? ''}`),
+           // A CD IS TOLD BY THE ACCOUNT'S OWN NAME OR TYPE, NEVER ITS INSTITUTION (DEC-4036c, 2026-10-10): a
+           // brokerage account at "CD Capital" is not a CD — the institution names the firm, not what is held.
+           isCd: (a.kind as string) === 'cd' || CD_WORDS.test(a.label ?? ''),
            // (DEC-3837, 2026-10-10) bought through a broker only when the person said so; anything else is a bank CD
            cdBought: a.cd_bought === 'broker' ? 'broker' : 'bank' };
 }
@@ -456,7 +458,7 @@ export function currentYield(b: BondInfo): number | null {
  *     est = estimated accrued(b, now)
  *     nothing   when est = nothing
  *     pct = `${+((coupon rate as number) × 100).to fixed(3)}%`
- *     the answer = `added estimated $${math.round(est.amount).to locale string('en − US')} in accrued interest to bond value at ${pct} coupon for ${est.days} days to calculate YTM. if this is not accurate, enter actual accrued interest`
+ *     the answer = `added estimated $${math.round(est.amount).to locale string('en − US')} in accrued interest to bond value at ${pct} coupon for ${plural(est.days, 'day')} to calculate YTM. if this is not accurate, enter actual accrued interest`
  *
  * Called by ... MK-NW-F-072 rowOf
  *
@@ -495,7 +497,7 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
   const est = estimatedAccrued(b, now);
   if (est == null) return null;
   const pct = `${+((b.couponRate as number) * 100).toFixed(3)}%`;
-  return `Added estimated $${Math.round(est.amount).toLocaleString('en-US')} in accrued interest to bond value at ${pct} coupon for ${est.days} days to calculate YTM. If this is not accurate, enter actual accrued interest`;
+  return `Added estimated $${Math.round(est.amount).toLocaleString('en-US')} in accrued interest to bond value at ${pct} coupon for ${plural(est.days, 'day')} to calculate YTM. If this is not accurate, enter actual accrued interest`;
 }
 
 /** The interest a bond has earned since its last yearly coupon, estimated from the coupon schedule — face × rate × days since the last coupon ÷ days in that coupon year; nothing for a bank CD, a matured or undated bond, or one with no face or rate. */

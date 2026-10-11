@@ -61,7 +61,7 @@ describe('a rate taken from a payslip is applied to pay, and to nothing else', (
     baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800', landsTypical: '5000',
     hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both',
     partnerWage: { baseSalary: '4500', salaryFreq: 'monthly', c_401k: '400', landsTypical: '3300' },
-    invAnnual: '3000', incomeSources: ['employment', 'rental', 'investment'], rentalIncome: '1800', rentalExpenses: '600',
+    invAnnual: '3000', incomeSources: ['employment', 'rental', 'investment'], rentals: [{ type: 'long', income: '1800', expenses: '600', property_id: 'p1' }],   // names its property (DEC-4059d, 2026-10-10)
   };
   const month = (op: any) => incomeMonthlyGrid(op, 'available')[0].amount;
 
@@ -69,14 +69,14 @@ describe('a rate taken from a payslip is applied to pay, and to nothing else', (
     expect(month(HOUSE)).toBeCloseTo(9_500, 0);
   });
   test('the rent arrives whole: adding it raises the month by exactly the rent', () => {
-    const noRent = { ...HOUSE, rentalIncome: '0', rentalExpenses: '0', incomeSources: ['employment', 'investment'] };
+    const noRent = { ...HOUSE, rentals: [], incomeSources: ['employment', 'investment'] };
     expect(month(HOUSE) - month(noRent)).toBeCloseTo(1_200, 0);
   });
   test('and dividends left where they are earned take nothing off an ENTERED take-home', () => {
     expect(month({ ...HOUSE, invAnnual: '0' })).toBeCloseTo(month(HOUSE), 0);
   });
   test('the yearly tax still counts both — they are in what is taxed, only not in a month’s deduction', () => {
-    expect(taxableAnnual(HOUSE)).toBeCloseTo(taxableAnnual({ ...HOUSE, invAnnual: '0', rentalIncome: '0', rentalExpenses: '0' }) + 3_000 + 14_400, 0);
+    expect(taxableAnnual(HOUSE)).toBeCloseTo(taxableAnnual({ ...HOUSE, invAnnual: '0', rentals: [] }) + 3_000 + 14_400, 0);
   });
   test('the CALCULATED rate is untouched: with no take-home entered, the tax on dividends still comes out of the pay', () => {
     expect(lands({ ...WAGE, invAnnual: '3000' })).toBeLessThan(lands(WAGE));

@@ -3,11 +3,83 @@
 // depletion age, a tax-efficient withdrawal order, and required minimum distributions (RMDs).
 import type { AssetAccount } from '../assets';
 import { rmdStartAgeFromAge, rmdDivisor as tableRmdDivisor } from '../../../Calculation Module code/engines/rmd';
-import { earmarkedAmount, primaryCarIdOf, primaryHomeIdOf } from '../assets';
+import { earmarkedAmount, primaryCarIdOf, primaryHomeIdOf, accountDisplayNames, taxTreatmentOf, assetKind } from '../assets';
 import { marketValue, costBasis } from '../performance';
 
 // ---- where the money sits, by tax treatment ----
 export interface BucketSplit { taxable: number; preTax: number; roth: number; cash: number; total: number; }
+/** An account the split counted as taxable because no tax type is stated on it (DEC-4105, 2026-10-10). */
+export interface CountedTaxable { asset_id: string; name: string; }
+/** The split, and the accounts in its taxable money for want of a tax type — each screen that shows a figure built
+ *  from the split names them (DEC-4105, 2026-10-10). Kept apart from BucketSplit, whose keys are the four buckets. */
+export type TaxSplit = BucketSplit & { countedTaxableNotStated: CountedTaxable[] };
+
+/** WHICH OF THE SPLIT'S BUCKETS AN ACCOUNT FALLS IN — the one rule taxBucketSplit and taxableGainShare share, so the
+ *  same money is taxable in both (DEC-4105, 2026-10-10, tenet 4). Property is in none; a stored pre-tax, Roth or cash
+ *  type is its own bucket; everything else — a stored Taxable, and an account with no tax type — is taxable. */
+// THE SAME READING AS THE ACCOUNT'S OWN PAGE (taxTreatmentOf, MK-NW-F-012), so a 401(k) saved with no tax type is
+// pre-tax here as it is there, an HSA is pre-tax and a 529 tax-free whatever bucket is stored (DEC-4036d/e). Only an
+// account whose tax the app cannot tell is counted taxable — and named (DEC-4105, 2026-10-10, tenet 4).
+/* ─ MK-PL-F-086 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * splitBucketOf
+ *
+ * Answers ..... WHICH OF THE SPLIT'S BUCKETS AN ACCOUNT FALLS IN — the one rule taxBucketSplit and taxableGainShare share, so the same money is taxable in both (DEC-4105, 2026-10-10, tenet 4).
+ *
+ * Formula .....
+ *     nothing   when tax bucket = 'PROPERTY'
+ *     'cash'   when tax bucket = 'CASH' (or !tax bucket and asset kind(kind).bucket = 'CASH' when missing or zero)
+ *     t = tax treatment of(a)
+ *     the answer:
+ *     'preTax'   if t = 'tax_deferred'
+ *     'roth'   if t = 'tax_free'
+ *     'taxable'   otherwise   otherwise
+ *
+ * Called by ... MK-PL-F-001 taxBucketSplit · MK-PL-F-081 taxableGainShare
+ *               MK-PL-F-087 taxTypeNotStated
+ *
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               MK-PL-F-087 taxTypeNotStated · MK-PL-F-081 taxableGainShare
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-086
+ * Changed ..... not in git yet (—)
+ */
+const splitBucketOf = (a: AssetAccount): keyof BucketSplit | null => {
+  if (a.tax_bucket === 'PROPERTY') return null;
+  if (a.tax_bucket === 'CASH' || (!a.tax_bucket && assetKind(a.kind)?.bucket === 'CASH')) return 'cash';
+  const t = taxTreatmentOf(a);
+  return t === 'tax_deferred' ? 'preTax' : t === 'tax_free' ? 'roth' : 'taxable';
+};
+/** counted taxable only because no tax type is stated on it (DEC-4105, 2026-10-10) */
+/* ─ MK-PL-F-087 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * taxTypeNotStated
+ *
+ * Answers ..... counted taxable only because no tax type is stated on it (DEC-4105, 2026-10-10)
+ *
+ * Formula .....
+ *     split bucket of(a) = 'taxable' and tax treatment of(a) = 'not_stated'
+ *
+ * Called by ... MK-PL-F-001 taxBucketSplit
+ *
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-087
+ * Changed ..... not in git yet (—)
+ */
+const taxTypeNotStated = (a: AssetAccount) => splitBucketOf(a) === 'taxable' && taxTreatmentOf(a) === 'not_stated';
 /* ─ MK-PL-F-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * taxBucketSplit
  *
@@ -19,7 +91,10 @@ export interface BucketSplit { taxable: number; preTax: number; roth: number; ca
  *     roth = 0
  *     cash = 0
  *     total = 0
+ *     counted taxable not stated = []
  *     car = primary car id of(accounts ?? []), home = primary home id of(accounts ?? [])
+ *     names = account display names(accounts ?? [])
+ *     bucket = split bucket of(a)
  *     v = earmarked amount(a, car, home)
  *     the answer = s
  *
@@ -32,28 +107,48 @@ export interface BucketSplit { taxable: number; preTax: number; roth: number; ca
  *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-001
  * Changed ..... 2026-06-05 (8ada09f)
  */
-export function taxBucketSplit(accounts: AssetAccount[]): BucketSplit {
-  const s: BucketSplit = { taxable: 0, preTax: 0, roth: 0, cash: 0, total: 0 };
+export function taxBucketSplit(accounts: AssetAccount[]): TaxSplit {
+  const s: TaxSplit = { taxable: 0, preTax: 0, roth: 0, cash: 0, total: 0, countedTaxableNotStated: [] };
   // the household's home and car, so the shares agree with the nest egg (outside review OpenAI final, 2026-10-09, DEC-2747e · DEC-2746b)
   const car = primaryCarIdOf(accounts ?? []), home = primaryHomeIdOf(accounts ?? []);
+  const names = accountDisplayNames(accounts ?? []);   // the one account name, as every screen writes it
   for (const a of accounts ?? []) {
-    if (a.tax_bucket === 'PROPERTY') continue;
+    const bucket = splitBucketOf(a);
+    if (bucket == null) continue;               // property
     const v = earmarkedAmount(a, car, home);    // retirement-earmarked portion of the account
     if (v <= 0) continue;
-    if (a.tax_bucket === 'PRE_TAX') s.preTax += v;
-    else if (a.tax_bucket === 'ROTH') s.roth += v;
-    else if (a.tax_bucket === 'CASH') s.cash += v;
-    else s.taxable += v;                          // TAXABLE
+    s[bucket] += v;                             // no tax type stated → taxable, as before
     s.total += v;
+    // NO TAX TYPE IS COUNTED TAXABLE, AND NAMED (DEC-4105, 2026-10-10). His words: "An account with no tax type would
+    // be counted as taxable for the plan, with a line naming it". The split says which accounts it counted that way.
+    if (taxTypeNotStated(a)) s.countedTaxableNotStated.push({ asset_id: a.asset_id, name: names.get(a.asset_id) ?? a.label });
   }
-  (Object.keys(s) as (keyof BucketSplit)[]).forEach((k) => { s[k] = (s[k]); });
   return s;
 }
+
+/** THE LINE THAT NAMES IT (DEC-4105, 2026-10-10) — his words, one per account the split counted taxable for want of a
+ *  tax type. Every Plan and retirement screen that shows a figure built from the split prints these, once. */
+/* ─ MK-PL-F-088 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * countedTaxableLine
+ *
+ * Answers ..... THE LINE THAT NAMES IT (DEC-4105, 2026-10-10) — his words, one per account the split counted taxable for want of a tax type.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-088
+ * Changed ..... not in git yet (—)
+ */
+export const countedTaxableLine = (name: string) => `${name} — tax type not stated; counted as taxable until you choose.`;
 
 // ---- net withdrawal & rate ----
 export type RateBand = 'safe' | 'moderate' | 'high' | 'none';
@@ -564,8 +659,7 @@ export function drawOrderOutcome(
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-005 holding price
+ * Reads ....... MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
  *
  * Decides .....
@@ -578,7 +672,9 @@ export function drawOrderOutcome(
 export function taxableGainShare(accounts: AssetAccount[], priceOf: (ticker: string) => number | null): number | null {
   let value = 0, basis = 0;
   for (const a of accounts ?? []) {
-    if (a.tax_bucket !== 'TAXABLE') continue;
+    // THE SAME TAXABLE MONEY AS THE SPLIT (DEC-4105, 2026-10-10, tenet 4): an account with no tax type is taxable in the
+    // split, so its gains count here too — it used to read only accounts stored Taxable, leaving that money taxed with no gain.
+    if (splitBucketOf(a) !== 'taxable') continue;
     for (const p of a.positions ?? []) {
       const price = p.last_price ?? priceOf(p.ticker);
       if (price == null) continue;

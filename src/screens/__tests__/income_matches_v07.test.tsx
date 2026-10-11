@@ -51,7 +51,7 @@ test('frame 16 · Your income, with data — the take-home, row by row, then wha
     baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800', hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both',
     partnerWage: { baseSalary: '4500', salaryFreq: 'monthly', c_401k: '400' },
     invAnnual: '3000', bonusAnnual: '12000', bonusMonth: 12, taxMode: 'manual', manualTaxRate: '24',
-    incomeSources: ['employment', 'rental', 'investment'], rentalIncome: '1800', rentalExpenses: '600',
+    incomeSources: ['employment', 'rental', 'investment'], rentals: [{ type: 'long', income: '1800', expenses: '600', property_id: 'house' }],   // names its property (DEC-4059d, 2026-10-10)
   });
   const want = month(norm(phone(16, /^Edit your income$/))), got = BACK(month(norm(built)));
   expect(want.split(' ').length).toBeGreaterThan(90);

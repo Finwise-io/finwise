@@ -119,7 +119,8 @@ describe('THE SMALL RULES', () => {
     expect(wrapperAccount('401k')).toEqual({ kind: '401k', tax_bucket: 'PRE_TAX' });
     expect(wrapperAccount('roth').tax_bucket).toBe('ROTH');
     expect(wrapperAccount('taxable').tax_bucket).toBe('TAXABLE');
-    expect(wrapperAccount(null).tax_bucket).toBe('TAXABLE');       // taxable is the cautious default
+    // MOVED 2026-10-10 by his rule DEC-4036f: nothing chosen is never assumed taxable — the tax type stays unstated
+    expect(wrapperAccount(null).tax_bucket).toBeUndefined();
   });
 
   test('a home is assumed to be the one you live in — the cautious answer for the nest egg', () => {

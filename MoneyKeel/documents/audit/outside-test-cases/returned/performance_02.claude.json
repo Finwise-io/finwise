@@ -1,0 +1,2027 @@
+{
+  "batch": "performance 02",
+  "written_by": "claude",
+  "formula_checks": [
+    {
+      "id": "MK-PF-F-001",
+      "name": "totalShares",
+      "verdict": "INCOMPLETE",
+      "why": "Adding the shares of every purchase is right. But the formula says a missing share figure counts as zero. A broker-linked purchase that arrives with no quantity then silently drops out, and every figure built on the count (cost per share, market value, gain) is understated with no sign anything is missing. That is 'something missing counted as zero'. The registry tag is fine.",
+      "should_be": "Total shares = the shares of every purchase added up. When any purchase has no share figure (missing, not a number), there is no total: return nothing and let the screen say a purchase is missing its quantity. A recorded 0 is a real 0 and still adds nothing.",
+      "rests_on": "Ordinary arithmetic; the brief's rule that something missing is not counted as zero.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "verdict": "RIGHT",
+      "why": "One contract of a US listed equity option is 100 shares unless the contract has been adjusted (after a split or special dividend it can deliver, say, 102 shares). Taking the holding's own stated figure when it is above zero and otherwise 100 for an option and 1 for everything else is right. A zero or negative stated figure is rightly ignored. Low: the registry tag MK-XS-I-055 (the account's wrapper) has nothing to do with this function.",
+      "should_be": "",
+      "rests_on": "Standard US equity option contract size (100 shares; adjusted contracts state their own deliverable).",
+      "severity": ""
+    },
+    {
+      "id": "MK-PF-F-002",
+      "name": "costBasis",
+      "verdict": "INCOMPLETE",
+      "why": "Shares × cost per share, summed, × the contract multiplier is the right total cost (an option premium is quoted per share, so contracts × premium × 100 is what was paid). But the formula is silent on a purchase with no cost per share. Holdings transferred in from another broker often arrive with no basis; adding nothing for that lot makes the total look complete when it is not, and it then feeds avgCost, unrealizedGain and totalROI. The figure that uses it (MK-NW-M-032) says it refuses when no purchase price is recorded, so the function should say so too.",
+      "should_be": "Cost = Σ (shares × cost per share) × multiplier over every purchase. When any purchase holding shares has no cost per share, return nothing (unknown), not a partial total.",
+      "rests_on": "Ordinary arithmetic; refusal rule of MK-NW-M-032 ('No purchase price recorded').",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-003",
+      "name": "avgCost",
+      "verdict": "WRONG",
+      "why": "Cost ÷ (shares × multiplier) is the right per-share average, and taking an option's multiplier back out is right (its what_it_is_for says 'divided by the shares held', which is loose for options; the formula is the correct one). But '0 when no shares are held' invents a number: the screen figure MK-NW-M-032 'Price paid (average)' would show $0.00, which reads as 'paid nothing', and its own refusal rule says no number when no purchase price is recorded. It also inherits costBasis's silence on a lot with no cost, which would give an average that is too low.",
+      "should_be": "Average price paid = cost ÷ (shares held × multiplier), kept unrounded and shown to two decimals. No answer (refuse) when no shares are held or when any lot holding shares has no cost.",
+      "rests_on": "Owner DEC-0264 / DEC-0310 (full precision, round once); refusal rule of MK-NW-M-032.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-004",
+      "name": "marketValue",
+      "verdict": "WRONG",
+      "why": "Shares × price × multiplier is right when there is a price. '0 when there is no price' is not: a holding with shares and no price is worth something we do not know, not $0. Shown as $0, it drops out of every total and makes the person look poorer; fed into unrealizedGain it would read as a total loss (the next card hides that with its own 0). Elsewhere the app already treats an unpriced holding as unknown: MK-NW-F-127 says a holding that holds something with no price history has a gain that 'cannot be known', and MK-NW-F-128 falls back to the broker's last mark or the value it was built at. This card does neither.",
+      "should_be": "Market value = shares × price × multiplier when there is a price. With no price: no answer (unknown), so the caller can fall back to the broker's last mark or a hand-built value (MK-NW-F-128) or say the holding is unpriced.",
+      "rests_on": "Brief: something missing is not counted as zero; consistency with MK-NW-F-127 / MK-NW-F-128.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-005",
+      "name": "unrealizedGain",
+      "verdict": "WRONG",
+      "why": "Market value − cost is the right since-purchase gain, and it agrees with the 'bought inside the period' branch of MK-NW-F-091 / MK-NW-F-127 (value − cost); those cards' other branches measure a different thing (the gain over a window), so there is no clash there. The fault is '0 when there is no price': the gain of a holding with no price is unknown, and $0 says 'no gain'. It also inherits costBasis's silence on a lot with no cost, which turns that lot's whole value into gain. It also disagrees with capGains (MK-PF-F-006), which skips a lot with no cost: for the same holding the two give different total gains.",
+      "should_be": "Unrealised gain = market value − cost. No answer when there is no price, or when any lot holding shares has no cost on record.",
+      "rests_on": "Brief: missing is not zero; agreement with MK-PF-F-006 totalGain.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-006",
+      "name": "capGains",
+      "verdict": "WRONG",
+      "why": "The holding-period line is right: long-term means held MORE than one year, counted from the day after purchase, so a sale on the first anniversary is still short-term and the day after is long-term; the leap-day rule (anniversary on 28 February, so 1 March is long-term) agrees. Gain per lot = shares × (price − cost) × multiplier is right. Three faults: (1) a lot whose cost per share is not above zero is skipped, so a lot transferred in with no basis vanishes from the split and the total disagrees with unrealizedGain (MK-PF-F-005) for the same holding; (2) with no price it returns zeros, which reads as 'no gain'; (3) a lot with no valid date is called short-term, which is a guess (it may well be long-term).",
+      "should_be": "For each lot with shares: gain = shares × (price − cost per share) × multiplier; long-term when the sale day (today) is after the first anniversary of purchase, short-term otherwise. If any lot holding shares has no cost on record, or no valid date, the part it belongs to (and the total) is unknown and is not shown as a number. With no price: no answer.",
+      "rests_on": "IRS Publication 550 (for 2025 returns), 'Holding Period': more than one year is long-term; count from the day after acquisition; the day of sale is included. Agreement with MK-PF-F-005.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-007",
+      "name": "totalROI",
+      "verdict": "WRONG",
+      "why": "Gain ÷ cost is a return on money paid, which for a holding bought in several lots at different times is close to a money-weighted figure, not a time-weighted one. Owner decision Q16 (updated 2026-10-04) says every return in the app is time-weighted. For one lot the two agree; for lots bought at different prices they do not. It matters on screen because buildPerformance (MK-PF-F-014) uses this as the period return of a holding bought inside the window. Refusing with no price or no cost is right.",
+      "should_be": "Return since purchase = the time-weighted return of the holding from its first purchase: chain-link the price at each purchase (piece = price just before the next purchase ÷ price after the last), which for a holding with no sales and no distributions equals today's price ÷ the price at the first purchase − 1. Refuse with no price or no cost.",
+      "rests_on": "Owner decision Q16 (2026-10-04, DEC-1669): every return is time-weighted.",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-012",
+      "name": "earliestPurchaseDate",
+      "verdict": "RIGHT",
+      "why": "The earliest dated lot is the day the holding first became the person's money; ignoring undated lots and returning nothing when none is dated is right. Low: 'valid date' is not defined on the card; if it means only the year-month-day shape (as MK-ST-F-080 isDay does), an impossible date such as 2023-02-30 would count.",
+      "should_be": "",
+      "rests_on": "formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "verdict": "WRONG",
+      "why": "First-in-first-out matching within one account and one ticker, gain = proceeds − cost of the matched shares, and 'this year' by sale date are all right (FIFO is the IRS default when specific shares are not identified). But unlike costBasis, marketValue and capGains, this formula never applies the contract multiplier (MK-PF-F-031): an option sold for $5.45 a share after buying at $3.20 shows a realised gain 100 times too small. Two smaller gaps: a sale only partly matched is counted for its matched part and also tallied as 'without a cost', and the card does not say whether it also counts in 'sales counted'; and 'with a price' does not say what happens to a buy at a price of 0 (a gift or a transfer recorded at zero), which would make its shares look free.",
+      "should_be": "Gain on a sale = matched shares × (sale price − cost per share of the matched lots) × the contract multiplier of that holding (MK-PF-F-031). Say whether a partly matched sale counts in 'sales counted'.",
+      "rests_on": "IRS Publication 550 (2025): FIFO when shares are not identified; consistency with MK-PF-F-002 / MK-PF-F-031 (an option premium is per share, × 100 per contract).",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "verdict": "RIGHT",
+      "why": "The person's own unit first, then coins / contracts / ounces by kind, then shares, is the right label rule. Low: the registry tags MK-XS-I-004 (quantity) and MK-XS-I-055 (account wrapper) do not fit a function that reads only the kind and the unit.",
+      "should_be": "",
+      "rests_on": "formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "verdict": "INCOMPLETE",
+      "why": "Quantity followed by its unit, singular at exactly 1, is right for ordinary holdings. It is silent on a negative quantity: a short option (a covered call written against shares) is held as −1 contract, and the rule 'exactly 1' prints '-1 contracts'. English takes the singular for one of anything, positive or negative. Low: the registry tag 'holding price' does not fit.",
+      "should_be": "The unit loses its final s when the quantity is exactly 1 or exactly −1.",
+      "rests_on": "Ordinary English grammar.",
+      "severity": "low"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-PF-F-001",
+      "name": "totalShares",
+      "kind": "easy",
+      "title": "Two purchases of one stock",
+      "given": "Today 2026-10-10. Holding VTI with purchases of 10 shares and 15 shares.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases_shares": [
+          10,
+          15
+        ]
+      },
+      "expected": {
+        "exact": 25.0,
+        "shown": "25"
+      },
+      "working": [
+        "10 + 15 = 25"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-001",
+      "name": "totalShares",
+      "kind": "easy",
+      "title": "Fractional crypto coins",
+      "given": "Today 2026-10-10. Bitcoin held in two purchases of 0.25 and 0.125 coins.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases_shares": [
+          0.25,
+          0.125
+        ]
+      },
+      "expected": {
+        "exact": 0.375,
+        "shown": "0.375"
+      },
+      "working": [
+        "0.25 + 0.125 = 0.375"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-001",
+      "name": "totalShares",
+      "kind": "complex",
+      "title": "Broker-linked lots with long decimals",
+      "given": "Today 2026-10-10. A linked brokerage reports three lots of VTSAX: 12.3456, 7.891 and 30.0001 shares.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases_shares": [
+          12.3456,
+          7.891,
+          30.0001
+        ],
+        "source": "broker link"
+      },
+      "expected": {
+        "exact": 50.2367,
+        "shown": "50.2367"
+      },
+      "working": [
+        "12.3456 + 7.891 = 20.2366",
+        "20.2366 + 30.0001 = 50.2367",
+        "No rounding: the decimals are kept exactly as the broker sent them"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-001",
+      "name": "totalShares",
+      "kind": "complex",
+      "title": "Option contracts are counted as contracts, not as 100 shares each",
+      "given": "Today 2026-10-10. A covered-call writer holds call options bought in two purchases: 3 contracts and 2 contracts (multiplier 100).",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "purchases_shares": [
+          3,
+          2
+        ],
+        "multiplier": 100
+      },
+      "expected": {
+        "exact": 5.0,
+        "shown": "5"
+      },
+      "working": [
+        "3 + 2 = 5",
+        "The count is in contracts; the multiplier of 100 is applied by the functions that price the holding, not here"
+      ],
+      "rests_on": "formula in words; batch note that the multiplier lives in MK-PF-F-031",
+      "confidence": "high",
+      "notes": "The total is in the holding's own unit (contracts). If the app's totalShares multiplies by 100, that is a disagreement worth seeing."
+    },
+    {
+      "id": "MK-PF-F-001",
+      "name": "totalShares",
+      "kind": "edge",
+      "title": "One purchase arrives with no share count",
+      "given": "Today 2026-10-10. A broker link sends two lots of SCHD: one with 40 shares, one with the quantity missing (null).",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases_shares": [
+          40,
+          null
+        ],
+        "source": "broker link"
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 40.0,
+        "shown": "40"
+      },
+      "working": [
+        "One purchase has no share figure, so the true total is unknown: it is at least 40 but could be anything above",
+        "The formula as written counts the missing figure as 0: 40 + 0 = 40"
+      ],
+      "rests_on": "Brief: something missing is not counted as zero",
+      "confidence": "high",
+      "notes": "REFUSES because one purchase has no share count, so the total cannot be known."
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "easy",
+      "title": "A share of stock",
+      "given": "Today 2026-10-10. A holding of Apple shares, no multiplier stated.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "stated_multiplier": null
+      },
+      "expected": {
+        "exact": 1.0,
+        "shown": "1"
+      },
+      "working": [
+        "Not an option and nothing stated: 1"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "easy",
+      "title": "An option with nothing stated",
+      "given": "Today 2026-10-10. A call option holding, no multiplier stated.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "stated_multiplier": null
+      },
+      "expected": {
+        "exact": 100.0,
+        "shown": "100"
+      },
+      "working": [
+        "An option with no stated figure: 100"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "complex",
+      "title": "A mini option the broker states as 10",
+      "given": "Today 2026-10-10. A broker link describes an option position with multiplier 10.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "stated_multiplier": 10,
+        "source": "broker link"
+      },
+      "expected": {
+        "exact": 10.0,
+        "shown": "10"
+      },
+      "working": [
+        "The holding states 10, which is above zero, so its own figure is used: 10"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "complex",
+      "title": "An adjusted contract after a special dividend delivers 102 shares",
+      "given": "Today 2026-10-10. An option held since before a special dividend; the broker restates the contract as delivering 102 shares.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "stated_multiplier": 102,
+        "source": "broker link"
+      },
+      "expected": {
+        "exact": 102.0,
+        "shown": "102"
+      },
+      "working": [
+        "Stated 102 > 0, so 102 is used, not the default 100"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "edge",
+      "title": "An option whose stated multiplier is exactly zero",
+      "given": "Today 2026-10-10. An option holding typed in by hand with multiplier field 0.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "stated_multiplier": 0
+      },
+      "expected": {
+        "exact": 100.0,
+        "shown": "100"
+      },
+      "working": [
+        "0 is not above zero, so the stated figure is ignored",
+        "An option with nothing usable stated: 100"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-002",
+      "name": "costBasis",
+      "kind": "easy",
+      "title": "One purchase of a stock",
+      "given": "Today 2026-10-10. 10 shares bought at $50.00.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "purchases": [
+          {
+            "shares": 10,
+            "cost_per_share": 50
+          }
+        ]
+      },
+      "expected": {
+        "exact": 500.0,
+        "shown": "$500.00"
+      },
+      "working": [
+        "10 × 50 × 1 = 500"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-002",
+      "name": "costBasis",
+      "kind": "easy",
+      "title": "Option premium times 100",
+      "given": "Today 2026-10-10. 2 call contracts bought at a premium of $3.50 a share, no multiplier stated.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "purchases": [
+          {
+            "shares": 2,
+            "cost_per_share": 3.5
+          }
+        ]
+      },
+      "expected": {
+        "exact": 700.0,
+        "shown": "$700.00"
+      },
+      "working": [
+        "Multiplier: option, nothing stated → 100",
+        "2 × 3.50 = 7.00",
+        "7.00 × 100 = 700"
+      ],
+      "rests_on": "formula in words; MK-PF-F-031",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-002",
+      "name": "costBasis",
+      "kind": "complex",
+      "title": "Three lots bought at different prices",
+      "given": "Today 2026-10-10. VTI: 12.5 shares at $187.43, 7.25 at $201.16, 30 at $172.885.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "purchases": [
+          {
+            "shares": 12.5,
+            "cost_per_share": 187.43
+          },
+          {
+            "shares": 7.25,
+            "cost_per_share": 201.16
+          },
+          {
+            "shares": 30,
+            "cost_per_share": 172.885
+          }
+        ]
+      },
+      "expected": {
+        "exact": 8987.835,
+        "shown": "$8,987.84"
+      },
+      "working": [
+        "12.5 × 187.43 = 2,342.875",
+        "7.25 × 201.16 = 1,458.41",
+        "30 × 172.885 = 5,186.55",
+        "2,342.875 + 1,458.41 + 5,186.55 = 8,987.8350",
+        "× 1 (a stock) = 8,987.8350",
+        "Shown rounded once: $8,987.84"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-002",
+      "name": "costBasis",
+      "kind": "complex",
+      "title": "Adjusted option contract with two purchases",
+      "given": "Today 2026-10-10. An adjusted put contract the broker states delivers 102 shares: 4 contracts at $1.37, then 1 at $2.05.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "stated_multiplier": 102,
+        "purchases": [
+          {
+            "shares": 4,
+            "cost_per_share": 1.37
+          },
+          {
+            "shares": 1,
+            "cost_per_share": 2.05
+          }
+        ]
+      },
+      "expected": {
+        "exact": 768.06,
+        "shown": "$768.06"
+      },
+      "working": [
+        "4 × 1.37 = 5.48",
+        "1 × 2.05 = 2.05",
+        "5.48 + 2.05 = 7.53",
+        "7.53 × 102 = 768.06"
+      ],
+      "rests_on": "formula in words; MK-PF-F-031",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-002",
+      "name": "costBasis",
+      "kind": "edge",
+      "title": "One lot transferred in with no cost on record",
+      "given": "Today 2026-10-10. SCHD: 20 shares bought at $45.00; 10 shares transferred in from another broker with no cost per share.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "purchases": [
+          {
+            "shares": 20,
+            "cost_per_share": 45
+          },
+          {
+            "shares": 10,
+            "cost_per_share": null
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 900.0,
+        "shown": "$900.00"
+      },
+      "working": [
+        "Lot 1: 20 × 45 = 900",
+        "Lot 2: cost unknown, so the total is unknown",
+        "The formula as written adds nothing for lot 2: 900"
+      ],
+      "rests_on": "MK-NW-M-032 refuses when no purchase price is recorded; brief: missing is not zero",
+      "confidence": "medium",
+      "notes": "REFUSES because one lot holding shares has no cost on record. formula_gives assumes the missing lot adds nothing, which is how the card reads; the card does not say."
+    },
+    {
+      "id": "MK-PF-F-003",
+      "name": "avgCost",
+      "kind": "easy",
+      "title": "Two equal lots at different prices",
+      "given": "Today 2026-10-10. 10 shares at $50 and 10 shares at $70.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "purchases": [
+          {
+            "shares": 10,
+            "cost_per_share": 50
+          },
+          {
+            "shares": 10,
+            "cost_per_share": 70
+          }
+        ]
+      },
+      "expected": {
+        "exact": 60.0,
+        "shown": "$60.00"
+      },
+      "working": [
+        "Cost = 500 + 700 = 1,200",
+        "Shares × multiplier = 20 × 1 = 20",
+        "1,200 ÷ 20 = 60.00"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-003",
+      "name": "avgCost",
+      "kind": "easy",
+      "title": "Option average comes back per share",
+      "given": "Today 2026-10-10. 2 call contracts at $3.50 premium, no multiplier stated.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "purchases": [
+          {
+            "shares": 2,
+            "cost_per_share": 3.5
+          }
+        ]
+      },
+      "expected": {
+        "exact": 3.5,
+        "shown": "$3.50"
+      },
+      "working": [
+        "Cost = 2 × 3.50 × 100 = 700",
+        "Shares × multiplier = 2 × 100 = 200",
+        "700 ÷ 200 = 3.50 per share"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-003",
+      "name": "avgCost",
+      "kind": "complex",
+      "title": "Three lots, kept unrounded until shown",
+      "given": "Today 2026-10-10. VTI: 12.5 shares at $187.43, 7.25 at $201.16, 30 at $172.885.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "purchases": [
+          {
+            "shares": 12.5,
+            "cost_per_share": 187.43
+          },
+          {
+            "shares": 7.25,
+            "cost_per_share": 201.16
+          },
+          {
+            "shares": 30,
+            "cost_per_share": 172.885
+          }
+        ]
+      },
+      "expected": {
+        "exact": 180.66,
+        "shown": "$180.66"
+      },
+      "working": [
+        "Cost = 8,987.8350 (see costBasis working)",
+        "Shares = 12.5 + 7.25 + 30 = 49.75",
+        "8,987.8350 ÷ 49.75 = 180.66",
+        "Shown once, at display: $180.66"
+      ],
+      "rests_on": "formula in words; DEC-0264",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-003",
+      "name": "avgCost",
+      "kind": "complex",
+      "title": "Adjusted option contract, two purchases",
+      "given": "Today 2026-10-10. Adjusted put, multiplier 102: 4 contracts at $1.37 and 1 at $2.05.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "stated_multiplier": 102,
+        "purchases": [
+          {
+            "shares": 4,
+            "cost_per_share": 1.37
+          },
+          {
+            "shares": 1,
+            "cost_per_share": 2.05
+          }
+        ]
+      },
+      "expected": {
+        "exact": 1.506,
+        "shown": "$1.51"
+      },
+      "working": [
+        "Cost = 7.53 × 102 = 768.06",
+        "Shares × multiplier = 5 × 102 = 510",
+        "768.06 ÷ 510 = 1.506 per share",
+        "= 7.53 ÷ 5 = 1.506, shown $1.51"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-003",
+      "name": "avgCost",
+      "kind": "edge",
+      "title": "Every share sold, no shares held",
+      "given": "Today 2026-10-10. A holding of AAPL whose lots now hold 0 shares (all sold), last bought at $150.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "purchases": [
+          {
+            "shares": 0,
+            "cost_per_share": 150
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 0.0,
+        "shown": "$0.00"
+      },
+      "working": [
+        "Shares held = 0, so there is no average price for 'what you still hold'",
+        "The formula as written returns 0"
+      ],
+      "rests_on": "MK-NW-M-032 (what you paid per share for what you still hold); brief: never invent a default number",
+      "confidence": "high",
+      "notes": "REFUSES because no shares are held; $0.00 would read as 'paid nothing'."
+    },
+    {
+      "id": "MK-PF-F-004",
+      "name": "marketValue",
+      "kind": "easy",
+      "title": "Ten shares at fifty dollars",
+      "given": "Today 2026-10-10. 10 shares of a stock, price $50.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "shares": 10,
+        "price": 50
+      },
+      "expected": {
+        "exact": 500.0,
+        "shown": "$500"
+      },
+      "working": [
+        "10 × 50 × 1 = 500"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-004",
+      "name": "marketValue",
+      "kind": "easy",
+      "title": "Three option contracts",
+      "given": "Today 2026-10-10. 3 call contracts, option price $2.10 a share, no multiplier stated.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "shares": 3,
+        "price": 2.1
+      },
+      "expected": {
+        "exact": 630.0,
+        "shown": "$630"
+      },
+      "working": [
+        "Multiplier 100 (option, nothing stated)",
+        "3 × 2.10 × 100 = 630"
+      ],
+      "rests_on": "formula in words; MK-PF-F-031",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-004",
+      "name": "marketValue",
+      "kind": "complex",
+      "title": "Three-lot ETF at a broker price",
+      "given": "Today 2026-10-10. VTI lots of 12.5, 7.25 and 30 shares; broker's close $213.47.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "purchases": [
+          {
+            "shares": 12.5,
+            "cost_per_share": 187.43
+          },
+          {
+            "shares": 7.25,
+            "cost_per_share": 201.16
+          },
+          {
+            "shares": 30,
+            "cost_per_share": 172.885
+          }
+        ],
+        "price": 213.47
+      },
+      "expected": {
+        "exact": 10620.1325,
+        "shown": "$10,620"
+      },
+      "working": [
+        "Shares = 12.5 + 7.25 + 30 = 49.75",
+        "49.75 × 213.47 = 10620.1325",
+        "× 1 = 10620.1325",
+        "Shown $10,620"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-004",
+      "name": "marketValue",
+      "kind": "complex",
+      "title": "Fractional bitcoin at a price with cents",
+      "given": "Today 2026-10-10. 0.37415 coins of bitcoin, price $61,842.17.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "crypto",
+        "shares": 0.37415,
+        "price": 61842.17
+      },
+      "expected": {
+        "exact": 23138.2479,
+        "shown": "$23,138"
+      },
+      "working": [
+        "0.37415 × 61,842.17 = 23138.2479055",
+        "× 1 (not an option)",
+        "Shown $23,138"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-004",
+      "name": "marketValue",
+      "kind": "edge",
+      "title": "A holding with shares and no price",
+      "given": "Today 2026-10-10. 40 shares of a private REIT the broker lists with no price.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "shares": 40,
+        "price": null
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 0.0,
+        "shown": "$0"
+      },
+      "working": [
+        "40 shares are held, so the value is above zero but unknown",
+        "The formula as written returns 0"
+      ],
+      "rests_on": "Brief: missing is not zero; MK-NW-F-127 treats an unpriced holding as unknown",
+      "confidence": "high",
+      "notes": "REFUSES because there is no price; $0 would hide a holding that is worth something."
+    },
+    {
+      "id": "MK-PF-F-005",
+      "name": "unrealizedGain",
+      "kind": "easy",
+      "title": "A simple gain",
+      "given": "Today 2026-10-10. 10 shares bought at $50, price now $60.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases": [
+          {
+            "shares": 10,
+            "cost_per_share": 50
+          }
+        ],
+        "price": 60
+      },
+      "expected": {
+        "exact": 100.0,
+        "shown": "$100"
+      },
+      "working": [
+        "Value 10 × 60 = 600",
+        "Cost 10 × 50 = 500",
+        "600 − 500 = 100"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-005",
+      "name": "unrealizedGain",
+      "kind": "easy",
+      "title": "A simple loss",
+      "given": "Today 2026-10-10. 10 shares bought at $50, price now $40.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases": [
+          {
+            "shares": 10,
+            "cost_per_share": 50
+          }
+        ],
+        "price": 40
+      },
+      "expected": {
+        "exact": -100.0,
+        "shown": "-$100"
+      },
+      "working": [
+        "Value 400 − cost 500 = −100"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-005",
+      "name": "unrealizedGain",
+      "kind": "complex",
+      "title": "Three lots at a broker price",
+      "given": "Today 2026-10-10. VTI lots 12.5 @ $187.43, 7.25 @ $201.16, 30 @ $172.885; price $213.47.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases": [
+          {
+            "shares": 12.5,
+            "cost_per_share": 187.43
+          },
+          {
+            "shares": 7.25,
+            "cost_per_share": 201.16
+          },
+          {
+            "shares": 30,
+            "cost_per_share": 172.885
+          }
+        ],
+        "price": 213.47
+      },
+      "expected": {
+        "exact": 1632.2975,
+        "shown": "$1,632"
+      },
+      "working": [
+        "Value = 49.75 × 213.47 = 10620.1325",
+        "Cost = 8987.8350",
+        "10620.1325 − 8987.8350 = 1632.2975",
+        "Same total as capGains long + short for the same holding (MK-PF-F-006 case 'Three lots, one held exactly a year')"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-005",
+      "name": "unrealizedGain",
+      "kind": "complex",
+      "title": "Adjusted option bought twice, now worth less",
+      "given": "Today 2026-10-10. Put with multiplier 102: 4 contracts @ $1.37, 1 @ $2.05; option price now $0.85.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "stated_multiplier": 102,
+        "purchases": [
+          {
+            "shares": 4,
+            "cost_per_share": 1.37
+          },
+          {
+            "shares": 1,
+            "cost_per_share": 2.05
+          }
+        ],
+        "price": 0.85
+      },
+      "expected": {
+        "exact": -334.56,
+        "shown": "-$335"
+      },
+      "working": [
+        "Value = 5 × 0.85 × 102 = 433.50",
+        "Cost = (5.48 + 2.05) × 102 = 768.06",
+        "433.50 − 768.06 = -334.56"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-005",
+      "name": "unrealizedGain",
+      "kind": "edge",
+      "title": "No price for a holding that has shares",
+      "given": "Today 2026-10-10. 40 shares bought at $25.00, no price available.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases": [
+          {
+            "shares": 40,
+            "cost_per_share": 25
+          }
+        ],
+        "price": null
+      },
+      "expected": "REFUSES",
+      "formula_gives": {
+        "exact": 0.0,
+        "shown": "$0"
+      },
+      "working": [
+        "The value is unknown, so value − cost is unknown",
+        "The formula as written returns 0 (it does not return −1,000, which value 0 minus cost would give)"
+      ],
+      "rests_on": "Brief: missing is not zero",
+      "confidence": "high",
+      "notes": "REFUSES because there is no price; $0 says 'no gain', which is a claim."
+    },
+    {
+      "id": "MK-PF-F-006",
+      "name": "capGains",
+      "kind": "easy",
+      "title": "Held two years: all long-term",
+      "given": "Today 2026-10-10. 10 shares bought 2024-05-01 at $100; price $150.",
+      "inputs": {
+        "today": "2026-10-10",
+        "price": 150,
+        "purchases": [
+          {
+            "date": "2024-05-01",
+            "shares": 10,
+            "cost_per_share": 100
+          }
+        ]
+      },
+      "expected": {
+        "long_term": {
+          "exact": 500.0,
+          "shown": "$500"
+        },
+        "short_term": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "total": {
+          "exact": 500.0,
+          "shown": "$500"
+        }
+      },
+      "working": [
+        "Anniversary 2025-05-01; today 2026-10-10 is after it: long-term",
+        "10 × (150 − 100) × 1 = 500"
+      ],
+      "rests_on": "IRS Pub. 550 (2025)",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-006",
+      "name": "capGains",
+      "kind": "easy",
+      "title": "Held four months at a loss: short-term",
+      "given": "Today 2026-10-10. 10 shares bought 2026-06-01 at $100; price $90.",
+      "inputs": {
+        "today": "2026-10-10",
+        "price": 90,
+        "purchases": [
+          {
+            "date": "2026-06-01",
+            "shares": 10,
+            "cost_per_share": 100
+          }
+        ]
+      },
+      "expected": {
+        "long_term": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "short_term": {
+          "exact": -100.0,
+          "shown": "-$100"
+        },
+        "total": {
+          "exact": -100.0,
+          "shown": "-$100"
+        }
+      },
+      "working": [
+        "Anniversary 2027-06-01 is after today: short-term",
+        "10 × (90 − 100) = −100"
+      ],
+      "rests_on": "IRS Pub. 550 (2025)",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-006",
+      "name": "capGains",
+      "kind": "complex",
+      "title": "Three lots, one held exactly a year to the day",
+      "given": "Today 2026-10-10, price $213.47. VTI lots: 12.5 sh bought 2025-10-10 at $187.43; 7.25 sh bought 2025-10-09 at $201.16; 30 sh bought 2026-03-02 at $172.885.",
+      "inputs": {
+        "today": "2026-10-10",
+        "price": 213.47,
+        "purchases": [
+          {
+            "date": "2025-10-10",
+            "shares": 12.5,
+            "cost_per_share": 187.43
+          },
+          {
+            "date": "2025-10-09",
+            "shares": 7.25,
+            "cost_per_share": 201.16
+          },
+          {
+            "date": "2026-03-02",
+            "shares": 30,
+            "cost_per_share": 172.885
+          }
+        ]
+      },
+      "expected": {
+        "long_term": {
+          "exact": 89.2475,
+          "shown": "$89"
+        },
+        "short_term": {
+          "exact": 1543.05,
+          "shown": "$1,543"
+        },
+        "total": {
+          "exact": 1632.2975,
+          "shown": "$1,632"
+        }
+      },
+      "working": [
+        "Lot 1 bought 2025-10-10: first anniversary is 2026-10-10 = today, not after it → held exactly one year → short-term",
+        "Lot 1 gain = 12.5 × (213.47 − 187.43) = 12.5 × 26.04 = 325.500",
+        "Lot 2 bought 2025-10-09: anniversary 2026-10-09, today is after → long-term",
+        "Lot 2 gain = 7.25 × (213.47 − 201.16) = 7.25 × 12.31 = 89.2475",
+        "Lot 3 bought 2026-03-02 → short-term; gain = 30 × 40.585 = 1217.550",
+        "Long = 89.2475; short = 325.500 + 1217.550 = 1543.050; total = 1632.2975",
+        "Check: total equals unrealizedGain for the same holding (MK-PF-F-005), 10,620.1325 − 8,987.835 = 1,632.2975"
+      ],
+      "rests_on": "IRS Pub. 550 (2025): more than one year; formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-006",
+      "name": "capGains",
+      "kind": "complex",
+      "title": "A lot transferred in with no basis",
+      "given": "Today 2026-10-10, price $55.30. Lot 1: 100 shares bought 2023-04-17 at $42.10. Lot 2: 50 shares transferred in on 2026-01-20 from another broker, cost per share not on record (broker sends 0).",
+      "inputs": {
+        "today": "2026-10-10",
+        "price": 55.3,
+        "purchases": [
+          {
+            "date": "2023-04-17",
+            "shares": 100,
+            "cost_per_share": 42.1
+          },
+          {
+            "date": "2026-01-20",
+            "shares": 50,
+            "cost_per_share": 0,
+            "cost_known": false
+          }
+        ]
+      },
+      "expected": {
+        "long_term": {
+          "exact": 1320.0,
+          "shown": "$1,320"
+        },
+        "short_term": "REFUSES",
+        "total": "REFUSES"
+      },
+      "formula_gives": {
+        "long_term": {
+          "exact": 1320.0,
+          "shown": "$1,320"
+        },
+        "short_term": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "total": {
+          "exact": 1320.0,
+          "shown": "$1,320"
+        }
+      },
+      "working": [
+        "Lot 1: long-term; 100 × (55.30 − 42.10) = 1,320",
+        "Lot 2: cost unknown, so its gain and hence the short-term part and total are unknown",
+        "The formula as written skips lot 2 (cost not above zero): long 1,320, short 0, total 1,320",
+        "unrealizedGain for the same holding as written: value 150 × 55.30 = 8,295 − cost 4,210 = 4,085 — the two cards disagree by 2,765"
+      ],
+      "rests_on": "IRS Pub. 550 (2025); agreement with MK-PF-F-005",
+      "confidence": "high",
+      "notes": "The short-term part and total are refused because one lot's basis is unknown; the long-term part is known."
+    },
+    {
+      "id": "MK-PF-F-006",
+      "name": "capGains",
+      "kind": "edge",
+      "title": "Bought on the leap day, today is 1 March the next year",
+      "given": "Today 2025-03-01. 10 shares bought 2024-02-29 at $100; price $130.",
+      "inputs": {
+        "today": "2025-03-01",
+        "price": 130,
+        "purchases": [
+          {
+            "date": "2024-02-29",
+            "shares": 10,
+            "cost_per_share": 100
+          }
+        ]
+      },
+      "expected": {
+        "long_term": {
+          "exact": 300.0,
+          "shown": "$300"
+        },
+        "short_term": {
+          "exact": 0.0,
+          "shown": "$0"
+        },
+        "total": {
+          "exact": 300.0,
+          "shown": "$300"
+        }
+      },
+      "working": [
+        "Anniversary of 2024-02-29 in 2025 = 2025-02-28 (no 29 February)",
+        "Today 2025-03-01 is after it: long-term",
+        "10 × 30 = 300"
+      ],
+      "rests_on": "IRS Pub. 550 (2025); formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-007",
+      "name": "totalROI",
+      "kind": "easy",
+      "title": "One lot up twenty percent",
+      "given": "Today 2026-10-10. 10 shares bought at $50; price $60.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases": [
+          {
+            "date": "2026-01-05",
+            "shares": 10,
+            "cost_per_share": 50
+          }
+        ],
+        "price": 60
+      },
+      "expected": {
+        "exact": 0.2,
+        "shown": "+20.00%"
+      },
+      "working": [
+        "Gain 600 − 500 = 100",
+        "100 ÷ 500 = 0.20",
+        "One lot, so gain ÷ cost = the time-weighted return 60 ÷ 50 − 1 = 0.20"
+      ],
+      "rests_on": "formula in words; Q16",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-007",
+      "name": "totalROI",
+      "kind": "easy",
+      "title": "No price: no return",
+      "given": "Today 2026-10-10. 10 shares bought at $50; no price.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases": [
+          {
+            "date": "2026-01-05",
+            "shares": 10,
+            "cost_per_share": 50
+          }
+        ],
+        "price": null
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No price, so no return"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because there is no price."
+    },
+    {
+      "id": "MK-PF-F-007",
+      "name": "totalROI",
+      "kind": "complex",
+      "title": "Bought twice at different prices",
+      "given": "Today 2026-10-10, price $260. Lot 1: 10 shares on 2026-01-15 at $200. Lot 2: 10 shares on 2026-06-15 at $250 (the market price that day).",
+      "inputs": {
+        "today": "2026-10-10",
+        "price": 260,
+        "purchases": [
+          {
+            "date": "2026-01-15",
+            "shares": 10,
+            "cost_per_share": 200
+          },
+          {
+            "date": "2026-06-15",
+            "shares": 10,
+            "cost_per_share": 250
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.3,
+        "shown": "+30.00%"
+      },
+      "formula_gives": {
+        "exact": 0.155556,
+        "shown": "+15.56%"
+      },
+      "working": [
+        "Time-weighted, split at the second purchase:",
+        "Piece 1 (2026-01-15 → 2026-06-15): 250 ÷ 200 = 1.25",
+        "Piece 2 (2026-06-15 → today): 260 ÷ 250 = 1.04",
+        "1.25 × 1.04 − 1 = 0.30",
+        "Formula as written: gain = 20 × 260 − 4,500 = 700; 700 ÷ 4,500 = 0.155556"
+      ],
+      "rests_on": "Owner decision Q16 (time-weighted)",
+      "confidence": "medium",
+      "notes": "Assumes each lot's purchase price was that day's market price. If the owner treats 'return since purchase' as return on cost by design, this case shows the gap Q16 creates."
+    },
+    {
+      "id": "MK-PF-F-007",
+      "name": "totalROI",
+      "kind": "complex",
+      "title": "Adjusted option, one purchase",
+      "given": "Today 2026-10-10. 3 call contracts, multiplier 102, bought 2026-07-20 at $2.40; option price now $3.15.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "stated_multiplier": 102,
+        "purchases": [
+          {
+            "date": "2026-07-20",
+            "shares": 3,
+            "cost_per_share": 2.4
+          }
+        ],
+        "price": 3.15
+      },
+      "expected": {
+        "exact": 0.3125,
+        "shown": "+31.25%"
+      },
+      "working": [
+        "Cost = 3 × 2.40 × 102 = 734.40",
+        "Value = 3 × 3.15 × 102 = 963.90",
+        "Gain = 229.50",
+        "229.50 ÷ 734.40 = 0.3125",
+        "Check: 3.15 ÷ 2.40 − 1 = 0.3125 — the multiplier cancels"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-007",
+      "name": "totalROI",
+      "kind": "edge",
+      "title": "Cost of zero",
+      "given": "Today 2026-10-10. 25 shares received with cost per share $0.00 on record; price $40.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchases": [
+          {
+            "date": "2025-12-01",
+            "shares": 25,
+            "cost_per_share": 0
+          }
+        ],
+        "price": 40
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Cost = 0, so gain ÷ cost has nothing to stand on"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because the cost is zero."
+    },
+    {
+      "id": "MK-PF-F-012",
+      "name": "earliestPurchaseDate",
+      "kind": "easy",
+      "title": "Two dated lots",
+      "given": "Today 2026-10-10. Lots bought 2024-03-01 and 2025-07-15.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchase_dates": [
+          "2024-03-01",
+          "2025-07-15"
+        ]
+      },
+      "expected": "2024-03-01",
+      "working": [
+        "2024-03-01 is before 2025-07-15"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-012",
+      "name": "earliestPurchaseDate",
+      "kind": "easy",
+      "title": "No lots at all",
+      "given": "Today 2026-10-10. A holding with no purchases on record.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchase_dates": []
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No dated lot: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because there is no dated purchase."
+    },
+    {
+      "id": "MK-PF-F-012",
+      "name": "earliestPurchaseDate",
+      "kind": "complex",
+      "title": "Lots out of order, one undated",
+      "given": "Today 2026-10-10. Lots dated 2025-11-03, (none), 2023-08-22, 2024-01-09.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchase_dates": [
+          "2025-11-03",
+          null,
+          "2023-08-22",
+          "2024-01-09"
+        ]
+      },
+      "expected": "2023-08-22",
+      "working": [
+        "Drop the undated lot",
+        "Earliest of 2025-11-03, 2023-08-22, 2024-01-09 = 2023-08-22",
+        "Order of the lots does not matter"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-012",
+      "name": "earliestPurchaseDate",
+      "kind": "complex",
+      "title": "Blank and placeholder dates from a broker",
+      "given": "Today 2026-10-10. A linked account sends lots dated '', 'pending', and 2022-06-30.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchase_dates": [
+          "",
+          "pending",
+          "2022-06-30"
+        ],
+        "source": "broker link"
+      },
+      "expected": "2022-06-30",
+      "working": [
+        "'' and 'pending' are not dates and are dropped",
+        "Only 2022-06-30 remains"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-012",
+      "name": "earliestPurchaseDate",
+      "kind": "edge",
+      "title": "Every lot undated",
+      "given": "Today 2026-10-10. Two lots, both with no date.",
+      "inputs": {
+        "today": "2026-10-10",
+        "purchase_dates": [
+          null,
+          null
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No dated lot: nothing"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": "REFUSES because no lot carries a valid date."
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "easy",
+      "title": "One buy, one sale",
+      "given": "Today 2026-10-10. Brokerage, ticker MSFT: buy 2026-02-01 10 shares at $50; sale 2026-08-01 10 shares at $60.",
+      "inputs": {
+        "today": "2026-10-10",
+        "ticker": "MSFT",
+        "account": "Brokerage",
+        "records": [
+          {
+            "type": "buy",
+            "date": "2026-02-01",
+            "shares": 10,
+            "price": 50
+          },
+          {
+            "type": "sale",
+            "date": "2026-08-01",
+            "shares": 10,
+            "price": 60
+          }
+        ]
+      },
+      "expected": {
+        "realized_all_time": {
+          "exact": 100.0,
+          "shown": "$100"
+        },
+        "realized_this_year": {
+          "exact": 100.0,
+          "shown": "$100"
+        },
+        "sales_counted": 1,
+        "sales_without_cost": 0
+      },
+      "working": [
+        "Proceeds 10 × 60 = 600; cost 10 × 50 = 500; gain 100",
+        "Sale dated 2026, today's year: this year = 100"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "easy",
+      "title": "First in, first out",
+      "given": "Today 2026-10-10. Brokerage, ticker KO: buy 2025-01-10 10 at $50; buy 2025-06-10 10 at $80; sale 2026-03-01 10 at $90.",
+      "inputs": {
+        "today": "2026-10-10",
+        "ticker": "KO",
+        "account": "Brokerage",
+        "records": [
+          {
+            "type": "buy",
+            "date": "2025-01-10",
+            "shares": 10,
+            "price": 50
+          },
+          {
+            "type": "buy",
+            "date": "2025-06-10",
+            "shares": 10,
+            "price": 80
+          },
+          {
+            "type": "sale",
+            "date": "2026-03-01",
+            "shares": 10,
+            "price": 90
+          }
+        ]
+      },
+      "expected": {
+        "realized_all_time": {
+          "exact": 400.0,
+          "shown": "$400"
+        },
+        "realized_this_year": {
+          "exact": 400.0,
+          "shown": "$400"
+        },
+        "sales_counted": 1,
+        "sales_without_cost": 0
+      },
+      "working": [
+        "The sale takes the earliest lot first: the 10 bought at $50",
+        "900 − 500 = 400 (not 900 − 800 = 100)"
+      ],
+      "rests_on": "formula in words; IRS Pub. 550 FIFO",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "complex",
+      "title": "Opening position, two sales across a year end, another account ignored",
+      "given": "Today 2026-10-10. Asked for VTI in Brokerage A. Brokerage A: opening position 2024-12-31 25 sh at $241.17; buy 2025-04-08 12.5 sh at $255.06; sale 2025-11-20 30 sh at $312.44; sale 2026-05-14 5 sh at $318.90. IRA B (not asked for): buy 2025-02-03 40 VTI at $290.00; sale 2026-02-03 10 at $300.00.",
+      "inputs": {
+        "today": "2026-10-10",
+        "ticker": "VTI",
+        "account": "Brokerage A",
+        "records": [
+          {
+            "account": "Brokerage A",
+            "type": "opening position",
+            "date": "2024-12-31",
+            "shares": 25,
+            "price": 241.17
+          },
+          {
+            "account": "Brokerage A",
+            "type": "buy",
+            "date": "2025-04-08",
+            "shares": 12.5,
+            "price": 255.06
+          },
+          {
+            "account": "Brokerage A",
+            "type": "sale",
+            "date": "2025-11-20",
+            "shares": 30,
+            "price": 312.44
+          },
+          {
+            "account": "Brokerage A",
+            "type": "sale",
+            "date": "2026-05-14",
+            "shares": 5,
+            "price": 318.9
+          },
+          {
+            "account": "IRA B",
+            "type": "buy",
+            "date": "2025-02-03",
+            "shares": 40,
+            "price": 290.0
+          },
+          {
+            "account": "IRA B",
+            "type": "sale",
+            "date": "2026-02-03",
+            "shares": 10,
+            "price": 300.0
+          }
+        ]
+      },
+      "expected": {
+        "realized_all_time": {
+          "exact": 2387.85,
+          "shown": "$2,388"
+        },
+        "realized_this_year": {
+          "exact": 319.2,
+          "shown": "$319"
+        },
+        "sales_counted": 2,
+        "sales_without_cost": 0
+      },
+      "working": [
+        "IRA B is another account: ignored",
+        "Sale 1 (2025-11-20, 30 sh): 25 from the opening position at 241.17 = 6,029.25; 5 from the 2025-04-08 lot at 255.06 = 1,275.30; cost 7304.55",
+        "Sale 1 proceeds 30 × 312.44 = 9373.20; gain 2068.65",
+        "Sale 2 (2026-05-14, 5 sh): 5 more from the 2025-04-08 lot (7.5 left) at 255.06 = 1275.30; proceeds 5 × 318.90 = 1594.50; gain 319.20",
+        "All time = 2068.65 + 319.20 = 2387.85",
+        "This year (2026) = sale 2 only = 319.20"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "complex",
+      "title": "Option contracts bought and sold, as a broker names them",
+      "given": "Today 2026-10-10. Brokerage, option 'AAPL  260619C00200000' (AAPL call, multiplier 100): buy 2026-03-02 2 contracts at $3.20; sale 2026-04-20 2 contracts at $5.45.",
+      "inputs": {
+        "today": "2026-10-10",
+        "ticker": "AAPL  260619C00200000",
+        "account": "Brokerage",
+        "kind": "option",
+        "records": [
+          {
+            "type": "buy",
+            "date": "2026-03-02",
+            "shares": 2,
+            "price": 3.2
+          },
+          {
+            "type": "sale",
+            "date": "2026-04-20",
+            "shares": 2,
+            "price": 5.45
+          }
+        ]
+      },
+      "expected": {
+        "realized_all_time": {
+          "exact": 450.0,
+          "shown": "$450"
+        },
+        "realized_this_year": {
+          "exact": 450.0,
+          "shown": "$450"
+        },
+        "sales_counted": 1,
+        "sales_without_cost": 0
+      },
+      "formula_gives": {
+        "realized_all_time": {
+          "exact": 4.5,
+          "shown": "$4"
+        },
+        "realized_this_year": {
+          "exact": 4.5,
+          "shown": "$4"
+        },
+        "sales_counted": 1,
+        "sales_without_cost": 0
+      },
+      "working": [
+        "Premiums are per share; one contract = 100 shares",
+        "Proceeds 2 × 5.45 × 100 = 1,090; cost 2 × 3.20 × 100 = 640",
+        "Gain 450",
+        "Formula as written (no multiplier): 2 × 5.45 − 2 × 3.20 = 4.50"
+      ],
+      "rests_on": "MK-PF-F-031; consistency with MK-PF-F-002 and MK-PF-F-006",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "edge",
+      "title": "A sale bigger than the purchases on record",
+      "given": "Today 2026-10-10. Brokerage, ticker T: buy 2026-01-05 10 at $50; sale 2026-06-01 15 at $70.",
+      "inputs": {
+        "today": "2026-10-10",
+        "ticker": "T",
+        "account": "Brokerage",
+        "records": [
+          {
+            "type": "buy",
+            "date": "2026-01-05",
+            "shares": 10,
+            "price": 50
+          },
+          {
+            "type": "sale",
+            "date": "2026-06-01",
+            "shares": 15,
+            "price": 70
+          }
+        ]
+      },
+      "expected": "RULE UNCLEAR",
+      "readings": [
+        {
+          "reading": "A partly matched sale counts in both tallies",
+          "expected": {
+            "realized_all_time": {
+              "exact": 200.0,
+              "shown": "$200"
+            },
+            "realized_this_year": {
+              "exact": 200.0,
+              "shown": "$200"
+            },
+            "sales_counted": 1,
+            "sales_without_cost": 1
+          }
+        },
+        {
+          "reading": "A partly matched sale counts only as a sale without a cost",
+          "expected": {
+            "realized_all_time": {
+              "exact": 200.0,
+              "shown": "$200"
+            },
+            "realized_this_year": {
+              "exact": 200.0,
+              "shown": "$200"
+            },
+            "sales_counted": 0,
+            "sales_without_cost": 1
+          }
+        }
+      ],
+      "working": [
+        "Matched part: 10 shares; gain 10 × 70 − 10 × 50 = 200",
+        "5 shares have no cost on record: not counted, and the sale is tallied as without a cost",
+        "The card does not say whether this sale also counts in 'sales counted'"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "medium",
+      "notes": "Both gains are 200 under either reading; only the sales-counted tally differs."
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "easy",
+      "title": "A stock",
+      "given": "Today 2026-10-10. Apple shares, no unit entered.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "unit": null
+      },
+      "expected": "shares",
+      "working": [
+        "Not crypto, option or commodity; nothing entered: shares"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "easy",
+      "title": "A cryptocurrency",
+      "given": "Today 2026-10-10. Bitcoin, no unit entered.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "crypto",
+        "unit": null
+      },
+      "expected": "coins",
+      "working": [
+        "Crypto: coins"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "complex",
+      "title": "Option and commodity from a broker link",
+      "given": "Today 2026-10-10. Two holdings: an option and physical gold, neither with a unit entered.",
+      "inputs": {
+        "today": "2026-10-10",
+        "holdings": [
+          {
+            "kind": "option",
+            "unit": null
+          },
+          {
+            "kind": "commodity",
+            "unit": null
+          }
+        ]
+      },
+      "expected": [
+        "contracts",
+        "ounces"
+      ],
+      "working": [
+        "Option → contracts",
+        "Commodity → ounces"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "complex",
+      "title": "The person's own unit wins over the kind",
+      "given": "Today 2026-10-10. A private fund (alternative) where the person entered 'units', and a crypto holding where the person entered 'shares' (a bitcoin trust).",
+      "inputs": {
+        "today": "2026-10-10",
+        "holdings": [
+          {
+            "kind": "alternative",
+            "unit": "units"
+          },
+          {
+            "kind": "crypto",
+            "unit": "shares"
+          }
+        ]
+      },
+      "expected": [
+        "units",
+        "shares"
+      ],
+      "working": [
+        "Entered units → units",
+        "Entered shares on a crypto kind → shares, not coins"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "edge",
+      "title": "Nothing at all",
+      "given": "Today 2026-10-10. A holding with no kind and no unit.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": null,
+        "unit": null
+      },
+      "expected": "shares",
+      "working": [
+        "No unit entered and no kind: shares"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "easy",
+      "title": "Three shares",
+      "given": "Today 2026-10-10. 3 shares of a stock.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "stock",
+        "unit": null,
+        "quantity": 3
+      },
+      "expected": "3 shares",
+      "working": [
+        "3 is not 1: plural"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "easy",
+      "title": "One coin",
+      "given": "Today 2026-10-10. 1 bitcoin.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "crypto",
+        "unit": null,
+        "quantity": 1
+      },
+      "expected": "1 coin",
+      "working": [
+        "Exactly 1: coins → coin"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "complex",
+      "title": "Contracts, an ounce and half a coin",
+      "given": "Today 2026-10-10. 2 option contracts; 1 ounce of gold; 0.5 of a bitcoin.",
+      "inputs": {
+        "today": "2026-10-10",
+        "items": [
+          {
+            "kind": "option",
+            "quantity": 2
+          },
+          {
+            "kind": "commodity",
+            "quantity": 1
+          },
+          {
+            "kind": "crypto",
+            "quantity": 0.5
+          }
+        ]
+      },
+      "expected": [
+        "2 contracts",
+        "1 ounce",
+        "0.5 coins"
+      ],
+      "working": [
+        "2 → plural",
+        "1 → ounces loses its s → ounce",
+        "0.5 is not 1 → plural"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "complex",
+      "title": "The person's own unit, one and many",
+      "given": "Today 2026-10-10. A private fund where the person entered 'units': 1 unit held in one account, 250 in another.",
+      "inputs": {
+        "today": "2026-10-10",
+        "items": [
+          {
+            "kind": "alternative",
+            "unit": "units",
+            "quantity": 1
+          },
+          {
+            "kind": "alternative",
+            "unit": "units",
+            "quantity": 250
+          }
+        ]
+      },
+      "expected": [
+        "1 unit",
+        "250 units"
+      ],
+      "working": [
+        "1 → unit",
+        "250 → units"
+      ],
+      "rests_on": "formula in words",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "edge",
+      "title": "A written call: minus one contract",
+      "given": "Today 2026-10-10. A covered call written against 100 shares: quantity −1 contract, default format.",
+      "inputs": {
+        "today": "2026-10-10",
+        "kind": "option",
+        "unit": null,
+        "quantity": -1
+      },
+      "expected": "-1 contract",
+      "formula_gives": "-1 contracts",
+      "working": [
+        "One contract, short: singular",
+        "The formula as written singularises only at exactly 1, so it prints '-1 contracts'"
+      ],
+      "rests_on": "Ordinary English grammar",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "could_not_test": []
+}

@@ -3,6 +3,7 @@
 // then — in his caption's words — "its holdings, income and activity are v14's, unchanged": what it
 // holds by category, the three record doors, its full activity, and the editors. Every figure comes
 // from one door (MK-NW-O-002 theAccount, MK-NW-O-008 thePerformance); the screen calculates nothing.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -12,8 +13,9 @@ import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a f
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 import { periodReturnSince, buildPerformance, startDateFor, type Period, type Position } from '../domain/performance';
-import { historyCoverage, assetClassOf, taxWordsOf, holdingClassOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
-import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
+import { DateLink } from '../components/DateField';   // (DEC-4059c, 2026-10-10)
+import { EDIT_HISTORY_START, historyCoverage, assetClassOf, taxWordsOf, TAX_TYPE_NOT_STATED, holdingClassOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
+import { theBonds, MATURITY_NOT_ENTERED } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
 import { windowStartKey, thePerformance, categoryEarnings } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { ValueGraph } from '../components/ValueGraph';
@@ -232,7 +234,7 @@ export default function AccountPortfolioScreen() {
       return {
         key: p.position_id ?? p.ticker,
         posId: p.position_id,
-        name: cls2 === 'stocks_etf' && sh > 0 ? `${holdingWord(p)} · ${sh.toLocaleString()} share${sh === 1 ? '' : 's'}` : holdingWord(p),
+        name: cls2 === 'stocks_etf' && sh > 0 ? `${holdingWord(p)} · ${plural(sh, 'share', sh.toLocaleString())}` : holdingWord(p),
         sub: cls2 === 'bonds' ? 'CDs & Treasuries' : cls2 === 'cash' ? 'counts as cash' : undefined,
         color: ClassMarkColors[cls2], value, cls: cls2, ticker: p.ticker,
       };
@@ -240,7 +242,7 @@ export default function AccountPortfolioScreen() {
     ...(((account as any).cash_balance ?? 0) !== 0 ? [{ key: '__cash', name: 'Cash in this account', sub: undefined as string | undefined, color: ClassMarkColors.cash, value: (account as any).cash_balance as number, cls: 'cash' }] : []),
     ...(((account.option_holdings ?? []) as any[]).map((o) => ({
       key: o.label, name: o.label,
-      sub: `option — ${Math.abs(o.contracts)} contract${Math.abs(o.contracts) === 1 ? '' : 's'}${o.contracts < 0 ? ', short' : ''}`,
+      sub: `option — ${plural(Math.abs(o.contracts), 'contract')}${o.contracts < 0 ? ', short' : ''}`,
       color: ClassMarkColors.alternatives, value: o.value as number, cls: 'alternatives',
     }))),
   ].sort((x, y) => Math.abs(y.value) - Math.abs(x.value));
@@ -431,7 +433,10 @@ export default function AccountPortfolioScreen() {
             ↺ Rebuilt from {who}&apos;s own records, back to {sinceWords} — the first day it shares.
           </Text>
         )}
-        {coverage && <Text style={p.note}>{coverage.sentence}</Text>}
+        {coverage && <Text style={p.note}>{coverage.sentence}{coverage.kind === 'unreadable' && (<>
+          {/* (DEC-4059c, 2026-10-10) "Say date cannot be read. Edit date. and give user an option to enter or correct date." */}
+          {' '}<DateLink text={EDIT_HISTORY_START} label="Edit the history start date" maximumDate={new Date()}
+            onPick={(iso) => store.updateAsset?.(account.asset_id, { history_start_override: iso })} /></>)}</Text>}
       </View>
 
       {/* ── THE VALUE LINE · with its own axis ──────────────────────────────────────────────── */}
@@ -492,7 +497,17 @@ export default function AccountPortfolioScreen() {
       {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called what it
           is — "Mixed holdings" — and its tax treatment is said beside it. v17 frame 2 is drawn for the
           portfolio, where there is no one treatment to name; on one account the line keeps its home. */}
-      <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {taxWordsOf(account)}</Text>
+      {/* NO TAX TYPE STATED IS SAID, AND OFFERED (DEC-4036f, 2026-10-10): an account with no account type chosen
+          reads "tax type not stated" — never "taxable" by default — and a tap opens the account's own editor,
+          whose "Held in" choice sets it. */}
+      {taxWordsOf(account) === TAX_TYPE_NOT_STATED ? (
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Tax type not stated. Tap to choose."
+          onPress={() => router.push(`/add-account?edit=${account.asset_id}` as any)}>
+          <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {TAX_TYPE_NOT_STATED} — choose ›</Text>
+        </TouchableOpacity>
+      ) : (
+        <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {taxWordsOf(account)}</Text>
+      )}
 
       {/* ── WHAT EACH CATEGORY EARNED ──────────────────────────────────────────────────────── */}
       {cats.length > 0 && (
@@ -696,7 +711,7 @@ export default function AccountPortfolioScreen() {
       {(cls === 'bonds' || cls === 'alternatives') && <ReportedReturnCard account={account} />}
 
       {/* activity history — the ledger, in plain words with signed effects */}
-      <SectionBand title="ACTIVITY" value={txns.length ? `${fig('MK-NW-M-022', txns.length)} record${txns.length === 1 ? '' : 's'}` : undefined} />
+      <SectionBand title="ACTIVITY" value={txns.length ? plural(txns.length, 'record', fig('MK-NW-M-022', txns.length)) : undefined} />
       <View style={s.card}>
         {txns.length === 0 && <Text style={s.empty}>Log a deposit or a buy — your history starts here.</Text>}
         {shown.map((t) => {
@@ -775,9 +790,9 @@ export default function AccountPortfolioScreen() {
           const hidden = txns.length - shown.length;
           return (
             <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)}
-              accessibilityLabel={`See all activity — ${hidden} more record${hidden === 1 ? '' : 's'}${when ? `, older than ${when}` : ''}`}>
+              accessibilityLabel={`See all activity — ${plural(hidden, 'record', `${hidden} more`)}${when ? `, older than ${when}` : ''}`}>
               <Text style={s.link}>See all activity{when ? ` (older than ${when})` : ''} ›</Text>
-              <Text style={s.txnFrom}>{hidden} more record{hidden === 1 ? '' : 's'} below this date</Text>
+              <Text style={s.txnFrom}>{plural(hidden, 'record', `${hidden} more`)} below this date</Text>
             </TouchableOpacity>
           );
         })()}
@@ -801,7 +816,10 @@ function BondDetail({ account }: { account: AssetAccount }) {
   const one = answer.one;
   // a bond FUND (no maturity) — no honest bond math. A face or a rate never entered still gets its facts: the card used to
   // vanish with no rate, taking face value and maturity with it (outside review OpenAI final, 2026-10-09, DEC-2748b + DEC-2748c)
-  if (!one || !one.maturity) return null;
+  // A BOND OR CD WITH NO MATURITY DATE STILL HAS ITS FACTS (DEC-4036b, 2026-10-10): the card used to vanish, so a
+  // CD typed without its date showed nothing. Only a holding with no date, no face, no rate and no CD word — a bond
+  // fund — has no card; anything else reads "maturity date not entered" where the date would be.
+  if (!one || (!one.maturity && one.face == null && one.couponRate == null && !one.isCD)) return null;
   const { matured } = one;
   const years = one.yearsLeft ?? 0;
   return (
@@ -813,7 +831,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
         <FactRow label="Interest payments" value={figWords('MK-NW-M-024', one.couponRate == null
           ? `not entered · ${fig('MK-NW-M-056', 0)}/year — coupon rate not entered`
           : `${(one.couponRate * 100).toFixed(2)}%/year · ${one.couponPerYear != null ? fig('MK-NW-M-056', one.couponPerYear) : 'not entered'}/year`)} />
-        <FactRow label="Matures" value={figWords('MK-NW-M-025', matured ? `${one.maturity} (matured)` : `${one.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`)} />
+        <FactRow label="Matures" value={figWords('MK-NW-M-025', !one.maturity ? MATURITY_NOT_ENTERED : matured ? `${one.maturity} (matured)` : `${one.maturity} (${plural(Math.round(years), 'year')} away)`)} />
         {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${fig('MK-NW-M-026', one.yieldToMaturity)} · estimate`} />}
         {one.currentYield != null && <FactRow label="Yield on today's value" value={fig('MK-NW-M-027', one.currentYield)} />}
         {!!one.accruedCaveat && <Text style={s.bondNote}>{one.accruedCaveat}</Text>}

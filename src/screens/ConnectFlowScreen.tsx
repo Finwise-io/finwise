@@ -8,6 +8,7 @@
 // never a twin (r27, the anti-duplicate gate).
 // The vendor handoff runs behind the F1 seam (src/services/sync). No provider in this build →
 // the screen says so honestly and the equal doors still work. Never a dead button.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -198,8 +199,8 @@ export default function ConnectFlowScreen() {
       </View>
       {(() => { const n = Object.values(picked).filter(Boolean).length; return (
         <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, n === 0 && { opacity: 0.4 }]} disabled={n === 0} onPress={save}
-          accessibilityLabel={n === 0 ? 'Select an account to track' : `Track ${n} accounts`}>
-          <Text style={s.primaryTxt}>{n === 0 ? 'Select an account to track' : `Track ${n} account${n === 1 ? '' : 's'}`}</Text>
+          accessibilityLabel={n === 0 ? 'Select an account to track' : `Track ${plural(n, 'account')}`}>
+          <Text style={s.primaryTxt}>{n === 0 ? 'Select an account to track' : `Track ${plural(n, 'account')}`}</Text>
         </TouchableOpacity>
       ); })()}
       <View style={{ height: 40 }} />

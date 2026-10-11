@@ -11,6 +11,7 @@
 // will do. The screen wears the estimate label; the door never hands back a figure that implies
 // otherwise.
 import { declareFigures } from '../_figure-spec';
+import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import { alternativesSummary, altPartsOf, isAlternative } from '../../../src/domain/alternatives';
 import { assetClassOf, benchmarkReturn, classPortionLabel } from '../../../src/domain/assets';
@@ -24,6 +25,12 @@ export interface AlternativesOutlook {
   estimatedGrowthPerYear: number | null;
   /** The TOTAL the rows add to — the figure above them on the screen. */
   totalValue: number;
+  /** (DEC-4036h, 2026-10-10) Money in the total that no priced holding or option explains. The rate and the growth
+   *  leave it out. 0 when every dollar is classified. */
+  notClassifiedValue: number;
+  /** (DEC-4036h, 2026-10-10) What the summary says when notClassifiedValue is not 0: "Expected return and growth
+   *  leave out $1,500 asset type not classified." Null when there is nothing left out. */
+  leavesOut: string | null;
   /** ONE ROW PER ALTERNATIVE, from the door rather than built on the screen (2026-10-01).
    *  The screen filtered and summed the accounts itself while asking this door for the rate, which is
    *  how one surface comes to hold two answers. The rows add to `totalValue` by construction. */
@@ -36,8 +43,11 @@ export interface AlternativeRow {
   /** Where it is held, or '' — never a dash: the screen decides how to say nothing. */
   institution: string;
   value: number;
-  /** The benchmark for its KIND, as a rate. Not the person's own target. */
-  benchmark: number;
+  /** The benchmark for its KIND, as a rate. Not the person's own target. Over the row's classified parts only;
+   *  null when none of the row is classified (DEC-4036h, 2026-10-10). */
+  benchmark: number | null;
+  /** (DEC-4036h, 2026-10-10) The part of this row no priced holding or option explains — 0 when none. */
+  notClassified: number;
   /** For an account that is NOT itself an alternative (a brokerage holding a bitcoin fund or options):
    *  the words saying which part of it this row is. Null for an alternatives account. */
   inside: string | null;
@@ -63,11 +73,7 @@ export interface AlternativeRow {
  *               MK-NW-F-076 ALT
  *
  * Serves ...... MK-NW-M-050 · MK-NW-M-051 · MK-NW-M-052
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-003 institution name
- *               MK-XS-I-028 assumed return
- *               MK-XS-I-048 the person’s own asset-class answer
+ * Reads ....... MK-XS-I-003 institution name
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-005
@@ -82,6 +88,9 @@ export function theAlternativesOutlook(input: { accounts: AssetAccount[] }): Alt
     // nothing held is not a forecast of nothing — it is no forecast at all
     estimatedGrowthPerYear: s.count > 0 && s.totalValue > 0 ? s.estAnnualGrowth : null,
     totalValue: s.totalValue,
+    notClassifiedValue: s.notClassifiedValue,
+    leavesOut: Math.abs(s.notClassifiedValue) > 0.005
+      ? `Expected return and growth leave out ${notClassifiedWords(s.notClassifiedValue)}.` : null,
     // THE ROWS ADD TO THE TOTAL (re-check of 2026-10-07 against his rule "can the person see how the
     // number was made"): since the second round the total reads each account's alternatives part — a
     // bitcoin fund or options inside a brokerage included, an alternatives account's own cash left out
@@ -92,16 +101,49 @@ export function theAlternativesOutlook(input: { accounts: AssetAccount[] }): Alt
       .filter((x) => x.parts.length > 0)
       .map(({ a, parts }) => {
         const value = parts.reduce((t, p) => t + p.value, 0);
+        // the row's rate is over its classified parts only; a row with none has no rate (DEC-4036h, 2026-10-10)
+        const known = parts.filter((p) => !p.notClassified);
+        const knownValue = known.reduce((t, p) => t + p.value, 0);
         return {
           accountId: String(a.asset_id),
           label: a.label || 'Other',
           institution: (a.institution || '').trim(),
           value,
-          benchmark: value ? parts.reduce((t, p) => t + p.value * benchmarkReturn(p.kind), 0) / value : benchmarkReturn(a.kind),
+          benchmark: knownValue ? known.reduce((t, p) => t + p.value * benchmarkReturn(p.kind), 0) / knownValue
+            : known.length ? benchmarkReturn(a.kind) : null,
+          notClassified: value - knownValue,
           inside: isAlternative(a) ? null : classPortionLabel(a, 'alternatives'),
         };
       }),
   };
+}
+
+/** (DEC-4036h, 2026-10-10) His wording for money no priced holding explains: "<amount> asset type not classified". */
+/* ─ MK-NW-F-132 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * notClassifiedWords
+ *
+ * Answers ..... (DEC-4036h, 2026-10-10) His wording for money no priced holding explains: "<amount> asset type not classified".
+ *
+ * Formula .....
+ *     `${format money(amount)} asset type not classified`
+ *
+ * Called by ... MK-NW-O-005 theAlternativesOutlook
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-O-005 theAlternativesOutlook
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-132
+ * Changed ..... not in git yet (—)
+ */
+export function notClassifiedWords(amount: number): string {
+  return `${formatMoney(amount)} asset type not classified`;
 }
 
 /** THE WORKED EXAMPLE (six steps, step 6, 2026-09-28).

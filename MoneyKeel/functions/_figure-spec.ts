@@ -16,6 +16,7 @@
  *  cannot disagree; the file is a printout of the code.
  */
 
+import { plural } from '../../src/domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { formatMoney, formatMoneyCents, moneyCompact } from '../../src/domain/_shared/money';
 
 /** How a figure is written down. Drives the rounding, so the precision standard (Q49, 2026-09-09) is
@@ -74,7 +75,7 @@ export function writeFigure(spec: FigureSpec, value: number | null, opts?: { spo
     : spec.unit === 'percent' ? `${Math.round(value * 100)}%`
     : spec.unit === 'percent-2dp' ? `${(value * 100).toFixed(2)}%`
     : spec.unit === 'percent-signed' ? `${value < 0 ? '−' : '+'}${Math.abs(value * 100).toFixed(2)}%`
-    : spec.unit === 'months' ? `${(Math.round(value * 10) / 10).toFixed(1)} ${value === 1 ? 'month' : 'months'}`
+    : spec.unit === 'months' ? plural(value, 'month', (Math.round(value * 10) / 10).toFixed(1))
     : spec.unit === 'age' ? `${value}`
     : `${value}`;
   if (opts?.withPeriod && spec.per) return body + (opts.spoken ? ` a ${spec.per}` : `/${spec.per}`);

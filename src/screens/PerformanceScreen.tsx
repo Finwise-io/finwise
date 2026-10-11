@@ -512,7 +512,8 @@ export default function PerformanceScreen() {
         onSave={(accountId, position, isNew) => {
           if (isNew) {
             if (accountId === '__new__') {
-              store.addAsset({ label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, target_return: 0.08, positions: [], derive_balance: true });
+              // A NEW ACCOUNT MADE HERE IS ASKED NO TAX TYPE, SO IT STATES NONE (DEC-4036f, 2026-10-10) — it used to be saved Taxable
+              store.addAsset({ label: 'Brokerage', kind: 'brokerage', tax_bucket: undefined, balance: 0, target_return: 0.08, positions: [], derive_balance: true });
               // newest account is at index 0
               const newId = (useStore.getState() as any).assetAccounts[0].asset_id;
               store.addPosition(newId, position);

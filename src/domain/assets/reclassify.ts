@@ -23,7 +23,7 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
  *
  * Called by ... MK-NW-F-010 wrapperAccount · MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 83 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
@@ -33,7 +33,7 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
  *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
  *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 68 more — the full list is on functions_from_code
+ *               … and 65 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -73,7 +73,7 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  *
  * Called by ... MK-NW-F-109 holdingClassOf · MK-XS-F-175 uid
  *
- * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
@@ -83,7 +83,7 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
  *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 66 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -107,7 +107,9 @@ export function reclassifyAccounts(accounts: AssetAccount[]): { accounts: AssetA
     const want = a.class_source === 'user' ? null : correctClassOf(a);
     let next = a;
     if (want && a.asset_class !== want) {
-      next = { ...next, asset_class: want, tax_bucket: want === 'cash' ? next.tax_bucket : (next.tax_bucket === 'CASH' ? 'TAXABLE' : next.tax_bucket) };
+      // MOVED OUT OF CASH, ITS TAX TYPE IS NOT GUESSED (DEC-4036f, 2026-10-10): the cash bucket no longer fits, and
+      // nothing the person said names another, so the account has no tax type — it used to become TAXABLE.
+      next = { ...next, asset_class: want, tax_bucket: want === 'cash' ? next.tax_bucket : (next.tax_bucket === 'CASH' ? undefined as unknown as AssetAccount['tax_bucket'] : next.tax_bucket) };
       changed++;
     }
     // positions carry their own class (imported/synced holdings — the same rule applies inside)

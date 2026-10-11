@@ -5,6 +5,7 @@
 // roof in 2028 — so it writes the moment you change it. A choice is something you are trying on —
 // retire at 67, put $500 more away — so it stays a draft until "Use as my plan". The chips are the
 // tell: FACT on the saved rows, DRAFT on the ones in play.
+import { CountedTaxableLines } from './CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors, Spacing, Typography } from '../utils/theme';
@@ -12,7 +13,7 @@ import { SectionBand } from './SectionBand';
 import { maskedMoney, spokenMoney } from './useMoney';
 import { useStore } from '../store/useStore';
 import { DOORS } from '../constants/doors';
-import { accountDisplayNames, earmarkedAmount, retirementEarmarkedValue, primaryCarIdOf, primaryHomeIdOf, earmarkDefault } from '../domain/assets';
+import { accountDisplayNames, earmarkedAmount, retirementEarmarkedValue, primaryCarIdOf, primaryHomeIdOf, earmarkDefault, earmarkLeavesOutWords, carValueNotEnteredNotes } from '../domain/assets';
 
 export interface PlanDraft { retireAge: number; horizonAge: number; extraMonthly: number }
 
@@ -82,6 +83,8 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
     || draft.horizonAge !== committed.horizonAge
     || draft.extraMonthly !== committed.extraMonthly;
   const counted = retirementEarmarkedValue(accounts);
+  const leavesOut = earmarkLeavesOutWords(accounts, names);   // (DEC-4036k, 2026-10-10)
+  const carNotes = carValueNotEnteredNotes(accounts, names);   // (DEC-4036j, 2026-10-10)
 
   return (
     <View>
@@ -147,6 +150,12 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
           which is the truth. The distinction matters most on the very first screen a person sees. */}
       <SectionBand title="WHAT COUNTS TOWARD RETIREMENT" value={counted > 0 ? maskedMoney(counted) : '—'} />
       <Text style={s.hint}>Everything you own counts, except the home you live in and the car you drive. Tap any row to change it.</Text>
+      {/* the retirement money names an account it leaves out for a value not entered (DEC-4036k, 2026-10-10), and a
+          vehicle with no value may be the car you drive (DEC-4036j, 2026-10-10) */}
+      {!!leavesOut && <Text style={s.hint}>What counts toward retirement {leavesOut}.</Text>}
+      {carNotes.map((n) => <Text key={n} style={s.hint}>{n}</Text>)}
+      {/* the odds count an account with no tax type as taxable, and name it (DEC-4105, 2026-10-10) */}
+      <CountedTaxableLines accounts={accounts} />
       {accounts.map((a: any) => {
         const counts = earmarkedAmount(a, carId, homeId) > 0 || (a.retirement_pct ?? earmarkDefault(a, carId, homeId)) > 0;
         return (

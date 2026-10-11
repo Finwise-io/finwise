@@ -718,7 +718,7 @@ test('rule 6: a "savings"-typed account from the brokerage-only pipe maps to BRO
   const { mapAccountType } = require('../../services/sync/snaptrade');
   const m = mapAccountType('Premium Savings', undefined);
   expect(m.kind).toBe('brokerage');
-  expect(m.tax_bucket).toBe('TAXABLE');
+  expect(m.tax_bucket).toBeUndefined();                 // not confident = no tax type stated (DEC-4036f, 2026-10-10)
   expect(m.confident).toBe(false);                      // the wrapper question can still fix IRAs
 });
 
@@ -732,7 +732,7 @@ test('rule 1: the import NEVER names an account after a ticker', () => {
 test('B48 finding 6: editing a CD exposes its maturity, and the date re-sorts the class', () => {
   const fs = require('fs'); const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'NetWorthScreen.tsx'), 'utf8');
-  expect(src).toMatch(/Matures \(YYYY-MM — CDs and dated bonds count under Bonds & CDs\)/);
+  expect(src).toMatch(/Matures \(CDs and dated bonds count under Bonds & CDs\)/);   // picked, not typed (DEC-4059b, 2026-10-10)
   expect(src).toMatch(/maturity_date: maturity\.trim\(\), asset_class: maturityClass\(maturity\.trim\(\)\)/);
 });
 

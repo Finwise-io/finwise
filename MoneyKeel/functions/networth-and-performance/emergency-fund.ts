@@ -190,9 +190,11 @@ export function theEmergencyFund(input: {
   const uses = [...propertyUseMap(input.accounts ?? [], Array.isArray(p.rentals) ? p.rentals : null).values()];
   const otherProperty = uses.some((u) => u !== 'home');
   const legacyTyped = p.rentalIncome != null && String(p.rentalIncome).trim() !== '';
+  // A RENT ENTRY THAT NAMES NO PROPERTY IS NOT COUNTED (DEC-4059d, 2026-10-10), so its rent is "not included" too:
+  // an entry with no property, and the old single rent figure (which names none), raise the same line.
   const rentNotKnown = otherProperty && (Array.isArray(p.rentals)
-    ? p.rentals.some((r: any) => rentFigure(r?.income) == null)
-    : legacyTyped ? rentFigure(p.rentalIncome) == null
+    ? p.rentals.some((r: any) => rentFigure(r?.income) == null || r?.property_id == null || String(r.property_id).trim() === '')
+    : legacyTyped ? true
     : p.rentals != null || uses.includes('rental'));
 
   return {
@@ -468,7 +470,7 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     worked: {
       given: GIVEN + ' And a rental house: $2,000/month of rent, $500/month to run, less $190/year of calculated tax on it, which is $15.83/month.',
       answer: '$1,484/month',
-      run: () => theEmergencyFund({ ...EXAMPLE, profile: { ...EXAMPLE.profile, rentals: [{ type: 'long', income: 2000, expenses: 500 }] } }).rentalIncomeMonthly,
+      run: () => theEmergencyFund({ ...EXAMPLE, profile: { ...EXAMPLE.profile, rentals: [{ type: 'long', income: 2000, expenses: 500, property_id: 'rental-house' }] } }).rentalIncomeMonthly,   // names its property (DEC-4059d, 2026-10-10)
     },
   },
   'MK-MN-M-026': {

@@ -2,6 +2,7 @@
 // what it means, the honest best-to-worst range, and what drives it. Every driver shows its value
 // AND where it came from (you entered / calculated from your data) with a road to change it. The
 // headline is the SAME selector run the hub, Home and Cash flow read — never a second computation.
+import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -90,6 +91,8 @@ export default function WillItLastScreen() {
           </TouchableOpacity>
         ))}
       </View>
+      {/* the odds count an account with no tax type as taxable, and name it (DEC-4105, 2026-10-10) */}
+      <CountedTaxableLines accounts={accounts} />
       <Text style={s.note}>Change any driver and this number, Home's strip and Cash flow's strip all move together — they are one number.</Text>
       <View style={{ height: 32 }} />
     </ScrollView>

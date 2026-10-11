@@ -3,6 +3,7 @@
 // complete. When something is missing it appears INLINE (never a pop-up), counts the gaps, and
 // names each one; tapping opens a bottom sheet where every row carries what's missing, what we're
 // honestly doing meanwhile, and a button that lands on the exact cure.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
 import { router } from 'expo-router';
@@ -56,7 +57,7 @@ export function DataGapsBanner({ gaps }: { gaps: DataGap[] }) {
                       // The count is what actually came back; say that, and nothing else.
                       const n = await runSnapTradeSync({ force: true });
                       setResult(n > 0
-                        ? `Updated ${n} account${n === 1 ? '' : 's'}. Anything still listed below needs linking again — use Link again.`
+                        ? `Updated ${plural(n, 'account')}. Anything still listed below needs linking again — use Link again.`
                         : "Nothing could be refreshed — your broker didn't answer. That usually means the link has expired: use Link again below.");
                     } catch {
                       setResult("We couldn't reach it just now — use Link again below to sign in again.");

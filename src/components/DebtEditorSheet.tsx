@@ -4,6 +4,7 @@
 //   installment  → the REAL monthly payment ↔ "paid off by" (enter either, the other is computed)
 //   revolving    → cards keep the minimum + you-pay fields
 //   due_in_full  → amount + due date; cash flow schedules it as a dated big-ticket, not a monthly row
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -206,7 +207,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate % (optional)</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="0%" placeholderTextColor={Colors.textTertiary} value={apr} onChangeText={setApr} /></View>
         </View>
         {amt > 0 && dueIso
-          ? <Text style={sh.derived}>✓ lands as a {money(amt)} big-ticket in {fmtMonthYear(dueIso)}'s cash flow and on the bill calendar{monthsToDue != null && monthsToDue > 0 ? ` — ${monthsToDue} month${monthsToDue === 1 ? '' : 's'} of warning` : ''}, not a surprise</Text>
+          ? <Text style={sh.derived}>✓ lands as a {money(amt)} big-ticket in {fmtMonthYear(dueIso)}'s cash flow and on the bill calendar{monthsToDue != null && monthsToDue > 0 ? ` — ${plural(monthsToDue, 'month')} of warning` : ''}, not a surprise</Text>
           : <Text style={sh.derivedMuted}>Enter the amount and its due date — no monthly payment to track.</Text>}
       </>) : shape === 'installment' ? (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
@@ -232,7 +233,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /month</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="≥ min" placeholderTextColor={Colors.textTertiary} value={monthly} onChangeText={setMonthly} /></View>
         </View>
         {cardMonths != null
-          ? <Text style={sh.derived}>✓ clear in {cardMonths} month{cardMonths === 1 ? '' : 's'} at {money(cardPay)}/month</Text>
+          ? <Text style={sh.derived}>✓ clear in {plural(cardMonths, 'month')} at {money(cardPay)}/month</Text>
           : cardPay > 0 && amt > 0
             ? <Text style={sh.derivedWarn}>⚠ {money(cardPay)}/month doesn't cover the interest — this never pays off</Text>
             : null}

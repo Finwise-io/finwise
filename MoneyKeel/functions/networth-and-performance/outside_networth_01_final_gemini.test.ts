@@ -161,7 +161,7 @@ describe('MK-NW-O-004 theEmergencyFund — its five cases', () => {
   });
   test('complex 1 · essentials $4,000 logged, a $1,500 mortgage, $1,200 of rent coming in, $7,000 planned', () => {
     const e = theEmergencyFund({ accounts: [cashAt(25000), acct({ asset_id: 'h', kind: 'home', tax_bucket: 'PROPERTY', re_use: 'primary', balance: 400000 })], expenses: logged(4000),
-      profile: { monthlySpending: 7000, taxMode: 'manual', manualTaxRate: '0', rentals: [{ type: 'long', income: '1200', expenses: '0' }] },
+      profile: { monthlySpending: 7000, taxMode: 'manual', manualTaxRate: '0', rentals: [{ type: 'long', income: '1200', expenses: '0', property_id: 'r' }] },   // names its property (DEC-4059d, 2026-10-10)
       debts: [debt('Home mortgage', 'MORTGAGE', 250000, 1500, { property_id: 'h' })] });
     expect(e.fromCashMonthly).toBe(4300);                                  // 4,000 + 1,500 − 1,200
     expect(e.monthsCovered).toBeCloseTo(5.8, 1);
@@ -174,7 +174,7 @@ describe('MK-NW-O-004 theEmergencyFund — its five cases', () => {
     expect(after.monthsCovered).toBeCloseTo(5, 9);
   });
   test('edge, and ITS ISSUE 4 · rent of $3,500 against $3,000 of essentials: nothing is drawn from cash, and no months are shown', () => {
-    const e = theEmergencyFund({ accounts: [cashAt(10000)], expenses: [], profile: { monthlySpending: 3000, taxMode: 'manual', manualTaxRate: '0', rentals: [{ type: 'long', income: '3500', expenses: '0' }] }, debts: [] });
+    const e = theEmergencyFund({ accounts: [cashAt(10000)], expenses: [], profile: { monthlySpending: 3000, taxMode: 'manual', manualTaxRate: '0', rentals: [{ type: 'long', income: '3500', expenses: '0', property_id: 'r' }] }, debts: [] });   // names its property (DEC-4059d, 2026-10-10)
     expect([e.fromCashMonthly, e.rentCoversEssentials, e.monthsCovered]).toEqual([0, true, null]);
   });
 });

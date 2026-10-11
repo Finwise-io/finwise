@@ -1,6 +1,7 @@
 // Plan hub (FCC detailed design v1.1, Plan sheet) — the chief-of-staff desk: the ONE home of the
 // will-it-last number, the big decisions waiting on you, and your saved what-ifs. Nothing here
 // changes the plan by itself — every path ends at an explicit adoption step.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useEffect, useMemo, useState } from 'react';
 import { displayOdds } from '../domain/retirement/willItLast';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
@@ -259,7 +260,7 @@ export default function PlanHubScreen() {
               <GaugeArc locked />
               <Text style={styles.sampleTxt}>
                 <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{sampleOddsLine(wil.horizonAge)}</Text>{'\n'}
-                <Text style={{ color: Colors.textTertiary }}>A sample, not your number — {door.count < 3 ? `yours needs ${door.count} more answer${door.count === 1 ? '' : 's'}, below` : 'answer the three below and it becomes yours'}.</Text>
+                <Text style={{ color: Colors.textTertiary }}>A sample, not your number — {door.count < 3 ? `yours needs ${plural(door.count, 'answer', `${door.count} more`)}, below` : 'answer the three below and it becomes yours'}.</Text>
               </Text>
             </View>
             {/* the can't-compute box, in place of the odds — the design's "Missing Age" state */}
@@ -270,7 +271,7 @@ export default function PlanHubScreen() {
               </Text>
             </View>
             {door.credit && (
-              <Text style={styles.doorCredit}>✓ What you have — already in: {door.credit.accounts} {accounts.some((a: any) => a.source === 'connected') ? 'connected ' : ''}account{door.credit.accounts === 1 ? '' : 's'}, {maskedMoney(Math.round(door.credit.total))} counted</Text>
+              <Text style={styles.doorCredit}>✓ What you have — already in: {plural(door.credit.accounts, 'account', `${door.credit.accounts}${accounts.some((a: any) => a.source === 'connected') ? ' connected' : ''}`)}, {maskedMoney(Math.round(door.credit.total))} counted</Text>
             )}
             {/* ALL SEVEN QUESTIONS, ALWAYS — founder finding 2026-08-14, and it lives HERE.
                 An earlier attempt added a second component listing the seven above this panel, which

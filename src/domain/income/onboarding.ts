@@ -456,7 +456,6 @@ export function rsuAnnual(op: OnboardingProfile | null): number {
  *     a = op (or none when missing)
  *     norm = (t: any): 'long' | 'short' => (t = 'short' ? 'short' : 'long')
  *     rent = (v: any) => rent figure(v) (or 0 when missing)
- *     [{ type: norm(rental type), income: rent(rental income), expenses: rent(rental expenses) }]   when rent(rental income) > 0
  *     the answer = []
  *
  * Called by ... MK-CF-F-068 rentalNetAnnual · MK-CF-F-079 incomeFromOnboarding
@@ -486,12 +485,16 @@ export function rentalList(op: OnboardingProfile | null): { type: 'long' | 'shor
   // DEC-3768c (2026-10-10): a rent or running-cost figure is read by the one strict reader, rentFigure —
   // "about 2k" is not entered (0 here), never $2. toNum is left alone for every other figure.
   const rent = (v: any) => rentFigure(v) ?? 0;
+  // A RENT ENTRY WITH NO PROPERTY IS NOT RENT YET (DEC-4059d, 2026-10-10, "10 - approved"): an entry counts only once
+  // it names its property in Net worth. Until then it is kept as typed, asks "Which property is it?" in amber on the
+  // Income screen, and is counted nowhere — not in income, not in the emergency fund, not as a rental. The old single
+  // rent figure (rentalIncome, from before rent entries named a property) names none, so it is not counted either.
   if (Array.isArray(a.rentals)) {
     return a.rentals
+      .filter((r: any) => r?.property_id != null && String(r.property_id).trim() !== '')
       .map((r: any) => ({ type: norm(r?.type), income: rent(r?.income), expenses: rent(r?.expenses) }))
       .filter((r: any) => r.income > 0 || r.expenses > 0);
   }
-  if (rent(a.rentalIncome) > 0) return [{ type: norm(a.rentalType), income: rent(a.rentalIncome), expenses: rent(a.rentalExpenses) }];
   return [];
 }
 

@@ -1,6 +1,7 @@
 // "Itemize this account" (Mock C) — decompose a lump-sum account into its real holdings while a meter shows
 // what's still unallocated. On Done we delete the lump and create the holdings (institution inherited); a
 // positive remainder is kept as cash so the account TOTAL never drifts (buildItemizedAccounts).
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
@@ -153,7 +154,7 @@ export default function ItemizeScreen() {
         {remainder < 0 && <Text style={[styles.note, { color: Colors.red }]}>These holdings are {fig('MK-NW-M-039', overBy)} more than the {fig('MK-NW-M-038', lump.balance)} you entered — the account total will update to {fig('MK-NW-M-038', resultTotal)}.</Text>}
       </View>
       <TouchableOpacity style={[styles.done, items.length === 0 && { opacity: 0.4 }]} disabled={items.length === 0} accessibilityRole="button" accessibilityLabel="Done — replace the account with these holdings" onPress={done}>
-        <Text style={styles.doneT}>Done — replace with {items.length} holding{items.length === 1 ? '' : 's'}</Text>
+        <Text style={styles.doneT}>Done — replace with {plural(items.length, 'holding')}</Text>
       </TouchableOpacity>
       <View style={{ height: 40 }} />
     </ScrollView>

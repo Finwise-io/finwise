@@ -47,17 +47,22 @@ const classOfExisting = (a: any): Cls => {
 
 export default function AddAccountScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ edit?: string }>();
+  const params = useLocalSearchParams<{ edit?: string; cls?: string }>();
   const store = useStore() as any;
   const existing = useMemo(() => (store.assetAccounts ?? []).find((a: any) => a.asset_id === String(params.edit)), [params.edit, store.assetAccounts]);
   const editMode = !!existing;
 
-  const [cls, setCls] = useState<Cls>(() => classOfExisting(existing));
+  // a door may open the form on one kind — the rent entry's "Add the property in Net worth first" opens it on
+  // Real estate (DEC-4059d, 2026-10-10); an account being edited keeps its own
+  const [cls, setCls] = useState<Cls>(() => (!existing && CLASSES.some((c) => c.id === params.cls) ? params.cls as Cls : classOfExisting(existing)));
   const [name, setName] = useState<string>(existing?.label ?? '');
   const [institution, setInstitution] = useState<string>(existing?.institution ?? '');
   const [balance, setBalance] = useState<string>(existing?.balance != null && editMode ? String(Math.round(existing.balance)) : '');
   const [rate, setRate] = useState<string>('');
-  const [wrapper, setWrapper] = useState<string>(existing?.tax_bucket && existing.tax_bucket !== 'CASH' && existing.tax_bucket !== 'PROPERTY' ? existing.tax_bucket : 'TAXABLE');
+  // an account whose tax type was never stated starts with no chip chosen — never Taxable by default — and is
+  // saved with no tax type until one is picked (DEC-4036f, 2026-10-10). A NEW account starts the same way: Taxable
+  // used to be preselected, a default that looked like an answer.
+  const [wrapper, setWrapper] = useState<string>(existing?.tax_bucket && existing.tax_bucket !== 'CASH' && existing.tax_bucket !== 'PROPERTY' ? existing.tax_bucket : '');
   const [earmark, setEarmark] = useState<string>(existing?.retirement_pct != null ? String(existing.retirement_pct) : '');
   const [altType, setAltType] = useState<string>(existing?.kind && (ALT_TYPES.some(([k]) => k === existing.kind) || KEPT_ALT_KINDS.includes(existing.kind)) ? existing.kind : 'crypto');
   const [owe, setOwe] = useState<string>('');
@@ -110,7 +115,7 @@ export default function AddAccountScreen() {
       label: name.trim(), institution: institution.trim() || undefined,
       balance: num(balance), value_as_of: today, source: 'manual' as const,
       kind: cls === 'alts' ? altType : KIND_BY_CLASS[cls],
-      tax_bucket: cls === 'cash' ? 'CASH' : cls === 'property' ? 'PROPERTY' : wrapper,
+      tax_bucket: cls === 'cash' ? 'CASH' : cls === 'property' ? 'PROPERTY' : wrapper || undefined,
     };
     if (cls === 'bonds') { base.asset_class = 'bonds'; base.face_value = num(face) || undefined; base.coupon_rate = num(coupon) > 0 ? num(coupon) / 100 : undefined; base.maturity_date = maturity.trim() || undefined; if (isCd) base.cd_bought = cdBought; }   // (DEC-3837, 2026-10-10)
     if (cls === 'alts') base.asset_class = 'alternatives';

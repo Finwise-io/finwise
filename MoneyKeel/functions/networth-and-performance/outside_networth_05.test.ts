@@ -65,10 +65,10 @@ describe('MK-NW-F-040 assetsFromOnboarding — five cases', () => {
   });
   test('complex · bank savings answered alongside retirement savings', () => {
     const d = assetsFromOnboarding('u', { currentRetirementSavings: '152000', currentSavingsPortfolio: '38500' });
-    expect(d.accounts.map((a) => [a.kind, a.balance])).toEqual([['401k', 152000], ['stocks_etf', 38500]]);
-    // HELD AT THE APP'S ANSWER: its cash account at the cash rate. The retired flow asks ONE number ("Taxable + cash")
-    // and the app cannot tell the two apart; splitting the question is a setup-flow change, for that build (on the tracker).
-    expect(d.accounts[1].target_return).toBe(0.07);
+    // SETTLED 2026-10-10 by DEC-4036g: the one "savings or portfolio" number cannot say cash or investments, so it is
+    // filed Unclassified with no kind, no tax type and no growth, and Net worth asks "Is this cash savings or investments?"
+    expect(d.accounts.map((a) => [a.kind, a.asset_class ?? null, a.balance])).toEqual([['401k', null, 152000], [undefined, 'mixed', 38500]]);
+    expect(d.accounts[1].target_return).toBe(0);
   });
   test('edge · a negative answer is skipped, a zero answer is kept', () => {
     expect(seeded({ currentRetirementSavings: '-5000', investmentHoldings: '0' })).toEqual([['stocks_etf', 'TAXABLE', 0, 0.07]]);
@@ -122,7 +122,8 @@ describe('MK-NW-F-054 reclassifyAccounts — five cases', () => {
   test('complex · an account and its holdings all filed wrongly, broker wording', () => {
     const r = reclassifyAccounts([acct({ label: 'Schwab Treasury Ladder', source: 'connected', asset_class: 'cash', tax_bucket: 'CASH', maturity: '2030-08-15',
       positions: [{ name: 'ISHARES 20+ YEAR TREASURY BOND ETF', asset_class: 'stock_etf' }, { name: 'VANGUARD TOTAL STOCK MKT ETF', asset_class: 'bond' }, { name: 'SCHWAB VALUE ADVANTAGE MONEY INV', asset_class: 'cash' }] })]);
-    expect([r.accounts[0].asset_class, r.accounts[0].tax_bucket]).toEqual(['bonds', 'TAXABLE']);
+    // SETTLED 2026-10-10 by DEC-4036f: moved out of cash, the account's tax type is not guessed — none is stated
+    expect([r.accounts[0].asset_class, r.accounts[0].tax_bucket]).toEqual(['bonds', undefined]);
     const ps = r.accounts[0].positions as any[];
     expect(ps.map((p) => p.asset_class)).toEqual(['bond', 'bond', 'cash']);
     // HELD AT THE APP'S ANSWER — 2 changes, its reading A says 3: "TOTAL STOCK MKT ETF" has no word the app reads as evidence

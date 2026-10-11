@@ -2,6 +2,7 @@
 // full story — what you own, what you paid, what it's worth, how it compares, and the tax facts
 // if you sold (clearly an estimate). Every number is the SAME helper the Invest main list uses;
 // nothing is recomputed differently here (r24: same row object, no recomputation).
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { quantityWithUnit } from '../domain/performance';
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
@@ -96,7 +97,7 @@ export default function HoldingDetailScreen() {
     const NAMED: Record<string, [string, string]> = { '1M': ['1-month', 'a month'], '3M': ['3-month', 'three months'], '6M': ['6-month', 'six months'],
       YTD: ['year-so-far', 'the whole year so far'], '1Y': ['1-year', 'a year'], '2Y': ['2-year', 'two years'] };
     const [label, words] = NAMED[period] ?? NAMED['1Y'];
-    return `Prices for this holding go back ${months} ${months === 1 ? 'month' : 'months'}, so the ${label} figure covers ${months} ${months === 1 ? 'month' : 'months'} — not ${words}.`;
+    return `Prices for this holding go back ${plural(months, 'month')}, so the ${label} figure covers ${plural(months, 'month')} — not ${words}.`;
   }, [coverage, period]);
 
   // B47 finding 4: deleting re-renders BEFORE router.back() finishes — the not-found screen
@@ -300,7 +301,7 @@ export default function HoldingDetailScreen() {
               : `${fig('MK-NW-M-035', 0)} — nothing sold`}</Text></View>
           {/* his ruling, 2026-10-04: "$0 — nothing sold" stays; the line about how sales are matched is for when there is a sale */}
           {realized.sellsCounted > 0 && (
-            <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).{realized.sellsWithoutBasis > 0 ? ` ${realized.sellsWithoutBasis} sale${realized.sellsWithoutBasis === 1 ? '' : 's'} had no recorded purchase, so its gain isn't counted.` : ''}</Text>
+            <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).{realized.sellsWithoutBasis > 0 ? ` ${plural(realized.sellsWithoutBasis, 'sale')} had no recorded purchase, so its gain isn't counted.` : ''}</Text>
           )}
         </View>
       )}

@@ -65,6 +65,7 @@ import {
   earmarkedAmount, retirementEarmarkedValue, benchmarkReturn, blendedVolatility, benchmarkInfo, blendedReturn,
   earmarkedKinds, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding, assetsStateFrom,
   sourceWording, historyCoverage, uberGroupOf, uberGroupRows, UBER_LABEL, BENCHMARK_META, holdingClassOf,
+  carValueNotEnteredNotes, earmarkLeavesOutWords, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK,
   type AssetClass,
 } from '../../../src/domain/assets';
 import {
@@ -129,10 +130,10 @@ describe('MK-NW-F-027 accountClassBreakdown — five cases', () => {
     matchSplit(accountClassBreakdown(a), { Cash: 1000, 'Stocks / Funds': 19000, total: 20000 });
   });
   test('edge · Negative balance with positive cash field', () => {
-    // UNCLEAR: app files the whole −$100 under the account's own class (a bare brokerage: Unclassified) with cash $0
-    // (index.ts:1533, 1539); open question: should an overdrawn hand-built account with recorded cash be refused or flagged?
+    // SETTLED 2026-10-10 by DEC-4036i ("12: approved"): an overdrawn hand-built account is negative cash — balance −$100
+    // with a cash field of $50 is Cash −$100, nothing else
     const got = accountClassBreakdown(acct({ kind: 'brokerage', balance: -100, cash_balance: 50 }));
-    matchSplit(got, { Unclassified: -100, total: -100 });
+    matchSplit(got, { Cash: -100, total: -100 });
   });
 });
 
@@ -227,9 +228,11 @@ describe('MK-NW-F-031 primaryCarIdOf — five cases', () => {
       acct({ id: 'B', kind: 'boat', tax_bucket: 'PROPERTY', balance: 50000 })])).toBe('V');
   });
   test('edge · Missing balance among vehicles', () => {
-    // UNCLEAR: app ranks a vehicle with no balance as $0 ((balance || 0), index.ts:1853) and picks B; open question:
-    // may a primary car be named while another vehicle's value is unknown? No decision on it.
-    expect(primaryCarIdOf([acct({ id: 'A', kind: 'vehicle', balance: null }), acct({ id: 'B', kind: 'vehicle', balance: 8000 })])).toBe('B');
+    // SETTLED 2026-10-10 by DEC-4036j ("13: approved"): the car you drive is picked among the vehicles with a value (B), and
+    // the screen showing the choice says "A's value not entered — it may be the car you drive."
+    const cars = [acct({ id: 'A', label: 'A', kind: 'vehicle', balance: null }), acct({ id: 'B', label: 'B', kind: 'vehicle', balance: 8000 })];
+    expect(primaryCarIdOf(cars)).toBe('B');
+    expect(carValueNotEnteredNotes(cars)).toEqual(["A's value not entered — it may be the car you drive."]);
   });
 });
 
@@ -277,6 +280,8 @@ describe('MK-NW-F-033 retirementEarmarkedValue — five cases', () => {
       acct({ id: 'b', kind: 'brokerage', balance: 10000, retirement_pct: 100 })];
     expect(retirementEarmarkedValue(accounts)).toBeCloseTo(10000, 6);           // known_subtotal
     expect(noBalanceGap(accounts, 'Linked 401(k)')).toBe(true);                // the warning naming it (app wording: "… has no balance")
+    // SETTLED 2026-10-10 by DEC-4036k ("14: approved"): the retirement money on the Plan screens names it
+    expect(earmarkLeavesOutWords(accounts)).toBe('leaves out Linked 401(k) — Value not entered');
   });
 });
 
@@ -429,17 +434,19 @@ describe('MK-NW-F-040 assetsFromOnboarding — five cases', () => {
   test('complex · Four answers create four accounts', () => {
     const a = ob(18765.43, 12345.67, 32100.5, 4000);
     expect(a.length).toBe(4); expect(a.reduce((t, x) => t + x.balance, 0)).toBeCloseTo(67211.6, 6);
-    expect(a.map((x) => x.target_return)).toEqual([0.07, 0.07, 0.07, 0.07]);
+    // SETTLED 2026-10-10 by DEC-4036g: the "savings or portfolio" answer is Unclassified with no growth assumed (0, not 7%)
+    expect(a.map((x) => x.target_return)).toEqual([0.07, 0.07, 0.07, 0]);
   });
   test('complex · Negative answers skipped', () => {
     const a = ob(-100, 2000, null, 1500);
     expect(a.length).toBe(2); expect(a.reduce((t, x) => t + x.balance, 0)).toBeCloseTo(3500, 6);
   });
   test('edge · Ambiguous “savings or portfolio” value', () => {
-    // UNCLEAR: app makes a taxable Stocks / Funds account (kind stocks_etf, TAXABLE) for the answer (index.ts:2278), the
-    // formula_gives answer; open question: does the old "savings or portfolio" answer mean bank savings (Cash) or a
-    // portfolio? No decision on it (DEC-0051 does not settle the meaning of the answer).
-    expect(ob(null, null, null, 8000).map((a) => [a.kind, a.tax_bucket, a.balance])).toEqual([['stocks_etf', 'TAXABLE', 8000]]);
+    // SETTLED 2026-10-10 by DEC-4036g ("7 - approved"): the old answer is filed Unclassified ('mixed') with no kind, no tax
+    // type and no growth, and Net worth asks "Is this cash savings or investments?" (DEC-2160, "Refuse the line and ask")
+    const [s] = ob(null, null, null, 8000);
+    expect([s.kind, s.tax_bucket, s.asset_class, s.balance, s.target_return, asksCashOrInvestments(s)]).toEqual([undefined, undefined, 'mixed', 8000, 0, true]);
+    expect(CASH_OR_INVESTMENTS_ASK).toBe('Is this cash savings or investments?');
   });
 });
 
@@ -522,11 +529,14 @@ describe('MK-NW-F-046 historyCoverage — five cases', () => {
     expect(historyCoverage(linkedFrom('2025-10-10'), '2026-01-01', TODAY)?.monthsCovered).toBe(11.9);
   });
   test('edge · Future history date', () => {
-    // UNCLEAR: app says "Schwab shared a few days of history (from Dec 1, 2026)" with monthsCovered 0 — no negative,
-    // no refusal (index.ts:2538-2543); open question: should a history start after today be refused as invalid? No decision.
+    // SETTLED 2026-10-10 by DEC-4059b/c: a history start after today (or not a real date) is refused — "History start
+    // date cannot be read." — and the screen offers "Edit date"; the person's date is saved on the account and used.
     const h = historyCoverage(linkedFrom('2026-12-01'), '2026-01-01', TODAY)!;
-    expect({ kind: h.kind, months: h.monthsCovered }).toEqual({ kind: 'partial', months: 0 });
-    expect(h.sentence).toMatch(/a few days of history \(from Dec 1, 2026\)/);
+    expect(h).toStrictEqual({ kind: 'unreadable', from: null, monthsCovered: null, sentence: 'History start date cannot be read.' });
+    expect(historyCoverage(linkedFrom('2026-13-40'), '2026-01-01', TODAY)?.kind).toBe('unreadable');
+    // the person's date outranks the sync's: corrected to 2026-04-01, it reads as six months of history
+    const fixed = historyCoverage({ ...linkedFrom('2026-12-01'), history_start_override: '2026-04-01' } as any, '2025-10-01', TODAY)!;
+    expect(fixed.kind).toBe('partial'); expect(fixed.sentence).toMatch(/6 months of history \(from Apr 1, 2026\)/);
   });
 });
 

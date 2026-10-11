@@ -4,6 +4,7 @@
 //   working → THIS MONTH as the approved drawing has it (cash-flow_v01, frames A and B): what is
 //             planned and what has actually happened, every row spelled out, each ending in its surplus
 // Every number is a door's — this screen computes NOTHING of its own.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { monthOutflow, type Line as MonthLine } from '../../MoneyKeel/functions/cashflow/this-month';
 import { fig, figSaid } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { theBudgetCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';
@@ -22,6 +23,7 @@ import { retirementIncomeMonthly } from '../domain/income';
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { rsuAnnual, rentalNetAnnual } from '../domain/income/onboarding';   // pre-48 A3: canonical source totals
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
+import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { oddsLine } from '../domain/planning/hub';
 import { resolveLens } from '../domain/profile/lens';
@@ -475,7 +477,7 @@ function ExpensesTab({ ym, liabilities, bva, expenses, onLog, budgetSentence }: 
             {x.byHand.items.length > 0 && (
               <View style={styles.card}>
                 <SectionBand light inCard inset={16} title="ENTERED BY HAND" value={fig('MK-CF-M-004', Math.round(x.byHand.total))} />
-                {list(x.byHand, `Entered by hand · ${x.byHand.items.length} item${x.byHand.items.length === 1 ? '' : 's'}`,
+                {list(x.byHand, `Entered by hand · ${plural(x.byHand.items.length, 'item')}`,
                   (e) => `${e.category} · ${e.receiptUri ? 'receipt' : 'typed'}`)}
                 {last === 'hand' && allSources}
               </View>
@@ -483,7 +485,7 @@ function ExpensesTab({ ym, liabilities, bva, expenses, onLog, budgetSentence }: 
             {x.imported.items.length > 0 && (
               <View style={styles.card}>
                 <SectionBand light inCard inset={16} title="IMPORTED FROM YOUR CARD" value={fig('MK-CF-M-004', Math.round(x.imported.total))} />
-                {list(x.imported, `Imported · ${x.imported.items.length} purchase${x.imported.items.length === 1 ? '' : 's'}`, (e) => String(e.category))}
+                {list(x.imported, `Imported · ${plural(x.imported.items.length, 'purchase')}`, (e) => String(e.category))}
                 {last === 'imported' && allSources}
               </View>
             )}
@@ -603,6 +605,8 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
           {order.map((s: any, i: number) => `${i + 1} ${s.label}`).join('   ')}
         </Text>
         <Text style={styles.note}>{store.drawOrder ? 'Your order — steered by you. Balances match your Net worth.' : 'The order the math would tap your accounts — not a directive. Balances match your Net worth.'}</Text>
+        {/* an account with no tax type is drawn as taxable, and named (DEC-4105, 2026-10-10) */}
+        <CountedTaxableLines accounts={accounts} />
       </View>
       <DrawSteerSheet visible={steerOpen} onClose={() => setSteerOpen(false)} />
     </>

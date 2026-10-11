@@ -40,7 +40,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 import {
-  propertyUseMap, primaryHomeIdOf, taxWordsOf, holdingClassOf, assetsStateFrom, buildAssetsState,
+  propertyUseMap, primaryHomeIdOf, taxWordsOf, holdingClassOf, assetsStateFrom, buildAssetsState, benchmarkReturn,
 } from '../../../src/domain/assets';
 import { itemizeMissingCount } from '../../../src/domain/assets/itemize';
 import { rentFigure } from '../../../src/domain/_shared/num';
@@ -167,9 +167,9 @@ describe('MK-NW-F-107 propertyUses — five cases', () => {
     expect(asMap(propertyUses([prop('A', { stored_use: 'home' }), prop('B', { stored_use: 'home' })], [rent('B', 1400)]))).toEqual({ A: 'home', B: 'rental' });
   });
   test('complex · Rent entry naming no property with one remaining', () => {
-    // UNCLEAR: app makes B (last in the list = entered first) the home and A — the one property left — the rental
-    // (index.ts:812-816); open question: should unlinked rent ever reclassify a property, and should it be disclosed?
-    expect(asMap(propertyUses([prop('A'), prop('B')], [rent(null, 1000)]))).toEqual({ B: 'home', A: 'rental' });
+    // SETTLED 2026-10-10 by DEC-4059d ("10 - approved"): a rent entry with no property is not rent — it makes no property
+    // a rental; the entry asks "Which property is it?" in amber on the Income screen until it is answered
+    expect(asMap(propertyUses([prop('A'), prop('B')], [rent(null, 1000)]))).toEqual({ B: 'home', A: 'second' });
   });
   test('edge · Rent data unavailable is not known empty', () => {
     // UNCLEAR: app keeps the stored word — not handed the entries, 'rental' stands (index.ts:801 `!told`; the card says so);
@@ -184,9 +184,8 @@ describe('MK-NW-F-108 taxWordsOf — five cases', () => {
   test('complex · Roth IRA tax-free includes Roth', () => { expect(taxWordsOf(acct({ kind: 'roth_ira', tax_treatment: 'tax_free', tax_bucket: 'ROTH' }))).toBe('tax-free (Roth)'); });
   test('complex · Tax-free non-Roth has no Roth tag', () => { expect(taxWordsOf(acct({ kind: 'brokerage', tax_treatment: 'tax_free', tax_bucket: 'PRE_TAX' }))).toBe('tax-free'); });
   test('edge · Missing treatment has no word specified', () => {
-    // UNCLEAR: app says 'taxable' — taxTreatmentOf falls back to taxable with nothing stated (index.ts:569-575);
-    // open question: should an account with no treatment and no bucket say "taxable", or "not stated"?
-    expect(taxWordsOf(acct({ kind: 'unknown', tax_treatment: null, tax_bucket: null }))).toBe('taxable');
+    // SETTLED 2026-10-10 by DEC-4036f: nothing stated reads "tax type not stated", never "taxable"
+    expect(taxWordsOf(acct({ kind: 'unknown', tax_treatment: null, tax_bucket: null }))).toBe('tax type not stated');
   });
 });
 
@@ -269,14 +268,14 @@ describe('MK-NW-F-113 altPartsOf — five cases', () => {
     const a = linked({ balance: 3000, option_holdings: [{ label: 'opt', contracts: 1, value: 2000 }], positions: [P('Bitcoin tracker', 10, 50, 'other'), P('Private holding', 1, null, 'other')] });
     const parts = altPartsOf(a);
     expect({ parts, total: parts.reduce((t, p) => t + p.value, 0) }).toEqual({
-      parts: [{ value: 2000, kind: 'options' }, { value: 500, kind: 'crypto' }, { value: 500, kind: 'other_asset' }], total: 3000 });
+      // the unpriced $500 is "asset type not classified", no kind (DEC-4036h, 2026-10-10)
+      parts: [{ value: 2000, kind: 'options' }, { value: 500, kind: 'crypto' }, { value: 500, kind: undefined, notClassified: true }], total: 3000 });
   });
   test('complex · Unpriced alternative holding must not vanish', () => {
-    // UNCLEAR: app labels the $1,500 the unpriced holding stands for as kind 'other_asset' (alternatives/index.ts:145),
-    // which rates it at the Other benchmark; open question: should an unpriced alternative's part be flagged
-    // "kind not known" instead of read as Other?
+    // SETTLED 2026-10-10 by DEC-4036h ("11: "$1500 asset type not classified""): the $1,500 no priced holding explains is
+    // not Other — it has no kind and no growth rate, and is shown as "$1,500 asset type not classified"
     const a = linked({ balance: 4000, positions: [P('Gold', 25, 100, 'other'), P('Private holding', 1, null, 'other')] });
-    expect(altPartsOf(a)).toEqual([{ value: 2500, kind: 'commodities' }, { value: 1500, kind: 'other_asset' }]);
+    expect(altPartsOf(a)).toStrictEqual([{ value: 2500, kind: 'commodities' }, { value: 1500, kind: undefined, notClassified: true }]);
   });
   test('edge · Option contracts count as one position', () => {
     const parts = altPartsOf(linked({ balance: 450, option_holdings: [{ label: 'SPY C', contracts: 100, value: 450 }] }));
@@ -309,8 +308,11 @@ describe('MK-NW-F-115 liveRent — five cases', () => {
   test('complex · Several entries and missing value', () => {
     // UNCLEAR: live A and B as expected; C (nothing typed) is dropped without a word (index.ts:719);
     // open question: should an entry with no figures be flagged for validation rather than read as no rent (DEC-1926)?
-    const live = RENT.liveRent([{ id: 'A', income: 1500, expenses: 0 }, { id: 'B', income: 0, expenses: 200 }, { id: 'C', income: null, expenses: null }]);
+    // the entries name their properties: an entry with none is not rent (DEC-4059d, 2026-10-10)
+    const live = RENT.liveRent([{ id: 'A', property_id: 'A', income: 1500, expenses: 0 }, { id: 'B', property_id: 'B', income: 0, expenses: 200 }, { id: 'C', property_id: 'C', income: null, expenses: null }]);
     expect(live.map((r: any) => r.id)).toEqual(['A', 'B']);
+    // SETTLED 2026-10-10 by DEC-4059d: the same figures with no property named are not live rent
+    expect(RENT.liveRent([{ id: 'A', income: 1500, expenses: 0 }])).toEqual([]);
   });
   test('edge · Negative amount should not be live without explicit rule', () => {
     // UNCLEAR: app excludes −$50 (not above zero) silently; open question: is a negative rent invalid input to refuse?
@@ -489,21 +491,23 @@ describe('MK-NW-O-003 theNetWorth — five cases', () => {
 describe('MK-NW-O-004 theEmergencyFund — five cases', () => {
   const EF = (cash: number, profile: any, accounts: any[] = [], debts: any[] = []) => theEmergencyFund({ accounts: [cashAcct('chk', cash), ...accounts], expenses: [], profile, debts });
   test('easy · Cash covers essentials with rent', () => {
-    const e = EF(12000, { spendCats: plan(3000), rentals: [rent(null, 1000)] });
+    // SETTLED 2026-10-10 by DEC-4059d: rent counts once its entry names its property; with none named it is not rent
+    const e = EF(12000, { spendCats: plan(3000), rentals: [rent('r', 1000)] });
     expect({ monthly_draw_from_cash: e.fromCashMonthly, months_covered: e.monthsCovered }).toEqual({ monthly_draw_from_cash: 2000, months_covered: 6 });
+    expect(EF(12000, { spendCats: plan(3000), rentals: [rent(null, 1000)] }).fromCashMonthly).toBe(3000);
   });
   test('easy · No debt minimums when no debt', () => {
     const e = EF(5000, { spendCats: plan(1000) });
     expect({ debt_minimums: e.debtMinimums, monthly_draw_from_cash: e.fromCashMonthly, months_covered: e.monthsCovered }).toEqual({ debt_minimums: 0, monthly_draw_from_cash: 1000, months_covered: 5 });
   });
   test('complex · Mortgage budget line not double-counted; debt minimum included', () => {
-    const e = EF(18000, { spendCats: plan(3100, [{ id: 'rent', label: 'Rent / Mortgage', amount: 1600, bucket: 'fixed', tier: 'critical' }]), rentals: [rent(null, 900)] },
+    const e = EF(18000, { spendCats: plan(3100, [{ id: 'rent', label: 'Rent / Mortgage', amount: 1600, bucket: 'fixed', tier: 'critical' }]), rentals: [rent('r', 900)] },   // names its property (DEC-4059d, 2026-10-10)
       [prop('home', { stored_use: 'home' })], [mortgage('m', 'Home mortgage', 'home', 1600)]);
     expect({ essentials_including_debt_minimum: e.essentialsMonthly, monthly_draw_from_cash: e.fromCashMonthly, months_covered: e.monthsCovered })
       .toEqual({ essentials_including_debt_minimum: 4700, monthly_draw_from_cash: 3800, months_covered: 4.7368421052631575 });
   });
   test('complex · Rent covers whole month refuses months covered', () => {
-    const e = EF(20000, { spendCats: plan(2500), rentals: [rent(null, 3000)] });
+    const e = EF(20000, { spendCats: plan(2500), rentals: [rent('r', 3000)] });   // names its property (DEC-4059d, 2026-10-10)
     expect(e.fromCashMonthly).toBe(0); refuses(e.monthsCovered); expect(e.rentCoversEssentials).toBe(true);
   });
   test('edge · Rent data unavailable is not confirmed zero', () => {
@@ -533,6 +537,16 @@ describe('MK-NW-O-005 theAlternativesOutlook — five cases', () => {
   // BLOCKED: rows at 5%, 12% and 3% — theAlternativesOutlook reads each kind's fixed benchmark (alternatives-outlook.ts:78,100;
   // benchmarkReturn, assets/index.ts:1958) and takes no rate per row; no kind carries 12% or 3%, so the case cannot be put to it
   test.skip('complex · Multiple rates and rows add to total', () => {});
+  test('complex · Money no priced holding explains is named, not grown (DEC-4036h, 2026-10-10)', () => {
+    // $2,500 of gold priced, $1,500 unexplained: the total still equals the Alternatives line ($4,000); the rate and the
+    // growth are over the $2,500 only, and the summary says it leaves the $1,500 out
+    const o = theAlternativesOutlook({ accounts: [linked({ asset_id: 'g', label: 'Brokerage', balance: 4000, positions: [P('Gold', 25, 100, 'other'), P('Private holding', 1, null, 'other')] })] });
+    const gold = benchmarkReturn('commodities');
+    expect({ total: o.totalValue, notClassified: o.notClassifiedValue, rate: o.expectedReturn, growth: o.estimatedGrowthPerYear, leavesOut: o.leavesOut,
+      row: { value: o.rows[0].value, benchmark: o.rows[0].benchmark, notClassified: o.rows[0].notClassified } })
+      .toEqual({ total: 4000, notClassified: near(1500), rate: near(gold), growth: near(2500 * gold),
+        leavesOut: 'Expected return and growth leave out $1,500 asset type not classified.', row: { value: 4000, benchmark: near(gold), notClassified: near(1500) } });
+  });
   test('edge · Unknown alternative class should ask, not forecast', () => {
     const o = theAlternativesOutlook({ accounts: [linked({ asset_id: 'u', label: 'Brokerage', balance: 5000, positions: [P('Imported holding', 1, 5000)] })] });
     expect(o.count).toBe(0); refuses(o.estimatedGrowthPerYear);

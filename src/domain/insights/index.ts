@@ -1,3 +1,4 @@
+import { plural } from '../_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 // Centralized insight service — one rules function that turns the user's financial state into a ranked
 // list of insights, instead of hardcoding them per screen. Each rule is a pure function returning an
 // Insight (or null). Screens compute the primitive inputs and render the top results.
@@ -136,7 +137,7 @@ const RULES: Rule[] = [
   // "savings rate" (take-home not spent), which is a different number.
   (i) => (i.investRate != null && i.investRate < 0.1) ? { id: 'invest-rate', priority: 2, icon: '📈', title: 'Nudge up your investing', body: `You're investing about ${pctTxt(i.investRate)} of your gross income toward retirement — even +1% compounds over time.`, route: '/(tabs)/goals' } : null,
   // r12 (pre-48 audit C4a): a dated goal funded at a pace that misses its date — said in months, no instruction
-  (i) => i.goalOffTrack ? { id: 'goal-offtrack', priority: 2, icon: '🗓️', title: 'A goal is running behind its date', body: `${i.goalOffTrack.label} is about ${i.goalOffTrack.monthsBehind} month${i.goalOffTrack.monthsBehind === 1 ? '' : 's'} behind at this month's funding pace — the date, the amount, or the pace can move. Your call.`, route: '/(tabs)/goals' } : null,
+  (i) => i.goalOffTrack ? { id: 'goal-offtrack', priority: 2, icon: '🗓️', title: 'A goal is running behind its date', body: `${i.goalOffTrack.label} is about ${plural(i.goalOffTrack.monthsBehind, 'month')} behind at this month's funding pace — the date, the amount, or the pace can move. Your call.`, route: '/(tabs)/goals' } : null,
   // FCC: goals need more per month than the plan frees up — a quantified fact, no instruction.
   (i) => (i.goalsGap != null && i.goalsGap > 0) ? { id: 'goals-gap', priority: 2, icon: '🎯', title: 'Your goals outpace your surplus', body: `Hitting every goal on time needs about ${money0(i.goalsGap)}/month more than your plan frees up — see the trade-offs in Plan.`, route: '/(tabs)/goals' } : null,
   // FCC: the Social Security claim decision is live and no timing has been adopted — logistics, no opinion.

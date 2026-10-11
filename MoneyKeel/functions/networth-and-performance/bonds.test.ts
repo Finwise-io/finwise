@@ -15,7 +15,8 @@ const cd = (over: Partial<any> = {}) => bond({ asset_id: 'c1', label: 'KeyBank C
 
 test('a CD is recognised by its name, wherever the name carries it', () => {
   expect(isCertificateOfDeposit({ label: 'KeyBank CD 4.00%' } as any)).toBe(true);
-  expect(isCertificateOfDeposit({ label: 'Savings', institution: 'Ally Certificate of Deposit' } as any)).toBe(true);
+  // the institution's name is never read for CD (DEC-4036c, 2026-10-10): 'Savings' at 'Ally Certificate of Deposit' is not one
+  expect(isCertificateOfDeposit({ label: 'Savings', institution: 'Ally Certificate of Deposit' } as any)).toBe(false);
   expect(isCertificateOfDeposit({ label: 'US Treasury 4.25% 2028' } as any)).toBe(false);
   expect(isCertificateOfDeposit({ label: 'Vanguard CD Fund' } as any)).toBe(true);   // named CD, treated as one
 });

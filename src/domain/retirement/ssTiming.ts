@@ -1,3 +1,4 @@
+import { plural } from '../_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 // F8 — Social Security claim-timing math (FCC detailed design v1.1, Plan sheet).
 // The standard Social Security Administration schedule applied to YOUR statement amount — the
 // monthly benefit at YOUR full retirement age: claiming early reduces the check 5/9 of 1% per
@@ -222,7 +223,7 @@ export function ssLifetimeTotal(statementMonthly: number, claimAge: number, live
  *     months = round((fra − years) × 12)
  *     the answer:
  *     string(years)   if months = 0
- *     `${years} and ${months} months`   otherwise
+ *     `${years} and ${plural(months, 'month')}`   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -240,7 +241,7 @@ export function fraLabel(birthYear?: number | null): string {
   const fra = fullRetirementAge(birthYear);
   const years = Math.floor(fra);
   const months = Math.round((fra - years) * 12);
-  return months === 0 ? String(years) : `${years} and ${months} months`;
+  return months === 0 ? String(years) : `${years} and ${plural(months, 'month')}`;   // the plural from the one list (DEC-4082, 2026-10-10)
 }
 
 /** The claim window: the month the person turns 62 → the month they turn 70. */

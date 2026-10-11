@@ -108,7 +108,7 @@ describe('MK-NW-F-094 ledgerGroups — five cases', () => {
 
 describe('MK-NW-F-002 alternativesSummary — five cases', () => {
   test('easy · one crypto holding', () => {
-    expect(alternativesSummary([acct({ kind: 'crypto', balance: 10000 })])).toEqual({ count: 1, totalValue: 10000, blendedReturn: 0.08, estAnnualGrowth: 800 });
+    expect(alternativesSummary([acct({ kind: 'crypto', balance: 10000 })])).toEqual({ count: 1, totalValue: 10000, blendedReturn: 0.08, estAnnualGrowth: 800, notClassifiedValue: 0 });   // nothing left unclassified (DEC-4036h, 2026-10-10)
   });
   test('easy · two equal holdings at different rates', () => {
     const s = alternativesSummary([acct({ id: 'p', kind: 'private_equity', balance: 50000 }), acct({ id: 'h', kind: 'hedge_funds', balance: 50000 })]);

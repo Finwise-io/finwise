@@ -14,9 +14,9 @@
  *     `${get full year()}-${string(get month() + 1).pad start(2, '0')}-${string(get date()).pad start(2, '0')}`
  *
  * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-183 paidOutByAccount
- *               MK-NW-F-061 bondSummary · MK-NW-F-125 isPastMaturity
- *               MK-NW-O-003 theNetWorth · MK-PF-F-022 factorOverMonths
- *               MK-XS-F-175 uid
+ *               MK-NW-F-046 historyCoverage · MK-NW-F-061 bondSummary
+ *               MK-NW-F-125 isPastMaturity · MK-NW-O-003 theNetWorth
+ *               MK-PF-F-022 factorOverMonths · MK-XS-F-175 uid
  *
  * Reaches ..... 145 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT

@@ -1,6 +1,7 @@
 // Import holdings from a brokerage CSV export. Pick a file → preview what we read → add it as a new
 // investment account built from those holdings (derive_balance:true, per B-60 the balance is rebuilt
 // from positions). User-added (no origin:'onboarding'), so re-running onboarding never touches it.
+import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert,
@@ -121,21 +122,23 @@ export default function ImportHoldingsScreen() {
           });
         } else {
           store.addAsset({
-            label: acctName, kind: 'brokerage', tax_bucket: 'TAXABLE', asset_class: 'stocks_etf',
+            // an imported file names no tax type, so none is stated — never Taxable for the person (DEC-4036f, 2026-10-10)
+            label: acctName, kind: 'brokerage', tax_bucket: undefined, asset_class: 'stocks_etf',
             balance: mktValue, target_return: 0.08, positions, derive_balance: true, ...provenance,
           });
         }
         added += equities.length;
       }
 
-      const CLASS_DEFAULTS: Record<AssetClass, { kind: string; tax_bucket: TaxBucket; ret: number }> = {
+      // an investment row names no tax type, so it is left unstated (DEC-4036f, 2026-10-10); cash and property are what they are
+      const CLASS_DEFAULTS: Record<AssetClass, { kind: string; tax_bucket: TaxBucket | undefined; ret: number }> = {
         cash: { kind: 'savings', tax_bucket: 'CASH', ret: 0.02 },
-        bonds: { kind: 'fixed_income', tax_bucket: 'TAXABLE', ret: 0.042 },
-        alternatives: { kind: 'other_asset', tax_bucket: 'TAXABLE', ret: 0.05 },
-        stocks_etf: { kind: 'stocks_etf', tax_bucket: 'TAXABLE', ret: 0.08 },
+        bonds: { kind: 'fixed_income', tax_bucket: undefined, ret: 0.042 },
+        alternatives: { kind: 'other_asset', tax_bucket: undefined, ret: 0.05 },
+        stocks_etf: { kind: 'stocks_etf', tax_bucket: undefined, ret: 0.08 },
         real_estate: { kind: 'home', tax_bucket: 'PROPERTY', ret: 0.04 },
         personal_property: { kind: 'vehicle', tax_bucket: 'PROPERTY', ret: -0.05 },
-        mixed: { kind: 'brokerage', tax_bucket: 'TAXABLE', ret: 0.06 },   // importer never emits 'mixed' (it classifies), but the map must be total
+        mixed: { kind: 'brokerage', tax_bucket: undefined, ret: 0.06 },   // importer never emits 'mixed' (it classifies), but the map must be total
       };
       for (const h of others) {
         const def = CLASS_DEFAULTS[h.assetClass];
@@ -150,7 +153,7 @@ export default function ImportHoldingsScreen() {
       }
 
       store.refreshPrices?.();   // best-effort: pull live prices so equity market values populate
-      Alert.alert('Holdings imported 🎉', `Added ${added} holding${added === 1 ? '' : 's'} — sorted into cash, investments and more.`, [
+      Alert.alert('Holdings imported 🎉', `Added ${plural(added, 'holding')} — sorted into cash, investments and more.`, [
         { text: 'Done', onPress: () => router.back() },
       ]);
     } catch {
@@ -166,8 +169,8 @@ export default function ImportHoldingsScreen() {
         <Text style={styles.h1}>Review your holdings</Text>
       <SectionBand title="REVIEW YOUR HOLDINGS" />
         <Text style={styles.sub}>
-          Found <Text style={styles.bold}>{result.holdings.length}</Text> holding{result.holdings.length === 1 ? '' : 's'}
-          {result.skipped > 0 ? ` · skipped ${result.skipped} row${result.skipped === 1 ? '' : 's'} we couldn't read` : ''}.
+          Found <Text style={styles.bold}>{result.holdings.length}</Text> {plural(result.holdings.length, 'holding', '').trim()}
+          {result.skipped > 0 ? ` · skipped ${plural(result.skipped, 'row')} we couldn't read` : ''}.
         </Text>
 
         <View style={styles.card}>
@@ -238,8 +241,8 @@ export default function ImportHoldingsScreen() {
         <Text style={styles.note}>🔒 The file is read on this device; your saved data syncs encrypted to your cloud backup. Prices update once you open Net worth or Performance.</Text>
 
         <TouchableOpacity style={[styles.primary, (busy || !institution.trim()) && { opacity: 0.6 }]} onPress={confirmImport} disabled={busy || !institution.trim()} accessibilityRole="button"
-          accessibilityLabel={!institution.trim() ? 'Name the institution first, then import' : `Import ${result.holdings.length} holdings`}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryTxt}>{!institution.trim() ? 'Name the institution to import' : `Import ${result.holdings.length} holding${result.holdings.length === 1 ? '' : 's'}`}</Text>}
+          accessibilityLabel={!institution.trim() ? 'Name the institution first, then import' : `Import ${plural(result.holdings.length, 'holding')}`}>
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryTxt}>{!institution.trim() ? 'Name the institution to import' : `Import ${plural(result.holdings.length, 'holding')}`}</Text>}
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondary} onPress={() => { setResult(null); setError(null); }} disabled={busy} accessibilityRole="button" accessibilityLabel="Choose a different file">
           <Text style={styles.secondaryTxt}>Choose a different file</Text>

@@ -214,7 +214,8 @@ describe('MK-NW-F-009 maturityClass — five cases', () => {
 
 describe('MK-NW-F-010 wrapperAccount — five cases', () => {
   test('easy · 401(k)', () => { expect(wrapperAccount('401k')).toEqual({ kind: '401k', tax_bucket: 'PRE_TAX' }); });
-  test('easy · Nothing chosen', () => { expect(wrapperAccount(null)).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' }); });
+  // SETTLED 2026-10-10 by DEC-4036f: nothing chosen is never assumed taxable — no kind, no tax type
+  test('easy · Nothing chosen', () => { expect(wrapperAccount(null)).toStrictEqual({ kind: undefined, tax_bucket: undefined }); });
   test('complex · Roth 401(k) beside a Roth IRA', () => {
     expect({ roth_401k: wrapperAccount('roth_401k'), roth: wrapperAccount('roth') })
       .toEqual({ roth_401k: { kind: '401k', tax_bucket: 'ROTH' }, roth: { kind: 'roth_ira', tax_bucket: 'ROTH' } });
@@ -223,7 +224,8 @@ describe('MK-NW-F-010 wrapperAccount — five cases', () => {
     expect({ hsa: wrapperAccount('hsa'), trad_ira: wrapperAccount('trad_ira'), taxable: wrapperAccount('taxable') })
       .toEqual({ hsa: { kind: 'hsa', tax_bucket: 'PRE_TAX' }, trad_ira: { kind: 'trad_ira', tax_bucket: 'PRE_TAX' }, taxable: { kind: 'brokerage', tax_bucket: 'TAXABLE' } });
   });
-  test('edge · A wrapper the list does not have', () => { expect(wrapperAccount('ISA' as any)).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' }); });
+  // SETTLED 2026-10-10 by DEC-4036f: an unknown wrapper word is treated as nothing chosen
+  test('edge · A wrapper the list does not have', () => { expect(wrapperAccount('ISA' as any)).toStrictEqual({ kind: undefined, tax_bucket: undefined }); });
 });
 
 describe('MK-NW-F-011 assetClassOf — five cases', () => {
@@ -263,7 +265,8 @@ describe('MK-NW-F-012 taxTreatmentOf — five cases', () => {
       'Roth 401k': taxTreatmentOf(acct({ kind: '401k', tax_bucket: 'ROTH' })),
     }).toEqual({ Checking: 'taxable', Home: 'taxable', 'Roth 401k': 'tax_free' });
   });
-  test('edge · Stated treatment on a 529', () => { expect(taxTreatmentOf(acct({ kind: '529', tax_treatment: 'tax_deferred' }))).toBe('tax_deferred'); });
+  // SETTLED 2026-10-10 by DEC-4036d: a 529 is tax-free for education whatever treatment is stored
+  test('edge · Stated treatment on a 529', () => { expect(taxTreatmentOf(acct({ kind: '529', tax_treatment: 'tax_deferred' }))).toBe('tax_free'); });
 });
 
 describe('MK-NW-F-108 taxWordsOf — five cases', () => {

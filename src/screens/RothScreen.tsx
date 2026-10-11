@@ -5,6 +5,7 @@
 // effects (smaller required withdrawals · bigger tax-free bucket), the will-it-last impact
 // (honest when it barely moves), ending in the shared Use-this-plan sheet. Estimates, clearly
 // labeled. The app never moves money — it records the intention and the numbers.
+import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -97,6 +98,8 @@ export default function RothScreen() {
             accessibilityLabel="Add your retirement accounts on the Net worth tab">
             <Text style={s.secondaryTxt}>Add your retirement accounts ›</Text>
           </TouchableOpacity>
+          {/* an account with no tax type is counted taxable, not pre-tax, and named (DEC-4105, 2026-10-10) */}
+          <CountedTaxableLines accounts={rows.accounts} />
         </View>
       </ScrollView>
     );
@@ -130,6 +133,8 @@ export default function RothScreen() {
         <TextInput style={s.amtInput} keyboardType="number-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
           value={amount} onChangeText={setAmount} accessibilityLabel="Amount to convert this year" />
         <Text style={s.note}>from your pre-tax {maskedMoney(Math.round(preTax))}{num(amount) > preTax ? ' — capped at your balance' : ''}</Text>
+        {/* an account with no tax type is counted taxable, not in this pre-tax figure, and named (DEC-4105, 2026-10-10) */}
+        <CountedTaxableLines accounts={rows.accounts} />
         {preTax === 0 && <EmptyNote door="accounts" />}   {/* Q48 (MK-PL-M-024): no pre-tax account entered */}
         <View style={s.chipRow}>
           {[10000, 25000, 50000].filter((v) => v <= preTax).map((v) => (
