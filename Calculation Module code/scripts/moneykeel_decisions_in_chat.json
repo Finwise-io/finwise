@@ -588,7 +588,7 @@
    "subject": "His approval of items 2 and 3 of the open points from OpenAI's final audit of Net worth — each rule, by function",
    "plain": "His approval of items 2 and 3 of the open points from OpenAI's final audit: (a) a window that reaches back whole months stops at the month's last day; (b) a rent figure with words in it is refused, never read as its digits. Each rule is its own row beside this one.",
    "means": "Said in chat on 2026-10-10, approving items 2 and 3 of the open points from OpenAI's final audit (MK-NW-F-090).",
-   "governs": "MK-NW-F-090 windowStartKey · MK-PF-F-030 startDateFor · MK-NW-F-114 rentAmount · MK-CF-F-067 rentalList · MK-NW-F-115 liveRent",
+   "governs": "MK-NW-F-090 windowStartKey · MK-PF-F-008 startDateFor · MK-NW-F-114 rentAmount · MK-CF-F-067 rentalList · MK-NW-F-115 liveRent",
    "changed": "windowStartKey and startDateFor stop at the month's last day. rentAmount and rentalList read only a plain number; the Income screen's rent fields keep digits only.",
    "apply_steps": "1. (a) windowStartKey and startDateFor clamp to the month's last day. 2. (b) one strict reading of a rent figure; the Income screen's rent fields keep digits only. 3. Tests, Changelog row.",
    "proof": "src/domain/performance/start_date_month_end.test.ts",

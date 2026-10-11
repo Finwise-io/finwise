@@ -59,8 +59,12 @@ test('Net worth, Performance and Cash flow: every function that calculates anyth
   const rules = JSON.parse(fs.readFileSync(path.join(ROOT, 'Calculation Module code/scripts/moneykeel_function_rules.json'), 'utf8')).rules as
     Record<string, { name: string; rule: string; read_from: string }>;
   // an example helper and a function that only reads or saves are not tested from outside, and say so in their description
-  const tested = records().filter((r) => THIS_BUILD.includes(r.family)
+  // the time-weighted-return engine (MK-ST-F-080..082) is carded one by one — every Performance return is computed there
+  // (allow-listed in build-outside-test-cards.py ALSO_CARDED, 2026-10-10), so its rules count as tested too
+  const ALSO_CARDED = ['MK-ST-F-080', 'MK-ST-F-081', 'MK-ST-F-082'];
+  const tested = records().filter((r) => (THIS_BUILD.includes(r.family) || ALSO_CARDED.includes(r.id))
     && !r.answers.startsWith('Example only') && !r.answers.includes('calculates nothing'));
+  expect(tested.filter((r) => ALSO_CARDED.includes(r.id)).length).toBe(ALSO_CARDED.length);   // the engine was found
   expect(tested.length).toBeGreaterThanOrEqual(315);           // the guard looked
   expect(tested.filter((r) => !(rules[r.id]?.rule?.trim().length >= 10)).map((r) => r.id)).toEqual([]);
   expect(tested.filter((r) => !/^[0-9a-f]{10}$/.test(rules[r.id]?.read_from ?? '')).map((r) => r.id)).toEqual([]);

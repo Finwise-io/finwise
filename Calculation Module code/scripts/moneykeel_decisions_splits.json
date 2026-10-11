@@ -857,7 +857,7 @@
      "type": "CALCULATION",
      "status": "RULED",
      "screens": "/invest · /account-detail · /home",
-     "governs": "MK-NW-F-090 windowStartKey · MK-PF-F-030 startDateFor",
+     "governs": "MK-NW-F-090 windowStartKey · MK-PF-F-008 startDateFor",
      "proof": "src/domain/performance/start_date_month_end.test.ts",
      "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md",
      "keep": true

@@ -43,6 +43,10 @@ OUT = os.path.join(ROOT, 'MoneyKeel', 'documents', 'audit', 'outside-test-cases'
 BRIEF = os.path.join(OUT, 'moneykeel_audit_brief_outside-test-cases_v04.md')
 CODE_ROOTS = ['src', 'MoneyKeel/functions', 'Calculation Module code/engines']
 FAMILIES = ('NW', 'PF', 'CF')                      # the three modules of this build (his scope, 2026-10-03)
+# Engine functions outside those families that an outside judge must still see, each named — never a
+# whole prefix. The time-weighted-return engine computes every Performance return (DEC-1669), so its
+# three functions get cards (2026-10-10) and travel with the Performance module.
+ALSO_CARDED = {'MK-ST-F-080': 'performance', 'MK-ST-F-081': 'performance', 'MK-ST-F-082': 'performance'}
 PER_BATCH = {'orchestrator': 6, 'function': 15}    # a reply is five cases a card; these keep it inside one answer
 
 RULES = os.path.join(HERE, 'moneykeel_function_rules.json')
@@ -136,7 +140,7 @@ def live_headers():
                 i = 0
                 while i < len(lines):
                     m = re.match(r'^/\* ─ (MK-([A-Z]{2})-([FO])-\d{3}) ─.*?([123] · [A-Z]+)', lines[i])
-                    if not m or m.group(2) not in FAMILIES:
+                    if not m or (m.group(2) not in FAMILIES and m.group(1) not in ALSO_CARDED):
                         i += 1
                         continue
                     j = i
@@ -436,6 +440,248 @@ def published_tables():
     return out
 
 
+# ── THE CLAUDE CODE EDITION OF A MODULE'S BRIEFS, REBUILT FROM TODAY'S CODE ─────────────────────────
+# (2026-10-10) The four Performance briefs he runs in Claude Code were cut from the pack sent at 62d47df.
+# Since then the return became time-weighted (DEC-1669) and six functions left the code. This writes the
+# four again: the instructions of each old brief word for word (only the date in its header moves), and
+# everything after "# The cards" from the cards as they are today. The batch grouping and the notes are
+# typed here, so every id they name is checked against today's cards before anything is written.
+
+CC_REMOVED = {'MK-NW-F-102': 'rateWhereItRefuses', 'MK-PF-F-024': 'userFlows', 'MK-PF-F-025': 'historyIsComplete',
+              'MK-PF-F-026': 'moneyWeightedReturn', 'MK-PF-F-027': 'isMoneyWeighted', 'MK-PF-F-030': 'npv'}
+
+CC_BATCHES = {
+    'PF': [
+        # 01 — the return and its walk: the orchestrator, the time-weighted-return engine, and the helpers it calls
+        ['MK-NW-O-008', 'MK-ST-F-081', 'MK-ST-F-082', 'MK-ST-F-080', 'MK-NW-F-090', 'MK-NW-F-092', 'MK-NW-F-103',
+         'MK-NW-F-104', 'MK-NW-F-105', 'MK-NW-F-091', 'MK-NW-F-127', 'MK-NW-F-128', 'MK-NW-F-129', 'MK-NW-F-130'],
+        # 02 — one holding: shares, cost, value, gain, and the unit beside its quantity
+        ['MK-PF-F-001', 'MK-PF-F-031', 'MK-PF-F-002', 'MK-PF-F-003', 'MK-PF-F-004', 'MK-PF-F-005', 'MK-PF-F-006',
+         'MK-PF-F-007', 'MK-PF-F-012', 'MK-PF-F-028', 'MK-PF-F-032', 'MK-PF-F-033'],
+        # 03 — the portfolio page: each holding against its yardstick, and the portfolio built from them
+        ['MK-PF-F-014', 'MK-PF-F-013', 'MK-PF-F-015', 'MK-PF-F-016', 'MK-PF-F-017', 'MK-PF-F-018', 'MK-PF-F-019',
+         'MK-PF-F-020', 'MK-PF-F-021', 'MK-NW-F-084'],
+        # 04 — prices and period returns, and the look-back that is built on them
+        ['MK-NW-O-007', 'MK-PF-F-023', 'MK-PF-F-022', 'MK-PF-F-008', 'MK-PF-F-009', 'MK-PF-F-010', 'MK-PF-F-011',
+         'MK-PF-F-029', 'MK-PF-F-034'],
+    ],
+}
+
+# The notes for each batch, written against today's cards. Every id they name is checked below.
+CC_NOTES = {
+    'PF': [
+        ['- **The return on MK-NW-O-008 is time-weighted** (owner decision Q16, above, and DEC-1669). Q1\'s comparison of the\n'
+         '  rate with the money moved at the start and at the end was written for the earlier method; the card no\n'
+         '  longer makes that comparison. It refuses instead, in the cases its formula lists, and MK-NW-F-105 writes\n'
+         '  the sentence. If you think Q1 should still apply, say so in `why` — do not apply it yourself.',
+         '- **Corrected on 2026-10-10:** the line in *Running this in Claude Code* about working out a rate used to tell\n'
+         '  you to write a money-weighted solver. That was wrong for this module: every return here is time-weighted\n'
+         '  (owner decision Q16, DEC-1669). The line, and the example method named in Job 1, now say so.',
+         '- **The time-weighted-return engine is in this batch** (MK-ST-F-081, with MK-ST-F-082 sorting the records into\n'
+         '  money moved and MK-ST-F-080 checking dates). MK-NW-O-008 calls it for every return. Its return is a share\n'
+         '  over the whole period; MK-NW-O-008 turns it into a yearly rate, (1 + return) to the power 1 ÷ years, − 1,\n'
+         '  for a period longer than a year.',
+         '- **MK-NW-O-008 lists figures that other functions produce.** Money received by kind and each category\'s\n'
+         '  return come from MK-NW-F-084 (batch 3); the market comparison (MK-PF-M-008) and available cash\n'
+         '  (MK-PF-M-020) come from functions in other batches. Judge the formula on what it describes; where the\n'
+         '  gap matters to a verdict, say so in `why`.',
+         '- **The worked-back beginning** (owner decision DEC-3656, 2026-10-09) is on the MK-NW-O-008 card: a\n'
+         '  certificate of deposit with a stated rate gains by that rate, and a holding with no price history and no\n'
+         '  rate stops the walk with a sentence naming it. MK-NW-F-091 and MK-NW-F-127 to MK-NW-F-130 are the parts.',
+         '- **The approved drawing does not name its period or today\'s date.** It gives the record\'s first day\n'
+         '  (1 Oct 2025) and the day it was read (30 Sep 2026), but not which period chip is selected. Your\n'
+         '  drawing case must use the household exactly as drawn; where the answer depends on the period,\n'
+         '  mark it `RULE UNCLEAR` and give each reading — do not pick one.',
+         '- **The drawing\'s yearly rates (7.46% for all accounts, 6.88% for Vanguard) cannot be used** as expected\n'
+         '  values, because the dates of the $15,000 are not given. A time-weighted return depends on those dates.\n'
+         '  The drawing has no per-account split of dividends and interest either. Do not invent either; test only\n'
+         '  what the drawing fixes.',
+         '- **Owner rules on MK-NW-O-008.** Most are about other screens or about process. Some are cut off\n'
+         '  mid-sentence: {cut}. Use only what the words actually say.'],
+        ['- **Corrected on 2026-10-10:** the line in *Running this in Claude Code* about working out a rate used to tell\n'
+         '  you to write a money-weighted solver. That was wrong for this module: every return here is time-weighted\n'
+         '  (owner decision Q16, DEC-1669). The line, and the example method named in Job 1, now say so.',
+         '- **This batch is one holding.** costBasis, avgCost, marketValue and capGains all use the contract\n'
+         '  multiplier from MK-PF-F-031, which is in this batch. Keep the multiplier consistent across your cases.',
+         '- **realizedFromLedger (MK-PF-F-028)** works from buy, opening-position and sale records. Give each record\'s\n'
+         '  date, shares and price in `given`.'],
+        ['- **Corrected on 2026-10-10:** the line in *Running this in Claude Code* about working out a rate used to tell\n'
+         '  you to write a money-weighted solver. That was wrong for this module: every return here is time-weighted\n'
+         '  (owner decision Q16, DEC-1669). The line, and the example method named in Job 1, now say so.',
+         '- **buildPerformance (MK-PF-F-014) says "from the functions above"** — market value, cost, unrealised gain,\n'
+         '  return on cost and earliest purchase date. Those cards are in batch 2; their formulas are printed under\n'
+         '  *Formulas these cards lean on*, along with the contract multiplier that costBasis uses.',
+         '- **The yardstick in buildPerformance** is measured with periodReturn or periodReturnSince on the\n'
+         '  yardstick\'s own price history. Both formulas are printed in this brief.',
+         '- **Two ways of averaging holdings\' returns are in this batch:** MK-PF-F-019 and MK-PF-F-020 weight by value\n'
+         '  today; MK-NW-F-084 (each category\'s return on the Performance tab) weights by value at the start. Where you\n'
+         '  think they should agree, say so in `why` on the card you think is wrong, naming both ids.'],
+        ['- **Corrected on 2026-10-10:** the line in *Running this in Claude Code* about working out a rate used to tell\n'
+         '  you to write a money-weighted solver. That was wrong for this module: every return here is time-weighted\n'
+         '  (owner decision Q16, DEC-1669). The line, and the example method named in Job 1, now say so.',
+         '- **MK-PF-F-008 and the period start of MK-NW-F-090 now stop at the month\'s last day** when the month they\n'
+         '  land in is shorter (owner decision DEC-3768b): one month before 31 March is 28 February. Use such a date\n'
+         '  in at least one case.',
+         '- **lookBack (MK-PF-F-023) returns its percent as a percent** — (factor − 1) × 100, at full precision — not\n'
+         '  as a decimal. Follow the card and say so in `notes`.',
+         '- **The owner rule on MK-NW-O-007 (DEC-0233)** is about layout only.'],
+    ],
+}
+
+# A formula that leans on other functions without naming them ("from the functions above") cannot be
+# followed by appendix(); the ones it means are named here, and travel with the batch the same way.
+CC_LEAN_EXTRA = {
+    'PF': {3: ['MK-PF-F-002', 'MK-PF-F-004', 'MK-PF-F-005', 'MK-PF-F-007', 'MK-PF-F-009', 'MK-PF-F-010', 'MK-PF-F-011',
+               'MK-PF-F-012', 'MK-PF-F-031']},
+}
+
+# The owner rules on MK-NW-O-008 whose words stop mid-sentence, read off the card by eye on 2026-10-10.
+CC_CUT_OFF = ['DEC-0046', 'DEC-0112', 'DEC-0126', 'DEC-0135', 'DEC-0143', 'DEC-0192', 'DEC-0229', 'DEC-0230']
+
+CC_COMPARE_INTRO = ("Some of this batch's cards compute something another function also computes, in a batch you are not judging. "
+                    "Their formulas are printed here so you can check the two agree, as the hunt for \"two formulas that describe the "
+                    "same thing differently\" asks. Do not judge or test these; where one disagrees with a card in this batch, the "
+                    "finding goes on this batch's card and names both ids.")
+
+CC_COMPARE = {
+    'PF': [
+        ('The first day of a period', ['MK-NW-F-090', 'MK-PF-F-008', 'MK-PF-F-022']),
+        ('The close on or before a date', ['MK-PF-F-010', 'MK-PF-F-011', 'MK-PF-F-022', 'MK-PF-F-029', 'MK-PF-F-034']),
+        ('A period total versus a yearly rate', ['MK-NW-O-008', 'MK-PF-F-010', 'MK-PF-F-011']),
+        ('The option contract multiplier', ['MK-PF-F-002', 'MK-PF-F-003', 'MK-PF-F-004', 'MK-PF-F-006', 'MK-PF-F-031']),
+        ('A return made from the holdings\' own returns', ['MK-NW-F-084', 'MK-PF-F-016', 'MK-PF-F-019', 'MK-PF-F-020']),
+        ('What a holding gained over a period, in dollars', ['MK-NW-F-091', 'MK-NW-F-127', 'MK-PF-F-005', 'MK-PF-F-021']),
+        ('The unit beside a quantity', ['MK-PF-F-032', 'MK-PF-F-033']),
+    ],
+}
+
+CC_DATE = ('v03 · 2026-10-04', 'v04 · 2026-10-10')
+
+# Two places in the kept instructions that were false for this module (2026-10-10): they told the judge
+# to solve for a money-weighted rate and named Modified Dietz as an example method. Every return here is
+# time-weighted (Q16, DEC-1669). Each is replaced exactly once; anything else in the kept text is untouched.
+CC_KEPT_FIXES = [
+    ('- For a yearly money-weighted rate, write your own solver from scratch (bisection or Newton, 365-day\n'
+     '  year unless the card says otherwise). Never import or copy anything from the app. Say in `notes`\n'
+     '  that the rate came from your own solver, and give it to at least four decimal places.',
+     '- Every return in this module is a time-weighted return (owner decision Q16; DEC-1669), never a\n'
+     '  money-weighted one. Where a case needs a rate, work it by hand from the dated values: split the\n'
+     '  period at each movement of money, divide each piece\'s closing value by its opening value, multiply\n'
+     '  the pieces and take 1 off. You may write your own calculator for that chain-linking, from scratch;\n'
+     '  never import or copy anything from the app. Give the rate to at least four decimal places.\n'
+     '  (Corrected 2026-10-10.)'),
+    ('method (for example, the Modified Dietz method; the standard loan-payment formula).',
+     'method (for example, the time-weighted return; the standard loan-payment formula).'),
+]
+
+
+def claude_code_batches(prefix, template_dir, cards, testable, appendix, send_dir, listing_only=False):
+    """Four briefs for one module, Claude Code edition, from today's cards."""
+    module = {'PF': 'performance'}[prefix]
+    belongs = lambda c: c['card']['id'].startswith(f'MK-{prefix}-') or c['module'] == module
+    chosen = sorted((c for c in testable if belongs(c)), key=lambda c: c['card']['id'])
+    left = sorted((c for c in cards if c['skip'] and belongs(c)), key=lambda c: c['card']['id'])
+    print(f'{module}: {len(chosen)} cards to test, {len(left)} left out')
+    for c in chosen:
+        why = ('its id is MK-' + prefix if c['card']['id'].startswith(f'MK-{prefix}-')
+               else f"the time-weighted-return engine, allow-listed" if c['card']['id'] in ALSO_CARDED
+               else f"a {module} function in {os.path.basename(c['path'])}, testable")
+        print(f"   IN   {c['card']['id']} {c['card']['name']} — {why}")
+    for c in left:
+        print(f"   OUT  {c['card']['id']} {c['card']['name']} — {c['skip']}")
+    twr = open(os.path.join(ROOT, 'Calculation Module code/engines/time-weighted-return.ts'), encoding='utf8').read()
+    engine = re.findall(r'^/\* ─ (MK-[A-Z]{2}-[FO]-\d{3}) ─', twr, re.M)
+    assert len(engine) >= 3 and all(i in ALSO_CARDED for i in engine), f'an engine function has no card: {engine}'
+    ids =[c['card']['id'] for c in chosen]
+    by_id = {c['card']['id']: c for c in testable}
+    gone = [i for i in CC_REMOVED if i in by_id]
+    assert not gone, f'{gone} are listed as removed but still have cards'
+    # the guard proves it looked: the old briefs held 42 cards; six left the code
+    template = sorted(f for f in os.listdir(template_dir) if re.match(rf'moneykeel_brief_{module}_0\d_claude-code\.md$', f))
+    assert len(template) == 4, f'{len(template)} old briefs found in {template_dir}, want 4'
+    old_ids = []
+    for f in template:
+        t = open(os.path.join(template_dir, f), encoding='utf8').read()
+        old_ids += json.loads(re.search(r'^CARDS = (\[.*\])$', t, re.M).group(1))
+    assert len(ids) >= len(old_ids) - len(CC_REMOVED), f'{len(ids)} cards today, fewer than {len(old_ids)} − {len(CC_REMOVED)}'
+    print(f'   the old briefs held {len(old_ids)}; less the {len(CC_REMOVED)} removed = {len(old_ids) - len(CC_REMOVED)}; today {len(ids)}')
+    print(f'   gone since the old briefs: {sorted(set(old_ids) - set(ids))}')
+    print(f'   new since the old briefs: {sorted(set(ids) - set(old_ids))}')
+    groups = CC_BATCHES[prefix]
+    flat = [i for g in groups for i in g]
+    assert len(flat) == len(set(flat)), 'a card is in two batches'
+    assert sorted(flat) == sorted(ids), (f'the batches do not hold exactly today\'s cards: missing {sorted(set(ids) - set(flat))}, '
+                                         f'not a card {sorted(set(flat) - set(ids))}')
+    assert all(len(g) <= 15 for g in groups) and len(groups) == len(template) == 4
+    if listing_only:
+        return
+    for n, (group, notes, tfile) in enumerate(zip(groups, CC_NOTES[prefix], template), 1):
+        batch = [by_id[i] for i in group]
+        label = f'{module} {n:02d}'
+        old = open(os.path.join(template_dir, tfile), encoding='utf8').read()
+        head, _ = old.split('\n# The cards', 1)
+        assert head.count(CC_DATE[0]) == 1, f'{tfile}: the header date {CC_DATE[0]} is not there once'
+        head = head.replace(CC_DATE[0], CC_DATE[1])
+        for was, now in CC_KEPT_FIXES:
+            assert head.count(was) == 1, f'{tfile}: the kept line to correct is not there once: {was[:50]}'
+            head = head.replace(was, now)
+        checker = old[old.index('## The checker — run it before you finish'):]
+        assert checker.count('\nCARDS = ') == 1 and checker.count('\nBATCH = ') == 1
+        checker = re.sub(r'^CARDS = .*$', 'CARDS = ' + json.dumps(group), checker, flags=re.M)
+        checker = re.sub(r'^BATCH = .*$', 'BATCH = ' + json.dumps(label), checker, flags=re.M)
+        # the notes name only today's cards and figures, and never a removed function
+        if any('{cut}' in x for x in notes):
+            o8 = by_id['MK-NW-O-008']['card']
+            owner = {r['decision'] for r in o8.get('rules', []) if r['said_by'] == 'owner'}
+            assert set(CC_CUT_OFF) <= owner, f'{sorted(set(CC_CUT_OFF) - owner)} are no longer owner rules on MK-NW-O-008'
+            cut = CC_CUT_OFF
+            notes = [x.replace('{cut}', ', '.join(cut)) for x in notes]
+        text = '\n'.join(notes)
+        for i in re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', text):
+            assert i in by_id, f'batch {n} note names {i}, which has no card today'
+        types = {}
+        for c in batch:
+            types.update(c['types'])
+        lean = {x['id']: x for x in appendix(batch)}
+        for i in CC_LEAN_EXTRA.get(prefix, {}).get(n, []):
+            assert i in by_id and i not in group, f'{i} cannot lean into batch {n}'
+            lean.setdefault(i, {k: by_id[i]['card'][k] for k in ('id', 'name', 'what_it_is_for', 'formula_in_words')})
+        lean = [lean[k] for k in sorted(lean)]
+        body = [head.rstrip('\n'), '', f'# The cards — batch "{label}"', '',
+                f'{len(batch)} cards, so {len(batch)} formula checks and {len(batch) * 5} cases. Put `"batch": "{label}"` in your reply.', '',
+                '## Notes for this batch', '', text, '']
+        if types:
+            body += ['## The app\'s own types these cards name', '', 'What each is made of. The comments inside are the in-house author\'s.', '',
+                     '```ts', '\n\n'.join(types[t] for t in sorted(types)), '```', '']
+        body += ['## The cards', '', '```json', json.dumps([c['card'] for c in batch], indent=1, ensure_ascii=False), '```', '']
+        if lean:
+            body += ['## Formulas these cards lean on', '',
+                     f'{len(lean)} functions named by the formulas above whose own cards are in another batch. '
+                     'They are here so you can work your answers. Do not judge or test them in this batch.', '',
+                     '```json', json.dumps(lean, indent=1, ensure_ascii=False), '```', '']
+        compare, topics = [], 0
+        for title, members in CC_COMPARE[prefix]:
+            for i in members:
+                assert i in by_id, f'comparison "{title}" names {i}, which has no card today'
+            here = [i for i in members if i in group]
+            elsewhere = [i for i in members if i not in group]
+            if here and elsewhere:
+                topics += 1
+                compare += [f'**{title}** — in this batch: {", ".join(here)}', '', '```json',
+                            json.dumps([{k: by_id[i]['card'][k] for k in ('id', 'name', 'what_it_is_for', 'formula_in_words')}
+                                        for i in elsewhere], indent=1, ensure_ascii=False), '```', '']
+        if compare:
+            body += ['## The same idea, computed elsewhere — for comparison only', '', CC_COMPARE_INTRO, ''] + compare
+        body += ['---', '', checker.rstrip('\n'), '']
+        out = '\n'.join(body)
+        assert not re.search(r'money-weighted rate, write|write your own solver|from your own solver|XIRR', out), f'batch {n} still tells the judge to solve a money-weighted rate'
+        for i, name in CC_REMOVED.items():
+            assert i not in out and not re.search(rf'\b{name}\b', out), f'batch {n} still names the removed {i} {name}'
+        name = f'moneykeel_brief_{module}_{n:02d}_claude-code_v02.md'
+        open(os.path.join(send_dir, name), 'w', encoding='utf8').write(out)
+        print(f'written: to-send/{name} — {len(batch)} cards, {len(lean)} leaned on, {topics} comparisons')
+
+
 def main():
     headers, files = live_headers()
     rules_file = json.load(open(RULES, encoding='utf8')) if os.path.exists(RULES) else {'rules': {}}
@@ -489,7 +735,7 @@ def main():
         example_only = purpose.startswith('Example only')
         storage_only = 'calculates nothing' in purpose and not example_only
         is_orch = '-O-' in h['id'] and not example_only
-        module = ('performance' if h['family'] == 'PF' or os.path.basename(h['path']) in ('performance.ts', 'look-back.ts')
+        module = (ALSO_CARDED[h['id']] if h['id'] in ALSO_CARDED else 'performance' if h['family'] == 'PF' or os.path.basename(h['path']) in ('performance.ts', 'look-back.ts')
                   or '/performance/' in h['path'] else 'cashflow' if h['family'] == 'CF' else 'networth')
         card = {'id': h['id'], 'name': h['name'], 'kind': 'orchestrator' if is_orch else 'function',
                 'what_it_is_for': purpose, 'formula_in_words': (written.get(h['id']) or {}).get('rule', ''), 'handed': sig}
@@ -705,6 +951,11 @@ def main():
                     '```json', json.dumps([c['card'] for c in group], indent=1, ensure_ascii=False), '```', '']
             open(os.path.join(send_dir, f'{stem}_cards-part-{i + 1}-of-{parts}.md'), 'w', encoding='utf8').write('\n'.join(body))
         print(f'module audit written: to-send/{stem}.md + {parts} card parts — {len(chosen)} cards, {len(reviews)} decided rules, {len(shown)} screen figures, {len(lean)} leaned on')
+        return
+    if '--claude-code-batches' in sys.argv:
+        claude_code_batches(sys.argv[sys.argv.index('--claude-code-batches') + 1],
+                            sys.argv[sys.argv.index('--template') + 1], cards, testable, appendix, send_dir,
+                            listing_only='--list' in sys.argv)
         return
     if '--final-audit' in sys.argv:
         # ONE LAST LOOK AT A BATCH, AS IT STANDS NOW (founder, 2026-10-05: "write another brief for Gemini

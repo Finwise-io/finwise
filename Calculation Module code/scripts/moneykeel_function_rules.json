@@ -2096,6 +2096,24 @@
    "figures_checked_by_hand": {
     "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
    }
+  },
+  "MK-ST-F-080": {
+   "name": "isDay",
+   "rule": "True only when the value is text written exactly as four digits, a dash, two digits, a dash and two digits (year-month-day). It does not check that the month or the day exists, so 2026-02-31 passes. Anything else is false: a number, nothing at all, or a date with a time written after it.",
+   "read_from": "665bb3b469",
+   "sent_as": ""
+  },
+  "MK-ST-F-081": {
+   "name": "timeWeightedReturn",
+   "rule": "Works from the daily record, which holds one value per account per day, taken after that day's money moved. Days after the last day asked for, and days not written as year-month-day (isDay), are ignored. Each measured account has its own line of values, from its first recorded day to its last. The total on a day = the values that day of the measured accounts whose line covers that day. An account that has ever held a priced security must have a value on that very day, or the day is not used at all; any other account (a typed or cash balance) keeps its last earlier value until its next one. THE BEGINNING = the latest recorded day on or before the start day whose total can be formed with at least one account in it; with none it refuses (the start is not recorded). The last day asked for must be in the record and its total formed, or it refuses (the end is not recorded). It refuses when a deposit or withdrawal on a measured account that is not cash has no year-month-day date, and when shares were moved on any day after the beginning up to the last day (naming the first such day). THE PIECES: from the beginning, take each later usable day in order. Money in on that day, account by account: an account there now but not on the previous usable day brings in its whole value (it joined the record); one there before but not now takes out its last value (it left); a cash account brings in its change in value less the interest credited to it after the previous usable day up to this day (cash earns only interest); any other account brings in its deposits (plus) and withdrawals (minus) dated after the previous usable day up to this day, and if one of those is dated before this day it refuses, naming that day (money moved on a day with no recorded value). The value just before the money moved = this day's total − money in. When the previous total is more than half a cent: it refuses, naming the day, if that value is below minus half a cent (the value is less than the money added); otherwise the growth so far is multiplied by that value (never below zero) ÷ the previous total, and the measured period starts at the previous day if it has not started yet. When the previous total is half a cent or less, nothing is measured for that piece, and a value just before of more than half a cent either way refuses (value with nothing behind it). When no piece was measured it refuses (nothing invested). THE RETURN = the pieces multiplied together − 1, as a share at full precision (not a percent, and never turned into a yearly rate here), with the day the measured period started. It never falls back to another method.",
+   "read_from": "60d2f31f7c",
+   "sent_as": ""
+  },
+  "MK-ST-F-082": {
+   "name": "movementsOf",
+   "rule": "Sorts a household's records, for the accounts being measured, into money moving in or out, interest, and days shares were moved. Each record's date is its first ten characters; a missing or unreadable amount counts as zero. A deposit on a measured account is money in (plus its amount); a withdrawal on one is money out (minus its amount) — the sign comes from the kind of record, so a withdrawal written as a negative amount becomes money in. A transfer is money out of its first account when that account is measured, and money into its second account when that one is measured, so a transfer between two measured accounts appears as both. Shares moved (a transfer in kind): nothing when both accounts named are measured, or neither is, or when only one account is named and it is not measured. Otherwise it is money into or out of the measured account at what the shares were worth — the record's amount when above zero, else shares × price: in when they arrive in the measured account (or, with one account named, when the record says in), out when they leave (or the record says out). When the direction is neither in nor out, or the worth is not above zero, the day goes on the list of days shares were moved instead. Interest on a measured account that was not reinvested is interest (plus its amount). Every other kind of record is ignored.",
+   "read_from": "711173346f",
+   "sent_as": ""
   }
  },
  "pack_sent": {
