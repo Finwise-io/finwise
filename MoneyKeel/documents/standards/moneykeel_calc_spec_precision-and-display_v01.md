@@ -83,9 +83,9 @@ the section above still decides how it is shown. "Return on cost" on one holding
 question (am I ahead on what I paid) and keeps that name; it is never called "return" alone.
 
 What the app's record holds, and the four rules that follow from it:
-- **One value a day per account, taken after that day's money moved.** So the value just before a
-  movement is that day's value less the movement. Money that moved on a day with no recorded value
-  cannot be measured across: no figure.
+- **One value a day per account, taken after that day's money moved.** Since DEC-4439 (below) the
+  value just before a movement is the previous evening's value. Money that moved on a day with no
+  recorded value cannot be measured across: no figure.
 - **An account that joins the record inside the period counts as money in**, at its first recorded
   value. Nothing it was already worth is earned.
 - **A recorded day that is missing an account is not used.** A typed balance or a cash balance has no
@@ -95,6 +95,30 @@ What the app's record holds, and the four rules that follow from it:
 
 Shares moved in or out of the measured accounts: the record does not say what they were worth that
 day, so there is no figure across that day.
+
+### Money that moves on a day counts for that whole day (DEC-4439)
+
+**Owner decision, 2026-10-11 (DEC-4439):** *"approved."* Money that arrives on a day is counted as
+there for that whole day; money taken out is counted as gone for that whole day. Each recorded day is
+one link:
+
+> that day's growth = the evening value ÷ (the previous evening's value + money added that day − money taken out that day) − 1
+
+His three examples, held by `Calculation Module code/engines/__tests__/time-weighted-return.test.ts`:
+
+| Example | The day's link | Return that day |
+|---|---|---|
+| A new account opened with a $10,000 deposit, worth $10,050 that evening | 10,050 ÷ (0 + 10,000) − 1 | +0.50% (+$50) |
+| The same, worth $9,800 that evening | 9,800 ÷ (0 + 10,000) − 1 | −2.00% (−$200) |
+| Vanguard worth $50,000 the evening before, $10,000 added that morning, $60,300 that evening | 60,300 ÷ (50,000 + 10,000) − 1 | +0.50% (it read +0.60%) |
+
+Before: the money counted as arriving at the end of the day, so a first deposit into a new account
+could not be measured at all and a value below the money just added was refused. Both are now measured.
+"The previous evening" is the latest recorded day before it. Every kind of money moving — a deposit, a
+withdrawal, a transfer, an account joining or leaving the record, a change in a cash balance — is placed
+the same way, so the same money gives the same return whichever account it lands in. Still no figure
+when the previous evening's value + money added − money taken out is zero or less while that evening
+holds a value (nothing to grow from); every other refusal above stands.
 
 **Status on 2026-10-04: BUILT AND TESTED.** One function works out every return
 (`Calculation Module code/engines/time-weighted-return.ts`). MK-NW-O-008 thePerformance (Performance,

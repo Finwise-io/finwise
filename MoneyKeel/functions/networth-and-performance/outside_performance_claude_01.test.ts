@@ -31,7 +31,7 @@
  *   flows [[date, acct, amt]] → DatedAmount. Verdict words for whyNoReturn → the engine's refusal codes:
  *   "nothing invested" NOTHING_INVESTED, "money moved on a day with no recorded value" MOVEMENT_DAY_NOT_RECORDED,
  *   "shares moved" SHARES_MOVED, "value with nothing behind it" → the code the engine gives for that state
- *   (VALUE_BELOW_MONEY_ADDED), produced by running the engine on such a record.
+ *   (NOTHING_TO_GROW_FROM since DEC-4439, 2026-10-11; VALUE_BELOW_MONEY_ADDED before), produced by running the engine on such a record.
  *   isDay, closedWith, gainOfRow, heldValueOf, gainRowName and cannotWorkBackSentence are not exported: each is read
  *   out of its own source file and compiled as written — the app's own text, nothing re-typed.
  *   "shown" strings are screen formatting, not these functions' output, and are not asserted. A row list's
@@ -149,10 +149,13 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
       snapshotDays: days, investmentAccountIds: new Set([id]), accounts });
     expect(one('A').ending).toBeCloseTo(108912.37, 9);
     expect(one('B').ending).toBe(41600);
-    // the time-weighted return: by hand, 1.023 × (154,950 ÷ 152,300) × (150,512.37 ÷ 146,950) − 1
+    // the time-weighted return.
+    // MOVED 2026-10-11 by DEC-4439: 6.6031% → 5.9045%, hand-checked: 14 Aug 152,300 ÷ (100,000 + 50,000) = 1.0153333;
+    // 20 Sep 146,950 ÷ (152,300 − 8,000) = 1.0183645; today 150,512.37 ÷ 146,950 = 1.0242420; product − 1 = 5.9045%
+    // (before: 1.023 × (154,950 ÷ 152,300) × (150,512.37 ÷ 146,950) − 1, the money counted at the end of its day)
     expect(r.perYear).toBeNull();
-    expect(r.ret!).toBeCloseTo(1.023 * (154950 / 152300) * (150512.37 / 146950) - 1, 12);
-    expect(r.ret!).toBeCloseTo(0.066031, 6);
+    expect(r.ret!).toBeCloseTo((152300 / 150000) * (146950 / 144300) * (150512.37 / 146950) - 1, 12);
+    expect(r.ret!).toBeCloseTo(0.059045, 6);
   });
   // SETTLED BY DEC-0647 (Performance v17 approved in full, 2026-10-01): phone 1 is drawn with the Since chip chosen —
   // "SUMMARY · SINCE OCT 1, 2025", "Beginning market value (Oct 1)", and 1Y / 2Y greyed to —. So the judge's
@@ -225,8 +228,10 @@ describe('MK-ST-F-081 timeWeightedReturn — five cases', () => {
   test('easy · One deposit splits the period', () => {
     const v = timeWeightedReturn({ days: [tday('2026-07-09', { BRK: 10000 }, ['BRK']), tday('2026-08-14', { BRK: 15300 }, ['BRK']), tday('2026-10-10', { BRK: 16065 }, ['BRK'])] as any,
       accountIds: ids('BRK'), flows: [flow('2026-08-14', 'BRK', 5000)], start: '2026-07-09', end: TODAY });
-    expect(v.rate!).toBeCloseTo(1.03 * 1.05 - 1, 12);
-    expect(v.rate!).toBeCloseTo(0.0815, 4);
+    // MOVED 2026-10-11 by DEC-4439: 8.15% → 7.10%, hand-checked: 15,300 ÷ (10,000 + 5,000) = 1.02;
+    // × 16,065 ÷ 15,300 = 1.05 → 16,065 ÷ 15,000 − 1 = 7.10% (before: 1.03 × 1.05 − 1)
+    expect(v.rate!).toBeCloseTo(1.02 * 1.05 - 1, 12);
+    expect(v.rate!).toBeCloseTo(0.071, 4);
     expect(v.measuredFrom).toBe('2026-07-09');
   });
   test('complex · Four accounts: a typed balance, a cash account with interest, one joining mid-period, a withdrawal', () => {
@@ -243,8 +248,13 @@ describe('MK-ST-F-081 timeWeightedReturn — five cases', () => {
       interest: [flow('2026-07-31', 'CASH', 20), flow('2026-09-30', 'CASH', 25)],
       start: '2026-07-09', end: TODAY,
     });
-    expect(v.rate!).toBeCloseTo((91520 / 90000) * (101985 / 99520) * (101955 / 100985) - 1, 12);
-    expect(v.rate!).toBeCloseTo(0.052086, 6);
+    // MOVED 2026-10-11 by DEC-4439: 5.2086% → 5.5325%, hand-checked: money counts for the whole day it moves —
+    // 20 Aug: 99,520 ÷ (90,000 + 8,000 NEW joining + 0 cash in) = 1.0155102; 30 Sep: 100,985 ÷ (99,520 − 3,000 withdrawn
+    // + 2,000 cash in) = 1.0250203; today, IRA's last recorded day was 30 Sep so its $30,900 leaves: 71,055 ÷ (100,985
+    // − 30,900) = 1.0138403 → product − 1 = 5.5325%
+    // (before: 91,520 ÷ 90,000 × 101,985 ÷ 99,520 × 101,955 ÷ 100,985 − 1, the money counted at the end of its day)
+    expect(v.rate!).toBeCloseTo((99520 / 98000) * (100985 / 98520) * (71055 / 70085) - 1, 12);
+    expect(v.rate!).toBeCloseTo(0.055325, 6);
     expect(v.measuredFrom).toBe('2026-07-09');
   });
   test('complex · A deposit dated on a Saturday', () => {
@@ -431,7 +441,9 @@ describe('MK-NW-F-105 whyNoReturn — five cases', () => {
   test('edge · Value with nothing behind it', () => {
     const v = timeWeightedReturn({ days: [tday('2026-07-09', { BRK: 0 }, ['BRK']), tday('2026-08-14', { BRK: 5000 }, ['BRK']), tday('2026-10-10', { BRK: 5000 }, ['BRK'])] as any,
       accountIds: new Set(['BRK']), flows: [], start: '2026-07-09', end: TODAY });
-    expect([v.refused, v.day]).toEqual(['VALUE_BELOW_MONEY_ADDED', '2026-08-14']);
+    // RENAMED 2026-10-11 by DEC-4439: VALUE_BELOW_MONEY_ADDED → NOTHING_TO_GROW_FROM, hand-checked: the evening before
+    // holds $0 and $0 was added, so the day's link is 5,000 ÷ (0 + 0) — nothing to grow from; still refused, same day
+    expect([v.refused, v.day]).toEqual(['NOTHING_TO_GROW_FROM', '2026-08-14']);
     const s = whyNoReturn(v);
     expect(s).not.toBe(''); expect(s).toContain(dateShown('2026-08-14'));
     expect(s).not.toMatch(/less than the money added/);

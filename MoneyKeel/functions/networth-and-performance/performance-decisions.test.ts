@@ -219,9 +219,11 @@ describe('MK-PF-M-016 Return — one account, the window picked', () => {
     expect(quiet.ret).toBeCloseTo(2_000 / 30_000, 6);
     expect(quiet.sentence).toBe('');
     const paidIn = [{ id: 'd1', date: '2026-04-01', type: 'DEPOSIT', account_id: 'a1', amount: 6_000, created_at: 'x' }] as any;
-    // the day the $6,000 arrived is on record at $38,400, so $32,400 just before it
+    // the day the $6,000 arrived is on record at $38,400
     const measured = ask({ ending: 46_600, snapshotDays: [...days, recordDay('2026-04-01', 38_400, 'a1')] as any, investmentAccountIds: new Set(['a1']), transactions: paidIn });
-    expect(measured.ret).toBeCloseTo((32_400 / 30_000) * (46_600 / 38_400) - 1, 8);
+    // MOVED 2026-10-11 by DEC-4439: 31.06% → 29.44%, hand-checked: the $6,000 counts all of 1 Apr: 38,400 ÷ (30,000 +
+    // 6,000) = 1.0666667; × 46,600 ÷ 38,400 → 46,600 ÷ 36,000 − 1 = 29.4444% (before: 32,400 ÷ 30,000 × 46,600 ÷ 38,400 − 1)
+    expect(measured.ret).toBeCloseTo((38_400 / 36_000) * (46_600 / 38_400) - 1, 8);
     const unrecorded = ask({ ending: 46_600, snapshotDays: days, investmentAccountIds: new Set(['a1']), transactions: paidIn });
     expect(unrecorded.ret).toBeNull();                       // no figure …
     expect(unrecorded.sentence).toMatch(/no value was recorded that day/);  // … and it says why

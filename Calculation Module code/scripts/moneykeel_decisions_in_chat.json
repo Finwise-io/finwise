@@ -753,6 +753,24 @@
    "not_a_repeat_of": "DEC-4327 — that one asks the question when a property already exists; this one gives the door when none does.",
    "proof": "src/screens/__tests__/onboarding_rent_property_dec4327.test.tsx",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+  },
+  {
+   "decided": "2026-10-11",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "type": "CALCULATION",
+   "status": "RULED",
+   "screens": "/invest · /account-detail · /home · /networth",
+   "his_words": "approved.",
+   "subject": "In the time-weighted return, money that moves on a day counts for that whole day",
+   "plain": "The time-weighted return counts money that arrives on a day as there for that whole day, and money taken out as gone for that whole day: that day's growth is the evening value ÷ (the previous evening's value + money added − money taken out) − 1. A new account opened with $10,000 and worth $10,050 that evening returned +0.50% that day (+$50); worth $9,800, −2.00% (−$200). Vanguard worth $50,000, $10,000 added in the morning, $60,300 that evening: +0.50% (the $300 was earned on $60,000). Before: the money counted as arriving at the end of the day — the first deposit into a new account could not be measured at all, a value below the money just added was refused as a broken record, and the Vanguard day read +0.60%.",
+   "means": "Said in chat on 2026-10-11, approving my recommendation after he asked why a $10,000 first deposit worth $10,050 that evening showed no return. A refinement of how DEC-1669's time-weighted return splits at a movement; DEC-1669 stands.",
+   "governs": "MK-ST-F-081 timeWeightedReturn · MK-ST-F-082 movementsOf · MK-NW-F-105 whyNoReturn · MK-NW-O-008 thePerformance",
+   "changed": "timeWeightedReturn links each day as evening value ÷ (previous evening + net money moved that day); the 'value below money added' and 'nothing before it' refusals go.",
+   "apply_steps": "1. Change the day's link in timeWeightedReturn. 2. Remove the refusals that no longer apply and their whyNoReturn sentences. 3. Tests with the three examples. 4. Ruling note on Performance v17. 5. Changelog row. 6. Rebuild the OpenAI Net worth re-run brief so it carries the new formula.",
+   "not_a_repeat_of": "DEC-1669 — that one says every return is time-weighted; this one is how the time-weighted return treats a day money moved.",
+   "proof": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md"
   }
  ]
 }

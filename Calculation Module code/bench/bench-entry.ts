@@ -335,7 +335,7 @@ export const CARDS: Card[] = [
       const why: Record<string, string> = {
         START_NOT_RECORDED: 'no value is recorded for the start', END_NOT_RECORDED: 'no value is recorded for the end',
         MOVEMENT_HAS_NO_DATE: 'a movement has no date', MOVEMENT_DAY_NOT_RECORDED: `money moved on ${r.day ?? ''} and no value is recorded for that day`,
-        SHARES_MOVED: 'shares were moved in or out', VALUE_BELOW_MONEY_ADDED: `the value on ${r.day ?? ''} is less than the money added that day`,
+        SHARES_MOVED: 'shares were moved in or out', NOTHING_TO_GROW_FROM: `on ${r.day ?? ''} there was nothing to grow from: the evening before plus the money added, less the money taken out, is zero or less`, MOVEMENT_HAS_NO_AMOUNT: `a deposit or withdrawal on ${r.day ?? ''} has no amount`,
         NOTHING_INVESTED: 'nothing was invested',
       };
       return [

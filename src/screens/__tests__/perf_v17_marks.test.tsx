@@ -8,7 +8,12 @@
  *
  *  The household is the mock's own: $100,000 on the first day, $15,000 added half-way, $123,000
  *  today. The record shows it worth $104,000 just before the money arrived and $119,000 after, so the
- *  return is 1.04 × (123,000 ÷ 119,000) − 1 = +7.50% — and the $15,000 is not in it.
+ *  return is 1.04 × (123,000 ÷ 119,000) − 1 = +7.50% (before DEC-4439) — and the $15,000 is not in it.
+ *
+ *  MOVED 2026-10-11 by DEC-4439: +7.50% → +7.49%, hand-checked: the $15,000 now counts for the whole day it
+ *  arrived, so that day starts from the previous evening, $103,978.02 (100,000 + 4,000 × 181 ÷ 182), not from
+ *  $104,000: 103,978.02 ÷ 100,000 × 119,000 ÷ (103,978.02 + 15,000) × 123,000 ÷ 119,000 − 1 = 7.4929% → +7.49%.
+ *  Still not +23.00%, and the $15,000 is still not in it.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -58,12 +63,12 @@ beforeEach(() => {
     snapshotDays: DAYS, invDaily: INV_DAILY } as any);
 });
 
-test('Performance shows the time-weighted return, +7.50%, and the money added is not in it', () => {
+test('Performance shows the time-weighted return, +7.49%, and the money added is not in it', () => {
   renderScreen('PerformanceScreen');
   const lines = readable();
   const trio = lines.findIndex((l) => l === 'Return');
   expect(trio).toBeGreaterThan(-1);
-  expect(lines[trio + 1]).toBe('+7.50%');                             // not +23.00%, the balance change
+  expect(lines[trio + 1]).toBe('+7.49%');                             // not +23.00%, the balance change (MOVED by DEC-4439, see top)
   // MARK 18: the trio prints the PLAIN percent — no "/year" inside that cell
   expect(lines[trio + 1]).not.toMatch(/year/);
   expect(lines).toContain('time-weighted, so money you added never counts as return');
@@ -75,7 +80,7 @@ test('the chosen window speaks the same figure, and is not called a yearly rate'
   renderScreen('PerformanceScreen');
   const spoken = readable().find((l) => /^Show Since/.test(l));
   expect(spoken).toBeTruthy();
-  expect(spoken!).toMatch(/\+7\.50%$/);
+  expect(spoken!).toMatch(/\+7\.49%$/);                               // MOVED by DEC-4439: +7.50% → +7.49%, see top
 });
 
 test('the account page — the same figure, the same words', () => {
@@ -83,7 +88,7 @@ test('the account page — the same figure, the same words', () => {
   const lines = readable();
   const trio = lines.findIndex((l) => l === 'Return');
   expect(trio).toBeGreaterThan(-1);
-  expect(lines[trio + 1]).toBe('+7.50%');
+  expect(lines[trio + 1]).toBe('+7.49%');                             // MOVED by DEC-4439: +7.50% → +7.49%, see top
   expect(lines.some((l) => /not a yearly rate · time-weighted/.test(l))).toBe(true);
 });
 

@@ -71,8 +71,10 @@ test('THE RETURN ON CASH + INVESTMENTS IS TIME-WEIGHTED — money paid in is not
     uid: 'u', accounts: ACCOUNTS, debts: [], snapshotDays: days, since: '2026-01-02', today: '2026-09-28',
     transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 's1', amount: 10000, date: '2026-06-01' }],
   });
-  // piece 1: (68,000 − 10,000 paid in − 3,000 of pay) ÷ 51,000 · piece 2: 66,000 ÷ 68,000
-  expect(a.investableChangePct).toBeCloseTo((55000 / 51000) * (66000 / 68000) - 1, 10);
+  // MOVED 2026-10-11 by DEC-4439: 4.6713% → 3.1250%, hand-checked: the $10,000 paid in and the $3,000 of pay count all of
+  // 1 Jun: 68,000 ÷ (51,000 + 13,000) = 1.0625; then 66,000 ÷ 68,000 → 66,000 ÷ 64,000 − 1 = 3.125%
+  // (before: (68,000 − 10,000 − 3,000) ÷ 51,000 × 66,000 ÷ 68,000 − 1, the money counted at the end of its day)
+  expect(a.investableChangePct).toBeCloseTo((68000 / 64000) * (66000 / 68000) - 1, 10);
   // a balance change would have said (66,000 − 51,000) ÷ 51,000 = 29.4%
   expect(a.investableChangePct as number).toBeLessThan(0.05);
 });

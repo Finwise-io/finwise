@@ -209,7 +209,9 @@ describe('fillBetweenObservations', () => {
       flows: [{ date: '2026-03-02', accountId: 'linked', amount: 10_000 }] });
     expect(ask(record)).toMatchObject({ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: '2026-03-02' });   // before: no figure
     const v = ask(fillBetweenObservations(record, priceOn));
-    // 2 Mar: 61,000 + 2,100 = 63,100, of which 10,000 arrived that day → 53,100 on 52,000; then 64,520 on 63,100
-    expect(v.rate).toBeCloseTo((53_100 / 52_000) * (64_520 / 63_100) - 1, 12);
+    // MOVED 2026-10-11 by DEC-4439: 4.4134% → 4.0645%, hand-checked: 2 Mar the $10,000 counts all day, so
+    // 63,100 ÷ (52,000 + 10,000) = 1.0177419; then 64,520 ÷ 63,100 = 1.0225040; product 64,520 ÷ 62,000 − 1 = 4.0645%
+    // (before: 53,100 ÷ 52,000 × 64,520 ÷ 63,100 − 1, the money counted at the end of the day)
+    expect(v.rate).toBeCloseTo((63_100 / 62_000) * (64_520 / 63_100) - 1, 12);
   });
 });

@@ -461,12 +461,13 @@ export function whyNoReturn(v: TimeWeightedVerdict | null): string {
     case 'MOVEMENT_DAY_NOT_RECORDED': return `Money moved in or out on ${on} and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right.`;
     case 'MOVEMENT_HAS_NO_DATE': return 'A deposit or withdrawal in your records has no date, so a return cannot be measured. The dollar figures here are still right.';
     case 'SHARES_MOVED': return `Shares were moved in or out on ${on}, and your records do not say what they were worth that day, so a return cannot be measured across it. The dollar figures here are still right.`;
-    // TWO STATES SHARE THIS REFUSAL, and the words say which one is true (outside review Claude Performance,
-    // 2026-10-11, DEC-3523 tenet 1): a value LESS than the money added, or a value that appeared with no money
-    // added and nothing there the day before.
-    case 'VALUE_BELOW_MONEY_ADDED': return v.valueAboveMoneyAdded
-      ? `The value recorded on ${on} is more than the money added that day, and nothing was there before it, so a return cannot be measured across it. The dollar figures here are still right.`
-      : `The value recorded on ${on} is less than the money added that day, so a return cannot be measured across it. The dollar figures here are still right.`;
+    // NOTHING TO GROW FROM (DEC-4439, 2026-10-11): money now counts for its whole day, so a first deposit into
+    // a new account is measured and a value below the money just added is a loss, measured — their two old
+    // sentences went with the old refusal. What is left is the link with nothing under it (DEC-0316: refuse
+    // when the denominator is zero or less), and the words say which of its two states is true (DEC-3523 tenet 1).
+    case 'NOTHING_TO_GROW_FROM': return v.moreTakenOutThanThere
+      ? `More money was taken out on ${on} than was there the evening before plus the money added that day, so a return cannot be measured across it. The dollar figures here are still right.`
+      : `A value was recorded on ${on} with nothing there the evening before and no money added that day, so a return cannot be measured across it. The dollar figures here are still right.`;
     // a deposit or withdrawal whose amount is not on record: the dollars it moved are unknown too, so this
     // sentence does not say the dollar figures stand (outside review Claude Performance, 2026-10-11, DEC-3523)
     case 'MOVEMENT_HAS_NO_AMOUNT': return `A deposit or withdrawal on ${on} has no amount in your records, so a return cannot be measured across it.`;
@@ -635,7 +636,7 @@ export function thePerformance(input: {
     : days.some((d: any) => d?.date === today) ? days : closedWith(days, input.investmentAccountIds, today, ending);
 
   // AN ACCOUNT THAT JOINED THE RECORD INSIDE THE WINDOW ARRIVED AS MONEY PUT IN — at its first recorded
-  // value. The beginning does not hold it and the ending does, so until 2026-10-04 its whole value
+  // value, or at the money added to it that day when there was some (DEC-4439). The beginning does not hold it and the ending does, so until 2026-10-04 its whole value
   // landed in "change in investment value": adding an account by hand read as a gain. The return
   // already treats it as money in; the walk now says the same thing in dollars. Its own records up
   // to that day are inside that value, so they are not counted a second time.
@@ -647,7 +648,12 @@ export function thePerformance(input: {
       for (const [id, value] of accountValuesOn(d, (x) => input.investmentAccountIds.has(x))) {
         if (seen.has(id)) continue;
         seen.add(id);
-        if (String(d.date) > bounds.beginningAsOf) joined.set(id, { date: String(d.date), value });
+        if (String(d.date) <= bounds.beginningAsOf) continue;
+        // DEC-4439 (2026-10-11): one that first appears on a day money was added to it was worth $0 the evening
+        // before, so what arrived is that day's money and the rest is earned — the return reads it the same way
+        const added = movementsOf(ledger.filter((t: any) => String(t?.date ?? '').slice(0, 10) === String(d.date)), new Set([id]))
+          .flows.filter((f) => f.accountId === id).reduce((t, f) => t + f.amount, 0);
+        joined.set(id, { date: String(d.date), value: added > 0.005 ? added : value });
       }
     }
   }
@@ -1252,7 +1258,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     label: 'Return', unit: 'percent-signed', screens: ['/account-detail', '/invest'], grain: 'one account',
     answers: 'How much this one account grew over the window you picked, with money you added or took out left out. '
       + 'Shown per year when the window is longer than a year.',
-    formula: 'split the window at every day money moved in or out; each piece = the value just before the next movement \u00f7 the value just after the last one (the record holds one value a day, taken after that day\u2019s money moved, so just before = that day\u2019s value \u2212 the movement); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
+    formula: 'split the window at every day money moved in or out; each day\u2019s link = that evening\u2019s value \u00f7 (the previous evening\u2019s value + money added that day \u2212 money taken out that day) \u2014 money that moves on a day counts for that whole day (DEC-4439); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
     inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
     decisions: [
       'TWO DECIMALS AND ITS SIGN, always (Q49): +6.67%, \u22120.57% \u2014 never +6.7%, never a bare 6.67%.',
@@ -1260,7 +1266,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
       'WHERE IT CANNOT BE MEASURED IT SHOWS NO PERCENT, and never another method in its place.',
       'ONE METHOD WITH THE PORTFOLIO: the same door the Performance tab calls, asked for this one account.',
     ],
-    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.',
+    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or there was nothing to grow from that day (the previous evening plus the money moved is zero or less while the day holds a value). It never shows another kind of figure in its place.',
     ruled: '2026-10-04',
     // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
     worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },
@@ -1272,15 +1278,15 @@ export const PERFORMANCE_FIGURES = declareFigures({
     label: 'Return', unit: 'percent-signed', screens: ['/invest'], grain: 'every account together',
     answers: 'How much all your investments grew over the window you picked, with money you added or took out left out. '
       + 'Per year when the window is longer than a year.',
-    formula: 'over every investment account together: split the window at every day money moved in or out; each piece = the value just before the next movement \u00f7 the value just after the last one (the record holds one value a day, taken after that day\u2019s money moved, so just before = that day\u2019s value \u2212 the movement); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
+    formula: 'over every investment account together: split the window at every day money moved in or out; each day\u2019s link = that evening\u2019s value \u00f7 (the previous evening\u2019s value + money added that day \u2212 money taken out that day) \u2014 money that moves on a day counts for that whole day (DEC-4439); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
     inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
     decisions: [
       'TWO DECIMALS AND ITS SIGN, always (Q49).',
       'EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669). Where it cannot be measured it shows no percent, and never another method in its place.',
-      'AN ACCOUNT THAT JOINS THE RECORD inside the window counts as money in, at its first recorded value \u2014 nothing it was already worth is earned.',
+      'AN ACCOUNT THAT JOINS THE RECORD inside the window counts as money in, at its first recorded value \u2014 nothing it was already worth is earned; when money was added to it that day, that money is what arrived and it was worth $0 the evening before (DEC-4439).',
       'THE SAME DOOR AS ONE ACCOUNT\u2019S RETURN (MK-PF-M-016), asked for every account at once \u2014 one method, never two.',
     ],
-    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.',
+    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or there was nothing to grow from that day (the previous evening plus the money moved is zero or less while the day holds a value). It never shows another kind of figure in its place.',
     ruled: '2026-10-04',
     // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
     worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },

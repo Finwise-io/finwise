@@ -655,11 +655,14 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     expect({ beginning_inferred: f.walk!.beginning, wealth_generated: f.walk!.wealthGenerated, beginning_read_from_record: f.measured }).toEqual({ beginning_inferred: 9000, wealth_generated: 1000, beginning_read_from_record: null });
     refuses(f.ret); refuses(f.cumulative);
   });
-  test('edge · Cash value less than deposit refuses return', () => {
+  test('edge · Cash value less than deposit: measured as a loss that day (DEC-4439; it refused before)', () => {
     const f = thePerformance({ windowStart: '2026-10-01', windowLabel: 'this month', today: '2026-10-09', pricedGain: 0,
       snapshotDays: [recorded('2026-09-30', [linkedAt('v', 100)]), recorded('2026-10-01', [linkedAt('v', 500)])],
       transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'v', amount: 600, date: '2026-10-01' }], investmentAccountIds: new Set(['v']), accounts: [linkedAt('v', 700)] });
-    refuses(f.ret);
-    expect(f.sentence).toBe('The value recorded on Oct 1, 2026 is less than the money added that day, so a return cannot be measured across it. The dollar figures here are still right.');
+    // MOVED 2026-10-11 by DEC-4439: refused ("…is less than the money added that day…") → measured 0.00%, hand-checked:
+    // 1 Oct 500 ÷ (100 + 600) = 0.7142857; today 700 ÷ 500 = 1.4; product 1.0 − 1 = 0.00%. A value below the money just
+    // added is a loss that day, measured, and no sentence is shown.
+    expect(f.ret!).toBeCloseTo((500 / 700) * (700 / 500) - 1, 12);
+    expect(f.sentence).toBe('');
   });
 });

@@ -684,7 +684,11 @@ describe('MK-NW-O-003 theNetWorth — five cases', () => {
       // RULE UNCLEAR (which total "Monthly debt payments" prints): the app hands out BOTH — reading A as monthlyDebtPayments, reading B as monthlyDebtMinimum
       monthly_debt_payments: near(4910.17), monthly_debt_minimum: near(4612.72),
       mortgage_check: { properties: 2, mortgages: 2, Home: 'Home mortgage', 'Rental condo': 'Rental condo mortgage', mortgages_on_no_property: [] },
-      return_on_cash_and_investments: expect.closeTo(0.1150448, 4),
+      // MOVED 2026-10-11 by DEC-4439: 11.5045% → 10.9092%, hand-checked: totals 290,000 · 362,450.18 · 346,118.04 · today
+      // 361,407.33; the $60,000 counts all of 16 Mar and the $25,000 out all of 1 Jul: 362,450.18 ÷ (290,000 + 60,000) ×
+      // 346,118.04 ÷ (362,450.18 − 25,000) × 361,407.33 ÷ 346,118.04 − 1 = 10.9092%
+      // (before: (362,450.18 − 60,000) ÷ 290,000 × (346,118.04 + 25,000) ÷ 362,450.18 × 361,407.33 ÷ 346,118.04 − 1)
+      return_on_cash_and_investments: expect.closeTo(0.1090920, 4),
     });
   });
   test('edge · Nothing entered at all', () => {
@@ -716,7 +720,9 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
       transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'f', amount: 20000, date: '2026-08-15' }], investmentAccountIds: new Set(['f']), accounts: [linkedAt('f', 132600)] });
     const w = f.walk!;
     expect({ return: f.ret, wealth_generated: w.wealthGenerated, walk: [w.beginning, w.contributions, w.withdrawals, w.dividends, w.interest, w.marketChange], ending: w.ending })
-      .toEqual({ return: expect.closeTo(0.122, 4), wealth_generated: near(12600), walk: [100000, 20000, 0, 0, 0, 12600].map(near), ending: near(132600) });
+      // MOVED 2026-10-11 by DEC-4439: 12.20% → 10.50%, hand-checked: the $20,000 counts all of 15 Aug: 130,000 ÷ (100,000 +
+      // 20,000) × 132,600 ÷ 130,000 − 1 = 132,600 ÷ 120,000 − 1 = 10.50% (before: 110,000 ÷ 100,000 × 1.02 − 1 = 12.20%)
+      .toEqual({ return: expect.closeTo(0.105, 4), wealth_generated: near(12600), walk: [100000, 20000, 0, 0, 0, 12600].map(near), ending: near(132600) });
   });
   test('complex · Approved drawing: Performance v17, phone 1 — exactly as drawn', () => {
     // INPUT MAPPING: the drawing gives no day for the $15,000, the dividends or the interest; they are placed on
@@ -761,9 +767,13 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     expect({ beginning: w.beginning, ending: w.ending, per_account_endings: accounts.map((a) => a.balance),
       walk: [w.beginning, w.contributions, -w.withdrawals, w.dividends, w.interest, w.marketChange], wealth_generated: w.wealthGenerated, return_total: f.cumulative })
       .toEqual({ beginning: near(278760), ending: near(437215.52), per_account_endings: [near(291402.07), near(145813.45)],
-        walk: [278760, 101920, -18275.4, 7842.3, 1216.85, 65751.77].map(near), wealth_generated: near(74810.92), return_total: expect.closeTo(0.20268434, 4) });   // its walk prints withdrawals with their minus sign
-    // RULE UNCLEAR (which day the years are counted from): the app counts from the beginning day, 731 days — reading B, +9.65%
-    expect(f.ret).toBeCloseTo(0.09653123, 6);
+        walk: [278760, 101920, -18275.4, 7842.3, 1216.85, 65751.77].map(near), wealth_generated: near(74810.92), return_total: expect.closeTo(0.19787363, 4) });   // its walk prints withdrawals with their minus sign
+    // MOVED 2026-10-11 by DEC-4439: total 20.2684% → 19.7874%, yearly 9.6531% → 9.4339%, hand-checked: each day's money counts
+    // all that day — 302,118.9 ÷ (278,760 + 40,000) = 0.9477943 · 310,000 ÷ 302,118.9 (the transfer between the two nets to 0)
+    // · 400,824.17 ÷ (310,000 + 61,920) = 1.0777161 · 403,384.62 ÷ (400,824.17 − 18,275.4) = 1.0544659 · 437,215.52 ÷ 403,384.62
+    // = 1.0838676 → product − 1 = 19.7874%; (1.197874)^(365 ÷ 731) − 1 = 9.4339%
+    // RULE UNCLEAR (which day the years are counted from): the app counts from the beginning day, 731 days — reading B
+    expect(f.ret).toBeCloseTo(0.09433898, 6);
   });
   test('edge · A window that reaches back further than the record', () => {
     const f = thePerformance({ windowStart: '2025-10-07', windowLabel: 'past year', today: '2026-10-07', pricedGain: 5130.25,

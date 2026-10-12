@@ -3,24 +3,47 @@
 // OWNER DECISION, 2026-10-04 (DEC-1669): "All return should be True Weighted Return and not Dietz
 // return." Not a Modified Dietz return, not a money-weighted return, and not a change in balance.
 //
-// WHAT IT IS. Split the period every time money moves in or out. For each piece, divide the value
-// just before the next movement by the value just after the last one. Multiply the pieces and take
-// 1 off. Money added is never counted as earned, however large it is and whenever it arrived.
+// WHAT IT IS. Split the period at every day money moves in or out. Each recorded day is one link:
+// that evening's value ÷ (the previous evening's value + money added that day − money taken out that
+// day). Multiply the links and take 1 off. Money added is never counted as earned, however large it
+// is and whenever it arrived.
 //
-// WHAT THE RECORD HOLDS, and it decides the arithmetic: ONE value a day per account, taken AFTER
-// that day's money has moved. So the value just before a movement is that day's value less the
-// movement — and a movement on a day with no recorded value cannot be measured across at all.
+// MONEY THAT MOVES ON A DAY COUNTS FOR THAT WHOLE DAY (DEC-4439, his word "approved.", 2026-10-11).
+// Money that arrives on a day is counted as there all that day, and money taken out as gone all that
+// day. His three examples, held in the tests:
+//   · a new account opened with a $10,000 deposit, worth $10,050 that evening: +0.50% (+$50);
+//   · the same, worth $9,800 that evening: −2.00% (−$200);
+//   · Vanguard worth $50,000 the evening before, $10,000 added that morning, $60,300 that evening:
+//     60,300 ÷ 60,000 − 1 = +0.50%.
+// Before 2026-10-11 the money counted as arriving at the END of the day (the value just before it was
+// that day's value less the money): the Vanguard day read +0.60%, a first deposit into a new account
+// could not be measured at all, and a value below the money just added was refused as a broken record.
+//
+// WHAT THE RECORD HOLDS: ONE value a day per account, taken after that day's money has moved. "The
+// previous evening" is the latest recorded day before it — between two recorded days nothing was seen,
+// so money that moved is counted from the last value the record holds. Every kind of money moving is
+// placed the same way: a dated deposit, withdrawal or transfer, an account joining or leaving the
+// record (rule 1), a change in a cash balance (rule 3) — each counts for the whole of the day the
+// record places it on, so the same money gives the same return whichever account it lands in. A
+// movement on a day with no recorded value cannot be measured across at all.
 //
 // IT REFUSES RATHER THAN GUESS. No figure when:
 //   · no day at or before the start holds every account being measured;
 //   · money moved on a day the record holds no value for;
-//   · shares were moved in or out (the record does not say what they were worth that day);
-//   · the value on a day is less than the money added that day (the record contradicts itself).
+//   · shares were moved in or out and the record does not say what they were worth that day;
+//   · a deposit or withdrawal has no amount on record;
+//   · the previous evening's value + money added − money taken out is zero or less while that
+//     evening's value is not — nothing to grow from: a value that appeared with nothing there the
+//     evening before and no money added, or more taken out than was there (DEC-0316: refuse when the
+//     denominator is zero or less).
 // It never falls back to another method. "No answer" is the honest answer.
 //
 // THREE RULES THAT COME FROM THE RECORD, each written where it is applied below:
-//   1. AN ACCOUNT THAT JOINS THE RECORD inside the period arrives as money in, at its first recorded
-//      value — it was not being measured before, so nothing it was already worth is "earned".
+//   1. AN ACCOUNT THAT JOINS THE RECORD inside the period arrives as money in. When money was added to
+//      it on the day it first appears, it was worth $0 the evening before and that money is what arrives
+//      (DEC-4439: a new account opened with $10,000, worth $10,050 that evening, is +0.50% that day).
+//      With no money added that day it arrives at its first recorded value — it was not being measured
+//      before, so nothing it was already worth is "earned", and its first day reads 0% for it.
 //   2. A DAY THAT IS MISSING AN ACCOUNT IS NOT USED. A rebuilt day holds linked accounts only; a
 //      hand-entered account with holdings has no value that day, so the day cannot speak for the
 //      total. A typed balance or a cash balance has no price, so its last recorded value stands
@@ -54,9 +77,14 @@ export interface TimeWeightedInput {
   end: string;
 }
 
-export type TimeWeightedRefusal =
-  | 'START_NOT_RECORDED' | 'END_NOT_RECORDED' | 'MOVEMENT_HAS_NO_DATE' | 'MOVEMENT_DAY_NOT_RECORDED'
-  | 'SHARES_MOVED' | 'MOVEMENT_HAS_NO_AMOUNT' | 'VALUE_BELOW_MONEY_ADDED' | 'NOTHING_INVESTED';
+/** Every reason the return can refuse, in one list, so a test can hold each to a sentence (MK-NW-F-105).
+ *  VALUE_BELOW_MONEY_ADDED went on 2026-10-11 (DEC-4439): with money counted for its whole day, a value
+ *  below the money just added is a loss, measured, and a first deposit into a new account is measured. */
+export const TIME_WEIGHTED_REFUSALS = [
+  'START_NOT_RECORDED', 'END_NOT_RECORDED', 'MOVEMENT_HAS_NO_DATE', 'MOVEMENT_DAY_NOT_RECORDED',
+  'SHARES_MOVED', 'MOVEMENT_HAS_NO_AMOUNT', 'NOTHING_TO_GROW_FROM', 'NOTHING_INVESTED',
+] as const;
+export type TimeWeightedRefusal = typeof TIME_WEIGHTED_REFUSALS[number];
 
 export interface TimeWeightedVerdict {
   /** The return as a share (0.1097 = 10.97%), at full precision — or null when it is refused. */
@@ -67,9 +95,10 @@ export interface TimeWeightedVerdict {
   /** The day the measured period really starts: the recorded day at or before the start, or the
    *  first day there was money when it started with none. Null when refused. */
   measuredFrom: string | null;
-  /** VALUE_BELOW_MONEY_ADDED only: true where the value that day was MORE than the money added — value
-   *  with nothing behind it — so the sentence can say which (outside review Claude Performance, 2026-10-11). */
-  valueAboveMoneyAdded?: boolean;
+  /** NOTHING_TO_GROW_FROM only: true where more money was taken out that day than the previous evening's
+   *  value plus the money added; absent where a value appeared with nothing there and no money added —
+   *  so the sentence can say which (outside review Claude Performance, 2026-10-11; DEC-4439). */
+  moreTakenOutThanThere?: boolean;
 }
 
 /** Whether a value is a calendar day written as year-month-day. */
@@ -141,7 +170,7 @@ const SAME = 0.005;
  *     · Uses a built-in total of 0.
  *     · Uses a built-in growth of 1.
  *     · Uses a built-in money in of 0.
- *     · Never lets before fall below 0.
+ *     · Never lets total fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-081
  * Changed ..... not in git yet (—)
@@ -202,10 +231,17 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
     if (d.date <= begin.date) continue;
     const now = poolOn(d.date);
     if (!now) continue;                                // rule 2: a day missing an account is not used
-    let moneyIn = 0;
+    let moneyIn = 0;                                   // money added (+) or taken out (−) that day, every kind
     for (const id of new Set([...prev.values.keys(), ...now.values.keys()])) {
       const was = prev.values.get(id), is = now.values.get(id);
-      if (was == null) { moneyIn += is as number; continue; }          // rule 1: it joined the record
+      if (was == null) {                                                // rule 1: it joined the record
+        // DEC-4439: one that first appears on a day money was added to it was worth $0 the evening before, and
+        // that day's money is its base — a new account opened with $10,000 and worth $10,050 that evening is +0.50%.
+        // One that first appears with no money added that day joins at its first value: nothing to measure.
+        const added = cash.has(id) ? 0 : (a.flows ?? []).filter((f) => f.accountId === id && f.date === now.date).reduce((t, f) => t + f.amount, 0);
+        moneyIn += added > SAME ? added : (is as number);
+        continue;
+      }
       if (is == null) { moneyIn -= was; continue; }                     // it left: its last value went
       if (cash.has(id)) {                                               // rule 3: cash earns only interest
         const earned = (a.interest ?? []).filter((x) => x.accountId === id && x.date > prev.date && x.date <= now.date).reduce((t, x) => t + x.amount, 0);
@@ -218,17 +254,17 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
         moneyIn += f.amount;
       }
     }
-    const before = now.total - moneyIn;                // the value just before that day's money moved
-    if (prev.total > SAME) {
-      if (before < -SAME) return refuse('VALUE_BELOW_MONEY_ADDED', now.date);
-      growth *= Math.max(0, before) / prev.total;
-      measuredFrom = measuredFrom ?? prev.date;
-    } else if (Math.abs(before) > SAME) {
-      // value with nothing behind it and no money recorded as arriving: the record contradicts itself.
-      // Which way it contradicts itself is said, so the sentence is true (outside review Claude Performance, 2026-10-11)
-      return { ...refuse('VALUE_BELOW_MONEY_ADDED', now.date), ...(before > 0 ? { valueAboveMoneyAdded: true } : {}) };
+    // DEC-4439, the day's link: evening value ÷ (previous evening + money added − money taken out that day) − 1
+    const base = prev.total + moneyIn;                 // what the day started with, its money already in
+    if (base > SAME) {
+      growth *= Math.max(0, now.total) / base;
+      measuredFrom = measuredFrom ?? (prev.total > SAME ? prev.date : now.date);   // started with nothing: the first money's day
+    } else if (base < -SAME || Math.abs(now.total) > SAME) {
+      // nothing to grow from and yet a value, or more taken out than there was: the record contradicts
+      // itself, and which way is said so the sentence is true (DEC-0316: refuse when the denominator ≤ 0)
+      return { ...refuse('NOTHING_TO_GROW_FROM', now.date), ...(base < -SAME ? { moreTakenOutThanThere: true } : {}) };
     }
-    // a piece that starts with nothing measures nothing: the period starts at the first money in
+    // a link that starts with nothing and ends with nothing measures nothing: the period starts at the first money in
     prev = now;
   }
   if (measuredFrom == null) return refuse('NOTHING_INVESTED');

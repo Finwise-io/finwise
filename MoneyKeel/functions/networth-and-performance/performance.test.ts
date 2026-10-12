@@ -3,7 +3,8 @@
  *
  *  Four rulings live in this door, and each was paid for once. These are their laws.
  */
-import { thePerformance, windowStartKey } from './performance';
+import { thePerformance, windowStartKey, whyNoReturn } from './performance';
+import { TIME_WEIGHTED_REFUSALS } from '../../../Calculation Module code/engines/time-weighted-return';
 
 const day = (date: string, value: number) => ({
   date, origin: 'observed' as const, writtenAt: `${date}T12:00:00.000Z`,
@@ -159,11 +160,13 @@ describe('the return is time-weighted — and nothing stands in for it', () => {
     snapshotDays: days as any, investmentAccountIds: new Set(['a1']),
   });
 
-  test('money paid in is never counted as earned: $100,000 → $108,000, +$15,000 in, → $129,150 is +13.40%', () => {
-    // worth $123,000 at the close of the day the $15,000 arrived, so $108,000 just before it
+  test('money paid in is never counted as earned: $100,000, +$15,000 in, $123,000 that evening, → $129,150 is +12.30%', () => {
+    // MOVED 2026-10-11 by DEC-4439: 13.40% → 12.30%, hand-checked: the $15,000 counts all of 1 Apr, so
+    // 123,000 ÷ (100,000 + 15,000) = 1.0695652; × 129,150 ÷ 123,000 = 1.05 → 129,150 ÷ 115,000 − 1 = 12.3043%
+    // (before: 108,000 ÷ 100,000 × 1.05 − 1 = 13.40%, the $15,000 counted at the close of its day). Still not +29.15%.
     const a = ask([day('2025-10-01', 100_000), day('2026-04-01', 123_000)], 129_150, dep(15_000, '2026-04-01'));
-    expect(a.ret).toBeCloseTo((108_000 / 100_000) * (129_150 / 123_000) - 1, 10);   // 1.08 × 1.05 − 1
-    expect(a.ret).toBeCloseTo(0.134, 10);
+    expect(a.ret).toBeCloseTo((123_000 / 115_000) * (129_150 / 123_000) - 1, 10);
+    expect(a.ret).toBeCloseTo(129_150 / 115_000 - 1, 10);
     expect(a.sentence).toBe('');
     expect('refusedRate' in a).toBe(false);            // the stand-in rate does not exist any more
   });
@@ -219,7 +222,9 @@ describe('the walk counts what the return counts as money put in', () => {
       transactions: [{ id: 't', type: 'TRANSFER', account_id: 'checking', counter_account_id: 'b', amount: 15_000, date: '2026-04-01' }] });
     expect(a.walk!.contributions).toBe(15_000);                       // it read $0, and the $15,000 sat in "change in investment value"
     expect(a.walk!.wealthGenerated).toBeCloseTo(11_000, 6);           // 126,000 − 100,000 − 15,000
-    expect(a.ret).toBeCloseTo((105_000 / 100_000) * (126_000 / 120_000) - 1, 10);   // +10.25%, and the walk agrees it was not +26%
+    // MOVED 2026-10-11 by DEC-4439: 10.25% → 9.57%, hand-checked: the $15,000 counts all of 1 Apr: 120,000 ÷ 115,000 ×
+    // 126,000 ÷ 120,000 − 1 = 126,000 ÷ 115,000 − 1 = 9.5652% (before: 105,000 ÷ 100,000 × 1.05 − 1); still not +26%
+    expect(a.ret).toBeCloseTo((120_000 / 115_000) * (126_000 / 120_000) - 1, 10);
   });
 
   test('cash transferred out is money taken out; between two measured accounts it is neither', () => {
@@ -235,6 +240,21 @@ describe('the walk counts what the return counts as money put in', () => {
     expect(between.ret).toBeCloseTo(0, 10);
   });
 
+  test('DEC-4439: an account first on record the day $10,000 was added to it, worth $10,050, made $50 — return +0.50%', () => {
+    const a = thePerformance({ ...base, windowStart: '2026-10-10', today: '2026-10-10', ending: 10_050, investmentAccountIds: new Set(['n']), accounts: [acct('n', 10_050)],
+      snapshotDays: [day('2026-10-10', [['n', 10_050]])] as any,
+      transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'n', amount: 10_000, date: '2026-10-10' }] });
+    // the window opens the day it was opened: nothing before it, so this asks the record from the day before
+    const b = thePerformance({ ...base, windowStart: '2026-10-10', today: '2026-10-10', ending: 60_050, investmentAccountIds: new Set(['n', 'b']),
+      accounts: [acct('n', 10_050), acct('b', 50_000)],
+      snapshotDays: [day('2026-10-09', [['b', 50_000]]), day('2026-10-10', [['b', 50_000], ['n', 10_050]])] as any,
+      transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'n', amount: 10_000, date: '2026-10-10' }] });
+    expect(b.walk!.contributions).toBe(10_000);                       // the money added, not its $10,050 evening value
+    expect(b.walk!.wealthGenerated).toBeCloseTo(50, 6);               // 60,050 − 50,000 − 10,000
+    expect(b.ret).toBeCloseTo(60_050 / 60_000 - 1, 10);               // 60,050 ÷ (50,000 + 10,000) − 1
+    expect(a.ending).toBe(10_050);
+  });
+
   test('an account added inside the window arrives as money put in, at its first recorded value', () => {
     const a = thePerformance({ ...base, ending: 110_000 + 52_000, investmentAccountIds: new Set(['b', 'c']), accounts: [acct('b', 110_000), acct('c', 52_000)],
       snapshotDays: [day('2026-01-01', [['b', 100_000]]), day('2026-06-01', [['b', 105_000], ['c', 50_000]])] as any,
@@ -243,6 +263,31 @@ describe('the walk counts what the return counts as money put in', () => {
     expect(a.walk!.beginning).toBe(100_000);
     expect(a.walk!.contributions).toBe(50_000);                       // it read as a $50,000 gain
     expect(a.walk!.wealthGenerated).toBeCloseTo(12_000, 6);           // b made $10,000, c made $2,000
-    expect(a.ret).toBeCloseTo(1.05 * (162_000 / 155_000) - 1, 10);
+    // MOVED 2026-10-11 by DEC-4439: 9.74% → 8.00%, hand-checked: c's $50,000 counts all of 1 Jun: 155,000 ÷ (100,000 +
+    // 50,000) = 1.0333333; × 162,000 ÷ 155,000 → 162,000 ÷ 150,000 − 1 = 8.00% (before: 1.05 × 162,000 ÷ 155,000 − 1)
+    expect(a.ret).toBeCloseTo((155_000 / 150_000) * (162_000 / 155_000) - 1, 10);
+  });
+});
+
+/** EVERY REFUSAL HAS A SENTENCE (MK-NW-F-105, kept through DEC-4439, 2026-10-11). The list is the engine's own, so a
+ *  refusal added there without words here fails. START_NOT_RECORDED is the one the screens word themselves: they draw
+ *  no walk and say where the record begins (DEC-3035i), so whyNoReturn stays silent for it. */
+describe('whyNoReturn — a sentence for every refusal the time-weighted return can give', () => {
+  test('the engine lists eight refusals, and the two DEC-4439 removed are gone', () => {
+    expect(TIME_WEIGHTED_REFUSALS.length).toBe(8);
+    expect(TIME_WEIGHTED_REFUSALS as readonly string[]).not.toContain('VALUE_BELOW_MONEY_ADDED');
+  });
+  test.each(TIME_WEIGHTED_REFUSALS.filter((r) => r !== 'START_NOT_RECORDED'))('%s has a sentence', (refused) => {
+    expect(whyNoReturn({ rate: null, refused, day: '2026-08-14', measuredFrom: null })).not.toBe('');
+  });
+  test('nothing to grow from says which of its two states is true', () => {
+    const v = { rate: null, refused: 'NOTHING_TO_GROW_FROM' as const, day: '2026-08-14', measuredFrom: null };
+    expect(whyNoReturn(v)).toBe('A value was recorded on Aug 14, 2026 with nothing there the evening before and no money added that day, so a return cannot be measured across it. The dollar figures here are still right.');
+    expect(whyNoReturn({ ...v, moreTakenOutThanThere: true })).toBe('More money was taken out on Aug 14, 2026 than was there the evening before plus the money added that day, so a return cannot be measured across it. The dollar figures here are still right.');
+  });
+  test('the sentences of the removed refusals are gone (DEC-4439)', () => {
+    const src = require('fs').readFileSync(require('path').join(__dirname, 'performance.ts'), 'utf8');
+    expect(src).not.toMatch(/is less than the money added that day/);
+    expect(src).not.toMatch(/is more than the money added that day, and nothing was there before it/);
   });
 });

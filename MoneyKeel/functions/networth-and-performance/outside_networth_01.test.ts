@@ -245,17 +245,25 @@ describe('MK-NW-O-003 theNetWorth — five cases', () => {
     // $200,000 on 2025-10-04; $212,400 just before a $60,000 deposit on 2026-04-15; $284,630 on 2026-10-04
     for (const where of ['paid into the brokerage', 'paid into savings'] as const) {
       const intoBrokerage = where === 'paid into the brokerage';
-      const n = theNetWorth({
+      const ask = (eveningBefore: boolean) => theNetWorth({
         uid: 'u', debts: [], since: '2025-10-04', today: '2026-10-04',
         accounts: intoBrokerage ? household(264630, 20000) : household(204630, 80000),
         snapshotDays: [recordedDay('2025-10-04', 180000, 20000),
+          // DEC-4439 (2026-10-11): "just before" the deposit is the previous evening, so the $212,400 is written on it
+          ...(eveningBefore ? [recordedDay('2026-04-14', 192400, 20000)] : []),
           intoBrokerage ? recordedDay('2026-04-15', 252400, 20000) : recordedDay('2026-04-15', 192400, 80000)],
         // the inheritance is a recorded deposit when it lands in the brokerage; in savings, the balance itself shows it
         transactions: intoBrokerage ? [{ id: 'd', type: 'DEPOSIT', account_id: 'b', amount: 60000, date: '2026-04-15' }] : [],
       });
+      const n = ask(true);
       expect(n.investable).toBeCloseTo(284630, 4);
+      // 212,400 ÷ 200,000 = 1.062 · 272,400 ÷ (212,400 + 60,000) = 1 · 284,630 ÷ 272,400 = 1.0448972
       expect(n.investableChangePct).toBeCloseTo(0.109681, 6);              // its figure: 1.062000 × 1.0448972 − 1
       expect(n.investableChangePct).not.toBeCloseTo(0.42315, 3);           // what the formula as sent gave
+      // MOVED 2026-10-11 by DEC-4439: with no evening recorded before the deposit (the record as the case first gave it):
+      // 10.97% → 9.47%, hand-checked: 272,400 ÷ (200,000 + 60,000) × 284,630 ÷ 272,400 − 1 = 284,630 ÷ 260,000 − 1 = 9.4731%
+      // — the same wherever the $60,000 lands (before: 212,400 ÷ 200,000 × 284,630 ÷ 272,400 − 1)
+      expect(ask(false).investableChangePct).toBeCloseTo(284630 / 260000 - 1, 9);
     }
   });
 

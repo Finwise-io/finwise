@@ -242,7 +242,9 @@ describe('MK-NW-O-003 theNetWorth — its five cases', () => {
     const days = [recordedDay('2026-09-05', [['b', 10000]]), recordedDay('2026-09-15', [['b', 11000]]), recordedDay('2026-10-05', [['b', 11550]])];
     const n = theNetWorth({ uid: 'u', accounts: [acct({ asset_id: 'b', kind: 'brokerage', asset_class: 'stocks_etf', balance: 11550 })], debts: [],
       snapshotDays: days, transactions: [{ id: 'd', account_id: 'b', type: 'DEPOSIT', amount: 500, date: '2026-09-15' }], since: '2026-09-05', today: '2026-10-05' } as any);
-    expect(n.investableChangePct).toBeCloseTo(0.1025, 9);                  // 1.05 × 1.05 − 1
+    // MOVED 2026-10-11 by DEC-4439: 10.25% → 10.00%, hand-checked: the $500 counts all of 15 Sep, so 11,000 ÷ (10,000
+    // + 500) = 1.0476190; × 11,550 ÷ 11,000 = 1.05 → 11,550 ÷ 10,500 − 1 = 10.00% (before: 1.05 × 1.05 − 1, the $500 at day's end)
+    expect(n.investableChangePct).toBeCloseTo(11550 / 10500 - 1, 9);
   });
   test('edge · nothing entered', () => {
     const n = theNetWorth({ uid: 'u', accounts: [], debts: [] });
